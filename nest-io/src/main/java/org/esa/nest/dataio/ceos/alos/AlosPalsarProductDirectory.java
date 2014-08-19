@@ -486,7 +486,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
     }
 
     private void addMetaData(final Product product) throws IOException {
-        final MetadataElement root = AbstractMetadata.addOriginalProductMetadata(product);
+        final MetadataElement root = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot());
 
         if (leaderFile != null) {
             final MetadataElement leadMetadata = new MetadataElement("Leader");

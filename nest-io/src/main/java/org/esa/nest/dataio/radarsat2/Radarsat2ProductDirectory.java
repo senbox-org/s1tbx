@@ -87,7 +87,6 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final int width = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
         final int height = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
-        setSceneWidthHeight(width, height);
 
         final Set<String> keys = bandImageFileMap.keySet();                           // The set of keys in the map.
         for (String key : keys) {
@@ -138,10 +137,10 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     }
 
     @Override
-    protected void addAbstractedMetadataHeader(final Product product, final MetadataElement root) throws IOException {
+    protected void addAbstractedMetadataHeader(final MetadataElement root) throws IOException {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
-        final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(product);
+        final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(root);
 
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
@@ -230,8 +229,6 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
-        product.setStartTime(startTime);
-        product.setEndTime(stopTime);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
                 sarProcessingInformation.getAttributeInt("numberOfRangeLooks", defInt));

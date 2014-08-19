@@ -46,6 +46,7 @@ import java.util.*;
  */
 public class TerraSarXProductDirectory extends XMLProductDirectory {
 
+    private final File headerFile;
     private String productName = "TerraSar-X";
     private String productType = "TerraSar-X";
     private String productDescription = "";
@@ -55,24 +56,31 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     private final float[] slantRangeCorners = new float[4];
     private final float[] incidenceCorners = new float[4];
 
-    private final List<File> cosarFileList = new ArrayList<File>(1);
-    private final Map<String, ImageInputStream> cosarBandMap = new HashMap<String, ImageInputStream>(1);
+    private final List<File> cosarFileList = new ArrayList<>(1);
+    private final Map<String, ImageInputStream> cosarBandMap = new HashMap<>(1);
 
     public TerraSarXProductDirectory(final File inputFile) {
         super(inputFile);
+        headerFile = inputFile;
     }
 
-    protected String getHeaderFileName() { return ""; }
+    protected String getHeaderFileName() {
+        if (SARReader.isZip(headerFile)) {
+            return ""; //todo
+        } else {
+            return headerFile.getName();
+        }
+    }
 
     protected String getRelativePathToImageFolder() {
         return getRootFolder()+"IMAGEDATA" + '/';
     }
 
     @Override
-    protected void addAbstractedMetadataHeader(final Product product, final MetadataElement root) throws IOException {
+    protected void addAbstractedMetadataHeader(final MetadataElement root) throws IOException {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
-        final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(product);
+        final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(root);
 
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
@@ -143,15 +151,25 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.polarTags[i], polList[i].getData().getElemString());
         }
 
+        final MetadataElement imageRaster = imageDataInfo.getElement("imageRaster");
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
+                imageRaster.getAttributeDouble("azimuthLooks", defInt));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
+                imageRaster.getAttributeDouble("rangeLooks", defInt));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
+                imageRaster.getAttributeInt("numberOfColumns", defInt));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
+                imageRaster.getAttributeInt("numberOfRows", defInt));
+
         if (sceneInfo != null) {
-            setStartStopTime(product, absRoot, sceneInfo);
+            setStartStopTime(absRoot, sceneInfo, imageRaster.getAttributeInt("numberOfRows", defInt));
 
             getCornerCoords(sceneInfo, geocodedImageInfo);
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.avg_scene_height,
                     sceneInfo.getAttributeDouble("sceneAverageHeight", defInt));
         } else if (acquisitionInfo != null) {
-            setStartStopTime(product, absRoot, acquisitionInfo);
+            setStartStopTime(absRoot, acquisitionInfo, imageRaster.getAttributeInt("numberOfRows", defInt));
         }
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, latCorners[0]);
@@ -163,16 +181,6 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, lonCorners[2]);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, latCorners[3]);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lonCorners[3]);
-
-        final MetadataElement imageRaster = imageDataInfo.getElement("imageRaster");
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
-                imageRaster.getAttributeDouble("azimuthLooks", defInt));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
-                imageRaster.getAttributeDouble("rangeLooks", defInt));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
-                imageRaster.getAttributeInt("numberOfColumns", defInt));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
-                imageRaster.getAttributeInt("numberOfRows", defInt));
 
         // See Andrea's email dated Sept. 30, 2010
         final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
@@ -233,7 +241,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                (Math.min(slantRangeCorners[0], slantRangeCorners[2]) / 1000000000.0) * Constants.halfLightSpeed);
+                (Math.min(slantRangeCorners[0], slantRangeCorners[2]) / Constants.oneBillion) * Constants.halfLightSpeed);
         // Note: Here we use the minimum of the slant range times of two corners because the original way cause
         //       problem for stripmap product when the two slant range times are different.
 
@@ -259,7 +267,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         // handle ATI products by copying abs metadata to slv metadata
         final String antennaReceiveConfiguration = acquisitionInfo.getAttributeString("antennaReceiveConfiguration", "");
         if (antennaReceiveConfiguration.equals("DRA")) {
-            final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(product);
+            final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(root);
 
             // copy Abstracted Metadata
             for (File cosFile : cosarFileList) {
@@ -277,17 +285,14 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
-    private static void setStartStopTime(final Product product,
-                                         final MetadataElement absRoot, final MetadataElement elem) {
+    private static void setStartStopTime(final MetadataElement absRoot, final MetadataElement elem, final int height) {
         final ProductData.UTC startTime = ReaderUtils.getTime(elem.getElement("start"), "timeUTC", AbstractMetadata.dateFormat);
         final ProductData.UTC stopTime = ReaderUtils.getTime(elem.getElement("stop"), "timeUTC", AbstractMetadata.dateFormat);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
-        product.setStartTime(startTime);
-        product.setEndTime(stopTime);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
-                ReaderUtils.getLineTimeInterval(startTime, stopTime, product.getSceneRasterHeight()));
+                ReaderUtils.getLineTimeInterval(startTime, stopTime, height));
     }
 
     private static String getAcquisitionMode(final String mode) {
@@ -793,7 +798,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             }
         }
 
-        setSceneWidthHeight(width, height);
+        absRoot.setAttributeInt(AbstractMetadata.num_samples_per_line, width);
+        absRoot.setAttributeInt(AbstractMetadata.num_output_lines, height);
     }
 
     private boolean arePolarizationsUnique() {

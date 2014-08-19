@@ -131,10 +131,10 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
     }
 
     @Override
-    protected void addAbstractedMetadataHeader(final Product product, final MetadataElement root) throws IOException {
+    protected void addAbstractedMetadataHeader(final MetadataElement root) throws IOException {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
-        final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(product);
+        final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(root);
 
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
@@ -146,7 +146,6 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, getProductName());
         final String descriptor = contentUnit.getAttributeString("textInfo", defStr);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, descriptor);
-        product.setDescription(descriptor);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, "right");
 
         final MetadataElement metadataSection = XFDU.getElement("metadataSection");
@@ -172,8 +171,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                 final MetadataElement acquisitionPeriod = findElement(metadataObject, "acquisitionPeriod");
                 final ProductData.UTC startTime = getTime(acquisitionPeriod, "startTime");
                 final ProductData.UTC stopTime = getTime(acquisitionPeriod, "stopTime");
-                product.setStartTime(startTime);
-                product.setEndTime(stopTime);
+
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
 
@@ -207,7 +205,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
 
                 //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PASS, orbitReference.getAttributeString("pass", defStr));
                 String passStr = "";
-                final MetadataElement orbitRef = getMetadataObject(product, "measurementOrbitReference");
+                final MetadataElement orbitRef = getMetadataObject(origProdRoot, "measurementOrbitReference");
                 if (orbitRef != null) {
                     passStr = orbitRef.getElement("metadataWrap").getElement("xmlData").getElement("orbitReference").getElement("extension").getElement("orbitProperties").getAttributeString("pass");
                 }
@@ -215,17 +213,8 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
             } else if (id.equals("measurementFrameSet")) {
 
             } else if (id.equals("generalProductInformation")) {
-                MetadataElement generalProductInformation = findElement(metadataObject, "generalProductInformation");
-                if (generalProductInformation == null)
-                    generalProductInformation = findElement(metadataObject, "standAloneProductInformation");
 
-                /*
-                String productType = "unknown";
-                if (generalProductInformation != null)
-                    productType = generalProductInformation.getAttributeString("productType", defStr);
-                */
                 final String productType = "Raw"; // Level 0 products are all raw data
-                product.setProductType(productType);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
                 if (productType.contains("SLC")) {
                     setSLC(true);
@@ -572,15 +561,16 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         return AbstractMetadata.parseUTC(start, Sentinel1Constants.sentinelDateFormat);
     }
 
-    private void addBinaryDataToProduct(final Product product) {
+    private void addBinaryDataToProduct(final MetadataElement root) {
 
-        final Sentinel1Level0Reader reader = new Sentinel1Level0Reader(product);
+        final Sentinel1Level0Reader reader = new Sentinel1Level0Reader(getBaseDir(),
+                AbstractMetadata.addOriginalProductMetadata(root));
         reader.readData();
     }
 
-    private MetadataElement getMetadataObject(final Product product, final String metadataObjectName) {
+    private MetadataElement getMetadataObject(final MetadataElement origProdRoot, final String metadataObjectName) {
 
-        final MetadataElement metadataSection = product.getMetadataRoot().getElement("Original_Product_Metadata").getElement("XFDU").getElement("metadataSection");
+        final MetadataElement metadataSection = origProdRoot.getElement("XFDU").getElement("metadataSection");
         final MetadataElement[] metadataObjects = metadataSection.getElements();
 
         for (MetadataElement elem : metadataObjects) {
@@ -599,7 +589,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
         final float[] latCorners = new float[4];
         final float[] lonCorners = new float[latCorners.length];
 
-        final MetadataElement elem = getMetadataObject(product, "measurementFrameSet");
+        final MetadataElement elem = getMetadataObject(AbstractMetadata.getOriginalProductMetadata(product), "measurementFrameSet");
 
         if (elem != null) {
 
@@ -676,30 +666,25 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
     @Override
     public Product createProduct() throws IOException {
 
-        //System.out.println("Sentinel1Level0Directory.createProduct: called for " + getProductName());
-
-        // TODO Raster scene height and width are set to 5000 for now.
-        sceneHeight = 5000;
-        sceneWidth = 5000;
-
-        final Product product = new Product(getProductName(),
-                getProductType(),
-                sceneWidth, sceneHeight);
-
-        product.setFileLocation(getBaseDir());
-
-        addMetaData(product);
-        addBinaryDataToProduct(product);
+        final MetadataElement newRoot = addMetaData();
+        addBinaryDataToProduct(newRoot);
         findImages();
+
+        final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
+        final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+        final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+
+        final Product product = new Product(getProductName(), getProductType(), sceneWidth, sceneHeight);
+        updateProduct(product, newRoot);
+
         addTiePointGrids(product); // empty
-
-
         addBands(product);
         addGeoCoding(product);
 
         product.setName(getProductName());
         product.setProductType(getProductType());
         product.setDescription(getProductDescription());
+        product.setFileLocation(getBaseDir());
 
         ReaderUtils.addMetadataProductSize(product);
 

@@ -73,6 +73,8 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
     @Override
     protected void addBands(final Product product) {
 
+        OCNReader.addNetCDFBands(product);
+
         String bandName;
         boolean real = true;
         Band lastRealBand = null;
@@ -150,21 +152,20 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
     }
 
     @Override
-    protected void addAbstractedMetadataHeader(final Product product, final MetadataElement root) throws IOException {
+    protected void addAbstractedMetadataHeader(final MetadataElement root) throws IOException {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
-        final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(product);
+        final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(root);
 
-        Sentinel1Level1Directory.addManifestMetadata(product, absRoot, origProdRoot, true);
+        Sentinel1Level1Directory.addManifestMetadata(getProductName(), absRoot, origProdRoot, true);
         acqMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         setSLC(absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE).equals("COMPLEX"));
 
         // get metadata for each band
-        addBandAbstractedMetadata(product, absRoot, origProdRoot);
+        addBandAbstractedMetadata(origProdRoot);
     }
 
-    private void addBandAbstractedMetadata(final Product product, final MetadataElement absRoot,
-                                           final MetadataElement origProdRoot) throws IOException {
+    private void addBandAbstractedMetadata(final MetadataElement origProdRoot) throws IOException {
 
         MetadataElement annotationElement = origProdRoot.getElement("annotation");
         if (annotationElement == null) {
@@ -174,7 +175,7 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
 
         if (OCNReader != null) {
             // add netcdf metadata for OCN product
-            OCNReader.addNetCDFMetadataAndBands(product, annotationElement);
+            OCNReader.addNetCDFMetadata(annotationElement);
         }
     }
 
@@ -499,14 +500,18 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
     @Override
     public Product createProduct() throws IOException {
 
-        final Product product = new Product(getProductName(),
-                getProductType(),
-                sceneWidth, sceneHeight);
-
-        addMetaData(product);
+        final MetadataElement newRoot = addMetaData();
         findImages();
-        addTiePointGrids(product); // empty
 
+        final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
+
+        final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+        final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+
+        final Product product = new Product(getProductName(), getProductType(), sceneWidth, sceneHeight);
+        updateProduct(product, newRoot);
+
+        addTiePointGrids(product); // empty
         addBands(product);
         addGeoCoding(product);
 

@@ -260,7 +260,7 @@ public final class BackGeocodingOp extends Operator {
 
     private void copySlaveMetadata() {
 
-        final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct);
+        final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct.getMetadataRoot());
         final MetadataElement slvAbsMetadata = AbstractMetadata.getAbstractedMetadata(slaveProduct);
         if (slvAbsMetadata != null) {
             final String timeStamp = StackUtils.getBandTimeStamp(slaveProduct);

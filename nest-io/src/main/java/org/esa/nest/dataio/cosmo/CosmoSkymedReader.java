@@ -193,7 +193,7 @@ public class CosmoSkymedReader extends SARReader {
 
     private void addMetadataToProduct() throws IOException {
 
-        final MetadataElement origMetadataRoot = AbstractMetadata.addOriginalProductMetadata(product);
+        final MetadataElement origMetadataRoot = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot());
         NetCDFUtils.addAttributes(origMetadataRoot, NetcdfConstants.GLOBAL_ATTRIBUTES_NAME,
                 netcdfFile.getGlobalAttributes());
 
@@ -238,7 +238,7 @@ public class CosmoSkymedReader extends SARReader {
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
 
-        final MetadataElement globalElem = AbstractMetadata.addOriginalProductMetadata(product).
+        final MetadataElement globalElem = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot()).
                 getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, globalElem.getAttributeString("Product_Filename", defStr));

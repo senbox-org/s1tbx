@@ -78,25 +78,10 @@ public class Sentinel1OCNReader {
         // The image file here is the MDS .nc file.
 
         final NetcdfFile netcdfFile = NetcdfFile.open(file.getPath());
-        readNetCDF(netcdfFile);
         bandNCFileMap.put(name, netcdfFile);
     }
 
-    private void readNetCDF(final NetcdfFile netcdfFile) {
-
-        // TODO Does this make sense?
-
-        final Map<NcRasterDim, List<Variable>> variableListMap = NetCDFUtils.getVariableListMap(netcdfFile.getRootGroup());
-
-        if (!variableListMap.isEmpty()) {
-
-            final NcRasterDim rasterDim = NetCDFUtils.getBestRasterDim(variableListMap);
-
-            dataDir.setSceneWidthHeight(rasterDim.getDimX().getLength(), rasterDim.getDimY().getLength());
-        }
-    }
-
-    public void addNetCDFMetadataAndBands(final Product product, final MetadataElement annotationElement) {
+    public void addNetCDFMetadata(final MetadataElement annotationElement) {
 
         final Set<String> files = bandNCFileMap.keySet();
 
@@ -130,6 +115,49 @@ public class Sentinel1OCNReader {
                 bandElem.addElement(MetadataUtils.createMetadataElement(variable, 1000));
             }
 
+            for (Variable variable : variableList) {
+
+                if (variableIsVector(variable) && variable.getRank() > 1) {
+
+                    // If rank is 1 then it has already been taken care of by
+                    // MetadataUtils.createMetadataElement()
+
+                    final MetadataElement elem = bandElem.getElement(variable.getFullName());
+                    final MetadataElement valuesElem = new MetadataElement("Values");
+                    elem.addElement(valuesElem);
+                    MetadataUtils.addAttribute(variable, valuesElem, 1000);
+                }
+            }
+
+            /*
+            for (Dimension d : dimensionList) {
+                int len = d.getLength();
+                String name = d.getFullName();
+                System.out.println("Sentinel1OCNReader.addNetCDFMetadata: dim name = " + name + " len = " + len);
+            }
+
+            for (Variable variable : variableList) {
+                int[] varShape = variable.getShape();
+                System.out.print("Sentinel1OCNReader.addNetCDFMetadata: variable name = " + variable.getFullName() + " ");
+                for (int i = 0; i < varShape.length; i++) {
+                    System.out.print(varShape[i] + " ");
+                }
+                System.out.println();
+            }
+            */
+        }
+    }
+
+    public void addNetCDFBands(final Product product) {
+
+        final Set<String> files = bandNCFileMap.keySet();
+
+        for (String file : files) { // for each MDS which is a .nc file
+
+            final NetcdfFile netcdfFile = bandNCFileMap.get(file);
+
+            final List<Variable> variableList = netcdfFile.getVariables();
+
             // Add bands to product...
 
             // Find index of 3rd '-'
@@ -146,15 +174,6 @@ public class Sentinel1OCNReader {
             for (Variable variable : variableList) {
 
                 if (variableIsVector(variable) && variable.getRank() > 1) {
-
-                    // If rank is 1 then it has already been taken care of by
-                    // MetadataUtils.createMetadataElement()
-
-                    final MetadataElement elem = bandElem.getElement(variable.getFullName());
-                    final MetadataElement valuesElem = new MetadataElement("Values");
-                    elem.addElement(valuesElem);
-                    MetadataUtils.addAttribute(variable, valuesElem, 1000);
-
                     continue;
                 }
 
@@ -222,23 +241,6 @@ public class Sentinel1OCNReader {
                         break;
                 }
             }
-
-            /*
-            for (Dimension d : dimensionList) {
-                int len = d.getLength();
-                String name = d.getFullName();
-                System.out.println("Sentinel1OCNReader.addNetCDFMetadata: dim name = " + name + " len = " + len);
-            }
-
-            for (Variable variable : variableList) {
-                int[] varShape = variable.getShape();
-                System.out.print("Sentinel1OCNReader.addNetCDFMetadata: variable name = " + variable.getFullName() + " ");
-                for (int i = 0; i < varShape.length; i++) {
-                    System.out.print(varShape[i] + " ");
-                }
-                System.out.println();
-            }
-            */
         }
     }
 

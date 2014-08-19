@@ -163,23 +163,23 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
     }
 
     @Override
-    protected void addAbstractedMetadataHeader(final Product product, final MetadataElement root) throws IOException {
+    protected void addAbstractedMetadataHeader(final MetadataElement root) throws IOException {
 
         final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
-        final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(product);
+        final MetadataElement origProdRoot = AbstractMetadata.addOriginalProductMetadata(root);
 
-        addManifestMetadata(product, absRoot, origProdRoot, false);
+        addManifestMetadata(getProductName(), absRoot, origProdRoot, false);
         acqMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         setSLC(absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE).equals("COMPLEX"));
 
         // get metadata for each band
-        addBandAbstractedMetadata(product, absRoot, origProdRoot);
+        addBandAbstractedMetadata(absRoot, origProdRoot);
         addCalibrationAbstractedMetadata(origProdRoot);
         addNoiseAbstractedMetadata(origProdRoot);
     }
 
-    static void addManifestMetadata(final Product product, final MetadataElement absRoot,
-                                     final MetadataElement origProdRoot, boolean isOCN) {
+    static void addManifestMetadata(final String productName, final MetadataElement absRoot,
+                                    final MetadataElement origProdRoot, boolean isOCN) {
         final String defStr = AbstractMetadata.NO_METADATA_STRING;
         final int defInt = AbstractMetadata.NO_METADATA;
 
@@ -187,10 +187,9 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final MetadataElement informationPackageMap = XFDU.getElement("informationPackageMap");
         final MetadataElement contentUnit = informationPackageMap.getElement("contentUnit");
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, product.getName());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, productName);
         final String descriptor = contentUnit.getAttributeString("textInfo", defStr);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SPH_DESCRIPTOR, descriptor);
-        product.setDescription(descriptor);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.antenna_pointing, "right");
 
         final MetadataElement metadataSection = XFDU.getElement("metadataSection");
@@ -215,8 +214,6 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 final MetadataElement acquisitionPeriod = findElement(metadataObject, "acquisitionPeriod");
                 final ProductData.UTC startTime = getTime(acquisitionPeriod, "startTime");
                 final ProductData.UTC stopTime = getTime(acquisitionPeriod, "stopTime");
-                product.setStartTime(startTime);
-                product.setEndTime(stopTime);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
 
@@ -269,7 +266,6 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                     if (generalProductInformation != null)
                         productType = generalProductInformation.getAttributeString("productType", defStr);
                 }
-                product.setProductType(productType);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, productType);
                 if (productType.contains("SLC")) {
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.SAMPLE_TYPE, "COMPLEX");
@@ -300,11 +296,12 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             }
         }
         if (isSLC() && isTOPSAR()) {  // approximate does not account for overlap
-            setSceneWidthHeight(totalWidth, maxHeight);
+            absRoot.setAttributeInt(AbstractMetadata.num_samples_per_line, totalWidth);
+            absRoot.setAttributeInt(AbstractMetadata.num_output_lines, maxHeight);
         }
     }
 
-    private void addBandAbstractedMetadata(final Product product, final MetadataElement absRoot,
+    private void addBandAbstractedMetadata(final MetadataElement absRoot,
                                            final MetadataElement origProdRoot) throws IOException {
 
         MetadataElement annotationElement = origProdRoot.getElement("annotation");
@@ -923,13 +920,17 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
     @Override
     public Product createProduct() throws IOException {
 
-        final Product product = new Product(getProductName(),
-                getProductType(),
-                sceneWidth, sceneHeight);
-
-        addMetaData(product);
+        final MetadataElement newRoot = addMetaData();
         findImages();
-        determineProductDimensions(AbstractMetadata.getAbstractedMetadata(product));
+
+        final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
+        determineProductDimensions(absRoot);
+
+        final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+        final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+
+        final Product product = new Product(getProductName(), getProductType(), sceneWidth, sceneHeight);
+        updateProduct(product, newRoot);
 
         addBands(product);
         addGeoCoding(product);

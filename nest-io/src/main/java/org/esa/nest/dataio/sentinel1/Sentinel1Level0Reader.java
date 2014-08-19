@@ -39,15 +39,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
-//import org.w3c.dom.Node;
-
 /**
  * TBD
  */
 public class Sentinel1Level0Reader {
-
-    private Product product = null;
 
     private final String SUPPORT_FOLDER_NAME = "support";
     private final String ANNOT_SCHEMA_FILENAME = "s1-level-0-annot.xsd";
@@ -146,17 +141,14 @@ public class Sentinel1Level0Reader {
 
     private ArrayList<DataComponent> dataComponents = new ArrayList<>();
 
-    public Sentinel1Level0Reader(Product product) {
+    public Sentinel1Level0Reader(final File baseDir, final MetadataElement originalProductMetadata) {
 
-        this.product = product;
-
-        readXMLSchema(buildSchemaFilename(ANNOT_SCHEMA_FILENAME), ANNOT_RECORD_NAME, annotElemList);
-        readXMLSchema(buildSchemaFilename(INDEX_SCHEMA_FILENAME), INDEX_RECORD_NAME, indexElemList);
+        readXMLSchema(buildSchemaFilename(baseDir, ANNOT_SCHEMA_FILENAME), ANNOT_RECORD_NAME, annotElemList);
+        readXMLSchema(buildSchemaFilename(baseDir, INDEX_SCHEMA_FILENAME), INDEX_RECORD_NAME, indexElemList);
 
         //  Metadata > Original_Product_Metadata > XFDU > dataObjectSection >
         //       dataObject > byteStream > fileLocation
 
-        final MetadataElement originalProductMetadata = product.getMetadataRoot().getElement("Original_Product_Metadata");
         final MetadataElement dataObjectSection = originalProductMetadata.getElement("XFDU").getElement("dataObjectSection");
 
         final MetadataElement annotElem = new MetadataElement("Annotation Data Components");
@@ -208,7 +200,7 @@ public class Sentinel1Level0Reader {
 
             if (dataFilename.contains(ANNOT_PREFIX) || dataFilename.contains(INDEX_PREFIX)) {
 
-                final long numRecs = createBinaryReader(dataFilename, recordElem);
+                final long numRecs = createBinaryReader(baseDir, dataFilename, recordElem);
                 numRecsAttr.getData().setElemUInt(numRecs);
             }
 
@@ -218,9 +210,9 @@ public class Sentinel1Level0Reader {
 
     }
 
-    private long createBinaryReader(final String binDataFilename, MetadataElement metadataElement) {
+    private long createBinaryReader(final File baseDir, final String binDataFilename, MetadataElement metadataElement) {
 
-        File binDataFile = new File(product.getFileLocation().getAbsolutePath() + binDataFilename);
+        final File binDataFile = new File(baseDir.getAbsolutePath() + binDataFilename);
 
         long numRecs = 0;
 
@@ -257,9 +249,9 @@ public class Sentinel1Level0Reader {
         return numRecs;
     }
 
-    private String buildSchemaFilename(final String schemaName) {
+    private String buildSchemaFilename(final File baseDir, final String schemaName) {
 
-        return product.getFileLocation().getAbsolutePath() + "\\" + SUPPORT_FOLDER_NAME + "\\" + schemaName;
+        return baseDir.getAbsolutePath() + File.separator + SUPPORT_FOLDER_NAME + File.separator + schemaName;
     }
 
     private void readXMLSchema(final String filename, final String recordName, ArrayList<DataElement> elemList) {

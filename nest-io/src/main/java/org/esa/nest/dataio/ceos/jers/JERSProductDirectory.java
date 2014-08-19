@@ -158,7 +158,7 @@ class JERSProductDirectory extends CEOSProductDirectory {
     }
 
     private void addMetaData(final Product product) throws IOException {
-        final MetadataElement root = AbstractMetadata.addOriginalProductMetadata(product);
+        final MetadataElement root = AbstractMetadata.addOriginalProductMetadata(product.getMetadataRoot());
 
         final MetadataElement leadMetadata = new MetadataElement("Leader");
         leaderFile.addMetadata(leadMetadata);

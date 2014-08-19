@@ -47,8 +47,6 @@ public abstract class XMLProductDirectory {
     private Document xmlDoc = null;
 
     private boolean isSLC = false;
-    protected int sceneWidth = 0;
-    protected int sceneHeight = 0;
 
     protected transient final Map<String, ImageIOFile> bandImageFileMap = new HashMap<>(1);
     protected transient final Map<Band, ImageIOFile.BandInfo> bandMap = new HashMap<>(3);
@@ -107,11 +105,6 @@ public abstract class XMLProductDirectory {
 
     protected abstract void addImageFile(final String imgPath) throws IOException;
 
-    public void setSceneWidthHeight(final int width, final int height) {
-        sceneWidth = width;
-        sceneHeight = height;
-    }
-
     public boolean isSLC() {
         return isSLC;
     }
@@ -134,29 +127,6 @@ public abstract class XMLProductDirectory {
         }
     }
 
-    public Product createProduct() throws Exception {
-        final Product product = new Product(getProductName(),
-                getProductType(),
-                sceneWidth, sceneHeight);
-
-        addMetaData(product);
-        findImages();
-        addBands(product);
-        product.setSceneDimensions(sceneWidth, sceneHeight);
-
-        addGeoCoding(product);
-        addTiePointGrids(product);
-
-        product.setName(getProductName());
-        product.setProductType(getProductType());
-        product.setDescription(getProductDescription());
-
-        ReaderUtils.addMetadataIncidenceAngles(product);
-        ReaderUtils.addMetadataProductSize(product);
-
-        return product;
-    }
-
     public ImageIOFile.BandInfo getBandInfo(final Band destBand) {
         return bandMap.get(destBand);
     }
@@ -175,7 +145,7 @@ public abstract class XMLProductDirectory {
 
     protected abstract void addTiePointGrids(final Product product);
 
-    protected abstract void addAbstractedMetadataHeader(final Product product, final MetadataElement root) throws IOException;
+    protected abstract void addAbstractedMetadataHeader(final MetadataElement root) throws IOException;
 
     protected abstract String getProductName();
 
@@ -185,12 +155,14 @@ public abstract class XMLProductDirectory {
         return "";
     }
 
-    protected void addMetaData(final Product product) throws IOException {
-        final MetadataElement root = product.getMetadataRoot();
+    protected MetadataElement addMetaData() throws IOException {
+        final MetadataElement root = new MetadataElement(Product.METADATA_ROOT_NAME);
         final Element rootElement = xmlDoc.getRootElement();
-        AbstractMetadataIO.AddXMLMetadata(rootElement, AbstractMetadata.addOriginalProductMetadata(product));
+        AbstractMetadataIO.AddXMLMetadata(rootElement, AbstractMetadata.addOriginalProductMetadata(root));
 
-        addAbstractedMetadataHeader(product, root);
+        addAbstractedMetadataHeader(root);
+
+        return root;
     }
 
     protected String[] listFiles(final String path) throws IOException {
@@ -232,5 +204,46 @@ public abstract class XMLProductDirectory {
 
     protected String getBaseName() {
         return baseName;
+    }
+
+    public Product createProduct() throws Exception {
+
+        final MetadataElement newRoot = addMetaData();
+        findImages();
+
+        final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
+        final int sceneWidth = absRoot.getAttributeInt(AbstractMetadata.num_samples_per_line);
+        final int sceneHeight = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
+
+        final Product product = new Product(getProductName(), getProductType(), sceneWidth, sceneHeight);
+        updateProduct(product, newRoot);
+
+        addBands(product);
+        addGeoCoding(product);
+        addTiePointGrids(product);
+
+        product.setName(getProductName());
+        product.setProductType(getProductType());
+        product.setDescription(getProductDescription());
+
+        ReaderUtils.addMetadataIncidenceAngles(product);
+        ReaderUtils.addMetadataProductSize(product);
+
+        return product;
+    }
+
+    protected void updateProduct(final Product product, final MetadataElement newRoot) {
+        final MetadataElement root = product.getMetadataRoot();
+        for(MetadataElement elem : newRoot.getElements()) {
+            root.addElement(elem);
+        }
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+
+        product.setStartTime(absRoot.getAttributeUTC(AbstractMetadata.first_line_time));
+        product.setEndTime(absRoot.getAttributeUTC(AbstractMetadata.last_line_time));
+
+        product.setProductType(absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE));
+        product.setDescription(absRoot.getAttributeString(AbstractMetadata.SPH_DESCRIPTOR));
     }
 }

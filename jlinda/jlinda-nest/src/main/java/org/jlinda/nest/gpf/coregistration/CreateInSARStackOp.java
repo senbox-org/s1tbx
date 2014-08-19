@@ -265,7 +265,7 @@ public class CreateInSARStackOp extends Operator {
     }
 
     private void copySlaveMetadata() {
-        final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct);
+        final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct.getMetadataRoot());
         for(Product prod : sourceProduct) {
             if(prod != masterProduct) {
                 final MetadataElement slvAbsMetadata = AbstractMetadata.getAbstractedMetadata(prod);
