@@ -303,7 +303,7 @@
 			<dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-netcdf</artifactId>
-                <version>${beam.version}</version>
+                <version>${snap.version}</version>
             </dependency>
 			
 			<dependency>
