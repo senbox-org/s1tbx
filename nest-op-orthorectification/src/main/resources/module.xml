@@ -70,7 +70,7 @@
         <OperatorUI>
             <id>org.esa.nest.gpf.geometric.MosaicOpUI</id>
             <class>org.esa.nest.gpf.geometric.MosaicOpUI</class>
-            <operatorName>Mosaic</operatorName>
+            <operatorName>Image-Mosaic</operatorName>
         </OperatorUI>
         <OperatorUI>
             <id>org.esa.nest.gpf.geometric.SARSimulationOpUI</id>
