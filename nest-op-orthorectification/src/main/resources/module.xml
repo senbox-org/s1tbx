@@ -90,7 +90,7 @@
             <id>insar</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Interferometric</text>
-            <parent>sar-processing</parent>
+            <parent>Sar Processing</parent>
             <placeAfter>geometry</placeAfter>
         </action>
 
@@ -100,7 +100,7 @@
             <id>geometry</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Geometric</text>
-            <parent>sar-processing</parent>
+            <parent>Sar Processing</parent>
             <placeAfter>Calibration</placeAfter>
         </action>
 
@@ -275,7 +275,7 @@
             <id>SpeckleFiltering</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Speckle Filtering</text>
-            <parent>sar-processing</parent>
+            <parent>Sar Processing</parent>
             <placeAfter>Calibration</placeAfter>
         </action>
 
@@ -312,7 +312,7 @@
             <helpId>MultilookOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>sar-processing</parent>
+            <parent>Sar Processing</parent>
             <placeAfter>CoregistrationGraph</placeAfter>
             <text>Multilooking</text>
             <operatorName>Multilook</operatorName>
@@ -326,7 +326,7 @@
             <helpId>SLCtoPRI</helpId>
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
-            <parent>sar-processing</parent>
+            <parent>Sar Processing</parent>
             <placeAfter>CoregistrationGraph</placeAfter>
             <text>Complex to Detected GR</text>
             <shortDescr>Convert a SLC product to a detected ground range product</shortDescr>
@@ -338,7 +338,7 @@
             <id>ASARWSS</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>ASAR WSS</text>
-            <parent>sar-processing</parent>
+            <parent>Sar Processing</parent>
             <placeAfter>SpeckleFiltering</placeAfter>
         </action>
 

@@ -341,7 +341,7 @@ public class DatApp extends VisatApp {
                 "newProject",
                 "loadProject",
                 null,
-                "openRaster",
+                "open",
                 //"openVector",
                 "save",
         });
@@ -375,10 +375,10 @@ public class DatApp extends VisatApp {
         menuBar.add(createAnalysisMenu());
         menuBar.add(createJMenu("tools", "Utilities", 'U'));
         menuBar.add(createJMenu("processing", "Optical Processing", 'O'));
-        menuBar.add(createJMenu("sar-processing", "SAR Processing", 'S'));
+        menuBar.add(createJMenu("Sar Processing", "SAR Processing", 'S'));
         if (incImageProcessing)
             menuBar.add(createJMenu("image-processing", "Image Processing", 'I'));
-        menuBar.add(createJMenu("classification", "Classification", 'C'));
+        menuBar.add(createJMenu("Classification", "Classification", 'C'));
         menuBar.add(createJMenu("Graphs", "Graphs", 'G'));
         menuBar.add(createJMenu("window", "Window", 'W'));
         menuBar.add(createJMenu("help", "Help", 'H'));

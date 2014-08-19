@@ -67,7 +67,7 @@
             <id>Masks</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Masks</text>
-            <parent>classification</parent>
+            <parent>Classification</parent>
             <placeBefore>FeatureExtraction</placeBefore>
         </action>
 
@@ -101,7 +101,7 @@
             <id>PrimitiveFeatureGroup</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Primitive Features</text>
-            <parent>classification</parent>
+            <parent>Classification</parent>
             <placeAfter>Masks</placeAfter>
         </action>
 
@@ -109,7 +109,7 @@
             <id>FeatureExtractionGroup</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Feature Extraction</text>
-            <parent>classification</parent>
+            <parent>Classification</parent>
             <placeAfter>PrimitiveFeatureGroup</placeAfter>
         </action>
 
@@ -235,7 +235,7 @@
             <id>oceanTools</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Ocean Tools</text>
-            <parent>sar-processing</parent>
+            <parent>Sar Processing</parent>
             <placeAfter>SpeckleFiltering</placeAfter>
         </action>
 

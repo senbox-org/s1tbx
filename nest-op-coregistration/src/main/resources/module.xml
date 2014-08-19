@@ -82,7 +82,7 @@
             <helpId>Coregistration</helpId>
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
-            <parent>sar-processing</parent>
+            <parent>Sar Processing</parent>
             <text>Automatic Coregistration</text>
             <shortDescr>Perform Automatic Coregistration</shortDescr>
             <dialogTitle>Automatic Coregistration</dialogTitle>
@@ -107,7 +107,7 @@
             <id>stack-utilities</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Stack Utilities</text>
-            <parent>sar-processing</parent>
+            <parent>Sar Processing</parent>
             <placeAfter>SpeckleFiltering</placeAfter>
         </action>
 

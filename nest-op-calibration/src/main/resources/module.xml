@@ -51,7 +51,7 @@
             <id>Calibration</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Radiometric</text>
-            <parent>sar-processing</parent>
+            <parent>Sar Processing</parent>
         </action>
 
         <action>

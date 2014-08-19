@@ -54,7 +54,7 @@
             <id>Sentinel1</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>SENTINEL-1</text>
-            <parent>sar-processing</parent>
+            <parent>Sar Processing</parent>
             <placeAfter>ASARWSS</placeAfter>
         </action>
 
