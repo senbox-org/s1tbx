@@ -50,7 +50,7 @@ public class DiagramAxis implements Serializable {
         maxValue = 100.0;
         numMajorTicks = 3;
         numMinorTicks = 5;
-        isMinToMax = false;
+        isMinToMax = true;
     }
 
     public String getName() {
