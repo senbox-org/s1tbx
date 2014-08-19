@@ -92,7 +92,7 @@
 
     <categories>System,Application,VISAT</categories>
 
-    <extension point="beam-ui:layerEditors">
+    <extension point="snap-ui:layerEditors">
         <layerEditor>
             <editorFactory>org.esa.beam.visat.toolviews.layermanager.editors.VectorDataLayerEditorFactory
             </editorFactory>
@@ -116,7 +116,7 @@
         </layerEditor>
     </extension>
 
-    <extension point="beam-ui:layerSources">
+    <extension point="snap-ui:layerSources">
         <layerSource>
             <id>wms-layer-source</id>
             <name>Image from Web Map Server (WMS)</name>
@@ -161,12 +161,12 @@
     <!--
        todo - The VisatPlugIn interface should be deprecated, use an ApplicationLifecycleListener instead
     -->
-    <extension point="ceres-core:serviceProviders">
+    <extension point="snap-ceres-core:serviceProviders">
         <serviceProvider>org.esa.beam.visat.VisatPlugIn</serviceProvider>
         <serviceProvider>com.bc.ceres.glayer.LayerType</serviceProvider>
     </extension>
 
-    <extension point="beam-ui:toolViews">
+    <extension point="snap-ui:toolViews">
 
         <toolView>
             <id>org.esa.beam.visat.ProductsToolView</id>
@@ -483,7 +483,7 @@
 
     </extension>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
 
         <!--####################-->
         <!-- File Menu          -->
@@ -1749,7 +1749,7 @@
     </extension>
 
     <!-- Test for the new actionGroups extension point introduced in BEAM 5 -->
-    <extension point="beam-ui:actionGroups">
+    <extension point="snap-ui:actionGroups">
         <actionGroup>
             <id>__file__</id>
             <text>File</text>

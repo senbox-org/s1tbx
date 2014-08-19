@@ -33,7 +33,7 @@
 
     <categories>Reader,CHRIS</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <id>importSpotVgtProduct</id>
@@ -46,7 +46,7 @@
         </action>
     </extension>
 
-    <extension point="beam-core:rgbProfiles">
+    <extension point="snap-core:rgbProfiles">
         <rgbProfile>
             <name>SPOT VGT RGB-1</name>
             <red>MIR</red>

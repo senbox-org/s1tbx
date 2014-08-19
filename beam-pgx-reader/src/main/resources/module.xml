@@ -46,7 +46,7 @@
 
     <categories>Reader,PGX</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importPgxProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>

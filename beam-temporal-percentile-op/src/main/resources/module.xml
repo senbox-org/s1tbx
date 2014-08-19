@@ -8,7 +8,7 @@
 
     <description>
         <![CDATA[
-            The beam-temporal-percentile-op module contains an operator for computing a
+            The snap-temporal-percentile-op module contains an operator for computing a
             percentile over a set of input products over a given time period.
         ]]>
     </description>

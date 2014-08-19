@@ -37,7 +37,7 @@
 
     <categories>Reader</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <id>importArcBinGrid</id>

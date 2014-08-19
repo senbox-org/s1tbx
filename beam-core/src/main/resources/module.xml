@@ -95,7 +95,7 @@
     </extensionPoint>
 
 
-    <extension point="ceres-core:serviceProviders">
+    <extension point="snap-ceres-core:serviceProviders">
         <serviceProvider>org.esa.beam.dataio.dimap.spi.DimapPersistableSpi</serviceProvider>
         <serviceProvider>org.esa.beam.framework.dataio.ProductReaderPlugIn</serviceProvider>
         <serviceProvider>org.esa.beam.framework.dataio.ProductWriterPlugIn</serviceProvider>

@@ -27,7 +27,7 @@
 
     <categories>Reader,ERS,ATSR</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importAtsrProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>

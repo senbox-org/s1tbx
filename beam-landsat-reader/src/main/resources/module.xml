@@ -36,7 +36,7 @@
 
     <categories>Reader, Landsat</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importLandsatTMProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
@@ -60,7 +60,7 @@
         </action>
     </extension>
 
-    <extension point="beam-core:rgbProfiles">
+    <extension point="snap-core:rgbProfiles">
         <rgbProfile>
             <name>LandsatTM 3,2,1</name>
             <red>radiance_3</red>

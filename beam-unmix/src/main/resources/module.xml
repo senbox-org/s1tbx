@@ -29,7 +29,7 @@
 
     <categories>VISAT,Processing,Image Analysis</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <parent>processing.imageAnalysis</parent>
             <id>spectralUnmixing</id>
@@ -40,9 +40,9 @@
         </action>
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-help</parent>
             <path>doc/help/unmixing.hs</path>
         </helpSet>
     </extension>

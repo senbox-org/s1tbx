@@ -36,7 +36,7 @@
         <module>snap-pixel-extraction</module>
     </dependency>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>showOpendapClientAction</id>
             <parent>file</parent>
@@ -51,9 +51,9 @@
         </action>
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-help</parent>
             <path>doc/help/opendap-client.hs</path>
         </helpSet>
     </extension>
