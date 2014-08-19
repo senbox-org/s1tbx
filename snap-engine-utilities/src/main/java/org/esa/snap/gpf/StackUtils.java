@@ -47,7 +47,7 @@ public final class StackUtils {
     }
 
     public static void saveMasterProductBandNames(final Product targetProduct, final String[] masterProductBands) {
-        final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct);
+        final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct.getMetadataRoot());
         final StringBuilder value = new StringBuilder(255);
         for (String name : masterProductBands) {
             value.append(name);
@@ -62,7 +62,7 @@ public final class StackUtils {
         if (bandNames.length == 0)
             return;
 
-        final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct);
+        final MetadataElement targetSlaveMetadataRoot = AbstractMetadata.getSlaveMetadata(targetProduct.getMetadataRoot());
         final MetadataElement elem = targetSlaveMetadataRoot.getElement(slvProductName);
         StringBuilder value = new StringBuilder(255);
         for (String name : bandNames) {
