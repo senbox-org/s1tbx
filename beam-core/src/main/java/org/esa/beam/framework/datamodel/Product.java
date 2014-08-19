@@ -126,12 +126,12 @@ public class Product extends ProductNode {
     /**
      * The scene width of the product
      */
-    private int sceneRasterWidth;
+    private final int sceneRasterWidth;
 
     /**
      * The scene height of the product
      */
-    private int sceneRasterHeight;
+    private final int sceneRasterHeight;
 
     /**
      * The start time of the first raster line.
@@ -172,9 +172,6 @@ public class Product extends ProductNode {
     private AutoGrouping autoGrouping;
     private final PlacemarkGroup pinGroup;
     private final PlacemarkGroup gcpGroup;
-
-    // if product is incomplete or corrupt
-    private boolean corruptFlag = false;
 
      /**
      * @since BEAM 5.0
@@ -765,11 +762,6 @@ public class Product extends ProductNode {
      */
     public int getSceneRasterHeight() {
         return sceneRasterHeight;
-    }
-
-    public void setSceneDimensions(final int w, final int h) {
-        sceneRasterWidth = w;
-        sceneRasterHeight = h;
     }
 
     /**
@@ -2413,14 +2405,6 @@ public class Product extends ProductNode {
                 this.index = index;
             }
         }
-    }
-
-    public void setCorrupt(final boolean flag) {
-        corruptFlag = flag;
-    }
-
-    public boolean isCorrupt() {
-        return corruptFlag;
     }
 
     /////////////////////////////////////////////////////////////////////////

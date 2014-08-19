@@ -54,7 +54,6 @@ public class BandOpImage extends RasterDataNodeOpImage {
         if (productReader == null) {
             throw new IllegalStateException("no product reader for band " + getBand().getDisplayName());
         }
-        try {
 		if (getLevel() == 0) {
             productReader.readBandRasterData(getBand(), destRect.x, destRect.y,
                                              destRect.width, destRect.height,
@@ -75,9 +74,6 @@ public class BandOpImage extends RasterDataNodeOpImage {
                                                  ProgressMonitor.NULL);
                 copyLine(y, destRect.width, lineData, productData, sourceCoords);
             }
-        }
-        } catch(EOFException e) {
-            getBand().getProduct().setCorrupt(true);    
         }
     }
 }
