@@ -12,7 +12,6 @@ import org.esa.beam.util.io.FileUtils;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
@@ -24,7 +23,6 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,16 +30,15 @@ import java.io.InputStreamReader;
 import java.nio.ByteOrder;
 import java.text.ParseException;
 import java.util.*;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 
 public class EnviProductReader extends AbstractProductReader {
 
-    private final HashMap<Band, Long> bandStreamPositionMap = new HashMap<Band, Long>();
-    private final HashMap<Band, ImageInputStream> imageInputStreamMap = new HashMap<Band, ImageInputStream>();
-    private final HashMap<Band, Header> headerMap = new HashMap<Band, Header>(10);
+    private final HashMap<Band, Long> bandStreamPositionMap = new HashMap<>();
+    private final HashMap<Band, ImageInputStream> imageInputStreamMap = new HashMap<>();
+    private final HashMap<Band, Header> headerMap = new HashMap<>(10);
     private ZipFile productZip = null;
 
     public EnviProductReader(ProductReaderPlugIn readerPlugIn) {
@@ -59,9 +56,11 @@ public class EnviProductReader extends AbstractProductReader {
         }
         
         final File[] files = parentFolder.listFiles();
-        for(File f : files) {
-            if(f != headerFile && f.getName().startsWith(imgName)) {
-                return f;
+        if (files != null) {
+            for(File f : files) {
+                if(f != headerFile && f.getName().startsWith(imgName)) {
+                    return f;
+                }
             }
         }
         return new File(parentFolder, imgName);
@@ -69,6 +68,15 @@ public class EnviProductReader extends AbstractProductReader {
 
     @Override
     protected Product readProductNodesImpl() throws IOException {
+        try {
+            return innerReadeProductNodes();
+        } catch (IOException e) {
+            close();
+            throw  e;
+        }
+    }
+
+    private Product innerReadeProductNodes() throws IOException {
         final Object inputObject = getInput();
         final File inputFile = EnviProductReaderPlugIn.getInputFile(inputObject);
 
@@ -97,8 +105,6 @@ public class EnviProductReader extends AbstractProductReader {
 
             applyBeamProperties(product, header.getBeamProperties());
 
-            // imageInputStream must be initialized last
-            initializeInputStreamForBandData(inputFile, header.getJavaByteOrder());
 	        initMetadata(product, inputFile);
             return product;
         } finally {
