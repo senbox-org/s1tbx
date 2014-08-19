@@ -18,7 +18,7 @@
 
     <categories>Application</categories>
 
-    <extension point="ceres-core:applications">
+    <extension point="snap-ceres-core:applications">
         <application id="SNAPMain" class="org.esa.snap.SNAPMain"/>
     </extension>
 
