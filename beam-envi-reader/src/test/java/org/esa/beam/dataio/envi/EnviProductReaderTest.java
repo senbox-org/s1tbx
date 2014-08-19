@@ -6,17 +6,36 @@ import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.io.FileUtils;
-import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.text.ParseException;
 
 import static org.junit.Assert.*;
 
 public class EnviProductReaderTest {
 
-    private Product product;
+    private static final File TEST_DIR = new File("testDir");
+    private static final String MAP_INFO = "SamerAlbers, 1.0000, 1.0000, -479862.9999, 1288756.5614, 8.0000000000e+03,8.0000000000e+03,WGS-84,units=Meters";
+
+    @Before
+    public void setUp() throws Exception {
+        FileUtils.deleteTree(TEST_DIR);
+        TEST_DIR.mkdirs();
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+        FileUtils.deleteTree(TEST_DIR);
+    }
 
     @Test
     public void testParseBandNames_emptyBandnameProperty() throws IOException {
@@ -73,35 +92,39 @@ public class EnviProductReaderTest {
 
         final EnviProductReaderPlugIn plugIn = new EnviProductReaderPlugIn();
         final ProductReader reader = plugIn.createReaderInstance();
-        product = reader.readProductNodes(headerFile, null);
+        final Product product = reader.readProductNodes(headerFile, null);
 
-        assertNotNull(product);
-        assertEquals(PRODUCT_NAME, product.getName());
-        assertEquals(PRODUCT_TYPE, product.getProductType());
-        assertEquals(WIDTH, product.getSceneRasterWidth());
-        assertEquals(HEIGHT, product.getSceneRasterHeight());
-        assertEquals(6, product.getNumBands());
-        // Band names from header replaced by validated names.
-        // BEAM can not handle invalid node names, because there is no possibility to compute
-        // bandarithmetic in the cases wher nodenames contains illegal characters.
-        final Band band1 = product.getBand("data_molly_AVHRR_samer_SA81jul15a_n07_VIg");
-        final Band band2 = product.getBand("data_molly_AVHRR_samer_SA81jul15b_n07_VIg");
-        final Band band3 = product.getBand("data_molly_AVHRR_samer_SA81aug15a_n07_VIg");
-        final Band band4 = product.getBand("data_molly_AVHRR_samer_SA81aug15b_n07_VIg");
-        final Band band5 = product.getBand("data_molly_AVHRR_samer_SA81sep15a_n07_VIg");
-        final Band band6 = product.getBand("data_molly_AVHRR_samer_SA81sep15b_n07_VIg");
-        assertNotNull(band1);
-        assertNotNull(band2);
-        assertNotNull(band3);
-        assertNotNull(band4);
-        assertNotNull(band5);
-        assertNotNull(band6);
-        assertEquals("non formatted band name: _/data/molly/AVHRR/samer/SA81jul15a.n07-VIg", band1.getDescription());
-        assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81jul15b.n07-VIg_", band2.getDescription());
-        assertEquals("", band3.getDescription()); //bandname are valid
-        assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81aug15b.n07-VIg", band4.getDescription());
-        assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81sep15a.n07-VIg", band5.getDescription());
-        assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81sep15b.n07-VIg", band6.getDescription());
+        try {
+            assertNotNull(product);
+            assertEquals(PRODUCT_NAME, product.getName());
+            assertEquals(PRODUCT_TYPE, product.getProductType());
+            assertEquals(WIDTH, product.getSceneRasterWidth());
+            assertEquals(HEIGHT, product.getSceneRasterHeight());
+            assertEquals(6, product.getNumBands());
+            // Band names from header replaced by validated names.
+            // BEAM can not handle invalid node names, because there is no possibility to compute
+            // bandarithmetic in the cases wher nodenames contains illegal characters.
+            final Band band1 = product.getBand("data_molly_AVHRR_samer_SA81jul15a_n07_VIg");
+            final Band band2 = product.getBand("data_molly_AVHRR_samer_SA81jul15b_n07_VIg");
+            final Band band3 = product.getBand("data_molly_AVHRR_samer_SA81aug15a_n07_VIg");
+            final Band band4 = product.getBand("data_molly_AVHRR_samer_SA81aug15b_n07_VIg");
+            final Band band5 = product.getBand("data_molly_AVHRR_samer_SA81sep15a_n07_VIg");
+            final Band band6 = product.getBand("data_molly_AVHRR_samer_SA81sep15b_n07_VIg");
+            assertNotNull(band1);
+            assertNotNull(band2);
+            assertNotNull(band3);
+            assertNotNull(band4);
+            assertNotNull(band5);
+            assertNotNull(band6);
+            assertEquals("non formatted band name: _/data/molly/AVHRR/samer/SA81jul15a.n07-VIg", band1.getDescription());
+            assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81jul15b.n07-VIg_", band2.getDescription());
+            assertEquals("", band3.getDescription()); //bandname are valid
+            assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81aug15b.n07-VIg", band4.getDescription());
+            assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81sep15a.n07-VIg", band5.getDescription());
+            assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81sep15b.n07-VIg", band6.getDescription());
+        } finally {
+            product.dispose();
+        }
     }
 
     @Test
@@ -116,7 +139,7 @@ public class EnviProductReaderTest {
         final EnviProductReaderPlugIn plugIn = new EnviProductReaderPlugIn();
         final ProductReader reader = plugIn.createReaderInstance();
         try {
-            product = reader.readProductNodes(headerFile, null);
+            reader.readProductNodes(headerFile, null);
         } catch (IOException e) {
             assertTrue(e.getMessage().contains(Header.SENSING_START));
         }
@@ -134,7 +157,7 @@ public class EnviProductReaderTest {
         final EnviProductReaderPlugIn plugIn = new EnviProductReaderPlugIn();
         final ProductReader reader = plugIn.createReaderInstance();
         try {
-            product = reader.readProductNodes(headerFile, null);
+            reader.readProductNodes(headerFile, null);
         } catch (IOException e) {
             assertTrue(e.getMessage().contains(Header.SENSING_STOP));
         }
@@ -151,50 +174,54 @@ public class EnviProductReaderTest {
 
         final EnviProductReaderPlugIn plugIn = new EnviProductReaderPlugIn();
         final ProductReader reader = plugIn.createReaderInstance();
-        product = reader.readProductNodes(headerFile, null);
+        final Product product = reader.readProductNodes(headerFile, null);
 
-        assertNotNull(product);
-        assertEquals(PRODUCT_NAME, product.getName());
-        assertEquals(PRODUCT_TYPE, product.getProductType());
-        assertEquals(WIDTH, product.getSceneRasterWidth());
-        assertEquals(HEIGHT, product.getSceneRasterHeight());
-        assertEquals("16-JAN-1998 05:06:07.000000", product.getStartTime().format());
-        assertEquals("17-FEB-1999 06:07:08.000000", product.getEndTime().format());
-        assertEquals(6, product.getNumBands());
-        // Band names from header replaced by validated names.
-        // BEAM can not handle invalid node names, because there is no possibility to compute
-        // bandarithmetic in the cases wher nodenames contains illegal characters.
-        final Band band1 = product.getBand("data_molly_AVHRR_samer_SA81jul15a_n07_VIg");
-        final Band band2 = product.getBand("data_molly_AVHRR_samer_SA81jul15b_n07_VIg");
-        final Band band3 = product.getBand("data_molly_AVHRR_samer_SA81aug15a_n07_VIg");
-        final Band band4 = product.getBand("data_molly_AVHRR_samer_SA81aug15b_n07_VIg");
-        final Band band5 = product.getBand("data_molly_AVHRR_samer_SA81sep15a_n07_VIg");
-        final Band band6 = product.getBand("data_molly_AVHRR_samer_SA81sep15b_n07_VIg");
-        assertNotNull(band1);
-        assertNotNull(band2);
-        assertNotNull(band3);
-        assertNotNull(band4);
-        assertNotNull(band5);
-        assertNotNull(band6);
-        assertEquals("non formatted band name: _/data/molly/AVHRR/samer/SA81jul15a.n07-VIg", band1.getDescription());
-        assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81jul15b.n07-VIg_", band2.getDescription());
-        assertEquals("", band3.getDescription()); //bandname are valid
-        assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81aug15b.n07-VIg", band4.getDescription());
-        assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81sep15a.n07-VIg", band5.getDescription());
-        assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81sep15b.n07-VIg", band6.getDescription());
+        try {
+            assertNotNull(product);
+            assertEquals(PRODUCT_NAME, product.getName());
+            assertEquals(PRODUCT_TYPE, product.getProductType());
+            assertEquals(WIDTH, product.getSceneRasterWidth());
+            assertEquals(HEIGHT, product.getSceneRasterHeight());
+            assertEquals("16-JAN-1998 05:06:07.000000", product.getStartTime().format());
+            assertEquals("17-FEB-1999 06:07:08.000000", product.getEndTime().format());
+            assertEquals(6, product.getNumBands());
+            // Band names from header replaced by validated names.
+            // BEAM can not handle invalid node names, because there is no possibility to compute
+            // bandarithmetic in the cases wher nodenames contains illegal characters.
+            final Band band1 = product.getBand("data_molly_AVHRR_samer_SA81jul15a_n07_VIg");
+            final Band band2 = product.getBand("data_molly_AVHRR_samer_SA81jul15b_n07_VIg");
+            final Band band3 = product.getBand("data_molly_AVHRR_samer_SA81aug15a_n07_VIg");
+            final Band band4 = product.getBand("data_molly_AVHRR_samer_SA81aug15b_n07_VIg");
+            final Band band5 = product.getBand("data_molly_AVHRR_samer_SA81sep15a_n07_VIg");
+            final Band band6 = product.getBand("data_molly_AVHRR_samer_SA81sep15b_n07_VIg");
+            assertNotNull(band1);
+            assertNotNull(band2);
+            assertNotNull(band3);
+            assertNotNull(band4);
+            assertNotNull(band5);
+            assertNotNull(band6);
+            assertEquals("non formatted band name: _/data/molly/AVHRR/samer/SA81jul15a.n07-VIg", band1.getDescription());
+            assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81jul15b.n07-VIg_", band2.getDescription());
+            assertEquals("", band3.getDescription()); //bandname are valid
+            assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81aug15b.n07-VIg", band4.getDescription());
+            assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81sep15a.n07-VIg", band5.getDescription());
+            assertEquals("non formatted band name: /data/molly/AVHRR/samer/SA81sep15b.n07-VIg", band6.getDescription());
 
-        Band[] allBands = product.getBands();
-        for (Band band : allBands) {
-            assertTrue(band.isNoDataValueUsed());
-            assertEquals(42, band.getNoDataValue(), 1e-9);
+            Band[] allBands = product.getBands();
+            for (Band band : allBands) {
+                assertTrue(band.isNoDataValueUsed());
+                assertEquals(42, band.getNoDataValue(), 1e-9);
+            }
+            assertEquals(100f, band1.getSpectralWavelength(), 1e-5);
+            assertEquals(10f, band1.getSpectralBandwidth(), 1e-5);
+
+            assertEquals(1, product.getIndexCodingGroup().getNodeCount());
+            IndexCoding indexCoding = product.getIndexCodingGroup().get(0);
+            assertEquals("classification", indexCoding.getName());
+            assertArrayEquals(new String[]{"classA", "classB"}, indexCoding.getIndexNames());
+        } finally {
+            product.dispose();
         }
-        assertEquals(100f, band1.getSpectralWavelength(), 1e-5);
-        assertEquals(10f, band1.getSpectralBandwidth(), 1e-5);
-
-        assertEquals(1, product.getIndexCodingGroup().getNodeCount());
-        IndexCoding indexCoding = product.getIndexCodingGroup().get(0);
-        assertEquals("classification", indexCoding.getName());
-        assertArrayEquals(new String[]{"classA", "classB"}, indexCoding.getIndexNames());
     }
 
     @Test
@@ -206,11 +233,15 @@ public class EnviProductReaderTest {
 
         final EnviProductReaderPlugIn plugIn = new EnviProductReaderPlugIn();
         final ProductReader reader = plugIn.createReaderInstance();
-        product = reader.readProductNodes(headerFile, null);
+        final Product product = reader.readProductNodes(headerFile, null);
 
-        assertNotNull(product);
-        assertEquals("16-JAN-1998 05:06:07.000000", product.getStartTime().format());
-        assertEquals(null, product.getEndTime());
+        try {
+            assertNotNull(product);
+            assertEquals("16-JAN-1998 05:06:07.000000", product.getStartTime().format());
+            assertEquals(null, product.getEndTime());
+        } finally {
+            product.dispose();
+        }
     }
 
     @Test
@@ -220,22 +251,26 @@ public class EnviProductReaderTest {
 
         final EnviProductReaderPlugIn plugIn = new EnviProductReaderPlugIn();
         final ProductReader reader = plugIn.createReaderInstance();
-        product = reader.readProductNodes(headerFile, null);
+        final Product product = reader.readProductNodes(headerFile, null);
 
-        assertNotNull(product);
-        MetadataElement metadataRoot = product.getMetadataRoot();
-        assertEquals(1, metadataRoot.getNumElements());
-        MetadataElement headerElem = metadataRoot.getElementAt(0);
-        assertNotNull(headerElem);
-        assertEquals("Header", headerElem.getName());
-        String[] attributeNames = headerElem.getAttributeNames();
-        String[] expected = new String[]{
-                "description", "samples", "lines", "bands", "header offset", "file type",
-                "data type", "interleave", "sensor type", "byte order", "data ignore value", "map info",
-                "projection info", "wavelength", "fwhm", "wavelength units", "band names",
-                "classes", "class lookup", "class names"
-        };
-        assertArrayEquals(expected, attributeNames);
+        try {
+            assertNotNull(product);
+            MetadataElement metadataRoot = product.getMetadataRoot();
+            assertEquals(1, metadataRoot.getNumElements());
+            MetadataElement headerElem = metadataRoot.getElementAt(0);
+            assertNotNull(headerElem);
+            assertEquals("Header", headerElem.getName());
+            String[] attributeNames = headerElem.getAttributeNames();
+            String[] expected = new String[]{
+                    "description", "samples", "lines", "bands", "header offset", "file type",
+                    "data type", "interleave", "sensor type", "byte order", "data ignore value", "map info",
+                    "projection info", "wavelength", "fwhm", "wavelength units", "band names",
+                    "classes", "class lookup", "class names"
+            };
+            assertArrayEquals(expected, attributeNames);
+        } finally {
+            product.dispose();
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -296,15 +331,9 @@ public class EnviProductReaderTest {
         return writer.toString();
     }
 
-    private File tDir;
-    private static final String MAP_INFO = "SamerAlbers, 1.0000, 1.0000, -479862.9999, 1288756.5614, 8.0000000000e+03,8.0000000000e+03,WGS-84,units=Meters";
-
     private File createHeaderAndImageFile(final String headerContent, String headerFileName) throws IOException {
-        tDir = new File("testDir");
-        tDir.mkdirs();
-
-        final File headerFile = new File(tDir, headerFileName + ".hdr");
-        final File imageFile = new File(tDir, headerFileName + ".img");
+        final File headerFile = new File(TEST_DIR, headerFileName + ".hdr");
+        final File imageFile = new File(TEST_DIR, headerFileName + ".img");
         assertTrue(headerFile.createNewFile());
         assertTrue(imageFile.createNewFile());
 
@@ -312,16 +341,6 @@ public class EnviProductReaderTest {
         outputStream.write(headerContent.getBytes());
         outputStream.close();
         return headerFile;
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        if (product != null) {
-            product.dispose();
-        }
-        if (tDir != null) {
-            FileUtils.deleteTree(tDir);
-        }
     }
 
 }
