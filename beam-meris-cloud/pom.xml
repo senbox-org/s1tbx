@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-envisat-reader</artifactId>
-            <version>${beam.versionRange}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

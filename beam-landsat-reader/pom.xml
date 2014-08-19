@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-geotiff</artifactId>
-            <version>${beam.versionRange}</version>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.xeustechnologies</groupId>
