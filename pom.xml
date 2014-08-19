@@ -18,8 +18,6 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize} -XX:MaxPermSize=${test.jvm.maxpermsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${context}</surefire.jvm.args>
 		
-        <beam.versionRange>[5.0,5.1-SNAPSHOT)</beam.versionRange>
-        <ceres.versionRange>[0.14,0.15-SNAPSHOT)</ceres.versionRange>
         <nest.version>6.0-SNAPSHOT</nest.version>
 		<jlinda.version>0.8</jlinda.version>
 		<rstb.version>6.2-SNAPSHOT</rstb.version>
@@ -102,14 +100,16 @@
             </snapshots>
         </repository>
         <repository>
-            <id>bc-mvn-repo</id>
-            <name>Public Maven Repository at Brockmann-Consult</name>
-            <url>http://www.brockmann-consult.de/mvn/os</url>
+            <id>snap-repo-public</id>
+            <name>Public Maven Repository for SNAP</name>
+            <url>http://nexus.senbox.net/nexus/content/repositories/public/</url>
             <releases>
                 <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
             </releases>
             <snapshots>
                 <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
             </snapshots>
         </repository>
         <repository>
@@ -192,94 +192,94 @@
             <!-- Ceres System Level Module ############################################# -->
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-launcher</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-launcher</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-core</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-ceres-core</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-binding</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-binding</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-ui</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-ceres-ui</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
 			<dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-binio</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-binio</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-glayer</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-glayer</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 			
 			<dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-jai</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-jai</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 			
 			<dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-metadata</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-metadata</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 			
             <!-- BEAM System Level Modules ############################################# -->
 
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-core</artifactId>
-				<version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-core</artifactId>
+				<version>${snap.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-gpf</artifactId>
-				<version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-gpf</artifactId>
+				<version>${snap.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-ui</artifactId>
-				<version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-ui</artifactId>
+				<version>${snap.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-visat-rcp</artifactId>
-				<version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-visat-rcp</artifactId>
+				<version>${snap.version}</version>
             </dependency>
 
             <!-- BEAM Modules ############################################# -->
 
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-envisat-reader</artifactId>
-                <version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-envisat-reader</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-geotiff</artifactId>
-                <version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-geotiff</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-envi-reader</artifactId>
-                <version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-envi-reader</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
@@ -301,9 +301,9 @@
             </dependency>
 			
 			<dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-netcdf</artifactId>
-                <version>5.0.2-SNAPSHOT</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-netcdf</artifactId>
+                <version>${beam.version}</version>
             </dependency>
 			
 			<dependency>

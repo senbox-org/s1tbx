@@ -14,13 +14,13 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
     </dependency>
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
         <module>snap-engine-utilities</module>
@@ -31,11 +31,11 @@
 
     <categories>Application,DAT</categories>
 
-    <extension point="ceres-core:applications">
+    <extension point="snap-ceres-core:applications">
         <application id="S1TBXMain" class="org.esa.nest.dat.S1TBXMain"/>
     </extension>
 
-    <extension point="beam-ui:applicationDescriptors">
+    <extension point="snap-ui:applicationDescriptors">
         <applicationDescriptor>
             <applicationId>S1TBXMain</applicationId>
             <displayName>SENTINEL-1 TOOLBOX</displayName>
@@ -62,7 +62,7 @@
     </extension>
 
 
-    <extension point="beam-ui:layerSources">
+    <extension point="snap-ui:layerSources">
         <layerSource>
             <id>maptools-layer-source</id>
             <name>Mapping Tools</name>
@@ -71,14 +71,14 @@
         </layerSource>
     </extension>
 
-    <extension point="beam-ui:layerEditors">
+    <extension point="snap-ui:layerEditors">
         <layerEditor>
             <editor>org.esa.nest.dat.layers.maptools.MapToolsLayerEditor</editor>
             <layerType>org.esa.nest.dat.layers.maptools.MapToolsLayerType</layerType>
         </layerEditor>
     </extension>
 
-    <extension point="beam-ui:toolViews">
+    <extension point="snap-ui:toolViews">
 
         <toolView>
             <id>org.esa.nest.dat.toolviews.Projects.ProjectsToolView</id>
@@ -126,7 +126,7 @@
         </toolView>
     </extension>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
 
         <action>
             <id>showProcessorsToolBar</id>
@@ -612,9 +612,9 @@
 
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-help</parent>
             <id>DATHelp</id>
             <path>doc/help/dat.hs</path>
         </helpSet>

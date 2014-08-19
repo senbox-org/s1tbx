@@ -14,10 +14,10 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
     <dependency>
         <module>snap-engine-utilities</module>
@@ -46,7 +46,7 @@
         </OperatorUI>
     </extension>
 
-    <extension point="beam-ui:layerSources">
+    <extension point="snap-ui:layerSources">
         <layerSource>
             <id>object-detection-layer-source</id>
             <name>Object Detection Results</name>
@@ -61,7 +61,7 @@
         </layerSource>
     </extension>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
 
         <action>
             <id>Masks</id>
@@ -281,9 +281,9 @@
         </action>
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-help</parent>
             <id>featureExtractionHelp</id>
             <path>doc/help/feature-extraction.hs</path>
         </helpSet>

@@ -54,7 +54,7 @@
         </OperatorUI>
     </extension>
 
-    <extension point="beam-ui:layerSources">
+    <extension point="snap-ui:layerSources">
         <layerSource>
             <id>gcp-vector-layer-source</id>
             <name>GCP Movement Vector</name>
@@ -63,7 +63,7 @@
         </layerSource>
     </extension>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
 
         <action>
             <id>CreateStack</id>
@@ -138,9 +138,9 @@
 
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-help</parent>
             <id>coregistrationHelp</id>
             <path>doc/help/coregistration.hs</path>
         </helpSet>

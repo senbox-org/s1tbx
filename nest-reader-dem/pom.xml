@@ -26,8 +26,8 @@
             <artifactId>nest-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-geotiff</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-geotiff</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jlinda</groupId>

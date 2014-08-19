@@ -13,7 +13,7 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
     <dependency>
         <module>snap-engine-utilities</module>

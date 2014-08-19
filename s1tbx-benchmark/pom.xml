@@ -25,8 +25,8 @@
             <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-gpf</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-gpf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.nest</groupId>
