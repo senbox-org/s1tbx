@@ -68,7 +68,7 @@
             The application id is given by the 'id' attribute,
             the application class by the 'class' attribute, e.g.
 
-            <extension point="ceres-core:applications">
+            <extension point="snap-ceres-core:applications">
                 <application id="MyApp" class="com.acme.MyApp" />
             </extension>
 

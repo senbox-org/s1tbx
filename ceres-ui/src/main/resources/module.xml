@@ -50,10 +50,10 @@
     <url>http://www.brockmann-consult.de/</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
-    <extension point="ceres-core:applications">
+    <extension point="snap-ceres-core:applications">
         <application id="UpdateUIMain" class="com.bc.ceres.swing.update.ModuleManagerMain"/>
     </extension>
-    <extension point="ceres-core:serviceProviders">
+    <extension point="snap-ceres-core:serviceProviders">
         <serviceProvider>com.bc.ceres.swing.binding.PropertyEditor</serviceProvider>
     </extension>
 </module>
