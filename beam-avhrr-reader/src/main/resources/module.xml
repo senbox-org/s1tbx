@@ -30,7 +30,7 @@
 
     <categories>Reader,AVHRR</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importNoaaAvhrr3L1bProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
@@ -44,7 +44,7 @@
         </action>
     </extension>
 
-    <extension point="beam-core:rgbProfiles">
+    <extension point="snap-core:rgbProfiles">
         <rgbProfile>
             <name>AVHRR/3 L1b - 3a,2,1, Day</name>
             <red>radiance_3a</red>

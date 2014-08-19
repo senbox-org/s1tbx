@@ -37,7 +37,7 @@
 
     <categories>Reader</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importEnviProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>

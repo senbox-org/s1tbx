@@ -33,7 +33,7 @@
 
     <categories>Reader,MODIS,HDF,VISAT</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importModisProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
@@ -47,7 +47,7 @@
         </action>
     </extension>
 
-    <extension point="beam-core:rgbProfiles">
+    <extension point="snap-core:rgbProfiles">
         <rgbProfile>
             <name>MOD021KM High Quality</name>
             <red>log(1 + 0.04 * EV_1KM_RefSB.8 + 0.35 * EV_1KM_RefSB.9 + 0.03 * EV_1KM_RefSB.10 + 0.17 * EV_1KM_RefSB.11

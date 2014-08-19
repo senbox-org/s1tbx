@@ -38,7 +38,7 @@
     <categories>Processor,System</categories>
 
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>ExampleNDVIPythonOperator</id>
             <helpId>beamOverview</helpId>

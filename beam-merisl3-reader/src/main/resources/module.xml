@@ -31,7 +31,7 @@
 
     <categories>Reader,MERIS,VISAT,Level-3,NetCDF</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importMerisBinnedL3Product</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>

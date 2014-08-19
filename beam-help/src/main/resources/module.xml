@@ -48,9 +48,9 @@
         <module>snap-ui</module>
     </dependency>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <id>beam-help</id>
+            <id>snap-help</id>
             <path>doc/help/beam.hs</path>
         </helpSet>
     </extension>

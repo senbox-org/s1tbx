@@ -30,7 +30,7 @@
     </changelog>
     <categories>Reader,ALOS,AVNIR,PRISM</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importAvnir2Product</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
@@ -55,7 +55,7 @@
         </action>
     </extension>
 
-    <extension point="beam-core:rgbProfiles">
+    <extension point="snap-core:rgbProfiles">
         <rgbProfile>
             <name>AVNIR-2 - 3,2,1</name>
             <red>radiance_3</red>

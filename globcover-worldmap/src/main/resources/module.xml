@@ -34,7 +34,7 @@
         <optional>true</optional>
     </dependency>
 
-    <extension point="beam-ui:layerSources">
+    <extension point="snap-ui:layerSources">
         <layerSource>
             <id>globcover-source</id>
             <name>World Map (ESA GlobCover)</name>

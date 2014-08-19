@@ -15,7 +15,7 @@
         <module>snap-visat-rcp</module>
     </dependency>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
 
         <action>
             <id>createExpectedJsonCode</id>

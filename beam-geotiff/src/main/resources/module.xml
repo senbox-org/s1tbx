@@ -47,7 +47,7 @@
 
     <categories>Reader,Writer,GeoTIFF,VISAT</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importGeoTIFFProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
@@ -70,9 +70,9 @@
         </action>
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-help</parent>
             <path>doc/help/geotiff.hs</path>
         </helpSet>
     </extension>

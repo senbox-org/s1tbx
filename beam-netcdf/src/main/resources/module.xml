@@ -55,7 +55,7 @@
     <categories>Reader,NetCDF,HDF,CF,EOS</categories>
 
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importNetCdfGenericProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
