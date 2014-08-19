@@ -227,6 +227,12 @@
         </dependency>
 
         <dependency>
+            <groupId>uk.me.jstott</groupId>
+            <artifactId>jcoord</artifactId>
+            <version>1.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>net.sf.squirrel-sql.thirdparty-non-maven</groupId>
             <artifactId>napkinlaf</artifactId>
             <version>1.2</version>

@@ -15,35 +15,26 @@
  */
 package org.esa.snap.db;
 
-import junit.framework.TestCase;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.sql.SQLException;
 
 
 /**
-
+ * Test db query
  */
-public class TestDBQuery extends TestCase {
+public class TestDBQuery {
 
     private ProductDB db;
 
-    public TestDBQuery(String name) {
-        super(name);
-    }
-
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-
         db = ProductDB.instance();
     }
 
-    public void tearDown() throws Exception {
-        super.tearDown();
-
-        ProductDB.deleteInstance();
-    }
-
+    @Test
     public void testQuery() throws SQLException {
         final DBQuery dbQuery = new DBQuery();
         dbQuery.setSelectedMissions(new String[]{"ENVISAT"});
@@ -52,6 +43,7 @@ public class TestDBQuery extends TestCase {
         showProductEntries(productEntryList);
     }
 
+    //@Test //todo
     public void testFreeQuery() throws SQLException {
         final DBQuery dbQuery = new DBQuery();
         dbQuery.setFreeQuery(AbstractMetadata.PRODUCT + " LIKE 'RS2_SGF%'");

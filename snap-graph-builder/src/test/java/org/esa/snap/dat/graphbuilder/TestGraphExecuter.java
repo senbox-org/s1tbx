@@ -15,13 +15,17 @@
  */
 package org.esa.snap.dat.graphbuilder;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.snap.util.TestUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.Observer;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * GraphExecuter Tester.
@@ -30,31 +34,26 @@ import java.util.Set;
  * @version 1.0
  * @since 12/21/2007
  */
-public class TestGraphExecuter extends TestCase implements Observer {
+public class TestGraphExecuter implements Observer {
 
     private GraphExecuter graphEx;
     private String updateValue = "";
 
-    public TestGraphExecuter(String name) {
-        super(name);
-    }
-
+    @Before
     public void setUp() throws Exception {
-        TestUtils.initTestEnvironment();
+        //TestUtils.initTestEnvironment();
         graphEx = new GraphExecuter();
         graphEx.addObserver(this);
     }
 
-    public void tearDown() throws Exception {
-        graphEx = null;
-    }
-
+    @Test
     public void testGetOperators() {
         Set opList = graphEx.GetOperatorList();
 
         assertTrue(!opList.isEmpty());
     }
 
+    @Test
     public void testAddOperator() {
         updateValue = "";
         graphEx.addOperator("testOp");
@@ -64,6 +63,7 @@ public class TestGraphExecuter extends TestCase implements Observer {
         assertEquals(updateValue, "Add");
     }
 
+    @Test
     public void testClear() {
         graphEx.addOperator("testOp");
 
@@ -74,6 +74,7 @@ public class TestGraphExecuter extends TestCase implements Observer {
         assertEquals(0, nodeList.size());
     }
 
+    @Test
     public void testRemoveOperator() {
         GraphNode node = graphEx.addOperator("testOp");
 
@@ -86,6 +87,7 @@ public class TestGraphExecuter extends TestCase implements Observer {
         assertEquals(updateValue, "Remove");
     }
 
+    @Test
     public void testFindGraphNode() {
         GraphNode lostNode = graphEx.addOperator("lostOp");
 
@@ -95,6 +97,7 @@ public class TestGraphExecuter extends TestCase implements Observer {
         graphEx.ClearGraph();
     }
 
+    @Test
     public void testSetSelected() {
         GraphNode node = graphEx.addOperator("testOp");
 
@@ -106,6 +109,7 @@ public class TestGraphExecuter extends TestCase implements Observer {
         graphEx.ClearGraph();
     }
 
+    @Test
     public void testCreateGraph() throws GraphException {
         GraphNode nodeA = graphEx.addOperator("testOp");
         GraphNode nodeB = graphEx.addOperator("testOp");

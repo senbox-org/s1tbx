@@ -51,29 +51,92 @@ public class TestUtils {
     private final static String contextID = ResourceUtils.getContextID();
     private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap(contextID + ".tests");
 
-    public final static String rootPathExpectedProducts = testPreferences.getPropertyString(contextID + ".test.rootPathExpectedProducts");
-    public final static String rootPathTerraSarX = testPreferences.getPropertyString(contextID + ".test.rootPathTerraSarX");
-    public final static String rootPathASAR = testPreferences.getPropertyString(contextID + ".test.rootPathASAR");
-    public final static String rootPathRadarsat2 = testPreferences.getPropertyString(contextID + ".test.rootPathRadarsat2");
-    public final static String rootPathRadarsat1 = testPreferences.getPropertyString(contextID + ".test.rootPathRadarsat1");
-    public final static String rootPathSentinel1 = testPreferences.getPropertyString(contextID + ".test.rootPathSentinel1");
-    public final static String rootPathERS = testPreferences.getPropertyString(contextID + ".test.rootPathERS");
-    public final static String rootPathJERS = testPreferences.getPropertyString(contextID + ".test.rootPathJERS");
-    public final static String rootPathALOS = testPreferences.getPropertyString(contextID + ".test.rootPathALOS");
-    public final static String rootPathCosmoSkymed = testPreferences.getPropertyString(contextID + ".test.rootPathCosmoSkymed");
-    public final static String rootPathMixProducts = testPreferences.getPropertyString(contextID + ".test.rootPathMixProducts");
+    @Deprecated
+    public final static String rootPathExpectedProducts;
+    @Deprecated
+    public final static String rootPathTerraSarX;
+    @Deprecated
+    public final static String rootPathASAR;
+    @Deprecated
+    public final static String rootPathRadarsat2;
+    @Deprecated
+    public final static String rootPathRadarsat1;
+    @Deprecated
+    public final static String rootPathSentinel1;
+    @Deprecated
+    public final static String rootPathERS;
+    @Deprecated
+    public final static String rootPathJERS;
+    @Deprecated
+    public final static String rootPathALOS;
+    @Deprecated
+    public final static String rootPathCosmoSkymed;
+    @Deprecated
+    public final static String rootPathMixProducts;
 
-    private final static int subsetX = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetX"));
-    private final static int subsetY = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetY"));
-    private final static int subsetWidth = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetWidth"));
-    private final static int subsetHeight = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetHeight"));
+    private final static int subsetX;
+    private final static int subsetY;
+    private final static int subsetWidth;
+    private final static int subsetHeight;
 
-    private static final int maxIteration = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.maxProductsPerRootFolder"));
-    private static final String testReadersOnAllProducts = testPreferences.getPropertyString(contextID + ".test.ReadersOnAllProducts");
-    private static final String testProcessingOnAllProducts = testPreferences.getPropertyString(contextID + ".test.ProcessingOnAllProducts");
+    private static final int maxIteration;
+    private static final String testReadersOnAllProducts;
+    private static final String testProcessingOnAllProducts;
 
-    public static final boolean canTestReadersOnAllProducts = testReadersOnAllProducts != null && testReadersOnAllProducts.equalsIgnoreCase("true");
-    public static final boolean canTestProcessingOnAllProducts = testProcessingOnAllProducts != null && testProcessingOnAllProducts.equalsIgnoreCase("true");
+    public static final boolean canTestReadersOnAllProducts;
+    public static final boolean canTestProcessingOnAllProducts;
+
+    static {
+        if(testPreferences != null) {
+            rootPathExpectedProducts = testPreferences.getPropertyString(contextID + ".test.rootPathExpectedProducts");
+            rootPathTerraSarX = testPreferences.getPropertyString(contextID + ".test.rootPathTerraSarX");
+            rootPathASAR = testPreferences.getPropertyString(contextID + ".test.rootPathASAR");
+            rootPathRadarsat2 = testPreferences.getPropertyString(contextID + ".test.rootPathRadarsat2");
+            rootPathRadarsat1 = testPreferences.getPropertyString(contextID + ".test.rootPathRadarsat1");
+            rootPathSentinel1 = testPreferences.getPropertyString(contextID + ".test.rootPathSentinel1");
+            rootPathERS = testPreferences.getPropertyString(contextID + ".test.rootPathERS");
+            rootPathJERS = testPreferences.getPropertyString(contextID + ".test.rootPathJERS");
+            rootPathALOS = testPreferences.getPropertyString(contextID + ".test.rootPathALOS");
+            rootPathCosmoSkymed = testPreferences.getPropertyString(contextID + ".test.rootPathCosmoSkymed");
+            rootPathMixProducts = testPreferences.getPropertyString(contextID + ".test.rootPathMixProducts");
+
+            subsetX = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetX"));
+            subsetY = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetY"));
+            subsetWidth = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetWidth"));
+            subsetHeight = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetHeight"));
+
+            maxIteration = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.maxProductsPerRootFolder"));
+            testReadersOnAllProducts = testPreferences.getPropertyString(contextID + ".test.ReadersOnAllProducts");
+            testProcessingOnAllProducts = testPreferences.getPropertyString(contextID + ".test.ProcessingOnAllProducts");
+
+            canTestReadersOnAllProducts = testReadersOnAllProducts != null && testReadersOnAllProducts.equalsIgnoreCase("true");
+            canTestProcessingOnAllProducts = testProcessingOnAllProducts != null && testProcessingOnAllProducts.equalsIgnoreCase("true");
+        } else {
+            rootPathExpectedProducts = "";
+            rootPathTerraSarX = "";
+            rootPathASAR = "";
+            rootPathRadarsat2 = "";
+            rootPathRadarsat1 = "";
+            rootPathSentinel1 = "";
+            rootPathERS = "";
+            rootPathJERS = "";
+            rootPathALOS = "";
+            rootPathCosmoSkymed = "";
+            rootPathMixProducts = "";
+
+            subsetX = 0;
+            subsetY = 0;
+            subsetWidth = 0;
+            subsetHeight = 0;
+
+            maxIteration = 0;
+            testReadersOnAllProducts = "";
+            testProcessingOnAllProducts = "";
+
+            canTestReadersOnAllProducts = false;
+            canTestProcessingOnAllProducts = false;
+        }
+    }
 
     private static final boolean DEBUG = false;
     private static final boolean FailOnSkip = false;

@@ -105,8 +105,8 @@ public class DbfReadingTest {
     private void testRow(DbaseFileReader reader, int value, String name) throws IOException {
         DbaseFileReader.Row row = reader.readRow();
         final Object actual = row.read(0);
-        assertEquals(Double.class, actual.getClass());
-        assertEquals(value, ((Double) actual).intValue());
+        assertEquals(Integer.class, actual.getClass());
+        assertEquals(value, ((Integer) actual).intValue());
         assertEquals(name, (String) row.read(1));
     }
 }

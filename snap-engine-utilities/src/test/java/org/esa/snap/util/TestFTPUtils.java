@@ -15,31 +15,21 @@
  */
 package org.esa.snap.util;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.Map;
 
+import static org.junit.Assert.assertTrue;
 
 /**
  * FTPUtils Tester.
  *
  * @author lveci
  */
-public class TestFTPUtils extends TestCase {
+public class TestFTPUtils {
 
-    public TestFTPUtils(String name) {
-        super(name);
-    }
-
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testConnect() throws Exception {
         final String server = "xftp.jrc.it";
         final String remotePath = "/pub/srtmV4/tiff/";

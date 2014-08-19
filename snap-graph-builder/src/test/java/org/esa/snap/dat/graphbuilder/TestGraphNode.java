@@ -16,11 +16,15 @@
 package org.esa.snap.dat.graphbuilder;
 
 import com.bc.ceres.binding.dom.XppDomElement;
-import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.framework.gpf.graph.NodeSource;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.awt.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * GraphNode Tester.
@@ -29,16 +33,12 @@ import java.awt.*;
  * @version 1.0
  * @since <pre>12/21/2007</pre>
  */
-public class TestGraphNode extends TestCase {
+public class TestGraphNode {
 
     private Node node;
     private GraphNode graphNode;
 
-    public TestGraphNode(String name) {
-        super(name);
-    }
-
-    @Override
+    @Before
     public void setUp() throws Exception {
         node = new Node("id", "readOp");
         final XppDomElement parameters = new XppDomElement("parameters");
@@ -47,12 +47,7 @@ public class TestGraphNode extends TestCase {
         graphNode = new GraphNode(node);
     }
 
-    @Override
-    public void tearDown() throws Exception {
-        node = null;
-        graphNode = null;
-    }
-
+    @Test
     public void testPosition() {
         Point p1 = new Point(1, 2);
         graphNode.setPos(p1);
@@ -62,6 +57,7 @@ public class TestGraphNode extends TestCase {
         assertEquals(p1, p2);
     }
 
+    @Test
     public void testNode() {
 
         assertEquals(node, graphNode.getNode());
@@ -69,6 +65,7 @@ public class TestGraphNode extends TestCase {
         assertEquals(node.getOperatorName(), graphNode.getOperatorName());
     }
 
+    @Test
     public void testSourceConnection() {
         final Node sourceNode = new Node("sourceID", "testSourceNodeOp");
         final XppDomElement parameters = new XppDomElement("parameters");
@@ -90,5 +87,4 @@ public class TestGraphNode extends TestCase {
         NodeSource[] nsList = node.getSources();
         assertEquals(nsList.length, 0);
     }
-
 }
