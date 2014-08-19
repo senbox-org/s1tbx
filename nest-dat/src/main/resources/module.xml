@@ -43,15 +43,11 @@
             <image>/org/esa/snap/icons/esa-planet.png</image>
             <excludedActions>
                 <id>showDataSources</id>
-                <id>new</id>
-                <id>open</id>
                 <id>createAsarNrcsBands</id>
                 <id>showHomePage</id>
                 <id>about</id>
                 <id>productGrabber</id>
-                <id>mosaicAction</id>
                 <id>selectTool</id>
-                <id>PCAOp</id>
                 <id>createDemRelatedBands</id>
                 <id>showImageView</id>
             </excludedActions>
@@ -231,27 +227,11 @@
         </action>
 
         <action>
-            <id>openRaster</id>
-            <class>org.esa.beam.visat.actions.OpenAction</class>
-            <parent>file</parent>
-            <text>Open Raster Product</text>
-            <mnemonic>O</mnemonic>
-            <accelerator>control O</accelerator>
-            <separatorBefore>true</separatorBefore>
-            <placeAfter>closeProject</placeAfter>
-            <shortDescr>Open a raster data product.</shortDescr>
-            <description>Open a raster data product.</description>
-            <smallIcon>icons/Open16.gif</smallIcon>
-            <largeIcon>icons/Open24.gif</largeIcon>
-            <helpId>open</helpId>
-        </action>
-
-        <action>
             <id>showProductLibrary</id>
             <class>org.esa.nest.dat.actions.ShowProductLibraryAction</class>
             <parent>file</parent>
             <text>Product Library</text>
-            <placeAfter>openRaster</placeAfter>
+            <placeAfter>open</placeAfter>
             <shortDescr>Show Product Library Metadata Database</shortDescr>
             <description>Show Product Library Metadata Database</description>
             <smallIcon>/org/esa/nest/icons/product_library16.png</smallIcon>
@@ -379,54 +359,12 @@
         </action>
 
         <action>
-            <id>showNestForum</id>
-            <parent>help</parent>
-            <class>org.esa.nest.dat.actions.ShowForumPageAction</class>
-            <text>User Help Forum</text>
-            <separatorAfter>true</separatorAfter>
-            <shortDescr>Opens the NEST forum.</shortDescr>
-            <description>Opens the NEST forum page with the default web browser.</description>
-            <placeAfter>helpTopics</placeAfter>
-        </action>
-
-        <action>
-            <id>showNestHomePage</id>
-            <parent>help</parent>
-            <class>org.esa.nest.dat.actions.ShowHomePageAction</class>
-            <text>NEST Home Page</text>
-            <mnemonic>B</mnemonic>
-            <shortDescr>Opens the NEST home page.</shortDescr>
-            <description>Opens the NEST home page with the default web browser.</description>
-            <placeAfter>helpTopics</placeAfter>
-        </action>
-
-        <action>
             <id>testConnectivity</id>
             <parent>help</parent>
             <class>org.esa.nest.dat.actions.TestConnectivityAction</class>
             <text>Test Connectivity</text>
             <shortDescr>Test FTP connection for automatic downloads of DEMs</shortDescr>
             <placeAfter>checkForUpdate</placeAfter>
-        </action>
-
-        <action>
-            <id>ReportABug</id>
-            <parent>help</parent>
-            <class>org.esa.nest.dat.actions.ReportABugAction</class>
-            <text>Report a Bug</text>
-            <shortDescr>Email a bug to Array</shortDescr>
-            <description>Email a problem with NEST to Array</description>
-            <placeAfter>helpTopics</placeAfter>
-        </action>
-
-        <action>
-            <id>RequestFeature</id>
-            <parent>help</parent>
-            <class>org.esa.nest.dat.actions.RequestFeatureAction</class>
-            <text>Request a Feature</text>
-            <shortDescr>Email a request for a new feature</shortDescr>
-            <description>Email a new feature request to Array</description>
-            <placeAfter>ReportABug</placeAfter>
         </action>
 
         <action>
