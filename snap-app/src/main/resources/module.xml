@@ -22,7 +22,7 @@
         <application id="SNAPMain" class="org.esa.snap.SNAPMain"/>
     </extension>
 
-    <extension point="beam-ui:applicationDescriptors">
+    <extension point="snap-ui:applicationDescriptors">
         <applicationDescriptor>
             <applicationId>SNAPMain</applicationId>
             <displayName>SENTINEL TOOLBOX</displayName>
@@ -38,28 +38,28 @@
     </extension>
 
 
-    <extension point="beam-ui:layerSources">
+    <extension point="snap-ui:layerSources">
 
     </extension>
 
-    <extension point="beam-ui:layerEditors">
+    <extension point="snap-ui:layerEditors">
 
     </extension>
 
-    <extension point="beam-ui:toolViews">
-
-
-    </extension>
-
-    <extension point="beam-ui:actions">
-
+    <extension point="snap-ui:toolViews">
 
 
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:actions">
+
+
+
+    </extension>
+
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-help</parent>
             <id>Help</id>
             <path>doc/help/dat.hs</path>
         </helpSet>
