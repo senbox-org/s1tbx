@@ -54,14 +54,14 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-envisat-reader</artifactId>
-            <version>${beam.versionRange}</version>
+            <version>${snap.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>blue-marble-worldmap</artifactId>
-            <version>${beam.versionRange}</version>
+            <version>${snap.version}</version>
             <scope>test</scope>
         </dependency>
 
