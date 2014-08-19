@@ -36,6 +36,7 @@ public class DiagramAxis implements Serializable {
     private double maxValue;
     private int numMajorTicks;
     private int numMinorTicks;
+    private boolean isMinToMax;
 
     public DiagramAxis() {
         this(null, null);
@@ -49,6 +50,7 @@ public class DiagramAxis implements Serializable {
         maxValue = 100.0;
         numMajorTicks = 3;
         numMinorTicks = 5;
+        isMinToMax = true;
     }
 
     public String getName() {
@@ -90,6 +92,22 @@ public class DiagramAxis implements Serializable {
             this.unitFactor = unitFactor;
             invalidate();
         }
+    }
+
+    /**
+     * Sets if Axis increases from min to max or decreases max to min
+     * isMinToMax true if increases min to max
+     */
+    public void setMinToMax(final boolean isMinToMax) {
+        this.isMinToMax = isMinToMax;
+    }
+
+    /**
+     * Does Axis increase from min to max or decrease max to min
+     * @return true if increases min to max
+     */
+    public boolean isMinToMax() {
+        return isMinToMax;
     }
 
     public double getMinValue() {
