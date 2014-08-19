@@ -97,8 +97,6 @@ public class EnviProductReader extends AbstractProductReader {
 
             applyBeamProperties(product, header.getBeamProperties());
 
-            // imageInputStream must be initialized last
-            initializeInputStreamForBandData(inputFile, header.getJavaByteOrder());
 	        initMetadata(product, inputFile);
             return product;
         } finally {
