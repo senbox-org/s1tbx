@@ -786,7 +786,8 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-                    <finalName>beam</finalName>
+                    <finalName>s3tbx</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                     <descriptors>
                         <!-- <descriptor>src/main/assembly/beam-web-help.xml</descriptor> -->
                         <descriptor>src/main/assembly/bin.xml</descriptor>
