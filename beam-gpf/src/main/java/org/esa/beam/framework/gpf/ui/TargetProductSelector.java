@@ -247,7 +247,9 @@ public class TargetProductSelector {
             Window windowAncestor = null;
             if (event.getSource() instanceof JComponent) {
                 JButton button = (JButton) event.getSource();
-                windowAncestor = SwingUtilities.getWindowAncestor(button);
+                if (button != null) {
+                    windowAncestor = SwingUtilities.getWindowAncestor(button);
+                }
             }
             final JFileChooser chooser = FileChooserFactory.getInstance().createDirChooser(model.getProductDir());
             chooser.setDialogTitle("Select Target Directory");
