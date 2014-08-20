@@ -154,7 +154,7 @@ public final class ResourceUtils {
     }
 
     public static File getResFolder() {
-        return new File(ResourceUtils.getHomeUrl(), "res");
+        return new File(ResourceUtils.getHomeUrl(), "resource");
     }
 
     public static File findUserAppFile(String filename) {
