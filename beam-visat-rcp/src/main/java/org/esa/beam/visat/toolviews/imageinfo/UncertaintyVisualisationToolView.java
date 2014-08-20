@@ -21,6 +21,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
+import org.esa.beam.jai.ImageManager;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -54,16 +55,7 @@ public class UncertaintyVisualisationToolView extends AbstractToolView {
         @Override
         public RasterDataNode getRaster() {
             RasterDataNode raster = getProductSceneView().getRaster();
-            RasterDataNode uncertaintyBand;
-            uncertaintyBand = raster.getAncillaryBand("uncertainty");
-            if (uncertaintyBand != null) {
-                return uncertaintyBand;
-            }
-            uncertaintyBand = raster.getAncillaryBand("variance");
-            if (uncertaintyBand != null) {
-                return uncertaintyBand;
-            }
-            return null;
+            return ImageManager.getUncertaintyBand(raster);
         }
 
         @Override

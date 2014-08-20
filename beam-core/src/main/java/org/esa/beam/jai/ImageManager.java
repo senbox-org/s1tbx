@@ -395,28 +395,45 @@ public class ImageManager {
         if (validMaskImage != null) {
             valueImage = maskRgbImage(valueImage, validMaskImage, valueImageInfo.getNoDataColor());
         }
-
-        RasterDataNode varianceBand = valueBand.getAncillaryBand("variance");
-        if (varianceBand != null) {
-            ImageInfo uncertaintyImageInfo = varianceBand.getImageInfo(ProgressMonitor.NULL);
-            PlanarImage uncertaintySourceImage = getSourceImage(varianceBand, level);
+        RasterDataNode uncertaintyBand = getUncertaintyBand(valueBand);
+        if (uncertaintyBand != null) {
+            ImageInfo uncertaintyImageInfo = uncertaintyBand.getImageInfo(ProgressMonitor.NULL);
+            PlanarImage uncertaintySourceImage = getSourceImage(uncertaintyBand, level);
             if (uncertaintyImageInfo.getUncertaintyVisualisationMode() == ImageInfo.UncertaintyVisualisationMode.Transparency_Blending) {
-                PlanarImage uncertaintyImage = createByteIndexedImage(varianceBand, uncertaintySourceImage, uncertaintyImageInfo, true);
+                PlanarImage uncertaintyImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, true);
                 valueImage = maskRgbImage(valueImage, uncertaintyImage, new Color(0, 0, 0, 0));
             } else if (uncertaintyImageInfo.getUncertaintyVisualisationMode() == ImageInfo.UncertaintyVisualisationMode.Monochromatic_Blending) {
-                PlanarImage uncertaintyImage = createByteIndexedImage(varianceBand, uncertaintySourceImage, uncertaintyImageInfo, true);
+                PlanarImage uncertaintyImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, true);
                 valueImage = maskRgbImage(valueImage, uncertaintyImage, uncertaintyImageInfo.getColorPaletteDef().getLastPoint().getColor());
             } else if (uncertaintyImageInfo.getUncertaintyVisualisationMode() == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending) {
-                PlanarImage uncertaintyImage = createColored1BandImage(varianceBand, uncertaintyImageInfo, level);
-                PlanarImage maskImage = createByteIndexedImage(varianceBand, uncertaintySourceImage, uncertaintyImageInfo, true);
+                PlanarImage uncertaintyImage = createColored1BandImage(uncertaintyBand, uncertaintyImageInfo, level);
+                PlanarImage maskImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, true);
                 valueImage = maskRgbImage(valueImage, maskImage, uncertaintyImage);
             } else if (uncertaintyImageInfo.getUncertaintyVisualisationMode() == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Overlay) {
-                PlanarImage uncertaintyImage = createColored1BandImage(varianceBand, uncertaintyImageInfo, level);
+                PlanarImage uncertaintyImage = createColored1BandImage(uncertaintyBand, uncertaintyImageInfo, level);
                 valueImage = maskRgbImage(valueImage, uncertaintyImage, 0.5);
             }
         }
 
         return valueImage;
+    }
+
+    /**
+     * <p><b>Note:</b> This class/interface is part of an interim API that is still under development and expected to
+     * change significantly before reaching stability. It is being made available at this early stage to solicit
+     * feedback from pioneering adopters on the understanding that any code that uses this API will almost certainly
+     * be broken (repeatedly) as the API evolves.</p>
+     */
+    public static RasterDataNode getUncertaintyBand(RasterDataNode valueBand) {
+        final String[] names = {"uncertainty", "error", "variance", "confidence"};
+        RasterDataNode uncertaintyBand = null;
+        for (String name : names) {
+            uncertaintyBand = valueBand.getAncillaryBand(name);
+            if (uncertaintyBand != null) {
+                break;
+            }
+        }
+        return uncertaintyBand;
     }
 
     private static PlanarImage maskRgbImage(PlanarImage sourceImage, PlanarImage maskImage, Color maskColor) {
