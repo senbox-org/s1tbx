@@ -16,7 +16,7 @@
                 <shortcut>
                     <comment>Sentinel-1 Toolbox</comment>
                     <exec>${installdir}/dat.sh</exec>
-                    <icon>${installdir}/res/dat.png</icon>
+                    <icon>${installdir}/resource/dat.png</icon>
                     <name>Sentinel-1 Toolbox</name>
                     <path>${installdir}</path>
                     <platforms>all</platforms>
