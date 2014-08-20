@@ -33,6 +33,10 @@
 
     <packaging>jar</packaging>
 
+    <properties>
+        <jdkToolsPath>${java.home}/../lib/tools.jar</jdkToolsPath>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -71,7 +75,7 @@
                     <artifactId>tools</artifactId>
                     <version>1.8.0</version>
                     <scope>system</scope>
-                    <systemPath>${java.home}/../lib/tools.jar</systemPath>
+                    <systemPath>${jdkToolsPath}</systemPath>
                 </dependency>
             </dependencies>
         </profile>
