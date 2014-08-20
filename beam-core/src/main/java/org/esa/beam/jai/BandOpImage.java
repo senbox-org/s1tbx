@@ -22,7 +22,6 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductData;
 
 import java.awt.Rectangle;
-import java.io.EOFException;
 import java.io.IOException;
 
 
@@ -39,8 +38,7 @@ public class BandOpImage extends RasterDataNodeOpImage {
     public BandOpImage(Band band, ResolutionLevel level) {
         super(band, level);
         if (Boolean.getBoolean("beam.imageManager.disableSourceTileCaching")) {
-           	System.out.println("Warning! Tile Caching not enabled");
-			setTileCache(null);
+            setTileCache(null);
         }
     }
 
@@ -54,7 +52,7 @@ public class BandOpImage extends RasterDataNodeOpImage {
         if (productReader == null) {
             throw new IllegalStateException("no product reader for band " + getBand().getDisplayName());
         }
-		if (getLevel() == 0) {
+        if (getLevel() == 0) {
             productReader.readBandRasterData(getBand(), destRect.x, destRect.y,
                                              destRect.width, destRect.height,
                                              productData,
