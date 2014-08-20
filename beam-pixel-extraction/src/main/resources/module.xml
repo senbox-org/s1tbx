@@ -69,7 +69,7 @@
 
     <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>snap-help</parent>
+            <parent>snap-beam-help</parent>
             <path>doc/help/pixelExtraction.hs</path>
         </helpSet>
     </extension>

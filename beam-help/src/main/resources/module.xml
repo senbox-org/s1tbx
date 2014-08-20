@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
 
-    <symbolicName>snap-help</symbolicName>
+    <symbolicName>snap-beam-help</symbolicName>
     <name>BEAM Help</name>
     <version>0.5</version>
     <packaging>dir</packaging>
@@ -50,7 +50,7 @@
 
     <extension point="snap-ui:helpSets">
         <helpSet>
-            <id>snap-help</id>
+            <id>snap-beam-help</id>
             <path>doc/help/beam.hs</path>
         </helpSet>
     </extension>
