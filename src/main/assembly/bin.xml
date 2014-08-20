@@ -96,12 +96,12 @@
         <moduleSet>
             <useAllReactorProjects>true</useAllReactorProjects>
             <excludes>
-                <exclude>org.esa.beam:beam-bootstrap</exclude>
-                <exclude>org.esa.beam:beam-installer</exclude>
-                <exclude>org.esa.beam:beam-rtp-codec</exclude>
-                <exclude>org.esa.beam:beam-examples</exclude>
-                <exclude>org.esa.beam:beam-reader-tests</exclude>
-                <exclude>org.esa.beam:beam-obpg-reader</exclude>
+                <exclude>org.esa.snap:snap-bootstrap</exclude>
+                <exclude>org.esa.snap:snap-installer</exclude>
+                <exclude>org.esa.snap:snap-rtp-codec</exclude>
+                <exclude>org.esa.snap:snap-examples</exclude>
+                <exclude>org.esa.snap:snap-reader-tests</exclude>
+                <exclude>org.esa.snap:snap-obpg-reader</exclude>
             </excludes>
             <binaries>
                 <outputDirectory>modules</outputDirectory>
@@ -113,17 +113,16 @@
                         <outputDirectory>bin</outputDirectory>
                         <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
                         <includes>
-                            <include>com.bc.ceres:ceres-launcher</include>
+                            <include>org.esa.snap:snap-launcher</include>
                         </includes>
                     </dependencySet>
                     <dependencySet>
                         <outputDirectory>lib</outputDirectory>
                         <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
                         <excludes>
-                            <exclude>com.bc.ceres:ceres-*</exclude>
-                            <exclude>org.esa.beam:beam-*</exclude>
-                            <exclude>org.esa.beam:blue-marble-worldmap</exclude>
-                            <exclude>org.esa.beam:globcover-worldmap</exclude>
+                            <exclude>org.esa.snap:snap-*</exclude>
+                            <exclude>org.esa.snap:blue-marble-worldmap</exclude>
+                            <exclude>org.esa.snap:globcover-worldmap</exclude>
                             <exclude>ncsa.hdf:*</exclude>
                             <exclude>gov.nasa.gsfc.seadas:seadas-reader*</exclude>
                         </excludes>
@@ -132,13 +131,19 @@
                         <outputDirectory>modules</outputDirectory>
                         <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
                         <includes>
-                            <include>com.bc.ceres:*</include>
+                            <include>org.esa.snap:snap-binding</include>
+                            <include>org.esa.snap:snap-binio</include>
+                            <include>org.esa.snap:snap-ceres-core</include>
+                            <include>org.esa.snap:snap-glayer</include>
+                            <include>org.esa.snap:snap-jai</include>
+                            <include>org.esa.snap:snap-ui</include>
+                            <include>org.esa.snap:snap-metadata</include>
                             <include>gov.nasa.gsfc.seadas:seadas-reader*</include>
                         </includes>
                         <excludes>
-                            <exclude>com.bc.ceres:ceres-launcher</exclude>
-                            <exclude>com.bc.ceres:ceres-deploy</exclude>
-                            <exclude>com.bc.ceres:ceres-site</exclude>
+                            <exclude>org.esa.snap:snap-launcher</exclude>
+                            <exclude>org.esa.snap:snap-deploy</exclude>
+                            <exclude>org.esa.snap:snap-site</exclude>
                         </excludes>
                     </dependencySet>
                 </dependencySets>
