@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.TestUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.awt.*;
@@ -32,6 +33,7 @@ import java.sql.Statement;
 /**
 
  */
+@Ignore
 public class TestProductDao {
 
     private ProductDB db;

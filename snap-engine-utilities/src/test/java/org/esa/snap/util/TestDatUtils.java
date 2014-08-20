@@ -15,6 +15,7 @@
  */
 package org.esa.snap.util;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -26,6 +27,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author lveci
  */
+@Ignore
 public class TestDatUtils {
 
     @Test
