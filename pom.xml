@@ -23,7 +23,7 @@
     <name>BEAM</name>
     <url>http://www.brockmann-consult.de/beam-wiki</url>
     <groupId>org.esa.snap</groupId>
-    <artifactId>beam</artifactId>
+    <artifactId>snap-beam</artifactId>
     <version>0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 

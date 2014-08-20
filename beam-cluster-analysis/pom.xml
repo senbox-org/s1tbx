@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
+        <artifactId>snap-beam</artifactId>
         <groupId>org.esa.snap</groupId>
         <version>0.5-SNAPSHOT</version>
     </parent>
