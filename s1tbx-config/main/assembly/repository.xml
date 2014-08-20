@@ -6,25 +6,25 @@
     </formats>
 
     <includeBaseDirectory>false</includeBaseDirectory>
-	
+
     <moduleSets>
         <moduleSet>
-			<excludes>
-				<exclude>org.esa.nest:nest-bootstrap</exclude>				
+            <excludes>
+                <exclude>org.esa.nest:nest-bootstrap</exclude>
                 <exclude>com.bc.ceres:ceres-launcher</exclude>
             </excludes>
-			<sources>
-		        <includeModuleDirectory>false</includeModuleDirectory>
-		        <fileSets>
-		          <fileSet>
-					<directory>src/main/resources</directory>
-		            <outputDirectory>repository/${artifact.artifactId}-${artifact.version}</outputDirectory>
-		            <includes>
-		              <include>module.xml</include>
-		            </includes>
-		          </fileSet>
-		        </fileSets>
-		    </sources>
+            <sources>
+                <includeModuleDirectory>false</includeModuleDirectory>
+                <fileSets>
+                    <fileSet>
+                        <directory>src/main/resources</directory>
+                        <outputDirectory>repository/${artifact.artifactId}-${artifact.version}</outputDirectory>
+                        <includes>
+                            <include>module.xml</include>
+                        </includes>
+                    </fileSet>
+                </fileSets>
+            </sources>
 
             <binaries>
                 <outputDirectory>repository/${artifact.artifactId}-${artifact.version}</outputDirectory>

@@ -32,6 +32,7 @@
         <netcdf.version>4.3.21</netcdf.version>	
 		
 		<outputdir>../../output</outputdir>
+		<pacakgedir>../package</pacakgedir>
 	</properties>
 	
 	<prerequisites>
@@ -1003,15 +1004,15 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-					<outputDirectory>../target</outputDirectory>
+					<outputDirectory>${pacakgedir}</outputDirectory>
                     <descriptors>
 						<descriptor>s1tbx-config/main/assembly/bin-windows64.xml</descriptor>
 						<descriptor>s1tbx-config/main/assembly/bin-windows.xml</descriptor>						
 						<descriptor>s1tbx-config/main/assembly/bin-linux.xml</descriptor>
 						<descriptor>s1tbx-config/main/assembly/bin-linux64.xml</descriptor>
-						<descriptor>s1tbx-config/main/assembly/bin-mac.xml</descriptor>
+						<!--descriptor>s1tbx-config/main/assembly/bin-mac.xml</descriptor-->
 						<descriptor>s1tbx-config/main/assembly/repository.xml</descriptor>
-						<descriptor>s1tbx-config/main/assembly/web-help.xml</descriptor>
+						<!--descriptor>s1tbx-config/main/assembly/web-help.xml</descriptor-->
                         <!--descriptor>s1tbx-config/main/assembly/src.xml</descriptor-->
                     </descriptors>
                 </configuration>
@@ -1022,6 +1023,12 @@
                     <filesets>
                         <fileset>
                             <directory>${outputdir}</directory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                        </fileset>
+						<fileset>
+                            <directory>${pacakgedir}</directory>
                             <includes>
                                 <include>**/*</include>
                             </includes>

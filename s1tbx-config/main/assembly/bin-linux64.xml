@@ -2,7 +2,7 @@
 
 <assembly>
     <id>bin-linux64</id>
-	
+
     <includeBaseDirectory>false</includeBaseDirectory>
 
     <formats>
@@ -19,46 +19,46 @@
 
     <fileSets>
 
-		<fileSet>
+        <fileSet>
             <directory>s1tbx-config/main/bin/common/</directory>
             <outputDirectory></outputDirectory>
         </fileSet>
         <fileSet>
-            <directs1tbx-config-src/main/licenses</directory>
+            <directory>s1tbx-config/main/licenses</directory>
             <outputDirectory>licenses</outputDirectory>
         </fileSet>
-		
-		<fileSet>
-            <dis1tbx-confignest-src/main/commandline</directory>
+
+        <fileSet>
+            <directory>s1tbx-config/main/commandline</directory>
             <outputDirectory>commandline</outputDirectory>
         </fileSet>
-		
-		<fileSet>
-           s1tbx-configory>nest-src/main/bin/linux64</directory>
+
+        <fileSet>
+            <directory>s1tbx-config/main/bin/linux64</directory>
             <outputDirectory></outputDirectory>
-			<includes>
-				<include>**/*.so</include>
-				<include>**/*.run</include>
-			</includes>
+            <includes>
+                <include>**/*.so</include>
+                <include>**/*.run</include>
+            </includes>
             <fileMode>0755</fileMode>
             <directoryMode>0755</directoryMode>
         </fileSet>
-		
-		<fileSet>
-       s1tbx-configrectory>nest-src/main/bin/linux64</directory>
+
+        <fileSet>
+            <directory>s1tbx-config/main/bin/linux64</directory>
             <outputDirectory></outputDirectory>
-			<includes>
-				<include>**/*.sh</include>
-			</includes>
+            <includes>
+                <include>**/*.sh</include>
+            </includes>
             <lineEnding>unix</lineEnding>
             <fileMode>0755</fileMode>
             <directoryMode>0755</directoryMode>
         </fileSet>
-		
-		<fileSet>
+
+        <fileSet>
             <directory>../../dist/jdk8/linux64/jre</directory>
             <outputDirectory>jre</outputDirectory>
-			<fileMode>0755</fileMode>
+            <fileMode>0755</fileMode>
             <directoryMode>0755</directoryMode>
         </fileSet>
     </fileSets>
@@ -68,17 +68,18 @@
         <!-- (1) Artifacts that go into 'bin', 'lib' or 'modules' -->
         <moduleSet>
             <excludes>
-				<exclude>org.esa.beam:beam-bootstrap</exclude>
-				<exclude>org.esa.nest:nest-bootstrap</exclude>
-				<exclude>org.esa.nest:nest-benchmark</exclude>
-				<es1tbx-configrg.esa.nest:nest-src</exclude>
+                <exclude>org.esa.beam:beam-bootstrap</exclude>
+                <exclude>org.esa.s1tbx:s1tbx-bootstrap</exclude>
+                <exclude>org.esa.s1tbx:s1tbx-benchmark</exclude>
+                <exclude>org.esa.s1tbx:s1tbx-config</exclude>
                 <exclude>com.bc.ceres:ceres-*</exclude>
             </excludes>
 
             <binaries>
-				<outputDirectory>modules</outputDirectory>
-				<unpack>false</unpack>
-                <outputFileNameMapping>${module.artifactId}-${module.version}.${module.extension}</outputFileNameMapping>
+                <outputDirectory>modules</outputDirectory>
+                <unpack>false</unpack>
+                <outputFileNameMapping>${module.artifactId}-${module.version}.${module.extension}
+                </outputFileNameMapping>
                 <includeDependencies>true</includeDependencies>
                 <dependencySets>
                     <dependencySet>
@@ -90,26 +91,27 @@
                     </dependencySet>
                     <dependencySet>
                         <outputDirectory>lib</outputDirectory>
-						<outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
+                        <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}
+                        </outputFileNameMapping>
                         <excludes>
-							<exclude>ncsa.hdf:lib-hdf</exclude>
-							<exclude>org.esa.nest:nest-bootstrap</exclude>
-							<exclude>org.esa.nest:nest-core</exclude>
-							<exclude>org.esa.nest:nest-graph-builder</exclude>
-							<exclude>org.esa.nest:nest-op-calibration</exclude>
-							<exclude>org.esa.nest:nest-op-coregistration</exclude>
-							<exclude>org.esa.nest:nest-op-feature-extraction</exclude>
-							<exclude>org.esa.nest:nest-op-orthorectification</exclude>
-							<exclude>org.esa.nest:nest-op-sar-tools</exclude>
-							<exclude>org.esa.nest:s1tbx-op-sentinel1</exclude>
-							<exclude>org.esa.nest:nest-reader-dem</exclude>
-							<exclude>org.esa.nest:nest-io</exclude>
-							<exclude>org.esa.nest:nest-dat</exclude>
-							<exclude>org.jlinda:jlinda-core</exclude>
-							<exclude>org.esa.pfa:pfa-core</exclude>
-							<exclude>org.esa.pfa:pfa-database</exclude>
-							<exclude>org.csa.rstb:rstb-classification</exclude>
-							<exclude>org.csa.rstb:rstb-polarimetric-tools</exclude>
+                            <exclude>ncsa.hdf:lib-hdf</exclude>
+                            <exclude>org.esa.s1tbx:s1tbx-bootstrap</exclude>
+                            <exclude>org.esa.snap:snap-engine-utilities</exclude>
+                            <exclude>org.esa.snap:snap-graph-builder</exclude>
+                            <exclude>org.esa.nest:nest-op-calibration</exclude>
+                            <exclude>org.esa.nest:nest-op-coregistration</exclude>
+                            <exclude>org.esa.nest:nest-op-feature-extraction</exclude>
+                            <exclude>org.esa.nest:nest-op-orthorectification</exclude>
+                            <exclude>org.esa.nest:nest-op-sar-tools</exclude>
+                            <exclude>org.esa.nest:s1tbx-op-sentinel1</exclude>
+                            <exclude>org.esa.nest:nest-reader-dem</exclude>
+                            <exclude>org.esa.nest:nest-io</exclude>
+                            <exclude>org.esa.nest:nest-dat</exclude>
+                            <exclude>org.jlinda:jlinda-core</exclude>
+                            <exclude>org.esa.pfa:pfa-core</exclude>
+                            <exclude>org.esa.pfa:pfa-database</exclude>
+                            <exclude>org.csa.rstb:rstb-classification</exclude>
+                            <exclude>org.csa.rstb:rstb-polarimetric-tools</exclude>
                             <exclude>org.esa.beam:beam-*</exclude>
                         </excludes>
                     </dependencySet>

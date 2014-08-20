@@ -24,11 +24,11 @@
             </sources>
         </moduleSet>
     </moduleSets>
-	
-	<fileSets>
-		<fileSet>
+
+    <fileSets>
+        <fileSet>
             <directory>s1tbx-config/main/help</directory>
             <outputDirectory></outputDirectory>
         </fileSet>
-	</fileSets>
+    </fileSets>
 </assembly>
