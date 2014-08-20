@@ -356,7 +356,7 @@ public final class BinaryDBReader {
 
     private static File getResFile(final String mission, final String fileName) {
         final String homeUrl = ResourceUtils.findHomeFolder().getAbsolutePath();
-        final String path = homeUrl + File.separator + "res" + File.separator + "ceos_db" +
+        final String path = homeUrl + File.separator + "resource" + File.separator + "ceos_db" +
                 File.separator + mission + File.separator + fileName;
         return new File(path);
     }

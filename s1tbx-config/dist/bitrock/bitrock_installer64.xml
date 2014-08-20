@@ -5,7 +5,7 @@
     <installerFilename>${product_shortname}-${product_version}-${platform_name}64-installer.${platform_exec_suffix}</installerFilename>
     <readmeFile>../../../what's new.txt</readmeFile>
     <licenseFile>../../../LICENSE.txt</licenseFile>
-    <splashImage>../../main/bin/common/res/sentinel_toolboxes_banner.png</splashImage>
+    <splashImage>../../main/bin/common/resource/sentinel_toolboxes_banner.png</splashImage>
     <componentList>
         <component>
             <name>S1TBX</name>
@@ -17,7 +17,7 @@
                 <shortcut>
                     <comment>Sentinel-1 Toolbox</comment>
                     <exec>${installdir}/dat.sh</exec>
-                    <icon>${installdir}/res/dat.png</icon>
+                    <icon>${installdir}/resource/dat.png</icon>
                     <name>Sentinel-1 Toolbox</name>
                     <path>${installdir}</path>
                     <platforms>all</platforms>

@@ -5,7 +5,7 @@
     <installerFilename>${product_shortname}-${product_version}-${platform_name}64-update.${platform_exec_suffix}</installerFilename>
     <readmeFile>../../../what's new.txt</readmeFile>
     <licenseFile>../../../LICENSE.txt</licenseFile>
-    <splashImage>../../main/bin/common/res/nest_splash.png</splashImage>
+    <splashImage>../../main/bin/common/resource/nest_splash.png</splashImage>
     <componentList>
         <component>
             <name>NEST64</name>
@@ -17,7 +17,7 @@
                 <shortcut>
                     <comment>NEST Display and Analysis Tool</comment>
                     <exec>${installdir}/dat.sh</exec>
-                    <icon>${installdir}/res/dat.png</icon>
+                    <icon>${installdir}/resource/dat.png</icon>
                     <name>Next ESA SAR Toolbox</name>
                     <path>${installdir}</path>
                     <platforms>all</platforms>

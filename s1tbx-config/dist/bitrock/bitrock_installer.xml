@@ -4,7 +4,7 @@
     <version>0.1</version>
     <readmeFile>../../../what's new.txt</readmeFile>
     <licenseFile>../../../LICENSE.txt</licenseFile>
-    <splashImage>../../main/bin/common/res/sentinel_toolboxes_banner.png</splashImage>
+    <splashImage>../../main/bin/common/resource/sentinel_toolboxes_banner.png</splashImage>
     <componentList>
         <component>
             <name>S1TBX</name>
