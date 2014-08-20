@@ -99,7 +99,7 @@
 
     <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>snap-help</parent>
+            <parent>snap-beam-help</parent>
             <id>graphHelp</id>
             <path>doc/help/graph.hs</path>
         </helpSet>
