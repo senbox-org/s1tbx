@@ -17,6 +17,7 @@ package org.esa.snap.db;
 
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.sql.SQLException;
@@ -25,6 +26,7 @@ import java.sql.SQLException;
 /**
  * Test db query
  */
+@Ignore
 public class TestDBQuery {
 
     private ProductDB db;
