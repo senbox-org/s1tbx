@@ -23,14 +23,14 @@
             <version>0.8</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-core</artifactId>
-            <version>${beam.versionRange}</version>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-gpf</artifactId>
-            <version>${beam.versionRange}</version>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-gpf</artifactId>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -53,9 +53,9 @@
             <version>${nest.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-visat-rcp</artifactId>
-            <version>${beam.versionRange}</version>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-visat-rcp</artifactId>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.nest</groupId>

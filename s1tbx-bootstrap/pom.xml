@@ -228,9 +228,9 @@
             <id>withbeam</id>
             <dependencies>
 			<dependency>
-				<groupId>org.esa.beam</groupId>
-				<artifactId>beam-bootstrap</artifactId>
-				<version>${beam.versionRange}</version>
+				<groupId>org.esa.snap</groupId>
+				<artifactId>snap-bootstrap</artifactId>
+				<version>${snap.version}</version>
 			</dependency>
             </dependencies>
 		</profile>

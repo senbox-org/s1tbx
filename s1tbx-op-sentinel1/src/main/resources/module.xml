@@ -14,7 +14,7 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
         <module>snap-engine-utilities</module>
@@ -48,7 +48,7 @@
 
     </extension>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
 
         <action>
             <id>Sentinel1</id>

@@ -35,7 +35,7 @@
         </OperatorUI>
     </extension>
 
-    <extension point="beam-ui:toolViews">
+    <extension point="snap-ui:toolViews">
         <toolView>
             <id>org.csa.rstb.dat.toolviews.HaAlphaPlotToolView</id>
             <class>org.csa.rstb.dat.toolviews.HaAlphaPlotToolView</class>
@@ -51,7 +51,7 @@
         </toolView>
     </extension>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
 
         <action>
             <id>polarimetrictools</id>
@@ -131,7 +131,7 @@
 
     </extension>
 
-    <extension point="beam-core:rgbProfiles">
+    <extension point="snap-core:rgbProfiles">
         <rgbProfile>
             <name>T3</name>
             <red>T11</red>
@@ -146,9 +146,9 @@
         </rgbProfile>
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-help</parent>
             <id>polarimetricHelp</id>
             <path>doc/help/polarimetric.hs</path>
         </helpSet>

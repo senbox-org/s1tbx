@@ -16,28 +16,28 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
     <dependency>
         <module>snap-engine-utilities</module>
     </dependency>
     <dependency>
-        <module>beam-geotiff</module>
+        <module>snap-geotiff</module>
     </dependency>
     <dependency>
-        <module>beam-envi-reader</module>
+        <module>snap-envi-reader</module>
     </dependency>
     <dependency>
-        <module>beam-envisat-reader</module>
+        <module>snap-envisat-reader</module>
     </dependency>
     <dependency>
-        <module>beam-netcdf</module>
+        <module>snap-netcdf</module>
     </dependency>
 
     <categories>Reader,Writer,ERS</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
 
         <!-- SAR Formats -->
 
@@ -285,7 +285,7 @@
 
     </extension>
 
-    <extension point="beam-core:rgbProfiles">
+    <extension point="snap-core:rgbProfiles">
         <rgbProfile>
             <name>Quad Pol</name>
             <red>Intensity_HH</red>

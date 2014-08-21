@@ -61,7 +61,7 @@
         </OperatorUI>
     </extension>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
 
         <action>
             <id>Resampling</id>
@@ -183,9 +183,9 @@
 
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-help</parent>
             <id>sartoolsHelp</id>
             <path>doc/help/sartools.hs</path>
         </helpSet>

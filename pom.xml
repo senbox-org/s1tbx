@@ -18,8 +18,6 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize} -XX:MaxPermSize=${test.jvm.maxpermsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${context}</surefire.jvm.args>
 		
-        <beam.versionRange>[5.0,5.1-SNAPSHOT)</beam.versionRange>
-        <ceres.versionRange>[0.14,0.15-SNAPSHOT)</ceres.versionRange>
         <nest.version>6.0-SNAPSHOT</nest.version>
 		<jlinda.version>0.8</jlinda.version>
 		<rstb.version>6.2-SNAPSHOT</rstb.version>
@@ -91,57 +89,19 @@
     </scm>
 
 	<repositories>
-		<repository>
-            <id>array-mvn-repo</id>
-            <name>Public Maven Repository at Array Systems Computing Inc</name>
-            <url>http://corp.array.ca/nest-web/mavenrepo</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>bc-mvn-repo</id>
-            <name>Public Maven Repository at Brockmann-Consult</name>
-            <url>http://www.brockmann-consult.de/mvn/os</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-          <id>repo1.maven.org</id>
-          <name>maven repository</name>
-          <url>http://repo1.maven.org/maven2/</url>
-        </repository>
-		<repository>
-		  <id>maven.iscpif.fr</id>
-		  <url>http://maven.iscpif.fr/public</url>
-		</repository>
-		<repository>
-            <id>maven2-repository.dev.java.net</id>
-            <name>Java.net repository</name>
-            <url>http://download.java.net/maven/2</url>
-        </repository>
-		<repository>
-            <id>maven-repository.unidata.ucar.edu</id>
-            <name>Unidata Repository</name>
-            <url>http://artifacts.unidata.ucar.edu/content/repositories/unidata-releases</url>
-        </repository>
-        <repository>
-            <id>osgeo</id>
-            <name>Open Source Geospatial Foundation Repository</name>
-            <url>http://download.osgeo.org/webdav/geotools/</url>
-        </repository>
-        <repository>
-            <id>geotoolkkit</id>
-            <name>Geotoolkit</name>
-            <url>http://maven.geotoolkit.org/</url>
-        </repository>
+            <repository>
+                <id>snap-repo-public</id>
+                <name>Public Maven Repository for SNAP</name>
+                <url>http://nexus.senbox.net/nexus/content/repositories/public/</url>
+                <releases>
+                    <enabled>true</enabled>
+                    <checksumPolicy>warn</checksumPolicy>
+                </releases>
+                <snapshots>
+                    <enabled>true</enabled>
+                    <checksumPolicy>warn</checksumPolicy>
+                </snapshots>
+            </repository>
     </repositories>
 
     <pluginRepositories>
@@ -193,94 +153,94 @@
             <!-- Ceres System Level Module ############################################# -->
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-launcher</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-launcher</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-core</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>com.bc.snap</groupId>
+                <artifactId>snap-ceres-core</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-binding</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-binding</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-ui</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-ceres-ui</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
 			<dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-binio</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-binio</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-glayer</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-glayer</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 			
 			<dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-jai</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-jai</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 			
 			<dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-metadata</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-metadata</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 			
             <!-- BEAM System Level Modules ############################################# -->
 
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-core</artifactId>
-				<version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-core</artifactId>
+				<version>${snap.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-gpf</artifactId>
-				<version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-gpf</artifactId>
+				<version>${snap.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-ui</artifactId>
-				<version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-ui</artifactId>
+				<version>${snap.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-visat-rcp</artifactId>
-				<version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-visat-rcp</artifactId>
+				<version>${snap.version}</version>
             </dependency>
 
             <!-- BEAM Modules ############################################# -->
 
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-envisat-reader</artifactId>
-                <version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-envisat-reader</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-geotiff</artifactId>
-                <version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-geotiff</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-envi-reader</artifactId>
-                <version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-envi-reader</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
@@ -302,9 +262,9 @@
             </dependency>
 			
 			<dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-netcdf</artifactId>
-                <version>5.0.2-SNAPSHOT</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-netcdf</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 			
 			<dependency>
@@ -938,7 +898,7 @@
 	                            <link>http://docs.oracle.com/javase/7/docs/api/</link>
 	                    </links>
 	                    <subpackages>
-	                        org.esa.nest:org.csa.rstb:com.bc.ceres:org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
+	                        org.esa.nest:org.csa.rstb:org.esa.snap:org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
 	                    </subpackages>
 	                    <quiet>false</quiet>
 					</configuration>
@@ -1082,7 +1042,7 @@
                             <link>http://java.sun.com/javase/6/docs/api/</link>
                     </links>
                     <subpackages>
-                        org.esa.nest:com.bc.ceres:org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
+                        org.esa.nest:org.esa.snap:org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
                     </subpackages>
                     <quiet>false</quiet>
 				</configuration>

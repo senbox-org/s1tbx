@@ -18,12 +18,12 @@
     <categories>System,Help</categories>
 
     <dependency>
-        <module>beam-ui</module>
+        <module>snap-ui</module>
     </dependency>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <id>beam-help</id>
+            <id>snap-help</id>
             <path>doc/help/nest.hs</path>
         </helpSet>
     </extension>

@@ -16,7 +16,7 @@
         <module>snap-graph-builder</module>
     </dependency>
     <dependency>
-        <module>beam-envisat-reader</module>
+        <module>snap-envisat-reader</module>
     </dependency>
     <dependency>
         <module>nest-io</module>
@@ -46,7 +46,7 @@
         </OperatorUI>
     </extension>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>Calibration</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
@@ -132,9 +132,9 @@
 
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-help</parent>
             <id>calibrationHelp</id>
             <path>doc/help/calibration.hs</path>
         </helpSet>

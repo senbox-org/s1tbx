@@ -13,14 +13,14 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>beam-visat</module>
+        <module>snap-visat</module>
         <optional>true</optional>
     </dependency>
 	<dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
     <dependency>
         <module>snap-engine-utilities</module>
@@ -44,7 +44,7 @@
         <module>jlinda-core</module>
     </dependency>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
 
         <action>
             <id>products</id>
@@ -280,9 +280,9 @@
         
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-help</parent>
             <id>jLindaHelp</id>
             <path>doc/help/jlinda.hs</path>
         </helpSet>

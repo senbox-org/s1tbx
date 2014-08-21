@@ -16,16 +16,16 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
     </dependency>
     <dependency>
-        <module>beam-ui</module>
+        <module>snap-ui</module>
     </dependency>
     <dependency>
         <module>snap-engine-utilities</module>
     </dependency>
 
-    <extension point="beam-ui:toolViews">
+    <extension point="snap-ui:toolViews">
         <toolView>
             <id>org.esa.nest.dat.toolviews.nestwwview.NestWWToolView</id>
             <class>org.esa.nest.dat.toolviews.nestwwview.NestWWToolView</class>

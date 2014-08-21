@@ -18,32 +18,32 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-core</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-geotiff</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-geotiff</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-envi-reader</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-envi-reader</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-envisat-reader</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-envisat-reader</artifactId>
         </dependency>
         <dependency>
             <groupId>edu.ucar</groupId>
             <artifactId>netcdf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-netcdf</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-netcdf</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
