@@ -8,6 +8,7 @@
     </languages>
     <searchSequence>
       <registry />
+      <envVar name="JDK_18" />
       <envVar name="JAVA_HOME" />
       <envVar name="JDK_HOME" />
     </searchSequence>
