@@ -101,7 +101,6 @@
                 <exclude>org.esa.snap:snap-rtp-codec</exclude>
                 <exclude>org.esa.snap:snap-examples</exclude>
                 <exclude>org.esa.snap:snap-reader-tests</exclude>
-                <exclude>org.esa.snap:snap-obpg-reader</exclude>
             </excludes>
             <binaries>
                 <outputDirectory>modules</outputDirectory>
