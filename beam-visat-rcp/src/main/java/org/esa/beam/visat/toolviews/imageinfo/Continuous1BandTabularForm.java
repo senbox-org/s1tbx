@@ -22,7 +22,6 @@ import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.AbstractButton;
 import javax.swing.JScrollPane;
@@ -56,9 +55,10 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
                 tableModel.addTableModelListener(tableModelListener);
             }
         };
-        moreOptionsForm = new MoreOptionsForm(parentForm, true);
+        moreOptionsForm = new MoreOptionsForm(parentForm, parentForm.getFormModel().canUseHistogramMatching());
         discreteCheckBox = new DiscreteCheckBox(parentForm);
         moreOptionsForm.addRow(discreteCheckBox);
+        parentForm.getFormModel().modifyMoreOptionsForm(moreOptionsForm);
 
         final JTable table = new JTable(tableModel);
         final ColorCellRenderer colorCellRenderer = new ColorCellRenderer();
@@ -76,24 +76,24 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
     }
 
     @Override
-    public void handleFormShown(ProductSceneView productSceneView) {
-        updateFormModel(productSceneView);
+    public void handleFormShown(FormModel formModel) {
+        updateFormModel(formModel);
         tableModel.addTableModelListener(tableModelListener);
     }
 
     @Override
-    public void handleFormHidden(ProductSceneView productSceneView) {
+    public void handleFormHidden(FormModel formModel) {
         tableModel.removeTableModelListener(tableModelListener);
     }
 
     @Override
-    public void updateFormModel(ProductSceneView productSceneView) {
+    public void updateFormModel(FormModel formModel) {
         tableModel.fireTableDataChanged();
-        discreteCheckBox.setDiscreteColorsMode(parentForm.getImageInfo().getColorPaletteDef().isDiscrete());
+        discreteCheckBox.setDiscreteColorsMode(parentForm.getFormModel().getModifiedImageInfo().getColorPaletteDef().isDiscrete());
     }
 
     @Override
-    public void resetFormModel(ProductSceneView productSceneView) {
+    public void resetFormModel(FormModel formModel) {
         tableModel.fireTableDataChanged();
     }
 
@@ -118,7 +118,7 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
 
     @Override
     public RasterDataNode[] getRasters() {
-        return parentForm.getProductSceneView().getRasters();
+        return parentForm.getFormModel().getRasters();
     }
 
     private class ImageInfoTableModel extends AbstractTableModel {
@@ -127,7 +127,7 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
         }
 
         public ImageInfo getImageInfo() {
-            return parentForm.getImageInfo();
+            return  parentForm.getFormModel().getModifiedImageInfo();
         }
 
         @Override

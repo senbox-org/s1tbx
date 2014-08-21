@@ -16,22 +16,21 @@
 
 package org.esa.beam.visat.toolviews.imageinfo;
 
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import javax.swing.AbstractButton;
 import java.awt.Component;
 
 
 interface ColorManipulationChildForm {
-    void handleFormShown(ProductSceneView productSceneView);
+    void handleFormShown(FormModel formModel);
 
-    void handleFormHidden(ProductSceneView productSceneView);
+    void handleFormHidden(FormModel formModel);
 
-    void updateFormModel(ProductSceneView productSceneView);
+    void updateFormModel(FormModel formModel);
 
-    void resetFormModel(ProductSceneView productSceneView);
+    void resetFormModel(FormModel formModel);
 
     void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster);
 

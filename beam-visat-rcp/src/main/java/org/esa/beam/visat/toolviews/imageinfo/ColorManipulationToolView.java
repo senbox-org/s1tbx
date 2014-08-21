@@ -32,7 +32,7 @@ public class ColorManipulationToolView extends AbstractToolView {
 
     @Override
     protected JComponent createControl() {
-        ColorManipulationForm cmf = new ColorManipulationForm(this);
+        ColorManipulationForm cmf = new ColorManipulationForm(this, new FormModel());
         return cmf.getContentPanel();
     }
 }

@@ -22,7 +22,6 @@ import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.math.Range;
 
 import javax.swing.AbstractButton;
@@ -109,16 +108,17 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
 
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(editorPanel, BorderLayout.NORTH);
-        moreOptionsForm = new MoreOptionsForm(parentForm, true);
+        moreOptionsForm = new MoreOptionsForm(parentForm, parentForm.getFormModel().canUseHistogramMatching());
         discreteCheckBox = new DiscreteCheckBox(parentForm);
         moreOptionsForm.addRow(discreteCheckBox);
+        parentForm.getFormModel().modifyMoreOptionsForm(moreOptionsForm);
 
         logDisplayButton = LogDisplay.createButton();
         logDisplayButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final boolean shouldLog10Display = logDisplayButton.isSelected();
-                final ImageInfo imageInfo = parentForm.getImageInfo();
+                final ImageInfo imageInfo = parentForm.getFormModel().getModifiedImageInfo();
                 if (shouldLog10Display) {
                     final ColorPaletteDef cpd = imageInfo.getColorPaletteDef();
                     if (LogDisplay.checkApplicability(cpd)) {
@@ -144,24 +144,24 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
     }
 
     @Override
-    public void handleFormShown(ProductSceneView productSceneView) {
+    public void handleFormShown(FormModel formModel) {
         hidden = false;
-        updateFormModel(productSceneView);
+        updateFormModel(formModel);
     }
 
     @Override
-    public void handleFormHidden(ProductSceneView productSceneView) {
+    public void handleFormHidden(FormModel formModel) {
         hidden = true;
     }
 
     @Override
-    public void updateFormModel(ProductSceneView productSceneView) {
+    public void updateFormModel(FormModel formModel) {
         if (!hidden) {
             ColorPalettesManager.loadAvailableColorPalettes(parentForm.getIODir());
             colorPaletteChooser.reloadPalettes();
         }
 
-        final ImageInfo imageInfo = productSceneView.getImageInfo();
+        final ImageInfo imageInfo = formModel.getOriginalImageInfo();
         final ColorPaletteDef cpd = imageInfo.getColorPaletteDef();
 
         final boolean logScaled = imageInfo.isLogScaled();
@@ -181,21 +181,21 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
     }
 
     @Override
-    public void resetFormModel(ProductSceneView productSceneView) {
-        updateFormModel(productSceneView);
+    public void resetFormModel(FormModel formModel) {
+        updateFormModel(formModel);
         parentForm.revalidateToolViewPaneControl();
     }
 
     @Override
     public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
         if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STX)) {
-            updateFormModel(parentForm.getProductSceneView());
+            updateFormModel(parentForm.getFormModel());
         }
     }
 
     @Override
     public RasterDataNode[] getRasters() {
-        return parentForm.getProductSceneView().getRasters();
+        return parentForm.getFormModel().getRasters();
     }
 
     @Override
@@ -233,7 +233,7 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
     private void applyChanges(RangeKey key) {
         if (shouldFireChooserEvent) {
             final ColorPaletteDef selectedCPD = colorPaletteChooser.getSelectedColorPaletteDefinition();
-            final ImageInfo currentInfo = parentForm.getImageInfo();
+            final ImageInfo currentInfo = parentForm.getFormModel().getModifiedImageInfo();
             final ColorPaletteDef currentCPD = currentInfo.getColorPaletteDef();
             final ColorPaletteDef deepCopy = selectedCPD.createDeepCopy();
             deepCopy.setDiscrete(currentCPD.isDiscrete());
@@ -249,7 +249,7 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
                 cpd = currentCPD;
                 break;
             case FromData:
-                final Stx stx = parentForm.getStx(parentForm.getProductSceneView().getRaster());
+                final Stx stx = parentForm.getStx(parentForm.getFormModel().getRaster());
                 min = stx.getMinimum();
                 max = stx.getMaximum();
                 cpd = currentCPD;

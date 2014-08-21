@@ -55,12 +55,25 @@ public class ImageInfo implements Cloneable {
     }
 
     private ColorPaletteDef colorPaletteDef;
-    // todo - save in DIMAP   (nf/mp - 26.06.2008)
     private RGBChannelDef rgbChannelDef;
     private Color noDataColor;
     private HistogramMatching histogramMatching;
-    // todo - save in DIMAP   (nf - 13.03.2012)
     private boolean logScaled;
+
+    /**
+     * Enumerates the possible histogram matching modes.
+     */
+    public enum UncertaintyVisualisationMode {
+        None,
+        Transparency_Blending,
+        Monochromatic_Blending,
+        Polychromatic_Blending,
+        Polychromatic_Overlay,
+    }
+
+    private UncertaintyVisualisationMode uncertaintyVisualisationMode;
+
+
 
     /**
      * Constructs a new image information instance.
@@ -73,6 +86,7 @@ public class ImageInfo implements Cloneable {
         this.rgbChannelDef = null;
         this.noDataColor = NO_COLOR;
         this.histogramMatching = HistogramMatching.None;
+        this.uncertaintyVisualisationMode = UncertaintyVisualisationMode.None;
     }
 
     /**
@@ -86,6 +100,7 @@ public class ImageInfo implements Cloneable {
         this.rgbChannelDef = rgbChannelDef;
         this.noDataColor = NO_COLOR;
         this.histogramMatching = HistogramMatching.None;
+        this.uncertaintyVisualisationMode = UncertaintyVisualisationMode.None;
     }
 
     /**
@@ -124,6 +139,14 @@ public class ImageInfo implements Cloneable {
     public void setHistogramMatching(HistogramMatching histogramMatching) {
         Assert.notNull(histogramMatching, "histogramMatching");
         this.histogramMatching = histogramMatching;
+    }
+
+    public UncertaintyVisualisationMode getUncertaintyVisualisationMode() {
+        return uncertaintyVisualisationMode;
+    }
+
+    public void setUncertaintyVisualisationMode(UncertaintyVisualisationMode uncertaintyVisualisationMode) {
+        this.uncertaintyVisualisationMode = uncertaintyVisualisationMode;
     }
 
     public boolean isLogScaled() {
