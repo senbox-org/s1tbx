@@ -43,6 +43,11 @@
     <artifactId>s1tbx</artifactId>
     <version>0.2.0-SNAPSHOT</version>
 
+	<issueManagement>
+        <system>JIRA</system>
+        <url>https://senbox.atlassian.net/</url>
+    </issueManagement>
+	
     <packaging>pom</packaging>
   
 	    <modules>
@@ -89,26 +94,10 @@
     </scm>
 
 	<repositories>
-            <repository>
-                <id>snap-repo-public</id>
-                <name>Public Maven Repository for SNAP</name>
-                <url>http://nexus.senbox.net/nexus/content/repositories/public/</url>
-                <releases>
-                    <enabled>true</enabled>
-                    <checksumPolicy>warn</checksumPolicy>
-                </releases>
-                <snapshots>
-                    <enabled>true</enabled>
-                    <checksumPolicy>warn</checksumPolicy>
-                </snapshots>
-            </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <!--pluginRepository>
-            <id>bc-mvn-repo</id>
-            <name>Public Maven Repository at Brockmann-Consult</name>
-            <url>http://www.brockmann-consult.de/mvn/os</url>
+        <repository>
+            <id>snap-repo-public</id>
+            <name>Public Maven Repository for SNAP</name>
+            <url>http://nexus.senbox.net/nexus/content/repositories/public/</url>
             <releases>
                 <enabled>true</enabled>
                 <checksumPolicy>warn</checksumPolicy>
@@ -117,7 +106,23 @@
                 <enabled>true</enabled>
                 <checksumPolicy>warn</checksumPolicy>
             </snapshots>
-        </pluginRepository-->
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+		<pluginRepository>
+            <id>snap-repo-public</id>
+            <name>Public Maven Repository for SNAP</name>
+            <url>http://nexus.senbox.net/nexus/content/repositories/public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+        </pluginRepository>
 		<pluginRepository>
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>
@@ -147,6 +152,21 @@
         </pluginRepository-->
     </pluginRepositories>
 
+	<distributionManagement>
+        <repository>
+            <id>snap-repo-public</id>
+            <name>Public Maven Repository for SNAP</name>
+            <url>http://nexus.senbox.net/nexus/content/repositories/releases/</url>
+            <uniqueVersion>false</uniqueVersion>
+        </repository>
+        <snapshotRepository>
+            <id>snap-repo-public</id>
+            <name>Public Maven Snapshot Repository for SNAP</name>
+            <url>http://nexus.senbox.net/nexus/content/repositories/snapshots/</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
+	
     <dependencyManagement>
         <dependencies>
 
