@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author lveci
  */
-@Ignore
+@Ignore("Currently fails")
 public class TestDatUtils {
 
     @Test
