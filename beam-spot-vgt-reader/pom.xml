@@ -25,7 +25,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>s3tbx-spot-vgt-reader</artifactId>
+    <artifactId>snap-spot-vgt-reader</artifactId>
     <name>BEAM SPOT VGT Product Reader</name>
     <version>0.5-SNAPSHOT</version>
 
