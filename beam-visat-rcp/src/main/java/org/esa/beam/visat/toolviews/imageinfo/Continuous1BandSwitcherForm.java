@@ -18,7 +18,6 @@ package org.esa.beam.visat.toolviews.imageinfo;
 
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
@@ -73,23 +72,23 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
     }
 
     @Override
-    public void handleFormShown(ProductSceneView productSceneView) {
-        switchForm(productSceneView);
+    public void handleFormShown(FormModel formModel) {
+        switchForm();
     }
 
     @Override
-    public void handleFormHidden(ProductSceneView productSceneView) {
-        childForm.handleFormHidden(productSceneView);
+    public void handleFormHidden(FormModel formModel) {
+        childForm.handleFormHidden(formModel);
     }
 
     @Override
-    public void updateFormModel(ProductSceneView productSceneView) {
-        childForm.updateFormModel(productSceneView);
+    public void updateFormModel(FormModel formModel) {
+        childForm.updateFormModel(formModel);
     }
 
     @Override
-    public void resetFormModel(ProductSceneView productSceneView) {
-        childForm.resetFormModel(productSceneView);
+    public void resetFormModel(FormModel formModel) {
+        childForm.resetFormModel(formModel);
     }
 
     @Override
@@ -107,7 +106,7 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
         return childForm.getRasters();
     }
 
-    private void switchForm(ProductSceneView productSceneView) {
+    private void switchForm() {
         final ColorManipulationChildForm oldForm = childForm;
         final ColorManipulationChildForm newForm;
         if (tabularButton.isSelected()) {
@@ -127,10 +126,10 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
             newForm = graphicalPaletteEditorForm;
         }
         if (oldForm != newForm) {
-            oldForm.handleFormHidden(productSceneView);
+            oldForm.handleFormHidden(parentForm.getFormModel());
 
             childForm = newForm;
-            childForm.handleFormShown(productSceneView);
+            childForm.handleFormShown(parentForm.getFormModel());
 
             contentPanel.remove(oldForm.getContentPanel());
             contentPanel.add(childForm.getContentPanel(), BorderLayout.CENTER);
@@ -139,7 +138,7 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
             parentForm.installMoreOptions();
             parentForm.revalidateToolViewPaneControl();
         } else {
-            childForm.updateFormModel(productSceneView);
+            childForm.updateFormModel(parentForm.getFormModel());
         }
     }
 
@@ -157,7 +156,7 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            switchForm(parentForm.getProductSceneView());
+            switchForm();
         }
     }
 }

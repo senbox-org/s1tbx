@@ -14,7 +14,7 @@ class DiscreteCheckBox extends JCheckBox {
         addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (shouldFireDiscreteEvent) {
-                    parentForm.getImageInfo().getColorPaletteDef().setDiscrete(isSelected());
+                    parentForm.getFormModel().getModifiedImageInfo().getColorPaletteDef().setDiscrete(isSelected());
                     parentForm.applyChanges();
                 }
             }

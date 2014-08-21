@@ -28,7 +28,6 @@ import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.datamodel.Stx;
 import org.esa.beam.framework.ui.ImageInfoEditorModel;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
@@ -75,7 +74,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         imageInfoEditor = new ImageInfoEditor2(parentForm);
         imageInfoEditorSupport = new ImageInfoEditorSupport(imageInfoEditor);
 
-        moreOptionsForm = new MoreOptionsForm(parentForm, true);
+        moreOptionsForm = new MoreOptionsForm(parentForm, parentForm.getFormModel().canUseHistogramMatching());
         models = new ImageInfoEditorModel3B[3];
         initialChannelSources = new RasterDataNode[3];
         currentChannelSources = new RasterDataNode[3];
@@ -156,17 +155,17 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
     }
 
     @Override
-    public void handleFormShown(ProductSceneView productSceneView) {
-        RasterDataNode[] rasters = productSceneView.getRasters();
+    public void handleFormShown(FormModel formModel) {
+        RasterDataNode[] rasters = formModel.getRasters();
         initialChannelSources[0] = rasters[0];
         initialChannelSources[1] = rasters[1];
         initialChannelSources[2] = rasters[2];
-        updateFormModel(productSceneView);
+        updateFormModel(formModel);
         parentForm.revalidateToolViewPaneControl();
     }
 
     @Override
-    public void handleFormHidden(ProductSceneView productSceneView) {
+    public void handleFormHidden(FormModel formModel) {
         imageInfoEditor.setModel(null);
         channelSourcesList.clear();
         Arrays.fill(models, null);
@@ -175,13 +174,13 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
     }
 
     @Override
-    public void updateFormModel(ProductSceneView productSceneView) {
-        RasterDataNode[] rasters = productSceneView.getRasters();
+    public void updateFormModel(FormModel formModel) {
+        RasterDataNode[] rasters = formModel.getRasters();
         currentChannelSources[0] = rasters[0];
         currentChannelSources[1] = rasters[1];
         currentChannelSources[2] = rasters[2];
 
-        final Band[] availableBands = productSceneView.getProduct().getBands();
+        final Band[] availableBands = formModel.getProduct().getBands();
         channelSourcesList.clear();
         appendToChannelSources(currentChannelSources);
         appendToChannelSources(initialChannelSources);
@@ -189,7 +188,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
 
         for (int i = 0; i < models.length; i++) {
             ImageInfoEditorModel3B oldModel = models[i];
-            models[i] = new ImageInfoEditorModel3B(parentForm.getImageInfo(), i);
+            models[i] = new ImageInfoEditorModel3B(parentForm.getFormModel().getModifiedImageInfo(), i);
             Continuous1BandGraphicalForm.setDisplayProperties(models[i], currentChannelSources[i]);
             if (oldModel != null) {
                 models[i].setHistogramViewGain(oldModel.getHistogramViewGain());
@@ -216,8 +215,8 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
     }
 
     @Override
-    public void resetFormModel(ProductSceneView productSceneView) {
-        updateFormModel(productSceneView);
+    public void resetFormModel(FormModel formModel) {
+        updateFormModel(formModel);
         imageInfoEditor.computeZoomOutToFullHistogramm();
     }
 
@@ -289,7 +288,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
             final Stx stx = parentForm.getStx(newChannelSource);
             if (stx != null) {
                 currentChannelSources[channel] = newChannelSource;
-                final ImageInfo imageInfo = parentForm.getImageInfo();
+                final ImageInfo imageInfo = parentForm.getFormModel().getModifiedImageInfo();
                 imageInfo.getRgbChannelDef().setSourceName(channel, channelSourceName);
                 final ImageInfo info = newChannelSource.getImageInfo(com.bc.ceres.core.ProgressMonitor.NULL);
                 final ColorPaletteDef def = info.getColorPaletteDef();

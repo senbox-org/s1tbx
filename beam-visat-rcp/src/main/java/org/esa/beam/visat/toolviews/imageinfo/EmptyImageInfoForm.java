@@ -18,7 +18,6 @@ package org.esa.beam.visat.toolviews.imageinfo;
 
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,19 +29,19 @@ class EmptyImageInfoForm implements ColorManipulationChildForm {
     }
 
     @Override
-    public void handleFormShown(ProductSceneView productSceneView) {
+    public void handleFormShown(FormModel formModel) {
     }
 
     @Override
-    public void handleFormHidden(ProductSceneView productSceneView) {
+    public void handleFormHidden(FormModel formModel) {
     }
 
     @Override
-    public void updateFormModel(ProductSceneView productSceneView) {
+    public void updateFormModel(FormModel formModel) {
     }
 
     @Override
-    public void resetFormModel(ProductSceneView productSceneView) {
+    public void resetFormModel(FormModel formModel) {
     }
 
     @Override
