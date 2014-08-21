@@ -37,7 +37,7 @@
        <maven>3.1.0</maven>
     </prerequisites>
 	
-    <name>SENTINEL-1 Toolbox</name>
+    <name>Sentinel-1 Toolbox</name>
     <url>https://earth.esa.int/web/sentinel-tbx/home</url>
     <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx</artifactId>
