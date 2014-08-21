@@ -1291,10 +1291,12 @@ public class VisatPreferencesDialog extends ConfigDialog {
         @Override
         public void onOK() {
             WorldMapLayerType selected = (WorldMapLayerType) box.getModel().getSelectedItem();
-            final Parameter param = getConfigParam(PARAMETER_NAME_WORLDMAP_TYPE);
-            try {
-                param.setValue(selected.getName());
-            } catch (ParamValidateException ignore) {
+            if(selected != null) {
+                 final Parameter param = getConfigParam(PARAMETER_NAME_WORLDMAP_TYPE);
+                 try {
+                     param.setValue(selected.getName());
+                 } catch (ParamValidateException ignore) {
+                 }
             }
         }
     }
