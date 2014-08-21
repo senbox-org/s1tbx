@@ -68,10 +68,10 @@
         <!-- (1) Artifacts that go into 'bin', 'lib' or 'modules' -->
         <moduleSet>
             <excludes>
-				<exclude>org.esa.snap:snap-bootstrap</exclude>
-				<exclude>org.esa.nest:nest-bootstrap</exclude>
-				<exclude>org.esa.nest:nest-benchmark</exclude>
-				<exclude>org.esa.nest:nest-src</exclude>
+				<exclude>org.esa.snap:snap-beam-bootstrap</exclude>
+                <exclude>org.esa.s1tbx:s1tbx-bootstrap</exclude>
+                <exclude>org.esa.s1tbx:s1tbx-benchmark</exclude>
+                <exclude>org.esa.s1tbx:s1tbx-config</exclude>
                 <exclude>org.esa.snap:snap-ceres-*</exclude>
                 <exclude>org.esa.snap:snap-binding</exclude>
                 <exclude>org.esa.snap:snap-binio</exclude>
@@ -103,9 +103,7 @@
                         </outputFileNameMapping>
                         <excludes>
 							<exclude>ncsa.hdf:lib-hdf</exclude>
-							<exclude>org.esa.nest:nest-bootstrap</exclude>
-							<exclude>org.esa.nest:nest-core</exclude>
-							<exclude>org.esa.nest:nest-graph-builder</exclude>
+							<exclude>org.esa.s1tbx:s1tbx-bootstrap</exclude>
 							<exclude>org.esa.nest:nest-op-calibration</exclude>
 							<exclude>org.esa.nest:nest-op-coregistration</exclude>
 							<exclude>org.esa.nest:nest-op-feature-extraction</exclude>

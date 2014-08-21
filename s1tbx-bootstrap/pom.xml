@@ -229,7 +229,7 @@
             <dependencies>
 			<dependency>
 				<groupId>org.esa.snap</groupId>
-				<artifactId>snap-bootstrap</artifactId>
+				<artifactId>snap-beam-bootstrap</artifactId>
 				<version>${snap.version}</version>
 			</dependency>
             </dependencies>

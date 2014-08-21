@@ -10,7 +10,7 @@
     <moduleSets>
         <moduleSet>
 			<excludes>
-				<exclude>org.esa.nest:nest-bootstrap</exclude>				
+				<exclude>org.esa.s1tbx:s1tbx-bootstrap</exclude>				
                 <exclude>org.esa.snap:snap-launcher</exclude>
             </excludes>
             <sources>
