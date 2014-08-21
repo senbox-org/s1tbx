@@ -21,51 +21,50 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
 
     <name>BEAM Bootstrap Classpath</name>
-    <artifactId>beam-bootstrap</artifactId>
-    <version>5.0</version>
+    <artifactId>snap-beam-bootstrap</artifactId>
 
     <description>Provides the bootstrap classpath to launch VISAT from your favourite IDE.</description>
 
     <dependencies>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-launcher</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-launcher</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-core</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-ui</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ui</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-binding</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-binding</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-glayer</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-glayer</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-binio</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-binio</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-jai</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-jai</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-metadata</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-metadata</artifactId>
         </dependency>
         <dependency>
             <groupId>com.jidesoft</groupId>

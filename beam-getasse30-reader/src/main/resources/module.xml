@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-getasse30-reader</symbolicName>
-    <version>5.0</version>
+    <symbolicName>snap-getasse30-reader</symbolicName>
+    <version>0.5</version>
     <name>GETASSE30 DEM Reader</name>
 
 
@@ -19,17 +19,17 @@
     </changelog>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
 
     <categories>Reader,DEM,GETASSE30</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importGETASSE30Product</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>

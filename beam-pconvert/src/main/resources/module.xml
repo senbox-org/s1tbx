@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-pconvert</symbolicName>
-    <version>5.0</version>
+    <symbolicName>snap-pconvert</symbolicName>
+    <version>0.5</version>
     <name>Product Conversion Tool</name>
 
 
@@ -20,7 +20,7 @@
     </changelog>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
 
     <categories>Application</categories>

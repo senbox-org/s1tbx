@@ -20,9 +20,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <groupId>gov.nasa.gsfc.seadas</groupId>
@@ -33,29 +33,29 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-core</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-ui</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ui</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-visat-rcp</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-visat-rcp</artifactId>
         </dependency>
         <dependency>
             <groupId>edu.ucar</groupId>
             <artifactId>netcdf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-netcdf</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-netcdf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-merisl3-reader</artifactId>
-            <version>${beam.versionRange}</version>
+            <groupId>org.esa.s3tbx</groupId>
+            <artifactId>s3tbx-merisl3-reader</artifactId>
+            <version>${snap.version}</version>
         </dependency>
     </dependencies>
 

@@ -4,21 +4,20 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
     <name>BEAM Python Integration</name>
-    <artifactId>beam-python</artifactId>
-    <version>5.0.4</version>
+    <artifactId>snap-python</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-gpf</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-gpf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jpy</groupId>

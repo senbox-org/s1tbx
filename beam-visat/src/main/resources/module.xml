@@ -16,8 +16,8 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-visat</symbolicName>
-    <version>5.0</version>
+    <symbolicName>snap-visat</symbolicName>
+    <version>0.5</version>
     <name>BEAM VISAT Application</name>
 
     <description>
@@ -25,11 +25,11 @@
         analyse and manipulate data products of a number of EO sensors.
     </description>
 
-    <extension point="beam-ui:applicationDescriptors">
+    <extension point="snap-ui:applicationDescriptors">
         <applicationDescriptor>
             <applicationId>VisatMain</applicationId>
             <displayName>VISAT</displayName>
-            <version>${beam.version}</version>
+            <version>${snap.version}</version>
             <buildId>${beam.build.id}</buildId>
             <buildDate>${beam.build.date}</buildDate>
             <excludedToolViews>
@@ -63,16 +63,16 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
     </dependency>
     <dependency>
-        <module>beam-help</module>
+        <module>snap-beam-help</module>
         <optional>true</optional>
     </dependency>
 
     <categories>System,Application,VISAT</categories>
 
-    <extension point="ceres-core:applications">
+    <extension point="snap-ceres-core:applications">
         <application id="VisatMain" class="org.esa.beam.visat.VisatMain"/>
     </extension>
 

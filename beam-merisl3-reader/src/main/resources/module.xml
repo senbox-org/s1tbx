@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-merisl3-reader</symbolicName>
-    <version>5.0</version>
+    <symbolicName>s3tbx-merisl3-reader</symbolicName>
+    <version>0.5</version>
     <name>MERIS Level-3 Product Reader</name>
 
     <description>A reader for MERIS Binned Level-3 (netCDF) data products.</description>
@@ -19,19 +19,19 @@
 
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-netcdf</module>
+        <module>snap-netcdf</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
     <categories>Reader,MERIS,VISAT,Level-3,NetCDF</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importMerisBinnedL3Product</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>

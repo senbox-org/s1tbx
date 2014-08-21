@@ -16,8 +16,8 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-scripting</symbolicName>
-    <version>5.0</version>
+    <symbolicName>snap-scripting</symbolicName>
+    <version>0.5</version>
     <name>BEAM Scripting Interface</name>
 
     <description>Provides a simple console for scripting BEAM using JavaScript (default)
@@ -37,18 +37,18 @@
 
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
     </dependency>
 
     <categories>VISAT,System</categories>
 
-    <extension point="beam-ui:toolViews">
+    <extension point="snap-ui:toolViews">
         <toolView>
             <id>org.esa.beam.scripting.visat.ScriptConsoleToolView</id>
             <class>org.esa.beam.scripting.visat.ScriptConsoleToolView</class>

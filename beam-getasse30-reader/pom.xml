@@ -20,19 +20,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>beam-getasse30-reader</artifactId>
+    <artifactId>snap-getasse30-reader</artifactId>
     <name>BEAM GETASSE30 DEM Reader</name>
-    <version>5.0</version>
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-core</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
         </dependency>
     </dependencies>
 

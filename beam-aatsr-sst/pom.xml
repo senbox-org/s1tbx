@@ -22,19 +22,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <name>BEAM AATSR SST Processor</name>
-    <artifactId>beam-aatsr-sst</artifactId>
-    <version>5.0</version>
+    <artifactId>snap-aatsr-sst</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-visat</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-visat</artifactId>
         </dependency>
     </dependencies>
 

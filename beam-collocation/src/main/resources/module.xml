@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-collocation</symbolicName>
-    <version>5.0.1</version>
+    <symbolicName>snap-collocation</symbolicName>
+    <version>0.5</version>
     <name>Collocation</name>
 
     <description>
@@ -22,16 +22,16 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
 
     <categories>VISAT,Processing,Collocation</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <parent>processing.geomOperations</parent>
             <id>collocation</id>
@@ -41,9 +41,9 @@
         </action>
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-beam-help</parent>
             <path>doc/help/collocation.hs</path>
         </helpSet>
     </extension>

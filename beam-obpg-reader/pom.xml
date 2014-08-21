@@ -20,14 +20,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>beam-obpg-reader</artifactId>
+    <artifactId>snap-obpg-reader</artifactId>
     <name>BEAM NASA Ocean Color Product Reader</name>
-    <version>5.0</version>
 
     <dependencies>
         <dependency>
@@ -36,28 +35,28 @@
             <version>1.5.6</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.esa.beam</groupId>
-                    <artifactId>beam-core</artifactId>
+                    <groupId>org.esa.snap</groupId>
+                    <artifactId>snap-core</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.esa.beam</groupId>
-                    <artifactId>beam-netcdf</artifactId>
+                    <groupId>org.esa.snap</groupId>
+                    <artifactId>snap-netcdf</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>edu.ucar</groupId>
                     <artifactId>netcdf</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.esa.beam</groupId>
-                    <artifactId>beam-merisl3-reader</artifactId>
+                    <groupId>org.esa.s3tbx</groupId>
+                    <artifactId>s3tbx-merisl3-reader</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.esa.beam</groupId>
-                    <artifactId>beam-ui</artifactId>
+                    <groupId>org.esa.snap</groupId>
+                    <artifactId>snap-ui</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.esa.beam</groupId>
-                    <artifactId>beam-visat-rcp</artifactId>
+                    <groupId>org.esa.snap</groupId>
+                    <artifactId>snap-visat-rcp</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

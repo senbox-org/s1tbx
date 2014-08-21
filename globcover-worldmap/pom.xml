@@ -21,27 +21,27 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <name>BEAM ESA GlobCover Worldmap</name>
     <artifactId>globcover-worldmap</artifactId>
-    <version>5.0</version>
+    <version>0.5-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-glayer</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-glayer</artifactId>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-referencing</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-core</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
         </dependency>
     </dependencies>
 

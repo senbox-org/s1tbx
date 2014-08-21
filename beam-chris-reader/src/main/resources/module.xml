@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-chris-reader</symbolicName>
-    <version>5.0</version>
+    <symbolicName>s3tbx-chris-reader</symbolicName>
+    <version>0.5</version>
     <name>CHRIS/Proba Product Reader</name>
 
     <description>Enables BEAM to read CHRIS/Proba HDF4 data products.</description>
@@ -20,20 +20,20 @@
     </changelog>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-netcdf</module>
+        <module>snap-netcdf</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
 
     <categories>Reader,CHRIS</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <id>importChrisProduct</id>
@@ -46,7 +46,7 @@
         </action>
     </extension>
 
-    <extension point="beam-core:rgbProfiles">
+    <extension point="snap-core:rgbProfiles">
         <rgbProfile>
             <name>CHRIS/Proba - Mode 0</name>
             <red>radiance_3</red>

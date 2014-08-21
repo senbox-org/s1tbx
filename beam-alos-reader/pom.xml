@@ -21,19 +21,20 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>beam-alos-reader</artifactId>
     <name>BEAM AVNIR-2/PRISM Product Reader</name>
-    <version>5.0</version>
+    <groupId>org.esa.s3tbx</groupId>
+    <artifactId>s3tbx-alos-reader</artifactId>
+    <version>0.5-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-core</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
         </dependency>
     </dependencies>
 

@@ -18,7 +18,7 @@ fi
     -Dceres.context=beam \
     -Dbeam.debug=true \
     "-Dbeam.home=$BEAM4_HOME" \
-    -jar "$BEAM4_HOME/bin/ceres-launcher.jar" -d "$@"
+    -jar "$BEAM4_HOME/bin/snap-launcher.jar" -d "$@"
 
 exit $?
 

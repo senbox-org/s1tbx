@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-modis-reader</symbolicName>
-    <version>5.0</version>
+    <symbolicName>snap-modis-reader</symbolicName>
+    <version>0.5</version>
     <name>MODIS (MOD,MXD,MYD) Product Reader</name>
 
 
@@ -21,19 +21,19 @@
     </changelog>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-netcdf</module>
+        <module>snap-netcdf</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
     <categories>Reader,MODIS,HDF,VISAT</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importModisProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
@@ -47,7 +47,7 @@
         </action>
     </extension>
 
-    <extension point="beam-core:rgbProfiles">
+    <extension point="snap-core:rgbProfiles">
         <rgbProfile>
             <name>MOD021KM High Quality</name>
             <red>log(1 + 0.04 * EV_1KM_RefSB.8 + 0.35 * EV_1KM_RefSB.9 + 0.03 * EV_1KM_RefSB.10 + 0.17 * EV_1KM_RefSB.11

@@ -20,19 +20,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>beam-atsr-reader</artifactId>
     <name>BEAM ATSR Product Reader</name>
-    <version>5.0</version>
+    <groupId>org.esa.s3tbx</groupId>
+    <artifactId>s3tbx-atsr-reader</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-core</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
         </dependency>
     </dependencies>
 

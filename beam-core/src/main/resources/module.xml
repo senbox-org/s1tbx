@@ -16,8 +16,8 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-core</symbolicName>
-    <version>5.0.3</version>
+    <symbolicName>snap-core</symbolicName>
+    <version>0.5</version>
     <name>BEAM Core Library</name>
 
 
@@ -30,13 +30,13 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>ceres-core</module>
+        <module>snap-ceres-core</module>
     </dependency>
     <dependency>
-        <module>ceres-glayer</module>
+        <module>snap-glayer</module>
     </dependency>
     <dependency>
-        <module>ceres-jai</module>
+        <module>snap-jai</module>
     </dependency>
 
     <changelog>
@@ -95,7 +95,7 @@
     </extensionPoint>
 
 
-    <extension point="ceres-core:serviceProviders">
+    <extension point="snap-ceres-core:serviceProviders">
         <serviceProvider>org.esa.beam.dataio.dimap.spi.DimapPersistableSpi</serviceProvider>
         <serviceProvider>org.esa.beam.framework.dataio.ProductReaderPlugIn</serviceProvider>
         <serviceProvider>org.esa.beam.framework.dataio.ProductWriterPlugIn</serviceProvider>

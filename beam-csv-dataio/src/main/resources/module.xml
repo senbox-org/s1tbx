@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-csv-dataio</symbolicName>
-    <version>5.0</version>
+    <symbolicName>snap-csv-dataio</symbolicName>
+    <version>0.5</version>
     <name>CSV Product Reader</name>
 
     <description>Enables BEAM to read data products from CSV files.</description>
@@ -13,16 +13,16 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
     <categories>Reader,CSV</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importCsvProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>

@@ -23,33 +23,36 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <name>BEAM Graph Processing Framework (GPF)</name>
-    <artifactId>beam-gpf</artifactId>
-    <version>5.0.1</version>
+    <artifactId>snap-gpf</artifactId>
 
     <packaging>jar</packaging>
 
+    <properties>
+        <jdkToolsPath>${java.home}/../lib/tools.jar</jdkToolsPath>
+    </properties>
+
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-core</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-ui</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ui</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-binding</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-binding</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-metadata</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-metadata</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -70,9 +73,9 @@
                 <dependency>
                     <groupId>com.oracle</groupId>
                     <artifactId>tools</artifactId>
-                    <version>1.7.0</version>
+                    <version>1.8.0</version>
                     <scope>system</scope>
-                    <systemPath>${java.home}/../lib/tools.jar</systemPath>
+                    <systemPath>${jdkToolsPath}</systemPath>
                 </dependency>
             </dependencies>
         </profile>

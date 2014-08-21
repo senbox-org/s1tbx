@@ -22,17 +22,15 @@
 
     <name>BEAM</name>
     <url>http://www.brockmann-consult.de/beam-wiki</url>
-    <groupId>org.esa.beam</groupId>
-    <artifactId>beam</artifactId>
-    <version>5.0.1</version>
+    <groupId>org.esa.snap</groupId>
+    <artifactId>snap-beam</artifactId>
+    <version>0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <beam.version>5.0.1</beam.version>
-        <beam.versionRange>[5.0,5.1-SNAPSHOT)</beam.versionRange>
-        <ceres.versionRange>[0.14,0.15-SNAPSHOT)</ceres.versionRange>
+        <snap.version>0.5-SNAPSHOT</snap.version>
         <hdf.version>2.7</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>
         <geotools.version>2.7.4</geotools.version>
@@ -89,7 +87,6 @@
         <module>beam-modis-reader</module>
         <module>beam-netcdf</module>
         <module>seadas-reader</module>
-        <module>beam-obpg-reader</module>
         <module>beam-opendap</module>
         <module>beam-pconvert</module>
         <module>beam-pixel-extraction</module>
@@ -131,89 +128,89 @@
             <!-- Ceres System Level Modules ############################################# -->
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-launcher</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-launcher</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-core</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-ceres-core</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-binding</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-binding</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-ui</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-ceres-ui</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-binio</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-binio</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-glayer</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-glayer</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-jai</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-jai</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.bc.ceres</groupId>
-                <artifactId>ceres-metadata</artifactId>
-                <version>${ceres.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-metadata</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <!-- BEAM System Level Modules ############################################# -->
 
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-core</artifactId>
-                <version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-core</artifactId>
+                <version>${snap.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-gpf</artifactId>
-                <version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-gpf</artifactId>
+                <version>${snap.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-ui</artifactId>
-                <version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-ui</artifactId>
+                <version>${snap.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-csv-dataio</artifactId>
-                <version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-csv-dataio</artifactId>
+                <version>${snap.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-visat-rcp</artifactId>
-                <version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-visat-rcp</artifactId>
+                <version>${snap.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-visat</artifactId>
-                <version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-visat</artifactId>
+                <version>${snap.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.esa.beam</groupId>
-                <artifactId>beam-netcdf</artifactId>
-                <version>${beam.versionRange}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-netcdf</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <!-- Miscellaneous 3rd party libraries ############################################# -->
@@ -592,9 +589,9 @@
 
     <repositories>
         <repository>
-            <id>bc-mvn</id>
-            <name>Public Maven Repository at Brockmann Consult</name>
-            <url>http://www.brockmann-consult.de/mvn/os</url>
+            <id>snap-repo-public</id>
+            <name>Public Maven Repository for SNAP</name>
+            <url>http://nexus.senbox.net/nexus/content/repositories/public/</url>
             <releases>
                 <enabled>true</enabled>
                 <checksumPolicy>warn</checksumPolicy>
@@ -603,76 +600,40 @@
                 <enabled>true</enabled>
                 <checksumPolicy>warn</checksumPolicy>
             </snapshots>
-        </repository>
-		<repository>
-            <id>array-mvn-repo</id>
-            <name>Public Maven Repository at Array Systems Computing Inc</name>
-            <url>http://corp.array.ca/nest-web/mavenrepo</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>maven2-repository.dev.java.net</id>
-            <name>Java.net repository</name>
-            <url>http://download.java.net/maven/2</url>
-        </repository>
-        <repository>
-            <id>maven-repository.unidata.ucar.edu</id>
-            <name>Unidata Repository</name>
-            <url>http://artifacts.unidata.ucar.edu/content/repositories/unidata-releases</url>
-        </repository>
-        <repository>
-            <id>osgeo</id>
-            <name>Open Source Geospatial Foundation Repository</name>
-            <url>http://download.osgeo.org/webdav/geotools/</url>
         </repository>
     </repositories>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>bc-mvn-repo</id>
-            <name>Public Maven Repository at Brockmann Consult</name>
-            <url>http://www.brockmann-consult.de/mvn/os</url>
-            <releases>
-                <enabled>true</enabled>
-                <checksumPolicy>warn</checksumPolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <checksumPolicy>warn</checksumPolicy>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>apache.org</id>
-            <name>Maven Plugin Snapshots</name>
-            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-
     <distributionManagement>
         <repository>
-            <id>bc-mvn-repo-public</id>
-            <name>Public Maven Repository at Brockmann Consult</name>
-            <url>scp://www.brockmann-consult.de/var/www/www.brockmann-consult.de/mvn/os</url>
+            <id>snap-repo-public</id>
+            <name>Public Maven Repository for SNAP</name>
+            <url>http://nexus.senbox.net/nexus/content/repositories/releases/</url>
             <uniqueVersion>false</uniqueVersion>
         </repository>
         <snapshotRepository>
-            <id>bc-mvn-repo-public</id>
-            <name>Public Maven Snapshot Repository at Brockmann Consult</name>
-            <url>scp://www.brockmann-consult.de/var/www/www.brockmann-consult.de/mvn/os</url>
+            <id>snap-repo-public</id>
+            <name>Public Maven Snapshot Repository for SNAP</name>
+            <url>http://nexus.senbox.net/nexus/content/repositories/snapshots/</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
+
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>snap-repo-public</id>
+            <name>Public Maven Repository for SNAP</name>
+            <url>http://nexus.senbox.net/nexus/content/repositories/public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 
     <build>
         <outputDirectory>${outputdir}/modules/${project.artifactId}-${project.version}</outputDirectory>
@@ -685,8 +646,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.1</version>
                     <configuration>
-                        <source>1.7</source>
-                        <target>1.7</target>
+                        <source>1.8</source>
+                        <target>1.8</target>
                         <debug>true</debug>
                         <encoding>UTF-8</encoding>
                         <excludes>
@@ -824,7 +785,7 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-                    <finalName>beam</finalName>
+                    <finalName>s3tbx</finalName>
                     <descriptors>
                         <!-- <descriptor>src/main/assembly/beam-web-help.xml</descriptor> -->
                         <descriptor>src/main/assembly/bin.xml</descriptor>

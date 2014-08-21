@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-alos-reader</symbolicName>
-    <version>5.0</version>
+    <symbolicName>s3tbx-alos-reader</symbolicName>
+    <version>0.5</version>
     <name>AVNIR-2/PRISM Product Reader</name>
 
     <description>
@@ -15,10 +15,10 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
@@ -30,7 +30,7 @@
     </changelog>
     <categories>Reader,ALOS,AVNIR,PRISM</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importAvnir2Product</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
@@ -55,7 +55,7 @@
         </action>
     </extension>
 
-    <extension point="beam-core:rgbProfiles">
+    <extension point="snap-core:rgbProfiles">
         <rgbProfile>
             <name>AVNIR-2 - 3,2,1</name>
             <red>radiance_3</red>

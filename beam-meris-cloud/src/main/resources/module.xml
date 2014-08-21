@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-meris-cloud</symbolicName>
-    <version>5.0</version>
+    <symbolicName>s3tbx-meris-cloud</symbolicName>
+    <version>0.5</version>
     <name>MERIS Cloud Probability Processor</name>
 
     <description>
@@ -21,16 +21,16 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>beam-envisat-reader</module>
+        <module>snap-envisat-reader</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
     <categories>Application,Processor,MERIS</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <parent>processing.preProcessing</parent>
             <id>cloudScientificTool</id>
@@ -44,9 +44,9 @@
         </action>
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-beam-help</parent>
             <path>doc/help/cloud.hs</path>
         </helpSet>
     </extension>

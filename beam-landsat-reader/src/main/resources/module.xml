@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-landsat-reader</symbolicName>
-    <version>5.0</version>
+    <symbolicName>s3tbx-landsat-reader</symbolicName>
+    <version>0.5</version>
     <name>Landsat Product Reader</name>
     <description>
         A product reader for Landsat files. It supports the instruments MSS of Landsat 1-5, TM of Landsat 4 and 5, ETM+ of Landsat 7
@@ -24,19 +24,19 @@
     </changelog>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-geotiff</module>
+        <module>snap-geotiff</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
     <categories>Reader, Landsat</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importLandsatTMProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
@@ -60,7 +60,7 @@
         </action>
     </extension>
 
-    <extension point="beam-core:rgbProfiles">
+    <extension point="snap-core:rgbProfiles">
         <rgbProfile>
             <name>LandsatTM 3,2,1</name>
             <red>radiance_3</red>

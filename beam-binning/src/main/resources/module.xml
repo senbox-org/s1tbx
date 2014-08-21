@@ -1,12 +1,12 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-binning</symbolicName>
-    <version>5.0.1</version>
+    <symbolicName>snap-binning</symbolicName>
+    <version>0.5</version>
     <name>Level-3 Binning Processor (GPF)</name>
 
     <description>
         The Level-3 Binning Operator performs a spatial and temporal aggregation of a number of input (Level-2)
-        products using the NASA SeaDAS binning scheme. This module has replaced the module 'beam-binning'.
+        products using the NASA SeaDAS binning scheme. This module has replaced the module 'snap-binning'.
     </description>
 
     <vendor>Brockmann Consult GmbH</vendor>
@@ -17,13 +17,13 @@
     <funding>ESA, EU (Project Aquamar)</funding>
 
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
     <dependency>
-        <module>beam-netcdf</module>
+        <module>snap-netcdf</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
@@ -46,11 +46,11 @@
 
     <categories>Application,Processor,Geometry,VISAT,Level-3,Envisat,MERIS,AATSR,AVHRR,CHRIS</categories>
 
-    <extension point="ceres-core:serviceProviders">
+    <extension point="snap-ceres-core:serviceProviders">
         <serviceProvider>org.esa.beam.binning.AggregatorDescriptor</serviceProvider>
     </extension>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <parent>processing</parent>
             <id>Binning</id>
@@ -62,7 +62,7 @@
         </action>
     </extension>
     <!-- todo - clarify with MZ if we need this, it is actually an OC-CCI-specific product format -->
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importBinnedProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
@@ -74,9 +74,9 @@
         </action>
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-beam-help</parent>
             <path>doc/help/binning.hs</path>
         </helpSet>
     </extension>

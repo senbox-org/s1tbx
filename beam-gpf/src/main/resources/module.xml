@@ -16,8 +16,8 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-gpf</symbolicName>
-    <version>5.0.1</version>
+    <symbolicName>snap-gpf</symbolicName>
+    <version>0.5</version>
     <name>BEAM Graph Processing Framework (GPF)</name>
 
     <description>The basic framework for processing using Operators and the GPT.</description>
@@ -52,25 +52,25 @@
     </changelog>
 
     <dependency>
-        <module>ceres-binding</module>
+        <module>snap-binding</module>
     </dependency>
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-ui</module>
+        <module>snap-ui</module>
         <optional>true</optional>
     </dependency>
 
     <categories>System,Application,Processing</categories>
 
-    <extension point="ceres-core:serviceProviders">
+    <extension point="snap-ceres-core:serviceProviders">
         <serviceProvider>org.esa.beam.framework.gpf.OperatorSpi</serviceProvider>
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-beam-help</parent>
             <path>doc/help/gpf.hs</path>
         </helpSet>
     </extension>

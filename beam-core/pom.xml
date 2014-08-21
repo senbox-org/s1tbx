@@ -22,34 +22,33 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.esa.beam</groupId>
-        <artifactId>beam</artifactId>
-        <version>5.0.1</version>
+        <groupId>org.esa.snap</groupId>
+        <artifactId>snap-beam</artifactId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <name>BEAM Core API</name>
-    <artifactId>beam-core</artifactId>
-    <version>5.0.3-SNAPSHOT</version>
+    <artifactId>snap-core</artifactId>
 
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-core</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ceres-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-binio</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-binio</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-glayer</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-glayer</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-jai</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-jai</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.media.jai</groupId>

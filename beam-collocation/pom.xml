@@ -22,14 +22,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>beam-collocation</artifactId>
+    <artifactId>snap-collocation</artifactId>
     <name>BEAM Geographic Collocation Tool</name>
-    <version>5.0.1</version>
 
     <dependencies>
         <dependency>
@@ -37,21 +36,21 @@
             <artifactId>Jama</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-binding</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-binding</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-visat</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-visat</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-gpf</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-gpf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-envisat-reader</artifactId>
-            <version>${beam.versionRange}</version>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-envisat-reader</artifactId>
+            <version>${snap.version}</version>
         </dependency>
     </dependencies>
 

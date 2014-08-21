@@ -16,8 +16,8 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-python</symbolicName>
-    <version>5.0.4</version>
+    <symbolicName>snap-python</symbolicName>
+    <version>0.5</version>
     <name>BEAM Python Interface</name>
     <packaging>dir</packaging>
 
@@ -55,13 +55,13 @@
 
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
     </dependency>
     <dependency>
         <lib>lib/jpy.jar</lib>

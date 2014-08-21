@@ -22,24 +22,25 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <name>BEAM MERIS Cloud Probability Processor</name>
-    <artifactId>beam-meris-cloud</artifactId>
-    <version>5.0</version>
+    <groupId>org.esa.s3tbx</groupId>
+    <artifactId>s3tbx-meris-cloud</artifactId>
+    <version>0.5-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-visat</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-visat</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-envisat-reader</artifactId>
-            <version>${beam.versionRange}</version>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-envisat-reader</artifactId>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

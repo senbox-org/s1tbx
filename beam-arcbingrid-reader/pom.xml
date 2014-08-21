@@ -3,24 +3,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 	
-    <artifactId>beam-arcbingrid-reader</artifactId>
-    <groupId>org.esa.beam</groupId>
+    <artifactId>snap-arcbingrid-reader</artifactId>
     <name>Arc/Info Binary Grid Reader</name>
-    <version>5.0</version>
 
     <dependencies>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-binio</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-binio</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-core</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
         </dependency>
         <dependency> <!-- used to read Dbase files (*.dbf) -->
             <groupId>org.geotools</groupId>

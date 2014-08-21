@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-reader-tests</symbolicName>
-    <version>5.0</version>
+    <symbolicName>snap-reader-tests</symbolicName>
+    <version>0.5</version>
     <name>BEAM Product Reader Integration Tests</name>
 
     <description>
@@ -9,13 +9,13 @@
     </description>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
     </dependency>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
 
         <action>
             <id>createExpectedJsonCode</id>

@@ -21,25 +21,26 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>beam-avhrr-reader</artifactId>
     <name>BEAM AVHRR Product Reader</name>
-    <version>5.0.1</version>
+    <groupId>org.esa.s3tbx</groupId>
+    <artifactId>s3tbx-avhrr-reader</artifactId>
+    <version>0.5-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-core</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-binio</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-binio</artifactId>
         </dependency>
     </dependencies>
 

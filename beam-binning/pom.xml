@@ -5,40 +5,39 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <artifactId>beam-binning</artifactId>
+    <artifactId>snap-binning</artifactId>
     <name>BEAM Level-3 Binning</name>
-    <version>5.0.1</version>
 
     <dependencies>
 
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-core</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-gpf</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-gpf</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-ui</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ui</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-visat-rcp</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-visat-rcp</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-netcdf</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-netcdf</artifactId>
         </dependency>
 
         <dependency>
@@ -53,16 +52,16 @@
 
         <!-- Not a real dependency, but used for tests -->
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-envisat-reader</artifactId>
-            <version>${beam.versionRange}</version>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-envisat-reader</artifactId>
+            <version>${snap.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.esa.beam</groupId>
+            <groupId>org.esa.snap</groupId>
             <artifactId>blue-marble-worldmap</artifactId>
-            <version>${beam.versionRange}</version>
+            <version>${snap.version}</version>
             <scope>test</scope>
         </dependency>
 

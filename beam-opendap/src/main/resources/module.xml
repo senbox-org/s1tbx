@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>opendap-download-tool</symbolicName>
-    <version>5.0</version>
+    <version>0.5</version>
     <name>OPeNDAP Download Tool</name>
     <funding>EU</funding>
 
@@ -30,13 +30,13 @@
     <categories>ui</categories>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
     </dependency>
     <dependency>
-        <module>beam-pixel-extraction</module>
+        <module>snap-pixel-extraction</module>
     </dependency>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>showOpendapClientAction</id>
             <parent>file</parent>
@@ -51,9 +51,9 @@
         </action>
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-beam-help</parent>
             <path>doc/help/opendap-client.hs</path>
         </helpSet>
     </extension>

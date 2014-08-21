@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-avhrr-reader</symbolicName>
-    <version>5.0.1</version>
+    <symbolicName>s3tbx-avhrr-reader</symbolicName>
+    <version>0.5</version>
     <name>AVHRR Product Reader</name>
 
     <description>Enables BEAM to read AVHRR/3 Level-1b data products.</description>
@@ -18,19 +18,19 @@
     </changelog>
 
     <dependency>
-        <module>ceres-binio</module>
+        <module>snap-binio</module>
     </dependency>
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
     <categories>Reader,AVHRR</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importNoaaAvhrr3L1bProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
@@ -44,7 +44,7 @@
         </action>
     </extension>
 
-    <extension point="beam-core:rgbProfiles">
+    <extension point="snap-core:rgbProfiles">
         <rgbProfile>
             <name>AVHRR/3 L1b - 3a,2,1, Day</name>
             <red>radiance_3a</red>

@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-arcbingrid-reader</symbolicName>
-    <version>5.0</version>
+    <symbolicName>snap-arcbingrid-reader</symbolicName>
+    <version>0.5</version>
     <name>Arc/Info Binary Grid Reader</name>
 
     <description>
@@ -25,19 +25,19 @@
     </changelog>
 
     <dependency>
-        <module>ceres-binio</module>
+        <module>snap-binio</module>
     </dependency>
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-visat</module>
+        <module>snap-visat</module>
         <optional>true</optional>
     </dependency>
 
     <categories>Reader</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <id>importArcBinGrid</id>

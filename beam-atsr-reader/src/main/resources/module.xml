@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-atsr-reader</symbolicName>
-    <version>5.0</version>
+    <symbolicName>s3tbx-atsr-reader</symbolicName>
+    <version>0.5</version>
     <name>ATSR Product Reader</name>
 
     <description>Enables BEAM to read ERS-1 and -2 ATSR data products.</description>
@@ -13,10 +13,10 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
@@ -27,7 +27,7 @@
 
     <categories>Reader,ERS,ATSR</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importAtsrProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>

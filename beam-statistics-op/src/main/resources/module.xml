@@ -1,14 +1,14 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
 
-    <symbolicName>beam-statistics-op</symbolicName>
-    <version>5.0</version>
+    <symbolicName>snap-statistics-op</symbolicName>
+    <version>0.5</version>
     <name>BEAM Statistics Operator</name>
     <funding>EU</funding>
 
     <description>
         <![CDATA[
-            The beam-statistics module contains an operator for computing statistics for a set of input products and
+            The snap-statistics module contains an operator for computing statistics for a set of input products and
             regions.
         ]]>
     </description>
@@ -22,7 +22,7 @@
     <categories>Application,Processor,Geometry,VISAT,Level-3,Envisat,MERIS,AATSR,AVHRR,CHRIS</categories>
 
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
 
 </module>

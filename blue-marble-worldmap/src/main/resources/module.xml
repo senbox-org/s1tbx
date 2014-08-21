@@ -3,7 +3,7 @@
 
     <symbolicName>blue-marble-worldmap</symbolicName>
     <name>NASA Blue Marble Worldmap</name>
-    <version>5.0</version>
+    <version>0.5</version>
     <description>
         This module provides a NASA Blue Marble world map layer in WGS84.
     </description>
@@ -24,18 +24,18 @@
     <categories>System,World-Map</categories>
 
     <dependency>
-        <module>ceres-glayer</module>
+        <module>snap-glayer</module>
     </dependency>
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
 
     <dependency>
-        <module>beam-ui</module>
+        <module>snap-ui</module>
         <optional>true</optional>
     </dependency>
 
-    <extension point="beam-ui:layerSources">
+    <extension point="snap-ui:layerSources">
         <layerSource>
             <id>blue-marble-source</id>
             <name>World Map (NASA Blue Marble)</name>

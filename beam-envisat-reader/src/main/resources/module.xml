@@ -16,8 +16,8 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-envisat-reader</symbolicName>
-    <version>5.0</version>
+    <symbolicName>snap-envisat-reader</symbolicName>
+    <version>0.5</version>
     <name>Envisat Product Reader</name>
 
     <description>Enables BEAM to read ENVISAT data products.</description>
@@ -39,16 +39,16 @@
 
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
     <categories>Reader,Envisat,MERIS,AATSR,ASAR,ERS</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
 		 <action>
             <id>importEnvisatASARProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
@@ -94,7 +94,7 @@
         </action>
     </extension>
 
-    <extension point="beam-core:rgbProfiles">
+    <extension point="snap-core:rgbProfiles">
         <rgbProfile>
             <name>MERIS L1b - Tristimulus</name>
             <red>log(1.0 + 0.35 * radiance_2 + 0.60 * radiance_5 + radiance_6 + 0.13 * radiance_7)</red>

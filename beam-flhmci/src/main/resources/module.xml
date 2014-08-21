@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-flhmci</symbolicName>
-    <version>5.0</version>
+    <symbolicName>snap-flhmci</symbolicName>
+    <version>0.5</version>
     <name>MERIS FLH/MCI Processor</name>
 
     <description>
@@ -16,7 +16,7 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
@@ -31,7 +31,7 @@
 
     <categories>Application,Processor,MERIS,AVHRR</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <parent>processing.thematicWater</parent>
             <id>flhMciScientificTool</id>
@@ -43,9 +43,9 @@
         </action>
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-beam-help</parent>
             <path>doc/help/flhmci.hs</path>
         </helpSet>
     </extension>

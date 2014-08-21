@@ -22,14 +22,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>beam</artifactId>
-        <groupId>org.esa.beam</groupId>
-        <version>5.0.1</version>
+        <artifactId>snap-beam</artifactId>
+        <groupId>org.esa.snap</groupId>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <name>BEAM Spectral Unmixing</name>
-    <artifactId>beam-unmix</artifactId>
-    <version>5.0</version>
+    <artifactId>snap-unmix</artifactId>
 
     <dependencies>
         <dependency>
@@ -37,16 +36,16 @@
             <artifactId>Jama</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-binding</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-binding</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-visat</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-visat</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-gpf</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-gpf</artifactId>
         </dependency>
     </dependencies>
 

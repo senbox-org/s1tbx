@@ -18,19 +18,19 @@
     </changelog>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-merisl3-reader</module>
+        <module>s3tbx-merisl3-reader</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
     <categories>Reader,OBPG,SeaDAS,HDF,VISAT,NASA</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importSeadasL1Product</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
@@ -133,7 +133,7 @@
 
     </extension>
 
-    <extension point="beam-core:rgbProfiles">
+    <extension point="snap-core:rgbProfiles">
         <rgbProfile>
             <name>NASA L1 True Color</name>
             <red>Red</red>
@@ -184,7 +184,7 @@
         </rgbProfile>
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
             <parent>seadas-help</parent>
             <path>doc/help/importNasaObpgProduct.hs</path>

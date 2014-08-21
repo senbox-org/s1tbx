@@ -1,8 +1,8 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
 
-    <symbolicName>beam-cluster-analysis</symbolicName>
-    <version>5.0</version>
+    <symbolicName>snap-cluster-analysis</symbolicName>
+    <version>0.5</version>
     <name>BEAM Cluster Analysis</name>
 
     <description>
@@ -22,16 +22,16 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
 
     <categories>VISAT,Processing,Image Analysis</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <parent>processing.imageAnalysis</parent>
             <id>emClusterAnalysis</id>
@@ -66,9 +66,9 @@
         </action>
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-beam-help</parent>
             <path>doc/help/clusteranalysis.hs</path>
         </helpSet>
     </extension>

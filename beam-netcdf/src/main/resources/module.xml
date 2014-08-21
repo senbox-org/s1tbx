@@ -16,8 +16,8 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-netcdf</symbolicName>
-    <version>5.0.2</version>
+    <symbolicName>snap-netcdf</symbolicName>
+    <version>0.5</version>
     <name>NetCDF Product Reader and Writer</name>
     <description>
         A product reader and writer for NetCDF files. It supports metadata profiles for CF, BEAM, HDF-EOS, ODESA.
@@ -45,17 +45,17 @@
     </changelog>
 
     <dependency>
-        <module>beam-core</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 
     <categories>Reader,NetCDF,HDF,CF,EOS</categories>
 
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <id>importNetCdfGenericProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>

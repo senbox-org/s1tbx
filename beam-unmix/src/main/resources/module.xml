@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beam-unmix</symbolicName>
-    <version>5.0</version>
+    <symbolicName>snap-unmix</symbolicName>
+    <version>0.5</version>
     <name>Spectral Unmixing</name>
 
     <description>
@@ -20,16 +20,16 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
     <dependency>
-        <module>beam-visat-rcp</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
     <dependency>
-        <module>beam-gpf</module>
+        <module>snap-gpf</module>
     </dependency>
 
     <categories>VISAT,Processing,Image Analysis</categories>
 
-    <extension point="beam-ui:actions">
+    <extension point="snap-ui:actions">
         <action>
             <parent>processing.imageAnalysis</parent>
             <id>spectralUnmixing</id>
@@ -40,9 +40,9 @@
         </action>
     </extension>
 
-    <extension point="beam-ui:helpSets">
+    <extension point="snap-ui:helpSets">
         <helpSet>
-            <parent>beam-help</parent>
+            <parent>snap-beam-help</parent>
             <path>doc/help/unmixing.hs</path>
         </helpSet>
     </extension>
