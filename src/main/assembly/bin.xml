@@ -120,6 +120,7 @@
                         <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
                         <excludes>
                             <exclude>org.esa.snap:snap-*</exclude>
+                            <exclude>org.esa.s3tbx:s3tbx-*</exclude>
                             <exclude>org.esa.snap:blue-marble-worldmap</exclude>
                             <exclude>org.esa.snap:globcover-worldmap</exclude>
                             <exclude>ncsa.hdf:*</exclude>
