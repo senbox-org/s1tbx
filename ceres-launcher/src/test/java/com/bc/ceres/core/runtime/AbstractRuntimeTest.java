@@ -82,15 +82,15 @@ public abstract class AbstractRuntimeTest extends TestCase {
         touch(dirPath + "/config/" + configFilename, configContent.replace("\\", "/").getBytes());
 
         mkdir(dirPath + "/lib");
-        touch(dirPath + "/lib/ceres-launcher-0.5.jar");
+        touch(dirPath + "/lib/snap-launcher-0.5.jar");
         touch(dirPath + "/lib/xstream-1.2.jar");
         touch(dirPath + "/lib/xpp3-1.1.3.jar");
         touch(dirPath + "/lib/jdom-1.0.jar");
         mkdir(dirPath + "/lib/lib-jide-1.9");
 
         mkdir(dirPath + "/modules");
-        touch(dirPath + "/modules/ceres-core-0.5.jar");
-        touch(dirPath + "/modules/ceres-ui-0.5.jar");
+        touch(dirPath + "/modules/snap-ceres-core-0.5.jar");
+        touch(dirPath + "/modules/snap-ceres-ui-0.5.jar");
         touch(dirPath + "/modules/beam-core-4.0.jar");
         touch(dirPath + "/modules/beam-ui-4.0.jar");
         mkdir(dirPath + "/modules/lib-netcdf");
