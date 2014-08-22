@@ -135,7 +135,7 @@
                             <include>org.esa.snap:snap-ceres-core</include>
                             <include>org.esa.snap:snap-glayer</include>
                             <include>org.esa.snap:snap-jai</include>
-                            <include>org.esa.snap:snap-ui</include>
+                            <include>org.esa.snap:snap-ceres-ui</include>
                             <include>org.esa.snap:snap-metadata</include>
                             <include>gov.nasa.gsfc.seadas:seadas-reader*</include>
                         </includes>

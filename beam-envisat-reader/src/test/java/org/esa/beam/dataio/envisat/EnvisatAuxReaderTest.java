@@ -31,12 +31,12 @@ import static org.junit.Assert.*;
  */
 public class EnvisatAuxReaderTest {
 
-    String ers1XCAFilePath = "org/esa/beam/resources/testdata/ER1_XCA_AXNXXX20050321_000000_19910101_000000_20100101_000000.txt";
-    String ers2XCAFilePath = "org/esa/beam/resources/testdata/ER2_XCA_AXNXXX20050321_000000_19950101_000000_20100101_000000.txt";
-    String envisatXCAFilePath = "org/esa/beam/resources/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000";
-    String envisatXCAZipFilePath = "org/esa/beam/resources/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000.zip";
-    String envisatXCAZipFilePath2 = "org/esa/beam/resources/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000_2";
-    String envisatXCAGZFilePath = "org/esa/beam/resources/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000.gz";
+    String ers1XCAFilePath = "org/esa/beam/dataio/testdata/ER1_XCA_AXNXXX20050321_000000_19910101_000000_20100101_000000.txt";
+    String ers2XCAFilePath = "org/esa/beam/dataio/testdata/ER2_XCA_AXNXXX20050321_000000_19950101_000000_20100101_000000.txt";
+    String envisatXCAFilePath = "org/esa/beam/dataio/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000";
+    String envisatXCAZipFilePath = "org/esa/beam/dataio/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000.zip";
+    String envisatXCAZipFilePath2 = "org/esa/beam/dataio/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000_2";
+    String envisatXCAGZFilePath = "org/esa/beam/dataio/testdata/ASA_XCA_AXVIEC20070517_153558_20070204_165113_20071231_000000.gz";
 
     @Test
     public void testAutoLookupZIP() throws IOException {

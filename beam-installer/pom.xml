@@ -52,6 +52,21 @@
             </plugin>
 
             <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <debug>true</debug>
+                    <encoding>UTF-8</encoding>
+                    <excludes>
+                        <exclude>.gitignore</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+
+            <plugin>
                 <groupId>com.bc.maven.plugins</groupId>
                 <artifactId>maven-template-plugin</artifactId>
                 <version>1.2</version>

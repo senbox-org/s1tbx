@@ -47,24 +47,36 @@ public class ProductDB extends DAO {
     public static ProductDB instance() throws Exception {
         if (_instance == null) {
             _instance = new ProductDB();
-            boolean connected = _instance.connect();
-            if (!connected) {
-                final String dbLocation = _instance.getDatabaseLocation();
-                deleteInstance();
-
-                final File dbFolder = new File(dbLocation);
-                final File qlFolder = new File(dbFolder.getParentFile(), "QuickLooks");
-                boolean deleted = FileDeleteStrategy.FORCE.deleteQuietly(dbFolder);
-                deleted = FileDeleteStrategy.FORCE.deleteQuietly(qlFolder);
-
-                _instance = new ProductDB();
-                connected = _instance.connect();
-                if (!connected) {
-                    throw new Exception("Unable to connect to database\n" + _instance.getLastSQLException().getMessage());
-                }
-            }
+            initializeInstance();
         }
         return _instance;
+    }
+
+    public static ProductDB testInstance(final File dbPropertiesFile) throws Exception {
+        if (_instance == null) {
+            _instance = new ProductDB(dbPropertiesFile);
+            initializeInstance();
+        }
+        return _instance;
+    }
+
+    private static void initializeInstance() throws Exception {
+        boolean connected = _instance.connect();
+        if (!connected) {
+            final String dbLocation = _instance.getDatabaseLocation();
+            deleteInstance();
+
+            final File dbFolder = new File(dbLocation);
+            final File qlFolder = new File(dbFolder.getParentFile(), "QuickLooks");
+            boolean deleted = FileDeleteStrategy.FORCE.deleteQuietly(dbFolder);
+            deleted = FileDeleteStrategy.FORCE.deleteQuietly(qlFolder);
+
+            _instance = new ProductDB();
+            connected = _instance.connect();
+            if (!connected) {
+                throw new Exception("Unable to connect to database\n" + _instance.getLastSQLException().getMessage());
+            }
+        }
     }
 
     public static void deleteInstance() {
@@ -74,6 +86,10 @@ public class ProductDB extends DAO {
 
     private ProductDB() throws IOException {
         super(DEFAULT_PRODUCT_DATABASE_NAME);
+    }
+
+    private ProductDB(final File dbPropertiesFile) throws IOException {
+        super(DEFAULT_PRODUCT_DATABASE_NAME, dbPropertiesFile);
     }
 
     public boolean isReady() {
