@@ -96,7 +96,7 @@
         <moduleSet>
             <useAllReactorProjects>true</useAllReactorProjects>
             <excludes>
-                <exclude>org.esa.snap:snap-bootstrap</exclude>
+                <exclude>org.esa.snap:snap-beam-bootstrap</exclude>
                 <exclude>org.esa.snap:snap-installer</exclude>
                 <exclude>org.esa.snap:snap-rtp-codec</exclude>
                 <exclude>org.esa.snap:snap-examples</exclude>
