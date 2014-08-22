@@ -35,9 +35,9 @@ public class BruteForceClasspathFactoryTest extends TestCase {
             bfcf.processClasspathFile(new File("lib/xstream-1.2.jar"), BruteForceClasspathFactory.LibType.LIBRARY, 0);
             bfcf.processClasspathFile(new File("lib/jdom-1.0.jar"), BruteForceClasspathFactory.LibType.LIBRARY, 0);
             bfcf.processClasspathFile(new File("lib/jhall-2.0.4.jar"), BruteForceClasspathFactory.LibType.LIBRARY, 0);
-            bfcf.processClasspathFile(new File("lib/ceres-launcher.jar"), BruteForceClasspathFactory.LibType.LIBRARY, 0);
-            bfcf.processClasspathFile(new File("modules/ceres-core-1.0.jar"), BruteForceClasspathFactory.LibType.MODULE, 0);
-            bfcf.processClasspathFile(new File("modules/ceres-ui-1.0.jar"), BruteForceClasspathFactory.LibType.MODULE, 0);
+            bfcf.processClasspathFile(new File("lib/snap-launcher.jar"), BruteForceClasspathFactory.LibType.LIBRARY, 0);
+            bfcf.processClasspathFile(new File("modules/snap-ceres-core-1.0.jar"), BruteForceClasspathFactory.LibType.MODULE, 0);
+            bfcf.processClasspathFile(new File("modules/snap-ceres-ui-1.0.jar"), BruteForceClasspathFactory.LibType.MODULE, 0);
             bfcf.processClasspathFile(new File("modules/beam-core-4.0.jar"), BruteForceClasspathFactory.LibType.MODULE, 0);
             bfcf.processClasspathFile(new File("modules/beam-help-4.0"), BruteForceClasspathFactory.LibType.MODULE, 0);
             bfcf.processClasspathFile(new File("modules/beam-help-4.0/lib/lib.jar"), BruteForceClasspathFactory.LibType.MODULE, 2);
@@ -51,8 +51,8 @@ public class BruteForceClasspathFactoryTest extends TestCase {
             assertEquals(new File("lib/xstream-1.2.jar"), files[1]);
             assertEquals(new File("lib/jdom-1.0.jar"), files[2]);
             assertEquals(new File("lib/jhall-2.0.4.jar"), files[3]);
-            assertEquals(new File("modules/ceres-core-1.0.jar"), files[4]);
-            assertEquals(new File("modules/ceres-ui-1.0.jar"), files[5]);
+            assertEquals(new File("modules/snap-ceres-core-1.0.jar"), files[4]);
+            assertEquals(new File("modules/snap-ceres-ui-1.0.jar"), files[5]);
             assertEquals(new File("modules/beam-core-4.0.jar"), files[6]);
             assertEquals(new File("modules/beam-help-4.0"), files[7]);
             assertEquals(new File("modules/beam-help-4.0/lib/lib.jar"), files[8]);
