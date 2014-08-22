@@ -15,8 +15,8 @@
  */
 package org.esa.beam.util.io;
 
+import com.jidesoft.plaf.LookAndFeelFactory;
 import org.esa.beam.util.Debug;
-import sun.swing.FilePane;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -248,6 +248,7 @@ public class BeamFileChooser extends JFileChooser {
             if (old != null) {
                 try {
                     UIManager.setLookAndFeel(old);
+                    LookAndFeelFactory.installJideExtension(LookAndFeelFactory.ECLIPSE3X_STYLE);
                 } catch (UnsupportedLookAndFeelException ignored) {
                 } // shouldn't get here
             }
