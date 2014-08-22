@@ -26,8 +26,8 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public abstract class AbstractClasspathFactory implements ClasspathFactory {
-    protected static final String CERES_LAUNCHER_PREFIX = "ceres-launcher";
-    protected static final String CERES_CORE_PREFIX = "ceres-core";
+    protected static final String CERES_LAUNCHER_PREFIX = "snap-launcher";
+    protected static final String CERES_CORE_PREFIX = "snap-ceres-core";
 
     protected enum LibType {
         LIBRARY,
