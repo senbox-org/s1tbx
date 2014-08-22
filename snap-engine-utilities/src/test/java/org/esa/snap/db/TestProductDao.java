@@ -21,11 +21,11 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.TestUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.awt.*;
 import java.io.File;
+import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -33,14 +33,15 @@ import java.sql.Statement;
 /**
 
  */
-@Ignore
 public class TestProductDao {
 
+    private static String dbPropertiesPath = "org/esa/snap/config/productDB.properties";
     private ProductDB db;
 
     @Before
     public void setUp() throws Exception {
-        db = ProductDB.instance();
+        final URL fileUrl = this.getClass().getClassLoader().getResource(dbPropertiesPath);
+        db = ProductDB.testInstance(new File(fileUrl.getFile()));
     }
 
     @Test

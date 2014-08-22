@@ -36,11 +36,15 @@ public abstract class DAO {
     protected SQLException lastSQLException = null;
 
     public DAO(final String name) throws IOException {
+        this(name, null);
+    }
+
+    public DAO(final String name, final File dbPropertiesFile) throws IOException {
         this.dbName = name;
 
         setDBSystemDir();
-        final File dbPropFile = ResourceUtils.findConfigFile(dbName + ".properties");
-        if (dbPropFile == null) {
+        final File dbPropFile = dbPropertiesFile != null ? dbPropertiesFile : ResourceUtils.findConfigFile(dbName + ".properties");
+        if (dbPropFile == null || !dbPropFile.exists()) {
             throw new IOException(dbName + ".properties does not exist");
         }
         dbProperties = ResourceUtils.loadProperties(dbPropFile.getAbsolutePath());
