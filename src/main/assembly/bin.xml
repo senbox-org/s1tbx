@@ -22,9 +22,6 @@
         <file>
             <source>LICENSE.txt</source>
         </file>
-        <file>
-            <source>CHANGELOG.txt</source>
-        </file>
     </files>
 
     <fileSets>
