@@ -15,10 +15,10 @@ fi
 
 "$app_java_home/bin/java" \
     -Xmx${installer:maxHeapSize} \
-    -Dceres.context=beam \
-    "-Dbeam.mainClass=${beam.mainClass}" \
-    "-Dbeam.processorClass=${beam.processorClass}" \
-    "-Dbeam.home=$BEAM4_HOME" \
+    -Dceres.context=s3tbx \
+    "-Ds3tbx.mainClass=${s3tbx.mainClass}" \
+    "-Ds3tbx.processorClass=${s3tbx.processorClass}" \
+    "-Ds3tbx.home=$BEAM4_HOME" \
     "-Dncsa.hdf.hdflib.HDFLibrary.hdflib=$BEAM4_HOME/modules/lib-hdf-${hdf.version}/lib/libjhdf.so" \
     "-Dncsa.hdf.hdf5lib.H5.hdf5lib=$BEAM4_HOME/modules/lib-hdf-${hdf.version}/lib/libjhdf5.so" \
     -jar "$BEAM4_HOME/bin/snap-launcher.jar" "$@"

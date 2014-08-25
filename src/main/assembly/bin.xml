@@ -43,7 +43,7 @@
             <directory>src/main/bin/common</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>splash.png</include>
+                <include>splash-snap.png</include>
             </includes>
         </fileSet>
 
