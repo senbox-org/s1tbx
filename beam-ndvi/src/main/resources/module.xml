@@ -5,7 +5,7 @@
     <name>NDVI Processor</name>
 
     <description>
-        The BEAM NDVI Processor calculates the Normalized Difference Vegetation Index.
+        The SNAP NDVI Processor calculates the Normalized Difference Vegetation Index.
     </description>
 
     <vendor>Brockmann Consult GmbH</vendor>
@@ -21,11 +21,6 @@
         <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
-
-    <changelog>
-        <![CDATA[
-        ]]>
-    </changelog>
 
 
     <extension point="snap-ui:actions">

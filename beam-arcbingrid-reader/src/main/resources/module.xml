@@ -6,7 +6,7 @@
 
     <description>
         <![CDATA[
-        This module provides a product reader for importing Arc/Info Binary Grid data products into BEAM/VISAT.
+        This module provides a product reader for importing Arc/Info Binary Grid data products into SNAP.
         ]]>
     </description>
 

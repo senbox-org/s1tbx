@@ -25,43 +25,6 @@
         analyse and manipulate data products of a number of EO sensors.
     </description>
 
-    <changelog>
-        <![CDATA[
-          <b>Changes in 5.0.2</b><br/>
-          [BEAM-1712] Range Finder tool show wrong results<br/>
-          [BEAM-1711] Export of spectra does not work<br/>
-          [BEAM-1710] Range Finder does not work reliably for Landsat products<br/>
-          <b>Changes in 5.0.1</b><br/>
-          Fixed NPE with missing histogram matching in Colour Manipulation tool window<br/>
-          Harmonisation with NEST: Convert computed band: only clone image info, if it exists<br/>
-          Harmonisation with NEST: Allow JIDE license to be overridden<br/>
-          <b>Changes in 5.0</b><br/>
-          [BEAM-1509]  Mosaic tool does not initiate the download of the selected DEM <br/>
-          [BEAM-1642] Create geometry from WKT<br/>
-          [BEAM-753]  Manual adjustment of axes in spectrum view<br/>
-          [BEAM-1060] make y-axis of spectrum view user defined<br/>
-          [BEAM-1541] Spectrum view does not remember the selection of bands<br/>
-          [BEAM-1542] Legend in the new spectrum view<br/>
-          [BEAM-602]  Copy pins to other products<br/>
-          [BEAM-1601] Correlative plot does not reset point data correctly when switching between two products<br/>
-          [BEAM-1602] Histogram toolview shall remember last computed histograms<br/>
-          [BEAM-1616] Geocoding toolview shall display data as table<br/>
-          [BEAM-1603] Info tool window shall display data as table<br/>
-          [BEAM-1615] Sort entries in View->ToolViews sub-menu<br/>
-          [BEAM-1593] Harmonise transect + mask pixels outputs<br/>
-          [BEAM-1588] Show close button on internal frames' tabs<br/>
-          [BEAM-1587] Allow closing internal frames by click with middle mouse button<br/>
-          [BEAM-1139] Function to convert a virtual band into a real band<br/>
-          [BEAM-1512] Saving time has increased significantly with 5.0 alpha<br/>
-          [BEAM-1569] Documentation for 'statistical accuracy' missing</br>
-          [BEAM-1190] Export button in the mask manager does not export geometry masks<br/>
-          [BEAM-1568] Numbers are displayed with too little #places after the comma<br/>
-          [BEAM-1563] Copy WKT of selected geometry<br/>
-          [BEAM-1533] KMZ exports have slightly wrong image envelope coordinates<br/>
-          [BEAM-1527] Add missing Standard Deviation nonlinear image filter<br/>
-        ]]>
-    </changelog>
-
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
@@ -1541,10 +1504,10 @@
             <parent>help</parent>
             <id>showHomePage</id>
             <placeAfter>helpTopics</placeAfter>
-            <text>BEAM Home Page</text>
+            <text>Sentinel Home Page</text>
             <class>org.esa.beam.visat.actions.ShowHomePageAction</class>
             <mnemonic>B</mnemonic>
-            <shortDescr>Opens the BEAM home page with the default web browser.</shortDescr>
+            <shortDescr>Opens the Sentinel home page with the default web browser.</shortDescr>
         </action>
 
         <action>

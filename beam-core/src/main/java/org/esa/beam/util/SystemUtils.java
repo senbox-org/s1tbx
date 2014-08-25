@@ -143,7 +143,7 @@ public class SystemUtils {
      * @since BEAM 4.10
      */
     public static String getApplicationHomepageUrl() {
-        return System.getProperty(getApplicationContextId() + ".homepage.url", "http://www.brockmann-consult.de/beam/");
+        return System.getProperty(getApplicationContextId() + ".homepage.url", "http://sentinel.esa.int");
     }
 
     /**

@@ -5,7 +5,7 @@
     <name>AVNIR-2/PRISM Product Reader</name>
 
     <description>
-        Enables BEAM to read ALOS data products of type AVNIR-2 and PRISM.
+        Enables SNAP to read ALOS data products of type AVNIR-2 and PRISM.
     </description>
 
     <vendor>Brockmann Consult GmbH</vendor>
@@ -22,12 +22,6 @@
         <optional>true</optional>
     </dependency>
 
-    <changelog>
-        <![CDATA[
-        <b>Changes in 5.0</b><br/>
-        [BEAM-1578] - Sensing start and stop time can be wrong<br>
-        ]]>
-    </changelog>
     <categories>Reader,ALOS,AVNIR,PRISM</categories>
 
     <extension point="snap-ui:actions">

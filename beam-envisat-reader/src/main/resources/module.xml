@@ -20,22 +20,12 @@
     <version>0.5</version>
     <name>Envisat Product Reader</name>
 
-    <description>Enables BEAM to read ENVISAT data products.</description>
+    <description>Enables SNAP to read ENVISAT data products.</description>
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2008 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-
-
-    <changelog>
-        <![CDATA[
-       <b>Changes in 5.0</b><br/>
-       [BEAM-1639] Support ASAR 4C specification<br/>
-       [BEAM-1638] Envisat/Doris Orbit interpolation not sufficient<br/>
-       [BEAM-1414] Incorrect valid-pixel mask for ATSR SST bands<br/>
-       ]]>
-    </changelog>
 
 
     <dependency>
