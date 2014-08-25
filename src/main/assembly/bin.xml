@@ -32,6 +32,9 @@
         <fileSet>
             <directory>src/main/config</directory>
             <outputDirectory>config</outputDirectory>
+            <includes>
+                <include>s3tbx.config</include>
+            </includes>
         </fileSet>
 
         <fileSet>
@@ -55,7 +58,7 @@
                 <include>*.bat</include>
             </includes>
             <excludes>
-                <exclude>beam-cli-template.*</exclude>
+                <exclude>s3tbx-cli-template.*</exclude>
             </excludes>
             <filtered>true</filtered>
         </fileSet>
@@ -70,7 +73,7 @@
                 <include>*.sh</include>
             </includes>
             <excludes>
-                <exclude>beam-cli-template.*</exclude>
+                <exclude>s3tbx-cli-template.*</exclude>
             </excludes>
             <filtered>true</filtered>
         </fileSet>
@@ -85,7 +88,7 @@
                 <include>*.sh</include>
             </includes>
             <excludes>
-                <exclude>beam-cli-template.*</exclude>
+                <exclude>s3tbx-cli-template.*</exclude>
             </excludes>
             <filtered>true</filtered>
         </fileSet>
