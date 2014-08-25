@@ -1,15 +1,15 @@
 @echo off
 
-set BEAM4_HOME=${installer:sys.installationDir}
+set S3TBX_HOME=${installer:sys.installationDir}
 
-"%BEAM4_HOME%\jre\bin\java.exe" ^
+"%S3TBX_HOME%\jre\bin\java.exe" ^
     -Xmx${installer:maxHeapSize} ^
     -Dceres.context=s3tbx ^
     "-Ds3tbx.mainClass=${s3tbx.mainClass}" ^
     "-Ds3tbx.processorClass=${s3tbx.processorClass}" ^
-    "-Ds3tbx.home=%BEAM4_HOME%" ^
-    "-Dncsa.hdf.hdflib.HDFLibrary.hdflib=%BEAM4_HOME%\modules\lib-hdf-${hdf.version}\lib\jhdf.dll" ^
-    "-Dncsa.hdf.hdf5lib.H5.hdf5lib=%BEAM4_HOME%\modules\lib-hdf-${hdf.version}\lib\jhdf5.dll" ^
-    -jar "%BEAM4_HOME%\bin\snap-launcher.jar" %*
+    "-Ds3tbx.home=%S3TBX_HOME%" ^
+    "-Dncsa.hdf.hdflib.HDFLibrary.hdflib=%S3TBX_HOME%\modules\lib-hdf-${hdf.version}\lib\jhdf.dll" ^
+    "-Dncsa.hdf.hdf5lib.H5.hdf5lib=%S3TBX_HOME%\modules\lib-hdf-${hdf.version}\lib\jhdf5.dll" ^
+    -jar "%S3TBX_HOME%\bin\snap-launcher.jar" %*
 
 exit /B %ERRORLEVEL%

@@ -1,24 +1,24 @@
 #! /bin/sh
 
-export BEAM4_HOME=${installer:sys.installationDir}
+export S3TBX_HOME=${installer:sys.installationDir}
 
-if [ -z "$BEAM4_HOME" ]; then
+if [ -z "$S3TBX_HOME" ]; then
     echo
-    echo Error: BEAM4_HOME not found in your environment.
-    echo Please set the BEAM4_HOME variable in your environment to match the
-    echo location of the BEAM 4.x installation.
+    echo Error: S3TBX_HOME not found in your environment.
+    echo Please set the S3TBX_HOME variable in your environment to match the
+    echo location of the S3TBX installation.
     echo
     exit 2
 fi
 
-. "$BEAM4_HOME/bin/detect_java.sh"
+. "$S3TBX_HOME/bin/detect_java.sh"
 
 "$app_java_home/bin/java" \
     -Xmx${installer:maxHeapSize} \
     -Dceres.context=s3tbx \
     -Ds3tbx.debug=true \
-    "-Ds3tbx.home=$BEAM4_HOME" \
-    -jar "$BEAM4_HOME/bin/snap-launcher.jar" -d "$@"
+    "-Ds3tbx.home=$S3TBX_HOME" \
+    -jar "$S3TBX_HOME/bin/snap-launcher.jar" -d "$@"
 
 exit $?
 

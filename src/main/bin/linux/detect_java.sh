@@ -88,8 +88,8 @@ test_jvm() {
 }
 
 if [ -z "$app_java_home" ]; then
-  if [ -f "$BEAM4_HOME/.install4j/pref_jre.cfg" ]; then
-    read file_jvm_home < "$BEAM4_HOME/.install4j/pref_jre.cfg"
+  if [ -f "$S3TBX_HOME/.install4j/pref_jre.cfg" ]; then
+    read file_jvm_home < "$S3TBX_HOME/.install4j/pref_jre.cfg"
     test_jvm "$file_jvm_home"
     if [ -z "$app_java_home" ] && [ $tested_jvm = "false" ]; then
         rm $HOME/.install4j
@@ -119,8 +119,8 @@ if [ -z "$app_java_home" ]; then
 fi
 
 if [ -z "$app_java_home" ]; then
-  if [ -f "$BEAM4_HOME/.install4j/inst_jre.cfg" ]; then
-    read file_jvm_home < "$BEAM4_HOME/.install4j/inst_jre.cfg"
+  if [ -f "$S3TBX_HOME/.install4j/inst_jre.cfg" ]; then
+    read file_jvm_home < "$S3TBX_HOME/.install4j/inst_jre.cfg"
     test_jvm "$file_jvm_home"
     if [ -z "$app_java_home" ] && [ $tested_jvm = "false" ]; then
         rm $HOME/.install4j
