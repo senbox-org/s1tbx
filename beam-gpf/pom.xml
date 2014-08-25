@@ -28,7 +28,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Graph Processing Framework (GPF)</name>
+    <name>SNAP Graph Processing Framework (GPF)</name>
     <artifactId>snap-gpf</artifactId>
 
     <packaging>jar</packaging>

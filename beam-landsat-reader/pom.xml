@@ -26,7 +26,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Landsat Reader</name>
+    <name>S3TBX Landsat Reader</name>
     <groupId>org.esa.s3tbx</groupId>
     <artifactId>s3tbx-landsat-reader</artifactId>
     <version>0.5-SNAPSHOT</version>

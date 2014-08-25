@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>snap-time-series-tool</artifactId>
-    <name>BEAM Time Series Tool</name>
+    <name>SNAP Time Series Tool</name>
 
     <dependencies>
         <dependency>

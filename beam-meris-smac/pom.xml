@@ -27,7 +27,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM MERIS SMAC Atmospheric Correction</name>
+    <name>S3TBX MERIS SMAC Atmospheric Correction</name>
     <groupId>org.esa.s3tbx</groupId>
     <artifactId>s3tbx-meris-smac</artifactId>
     <version>0.5-SNAPSHOT</version>

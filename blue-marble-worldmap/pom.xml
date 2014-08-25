@@ -28,7 +28,7 @@
     </parent>
 
     <artifactId>blue-marble-worldmap</artifactId>
-    <name>BEAM NASA Blue Marble Worldmap</name>
+    <name>SNAP NASA Blue Marble Worldmap</name>
 
     <dependencies>
         <dependency>

@@ -25,7 +25,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM CHRIS/Proba Product Reader</name>
+    <name>S3TBX CHRIS/Proba Product Reader</name>
     <groupId>org.esa.s3tbx</groupId>
     <artifactId>s3tbx-chris-reader</artifactId>
     <version>0.5-SNAPSHOT</version>

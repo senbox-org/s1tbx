@@ -27,7 +27,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM VISAT Application</name>
+    <name>SNAP VISAT Application</name>
     <artifactId>snap-visat</artifactId>
 
     <packaging>jar</packaging>

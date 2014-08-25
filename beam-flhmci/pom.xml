@@ -27,7 +27,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM MERIS FLH/MCI Processor</name>
+    <name>SNAP MERIS FLH/MCI Processor</name>
     <artifactId>snap-flhmci</artifactId>
     <version>0.5-SNAPSHOT</version>
 

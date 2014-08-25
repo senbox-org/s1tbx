@@ -27,7 +27,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Installer Resources</name>
+    <name>SNAP Installer Resources</name>
     <artifactId>snap-installer</artifactId>
 
     <dependencies>

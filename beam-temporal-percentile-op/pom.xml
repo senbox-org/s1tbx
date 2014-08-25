@@ -10,7 +10,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Temporal Percentile Operator</name>
+    <name>SNAP Temporal Percentile Operator</name>
     <artifactId>snap-temporal-percentile-op</artifactId>
 
     <dependencies>

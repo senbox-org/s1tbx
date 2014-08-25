@@ -27,7 +27,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM MERIS Level-3 Product Reader</name>
+    <name>S3TBX MERIS Level-3 Product Reader</name>
     <groupId>org.esa.s3tbx</groupId>
     <artifactId>s3tbx-merisl3-reader</artifactId>
     <version>0.5-SNAPSHOT</version>

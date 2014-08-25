@@ -10,7 +10,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Statistics Operator</name>
+    <name>SNAP Statistics Operator</name>
     <artifactId>snap-statistics-op</artifactId>
     <version>0.5-SNAPSHOT</version>
 
