@@ -88,7 +88,7 @@
                 </object>
               </void>
               <void property="customWatermarkText">
-                <string>ESA BEAM</string>
+                <string>ESA S3TBX</string>
               </void>
               <void property="frameSizeClientArea">
                 <boolean>false</boolean>
@@ -204,13 +204,13 @@
             <validation />
             <preActivation>File installationDir = context.getInstallationDirectory();
 
-boolean isBeamInstallation = new File(installationDir, "VERSION.txt").exists();
-isBeamInstallation &amp;= new File(installationDir, "CHANGELOG.txt").exists();
-isBeamInstallation &amp;= new File(installationDir, "readme.html").exists();
-isBeamInstallation &amp;= new File(installationDir, "modules").exists();
+boolean isS3tbxInstallation = new File(installationDir, "VERSION.txt").exists();
+isS3tbxInstallation &amp;= new File(installationDir, "CHANGELOG.txt").exists();
+isS3tbxInstallation &amp;= new File(installationDir, "readme.html").exists();
+isS3tbxInstallation &amp;= new File(installationDir, "modules").exists();
 
-if (isBeamInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpdateInstallation")) {
-    int selectedOption = Util.showOptionDialog("There already is a BEAM installation in " + installationDir.toString() + ".",
+if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpdateInstallation")) {
+    int selectedOption = Util.showOptionDialog("There already is a S3TBX installation in " + installationDir.toString() + ".",
                                                new String[]{"Overwrite", "Don't overwrite"},
                                                JOptionPane.WARNING_MESSAGE | JOptionPane.YES_OPTION);
     if (selectedOption == 1) {
@@ -301,13 +301,13 @@ if (isBeamInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpda
                             <string>-Xmx${installer:maxHeapSize}</string>
                           </void>
                           <void index="1">
-                            <string>-Dbeam.home=${installer:sys.installationDir}</string>
+                            <string>-Ds3tbx.home=${installer:sys.installationDir}</string>
                           </void>
                           <void index="2">
-                            <string>-Dbeam.splash.image=${installer:sys.installationDir}/bin/splash.png</string>
+                            <string>-Ds3tbx.splash.image=${installer:sys.installationDir}/bin/splash-snap.png</string>
                           </void>
                           <void index="3">
-                            <string>-Dbeam.build.date=${compiler:sys.date}</string>
+                            <string>-Ds3tbx.build.date=${compiler:sys.date}</string>
                           </void>
                         </array>
                       </void>
@@ -359,10 +359,10 @@ if (isBeamInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpda
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateStartMenuEntryAction">
                       <void property="arguments">
-                        <string>/K "${installer:sys.installationDir}\bin\beam-cli.bat"</string>
+                        <string>/K "${installer:sys.installationDir}\bin\s3tbx-cli.bat"</string>
                       </void>
                       <void property="entryName">
-                        <string>${installer:sys.programGroupDir}\BEAM Command Line</string>
+                        <string>${installer:sys.programGroupDir}\S3TBX Command Line</string>
                       </void>
                       <void property="file">
                         <object class="java.io.File">
@@ -456,7 +456,7 @@ return files;
                         <array class="java.io.File" length="1">
                           <void index="0">
                             <object class="java.io.File">
-                              <string>config/beam.config</string>
+                              <string>config/s3tbx.config</string>
                             </object>
                           </void>
                         </array>
@@ -626,10 +626,10 @@ return files;
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
                       <void property="description">
-                        <string>BEAM session file, used to restore a VISAT session</string>
+                        <string>SNAP session file, used to restore a SNAP session</string>
                       </void>
                       <void property="extension">
-                        <string>beam</string>
+                        <string>snapspace</string>
                       </void>
                       <void property="launcherId">
                         <string>19</string>
@@ -776,7 +776,7 @@ return files;
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
                       <void property="checkboxText">
-                        <string>Run BEAM</string>
+                        <string>Run S3TBX</string>
                       </void>
                       <void property="initiallySelected">
                         <boolean>true</boolean>
@@ -795,10 +795,10 @@ return files;
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.formcomponents.HyperlinkLabelComponent">
                       <void property="hyperlinkText">
-                        <string>Visit the BEAM project website!</string>
+                        <string>Visit the S3TBX project website!</string>
                       </void>
                       <void property="url">
-                        <string>http://envisat.esa.int/beam</string>
+                        <string>http://sentinel.esa.int</string>
                       </void>
                     </object>
                   </java>
