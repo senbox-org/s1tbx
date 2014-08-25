@@ -2,8 +2,8 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>E:\build\6.0\S1TBX\s1tbx\target\s1tbx-0.1-SNAPSHOT-bin-win64\bin\ceres-launcher.jar</jar>
-  <outfile>E:\build\6.0\S1TBX\s1tbx\target\s1tbx-0.1-SNAPSHOT-bin-win64\s1tbx-dat64.exe</outfile>
+  <jar>E:\build\SNAP\package\s1tbx-0.2.0-SNAPSHOT-bin-win64\bin\snap-launcher.jar</jar>
+  <outfile>E:\build\SNAP\s1tbx\s1tbx-config\main\bin\win64\s1tbx-dat64.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
@@ -12,11 +12,11 @@
   <supportUrl></supportUrl>
   <stayAlive>false</stayAlive>
   <manifest>launch4j-nest.manifest</manifest>
-  <icon>E:\build\6.0\S1TBX\s1tbx\s1tbx-config\main\assembly\dat.ico</icon>
+  <icon>E:\build\SNAP\s1tbx\s1tbx-config\main\assembly\dat.ico</icon>
   <jre>
     <path>jre</path>
     <bundledJre64Bit>false</bundledJre64Bit>
-    <minVersion>1.7.0</minVersion>
+    <minVersion>1.8.0</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>jdkOnly</jdkPreference>
     <runtimeBits>64/32</runtimeBits>

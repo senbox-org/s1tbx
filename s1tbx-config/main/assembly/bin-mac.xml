@@ -78,19 +78,16 @@
         <!-- (1) Artifacts that go into 'bin', 'lib' or 'modules' -->
         <moduleSet>
             <excludes>
-				<exclude>org.esa.snap:snap-beam-bootstrap</exclude>
+                <exclude>org.esa.snap:snap-beam-bootstrap</exclude>
+				<exclude>org.esa.snap:snap-rtp-codec</exclude>
+				<exclude>org.esa.snap:snap-installer</exclude>
+				<exclude>org.esa.snap:snap-deploy</exclude>
+                <exclude>org.esa.snap:snap-metadata</exclude>
+                <exclude>org.esa.snap:snap-site</exclude>
                 <exclude>org.esa.s1tbx:s1tbx-bootstrap</exclude>
                 <exclude>org.esa.s1tbx:s1tbx-benchmark</exclude>
                 <exclude>org.esa.s1tbx:s1tbx-config</exclude>
-                <exclude>org.esa.snap:snap-ceres-*</exclude>
-                <exclude>org.esa.snap:snap-binding</exclude>
-                <exclude>org.esa.snap:snap-binio</exclude>
-                <exclude>org.esa.snap:snap-deploy</exclude>
-                <exclude>org.esa.snap:snap-glayer</exclude>
-                <exclude>org.esa.snap:snap-jai</exclude>
-                <exclude>org.esa.snap:snap-launcher</exclude>
-                <exclude>org.esa.snap:snap-metadata</exclude>
-                <exclude>org.esa.snap:snap-site</exclude>
+				<exclude>org.esa.s1tbx:s1tbx-cli</exclude>
             </excludes>
 
             <binaries>
@@ -113,12 +110,9 @@
                         </outputFileNameMapping>
                         <excludes>
 							<exclude>ncsa.hdf:lib-hdf</exclude>
-							<exclude>org.esa.s1tbx:s1tbx-bootstrap</exclude>
+							<exclude>org.esa.s3tbx:s3tbx-merisl3-reader</exclude>
 							<exclude>org.esa.nest:nest-op-calibration</exclude>
 							<exclude>org.esa.nest:nest-op-coregistration</exclude>
-							<exclude>org.esa.nest:nest-op-feature-extraction</exclude>
-							<exclude>org.esa.nest:nest-op-orthorectification</exclude>
-							<exclude>org.esa.nest:nest-op-sar-tools</exclude>
 							<exclude>org.esa.nest:s1tbx-op-sentinel1</exclude>
 							<exclude>org.esa.nest:nest-reader-dem</exclude>
 							<exclude>org.esa.nest:nest-io</exclude>
@@ -126,7 +120,6 @@
 							<exclude>org.jlinda:jlinda-core</exclude>
 							<exclude>org.esa.pfa:pfa-core</exclude>
 							<exclude>org.esa.pfa:pfa-database</exclude>
-							<exclude>org.csa.rstb:rstb-classification</exclude>
 							<exclude>org.csa.rstb:rstb-polarimetric-tools</exclude>
                             <exclude>org.esa.snap:snap-*</exclude>
                         </excludes>
