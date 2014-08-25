@@ -24,8 +24,8 @@
             <artifactId>snap-gpf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-dat</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-envisat-reader</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -36,12 +36,8 @@
             <artifactId>snap-graph-builder</artifactId>
         </dependency>
         <dependency>
-            <groupId>edu.emory.mathcs</groupId>
-            <artifactId>jtransforms</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-envisat-reader</artifactId>
+            <groupId>org.esa.nest</groupId>
+            <artifactId>nest-dat</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.nest</groupId>
@@ -58,6 +54,10 @@
         <dependency>
             <groupId>org.jblas</groupId>
             <artifactId>jblas</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>edu.emory.mathcs</groupId>
+            <artifactId>jtransforms</artifactId>
         </dependency>
     </dependencies>
 

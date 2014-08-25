@@ -107,6 +107,17 @@
                 <checksumPolicy>warn</checksumPolicy>
             </snapshots>
         </repository>
+		<repository>
+            <id>array-mvn-repo</id>
+            <name>Public Maven Repository at Array Systems Computing Inc</name>
+            <url>http://corp.array.ca/nest-web/mavenrepo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -588,11 +599,11 @@
 
             <!-- JDOM Library ############################################# -->
 
-            <!--dependency>
+            <dependency>
                 <groupId>org.jdom</groupId>
                 <artifactId>jdom</artifactId>
                 <version>1.1</version>
-            </dependency-->
+            </dependency>
 			
 			<dependency>
                 <groupId>org.jdom</groupId>
@@ -868,18 +879,18 @@
 				
 				<plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.4</version>
+                    <version>2.4.1</version>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.4</version>
+                    <version>2.5</version>
                 </plugin>
 
                 <plugin>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>2.2.1</version>
+                    <version>2.3</version>
                     <executions>
                         <execution>
                             <phase>verify</phase>
@@ -897,7 +908,7 @@
                 <plugin>
                     <groupId>com.bc.maven.plugins</groupId>
                     <artifactId>maven-javahelp-plugin</artifactId>
-					<version>1.0</version>
+					<version>1.1</version>
                     <executions>
                         <execution>
                             <goals>
@@ -991,7 +1002,7 @@
 						<descriptor>s1tbx-config/main/assembly/bin-linux.xml</descriptor>
 						<descriptor>s1tbx-config/main/assembly/bin-linux64.xml</descriptor>
 						<!--descriptor>s1tbx-config/main/assembly/bin-mac.xml</descriptor-->
-						<descriptor>s1tbx-config/main/assembly/repository.xml</descriptor>
+						<!--descriptor>s1tbx-config/main/assembly/repository.xml</descriptor-->
 						<!--descriptor>s1tbx-config/main/assembly/web-help.xml</descriptor-->
                         <!--descriptor>s1tbx-config/main/assembly/src.xml</descriptor-->
                     </descriptors>
@@ -1022,11 +1033,6 @@
                     </filesets>
                 </configuration>
             </plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-site-plugin</artifactId>
-				<version>3.3</version>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				  <artifactId>maven-pdf-plugin</artifactId>

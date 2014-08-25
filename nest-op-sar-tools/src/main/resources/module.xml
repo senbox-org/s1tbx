@@ -13,6 +13,15 @@
     <funding>European Space Agency</funding>
 
     <dependency>
+        <module>snap-core</module>
+    </dependency>
+    <dependency>
+        <module>snap-gpf</module>
+    </dependency>
+    <dependency>
+        <module>snap-envisat-reader</module>
+    </dependency>
+    <dependency>
         <module>snap-graph-builder</module>
     </dependency>
     <dependency>
@@ -20,6 +29,12 @@
     </dependency>
     <dependency>
         <module>nest-dat</module>
+    </dependency>
+    <dependency>
+        <module>nest-io</module>
+    </dependency>
+    <dependency>
+        <module>nest-reader-dem</module>
     </dependency>
     <dependency>
         <module>jlinda-core</module>
