@@ -629,7 +629,7 @@ return files;
                         <string>SNAP session file, used to restore a SNAP session</string>
                       </void>
                       <void property="extension">
-                        <string>snapspace</string>
+                        <string>snaps</string>
                       </void>
                       <void property="launcherId">
                         <string>19</string>
