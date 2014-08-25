@@ -160,10 +160,10 @@ public class PixelGeoCodingTest {
     @Test
     public void testGetGeoPos_useNoTiling() throws IOException {
         try {
-            System.setProperty("beam.pixelGeoCoding.useTiling", "false");
+            System.setProperty("snap.pixelGeoCoding.useTiling", "false");
             doTestGetGeoPos();
         } finally {
-            System.clearProperty("beam.pixelGeoCoding.useTiling");
+            System.clearProperty("snap.pixelGeoCoding.useTiling");
         }
     }
 
@@ -211,8 +211,8 @@ public class PixelGeoCodingTest {
         assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(0.25f, 0.25f), null).toString());
 
         try {
-            System.setProperty("beam.pixelGeoCoding.fractionAccuracy", "true");
-            System.setProperty("beam.pixelGeoCoding.useTiling", "true");
+            System.setProperty("snap.pixelGeoCoding.fractionAccuracy", "true");
+            System.setProperty("snap.pixelGeoCoding.useTiling", "true");
             product = createProduct();
             tiePointGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
             pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
@@ -264,8 +264,8 @@ public class PixelGeoCodingTest {
             gp = tiePointGeoCoding.getGeoPos(new PixelPos(2.75f, 2.25f), null).toString();
             assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(2.75f, 2.25f), null).toString());
         } finally {
-            System.clearProperty("beam.pixelGeoCoding.fractionAccuracy");
-            System.clearProperty("beam.pixelGeoCoding.useTiling");
+            System.clearProperty("snap.pixelGeoCoding.fractionAccuracy");
+            System.clearProperty("snap.pixelGeoCoding.useTiling");
         }
     }
 
@@ -277,10 +277,10 @@ public class PixelGeoCodingTest {
     @Test
     public void testTransferGeoCoding_useNoTiling() throws IOException {
         try {
-            System.setProperty("beam.pixelGeoCoding.useTiling", "false");
+            System.setProperty("snap.pixelGeoCoding.useTiling", "false");
             doTestTransferGeoCoding();
         } finally {
-            System.clearProperty("beam.pixelGeoCoding.useTiling");
+            System.clearProperty("snap.pixelGeoCoding.useTiling");
         }
     }
 
@@ -308,10 +308,10 @@ public class PixelGeoCodingTest {
     @Test
     public void testTransferGeoCoding_WithSpatialSubset_useNoTiling() throws IOException {
         try {
-            System.setProperty("beam.pixelGeoCoding.useTiling", "false");
+            System.setProperty("snap.pixelGeoCoding.useTiling", "false");
             doTestTransferGeoCoding_WithSpatialSubset();
         } finally {
-            System.clearProperty("beam.pixelGeoCoding.useTiling");
+            System.clearProperty("snap.pixelGeoCoding.useTiling");
         }
     }
 

@@ -78,7 +78,7 @@ public class SystemUtils {
     @Deprecated
     public static final String BEAM_PLUGIN_PATH_PROPERTY_NAME = "beam.plugin.path";
 
-    public static final String BEAM_PARALLELISM_PROPERTY_NAME = "beam.parallelism";
+    public static final String BEAM_PARALLELISM_PROPERTY_NAME = "snap.parallelism";
 
     public static final String LAX_INSTALL_DIR_PROPERTY_NAME = "lax.root.install.dir";
 

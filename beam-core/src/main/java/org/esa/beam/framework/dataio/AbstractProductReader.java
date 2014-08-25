@@ -47,11 +47,11 @@ public abstract class AbstractProductReader implements ProductReader {
     /**
      * @since BEAM 4.9
      */
-    private static final String SYSPROP_READER_TILE_WIDTH = "beam.reader.tileWidth";
+    private static final String SYSPROP_READER_TILE_WIDTH = "snap.reader.tileWidth";
     /**
      * @since BEAM 4.9
      */
-    private static final String SYSPROP_READER_TILE_HEIGHT = "beam.reader.tileHeight";
+    private static final String SYSPROP_READER_TILE_HEIGHT = "snap.reader.tileHeight";
 
     /**
      * The reader plug-in responsible for creating this reader.

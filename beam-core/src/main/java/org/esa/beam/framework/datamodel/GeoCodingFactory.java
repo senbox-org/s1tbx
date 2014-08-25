@@ -29,7 +29,7 @@ import java.io.IOException;
 
 public class GeoCodingFactory {
 
-    public static final String USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY = "beam.useAlternatePixelGeoCoding";
+    public static final String USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY = "snap.useAlternatePixelGeoCoding";
 
     public static BasicPixelGeoCoding createPixelGeoCoding(final Band latBand,
                                                            final Band lonBand,

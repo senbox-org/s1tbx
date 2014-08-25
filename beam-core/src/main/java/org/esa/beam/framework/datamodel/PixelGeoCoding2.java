@@ -39,8 +39,8 @@ import java.awt.image.SampleModel;
  */
 class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
-    private static final String SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY = "beam.pixelGeoCoding.fractionAccuracy";
-    private static final String SYSPROP_PIXEL_GEO_CODING_USE_TILING = "beam.pixelGeoCoding.useTiling";
+    private static final String SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY = "snap.pixelGeoCoding.fractionAccuracy";
+    private static final String SYSPROP_PIXEL_GEO_CODING_USE_TILING = "snap.pixelGeoCoding.useTiling";
 
     private final Band latBand;
     private final Band lonBand;

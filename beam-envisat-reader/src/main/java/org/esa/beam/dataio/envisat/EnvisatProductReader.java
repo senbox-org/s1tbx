@@ -61,7 +61,7 @@ public class EnvisatProductReader extends AbstractProductReader {
     /**
      * @since BEAM 4.9
      */
-    private static final String SYSPROP_ENVISAT_USE_PIXEL_GEO_CODING = "beam.envisat.usePixelGeoCoding";
+    private static final String SYSPROP_ENVISAT_USE_PIXEL_GEO_CODING = "snap.envisat.usePixelGeoCoding";
 
     /**
      * Represents the product's file.
