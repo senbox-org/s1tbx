@@ -90,7 +90,7 @@ public class TopoPhase {
 
     public synchronized void radarCode() throws Exception {
 
-        logger.trace("Converting DEM to radar system for this tile.");
+        //Logger.trace("Converting DEM to radar system for this tile.");
 
         demRadarCode_x = new double[nRows][nCols];
         demRadarCode_y = new double[nRows][nCols];
@@ -99,7 +99,7 @@ public class TopoPhase {
         final int nPoints = nRows * nCols;
         final boolean onlyTopoRefPhase = true;
 
-        logger.info("Number of points in DEM: " + nPoints);
+        //Logger.info("Number of points in DEM: " + nPoints);
 
 //        double[][] demRadarCode_x = new double[nRows][nCols];
 //        double[][] demRadarCode_y = new double[nRows][nCols];
@@ -122,7 +122,7 @@ public class TopoPhase {
         for (int i = 0; i < nRows; i++) {
 
 //            if ((i % 100) == 0) {
-//                logger.info("Radarcoding DEM line: " + i + " (" + Math.floor(.5 + (100. * (double) i / (double) (nRows))) + "%");
+//                //Logger.info("Radarcoding DEM line: " + i + " (" + Math.floor(.5 + (100. * (double) i / (double) (nRows))) + "%");
 //            }
 
             lambda = upperLeftLambda;
@@ -257,9 +257,9 @@ public class TopoPhase {
                 / (lastLine - firstLine);
         rngAzRatio = rangeSpacing / aziSpacing;
 
-        logger.debug("Interferogram azimuth spacing: " + aziSpacing);
-        logger.debug("Interferogram range spacing: " + rangeSpacing);
-        logger.debug("Range-azimuth spacing ratio: " + rngAzRatio);
+        //Logger.debug("Interferogram azimuth spacing: " + aziSpacing);
+        //Logger.debug("Interferogram range spacing: " + rangeSpacing);
+        //Logger.debug("Range-azimuth spacing ratio: " + rngAzRatio);
 
     }
 

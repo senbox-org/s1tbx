@@ -1,12 +1,10 @@
 package org.jlinda.core.coregistration;
 
-import ch.qos.logback.classic.Logger;
 import org.jblas.DoubleMatrix;
-import org.slf4j.LoggerFactory;
 
 public class SimpleLUT extends LUT {
 
-    private static final Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(SimpleLUT.class);
+    //private static final Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(SimpleLUT.class);
 
     public SimpleLUT(String method) {
         super(method);
@@ -64,13 +62,13 @@ public class SimpleLUT extends LUT {
     @Override
     public void overviewLUT() {
 
-        logger.debug("Overview of Simplified LUT for interpolation");
-        logger.debug("--------------------------------------------");
+        //Logger.debug("Overview of Simplified LUT for interpolation");
+        //Logger.debug("--------------------------------------------");
 
         for (int i = 0; i < nInterval; ++i) {
 
             // logger
-            logger.debug("Kernel row [{}]: {} :", i, kernel.getRow(i).toString());
+            //Logger.debug("Kernel row [{}]: {} :", i, kernel.getRow(i).toString());
 
         }
 

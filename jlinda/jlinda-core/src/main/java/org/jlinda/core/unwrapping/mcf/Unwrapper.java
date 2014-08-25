@@ -3,8 +3,6 @@ package org.jlinda.core.unwrapping.mcf;
 
 import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.impl.SparseDoubleMatrix2D;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import com.winvector.linalg.DenseVec;
 import com.winvector.linalg.LinalgFactory;
 import com.winvector.linalg.Matrix;
@@ -35,7 +33,7 @@ import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.*;
  */
 public class Unwrapper {
 
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(Unwrapper.class);
+    //private static final Logger logger = (Logger) LoggerFactory.getLogger(Unwrapper.class);
 
     // Parameters for Linear Programming estimation/solution
     final double tol = 1.0e-4;
@@ -50,7 +48,7 @@ public class Unwrapper {
     private boolean roundK = true;
 
     public Unwrapper(DoubleMatrix wrappedPhase) {
-        logger.setLevel(Level.INFO);
+        //Logger.setLevel(Level.INFO);
 
         this.wrappedPhase = wrappedPhase;
 
@@ -143,7 +141,7 @@ public class Unwrapper {
         }
         beq.reshape(beq.length, 1);
 
-        logger.debug("Constraint matrix");
+        //Logger.debug("Constraint matrix");
         i = intRangeDoubleMatrix(0, ny - 1);
         j = intRangeDoubleMatrix(0, nx - 1);
         ROWS = grid2D(i, j);
@@ -223,7 +221,7 @@ public class Unwrapper {
 
         DoubleMatrix cost = DoubleMatrix.concatVertically(DoubleMatrix.concatVertically(c1, c1), DoubleMatrix.concatVertically(c2, c2));
 
-        logger.debug("Minimum network flow resolution");
+        //Logger.debug("Minimum network flow resolution");
 
         StopWatch clockProb = new StopWatch();
         final Matrix<?> m = factory.newMatrix(nUnkn, nObs, true);
@@ -243,14 +241,14 @@ public class Unwrapper {
         final LPEQProb prob = new LPEQProb(m.columnMatrix(), beq.data, new DenseVec(cost.data));
 //        prob.printCPLEX(System.out);
         clockProb.stop();
-        logger.debug("Total setup time: {} [sec]", (double) (clockProb.getElapsedTime()) / 1000);
+        //Logger.debug("Total setup time: {} [sec]", (double) (clockProb.getElapsedTime()) / 1000);
 
         final long solnStart = System.currentTimeMillis();
         final RevisedSimplexSolver solver = new RevisedSimplexSolver();
         final LPSoln soln = solver.solve(prob, null, tol, maxRounds, factory);
         final long solnDone = System.currentTimeMillis();
 
-        if (logger.getLevel() == Level.TRACE) {
+       /* if (Logger.getLevel() == Level.TRACE) {
             System.out.print("assignmentSize");
             System.out.print("\t" + "nConstraints");
             System.out.print("\t" + "dim");
@@ -285,7 +283,7 @@ public class Unwrapper {
             System.out.print("\t" + postPivotTimeMS);
             System.out.print("\t" + solnTimeMS);
             System.out.println();
-        }
+        }*/
 
 
         DoubleMatrix solution = new DoubleMatrix(nObs);
@@ -294,7 +292,7 @@ public class Unwrapper {
             solution.put(index, soln.primalSolution.get(index));
         }
 
-        logger.debug("Total unwrapping time: {} [sec]", (double) (soln.reportedRunTimeMS) / 1000);
+        //Logger.debug("Total unwrapping time: {} [sec]", (double) (soln.reportedRunTimeMS) / 1000);
 
         // Displatch the LP solution
         int offset;
@@ -355,8 +353,8 @@ public class Unwrapper {
         final int rows = 20;
         final int cols = rows;
 
-        logger.trace("Start Unwrapping");
-        logger.info("Simulate Data");
+        //Logger.trace("Start Unwrapping");
+        //Logger.info("Simulate Data");
         SimulateData simulateData = new SimulateData(rows, cols);
         simulateData.peaks();
 
@@ -370,7 +368,7 @@ public class Unwrapper {
         unwrapper.unwrap();
 
         clockFull.stop();
-        logger.info("Total processing time {} [sec]", (double) (clockFull.getElapsedTime()) / 1000);
+        //Logger.info("Total processing time {} [sec]", (double) (clockFull.getElapsedTime()) / 1000);
     }
 
 }

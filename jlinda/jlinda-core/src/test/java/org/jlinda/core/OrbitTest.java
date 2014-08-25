@@ -1,15 +1,15 @@
 package org.jlinda.core;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.junit.*;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 public class OrbitTest {
 
-    static Logger logger = (Logger) LoggerFactory.getLogger(OrbitTest.class.getName());
+    private static final Logger logger = BeamLogManager.getSystemLogger();
 
     private static final File resFile = new File("/d2/unit_test_data/test_cr.res");
 //    private static final File resFile = new File("test/test_cr.res");
@@ -84,7 +84,7 @@ public class OrbitTest {
     @BeforeClass
     public static void setUpTestData() throws Exception {
 
-        logger.setLevel(Level.DEBUG);
+        //Logger.setLevel(Level.FINE);
 
         slcimage.parseResFile(resFile);
 

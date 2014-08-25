@@ -156,7 +156,7 @@ public class RangeFilter extends ProductDataFilter {
             if (SNR < SNRthreshold) {
                 notFiltered++; // update notFiltered counter
                 shift = lastShift;
-                logger.warn("using last shift for filter");
+                //Logger.warn("using last shift for filter");
             }
 
             meanShift += shift;
@@ -202,7 +202,7 @@ public class RangeFilter extends ProductDataFilter {
     public void applyFilter() {
 
         /// Average power to reduce noise : fft.ing in-place over data rows ///
-        logger.trace("Took FFT over rows of master, slave.");
+        //Logger.trace("Took FFT over rows of master, slave.");
         SpectralUtils.fft_inplace(data, 2);
         SpectralUtils.fft_inplace(data1, 2);
 
@@ -218,7 +218,7 @@ public class RangeFilter extends ProductDataFilter {
 
     public void applyFilterMaster() {
         /// Average power to reduce noise : fft.ing in-place over data rows ///
-        logger.trace("Took FFT over rows of master, slave.");
+        //Logger.trace("Took FFT over rows of master, slave.");
         SpectralUtils.fft_inplace(data, 2);
         LinearAlgebraUtils.dotmult_inplace(data, new ComplexDoubleMatrix(this.filter));
         // IFFT of spectrally filtered data, and return these
@@ -227,7 +227,7 @@ public class RangeFilter extends ProductDataFilter {
 
     public void applyFilterSlave() {
 
-        logger.trace("Took FFT over rows of master, slave.");
+        //Logger.trace("Took FFT over rows of master, slave.");
         SpectralUtils.fft_inplace(data1, 2);
         LinearAlgebraUtils.fliplr_inplace(filter);
         LinearAlgebraUtils.dotmult_inplace(data1, new ComplexDoubleMatrix(this.filter));
@@ -241,27 +241,27 @@ public class RangeFilter extends ProductDataFilter {
     private void sanityChecks() {
         /// sanity check on input paramaters ///
         if (!MathUtils.isOdd(nlMean)) {
-            logger.error("nlMean has to be odd.");
+            //Logger.error("nlMean has to be odd.");
             throw new IllegalArgumentException("nlMean has to be odd.");
         }
         if (!MathUtils.isPower2(nCols)) {
-            logger.error("numPixels (FFT) has to be power of 2.");
+            //Logger.error("numPixels (FFT) has to be power of 2.");
             throw new IllegalArgumentException("numPixels (FFT) has to be power of 2.");
         }
         if (!MathUtils.isPower2(ovsFactor)) {
-            logger.error("oversample factor (FFT) has to be power of 2.");
+            //Logger.error("oversample factor (FFT) has to be power of 2.");
             throw new IllegalArgumentException("oversample factor (FFT) has to be power of 2.");
         }
         if (data1.rows != nRows) {
-            logger.error("slave not same size as master.");
+            //Logger.error("slave not same size as master.");
             throw new IllegalArgumentException("slave not same size as master.");
         }
         if (data1.columns != nCols) {
-            logger.error("slave not same size as master.");
+            //Logger.error("slave not same size as master.");
             throw new IllegalArgumentException("slave not same size as master.");
         }
 //        if (outputLines < 1) {
-//            logger.warn("no outputLines, continuing....");
+//            //Logger.warn("no outputLines, continuing....");
 //        }
     }
 
@@ -373,7 +373,7 @@ public class RangeFilter extends ProductDataFilter {
         /// Average power to reduce noise : fft.ing in-place over data rows ///
         SpectralUtils.fft_inplace(data, 2);
         SpectralUtils.fft_inplace(data1, 2);
-        logger.trace("Took FFT over rows of master, slave.");
+        //Logger.trace("Took FFT over rows of master, slave.");
 
         DoubleMatrix nlMeanPower = computeNlMeanPower(nlMean, fftLength, power);
 
@@ -403,7 +403,7 @@ public class RangeFilter extends ProductDataFilter {
             if (SNR < SNRthreshold) {
                 notFiltered++; // update notFiltered counter
                 shift = lastShift;
-                logger.warn("using last shift for filter");
+                //Logger.warn("using last shift for filter");
             }
 
             // interim variables
@@ -459,16 +459,16 @@ public class RangeFilter extends ProductDataFilter {
 
         // Some info for this data block
         final double meanFrFreq = meanShift * deltaF;    // Hz?
-        logger.debug("mean SHIFT for block"
-                + ": " + meanShift
-                + " = " + meanFrFreq / 1e6 + " MHz (fringe freq.).");
+        //Logger.debug("mean SHIFT for block"
+        //        + ": " + meanShift
+        //        + " = " + meanFrFreq / 1e6 + " MHz (fringe freq.).");
 
-        logger.debug("mean SNR for block: " + meanSNR);
-        logger.debug("filtered for block"
-                + ": " + (100.00 - percentNotFiltered) + "%");
+        //Logger.debug("mean SNR for block: " + meanSNR);
+        //Logger.debug("filtered for block"
+        //        + ": " + (100.00 - percentNotFiltered) + "%");
 
         if (percentNotFiltered > 60.0) {
-            logger.warn("more then 60% of signal filtered?!?");
+            //Logger.warn("more then 60% of signal filtered?!?");
         }
 
     }
@@ -528,27 +528,27 @@ public class RangeFilter extends ProductDataFilter {
 
         /// sanity check on input paramaters ///
         if (!MathUtils.isOdd(nlMean)) {
-            logger.error("nlMean has to be odd.");
+            //Logger.error("nlMean has to be odd.");
             throw new IllegalArgumentException("nlMean has to be odd.");
         }
         if (!MathUtils.isPower2(numPixs)) {
-            logger.error("numPixels (FFT) has to be power of 2.");
+            //Logger.error("numPixels (FFT) has to be power of 2.");
             throw new IllegalArgumentException("numPixels (FFT) has to be power of 2.");
         }
         if (!MathUtils.isPower2(ovsFactor)) {
-            logger.error("oversample factor (FFT) has to be power of 2.");
+            //Logger.error("oversample factor (FFT) has to be power of 2.");
             throw new IllegalArgumentException("oversample factor (FFT) has to be power of 2.");
         }
         if (slaveDataBlock.rows != numLines) {
-            logger.error("slave not same size as master.");
+            //Logger.error("slave not same size as master.");
             throw new IllegalArgumentException("slave not same size as master.");
         }
         if (slaveDataBlock.columns != numPixs) {
-            logger.error("slave not same size as master.");
+            //Logger.error("slave not same size as master.");
             throw new IllegalArgumentException("slave not same size as master.");
         }
         if (outputLines < 1) {
-            logger.warn("no outputLines, continuing....");
+            //Logger.warn("no outputLines, continuing....");
         }
 
         /// local variables ///
@@ -574,7 +574,7 @@ public class RangeFilter extends ProductDataFilter {
 
         long fftLength = cplxIfg.columns;
 
-        logger.debug("is real4 accurate enough? it seems so!");
+        //Logger.debug("is real4 accurate enough? it seems so!");
 
         SpectralUtils.fft_inplace(cplxIfg, 2);             // cplxIfg = fft over rows
         DoubleMatrix power = SarUtils.intensity(cplxIfg);  // power   = cplxIfg.*conj(cplxIfg);
@@ -589,7 +589,7 @@ public class RangeFilter extends ProductDataFilter {
         /// Average power to reduce noise : fft.ing in-place over data rows ///
         SpectralUtils.fft_inplace(masterDataBlock, 2);
         SpectralUtils.fft_inplace(slaveDataBlock, 2);
-        logger.trace("Took FFT over rows of master, slave.");
+        //Logger.trace("Took FFT over rows of master, slave.");
 
         DoubleMatrix nlMeanPower = computeNlMeanPower(nlMean, fftLength, power);
 
@@ -619,7 +619,7 @@ public class RangeFilter extends ProductDataFilter {
             if (SNR < SNRthreshold) {
                 notFiltered++; // update notFiltered counter
                 shift = lastShift;
-                logger.warn("using last shift for filter");
+                //Logger.warn("using last shift for filter");
             }
 
             // interim variables
@@ -676,16 +676,16 @@ public class RangeFilter extends ProductDataFilter {
 
         // Some info for this data block
         final double meanFrFreq = meanShift * deltaF;    // Hz?
-        logger.debug("mean SHIFT for block"
-                + ": " + meanShift
-                + " = " + meanFrFreq / 1e6 + " MHz (fringe freq.).");
+        //Logger.debug("mean SHIFT for block"
+        //        + ": " + meanShift
+        //       + " = " + meanFrFreq / 1e6 + " MHz (fringe freq.).");
 
-        logger.debug("mean SNR for block: " + meanSNR);
-        logger.debug("filtered for block"
-                + ": " + (100.00 - percentNotFiltered) + "%");
+        //Logger.debug("mean SNR for block: " + meanSNR);
+        //Logger.debug("filtered for block"
+        //        + ": " + (100.00 - percentNotFiltered) + "%");
 
         if (percentNotFiltered > 60.0) {
-            logger.warn("more then 60% of signal filtered?!?");
+            //Logger.warn("more then 60% of signal filtered?!?");
         }
 
     }

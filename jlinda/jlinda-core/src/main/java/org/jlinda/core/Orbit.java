@@ -1,9 +1,8 @@
 package org.jlinda.core;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import org.apache.commons.lang3.ArrayUtils;
 import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.jblas.DoubleMatrix;
@@ -11,13 +10,14 @@ import org.jlinda.core.io.ResFile;
 import org.jlinda.core.utils.DateUtils;
 import org.jlinda.core.utils.LinearAlgebraUtils;
 import org.jlinda.core.utils.PolyUtils;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class Orbit {
 
-    static Logger logger = (Logger) LoggerFactory.getLogger(Orbit.class.getName());
+    private static final Logger logger = BeamLogManager.getSystemLogger();
 
     private String interpMethod;
 
@@ -50,12 +50,12 @@ public final class Orbit {
     private final static double SOL = Constants.SOL;
 
     public Orbit() {
-        logger.setLevel(Level.OFF);
+        //Logger.setLevel(Level.OFF);
     }
 
     public Orbit(double[] timeVector, double[] xVector, double[] yVector, double[] zVector, int degree) throws Exception {
 
-        logger.setLevel(Level.OFF);
+        //Logger.setLevel(Level.OFF);
 
         numStateVectors = time.length;
 
@@ -72,7 +72,7 @@ public final class Orbit {
 
     public Orbit(double[][] stateVectors, int degree) throws Exception {
 
-        logger.setLevel(Level.OFF);
+        //Logger.setLevel(Level.OFF);
 
         setOrbit(stateVectors);
 
@@ -129,7 +129,7 @@ public final class Orbit {
     // TODO: switch on interpolation method, either spline method or degree of polynomial
     private void computeCoefficients() throws Exception {
 
-        logger.info("Computing coefficients for orbit polyfit degree: " + poly_degree);
+        //Logger.info("Computing coefficients for orbit polyfit degree: " + poly_degree);
 //        poly_degree = degree;
         this.coeff_X = PolyUtils.polyFitNormalized(new DoubleMatrix(time), new DoubleMatrix(data_X), poly_degree);
         this.coeff_Y = PolyUtils.polyFitNormalized(new DoubleMatrix(time), new DoubleMatrix(data_Y), poly_degree);
@@ -152,7 +152,7 @@ public final class Orbit {
     // TODO: make generic so it can work with arrays of lines as well: see matlab implementation
     public Point lph2xyz(final double line, final double pixel, final double height, final SLCImage slcimage) throws Exception {
 
-        logger.setLevel(Level.OFF);
+        //Logger.setLevel(Level.OFF);
 
         Point satellitePosition;
         Point satelliteVelocity;
@@ -202,24 +202,24 @@ public final class Orbit {
             ellipsoidPosition.y += ellipsoidPositionSolution[1];
             ellipsoidPosition.z += ellipsoidPositionSolution[2];
 
-            logger.debug("ellipsoidPosition.x = " + ellipsoidPosition.x);
-            logger.debug("ellipsoidPosition.y = " + ellipsoidPosition.y);
-            logger.debug("ellipsoidPosition.z = " + ellipsoidPosition.z);
+            //Logger.fine("ellipsoidPosition.x = " + ellipsoidPosition.x);
+            //Logger.fine("ellipsoidPosition.y = " + ellipsoidPosition.y);
+            //Logger.fine("ellipsoidPosition.z = " + ellipsoidPosition.z);
 
             // check convergence
             if (Math.abs(ellipsoidPositionSolution[0]) < CRITERPOS &&
                     Math.abs(ellipsoidPositionSolution[1]) < CRITERPOS &&
                     Math.abs(ellipsoidPositionSolution[2]) < CRITERPOS) {
-                logger.info("INFO: ellipsoidPosition (converged): {} ", ellipsoidPosition);
+                //Logger.info("INFO: ellipsoidPosition (converged): {"+ellipsoidPosition+"} ");
                 break;
 
             } else if (iter >= MAXITER) {
 //                MAXITER = MAXITER + 1;
-                logger.warn("line, pix -> x,y,z: maximum iterations ( {} ) reached.", MAXITER);
-                logger.warn("Criterium (m): {}  dx,dy,dz = {}", CRITERPOS, ArrayUtils.toString(ellipsoidPositionSolution));
+                //Logger.warning("line, pix -> x,y,z: maximum iterations ( {"+MAXITER+"} ) reached.");
+                //Logger.warning("Criterium (m): {"+CRITERPOS+"}  dx,dy,dz = {"+ArrayUtils.toString(ellipsoidPositionSolution)+"}");
 
                 if (MAXITER > 10) {
-                    logger.error("lp2xyz : MAXITER limit reached! lp2xyz() estimation is diverging?!");
+                    //Logger.severe("lp2xyz : MAXITER limit reached! lp2xyz() estimation is diverging?!");
                     throw new Exception("Orbit.lp2xyz : MAXITER limit reached! lp2xyz() estimation is diverging?!");
                 }
 
@@ -274,8 +274,8 @@ public final class Orbit {
 
         // Check number of iterations
         if (iter >= MAXITER) {
-            logger.warn("x,y,z -> line, pix: maximum iterations ( {} ) reached. ", MAXITER);
-            logger.warn("Criterium (s): {} dta (s)= {}", CRITERTIM, solution);
+            //Logger.warning("x,y,z -> line, pix: maximum iterations ( {"+MAXITER+"} ) reached. ");
+            //Logger.warning("Criterium (s): {"+CRITERTIM+"} dta (s)= {"+solution+"}");
         }
 
         // Compute range time
@@ -337,8 +337,8 @@ public final class Orbit {
     public Point getXYZ(final double azTime) {
 
         if (azTime < time[0] || azTime > time[numStateVectors - 1]) {
-            logger.warn("getXYZ() interpolation at: " + azTime + " is outside interval time axis: ("
-                    + time[0] + ", " + time[numStateVectors - 1] + ").");
+            //Logger.warning("getXYZ() interpolation at: " + azTime + " is outside interval time axis: ("
+            //        + time[0] + ", " + time[numStateVectors - 1] + ").");
         }
 
         Point satelliteXYZPosition = new Point();
@@ -356,8 +356,8 @@ public final class Orbit {
     public Point getXYZDot(double azTime) {
 
         if (azTime < time[0] || azTime > time[numStateVectors - 1]) {
-            logger.warn("getXYZDot() interpolation at: " + azTime + " is outside interval time axis: ("
-                    + time[0] + ", " + time[numStateVectors - 1] + ").");
+            //Logger.warning("getXYZDot() interpolation at: " + azTime + " is outside interval time axis: ("
+            //        + time[0] + ", " + time[numStateVectors - 1] + ").");
         }
 
         Point satelliteVelocity = new Point();
@@ -441,9 +441,9 @@ public final class Orbit {
 
         final double dt = 0.25;
 
-        logger.info("dumporbits: MAXITER: " + MAXITER + "; " +
-                "CRITERPOS: " + CRITERPOS + "m; " +
-                "CRITERTIM: " + CRITERTIM + "s");
+        //Logger.info("dumporbits: MAXITER: " + MAXITER + "; " +
+        //        "CRITERPOS: " + CRITERPOS + "m; " +
+        //        "CRITERTIM: " + CRITERTIM + "s");
 
         //  ______ Evaluate polynomial orbit for t1:dt:tN ______
         int outputLines = 1 + (int) ((time[numStateVectors - 1] - time[0]) / dt);
@@ -464,15 +464,15 @@ public final class Orbit {
 
     public void showOrbit() {
 
-        logger.info("Time of orbit ephemerides: " + time.toString());
-        logger.info("Orbit ephemerides x:" + data_X.toString());
-        logger.info("Orbit ephemerides y:" + data_Y.toString());
-        logger.info("Orbit ephemerides z:" + data_Z.toString());
+        //Logger.info("Time of orbit ephemerides: " + time.toString());
+        //Logger.info("Orbit ephemerides x:" + data_X.toString());
+        //Logger.info("Orbit ephemerides y:" + data_Y.toString());
+        //Logger.info("Orbit ephemerides z:" + data_Z.toString());
 
         if (isInterpolated) {
-            logger.info("Estimated coefficients x(t):" + coeff_X.toString());
-            logger.info("Estimated coefficients y(t):" + coeff_Y.toString());
-            logger.info("Estimated coefficients z(t):" + coeff_Z.toString());
+            //Logger.info("Estimated coefficients x(t):" + coeff_X.toString());
+            //Logger.info("Estimated coefficients y(t):" + coeff_Y.toString());
+            //Logger.info("Estimated coefficients z(t):" + coeff_Z.toString());
         }
     }
 

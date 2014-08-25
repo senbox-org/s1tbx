@@ -21,7 +21,7 @@ public class CoregistrationUtils {
                                            int ovsfactor,
                                            int AccL, int AccP) {
 
-        logger.trace("crosscorrelate (PM 15-Apr-2012)");
+        //Logger.trace("crosscorrelate (PM 15-Apr-2012)");
 
         // Internal variables
         final int L = master.rows;
@@ -36,22 +36,22 @@ public class CoregistrationUtils {
 
         // Check input
         if (master.rows != mask.rows || master.columns != mask.columns) {
-            logger.error("mask, master not same size.");
+            //Logger.error("mask, master not same size.");
             throw new IllegalArgumentException("mask, master not same size.");
         }
 
         if (!(MathUtils.isPower2(L) || MathUtils.isPower2(P))) {
-            logger.error("mask, master size not power of 2.");
+            //Logger.error("mask, master size not power of 2.");
             throw new IllegalArgumentException("mask, master size not power of 2.");
         }
 
         if (!MathUtils.isPower2(ovsfactor)) {
-            logger.error("coherencefft factor not power of 2");
+            //Logger.error("coherencefft factor not power of 2");
             throw new IllegalArgumentException("coherencefft factor not power of 2");
         }
 
         // Zero mean magnitude images
-        logger.debug("Using de-meaned magnitude patches for incoherent cross-correlation");
+        //Logger.debug("Using de-meaned magnitude patches for incoherent cross-correlation");
         DoubleMatrix magMaster = SarUtils.magnitude(master);
         DoubleMatrix magMask = SarUtils.magnitude(mask);
         magMaster.subi(magMaster.mean());
@@ -106,7 +106,7 @@ public class CoregistrationUtils {
         // allocate block for reuse
         ComplexDoubleMatrix BLOCK = new ComplexDoubleMatrix(0, 0);
         if (BLOCK.rows != twoL || BLOCK.columns != twoP) {
-            logger.debug("crosscorrelate:changing static block to size [" + twoL + ", " + twoP + "]");
+            //Logger.debug("crosscorrelate:changing static block to size [" + twoL + ", " + twoP + "]");
             BLOCK.resize(twoL, twoP);
             for (l = halfL; l < halfL + L; ++l)
                 for (p = halfP; p < halfP + P; ++p)
@@ -150,7 +150,7 @@ public class CoregistrationUtils {
 
         offsetL = -halfL + maxcorrL; // update by reference
         offsetP = -halfP + maxcorrP; // update by reference
-        logger.debug("Pixel level offset:     " + offsetL + ", " + offsetP + " (corr=" + maxCorr + ")");
+        //Logger.debug("Pixel level offset:     " + offsetL + ", " + offsetP + " (corr=" + maxCorr + ")");
 
         // ======
         // (4) oversample to find peak sub-pixel
@@ -159,19 +159,19 @@ public class CoregistrationUtils {
             // --- (4a) get little chip around max. corr, if possible ---
             // --- make sure that we can copy the data ---
             if (maxcorrL < AccL) {
-                logger.debug("Careful, decrease AccL or increase winsizeL");
+                //Logger.debug("Careful, decrease AccL or increase winsizeL");
                 maxcorrL = AccL;
             }
             if (maxcorrP < AccP) {
-                logger.debug("Careful, decrease AccP or increase winsizeP");
+                //Logger.debug("Careful, decrease AccP or increase winsizeP");
                 maxcorrP = AccP;
             }
             if (maxcorrL > (L - AccL)) {
-                logger.debug("Careful, decrease AccL or increase winsizeL");
+                //Logger.debug("Careful, decrease AccL or increase winsizeL");
                 maxcorrL = L - AccL;
             }
             if (maxcorrP > (P - AccP)) {
-                logger.debug("Careful, decrease AccP or increase winsizeP");
+                //Logger.debug("Careful, decrease AccP or increase winsizeP");
                 maxcorrP = P - AccP;
             }
 
@@ -193,9 +193,9 @@ public class CoregistrationUtils {
             offsetL = -halfL + maxcorrL - AccL + (double) offL / (double) ovsfactor;
             offsetP = -halfP + maxcorrP - AccP + (double) offP / (double) ovsfactor;
 
-            logger.debug("Oversampling factor: " + ovsfactor);
-            logger.debug("Sub-pixel level offset: " + offsetL + ", " + offsetP + " (corr=" + maxCorr + ")");
-            logger.debug("Sub-pixel level offset: " + offsetL + ", " + offsetP + " (corr=" + maxCorr + ")");
+            //Logger.debug("Oversampling factor: " + ovsfactor);
+            //Logger.debug("Sub-pixel level offset: " + offsetL + ", " + offsetP + " (corr=" + maxCorr + ")");
+            //Logger.debug("Sub-pixel level offset: " + offsetL + ", " + offsetP + " (corr=" + maxCorr + ")");
         }
 
         offset[0] = offsetL;
@@ -209,7 +209,7 @@ public class CoregistrationUtils {
                                       ComplexDoubleMatrix master, ComplexDoubleMatrix mask,
                                       final int AccL, final int AccP, final int osFactor) {
 
-        logger.trace("coherencespace (PM 14-Feb-2012)");
+        //Logger.trace("coherencespace (PM 14-Feb-2012)");
 
         // Internal variables
         final int L = master.rows;
@@ -228,11 +228,11 @@ public class CoregistrationUtils {
 
         // ______ Check input ______
         if (!MathUtils.isPower2(AccL) || !MathUtils.isPower2(AccP)) {
-            logger.error("AccL should be power of 2 for oversampling.");
+            //Logger.error("AccL should be power of 2 for oversampling.");
             throw new IllegalArgumentException("AccL should be power of 2 for oversampling.");
         }
         if (MasksizeL < 4 || MasksizeP < 4) {
-            logger.error("Correlationwindow size too small (<4; size= FC_winsize-2*FC_Acc).");
+            //Logger.error("Correlationwindow size too small (<4; size= FC_winsize-2*FC_Acc).");
             throw new IllegalArgumentException("Correlationwindow size too small (<4; size= FC_winsize-2*FC_Acc).");
         }
 
@@ -284,8 +284,8 @@ public class CoregistrationUtils {
         offsetL = AccL - offL / (double) (factor);
         offsetP = AccP - offP / (double) (factor);
 
-        logger.debug("Oversampling factor: " + factor);
-        logger.debug("Sub-pixel level offset: " + offsetL + ", " + offsetP + " (corr=" + macCorr + ")");
+        //Logger.debug("Oversampling factor: " + factor);
+        //Logger.debug("Sub-pixel level offset: " + offsetL + ", " + offsetP + " (corr=" + macCorr + ")");
 
         offset[0] = offsetL;
         offset[1] = offsetP;

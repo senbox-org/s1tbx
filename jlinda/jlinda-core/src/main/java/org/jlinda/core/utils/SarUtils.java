@@ -30,21 +30,21 @@ public class SarUtils {
         final int P2 = factorCol * p;  // columns of output matrix
 
         if (inputMatrix.isVector()) {
-            logger.error("oversample: only 2d matrices.");
+            //Logger.error("oversample: only 2d matrices.");
             throw new IllegalArgumentException("oversample: only 2d matrices");
         }
         if (!MathUtils.isPower2(l) && factorRow != 1) {
-            logger.error("oversample: numlines != 2^n");
+            //Logger.error("oversample: numlines != 2^n");
             throw new IllegalArgumentException("oversample: numlines != 2^n");
         }
         if (!MathUtils.isPower2(p) && factorCol != 1) {
-            logger.error("oversample: numcols != 2^n");
+            //Logger.error("oversample: numcols != 2^n");
             throw new IllegalArgumentException("oversample: numcols != 2^n");
         }
 
         if (factorRow == 1 && factorCol == 1) {
-            logger.info("oversample: both azimuth and range oversampling factors equal to 1!");
-            logger.info("oversample: returning inputMatrix!");
+            //Logger.info("oversample: both azimuth and range oversampling factors equal to 1!");
+            //Logger.info("oversample: returning inputMatrix!");
             return inputMatrix;
         }
 
@@ -165,13 +165,13 @@ public class SarUtils {
     @Deprecated
     public static DoubleMatrix coherence(final ComplexDoubleMatrix inputMatrix, final ComplexDoubleMatrix normsMatrix, final int winL, final int winP) {
 
-        logger.trace("coherence ver #2");
+        //Logger.trace("coherence ver #2");
         if (!(winL >= winP)) {
-            logger.warn("coherence: estimator window size L<P not very efficiently programmed.");
+            //Logger.warn("coherence: estimator window size L<P not very efficiently programmed.");
         }
 
         if (inputMatrix.rows != normsMatrix.rows || inputMatrix.rows != inputMatrix.rows) {
-            logger.error("coherence: not same dimensions.");
+            //Logger.error("coherence: not same dimensions.");
             throw new IllegalArgumentException("coherence: not the same dimensions.");
         }
 
@@ -213,13 +213,13 @@ public class SarUtils {
 
     public static DoubleMatrix coherence2(final ComplexDoubleMatrix input, final ComplexDoubleMatrix norms, final int winL, final int winP) {
 
-        logger.trace("coherence ver #2");
+        //Logger.trace("coherence ver #2");
         if (!(winL >= winP)) {
-            logger.warn("coherence: estimator window size L<P not very efficiently programmed.");
+            //Logger.warn("coherence: estimator window size L<P not very efficiently programmed.");
         }
 
         if (input.rows != norms.rows || input.rows != input.rows) {
-            logger.error("coherence: not same dimensions.");
+            //Logger.error("coherence: not same dimensions.");
             throw new IllegalArgumentException("coherence: not the same dimensions.");
         }
 
@@ -273,11 +273,11 @@ public class SarUtils {
             return inputMatrix;
         }
 
-        logger.debug("multilook input [inputMatrix] size: " +
-                inputMatrix.length + " lines: " + inputMatrix.rows + " pixels: " + inputMatrix.columns);
+        //Logger.debug("multilook input [inputMatrix] size: " +
+        //        inputMatrix.length + " lines: " + inputMatrix.rows + " pixels: " + inputMatrix.columns);
 
         if (inputMatrix.rows / factorRow == 0 || inputMatrix.columns / factorColumn == 0) {
-            logger.debug("Multilooking was not necessary for this inputMatrix: inputMatrix.rows < mlR or buffer.columns < mlC");
+            //Logger.debug("Multilooking was not necessary for this inputMatrix: inputMatrix.rows < mlR or buffer.columns < mlC");
             return inputMatrix;
         }
 

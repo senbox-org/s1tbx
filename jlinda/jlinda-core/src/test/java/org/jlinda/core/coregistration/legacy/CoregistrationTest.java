@@ -1,8 +1,5 @@
 package org.jlinda.core.coregistration.legacy;
 
-
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import org.jblas.*;
 import org.jlinda.core.Constants;
 import org.jlinda.core.SLCImage;
@@ -60,7 +57,7 @@ public class CoregistrationTest {
     private int cols;
     private int colsAcc;
 
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(CoregistrationTest.class);
+    //private static final Logger logger = (Logger) LoggerFactory.getLogger(CoregistrationTest.class);
 
     private static StopWatch clock = new StopWatch();
 
@@ -69,7 +66,7 @@ public class CoregistrationTest {
     public static void setUp() throws Exception {
 
         // setup logger
-        logger.setLevel(Level.TRACE);
+        //Logger.setLevel(Level.TRACE);
 
     }
 
@@ -123,7 +120,7 @@ public class CoregistrationTest {
 
         // report
         clock.stop();
-        logger.info("Time to read data [ms]: {}", clock.getElapsedTime());
+        //Logger.info("Time to read data [ms]: {}", clock.getElapsedTime());
 
         /* START TESTING */
 
@@ -136,7 +133,7 @@ public class CoregistrationTest {
         DoubleMatrix correlateDouble = coreg.correlate(SarUtils.magnitude(masterCplx), SarUtils.magnitude(slaveCplx));
 
         clock.stop();
-        logger.info("Time to Cross-correlate in SPACE domain [ms]: {}", clock.getElapsedTime());
+        //Logger.info("Time to Cross-correlate in SPACE domain [ms]: {}", clock.getElapsedTime());
 
         // Cast whats returned to floats
         float[][] correlateFloatArray = castToFloatMatrix(correlateDouble).toArray2();
@@ -154,12 +151,12 @@ public class CoregistrationTest {
         // ...will propagate into computation
 
         // Log on screen some values to check whether everything is parsed right
-        logger.trace("First value of Master Complex Input Matrix: {}",masterCplx.get(0, 0));
-        logger.trace("First value of Slave Complex Input Matrix: {}",slaveCplx.get(0, 0));
-        logger.trace("First value of Master Magnitude Matrix: {}",masterMagnitude.get(0, 0));
-        logger.trace("First value of Internally Computed Magnitude Matrix {}", SarUtils.magnitude(masterCplx).get(0, 0));
-        logger.trace("First value of Slave Magnitude Matrix: {}", slaveMagnitude.get(0, 0));
-        logger.trace("First value of Expected Correlation Matrix: {}", correlMasterSlave_EXPECTED.get(0, 0));
+        //Logger.trace("First value of Master Complex Input Matrix: {}",masterCplx.get(0, 0));
+        //Logger.trace("First value of Slave Complex Input Matrix: {}",slaveCplx.get(0, 0));
+        //Logger.trace("First value of Master Magnitude Matrix: {}",masterMagnitude.get(0, 0));
+        //Logger.trace("First value of Internally Computed Magnitude Matrix {}", SarUtils.magnitude(masterCplx).get(0, 0));
+        //Logger.trace("First value of Slave Magnitude Matrix: {}", slaveMagnitude.get(0, 0));
+        //Logger.trace("First value of Expected Correlation Matrix: {}", correlMasterSlave_EXPECTED.get(0, 0));
 
         // Cast input complex data from Double to Float
         ComplexFloatMatrix masterCplx_FLOAT = castToComplexFloatMatrix(masterCplx);
@@ -168,8 +165,8 @@ public class CoregistrationTest {
         // Cast pre-computed magnitude from Float to Double
         DoubleMatrix masterMagnitudeDouble = castToDoubleMatrix(masterMagnitude);
         DoubleMatrix slaveMagnitudeDouble = castToDoubleMatrix(slaveMagnitude);
-        logger.trace("First value of Casted to Double Master Magnitude: {}",masterMagnitudeDouble.get(0, 0));
-        logger.trace("First value of Casted to Double Slave Magnitude: {}", slaveMagnitudeDouble.get(0, 0));
+        //Logger.trace("First value of Casted to Double Master Magnitude: {}",masterMagnitudeDouble.get(0, 0));
+        //Logger.trace("First value of Casted to Double Slave Magnitude: {}", slaveMagnitudeDouble.get(0, 0));
 
         // Compute cross correlation between:
         //   1. magnitude pre-computed as floats
@@ -177,10 +174,10 @@ public class CoregistrationTest {
         //   2. internally computed magnitude on float data
         FloatMatrix correlateFloat_InternallyComputed = correlate(magnitude(masterCplx_FLOAT), magnitude(slaveCplx_FLOAT));
 
-        logger.trace("Max value of Double Correlate: {}", correlateDouble.max());
-        logger.trace("Max value of Float Correlate (PreComputed Magnitude - ROUNDING ERROR): {}", correlateFloat_PreComputed.max());
-        logger.trace("Max value of Float Correlate (Internally Comp): {}", correlateFloat_InternallyComputed.max());
-        logger.trace("Max value of Expected Correlate (PreComputed): {}", correlMasterSlave_EXPECTED.max());
+        //Logger.trace("Max value of Double Correlate: {}", correlateDouble.max());
+        //Logger.trace("Max value of Float Correlate (PreComputed Magnitude - ROUNDING ERROR): {}", correlateFloat_PreComputed.max());
+        //Logger.trace("Max value of Float Correlate (Internally Comp): {}", correlateFloat_InternallyComputed.max());
+        //Logger.trace("Max value of Expected Correlate (PreComputed): {}", correlMasterSlave_EXPECTED.max());
 */
 
     }
@@ -210,10 +207,10 @@ public class CoregistrationTest {
         slaveCplx = DataReader.readCplxFloatData(processingPath + dataPath + slaveFileName, rows, cols, littleEndian);
 
         // report some values to check whether everything is parsed right
-        logger.trace("First entry of Master Complex Data Input {}: ", masterCplx.get(0, 0));
-        logger.trace("First entry of Slave Complex Data Input {}: ", slaveCplx.get(0, 0));
-        logger.trace("Master Input Dimensions [{},{}]", masterCplx.rows, masterCplx.columns);
-        logger.trace("Slave Input Dimensions [{},{}]", slaveCplx.rows, slaveCplx.columns);
+        //Logger.trace("First entry of Master Complex Data Input {}: ", masterCplx.get(0, 0));
+        //Logger.trace("First entry of Slave Complex Data Input {}: ", slaveCplx.get(0, 0));
+        //Logger.trace("Master Input Dimensions [{},{}]", masterCplx.rows, masterCplx.columns);
+        //Logger.trace("Slave Input Dimensions [{},{}]", slaveCplx.rows, slaveCplx.columns);
 
         /* START TESTING */
 
@@ -230,8 +227,8 @@ public class CoregistrationTest {
 
         // report
         clock.stop();
-        logger.info("Time to Cross-correlate in SPECTRAL domain [ms]: {}", clock.getElapsedTime());
-        logger.info("Estimated peak coherence: {}", coherence);
+        //Logger.info("Time to Cross-correlate in SPECTRAL domain [ms]: {}", clock.getElapsedTime());
+        //Logger.info("Estimated peak coherence: {}", coherence);
 
     }
 
@@ -261,10 +258,10 @@ public class CoregistrationTest {
         slaveCplx = DataReader.readCplxFloatData(processingPath + dataPath + slaveFileName, rows, cols, littleEndian);
 
         // report some values to check whether everything is parsed right
-        logger.trace("First entry of Master Complex Data Input {}: ", masterCplx.get(0, 0));
-        logger.trace("First entry of Slave Complex Data Input {}: ", slaveCplx.get(0, 0));
-        logger.trace("Master Input Dimensions [{},{}]", masterCplx.rows, masterCplx.columns);
-        logger.trace("Slave Input Dimensions [{},{}]", slaveCplx.rows, slaveCplx.columns);
+        //Logger.trace("First entry of Master Complex Data Input {}: ", masterCplx.get(0, 0));
+        //Logger.trace("First entry of Slave Complex Data Input {}: ", slaveCplx.get(0, 0));
+        //Logger.trace("Master Input Dimensions [{},{}]", masterCplx.rows, masterCplx.columns);
+        //Logger.trace("Slave Input Dimensions [{},{}]", slaveCplx.rows, slaveCplx.columns);
 
         /* START TESTING */
 
@@ -284,8 +281,8 @@ public class CoregistrationTest {
             clock.start();
             coherence = coreg.crosscorrelate(masterCplx, slaveCplx, ovsfactor, MasksizeL / 2, MasksizeP / 2, 0, 0);
             clock.stop();
-            logger.info("Estimated peak Coherence: {}, with OvsFactor: {}", coherence, ovsfactor);
-            logger.info("Computation Time [ms]: {}", clock.getElapsedTime());
+            //Logger.info("Estimated peak Coherence: {}, with OvsFactor: {}", coherence, ovsfactor);
+            //Logger.info("Computation Time [ms]: {}", clock.getElapsedTime());
         }
 
 
@@ -347,12 +344,12 @@ public class CoregistrationTest {
         clock.start();
         coreg.shiftazispectrum(masterCplx, mPrf, mRsr2x, mFdc, -m_pixlo);// shift from fDC to zero
         clock.stop();
-        logger.info("Computation Time for shifting of spectra [ms]: {}", clock.getElapsedTime());
+        //Logger.info("Computation Time for shifting of spectra [ms]: {}", clock.getElapsedTime());
 
         clock.start();
         coreg.shiftazispectrum(slaveCplx, mPrf, mRsr2x, mFdc, -m_pixlo);// shift from fDC to zero
         clock.stop();
-        logger.info("Computation Time for shifting of spectra [ms]: {}", clock.getElapsedTime());
+        //Logger.info("Computation Time for shifting of spectra [ms]: {}", clock.getElapsedTime());
 
     }
 
@@ -436,8 +433,8 @@ public class CoregistrationTest {
             clock.start();
             coherence = coreg.crosscorrelate(masterCplx, slaveCplx, ovsFactorCorrelate / ovsFactor, 2 * AccL, 2 * AccP, offsetL, offsetP);
             clock.stop();
-            logger.info("Estimated peak Coherence: {}, with ShiftSpectra and OvsFactor: {}", coherence, ovsFactorCorrelate);
-            logger.info("Computation Time [ms]: {}", clock.getElapsedTime());
+            //Logger.info("Estimated peak Coherence: {}, with ShiftSpectra and OvsFactor: {}", coherence, ovsFactorCorrelate);
+            //Logger.info("Computation Time [ms]: {}", clock.getElapsedTime());
         }
 
     }
@@ -481,15 +478,15 @@ public class CoregistrationTest {
         clock.start();
         double coherence = coreg.coherencespace(AccL, AccP, ovsFactor, masterCplx, slaveCplx, offsetL, offsetP);// shift from fDC to zero
         clock.stop();
-        logger.info("Time to compute cohrence in SPACE domain [ms]: {}", clock.getElapsedTime());
-        logger.info("Estimated peak coherence: {}", coherence);
+        //Logger.info("Time to compute cohrence in SPACE domain [ms]: {}", clock.getElapsedTime());
+        //Logger.info("Estimated peak coherence: {}", coherence);
 
     }
 
     @Test
     public void sixthTest_Resampling() throws Exception {
 
-        logger.trace("Start Resampling [development code]");
+        //Logger.trace("Start Resampling [development code]");
 
         // PARAMETERS
         // ----------------------------------
@@ -545,14 +542,14 @@ public class CoregistrationTest {
         // PROCESSING
         // ----------------------------------
         if (shiftAziSpectra == true) {
-            logger.info("Shifting kernel_L to data fDC");
+            //Logger.info("Shifting kernel_L to data fDC");
         }
 
         final int Npoints = extractNumber(method); // #pnts interpolator
-        logger.debug("Number of kernel points: {}", Npoints);
+        //Logger.debug("Number of kernel points: {}", Npoints);
 
         if (MathUtils.isOdd(Npoints)) {
-            logger.error("Resample only even point interpolators, defined number of points: {}", Npoints);
+            //Logger.error("Resample only even point interpolators, defined number of points: {}", Npoints);
             throw new IllegalArgumentException();
         }
 
@@ -565,8 +562,8 @@ public class CoregistrationTest {
         final double minP = master.getOriginalWindow().pixlo;
         final double maxP = master.getOriginalWindow().pixhi;
 
-        logger.info("resample: polynomial normalized by factors [AZIMUTH]: {} {} to [-2,2]", minL, maxL);
-        logger.info("resample: polynomial normalized by factors [RANGE]: {} {} to [-2,2]", minP, maxP);
+        //Logger.info("resample: polynomial normalized by factors [AZIMUTH]: {} {} to [-2,2]", minL, maxL);
+        //Logger.info("resample: polynomial normalized by factors [RANGE]: {} {} to [-2,2]", minP, maxP);
 
 
         // For KNAB/Raised Cosine kernel if requested
@@ -574,12 +571,12 @@ public class CoregistrationTest {
         final float CHI_az = (float) (slave.getPRF() / slave.getAzimuthBandwidth());// oversampling factor az
         final float CHI_rg = (float) ((slave.getRsr2x() / 2.0) / slave.getRangeBandwidth());// oversampling factor rg
         final float CHI = min(CHI_az, CHI_rg);// min. oversampling factor of data
-        logger.info("Oversampling ratio azimuth (PRF/ABW): {}", CHI_az);
-        logger.info("Oversampling ratio range (RSR/RBW): {}", CHI_rg);
-        logger.info("KNAB/RC kernel uses: oversampling ratio: {}", CHI);
+        //Logger.info("Oversampling ratio azimuth (PRF/ABW): {}", CHI_az);
+        //Logger.info("Oversampling ratio range (RSR/RBW): {}", CHI_rg);
+        //Logger.info("KNAB/RC kernel uses: oversampling ratio: {}", CHI);
 
         if (CHI < 1.1) {
-            logger.warn("Oversampling ratio: {} not optimal for KNAB/RC", CHI);
+            //Logger.warn("Oversampling ratio: {} not optimal for KNAB/RC", CHI);
         }
 
         /** Create lookup table */
@@ -604,7 +601,7 @@ public class CoregistrationTest {
 
         // Compute overlap between master and slave
         Window fullOverlap = Coregistration.getOverlap(master, slave, (double) Npointsd2, 0d, 0d);
-        logger.info("Overlap window: " + fullOverlap.linelo + ":" + fullOverlap.linehi + ", " + fullOverlap.pixlo + ":" + fullOverlap.pixhi);
+        //Logger.info("Overlap window: " + fullOverlap.linelo + ":" + fullOverlap.linehi + ", " + fullOverlap.pixlo + ":" + fullOverlap.pixhi);
 
         Window tileOverlap = fullOverlap;
 
@@ -678,8 +675,8 @@ public class CoregistrationTest {
         // part of slave loaded
         Window winSlaveFile = new Window(firstTileLine, lastTileLine, firstTilePixel, lastTilePixel);
 
-        logger.debug("Reading slave: [" + winSlaveFile.linelo + ":" + winSlaveFile.linehi + ", "
-                + winSlaveFile.pixlo + ":" + winSlaveFile.pixhi + "]");
+        //Logger.debug("Reading slave: [" + winSlaveFile.linelo + ":" + winSlaveFile.linehi + ", "
+        //        + winSlaveFile.pixlo + ":" + winSlaveFile.pixhi + "]");
 
         /* LOAD TEST DATA */
 
@@ -691,7 +688,7 @@ public class CoregistrationTest {
         int nCols = (int) winSlaveFile.pixels();
 
         ComplexDoubleMatrix BUFFER = DataReader.readCplxFloatData(processingPath + dataPath + fileName, nRows, nCols, littleEndian);
-        logger.info("Loaded BUFFER size: {} rows, {} cols", nRows, nCols);
+        //Logger.info("Loaded BUFFER size: {} rows, {} cols", nRows, nCols);
 
         // -------------------- slave tile management stop here -----------------
 
@@ -727,7 +724,7 @@ public class CoregistrationTest {
 
         	// Progress messages
     		if (((line - tileOverlap.linelo) % tenpercent) == 0) {
-                logger.info("RESAMPLE: {} %", percent);
+                //Logger.info("RESAMPLE: {} %", percent);
                 percent += 10;
             }
 
@@ -774,8 +771,8 @@ public class CoregistrationTest {
 
                 LinearAlgebraUtils.setdata(PART, BUFFER, inWin);
 
-//                logger.debug("Result (line,pixel): {},{}", line, pixel);
-//                logger.debug("Result (line,pixel): {},{}", lineCnt, pixelCnt);
+//                //Logger.debug("Result (line,pixel): {},{}", line, pixel);
+//                //Logger.debug("Result (line,pixel): {},{}", lineCnt, pixelCnt);
 
                 RESULT.put(lineCnt, pixelCnt, LinearAlgebraUtils.matTxmat(PART.mmul(kernelP.transpose()), kernelL.transpose()).get(0, 0));
                 pixelCnt++;
@@ -788,7 +785,7 @@ public class CoregistrationTest {
         }
 
         clock.stop();
-        logger.info("Resampling time: {} [ms]", clock.getElapsedTime());
+        //Logger.info("Resampling time: {} [ms]", clock.getElapsedTime());
 
 
 //        /* UNIT TEST */

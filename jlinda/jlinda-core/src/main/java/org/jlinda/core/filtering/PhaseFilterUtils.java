@@ -66,7 +66,7 @@ public class PhaseFilterUtils {
         } catch (Exception e) {
             doSmooth = false;
         }
-//        PhaseFilterUtils.logger.debug("SMOOTH flag: " + doSmooth);  // problem with uint<0 index in smoothkernel
+//        PhaseFilterUtils.//Logger.debug("SMOOTH flag: " + doSmooth);  // problem with uint<0 index in smoothkernel
 
         // use FFT's for convolution with smoothkernel
         // this could also be done static, or in the calling routine
@@ -77,7 +77,7 @@ public class PhaseFilterUtils {
             for (int ii = -smooth; ii <= smooth; ++ii) {// 1d kernel function of block
                 int tmpValue_1 = (ii + size) % size;
                 int tmpValue_2 = ii + smooth;// used to be ii-SMOOTH: wrong
-//                PhaseFilterUtils.logger.debug("tmp1: " + tmpValue_1 + "; tmp2: " + tmpValue_2);
+//                PhaseFilterUtils.//Logger.debug("tmp1: " + tmpValue_1 + "; tmp2: " + tmpValue_2);
                 kernel1D.put(0, tmpValue_1, new ComplexDouble(smoothKernel[tmpValue_2]));
             }
 
@@ -85,7 +85,7 @@ public class PhaseFilterUtils {
             SpectralUtils.fft2D_inplace(kernel2D);  // should be real sinc
 
         }
-//        PhaseFilterUtils.logger.debug("kernel created for smoothing spectrum");
+//        PhaseFilterUtils.//Logger.debug("kernel created for smoothing spectrum");
 
         // ====== Loop forever, stop after lastblockdone ======
         for (; ; ) {  //forever, like in c!
@@ -130,7 +130,7 @@ public class PhaseFilterUtils {
                 powi(amplitude, alpha);
                 LinearAlgebraUtils.dotmult_inplace(block, new ComplexDoubleMatrix(amplitude));
             } else {
-                PhaseFilterUtils.logger.warn("no filtering, maxAmplitude < " + goldsteinThreshold + ", are zeros in this data block?");
+                //PhaseFilterUtils.Logger.warn("no filtering, maxAmplitude < " + goldsteinThreshold + ", are zeros in this data block?");
             }
 
             SpectralUtils.invfft2D_inplace(block);
@@ -538,7 +538,7 @@ public class PhaseFilterUtils {
             powi(amplitude, alpha);
             LinearAlgebraUtils.dotmult_inplace(block, new ComplexDoubleMatrix(amplitude));
         } else {
-//            PhaseFilterUtils.logger.warn("no filtering, maxAmplitude < " + goldsteinThreshold + ", are zeros in this data block?");
+//            PhaseFilterUtils.//Logger.warn("no filtering, maxAmplitude < " + goldsteinThreshold + ", are zeros in this data block?");
         }
     }
 

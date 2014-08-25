@@ -1,6 +1,5 @@
 package org.jlinda.core.utils;
 
-import org.apache.log4j.Logger;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Window;
@@ -10,7 +9,7 @@ import static org.jblas.MatrixFunctions.pow;
 
 public class LinearAlgebraUtils {
 
-    static Logger logger = Logger.getLogger(LinearAlgebraUtils.class.getName());
+    //static Logger logger = Logger.getLogger(LinearAlgebraUtils.class.getName());
 
     /**
      * solve22
@@ -287,24 +286,24 @@ public class LinearAlgebraUtils {
 
         if (((outWin.linehi - outWin.linelo) != (inWin.linehi - inWin.linelo)) ||
                 ((outWin.pixhi - outWin.pixlo) != (inWin.pixhi - inWin.pixlo))) {
-            logger.error("setdata: wrong input.");
+            //Logger.error("setdata: wrong input.");
             throw new IllegalArgumentException("setdata: wrong input.");
 
         }
         if (outWin.linehi < outWin.linelo || outWin.pixhi < outWin.pixlo) {
-            logger.error("setdata: wrong input.1");
+            //Logger.error("setdata: wrong input.1");
             throw new IllegalArgumentException("setdata: wrong input.1");
         }
 
         if ((outWin.linehi > outMatrix.rows - 1) ||
                 (outWin.pixhi > outMatrix.columns - 1)) {
-            logger.error("setdata: wrong input.2");
+            //Logger.error("setdata: wrong input.2");
             throw new IllegalArgumentException("setdata: wrong input.2");
         }
 
         if ((inWin.linehi > inMatrix.rows - 1) ||
                 (inWin.pixhi > inMatrix.columns - 1)) {
-            logger.error("setdata: wrong input.3");
+            //Logger.error("setdata: wrong input.3");
             throw new IllegalArgumentException("setdata: wrong input.3");
         }
 
@@ -334,24 +333,24 @@ public class LinearAlgebraUtils {
 
         if (((outWin.linehi - outWin.linelo) != (inWin.linehi - inWin.linelo)) ||
                 ((outWin.pixhi - outWin.pixlo) != (inWin.pixhi - inWin.pixlo))) {
-            logger.error("setdata: wrong input.");
+            //Logger.error("setdata: wrong input.");
             throw new IllegalArgumentException("setdata: wrong input.");
 
         }
         if (outWin.linehi < outWin.linelo || outWin.pixhi < outWin.pixlo) {
-            logger.error("setdata: wrong input.1");
+            //Logger.error("setdata: wrong input.1");
             throw new IllegalArgumentException("setdata: wrong input.1");
         }
 
         if ((outWin.linehi > outMatrix.length - 1) ||
                 (outWin.pixhi > outMatrix[0].length - 1)) {
-            logger.error("setdata: wrong input.2");
+            //Logger.error("setdata: wrong input.2");
             throw new IllegalArgumentException("setdata: wrong input.2");
         }
 
         if ((inWin.linehi > inMatrix.length - 1) ||
                 (inWin.pixhi > inMatrix[0].length - 1)) {
-            logger.error("setdata: wrong input.3");
+            //Logger.error("setdata: wrong input.3");
             throw new IllegalArgumentException("setdata: wrong input.3");
         }
 
@@ -384,24 +383,24 @@ public class LinearAlgebraUtils {
 
         if (((outWin.linehi - outWin.linelo) != (inWin.linehi - inWin.linelo)) ||
                 ((outWin.pixhi - outWin.pixlo) != (inWin.pixhi - inWin.pixlo))) {
-            logger.error("setdata: wrong input.");
+            //Logger.error("setdata: wrong input.");
             throw new IllegalArgumentException("setdata: wrong input.");
 
         }
         if (outWin.linehi < outWin.linelo || outWin.pixhi < outWin.pixlo) {
-            logger.error("setdata: wrong input.1");
+            //Logger.error("setdata: wrong input.1");
             throw new IllegalArgumentException("setdata: wrong input.1");
         }
 
         if ((outWin.linehi > outMatrix.rows - 1) ||
                 (outWin.pixhi > outMatrix.columns - 1)) {
-            logger.error("setdata: wrong input.2");
+            //Logger.error("setdata: wrong input.2");
             throw new IllegalArgumentException("setdata: wrong input.2");
         }
 
         if ((inWin.linehi > inMatrix.rows - 1) ||
                 (inWin.pixhi > inMatrix.columns - 1)) {
-            logger.error("setdata: wrong input.3");
+            //Logger.error("setdata: wrong input.3");
             throw new IllegalArgumentException("setdata: wrong input.3");
         }
 
@@ -445,7 +444,7 @@ public class LinearAlgebraUtils {
                 }
                 if (i == j) {
                     if (sum <= 0.) {
-                        logger.error("choles: internal: inMatrix not pos. def.");
+                        //Logger.error("choles: internal: inMatrix not pos. def.");
                     }
                     inMatrix[i][i] = Math.sqrt(sum);
                 } else {
@@ -466,7 +465,7 @@ public class LinearAlgebraUtils {
                 }
                 if (i == j) {
                     if (sum <= 0.) {
-                        logger.error("choles: internal: inMatrix not pos. def.");
+                        //Logger.error("choles: internal: inMatrix not pos. def.");
                     }
                     inMatrix.put(i, i, Math.sqrt(sum));
                 } else {

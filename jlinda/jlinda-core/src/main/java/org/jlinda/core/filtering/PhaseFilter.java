@@ -245,7 +245,7 @@ public class PhaseFilter {
             powi(amplitude, goldsteinAlpha);
             LinearAlgebraUtils.dotmult_inplace(block, new ComplexDoubleMatrix(amplitude));
         } else {
-//            PhaseFilterUtils.logger.warn("no filtering, maxAmplitude < " + goldsteinThreshold + ", are zeros in this data block?");
+//            PhaseFilterUtils.//Logger.warn("no filtering, maxAmplitude < " + goldsteinThreshold + ", are zeros in this data block?");
         }
     }
 

@@ -43,11 +43,11 @@ public class Ellipsoid {
     }
 
     public void showdata() {
-        logger.info("ELLIPSOID: \tEllipsoid used (orbit, output): " + name + ".");
-        logger.info("ELLIPSOID: a   = " + a);
-        logger.info("ELLIPSOID: b   = " + b);
-        logger.info("ELLIPSOID: e2  = " + e2);
-        logger.info("ELLIPSOID: e2' = " + e2b);
+        //Logger.info("ELLIPSOID: \tEllipsoid used (orbit, output): " + name + ".");
+        //Logger.info("ELLIPSOID: a   = " + a);
+        //Logger.info("ELLIPSOID: b   = " + b);
+        //Logger.info("ELLIPSOID: e2  = " + e2);
+        //Logger.info("ELLIPSOID: e2' = " + e2b);
     }
 
     /**

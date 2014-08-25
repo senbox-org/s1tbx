@@ -60,18 +60,18 @@ public class BaselineTest {
     private static final double DELTA_06 = 1E-06;
 
 
-    private static Logger initLog() {
-        String filePathToLog4JProperties = "/d3/checkouts/jlinda/log4j.properties";
-        Logger logger = Logger.getLogger(Baseline.class);
-        PropertyConfigurator.configure(filePathToLog4JProperties);
-        return logger;
-    }
+    //private static Logger initLog() {
+    //    String filePathToLog4JProperties = "/d3/checkouts/jlinda/log4j.properties";
+    //    Logger logger = //Logger.getLogger(Baseline.class);
+    //    PropertyConfigurator.configure(filePathToLog4JProperties);
+    //    return logger;
+    //}
 
 
     @BeforeClass
     public static void setUp() throws Exception {
 
-        initLog();
+        //initLog();
 
         master.parseResFile(masterResFile);
         slave.parseResFile(slaveResFile);

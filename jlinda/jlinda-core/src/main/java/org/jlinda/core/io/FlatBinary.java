@@ -8,7 +8,7 @@ import java.nio.ByteOrder;
 
 abstract class FlatBinary implements DataReadersWriters {
 
-//    private static Logger logger = Logger.getLogger(FlatBinary.class.getName());
+//    private static Logger logger = //Logger.getLogger(FlatBinary.class.getName());
 
     File file;
     String format;

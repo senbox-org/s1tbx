@@ -1,10 +1,11 @@
 package org.jlinda.core.utils;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
-import org.slf4j.LoggerFactory;
+
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import static org.jblas.MatrixFunctions.pow;
 
@@ -14,10 +15,10 @@ public class PolyUtils {
 
     // ToDo: polyfit and polyval are in conflict
     // Description: Polynomial I fit using coeffs=polyfit(x,y), I have to evaluate using polyval(y,x,coeffs)
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(PolyUtils.class);
+    private static final Logger logger = BeamLogManager.getSystemLogger();
 
     private static void setLoggerLevel() {
-        logger.setLevel(Level.WARN);
+        //Logger.setLevel(Level.WARNING);
     }
 
     public static double normalize2(double data, final int min, final int max) {
@@ -70,7 +71,7 @@ public class PolyUtils {
         setLoggerLevel();
 
         if (x.length != y.length || !x.isVector() || !y.isVector()) {
-            logger.error("polyfit: require same size vectors.");
+            //Logger.severe("polyfit: require same size vectors.");
             throw new IllegalArgumentException("polyfit: require same size vectors.");
         }
 
@@ -91,7 +92,7 @@ public class PolyUtils {
         }
 
         // Fit polynomial
-        logger.debug("Solving lin. system of equations with Cholesky.");
+        //Logger.fine("Solving lin. system of equations with Cholesky.");
         DoubleMatrix N = A.transpose().mmul(A);
         DoubleMatrix rhs = A.transpose().mmul(z);
 
@@ -101,12 +102,12 @@ public class PolyUtils {
         DoubleMatrix Qx_hat = Solve.solveSymmetric(N, DoubleMatrix.eye(N.getRows()));
 
         double maxDeviation = (N.mmul(Qx_hat).sub(DoubleMatrix.eye(Qx_hat.rows))).normmax();
-        logger.debug("polyfit orbit: max(abs(N*inv(N)-I)) = " + maxDeviation);
+        //Logger.fine("polyfit orbit: max(abs(N*inv(N)-I)) = " + maxDeviation);
 
         // ___ report max error... (seems sometimes this can be extremely large) ___
         if (maxDeviation > 1e-6) {
-            logger.warn("polyfit orbit: max(abs(N*inv(N)-I)) = {}", maxDeviation);
-            logger.warn("polyfit orbit interpolation unstable!");
+            //Logger.warning("polyfit orbit: max(abs(N*inv(N)-I)) = {"+maxDeviation+"}");
+            //Logger.warning("polyfit orbit interpolation unstable!");
         }
 
         // work out residuals
@@ -114,18 +115,18 @@ public class PolyUtils {
         DoubleMatrix e_hat = z.sub(y_hat);
 
         if (e_hat.normmax() > 0.02) {
-            logger.warn("WARNING: Max. polyFit2D approximation error at datapoints (x,y,or z?): {}", e_hat.normmax());
+            //Logger.warning("WARNING: Max. polyFit2D approximation error at datapoints (x,y,or z?): {"+e_hat.normmax()+"}");
         } else {
-            logger.info("Max. polyFit2D approximation error at datapoints (x,y,or z?): {}", e_hat.normmax());
+            //Logger.info("Max. polyFit2D approximation error at datapoints (x,y,or z?): {"+e_hat.normmax()+"}");
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("REPORTING POLYFIT LEAST SQUARES ERRORS");
-            logger.debug(" time \t\t\t y \t\t\t yhat  \t\t\t ehat");
-            for (int i = 0; i < numOfObs; i++) {
-                logger.debug(" (" + x.get(i) + "," + y.get(i) + ") :" + "\t" + y.get(i) + "\t" + y_hat.get(i) + "\t" + e_hat.get(i));
-            }
-        }
+        //if (Logger.isLoggable(Level.FINE)) {
+            //Logger.fine("REPORTING POLYFIT LEAST SQUARES ERRORS");
+            //Logger.fine(" time \t\t\t y \t\t\t yhat  \t\t\t ehat");
+            //for (int i = 0; i < numOfObs; i++) {
+                //Logger.fine(" (" + x.get(i) + "," + y.get(i) + ") :" + "\t" + y.get(i) + "\t" + y_hat.get(i) + "\t" + e_hat.get(i));
+            //}
+        //}
         return rhs.toArray();
     }
 
@@ -134,7 +135,7 @@ public class PolyUtils {
         setLoggerLevel();
 
         if (t.length != y.length || !t.isVector() || !y.isVector()) {
-            logger.error("polyfit: require same size vectors.");
+            //Logger.severe("polyfit: require same size vectors.");
             throw new IllegalArgumentException("polyfit: require same size vectors.");
         }
 
@@ -143,17 +144,17 @@ public class PolyUtils {
 
         // Check redundancy
         final int numOfUnknowns = degree + 1;
-        logger.debug("Degree of interpolating polynomial: {}", degree);
-        logger.debug("Number of unknowns: {}", numOfUnknowns);
-        logger.debug("Number of data points: {}", numOfPoints);
+        //Logger.fine("Degree of interpolating polynomial: {"+degree+"}");
+        //Logger.fine("Number of unknowns: {"+numOfUnknowns+"}");
+        //Logger.fine("Number of data points: {"+numOfPoints+"}");
 
         if (numOfPoints < numOfUnknowns) {
-            logger.error("Number of points is smaller than parameters solved for.");
+            //Logger.severe("Number of points is smaller than parameters solved for.");
             throw new IllegalArgumentException("Number of points is smaller than parameters solved for.");
         }
 
         // Set up system of equations to solve coeff :: Design matrix
-        logger.debug("Setting up linear system of equations");
+        //Logger.fine("Setting up linear system of equations");
         DoubleMatrix A = new DoubleMatrix(numOfPoints, numOfUnknowns);
         // work with columns
         for (int j = 0; j <= degree; j++) {
@@ -161,7 +162,7 @@ public class PolyUtils {
         }
 
         // Fit polynomial through computed vector of phases
-        logger.debug("Solving lin. system of equations with Cholesky.");
+        //Logger.fine("Solving lin. system of equations with Cholesky.");
 
         DoubleMatrix N = A.transpose().mmul(A);
         DoubleMatrix rhs = A.transpose().mmul(y);
@@ -171,12 +172,12 @@ public class PolyUtils {
         DoubleMatrix Qx_hat = Solve.solveSymmetric(N, DoubleMatrix.eye(N.getRows()));
 
         double maxDeviation = (N.mmul(Qx_hat).sub(DoubleMatrix.eye(Qx_hat.rows))).normmax();
-        logger.debug("polyfit orbit: max(abs(N*inv(N)-I)) = " + maxDeviation);
+        //Logger.fine("polyfit orbit: max(abs(N*inv(N)-I)) = " + maxDeviation);
 
         // ___ report max error... (seems sometimes this can be extremely large) ___
         if (maxDeviation > 1e-6) {
-            logger.warn("polyfit orbit: max(abs(N*inv(N)-I)) = {}", maxDeviation);
-            logger.warn("polyfit orbit interpolation unstable!");
+            //Logger.warning("polyfit orbit: max(abs(N*inv(N)-I)) = {"+maxDeviation+"}");
+            //Logger.warning("polyfit orbit interpolation unstable!");
         }
 
         // work out residuals
@@ -185,26 +186,26 @@ public class PolyUtils {
 
         // 0.05 is already 1 wavelength! (?)
         if (e_hat.normmax() > 0.02) {
-            logger.warn("WARNING: Max. approximation error at datapoints (x,y,or z?): {}", e_hat.normmax());
+            //Logger.warning("WARNING: Max. approximation error at datapoints (x,y,or z?): {"+e_hat.normmax()+"}");
         } else {
-            logger.debug("Max. approximation error at datapoints (x,y,or z?): {}", e_hat.normmax());
+            //Logger.fine("Max. approximation error at datapoints (x,y,or z?): {"+ e_hat.normmax()+"}");
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("REPORTING POLYFIT LEAST SQUARES ERRORS");
-            logger.debug(" time \t\t\t y \t\t\t yhat  \t\t\t ehat");
+        if (false) {//Logger.isLoggable(Level.FINE)) {
+            //Logger.fine("REPORTING POLYFIT LEAST SQUARES ERRORS");
+            //Logger.fine(" time \t\t\t y \t\t\t yhat  \t\t\t ehat");
             for (int i = 0; i < numOfPoints; i++) {
-                logger.debug(" " + t.get(i) + "\t" + y.get(i) + "\t" + y_hat.get(i) + "\t" + e_hat.get(i));
+                //Logger.fine(" " + t.get(i) + "\t" + y.get(i) + "\t" + y_hat.get(i) + "\t" + e_hat.get(i));
             }
 
             for (int i = 0; i < numOfPoints - 1; i++) {
                 // ___ check if dt is constant, not necessary for me, but may ___
                 // ___ signal error in header data of SLC image ___
                 double dt = t.get(i + 1) - t.get(i);
-                logger.debug("Time step between point " + i + 1 + " and " + i + "= " + dt);
+                //Logger.fine("Time step between point " + i + 1 + " and " + i + "= " + dt);
 
-                if (Math.abs(dt - (t.get(1) - t.get(0))) > 0.001)// 1ms of difference we allow...
-                    logger.warn("WARNING: Orbit: data does not have equidistant time interval?");
+                //if (Math.abs(dt - (t.get(1) - t.get(0))) > 0.001)// 1ms of difference we allow...
+                    //Logger.warning("WARNING: Orbit: data does not have equidistant time interval?");
             }
         }
         return x.toArray();
@@ -224,11 +225,11 @@ public class PolyUtils {
         setLoggerLevel();
 
         if (degree < -1) {
-            logger.warn("polyValGrid: degree < -1 ????");
+            //Logger.warning("polyValGrid: degree < -1 ????");
         }
 
         if (x.length > y.length) {
-            logger.warn("polValGrid: x larger than y, while optimized for y larger x");
+            //Logger.warning("polValGrid: x larger than y, while optimized for y larger x");
         }
 
         if (degree == -1) {
@@ -452,26 +453,26 @@ public class PolyUtils {
         setLoggerLevel();
 
         if (!x.isColumnVector()) {
-            logger.warn("polyValGrid: require (x) standing data vectors!");
+            //Logger.warning("polyValGrid: require (x) standing data vectors!");
             throw new IllegalArgumentException("polyval functions require (x) standing data vectors!");
         }
 
         if (!y.isColumnVector()) {
-            logger.warn("polyValGrid: require (y) standing data vectors!");
+            //Logger.warning("polyValGrid: require (y) standing data vectors!");
             throw new IllegalArgumentException("polyval functions require (y) standing data vectors!");
         }
 
         if (!coeff.isColumnVector()) {
-            logger.warn("polyValGrid: require (coeff) standing data vectors!");
+            //Logger.warning("polyValGrid: require (coeff) standing data vectors!");
             throw new IllegalArgumentException("polyval functions require (coeff) standing data vectors!");
         }
 
         if (degree < -1) {
-            logger.warn("polyValGrid: degree < -1 ????");
+            //Logger.warning("polyValGrid: degree < -1 ????");
         }
 
         if (x.length > y.length) {
-            logger.warn("polValGrid: x larger than y, while optimized for y larger x");
+            //Logger.warning("polValGrid: x larger than y, while optimized for y larger x");
         }
 
         if (degree == -1) {
@@ -702,13 +703,13 @@ public class PolyUtils {
         setLoggerLevel();
 
         if (degree < 0 || degree > 1000) {
-            logger.warn("polyval: degree value [" + degree + "] not realistic!");
+            //Logger.warning("polyval: degree value [" + degree + "] not realistic!");
             throw new IllegalArgumentException("polyval: degree not realistic!");
         }
 
         //// Check default arguments ////
         if (degree < -1) {
-            logger.warn("polyValGrid: degree < -1 ????");
+            //Logger.warning("polyValGrid: degree < -1 ????");
             degree = degreeFromCoefficients(coeff.length);
         }
 

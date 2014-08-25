@@ -173,15 +173,15 @@ public class DInSAR {
         double maxErrorRatio = e_hat.normmax() // max error
         int maxErrorRatioIdx = e_hat.abs().argmax() // index of maximum error
         double maxRelativeErrorRatio = 100.0 * maxErrorRatio / ratio.get(maxErrorRatioIdx)
-        logger.INFO("maximum error for l,p : {}, {}", x.get(maxErrorRatioIdx), y.get(maxErrorRatioIdx));
-        logger.INFO("Ratio = {}; estimate = {}; rel.error = ", ratio(maxErrorRatioIdx), y_hat(maxErrorRatioIdx), maxRelativeErrorRatio);
+        //Logger.INFO("maximum error for l,p : {}, {}", x.get(maxErrorRatioIdx), y.get(maxErrorRatioIdx));
+        //Logger.INFO("Ratio = {}; estimate = {}; rel.error = ", ratio(maxErrorRatioIdx), y_hat(maxErrorRatioIdx), maxRelativeErrorRatio);
 
 
         if (maxRelativeErrorRatio < 5.0) {
-            logger.INFO("max (relative) error: OK!");
+            //Logger.INFO("max (relative) error: OK!");
         } else {
-            logger.WARN("max error quite large");
-            logger.WARN("Error in deformation vector larger than 5% due to mismodeling baseline!");
+            //Logger.WARN("max error quite large");
+            //Logger.WARN("Error in deformation vector larger than 5% due to mismodeling baseline!");
         }
 */
 
@@ -256,15 +256,15 @@ public class DInSAR {
         double maxErrorRatio = e_hat.normmax() // max error
         int maxErrorRatioIdx = e_hat.abs().argmax() // index of maximum error
         double maxRelativeErrorRatio = 100.0 * maxErrorRatio / ratio.get(maxErrorRatioIdx)
-        logger.INFO("maximum error for l,p : {}, {}", x.get(maxErrorRatioIdx), y.get(maxErrorRatioIdx));
-        logger.INFO("Ratio = {}; estimate = {}; rel.error = ", ratio(maxErrorRatioIdx), y_hat(maxErrorRatioIdx), maxRelativeErrorRatio);
+        //Logger.INFO("maximum error for l,p : {}, {}", x.get(maxErrorRatioIdx), y.get(maxErrorRatioIdx));
+        //Logger.INFO("Ratio = {}; estimate = {}; rel.error = ", ratio(maxErrorRatioIdx), y_hat(maxErrorRatioIdx), maxRelativeErrorRatio);
 
 
         if (maxRelativeErrorRatio < 5.0) {
-            logger.INFO("max (relative) error: OK!");
+            //Logger.INFO("max (relative) error: OK!");
         } else {
-            logger.WARN("max error quite large");
-            logger.WARN("Error in deformation vector larger than 5% due to mismodeling baseline!");
+            //Logger.WARN("max error quite large");
+            //Logger.WARN("Error in deformation vector larger than 5% due to mismodeling baseline!");
         }
 */
 

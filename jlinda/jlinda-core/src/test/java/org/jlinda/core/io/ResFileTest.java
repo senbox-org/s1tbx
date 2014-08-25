@@ -1,7 +1,5 @@
 package org.jlinda.core.io;
 
-
-import org.apache.log4j.Logger;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.junit.*;
 
@@ -12,7 +10,7 @@ import java.io.IOException;
 
 public class ResFileTest {
 
-    static Logger logger = Logger.getLogger(ResFileTest.class.getName());
+    //static Logger logger = Logger.getLogger(ResFileTest.class.getName());
 
     private static File testFile;
     private static String resFileString;
@@ -80,8 +78,8 @@ public class ResFileTest {
             resFileOut.write(resFileString);
             resFileOut.close();
         } catch (IOException e) {
-            logger.error("IO Exception: test file cannot be created.");
-            logger.error(e.getMessage());
+            //Logger.error("IO Exception: test file cannot be created.");
+            //Logger.error(e.getMessage());
         }
 
     }

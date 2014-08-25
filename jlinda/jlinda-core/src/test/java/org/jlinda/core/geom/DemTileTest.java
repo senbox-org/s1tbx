@@ -21,7 +21,7 @@ import static org.jlinda.core.io.DataReader.readFloatData;
 public class
         DemTileTest {
 
-    static Logger logger = Logger.getLogger(DemTile.class.getName());
+    //static Logger logger = Logger.getLogger(DemTile.class.getName());
     private static final File masterResFile = new File("/d2/etna_test/demTest/master.res");
 
     private static final double DELTA_08 = 1e-08;
@@ -32,17 +32,17 @@ public class
     static Orbit masterOrbit;
     static Window masterTileWindow;
 
-    public static Logger initLog() {
-        String filePathToLog4JProperties = "log4j.properties";
-        Logger logger = Logger.getLogger(TopoPhase.class);
-        PropertyConfigurator.configure(filePathToLog4JProperties);
-        return logger;
-    }
+    //public static Logger initLog() {
+    //    String filePathToLog4JProperties = "log4j.properties";
+    //    Logger logger = //Logger.getLogger(TopoPhase.class);
+    //    PropertyConfigurator.configure(filePathToLog4JProperties);
+    //    return logger;
+   // }
 
     @Before
     public void setUp() throws Exception {
 
-        initLog();
+       //initLog();
 
         double lat0 = 0.68067840827778847;
         double lon0 = 0.24434609527920614;

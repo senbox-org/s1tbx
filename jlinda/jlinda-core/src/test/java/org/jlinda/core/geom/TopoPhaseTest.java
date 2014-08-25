@@ -14,7 +14,7 @@ import static org.jlinda.core.io.DataReader.readFloatData;
 
 public class TopoPhaseTest {
 
-    static Logger logger = Logger.getLogger(TopoPhase.class.getName());
+    //static Logger logger = Logger.getLogger(TopoPhase.class.getName());
     private static String testDataDir = "/d2/etna_test/demTest/";
     private static final File masterResFile = new File("/d2/etna_test/demTest/master.res");
     private static final File slaveResFile = new File("/d2/etna_test/demTest/slave.res");
@@ -34,12 +34,12 @@ public class TopoPhaseTest {
     static SLCImage slaveMeta;
     static Orbit slaveOrbit;
 
-    public static Logger initLog() {
-        String filePathToLog4JProperties = "log4j.properties";
-        Logger logger = Logger.getLogger(TopoPhase.class);
-        PropertyConfigurator.configure(filePathToLog4JProperties);
-        return logger;
-    }
+    //public static Logger initLog() {
+    //    String filePathToLog4JProperties = "log4j.properties";
+        //Logger logger = Logger.getLogger(TopoPhase.class);
+    //    PropertyConfigurator.configure(filePathToLog4JProperties);
+    //    return logger;
+    //}
 
     @BeforeClass
     public static void setUpTestData() throws Exception {
@@ -131,7 +131,7 @@ public class TopoPhaseTest {
         long t0 = System.currentTimeMillis();
         topoPhase.radarCode();
         long t1 = System.currentTimeMillis();
-        logger.info("Data radarcoded in: " + (0.001 * (t1 - t0)) + " sec");
+        //Logger.info("Data radarcoded in: " + (0.001 * (t1 - t0)) + " sec");
 
         /* assert result */
         for (int i = 0; i < DEMline_buffer.length; i++) {
@@ -175,7 +175,7 @@ public class TopoPhaseTest {
 
         topoPhase.gridData();
         long t1 = System.currentTimeMillis();
-        logger.info("Data set gridded in " + (0.001 * (t1 - t0)) + " sec");
+        //Logger.info("Data set gridded in " + (0.001 * (t1 - t0)) + " sec");
 
 
         /* assert result */

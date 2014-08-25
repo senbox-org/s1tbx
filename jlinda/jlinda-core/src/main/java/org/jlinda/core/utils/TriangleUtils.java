@@ -28,13 +28,13 @@ public class TriangleUtils {
         //// How many groups of z value should be interpolated
         // TODO: work out "multiple levels" for interpolation
         if ((z_in_dim % x_in_dim) != 0) {
-            logger.warn("The input of the DEM buffer and z is not the same...");
+            //Logger.warn("The input of the DEM buffer and z is not the same...");
             throw new IllegalArgumentException();
         } else {
             int zLoops = z_in.length / x_in.length;
         }
 
-        logger.trace("DelaunayTriangulator with " + x_in_dim + " points");
+        //Logger.trace("DelaunayTriangulator with " + x_in_dim + " points");
 */
 
         final FastDelaunayTriangulator FDT = triangulate(x_in, y_in, z_in, xyRatio);
@@ -55,7 +55,7 @@ public class TriangleUtils {
             }
         }
         long t1 = System.currentTimeMillis();
-        logger.info("Input set constructed in " + (0.001 * (t1 - t0)) + " sec");
+        //Logger.info("Input set constructed in " + (0.001 * (t1 - t0)) + " sec");
 
         //// triangulate input data
         long t2 = System.currentTimeMillis();
@@ -66,7 +66,7 @@ public class TriangleUtils {
             te.printStackTrace();
         }
         long t3 = System.currentTimeMillis();
-        logger.info("Data set triangulated in " + (0.001 * (t3 - t2)) + " sec");
+        //Logger.info("Data set triangulated in " + (0.001 * (t3 - t2)) + " sec");
         return FDT;
     }
 
@@ -197,7 +197,7 @@ public class TriangleUtils {
             }
         }
         long t5 = System.currentTimeMillis();
-        logger.info("Data set interpolated in " + (0.001 * (t5 - t4)) + " sec");
+        //Logger.info("Data set interpolated in " + (0.001 * (t5 - t4)) + " sec");
 
         return griddedData;
     }

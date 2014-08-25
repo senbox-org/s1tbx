@@ -1,8 +1,5 @@
 package org.jlinda.core.geocode;
 
-
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import org.perf4j.StopWatch;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Orbit;
@@ -20,7 +17,7 @@ import java.nio.FloatBuffer;
 
 public class Slant2HeightTest {
 
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(Slant2HeightTest.class);
+    //private static final Logger logger = (Logger) LoggerFactory.getLogger(Slant2HeightTest.class);
 
     private static final String testDataDir = "/d2/test.processing/bam/bam.quake.dem/Outdata/";
     private static final String testResDir = "/d2/test.processing/bam/bam.quake.dem/";
@@ -44,7 +41,7 @@ public class Slant2HeightTest {
 
     @Before
     public void setUp() throws Exception {
-        logger.setLevel(Level.DEBUG);
+        //Logger.setLevel(Level.DEBUG);
     }
 
     @BeforeClass
@@ -130,7 +127,7 @@ public class Slant2HeightTest {
         tempSlant.schwabischTotal();
         watch.stop();
 
-        logger.info("Total processing time TOTAL: {} milli-seconds", watch.getElapsedTime());
+        //Logger.info("Total processing time TOTAL: {} milli-seconds", watch.getElapsedTime());
         Assert.assertArrayEquals(heights.toArray(), tempSlant.getTile().toArray(), DELTA_02);
 
     }
@@ -153,7 +150,7 @@ public class Slant2HeightTest {
         slant.schwabisch();
         slant.applySchwabisch(tileWindow, inputTile);
         watch.stop();
-        logger.info("Total processing time for Slant2Height Schwabisch method: {} milli-seconds", watch.getElapsedTime());
+        //Logger.info("Total processing time for Slant2Height Schwabisch method: {} milli-seconds", watch.getElapsedTime());
 
         Assert.assertArrayEquals(heights.toArray(), inputTile.toArray(), DELTA_02);
 

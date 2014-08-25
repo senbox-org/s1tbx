@@ -18,9 +18,9 @@ public final class ResFile {
     /*
         public static void initializeLogger() {
             BasicConfigurator.configure();
-            Logger.getRootLogger().setLevel(Level.ALL);
+            //Logger.getRootLogger().setLevel(Level.ALL);
             Layout layout = new PatternLayout("%d [%t] %-5p %c %x - %m%n");
-            Logger.getRootLogger().addAppender(new ConsoleAppender(layout));
+            //Logger.getRootLogger().addAppender(new ConsoleAppender(layout));
         }
     */
 
@@ -81,10 +81,10 @@ public final class ResFile {
             out.write(buffer.toString());
             out.close();
         } catch (FileNotFoundException ex) {
-            logger.error(" dumpBuffer() exception " + ex.getMessage());
+            //Logger.error(" dumpBuffer() exception " + ex.getMessage());
             ex.printStackTrace();
         } catch (IOException ex) {
-            logger.error(" dumpBuffer() exception " + ex.getMessage());
+            //Logger.error(" dumpBuffer() exception " + ex.getMessage());
             ex.printStackTrace();
         }
 
@@ -97,10 +97,10 @@ public final class ResFile {
             out.write(buffer.toString());
             out.close();
         } catch (FileNotFoundException ex) {
-            logger.error(" dumpBuffer() exception " + ex.getMessage());
+            //Logger.error(" dumpBuffer() exception " + ex.getMessage());
             ex.printStackTrace();
         } catch (IOException ex) {
-            logger.error(" dumpBuffer() exception " + ex.getMessage());
+            //Logger.error(" dumpBuffer() exception " + ex.getMessage());
             ex.printStackTrace();
         }
 
@@ -192,7 +192,7 @@ public final class ResFile {
             try {
                 valuesList.add(match.group(groupToReturn));
             } catch (IndexOutOfBoundsException e) {
-                logger.error("queryKey(key,group) : Exception handling regex : " + e.getLocalizedMessage());
+                //Logger.error("queryKey(key,group) : Exception handling regex : " + e.getLocalizedMessage());
             }
         }
         return valuesList;
@@ -248,12 +248,12 @@ public final class ResFile {
                 i++;
 
             } catch (IndexOutOfBoundsException e) {
-                logger.error("parseOrbit() : Exception handling regex : " + e.getLocalizedMessage());
+                //Logger.error("parseOrbit() : Exception handling regex : " + e.getLocalizedMessage());
             }
         }
 
         if (i != numberOfStateVectors) {
-            logger.error("parseOrbit() : inconsistency in number of defined and parsed state vectors");
+            //Logger.error("parseOrbit() : inconsistency in number of defined and parsed state vectors");
             throw new IllegalArgumentException("Cannot parse orbit : number of defined and parsed state vectors not the same");
         }
 

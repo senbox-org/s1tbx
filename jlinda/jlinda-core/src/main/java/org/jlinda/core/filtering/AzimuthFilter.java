@@ -1,6 +1,5 @@
 package org.jlinda.core.filtering;
 
-import org.apache.log4j.Logger;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.SLCImage;
@@ -19,7 +18,7 @@ import static org.jblas.MatrixFunctions.pow;
  */
 public class AzimuthFilter extends SlcDataFilter {
 
-    static Logger logger = Logger.getLogger(AzimuthFilter.class.getName());
+    //static Logger logger = Logger.getLogger(AzimuthFilter.class.getName());
 
     // TODO
     todo_classes.inputgeneral generalInput;
@@ -132,23 +131,23 @@ public class AzimuthFilter extends SlcDataFilter {
 
     private void defineConstFilter() {
 
-        logger.trace("Filtering data by same fDC for each column.");
+        //Logger.trace("Filtering data by same fDC for each column.");
 //        double fDC_m = metadata.doppler.getF_DC_a0();      // zero doppler freq. [Hz]
 //        double fDC_s = metadata1.doppler.getF_DC_a0();       // zero doppler freq. [Hz]
         double fDC_m = metadata.doppler.getF_DC_const();   // const doppler freq. [Hz]
         double fDC_s = metadata1.doppler.getF_DC_const();  // const doppler freq. [Hz]
 
-        logger.debug("Using constant dopplers for filtering");
-        logger.debug("-------");
-        logger.debug("Image #1 fDC: " + fDC_m);
-        logger.debug("Image #2 fDC: " + fDC_s);
-        logger.debug("-------");
+        //Logger.debug("Using constant dopplers for filtering");
+        //Logger.debug("-------");
+        //Logger.debug("Image #1 fDC: " + fDC_m);
+        //Logger.debug("Image #2 fDC: " + fDC_s);
+        //Logger.debug("-------");
 
         double fDC_mean = 0.5 * (fDC_m + fDC_s);   // mean doppler centroid freq.
         double ABW_new = Math.max(1.0, 2.0 * (0.5 * ABW - Math.abs(fDC_m - fDC_mean)));       // new bandwidth>1.0
 
-        logger.debug("New Azimuth Bandwidth: " + ABW_new + " [Hz]");
-        logger.debug("New central frequency: " + fDC_mean + " [Hz]");
+        //Logger.debug("New Azimuth Bandwidth: " + ABW_new + " [Hz]");
+        //Logger.debug("New central frequency: " + fDC_mean + " [Hz]");
 
         DoubleMatrix freqAxis = defineFrequencyAxis(nRows, freq, deltaF);
         DoubleMatrix filterVector;
@@ -163,15 +162,15 @@ public class AzimuthFilter extends SlcDataFilter {
     private void defineVariableFilter() {
 
 //        if (nCols != metadata.getCurrentWindow().pixels())
-        if (nCols != absTile.pixels())
-            logger.warn("this will crash, nRows input matrix not ok...");
+        //if (nCols != absTile.pixels())
+            //Logger.warn("this will crash, nRows input matrix not ok...");
 
         // Compute fDC_master, fDC_slave for all columns
         // Create axis to evaluate fDC polynomial for master/slave
         // fDC(column) = fdc_a0 + fDC_a1*(col/RSR) + fDC_a2*(col/RSR)^2
         // fDC = y = Ax
         // Capitals indicate matrices (FDC_M <-> fDC_m)
-        logger.trace("Filtering data by evaluated polynomial fDC for each column.");
+        //Logger.trace("Filtering data by evaluated polynomial fDC for each column.");
 
 
         // TODO: possible bug, different tiling is NEST : here buffer over the full range line!
@@ -184,9 +183,9 @@ public class AzimuthFilter extends SlcDataFilter {
         xAxis = defineAxis(absTile.pixlo, absTile.pixhi, rsr2x / 2.0, metadata1.getCoarseOffsetP());
         DoubleMatrix fDC_Slave = defineDopplerAxis(metadata1, xAxis);
 
-        logger.debug("Dumping matrices fDC_m, fDC_s (__DEBUG defined)");
-        logger.debug("fDC_m: " + fDC_Master.toString());
-        logger.debug("fDC_s: " + fDC_Slave.toString());
+        //Logger.debug("Dumping matrices fDC_m, fDC_s (__DEBUG defined)");
+        //Logger.debug("fDC_m: " + fDC_Master.toString());
+        //Logger.debug("fDC_s: " + fDC_Slave.toString());
 
         // Axis for filter in frequencies
         // use fft properties to shift...
@@ -297,8 +296,8 @@ public class AzimuthFilter extends SlcDataFilter {
         final long size = slcData.rows;     // fftlength
         final long nCols = slcData.columns; // width
 //        if (nCols != master.getCurrentWindow().pixels())
-        if (nCols != master.getCurrentWindow().pixels())
-            logger.warn("this will crash, nRows input matrix not ok...");
+        //if (nCols != master.getCurrentWindow().pixels())
+            //Logger.warn("this will crash, nRows input matrix not ok...");
 
         final boolean doHamming = (hamming < 0.9999);
         final double PRF = master.getPRF();               // pulse repetition freq. [Hz]
@@ -312,7 +311,7 @@ public class AzimuthFilter extends SlcDataFilter {
         // fDC(column) = fdc_a0 + fDC_a1*(col/RSR) + fDC_a2*(col/RSR)^2
         // fDC = y = Ax
         // Capitals indicate matrices (FDC_M <-> fDC_m)
-        logger.debug("Filtering data by evaluated polynomial fDC for each column.");
+        //Logger.debug("Filtering data by evaluated polynomial fDC for each column.");
 
         DoubleMatrix xAxis = defineAxis(master.getCurrentWindow().pixlo, master.getCurrentWindow().pixhi, master.getRsr2x() / 2.0, metadata1.getCoarseOffsetP());
         DoubleMatrix fDC_Master = defineDopplerAxis(master, xAxis);
@@ -321,9 +320,9 @@ public class AzimuthFilter extends SlcDataFilter {
         xAxis = defineAxis(master.getCurrentWindow().pixlo, master.getCurrentWindow().pixhi, slave.getRsr2x() / 2.0, metadata1.getCoarseOffsetP());
         DoubleMatrix fDC_Slave = defineDopplerAxis(slave, xAxis);
 
-        logger.debug("Dumping matrices fDC_m, fDC_s (__DEBUG defined)");
-        logger.debug("fDC_m: " + fDC_Master.toString());
-        logger.debug("fDC_s: " + fDC_Slave.toString());
+        //Logger.debug("Dumping matrices fDC_m, fDC_s (__DEBUG defined)");
+        //Logger.debug("fDC_m: " + fDC_Master.toString());
+        //Logger.debug("fDC_s: " + fDC_Slave.toString());
 
         // Axis for filter in frequencies
         // TODO check, rather shift, test matlab... or wshift,1D over dim1

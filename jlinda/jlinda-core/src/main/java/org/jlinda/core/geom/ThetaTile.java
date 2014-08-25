@@ -100,7 +100,7 @@ public class ThetaTile {
 
     public synchronized void radarCode() throws Exception {
 
-        logger.trace("Converting DEM to radar system for this tile.");
+        //Logger.trace("Converting DEM to radar system for this tile.");
 
         demRadarCode_x = new double[nRows][nCols];
         demRadarCode_y = new double[nRows][nCols];
@@ -109,7 +109,7 @@ public class ThetaTile {
         final int nPoints = nRows * nCols;
 //        final boolean onlyTopoRefPhase = true;
 
-        logger.info("Number of points in DEM: " + nPoints);
+        //Logger.info("Number of points in DEM: " + nPoints);
 
         double phi, lambda, height, line, pix, theta;
 
@@ -176,9 +176,9 @@ public class ThetaTile {
                 / (lastLine - firstLine);
         rngAzRatio = rangeSpacing / aziSpacing;
 
-        logger.debug("Interferogram azimuth spacing: " + aziSpacing);
-        logger.debug("Interferogram range spacing: " + rangeSpacing);
-        logger.debug("Range-azimuth spacing ratio: " + rngAzRatio);
+        //Logger.debug("Interferogram azimuth spacing: " + aziSpacing);
+        //Logger.debug("Interferogram range spacing: " + rangeSpacing);
+        //Logger.debug("Range-azimuth spacing ratio: " + rngAzRatio);
 
     }
 

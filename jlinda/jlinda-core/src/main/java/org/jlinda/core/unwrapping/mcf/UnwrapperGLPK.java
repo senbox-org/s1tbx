@@ -1,8 +1,5 @@
 package org.jlinda.core.unwrapping.mcf;
 
-
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import com.winvector.lp.LPException;
 import org.apache.commons.math3.util.FastMath;
 import org.jblas.DoubleMatrix;
@@ -27,7 +24,7 @@ import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.intRangeDoubleMatr
  */
 public class UnwrapperGLPK {
 
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(UnwrapperGLPK.class);
+    //private static final Logger logger = (Logger) LoggerFactory.getLogger(UnwrapperGLPK.class);
 
     private DoubleMatrix wrappedPhase;
     private DoubleMatrix unwrappedPhase;
@@ -43,7 +40,7 @@ public class UnwrapperGLPK {
     }
 
     public UnwrapperGLPK(DoubleMatrix wrappedPhase) {
-        logger.setLevel(Level.DEBUG);
+        //Logger.setLevel(Level.DEBUG);
         this.wrappedPhase = wrappedPhase;
     }
 
@@ -113,7 +110,7 @@ public class UnwrapperGLPK {
         }
         beq.reshape(beq.length, 1);
 
-        logger.debug("Constraint matrix");
+        //Logger.debug("Constraint matrix");
         i = intRangeDoubleMatrix(0, ny - 1);
         j = intRangeDoubleMatrix(0, nx - 1);
         ROWS = grid2D(i, j);
@@ -170,7 +167,7 @@ public class UnwrapperGLPK {
 
         DoubleMatrix cost = DoubleMatrix.concatVertically(DoubleMatrix.concatVertically(c1, c1), DoubleMatrix.concatVertically(c2, c2));
 
-        logger.debug("Minimum network flow resolution");
+        //Logger.debug("Minimum network flow resolution");
 
         StopWatch clockLP = new StopWatch();
         LinearProgram lp = new LinearProgram(cost.data);
@@ -201,7 +198,7 @@ public class UnwrapperGLPK {
         DoubleMatrix solution = new DoubleMatrix(solver.solve(lp));
 
         clockLP.stop();
-        logger.debug("Total GLPK time: {} [sec]", (double) (clockLP.getElapsedTime()) / 1000);
+        //Logger.debug("Total GLPK time: {} [sec]", (double) (clockLP.getElapsedTime()) / 1000);
 
         // Displatch the LP solution
         int offset;
@@ -262,8 +259,8 @@ public class UnwrapperGLPK {
         final int rows = 40;
         final int cols = rows;
 
-        logger.trace("Start Unwrapping");
-        logger.info("Simulate Data");
+        //Logger.trace("Start Unwrapping");
+        //Logger.info("Simulate Data");
         SimulateData simulateData = new SimulateData(rows, cols);
         simulateData.peaks();
 
@@ -277,7 +274,7 @@ public class UnwrapperGLPK {
         unwrapper.unwrap();
 
         clockFull.stop();
-        logger.info("Total processing time {} [sec]", (double) (clockFull.getElapsedTime()) / 1000);
+        //Logger.info("Total processing time {} [sec]", (double) (clockFull.getElapsedTime()) / 1000);
     }
 
 }

@@ -1,7 +1,5 @@
 package org.jlinda.nest.gpf;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.esa.beam.framework.datamodel.*;
@@ -45,7 +43,7 @@ import java.util.Map;
         description = "Estimate Resampling Polynomial using SAR Image Geometry, and Resample Input Images")
 public class CrossResamplingOp extends Operator {
 
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(CrossResamplingOp.class);
+    //private static final Logger logger = (Logger) LoggerFactory.getLogger(CrossResamplingOp.class);
 
     @SourceProduct
     private Product sourceProduct;
@@ -117,7 +115,7 @@ public class CrossResamplingOp extends Operator {
      * requires that an operator has a default constructor.
      */
     public CrossResamplingOp() {
-        logger.setLevel(Level.TRACE);
+        //logger.setLevel(Level.TRACE);
     }
 
     /**
@@ -206,8 +204,8 @@ public class CrossResamplingOp extends Operator {
             xCoeffsFloat[i] = (float) xCoeffsDouble[i];
         }
         // show polynomials
-        logger.debug("coeffsY : {}", ArrayUtils.toString(yCoeffsDouble));
-        logger.debug("coeffsX : {}", ArrayUtils.toString(xCoeffsDouble));
+        //logger.debug("coeffsY : {}", ArrayUtils.toString(yCoeffsDouble));
+        //logger.debug("coeffsX : {}", ArrayUtils.toString(xCoeffsDouble));
 
         // construct polynomial <- this is strange! Some inconsistency!!!
         warpPolynomial = new WarpGeneralPolynomial(yCoeffsFloat, xCoeffsFloat);
@@ -241,8 +239,8 @@ public class CrossResamplingOp extends Operator {
             xCoeffsFloat[i] = (float) xCoeffsDouble[i];
         }
         // show polynomials
-        logger.debug("coeffsY : {}", ArrayUtils.toString(yCoeffsDouble));
-        logger.debug("coeffsX : {}", ArrayUtils.toString(xCoeffsDouble));
+        //logger.debug("coeffsY : {}", ArrayUtils.toString(yCoeffsDouble));
+        //logger.debug("coeffsX : {}", ArrayUtils.toString(xCoeffsDouble));
 
         // construct polynomial
         reverseWarpPolynomial = new WarpGeneralPolynomial(yCoeffsFloat, xCoeffsFloat);

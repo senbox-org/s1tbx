@@ -40,8 +40,8 @@ public class SimpleAsciiFileParser {
         resetStream();
 
         if (numLines > maxLines) {
-            logger.warn("Number of lines to be parsed larger then total number of lines in the input file.");
-            logger.warn("Reading {} lines instead of {}.", maxLines, numLines);
+            //Logger.warn("Number of lines to be parsed larger then total number of lines in the input file.");
+            //Logger.warn("Reading {} lines instead of {}.", maxLines, numLines);
             this.numLines = maxLines;
         }
     }
@@ -74,10 +74,10 @@ public class SimpleAsciiFileParser {
             }
             reader.close();
         } catch (IOException e) {
-            logger.error("Problem reading input file at line {}.", reader.getLineNumber());
+            //Logger.error("Problem reading input file at line {}.", reader.getLineNumber());
             e.printStackTrace();
         }
-        logger.info("Input file successfully read.");
+        //Logger.info("Input file successfully read.");
         return data;
     }
 
@@ -101,10 +101,10 @@ public class SimpleAsciiFileParser {
             }
             reader.close();
         } catch (IOException e) {
-            logger.error("Problem reading input file at line {}.", reader.getLineNumber());
+            //Logger.error("Problem reading input file at line {}.", reader.getLineNumber());
             e.printStackTrace();
         }
-        logger.info("Input file successfully read.");
+        //Logger.info("Input file successfully read.");
         return data;
     }
 
@@ -126,10 +126,10 @@ public class SimpleAsciiFileParser {
             }
             reader.close();
         } catch (IOException e) {
-            logger.error("Problem reading input file at line {}.", reader.getLineNumber());
+            //Logger.error("Problem reading input file at line {}.", reader.getLineNumber());
             e.printStackTrace();
         }
-        logger.info("Input file successfully read.");
+        //Logger.info("Input file successfully read.");
         return data;
     }
 
@@ -151,10 +151,10 @@ public class SimpleAsciiFileParser {
             }
             reader.close();
         } catch (IOException e) {
-            logger.error("Problem reading input file at line {}.", reader.getLineNumber());
+            //Logger.error("Problem reading input file at line {}.", reader.getLineNumber());
             e.printStackTrace();
         }
-        logger.info("Input file successfully read.");
+        //Logger.info("Input file successfully read.");
         return data;
     }
 
@@ -177,10 +177,10 @@ public class SimpleAsciiFileParser {
             }
             reader.close();
         } catch (IOException e) {
-            logger.error("Problem reading input file at line {}.", reader.getLineNumber());
+            //Logger.error("Problem reading input file at line {}.", reader.getLineNumber());
             e.printStackTrace();
         }
-        logger.info("Input file successfully read.");
+        //Logger.info("Input file successfully read.");
         return data;
     }
 
@@ -214,10 +214,10 @@ public class SimpleAsciiFileParser {
             }
             reader.close();
         } catch (IOException e) {
-            logger.error("Problem reading input file at line {}.", reader.getLineNumber());
+            //Logger.error("Problem reading input file at line {}.", reader.getLineNumber());
             e.printStackTrace();
         }
-        logger.info("Input file successfully read.");
+        //Logger.info("Input file successfully read.");
         return data;
     }
 
@@ -251,10 +251,10 @@ public class SimpleAsciiFileParser {
             }
             reader.close();
         } catch (IOException e) {
-            logger.error("Problem reading input file at line {}.", reader.getLineNumber());
+            //Logger.error("Problem reading input file at line {}.", reader.getLineNumber());
             e.printStackTrace();
         }
-        logger.info("Input file successfully read.");
+        //Logger.info("Input file successfully read.");
         return data;
     }
 
@@ -278,10 +278,10 @@ public class SimpleAsciiFileParser {
             reader.close();
 
         } catch (IOException e) {
-            logger.error("Problem reading input file at line {}.", reader.getLineNumber());
+            //Logger.error("Problem reading input file at line {}.", reader.getLineNumber());
             e.printStackTrace();
         }
-        logger.info("Input file successfully read.");
+        //Logger.info("Input file successfully read.");
         return data;
 
     }

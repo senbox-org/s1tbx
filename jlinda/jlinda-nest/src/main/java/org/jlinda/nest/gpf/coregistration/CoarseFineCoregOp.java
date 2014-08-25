@@ -13,8 +13,6 @@
  */
 package org.jlinda.nest.gpf.coregistration;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.nest.dataio.dem.ElevationModel;
@@ -142,14 +140,14 @@ public class CoarseFineCoregOp extends Operator {
     private static final int EXTRA_BORDER = 20; // work with slightly smaller search space, used in gcp validation
 
     // Logger
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(CoarseFineCoregOp.class);
+    //private static final Logger logger = (Logger) LoggerFactory.getLogger(CoarseFineCoregOp.class);
     
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
     public CoarseFineCoregOp() {
-        logger.setLevel(Level.WARN);
+        //logger.setLevel(Level.WARN);
     }
 
     /**
@@ -449,7 +447,7 @@ public class CoarseFineCoregOp extends Operator {
                     final PixelPos mGCPPixelPos = mPin.getPixelPos();
                     final PixelPos sGCPPixelPos = new PixelPos(mPin.getPixelPos().x, mPin.getPixelPos().y);
                     if (!checkSlaveGCPValidity(sGCPPixelPos)) {
-                        logger.warn("GCP({}) is outside slave image.", i);
+                        //logger.warn("GCP({}) is outside slave image.", i);
                         continue;
                     }
 
@@ -458,7 +456,7 @@ public class CoarseFineCoregOp extends Operator {
                         @Override
                         public void run() {
 
-                            logger.info("Running {}", mPin.getName());
+                            //logger.info("Running {}", mPin.getName());
                             boolean getSlaveGCP = getCoarseOffsets(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
 
                             if (getSlaveGCP) {
@@ -570,8 +568,8 @@ public class CoarseFineCoregOp extends Operator {
 
             double coherence = CoregistrationUtils.crossCorrelateFFT(coarseOffset, mI, sI, coarseWin.ovsFactor, coarseWin.accY, coarseWin.accX);
 
-            logger.info("Coarse sGCP = ({}, {})", coarseOffset[1], coarseOffset[0]);
-            logger.info("Coarse sGCP coherence = {}", coherence);
+            //logger.info("Coarse sGCP = ({}, {})", coarseOffset[1], coarseOffset[0]);
+            //logger.info("Coarse sGCP coherence = {}", coherence);
 
             sGCPPixelPos.x += (float) coarseOffset[1];
             sGCPPixelPos.y += (float) coarseOffset[0];
@@ -588,8 +586,8 @@ public class CoarseFineCoregOp extends Operator {
                                    final PixelPos mGCPPixelPos,
                                    final PixelPos sGCPPixelPos) {
         try {
-            logger.info("mGCP = ({}, {})", mGCPPixelPos.x, mGCPPixelPos.y);
-            logger.info("Initial sGCP = ({}, {})", sGCPPixelPos.x, sGCPPixelPos.y);
+            //logger.info("mGCP = ({}, {})", mGCPPixelPos.x, mGCPPixelPos.y);
+            //logger.info("Initial sGCP = ({}, {})", sGCPPixelPos.x, sGCPPixelPos.y);
 
             ComplexDoubleMatrix mI = getComplexDoubleMatrix(masterBand1, masterBand2, mGCPPixelPos, fineWin);
             ComplexDoubleMatrix sI = getComplexDoubleMatrix(slaveBand1, slaveBand2, sGCPPixelPos, fineWin);
@@ -598,8 +596,8 @@ public class CoarseFineCoregOp extends Operator {
 
             final double coherence = CoregistrationUtils.crossCorrelateFFT(fineOffset, mI, sI, fineWin.ovsFactor, fineWin.accY, fineWin.accX);
 
-            logger.info("Final sGCP = ({},{})", fineOffset[1], fineOffset[0]);
-            logger.info("Final sGCP coherence = {}", coherence);
+            //logger.info("Final sGCP = ({},{})", fineOffset[1], fineOffset[0]);
+            //logger.info("Final sGCP coherence = {}", coherence);
             
             if (coherence < coherenceThreshold) {
                 //System.out.println("Invalid GCP");

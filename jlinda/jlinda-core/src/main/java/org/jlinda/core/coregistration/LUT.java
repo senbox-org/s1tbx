@@ -1,7 +1,5 @@
 package org.jlinda.core.coregistration;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
@@ -14,8 +12,8 @@ import java.util.regex.Pattern;
 
 public class LUT {
 
-    private static final Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(LUT.class);
-    private static Level loggerLevel = Level.TRACE;
+   // private static final Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(LUT.class);
+    //private static Level loggerLevel = Level.TRACE;
 
 /*
     public static final String NEAREST_NEIGHBOR = "Nearest-neighbor interpolation";
@@ -71,8 +69,8 @@ public class LUT {
 
     private void setUpLogger() {
 
-        logger.setLevel(loggerLevel);
-        logger.trace("Start LUT [development code]");
+        //Logger.setLevel(loggerLevel);
+        //Logger.trace("Start LUT [development code]");
     }
 
     public static int getInterval() {
@@ -209,8 +207,8 @@ public class LUT {
      */
     public void overviewLUT() {
 
-        logger.debug("Overview of LUT for interpolation");
-        logger.debug("---------------------------------");
+        //Logger.debug("Overview of LUT for interpolation");
+        //Logger.debug("---------------------------------");
 
         for (int i = 0; i < nInterval; ++i) {
 
@@ -219,12 +217,12 @@ public class LUT {
             double sum = row.sum();
 
             // logger
-            logger.debug(axis.getRow(i).toString());
-            logger.debug("Normalized kernel by dividing LUT elements by sum:");
-            logger.debug("{} ( {} : sum )", row.toString(), sum);
+            //Logger.debug(axis.getRow(i).toString());
+            //Logger.debug("Normalized kernel by dividing LUT elements by sum:");
+            //Logger.debug("{} ( {} : sum )", row.toString(), sum);
 
         }
-        logger.debug("Look-Up Table (normalized) constructed, both kernel and axis.");
+        //Logger.debug("Look-Up Table (normalized) constructed, both kernel and axis.");
     }
 
 

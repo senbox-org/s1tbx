@@ -8,7 +8,7 @@ import java.util.Random;
 
 public class MathUtils {
 
-    //    static Logger logger = Logger.getLogger(MathUtils.class.getName());
+    //    static Logger logger = //Logger.getLogger(MathUtils.class.getName());
     public static boolean isEven(long value) {
         return value % 2 == 0;
     }

@@ -35,16 +35,16 @@ public class PhaseFilterTest {
     private static final double DELTA_005 = 5e-01;
     private DoubleMatrix kernel2d;
 
-    private static Logger initLog() {
-        String filePathToLog4JProperties = "log4j.properties";
-        Logger logger = Logger.getLogger(PhaseFilterUtils.class);
-        PropertyConfigurator.configure(filePathToLog4JProperties);
-        return logger;
-    }
+    //private static Logger initLog() {
+    //    String filePathToLog4JProperties = "log4j.properties";
+    //    Logger logger = //Logger.getLogger(PhaseFilterUtils.class);
+    //    PropertyConfigurator.configure(filePathToLog4JProperties);
+    //    return logger;
+    //}
 
     @BeforeClass
     public static void setUp() {
-        initLog();
+        //initLog();
     }
 
 
