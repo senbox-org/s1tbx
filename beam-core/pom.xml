@@ -27,7 +27,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Core API</name>
+    <name>SNAP Core API</name>
     <artifactId>snap-core</artifactId>
 
     <packaging>jar</packaging>

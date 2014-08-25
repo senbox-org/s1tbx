@@ -27,14 +27,14 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Installer Resources</name>
+    <name>SNAP Installer Resources</name>
     <artifactId>snap-installer</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.install4j</groupId>
             <artifactId>i4jruntime</artifactId>
-            <version>5.1.5</version>
+            <version>5.1.12</version>
         </dependency>
     </dependencies>
 
@@ -52,6 +52,7 @@
             </plugin>
 
             <plugin>
+                <!--Install4j v5.1.12 can currently run only with Java 1.7 -->
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
@@ -81,7 +82,7 @@
                 <configuration>
                     <templates>
                         <template>
-                            <source>${basedir}/../src/main/bin/win/beam-cli-template.bat</source>
+                            <source>${basedir}/../src/main/bin/win/snap-cli-template.bat</source>
                             <lineEnding>dos</lineEnding>
                             <outputDirectory>${basedir}/../target/s3tbx-bin/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
@@ -93,7 +94,7 @@
                             </filterSet>
                         </template>
                         <template>
-                            <source>${basedir}/../src/main/bin/linux/beam-cli-template.sh</source>
+                            <source>${basedir}/../src/main/bin/linux/snap-cli-template.sh</source>
                             <lineEnding>unix</lineEnding>
                             <outputDirectory>${basedir}/../target/s3tbx-bin/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
@@ -105,7 +106,7 @@
                             </filterSet>
                         </template>
                         <template>
-                            <source>${basedir}/../src/main/bin/macosx/beam-cli-template.sh</source>
+                            <source>${basedir}/../src/main/bin/macosx/snap-cli-template.sh</source>
                             <lineEnding>unix</lineEnding>
                             <outputDirectory>${basedir}/../target/s3tbx-bin/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
@@ -130,36 +131,36 @@
                         </goals>
                         <configuration>
                             <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.esa.beam</groupId>
-                                    <artifactId>beam-meris-case2-regional</artifactId>
-                                    <version>1.6</version>
-                                    <outputDirectory>${basedir}/../target/s3tbx-bin/modules</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.esa.beam</groupId>
-                                    <artifactId>beam-meris-l2auxdata</artifactId>
-                                    <version>1.2.5</version>
-                                    <outputDirectory>${basedir}/../target/s3tbx-bin/modules</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.esa.beam</groupId>
-                                    <artifactId>beam-meris-sdr</artifactId>
-                                    <version>2.4</version>
-                                    <outputDirectory>${basedir}/../target/s3tbx-bin/modules</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.esa.beam</groupId>
-                                    <artifactId>beam-meris-brr</artifactId>
-                                    <version>2.4</version>
-                                    <outputDirectory>${basedir}/../target/s3tbx-bin/modules</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.esa.beam</groupId>
-                                    <artifactId>beam-meris-glint</artifactId>
-                                    <version>1.2.3</version>
-                                    <outputDirectory>${basedir}/../target/s3tbx-bin/modules</outputDirectory>
-                                </artifactItem>
+                                <!--<artifactItem>-->
+                                    <!--<groupId>org.esa.beam</groupId>-->
+                                    <!--<artifactId>beam-meris-case2-regional</artifactId>-->
+                                    <!--<version>1.6</version>-->
+                                    <!--<outputDirectory>${basedir}/../target/s3tbx-bin/modules</outputDirectory>-->
+                                <!--</artifactItem>-->
+                                <!--<artifactItem>-->
+                                    <!--<groupId>org.esa.beam</groupId>-->
+                                    <!--<artifactId>beam-meris-l2auxdata</artifactId>-->
+                                    <!--<version>1.2.5</version>-->
+                                    <!--<outputDirectory>${basedir}/../target/s3tbx-bin/modules</outputDirectory>-->
+                                <!--</artifactItem>-->
+                                <!--<artifactItem>-->
+                                    <!--<groupId>org.esa.beam</groupId>-->
+                                    <!--<artifactId>beam-meris-sdr</artifactId>-->
+                                    <!--<version>2.4</version>-->
+                                    <!--<outputDirectory>${basedir}/../target/s3tbx-bin/modules</outputDirectory>-->
+                                <!--</artifactItem>-->
+                                <!--<artifactItem>-->
+                                    <!--<groupId>org.esa.beam</groupId>-->
+                                    <!--<artifactId>beam-meris-brr</artifactId>-->
+                                    <!--<version>2.4</version>-->
+                                    <!--<outputDirectory>${basedir}/../target/s3tbx-bin/modules</outputDirectory>-->
+                                <!--</artifactItem>-->
+                                <!--<artifactItem>-->
+                                    <!--<groupId>org.esa.beam</groupId>-->
+                                    <!--<artifactId>beam-meris-glint</artifactId>-->
+                                    <!--<version>1.2.3</version>-->
+                                    <!--<outputDirectory>${basedir}/../target/s3tbx-bin/modules</outputDirectory>-->
+                                <!--</artifactItem>-->
                                 <artifactItem>
                                     <groupId>org.esa.s3tbx</groupId>
                                     <artifactId>s3tbx-reader</artifactId>

@@ -18,9 +18,9 @@
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>snap-scripting</symbolicName>
     <version>0.5</version>
-    <name>BEAM Scripting Interface</name>
+    <name>SNAP Scripting Interface</name>
 
-    <description>Provides a simple console for scripting BEAM using JavaScript (default)
+    <description>Provides a simple console for scripting SNAP using JavaScript (default)
         or other Java-enabled interpreter languages (add-on).
     </description>
 
@@ -54,7 +54,7 @@
             <class>org.esa.beam.scripting.visat.ScriptConsoleToolView</class>
             <title>Script Console</title>
             <tabTitle>Script Console</tabTitle>
-            <description>Execute BEAM scripts using JavaScript (default) or other scripting languages (add-on).</description>
+            <description>Execute SNAP scripts using JavaScript (default) or other scripting languages (add-on).</description>
             <mnemonic>S</mnemonic>
             <accelerator>ctrl alt S</accelerator>
             <smallIcon>/org/esa/beam/scripting/visat/icons/utilities-terminal-16.png</smallIcon>

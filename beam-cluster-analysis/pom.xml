@@ -27,7 +27,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Cluster Analysis</name>
+    <name>SNAP Cluster Analysis</name>
     <artifactId>snap-cluster-analysis</artifactId>
     <version>0.5-SNAPSHOT</version>
 

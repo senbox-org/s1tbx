@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>snap-reader-tests</artifactId>
-    <name>BEAM Product Readers Integration Tests</name>
+    <name>SNAP Product Readers Integration Tests</name>
 
     <dependencies>
         <dependency>

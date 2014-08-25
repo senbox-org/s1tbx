@@ -18,7 +18,7 @@
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>snap-examples</symbolicName>
     <version>0.5</version>
-    <name>BEAM Examples</name>
+    <name>SNAP Examples</name>
 
     <dependency>
         <module>snap-core</module>

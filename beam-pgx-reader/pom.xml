@@ -25,7 +25,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM PGX Product Reader</name>
+    <name>SNAP PGX Product Reader</name>
     <artifactId>snap-pgx-reader</artifactId>
 
     <dependencies>

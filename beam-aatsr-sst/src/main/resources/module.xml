@@ -21,8 +21,8 @@
     <name>AATSR SST Processor</name>
 
     <description>
-        The BEAM AATSR SST Processor is aimed to enable the user to calculate the sea-surface temperature
-        from (A)ATSR brightness temperatures. The BEAM implementation is explicitly opened for the addition of
+        The AATSR SST Processor is aimed to enable the user to calculate the sea-surface temperature
+        from (A)ATSR brightness temperatures. The implementation is explicitly opened for the addition of
         new coefficient sets.
     </description>
 

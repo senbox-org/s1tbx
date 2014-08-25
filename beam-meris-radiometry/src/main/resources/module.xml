@@ -24,19 +24,6 @@
         Performs radiometric corrections on MERIS L1b data products.
     </description>
 
-    <changelog>
-        <![CDATA[
-        <b>Changes in 5.0.2</b><br/>
-        [BEAM-1708] Fixed saturation issue in MERIS Radiometric Correction Operator<br/>
-        <b>Changes in 5.0.1</b><br/>
-        [BEAM-1692] Option radiance-to-reflectance conversion is disabled<br/>
-        [BEAM-1688] Detection of reprocessing version fails<br/>
-        <b>Changes in 5.0</b><br/>
-        [BEAM-1647] Detection of reprocessing is wrong for FSG products<br/>
-        [BEAM-1460] Component enablement in Radiometry Processor Dialog is wrong<br/>
-        [BEAM-1481] Explain the radiometric correction files<br/>
-        ]]>
-    </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>

@@ -26,7 +26,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM ESA GlobCover Worldmap</name>
+    <name>SNAP ESA GlobCover Worldmap</name>
     <artifactId>globcover-worldmap</artifactId>
     <version>0.5-SNAPSHOT</version>
 

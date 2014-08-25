@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>snap-rtp-codec</artifactId>
-    <name>BEAM Raw, tiled pyramid codec (experimental)</name>
+    <name>SNAP Raw, tiled pyramid codec (experimental)</name>
 
     <dependencies>
         <dependency>

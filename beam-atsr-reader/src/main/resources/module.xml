@@ -4,7 +4,7 @@
     <version>0.5</version>
     <name>ATSR Product Reader</name>
 
-    <description>Enables BEAM to read ERS-1 and -2 ATSR data products.</description>
+    <description>Enables SNAP to read ERS-1 and -2 ATSR data products.</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>

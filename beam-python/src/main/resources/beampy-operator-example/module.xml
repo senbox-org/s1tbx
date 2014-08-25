@@ -16,12 +16,12 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>beampy-operator-example</symbolicName>
+    <symbolicName>snappy-operator-example</symbolicName>
     <version>0.5</version>
-    <name>BEAM GPF Operator for Python Example</name>
+    <name>SNAP GPF Operator for Python Example</name>
     <packaging>dir</packaging>
 
-    <description>Example of how to implement a BEAM GPF operator in Python</description>
+    <description>Example of how to implement a SNAP GPF operator in Python</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>

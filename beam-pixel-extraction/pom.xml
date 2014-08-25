@@ -26,7 +26,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Pixel Extraction Tool</name>
+    <name>SNAP Pixel Extraction Tool</name>
     <artifactId>snap-pixel-extraction</artifactId>
 
     <dependencies>

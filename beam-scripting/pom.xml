@@ -27,7 +27,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Scripting Interface</name>
+    <name>SNAP Scripting Interface</name>
     <artifactId>snap-scripting</artifactId>
 
     <packaging>jar</packaging>

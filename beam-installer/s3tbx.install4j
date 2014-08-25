@@ -36,8 +36,8 @@
     <components />
   </files>
   <launchers>
-    <launcher name="s3tbx" id="19" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="S3TBX VISAT" icnsFile="./src/main/resources/images/visat-icon.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="">
-      <executable name="s3tbx" type="1" iconSet="true" iconFile="" executableDir="bin" redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="false" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory=".." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false">
+    <launcher name="snap" id="19" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="SNAP Application" icnsFile="./src/main/resources/images/visat-icon.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="">
+      <executable name="snap" type="1" iconSet="true" iconFile="" executableDir="bin" redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="false" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory=".." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false">
         <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" productName="" />
       </executable>
       <splashScreen show="false" autoOff="true" alwaysOnTop="true" width="653" height="195" bitmapFile="../target/beam-installer-files/bin/splash.png" java6SplashScreen="false">
@@ -46,9 +46,9 @@
           <versionLine x="20" y="40" text="version ${compiler:sys.version}" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
         </text>
       </splashScreen>
-      <java mainClass="com.bc.ceres.launcher.Launcher" vmParameters="-Dceres.context=beam" arguments="" allowVMPassthroughParameters="true" preferredVM="" bundleRuntime="true">
+      <java mainClass="com.bc.ceres.launcher.Launcher" vmParameters="-Dceres.context=s3tbx" arguments="" allowVMPassthroughParameters="true" preferredVM="" bundleRuntime="true">
         <classPath>
-          <archive location="bin/ceres-launcher.jar" failOnError="false" />
+          <archive location="bin/snap-launcher.jar" failOnError="false" />
         </classPath>
         <nativeLibraryDirectories />
       </java>
@@ -88,7 +88,7 @@
                 </object>
               </void>
               <void property="customWatermarkText">
-                <string>ESA BEAM</string>
+                <string>ESA S3TBX</string>
               </void>
               <void property="frameSizeClientArea">
                 <boolean>false</boolean>
@@ -204,13 +204,13 @@
             <validation />
             <preActivation>File installationDir = context.getInstallationDirectory();
 
-boolean isBeamInstallation = new File(installationDir, "VERSION.txt").exists();
-isBeamInstallation &amp;= new File(installationDir, "CHANGELOG.txt").exists();
-isBeamInstallation &amp;= new File(installationDir, "readme.html").exists();
-isBeamInstallation &amp;= new File(installationDir, "modules").exists();
+boolean isS3tbxInstallation = new File(installationDir, "VERSION.txt").exists();
+isS3tbxInstallation &amp;= new File(installationDir, "CHANGELOG.txt").exists();
+isS3tbxInstallation &amp;= new File(installationDir, "readme.html").exists();
+isS3tbxInstallation &amp;= new File(installationDir, "modules").exists();
 
-if (isBeamInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpdateInstallation")) {
-    int selectedOption = Util.showOptionDialog("There already is a BEAM installation in " + installationDir.toString() + ".",
+if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpdateInstallation")) {
+    int selectedOption = Util.showOptionDialog("There already is a S3TBX installation in " + installationDir.toString() + ".",
                                                new String[]{"Overwrite", "Don't overwrite"},
                                                JOptionPane.WARNING_MESSAGE | JOptionPane.YES_OPTION);
     if (selectedOption == 1) {
@@ -301,13 +301,13 @@ if (isBeamInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpda
                             <string>-Xmx${installer:maxHeapSize}</string>
                           </void>
                           <void index="1">
-                            <string>-Dbeam.home=${installer:sys.installationDir}</string>
+                            <string>-Ds3tbx.home=${installer:sys.installationDir}</string>
                           </void>
                           <void index="2">
-                            <string>-Dbeam.splash.image=${installer:sys.installationDir}/bin/splash.png</string>
+                            <string>-Ds3tbx.splash.image=${installer:sys.installationDir}/bin/splash-snap.png</string>
                           </void>
                           <void index="3">
-                            <string>-Dbeam.build.date=${compiler:sys.date}</string>
+                            <string>-Ds3tbx.build.date=${compiler:sys.date}</string>
                           </void>
                         </array>
                       </void>
@@ -336,7 +336,7 @@ if (isBeamInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpda
                         <void method="add">
                           <object class="com.install4j.runtime.beans.screens.components.ProgramGroupFileConfig">
                             <void property="name">
-                              <string>S3TBX Updater</string>
+                              <string>SNAP Updater</string>
                             </void>
                             <void property="target">
                               <object class="java.io.File">
@@ -359,10 +359,10 @@ if (isBeamInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpda
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateStartMenuEntryAction">
                       <void property="arguments">
-                        <string>/K "${installer:sys.installationDir}\bin\beam-cli.bat"</string>
+                        <string>/K "${installer:sys.installationDir}\bin\snap-cli.bat"</string>
                       </void>
                       <void property="entryName">
-                        <string>${installer:sys.programGroupDir}\BEAM Command Line</string>
+                        <string>${installer:sys.programGroupDir}\SNAP Command Line</string>
                       </void>
                       <void property="file">
                         <object class="java.io.File">
@@ -456,7 +456,7 @@ return files;
                         <array class="java.io.File" length="1">
                           <void index="0">
                             <object class="java.io.File">
-                              <string>config/beam.config</string>
+                              <string>config/s3tbx.config</string>
                             </object>
                           </void>
                         </array>
@@ -626,10 +626,10 @@ return files;
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
                       <void property="description">
-                        <string>BEAM session file, used to restore a VISAT session</string>
+                        <string>SNAP session file, used to restore a SNAP session</string>
                       </void>
                       <void property="extension">
-                        <string>beam</string>
+                        <string>snaps</string>
                       </void>
                       <void property="launcherId">
                         <string>19</string>
@@ -776,7 +776,7 @@ return files;
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
                       <void property="checkboxText">
-                        <string>Run BEAM</string>
+                        <string>Run S3TBX</string>
                       </void>
                       <void property="initiallySelected">
                         <boolean>true</boolean>
@@ -795,10 +795,10 @@ return files;
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.formcomponents.HyperlinkLabelComponent">
                       <void property="hyperlinkText">
-                        <string>Visit the BEAM project website!</string>
+                        <string>Visit the S3TBX project website!</string>
                       </void>
                       <void property="url">
-                        <string>http://envisat.esa.int/beam</string>
+                        <string>http://sentinel.esa.int</string>
                       </void>
                     </object>
                   </java>
@@ -966,7 +966,7 @@ return files;
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
                       <void property="checkboxText">
-                        <string>Remove BEAM application data</string>
+                        <string>Remove S3TBX application data</string>
                       </void>
                       <void property="initiallySelected">
                         <boolean>true</boolean>
@@ -985,8 +985,8 @@ return files;
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent">
                       <void property="labelText">
-                        <string>BEAM application data such as user preferences and caches are stored in
-the directory '${installer:sys.userHome}/.beam'. 
+                        <string>S3TBX application data such as user preferences and caches are stored in
+the directory '${installer:sys.userHome}/.s3tbx'. 
 This directory will be entirely removed if you select this option.</string>
                       </void>
                     </object>
@@ -1025,7 +1025,7 @@ This directory will be entirely removed if you select this option.</string>
           </screen>
         </screens>
       </application>
-      <application name="Standalone updater" id="4405" customizedId="" beanClass="com.install4j.runtime.beans.applications.CustomApplication" enabled="true" commentSet="false" comment="" actionElevationType="none" fileset="" customIcnsFile="${compiler:sys.install4jHome}/resource/macos/updater.icns" customIcoFile="${compiler:sys.install4jHome}/resource/updater.ico" macEntitlementsFile="" automaticLauncherIntegration="false" launchMode="startupFirstWindow" launchInNewProcess="false" launchSchedule="updateSchedule" allLaunchers="true">
+      <application name="Standalone updater" id="4405" customizedId="" beanClass="com.install4j.runtime.beans.applications.CustomApplication" enabled="false" commentSet="false" comment="" actionElevationType="none" fileset="" customIcnsFile="${compiler:sys.install4jHome}/resource/macos/updater.icns" customIcoFile="${compiler:sys.install4jHome}/resource/updater.ico" macEntitlementsFile="" automaticLauncherIntegration="false" launchMode="startupFirstWindow" launchInNewProcess="false" launchSchedule="updateSchedule" allLaunchers="true">
         <serializedBean>
           <java class="java.beans.XMLDecoder">
             <object class="com.install4j.runtime.beans.applications.CustomApplication">

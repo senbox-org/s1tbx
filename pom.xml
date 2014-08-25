@@ -20,7 +20,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <name>BEAM</name>
+    <name>SNAP-BEAM</name>
     <url>http://www.brockmann-consult.de/beam-wiki</url>
     <groupId>org.esa.snap</groupId>
     <artifactId>snap-beam</artifactId>

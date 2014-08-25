@@ -13,15 +13,6 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
-    <changelog>
-        <![CDATA[
-        <b>Changes in 5.0</b><br/>
-            [BEAM-1635] Support .tar.gz format for Landsat 4 GeoTIFF products<br/>
-            [BEAM-1604] Wavelength values for Landsat need to be updated<br/>
-            [BEAM-1572] Landsat 5 TM in Fast format can have wrong scaling and offset<br/>
-            [BEAM-1558] Support MSS data products of Landsat 1-5<br/>
-        ]]>
-    </changelog>
 
     <dependency>
         <module>snap-core</module>

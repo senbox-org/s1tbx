@@ -78,7 +78,7 @@ public class SystemUtils {
     @Deprecated
     public static final String BEAM_PLUGIN_PATH_PROPERTY_NAME = "beam.plugin.path";
 
-    public static final String BEAM_PARALLELISM_PROPERTY_NAME = "beam.parallelism";
+    public static final String BEAM_PARALLELISM_PROPERTY_NAME = "snap.parallelism";
 
     public static final String LAX_INSTALL_DIR_PROPERTY_NAME = "lax.root.install.dir";
 
@@ -136,14 +136,14 @@ public class SystemUtils {
 
     /**
      * Gets the application home page URL as set by the system property "${ceres.context}.homepage.url". Default is
-     * "http://www.brockmann-consult.de/beam/".
+     * "http://sentinel.esa.int".
      *
      * @return the current user's application data directory
      *
      * @since BEAM 4.10
      */
     public static String getApplicationHomepageUrl() {
-        return System.getProperty(getApplicationContextId() + ".homepage.url", "http://www.brockmann-consult.de/beam/");
+        return System.getProperty(getApplicationContextId() + ".homepage.url", "http://sentinel.esa.int");
     }
 
     /**
@@ -178,7 +178,7 @@ public class SystemUtils {
     /**
      * Gets the application context ID uses as prefix in a number of application configuration settings.
      * The context ID is configured using the system property "ceres.context". If this property is not set,
-     * the string "beam" is used.
+     * the string "snap" is used.
      *
      * @return The application context ID.
      *
@@ -190,7 +190,7 @@ public class SystemUtils {
             contextId = RuntimeContext.getModuleContext().getRuntimeConfig().getContextId();
         }
         if (contextId == null) {
-            contextId = System.getProperty("ceres.context", "beam");
+            contextId = System.getProperty("ceres.context", "snap");
         }
         return contextId;
     }
@@ -199,7 +199,7 @@ public class SystemUtils {
      * Gets the application name used in logger output and information messages.
      * The context ID is configured using the system property
      * "${ceres.context}.application.name". If this property is not set,
-     * the string "BEAM" is used.
+     * the string "SNAP" is used.
      *
      * @return The application name.
      *
@@ -207,7 +207,7 @@ public class SystemUtils {
      * @since BEAM 4.10
      */
     public static String getApplicationName() {
-        return System.getProperty(getApplicationContextId() + ".application.name", "BEAM");
+        return System.getProperty(getApplicationContextId() + ".application.name", "SNAP");
     }
 
     /**
