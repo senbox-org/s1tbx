@@ -33,7 +33,7 @@ public class VersionCheckerTest {
         if (vc.getLocalVersionFile().exists()) {
             final String localVersion = vc.getLocalVersion();
             assertNotNull(localVersion);
-            assertTrue(localVersion.startsWith("VERSION 5"));
+            assertTrue(localVersion.startsWith("VERSION 0.5-SNAPSHOT"));
             // Failed? --> Adapt current version number here.
         }
     }
