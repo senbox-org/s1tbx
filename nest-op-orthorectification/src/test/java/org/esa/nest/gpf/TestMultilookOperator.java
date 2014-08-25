@@ -16,7 +16,6 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -24,13 +23,18 @@ import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.TestUtils;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
 /**
  * Unit test for MultilookOperator.
  */
-public class TestMultilookOperator extends TestCase {
+public class TestMultilookOperator {
 
     private OperatorSpi spi;
 
@@ -40,16 +44,11 @@ public class TestMultilookOperator extends TestCase {
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
     private String[] exceptionExemptions = {"not supported", "not intended"};
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         TestUtils.initTestEnvironment();
         spi = new MultilookOp.Spi();
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
     }
 
     /**
@@ -57,9 +56,9 @@ public class TestMultilookOperator extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
+    @Ignore
     public void testMultilookOfRealImage() throws Exception {
-        if (TestUtils.skipTest(this))
-            return;
 
         final Product sourceProduct = createTestProduct(16, 4);
 
@@ -103,6 +102,7 @@ public class TestMultilookOperator extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testProcessing() throws Exception {
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputPathWSM);
@@ -162,30 +162,37 @@ public class TestMultilookOperator extends TestCase {
         return testProduct;
     }
 
+    @Test
     public void testProcessAllASAR() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, null);
     }
 
+    @Test
     public void testProcessAllERS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, null);
     }
 
+    @Test
     public void testProcessAllALOS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, null);
     }
 
+    @Test
     public void testProcessAllRadarsat2() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, null, exceptionExemptions);
     }
 
+    @Test
     public void testProcessAllTerraSARX() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathTerraSarX, null, null);
     }
 
+    @Test
     public void testProcessAllCosmo() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, null, exceptionExemptions);
     }
 
+    @Test
     public void testProcessAllNestBox() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, exceptionExemptions);
     }

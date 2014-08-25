@@ -43,8 +43,6 @@ public class TestGCPSelectionOp extends TestCase {
     }
 
     public void testOperator() throws Exception {
-        if (TestUtils.skipTest(this))
-            return;
 
         final Product product = createTestMasterProduct(40, 40);
 

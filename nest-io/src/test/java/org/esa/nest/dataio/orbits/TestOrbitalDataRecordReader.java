@@ -69,8 +69,7 @@ public class TestOrbitalDataRecordReader {
         readOrbitFile(envisatOrbitFilePath);
     }
 
-    @Test
-    public static void readOrbitFile(String path) throws Exception {
+    private static void readOrbitFile(String path) throws Exception {
         final OrbitalDataRecordReader reader = new OrbitalDataRecordReader();
         boolean res = reader.readOrbitFile(path);
         assert(res);

@@ -65,8 +65,10 @@ public class TestSentinel1ProductReader {
     @Test
     public void testOpeningFolder() throws Exception {
         final File inputFile = new File(s1FolderFilePath, "manifest.safe");
-        if(!inputFile.exists())
+        if(!inputFile.exists()) {
             TestUtils.skipTest(this);
+            return;
+        }
 
         final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputFile);
         Assert.assertTrue(canRead == DecodeQualification.INTENDED);
@@ -78,8 +80,10 @@ public class TestSentinel1ProductReader {
     @Test
     public void testOpeningZip() throws Exception {
         final File inputFile = new File(s1ZipFilePath);
-        if(!inputFile.exists())
+        if(!inputFile.exists()) {
             TestUtils.skipTest(this);
+            return;
+        }
 
         final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputFile);
         Assert.assertTrue(canRead == DecodeQualification.INTENDED);
@@ -91,8 +95,10 @@ public class TestSentinel1ProductReader {
  /*   @Test
     public void testOpeningInputStream() throws Exception {
         final File inputFile = new File(s1ZipFilePath);
-        if(!inputFile.exists())
+        if(!inputFile.exists()) {
             TestUtils.skipTest(this);
+            return;
+        }
 
         final InputStream inputStream = new FileInputStream(s1ZipFilePath);
 

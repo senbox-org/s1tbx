@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.snap.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -37,8 +38,7 @@ public class TestRadarsat2ProductReader {
     private Radarsat2ProductReaderPlugIn readerPlugin;
     private ProductReader reader;
 
-    final String rs2ZipFilePath = "J:\\Data\\zips\\RS2_OK22935_PK237493_DK219951_FQ5W_20111002_224256_HH_VV_HV_VH_SLC.zip";
-    final String rs2ZipFilePath2 = "J:\\Data\\zips\\RS2_OK22935_PK237498_DK219956_FQ1W_20111102_223848_HH_VV_HV_VH_SLC2.zip";
+    final String rs2ZipFilePath = "E:\\data\\zip\\RS2-standard.zip";
     final String rs2FolderFilePath = "J:\\Data\\zips\\RS2_OK22935_PK237498_DK219956_FQ1W_20111102_223848_HH_VV_HV_VH_SLC";
 
     @Before
@@ -66,10 +66,13 @@ public class TestRadarsat2ProductReader {
     }
 
     @Test
+    @Ignore
     public void testOpeningFolder() throws Exception {
         final File inputFile = new File(rs2FolderFilePath, "product.xml");
-        if(!inputFile.exists())
+        if(!inputFile.exists()) {
             TestUtils.skipTest(this);
+            return;
+        }
 
         final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputFile);
         Assert.assertTrue(canRead == DecodeQualification.INTENDED);
@@ -81,21 +84,10 @@ public class TestRadarsat2ProductReader {
     @Test
     public void testOpeningZip() throws Exception {
         final File inputFile = new File(rs2ZipFilePath);
-        if(!inputFile.exists())
+        if(!inputFile.exists()){
             TestUtils.skipTest(this);
-
-        final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputFile);
-        Assert.assertTrue(canRead == DecodeQualification.INTENDED);
-
-        final Product product = reader.readProductNodes(inputFile, null);
-        Assert.assertTrue(product != null);
-    }
-
-    @Test
-    public void testOpeningZip2() throws Exception {
-        final File inputFile = new File(rs2ZipFilePath2);
-        if(!inputFile.exists())
-            TestUtils.skipTest(this);
+            return;
+        }
 
         final DecodeQualification canRead = readerPlugin.getDecodeQualification(inputFile);
         Assert.assertTrue(canRead == DecodeQualification.INTENDED);
@@ -107,8 +99,10 @@ public class TestRadarsat2ProductReader {
 /*    @Test
     public void testOpeningInputStream() throws Exception {
         final File inputFile = new File(rs2ZipFilePath);
-        if(!inputFile.exists())
+        if(!inputFile.exists()){
             TestUtils.skipTest(this);
+            return;
+        }
 
         final InputStream inputStream = new FileInputStream(rs2ZipFilePath);
 

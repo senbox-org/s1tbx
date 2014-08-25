@@ -16,26 +16,29 @@
 package org.esa.nest.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.snap.util.TestUtils;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
 /**
  * Test performance of tie point grid geocoding
  */
-public class TestTiePoints extends TestCase {
+public class TestTiePoints {
 
     final File inputFile = new File(TestUtils.rootPathExpectedProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim");
 
     private Product product1 = null;
     private Product product2 = null;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         TestUtils.initTestEnvironment();
 
         if (inputFile.exists()) {
@@ -44,11 +47,7 @@ public class TestTiePoints extends TestCase {
         }
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-
-    }
-
+    @Test
     public void testGetPixelFloat() throws Exception {
         if (product1 == null) {
             TestUtils.skipTest(this);
@@ -68,6 +67,7 @@ public class TestTiePoints extends TestCase {
 
     }
 
+    @Test
     public void testGetPixelFloats() throws Exception {
         if (product2 == null) {
             TestUtils.skipTest(this);
@@ -81,9 +81,9 @@ public class TestTiePoints extends TestCase {
         tpg.getPixels(0, 0, w, h, floats, ProgressMonitor.NULL);
     }
 
+    @Test
+    @Ignore
     public void testCompareFloats() throws Exception {
-        if (TestUtils.skipTest(this))
-            return;
 
         if (product1 == null) {
             TestUtils.skipTest(this);
