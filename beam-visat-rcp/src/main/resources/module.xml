@@ -1540,11 +1540,11 @@
             <id>about</id>
             <placeLast>true</placeLast>
             <separatorBefore>true</separatorBefore>
-            <text>About VISAT</text>
+            <text>About SNAP</text>
             <class>org.esa.beam.visat.actions.AboutAction</class>
             <mnemonic>A</mnemonic>
             <accelerator>ctrl alt A</accelerator>
-            <shortDescr>Displays information about VISAT.</shortDescr>
+            <shortDescr>Displays information about SNAP.</shortDescr>
             <smallIcon>icons/About16.gif</smallIcon>
             <largeIcon>icons/About24.gif</largeIcon>
             <helpId>about</helpId>
