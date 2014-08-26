@@ -96,11 +96,7 @@ public abstract class AbstractProductReader implements ProductReader {
     }
 
     protected void setInput(Object input) {
-        if(input instanceof File && ((File)input).isDirectory()) {
-            this.input = new File(((File)input), "xfdumanifest.xml");
-        } else {
-            this.input = input;
-        }
+        this.input = input;
     }
 
     /**
