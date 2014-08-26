@@ -71,6 +71,10 @@
             <artifactId>clibwrapper-jiio</artifactId>
         </dependency>
         <dependency>
+            <groupId>jdom</groupId>
+            <artifactId>jdom</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom2</artifactId>
         </dependency>
