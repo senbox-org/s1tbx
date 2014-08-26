@@ -28,10 +28,10 @@
     <extension point="snap-ui:applicationDescriptors">
         <applicationDescriptor>
             <applicationId>VisatMain</applicationId>
-            <displayName>VISAT</displayName>
-            <version>${snap.version}</version>
-            <buildId>${snap.build.id}</buildId>
-            <buildDate>${snap.build.date}</buildDate>
+            <displayName>Snap-S3</displayName>
+            <version>${s3tbx.version}</version>
+            <buildId>${s3tbx.build.id}</buildId>
+            <buildDate>${s3tbx.build.date}</buildDate>
             <excludedToolViews>
                 <!-- place tool view IDs here you wish to exclude from your application -->
                 <!-- e.g. <id>org.esa.beam.visat.toolviews.lm.LayersToolView</id> -->
