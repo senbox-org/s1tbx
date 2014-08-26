@@ -522,7 +522,7 @@ public final class TOPSARDeburstOp extends Operator {
 
     private String getMergedVector(final String vectorName, final String pol, final int vectorIndex) {
 
-        String mergedVectorStr = "";
+        final StringBuilder mergedVectorStr = new StringBuilder();
         for (int s = 0; s < numOfSubSwath; s++) {
             final int[] pixelArray = su.getCalibrationPixel(s+1, pol, vectorIndex);
             final float[] vectorArray = su.getCalibrationVector(s+1, pol, vectorIndex, vectorName);
@@ -530,11 +530,11 @@ public final class TOPSARDeburstOp extends Operator {
                 if (pixelArray[i] >= subSwathEffectStartEndPixels[s].xMin &&
                         pixelArray[i] < subSwathEffectStartEndPixels[s].xMax) {
 
-                    mergedVectorStr += vectorArray[i] + " ";
+                    mergedVectorStr.append(vectorArray[i]).append(" ");
                 }
             }
         }
-        return mergedVectorStr;
+        return mergedVectorStr.toString();
     }
 
     /**

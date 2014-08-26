@@ -1006,7 +1006,7 @@ public final class Sentinel1Utils {
         }
 
         double[] array = null;
-        if (attribute.getDataType() == ProductData.TYPE_ASCII) {
+        if (attribute.getData() instanceof ProductData.ASCII) {
             String dataStr = attribute.getData().getElemString();
             String[] items = dataStr.split(" ");
             array = new double[items.length];
