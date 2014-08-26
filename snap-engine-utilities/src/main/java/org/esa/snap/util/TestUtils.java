@@ -138,12 +138,12 @@ public class TestUtils {
         }
     }
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private static final boolean FailOnSkip = false;
-    private static boolean testEnviromentInitialized = false;
+    private static boolean testEnvironmentInitialized = false;
 
     public static void initTestEnvironment() throws RuntimeConfigException {
-        if (testEnviromentInitialized)
+        if (testEnvironmentInitialized)
             return;
 
         final RuntimeConfig runtimeConfig = new DefaultRuntimeConfig();
@@ -153,7 +153,7 @@ public class TestUtils {
 
         //disable JAI media library
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");
-        testEnviromentInitialized = true;
+        testEnvironmentInitialized = true;
     }
 
     public static int getMaxIterations() {
@@ -632,10 +632,10 @@ public class TestUtils {
 
     public static boolean skipTest(final Object obj) throws Exception {
         if (DEBUG) {
-            System.out.println(obj.getClass().getName() + ':' + obj.getClass().getEnclosingMethod().getName() + " skipped");
+            System.out.println(obj.getClass().getName() + " skipped");
         }
         if (FailOnSkip) {
-            throw new Exception(obj.getClass().getName() + ':' + obj.getClass().getEnclosingMethod().getName() + " skipped");
+            throw new Exception(obj.getClass().getName() + " skipped");
         }
         return true;
     }

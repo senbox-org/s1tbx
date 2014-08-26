@@ -27,7 +27,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM AATSR SST Processor</name>
+    <name>SNAP AATSR SST Processor</name>
     <artifactId>snap-aatsr-sst</artifactId>
 
     <dependencies>

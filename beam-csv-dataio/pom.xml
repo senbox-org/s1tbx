@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>BEAM CSV Product IO</name>
+    <name>SNAP CSV Product IO</name>
     <artifactId>snap-csv-dataio</artifactId>
 
     <packaging>jar</packaging>

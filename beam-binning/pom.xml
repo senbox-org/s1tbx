@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>snap-binning</artifactId>
-    <name>BEAM Level-3 Binning</name>
+    <name>SNAP Level-3 Binning</name>
 
     <dependencies>
 

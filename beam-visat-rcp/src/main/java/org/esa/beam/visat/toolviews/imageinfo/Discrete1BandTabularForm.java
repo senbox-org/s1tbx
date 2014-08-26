@@ -183,7 +183,7 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
                     if (indexCoding != null) {
                         final String[] indexNames = indexCoding.getIndexNames();
                         if (rowIndex < indexNames.length) {
-                            final int indexValue = indexCoding.getIndexValue(indexNames[rowIndex]);
+                            final int indexValue = indexCoding.getAttributeIndex(indexCoding.getIndex(indexNames[rowIndex]));
                             final double frequency = frequencies[indexValue];
                             return frequency / stx.getSampleCount();
                         }

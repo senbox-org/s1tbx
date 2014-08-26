@@ -7,12 +7,6 @@
     <description>
         The MERIS Cloud Probability Processor calculates a cloud probability for MERIS L1b pixels.
     </description>
-    <changelog>
-        <![CDATA[
-        <b>Changes in 5.0</b><br/>
-        [BEAM-1609] - Convert Cloud Processor to GPF<br/>
-        ]]>
-    </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
@@ -38,7 +32,7 @@
             <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
             <operatorName>CloudProb</operatorName>
             <dialogTitle>MERIS Cloud Probability Processor</dialogTitle>
-            <shortDescr>Invoke the BEAM MERIS Cloud Probability Processor.</shortDescr>
+            <shortDescr>Invoke the MERIS Cloud Probability Processor.</shortDescr>
             <targetProductNameSuffix>_cloud</targetProductNameSuffix>
             <helpId>cloudScientificTool</helpId>
         </action>

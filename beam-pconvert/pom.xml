@@ -24,7 +24,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Product Conversion Tool</name>
+    <name>SNAP Product Conversion Tool</name>
     <artifactId>snap-pconvert</artifactId>
 
     <dependencies>

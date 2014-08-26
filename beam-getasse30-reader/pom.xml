@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>snap-getasse30-reader</artifactId>
-    <name>BEAM GETASSE30 DEM Reader</name>
+    <name>SNAP GETASSE30 DEM Reader</name>
 
     <dependencies>
         <dependency>

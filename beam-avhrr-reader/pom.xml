@@ -26,7 +26,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM AVHRR Product Reader</name>
+    <name>S3TBX AVHRR Product Reader</name>
     <groupId>org.esa.s3tbx</groupId>
     <artifactId>s3tbx-avhrr-reader</artifactId>
     <version>0.5-SNAPSHOT</version>

@@ -5,7 +5,7 @@
     <name>GETASSE30 DEM Reader</name>
 
 
-    <description>Enables BEAM to read the GETASSE30 digital elevation model.</description>
+    <description>Enables SNAP to read the GETASSE30 digital elevation model.</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>

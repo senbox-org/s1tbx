@@ -4,20 +4,13 @@
     <version>0.5</version>
     <name>CHRIS/Proba Product Reader</name>
 
-    <description>Enables BEAM to read CHRIS/Proba HDF4 data products.</description>
+    <description>Enables SNAP to read CHRIS/Proba HDF4 data products.</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-
-    <changelog>
-        <![CDATA[
-        <b>Changes in 5.0</b><br/>
-        [BEAM-1504] - Update NetCDF library to latest version<br/>
-        ]]>
-    </changelog>
 
     <dependency>
         <module>snap-core</module>

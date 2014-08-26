@@ -27,7 +27,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Installer Resources</name>
+    <name>SNAP Installer Resources</name>
     <artifactId>snap-installer</artifactId>
 
     <dependencies>
@@ -82,7 +82,7 @@
                 <configuration>
                     <templates>
                         <template>
-                            <source>${basedir}/../src/main/bin/win/s3tbx-cli-template.bat</source>
+                            <source>${basedir}/../src/main/bin/win/snap-cli-template.bat</source>
                             <lineEnding>dos</lineEnding>
                             <outputDirectory>${basedir}/../target/s3tbx-bin/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
@@ -94,7 +94,7 @@
                             </filterSet>
                         </template>
                         <template>
-                            <source>${basedir}/../src/main/bin/linux/s3tbx-cli-template.sh</source>
+                            <source>${basedir}/../src/main/bin/linux/snap-cli-template.sh</source>
                             <lineEnding>unix</lineEnding>
                             <outputDirectory>${basedir}/../target/s3tbx-bin/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
@@ -106,7 +106,7 @@
                             </filterSet>
                         </template>
                         <template>
-                            <source>${basedir}/../src/main/bin/macosx/s3tbx-cli-template.sh</source>
+                            <source>${basedir}/../src/main/bin/macosx/snap-cli-template.sh</source>
                             <lineEnding>unix</lineEnding>
                             <outputDirectory>${basedir}/../target/s3tbx-bin/bin</outputDirectory>
                             <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>

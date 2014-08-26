@@ -24,7 +24,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM VISAT Rich Client Platform</name>
+    <name>SNAP VISAT Rich Client Platform</name>
     <artifactId>snap-visat-rcp</artifactId>
     <packaging>jar</packaging>
 

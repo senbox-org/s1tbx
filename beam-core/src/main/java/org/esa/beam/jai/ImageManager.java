@@ -111,7 +111,7 @@ public class ImageManager {
                                                                          DefaultCartesianCS.DISPLAY);
 
     private static final boolean CACHE_INTERMEDIATE_TILES = Boolean.getBoolean(
-            "beam.imageManager.enableIntermediateTileCaching");
+            "snap.imageManager.enableIntermediateTileCaching");
 
     private final Map<MaskKey, MultiLevelImage> maskImageMap = new HashMap<>(101);
     private final ProductNodeListener rasterDataChangeListener;

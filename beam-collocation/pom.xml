@@ -28,7 +28,7 @@
     </parent>
 
     <artifactId>snap-collocation</artifactId>
-    <name>BEAM Geographic Collocation Tool</name>
+    <name>SNAP Geographic Collocation Tool</name>
 
     <dependencies>
         <dependency>

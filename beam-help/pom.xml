@@ -28,7 +28,7 @@
 
     <packaging>jar</packaging>
 
-    <name>BEAM Help</name>
+    <name>SNAP Help</name>
     <artifactId>snap-beam-help</artifactId>
 
     <description>Provides the software user manual.</description>

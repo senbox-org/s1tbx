@@ -37,7 +37,7 @@ public class BandOpImage extends RasterDataNodeOpImage {
 
     public BandOpImage(Band band, ResolutionLevel level) {
         super(band, level);
-        if (Boolean.getBoolean("beam.imageManager.disableSourceTileCaching")) {
+        if (Boolean.getBoolean("snap.imageManager.disableSourceTileCaching")) {
             setTileCache(null);
         }
     }

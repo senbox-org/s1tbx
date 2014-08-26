@@ -10,7 +10,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM OPeNDAP client</name>
+    <name>SNAP OPeNDAP client</name>
     <artifactId>snap-opendap</artifactId>
 
     <dependencies>

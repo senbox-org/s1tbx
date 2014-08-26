@@ -28,7 +28,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM UI Components</name>
+    <name>SNAP UI Components</name>
     <artifactId>snap-ui</artifactId>
 
     <packaging>jar</packaging>

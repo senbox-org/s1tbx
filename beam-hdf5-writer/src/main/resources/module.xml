@@ -5,7 +5,7 @@
     <name>HDF5 Product Writer</name>
 
 
-    <description>Enables BEAM to write data products as HDF5 files.</description>
+    <description>Enables SNAP to write data products as HDF5 files.</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>

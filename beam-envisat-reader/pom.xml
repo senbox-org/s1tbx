@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>snap-envisat-reader</artifactId>
-    <name>BEAM Envisat Product Reader</name>
+    <name>SNAP Envisat Product Reader</name>
 
     <dependencies>
         <dependency>

@@ -27,7 +27,7 @@
 
     <artifactId>s3tbx-spot-vgt-reader</artifactId>
     <groupId>org.esa.s3tbx</groupId>
-    <name>BEAM SPOT VGT Product Reader</name>
+    <name>S3TBX SPOT VGT Product Reader</name>
     <version>0.5-SNAPSHOT</version>
 
     <dependencies>

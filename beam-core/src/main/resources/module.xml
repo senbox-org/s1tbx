@@ -18,10 +18,10 @@
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>snap-core</symbolicName>
     <version>0.5</version>
-    <name>BEAM Core Library</name>
+    <name>SNAP Core Library</name>
 
 
-    <description>This is the base module of BEAM containing its core functionalities.</description>
+    <description>This is the base module of SNAP containing its core functionality.</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
@@ -38,40 +38,6 @@
     <dependency>
         <module>snap-jai</module>
     </dependency>
-
-    <changelog>
-        <![CDATA[
-        <b>Changes in 5.0.3</b><br/>
-        [BEAM-1702] Method ImageManager.createColoredBandImage() may ignore imageInfo parameter<br/>
-        <b>Changes in 5.0.2</b><br/>
-        [BEAM-1698] Export of colour palette as image does not work properly when log colours are switched on<br/>
-        [BEAM-1685] Product saved with attached PixelGeoCoding can not be loaded when using the alternate PixelGeoCoding<br/>
-        Harmonisation with NEST: Dimapheader bug: When bands have their own geocoding, the dimap header reader expects
-          a band index in order to add a geocoding to a band.
-          In the header writer, the band index is missing for the tiepoint geocoding.<br/>
-        Harmonisation with NEST: Extended Envi header to set byte ordering and handle UTM projection<br/>
-        Harmonisation with NEST: Added method CrsGeoCoding.getPixels()<br/>
-        Harmonisation with NEST: ProductNode.setOwner() is now public<br/>
-        <b>Changes in 5.0.1</b><br/>
-        [BEAM-1683] Opening a MERIS FSG product with pixel geo-coding attached takes very long<br/>
-        <b>Changes in 5.0</b><br/>
-        [BEAM-1634] Use IF,THEN,ELSE in band maths expressions<br/>
-        [BEAM-1455] Flag-Coding remains when subsetting<br/>
-        [BEAM-1605] 'InvalidArgumentException: maxima' error message when trying to open a band<br/>
-        [BEAM-1474] Data type raw symbols in band maths do not consider the raw data type of the raster<br/>
-        [BEAM-276]  Product flipping removes important metadata attributes<br/>
-        [BEAM-1452] Log-scaling is not correctly applied in scatter plot<br/>
-        [BEAM-1527] Add missing Standard Deviation nonlinear image filter<br/>
-        [BEAM-953]  No-Data is disregarded in filtered band.<br/>
-        [BEAM-1514] ProductUtils.getScanLineTime fails for products with height 1<br/>
-        [BEAM-1513] BEAM shall enable users to use Modified Julian Date (MJD) in band arithmetics<br/>
-        [BEAM-1456] All bands shall use same image pyramid model<br/>
-        [BEAM-1420] Support (A)ATSR Autumn 2012 reprocessed data products<br/>
-        [BEAM-1126] Pixel-geocoding comsumes to much memory<br/>
-        [BEAM-1471] The time extraction from file name should support DAY_OF_YEAR<br/>
-        [BEAM-1447] Dimap reader\writer handling very very large files<br/>
-        ]]>
-    </changelog>
 
 
     <activator>org.esa.beam.BeamCoreActivator</activator>

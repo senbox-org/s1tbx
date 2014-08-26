@@ -25,7 +25,7 @@
     </parent>
 
     <artifactId>snap-geotiff</artifactId>
-    <name>BEAM GeoTIFF Product Reader/Writer</name>
+    <name>SNAP GeoTIFF Product Reader/Writer</name>
 
     <dependencies>
         <dependency>

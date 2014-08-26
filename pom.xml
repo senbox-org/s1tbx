@@ -20,7 +20,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <name>BEAM</name>
+    <name>SNAP-BEAM</name>
     <url>http://www.brockmann-consult.de/beam-wiki</url>
     <groupId>org.esa.snap</groupId>
     <artifactId>snap-beam</artifactId>
@@ -251,6 +251,21 @@
                 <version>2.2.2</version>
             </dependency>
 
+            <!-- JDOM Library ############################################# -->
+
+            <dependency>
+                <groupId>jdom</groupId>
+                <artifactId>jdom</artifactId>
+                <version>1.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jdom</groupId>
+                <artifactId>jdom2</artifactId>
+                <version>2.0.4</version>
+            </dependency>
+
+
             <!-- GeoTools Libraries ############################################# -->
             <!-- Sadly there is no global exclusion so every geotools artifact -->
             <!-- has to exclude the 'wrong' jai version -->
@@ -473,14 +488,6 @@
                 <groupId>javax.help</groupId>
                 <artifactId>javahelp</artifactId>
                 <version>2.0.02</version>
-            </dependency>
-
-            <!-- JDOM Library ############################################# -->
-
-            <dependency>
-                <groupId>org.jdom</groupId>
-                <artifactId>jdom2</artifactId>
-                <version>2.0.4</version>
             </dependency>
 
             <!-- BC Neural Network Library ############################################# -->

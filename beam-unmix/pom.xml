@@ -27,7 +27,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Spectral Unmixing</name>
+    <name>SNAP Spectral Unmixing</name>
     <artifactId>snap-unmix</artifactId>
 
     <dependencies>

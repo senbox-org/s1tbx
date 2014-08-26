@@ -27,7 +27,7 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM MERIS Cloud Probability Processor</name>
+    <name>S3TBX MERIS Cloud Probability Processor</name>
     <groupId>org.esa.s3tbx</groupId>
     <artifactId>s3tbx-meris-cloud</artifactId>
     <version>0.5-SNAPSHOT</version>
