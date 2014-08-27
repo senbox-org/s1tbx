@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>0.2.0-SNAPSHOT</version>
+        <version>0.5.0-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
@@ -16,7 +16,7 @@
     <artifactId>s1tbx-bootstrap</artifactId>
     <name>S1TBX Bootstrap Classpath</name>
     <description>Provides the bootstrap classpath to launch S1TBX from an IDE.</description>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.5.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
