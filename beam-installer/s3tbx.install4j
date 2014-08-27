@@ -36,8 +36,8 @@
     <components />
   </files>
   <launchers>
-    <launcher name="snap" id="19" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="SNAP Application" icnsFile="./src/main/resources/images/visat-icon.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="">
-      <executable name="snap" type="1" iconSet="true" iconFile="" executableDir="bin" redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="false" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory=".." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false">
+    <launcher name="s3tbx" id="19" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="S3 Toolbox" icnsFile="./src/main/resources/images/visat-icon.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="">
+      <executable name="s3tbx" type="1" iconSet="true" iconFile="" executableDir="bin" redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="false" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory=".." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false">
         <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" productName="" />
       </executable>
       <splashScreen show="false" autoOff="true" alwaysOnTop="true" width="653" height="195" bitmapFile="../target/beam-installer-files/bin/splash.png" java6SplashScreen="false">
@@ -333,18 +333,6 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                             </void>
                           </object>
                         </void>
-                        <void method="add">
-                          <object class="com.install4j.runtime.beans.screens.components.ProgramGroupFileConfig">
-                            <void property="name">
-                              <string>SNAP Updater</string>
-                            </void>
-                            <void property="target">
-                              <object class="java.io.File">
-                                <string>bin/updater</string>
-                              </object>
-                            </void>
-                          </object>
-                        </void>
                       </void>
                       <void property="uninstallerMenuName">
                         <string>${i18n:UninstallerMenuEntry(${compiler:sys.fullName})}</string>
@@ -362,7 +350,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                         <string>/K "${installer:sys.installationDir}\bin\snap-cli.bat"</string>
                       </void>
                       <void property="entryName">
-                        <string>${installer:sys.programGroupDir}\SNAP Command Line</string>
+                        <string>${installer:sys.programGroupDir}\S3TBX Command Line</string>
                       </void>
                       <void property="file">
                         <object class="java.io.File">
@@ -626,10 +614,10 @@ return files;
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
                       <void property="description">
-                        <string>SNAP session file, used to restore a SNAP session</string>
+                        <string>S3 Toolbox session file, used to restore a session</string>
                       </void>
                       <void property="extension">
-                        <string>snaps</string>
+                        <string>s3tbx</string>
                       </void>
                       <void property="launcherId">
                         <string>19</string>
