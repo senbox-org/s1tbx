@@ -6,7 +6,7 @@
     <name>jLinda</name>
     <groupId>org.jlinda</groupId>
     <artifactId>jlinda</artifactId>
-    <version>0.8</version>
+    <version>0.8.1</version>
 
     <description>Java Library for Interferometric Data Analysis (jLinda)</description>
 
@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<context>s1tbx</context>
 		
-        <jlinda.version>0.8</jlinda.version>
+        <jlinda.version>0.8.1</jlinda.version>
         <nest.version>6.0-SNAPSHOT</nest.version>
 		<snap.version>0.5-SNAPSHOT</snap.version>
         <jblas.version>1.2.3</jblas.version>
@@ -149,7 +149,6 @@
         <connection>scm:git:git@github.com:ppolabs/jlinda.git</connection>
         <developerConnection>scm:git:ppolabs/jlinda.git</developerConnection>
         <url>https://github.com/ppolabs/jlinda</url>
-        <!--<tag>jlinda-0.6</tag>-->
     </scm>
 
 </project>
