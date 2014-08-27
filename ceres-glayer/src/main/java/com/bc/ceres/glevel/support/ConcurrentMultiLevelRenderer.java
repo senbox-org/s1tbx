@@ -58,7 +58,7 @@ import java.util.TreeSet;
 
 public class ConcurrentMultiLevelRenderer implements MultiLevelRenderer {
 
-    private final static boolean DEBUG = Boolean.getBoolean("ceres.renderer.debug");
+    private final static boolean DEBUG = Boolean.getBoolean("snap.renderer.debug");
 
     private final Map<TileIndex, TileRequest> scheduledTileRequests;
     private final TileImageCache localTileCache;

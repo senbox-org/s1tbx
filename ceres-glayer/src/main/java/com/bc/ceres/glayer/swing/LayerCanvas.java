@@ -42,7 +42,7 @@ import java.util.ArrayList;
  */
 public class LayerCanvas extends JPanel implements AdjustableView {
 
-    private static final boolean DEBUG = Boolean.getBoolean("ceres.renderer.debug");
+    private static final boolean DEBUG = Boolean.getBoolean("snap.renderer.debug");
 
     private LayerCanvasModel model;
     private CanvasRendering canvasRendering;
