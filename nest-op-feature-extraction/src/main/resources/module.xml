@@ -152,7 +152,7 @@
             <targetProductNameSuffix>_cls</targetProductNameSuffix>
         </action-->
 
-        <action>
+        <!--action>
             <id>FloodDetection</id>
             <helpId>FloodDetection</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
@@ -163,7 +163,7 @@
             <operatorName>Flood-Detection</operatorName>
             <dialogTitle>Flood Detection</dialogTitle>
             <targetProductNameSuffix>_flood</targetProductNameSuffix>
-        </action>
+        </action-->
 
         <action>
             <id>GLCMOp</id>
@@ -204,7 +204,7 @@
             <targetProductNameSuffix>_urb</targetProductNameSuffix>
         </action>
 
-        <action>
+        <!--action>
             <id>FloodDetectionGraph</id>
             <helpId>FloodDetectionGraph</helpId>
             <class>org.esa.snap.dat.actions.GraphAction</class>
@@ -216,7 +216,7 @@
             <graphFile>FeatureExtractors\FloodDetectionGraph.xml</graphFile>
             <enableEditing>true</enableEditing>
             <targetProductNameSuffix>_flood</targetProductNameSuffix>
-        </action>
+        </action-->
 
         <action>
             <id>ChangeDetection</id>
