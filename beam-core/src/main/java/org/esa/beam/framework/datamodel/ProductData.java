@@ -124,7 +124,7 @@ public abstract class ProductData implements Cloneable {
     /**
      * The type ID of this value.
      */
-    private final int _type;
+    protected int _type;
 
     /**
      * The string representation of <code>TYPE_INT8</code>
@@ -2461,6 +2461,7 @@ public abstract class ProductData implements Cloneable {
          */
         public ASCII(int length) {
             super(length);
+            _type = TYPE_ASCII;
         }
 
         /**
@@ -2470,6 +2471,7 @@ public abstract class ProductData implements Cloneable {
          */
         public ASCII(String data) {
             super(data.getBytes(), false);
+            _type = TYPE_ASCII;
         }
 
         /**

@@ -34,7 +34,7 @@ public abstract class DataNode extends ProductNode {
     /**
      * The data type. Always one of <code>ProductData.TYPE_<i>X</i></code>.
      */
-    private int dataType;  // NESTMOD
+    private final int dataType;
     private final long numElems;
     private ProductData data;
     private boolean readOnly;
@@ -80,9 +80,6 @@ public abstract class DataNode extends ProductNode {
      */
     public int getDataType() {
         return dataType;
-    }
-    protected void setDataType(int type) {
-        this.dataType = type;
     }
 
     /**

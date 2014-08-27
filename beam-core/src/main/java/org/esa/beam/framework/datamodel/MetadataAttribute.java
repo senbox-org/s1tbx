@@ -32,7 +32,6 @@ public final class MetadataAttribute extends DataNode {
 
     public MetadataAttribute(String name, int type, int numElems) {
         this(name, ProductData.createInstance(type, numElems), false);
-        super.setDataType(type); // NESTMOD
     }
 
     public MetadataAttribute(String name, ProductData data, boolean readOnly) {
