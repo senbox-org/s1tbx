@@ -232,11 +232,10 @@ public final class TOPSARDeburstOp extends Operator {
      */
     private void computeTargetWidthAndHeight() {
 
-        targetHeight = (int) Math.round((targetLastLineTime - targetFirstLineTime) /
-                subSwath[0].azimuthTimeInterval) + 1;
+        targetHeight = (int)((targetLastLineTime - targetFirstLineTime) / subSwath[0].azimuthTimeInterval);
 
-        targetWidth = (int) Math.round((targetSlantRangeTimeToLastPixel - targetSlantRangeTimeToFirstPixel) /
-                targetDeltaSlantRangeTime) + 1;
+        targetWidth = (int)((targetSlantRangeTimeToLastPixel - targetSlantRangeTimeToFirstPixel) /
+                targetDeltaSlantRangeTime);
     }
 
     private void computeSubSwathEffectStartEndPixels() {
@@ -569,10 +568,14 @@ public final class TOPSARDeburstOp extends Operator {
             }
 
             int lastSubSwathIndex = 0;
-            for (int i = 0; i < numOfSubSwath; i++) {
-                if (tileSlrtToLastPixel >= subSwath[i].slrTimeToFirstPixel &&
-                        tileSlrtToLastPixel <= subSwath[i].slrTimeToLastPixel) {
-                    lastSubSwathIndex = i + 1;
+            if (firstSubSwathIndex == numOfSubSwath) {
+                lastSubSwathIndex = firstSubSwathIndex;
+            } else {
+                for (int i = 0; i < numOfSubSwath; i++) {
+                    if (tileSlrtToLastPixel >= subSwath[i].slrTimeToFirstPixel &&
+                            tileSlrtToLastPixel <= subSwath[i].slrTimeToLastPixel) {
+                        lastSubSwathIndex = i + 1;
+                    }
                 }
             }
 
