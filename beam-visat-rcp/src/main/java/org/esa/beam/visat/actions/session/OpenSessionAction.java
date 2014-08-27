@@ -58,8 +58,8 @@ public class OpenSessionAction extends ExecCommand {
     private static final String TITLE = "Open Session";
 
     public static BeamFileFilter getSessionFileFilter() {
-        return new BeamFileFilter("SNAP-SESSION",
-                                  new String[] {".snaps", ".beam"},
+        return new BeamFileFilter("SESSION",
+                                  new String[] {String.format(".%s", SystemUtils.getApplicationContextId()), ".beam"},
                                   String.format("%s Session file", SystemUtils.getApplicationName()));
     }
 

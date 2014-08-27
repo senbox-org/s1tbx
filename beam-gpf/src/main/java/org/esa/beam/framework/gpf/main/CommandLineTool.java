@@ -53,6 +53,7 @@ import org.esa.beam.framework.gpf.graph.NodeSource;
 import org.esa.beam.framework.gpf.internal.OperatorExecutor;
 import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.xmlpull.mxp1.MXParser;
 
@@ -194,7 +195,8 @@ class CommandLineTool implements GraphProcessingObserver {
         VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
         velocityContext.put("system", System.getProperties());
         velocityContext.put("softwareName", "BEAM gpt");
-        velocityContext.put("softwareVersion", System.getProperty("beam.version", ""));
+        String versionKey = String.format("%s.version", SystemUtils.getApplicationContextId());
+        velocityContext.put("softwareVersion", System.getProperty(versionKey, ""));
         velocityContext.put("commandLineArgs", commandLineArgs);
 
         // Derived properties (shortcuts).

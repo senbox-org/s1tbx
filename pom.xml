@@ -24,13 +24,13 @@
     <url>http://www.brockmann-consult.de/beam-wiki</url>
     <groupId>org.esa.snap</groupId>
     <artifactId>snap-beam</artifactId>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.5.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <snap.version>0.5.0-SNAPSHOT</snap.version>
 
-        <snap.version>0.5-SNAPSHOT</snap.version>
         <hdf.version>2.7</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>
         <geotools.version>2.7.4</geotools.version>
@@ -643,7 +643,7 @@
     </pluginRepositories>
 
     <build>
-        <outputDirectory>${outputdir}/modules/${project.artifactId}-${project.version}</outputDirectory>
+        <outputDirectory>${outputdir}/modules/${project.artifactId}-${snap.version}</outputDirectory>
 
         <!-- Maven plugin configurations common to all BEAM modules -->
         <pluginManagement>
