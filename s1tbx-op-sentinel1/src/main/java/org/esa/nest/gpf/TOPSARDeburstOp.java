@@ -548,7 +548,7 @@ public final class TOPSARDeburstOp extends Operator {
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm)
             throws OperatorException {
-/*
+
         try {
             final int tx0 = targetRectangle.x;
             final int ty0 = targetRectangle.y;
@@ -668,7 +668,7 @@ public final class TOPSARDeburstOp extends Operator {
             }
         } catch (Throwable e) {
             throw new OperatorException(e.getMessage());
-        }*/
+        }
     }
 
     // For original SLC product
