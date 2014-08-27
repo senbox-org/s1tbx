@@ -85,7 +85,7 @@
 	</profiles>
 	
 	<build>
-        <outputDirectory>${outputdir}/modules/${project.artifactId}-${project.version}</outputDirectory>
+        <outputDirectory>${outputdir}/modules/${project.artifactId}-${snap.version}</outputDirectory>
 		<pluginManagement>
 	        <plugins>
 				<plugin>
