@@ -106,11 +106,11 @@
         </action>
 
         <action>
-            <id>PCAStatistic</id>
+            <id>PrincipalComponents</id>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <text>Principal Component Analysis</text>
-            <operatorName>PCA</operatorName>
+            <text>Principal Components</text>
+            <operatorName>Principle-Components</operatorName>
             <dialogTitle>Principal Component Analysis</dialogTitle>
             <targetProductNameSuffix>_pca</targetProductNameSuffix>
             <shortDescr>Principal Component Analysis</shortDescr>
