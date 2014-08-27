@@ -11,7 +11,7 @@
     <parent>
         <artifactId>snap</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.5.0-SNAPSHOT</version>
     </parent>
 
     <name>SNAP Context Help</name>
