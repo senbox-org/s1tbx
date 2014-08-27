@@ -17,16 +17,12 @@ package org.esa.snap;
 
 import com.alee.laf.WebLookAndFeel;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.swing.desktop.TabbedDesktopPane;
 import com.jidesoft.plaf.LookAndFeelFactory;
-import com.jidesoft.swing.JideTabbedPane;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
-import java.awt.*;
-import java.net.URL;
+import javax.swing.UIManager;
 
 public final class SNAPApp extends VisatApp {
 
