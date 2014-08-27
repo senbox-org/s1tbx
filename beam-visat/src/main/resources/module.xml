@@ -28,7 +28,7 @@
     <extension point="snap-ui:applicationDescriptors">
         <applicationDescriptor>
             <applicationId>VisatMain</applicationId>
-            <displayName>Snap-S3</displayName>
+            <displayName>S3 Toolbox</displayName>
             <version>${s3tbx.version}</version>
             <buildId>${s3tbx.build.id}</buildId>
             <buildDate>${s3tbx.build.date}</buildDate>
