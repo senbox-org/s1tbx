@@ -164,7 +164,7 @@
                                 <artifactItem>
                                     <groupId>org.esa.s3tbx</groupId>
                                     <artifactId>s3tbx-reader</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>${snap.version}</version>
                                     <outputDirectory>${basedir}/../target/s3tbx-bin/modules</outputDirectory>
                                 </artifactItem>
 

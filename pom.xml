@@ -29,6 +29,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <snap.version>0.5.0-SNAPSHOT</snap.version>
 
         <hdf.version>2.7</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>
@@ -129,49 +130,49 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-launcher</artifactId>
-                <version>${project.version}</version>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-ceres-core</artifactId>
-                <version>${project.version}</version>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-binding</artifactId>
-                <version>${project.version}</version>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-ceres-ui</artifactId>
-                <version>${project.version}</version>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-binio</artifactId>
-                <version>${project.version}</version>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-glayer</artifactId>
-                <version>${project.version}</version>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-jai</artifactId>
-                <version>${project.version}</version>
+                <version>${snap.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-metadata</artifactId>
-                <version>${project.version}</version>
+                <version>${snap.version}</version>
             </dependency>
 
             <!-- BEAM System Level Modules ############################################# -->
@@ -179,37 +180,37 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-core</artifactId>
-                <version>${project.version}</version>
+                <version>${snap.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-gpf</artifactId>
-                <version>${project.version}</version>
+                <version>${snap.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-ui</artifactId>
-                <version>${project.version}</version>
+                <version>${snap.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-csv-dataio</artifactId>
-                <version>${project.version}</version>
+                <version>${snap.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-visat-rcp</artifactId>
-                <version>${project.version}</version>
+                <version>${snap.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-visat</artifactId>
-                <version>${project.version}</version>
+                <version>${snap.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-netcdf</artifactId>
-                <version>${project.version}</version>
+                <version>${snap.version}</version>
             </dependency>
 
             <!-- Miscellaneous 3rd party libraries ############################################# -->
@@ -642,7 +643,7 @@
     </pluginRepositories>
 
     <build>
-        <outputDirectory>${outputdir}/modules/${project.artifactId}-${project.version}</outputDirectory>
+        <outputDirectory>${outputdir}/modules/${project.artifactId}-${snap.version}</outputDirectory>
 
         <!-- Maven plugin configurations common to all BEAM modules -->
         <pluginManagement>
