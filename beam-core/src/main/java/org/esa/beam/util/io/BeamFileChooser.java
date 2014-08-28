@@ -230,15 +230,12 @@ public class BeamFileChooser extends JFileChooser {
     }
 
     /**
-     * Ensure the system laf gets used for the FileChooser
+     * Ensure the system laf gets used for the FileChooser to override weblaf
      */
     public void updateUI(){
         LookAndFeel old = UIManager.getLookAndFeel();
-        int oldJideStyle = LookAndFeelFactory.getStyle();
-        String systemName = UIManager.getSystemLookAndFeelClassName();
-        if(old.toString().contains(systemName)) {
-            super.updateUI();
-        } else {
+        if(old.toString().contains("WebLookAndFeel")) {
+            int oldJideStyle = LookAndFeelFactory.getStyle();
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Throwable ex) {
@@ -253,6 +250,8 @@ public class BeamFileChooser extends JFileChooser {
                 } catch (UnsupportedLookAndFeelException ignored) {
                 } // shouldn't get here
             }
+        } else {
+            super.updateUI();
         }
     }
 
