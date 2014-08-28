@@ -55,10 +55,7 @@ public class ProductDataAsciiTest extends TestCase {
 
     public void testDataTypeInconsistency() {
         ProductData instance = ProductData.createInstance(ProductData.TYPE_ASCII);
-        assertTrue(
-                "OK! After all we've managed to remove this inconsistency. This is not a real failure, it had to be done one day!",
-                ProductData.TYPE_ASCII != instance.getType());
-        assertEquals(ProductData.TYPE_INT8, instance.getType());
+        assertEquals(ProductData.TYPE_ASCII, instance.getType());
     }
 
     public void testSingleValueConstructor() {
@@ -76,7 +73,7 @@ public class ProductDataAsciiTest extends TestCase {
         assertEquals(true, data instanceof byte[]);
         assertEquals(1, ((byte[]) data).length);
         assertEquals(true, instance.isScalar());
-        assertEquals(true, instance.isInt());
+        assertEquals(false, instance.isInt());
         assertEquals("#", instance.toString());
 
         ProductData expectedEqual = ProductData.createInstance(ProductData.TYPE_ASCII);
@@ -123,7 +120,7 @@ public class ProductDataAsciiTest extends TestCase {
         assertEquals(true, data2 instanceof byte[]);
         assertEquals(10, ((byte[]) data2).length);
         assertEquals(false, instance.isScalar());
-        assertEquals(true, instance.isInt());
+        assertEquals(false, instance.isInt());
         assertEquals("aAein Test", instance.toString());
 
         ProductData expectedEqual = ProductData.createInstance(ProductData.TYPE_ASCII, 10);
