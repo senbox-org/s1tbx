@@ -14,7 +14,6 @@
     <name>RSTB Classification Tools</name>
     <groupId>org.csa.rstb</groupId>
     <artifactId>rstb-classification</artifactId>
-    <version>6.2-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
@@ -32,12 +31,12 @@
             <artifactId>snap-engine-utilities</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-dat</artifactId>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-rcp</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-io</artifactId>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-io</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>

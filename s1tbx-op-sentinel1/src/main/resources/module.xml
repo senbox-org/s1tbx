@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s1tbx-op-sentinel1</symbolicName>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.5</version>
     <name>S1TBX Sentinel-1 Tools</name>
 
     <description>Tools for Sentinel-1 products</description>
@@ -9,7 +9,7 @@
     <vendor>Array Systems Computing Inc</vendor>
     <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
     <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
-    <url>http://www.array.ca/nest</url>
+    <url>http://www.array.ca</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
     <funding>European Space Agency</funding>
 
@@ -23,7 +23,7 @@
         <module>snap-graph-builder</module>
     </dependency>
     <dependency>
-        <module>nest-op-coregistration</module>
+        <module>s1tbx-op-coregistration</module>
     </dependency>
 
     <categories>Processor</categories>

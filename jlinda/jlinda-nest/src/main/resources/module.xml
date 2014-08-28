@@ -26,16 +26,16 @@
         <module>snap-engine-utilities</module>
     </dependency>
     <dependency>
-        <module>nest-io</module>
+        <module>s1tbx-io</module>
     </dependency>
     <dependency>
-        <module>nest-op-coregistration</module>
+        <module>s1tbx-op-coregistration</module>
     </dependency>
 	<dependency>
-        <module>nest-reader-dem</module>
+        <module>s1tbx-dem</module>
     </dependency>
     <dependency>
-        <module>nest-dat</module>
+        <module>s1tbx-rcp</module>
     </dependency>
     <dependency>
         <module>snap-graph-builder</module>

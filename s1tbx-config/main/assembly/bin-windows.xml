@@ -93,18 +93,18 @@
                         <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}
                         </outputFileNameMapping>
                         <excludes>
-							<exclude>ncsa.hdf:lib-hdf</exclude>
-							<exclude>org.esa.s3tbx:s3tbx-merisl3-reader</exclude>
-							<exclude>org.esa.nest:nest-op-calibration</exclude>
-							<exclude>org.esa.nest:nest-op-coregistration</exclude>
-							<exclude>org.esa.nest:s1tbx-op-sentinel1</exclude>
-							<exclude>org.esa.nest:nest-reader-dem</exclude>
-							<exclude>org.esa.nest:nest-io</exclude>
-							<exclude>org.esa.nest:nest-dat</exclude>
-							<exclude>org.jlinda:jlinda-core</exclude>
-							<exclude>org.esa.pfa:pfa-core</exclude>
-							<exclude>org.esa.pfa:pfa-database</exclude>
-							<exclude>org.csa.rstb:rstb-polarimetric-tools</exclude>
+                            <exclude>ncsa.hdf:lib-hdf</exclude>
+                            <exclude>org.esa.s1tbx:s1tbx-op-sentinel1</exclude>
+                            <exclude>org.esa.s1tbx:s1tbx-op-calibration</exclude>
+                            <exclude>org.esa.s1tbx:s1tbx-op-coregistration</exclude>
+                            <exclude>org.esa.s1tbx:s1tbx-dem</exclude>
+                            <exclude>org.esa.s1tbx:s1tbx-io</exclude>
+                            <exclude>org.esa.s1tbx:s1tbx-rcp</exclude>
+                            <exclude>org.esa.s3tbx:s3tbx-merisl3-reader</exclude>
+                            <exclude>org.jlinda:jlinda-core</exclude>
+                            <exclude>org.esa.pfa:pfa-core</exclude>
+                            <exclude>org.esa.pfa:pfa-database</exclude>
+                            <exclude>org.csa.rstb:rstb-polarimetric-tools</exclude>
                             <exclude>org.esa.snap:snap-*</exclude>
                         </excludes>
                     </dependencySet>

@@ -21,7 +21,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <nest.version>6.0-SNAPSHOT</nest.version>
+        <s1tbx.version>0.5.0-SNAPSHOT</s1tbx.version>
         <rstb.version>6.2-SNAPSHOT</rstb.version>
 
         <outputdir>../../../output</outputdir>

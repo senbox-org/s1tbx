@@ -12,11 +12,9 @@
 
     <packaging>jar</packaging>
 
-    <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx-bootstrap</artifactId>
     <name>S1TBX Bootstrap Classpath</name>
     <description>Provides the bootstrap classpath to launch S1TBX from an IDE.</description>
-    <version>0.5.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -24,12 +22,12 @@
             <artifactId>snap-binio</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-reader-dem</artifactId>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-dem</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-op-calibration</artifactId>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-op-calibration</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jlinda</groupId>

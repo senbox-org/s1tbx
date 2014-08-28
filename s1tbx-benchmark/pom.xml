@@ -12,9 +12,7 @@
     </parent>
 
     <name>S1TBX Benchmark Tests</name>
-    <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx-benchmark</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
@@ -29,26 +27,26 @@
             <artifactId>snap-gpf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-reader-dem</artifactId>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-dem</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-io</artifactId>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-op-calibration</artifactId>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-op-calibration</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-op-orthorectification</artifactId>
-            <version>${nest.version}</version>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-op-sar-processing</artifactId>
+            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-op-sar-tools</artifactId>
-            <version>${nest.version}</version>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-op-utilities</artifactId>
+            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>

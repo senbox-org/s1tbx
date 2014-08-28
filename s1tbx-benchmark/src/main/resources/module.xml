@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s1tbx-benchmark</symbolicName>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.5</version>
     <name>S1TBX Benchmark</name>
 
     <description>S1TBX Benchmark Tests</description>
@@ -9,6 +9,7 @@
     <vendor>Array Systems Computing Inc</vendor>
     <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
     <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
     <funding>European Space Agency</funding>
 
@@ -19,16 +20,16 @@
         <module>snap-engine-utilities</module>
     </dependency>
     <dependency>
-        <module>nest-io</module>
+        <module>s1tbx-io</module>
     </dependency>
     <dependency>
-        <module>nest-op-calibration</module>
+        <module>s1tbx-op-calibration</module>
     </dependency>
     <dependency>
-        <module>nest-op-orthorectification</module>
+        <module>s1tbx-op-sar-processing</module>
     </dependency>
     <dependency>
-        <module>nest-op-sar-tools</module>
+        <module>s1tbx-op-utilities</module>
     </dependency>
 
 </module>

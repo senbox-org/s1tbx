@@ -17,8 +17,7 @@
         <test.jvm.maxheapsize>5024m</test.jvm.maxheapsize>
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize} -XX:MaxPermSize=${test.jvm.maxpermsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${context}</surefire.jvm.args>
-		
-        <nest.version>6.0-SNAPSHOT</nest.version>
+
 		<jlinda.version>0.8.1</jlinda.version>
 		<rstb.version>6.2-SNAPSHOT</rstb.version>
 		<s1tbx.version>0.5.0-SNAPSHOT</s1tbx.version>
@@ -57,18 +56,17 @@
 		<module>s1tbx-bootstrap</module>
 		<module>s1tbx-cli</module>
 		<module>s1tbx-config</module>
+		<module>s1tbx-dem</module>				
+		<module>s1tbx-help</module>
+		<module>s1tbx-io</module>
+		<module>s1tbx-op-calibration</module>
+		<module>s1tbx-op-coregistration</module>
+		<module>s1tbx-op-feature-extraction</module>		
+		<module>s1tbx-op-sar-processing</module>
 		<module>s1tbx-op-sentinel1</module>
-		
-		<module>nest-dat</module>
-		<module>nest-help</module>
-		<module>nest-io</module>
-		<module>nest-op-calibration</module>
-		<module>nest-op-coregistration</module>
-		<module>nest-op-feature-extraction</module>		
-		<module>nest-op-orthorectification</module>
-		<module>nest-op-sar-tools</module>
-		<module>nest-reader-dem</module>
-		<module>nest-world-wind-view</module>
+		<module>s1tbx-op-utilities</module>
+		<module>s1tbx-rcp</module>
+		<module>s1tbx-worldwind</module>
 		
 		<!--module>../esa-pfa</module-->
 	</modules>
@@ -327,27 +325,27 @@
             </dependency>
 			
 			<dependency>
-                <groupId>org.esa.nest</groupId>
-                <artifactId>nest-dat</artifactId>
-                <version>${nest.version}</version>
+                <groupId>org.esa.s1tbx</groupId>
+                <artifactId>s1tbx-rcp</artifactId>
+                <version>${s1tbx.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.esa.nest</groupId>
-                <artifactId>nest-op-calibration</artifactId>
-                <version>${nest.version}</version>
+                <groupId>org.esa.s1tbx</groupId>
+                <artifactId>s1tbx-op-calibration</artifactId>
+                <version>${s1tbx.version}</version>
             </dependency>
 			
 			<dependency>
-                <groupId>org.esa.nest</groupId>
-                <artifactId>nest-io</artifactId>
-                <version>${nest.version}</version>
+                <groupId>org.esa.s1tbx</groupId>
+                <artifactId>s1tbx-io</artifactId>
+                <version>${s1tbx.version}</version>
             </dependency>
 			
 			<dependency>
-                <groupId>org.esa.nest</groupId>
-                <artifactId>nest-reader-dem</artifactId>
-                <version>${nest.version}</version>
+                <groupId>org.esa.s1tbx</groupId>
+                <artifactId>s1tbx-dem</artifactId>
+                <version>${s1tbx.version}</version>
             </dependency>
 
             <!-- GeoTools Libraries ############################################# -->
@@ -1176,6 +1174,15 @@
             <modules>
 				<module>../ceres</module>
 				<module>../beam</module>
+            </modules>
+		</profile>
+		<profile>
+            <id>all</id>
+            <modules>
+				<module>../ceres</module>
+				<module>../beam</module>
+				<module>../s2tbx</module>
+				<module>../s3tbx</module>
             </modules>
 		</profile>
 		<profile>

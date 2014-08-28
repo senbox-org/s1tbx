@@ -37,19 +37,19 @@
             <version>${snap.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-io</artifactId>
-            <version>${nest.version}</version>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-io</artifactId>
+            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-op-coregistration</artifactId>
-            <version>${nest.version}</version>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-op-coregistration</artifactId>
+            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-reader-dem</artifactId>
-            <version>${nest.version}</version>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-dem</artifactId>
+            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -57,9 +57,9 @@
             <version>${snap.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-dat</artifactId>
-            <version>${nest.version}</version>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-rcp</artifactId>
+            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>

@@ -12,11 +12,9 @@
 
     <packaging>jar</packaging>
 
-    <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx-cli</artifactId>
     <name>CLI Bootstrap Classpath</name>
     <description>Provides the bootstrap classpath to launch GPT from your favourite IDE.</description>
-    <version>0.5.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -25,31 +23,31 @@
             <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-reader-dem</artifactId>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-dem</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-io</artifactId>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-op-calibration</artifactId>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-op-calibration</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-op-orthorectification</artifactId>
-            <version>${nest.version}</version>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-op-sar-processing</artifactId>
+            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-op-sar-tools</artifactId>
-            <version>${nest.version}</version>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-op-utilities</artifactId>
+            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.nest</groupId>
-            <artifactId>nest-op-feature-extraction</artifactId>
-            <version>${nest.version}</version>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-op-feature-extraction</artifactId>
+            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.csa.rstb</groupId>
