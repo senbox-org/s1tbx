@@ -22,9 +22,9 @@ import org.esa.beam.util.ObjectUtils;
  * A <code>MetadataAttribute</code> is part of a <code>{@link MetadataElement}</code> and represents a key/value pair.
  *
  * @author Norman Fomferra
-
+ * @version $Revision$ $Date$
  */
-public final class MetadataAttribute extends DataNode {
+public class MetadataAttribute extends DataNode {
 
     public MetadataAttribute(String name, int type) {
         this(name, type, 1);
