@@ -112,7 +112,7 @@
             <graphFile>CoregistrationGraph.xml</graphFile>
         </action>
 
-        <action>
+        <!--action>
             <id>DEMBasedCoregistrationOp</id>
             <helpId>DEMBasedCoregistrationOp</helpId>
             <class>org.esa.snap.dat.actions.GraphAction</class>
@@ -123,7 +123,7 @@
             <shortDescr>DEM Based Coregistration</shortDescr>
             <graphFile>DEMBasedCoregistrationGraph.xml</graphFile>
             <placeAfter>CoregistrationGraph</placeAfter>
-        </action>
+        </action-->
 
         <action>
             <id>PrincipalComponents</id>
