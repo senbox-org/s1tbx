@@ -354,7 +354,7 @@ public final class OperatorUtils {
 
         if (sourceBandNames == null || sourceBandNames.length == 0) {
             final Band[] bands = sourceProduct.getBands();
-            final List<String> bandNameList = new ArrayList<String>(sourceProduct.getNumBands());
+            final List<String> bandNameList = new ArrayList<>(sourceProduct.getNumBands());
             for (Band band : bands) {
                 if (!(band instanceof VirtualBand))
                     bandNameList.add(band.getName());
@@ -362,20 +362,18 @@ public final class OperatorUtils {
             sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
         }
 
-        final Band[] sourceBands = new Band[sourceBandNames.length];
-        for (int i = 0; i < sourceBandNames.length; i++) {
-            final String sourceBandName = sourceBandNames[i];
+        final List<Band> sourceBandList = new ArrayList<>(sourceBandNames.length);
+        for (final String sourceBandName : sourceBandNames) {
             final Band sourceBand = sourceProduct.getBand(sourceBandName);
-            if (sourceBand == null) {
-                throw new OperatorException("Source band not found: " + sourceBandName);
+            if (sourceBand != null) {
+                sourceBandList.add(sourceBand);
             }
-            sourceBands[i] = sourceBand;
         }
-        return sourceBands;
+        return sourceBandList.toArray(new Band[sourceBandList.size()]);
     }
 
     public static Band[] addBands(final Product targetProduct, final String[] targetBandNameList, final String suffix) {
-        final List<Band> bandList = new ArrayList<Band>(targetBandNameList.length);
+        final List<Band> bandList = new ArrayList<>(targetBandNameList.length);
         for (String targetBandName : targetBandNameList) {
 
             final Band targetBand = new Band(targetBandName + suffix,
@@ -593,8 +591,8 @@ public final class OperatorUtils {
         public int sceneWidth, sceneHeight;
         public double latMin, lonMin, latMax, lonMax;
 
-        public final Map<Product, double[]> srcCornerLatitudeMap = new HashMap<Product, double[]>(10);
-        public final Map<Product, double[]> srcCornerLongitudeMap = new HashMap<Product, double[]>(10);
+        public final Map<Product, double[]> srcCornerLatitudeMap = new HashMap<>(10);
+        public final Map<Product, double[]> srcCornerLongitudeMap = new HashMap<>(10);
     }
 
     /**
