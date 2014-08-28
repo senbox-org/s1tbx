@@ -234,6 +234,7 @@ public class BeamFileChooser extends JFileChooser {
      */
     public void updateUI(){
         LookAndFeel old = UIManager.getLookAndFeel();
+        int oldJideStyle = LookAndFeelFactory.getStyle();
         String systemName = UIManager.getSystemLookAndFeelClassName();
         if(old.toString().contains(systemName)) {
             super.updateUI();
@@ -248,7 +249,7 @@ public class BeamFileChooser extends JFileChooser {
             if (old != null) {
                 try {
                     UIManager.setLookAndFeel(old);
-                    LookAndFeelFactory.installJideExtension(LookAndFeelFactory.ECLIPSE3X_STYLE);
+                    LookAndFeelFactory.installJideExtension(oldJideStyle);
                 } catch (UnsupportedLookAndFeelException ignored) {
                 } // shouldn't get here
             }
