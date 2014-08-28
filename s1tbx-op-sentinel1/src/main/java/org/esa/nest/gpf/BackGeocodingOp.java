@@ -56,7 +56,7 @@ import java.util.*;
         category = "SAR Processing/SENTINEL-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Bursts co-registration using orbit and DEM")
+        description = "Bursts co-registration using orbit and DEM", internal=true)
 public final class BackGeocodingOp extends Operator {
 
     @SourceProducts
