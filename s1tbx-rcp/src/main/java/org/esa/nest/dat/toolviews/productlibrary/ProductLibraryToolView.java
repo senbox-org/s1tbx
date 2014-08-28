@@ -19,6 +19,7 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.CheckListDialog;
 import org.esa.snap.dat.dialogs.BatchGraphDialog;
@@ -516,7 +517,7 @@ public class ProductLibraryToolView extends AbstractToolView {
     }
 
     private static JFileChooser createDirectoryChooser() {
-        final JFileChooser fileChooser = new JFileChooser();
+        final JFileChooser fileChooser = new BeamFileChooser();
         fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setFileFilter(new FileFilter() {
 
