@@ -124,7 +124,7 @@ public abstract class ProductData implements Cloneable {
     /**
      * The type ID of this value.
      */
-    protected int _type;
+    private final int _type;
 
     /**
      * The string representation of <code>TYPE_INT8</code>
@@ -1004,16 +1004,6 @@ public abstract class ProductData implements Cloneable {
         /**
          * Constructs a new signed <code>byte</code> value.
          *
-         * @param numElems the number of elements, must not be less than one
-         * @param unsigned if <code>true</code> an unsigned value type is constructed
-         */
-        protected Byte(int numElems, boolean unsigned) {
-            this(new byte[numElems], unsigned);
-        }
-
-        /**
-         * Constructs a new signed <code>byte</code> value.
-         *
          * @param array the elements
          */
         public Byte(byte[] array) {
@@ -1023,11 +1013,43 @@ public abstract class ProductData implements Cloneable {
         /**
          * Constructs a new signed <code>byte</code> value.
          *
+         * @param numElems the number of elements, must not be less than one
+         * @param type must be one of TYPE_UINT8, TYPE_INT8 or TYPE_ASCII
+         */
+        protected Byte(int numElems, int type) {
+            super(type);
+            _array = new byte[numElems];
+        }
+
+        /**
+         * Constructs a new signed <code>byte</code> value.
+         *
+         * @param numElems the number of elements, must not be less than one
+         * @param unsigned if <code>true</code> an unsigned value type is constructed
+         */
+        protected Byte(int numElems, boolean unsigned) {
+            this(new byte[numElems], unsigned);
+        }
+
+
+        /**
+         * Constructs a new signed <code>byte</code> value.
+         *
          * @param array    the elements
          * @param unsigned if <code>true</code> an unsigned value type is constructed
          */
         protected Byte(byte[] array, boolean unsigned) {
-            super(unsigned ? TYPE_UINT8 : TYPE_INT8);
+            this(array, unsigned ? TYPE_UINT8 : TYPE_INT8);
+        }
+
+        /**
+         * Constructs a new signed <code>byte</code> value.
+         *
+         * @param array the elements
+         * @param type  must be one of TYPE_UINT8, TYPE_INT8 or TYPE_ASCII
+         */
+        protected Byte(byte[] array, int type) {
+            super(type);
             _array = array;
         }
 
@@ -2460,8 +2482,7 @@ public abstract class ProductData implements Cloneable {
          * @param length the ASCII string length
          */
         public ASCII(int length) {
-            super(length);
-            _type = TYPE_ASCII;
+            super(length, TYPE_ASCII);
         }
 
         /**
@@ -2470,8 +2491,7 @@ public abstract class ProductData implements Cloneable {
          * @param data the ASCII string data
          */
         public ASCII(String data) {
-            super(data.getBytes(), false);
-            _type = TYPE_ASCII;
+            super(data.getBytes(), TYPE_ASCII);
         }
 
         /**
@@ -2614,14 +2634,10 @@ public abstract class ProductData implements Cloneable {
         public UTC(double mjd) {
             super(3);
 
+            final double microSeconds = (mjd * SECONDS_PER_DAY * MICROS_PER_SECOND) % MICROS_PER_SECOND;
+            final double seconds = (mjd * SECONDS_PER_DAY - microSeconds * MICROS_TO_SECONDS) % SECONDS_PER_DAY;
             final double days = (int) mjd;
-            double seconds = (int)((mjd - days) * SECONDS_PER_DAY);
-            double microSeconds = (int)(((mjd - days)*SECONDS_PER_DAY - seconds) * MICROS_PER_SECOND);
 
-            if (microSeconds < 0) {
-                microSeconds += MICROS_PER_SECOND;
-                seconds -= 1;
-            }
             setElemIntAt(0, (int) days);
             setElemIntAt(1, (int) seconds);
             setElemIntAt(2, (int) microSeconds);
