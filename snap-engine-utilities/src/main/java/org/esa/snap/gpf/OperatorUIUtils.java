@@ -47,6 +47,10 @@ public final class OperatorUIUtils {
     }
 
     public static void initParamList(final JList paramList, final String[] availNames) {
+        initParamList(paramList, availNames, null);
+    }
+
+    public static void initParamList(final JList paramList, final String[] availNames, final String[] defaultSelection) {
         final List selectedValues = paramList.getSelectedValuesList();
 
         paramList.removeAll();
@@ -55,7 +59,7 @@ public final class OperatorUIUtils {
         paramList.setMinimumSize(new Dimension(50, 4));
 
         final int size = paramList.getModel().getSize();
-        final List<Integer> indices = new ArrayList<Integer>(size);
+        final List<Integer> indices = new ArrayList<>(size);
 
         for (Object selectedValue : selectedValues) {
             final String selValue = (String) selectedValue;
@@ -66,6 +70,17 @@ public final class OperatorUIUtils {
                     indices.add(j);
                     break;
                 }
+            }
+        }
+        if(selectedValues.isEmpty() && defaultSelection != null) {
+            int j = 0;
+            for(String name : availNames) {
+                for(String defaultSel : defaultSelection) {
+                    if (name.equals(defaultSel)) {
+                        indices.add(j);
+                    }
+                }
+                ++j;
             }
         }
         setSelectedListIndices(paramList, indices);
