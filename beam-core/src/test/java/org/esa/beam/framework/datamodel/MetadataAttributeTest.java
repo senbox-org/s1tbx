@@ -103,6 +103,16 @@ public class MetadataAttributeTest extends AbstractNamedNodeTest {
         testSetUnit(_attributeFloat);
         testSetUnit(_attributeString);
     }
+
+    public void testASCIIAttribute() {
+        final MetadataAttribute attribute1 = new MetadataAttribute("name", ProductData.TYPE_ASCII, 1);
+        attribute1.getData().setElems("new data");
+        //attribute should be of type ASCII and not INT8
+        assertEquals(attribute1.getDataType(), ProductData.TYPE_ASCII);
+        final MetadataAttribute attribute2 = new MetadataAttribute("name", new ProductData.ASCII("my string"), false);
+        //attribute should be of type ASCII and not INT8
+        assertEquals(attribute2.getDataType(), ProductData.TYPE_ASCII);
+    }
 }
 
 
