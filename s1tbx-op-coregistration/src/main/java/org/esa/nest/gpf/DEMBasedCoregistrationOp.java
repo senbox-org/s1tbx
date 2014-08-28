@@ -66,7 +66,7 @@ import java.util.List;
         category = "SAR Processing/Coregistration",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Create DEM Based Co-registrated Images")
+        description = "Create DEM Based Co-registrated Images", internal=true)
 public class DEMBasedCoregistrationOp extends Operator {
 
     @SourceProducts

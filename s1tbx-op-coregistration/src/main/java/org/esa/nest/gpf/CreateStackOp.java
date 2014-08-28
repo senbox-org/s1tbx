@@ -75,8 +75,9 @@ public class CreateStackOp extends Operator {
     @TargetProduct(description = "The target product which will use the master's grid.")
     private Product targetProduct = null;
 
-    @Parameter(valueSet = {"NONE", ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
-            ResamplingFactory.BILINEAR_INTERPOLATION_NAME, ResamplingFactory.CUBIC_CONVOLUTION_NAME},
+    @Parameter(valueSet = {"NONE", ResamplingFactory.NEAREST_NEIGHBOUR_NAME, ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
+            ResamplingFactory.CUBIC_CONVOLUTION_NAME, ResamplingFactory.BISINC_INTERPOLATION_NAME,
+            ResamplingFactory.BICUBIC_INTERPOLATION_NAME},
             defaultValue = "NONE",
             description = "The method to be used when resampling the slave grid onto the master grid.",
             label = "Resampling Type")
