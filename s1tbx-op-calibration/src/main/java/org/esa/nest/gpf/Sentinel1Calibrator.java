@@ -146,7 +146,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
      */
     private void getMission() {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.equals("SENTINEL-1A")) {
+        if (!mission.startsWith("SENTINEL-1")) {
             throw new OperatorException(mission + " is not a valid mission for Sentinel1 product");
         }
     }

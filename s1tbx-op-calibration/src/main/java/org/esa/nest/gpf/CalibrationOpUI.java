@@ -228,7 +228,7 @@ public class CalibrationOpUI extends BaseOperatorUI {
                         createBeta0VirtualBandCheckBox.setEnabled(true);
                     }
 
-                } else if (mission.equals("SENTINEL-1A")) {
+                } else if (mission.startsWith("SENTINEL-1")) {
 
                     final String[] polarisations = Sentinel1Utils.getProductPolarizations(absRoot);
                     polList.setListData(polarisations);

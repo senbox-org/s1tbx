@@ -202,7 +202,7 @@ public final class BackGeocodingOp extends Operator {
 
         final String mMission = mAbsRoot.getAttributeString(AbstractMetadata.MISSION);
         final String sMission = sAbsRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mMission.equals("SENTINEL-1A") || !sMission.equals("SENTINEL-1A")) {
+        if (!mMission.startsWith("SENTINEL-1") || !sMission.startsWith("SENTINEL-1")) {
             throw new OperatorException("Source product has invalid mission for Sentinel1 product");
         }
 

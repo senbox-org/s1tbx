@@ -139,7 +139,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      */
     private void getMission() {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.equals("SENTINEL-1A")) {
+        if (!mission.startsWith("SENTINEL-1")) {
             throw new OperatorException(mission + " is not a valid mission for Sentinel1 product");
         }
     }

@@ -102,7 +102,7 @@ public class TestSentinelPODOrbitFile {
 
         String str = podOrbitFile.getMissionFromHeader();
         System.out.println("Mission from Header = " + str);
-        assert(str.equals("Sentinel-1A"));
+        assert(str.startsWith("Sentinel-1"));
 
         str = podOrbitFile.getFileTypeFromHeader();
         System.out.println("File_Type from Header = " + str);
