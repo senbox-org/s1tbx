@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>snap-engine-utilities</symbolicName>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.5</version>
     <name>SNAP Engine Utilities</name>
 
     <description>SNAP Engine Utilities</description>
