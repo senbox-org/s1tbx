@@ -49,7 +49,7 @@ import java.util.List;
         category = "Classification/Feature Extraction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Detect flooded area.")
+        description = "Detect flooded area.", internal = true)
 public class FloodDetectionOp extends Operator {
 
     @SourceProduct(alias = "source")

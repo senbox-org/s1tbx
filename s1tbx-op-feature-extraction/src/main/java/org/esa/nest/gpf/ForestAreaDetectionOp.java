@@ -51,7 +51,7 @@ import java.util.Map;
         category = "Classification/Feature Extraction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Detect forest area.")
+        description = "Detect forest area.", internal = true)
 public class ForestAreaDetectionOp extends Operator {
 
     @SourceProduct(alias = "source")
