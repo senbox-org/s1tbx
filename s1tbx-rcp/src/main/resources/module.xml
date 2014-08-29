@@ -39,8 +39,8 @@
         <applicationDescriptor>
             <applicationId>S1TBXMain</applicationId>
             <displayName>SENTINEL-1 TOOLBOX</displayName>
-            <frameIcon>/org/esa/snap/icons/esa-planet.png</frameIcon>
-            <image>/org/esa/snap/icons/esa-planet.png</image>
+            <frameIcon>/org/esa/snap/icons/s1-64.png</frameIcon>
+            <image>/org/esa/snap/icons/s1-64.png</image>
             <excludedActions>
                 <id>showDataSources</id>
                 <id>createAsarNrcsBands</id>
