@@ -27,6 +27,7 @@ import org.esa.snap.util.FileIOUtils;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Map;
 
 /**
@@ -41,23 +42,11 @@ public class GPFProcessor {
     }
 
     public GPFProcessor(final File graphFile, final Map<String, String> parameterMap) throws GraphException, IOException {
-        graph = readGraph(graphFile, parameterMap);
+        graph = readGraph(new FileReader(graphFile), parameterMap);
     }
 
-    public static Graph readGraph(final File graphFile, final Map<String, String> parameterMap)
+    public static Graph readGraph(final Reader fileReader, final Map<String, String> parameterMap)
             throws GraphException, IOException {
-        try {
-            return readInGraph(graphFile, parameterMap);
-        } catch (Exception e) {
-            // check for old Xpp3DomElement and replace it with XppDomElement
-            FileIOUtils.replaceText(graphFile, graphFile, "Xpp3DomElement", "XppDomElement");
-            return readInGraph(graphFile, parameterMap);
-        }
-    }
-
-    private static Graph readInGraph(final File graphFile, final Map<String, String> parameterMap)
-            throws GraphException, IOException {
-        final FileReader fileReader = new FileReader(graphFile);
         Graph graph = null;
         try {
             graph = GraphIO.read(fileReader, parameterMap);
