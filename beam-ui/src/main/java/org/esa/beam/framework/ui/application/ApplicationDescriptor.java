@@ -33,9 +33,9 @@ public interface ApplicationDescriptor {
 
     String getBuildDate();
 
-    String getFrameIconPath();
+    String getFrameIconPaths();
 
-    String getImagePath();
+    String getAboutImagePath();
 
     String getResourceBundleName();
 
