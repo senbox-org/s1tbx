@@ -45,7 +45,7 @@ import java.awt.Rectangle;
  * @version $Revision$ $Date$
  */
 @OperatorMetadata(alias = "KMeansClusterAnalysis",
-                  category = "Classification/Clustering",
+                  category = "Image Analysis/Clustering",
                   version = "1.0",
                   authors = "Ralf Quast, Marco Zuehlke",
                   copyright = "(c) 2008 by Brockmann Consult",

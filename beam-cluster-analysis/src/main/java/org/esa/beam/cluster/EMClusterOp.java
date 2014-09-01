@@ -44,7 +44,7 @@ import java.util.Map;
  * @version $Revision$ $Date$
  */
 @OperatorMetadata(alias = "EMClusterAnalysis",
-                  category = "Classification/Clustering",
+                  category = "Image Analysis/Clustering",
                   version = "1.0",
                   authors = "Ralf Quast",
                   copyright = "(c) 2007 by Brockmann Consult",
