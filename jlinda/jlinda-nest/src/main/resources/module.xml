@@ -13,7 +13,7 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>snap-visat</module>
+        <module>snap-visat-rcp</module>
         <optional>true</optional>
     </dependency>
 	<dependency>
