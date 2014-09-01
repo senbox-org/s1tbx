@@ -15,10 +15,7 @@
  */
 package org.esa.nest.gpf;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -98,7 +95,18 @@ public final class TOPSARSplitOp extends Operator {
                     selectedBands.get(0).getSceneRasterHeight());
 
             for (Band srcBand : selectedBands) {
-                ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+                if (srcBand instanceof VirtualBand) {
+                    final VirtualBand sourceBand = (VirtualBand) srcBand;
+                    final VirtualBand targetBand = new VirtualBand(sourceBand.getName(),
+                            sourceBand.getDataType(),
+                            sourceBand.getRasterWidth(),
+                            sourceBand.getRasterHeight(),
+                            sourceBand.getExpression());
+                    ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
+                    targetProduct.addBand(targetBand);
+                } else {
+                    ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+                }
             }
             for (TiePointGrid srcTPG : sourceProduct.getTiePointGrids()) {
                 if (srcTPG.getName().contains(subswath)) {
