@@ -26,8 +26,8 @@
         <applicationDescriptor>
             <applicationId>SNAPMain</applicationId>
             <displayName>SENTINEL TOOLBOX</displayName>
-            <frameIcon>/org/esa/snap/icons/snap.png</frameIcon>
-            <image>/org/esa/snap/icons/snap.png</image>
+            <frameIcons>/org/esa/snap/icons/snap.png</frameIcons>
+            <aboutImage>/org/esa/snap/icons/snap.png</aboutImage>
             <excludedActions>
 
             </excludedActions>

@@ -20,17 +20,17 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-core</artifactId>
-			<version>${snapVersionRange}</version>
+            <version>${snapVersionRange}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-visat-rcp</artifactId>
-			<version>${snapVersionRange}</version>
-        </dependency>   
+            <version>${snapVersionRange}</version>
+        </dependency>
         <dependency>
             <groupId>com.alee</groupId>
             <artifactId>weblaf</artifactId>
-			<version>1.27</version>
+            <version>1.27</version>
         </dependency>
     </dependencies>
 
