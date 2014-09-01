@@ -41,7 +41,7 @@
             <text>HICO (ENVI format)</text>
             <useAllFileFilter>false</useAllFileFilter>
             <shortDescr>Import a HICO data product.</shortDescr>
-            <parent>importFileFormats</parent>
+            <parent>importMultispectral</parent>
         </action>
 
 		 <action>
