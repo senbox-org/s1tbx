@@ -24,8 +24,8 @@ public class DefaultApplicationDescriptorTest extends TestCase {
             "<applicationDescriptor>\n" +
             "  <applicationId>DatMain</applicationId>\n" +
             "  <displayName>DAT</displayName>\n" +
-            "  <frameIcon>/org/esa/nest/dat/images/frame-icon.png</frameIcon>\n" +
-            "  <image>/org/esa/nest/dat/images/about.jpg</image>\n" +
+            "  <frameIcons>/org/esa/nest/dat/images/frame-icon.png</frameIcons>\n" +
+            "  <aboutImage>/org/esa/nest/dat/images/about.jpg</aboutImage>\n" +
             "  <excludedActions>\n" +
             "      <id>a1</id>\n" +
             "      <id>a2</id>\n" +
