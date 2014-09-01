@@ -95,7 +95,7 @@
             <graphFile>Sentinel1SLCtoGRDGraph.xml</graphFile>
         </action>
 
-        <action>
+        <!--action>
             <id>MergeSlices</id>
             <helpId>MergeSlices</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
@@ -105,7 +105,7 @@
             <operatorName>MergeSlices</operatorName>
             <shortDescr>Merge slice products together</shortDescr>
             <dialogTitle>Merge Slices</dialogTitle>
-        </action>
+        </action-->
 
         <!--action>
             <id>BackGeocodingOp</id>
