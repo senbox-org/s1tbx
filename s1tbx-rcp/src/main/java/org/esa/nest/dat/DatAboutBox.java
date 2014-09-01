@@ -106,25 +106,30 @@ class DatAboutBox extends ModalDialog {
         final String ver = System.getProperty(ResourceUtils.getContextID() + ".version");
         final String pattern =
                 "<html>" +
-                        "<b>NEST  Version " + ver + "</b>" +
+                        "<b>S1TBX</b>" +
+                        "<br>(c) Copyright 2014 by Array Systems Computing Inc. and contributors. All rights reserved." +
+                        "<br>" +
+                        "<b>S2TBX</b>" +
+                        "<br>(c) Copyright 2014 by C-S and contributors. All rights reserved." +
+                        "<br>" +
+                        "<b>S3TBX</b>" +
+                        "<br>(c) Copyright 2014 by Brockmann Consult and contributors. All rights reserved." +
+                        "<br>" +
+                        "<b>NEST</b>" +
                         "<br>(c) Copyright 2007-2013 by Array Systems Computing Inc. and contributors. All rights reserved." +
-                        "<br>Visit http://www.array.ca/nest" +
                         "<br>" +
                         "<b>JLINDA</b>" +
                         "<br>(c) Copyright 2009-2013 by PPO.labs and contributors. All rights reserved." +
                         "<br>" +
                         "<b>BEAM </b>" +
                         "<br>(c) Copyright 2002-2013 by Brockmann Consult and contributors. All rights reserved." +
-                        "<br>Visit http://www.brockmann-consult.de/beam/" +
                         "<br>" +
                         "<br>This program has been developed under contract to ESA (ESRIN)." +
-                        "<br>Visit http://envisat.esa.int/services/" +
                         "<br>" +
-                        "<br>This program is free software; you can redistribute it and/or modify it" +
-                        "<br>under the terms of the GNU General Public License as published by the" +
-                        "<br>Free Software Foundation. This program is distributed in the hope it will be" +
-                        "<br>useful, but WITHOUT ANY WARRANTY; without even the implied warranty" +
-                        "<br>of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." +
+                        "<br>This program is free software; you can redistribute it and/or modify it under the terms of " +
+                        "<br>the GNU General Public License as published by the Free Software Foundation. This program" +
+                        "<br>is distributed in the hope it will be useful, but WITHOUT ANY WARRANTY; without even the" +
+                        "<br>implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." +
                         "<br>See the GNU General Public License for more details." +
                         "<br>" +
                         "<br>This product includes software developed by Unidata and NCSA" +
@@ -185,7 +190,7 @@ class DatAboutBox extends ModalDialog {
                 "<b>Canadian Space Agency</b> (CSA):" +
                 "<table border=0>" +
                 "<tr><td>" +
-                "&nbsp;&nbsp;<b>Stéphane Chalifoux</b> (project authority)<br>" +
+                "&nbsp;&nbsp;<b>Stephane Chalifoux</b> (project authority)<br>" +
                 "</td><td>" +
                 "&nbsp;&nbsp;<b>Robert Saint-Jean</b> (technical authority)<br>" +
                 "</td></tr>" +

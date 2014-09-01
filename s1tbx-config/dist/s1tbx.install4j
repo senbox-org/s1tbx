@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.1.12" transformSequenceNumber="4">
   <directoryPresets config="../main/bin/common/resource" />
-  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="4431-5586-7569-6087" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="s1tbx" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="0.5-SNAPSHOT" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
+  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="s1tbx" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="0.5.0" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -166,8 +166,8 @@
         </include>
         <dependencies />
       </component>
-      <component name="Sentinel-1 Toolbox" id="5134" customizedId="" displayDescription="true" hideHelpButton="false" selected="true" changeable="false" downloadable="false" hidden="false">
-        <description>Synthetic Aperture Radar</description>
+      <component name="Sentinel-1 Toolbox" id="5134" customizedId="" displayDescription="true" hideHelpButton="true" selected="true" changeable="false" downloadable="false" hidden="false">
+        <description>Synthetic Aperture Radar Tools</description>
         <include all="false">
           <entry location="auxdata" fileType="regular" />
           <entry location="bin" fileType="regular" />
@@ -191,13 +191,14 @@
           <entry location="modules/s1tbx-op-utilities-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s1tbx-rcp-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s1tbx-worldwind-0.5.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="s1tbx" fileType="launcher" />
         </include>
         <dependencies>
           <component id="5274" />
         </dependencies>
       </component>
-      <component name="Radarsat-2 Toolbox" id="5014" customizedId="" displayDescription="true" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
-        <description>Polarimetric tools developed through CSA</description>
+      <component name="Radarsat-2 Toolbox" id="5014" customizedId="" displayDescription="true" hideHelpButton="true" selected="true" changeable="true" downloadable="false" hidden="false">
+        <description>Polarimetric Tools</description>
         <include all="false">
           <entry location="modules/rstb-classification-6.2-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/rstb-polarimetric-tools-6.2-SNAPSHOT.jar" fileType="regular" />
@@ -207,8 +208,8 @@
           <component id="5134" />
         </dependencies>
       </component>
-      <component name="Sentinel-2 Toolbox" id="5273" customizedId="" displayDescription="true" hideHelpButton="false" selected="false" changeable="true" downloadable="true" hidden="false">
-        <description>High Resolution Optical</description>
+      <component name="Sentinel-2 Toolbox" id="5273" customizedId="" displayDescription="true" hideHelpButton="true" selected="false" changeable="true" downloadable="true" hidden="false">
+        <description>High Resolution Optical Tools</description>
         <include all="false">
           <entry location="modules/lib-openjpeg-2.1.0" fileType="regular" />
           <entry location="modules/s2tbx-commons-0.6.0.jar" fileType="regular" />
@@ -218,8 +219,8 @@
         </include>
         <dependencies />
       </component>
-      <component name="Sentinel-3 Toolbox" id="5140" customizedId="" displayDescription="true" hideHelpButton="false" selected="false" changeable="true" downloadable="true" hidden="false">
-        <description>Medium Resolution Optical</description>
+      <component name="Sentinel-3 Toolbox" id="5140" customizedId="" displayDescription="true" hideHelpButton="true" selected="false" changeable="true" downloadable="true" hidden="false">
+        <description>Medium Resolution Optical Tools</description>
         <include all="false">
           <entry location="modules/globcover-worldmap-0.5.0-SNAPSHOT" fileType="regular" />
           <entry location="modules/s3tbx-alos-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
@@ -285,8 +286,8 @@
     </components>
   </files>
   <launchers>
-    <launcher name="s1tbx" id="19" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="S1 Toolbox" icnsFile="" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="5131" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="">
-      <executable name="s1tbx" type="1" iconSet="true" iconFile="" executableDir="" redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="false" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="false" workingDirectory=".." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="highestAvailable" checkConsoleParameter="false" globalSingleInstance="false">
+    <launcher name="s1tbx" id="19" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="S1 Toolbox" icnsFile="" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="">
+      <executable name="s1tbx" type="1" iconSet="true" iconFile="" executableDir="" redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="true" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="false" workingDirectory=".." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false">
         <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" productName="" />
       </executable>
       <splashScreen show="false" autoOff="true" alwaysOnTop="true" width="653" height="195" bitmapFile="../../../beam/target/beam-installer-files/bin/splash.png" java6SplashScreen="false">
@@ -303,8 +304,14 @@
       </java>
       <includedFiles />
       <unextractableFiles />
-      <vmOptionsFile mode="template" overwriteMode="0" fileMode="644">
-        <content />
+      <vmOptionsFile mode="content" overwriteMode="0" fileMode="644">
+        <content>-Dceres.context=s1tbx 
+-Xverify:none 
+-XX:+AggressiveOpts 
+-XX:+UseFastAccessorMethods 
+-XX:+UseParallelGC 
+-XX:+UseNUMA 
+-XX:+UseLoopPredicate</content>
       </vmOptionsFile>
       <customScript mode="1" file="">
         <content />
@@ -313,7 +320,7 @@
         <content />
       </infoPlist>
       <iconImageFiles>
-        <file path="../main/bin/common/resource/dat.png" />
+        <file path="../main/bin/common/resource/snap-s1.png" />
       </iconImageFiles>
     </launcher>
   </launchers>
@@ -330,14 +337,24 @@
             <object class="com.install4j.runtime.beans.applications.InstallerApplication">
               <void property="customHeaderImage">
                 <object class="com.install4j.api.beans.ExternalFile">
-                  <string>../main/bin/common/resource/dat.png</string>
+                  <string>../main/bin/common/resource/snap-s1.png</string>
                 </object>
+              </void>
+              <void property="customIconImageFiles">
+                <void method="add">
+                  <object class="com.install4j.api.beans.ExternalFile">
+                    <string>../main/bin/common/resource/snap-s1.png</string>
+                  </object>
+                </void>
               </void>
               <void property="customWatermarkText">
                 <string>ESA S1TBX</string>
               </void>
               <void property="frameSizeClientArea">
                 <boolean>false</boolean>
+              </void>
+              <void property="useCustomIcon">
+                <boolean>true</boolean>
               </void>
             </object>
           </java>
@@ -381,7 +398,7 @@
                       <void method="put">
                         <string>en</string>
                         <object class="com.install4j.api.beans.ExternalFile">
-                          <string>../../../beam/beam-installer/src/main/resources/gpl.html</string>
+                          <string>${installer:sys.contentDir}/licenses/LICENSE.txt</string>
                         </object>
                       </void>
                     </void>
@@ -436,7 +453,11 @@
           <screen name="" id="5139" customizedId="" beanClass="com.install4j.runtime.beans.screens.ComponentsScreen" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.screens.ComponentsScreen" />
+                <object class="com.install4j.runtime.beans.screens.ComponentsScreen">
+                  <void property="smallerDescription">
+                    <boolean>true</boolean>
+                  </void>
+                </object>
               </java>
             </serializedBean>
             <condition />
@@ -555,7 +576,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                         <string>19</string>
                       </void>
                       <void property="vmOptions">
-                        <array class="java.lang.String" length="4">
+                        <array class="java.lang.String" length="11">
                           <void index="0">
                             <string>-Xmx${installer:maxHeapSize}</string>
                           </void>
@@ -563,10 +584,31 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                             <string>-Ds1tbx.home=${installer:sys.installationDir}</string>
                           </void>
                           <void index="2">
-                            <string>-Ds1tbx.splash.image=${installer:sys.installationDir}/bin/splash-snap.png</string>
+                            <string>-Ds1tbx.splash.image=${installer:sys.installationDir}/resource/sentinel_toolboxes_banner.png</string>
                           </void>
                           <void index="3">
                             <string>-Ds1tbx.build.date=${compiler:sys.date}</string>
+                          </void>
+                          <void index="4">
+                            <string>-Dceres.context=s1tbx </string>
+                          </void>
+                          <void index="5">
+                            <string>-Xverify:none </string>
+                          </void>
+                          <void index="6">
+                            <string>-XX:+AggressiveOpts </string>
+                          </void>
+                          <void index="7">
+                            <string>-XX:+UseFastAccessorMethods </string>
+                          </void>
+                          <void index="8">
+                            <string>-XX:+UseParallelGC </string>
+                          </void>
+                          <void index="9">
+                            <string>-XX:+UseNUMA </string>
+                          </void>
+                          <void index="10">
+                            <string>-XX:+UseLoopPredicate</string>
                           </void>
                         </array>
                       </void>
@@ -1007,7 +1049,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
             <object class="com.install4j.runtime.beans.applications.UninstallerApplication">
               <void property="customHeaderImage">
                 <object class="com.install4j.api.beans.ExternalFile">
-                  <string>../main/bin/common/resource/dat.png</string>
+                  <string>../main/bin/common/resource/snap-s1.png</string>
                 </object>
               </void>
               <void property="executableDirectory">
@@ -2044,7 +2086,7 @@ if (wizardContext != null) {
       <excludedComponents />
       <includedDownloadableComponents />
     </macosFolder>
-    <unixInstaller name="Linux64" id="4500" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_unix_installer" installDir="${compiler:sys.shortName}-Linux64" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="server-jre-8u20-linux-x64" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
+    <unixInstaller name="Linux64" id="4500" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-8u20-linux-x64" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
       <excludedLaunchers>
         <launcher id="1086" />
       </excludedLaunchers>
@@ -2072,7 +2114,7 @@ if (wizardContext != null) {
         <content />
       </installerScript>
     </unixInstaller>
-    <unixInstaller name="Linux32" id="5413" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_unix_installer" installDir="${compiler:sys.shortName}-Linux32" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
+    <unixInstaller name="Linux32" id="5413" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-8u20-linux-x64" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
