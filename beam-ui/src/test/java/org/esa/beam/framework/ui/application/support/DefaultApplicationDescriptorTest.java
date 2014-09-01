@@ -55,8 +55,8 @@ public class DefaultApplicationDescriptorTest extends TestCase {
 
         assertEquals("DatMain", defaultApplicationDescriptor.getApplicationId());
         assertEquals("DAT", defaultApplicationDescriptor.getDisplayName());
-        assertEquals("/org/esa/nest/dat/images/frame-icon.png", defaultApplicationDescriptor.getFrameIconPath());
-        assertEquals("/org/esa/nest/dat/images/about.jpg", defaultApplicationDescriptor.getImagePath());
+        assertEquals("/org/esa/nest/dat/images/frame-icon.png", defaultApplicationDescriptor.getFrameIconPaths());
+        assertEquals("/org/esa/nest/dat/images/about.jpg", defaultApplicationDescriptor.getAboutImagePath());
 
 
         assertNotNull(defaultApplicationDescriptor.getExcludedActions());

@@ -43,11 +43,11 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
     @XStreamAlias("resourceBundle")
     private String resourceBundleName;
 
-    @XStreamAlias("frameIcon")
-    private String frameIconPath;
+    @XStreamAlias("frameIcons")
+    private String frameIconPaths;
 
-    @XStreamAlias("image")
-    private String imagePath;
+    @XStreamAlias("aboutImage")
+    private String aboutImagePath;
 
     @SuppressWarnings("UnusedDeclaration")
     private ArrayList<ID> excludedActions;
@@ -82,8 +82,8 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
     }
 
     @Override
-    public String getFrameIconPath() {
-        return frameIconPath;
+    public String getFrameIconPaths() {
+        return frameIconPaths;
     }
 
     @Override
@@ -92,8 +92,8 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
     }
 
     @Override
-    public String getImagePath() {
-        return imagePath;
+    public String getAboutImagePath() {
+        return aboutImagePath;
     }
 
     @Override
@@ -123,16 +123,16 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
         this.resourceBundleName = resourceBundleName;
     }
 
-    public void setFrameIconPath(String frameIconPath) {
-        this.frameIconPath = frameIconPath;
+    public void setFrameIconPaths(String frameIconPaths) {
+        this.frameIconPaths = frameIconPaths;
     }
 
     public void setCopyright(String copyright) {
         this.copyright = copyright;
     }
 
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
+    public void setAboutImagePath(String aboutImagePath) {
+        this.aboutImagePath = aboutImagePath;
     }
 
     public void setSymbolicName(String symbolicName) {
@@ -201,11 +201,11 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
         if (copyright == null) {
             copyright = declaringModule.getCopyright();
         }
-        if (frameIconPath == null) {
-            frameIconPath = "/org/esa/beam/resources/images/icons/BeamIcon24.png";
+        if (frameIconPaths == null) {
+            frameIconPaths = "/org/esa/beam/resources/images/icons/BeamIcon24.png";
         }
-        if (imagePath == null) {
-            imagePath = "/org/esa/beam/resources/images/about.jpg";
+        if (aboutImagePath == null) {
+            aboutImagePath = "/org/esa/beam/resources/images/about.jpg";
         }
         if (loggerName == null) {
             loggerName = declaringModule.getSymbolicName();

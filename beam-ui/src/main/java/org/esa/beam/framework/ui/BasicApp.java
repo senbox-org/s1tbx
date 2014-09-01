@@ -86,6 +86,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -101,7 +102,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -377,9 +380,9 @@ public class BasicApp {
     }
 
     private void initFrameIcon() {
-        ImageIcon imageIcon = createFrameIcon();
-        if (imageIcon != null) {
-            getMainFrame().setIconImage(imageIcon.getImage());
+        List<Image> imageIcons = createFrameIcons();
+        if (imageIcons != null) {
+            getMainFrame().setIconImages(imageIcons);
         }
     }
 
@@ -602,21 +605,28 @@ public class BasicApp {
     }
 
     /**
-     * Creates a default frame icon for this application.
+     * Creates a default frame icon list for this application.
      * <p/> Override this method if you want another behaviour.
      *
-     * @return the frame icon, or <code>null</code> if no icon is used
+     * @return the frame icon list, or <code>null</code> if no icon is used
      */
-    protected ImageIcon createFrameIcon() {
-        final String path = applicationDescriptor.getFrameIconPath();
-        if (path == null) {
+    protected List<Image> createFrameIcons() {
+        final String paths = applicationDescriptor.getFrameIconPaths();
+        if (paths == null) {
             return null;
         }
-        URL iconURL = getClass().getResource(path);
-        if (iconURL == null) {
-            return null;
+        String[] pathParts = paths.split(",");
+        ArrayList<Image> images = new ArrayList<>(pathParts.length);
+        for (String pathPart : pathParts) {
+            pathPart = pathPart.trim();
+            URL iconURL = getClass().getResource(pathPart);
+            if (iconURL == null) {
+                BeamLogManager.getSystemLogger().severe("Missing icon resource: " + pathPart);
+                continue;
+            }
+            images.add(new ImageIcon(iconURL).getImage());
         }
-        return new ImageIcon(iconURL);
+        return images;
     }
 
     /**
