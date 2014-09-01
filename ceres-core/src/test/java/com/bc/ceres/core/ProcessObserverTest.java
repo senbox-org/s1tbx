@@ -1,6 +1,5 @@
 package com.bc.ceres.core;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -8,13 +7,14 @@ import static org.junit.Assert.*;
 /**
  * @author Norman Fomferra
  */
-@Ignore("Fails on TeamCity but runs locally on Windows")
 public class ProcessObserverTest {
     public static final String CP = "target/test-classes";
+    public static final String JAVA_HOME = System.getProperty("java.home", ".");
+    public static final String JAVA_EXEC_PATH = JAVA_HOME + "/bin/java";
 
     @Test
     public void testJavaProcessOk() throws Exception {
-        final String commandLine = String.format("java -cp %s %s 2 10", CP, TestExecutable.class.getName());
+        final String commandLine = String.format(JAVA_EXEC_PATH + " -cp %s %s 2 10", CP, TestExecutable.class.getName());
         final Process process = Runtime.getRuntime().exec(commandLine);
         final MyHandler handler = new MyHandler();
         new ProcessObserver(process).setHandler(handler).start();
@@ -38,7 +38,7 @@ public class ProcessObserverTest {
 
     @Test
     public void testJavaProcessMissingArg() throws Exception {
-        final String commandLine = String.format("java -cp %s %s 2", CP, TestExecutable.class.getName());
+        final String commandLine = String.format(JAVA_EXEC_PATH + " -cp %s %s 2", CP, TestExecutable.class.getName());
         final Process process = Runtime.getRuntime().exec(commandLine);
         final MyHandler handler = new MyHandler();
         new ProcessObserver(process).setHandler(handler).start();
@@ -51,7 +51,7 @@ public class ProcessObserverTest {
 
     @Test
     public void testJavaProcessCancel() throws Exception {
-        final String commandLine = String.format("java -cp %s %s 10 2", CP, TestExecutable.class.getName());
+        final String commandLine = String.format(JAVA_EXEC_PATH + " -cp %s %s 10 2", CP, TestExecutable.class.getName());
         final Process process = Runtime.getRuntime().exec(commandLine);
         final MyHandler handler = new MyHandler();
         final ProcessObserver.ObservedProcess observedProcess = new ProcessObserver(process)
