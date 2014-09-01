@@ -28,10 +28,6 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-visat</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
             <artifactId>snap-netcdf</artifactId>
         </dependency>
         <dependency>
