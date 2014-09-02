@@ -15,6 +15,8 @@
  */
 package org.esa.nest.dat;
 
+import com.alee.extended.panel.WebAccordion;
+import com.alee.extended.panel.WebAccordionStyle;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.visat.VisatApp;
 import org.esa.snap.util.ResourceUtils;
@@ -85,9 +87,16 @@ class DatAboutBox extends ModalDialog {
 
     private void showCreditsDialog() {
         final ModalDialog modalDialog = new ModalDialog(getJDialog(), "Credits", ID_OK, null); /*I18N*/
-        final String credits = getCreditsHtml();
-        final JLabel creditsPane = new JLabel(credits); /*I18N*/
-        modalDialog.setContent(creditsPane);
+        final WebAccordion accordion = new WebAccordion(WebAccordionStyle.accordionStyle);
+        accordion.setMultiplySelectionAllowed(false);
+        accordion.addPane("S1TBX", new JScrollPane(new JLabel(getCreditsHtmlS1TBX())));
+        accordion.addPane("S2TBX", new JScrollPane(new JLabel(getCreditsHtmlS2TBX())));
+        accordion.addPane("S3TBX", new JScrollPane(new JLabel(getCreditsHtmlS3TBX())));
+        accordion.addPane("NEST", new JScrollPane(new JLabel(getCreditsHtmlNEST())));
+        accordion.addPane("RSTB", new JScrollPane(new JLabel(getCreditsHtmlRSTB())));
+        accordion.addPane("BEAM", new JScrollPane(new JLabel(getCreditsHtmlBEAM())));
+        accordion.addPane("Special Thanks", new JScrollPane(new JLabel(getCreditsHtmlSpecialThanks())));
+        modalDialog.setContent(accordion);
         modalDialog.show();
     }
 
@@ -139,9 +148,107 @@ class DatAboutBox extends ModalDialog {
         return pattern; /*I18N*/
     }
 
-    private static String getCreditsHtml() {
+    private static String getCreditsHtmlS1TBX() {
         return "<html>" +
-                "<hr><center><u><b>The NEST team</b></u></center>" +
+                "<center><u><b>The S1TBX team</b></u></center>" +
+                "<b>Array Systems Computing</b>:" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "&nbsp;&nbsp;<b>Rajesh Jha</b><br>" +
+                "&nbsp;&nbsp;<b>Luis Veci</b><br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Jun Lu</b><br>" +
+                "&nbsp;&nbsp;<b>Cecilia Wong</b> <br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Serge Stankovic</b><br>" +
+                "&nbsp;&nbsp;<b>Andrew Taylor</b><br>" +
+                "</td></tr>" +
+                "</table>" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "<b>German Aerospace Center</b> (DLR):" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Pau Prats-Iraola</b><br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Rolf Scheiber</b><br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Marc Rodriguez-Cassola</b><br>" +
+                "</td></tr>" +
+                "</table>" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "<b>European Space Agency</b> (ESA) ESRIN:<br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Marcus Engdahl</b><br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Michael Foumelis</b><br>" +
+                "</td></tr>" +
+                "</table>" +
+                "</html>"; /*I18N*/
+    }
+
+    private static String getCreditsHtmlS2TBX() {
+        return "<html>" +
+                "<center><u><b>The S2TBX team</b></u></center>" +
+                "<b>C-S</b>:" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "&nbsp;&nbsp;<b>Olivier Thepaut</b><br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Nicolas Ducoin</b><br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Julien Malik</b><br>" +
+                "</td></tr>" +
+                "</table>" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "<b>European Space Agency</b> (ESA) ESRIN:<br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Ferran Gascon</b><br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Fabrizio Ramoino</b><br>" +
+                "</td></tr>" +
+                "</table>" +
+                "</html>"; /*I18N*/
+    }
+
+    private static String getCreditsHtmlS3TBX() {
+        return "<html>" +
+                "<center><u><b>The S3TBX team</b></u></center>" +
+                "<b>Brockmann Consult</b>:" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "&nbsp;&nbsp;<b>Tom Block</b><br>" +
+                "&nbsp;&nbsp;<b>Carsten Brockmann</b><br>" +
+                "&nbsp;&nbsp;<b>Sabine Embacher</b><br>" +
+                "&nbsp;&nbsp;<b>Olga Faber</b><br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Tonio Fincke</b><br>" +
+                "&nbsp;&nbsp;<b>Norman Fomferra</b><br>" +
+                "&nbsp;&nbsp;<b>Uwe Kramer</b><br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Des Murphy</b><br>" +
+                "&nbsp;&nbsp;<b>Michael Paperin</b><br>" +
+                "&nbsp;&nbsp;<b>Marco Peters</b><br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Ralf Quast</b><br>" +
+                "&nbsp;&nbsp;<b>Kerstin Stelzer</b><br>" +
+                "&nbsp;&nbsp;<b>Marco Zuhlke</b><br>" +
+                "</td></tr>" +
+                "</table>" +
+                "<table border=0>" +
+                "<tr><td>" +
+                "<b>European Space Agency</b> (ESA) ESRIN:<br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Peter Regner</b><br>" +
+                "</td></tr>" +
+                "</table>" +
+                "</html>"; /*I18N*/
+    }
+
+    private static String getCreditsHtmlNEST() {
+        return "<html>" +
+                "<center><u><b>The NEST team</b></u></center>" +
                 "<b>Array Systems Computing</b>:" +
                 "<table border=0>" +
                 "<tr><td>" +
@@ -155,17 +262,19 @@ class DatAboutBox extends ModalDialog {
                 "&nbsp;&nbsp;<b>Andrew Taylor</b> (IT support)<br>" +
                 "</td></tr>" +
                 "</table>" +
-                "<b>TU Delft/PPO.Labs</b>:" +
                 "<table border=0>" +
                 "<tr><td>" +
+                "<b>TU Delft/PPO.Labs</b>:" +
+                "</td><td>" +
                 "&nbsp;&nbsp;<b>Ramon Hanssen</b> (project manager)<br>" +
                 "</td><td>" +
                 "&nbsp;&nbsp;<b>Petar Marinkovic</b> (software lead/scientist)<br>" +
                 "</td></tr>" +
                 "</table>" +
-                "<b>European Space Agency</b> (ESA) ESRIN:" +
                 "<table border=0>" +
                 "<tr><td>" +
+                "<b>European Space Agency</b> (ESA) ESRIN:<br>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;<b>Marcus Engdahl</b> (technical officer)<br>" +
                 "</td><td>" +
                 "&nbsp;&nbsp;<b>Andrea Minchella</b> (scientist)<br>" +
@@ -173,8 +282,12 @@ class DatAboutBox extends ModalDialog {
                 "&nbsp;&nbsp;<b>Romain Husson</b> (scientist)<br>" +
                 "</td></tr>" +
                 "</table>" +
+                "</html>"; /*I18N*/
+    }
 
-                "<hr><center><u><b>The RSTB team</b></u></center>" +
+    private static String getCreditsHtmlRSTB() {
+        return "<html>" +
+                "<center><u><b>The RSTB team</b></u></center>" +
                 "<b>Array Systems Computing</b>:" +
                 "<table border=0>" +
                 "<tr><td>" +
@@ -188,54 +301,66 @@ class DatAboutBox extends ModalDialog {
                 "&nbsp;&nbsp;<b>Roberta Manners</b> (scientist)<br>" +
                 "</td></tr>" +
                 "</table>" +
-                "<b>Canadian Space Agency</b> (CSA):" +
                 "<table border=0>" +
                 "<tr><td>" +
+                "<b>Canadian Space Agency</b> (CSA):<br>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;<b>Stephane Chalifoux</b> (project authority)<br>" +
                 "</td><td>" +
                 "&nbsp;&nbsp;<b>Robert Saint-Jean</b> (technical authority)<br>" +
                 "</td></tr>" +
                 "</table>" +
-                "<b>Canadian Centre for Remote Sensing</b> (CCRS):" +
                 "<table border=0>" +
                 "<tr><td>" +
+                "<b>Canada Centre for Mapping and Earth Observation</b> (CCMEO):<br>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;<b>Francois Charboneau</b> (technical authority)<br>" +
                 "</td><td>" +
                 "&nbsp;&nbsp;<b></b><br>" +
                 "</td></tr>" +
                 "</table>" +
-                "<b>Canadian Forest Service</b> (CFS):" +
                 "<table border=0>" +
                 "<tr><td>" +
-                "&nbsp;&nbsp;<b>Hao Chen</b> (research associate)<br>" +
+                "<b>Canadian Forest Service</b> (CFS):<br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Hao Chen</b> (senior physical scientist)<br>" +
                 "</td><td>" +
                 "&nbsp;&nbsp;<b>David Hill</b> (analyst)<br>" +
                 "</td></tr>" +
                 "</table>" +
-                "<b>Geological Survey of Canada</b> (GSC):" +
                 "<table border=0>" +
                 "<tr><td>" +
+                "<b>Geological Survey of Canada</b> (GSC):<br>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;<b>Paul Fraser</b> (remote sensing specialist)<br>" +
                 "</td><td>" +
                 "&nbsp;&nbsp;<b>Dustin Whalen</b> (physical scientist)<br>" +
                 "</td></tr>" +
                 "</table>" +
-                "<b>Agriculture and Agri-Food Canada</b> (AAFC):" +
                 "<table border=0>" +
                 "<tr><td>" +
+                "<b>Agriculture and Agri-Food Canada</b> (AAFC):<br>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;<b>Heather McNairn</b><br>" +
                 "</td><td>" +
                 "&nbsp;&nbsp;<b>Amine Merzouki</b><br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Catherine Champagne</b><br>" +
                 "</td></tr>" +
                 "</table>" +
+                "</html>"; /*I18N*/
+    }
 
-                "<hr><center><u><b>The BEAM team</b></u></center>" +
+    private static String getCreditsHtmlBEAM() {
+        return "<html>" +
+                "<center><u><b>The BEAM team</b></u></center>" +
                 "<b>Brockmann Consult</b>:" +
                 "<table border=0>" +
                 "<tr><td>" +
                 "&nbsp;&nbsp;<b>Tom Block</b> (programming)<br>" +
                 "&nbsp;&nbsp;<b>Carsten Brockmann</b> (quality control)<br>" +
                 "&nbsp;&nbsp;<b>Sabine Embacher</b> (programming)<br>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;<b>Olga Faber</b> (testing)<br>" +
                 "&nbsp;&nbsp;<b>Norman Fomferra</b> (project lead)<br>" +
                 "&nbsp;&nbsp;<b>Uwe Kramer</b> (Mac OS X porting)<br>" +
@@ -243,25 +368,34 @@ class DatAboutBox extends ModalDialog {
                 "&nbsp;&nbsp;<b>Des Murphy</b> (contract management)<br>" +
                 "&nbsp;&nbsp;<b>Michael Paperin</b> (web development)<br>" +
                 "&nbsp;&nbsp;<b>Marco Peters</b> (programming)<br>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;<b>Ralf Quast</b> (programming)<br>" +
                 "&nbsp;&nbsp;<b>Kerstin Stelzer</b> (quality control)<br>" +
                 "&nbsp;&nbsp;<b>Marco Zuhlke</b> (programming)<br>" +
                 "</td></tr>" +
                 "</table>" +
-                "<b>European Space Agency</b> (ESA) ESRIN:" +
                 "<table border=0>" +
                 "<tr><td>" +
+                "<b>European Space Agency</b> (ESA) ESRIN:<br>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;<b>Peter Regner</b> (technical officer)<br>" +
                 "</td></tr>" +
                 "</table>" +
+                "</html>"; /*I18N*/
+    }
 
-                "<hr>Special contributions made by:" +
+    private static String getCreditsHtmlSpecialThanks() {
+        return "<html>" +
+                "Special contributions made by:" +
                 "<table border=0>" +
                 "<tr><td>" +
                 "&nbsp;&nbsp;<b>Jason Fritz</b> (Cosmo-Skymed Calibration)<br>" +
-                "</td>" +
-                "<td>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;<b>Emanuella Boros</b> (Summer of Code)<br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Christoph Sperl</b> (Catalysts)<br>" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Max König</b> (NPolar)<br>" +
                 "</td></tr>" +
                 "</table>" +
 
@@ -270,24 +404,20 @@ class DatAboutBox extends ModalDialog {
                 "<tr><td>" +
                 "&nbsp;&nbsp;Yves Louis Desnos<br>" +
                 "&nbsp;&nbsp;Yann Denis<br>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;Pier Georgio Marchetti<br>" +
                 "&nbsp;&nbsp;Steven Delwart<br>" +
                 "</td><td>" +
                 "&nbsp;&nbsp;Medhavy Thankappan<br>" +
                 "&nbsp;&nbsp;Mark Williams<br>" +
+                "</td><td>" +
                 "&nbsp;&nbsp;Joe Buckley<br>" +
                 "&nbsp;&nbsp;David Goodenough<br>" +
                 "</td></tr>" +
                 "</table>" +
 
-                "<hr>The developers would also like to say thank you to" +
-                "<br>&nbsp;&nbsp;All researchers contributing to the world of Earth Observation." +
-                "<br>&nbsp;&nbsp;<b>NASA</b> for the wonderful WorldWind Java SDK," +
-                "<br>&nbsp;&nbsp;<b>IntelliJ</b> for the best IDE in the world," +
-                "<br>&nbsp;&nbsp;<b>JIDE Software</b> for a great docking framework," +
-                "<br>&nbsp;&nbsp;<b>Bitrock</b> for a cross platform installer," +
-                "<br>&nbsp;&nbsp;All companies and organisations supporting the open-source idea." +
-                "<br>" +
+                "<hr>The developers would also like to say thank you for <b>NASA WorldWind</b>, <b>IntelliJ</b>, <b>JProfiler</b>, <b>Install4J</b>, and" +
+                "<br>all companies and organisations supporting the open-source idea and Earth Observation." +
                 "</html>"; /*I18N*/
     }
 
