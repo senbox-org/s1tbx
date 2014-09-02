@@ -15,8 +15,6 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import java.awt.Color;
-
 import junit.framework.TestCase;
 
 public class SampleCodingTest extends TestCase {
@@ -73,7 +71,7 @@ public class SampleCodingTest extends TestCase {
         assertEquals(numAttributes + 2, sampleCoding.getNumAttributes());
 
         try {
-            sampleCoding.addAttribute(new MetadataAttribute("C", ProductData.TYPE_INT32, 2));
+            sampleCoding.addAttribute(new MetadataAttribute("E", ProductData.createInstance(new int[0]), true));
             fail("IllegalArgumentException?");
         } catch (IllegalArgumentException e) {
             // OK
