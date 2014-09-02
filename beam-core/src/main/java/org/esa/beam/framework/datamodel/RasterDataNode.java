@@ -43,6 +43,7 @@ import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -177,32 +178,45 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         geophysicalNoDataValue = 0.0;
         validPixelExpression = null;
 
-        overlayMasks = new ProductNodeGroup<Mask>(this, "overlayMasks", false);
-        roiMasks = new ProductNodeGroup<Mask>(this, "roiMasks", false);
+        overlayMasks = new ProductNodeGroup<>(this, "overlayMasks", false);
+        roiMasks = new ProductNodeGroup<>(this, "roiMasks", false);
+    }
+
+    /**
+     * Gets associated ancillary bands as a roleName --> band mapping.
+     * @return The associated ancillary band map, which may be empty.
+     * @since BEAM 5.1
+     */
+    public Map<String, RasterDataNode> getAncillaryBands() {
+        if (ancillaryBands.isEmpty()) {
+            return Collections.emptyMap();
+        } else {
+            return new HashMap<>(ancillaryBands);
+        }
     }
 
 
     /**
-     * Gets an associated ancillary band.
-     * @param role The association role, may be {@code "mean"}, @code "variance"}, etc.
+     * Gets an associated ancillary band for the specified role name.
+     * @param roleName The association role, may be {@code "mean"}, @code "variance"}, etc.
      * @return The associated ancillary band or {@code null}.
      * @since BEAM 5.1
      */
-    public RasterDataNode getAncillaryBand(String role) {
-        return ancillaryBands.get(role);
+    public RasterDataNode getAncillaryBand(String roleName) {
+        return ancillaryBands.get(roleName);
     }
 
     /**
      * Sets or removes an associated ancillary band.
-     * @param role The association role, may be {@code "mean"}, @code "variance"}, etc.
+     * @param roleName The association role, may be {@code "mean"}, @code "variance"}, etc.
      * @param band The associated ancillary band. May be {@code null} in order to remove the role.
      * @since BEAM 5.1
      */
-    public void setAncillaryBand(String role, RasterDataNode band) {
+    public void setAncillaryBand(String roleName, RasterDataNode band) {
         if (band != null) {
-            ancillaryBands.put(role, band);
+            ancillaryBands.put(roleName, band);
         } else {
-            ancillaryBands.remove(role);
+            ancillaryBands.remove(roleName);
         }
     }
 
