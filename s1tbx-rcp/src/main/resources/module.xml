@@ -39,8 +39,19 @@
         <applicationDescriptor>
             <applicationId>S1TBXMain</applicationId>
             <displayName>SENTINEL-1 TOOLBOX</displayName>
-            <frameIcon>/org/esa/snap/icons/snap-s1.png</frameIcon>
-            <image>/org/esa/snap/icons/snap-s1.png</image>
+
+            <version>${s1tbx.version}</version>
+            <buildId>${s1tbx.build.id}</buildId>
+            <buildDate>${s1tbx.build.date}</buildDate>
+            <frameIcons>
+                /org/esa/s1tbx/icons/s1tbx-icon-16.png,
+                /org/esa/s1tbx/icons/s1tbx-icon-32.png,
+                /org/esa/s1tbx/icons/s1tbx-icon-64.png
+            </frameIcons>
+            <aboutImage>
+                /org/esa/s1tbx/icons/s1tbx-about.png
+            </aboutImage>
+
             <excludedActions>
                 <id>showDataSources</id>
                 <id>createAsarNrcsBands</id>
