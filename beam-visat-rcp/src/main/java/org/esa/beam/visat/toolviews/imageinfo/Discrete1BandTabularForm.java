@@ -51,7 +51,7 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
     public Discrete1BandTabularForm(ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
         tableModel = new ImageInfoTableModel();
-        moreOptionsForm = new MoreOptionsForm(parentForm, false);
+        moreOptionsForm = new MoreOptionsForm(this, false);
 
         final JTable table = new SortableTable(tableModel);
         final ColorCellRenderer colorCellRenderer = new ColorCellRenderer();
@@ -66,6 +66,11 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
         final JScrollPane tableScrollPane = new JScrollPane(table);
         tableScrollPane.getViewport().setPreferredSize(table.getPreferredSize());
         contentPanel = tableScrollPane;
+    }
+
+    @Override
+    public ColorManipulationForm getParentForm() {
+        return parentForm;
     }
 
     @Override

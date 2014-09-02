@@ -200,7 +200,6 @@ public class ImageInfo implements Cloneable {
             return null;
         }
         Color[] palette = ImageManager.createColorPalette(this);
-//        Color[] palette = colorPaletteDef.createColorPalette(scaling);
         final int numColors = palette.length;
         final byte[] red = new byte[numColors];
         final byte[] green = new byte[numColors];

@@ -108,6 +108,7 @@ class ColorManipulationForm {
     private MoreOptionsPane moreOptionsPane;
     private SceneViewImageInfoChangeListener sceneViewChangeListener;
     private final String titlePrefix;
+    private ColorManipulationChildForm emptyForm;
 
     public ColorManipulationForm(AbstractToolView colorManipulationToolView, FormModel formModel) {
         Assert.notNull(colorManipulationToolView);
@@ -119,6 +120,7 @@ class ColorManipulationForm {
         productNodeListener = new ColorManipulationPNL();
         sceneViewChangeListener = new SceneViewImageInfoChangeListener();
         titlePrefix = getToolViewDescriptor().getTitle();
+        emptyForm = new EmptyImageInfoForm(this);
     }
 
     public FormModel getFormModel() {
@@ -180,7 +182,7 @@ class ColorManipulationForm {
 
     private void installChildForm() {
         final ColorManipulationChildForm oldForm = childForm;
-        ColorManipulationChildForm newForm = EmptyImageInfoForm.INSTANCE;
+        ColorManipulationChildForm newForm = emptyForm;
         if (getFormModel().isValid()) {
             if (getFormModel().isContinuous3BandImage()) {
                 if (oldForm instanceof Continuous3BandGraphicalForm) {

@@ -34,8 +34,9 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 
 class MoreOptionsForm {
 
@@ -46,11 +47,24 @@ class MoreOptionsForm {
     private GridBagConstraints constraints;
     private BindingContext bindingContext;
 
-    private ColorManipulationForm parentForm;
+    private ColorManipulationChildForm childForm;
     private boolean hasHistogramMatching;
 
-    MoreOptionsForm(ColorManipulationForm parentForm, boolean hasHistogramMatching) {
-        this.parentForm = parentForm;
+    private List<Row> contentRows;
+
+    private static class Row {
+        final JComponent label;
+        final JComponent editor;
+
+        private Row(JComponent label, JComponent editor) {
+            this.label = label;
+            this.editor = editor;
+        }
+    }
+
+
+    MoreOptionsForm(ColorManipulationChildForm childForm, boolean hasHistogramMatching) {
+        this.childForm = childForm;
         PropertyContainer propertyContainer = new PropertyContainer();
         propertyContainer.addProperty(Property.create(NO_DATA_COLOR_PROPERTY, ImageInfo.NO_COLOR));
 
@@ -59,17 +73,18 @@ class MoreOptionsForm {
             propertyContainer.addProperty(Property.create(HISTOGRAM_MATCHING_PROPERTY, ImageInfo.HistogramMatching.None));
             propertyContainer.getDescriptor(HISTOGRAM_MATCHING_PROPERTY).setNotNull(true);
             propertyContainer.getDescriptor(HISTOGRAM_MATCHING_PROPERTY).setValueSet(
-                        new ValueSet(
-                                    new ImageInfo.HistogramMatching[]{
-                                                ImageInfo.HistogramMatching.None,
-                                                ImageInfo.HistogramMatching.Equalize,
-                                                ImageInfo.HistogramMatching.Normalize,
-                                    }
-                        )
+                    new ValueSet(
+                            new ImageInfo.HistogramMatching[]{
+                                    ImageInfo.HistogramMatching.None,
+                                    ImageInfo.HistogramMatching.Equalize,
+                                    ImageInfo.HistogramMatching.Normalize,
+                            }
+                    )
             );
         }
 
         contentPanel = new JPanel(new GridBagLayout());
+        contentRows = new ArrayList<>();
 
         constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -80,18 +95,15 @@ class MoreOptionsForm {
 
         bindingContext = new BindingContext(propertyContainer);
 
-        final PropertyChangeListener pcl = new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                final ImageInfo.HistogramMatching matching = getHistogramMatching();
-                if (matching != null && matching != ImageInfo.HistogramMatching.None) {
-                    final String message = "<html>Histogram matching will be applied to the currently displayed image.<br/>" +
-                                           "Sample values of the colour palette will not longer translate into<br/>" +
-                                           "their associated colours.</html>";
-                    VisatApp.getApp().showInfoDialog("Histogram Matching", message, "warningHistogramMatching");
-                }
-                updateModel();
+        final PropertyChangeListener pcl = evt -> {
+            final ImageInfo.HistogramMatching matching = getHistogramMatching();
+            if (matching != null && matching != ImageInfo.HistogramMatching.None) {
+                final String message = "<html>Histogram matching will be applied to the currently displayed image.<br/>" +
+                                       "Sample values of the colour palette will not longer translate into<br/>" +
+                                       "their associated colours.</html>";
+                VisatApp.getApp().showInfoDialog("Histogram Matching", message, "warningHistogramMatching");
             }
+            updateModel();
         };
 
         JLabel noDataColorLabel = new JLabel("No-data colour: ");
@@ -114,31 +126,57 @@ class MoreOptionsForm {
     }
 
     private ImageInfo getImageInfo() {
-        return  getParentForm().getFormModel().getModifiedImageInfo();
+        return getParentForm().getFormModel().getModifiedImageInfo();
     }
 
     public ColorManipulationForm getParentForm() {
-        return parentForm;
+        return childForm.getParentForm();
+    }
+
+    public ColorManipulationChildForm getChildForm() {
+        return childForm;
     }
 
     public BindingContext getBindingContext() {
         return bindingContext;
     }
 
+    public void insertRow(int index, JLabel label, JComponent editor) {
+        if (contentRows != null) {
+            contentRows.add(index, new Row(label, editor));
+        } else {
+            addRowImpl(label, editor);
+        }
+    }
+
     public void addRow(JLabel label, JComponent editor) {
-        constraints.gridwidth = 1;
-        constraints.gridy++;
-        constraints.gridx = 0;
-        contentPanel.add(label, constraints);
-        constraints.gridx = 1;
-        contentPanel.add(editor, constraints);
+        if (contentRows != null) {
+            contentRows.add(new Row(label, editor));
+        } else {
+            addRowImpl(label, editor);
+        }
     }
 
     public void addRow(JComponent editor) {
-        constraints.gridwidth = 2;
+        if (contentRows != null) {
+            contentRows.add(new Row(null, editor));
+        } else {
+            addRowImpl(null, editor);
+        }
+    }
+
+    private void addRowImpl(JComponent label, JComponent editor) {
         constraints.gridy++;
         constraints.gridx = 0;
-        contentPanel.add(editor, constraints);
+        if (label == null){
+            constraints.gridwidth = 2;
+            contentPanel.add(editor, constraints);
+        } else {
+            constraints.gridwidth = 1;
+            contentPanel.add(label, constraints);
+            constraints.gridx = 1;
+            contentPanel.add(editor, constraints);
+        }
     }
 
     public void updateForm() {
@@ -157,6 +195,14 @@ class MoreOptionsForm {
     }
 
     public JPanel getContentPanel() {
+        if (contentRows != null) {
+            Row[] rows = contentRows.toArray(new Row[contentRows.size()]);
+            for (Row row : rows) {
+                addRowImpl(row.label, row.editor);
+            }
+            contentRows.clear();
+            contentRows = null;
+        }
         return contentPanel;
     }
 
@@ -178,7 +224,7 @@ class MoreOptionsForm {
 
     private ImageInfo.HistogramMatching getHistogramMatching() {
         Binding binding = getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY);
-        return  binding != null ? (ImageInfo.HistogramMatching) binding.getPropertyValue() : null;
+        return binding != null ? (ImageInfo.HistogramMatching) binding.getPropertyValue() : null;
     }
 
     private void setHistogramMatching(ImageInfo.HistogramMatching histogramMatching) {
