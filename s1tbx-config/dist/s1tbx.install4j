@@ -582,7 +582,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                             <string>-Ds1tbx.home=${installer:sys.installationDir}</string>
                           </void>
                           <void index="2">
-                            <string>-Ds1tbx.splash.image=${installer:sys.installationDir}/resource/sentinel_toolboxes_banner.png</string>
+                            <string>-Ds1tbx.splash.image=${installer:sys.installationDir}/resource/snap_splash.png</string>
                           </void>
                           <void index="3">
                             <string>-Ds1tbx.build.date=${compiler:sys.date}</string>
@@ -2034,7 +2034,7 @@ if (wizardContext != null) {
     </applications>
   </installerGui>
   <mediaSets>
-    <windows name="Win64 JRE" id="4707" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_win64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="64" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-amd64-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/" verifyIntegrity="true">
+    <windows name="Win64 JRE" id="4707" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_win64_installer" installDir="${compiler:sys.shortName}" overridePrincipalLanguage="false" jreBitType="64" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-amd64-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/" verifyIntegrity="true">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
@@ -2051,7 +2051,7 @@ if (wizardContext != null) {
       </excludedComponents>
       <includedDownloadableComponents />
     </windows>
-    <windows name="Win32 JRE" id="20" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_win32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-x86-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/" verifyIntegrity="true">
+    <windows name="Win32 JRE" id="20" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_win32_installer" installDir="${compiler:sys.shortName}" overridePrincipalLanguage="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-x86-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/" verifyIntegrity="true">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
@@ -2087,7 +2087,7 @@ if (wizardContext != null) {
       <excludedComponents />
       <includedDownloadableComponents />
     </macosFolder>
-    <unixInstaller name="Linux64" id="4500" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-1.8.0_20_linux64.tar.gz" manualJREEntry="true" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
+    <unixInstaller name="Linux64" id="4500" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux64_installer" installDir="${compiler:sys.shortName}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-1.8.0_20_linux64.tar.gz" manualJREEntry="true" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
       <excludedLaunchers>
         <launcher id="1086" />
       </excludedLaunchers>
@@ -2115,7 +2115,7 @@ if (wizardContext != null) {
         <content />
       </installerScript>
     </unixInstaller>
-    <unixInstaller name="Linux32" id="5413" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-1.8.0_20_linux32.tar.gz" manualJREEntry="true" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
+    <unixInstaller name="Linux32" id="5413" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux32_installer" installDir="${compiler:sys.shortName}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-1.8.0_20_linux32.tar.gz" manualJREEntry="true" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
