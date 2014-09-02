@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.1.12" transformSequenceNumber="4">
-  <directoryPresets config="../main/bin/common/resource" />
+  <directoryPresets config="../.." />
   <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="s1tbx" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="0.5.0" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
@@ -64,7 +64,9 @@
         <exclude />
       </dirEntry>
       <dirEntry mountPoint="17" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/modules" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="modules" excludeSuffixes="" dirMode="755" overrideDirMode="true">
-        <exclude />
+        <exclude>
+          <entry location="snap-beam-help-0.5.0-SNAPSHOT" fileType="regular" />
+        </exclude>
       </dirEntry>
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/CYGGCC_S-1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/CYGWIN1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
@@ -83,8 +85,6 @@
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/jogl.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/jogl_awt.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/jogl_cg.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/nest-clean.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/post-uninstall.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/readme.md" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/s1tbx-dat64.exe" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/s1tbx-dat64.l4j.ini" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
@@ -100,8 +100,6 @@
       <fileEntry mountPoint="5265" file="../main/bin/win/jogl.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/jogl_awt.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/jogl_cg.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5265" file="../main/bin/win/nest-clean.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5265" file="../main/bin/win/post-uninstall.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/s1tbx-dat.exe" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/s1tbx-dat.l4j.ini" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5269" file="../main/bin/linux64/dat.sh" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
@@ -130,7 +128,6 @@
           <entry location="modules/blue-marble-worldmap-0.5.0-SNAPSHOT" fileType="regular" />
           <entry location="modules/lib-hdf-2.7" fileType="regular" />
           <entry location="modules/snap-arcbingrid-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-beam-help-0.5.0-SNAPSHOT" fileType="regular" />
           <entry location="modules/snap-binding-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-binio-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-binning-0.5.0-SNAPSHOT.jar" fileType="regular" />
@@ -224,6 +221,7 @@
         <include all="false">
           <entry location="modules/globcover-worldmap-0.5.0-SNAPSHOT" fileType="regular" />
           <entry location="modules/s3tbx-alos-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s3tbx-app-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s3tbx-atsr-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s3tbx-avhrr-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s3tbx-chris-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
@@ -398,7 +396,7 @@
                       <void method="put">
                         <string>en</string>
                         <object class="com.install4j.api.beans.ExternalFile">
-                          <string>${installer:sys.contentDir}/licenses/LICENSE.txt</string>
+                          <string>../../LICENSE.txt</string>
                         </object>
                       </void>
                     </void>
@@ -472,7 +470,7 @@
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.StandardProgramGroupScreen">
                   <void property="programGroupName">
-                    <string>S1TBX ${compiler:sys.version}</string>
+                    <string>Sentinel-1 Toolbox</string>
                   </void>
                   <void property="showWarningIfExists">
                     <boolean>true</boolean>
@@ -1052,6 +1050,9 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                   <string>../main/bin/common/resource/snap-s1.png</string>
                 </object>
               </void>
+              <void property="customWatermarkText">
+                <string>ESA S1TBX</string>
+              </void>
               <void property="executableDirectory">
                 <object class="java.io.File">
                   <string>bin</string>
@@ -1171,7 +1172,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
             <preActivation />
             <postActivation />
             <actions>
-              <action name="" id="4177" customizedId="" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" enabled="true" commentSet="false" comment="" actionElevationType="elevated" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage=" Failed to remove BEAM application data.">
+              <action name="" id="4177" customizedId="" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" enabled="true" commentSet="false" comment="" actionElevationType="elevated" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage=" Failed to remove application data.">
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.files.DeleteFileAction">
@@ -1179,7 +1180,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                         <array class="java.io.File" length="1">
                           <void index="0">
                             <object class="java.io.File">
-                              <string>${installer:sys.userHome}/.beam</string>
+                              <string>${installer:sys.userHome}/.s1tbx</string>
                             </object>
                           </void>
                         </array>
@@ -2086,7 +2087,7 @@ if (wizardContext != null) {
       <excludedComponents />
       <includedDownloadableComponents />
     </macosFolder>
-    <unixInstaller name="Linux64" id="4500" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-8u20-linux-x64" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
+    <unixInstaller name="Linux64" id="4500" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux64_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-1.8.0_20_linux64.tar.gz" manualJREEntry="true" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
       <excludedLaunchers>
         <launcher id="1086" />
       </excludedLaunchers>
@@ -2114,7 +2115,7 @@ if (wizardContext != null) {
         <content />
       </installerScript>
     </unixInstaller>
-    <unixInstaller name="Linux32" id="5413" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-8u20-linux-x64" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
+    <unixInstaller name="Linux32" id="5413" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux32_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-1.8.0_20_linux32.tar.gz" manualJREEntry="true" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
