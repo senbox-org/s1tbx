@@ -177,6 +177,13 @@ class DatAboutBox extends ModalDialog {
                 "</table>" +
                 "<table border=0>" +
                 "<tr><td>" +
+                "<b>Ocean Data Lab</b> (ODL):" +
+                "</td><td>" +
+                "&nbsp;&nbsp;<b>Fabrice Collard</b><br>" +
+                "</td></tr>" +
+                "</table>" +
+                "<table border=0>" +
+                "<tr><td>" +
                 "<b>European Space Agency</b> (ESA) ESRIN:<br>" +
                 "</td><td>" +
                 "&nbsp;&nbsp;<b>Marcus Engdahl</b><br>" +
