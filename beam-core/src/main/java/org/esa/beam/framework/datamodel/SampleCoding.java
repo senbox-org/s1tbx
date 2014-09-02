@@ -49,9 +49,14 @@ public class SampleCoding extends MetadataElement {
         if (!attribute.getData().isInt()) {
             throw new IllegalArgumentException("attribute value is not a integer");
         }
+        if (attribute.getData().getNumElems() >= 1) {
+            throw new IllegalArgumentException("attribute value is not a scalar");
+        }
+        /*
         if (!attribute.getData().isScalar()) {
             throw new IllegalArgumentException("attribute value is not a scalar");
         }
+        */
         super.addAttribute(attribute);
     }
 
@@ -65,9 +70,22 @@ public class SampleCoding extends MetadataElement {
      * @return A new attribute representing the coded sample.
      */
     public MetadataAttribute addSample(String name, int value, String description) {
+        return addSamples(name, new int[]{value}, description);
+    }
+
+    /**
+     * Adds a new coding value to this sample coding.
+     *
+     * @param name        the coding name
+     * @param values      the values
+     * @param description the description text
+     * @throws IllegalArgumentException if <code>name</code> is null
+     * @return A new attribute representing the coded sample.
+     */
+    public MetadataAttribute addSamples(String name, int[] values, String description) {
         Guardian.assertNotNull("name", name);
         MetadataAttribute attribute = new MetadataAttribute(name, ProductData.TYPE_INT32);
-        attribute.setDataElems(new int[]{value});
+        attribute.setDataElems(values);
         if (description != null) {
             attribute.setDescription(description);
         }
