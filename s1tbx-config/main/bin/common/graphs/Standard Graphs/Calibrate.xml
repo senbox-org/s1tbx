@@ -18,7 +18,7 @@
   <node id="Calibration">
     <operator>Calibration</operator>
     <sources>
-      <sourceProduct refid="1-Read"/>
+      <sourceProduct refid="Read"/>
     </sources>
     <parameters>
       <sourceBands/>
