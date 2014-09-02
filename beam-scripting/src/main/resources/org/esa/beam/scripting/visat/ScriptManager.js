@@ -1,3 +1,4 @@
+load("nashorn:mozilla_compat.js");
 importPackage(org.esa.beam.framework.datamodel);
 importPackage(org.esa.beam.framework.dataio);
 importPackage(org.esa.beam.framework.gpf);
