@@ -44,7 +44,7 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
 
     protected Continuous1BandSwitcherForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
-        childForm = EmptyImageInfoForm.INSTANCE;
+        childForm = new EmptyImageInfoForm(parentForm);
         basicButton = new JRadioButton("Basic");
         graphicalButton = new JRadioButton("Sliders");
         tabularButton = new JRadioButton("Table");
@@ -69,6 +69,11 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
 
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(northPanel, BorderLayout.NORTH);
+    }
+
+    @Override
+    public ColorManipulationForm getParentForm() {
+        return parentForm;
     }
 
     @Override

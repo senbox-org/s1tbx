@@ -41,7 +41,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,7 +73,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         imageInfoEditor = new ImageInfoEditor2(parentForm);
         imageInfoEditorSupport = new ImageInfoEditorSupport(imageInfoEditor);
 
-        moreOptionsForm = new MoreOptionsForm(parentForm, parentForm.getFormModel().canUseHistogramMatching());
+        moreOptionsForm = new MoreOptionsForm(this, parentForm.getFormModel().canUseHistogramMatching());
         models = new ImageInfoEditorModel3B[3];
         initialChannelSources = new RasterDataNode[3];
         currentChannelSources = new RasterDataNode[3];
@@ -120,12 +119,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         channelButtonGroup.add(bChannelButton);
 
         bindingContext.bind("channel", channelButtonGroup);
-        bindingContext.addPropertyChangeListener("channel", new PropertyChangeListener() {
-
-            public void propertyChange(PropertyChangeEvent evt) {
-                acknowledgeChannel();
-            }
-        });
+        bindingContext.addPropertyChangeListener("channel", evt -> acknowledgeChannel());
 
         final JPanel channelButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         channelButtonPanel.add(rChannelButton);
@@ -136,22 +130,19 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         contentPanel.add(channelButtonPanel, BorderLayout.NORTH);
         contentPanel.add(imageInfoEditor, BorderLayout.CENTER);
 
-        moreOptionsForm.getBindingContext().addPropertyChangeListener(GAMMA_PROPERTY, new PropertyChangeListener() {
-
-            public void propertyChange(PropertyChangeEvent evt) {
-                handleGammaChanged();
-            }
-        });
-        moreOptionsForm.getBindingContext().addPropertyChangeListener(CHANNEL_SOURCE_NAME_PROPERTY, new PropertyChangeListener() {
-
-            public void propertyChange(PropertyChangeEvent evt) {
-                handleChannelSourceNameChanged(evt);
-            }
-        });
+        moreOptionsForm.getBindingContext().addPropertyChangeListener(GAMMA_PROPERTY,
+                                                                      evt -> handleGammaChanged());
+        moreOptionsForm.getBindingContext().addPropertyChangeListener(CHANNEL_SOURCE_NAME_PROPERTY,
+                                                                      this::handleChannelSourceNameChanged);
     }
 
     public Component getContentPanel() {
         return contentPanel;
+    }
+
+    @Override
+    public ColorManipulationForm getParentForm() {
+        return parentForm;
     }
 
     @Override
@@ -244,13 +235,13 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
     @Override
     public AbstractButton[] getToolButtons() {
         return new AbstractButton[]{
-                    imageInfoEditorSupport.autoStretch95Button,
-                    imageInfoEditorSupport.autoStretch100Button,
-                    imageInfoEditorSupport.zoomInVButton,
-                    imageInfoEditorSupport.zoomOutVButton,
-                    imageInfoEditorSupport.zoomInHButton,
-                    imageInfoEditorSupport.zoomOutHButton,
-                    imageInfoEditorSupport.showExtraInfoButton,
+                imageInfoEditorSupport.autoStretch95Button,
+                imageInfoEditorSupport.autoStretch100Button,
+                imageInfoEditorSupport.zoomInVButton,
+                imageInfoEditorSupport.zoomOutVButton,
+                imageInfoEditorSupport.zoomInHButton,
+                imageInfoEditorSupport.zoomOutHButton,
+                imageInfoEditorSupport.showExtraInfoButton,
         };
     }
 

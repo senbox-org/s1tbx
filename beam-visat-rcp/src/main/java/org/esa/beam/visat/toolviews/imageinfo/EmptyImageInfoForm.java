@@ -23,9 +23,16 @@ import javax.swing.*;
 import java.awt.*;
 
 class EmptyImageInfoForm implements ColorManipulationChildForm {
-    public static final ColorManipulationChildForm INSTANCE = new EmptyImageInfoForm();
 
-    private EmptyImageInfoForm() {
+    private final ColorManipulationForm parentForm;
+
+    EmptyImageInfoForm(ColorManipulationForm parentForm) {
+        this.parentForm = parentForm;
+    }
+
+    @Override
+    public ColorManipulationForm getParentForm() {
+        return parentForm;
     }
 
     @Override

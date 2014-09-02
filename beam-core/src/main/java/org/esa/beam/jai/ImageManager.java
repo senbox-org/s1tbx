@@ -1095,6 +1095,10 @@ public class ImageManager {
     }
 
     public static Color[] createColorPalette(ImageInfo imageInfo) {
+         return createColorPalette(imageInfo, 0);
+    }
+
+    public static Color[] createColorPalette(ImageInfo imageInfo, int alphaFading) {
         Debug.assertNotNull(imageInfo);
         final boolean logScaled = imageInfo.isLogScaled();
         final ColorPaletteDef cpd = imageInfo.getColorPaletteDef();
@@ -1131,6 +1135,24 @@ public class ImageManager {
             }
         }
         colorPalette[numColors - 1] = boSaCo.color2;
+
+        ImageInfo.UncertaintyVisualisationMode uvMode = imageInfo.getUncertaintyVisualisationMode();
+        if (uvMode != ImageInfo.UncertaintyVisualisationMode.None) {
+            for (int i = 0; i < colorPalette.length; i++) {
+                Color color = colorPalette[i];
+                int alpha = 127;
+                if (uvMode == ImageInfo.UncertaintyVisualisationMode.Transparency_Blending) {
+                    alpha = 255 - (256 * i) / colorPalette.length;
+                } else if (uvMode == ImageInfo.UncertaintyVisualisationMode.Monochromatic_Blending
+                        || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending) {
+                    alpha = (256 * i) / colorPalette.length;
+                }
+                colorPalette[i] = new Color(color.getRed(),
+                                            color.getGreen(),
+                                            color.getBlue(),
+                                            alpha);
+            }
+        }
         return colorPalette;
     }
 

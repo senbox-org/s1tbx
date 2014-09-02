@@ -34,7 +34,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 
@@ -108,32 +107,29 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
 
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(editorPanel, BorderLayout.NORTH);
-        moreOptionsForm = new MoreOptionsForm(parentForm, parentForm.getFormModel().canUseHistogramMatching());
+        moreOptionsForm = new MoreOptionsForm(this, parentForm.getFormModel().canUseHistogramMatching());
         discreteCheckBox = new DiscreteCheckBox(parentForm);
         moreOptionsForm.addRow(discreteCheckBox);
         parentForm.getFormModel().modifyMoreOptionsForm(moreOptionsForm);
 
         logDisplayButton = LogDisplay.createButton();
-        logDisplayButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final boolean shouldLog10Display = logDisplayButton.isSelected();
-                final ImageInfo imageInfo = parentForm.getFormModel().getModifiedImageInfo();
-                if (shouldLog10Display) {
-                    final ColorPaletteDef cpd = imageInfo.getColorPaletteDef();
-                    if (LogDisplay.checkApplicability(cpd)) {
-                        colorPaletteChooser.setLog10Display(shouldLog10Display);
-                        imageInfo.setLogScaled(shouldLog10Display);
-                        parentForm.applyChanges();
-                    } else {
-                        LogDisplay.showNotApplicableInfo(parentForm.getContentPanel());
-                        logDisplayButton.setSelected(false);
-                    }
-                } else {
-                    colorPaletteChooser.setLog10Display(shouldLog10Display);
-                    imageInfo.setLogScaled(shouldLog10Display);
+        logDisplayButton.addActionListener(e -> {
+            final boolean shouldLog10Display = logDisplayButton.isSelected();
+            final ImageInfo imageInfo = parentForm.getFormModel().getModifiedImageInfo();
+            if (shouldLog10Display) {
+                final ColorPaletteDef cpd = imageInfo.getColorPaletteDef();
+                if (LogDisplay.checkApplicability(cpd)) {
+                    colorPaletteChooser.setLog10Display(true);
+                    imageInfo.setLogScaled(true);
                     parentForm.applyChanges();
+                } else {
+                    LogDisplay.showNotApplicableInfo(parentForm.getContentPanel());
+                    logDisplayButton.setSelected(false);
                 }
+            } else {
+                colorPaletteChooser.setLog10Display(false);
+                imageInfo.setLogScaled(false);
+                parentForm.applyChanges();
             }
         });
     }
@@ -141,6 +137,11 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
     @Override
     public Component getContentPanel() {
         return contentPanel;
+    }
+
+    @Override
+    public ColorManipulationForm getParentForm() {
+        return parentForm;
     }
 
     @Override
@@ -211,12 +212,7 @@ class Continuous1BandBasicForm implements ColorManipulationChildForm {
     }
 
     private ActionListener createListener(final RangeKey key) {
-        return new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                applyChanges(key);
-            }
-        };
+        return e -> applyChanges(key);
     }
 
     private JFormattedTextField getNumberTextField(double value) {

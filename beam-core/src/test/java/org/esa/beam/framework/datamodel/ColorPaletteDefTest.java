@@ -15,13 +15,13 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import static org.esa.beam.framework.datamodel.ColorPaletteDef.Point;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-
-import org.junit.*;
+import org.junit.Test;
 
 import java.awt.Color;
+
+import static org.esa.beam.framework.datamodel.ColorPaletteDef.Point;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ColorPaletteDefTest {
 
@@ -29,13 +29,11 @@ public class ColorPaletteDefTest {
     public void testConstructors() {
         ColorPaletteDef cpd = new ColorPaletteDef(-1.0, 1.0);
         assertEquals(256, cpd.getNumColors());
-        assertEquals(3, cpd.getNumPoints());
+        assertEquals(2, cpd.getNumPoints());
         assertEquals(-1.0, cpd.getPointAt(0).getSample(), 1e-10);
-        assertEquals(+0.0, cpd.getPointAt(1).getSample(), 1e-10);
-        assertEquals(+1.0, cpd.getPointAt(2).getSample(), 1e-10);
+        assertEquals(+1.0, cpd.getPointAt(1).getSample(), 1e-10);
         assertEquals(Color.BLACK, cpd.getPointAt(0).getColor());
-        assertEquals(Color.GRAY, cpd.getPointAt(1).getColor());
-        assertEquals(Color.WHITE, cpd.getPointAt(2).getColor());
+        assertEquals(Color.WHITE, cpd.getPointAt(1).getColor());
 
         cpd = new ColorPaletteDef(-1.0, 0.5, 1.0);
         assertEquals(256, cpd.getNumColors());
