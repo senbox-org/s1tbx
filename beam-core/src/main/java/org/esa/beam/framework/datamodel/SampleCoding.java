@@ -49,8 +49,8 @@ public class SampleCoding extends MetadataElement {
         if (!attribute.getData().isInt()) {
             throw new IllegalArgumentException("attribute value is not a integer");
         }
-        if (attribute.getData().getNumElems() >= 1) {
-            throw new IllegalArgumentException("attribute value is not a scalar");
+        if (attribute.getData().getNumElems() == 0) {
+            throw new IllegalArgumentException("attribute value is missing");
         }
         /*
         if (!attribute.getData().isScalar()) {
