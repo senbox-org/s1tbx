@@ -116,24 +116,25 @@ class DatAboutBox extends ModalDialog {
                         "<br>(c) Copyright 2014 by Brockmann Consult and contributors. All rights reserved." +
                         "<br>" +
                         "<b>NEST</b>" +
-                        "<br>(c) Copyright 2007-2013 by Array Systems Computing Inc. and contributors. All rights reserved." +
+                        "<br>(c) Copyright 2007-2014 by Array Systems Computing Inc. and contributors. All rights reserved." +
+                        "<br>" +
+                        "<b>RSTB</b>" +
+                        "<br>(c) Copyright 2010-2014 by Array Systems Computing Inc. and contributors. All rights reserved." +
                         "<br>" +
                         "<b>JLINDA</b>" +
-                        "<br>(c) Copyright 2009-2013 by PPO.labs and contributors. All rights reserved." +
+                        "<br>(c) Copyright 2009-2014 by PPO.labs and contributors. All rights reserved." +
                         "<br>" +
                         "<b>BEAM </b>" +
-                        "<br>(c) Copyright 2002-2013 by Brockmann Consult and contributors. All rights reserved." +
+                        "<br>(c) Copyright 2002-2014 by Brockmann Consult and contributors. All rights reserved." +
                         "<br>" +
                         "<br>This program has been developed under contract to ESA (ESRIN)." +
                         "<br>" +
-                        "<br>This program is free software; you can redistribute it and/or modify it under the terms of " +
-                        "<br>the GNU General Public License as published by the Free Software Foundation. This program" +
-                        "<br>is distributed in the hope it will be useful, but WITHOUT ANY WARRANTY; without even the" +
-                        "<br>implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." +
+                        "<br>This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License" +
+                        "<br>as published by the Free Software Foundation. This program is distributed in the hope it will be useful, but WITHOUT ANY" +
+                        "<br>WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." +
                         "<br>See the GNU General Public License for more details." +
                         "<br>" +
-                        "<br>This product includes software developed by Unidata and NCSA" +
-                        "<br>Visit http://www.unidata.ucar.edu/ and http://hdf.ncsa.uiuc.edu/" +
+                        "<br>This product includes software developed by Unidata and NCSA. Visit http://www.unidata.ucar.edu/ and http://hdf.ncsa.uiuc.edu/" +
                         "</html>";
         return pattern; /*I18N*/
     }
