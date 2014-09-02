@@ -115,18 +115,7 @@ public class UncertaintyVisualisationToolView extends AbstractToolView {
                     ImageInfo.UncertaintyVisualisationMode uvMode = (ImageInfo.UncertaintyVisualisationMode) evt.getNewValue();
                     ImageInfo imageInfo = uncertainBand.getImageInfo();
                     imageInfo.setUncertaintyVisualisationMode(uvMode);
-                    if (uvMode == ImageInfo.UncertaintyVisualisationMode.Transparency_Blending) {
-                        ColorPaletteDef.Point[] points = getTwoSingleColorPoints(imageInfo, Color.WHITE);
-                        imageInfo.getColorPaletteDef().setPoints(points);
-                        setModifiedImageInfo(imageInfo);
-                    } else if (uvMode == ImageInfo.UncertaintyVisualisationMode.Monochromatic_Blending) {
-                        ColorPaletteDef.Point lastPoint = imageInfo.getColorPaletteDef().getLastPoint();
-                        ColorPaletteDef.Point[] points = getTwoSingleColorPoints(imageInfo, lastPoint.getColor());
-                        imageInfo.getColorPaletteDef().setPoints(points);
-                        setModifiedImageInfo(imageInfo);
-                    } else if (uvMode != ImageInfo.UncertaintyVisualisationMode.None) {
-                        setModifiedImageInfo(imageInfo);
-                    }
+                    setModifiedImageInfo(imageInfo);
                     //uncertainBand.fireImageInfoChanged();
                     applyModifiedImageInfo();
 

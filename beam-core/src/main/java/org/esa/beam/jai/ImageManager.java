@@ -1085,15 +1085,30 @@ public class ImageManager {
     }
 
     public static Color[] createColorPalette(ImageInfo imageInfo) {
-         return createColorPalette(imageInfo, 0);
-    }
-
-    public static Color[] createColorPalette(ImageInfo imageInfo, int alphaFading) {
         Debug.assertNotNull(imageInfo);
         final boolean logScaled = imageInfo.isLogScaled();
         final ColorPaletteDef cpd = imageInfo.getColorPaletteDef();
         Debug.assertNotNull(cpd);
         Debug.assertTrue(cpd.getNumPoints() >= 2);
+
+        final int numColors = cpd.getNumColors();
+        final Color[] colorPalette = new Color[numColors];
+
+        ImageInfo.UncertaintyVisualisationMode uvMode = imageInfo.getUncertaintyVisualisationMode();
+        if (uvMode == ImageInfo.UncertaintyVisualisationMode.Transparency_Blending) {
+            for (int i = 0; i < colorPalette.length; i++) {
+                int alpha = 255 - (256 * i) / colorPalette.length;
+                colorPalette[i] = new Color(255, 255, 255, alpha);
+            }
+            return colorPalette;
+        } else if (uvMode == ImageInfo.UncertaintyVisualisationMode.Monochromatic_Blending) {
+            Color color = cpd.getLastPoint().getColor();
+            for (int i = 0; i < colorPalette.length; i++) {
+                int alpha = (256 * i) / colorPalette.length;
+                colorPalette[i] = new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+            }
+            return colorPalette;
+        }
 
         final double minSample;
         final double maxSample;
@@ -1104,9 +1119,7 @@ public class ImageManager {
             minSample = getSample(cpd.getFirstPoint());
             maxSample = getSample(cpd.getLastPoint());
         }
-        final int numColors = cpd.getNumColors();
         final double scalingFactor = 1 / (numColors - 1.0);
-        final Color[] colorPalette = new Color[numColors];
         int pointIndex = 0;
         final int maxPointIndex = cpd.getNumPoints() - 2;
         BorderSamplesAndColors boSaCo = getBorderSamplesAndColors(imageInfo, pointIndex, null);
@@ -1126,15 +1139,13 @@ public class ImageManager {
         }
         colorPalette[numColors - 1] = boSaCo.color2;
 
-        ImageInfo.UncertaintyVisualisationMode uvMode = imageInfo.getUncertaintyVisualisationMode();
-        if (uvMode != ImageInfo.UncertaintyVisualisationMode.None) {
+        if (uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending
+            || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Overlay) {
+            boolean blend = uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending;
+            int alpha = 127;
             for (int i = 0; i < colorPalette.length; i++) {
                 Color color = colorPalette[i];
-                int alpha = 127;
-                if (uvMode == ImageInfo.UncertaintyVisualisationMode.Transparency_Blending) {
-                    alpha = 255 - (256 * i) / colorPalette.length;
-                } else if (uvMode == ImageInfo.UncertaintyVisualisationMode.Monochromatic_Blending
-                        || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending) {
+                if (blend) {
                     alpha = (256 * i) / colorPalette.length;
                 }
                 colorPalette[i] = new Color(color.getRed(),
