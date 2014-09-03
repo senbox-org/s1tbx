@@ -107,6 +107,19 @@ public class ColorPaletteDef implements Cloneable  {
         }
     }
 
+    /**
+     * @return true, if all the colors in the palette definitions are fully opaque.
+     * @since SNAP 0.5
+     */
+    public boolean isFullyOpaque() {
+        for (Point point : points) {
+            if (point.getColor().getAlpha() != 255) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean isAutoDistribute() {
         return autoDistribute;
     }

@@ -777,11 +777,22 @@ public class ImageManager {
             palette = createColorPalette(rasterDataNode.getImageInfo());
         }
 
-        final byte[][] lutData = new byte[3][palette.length];
-        for (int i = 0; i < palette.length; i++) {
-            lutData[0][i] = (byte) palette[i].getRed();
-            lutData[1][i] = (byte) palette[i].getGreen();
-            lutData[2][i] = (byte) palette[i].getBlue();
+        final byte[][] lutData;
+        if (colorPaletteDef.isFullyOpaque()) {
+            lutData = new byte[3][palette.length];
+            for (int i = 0; i < palette.length; i++) {
+                lutData[0][i] = (byte) palette[i].getRed();
+                lutData[1][i] = (byte) palette[i].getGreen();
+                lutData[2][i] = (byte) palette[i].getBlue();
+            }
+        } else {
+            lutData = new byte[4][palette.length];
+            for (int i = 0; i < palette.length; i++) {
+                lutData[0][i] = (byte) palette[i].getRed();
+                lutData[1][i] = (byte) palette[i].getGreen();
+                lutData[2][i] = (byte) palette[i].getBlue();
+                lutData[3][i] = (byte) palette[i].getAlpha();
+            }
         }
         return createLookupOp(sourceImage, lutData);
     }
