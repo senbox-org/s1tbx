@@ -60,6 +60,7 @@ public final class TOPSARDeburstOp extends Operator {
     private String acquisitionMode = null;
     private String productType = null;
     private int numOfSubSwath = 0;
+    private int subSwathIndex = 0;
     private int targetWidth = 0;
     private int targetHeight = 0;
 
@@ -78,6 +79,7 @@ public final class TOPSARDeburstOp extends Operator {
     private boolean inputBetaBand = false;
     private boolean inputGammaBand = false;
     private boolean inputDNBand = false;
+    private boolean isSplitProduct = false;
 
     /**
      * Default constructor. The graph processing framework
@@ -114,6 +116,9 @@ public final class TOPSARDeburstOp extends Operator {
 
             su = new Sentinel1Utils(sourceProduct);
             subSwath = su.getSubSwath();
+
+            checkIfSplitProduct();
+
             if (selectedPolarisations == null || selectedPolarisations.length == 0) {
                 selectedPolarisations = su.getPolarizations();
             }
@@ -126,7 +131,9 @@ public final class TOPSARDeburstOp extends Operator {
 
             createTargetProduct();
 
-            computeSubSwathEffectStartEndPixels();
+            if (!isSplitProduct) {
+                computeSubSwathEffectStartEndPixels();
+            }
 
             updateTargetProductMetadata();
 
@@ -198,23 +205,41 @@ public final class TOPSARDeburstOp extends Operator {
         }
     }
 
+    private void checkIfSplitProduct() {
+
+        final String[] subSwathNames = su.getSubSwathNames();
+        if (subSwathNames.length == 1) {
+            isSplitProduct = true;
+            subSwathIndex = Integer.parseInt(subSwathNames[0].substring(subSwathNames[0].length()-1));
+        }
+    }
+
     /**
      * Compute azimuth time for the first and last line in the target product.
      */
     private void computeTargetStartEndTime() {
 
-        targetFirstLineTime = subSwath[0].firstLineTime;
-        targetLastLineTime = subSwath[0].lastLineTime;
-        for (int i = 1; i < numOfSubSwath; i++) {
-            if (targetFirstLineTime > subSwath[i].firstLineTime) {
-                targetFirstLineTime = subSwath[i].firstLineTime;
-            }
+        if (isSplitProduct) {
 
-            if (targetLastLineTime < subSwath[i].lastLineTime) {
-                targetLastLineTime = subSwath[i].lastLineTime;
+            targetFirstLineTime = subSwath[subSwathIndex - 1].firstLineTime;
+            targetLastLineTime = subSwath[subSwathIndex - 1].lastLineTime;
+            targetLineTimeInterval = subSwath[subSwathIndex - 1].azimuthTimeInterval; // days
+
+        } else {
+
+            targetFirstLineTime = subSwath[0].firstLineTime;
+            targetLastLineTime = subSwath[0].lastLineTime;
+            for (int i = 1; i < numOfSubSwath; i++) {
+                if (targetFirstLineTime > subSwath[i].firstLineTime) {
+                    targetFirstLineTime = subSwath[i].firstLineTime;
+                }
+
+                if (targetLastLineTime < subSwath[i].lastLineTime) {
+                    targetLastLineTime = subSwath[i].lastLineTime;
+                }
             }
+            targetLineTimeInterval = subSwath[0].azimuthTimeInterval; // days
         }
-        targetLineTimeInterval = subSwath[0].azimuthTimeInterval; // days
     }
 
     /**
@@ -222,9 +247,15 @@ public final class TOPSARDeburstOp extends Operator {
      */
     private void computeTargetSlantRangeTimeToFirstAndLastPixels() {
 
-        targetSlantRangeTimeToFirstPixel = subSwath[0].slrTimeToFirstPixel;
-        targetSlantRangeTimeToLastPixel = subSwath[numOfSubSwath - 1].slrTimeToLastPixel;
-        targetDeltaSlantRangeTime = subSwath[0].rangePixelSpacing / Constants.lightSpeed;
+        if (isSplitProduct) {
+            targetSlantRangeTimeToFirstPixel = subSwath[subSwathIndex - 1].slrTimeToFirstPixel;
+            targetSlantRangeTimeToLastPixel = subSwath[subSwathIndex - 1].slrTimeToLastPixel;
+            targetDeltaSlantRangeTime = subSwath[subSwathIndex - 1].rangePixelSpacing / Constants.lightSpeed;
+        } else {
+            targetSlantRangeTimeToFirstPixel = subSwath[0].slrTimeToFirstPixel;
+            targetSlantRangeTimeToLastPixel = subSwath[numOfSubSwath - 1].slrTimeToLastPixel;
+            targetDeltaSlantRangeTime = subSwath[0].rangePixelSpacing / Constants.lightSpeed;
+        }
     }
 
     /**
@@ -232,7 +263,7 @@ public final class TOPSARDeburstOp extends Operator {
      */
     private void computeTargetWidthAndHeight() {
 
-        targetHeight = (int)((targetLastLineTime - targetFirstLineTime) / subSwath[0].azimuthTimeInterval);
+        targetHeight = (int)((targetLastLineTime - targetFirstLineTime) / targetLineTimeInterval);
 
         targetWidth = (int)((targetSlantRangeTimeToLastPixel - targetSlantRangeTimeToFirstPixel) /
                 targetDeltaSlantRangeTime);
@@ -442,8 +473,10 @@ public final class TOPSARDeburstOp extends Operator {
 
     private void updateOriginalMetadata() {
 
-        updateCalibrationVector();
-        //updateNoiseVector(); //todo: not implemented yet
+        if (!isSplitProduct) {
+            updateCalibrationVector();
+            //updateNoiseVector(); //todo: not implemented yet
+        }
     }
 
     private void updateCalibrationVector() {
@@ -536,6 +569,7 @@ public final class TOPSARDeburstOp extends Operator {
         return mergedVectorStr.toString();
     }
 
+
     /**
      * Called by the framework in order to compute the stack of tiles for the given target bands.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
@@ -559,22 +593,30 @@ public final class TOPSARDeburstOp extends Operator {
 
             // determine subswaths covered by the tile
             int firstSubSwathIndex = 0;
-            for (int i = 0; i < numOfSubSwath; i++) {
-                if (tileSlrtToFirstPixel >= subSwath[i].slrTimeToFirstPixel &&
-                        tileSlrtToFirstPixel <= subSwath[i].slrTimeToLastPixel) {
-                    firstSubSwathIndex = i + 1;
-                    break;
-                }
-            }
-
             int lastSubSwathIndex = 0;
-            if (firstSubSwathIndex == numOfSubSwath) {
-                lastSubSwathIndex = firstSubSwathIndex;
+
+            if (isSplitProduct) {
+                firstSubSwathIndex = subSwathIndex;
+                lastSubSwathIndex = subSwathIndex;
+
             } else {
+
                 for (int i = 0; i < numOfSubSwath; i++) {
-                    if (tileSlrtToLastPixel >= subSwath[i].slrTimeToFirstPixel &&
-                            tileSlrtToLastPixel <= subSwath[i].slrTimeToLastPixel) {
-                        lastSubSwathIndex = i + 1;
+                    if (tileSlrtToFirstPixel >= subSwath[i].slrTimeToFirstPixel &&
+                            tileSlrtToFirstPixel <= subSwath[i].slrTimeToLastPixel) {
+                        firstSubSwathIndex = i + 1;
+                        break;
+                    }
+                }
+
+                if (firstSubSwathIndex == numOfSubSwath) {
+                    lastSubSwathIndex = firstSubSwathIndex;
+                } else {
+                    for (int i = 0; i < numOfSubSwath; i++) {
+                        if (tileSlrtToLastPixel >= subSwath[i].slrTimeToFirstPixel &&
+                                tileSlrtToLastPixel <= subSwath[i].slrTimeToLastPixel) {
+                            lastSubSwathIndex = i + 1;
+                        }
                     }
                 }
             }
