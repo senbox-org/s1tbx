@@ -39,6 +39,7 @@ public final class Sentinel1Utils {
     private SubSwathInfo[] subSwath = null;
     private SARGeocoding.Orbit orbit = null;
     private String[] polarizations = null;
+    private String[] subSwathNames = null;
     private boolean isDopplerCentroidAvailable = false;
 
     public double firstLineUTC = 0.0; // in days
@@ -68,6 +69,8 @@ public final class Sentinel1Utils {
         getProductAcquisitionMode();
 
         getProductPolarizations();
+
+        getProductSubSwathNames();
 
         getSubSwathParameters();
 
@@ -185,6 +188,24 @@ public final class Sentinel1Utils {
             }
         }
         polarizations =  polList.toArray(new String[polList.size()]);
+    }
+
+    /**
+     * Get source product subSwath names.
+     */
+    private void getProductSubSwathNames() {
+
+        final MetadataElement[] elems = absRoot.getElements();
+        final List<String> subSwathNameList = new ArrayList<String>(4);
+        for (MetadataElement elem : elems) {
+            if (elem.getName().contains(acquisitionMode)) {
+                final String swath = elem.getAttributeString("swath");
+                if (!subSwathNameList.contains(swath)) {
+                    subSwathNameList.add(swath);
+                }
+            }
+        }
+        subSwathNames =  subSwathNameList.toArray(new String[subSwathNameList.size()]);
     }
 
     /**
@@ -770,6 +791,15 @@ public final class Sentinel1Utils {
      */
     public String[] getPolarizations() {
         return polarizations;
+    }
+
+    /**
+     * Get source product subSwath names.
+     *
+     * @return The subSwath name array.
+     */
+    public String[] getSubSwathNames() {
+        return subSwathNames;
     }
 
     public SubSwathInfo[] getSubSwath() {
