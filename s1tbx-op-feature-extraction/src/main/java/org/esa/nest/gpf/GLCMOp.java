@@ -57,7 +57,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "GLCM",
-        category = "Classification/Primitive Features",
+        category = "Image Analysis/Primitive Features",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Extract Texture Features")

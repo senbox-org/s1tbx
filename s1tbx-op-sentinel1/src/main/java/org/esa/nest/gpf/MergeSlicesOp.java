@@ -39,7 +39,7 @@ import java.util.Map;
         category = "SAR Processing/SENTINEL-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Merges Sentinel-1 slice products")
+        description = "Merges Sentinel-1 slice products", internal=true)
 public final class MergeSlicesOp extends Operator {
 
     @SourceProducts

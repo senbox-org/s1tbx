@@ -9,7 +9,7 @@ $S1TBX_HOME/jre/bin/java \
     -XX:+AggressiveOpts -XX:+UseFastAccessorMethods \
     -XX:+UseParallelGC -XX:+UseNUMA -XX:+UseLoopPredicate -XX:+UseStringCache \
     -Dceres.context=s1tbx \
-    "-Ds1tbx.mainClass=org.esa.beam.framework.gpf.main.Main" \
+    "-Ds1tbx.mainClass=org.esa.beam.framework.gpf.main.GPT" \
     "-Ds1tbx.home=$S1TBX_HOME" \
 	"-Ds1tbx.debug=false" \
     "-Dncsa.hdf.hdflib.HDFLibrary.hdflib=$S1TBX_HOME/libjhdf.so" \

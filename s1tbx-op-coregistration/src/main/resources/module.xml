@@ -139,14 +139,6 @@
         </action>
 
         <action>
-            <id>stack-utilities</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Stack Utilities</text>
-            <parent>Sar Processing</parent>
-            <placeAfter>SpeckleFiltering</placeAfter>
-        </action>
-
-        <action>
             <id>StackAveraging</id>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
@@ -155,7 +147,7 @@
             <dialogTitle>Stack Averaging</dialogTitle>
             <targetProductNameSuffix>_avg</targetProductNameSuffix>
             <shortDescr>Stack Averaging</shortDescr>
-            <parent>stack-utilities</parent>
+            <parent>CoregistrationGroup</parent>
             <helpId>StackAveraging</helpId>
         </action>
 

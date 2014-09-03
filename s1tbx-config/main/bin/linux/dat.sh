@@ -15,7 +15,7 @@ $S1TBX_HOME/jre/bin/java \
     "-Djava.library.path=$PATH:$S1TBX_HOME" \
 	"-Dncsa.hdf.hdflib.HDFLibrary.hdflib=$S1TBX_HOME/libjhdf.so" \
     "-Dncsa.hdf.hdf5lib.H5.hdf5lib=$S1TBX_HOME/libjhdf5.so" \
-    -jar $S1TBX_HOME/bin/ceres-launcher.jar
+    -jar $S1TBX_HOME/bin/snap-launcher.jar
 
 exit 0
 

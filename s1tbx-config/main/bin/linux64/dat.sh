@@ -6,7 +6,7 @@ if [ -z "$S1TBX_HOME" ]; then
 fi
 
 $S1TBX_HOME/jre/bin/java \
-	-server -Xms512M -Xmx3000M -XX:PermSize=512m -XX:MaxPermSize=512m -Xverify:none \
+	-server -Xms512M -Xmx3000M -Xverify:none \
     -XX:+AggressiveOpts -XX:+UseFastAccessorMethods \
     -XX:+UseParallelGC -XX:+UseNUMA -XX:+UseLoopPredicate -XX:+UseStringCache \
     -Dceres.context=s1tbx \

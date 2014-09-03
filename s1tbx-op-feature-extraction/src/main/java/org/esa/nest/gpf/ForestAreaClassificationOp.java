@@ -57,10 +57,10 @@ import java.util.ArrayList;
  */
 
 @OperatorMetadata(alias = "Forest-Area-Classification",
-        category = "Classification/Feature Extraction",
+        category = "Image Analysis/Feature Extraction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Detect forest area")
+        description = "Detect forest area", internal = true)
 public final class ForestAreaClassificationOp extends Operator {
 
     @SourceProduct(alias = "source")

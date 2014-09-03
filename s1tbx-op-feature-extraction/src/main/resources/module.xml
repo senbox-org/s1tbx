@@ -67,7 +67,7 @@
             <id>Masks</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Masks</text>
-            <parent>Classification</parent>
+            <parent>tools</parent>
             <placeBefore>FeatureExtraction</placeBefore>
         </action>
 
@@ -101,7 +101,7 @@
             <id>PrimitiveFeatureGroup</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Primitive Features</text>
-            <parent>Classification</parent>
+            <parent>processing.imageAnalysis</parent>
             <placeAfter>Masks</placeAfter>
         </action>
 

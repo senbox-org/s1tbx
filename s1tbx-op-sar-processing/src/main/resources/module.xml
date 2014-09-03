@@ -244,7 +244,7 @@
 
         <action>
             <id>TerrainFlattenedTC</id>
-            <class>org.esa.nest.dat.TerrainFlattenedTCAction</class>
+            <class>org.esa.nest.dat.actions.TerrainFlattenedTCAction</class>
             <text>Terrain Flattened Terrain Correction</text>
             <shortDescr>Radiometric Terrain Flattened Terrain Correction</shortDescr>
             <parent>TerrainFlattening</parent>
@@ -375,6 +375,32 @@
             <dialogTitle>WSS Deburst, Calibrate and Detect</dialogTitle>
             <graphFile>WSSDetectGraph.xml</graphFile>
             <placeAfter>WSSDeburstOp</placeAfter>
+        </action>
+
+        <!-- Wizards -->
+
+        <action>
+            <id>MosaicWizard</id>
+            <class>org.esa.nest.dat.wizards.WizardAction</class>
+            <wizardPanelClass>org.esa.nest.dat.wizards.MosaicWizard.MosaicWizardInstructPanel</wizardPanelClass>
+            <parent>Wizards</parent>
+            <text>Ortho-Mosaic Wizard</text>
+            <dialogTitle>Ortho-Mosaic Wizard</dialogTitle>
+            <shortDescr>Wizard for creating Mosaics</shortDescr>
+            <description>Wizard for creating orthorectified Mosaics.</description>
+            <helpId>MosaicWizard</helpId>
+        </action>
+
+        <action>
+            <id>CoregisterWizard</id>
+            <class>org.esa.nest.dat.wizards.WizardAction</class>
+            <wizardPanelClass>org.esa.nest.dat.wizards.CoregisterWizard.CoregisterWizardInstructPanel</wizardPanelClass>
+            <parent>Wizards</parent>
+            <text>Coregistration Wizard</text>
+            <dialogTitle>Coregistration Wizard</dialogTitle>
+            <shortDescr>Wizard for Coregistering overlapping products</shortDescr>
+            <description>Wizard for Coregistering overlapping products</description>
+            <helpId>CoregisterWizard</helpId>
         </action>
 
     </extension>

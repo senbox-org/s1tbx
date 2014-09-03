@@ -72,6 +72,9 @@
                 <exclude>org.esa.s1tbx:s1tbx-benchmark</exclude>
                 <exclude>org.esa.s1tbx:s1tbx-config</exclude>
 				<exclude>org.esa.s1tbx:s1tbx-cli</exclude>
+				<exclude>org.esa.s2tbx:s2tbx-bootstrap</exclude>
+				<exclude>org.esa.s3tbx:s3tbx-bootstrap</exclude>
+				<exclude>org.esa.s3tbx:s3tbx-installer</exclude>
             </excludes>
 
             <binaries>
