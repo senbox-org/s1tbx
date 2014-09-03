@@ -325,6 +325,9 @@ public class WarpOp extends Operator {
         if (complexCoregistration)
             inc = 2;
 
+        final ProductNodeGroup<Placemark> masterGCPGroup = GCPManager.instance().getGcpGroup(masterBand);
+        GCPManager.instance().removeGcpGroup(masterBand);
+
         boolean appendFlag = false;
         for (int i = 0; i < numSrcBands; i += inc) {
 
@@ -334,6 +337,7 @@ public class WarpOp extends Operator {
                 continue;
 
             ProductNodeGroup<Placemark> slaveGCPGroup = GCPManager.instance().getGcpGroup(srcBand);
+            GCPManager.instance().removeGcpGroup(srcBand);
             if (slaveGCPGroup.getNodeCount() < 3) {
                 // find others for same slave product
                 final String slvProductName = StackUtils.getSlaveProductName(sourceProduct, srcBand, null);
@@ -342,6 +346,7 @@ public class WarpOp extends Operator {
                         final String productName = StackUtils.getSlaveProductName(sourceProduct, band, null);
                         if (slvProductName != null && slvProductName.equals(productName)) {
                             slaveGCPGroup = GCPManager.instance().getGcpGroup(band);
+                            GCPManager.instance().removeGcpGroup(band);
                             if (slaveGCPGroup.getNodeCount() >= 3)
                                 break;
                         }
@@ -355,8 +360,6 @@ public class WarpOp extends Operator {
                 warpData.notEnoughGCPs = true;
                 continue;
             }
-
-            final ProductNodeGroup<Placemark> masterGCPGroup = GCPManager.instance().getGcpGroup(masterBand);
 
             computeWARPPolynomialFromGCPs(sourceProduct, srcBand, warpPolynomialOrder, masterGCPGroup, maxIterations,
                     rmsThreshold, appendFlag, warpData);
