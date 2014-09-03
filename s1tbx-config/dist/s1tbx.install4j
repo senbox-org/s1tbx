@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.1.12" transformSequenceNumber="4">
   <directoryPresets config="../.." />
-  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="s1tbx" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="0.5.0" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
+  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="S1TBX" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="0.5.0" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -65,6 +65,7 @@
       </dirEntry>
       <dirEntry mountPoint="17" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/modules" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="modules" excludeSuffixes="" dirMode="755" overrideDirMode="true">
         <exclude>
+          <entry location="s3tbx-app-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="snap-beam-help-0.5.0-SNAPSHOT" fileType="regular" />
         </exclude>
       </dirEntry>
@@ -470,7 +471,7 @@
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.StandardProgramGroupScreen">
                   <void property="programGroupName">
-                    <string>Sentinel-1 Toolbox</string>
+                    <string>ESA S-1 Toolbox</string>
                   </void>
                   <void property="showWarningIfExists">
                     <boolean>true</boolean>
