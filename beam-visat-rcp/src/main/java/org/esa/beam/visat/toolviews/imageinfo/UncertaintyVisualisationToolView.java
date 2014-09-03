@@ -27,7 +27,9 @@ import org.esa.beam.jai.ImageManager;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 import java.awt.Color;
+import java.awt.Component;
 
 
 /**
@@ -100,7 +102,7 @@ public class UncertaintyVisualisationToolView extends AbstractToolView {
             try {
                 if (uncertaintyBand != null) {
                     modeProperty.setValue(uncertaintyBand.getImageInfo(ProgressMonitor.NULL).getUncertaintyVisualisationMode());
-                }else {
+                } else {
                     modeProperty.setValue(ImageInfo.UncertaintyVisualisationMode.None);
                 }
             } catch (ValidationException e) {
@@ -122,6 +124,15 @@ public class UncertaintyVisualisationToolView extends AbstractToolView {
                     moreOptionsForm.getChildForm().updateFormModel(moreOptionsForm.getParentForm().getFormModel());
                 }
             });
+        }
+
+        @Override
+        public Component createEmptyContentPanel() {
+            return new JLabel("<html>This tool window is used to visualise the<br>" +
+                              "<b>uncertainty information</b> associated<br>" +
+                              "with a band shown in an image view.<br>" +
+                              "Right now, there is no selected image view or<br>" +
+                              "uncertainty information is unavailable.", SwingConstants.CENTER);
         }
     }
 

@@ -62,7 +62,7 @@ class EmptyImageInfoForm implements ColorManipulationChildForm {
 
     @Override
     public Component getContentPanel() {
-        return new JLabel("No image view selected.");
+        return parentForm.getFormModel().createEmptyContentPanel();
     }
 
     @Override

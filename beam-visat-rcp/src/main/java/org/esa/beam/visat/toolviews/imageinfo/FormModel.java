@@ -6,6 +6,10 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import java.awt.Component;
+
 /**
  * @author Norman Fomferra
  */
@@ -85,7 +89,12 @@ class FormModel {
         return true;
     }
 
-    // todo - bit weird to let the mode return a form, try to change this later, e.g. adapter pattern (nf)
     public void modifyMoreOptionsForm(MoreOptionsForm moreOptionsForm) {
+    }
+
+    public Component createEmptyContentPanel() {
+        return new JLabel("<html>This tool window is used to manipulate the<br>" +
+                          "<b>colouring of images</b> shown in an image view.<br>" +
+                          " Right now, there is no selected image view.", SwingConstants.CENTER);
     }
 }
