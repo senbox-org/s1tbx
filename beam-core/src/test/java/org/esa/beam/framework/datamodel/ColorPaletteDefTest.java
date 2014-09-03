@@ -46,34 +46,44 @@ public class ColorPaletteDefTest {
         assertEquals(Color.WHITE, cpd.getPointAt(2).getColor());
 
         cpd = new ColorPaletteDef(new Point[]{
-                    new Point(100, Color.ORANGE),
-                    new Point(200, Color.MAGENTA),
-                    new Point(500, Color.BLUE),
-                    new Point(600, Color.WHITE)
+                new Point(100, Color.ORANGE),
+                new Point(200, Color.MAGENTA),
+                new Point(500, Color.BLUE),
+                new Point(600, Color.WHITE)
         });
         assertEquals(4, cpd.getNumPoints());
         assertEquals(256, cpd.getNumColors());
+        assertEquals(true, cpd.isFullyOpaque());
 
 
         cpd = new ColorPaletteDef(new Point[]{
-                    new Point(100, Color.ORANGE),
-                    new Point(200, Color.MAGENTA),
-                    new Point(500, Color.BLUE),
-                    new Point(600, Color.WHITE)
+                new Point(100, Color.ORANGE),
+                new Point(200, Color.MAGENTA),
+                new Point(500, Color.BLUE),
+                new Point(600, Color.WHITE)
         }, 512);
         assertEquals(4, cpd.getNumPoints());
         assertEquals(512, cpd.getNumColors());
+        assertEquals(true, cpd.isFullyOpaque());
+
+        cpd = new ColorPaletteDef(new Point[]{
+                new Point(100, new Color(100, 100, 100, 100)),
+                new Point(600, Color.WHITE)
+        }, 16);
+        assertEquals(2, cpd.getNumPoints());
+        assertEquals(16, cpd.getNumColors());
+        assertEquals(false, cpd.isFullyOpaque());
     }
 
     @Test
     public void testCreateClone_andEquals() {
         //preparation
         final Point[] points = {
-                    new Point(1, Color.black),
-                    new Point(2, Color.red),
-                    new Point(3, Color.green),
-                    new Point(4, Color.blue),
-                    new Point(5, Color.white),
+                new Point(1, Color.black),
+                new Point(2, Color.red),
+                new Point(3, Color.green),
+                new Point(4, Color.blue),
+                new Point(5, Color.white),
         };
         final ColorPaletteDef cpd = new ColorPaletteDef(points, 256);
         cpd.setDiscrete(true);
