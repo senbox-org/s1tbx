@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.1.12" transformSequenceNumber="4">
-  <directoryPresets config="../.." />
+  <directoryPresets config="../main/bin/win/cli.bat" />
   <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="S1TBX" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="0.5.0" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
@@ -21,12 +21,14 @@
       <fileset name="Win32" id="5258" customizedId="" />
       <fileset name="Linux64" id="5260" customizedId="" />
       <fileset name="Linux32" id="5262" customizedId="" />
+      <fileset name="MacOSX" id="5496" customizedId="" />
     </filesets>
     <roots>
       <root id="5132" fileset="5131" location="" />
       <root id="5259" fileset="5258" location="" />
       <root id="5261" fileset="5260" location="" />
       <root id="5263" fileset="5262" location="" />
+      <root id="5497" fileset="5496" location="" />
     </roots>
     <mountPoints>
       <mountPoint id="17" root="" location="" mode="755" />
@@ -34,6 +36,7 @@
       <mountPoint id="5265" root="5259" location="" mode="755" />
       <mountPoint id="5269" root="5261" location="" mode="755" />
       <mountPoint id="5270" root="5263" location="" mode="755" />
+      <mountPoint id="5498" root="5497" location="" mode="755" />
     </mountPoints>
     <entries>
       <dirEntry mountPoint="17" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/auxdata" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="auxdata" excludeSuffixes="" dirMode="755" overrideDirMode="true">
@@ -86,9 +89,6 @@
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/jogl.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/jogl_awt.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/jogl_cg.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/readme.md" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/s1tbx-dat64.exe" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/s1tbx-dat64.l4j.ini" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/cli.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/clib_jiio.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/clib_jiio_sse2.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
@@ -101,10 +101,8 @@
       <fileEntry mountPoint="5265" file="../main/bin/win/jogl.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/jogl_awt.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/jogl_cg.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5265" file="../main/bin/win/s1tbx-dat.exe" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5265" file="../main/bin/win/s1tbx-dat.l4j.ini" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5269" file="../main/bin/linux64/dat.sh" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5269" file="../main/bin/linux64/gpt.sh" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5269" file="../main/bin/linux64/dat.sh" overwriteMode="4" shared="false" fileMode="755" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5269" file="../main/bin/linux64/gpt.sh" overwriteMode="4" shared="false" fileMode="755" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5269" file="../main/bin/linux64/libclib_jiio.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5269" file="../main/bin/linux64/libgluegen-rt.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5269" file="../main/bin/linux64/libjhdf.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
@@ -112,8 +110,8 @@
       <fileEntry mountPoint="5269" file="../main/bin/linux64/libjogl.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5269" file="../main/bin/linux64/libjogl_awt.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5269" file="../main/bin/linux64/libjogl_cg.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5270" file="../main/bin/linux/dat.sh" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5270" file="../main/bin/linux/gpt.sh" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5270" file="../main/bin/linux/dat.sh" overwriteMode="4" shared="false" fileMode="755" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5270" file="../main/bin/linux/gpt.sh" overwriteMode="4" shared="false" fileMode="755" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5270" file="../main/bin/linux/libclib_jiio.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5270" file="../main/bin/linux/libgluegen-rt.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5270" file="../main/bin/linux/libjhdf.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
@@ -121,6 +119,16 @@
       <fileEntry mountPoint="5270" file="../main/bin/linux/libjogl.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5270" file="../main/bin/linux/libjogl_awt.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5270" file="../main/bin/linux/libjogl_cg.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5498" file="../main/bin/macosx/dat.command" overwriteMode="4" shared="false" fileMode="755" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5498" file="../main/bin/macosx/gpt.command" overwriteMode="4" shared="false" fileMode="755" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5498" file="../main/bin/macosx/libgluegen-rt.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5498" file="../main/bin/macosx/libjblas.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5498" file="../main/bin/macosx/libjblas_arch_flavor.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5498" file="../main/bin/macosx/libjhdf.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5498" file="../main/bin/macosx/libjhdf5.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5498" file="../main/bin/macosx/libjogl.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5498" file="../main/bin/macosx/libjogl_awt.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5498" file="../main/bin/macosx/libjogl_cg.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
     </entries>
     <components>
       <component name="Sentinels Application Platform" id="5274" customizedId="" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
@@ -148,6 +156,7 @@
           <entry location="modules/snap-hdf5-writer-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-jai-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-launcher-0.5.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/snap-metadata-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-netcdf-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-opendap-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-pconvert-0.5.0-SNAPSHOT.jar" fileType="regular" />
@@ -159,7 +168,6 @@
           <entry location="modules/snap-temporal-percentile-op-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-time-series-tool-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-ui-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-visat-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-visat-rcp-0.5.0-SNAPSHOT.jar" fileType="regular" />
         </include>
         <dependencies />
@@ -195,7 +203,7 @@
           <component id="5274" />
         </dependencies>
       </component>
-      <component name="Radarsat-2 Toolbox" id="5014" customizedId="" displayDescription="true" hideHelpButton="true" selected="true" changeable="true" downloadable="false" hidden="false">
+      <component name="Radarsat-2 Toolbox Modules" id="5014" customizedId="" displayDescription="true" hideHelpButton="true" selected="true" changeable="true" downloadable="false" hidden="false">
         <description>Polarimetric Tools</description>
         <include all="false">
           <entry location="modules/rstb-classification-6.2-SNAPSHOT.jar" fileType="regular" />
@@ -206,7 +214,7 @@
           <component id="5134" />
         </dependencies>
       </component>
-      <component name="Sentinel-2 Toolbox" id="5273" customizedId="" displayDescription="true" hideHelpButton="true" selected="false" changeable="true" downloadable="true" hidden="false">
+      <component name="Sentinel-2 Toolbox Modules" id="5273" customizedId="" displayDescription="true" hideHelpButton="true" selected="false" changeable="true" downloadable="true" hidden="false">
         <description>High Resolution Optical Tools</description>
         <include all="false">
           <entry location="modules/lib-openjpeg-2.1.0" fileType="regular" />
@@ -217,7 +225,7 @@
         </include>
         <dependencies />
       </component>
-      <component name="Sentinel-3 Toolbox" id="5140" customizedId="" displayDescription="true" hideHelpButton="true" selected="false" changeable="true" downloadable="true" hidden="false">
+      <component name="Sentinel-3 Toolbox Modules" id="5140" customizedId="" displayDescription="true" hideHelpButton="true" selected="false" changeable="true" downloadable="true" hidden="false">
         <description>Medium Resolution Optical Tools</description>
         <include all="false">
           <entry location="modules/globcover-worldmap-0.5.0-SNAPSHOT" fileType="regular" />
@@ -282,6 +290,16 @@
           <component id="5134" />
         </dependencies>
       </component>
+      <component name="MacOSX" id="5499" customizedId="" displayDescription="false" hideHelpButton="false" selected="true" changeable="false" downloadable="false" hidden="true">
+        <description />
+        <include all="false">
+          <entry location=".i4j_fileset_5496" fileType="regular" />
+        </include>
+        <dependencies>
+          <component id="5274" />
+          <component id="5134" />
+        </dependencies>
+      </component>
     </components>
   </files>
   <launchers>
@@ -295,7 +313,7 @@
           <versionLine x="20" y="40" text="version ${compiler:sys.version}" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
         </text>
       </splashScreen>
-      <java mainClass="com.bc.ceres.launcher.Launcher" vmParameters="-Dceres.context=s1tbx -Xverify:none -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -XX:+UseParallelGC -XX:+UseNUMA -XX:+UseLoopPredicate" arguments="" allowVMPassthroughParameters="true" preferredVM="server" bundleRuntime="true">
+      <java mainClass="com.bc.ceres.launcher.Launcher" vmParameters="-Dceres.context=s1tbx" arguments="" allowVMPassthroughParameters="true" preferredVM="server" bundleRuntime="true">
         <classPath>
           <archive location="bin/snap-launcher.jar" failOnError="false" />
         </classPath>
@@ -303,7 +321,7 @@
       </java>
       <includedFiles />
       <unextractableFiles />
-      <vmOptionsFile mode="content" overwriteMode="0" fileMode="644">
+      <vmOptionsFile mode="template" overwriteMode="0" fileMode="644">
         <content>-Dceres.context=s1tbx 
 -Xverify:none 
 -XX:+AggressiveOpts 
@@ -665,15 +683,45 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                 </serializedBean>
                 <condition> Util.isWindowsInstaller() &amp;&amp; context.getVariable("sys.programGroupDir") != null</condition>
               </action>
-              <action name="" id="4816" customizedId="" beanClass="com.install4j.runtime.beans.actions.text.ReplaceInstallerVariablesAction" enabled="true" commentSet="false" comment="" actionElevationType="elevated" rollbackBarrier="false" multiExec="false" failureStrategy="3" errorMessage="Failed to replace variables in scripts in '${installer:sys.installationDir}/bin'.">
+              <action name="" id="4816" customizedId="" beanClass="com.install4j.runtime.beans.actions.text.ReplaceInstallerVariablesAction" enabled="true" commentSet="false" comment="" actionElevationType="elevated" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.text.ReplaceInstallerVariablesAction">
                       <void property="files">
-                        <array class="java.io.File" length="1">
+                        <array class="java.io.File" length="7">
                           <void index="0">
                             <object class="java.io.File">
                               <string>config/s1tbx.config</string>
+                            </object>
+                          </void>
+                          <void index="1">
+                            <object class="java.io.File">
+                              <string>gpt.bat</string>
+                            </object>
+                          </void>
+                          <void index="2">
+                            <object class="java.io.File">
+                              <string>gpt.sh</string>
+                            </object>
+                          </void>
+                          <void index="3">
+                            <object class="java.io.File">
+                              <string>dat.bat</string>
+                            </object>
+                          </void>
+                          <void index="4">
+                            <object class="java.io.File">
+                              <string>dat.sh</string>
+                            </object>
+                          </void>
+                          <void index="5">
+                            <object class="java.io.File">
+                              <string>dat.command</string>
+                            </object>
+                          </void>
+                          <void index="6">
+                            <object class="java.io.File">
+                              <string>gpt.command</string>
                             </object>
                           </void>
                         </array>
@@ -797,6 +845,33 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                           <void index="0">
                             <object class="java.io.File">
                               <string>modules</string>
+                            </object>
+                          </void>
+                        </array>
+                      </void>
+                      <void property="read">
+                        <boolean>true</boolean>
+                      </void>
+                      <void property="write">
+                        <boolean>true</boolean>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="5495" customizedId="" beanClass="com.install4j.runtime.beans.actions.files.AddWindowsFileRightsAction" enabled="true" commentSet="false" comment="" actionElevationType="elevated" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.files.AddWindowsFileRightsAction">
+                      <void property="execute">
+                        <boolean>true</boolean>
+                      </void>
+                      <void property="files">
+                        <array class="java.io.File" length="1">
+                          <void index="0">
+                            <object class="java.io.File">
+                              <string>graphs</string>
                             </object>
                           </void>
                         </array>
@@ -2035,7 +2110,7 @@ if (wizardContext != null) {
     </applications>
   </installerGui>
   <mediaSets>
-    <windows name="Win64 JRE" id="4707" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_win64_installer" installDir="${compiler:sys.shortName}" overridePrincipalLanguage="false" jreBitType="64" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-amd64-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/" verifyIntegrity="true">
+    <windows name="Win64 JRE" id="4707" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_win64_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="64" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-amd64-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/" verifyIntegrity="true">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
@@ -2052,7 +2127,7 @@ if (wizardContext != null) {
       </excludedComponents>
       <includedDownloadableComponents />
     </windows>
-    <windows name="Win32 JRE" id="20" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_win32_installer" installDir="${compiler:sys.shortName}" overridePrincipalLanguage="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-x86-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/" verifyIntegrity="true">
+    <windows name="Win32 JRE" id="20" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_win32_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-x86-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/" verifyIntegrity="true">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
@@ -2069,38 +2144,28 @@ if (wizardContext != null) {
       </excludedComponents>
       <includedDownloadableComponents />
     </windows>
-    <macosFolder name="Mac OS X Folder JRE" id="5009" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_mac_installer" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="macosx-amd64-1.8.0_05" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" appleJre="false" requiredVmIdPrefix="" customInstallBaseDir="" contentFilesType="1" downloadURL="" signLaunchers="false">
-      <excludedLaunchers />
+    <macos name="Mac OS X Single Bundle" id="5501" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_macOSX_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="macosx-amd64-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" appleJre="false" requiredVmIdPrefix="" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/" signLaunchers="false" launcherId="19">
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
-      <exclude>
-        <entry location="beam-website.url" fileType="regular" />
-        <entry location="bin/beam-cli.bat" fileType="regular" />
-        <entry location="bin/gpt.bat" fileType="regular" />
-        <entry location="bin/pconvert.bat" fileType="regular" />
-        <entry location="bin/visat-d.bat" fileType="regular" />
-      </exclude>
+      <exclude />
       <variables />
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
         <commentFiles />
         <customAttributes />
       </autoUpdate>
-      <excludedComponents />
+      <excludedComponents>
+        <component id="5136" />
+        <component id="5264" />
+        <component id="5271" />
+        <component id="5272" />
+      </excludedComponents>
       <includedDownloadableComponents />
-    </macosFolder>
-    <unixInstaller name="Linux64" id="4500" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux64_installer" installDir="${compiler:sys.shortName}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-1.8.0_20_linux64.tar.gz" manualJREEntry="true" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
-      <excludedLaunchers>
-        <launcher id="1086" />
-      </excludedLaunchers>
+    </macos>
+    <unixInstaller name="Linux64" id="4500" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux64_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-1.8.0_20_linux64.tar.gz" manualJREEntry="true" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
+      <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
-      <exclude>
-        <entry location="beam-website.url" fileType="regular" />
-        <entry location="bin/beam-cli.bat" fileType="regular" />
-        <entry location="bin/gpt.bat" fileType="regular" />
-        <entry location="bin/pconvert.bat" fileType="regular" />
-        <entry location="bin/visat-d.bat" fileType="regular" />
-      </exclude>
+      <exclude />
       <variables />
       <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
         <commentFiles />
@@ -2116,7 +2181,7 @@ if (wizardContext != null) {
         <content />
       </installerScript>
     </unixInstaller>
-    <unixInstaller name="Linux32" id="5413" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux32_installer" installDir="${compiler:sys.shortName}" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-1.8.0_20_linux32.tar.gz" manualJREEntry="true" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
+    <unixInstaller name="Linux32" id="5413" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux32_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-1.8.0_20_linux32.tar.gz" manualJREEntry="true" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
@@ -2137,11 +2202,8 @@ if (wizardContext != null) {
       </installerScript>
     </unixInstaller>
   </mediaSets>
-  <buildIds buildAll="false">
+  <buildIds buildAll="true">
     <mediaSet refId="4707" />
-    <mediaSet refId="20" />
-    <mediaSet refId="4500" />
-    <mediaSet refId="5413" />
   </buildIds>
   <buildOptions verbose="false" faster="false" disableSigning="false" debug="false" />
 </install4j>
