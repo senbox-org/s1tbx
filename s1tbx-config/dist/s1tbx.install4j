@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.1.12" transformSequenceNumber="4">
-  <directoryPresets config="../main/bin/win/cli.bat" />
+  <directoryPresets config="../main/bin/macosx" />
   <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="S1TBX" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="0.5.0" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
@@ -305,6 +305,43 @@
   <launchers>
     <launcher name="s1tbx" id="19" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="S1 Toolbox" icnsFile="" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="">
       <executable name="s1tbx" type="1" iconSet="true" iconFile="" executableDir="" redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="true" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="false" workingDirectory=".." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false">
+        <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" productName="" />
+      </executable>
+      <splashScreen show="false" autoOff="true" alwaysOnTop="true" width="653" height="195" bitmapFile="../../../beam/target/beam-installer-files/bin/splash.png" java6SplashScreen="false">
+        <text>
+          <statusLine x="20" y="20" text="" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
+          <versionLine x="20" y="40" text="version ${compiler:sys.version}" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
+        </text>
+      </splashScreen>
+      <java mainClass="com.bc.ceres.launcher.Launcher" vmParameters="-Dceres.context=s1tbx" arguments="" allowVMPassthroughParameters="true" preferredVM="server" bundleRuntime="true">
+        <classPath>
+          <archive location="bin/snap-launcher.jar" failOnError="false" />
+        </classPath>
+        <nativeLibraryDirectories />
+      </java>
+      <includedFiles />
+      <unextractableFiles />
+      <vmOptionsFile mode="template" overwriteMode="0" fileMode="644">
+        <content>-Dceres.context=s1tbx 
+-Xverify:none 
+-XX:+AggressiveOpts 
+-XX:+UseFastAccessorMethods 
+-XX:+UseParallelGC 
+-XX:+UseNUMA 
+-XX:+UseLoopPredicate</content>
+      </vmOptionsFile>
+      <customScript mode="1" file="">
+        <content />
+      </customScript>
+      <infoPlist mode="1" file="">
+        <content />
+      </infoPlist>
+      <iconImageFiles>
+        <file path="../main/bin/common/resource/snap-s1.png" />
+      </iconImageFiles>
+    </launcher>
+    <launcher name="s1tbx_mac" id="5638" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="S1 Toolbox" icnsFile="../main/bin/macosx/snap_s1.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="5496" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="">
+      <executable name="s1tbx" type="1" iconSet="true" iconFile="" executableDir="" redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="true" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory="/Applications/S1TBX.app/Contents/java/app" singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false">
         <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" productName="" />
       </executable>
       <splashScreen show="false" autoOff="true" alwaysOnTop="true" width="653" height="195" bitmapFile="../../../beam/target/beam-installer-files/bin/splash.png" java6SplashScreen="false">
@@ -2144,8 +2181,11 @@ if (wizardContext != null) {
       </excludedComponents>
       <includedDownloadableComponents />
     </windows>
-    <macos name="Mac OS X Single Bundle" id="5501" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_macOSX_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="macosx-amd64-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" appleJre="false" requiredVmIdPrefix="" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/" signLaunchers="false" launcherId="19">
-      <excludedBeans />
+    <macos name="Mac OS X Single Bundle" id="5501" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_macOSX_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="macosx-amd64-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" appleJre="false" requiredVmIdPrefix="" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/" signLaunchers="false" launcherId="5638">
+      <excludedBeans>
+        <bean refId="3743" />
+        <bean refId="9" />
+      </excludedBeans>
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude />
       <variables />
@@ -2202,8 +2242,8 @@ if (wizardContext != null) {
       </installerScript>
     </unixInstaller>
   </mediaSets>
-  <buildIds buildAll="true">
-    <mediaSet refId="4707" />
+  <buildIds buildAll="false">
+    <mediaSet refId="5501" />
   </buildIds>
   <buildOptions verbose="false" faster="false" disableSigning="false" debug="false" />
 </install4j>
