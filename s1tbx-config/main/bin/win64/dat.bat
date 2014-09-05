@@ -1,16 +1,11 @@
 @echo off
 
-set S1TBX_HOME=%CD%
-
-IF ["%S1TBX_HOME%"]==[] echo "S1TBX_HOME is not defined. Please set S1TBX_HOME=installation_folder"
-
-IF [%S1TBX_HOME:~-1%]==[/] set S1TBX_HOME=%S1TBX_HOME:~0,-1%
-IF [%S1TBX_HOME:~-1%]==[\] set S1TBX_HOME=%S1TBX_HOME:~0,-1%
+set S1TBX_HOME=${installer:sys.installationDir}
 
 "%S1TBX_HOME%\jre\bin\java.exe" ^
-	-server -Xms512M -Xmx3000M -Xverify:none ^
-    -XX:+AggressiveOpts -XX:+UseFastAccessorMethods ^
-    -XX:+UseParallelGC -XX:+UseNUMA -XX:+UseLoopPredicate -XX:+UseStringCache ^
+	-Xmx${installer:maxHeapSize} ^
+    -Xverify:none -XX:+AggressiveOpts -XX:+UseFastAccessorMethods ^
+    -XX:+UseParallelGC -XX:+UseNUMA -XX:+UseLoopPredicate ^
     "-Dceres.context=s1tbx" ^
     "-Ds1tbx.debug=true" ^
     "-Ds1tbx.consoleLog=true" ^

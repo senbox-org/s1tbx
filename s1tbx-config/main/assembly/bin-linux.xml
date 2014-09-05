@@ -63,21 +63,20 @@
     </fileSets>
 
     <moduleSets>
-
-        <!-- (1) Artifacts that go into 'bin', 'lib' or 'modules' -->
         <moduleSet>
             <excludes>
                 <exclude>org.esa.snap:snap-beam-bootstrap</exclude>
 				<exclude>org.esa.snap:snap-rtp-codec</exclude>
-				<exclude>org.esa.snap:snap-installer</exclude>
 				<exclude>org.esa.snap:snap-deploy</exclude>
-                <exclude>org.esa.snap:snap-metadata</exclude>
                 <exclude>org.esa.snap:snap-site</exclude>
                 <exclude>org.esa.s1tbx:s1tbx-bootstrap</exclude>
                 <exclude>org.esa.s1tbx:s1tbx-benchmark</exclude>
                 <exclude>org.esa.s1tbx:s1tbx-config</exclude>
 				<exclude>org.esa.s1tbx:s1tbx-cli</exclude>
+				<exclude>org.esa.s2tbx:s2tbx-app</exclude>
 				<exclude>org.esa.s2tbx:s2tbx-bootstrap</exclude>
+				<exclude>org.esa.s2tbx:s2tbx-installer</exclude>
+				<exclude>org.esa.s3tbx:s3tbx-app</exclude>
 				<exclude>org.esa.s3tbx:s3tbx-bootstrap</exclude>
 				<exclude>org.esa.s3tbx:s3tbx-installer</exclude>
             </excludes>
@@ -108,6 +107,7 @@
 							<exclude>org.esa.s1tbx:s1tbx-dem</exclude>
 							<exclude>org.esa.s1tbx:s1tbx-io</exclude>
 							<exclude>org.esa.s1tbx:s1tbx-rcp</exclude>
+							<exclude>org.esa.s2tbx:s2tbx-commons</exclude>
                             <exclude>org.esa.s3tbx:s3tbx-merisl3-reader</exclude>
 							<exclude>org.jlinda:jlinda-core</exclude>
 							<exclude>org.esa.pfa:pfa-core</exclude>

@@ -14,10 +14,14 @@ public class GCPManager {
 
     private static GCPManager _instance = null;
 
-    private final Map<Band, ProductNodeGroup<Placemark>> bandGCPGroup = new HashMap<>();
+    private final Map<String, ProductNodeGroup<Placemark>> bandGCPGroup = new HashMap<>();
 
     private GCPManager() {
 
+    }
+
+    private String createKey(final Band band) {
+        return band.getProduct().getName() +'_'+band.getName();
     }
 
     public static GCPManager instance() {
@@ -28,12 +32,16 @@ public class GCPManager {
     }
 
     public ProductNodeGroup<Placemark> getGcpGroup(final Band band) {
-        ProductNodeGroup<Placemark> gcpGroup = bandGCPGroup.get(band);
+        ProductNodeGroup<Placemark> gcpGroup = bandGCPGroup.get(createKey(band));
         if(gcpGroup == null) {
-            gcpGroup = new ProductNodeGroup<Placemark>(band.getProduct(),
+            gcpGroup = new ProductNodeGroup<>(band.getProduct(),
                     "ground_control_points", true);
-            bandGCPGroup.put(band, gcpGroup);
+            bandGCPGroup.put(createKey(band), gcpGroup);
         }
         return gcpGroup;
+    }
+
+    public void removeGcpGroup(final Band band) {
+        bandGCPGroup.remove(createKey(band));
     }
 }

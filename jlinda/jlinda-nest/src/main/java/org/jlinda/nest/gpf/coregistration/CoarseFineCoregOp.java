@@ -203,9 +203,6 @@ public class CoarseFineCoregOp extends Operator {
                         targetProduct.getGeoCoding());
             }
 
-            OperatorUtils.copyGCPsToTarget(masterGcpGroup, GCPManager.instance().getGcpGroup(targetProduct.getBandAt(0)),
-                    targetProduct.getGeoCoding());
-
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }

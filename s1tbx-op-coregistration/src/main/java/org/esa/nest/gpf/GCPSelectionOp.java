@@ -216,15 +216,11 @@ public class GCPSelectionOp extends Operator {
 
             createTargetProduct();
 
-            //masterGcpGroup = sourceProduct.getGcpGroup(masterBand1);
             masterGcpGroup = GCPManager.instance().getGcpGroup(masterBand1);
             if (masterGcpGroup.getNodeCount() <= 0) {
                 addGCPGrid(sourceImageWidth, sourceImageHeight, numGCPtoGenerate, masterGcpGroup,
                         targetProduct.getGeoCoding());
             }
-
-            OperatorUtils.copyGCPsToTarget(masterGcpGroup, GCPManager.instance().getGcpGroup(targetProduct.getBandAt(0)),
-                    targetProduct.getGeoCoding());
 
             if (complexCoregistration && applyFineRegistration) {
                 fWindowWidth = Integer.parseInt(fineRegistrationWindowWidth);
