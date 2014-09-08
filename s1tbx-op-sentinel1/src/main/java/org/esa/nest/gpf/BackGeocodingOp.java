@@ -56,7 +56,7 @@ import java.util.*;
         category = "SAR Processing/SENTINEL-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Bursts co-registration using orbit and DEM", internal=true)
+        description = "Bursts co-registration using orbit and DEM")
 public final class BackGeocodingOp extends Operator {
 
     @SourceProducts
@@ -111,23 +111,6 @@ public final class BackGeocodingOp extends Operator {
 
     private int polyDegree = 2; // degree of polynomial for orbit fitting
     private double noDataValue = -9999.0;
-
-
-    private int targetWidth = 0;
-    private int targetHeight = 0;
-
-    private double targetFirstLineTime = 0;
-    private double targetLastLineTime = 0;
-    private double targetLineTimeInterval = 0;
-    private double targetSlantRangeTimeToFirstPixel = 0;
-    private double targetSlantRangeTimeToLastPixel = 0;
-    private double targetDeltaSlantRangeTime = 0;
-
-    private boolean absoluteCalibrationPerformed = false;
-    private boolean inputSigmaBand = false;
-    private boolean inputBetaBand = false;
-    private boolean inputGammaBand = false;
-    private boolean inputDNBand = false;
 
     /**
      * Default constructor. The graph processing framework
@@ -230,22 +213,22 @@ public final class BackGeocodingOp extends Operator {
                 masterProduct.getProductType(),
                 masterProduct.getSceneRasterWidth(),
                 masterProduct.getSceneRasterHeight());
-/*
+
         final String[] masterBandNames = masterProduct.getBandNames();
-        String suffix = "_mst" + StackUtils.getBandTimeStamp(masterProduct);
+        String suffix = "_mst";// + StackUtils.getBandTimeStamp(masterProduct);
         for (String bandName:masterBandNames) {
             ProductUtils.copyBand(bandName, masterProduct, bandName + suffix, targetProduct, true);
         }
-*/
+
         final String[] slaveBandNames = slaveProduct.getBandNames();
-//        suffix = "_slv" + StackUtils.getBandTimeStamp(slaveProduct);
+        suffix = "_slv";// + StackUtils.getBandTimeStamp(slaveProduct);
         for (String bandName:slaveBandNames) {
             if (slaveProduct.getBand(bandName) instanceof VirtualBand) {
                 continue;
             }
             final Band masterBand = masterProduct.getBand(bandName);
             final Band targetBand = new Band(
-                    bandName + "_slv", //suffix,
+                    bandName + suffix,
                     ProductData.TYPE_FLOAT32,
                     masterBand.getSceneRasterWidth(),
                     masterBand.getSceneRasterHeight());
@@ -310,37 +293,7 @@ public final class BackGeocodingOp extends Operator {
             final int tyMax = ty0 + th;
             System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th +
                     ", targetBand = " + targetBand.getName());
-/*
-            final String targetBandName = targetBand.getName();
-            final boolean isIBand = targetBandName.contains("i_");
-            final boolean isHHBand = targetBandName.contains("HH");
-            final int subswathIndex = getSubswathIndex(targetBandName);
 
-            double value = 0.0;
-            if (isIBand) {
-                value += 100.0;
-            } else {
-                value += 800.0;
-            }
-
-            if (isHHBand) {
-                value += 0.0;
-            } else {
-                value += 1.0;
-            }
-
-            value += subswathIndex*10.0;
-
-            final ProductData dataBuffer = targetTile.getDataBuffer();
-            final TileIndex trgIndex = new TileIndex(targetTile);
-
-            for (int y = ty0; y < tyMax; ++y) {
-                trgIndex.calculateStride(y);
-                for (int x = tx0; x < txMax; ++x) {
-                    dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float)value);
-                }
-            }
-*/
             if (!isElevationModelAvailable) {
                 getElevationModel();
             }
@@ -348,22 +301,21 @@ public final class BackGeocodingOp extends Operator {
             final String targetBandName = targetBand.getName();
             final int subswathIndex = getSubswathIndex(targetBandName);
 
-            for (int b = 0; b < mSubSwath[subswathIndex - 1].numOfBursts; b++) {
-                if (tx0 == 0 && ty0 == 0) {
-                    System.out.println("Sub-Swath: " + (b+1));
-                }
-                final int firstLineIdx = b*mSubSwath[subswathIndex - 1].linesPerBurst;
+            for (int burstIndex = 0; burstIndex < mSubSwath[subswathIndex - 1].numOfBursts; burstIndex++) {
+                final int firstLineIdx = burstIndex*mSubSwath[subswathIndex - 1].linesPerBurst;
                 final int lastLineIdx = firstLineIdx + mSubSwath[subswathIndex - 1].linesPerBurst - 1;
-                if (tyMax < firstLineIdx || ty0 > lastLineIdx) {
+
+                if (tyMax <= firstLineIdx || ty0 > lastLineIdx) {
                     continue;
                 }
 
-                final int yMin = Math.max(ty0, firstLineIdx);
-                final int yMax = Math.min(tyMax, lastLineIdx);
-                final int h = yMax - yMin + 1;
-                computePartialTile(subswathIndex, b, tx0, yMin, tw, h, targetBand, targetTile, pm);
+                final int ntx0 = tx0;
+                final int ntw = tw;
+                final int nty0 = Math.max(ty0, firstLineIdx);
+                final int ntyMax = Math.min(tyMax, lastLineIdx + 1);
+                final int nth = ntyMax - nty0;
+                computePartialTile(subswathIndex, burstIndex, ntx0, nty0, ntw, nth, targetBand, targetTile, pm);
             }
-            System.out.println("Done: tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
         } catch (Throwable e) {
             throw new OperatorException(e.getMessage());
@@ -401,45 +353,22 @@ public final class BackGeocodingOp extends Operator {
         isElevationModelAvailable = true;
     }
 
-    private void computePartialTile(final int subswathIndex, final int burstIndex, final int x0, final int y0,
-                                    final int w, final int h, final Band targetBand, final Tile targetTile,
-                                    ProgressMonitor pm) throws Exception {
+    private void computePartialTile(final int subswathIndex, final int burstIndex,
+                                    final int x0, final int y0, final int w, final int h,
+                                    final Band targetBand, final Tile targetTile, ProgressMonitor pm)
+            throws Exception {
 
-        if (x0 == 0 && y0 == 0) {
-            System.out.println("0: computePartialTile");
-        }
-        PixelPos[][] slavePixPos = null;
-        try {
-            slavePixPos = computeSlavePixPos(x0, y0, w, h, pm);
-//        final PixelPos[][] slavePixPos = computeSlavePixPos(x0, y0, w, h, pm);
-        } catch (Exception e) {
-            throw new OperatorException(e.getMessage());
-        }
-        if (x0 == 0 && y0 == 0) {
-            System.out.println("1: computeSlavePixPos");
-        }
+        final PixelPos[][] slavePixPos = computeSlavePixPos(x0, y0, w, h, pm);
 
         final int sourceRasterWidth = sSubSwath[subswathIndex - 1].numOfSamples;
         final int sourceRasterHeight = sSubSwath[subswathIndex - 1].numOfLines;
-        final Rectangle sourceRectangle = getBoundingBox(slavePixPos, sourceRasterWidth, sourceRasterHeight);
-        if (x0 == 0 && y0 == 0) {
-            System.out.println("2: getBoundingBox");
-        }
 
+        final Rectangle sourceRectangle = getBoundingBox(slavePixPos, sourceRasterWidth, sourceRasterHeight);
         if (sourceRectangle == null) {
             return;
         }
 
-        double[][] derampDemodPhase = null;
-        try {
-            derampDemodPhase = computeDerampDemodPhase(subswathIndex, burstIndex, sourceRectangle);
-//        final double[][] derampDemodPhase = computeDerampDemodPhase(subswathIndex, burstIndex, sourceRectangle);
-        } catch (Exception e) {
-            throw new OperatorException(e.getMessage());
-        }
-        if (x0 == 0 && y0 == 0) {
-            System.out.println("3: computeDerampDemodPhase");
-        }
+        final double[][] derampDemodPhase = computeDerampDemodPhase(subswathIndex, burstIndex, sourceRectangle);
 
         final String targetBandName = targetBand.getName();
         final String pol = getPolarization(targetBandName);
@@ -455,15 +384,8 @@ public final class BackGeocodingOp extends Operator {
         final double[][] derampDemodI = new double[sourceRectangle.height][sourceRectangle.width];
         final double[][] derampDemodQ = new double[sourceRectangle.height][sourceRectangle.width];
 
-        try {
         performDerampDemod(
                 slaveTileI, sourceRectangle, slaveDataI, slaveDataQ, derampDemodPhase, derampDemodI, derampDemodQ);
-        } catch (Exception e) {
-            throw new OperatorException(e.getMessage());
-        }
-        if (x0 == 0 && y0 == 0) {
-            System.out.println("4: performDerampDemod");
-        }
 
         final Resampling.Index resamplingIndex = selectedResampling.createIndex();
         final ResamplingRaster resamplingRasterI = new ResamplingRaster(slaveTileI, sourceRectangle, derampDemodI);
@@ -474,73 +396,55 @@ public final class BackGeocodingOp extends Operator {
         final TileIndex tgtIndex = new TileIndex(targetTile);
         final boolean isIBand = targetBandName.contains("i_");
 
-        try {
         for (int y = y0; y < y0 + h; y++) {
             tgtIndex.calculateStride(y);
             final int yy = y - y0;
             for (int x = x0; x < x0 + w; x++) {
                 final int tgtIdx = tgtIndex.getIndex(x);
+                tgtBuffer.setElemDoubleAt(tgtIdx, noDataValue);
 
                 final PixelPos slavePixelPos = slavePixPos[yy][x - x0];
                 if (isSlavePixPosValid(slavePixelPos, subswathIndex)) {
-                    try {
-                        selectedResampling.computeIndex(slavePixelPos.x, slavePixelPos.y,
-                                sourceRasterWidth, sourceRasterHeight, resamplingIndex);
 
-                        final double sampleI = selectedResampling.resample(resamplingRasterI, resamplingIndex);
-                        final double sampleQ = selectedResampling.resample(resamplingRasterQ, resamplingIndex);
-                        final double samplePhase = selectedResampling.resample(resamplingRasterPhase, resamplingIndex);
-                        final double cosPhase = Math.cos(samplePhase);
-                        final double sinPhase = Math.sin(samplePhase);
-                        final double rerampRemodI = sampleI*cosPhase + sampleQ*sinPhase;
-                        final double rerampRemodQ = -sampleI*sinPhase + sampleQ*cosPhase;
+                    selectedResampling.computeIndex(slavePixelPos.x, slavePixelPos.y,
+                            sourceRasterWidth, sourceRasterHeight, resamplingIndex);
 
-                        double sample;
-                        if (isIBand) {
-                            sample = rerampRemodI;
-                        } else {
-                            sample = rerampRemodQ;
-                        }
+                    final double sampleI = selectedResampling.resample(resamplingRasterI, resamplingIndex);
+                    final double sampleQ = selectedResampling.resample(resamplingRasterQ, resamplingIndex);
+                    final double samplePhase = selectedResampling.resample(resamplingRasterPhase, resamplingIndex);
+                    final double cosPhase = Math.cos(samplePhase);
+                    final double sinPhase = Math.sin(samplePhase);
+                    final double rerampRemodI = sampleI*cosPhase + sampleQ*sinPhase;
+                    final double rerampRemodQ = -sampleI*sinPhase + sampleQ*cosPhase;
 
-                        if (Double.isNaN(sample)) {
-                            sample = noDataValue;
-                        }
-
-                        tgtBuffer.setElemDoubleAt(tgtIdx, sample);
-
-                    } catch (Exception e) {
-                        throw new OperatorException(e.getMessage());
+                    double sample;
+                    if (isIBand) {
+                        sample = rerampRemodI;
+                    } else {
+                        sample = rerampRemodQ;
                     }
+
+                    if (Double.isNaN(sample)) {
+                        sample = noDataValue;
+                    }
+
+                    tgtBuffer.setElemDoubleAt(tgtIdx, sample);
                 } else {
                     tgtBuffer.setElemDoubleAt(tgtIdx, noDataValue);
                 }
             }
         }
-        } catch (Exception e) {
-            throw new OperatorException(e.getMessage());
-            // todo got exception 303920 = 524*580 here for the first tile
-        }
-        if (x0 == 0 && y0 == 0) {
-            System.out.println("5: Resampling");
-        }
-
     }
 
     private PixelPos[][] computeSlavePixPos(final int x0, final int y0, final int w, final int h, ProgressMonitor pm)
             throws Exception {
 
         try {
-            if (x0 == 0 && y0 == 0) {
-                System.out.println("00: computeSlavePixPos");
-            }
-            // Compute lat/lon boundaries (with extensions) for target tile;
+            // Compute lat/lon boundaries (with extensions) for target tile
             final int xMax = x0 + w;
             final int yMax = y0 + h;
             final double[] latLonMinMax = new double[4];
             computeImageGeoBoundary(x0, xMax, y0, yMax, masterProduct, latLonMinMax);
-            if (x0 == 0 && y0 == 0) {
-                System.out.println("01: computeSlavePixPos");
-            }
 
             final double delta = (double)dem.getDescriptor().getDegreeRes() / (double)dem.getDescriptor().getPixelRes();
             final double extralat = 1.5*delta + 4.0/25.0;
@@ -560,7 +464,7 @@ public final class BackGeocodingOp extends Operator {
 
             // Loop through all DEM points bounded by the indices computed above. For each point,
             // get its lat/lon and its azimuth/range indices in target image;
-            final int numLines = latMinIdx - latMaxIdx + 1;
+            final int numLines = latMinIdx - latMaxIdx;
             final int numPixels = lonMaxIdx - lonMinIdx;
             double[][] azIn = new double[numLines][numPixels];
             double[][] rgIn = new double[numLines][numPixels];
@@ -590,12 +494,9 @@ public final class BackGeocodingOp extends Operator {
                     slaveRg[l][p] = slavePosData.rangeIndex;
                 }
             }
-            if (x0 == 0 && y0 == 0) {
-                System.out.println("02: computeSlavePixPos");
-            }
 
-            // Compute azimuth/range offsets for pixels in target tile using Delaunay interpolation;
-            final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0, yMax-1, x0, xMax-1);
+            // Compute azimuth/range offsets for pixels in target tile using Delaunay interpolation
+            final org.jlinda.core.Window tileWindow = new org.jlinda.core.Window(y0, yMax - 1, x0, xMax - 1);
 
             //final double rgAzRatio = computeRangeAzimuthSpacingRatio(w, h, latLonMinMax);
             final double rgAzRatio = mSU.rangeSpacing / mSU.azimuthSpacing;
@@ -605,24 +506,22 @@ public final class BackGeocodingOp extends Operator {
 
             final double[][] rgArray = TriangleUtils.gridDataLinear(
                     azIn, rgIn, slaveRg, tileWindow, rgAzRatio, 1, 1, noDataValue, 0);
-            if (x0 == 0 && y0 == 0) {
-                System.out.println("03: computeSlavePixPos");
-            }
 
             final PixelPos[][] slavePixelPos = new PixelPos[h][w];
             for(int l = 0; l < h; l++) {
                 for (int p = 0; p < w; p++) {
-                    slavePixelPos[l][p] = new PixelPos((float)rgArray[l][p], (float)azArray[l][p]);
+                    if (rgArray[l][p] == noDataValue || azArray[l][p] == noDataValue) {
+                        slavePixelPos[l][p] = null;
+                    } else {
+                        slavePixelPos[l][p] = new PixelPos((float)rgArray[l][p], (float)azArray[l][p]);
+                    }
                 }
-            }
-            if (x0 == 0 && y0 == 0) {
-                System.out.println("04: computeSlavePixPos");
             }
 
             return slavePixelPos;
 
         } catch (Throwable e) {
-            OperatorUtils.catchOperatorException("computeSlaveCoord", e);
+            OperatorUtils.catchOperatorException("computeSlavePixPos", e);
         }
 
         return null;
@@ -634,20 +533,24 @@ public final class BackGeocodingOp extends Operator {
      *
      * @throws Exception The exceptions.
      */
-    private void computeImageGeoBoundary(final int xmin, final int xmax, final int ymin, final int ymax,
+    private void computeImageGeoBoundary(final int xMin, final int xMax, final int yMin, final int yMax,
                                          final Product sourceProduct, double[] latLonMinMax) throws Exception {
 
         final GeoCoding geoCoding = sourceProduct.getGeoCoding();
         if (geoCoding == null) {
             throw new OperatorException("Product does not contain a geocoding");
         }
-        final GeoPos geoPosFirstNear = geoCoding.getGeoPos(new PixelPos(xmin, ymin), null);
-        final GeoPos geoPosFirstFar = geoCoding.getGeoPos(new PixelPos(xmax, ymin), null);
-        final GeoPos geoPosLastNear = geoCoding.getGeoPos(new PixelPos(xmin, ymax), null);
-        final GeoPos geoPosLastFar = geoCoding.getGeoPos(new PixelPos(xmax, ymax), null);
+        final GeoPos geoPosFirstNear = geoCoding.getGeoPos(new PixelPos(xMin, yMin), null);
+        final GeoPos geoPosFirstFar = geoCoding.getGeoPos(new PixelPos(xMax, yMin), null);
+        final GeoPos geoPosLastNear = geoCoding.getGeoPos(new PixelPos(xMin, yMax), null);
+        final GeoPos geoPosLastFar = geoCoding.getGeoPos(new PixelPos(xMax, yMax), null);
 
-        final double[] lats = {geoPosFirstNear.getLat(), geoPosFirstFar.getLat(), geoPosLastNear.getLat(), geoPosLastFar.getLat()};
-        final double[] lons = {geoPosFirstNear.getLon(), geoPosFirstFar.getLon(), geoPosLastNear.getLon(), geoPosLastFar.getLon()};
+        final double[] lats =
+                {geoPosFirstNear.getLat(), geoPosFirstFar.getLat(), geoPosLastNear.getLat(), geoPosLastFar.getLat()};
+
+        final double[] lons =
+                {geoPosFirstNear.getLon(), geoPosFirstFar.getLon(), geoPosLastNear.getLon(), geoPosLastFar.getLon()};
+
         double latMin = 90.0;
         double latMax = -90.0;
         for (double lat : lats) {
@@ -757,28 +660,34 @@ public final class BackGeocodingOp extends Operator {
     private double[][] computeDerampDemodPhase(
             final int subswathIndex, final int burstIndex, final Rectangle rectangle) {
 
-        final int x0 = rectangle.x;
-        final int y0 = rectangle.y;
-        final int w = rectangle.width;
-        final int h = rectangle.height;
-        final int xMax = x0 + w;
-        final int yMax = y0 + h;
-        final int s = subswathIndex - 1;
+        try {
+            final int x0 = rectangle.x;
+            final int y0 = rectangle.y;
+            final int w = rectangle.width;
+            final int h = rectangle.height;
+            final int xMax = x0 + w;
+            final int yMax = y0 + h;
+            final int s = subswathIndex - 1;
 
-        final double[][] phase = new double[h][w];
-        for (int y = y0; y < yMax; y++) {
-            final int yy = y - y0;
-            final double ta = y * sSubSwath[s].azimuthTimeInterval;
-            for (int x = x0; x < xMax; x++) {
-                final int xx = x - x0;
-                final double kt = sSubSwath[s].dopplerRate[burstIndex][x];
-                final double deramp = -Math.PI * kt * (ta - sSubSwath[s].referenceTime[burstIndex][x]);
-                final double demod = -2 * Math.PI * sSubSwath[s].dopplerCentroid[burstIndex][x] * ta;
-                phase[yy][xx] = deramp + demod;
+            final double[][] phase = new double[h][w];
+            for (int y = y0; y < yMax; y++) {
+                final int yy = y - y0;
+                final double ta = y * sSubSwath[s].azimuthTimeInterval;
+                for (int x = x0; x < xMax; x++) {
+                    final int xx = x - x0;
+                    final double kt = sSubSwath[s].dopplerRate[burstIndex][x];
+                    final double deramp = -Math.PI * kt * (ta - sSubSwath[s].referenceTime[burstIndex][x]);
+                    final double demod = -2 * Math.PI * sSubSwath[s].dopplerCentroid[burstIndex][x] * ta;
+                    phase[yy][xx] = deramp + demod;
+                }
             }
+
+            return phase;
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("computeDerampDemodPhase", e);
         }
 
-        return phase;
+        return null;
     }
 
     private void performDerampDemod(final Tile slaveTile, final Rectangle slaveRectangle,

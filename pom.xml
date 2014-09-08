@@ -116,6 +116,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        
     </repositories>
 
     <pluginRepositories>
@@ -551,12 +552,28 @@
                         <groupId>javax.media</groupId>
                         <artifactId>jai_imageio</artifactId>
                     </exclusion>
+					<exclusion>
+                        <groupId>it.geosolutions.imageio-ext</groupId>
+                        <artifactId>imageio-ext-tiff</artifactId>
+                    </exclusion>
+					<exclusion>
+                        <groupId>it.geosolutions.imageio-ext</groupId>
+                        <artifactId>imageio-ext-utilities</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 			<dependency>
 				<groupId>com.vividsolutions</groupId>
                 <artifactId>jts</artifactId>
                 <version>1.13</version>
+			</dependency>
+			
+			<!-- ImageioIO-Ext ############################################# -->
+			
+			<dependency>
+				<groupId>it.geosolutions.imageio-ext</groupId>
+				<artifactId>imageio-ext-tiff</artifactId>
+				<version>1.1.9</version>
 			</dependency>
 			
             <!-- JAI Libraries ############################################# -->
@@ -999,7 +1016,7 @@
 						<descriptor>s1tbx-config/main/assembly/bin-windows.xml</descriptor>						
 						<descriptor>s1tbx-config/main/assembly/bin-linux.xml</descriptor>
 						<descriptor>s1tbx-config/main/assembly/bin-linux64.xml</descriptor>
-						<!--descriptor>s1tbx-config/main/assembly/bin-mac.xml</descriptor-->
+						<descriptor>s1tbx-config/main/assembly/bin-mac.xml</descriptor>
 						<descriptor>s1tbx-config/main/assembly/repository.xml</descriptor>
 						<!--descriptor>s1tbx-config/main/assembly/web-help.xml</descriptor-->
                         <!--descriptor>s1tbx-config/main/assembly/src.xml</descriptor-->
