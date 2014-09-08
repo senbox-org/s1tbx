@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class EnviProductReaderTest_WithFileIO {
 
@@ -34,6 +35,7 @@ public class EnviProductReaderTest_WithFileIO {
         doTest("envifile.hdr", "envifile.img");
         doTest("envifile.img.hdr", "envifile.img");
 
+        fail("Expected, just testing");
         doTest("envifile.hdr", "envifile.IMG");
         doTest("envifile.HDR", "envifile.img");
         doTest("envifile.HDR", "envifile.IMG");
