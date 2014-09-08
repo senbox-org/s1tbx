@@ -19,18 +19,13 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.XMLProductDirectory;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.util.XMLSupport;
-import org.jdom2.Document;
-import org.jdom2.Element;
 
 import java.io.File;
 import java.io.IOException;
@@ -500,8 +495,13 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
     @Override
     public Product createProduct() throws IOException {
 
-        final MetadataElement newRoot = addMetaData();
+        // If addMetaData() is called before findImages(), the annotation will not show up in the display.
+        // This is because...
+        // in addBandAbstractedMetadata() (which is called by addAbstractedMetadataHeader() which is called by
+        // addMetaData()), for it to add annotations to metadata, OCNReader has to have already been created by
+        // findImages().
         findImages();
+        final MetadataElement newRoot = addMetaData();
 
         final MetadataElement absRoot = newRoot.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
 
