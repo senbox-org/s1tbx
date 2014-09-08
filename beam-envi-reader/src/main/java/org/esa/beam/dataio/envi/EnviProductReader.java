@@ -51,14 +51,20 @@ public class EnviProductReader extends AbstractProductReader {
         final File parentFolder = headerFile.getParentFile();
         for(final String ext : EnviConstants.IMAGE_EXTENSIONS) {
             final File imgFile = new File(parentFolder, imgName + ext);
-            if (imgFile.exists())
+            System.out.println("testing file: " + imgFile.getAbsolutePath());
+
+            if (imgFile.exists()) {
                 return imgFile;
+            }
         }
         
         final File[] files = parentFolder.listFiles();
         if (files != null) {
+            System.out.println("listing all files in dir: " + parentFolder.getAbsolutePath());
             for(File f : files) {
+                System.out.println("testing file: " + f.getAbsolutePath());
                 if(f != headerFile && f.getName().startsWith(imgName)) {
+                    System.out.println("returning file: " + f.getAbsolutePath());
                     return f;
                 }
             }
