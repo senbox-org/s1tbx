@@ -32,6 +32,9 @@
         <module>snap-binding</module>
     </dependency>
     <dependency>
+        <module>snap-metadata</module>
+    </dependency>
+    <dependency>
         <module>snap-core</module>
     </dependency>
     <dependency>
