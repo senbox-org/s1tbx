@@ -30,7 +30,7 @@
         <dependency>
             <groupId>com.jidesoft</groupId>
             <artifactId>jide-common</artifactId>
-            <version>3.5.3</version>
+            <version>3.6.1</version>
         </dependency>
     </dependencies>
 
