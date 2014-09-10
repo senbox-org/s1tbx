@@ -146,7 +146,7 @@ public class Hdf5ProductWriterPlugIn implements ProductWriterPlugIn {
         ClassLoader classLoader = callerClass.getClassLoader();
 
         String classResourceName = "/" + className.replace('.', '/') + ".class";
-        SystemUtils.class.getResource(classResourceName);
+//        SystemUtils.class.getResource(classResourceName);
         if (callerClass.getResource(classResourceName) != null) {
             try {
                 return Class.forName(className, true, classLoader);
