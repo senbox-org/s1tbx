@@ -149,6 +149,12 @@ class GeoTiffBandWriter {
                         data[x] = (int) regionData.getElemUIntAt(stride + x);
                     }
                     ios.writeInts(data, 0, regionWidth);
+                } else if (bandDataType == ProductData.TYPE_ULONG64) {
+                    final long[] data = new long[regionWidth];
+                    for (int x = 0; x < regionWidth; x++) {
+                        data[x] = (int) regionData.getElemULongAt(stride + x);
+                    }
+                    ios.writeLongs(data, 0, regionWidth);
                 } else if (bandDataType == ProductData.TYPE_INT32) {
                     final int[] data = new int[regionWidth];
                     for (int x = 0; x < regionWidth; x++) {

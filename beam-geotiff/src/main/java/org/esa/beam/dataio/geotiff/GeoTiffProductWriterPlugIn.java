@@ -35,12 +35,12 @@ public class GeoTiffProductWriterPlugIn implements ProductWriterPlugIn {
     public static final String GEOTIFF_FORMAT_NAME = "GeoTIFF";
     public static final String[] GEOTIFF_FILE_EXTENSION = {".tif", ".tiff"};
     private static final String DESCRIPTION = "GeoTIFF product";
-
-
+    private boolean bigTiff = false;
     /**
      * Constructs a new GeoTIFF product writer plug-in instance.
      */
-    public GeoTiffProductWriterPlugIn() {
+    public GeoTiffProductWriterPlugIn(boolean bigTiff) {
+        this.bigTiff = bigTiff;
     }
 
 
@@ -80,6 +80,9 @@ public class GeoTiffProductWriterPlugIn implements ProductWriterPlugIn {
                 File.class,
         };
     }
+
+    /** Returns whether or not we are writing BigTIFF data. */
+    public boolean isBigTiff() { return bigTiff; }
 
     /**
      * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is

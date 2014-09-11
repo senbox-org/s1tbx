@@ -27,18 +27,19 @@ public class TiffLongTest extends TestCase {
 
     private final long _TIFFLONG_MAX = 0xffffffffL;
     private final long _TIFFLONG_MIN = 0;
+    private static final boolean bigTiff = false;
 
     public void testCreation_WithMaxValue() {
-        new TiffLong(_TIFFLONG_MAX);
+        new TiffLong(_TIFFLONG_MAX, bigTiff);
     }
 
     public void testCreation_WithMinValue() {
-        new TiffLong(_TIFFLONG_MIN);
+        new TiffLong(_TIFFLONG_MIN, bigTiff);
     }
 
     public void testCreation_ValueSmallerThanMinValue() {
         try {
-            new TiffLong(_TIFFLONG_MIN - 1);
+            new TiffLong(_TIFFLONG_MIN - 1, bigTiff);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
 
@@ -49,7 +50,7 @@ public class TiffLongTest extends TestCase {
 
     public void testCreation_ValueBiggerThanMaxValue() {
         try {
-            new TiffLong(_TIFFLONG_MAX + 1);
+            new TiffLong(_TIFFLONG_MAX + 1, bigTiff);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
 
@@ -61,19 +62,19 @@ public class TiffLongTest extends TestCase {
     public void testGetValue() {
         TiffLong tiffLong;
 
-        tiffLong = new TiffLong(_TIFFLONG_MAX);
+        tiffLong = new TiffLong(_TIFFLONG_MAX, bigTiff);
         assertEquals(_TIFFLONG_MAX, tiffLong.getValue());
 
-        tiffLong = new TiffLong(_TIFFLONG_MIN);
+        tiffLong = new TiffLong(_TIFFLONG_MIN, bigTiff);
         assertEquals(_TIFFLONG_MIN, tiffLong.getValue());
 
         final int value = 23498756;
-        tiffLong = new TiffLong(value);
+        tiffLong = new TiffLong(value, bigTiff);
         assertEquals(value, tiffLong.getValue());
     }
 
     public void testWriteToStream() throws IOException {
-        final TiffLong tiffLong = new TiffLong(_TIFFLONG_MAX);
+        final TiffLong tiffLong = new TiffLong(_TIFFLONG_MAX, bigTiff);
         final MemoryCacheImageOutputStream stream = new MemoryCacheImageOutputStream(new ByteArrayOutputStream());
 
         tiffLong.write(stream);
@@ -84,7 +85,7 @@ public class TiffLongTest extends TestCase {
     }
 
     public void testGetSizeInBytes() {
-        final TiffLong tiffLong = new TiffLong(234);
+        final TiffLong tiffLong = new TiffLong(234, bigTiff);
         assertEquals(4, tiffLong.getSizeInBytes());
     }
 }

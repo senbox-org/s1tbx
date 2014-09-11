@@ -21,6 +21,8 @@ import junit.framework.TestCase;
 
 public class TiffTypeTest extends TestCase {
 
+    private static final boolean bigTiff = false;
+
     public void testGetBytesForType() {
         assertEquals(1, TiffType.getBytesForType(TiffType.BYTE));
         assertEquals(1, TiffType.getBytesForType(TiffType.ASCII));
@@ -56,7 +58,7 @@ public class TiffTypeTest extends TestCase {
         values = new TiffValue[]{new TiffRational(1, 2), new TiffRational(12, 1)};
         assertEquals(TiffType.RATIONAL.getValue(), TiffType.getType(values).getValue());
 
-        values = new TiffValue[]{new TiffLong(35486), new TiffLong(0)};
+        values = new TiffValue[]{new TiffLong(35486, bigTiff), new TiffLong(0, bigTiff)};
         assertEquals(TiffType.LONG.getValue(), TiffType.getType(values).getValue());
 
         values = new TiffValue[]{new TiffShort(5486), new TiffShort(86)};
@@ -86,7 +88,7 @@ public class TiffTypeTest extends TestCase {
     public void testGetType_WithDifferingValueTypes() {
         final TiffValue values[] = new TiffValue[]{
                 new TiffRational(1, 1),
-                new TiffLong(12345)
+                new TiffLong(12345, bigTiff)
         };
 
         try {

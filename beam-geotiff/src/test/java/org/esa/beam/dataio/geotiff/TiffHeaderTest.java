@@ -36,12 +36,12 @@ import java.io.ByteArrayOutputStream;
 public class TiffHeaderTest extends TestCase {
 
     private TiffHeader _tiffHeader;
-
+    private static final boolean bigTiff = false;
     @Override
     public void setUp() throws Exception {
         final Product product = new Product("name", "type", 10, 15);
         product.addBand("b1", ProductData.TYPE_UINT16);
-        _tiffHeader = new TiffHeader(new Product[]{product});
+        _tiffHeader = new TiffHeader(new Product[]{product}, bigTiff);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class TiffHeaderTest extends TestCase {
 
     public void testCreation_WithNull() {
         try {
-            new TiffHeader(null);
+            new TiffHeader(null, bigTiff);
             fail("IllegalArgumentException expected because a null parameter is given");
         } catch (IllegalArgumentException expected) {
             // expected Exception
@@ -61,7 +61,7 @@ public class TiffHeaderTest extends TestCase {
 
     public void testCreation_WithZeroSizedArray() {
         try {
-            new TiffHeader(new Product[0]);
+            new TiffHeader(new Product[0], bigTiff);
             fail("IllegalArgumentException expected because the parameter is a zero sized array");
         } catch (IllegalArgumentException expected) {
             // expected Exception
@@ -73,7 +73,7 @@ public class TiffHeaderTest extends TestCase {
     public void testCreation() {
         final Product product = new Product("name", "type", 10, 15);
         product.addBand("b1", ProductData.TYPE_UINT16);
-        final TiffHeader tiffHeader = new TiffHeader(new Product[]{product});
+        final TiffHeader tiffHeader = new TiffHeader(new Product[]{product}, bigTiff);
         assertNotNull(tiffHeader.getIfdAt(0));
     }
 
@@ -105,7 +105,7 @@ public class TiffHeaderTest extends TestCase {
 
         final long ifdSize = _tiffHeader.getIfdAt(0).getRequiredIfdSize();
         final long valuesSize = _tiffHeader.getIfdAt(0).getRequiredReferencedValuesSize();
-        final long startIfd = TiffHeader.FIRST_IFD_OFFSET.getValue();
+        final long startIfd = TiffHeader.getFirstIfdOffset(bigTiff).getValue();
         final long expectedStreamLength = startIfd + ifdSize + valuesSize;
         final long expectedNextIFDOffset = 0;
         assertEquals(expectedStreamLength, ios.length());
@@ -118,7 +118,7 @@ public class TiffHeaderTest extends TestCase {
         final Product p2 = new Product("p2", "type", 8, 6);
         p1.addBand("b1", ProductData.TYPE_INT16);
         p2.addBand("b1", ProductData.TYPE_UINT16);
-        final TiffHeader tiffHeader = new TiffHeader(new Product[]{p1, p2});
+        final TiffHeader tiffHeader = new TiffHeader(new Product[]{p1, p2}, bigTiff);
 
         final TiffIFD ifd1 = tiffHeader.getIfdAt(0);
         final TiffIFD ifd2 = tiffHeader.getIfdAt(1);
@@ -126,7 +126,7 @@ public class TiffHeaderTest extends TestCase {
         assertNotNull(ifd1);
         assertNotNull(ifd2);
 
-        final long startFirstIfd = TiffHeader.FIRST_IFD_OFFSET.getValue();
+        final long startFirstIfd = TiffHeader.getFirstIfdOffset(bigTiff).getValue();
         final long firstIfdEntireSize = ifd1.getRequiredEntireSize();
         final long secondIfdSize = ifd2.getRequiredIfdSize();
         final long secondIfdValuesSize = ifd2.getRequiredReferencedValuesSize();
