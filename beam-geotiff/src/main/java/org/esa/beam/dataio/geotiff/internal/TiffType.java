@@ -106,6 +106,27 @@ class TiffType {
     public static final byte DOUBLE_TYPE = 12;
     public static final TiffShort DOUBLE = new TiffShort(DOUBLE_TYPE);
 
+
+    public static final byte IFD_TYPE = 13;
+    public static final TiffShort IFD = new TiffShort(IFD_TYPE);
+
+    /**
+     * 64-bit (8-byte) unsigned long.
+     */
+    public static final byte LONG8_TYPE = 16;
+    public static final TiffShort LONG8 = new TiffShort(LONG8_TYPE);
+
+
+    /**
+     * 64-bit (8-byte) signed long.
+     */
+    public static final byte SLONG8_TYPE = 17;
+    public static final TiffShort SLONG8 = new TiffShort(SLONG8_TYPE);
+
+
+    public static final byte IFD8_TYPE = 18;
+    public static final TiffShort IFD8 = new TiffShort(IFD8_TYPE);
+
     public static short getBytesForType(final TiffShort type) {
         switch (type.getValue()) {
         case BYTE_TYPE:
@@ -140,7 +161,12 @@ class TiffType {
         }
         if (value instanceof TiffLong) {
             ensureElementsEqualValueType(values, TiffLong.class);
-            return LONG;
+            if (((TiffLong) value).isBigTiff()) {
+                return LONG8;
+            }
+            else {
+                return LONG;
+            }
         }
         if (value instanceof TiffRational) {
             ensureElementsEqualValueType(values, TiffRational.class);
@@ -185,6 +211,8 @@ class TiffType {
             return TiffType.SSHORT;
         case ProductData.TYPE_INT32:
             return TiffType.SLONG;
+        case ProductData.TYPE_ULONG64:
+            return TiffType.LONG8;
         case ProductData.TYPE_FLOAT32:
             return TiffType.FLOAT;
         case ProductData.TYPE_FLOAT64:

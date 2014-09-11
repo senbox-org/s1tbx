@@ -15,7 +15,8 @@
  */
 package org.esa.beam.dataio.geotiff;
 
-import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
+//import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
+import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;

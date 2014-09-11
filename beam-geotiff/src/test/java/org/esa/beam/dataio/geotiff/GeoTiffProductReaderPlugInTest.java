@@ -47,10 +47,12 @@ import static org.junit.Assert.*;
 public class GeoTiffProductReaderPlugInTest {
 
     private GeoTiffProductReaderPlugIn plugIn;
-
+    private boolean bigTiff = false;
     @Before
     public void setup() {
+
         plugIn = new GeoTiffProductReaderPlugIn();
+        bigTiff = false;
     }
 
     @Test
@@ -58,7 +60,7 @@ public class GeoTiffProductReaderPlugInTest {
         final Product product = new Product("p", "t", 20, 10);
         final Band band = product.addBand("band1", ProductData.TYPE_INT8);
         band.ensureRasterData();
-        final ImageInputStream inputStream = writeToInputStream(product);
+        final ImageInputStream inputStream = writeToInputStream(product, bigTiff);
         final DecodeQualification decodeQualification = GeoTiffProductReaderPlugIn.getDecodeQualificationImpl(
                 inputStream);
 
@@ -74,7 +76,7 @@ public class GeoTiffProductReaderPlugInTest {
         mapInfo.setSceneWidth(product.getSceneRasterWidth());
         mapInfo.setSceneHeight(product.getSceneRasterHeight());
         product.setGeoCoding(new MapGeoCoding(mapInfo));
-        final ImageInputStream inputStream = writeToInputStream(product);
+        final ImageInputStream inputStream = writeToInputStream(product, bigTiff);
         final DecodeQualification decodeQualification = GeoTiffProductReaderPlugIn.getDecodeQualificationImpl(inputStream);
         assertEquals(DecodeQualification.SUITABLE, decodeQualification);
     }
@@ -122,10 +124,10 @@ public class GeoTiffProductReaderPlugInTest {
         assertEquals(true, beamFileFilter.getDescription().contains(plugIn.getDescription(Locale.getDefault())));
     }
 
-    private static ImageInputStream writeToInputStream(Product product) throws IOException {
+    private static ImageInputStream writeToInputStream(Product product, boolean bigTiff) throws IOException {
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         final ImageOutputStream outputStream = new MemoryCacheImageOutputStream(byteStream);
-        final GeoTiffProductWriter writer = (GeoTiffProductWriter) new GeoTiffProductWriterPlugIn().createWriterInstance();
+        final GeoTiffProductWriter writer = (GeoTiffProductWriter) new GeoTiffProductWriterPlugIn(bigTiff).createWriterInstance();
         product.setProductWriter(writer);
         writer.writeGeoTIFFProduct(outputStream, product);
         final Band[] bands = product.getBands();
