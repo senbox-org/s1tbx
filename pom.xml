@@ -24,9 +24,9 @@
 		<snap.version>0.5.0-SNAPSHOT</snap.version>
 		
 		<geotools.version>2.7.4</geotools.version>
-		<jide.version>3.5.3</jide.version>
+		<jide.version>3.6.1</jide.version>
 		<hdf.version>2.7</hdf.version>
-        <netcdf.version>4.3.21</netcdf.version>	
+        <netcdf.version>4.3.22</netcdf.version>	
 		
 		<outputdir>../../output</outputdir>
 		<pacakgedir>../package</pacakgedir>
