@@ -17,6 +17,7 @@ package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -437,6 +438,9 @@ public final class TOPSARDeburstOp extends Operator {
         targetProduct.addTiePointGrid(lonGrid);
         targetProduct.addTiePointGrid(slrtGrid);
         targetProduct.addTiePointGrid(incGrid);
+
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        targetProduct.setGeoCoding(tpGeoCoding);
     }
 
     /**
