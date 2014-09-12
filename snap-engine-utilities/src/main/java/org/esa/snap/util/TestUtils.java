@@ -53,25 +53,16 @@ public class TestUtils {
 
     @Deprecated
     public final static String rootPathExpectedProducts;
-    @Deprecated
+
     public final static String rootPathTerraSarX;
-    @Deprecated
     public final static String rootPathASAR;
-    @Deprecated
     public final static String rootPathRadarsat2;
-    @Deprecated
     public final static String rootPathRadarsat1;
-    @Deprecated
     public final static String rootPathSentinel1;
-    @Deprecated
     public final static String rootPathERS;
-    @Deprecated
     public final static String rootPathJERS;
-    @Deprecated
     public final static String rootPathALOS;
-    @Deprecated
     public final static String rootPathCosmoSkymed;
-    @Deprecated
     public final static String rootPathMixProducts;
 
     private final static int subsetX;
@@ -138,7 +129,6 @@ public class TestUtils {
         }
     }
 
-    private static final boolean DEBUG = true;
     private static final boolean FailOnSkip = false;
     private static boolean testEnvironmentInitialized = false;
 
@@ -217,7 +207,7 @@ public class TestUtils {
         if (product == null)
             throw new Exception("product is null");
         if (verifyGeoCoding && product.getGeoCoding() == null) {
-            System.out.println("Geocoding is null for " + product.getFileLocation().getAbsolutePath());
+            log.warning("Geocoding is null for " + product.getFileLocation().getAbsolutePath());
             //throw new Exception("geocoding is null");
         }
         if (product.getMetadataRoot() == null)
@@ -438,7 +428,7 @@ public class TestUtils {
                 if (reader != null) {
                     productList.add(file);
                 } else {
-                    System.out.println(file.getAbsolutePath() + " is non valid");
+                    log.warning(file.getAbsolutePath() + " is non valid");
                 }
             } catch (Exception e) {
                 boolean ok = false;
@@ -452,7 +442,7 @@ public class TestUtils {
                     }
                 }    */
                 if (!ok) {
-                    System.out.println("Failed to process " + file.toString());
+                    log.severe("Failed to process " + file.toString());
                     throw e;
                 }
             }
@@ -599,7 +589,7 @@ public class TestUtils {
             if (readerPlugin.getDecodeQualification(file) == DecodeQualification.INTENDED) {
 
                 try {
-                    //System.out.println("Reading "+ file.toString());
+                    log.info("Reading "+ file.toString());
 
                     final Product product = reader.readProductNodes(file, null);
                     if (productTypeExemptions != null && containsProductType(productTypeExemptions, product.getProductType()))
@@ -615,13 +605,13 @@ public class TestUtils {
                         for (String excemption : exceptionExemptions) {
                             if (e.getMessage() != null && e.getMessage().contains(excemption)) {
                                 ok = true;
-                                System.out.println("Excemption for " + e.getMessage());
+                                log.info("Excemption for " + e.getMessage());
                                 break;
                             }
                         }
                     }
                     if (!ok) {
-                        System.out.println("Failed to read " + file.toString());
+                        log.severe("Failed to read " + file.toString());
                         throw e;
                     }
                 }
@@ -631,9 +621,7 @@ public class TestUtils {
     }
 
     public static boolean skipTest(final Object obj) throws Exception {
-        if (DEBUG) {
-            System.out.println(obj.getClass().getName() + " skipped");
-        }
+        log.severe(obj.getClass().getName() + " skipped");
         if (FailOnSkip) {
             throw new Exception(obj.getClass().getName() + " skipped");
         }
