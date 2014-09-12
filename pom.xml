@@ -13,9 +13,8 @@
 		<context>s1tbx</context>
 		
 		<skipTests>false</skipTests>
-		<test.jvm.maxpermsize>512m</test.jvm.maxpermsize>
         <test.jvm.maxheapsize>5024m</test.jvm.maxheapsize>
-        <test.jvm.arguments>-Xmx${test.jvm.maxheapsize} -XX:MaxPermSize=${test.jvm.maxpermsize}</test.jvm.arguments>
+        <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${context}</surefire.jvm.args>
 
 		<jlinda.version>0.8.1</jlinda.version>
