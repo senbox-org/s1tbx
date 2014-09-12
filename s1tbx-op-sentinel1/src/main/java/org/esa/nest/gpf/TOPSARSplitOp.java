@@ -16,6 +16,7 @@
 package org.esa.nest.gpf;
 
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -25,6 +26,8 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 
 import java.util.ArrayList;
@@ -110,13 +113,14 @@ public final class TOPSARSplitOp extends Operator {
             }
             for (TiePointGrid srcTPG : sourceProduct.getTiePointGrids()) {
                 if (srcTPG.getName().contains(subswath)) {
-                    targetProduct.addTiePointGrid(srcTPG.cloneTiePointGrid());
+                    final TiePointGrid dstTPG = srcTPG.cloneTiePointGrid();
+                    dstTPG.setName(srcTPG.getName().replace(subswath+'_', ""));
+                    targetProduct.addTiePointGrid(dstTPG);
                 }
             }
 
             ProductUtils.copyMetadata(sourceProduct, targetProduct);
             ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
-            ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
             ProductUtils.copyMasks(sourceProduct, targetProduct);
             ProductUtils.copyVectorData(sourceProduct, targetProduct);
             ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
@@ -124,10 +128,17 @@ public final class TOPSARSplitOp extends Operator {
             targetProduct.setEndTime(sourceProduct.getEndTime());
             targetProduct.setDescription(sourceProduct.getDescription());
 
+            addGeocoding();
             updateTargetProductMetadata();
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
+    }
+
+    private void addGeocoding() {
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(targetProduct.getTiePointGrid(OperatorUtils.TPG_LATITUDE),
+                                                                    targetProduct.getTiePointGrid(OperatorUtils.TPG_LONGITUDE), Datum.WGS_84);
+        targetProduct.setGeoCoding(tpGeoCoding);
     }
 
     /**
@@ -153,6 +164,23 @@ public final class TOPSARSplitOp extends Operator {
             if (!include) {
                 // remove band metadata if polarization or subswath is not included
                 absRoot.removeElement(bandMeta);
+            }
+        }
+
+        final MetadataElement origMeta = AbstractMetadata.getOriginalProductMetadata(targetProduct);
+        removeElements(origMeta, "annotation");
+        removeElements(origMeta, "calibration");
+        removeElements(origMeta, "noise");
+    }
+
+    private void removeElements(final MetadataElement origMeta, final String parent) {
+        final MetadataElement parentElem = origMeta.getElement(parent);
+        if(parentElem != null) {
+            final MetadataElement[] elemList = parentElem.getElements();
+            for (MetadataElement elem : elemList) {
+                if (!elem.getName().toUpperCase().contains(subswath)) {
+                    parentElem.removeElement(elem);
+                }
             }
         }
     }
