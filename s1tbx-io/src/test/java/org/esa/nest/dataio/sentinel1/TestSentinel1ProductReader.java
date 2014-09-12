@@ -20,7 +20,6 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.snap.util.TestUtils;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -35,11 +34,10 @@ public class TestSentinel1ProductReader {
     private Sentinel1ProductReaderPlugIn readerPlugin;
     private ProductReader reader;
 
-    final String s1ZipFilePath = "J:\\Data\\zips\\S1A_S1_SLC__1SDV_20140607T172812_20140607T172836_000947_000EBD_4DB2.zip";
+    final String s1ZipFilePath = "P:\\nest\\nest\\ESA Data\\test\\input\\S1A_S1_GRDM_1SDV_20140607T172812_20140607T172836_000947_000EBD_7543.zip";
     final String s1FolderFilePath = "P:\\s1tbx\\s1tbx\\Data\\First Images\\S1A_S1_SLC__1SDV_20140607T172812_20140607T172836_000947_000EBD_4DB2.SAFE";
 
-    @Before
-    public void setUp() throws Exception {
+    public TestSentinel1ProductReader() throws Exception {
         TestUtils.initTestEnvironment();
         readerPlugin = new Sentinel1ProductReaderPlugIn();
         reader = readerPlugin.createReaderInstance();
