@@ -127,7 +127,9 @@ public class GeoTiffProductReaderPlugInTest {
     private static ImageInputStream writeToInputStream(Product product, boolean bigTiff) throws IOException {
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         final ImageOutputStream outputStream = new MemoryCacheImageOutputStream(byteStream);
-        final GeoTiffProductWriter writer = (GeoTiffProductWriter) new GeoTiffProductWriterPlugIn(bigTiff).createWriterInstance();
+        GeoTiffProductWriterPlugIn writerPlugin = new GeoTiffProductWriterPlugIn();
+
+        final GeoTiffProductWriter writer = (GeoTiffProductWriter) writerPlugin.createWriterInstance();
         product.setProductWriter(writer);
         writer.writeGeoTIFFProduct(outputStream, product);
         final Band[] bands = product.getBands();

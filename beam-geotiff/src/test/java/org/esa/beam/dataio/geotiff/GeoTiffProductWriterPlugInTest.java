@@ -40,7 +40,8 @@ public class GeoTiffProductWriterPlugInTest {
 
     @Before
     public void setup() {
-        plugIn = new GeoTiffProductWriterPlugIn(bigTiff);
+
+        plugIn = new GeoTiffProductWriterPlugIn();
     }
 
     @Test

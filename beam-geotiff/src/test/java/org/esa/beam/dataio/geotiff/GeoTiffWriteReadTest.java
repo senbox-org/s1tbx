@@ -21,6 +21,8 @@ import com.bc.ceres.core.ProgressMonitor;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import com.sun.media.imageioimpl.plugins.tiff.TIFFRenderedImage;
 import com.sun.media.jai.codec.ByteArraySeekableStream;
+
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
@@ -151,7 +153,8 @@ public class GeoTiffWriteReadTest {
                                                         outProduct.getSceneRasterWidth(),
                                                         outProduct.getSceneRasterHeight(), "X * Y");
         outProduct.addBand(virtualBand);
-        final GeoTiffProductWriter writer = (GeoTiffProductWriter) new GeoTiffProductWriterPlugIn(bigTiff).createWriterInstance();
+        GeoTiffProductWriterPlugIn writerPlugin = new GeoTiffProductWriterPlugIn();
+        final GeoTiffProductWriter writer = (GeoTiffProductWriter) writerPlugin.createWriterInstance();
         outProduct.setProductWriter(writer);
         writer.writeGeoTIFFProduct(new MemoryCacheImageOutputStream(outputStream), outProduct);
         final Band[] bands = outProduct.getBands();
@@ -506,7 +509,9 @@ public class GeoTiffWriteReadTest {
     }
 
     private Product writeReadProduct() throws IOException {
-        final GeoTiffProductWriter writer = (GeoTiffProductWriter) new GeoTiffProductWriterPlugIn(bigTiff).createWriterInstance();
+        GeoTiffProductWriterPlugIn writerPlugin = new GeoTiffProductWriterPlugIn();
+
+        final GeoTiffProductWriter writer = (GeoTiffProductWriter) writerPlugin.createWriterInstance();
         outProduct.setProductWriter(writer);
         writer.writeGeoTIFFProduct(new MemoryCacheImageOutputStream(outputStream), outProduct);
         final Band[] bands = outProduct.getBands();

@@ -68,6 +68,16 @@
             <shortDescr>Export a GeoTIFF data product or product subset.</shortDescr>
             <helpId>exportGeoTIFFProduct</helpId>
         </action>
+        <action>
+            <id>exportBigTIFFProduct</id>
+            <class>org.esa.beam.dataio.geotiff.GeoTiffExportAction</class>
+            <formatName>BigTIFF</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>O</mnemonic>
+            <text>BigTIFF</text>
+            <shortDescr>Export a BigTIFF data product or product subset.</shortDescr>
+            <helpId>exportBigTIFFProduct</helpId>
+        </action>
     </extension>
 
     <extension point="snap-ui:helpSets">
