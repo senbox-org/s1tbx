@@ -81,6 +81,7 @@
             <operatorName>TOPSAR-Split</operatorName>
             <dialogTitle>Sentinel1 TOPSAR split operator</dialogTitle>
             <shortDescr>Split a Sentinel1 TOPSAR product</shortDescr>
+            <targetProductNameSuffix>_split</targetProductNameSuffix>
         </action>
 
         <action>
