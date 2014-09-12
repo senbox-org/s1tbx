@@ -30,8 +30,10 @@ import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Calibration for Sentinel1 data products.
@@ -126,9 +128,8 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
             getSampleType();
 
-            calibration = new CalibrationInfo[numOfSubSwath * selectedPolList.size()];
-            getCalibrationVectors(sourceProduct, selectedPolList, outputSigmaBand, outputBetaBand, outputGammaBand,
-                    outputDNBand, calibration);
+            calibration = getCalibrationVectors(sourceProduct, selectedPolList,
+                    outputSigmaBand, outputBetaBand, outputGammaBand, outputDNBand);
 
             createTargetBandToCalInfoMap();
 
@@ -200,16 +201,14 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     /**
      * Get calibration vectors from metadata.
      */
-    public static void getCalibrationVectors(final Product sourceProduct, final java.util.List<String> selectedPolList,
+    public static CalibrationInfo[] getCalibrationVectors(final Product sourceProduct, final java.util.List<String> selectedPolList,
                                              final boolean outputSigmaBand, final boolean outputBetaBand,
-                                             final boolean outputGammaBand, final boolean outputDNBand,
-                                             CalibrationInfo[] calibration) {
-
+                                             final boolean outputGammaBand, final boolean outputDNBand) {
+        final List<CalibrationInfo> calibrationInfoList = new ArrayList<>();
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
         final MetadataElement calibrationElem = origProdRoot.getElement("calibration");
         final MetadataElement[] calibrationDataSetListElem = calibrationElem.getElements();
 
-        int dataSetIndex = 0;
         for (MetadataElement dataSetListElem : calibrationDataSetListElem) {
 
             final MetadataElement calElem = dataSetListElem.getElement("calibration");
@@ -230,11 +229,11 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                     Sentinel1Utils.getCalibrationVector(
                             calVecListElem, outputSigmaBand, outputBetaBand, outputGammaBand, outputDNBand);
 
-            calibration[dataSetIndex] = new CalibrationInfo(subSwath, pol,
-                    firstLineTime, lastLineTime, numOfLines, count, calibrationVectorList);
-
-            dataSetIndex++;
+            calibrationInfoList.add(new CalibrationInfo(subSwath, pol,
+                    firstLineTime, lastLineTime, numOfLines, count, calibrationVectorList));
         }
+
+        return calibrationInfoList.toArray(new CalibrationInfo[calibrationInfoList.size()]);
     }
 
     /**

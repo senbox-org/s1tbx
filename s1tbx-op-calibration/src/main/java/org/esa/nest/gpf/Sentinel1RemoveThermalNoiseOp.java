@@ -275,16 +275,13 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      */
     private void getCalibrationVectors() {
 
-        calibration = new Sentinel1Calibrator.CalibrationInfo[numOfSubSwath * selectedPolList.size()];
-
-        Sentinel1Calibrator.getCalibrationVectors(
+        calibration = Sentinel1Calibrator.getCalibrationVectors(
                 sourceProduct,
                 selectedPolList,
                 inputSigmaBand,
                 inputBetaBand,
                 inputGammaBand,
-                inputDNBand,
-                calibration);
+                inputDNBand);
     }
 
     /**
