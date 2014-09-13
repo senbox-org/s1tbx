@@ -18,24 +18,25 @@
 
 # Test Paths
 # Some unit tests open all products within a folder and apply thier processing to verify they don't get any error
-s1tbx.test.ReadersOnAllProducts = false
-s1tbx.test.ProcessingOnAllProducts = false
+s1tbx.test.ReadersOnAllProducts = true
+s1tbx.test.ProcessingOnAllProducts = true
 s1tbx.test.RunBenchmarks = false
 # max number of products to test from each root folder. Use -1 to test all.
-s1tbx.test.maxProductsPerRootFolder = 0
+s1tbx.test.maxProductsPerRootFolder = -1
 s1tbx.test.subsetX = 100
 s1tbx.test.subsetY = 100
 s1tbx.test.subsetWidth = 100
 s1tbx.test.subsetHeight = 100
 
 s1tbx.test.rootPathExpectedProducts = 	P:\\nest\\nest\\ESA Data\\test\\
+s1tbx.test.rootPathSentinel1 = 			P:\\s1tbx\\s1tbx\\Data\\First Images
 s1tbx.test.rootPathTerraSarX = 			P:\\nest\\nest\\ESA Data\\RADAR\\TerraSarX
 s1tbx.test.rootPathASAR= 				P:\\nest\\nest\\ESA Data\\RADAR\\ASAR
 s1tbx.test.rootPathRadarsat2 = 			P:\\nest\\nest\\ESA Data\\RADAR\\Radarsat2
-s1tbx.test.rootPathRadarsat1 = 			P:\\nest\\nest\\ESA Data\\RADAR\\Radarsat1
+#s1tbx.test.rootPathRadarsat1 = 			P:\\nest\\nest\\ESA Data\\RADAR\\Radarsat1
 s1tbx.test.rootPathERS = 				P:\\nest\\nest\\ESA Data\\RADAR\\ERS_products
-s1tbx.test.rootPathJERS = 				P:\\nest\\nest\\ESA Data\\RADAR\\JERS
-s1tbx.test.rootPathALOS = 				P:\\nest\\nest\\ESA Data\\RADAR\\ALOS PALSAR
+#s1tbx.test.rootPathJERS = 				P:\\nest\\nest\\ESA Data\\RADAR\\JERS
+#s1tbx.test.rootPathALOS = 				P:\\nest\\nest\\ESA Data\\RADAR\\ALOS PALSAR
 s1tbx.test.rootPathCosmoSkymed = 		P:\\nest\\nest\\ESA Data\\RADAR\\Cosmo
 s1tbx.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\NestBox
 #s1tbx.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\RADAR\\Global Monitoring Mode
@@ -50,21 +51,21 @@ s1tbx.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\NestBox
 ####################################################################################
 
 # max number of products to test from each input folder. Use -1 to process all.
-s1tbx.test.maxProductsPerInputFolder = 100
+s1tbx.test.maxProductsPerInputFolder = 1
 
-s1tbx.test.1.skip = true
+s1tbx.test.1.skip = false
 s1tbx.test.1.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Standard Graphs\\Multilook.xml
 s1tbx.test.1.input_products = 	P:\\nest\\input
 s1tbx.test.1.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test1
 s1tbx.test.1.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test1
 
-s1tbx.test.2.skip = true
+s1tbx.test.2.skip = false
 s1tbx.test.2.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Standard Graphs\\Calibrate.xml
 s1tbx.test.2.input_products = 	P:\\nest\\input
 s1tbx.test.2.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test2
 s1tbx.test.2.output_products = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\output\\test2
 
-s1tbx.test.3.skip = true
+s1tbx.test.3.skip = false
 s1tbx.test.3.graph = P:\\nest\\nest\\ESA Data\\test\\AutoTests\\graphs\\Standard Graphs\\Orthorectify.xml
 s1tbx.test.3.input_products = 	P:\\nest\\input
 s1tbx.test.3.expected_results = 	P:\\nest\\nest\\ESA Data\\test\\AutoTests\\expected\\test3
