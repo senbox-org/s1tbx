@@ -16,7 +16,7 @@
 
 package org.esa.beam.dataio.geotiff;
 
-import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
+import it.geosolutions.imageio.plugins.tiff.GeoTIFFTagSet;
 import com.sun.media.jai.codec.TIFFField;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 import static org.junit.Assert.*;
