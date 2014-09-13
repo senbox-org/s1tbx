@@ -159,17 +159,6 @@ public final class Sentinel1Utils {
     private void getProductAcquisitionMode() {
 
         acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-
-        switch (acquisitionMode) {
-            case "IW":
-                numOfSubSwath = 3;
-                break;
-            case "EW":
-                numOfSubSwath = 5;
-                break;
-            default:
-                numOfSubSwath = 1;
-        }
     }
 
     /**
@@ -206,6 +195,7 @@ public final class Sentinel1Utils {
             }
         }
         subSwathNames =  subSwathNameList.toArray(new String[subSwathNameList.size()]);
+        numOfSubSwath = subSwathNames.length;
     }
 
     /**
