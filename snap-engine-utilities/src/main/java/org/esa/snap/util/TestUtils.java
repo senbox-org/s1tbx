@@ -51,7 +51,6 @@ public class TestUtils {
     private final static String contextID = ResourceUtils.getContextID();
     private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap(contextID + ".tests");
 
-    @Deprecated
     public final static String rootPathExpectedProducts;
 
     public final static String rootPathTerraSarX;
@@ -132,18 +131,22 @@ public class TestUtils {
     private static final boolean FailOnSkip = false;
     private static boolean testEnvironmentInitialized = false;
 
-    public static void initTestEnvironment() throws RuntimeConfigException {
+    public static void initTestEnvironment() {
         if (testEnvironmentInitialized)
             return;
 
-        final RuntimeConfig runtimeConfig = new DefaultRuntimeConfig();
+        try {
+            final RuntimeConfig runtimeConfig = new DefaultRuntimeConfig();
 
-        JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
-        MemUtils.configureJaiTileCache();
+            JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
+            MemUtils.configureJaiTileCache();
 
-        //disable JAI media library
-        System.setProperty("com.sun.media.jai.disableMediaLib", "true");
-        testEnvironmentInitialized = true;
+            //disable JAI media library
+            System.setProperty("com.sun.media.jai.disableMediaLib", "true");
+            testEnvironmentInitialized = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static int getMaxIterations() {
@@ -151,9 +154,12 @@ public class TestUtils {
     }
 
     public static Product readSourceProduct(final String path) throws IOException {
-        final File inputFile = new File(path);
+        return readSourceProduct(new File(path));
+    }
+
+    public static Product readSourceProduct(final File inputFile) throws IOException {
         if (!inputFile.exists()) {
-            throw new IOException(path + " not found");
+            throw new IOException(inputFile.getAbsolutePath() + " not found");
         }
 
         final ProductReader reader = ProductIO.getProductReaderForInput(inputFile);
