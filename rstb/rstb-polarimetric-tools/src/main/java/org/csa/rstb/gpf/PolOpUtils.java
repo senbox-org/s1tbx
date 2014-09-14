@@ -21,8 +21,8 @@ import org.apache.commons.math3.util.FastMath;
 import org.csa.rstb.gpf.decompositions.hAAlpha;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.snap.eo.Constants;
 import org.esa.nest.dataio.PolBandUtils;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.TileIndex;
 
 /*
@@ -1285,6 +1285,7 @@ public final class PolOpUtils {
 
     /**
      * Compute general polarimetric parameters for given coherency matrix.
+     *
      * @param Tr Real part of the mean coherency matrix.
      * @param Ti Imaginary part of the mean coherency matrix.
      * @return The general polarimetric parameters.
@@ -1293,10 +1294,10 @@ public final class PolOpUtils {
 
         PolarimetricParameters parameters = new PolarimetricParameters();
 
-        parameters.Span = 2*(Tr[0][0] + Tr[1][1] + Tr[2][2]);
+        parameters.Span = 2 * (Tr[0][0] + Tr[1][1] + Tr[2][2]);
         hAAlpha.HAAlpha data = hAAlpha.computeHAAlpha(Tr, Ti);
         parameters.PedestalHeight = data.lambda3 / data.lambda1;
-        parameters.RVI = 4.0*data.lambda3 / (data.lambda1 + data.alpha2 + data.lambda3);
+        parameters.RVI = 4.0 * data.lambda3 / (data.lambda1 + data.alpha2 + data.lambda3);
 
         return parameters;
     }

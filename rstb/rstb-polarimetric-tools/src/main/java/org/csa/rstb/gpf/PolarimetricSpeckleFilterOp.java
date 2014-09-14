@@ -28,9 +28,9 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.gpf.OperatorUtils;
-import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
@@ -200,14 +200,19 @@ public class PolarimetricSpeckleFilterOp extends Operator {
      * Set filter size in case of refined Lee filter.
      */
     private void setParameters() {
-        if (filter.equals(BOXCAR_SPECKLE_FILTER)) {
-            setBoxcarParameters();
-        } else if (filter.equals(REFINED_LEE_FILTER)) {
-            setRefinedLeeParameters();
-        } else if (filter.equals(IDAN_FILTER)) {
-            setIDANParameters();
-        } else if (filter.equals(LEE_SIGMA_FILTER)) {
-            setLeeSigmaParameters();
+        switch (filter) {
+            case BOXCAR_SPECKLE_FILTER:
+                setBoxcarParameters();
+                break;
+            case REFINED_LEE_FILTER:
+                setRefinedLeeParameters();
+                break;
+            case IDAN_FILTER:
+                setIDANParameters();
+                break;
+            case LEE_SIGMA_FILTER:
+                setLeeSigmaParameters();
+                break;
         }
     }
 
@@ -219,24 +224,29 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         setNumLooks();
 
-        if (windowSize.equals(WINDOW_SIZE_5x5)) {
-            filterSize = 5;
-            subWindowSize = 3;
-            stride = 1;
-        } else if (windowSize.equals(WINDOW_SIZE_7x7)) {
-            filterSize = 7;
-            subWindowSize = 3;
-            stride = 2;
-        } else if (windowSize.equals(WINDOW_SIZE_9x9)) {
-            filterSize = 9;
-            subWindowSize = 5;
-            stride = 2;
-        } else if (windowSize.equals(WINDOW_SIZE_11x11)) {
-            filterSize = 11;
-            subWindowSize = 5;
-            stride = 3;
-        } else {
-            throw new OperatorException("Unknown window size: " + windowSize);
+        switch (windowSize) {
+            case WINDOW_SIZE_5x5:
+                filterSize = 5;
+                subWindowSize = 3;
+                stride = 1;
+                break;
+            case WINDOW_SIZE_7x7:
+                filterSize = 7;
+                subWindowSize = 3;
+                stride = 2;
+                break;
+            case WINDOW_SIZE_9x9:
+                filterSize = 9;
+                subWindowSize = 5;
+                stride = 2;
+                break;
+            case WINDOW_SIZE_11x11:
+                filterSize = 11;
+                subWindowSize = 5;
+                stride = 3;
+                break;
+            default:
+                throw new OperatorException("Unknown window size: " + windowSize);
         }
 
         halfFilterSize = filterSize / 2;
@@ -259,36 +269,49 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         setNumLooks();
 
-        if (sigmaStr.equals(SIGMA_50_PERCENT)) {
-            sigma = 5;
-        } else if (sigmaStr.equals(SIGMA_60_PERCENT)) {
-            sigma = 6;
-        } else if (sigmaStr.equals(SIGMA_70_PERCENT)) {
-            sigma = 7;
-        } else if (sigmaStr.equals(SIGMA_80_PERCENT)) {
-            sigma = 8;
-        } else if (sigmaStr.equals(SIGMA_90_PERCENT)) {
-            sigma = 9;
-        } else {
-            throw new OperatorException("Unknown sigma: " + sigmaStr);
+        switch (sigmaStr) {
+            case SIGMA_50_PERCENT:
+                sigma = 5;
+                break;
+            case SIGMA_60_PERCENT:
+                sigma = 6;
+                break;
+            case SIGMA_70_PERCENT:
+                sigma = 7;
+                break;
+            case SIGMA_80_PERCENT:
+                sigma = 8;
+                break;
+            case SIGMA_90_PERCENT:
+                sigma = 9;
+                break;
+            default:
+                throw new OperatorException("Unknown sigma: " + sigmaStr);
         }
 
-        if (filterWindowSizeStr.equals(WINDOW_SIZE_7x7)) {
-            filterWindowSize = 7;
-        } else if (filterWindowSizeStr.equals(WINDOW_SIZE_9x9)) {
-            filterWindowSize = 9;
-        } else if (filterWindowSizeStr.equals(WINDOW_SIZE_11x11)) {
-            filterWindowSize = 11;
-        } else {
-            throw new OperatorException("Unknown filter window size: " + filterWindowSizeStr);
+        switch (filterWindowSizeStr) {
+            case WINDOW_SIZE_7x7:
+                filterWindowSize = 7;
+                break;
+            case WINDOW_SIZE_9x9:
+                filterWindowSize = 9;
+                break;
+            case WINDOW_SIZE_11x11:
+                filterWindowSize = 11;
+                break;
+            default:
+                throw new OperatorException("Unknown filter window size: " + filterWindowSizeStr);
         }
 
-        if (targetWindowSizeStr.equals(WINDOW_SIZE_3x3)) {
-            targetWindowSize = 3;
-        } else if (targetWindowSizeStr.equals(WINDOW_SIZE_5x5)) {
-            targetWindowSize = 5;
-        } else {
-            throw new OperatorException("Unknown target window size: " + targetWindowSizeStr);
+        switch (targetWindowSizeStr) {
+            case WINDOW_SIZE_3x3:
+                targetWindowSize = 3;
+                break;
+            case WINDOW_SIZE_5x5:
+                targetWindowSize = 5;
+                break;
+            default:
+                throw new OperatorException("Unknown target window size: " + targetWindowSizeStr);
         }
 
         halfFilterSize = filterWindowSize / 2;
@@ -463,47 +486,52 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             throws OperatorException {
 
         try {
-            if (filter.equals(BOXCAR_SPECKLE_FILTER)) {
+            switch (filter) {
+                case BOXCAR_SPECKLE_FILTER:
 
-                if (sourceProductType == PolBandUtils.MATRIX.FULL) {
-                    boxcarFilterFullPol(targetTiles, targetRectangle);
-                } else if (sourceProductType == PolBandUtils.MATRIX.C3 || sourceProductType == PolBandUtils.MATRIX.T3 ||
-                        sourceProductType == PolBandUtils.MATRIX.C4 || sourceProductType == PolBandUtils.MATRIX.T4) {
-                    boxcarFilterC3T3C4T4(targetTiles, targetRectangle);
-                } else {
-                    throw new OperatorException("For Boxcar filter, only C3, T3, C4 and T4 are supported currently");
-                }
+                    if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+                        boxcarFilterFullPol(targetTiles, targetRectangle);
+                    } else if (sourceProductType == PolBandUtils.MATRIX.C3 || sourceProductType == PolBandUtils.MATRIX.T3 ||
+                            sourceProductType == PolBandUtils.MATRIX.C4 || sourceProductType == PolBandUtils.MATRIX.T4) {
+                        boxcarFilterC3T3C4T4(targetTiles, targetRectangle);
+                    } else {
+                        throw new OperatorException("For Boxcar filter, only C3, T3, C4 and T4 are supported currently");
+                    }
 
-            } else if (filter.equals(REFINED_LEE_FILTER)) {
+                    break;
+                case REFINED_LEE_FILTER:
 
-                if (sourceProductType == PolBandUtils.MATRIX.FULL) {
-                    refinedLeeFilterFullPol(targetTiles, targetRectangle);
-                } else if (sourceProductType == PolBandUtils.MATRIX.C3 || sourceProductType == PolBandUtils.MATRIX.T3 ||
-                        sourceProductType == PolBandUtils.MATRIX.C4 || sourceProductType == PolBandUtils.MATRIX.T4) {
-                    refinedLeeFilterC3T3C4T4(targetTiles, targetRectangle);
-                } else {
-                    throw new OperatorException("For Refined Lee filter, only C3, T3, C4 and T4 are supported currently");
-                }
+                    if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+                        refinedLeeFilterFullPol(targetTiles, targetRectangle);
+                    } else if (sourceProductType == PolBandUtils.MATRIX.C3 || sourceProductType == PolBandUtils.MATRIX.T3 ||
+                            sourceProductType == PolBandUtils.MATRIX.C4 || sourceProductType == PolBandUtils.MATRIX.T4) {
+                        refinedLeeFilterC3T3C4T4(targetTiles, targetRectangle);
+                    } else {
+                        throw new OperatorException("For Refined Lee filter, only C3, T3, C4 and T4 are supported currently");
+                    }
 
-            } else if (filter.equals(IDAN_FILTER)) {
+                    break;
+                case IDAN_FILTER:
 
-                if (sourceProductType == PolBandUtils.MATRIX.FULL ||
-                        sourceProductType == PolBandUtils.MATRIX.C3 ||
-                        sourceProductType == PolBandUtils.MATRIX.T3) {
-                    idanFilter(targetTiles, targetRectangle);
-                } else {
-                    throw new OperatorException("For IDAN filter, only C3 and T3 are supported currently");
-                }
+                    if (sourceProductType == PolBandUtils.MATRIX.FULL ||
+                            sourceProductType == PolBandUtils.MATRIX.C3 ||
+                            sourceProductType == PolBandUtils.MATRIX.T3) {
+                        idanFilter(targetTiles, targetRectangle);
+                    } else {
+                        throw new OperatorException("For IDAN filter, only C3 and T3 are supported currently");
+                    }
 
-            } else if (filter.equals(LEE_SIGMA_FILTER)) {
+                    break;
+                case LEE_SIGMA_FILTER:
 
-                if (sourceProductType == PolBandUtils.MATRIX.FULL ||
-                        sourceProductType == PolBandUtils.MATRIX.C3 ||
-                        sourceProductType == PolBandUtils.MATRIX.T3) {
-                    leeSigmaFilter(targetTiles, targetRectangle);
-                } else {
-                    throw new OperatorException("For Lee Sigma filter, only C3 and T3 are supported currently");
-                }
+                    if (sourceProductType == PolBandUtils.MATRIX.FULL ||
+                            sourceProductType == PolBandUtils.MATRIX.C3 ||
+                            sourceProductType == PolBandUtils.MATRIX.T3) {
+                        leeSigmaFilter(targetTiles, targetRectangle);
+                    } else {
+                        throw new OperatorException("For Lee Sigma filter, only C3 and T3 are supported currently");
+                    }
+                    break;
             }
 
         } catch (Throwable e) {
@@ -1701,7 +1729,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         // 1st run of region growing with IDAN50 threshold and initial seed, qualified pixel goes to anPixelList,
         // non-qualified pixel goes to "background pixels" list
         final double threshold50 = 2 * sigmaV;
-        final List<Pix> anPixelList = new ArrayList<Pix>(anSize);
+        final List<Pix> anPixelList = new ArrayList<>(anSize);
         final Pix[] bgPixelList = regionGrowing(xc, yc, sx0, sy0, sw, sh, data11Real, data22Real, data33Real,
                 seed, threshold50, anPixelList);
 
@@ -1758,8 +1786,8 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         final int rc = yc - sy0;
         final int cc = xc - sx0;
-        final Map<Integer, Boolean> visited = new HashMap<Integer, Boolean>(anSize + 8);
-        final List<Pix> bgPixelList = new ArrayList<Pix>(anSize);
+        final Map<Integer, Boolean> visited = new HashMap<>(anSize + 8);
+        final List<Pix> bgPixelList = new ArrayList<>(anSize);
 
         if (distance(data11Real[rc][cc], data22Real[rc][cc], data33Real[rc][cc], seed) < threshold) {
             visited.put(rc * sw + cc, true);
@@ -1768,9 +1796,9 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             bgPixelList.add(new Pix(xc, yc));
         }
 
-        final List<Pix> front = new ArrayList<Pix>(anSize);
+        final List<Pix> front = new ArrayList<>(anSize);
         front.add(new Pix(xc, yc));
-        final List<Pix> newfront = new ArrayList<Pix>(anSize);
+        final List<Pix> newfront = new ArrayList<>(anSize);
 
         final int width = sx0 + sw;
         final int height = sy0 + sh;

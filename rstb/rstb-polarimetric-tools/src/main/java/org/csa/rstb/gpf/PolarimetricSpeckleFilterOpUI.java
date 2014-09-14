@@ -160,38 +160,43 @@ public class PolarimetricSpeckleFilterOpUI extends BaseOperatorUI {
 
     private void updateFilterSelection() {
         final String item = (String) filter.getSelectedItem();
-        if (item.equals(PolarimetricSpeckleFilterOp.REFINED_LEE_FILTER)) {
-            DialogUtils.enableComponents(numLooksLabel, numLooks, true);
-            DialogUtils.enableComponents(windowSizeLabel, windowSize, true);
-            DialogUtils.enableComponents(filterSizeLabel, filterSize, false);
-            DialogUtils.enableComponents(anSizeLabel, anSize, false);
-            DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, false);
-            DialogUtils.enableComponents(filterWindowSizeLabel, filterWindowSize, false);
-            DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, false);
-        } else if (item.equals(PolarimetricSpeckleFilterOp.IDAN_FILTER)) {
-            DialogUtils.enableComponents(numLooksLabel, numLooks, true);
-            DialogUtils.enableComponents(anSizeLabel, anSize, true);
-            DialogUtils.enableComponents(windowSizeLabel, windowSize, false);
-            DialogUtils.enableComponents(filterSizeLabel, filterSize, false);
-            DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, false);
-            DialogUtils.enableComponents(filterWindowSizeLabel, filterWindowSize, false);
-            DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, false);
-        } else if (item.equals(PolarimetricSpeckleFilterOp.LEE_SIGMA_FILTER)) {
-            DialogUtils.enableComponents(numLooksLabel, numLooks, true);
-            DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, true);
-            DialogUtils.enableComponents(filterWindowSizeLabel, filterWindowSize, true);
-            DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, true);
-            DialogUtils.enableComponents(anSizeLabel, anSize, false);
-            DialogUtils.enableComponents(windowSizeLabel, windowSize, false);
-            DialogUtils.enableComponents(filterSizeLabel, filterSize, false);
-        } else { // boxcar
-            DialogUtils.enableComponents(numLooksLabel, numLooks, false);
-            DialogUtils.enableComponents(windowSizeLabel, windowSize, false);
-            DialogUtils.enableComponents(filterSizeLabel, filterSize, true);
-            DialogUtils.enableComponents(anSizeLabel, anSize, false);
-            DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, false);
-            DialogUtils.enableComponents(filterWindowSizeLabel, filterWindowSize, false);
-            DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, false);
+        switch (item) {
+            case PolarimetricSpeckleFilterOp.REFINED_LEE_FILTER:
+                DialogUtils.enableComponents(numLooksLabel, numLooks, true);
+                DialogUtils.enableComponents(windowSizeLabel, windowSize, true);
+                DialogUtils.enableComponents(filterSizeLabel, filterSize, false);
+                DialogUtils.enableComponents(anSizeLabel, anSize, false);
+                DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, false);
+                DialogUtils.enableComponents(filterWindowSizeLabel, filterWindowSize, false);
+                DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, false);
+                break;
+            case PolarimetricSpeckleFilterOp.IDAN_FILTER:
+                DialogUtils.enableComponents(numLooksLabel, numLooks, true);
+                DialogUtils.enableComponents(anSizeLabel, anSize, true);
+                DialogUtils.enableComponents(windowSizeLabel, windowSize, false);
+                DialogUtils.enableComponents(filterSizeLabel, filterSize, false);
+                DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, false);
+                DialogUtils.enableComponents(filterWindowSizeLabel, filterWindowSize, false);
+                DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, false);
+                break;
+            case PolarimetricSpeckleFilterOp.LEE_SIGMA_FILTER:
+                DialogUtils.enableComponents(numLooksLabel, numLooks, true);
+                DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, true);
+                DialogUtils.enableComponents(filterWindowSizeLabel, filterWindowSize, true);
+                DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, true);
+                DialogUtils.enableComponents(anSizeLabel, anSize, false);
+                DialogUtils.enableComponents(windowSizeLabel, windowSize, false);
+                DialogUtils.enableComponents(filterSizeLabel, filterSize, false);
+                break;
+            default:  // boxcar
+                DialogUtils.enableComponents(numLooksLabel, numLooks, false);
+                DialogUtils.enableComponents(windowSizeLabel, windowSize, false);
+                DialogUtils.enableComponents(filterSizeLabel, filterSize, true);
+                DialogUtils.enableComponents(anSizeLabel, anSize, false);
+                DialogUtils.enableComponents(sigmaStrLabel, sigmaStr, false);
+                DialogUtils.enableComponents(filterWindowSizeLabel, filterWindowSize, false);
+                DialogUtils.enableComponents(targetWindowSizeLabel, targetWindowSize, false);
+                break;
         }
     }
 

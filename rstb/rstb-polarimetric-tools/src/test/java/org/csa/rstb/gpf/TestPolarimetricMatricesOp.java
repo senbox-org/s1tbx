@@ -15,18 +15,25 @@
  */
 package org.csa.rstb.gpf;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
+
+import java.io.File;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test for PolarimetricMatricesOp
  */
-public class TestPolarimetricMatricesOp extends TestCase {
+public class TestPolarimetricMatricesOp {
 
-    private OperatorSpi spi;
+    static {
+        TestUtils.initTestEnvironment();
+    }
+
+    private final static OperatorSpi spi = new PolarimetricMatricesOp.Spi();
 
     private final static String quadInputPath = TestUtils.rootPathExpectedProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
     private final static String inputQuadFullStack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
@@ -34,21 +41,14 @@ public class TestPolarimetricMatricesOp extends TestCase {
     private final static String expectedPathC3 = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_C3.dim";
     private final static String expectedPathT3 = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_T3.dim";
 
-    @Override
-    protected void setUp() throws Exception {
-        TestUtils.initTestEnvironment();
-        spi = new PolarimetricMatricesOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
-    }
-
-    private static Product runMatrix(final PolarimetricMatricesOp op,
-                                     final String decompositionName, final String path) throws Exception {
-        final Product sourceProduct = TestUtils.readSourceProduct(path);
+    private Product runMatrix(final PolarimetricMatricesOp op,
+                              final String decompositionName, final String path) throws Exception {
+        final File inputFile = new File(path);
+        if (inputFile.exists()) {
+            TestUtils.skipTest(this);
+        }
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
+        ;
 
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
@@ -65,6 +65,7 @@ public class TestPolarimetricMatricesOp extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testComputeC3() throws Exception {
 
         final PolarimetricMatricesOp op = (PolarimetricMatricesOp) spi.createOperator();
@@ -78,6 +79,7 @@ public class TestPolarimetricMatricesOp extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testComputeT3() throws Exception {
 
         final PolarimetricMatricesOp op = (PolarimetricMatricesOp) spi.createOperator();
@@ -91,6 +93,7 @@ public class TestPolarimetricMatricesOp extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testComputeC4() throws Exception {
 
         final PolarimetricMatricesOp op = (PolarimetricMatricesOp) spi.createOperator();
@@ -102,6 +105,7 @@ public class TestPolarimetricMatricesOp extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testComputeT4() throws Exception {
 
         final PolarimetricMatricesOp op = (PolarimetricMatricesOp) spi.createOperator();
@@ -113,6 +117,7 @@ public class TestPolarimetricMatricesOp extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testQuadPolStack() throws Exception {
 
         runMatrix((PolarimetricMatricesOp) spi.createOperator(), PolarimetricMatricesOp.T3, inputQuadFullStack);

@@ -15,18 +15,25 @@
  */
 package org.csa.rstb.gpf;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
+
+import java.io.File;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test for PolarimetricDecompositionOp.
  */
-public class TestPolarimetricDecompositionOp extends TestCase {
+public class TestPolarimetricDecompositionOp {
 
-    private OperatorSpi spi;
+    static {
+        TestUtils.initTestEnvironment();
+    }
+
+    private final static OperatorSpi spi = new PolarimetricDecompositionOp.Spi();
 
     private final static String inputPathQuad = TestUtils.rootPathExpectedProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
     private final static String inputQuadFullStack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
@@ -42,22 +49,13 @@ public class TestPolarimetricDecompositionOp extends TestCase {
     private final static String expectedHaAlpha = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_HaAlpha.dim";
     private final static String expectedTouzi = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_Touzi.dim";
 
-    @Override
-    protected void setUp() throws Exception {
-        TestUtils.initTestEnvironment();
-        spi = new PolarimetricDecompositionOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
-    }
-
-    private static Product runDecomposition(final PolarimetricDecompositionOp op,
-                                            final String decompositionName, final String path) throws Exception {
-
-        final Product sourceProduct = TestUtils.readSourceProduct(path);
+    private Product runDecomposition(final PolarimetricDecompositionOp op,
+                                     final String decompositionName, final String path) throws Exception {
+        final File inputFile = new File(path);
+        if (inputFile.exists()) {
+            TestUtils.skipTest(this);
+        }
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
@@ -74,6 +72,7 @@ public class TestPolarimetricDecompositionOp extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testSinclairDecomposition() throws Exception {
         final PolarimetricDecompositionOp op = (PolarimetricDecompositionOp) spi.createOperator();
         final Product targetProduct = runDecomposition(op,
@@ -87,6 +86,7 @@ public class TestPolarimetricDecompositionOp extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testPauliDecomposition() throws Exception {
 
         final PolarimetricDecompositionOp op = (PolarimetricDecompositionOp) spi.createOperator();
@@ -101,6 +101,7 @@ public class TestPolarimetricDecompositionOp extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testFreemanDecomposition() throws Exception {
 
         final PolarimetricDecompositionOp op = (PolarimetricDecompositionOp) spi.createOperator();
@@ -110,6 +111,7 @@ public class TestPolarimetricDecompositionOp extends TestCase {
             TestUtils.compareProducts(targetProduct, expectedFreeman, null);
     }
 
+    @Test
     public void testCloudeDecomposition() throws Exception {
 
         final PolarimetricDecompositionOp op = (PolarimetricDecompositionOp) spi.createOperator();
@@ -124,6 +126,7 @@ public class TestPolarimetricDecompositionOp extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testHAAlphaDecomposition() throws Exception {
 
         final PolarimetricDecompositionOp op = (PolarimetricDecompositionOp) spi.createOperator();
@@ -144,6 +147,7 @@ public class TestPolarimetricDecompositionOp extends TestCase {
             TestUtils.compareProducts(targetProduct, expectedTouzi, null);
     }
 
+    @Test
     public void testVanZylDecomposition() throws Exception {
 
         final PolarimetricDecompositionOp op = (PolarimetricDecompositionOp) spi.createOperator();
@@ -153,6 +157,7 @@ public class TestPolarimetricDecompositionOp extends TestCase {
             TestUtils.compareProducts(targetProduct, expectedVanZyl, null);
     }
 
+    @Test
     public void testYamaguchiDecomposition() throws Exception {
 
         final PolarimetricDecompositionOp op = (PolarimetricDecompositionOp) spi.createOperator();
@@ -164,6 +169,7 @@ public class TestPolarimetricDecompositionOp extends TestCase {
 
     // Quad Pol Stack
 
+    @Test
     public void testSinclairStack() throws Exception {
 
         runDecomposition((PolarimetricDecompositionOp) spi.createOperator(),
@@ -174,6 +180,7 @@ public class TestPolarimetricDecompositionOp extends TestCase {
                 PolarimetricDecompositionOp.SINCLAIR_DECOMPOSITION, inputT3Stack);
     }
 
+    @Test
     public void testPauliStack() throws Exception {
 
         runDecomposition((PolarimetricDecompositionOp) spi.createOperator(),
@@ -184,6 +191,7 @@ public class TestPolarimetricDecompositionOp extends TestCase {
                 PolarimetricDecompositionOp.PAULI_DECOMPOSITION, inputT3Stack);
     }
 
+    @Test
     public void testFreemanStack() throws Exception {
 
         runDecomposition((PolarimetricDecompositionOp) spi.createOperator(),
@@ -194,6 +202,7 @@ public class TestPolarimetricDecompositionOp extends TestCase {
                 PolarimetricDecompositionOp.FREEMAN_DURDEN_DECOMPOSITION, inputT3Stack);
     }
 
+    @Test
     public void testCloudeStack() throws Exception {
 
         runDecomposition((PolarimetricDecompositionOp) spi.createOperator(),
@@ -204,6 +213,7 @@ public class TestPolarimetricDecompositionOp extends TestCase {
                 PolarimetricDecompositionOp.CLOUDE_DECOMPOSITION, inputT3Stack);
     }
 
+    @Test
     public void testHAAlphaStack() throws Exception {
 
         PolarimetricDecompositionOp op;
@@ -221,6 +231,7 @@ public class TestPolarimetricDecompositionOp extends TestCase {
         runDecomposition(op, PolarimetricDecompositionOp.H_A_ALPHA_DECOMPOSITION, inputT3Stack);
     }
 
+    @Test
     public void testTouziStack() throws Exception {
 
         PolarimetricDecompositionOp op;
@@ -238,6 +249,7 @@ public class TestPolarimetricDecompositionOp extends TestCase {
         runDecomposition(op, PolarimetricDecompositionOp.TOUZI_DECOMPOSITION, inputT3Stack);
     }
 
+    @Test
     public void testVanZylStack() throws Exception {
 
         runDecomposition((PolarimetricDecompositionOp) spi.createOperator(),
