@@ -15,39 +15,38 @@
  */
 package org.csa.rstb.gpf;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
+
+import java.io.File;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test for PolarimetricClassification.
  */
-public class TestClassifcationOp extends TestCase {
+public class TestClassifcationOp {
 
-    private OperatorSpi spi;
+    static {
+        TestUtils.initTestEnvironment();
+    }
+
+    private final static OperatorSpi spi = new PolarimetricClassificationOp.Spi();
 
     private final static String inputPathQuad = TestUtils.rootPathExpectedProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
     private final static String inputQuadFullStack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
     private final static String inputC3Stack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-C3-Stack.dim";
     private final static String inputT3Stack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-T3-Stack.dim";
 
-    @Override
-    protected void setUp() throws Exception {
-        TestUtils.initTestEnvironment();
-        spi = new PolarimetricClassificationOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
-    }
-
-    private static Product runClassification(final PolarimetricClassificationOp op, final String classifier,
-                                             final String path) throws Exception {
-        final Product sourceProduct = TestUtils.readSourceProduct(path);
+    private Product runClassification(final PolarimetricClassificationOp op, final String classifier,
+                                      final String path) throws Exception {
+        final File inputFile = new File(path);
+        if (inputFile.exists()) {
+            TestUtils.skipTest(this);
+        }
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
@@ -59,6 +58,7 @@ public class TestClassifcationOp extends TestCase {
         return targetProduct;
     }
 
+    @Test
     public void testCloudePottierClassifier() throws Exception {
 
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
@@ -71,6 +71,7 @@ public class TestClassifcationOp extends TestCase {
                 PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, inputT3Stack);
     }
 
+    @Test
     public void testWishartClassifier() throws Exception {
 
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
@@ -83,6 +84,7 @@ public class TestClassifcationOp extends TestCase {
                 PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, inputT3Stack);
     }
 
+    @Test
     public void testTerrainClassifier() throws Exception {
 
         runClassification((PolarimetricClassificationOp) spi.createOperator(),

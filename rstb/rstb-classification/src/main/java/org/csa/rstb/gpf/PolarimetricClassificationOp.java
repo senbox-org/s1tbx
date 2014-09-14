@@ -30,9 +30,9 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.gpf.OperatorUtils;
-import org.esa.nest.dataio.PolBandUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -80,7 +80,7 @@ public final class PolarimetricClassificationOp extends Operator {
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
     private PolBandUtils.QuadSourceBand[] srcBandList;
-    private final Map<Band, PolBandUtils.QuadSourceBand> bandMap = new HashMap<Band, PolBandUtils.QuadSourceBand>();
+    private final Map<Band, PolBandUtils.QuadSourceBand> bandMap = new HashMap<>();
 
     static final String UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION = "Unsupervised Cloude-Pottier Classification";
     static final String UNSUPERVISED_WISHART_CLASSIFICATION = "Unsupervised H Alpha Wishart Classification";
@@ -143,19 +143,20 @@ public final class PolarimetricClassificationOp extends Operator {
     }
 
     private PolClassifier createClassifier(final String classification) throws OperatorException {
-        if (classification.equals(UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION)) {
+        switch (classification) {
+            case UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION:
 
-            return new CloudePottier(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap);
+                return new CloudePottier(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap);
 
-        } else if (classification.equals(UNSUPERVISED_WISHART_CLASSIFICATION)) {
+            case UNSUPERVISED_WISHART_CLASSIFICATION:
 
-            return new Wishart(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap,
-                    maxIterations);
+                return new Wishart(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap,
+                        maxIterations);
 
-        } else if (classification.equals(UNSUPERVISED_TERRAIN_CLASSIFICATION)) {
+            case UNSUPERVISED_TERRAIN_CLASSIFICATION:
 
-            return new FreemanDurdenWishart(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap,
-                    maxIterations, numInitialClasses, numFinalClasses, mixedCategoryThreshold);
+                return new FreemanDurdenWishart(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap,
+                        maxIterations, numInitialClasses, numFinalClasses, mixedCategoryThreshold);
         }
         throw new OperatorException(classification + " is an invalid classification name.");
     }

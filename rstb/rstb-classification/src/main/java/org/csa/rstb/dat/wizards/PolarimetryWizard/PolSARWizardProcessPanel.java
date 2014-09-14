@@ -17,8 +17,8 @@ package org.csa.rstb.dat.wizards.PolarimetryWizard;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.visat.VisatApp;
-import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
 import org.esa.nest.dat.wizards.WizardPanel;
+import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
 
 import javax.swing.*;
 import java.awt.*;

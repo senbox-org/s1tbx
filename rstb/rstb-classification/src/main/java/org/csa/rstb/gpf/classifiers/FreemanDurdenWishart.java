@@ -158,9 +158,9 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
         mask = new byte[srcHeight][srcWidth];
         final double[][] fdd = new double[srcHeight][srcWidth];
-        final java.util.List<ClusterInfo> pvCenterList = new ArrayList<ClusterInfo>(numInitialClusters);
-        final java.util.List<ClusterInfo> pdCenterList = new ArrayList<ClusterInfo>(numInitialClusters);
-        final java.util.List<ClusterInfo> psCenterList = new ArrayList<ClusterInfo>(numInitialClusters);
+        final java.util.List<ClusterInfo> pvCenterList = new ArrayList<>(numInitialClusters);
+        final java.util.List<ClusterInfo> pdCenterList = new ArrayList<>(numInitialClusters);
+        final java.util.List<ClusterInfo> psCenterList = new ArrayList<>(numInitialClusters);
 
         maxClusterSize = 2 * srcHeight * srcWidth / numFinalClasses;
 
@@ -849,7 +849,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
                                         } else { // mixed
 
-                                            java.util.List<ClusterInfo> allCenterList = new ArrayList<ClusterInfo>();
+                                            java.util.List<ClusterInfo> allCenterList = new ArrayList<>();
                                             allCenterList.addAll(pvCenterList);
                                             allCenterList.addAll(pdCenterList);
                                             allCenterList.addAll(psCenterList);
