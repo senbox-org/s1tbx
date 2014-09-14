@@ -17,7 +17,6 @@ package org.esa.snap.util;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeConfig;
-import com.bc.ceres.core.runtime.RuntimeConfigException;
 import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.*;
@@ -31,7 +30,6 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.gpf.RecursiveProcessor;
 
 import javax.media.jai.JAI;
 import java.io.File;
@@ -536,32 +534,14 @@ public class TestUtils {
                                             final String[] productTypeExemptions,
                                             final String[] exceptionExemptions) throws Exception {
         final File folder = new File(folderPath);
-        if (!folder.exists()) return;
+        if (!folder.exists()) {
+            skipTest(spi, folderPath+ " not found");
+            return;
+        }
 
         if (canTestProcessingOnAllProducts) {
             int iterations = 0;
             recurseProcessFolder(spi, folder, iterations, productTypeExemptions, exceptionExemptions);
-        }
-    }
-
-    /**
-     * Processes all products in a folder
-     *
-     * @param processor             the RecursiveProcessor to create the graph
-     * @param folderPath            the path to recurse through
-     * @param productTypeExemptions product types to ignore
-     * @param exceptionExemptions   exceptions that are ok and can be ignored for the test
-     * @throws Exception general exception
-     */
-    public static void testProcessAllInPath(final RecursiveProcessor processor, final String folderPath,
-                                            final String[] productTypeExemptions,
-                                            final String[] exceptionExemptions) throws Exception {
-        final File folder = new File(folderPath);
-        if (!folder.exists()) return;
-
-        if (canTestProcessingOnAllProducts) {
-            int iterations = 0;
-            processor.recurseProcessFolder(folder, iterations, productTypeExemptions, exceptionExemptions);
         }
     }
 
@@ -627,9 +607,13 @@ public class TestUtils {
     }
 
     public static boolean skipTest(final Object obj) throws Exception {
-        log.severe(obj.getClass().getName() + " skipped");
+        return skipTest(obj, "");
+    }
+
+    public static boolean skipTest(final Object obj, final String msg) throws Exception {
+        log.severe(obj.getClass().getName() + " skipped "+msg);
         if (FailOnSkip) {
-            throw new Exception(obj.getClass().getName() + " skipped");
+            throw new Exception(obj.getClass().getName() + " skipped "+msg);
         }
         return true;
     }
