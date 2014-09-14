@@ -44,7 +44,7 @@ public class TestClassifcationOp {
                                       final String path) throws Exception {
         final File inputFile = new File(path);
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, path + " not found");
             return null;
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);

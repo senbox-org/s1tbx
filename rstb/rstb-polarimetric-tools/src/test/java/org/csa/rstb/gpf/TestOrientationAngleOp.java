@@ -43,7 +43,7 @@ public class TestOrientationAngleOp {
     private Product runOrientation(final OrientationAngleCorrectionOp op, final String path) throws Exception {
         final File inputFile = new File(path);
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, path + " not found");
             return null;
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);

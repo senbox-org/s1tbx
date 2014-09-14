@@ -15,18 +15,24 @@
  */
 package org.esa.nest.gpf;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
+
+import java.io.File;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test for Calibration Operator.
  */
-public class TestCalibrationOp extends TestCase {
+public class TestCalibrationOp {
 
-    private OperatorSpi spi;
+    static {
+        TestUtils.initTestEnvironment();
+    }
+    private final static OperatorSpi spi = new CalibrationOp.Spi();
 
     private final static String inputPathWSM = TestUtils.rootPathExpectedProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
     private final static String expectedPathWSM = TestUtils.rootPathExpectedProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_Calib.dim";
@@ -41,25 +47,17 @@ public class TestCalibrationOp extends TestCase {
             "calibration has already been applied",
             "Cannot apply calibration to coregistered product"};
 
-    @Override
-    protected void setUp() throws Exception {
-        spi = new CalibrationOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
-    }
-
+    @Test
     public void testProcessingWSM() throws Exception {
         processFile(inputPathWSM, expectedPathWSM);
     }
 
+    @Test
     public void testProcessingIMP() throws Exception {
         processFile(inputPathIMP, expectedPathIMP);
     }
 
+    @Test
     public void testProcessingIMS() throws Exception {
         processFile(inputPathIMS, expectedPathIMS);
     }
@@ -72,8 +70,13 @@ public class TestCalibrationOp extends TestCase {
      * @throws Exception general exception
      */
     public void processFile(String inputPath, String expectedPath) throws Exception {
+        final File inputFile = new File(inputPath);
+        if (!inputFile.exists()) {
+            TestUtils.skipTest(this, inputPath + " not found");
+            return;
+        }
 
-        final Product sourceProduct = TestUtils.readSourceProduct(inputPath);
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final CalibrationOp op = (CalibrationOp) spi.createOperator();
         assertNotNull(op);
@@ -86,26 +89,37 @@ public class TestCalibrationOp extends TestCase {
         // todo fix expected output files
     }
 
+    @Test
     public void testProcessAllASAR() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, null);
     }
 
+    @Test
     public void testProcessAllERS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, null);
     }
 
+    @Test
     public void testProcessAllALOS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, productTypeExemptions, null);
     }
 
+    @Test
     public void testProcessAllRadarsat2() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, productTypeExemptions, null);
     }
 
+    @Test
     public void testProcessAllCosmo() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, productTypeExemptions, exceptionExemptions);
     }
 
+    @Test
+    public void testProcessAllSentinel1() throws Exception {
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathSentinel1, productTypeExemptions, exceptionExemptions);
+    }
+
+    @Test
     public void testProcessAllNestBox() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, exceptionExemptions);
     }
