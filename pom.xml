@@ -47,18 +47,13 @@
 
         <module>beam-core</module>
         <module>beam-csv-dataio</module>
-        <!--module>beam-examples</module-->
+        <module>beam-examples</module>
         <module>beam-gpf</module>
         <module>beam-help</module>
         <module>beam-scripting</module>
         <module>beam-ui</module>
         <module>beam-visat-rcp</module>
-<<<<<<< HEAD
-        <module>beam-installer</module>
-        <!--module>beam-reader-tests</module-->
-=======
         <module>beam-reader-tests</module>
->>>>>>> master
         <module>beam-python</module>
 
         <module>snap-engine-utilities</module>
@@ -79,7 +74,7 @@
         <module>beam-envisat-reader</module>
         <module>beam-flhmci</module>
         <module>beam-geotiff</module>
-        <!--module>beam-getasse30-reader</module-->
+        <module>beam-getasse30-reader</module>
         <module>beam-hdf5-writer</module>
         <module>beam-landsat-reader</module>
         <module>beam-meris-cloud</module>
