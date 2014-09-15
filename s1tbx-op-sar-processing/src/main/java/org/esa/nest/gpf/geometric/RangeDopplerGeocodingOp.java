@@ -34,6 +34,7 @@ import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.EarthGravitationalModel96;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.*;
+import org.esa.nest.gpf.Sentinel1Calibrator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.eo.*;
@@ -271,6 +272,20 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             if (saveSigmaNought) {
                 calibrator = CalibrationFactory.createCalibrator(sourceProduct);
+
+                if (calibrator instanceof Sentinel1Calibrator) {
+                    final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+                    final Set<String> polList = new HashSet<>();
+                    for(Band band : sourceBands) {
+                        polList.add(OperatorUtils.getBandPolarization(band.getName(), absRoot));
+                    }
+                    final String[] selectedPolarisations = polList.toArray(new String[polList.size()]);
+
+                    Sentinel1Calibrator cal = (Sentinel1Calibrator) calibrator;
+                    cal.setUserSelections(sourceProduct,
+                            selectedPolarisations, saveSigmaNought, saveGammaNought, saveBetaNought, false);
+                }
+
                 calibrator.setAuxFileFlag(auxFile);
                 calibrator.setExternalAuxFile(externalAuxFile);
                 calibrator.initialize(this, sourceProduct, targetProduct, true, true);
