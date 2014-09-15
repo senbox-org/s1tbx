@@ -25,6 +25,7 @@ import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.XMLSupport;
+import org.esa.snap.util.ZipUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
@@ -55,7 +56,7 @@ public abstract class XMLProductDirectory {
     protected XMLProductDirectory(final File inputFile) {
         Guardian.assertNotNull("inputFile", inputFile);
 
-        if (SARReader.isZip(inputFile)) {
+        if (ZipUtils.isZip(inputFile)) {
             productDir = VirtualDir.create(inputFile);
             baseDir = inputFile;
             baseName = inputFile.getName();
@@ -71,20 +72,7 @@ public abstract class XMLProductDirectory {
             return rootFolder;
         try {
             if (productDir.isCompressed()) {
-                final ZipFile productZip = new ZipFile(baseDir, ZipFile.OPEN_READ);
-
-                final Optional result = productZip.stream()
-                        .filter(ze -> !ze.isDirectory())
-                        .filter(ze -> ze.getName().toLowerCase().endsWith(getHeaderFileName()))
-                        .findFirst();
-                ZipEntry ze = (ZipEntry) result.get();
-                String path = ze.toString();
-                int sepIndex = path.lastIndexOf('/');
-                if (sepIndex > 0) {
-                    rootFolder = path.substring(0, sepIndex) + '/';
-                } else {
-                    rootFolder = "";
-                }
+                rootFolder = ZipUtils.getRootFolder(baseDir, getHeaderFileName());
             } else {
                 rootFolder = "";
             }
