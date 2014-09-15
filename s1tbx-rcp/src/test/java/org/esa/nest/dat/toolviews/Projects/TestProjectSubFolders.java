@@ -15,12 +15,16 @@
  */
 package org.esa.nest.dat.toolviews.Projects;
 
-import junit.framework.TestCase;
 import org.jdom2.Element;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.Vector;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by IntelliJ IDEA.
@@ -28,20 +32,18 @@ import java.util.Vector;
  * Date: Jul 2, 2008
  * To change this template use File | Settings | File Templates.
  */
-public class TestProjectSubFolders extends TestCase {
+public class TestProjectSubFolders {
 
     private ProjectSubFolder projectSubFolders;
     private File projectFolder = new File(".");
 
+    @Before
     public void setUp() throws Exception {
         projectSubFolders = new ProjectSubFolder(projectFolder, "Project", false,
                 ProjectSubFolder.FolderType.ROOT);
     }
 
-    public void tearDown() throws Exception {
-        projectSubFolders = null;
-    }
-
+    @Test
     public void testSubFolders() {
         ProjectSubFolder newFolder = projectSubFolders.addSubFolder("newFolder");
         ProjectSubFolder dupFolder = projectSubFolders.addSubFolder("newFolder");
@@ -60,7 +62,7 @@ public class TestProjectSubFolders extends TestCase {
 
     }
 
-
+    @Test
     public void testXML() {
         ProjectSubFolder folder1 = projectSubFolders.addSubFolder("Folder1");
         ProjectSubFolder folder2 = projectSubFolders.addSubFolder("Folder2");

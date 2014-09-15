@@ -15,12 +15,15 @@
  */
 package org.esa.nest.dat.toolviews.Projects;
 
-import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.esa.snap.util.ResourceUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by IntelliJ IDEA.
@@ -28,7 +31,7 @@ import java.io.File;
  * Date: Jul 2, 2008
  * To change this template use File | Settings | File Templates.
  */
-public class TestProject extends TestCase {
+public class TestProject {
 
     private Project project = Project.instance();
     private final static File projectFolder = new File(ResourceUtils.findHomeFolder().getAbsolutePath()
@@ -36,30 +39,38 @@ public class TestProject extends TestCase {
     private final static File projectFile = new File(projectFolder.getAbsolutePath()
             + File.separator + "TestProjectFile.xml");
 
-    @Override
+    @Before
     public void setUp() throws Exception {
         if (!projectFolder.exists())
             projectFolder.mkdir();
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception {
         FileUtils.deleteDirectory(projectFolder);
         project = null;
     }
 
+    @Test
     public void testInitProject() {
         project.initProject(projectFile);
 
-        File[] files = projectFolder.listFiles();
+        final File[] files = projectFolder.listFiles();
         assertEquals(files.length, 4);
 
-        /* order not the same on different OS
-        assertEquals(files[0].getName(), "Graphs");
-        assertEquals(files[1].getName(), "Imported Products");
-        assertEquals(files[2].getName(), "Processed Products");
-        assertEquals(files[3].getName(), "ProductSets");  */
-
+        boolean foundGraphs=false, foundImport=false, foundProcessed=false, foundProductSets=false;
+        // order not the same on different OS
+        for(File file : files) {
+            if(file.getName().equals("Graphs"))
+                foundGraphs = true;
+            if(file.getName().equals("Imported Products"))
+                foundImport = true;
+            if(file.getName().equals("Processed Products"))
+                foundProcessed = true;
+            if(file.getName().equals("ProductSets"))
+                foundProductSets = true;
+        }
+        assertTrue(foundGraphs && foundImport && foundProcessed && foundProductSets);
     }
 
 

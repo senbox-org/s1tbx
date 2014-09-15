@@ -77,7 +77,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private ThermalNoiseInfo[] noise = null;
     private Sentinel1Calibrator.CalibrationInfo[] calibration = null;
     private java.util.List<String> selectedPolList = null;
-    private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>(2);
+    private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>(2);
 
     /**
      * Default constructor. The graph processing framework
@@ -564,13 +564,13 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     /**
      * Compute scaled noise LUTs for the given range line.
      *
-     * @param y              Index of the given range line.
-     * @param x0             X coordinate of the upper left corner pixel of the given tile.
-     * @param y0             Y coordinate of the upper left corner pixel of the given tile.
-     * @param w              Tile width.
-     * @param noiseInfo      Object of ThermalNoiseInfo class.
-     * @param calInfo        Object of CalibrationInfo class.
-     * @param lut            The scaled noise LUT.
+     * @param y         Index of the given range line.
+     * @param x0        X coordinate of the upper left corner pixel of the given tile.
+     * @param y0        Y coordinate of the upper left corner pixel of the given tile.
+     * @param w         Tile width.
+     * @param noiseInfo Object of ThermalNoiseInfo class.
+     * @param calInfo   Object of CalibrationInfo class.
+     * @param lut       The scaled noise LUT.
      */
     private void computeTileScaledNoiseLUT(final int y, final int x0, final int y0, final int w,
                                            final ThermalNoiseInfo noiseInfo,
@@ -601,11 +601,11 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     /**
      * Compute calibration LUTs for the given range line.
      *
-     * @param y              Index of the given range line.
-     * @param x0             X coordinate of the upper left corner pixel of the given tile.
-     * @param w              Tile width.
-     * @param calInfo        Object of CalibrationInfo class.
-     * @param lut            LUT for calibration.
+     * @param y       Index of the given range line.
+     * @param x0      X coordinate of the upper left corner pixel of the given tile.
+     * @param w       Tile width.
+     * @param calInfo Object of CalibrationInfo class.
+     * @param lut     LUT for calibration.
      */
     public static void computeTileCalibrationLUTs(final int y, final int x0, final int w,
                                                   final Sentinel1Calibrator.CalibrationInfo calInfo,
@@ -617,7 +617,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         double muX, muY = (azTime - azT0) / (azT1 - azT0);
 
         int pixelIdx = pixelIdx0;
-        final int maxX =  x0 + w;
+        final int maxX = x0 + w;
         for (int x = x0; x < maxX; x++) {
             if (x > vec0Pixels[pixelIdx + 1]) {
                 pixelIdx++;

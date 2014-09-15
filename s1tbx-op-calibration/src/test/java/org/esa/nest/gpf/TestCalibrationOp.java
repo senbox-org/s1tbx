@@ -32,6 +32,7 @@ public class TestCalibrationOp {
     static {
         TestUtils.initTestEnvironment();
     }
+
     private final static OperatorSpi spi = new CalibrationOp.Spi();
 
     private final static String inputPathWSM = TestUtils.rootPathExpectedProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";

@@ -16,33 +16,28 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.util.TestUtils;
+import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test for CreateStackOp.
  */
-public class TestCreateStackOp extends TestCase {
+public class TestCreateStackOp {
 
-    private OperatorSpi spi;
-
-    @Override
-    protected void setUp() throws Exception {
-        spi = new CreateStackOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
+    static {
+        TestUtils.initTestEnvironment();
     }
+    private final static OperatorSpi spi = new CreateStackOp.Spi();
 
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
-    }
-
+    @Test
     public void testOperator() throws Exception {
 
         final CreateStackOp op = (CreateStackOp) spi.createOperator();
@@ -96,5 +91,4 @@ public class TestCreateStackOp extends TestCase {
 
         return product;
     }
-
 }

@@ -16,14 +16,17 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.ProductUtils;
-import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.BaseCalibrator;
 import org.esa.nest.datamodel.Calibrator;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
@@ -47,14 +50,14 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     private int numOfSubSwath = 1;
     private CalibrationInfo[] calibration = null;
     private boolean isGRD = false;
-    protected final HashMap<String, CalibrationInfo> targetBandToCalInfo = new HashMap<String, CalibrationInfo>(2);
+    protected final HashMap<String, CalibrationInfo> targetBandToCalInfo = new HashMap<>(2);
     private java.util.List<String> selectedPolList = null;
     private boolean outputSigmaBand = false;
     private boolean outputGammaBand = false;
     private boolean outputBetaBand = false;
     private boolean outputDNBand = false;
 
-    public enum CALTYPE { SIGMA0, BETA0, GAMMA, DN }
+    public enum CALTYPE {SIGMA0, BETA0, GAMMA, DN}
 
     /**
      * Default constructor. The graph processing framework
@@ -202,8 +205,8 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
      * Get calibration vectors from metadata.
      */
     public static CalibrationInfo[] getCalibrationVectors(final Product sourceProduct, final java.util.List<String> selectedPolList,
-                                             final boolean outputSigmaBand, final boolean outputBetaBand,
-                                             final boolean outputGammaBand, final boolean outputDNBand) {
+                                                          final boolean outputSigmaBand, final boolean outputBetaBand,
+                                                          final boolean outputGammaBand, final boolean outputDNBand) {
         final List<CalibrationInfo> calibrationInfoList = new ArrayList<>();
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
         final MetadataElement calibrationElem = origProdRoot.getElement("calibration");
@@ -298,15 +301,15 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         Sentinel1Utils.updateBandNames(absRoot, selectedPolList, targetBandNames);
 
         final MetadataElement[] bandMetadataList = AbstractMetadata.getBandAbsMetadataList(absRoot);
-        for(MetadataElement bandMeta : bandMetadataList) {
+        for (MetadataElement bandMeta : bandMetadataList) {
             boolean polFound = false;
-            for(String pol : selectedPolList) {
-                if(bandMeta.getName().contains(pol)) {
+            for (String pol : selectedPolList) {
+                if (bandMeta.getName().contains(pol)) {
                     polFound = true;
                     break;
                 }
             }
-            if(!polFound) {
+            if (!polFound) {
                 // remove band metadata if polarization is not included
                 absRoot.removeElement(bandMeta);
             }
@@ -474,8 +477,8 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         final CalibrationInfo calInfo = targetBandToCalInfo.get(targetBandName);
         calInfo.calculateVectors(targetBandName, x0, y0);
 
-        final float[] vec0LUT=calInfo.vec0LUT, vec1LUT=calInfo.vec1LUT;
-        final int[] vec0Pixels=calInfo.vec0Pixels;
+        final float[] vec0LUT = calInfo.vec0LUT, vec1LUT = calInfo.vec1LUT;
+        final int[] vec0Pixels = calInfo.vec0Pixels;
 
         double dn, i, q, muX, lutVal;
         int srcIdx, trgIdx;
@@ -605,10 +608,10 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
         public final double lineTimeInterval;
 
-        int pixelIdx0=0;
-        float[] vec0LUT=null, vec1LUT=null;
-        int[] vec0Pixels=null;
-        double timeRange=0, azT0=0, azT1=0;
+        int pixelIdx0 = 0;
+        float[] vec0LUT = null, vec1LUT = null;
+        int[] vec0Pixels = null;
+        double timeRange = 0, azT0 = 0, azT1 = 0;
 
         CalibrationInfo(String subSwath, String polarization, final double firstLineTime, final double lastLineTime,
                         final int numOfLines, final int count,

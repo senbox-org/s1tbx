@@ -15,9 +15,10 @@
  */
 package org.esa.nest.gpf.oceantools;
 
-import junit.framework.TestCase;
 import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.TestUtils;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.File;
 
@@ -25,21 +26,13 @@ import java.io.File;
 /**
  * Unit test for OceanTools Graph
  */
-public class TestOceanToolsGraph extends TestCase {
+public class TestOceanToolsGraph {
 
     private static String graphFile = "OceanShipAndOilDetectionGraph.xml";
     private static String ASAR_IMM = "input\\ASA_IMM_1P_0739.N1";
 
-    @Override
-    protected void setUp() throws Exception {
-
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-
-    }
-
+    @Test
+    @Ignore
     public void testProcessGraph() throws Exception {
         final File inputFile = new File(TestUtils.rootPathExpectedProducts, ASAR_IMM);
         final File outputFile = new File(ResourceUtils.getApplicationUserTempDataDir(), "tmpOut.dim");

@@ -22,9 +22,9 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.BaseCalibrator;
 import org.esa.nest.datamodel.Calibrator;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
@@ -52,10 +52,10 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
     private int sourceImageWidth = 0;
     private TiePointGrid incidenceAngle = null;
     private TiePointGrid slantRangeTime = null;
-    private final HashMap<String, Double> calibrationFactor = new HashMap<String, Double>(2);
-    private final HashMap<String, NoiseRecord[]> noiseRecord = new HashMap<String, NoiseRecord[]>(2);
-    private final HashMap<String, int[]> rangeLineIndex = new HashMap<String, int[]>(2); // y indices of noise records
-    private final HashMap<String, double[][]> rangeLineNoise = new HashMap<String, double[][]>(2);
+    private final HashMap<String, Double> calibrationFactor = new HashMap<>(2);
+    private final HashMap<String, NoiseRecord[]> noiseRecord = new HashMap<>(2);
+    private final HashMap<String, int[]> rangeLineIndex = new HashMap<>(2); // y indices of noise records
+    private final HashMap<String, double[][]> rangeLineNoise = new HashMap<>(2);
     private Product sourceGIMProduct = null;
     private boolean noiseCorrectedFlag = false;
 

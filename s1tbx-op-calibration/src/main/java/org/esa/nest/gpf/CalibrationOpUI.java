@@ -17,12 +17,12 @@ package org.esa.nest.gpf;
 
 import com.jidesoft.swing.JideLabel;
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.snap.gpf.OperatorUIUtils;
-import org.esa.snap.gpf.ui.BaseOperatorUI;
-import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.visat.VisatApp;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.gpf.OperatorUIUtils;
+import org.esa.snap.gpf.ui.BaseOperatorUI;
+import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
@@ -61,7 +61,7 @@ public class CalibrationOpUI extends BaseOperatorUI {
     private boolean createGamma0VirtualBand = false;
     private boolean createBeta0VirtualBand = false;
 
-    private final JList<String> polList = new JList<String>();
+    private final JList<String> polList = new JList<>();
     private final JScrollPane polListPane = new JScrollPane(polList);
     private final JLabel polListLabel = new JLabel("Polarisations:");
     private final JCheckBox outputSigmaBandCheckBox = new JCheckBox("Output sigma0 band");
@@ -231,7 +231,7 @@ public class CalibrationOpUI extends BaseOperatorUI {
                 } else if (mission.startsWith("SENTINEL-1")) {
 
                     OperatorUIUtils.initParamList(polList, Sentinel1Utils.getProductPolarizations(absRoot),
-                            (String[])paramMap.get("selectedPolarisations"));
+                            (String[]) paramMap.get("selectedPolarisations"));
 
                     DialogUtils.enableComponents(auxFileLabel, auxFile, false);
                     DialogUtils.enableComponents(externalAuxFileLabel, externalAuxFile, false);

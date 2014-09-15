@@ -49,7 +49,7 @@ public class BaseCalibrator {
 
     protected static final double underFlowFloat = 1.0e-30;
 
-    protected final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>(2);
+    protected final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>(2);
 
     /**
      * Default constructor. The graph processing framework

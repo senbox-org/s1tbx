@@ -15,26 +15,16 @@
  */
 package org.esa.nest.gpf;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.graph.GraphException;
+import org.junit.Test;
 
 
 /**
  * Unit test for Coregistration Graph
  */
-public class TestCoregistrationGraph extends TestCase {
+public class TestCoregistrationGraph {
 
-
-    @Override
-    protected void setUp() throws Exception {
-
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-
-    }
-
+    @Test
     public void testCreateGraph() throws GraphException {
       /*  final GraphExecuter graphEx = new GraphExecuter();
         graphEx.loadGraph(graphFile, true);

@@ -19,9 +19,9 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.BaseCalibrator;
 import org.esa.nest.datamodel.Calibrator;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.datamodel.Unit.UnitType;
 import org.esa.snap.gpf.OperatorUtils;
@@ -42,7 +42,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
     private double referenceSlantRangeExp = 0.;
     private double referenceIncidenceAngle = 0.;
     private double rescalingFactor = 0.;
-    private final HashMap<String, Double> calibrationFactor = new HashMap<String, Double>(2);
+    private final HashMap<String, Double> calibrationFactor = new HashMap<>(2);
 
     private TiePointGrid incidenceAngle = null;
     private TiePointGrid slantRangeTime = null;

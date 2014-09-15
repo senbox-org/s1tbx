@@ -1000,7 +1000,7 @@ public class DEMBasedCoregistrationOp extends Operator {
                 final double[][] x_in, final double[][] y_in, final double[][] z_in, final double xyRatio,
                 final double nodata) throws Exception {
 
-            List<Geometry> list = new ArrayList<Geometry>();
+            List<Geometry> list = new ArrayList<>();
             GeometryFactory gf = new GeometryFactory();
             for (int i = 0; i < x_in.length; i++) {
                 for (int j = 0; j < x_in[0].length; j++) {
@@ -1051,8 +1051,8 @@ public class DEMBasedCoregistrationOp extends Operator {
             final int nx = griddedData.length / zLoops;
             final int ny = griddedData[0].length;
 
-            for (int r = 0; r < griddedData.length; r++) {
-                Arrays.fill(griddedData[r], nodata);
+            for (double[] aGriddedData : griddedData) {
+                Arrays.fill(aGriddedData, nodata);
             }
 
             //// interpolate: loop over triangles
