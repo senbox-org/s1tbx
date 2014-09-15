@@ -33,30 +33,23 @@ import java.io.File;
 /**
  * Benchmark code
  */
-public abstract class Benchmark extends TestCase {
+public abstract class Benchmark {
+    static {
+        TestUtils.initTestEnvironment();
+    }
+
     protected OperatorSpi spi;
     private final File outputFile = new File("e:\\out\\output.dim");
 
     public Benchmark() {
         try {
-            TestUtils.initTestEnvironment();
             DataSets.instance();
 
             spi = CreateOperatorSpi();
-            GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
+
         } catch (Throwable t) {
             t.printStackTrace();
         }
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-
     }
 
     protected abstract OperatorSpi CreateOperatorSpi();

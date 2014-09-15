@@ -37,16 +37,22 @@ import java.util.List;
  */
 public abstract class TestAutomatedGraphProcessing {
 
+    static {
+        try {
+            TestUtils.initTestEnvironment();
+            GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private final boolean failOnFirstProblem = true;
-    protected TestConfig config = null;
+    private TestConfig config = null;
 
     protected abstract String getTestFileName();
 
     @Before
     public void setUp() throws Exception {
-        TestUtils.initTestEnvironment();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
-
         config = new TestConfig(getTestFileName());
     }
 
