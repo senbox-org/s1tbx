@@ -29,6 +29,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -119,7 +120,12 @@ public abstract class XMLProductDirectory {
 
     protected void findImages() throws IOException {
         final String parentPath = getRelativePathToImageFolder();
-        final String[] listing = productDir.list(parentPath);
+        String[] listing;
+        try {
+            listing = productDir.list(parentPath);
+        } catch (FileNotFoundException e) {
+            listing = null;
+        }
         if (listing != null) {
             for (String imgPath : listing) {
                 addImageFile(parentPath + imgPath);

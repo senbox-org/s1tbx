@@ -28,7 +28,7 @@ import java.io.IOException;
  */
 public class DataSets {
 
-    public final static String perfRoot = TestUtils.rootPathExpectedProducts + "largeFiles\\";
+    public final static String perfRoot = TestUtils.rootPathTestProducts + "largeFiles\\";
 
     public final static String tiffFile1 = perfRoot + "Tiff\\imagery_HV.tif";
     public final static String tiffFile2 = perfRoot + "Tiff\\srtm_39_04.tif";
