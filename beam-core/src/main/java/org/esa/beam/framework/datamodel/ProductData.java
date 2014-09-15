@@ -2256,7 +2256,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public void setElemUIntAt(int index, long value) {
-            _array[index] = (int) value;
+            _array[index] = value;
         }
 
         /**
@@ -2272,7 +2272,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public void setElemDoubleAt(int index, double value) {
-            _array[index] = (int) Math.round(value);
+            _array[index] = Math.round(value);
         }
 
         /**

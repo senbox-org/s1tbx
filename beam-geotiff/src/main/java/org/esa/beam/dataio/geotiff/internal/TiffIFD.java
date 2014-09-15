@@ -53,13 +53,13 @@ public class TiffIFD {
     
     private final TiffDirectoryEntrySet entrySet;
     private int maxElemSizeBandDataType;
-    private boolean bigTiff = false;
+    private final boolean bigTiff;
 
 
     public TiffIFD(final Product product, boolean bigTiff) {
         entrySet = new TiffDirectoryEntrySet();
-        initEntrys(product);
         this.bigTiff = bigTiff;
+        initEntrys(product);
     }
 
     public void write(final ImageOutputStream ios, final long ifdOffset, final long nextIfdOffset) throws IOException {
