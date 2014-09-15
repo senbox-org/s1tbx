@@ -15,7 +15,6 @@
  */
 package org.esa.nest.gpf.geometric;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -26,18 +25,24 @@ import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.nest.dataio.dem.ElevationModelDescriptor;
 import org.esa.nest.dataio.dem.ElevationModelRegistry;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
 
 import java.io.File;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test for Range Doppler.
  */
-public class TestRangeDopplerOp extends TestCase {
+public class TestRangeDopplerOp {
 
-    private OperatorSpi spi;
+    static {
+        TestUtils.initTestEnvironment();
+    }
+    private final static OperatorSpi spi = new RangeDopplerGeocodingOp.Spi();
+
     private final static String inputPathWSM = TestUtils.rootPathExpectedProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
     private final static String expectedPathWSM = TestUtils.rootPathExpectedProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_TC.dim";
 
@@ -50,22 +55,12 @@ public class TestRangeDopplerOp extends TestCase {
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
     private String[] exceptionExemptions = {"not supported", "already map projected", "outside of SRTM valid area"};
 
-    @Override
-    protected void setUp() throws Exception {
-        spi = new RangeDopplerGeocodingOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
-    }
-
     /**
      * Processes a WSM product and compares it to processed product known to be correct
      *
      * @throws Exception general exception
      */
+    @Test
     public void testProcessWSM() throws Exception {
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputPathWSM);
@@ -83,6 +78,7 @@ public class TestRangeDopplerOp extends TestCase {
         TestUtils.compareProducts(targetProduct, expectedPathWSM, null);
     }
 
+    @Test
     public void testGetLocalDEM() throws Exception {
 
         final File inputFile = new File("P:\\nest\\nest\\ESA Data\\RADAR\\ASAR\\Image Mode Medium Resolution\\ASA_IMM_1PNIPA20080507_220932_000000502068_00230_32348_0581.N1");
@@ -118,6 +114,7 @@ public class TestRangeDopplerOp extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testProcessIMS() throws Exception {
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputPathIMS);
@@ -140,6 +137,7 @@ public class TestRangeDopplerOp extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testProcessAPM() throws Exception {
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputPathAPM);
@@ -157,31 +155,38 @@ public class TestRangeDopplerOp extends TestCase {
         TestUtils.compareProducts(targetProduct, expectedPathAPM, null);
     }
 
+    @Test
     public void testProcessAllASAR() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, exceptionExemptions);
     }
 
+    @Test
     public void testProcessAllERS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, exceptionExemptions);
     }
 
-  /*  public void testProcessAllALOS() throws Exception
+    @Test
+    public void testProcessAllALOS() throws Exception
     {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, exceptionExemptions);
-    }     */
+    }
 
+    @Test
     public void testProcessAllRadarsat2() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, null, exceptionExemptions);
     }
 
+    @Test
     public void testProcessAllTerraSARX() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathTerraSarX, null, exceptionExemptions);
     }
 
+    @Test
     public void testProcessAllCosmo() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, null, exceptionExemptions);
     }
 
+    @Test
     public void testProcessAllNestBox() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, exceptionExemptions);
     }

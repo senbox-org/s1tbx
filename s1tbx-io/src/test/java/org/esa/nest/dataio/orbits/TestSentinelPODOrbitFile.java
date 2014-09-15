@@ -2,19 +2,12 @@ package org.esa.nest.dataio.orbits;
 
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.snap.datamodel.Orbits;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  * To test SentinelPODOrbitFile
  */
 public class TestSentinelPODOrbitFile {
-
-    @Before
-    public void setUp() throws Exception {
-
-        System.out.println("TestSentinelPODOrbitFile.setup: do nothing");
-    }
 
     @Test
     public void testSentinelPODOrbitFile() throws Throwable {

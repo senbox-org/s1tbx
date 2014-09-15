@@ -32,6 +32,10 @@ import java.io.File;
  */
 public class TestTiePoints {
 
+    static {
+        TestUtils.initTestEnvironment();
+    }
+
     final File inputFile = new File(TestUtils.rootPathExpectedProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim");
 
     private Product product1 = null;
@@ -39,8 +43,6 @@ public class TestTiePoints {
 
     @Before
     public void setUp() throws Exception {
-        TestUtils.initTestEnvironment();
-
         if (inputFile.exists()) {
             product1 = ProductIO.readProduct(inputFile);
             product2 = ProductIO.readProduct(inputFile);
@@ -82,7 +84,6 @@ public class TestTiePoints {
     }
 
     @Test
-    @Ignore
     public void testCompareFloats() throws Exception {
 
         if (product1 == null) {

@@ -15,9 +15,9 @@
  */
 package org.esa.nest.dataio.cosmo;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
 
 import java.io.File;
 
@@ -26,31 +26,16 @@ import java.io.File;
  *
  * @author lveci
  */
-public class TestCosmoSkymedReader extends TestCase {
+public class TestCosmoSkymedReader {
 
     private CosmoSkymedReaderPlugIn readerPlugin;
     private ProductReader reader;
 
     private String[] exceptionExemptions = {"not supported"};
 
-    public TestCosmoSkymedReader(String name) {
-        super(name);
-    }
-
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-
+    public TestCosmoSkymedReader() {
         readerPlugin = new CosmoSkymedReaderPlugIn();
         reader = readerPlugin.createReaderInstance();
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-
-        reader = null;
-        readerPlugin = null;
     }
 
     /**
@@ -58,6 +43,7 @@ public class TestCosmoSkymedReader extends TestCase {
      *
      * @throws Exception anything
      */
+    @Test
     public void testOpenAll() throws Exception {
         final File folder = new File(TestUtils.rootPathCosmoSkymed);
         if (!folder.exists()) {

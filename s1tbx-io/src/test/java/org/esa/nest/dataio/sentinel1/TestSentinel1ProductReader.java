@@ -31,6 +31,9 @@ import java.io.File;
  */
 public class TestSentinel1ProductReader {
 
+    static {
+        TestUtils.initTestEnvironment();
+    }
     private Sentinel1ProductReaderPlugIn readerPlugin;
     private ProductReader reader;
 
@@ -38,7 +41,6 @@ public class TestSentinel1ProductReader {
     final String s1FolderFilePath = "P:\\s1tbx\\s1tbx\\Data\\First Images\\S1A_S1_SLC__1SDV_20140607T172812_20140607T172836_000947_000EBD_4DB2.SAFE";
 
     public TestSentinel1ProductReader() throws Exception {
-        TestUtils.initTestEnvironment();
         readerPlugin = new Sentinel1ProductReaderPlugIn();
         reader = readerPlugin.createReaderInstance();
     }

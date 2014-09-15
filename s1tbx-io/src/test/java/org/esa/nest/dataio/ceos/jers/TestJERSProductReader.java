@@ -15,10 +15,9 @@
  */
 package org.esa.nest.dataio.ceos.jers;
 
-
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
 
 import java.io.File;
 
@@ -27,29 +26,14 @@ import java.io.File;
  *
  * @author lveci
  */
-public class TestJERSProductReader extends TestCase {
+public class TestJERSProductReader {
 
     private JERSProductReaderPlugIn readerPlugin;
     private ProductReader reader;
 
-    public TestJERSProductReader(String name) {
-        super(name);
-    }
-
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-
+    public TestJERSProductReader() {
         readerPlugin = new JERSProductReaderPlugIn();
         reader = readerPlugin.createReaderInstance();
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-
-        reader = null;
-        readerPlugin = null;
     }
 
     /**
@@ -57,6 +41,7 @@ public class TestJERSProductReader extends TestCase {
      *
      * @throws Exception anything
      */
+    @Test
     public void testOpenAll() throws Exception {
         final File folder = new File(TestUtils.rootPathJERS);
         if (!folder.exists()) return;
@@ -64,5 +49,4 @@ public class TestJERSProductReader extends TestCase {
         if (TestUtils.canTestReadersOnAllProducts)
             TestUtils.recurseReadFolder(folder, readerPlugin, reader, null, null);
     }
-
 }
