@@ -24,6 +24,8 @@ import java.awt.Component;
 
 
 interface ColorManipulationChildForm {
+    ColorManipulationForm getParentForm();
+
     void handleFormShown(FormModel formModel);
 
     void handleFormHidden(FormModel formModel);

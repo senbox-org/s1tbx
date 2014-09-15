@@ -1,20 +1,20 @@
 #! /bin/sh
 
-export BEAM4_HOME=${installer:sys.installationDir}
+export S3TBX_HOME=${installer:sys.installationDir}
 
-if [ -z "$BEAM4_HOME" ]; then
+if [ -z "$S3TBX_HOME" ]; then
     echo
-    echo Error: BEAM4_HOME not found in your environment.
-    echo Please set the BEAM4_HOME variable in your environment to match the
-    echo location of the BEAM 4.x installation
+    echo Error: S3TBX_HOME not found in your environment.
+    echo Please set the S3TBX_HOME variable in your environment to match the
+    echo location of the S3TBX installation
     echo
     exit 2
 fi
 
-export PATH=$PATH:$BEAM4_HOME/bin
+export PATH=$PATH:$S3TBX_HOME/bin
 
 echo ""
-echo "Welcome to the BEAM command-line interface!"
+echo "Welcome to the S3TBX command-line interface!"
 echo "The following command-line tools are available:"
 echo "  gpt.sh            - General Graph Processing Tool"
 echo "  pconvert.sh       - General product conversion and quicklook generation"

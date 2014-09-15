@@ -3,7 +3,7 @@
 
     <symbolicName>snap-temporal-percentile-op</symbolicName>
     <version>0.5</version>
-    <name>BEAM Temporal Percentile Operator</name>
+    <name>SNAP Temporal Percentile Operator</name>
     <funding>EU</funding>
 
     <description>

@@ -140,7 +140,6 @@ public abstract class DataNode extends ProductNode {
 
     /**
      * Sets the data elements of this data node.
-     * @deprecated since 5.0
      * @see ProductData#setElems(Object)
      */
     public void setDataElems(Object elems) {

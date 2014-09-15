@@ -52,7 +52,7 @@ public class ImageManagerTest {
     private static final double EPS_H = 1.0e-6;
 
     @Test
-    public void testCreateColoredBandImage() throws Exception {
+    public void testCreateColoredBandImage_Opaque() throws Exception {
         int[] pixel00 = new int[3];
         int[] pixel10 = new int[3];
         int[] pixel01 = new int[3];
@@ -102,6 +102,59 @@ public class ImageManagerTest {
         assertArrayEquals(new int[]{255, 1, 0}, pixel10);
         assertArrayEquals(new int[]{255, 1, 0}, pixel01);
         assertArrayEquals(new int[]{0, 0, 255}, pixel11);
+    }
+
+    @Test
+    public void testCreateColoredBandImage_SemiTransparent() throws Exception {
+        int[] pixel00 = new int[4];
+        int[] pixel10 = new int[4];
+        int[] pixel01 = new int[4];
+        int[] pixel11 = new int[4];
+
+        Product product = new Product("A", "B", 2, 2);
+        Band band1 = product.addBand("b1", "X + Y");
+        Band band2 = product.addBand("b2", "X + Y");
+        Band band3 = product.addBand("b3", "X + Y");
+        ImageInfo imageInfo = new ImageInfo(new ColorPaletteDef(new ColorPaletteDef.Point[]{
+                new ColorPaletteDef.Point(1.0, Color.YELLOW),
+                new ColorPaletteDef.Point(2.0, new Color(255, 0, 0, 127)),
+                new ColorPaletteDef.Point(3.0, Color.BLUE),
+        }));
+
+        RenderedImage image;
+
+        band1.getStx(true, ProgressMonitor.NULL);
+        band1.getImageInfo(ProgressMonitor.NULL);
+        image = ImageManager.getInstance().createColoredBandImage(new RasterDataNode[]{band1}, null, 0);
+        image.getData().getPixel(0, 0, pixel00);
+        image.getData().getPixel(1, 0, pixel10);
+        image.getData().getPixel(0, 1, pixel01);
+        image.getData().getPixel(1, 1, pixel11);
+        assertArrayEquals(new int[]{0, 0, 0, 0}, pixel00);
+        assertArrayEquals(new int[]{0, 0, 0, 0}, pixel10);
+        assertArrayEquals(new int[]{0, 0, 0, 0}, pixel01);
+        assertArrayEquals(new int[]{255, 255, 255, 0}, pixel11);
+
+        band2.setImageInfo(imageInfo);
+        image = ImageManager.getInstance().createColoredBandImage(new RasterDataNode[]{band2}, null, 0);
+        image.getData().getPixel(0, 0, pixel00);
+        image.getData().getPixel(1, 0, pixel10);
+        image.getData().getPixel(0, 1, pixel01);
+        image.getData().getPixel(1, 1, pixel11);
+        assertArrayEquals(new int[]{255, 255, 0, 255}, pixel00);
+        assertArrayEquals(new int[]{255, 1, 0, 128}, pixel10);
+        assertArrayEquals(new int[]{255, 1, 0, 128}, pixel01);
+        assertArrayEquals(new int[]{0, 0, 255, 255}, pixel11);
+
+        image = ImageManager.getInstance().createColoredBandImage(new RasterDataNode[]{band3}, imageInfo, 0);
+        image.getData().getPixel(0, 0, pixel00);
+        image.getData().getPixel(1, 0, pixel10);
+        image.getData().getPixel(0, 1, pixel01);
+        image.getData().getPixel(1, 1, pixel11);
+        assertArrayEquals(new int[]{255, 255, 0, 255}, pixel00);
+        assertArrayEquals(new int[]{255, 1, 0, 128}, pixel10);
+        assertArrayEquals(new int[]{255, 1, 0, 128}, pixel01);
+        assertArrayEquals(new int[]{0, 0, 255, 255}, pixel11);
     }
 
     @Test

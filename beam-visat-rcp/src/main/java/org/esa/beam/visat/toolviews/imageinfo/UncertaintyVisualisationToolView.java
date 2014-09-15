@@ -18,6 +18,7 @@ package org.esa.beam.visat.toolviews.imageinfo;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
@@ -26,8 +27,9 @@ import org.esa.beam.jai.ImageManager;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import javax.swing.SwingConstants;
+import java.awt.Color;
+import java.awt.Component;
 
 
 /**
@@ -93,14 +95,14 @@ public class UncertaintyVisualisationToolView extends AbstractToolView {
             JComboBox<ImageInfo.UncertaintyVisualisationMode> modeBox = new JComboBox<>(ImageInfo.UncertaintyVisualisationMode.values());
             modeBox.setEditable(false);
 
-            moreOptionsForm.addRow(new JLabel("Mode: "), modeBox);
+            moreOptionsForm.insertRow(0, new JLabel("Visualisation mode: "), modeBox);
 
             Property modeProperty = Property.create("mode", ImageInfo.UncertaintyVisualisationMode.class);
-            RasterDataNode uncertaintyRaster = getRaster();
+            RasterDataNode uncertaintyBand = getRaster();
             try {
-                if (uncertaintyRaster != null) {
-                    modeProperty.setValue(uncertaintyRaster.getImageInfo(ProgressMonitor.NULL).getUncertaintyVisualisationMode());
-                }else {
+                if (uncertaintyBand != null) {
+                    modeProperty.setValue(uncertaintyBand.getImageInfo(ProgressMonitor.NULL).getUncertaintyVisualisationMode());
+                } else {
                     modeProperty.setValue(ImageInfo.UncertaintyVisualisationMode.None);
                 }
             } catch (ValidationException e) {
@@ -109,18 +111,38 @@ public class UncertaintyVisualisationToolView extends AbstractToolView {
             moreOptionsForm.getBindingContext().getPropertySet().addProperty(modeProperty);
             moreOptionsForm.getBindingContext().bind(modeProperty.getName(), modeBox);
 
-            moreOptionsForm.getBindingContext().addPropertyChangeListener(modeProperty.getName(), new PropertyChangeListener() {
-                @Override
-                public void propertyChange(PropertyChangeEvent evt) {
-                    RasterDataNode uncertaintyRaster = getRaster();
-                    if (uncertaintyRaster != null) {
-                        ImageInfo.UncertaintyVisualisationMode uncertaintyVisualisationMode = (ImageInfo.UncertaintyVisualisationMode) evt.getNewValue();
-                        System.out.println("uncertaintyVisualisationMode = " + uncertaintyVisualisationMode);
-                        uncertaintyRaster.getImageInfo().setUncertaintyVisualisationMode(uncertaintyVisualisationMode);
-                        applyModifiedImageInfo();
-                    }
+            moreOptionsForm.getBindingContext().addPropertyChangeListener(modeProperty.getName(), evt -> {
+                RasterDataNode uncertainBand = getRaster();
+                if (uncertainBand != null) {
+                    ImageInfo.UncertaintyVisualisationMode uvMode = (ImageInfo.UncertaintyVisualisationMode) evt.getNewValue();
+                    ImageInfo imageInfo = uncertainBand.getImageInfo();
+                    imageInfo.setUncertaintyVisualisationMode(uvMode);
+                    setModifiedImageInfo(imageInfo);
+                    //uncertainBand.fireImageInfoChanged();
+                    applyModifiedImageInfo();
+
+                    moreOptionsForm.getChildForm().updateFormModel(moreOptionsForm.getParentForm().getFormModel());
                 }
             });
         }
+
+        @Override
+        public Component createEmptyContentPanel() {
+            return new JLabel("<html>This tool window is used to visualise the<br>" +
+                              "<b>uncertainty information</b> associated<br>" +
+                              "with a band shown in an image view.<br>" +
+                              "Right now, there is no selected image view or<br>" +
+                              "uncertainty information is unavailable.", SwingConstants.CENTER);
+        }
+    }
+
+    private static ColorPaletteDef.Point[] getTwoSingleColorPoints(ImageInfo imageInfo, Color color) {
+        ColorPaletteDef colorPaletteDef = imageInfo.getColorPaletteDef();
+        ColorPaletteDef.Point firstPoint = colorPaletteDef.getFirstPoint();
+        ColorPaletteDef.Point lastPoint = colorPaletteDef.getLastPoint();
+        return new ColorPaletteDef.Point[]{
+                new ColorPaletteDef.Point(firstPoint.getSample(), color),
+                new ColorPaletteDef.Point(lastPoint.getSample(), color),
+        };
     }
 }

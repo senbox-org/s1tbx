@@ -602,11 +602,14 @@ public final class AbstractMetadata {
         }
         MetadataElement abstractedMetadata = root.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
         if (abstractedMetadata == null) {
-            abstractedMetadata = addAbstractedMetadataHeader(root);
-        } else {
-            migrateToCurrentVersion(abstractedMetadata);
-            patchMissingMetadata(abstractedMetadata);
+            abstractedMetadata = root.getElement("Abstracted Metadata"); // legacy
+            if(abstractedMetadata == null) {
+                abstractedMetadata = addAbstractedMetadataHeader(root);
+            }
         }
+        migrateToCurrentVersion(abstractedMetadata);
+        patchMissingMetadata(abstractedMetadata);
+
         return abstractedMetadata;
     }
 

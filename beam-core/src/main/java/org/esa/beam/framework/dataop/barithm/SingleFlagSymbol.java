@@ -15,16 +15,15 @@
  */
 package org.esa.beam.framework.dataop.barithm;
 
-import org.esa.beam.framework.datamodel.RasterDataNode;
-
 import com.bc.jexp.EvalEnv;
 import com.bc.jexp.EvalException;
 import com.bc.jexp.Term;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 
 /**
  * Represents a read-only symbol. A symbol can be a named constant or variable.
  * It has a return type an can be evaluated. This class represents a specific implementation for flag expressions.
- * <p/>
+ * <p>
  * <p>Within an expression, a reference to a symbol is created if the parser
  * encounters a name and this name can be resolved through the parser's current namespace.
  * The resulting term in this case is an instance of <code>{@link com.bc.jexp.Term.Ref}</code>.
@@ -32,17 +31,23 @@ import com.bc.jexp.Term;
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
  * @version $Revision$ $Date$
  */
-public final  class SingleFlagSymbol extends RasterDataSymbol {
+public final class SingleFlagSymbol extends RasterDataSymbol {
 
     private final int flagMask;
+    private final int flagValue;
 
     public SingleFlagSymbol(final String symbolName, final RasterDataNode raster, final int flagMask) {
+        this(symbolName, raster, flagMask, flagMask);
+    }
+
+    public SingleFlagSymbol(final String symbolName, final RasterDataNode raster, final int flagMask, final int flagValue) {
         super(symbolName, raster, RAW);
         this.flagMask = flagMask;
+        this.flagValue = flagValue;
     }
 
     @Override
-    public final  int getRetType() {
+    public final int getRetType() {
         return Term.TYPE_B;
     }
 
@@ -51,25 +56,25 @@ public final  class SingleFlagSymbol extends RasterDataSymbol {
      *
      * @return the flag mask.
      */
-    public final  int getFlagMask() {
+    public final int getFlagMask() {
         return flagMask;
     }
 
     @Override
-    public final  boolean evalB(final EvalEnv env) throws EvalException {
+    public final boolean evalB(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
-        return (data.getElemIntAt(elemIndex) & flagMask) == flagMask;
+        return (data.getElemIntAt(elemIndex) & flagMask) == flagValue;
     }
 
     @Override
     public final int evalI(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
-        return (data.getElemIntAt(elemIndex) & flagMask) == flagMask ? 1 : 0;
+        return (data.getElemIntAt(elemIndex) & flagMask) == flagValue ? 1 : 0;
     }
 
     @Override
     public final double evalD(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
-        return (data.getElemIntAt(elemIndex) & flagMask) == flagMask ? 1.0 : 0.0;
+        return (data.getElemIntAt(elemIndex) & flagMask) == flagValue ? 1.0 : 0.0;
     }
 }

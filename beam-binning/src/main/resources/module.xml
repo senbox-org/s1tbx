@@ -27,23 +27,6 @@
         <optional>true</optional>
     </dependency>
 
-    <changelog>
-        <![CDATA[
-        <b>Changes in 5.0.1</b><br/>
-        Fixed typo in error message<br/>
-        <b>Changes in 5.0</b><br/>
-        [BEAM-1584] Binner should include used source products in metadata<br/>
-        [BEAM-1580] Binned Level 3 products from the oc-cci project should be readable<br/>
-        [BEAM-1565] Binning shall use parameter 'region' to subset source products<br/>
-        [BEAM-1564] Binning operator causes NPE with invalid graph XML<br/>
-        [BEAM-1495] NaN should be considered in L3-Binning<br/>
-        [BEAM-1502] Binning should (optionally) support a postprocessor<br/>
-        [BEAM-1499] In L3-Binning No-data should always be represented by NaN<br/>
-        [BEAM-1483] Percentile Aggregator shares state<br/>
-        ]]>
-    </changelog>
-
-
     <categories>Application,Processor,Geometry,VISAT,Level-3,Envisat,MERIS,AATSR,AVHRR,CHRIS</categories>
 
     <extension point="snap-ceres-core:serviceProviders">

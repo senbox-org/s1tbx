@@ -24,10 +24,10 @@
     <parent>
         <artifactId>snap-beam</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.5.0-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Scripting Interface</name>
+    <name>SNAP Scripting Interface</name>
     <artifactId>snap-scripting</artifactId>
 
     <packaging>jar</packaging>
@@ -35,7 +35,7 @@
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-visat</artifactId>
+            <artifactId>snap-visat-rcp</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>

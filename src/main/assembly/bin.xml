@@ -22,9 +22,6 @@
         <file>
             <source>LICENSE.txt</source>
         </file>
-        <file>
-            <source>CHANGELOG.txt</source>
-        </file>
     </files>
 
     <fileSets>
@@ -32,6 +29,9 @@
         <fileSet>
             <directory>src/main/config</directory>
             <outputDirectory>config</outputDirectory>
+            <includes>
+                <include>s3tbx.config</include>
+            </includes>
         </fileSet>
 
         <fileSet>
@@ -43,7 +43,7 @@
             <directory>src/main/bin/common</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>splash.png</include>
+                <include>splash-snap.png</include>
             </includes>
         </fileSet>
 
@@ -55,7 +55,7 @@
                 <include>*.bat</include>
             </includes>
             <excludes>
-                <exclude>beam-cli-template.*</exclude>
+                <exclude>snap-cli-template.*</exclude>
             </excludes>
             <filtered>true</filtered>
         </fileSet>
@@ -70,7 +70,7 @@
                 <include>*.sh</include>
             </includes>
             <excludes>
-                <exclude>beam-cli-template.*</exclude>
+                <exclude>snap-cli-template.*</exclude>
             </excludes>
             <filtered>true</filtered>
         </fileSet>
@@ -85,7 +85,7 @@
                 <include>*.sh</include>
             </includes>
             <excludes>
-                <exclude>beam-cli-template.*</exclude>
+                <exclude>snap-cli-template.*</exclude>
             </excludes>
             <filtered>true</filtered>
         </fileSet>
@@ -96,7 +96,7 @@
         <moduleSet>
             <useAllReactorProjects>true</useAllReactorProjects>
             <excludes>
-                <exclude>org.esa.snap:snap-bootstrap</exclude>
+                <exclude>org.esa.snap:snap-beam-bootstrap</exclude>
                 <exclude>org.esa.snap:snap-installer</exclude>
                 <exclude>org.esa.snap:snap-rtp-codec</exclude>
                 <exclude>org.esa.snap:snap-examples</exclude>
@@ -120,6 +120,7 @@
                         <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
                         <excludes>
                             <exclude>org.esa.snap:snap-*</exclude>
+                            <exclude>org.esa.s3tbx:s3tbx-*</exclude>
                             <exclude>org.esa.snap:blue-marble-worldmap</exclude>
                             <exclude>org.esa.snap:globcover-worldmap</exclude>
                             <exclude>ncsa.hdf:*</exclude>

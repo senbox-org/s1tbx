@@ -26,7 +26,6 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import javax.swing.AbstractButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import java.awt.Color;
@@ -47,15 +46,12 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
     public Continuous1BandTabularForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
         tableModel = new ImageInfoTableModel();
-        tableModelListener = new TableModelListener() {
-            @Override
-            public void tableChanged(TableModelEvent e) {
-                tableModel.removeTableModelListener(tableModelListener);
-                parentForm.applyChanges();
-                tableModel.addTableModelListener(tableModelListener);
-            }
+        tableModelListener = e -> {
+            tableModel.removeTableModelListener(tableModelListener);
+            parentForm.applyChanges();
+            tableModel.addTableModelListener(tableModelListener);
         };
-        moreOptionsForm = new MoreOptionsForm(parentForm, parentForm.getFormModel().canUseHistogramMatching());
+        moreOptionsForm = new MoreOptionsForm(this, parentForm.getFormModel().canUseHistogramMatching());
         discreteCheckBox = new DiscreteCheckBox(parentForm);
         moreOptionsForm.addRow(discreteCheckBox);
         parentForm.getFormModel().modifyMoreOptionsForm(moreOptionsForm);
@@ -73,6 +69,11 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
         final JScrollPane tableScrollPane = new JScrollPane(table);
         tableScrollPane.getViewport().setPreferredSize(table.getPreferredSize());
         contentPanel = tableScrollPane;
+    }
+
+    @Override
+    public ColorManipulationForm getParentForm() {
+        return parentForm;
     }
 
     @Override

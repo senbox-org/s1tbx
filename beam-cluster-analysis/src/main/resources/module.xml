@@ -3,7 +3,7 @@
 
     <symbolicName>snap-cluster-analysis</symbolicName>
     <version>0.5</version>
-    <name>BEAM Cluster Analysis</name>
+    <name>SNAP Cluster Analysis</name>
 
     <description>
         Cluster analysis.

@@ -20,12 +20,6 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
-    <changelog>
-        <![CDATA[
-        <b>Changes in 5.0</b><br/>
-        [BEAM-1545] - Date filter in OPeNDAP-tool shall use European date format<br/>
-        ]]>
-    </changelog>
 
     <categories>ui</categories>
 

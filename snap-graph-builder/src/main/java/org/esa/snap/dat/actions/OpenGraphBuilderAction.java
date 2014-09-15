@@ -33,14 +33,13 @@ public class OpenGraphBuilderAction extends AbstractVisatAction {
 
         final File graphPath = GraphBuilderDialog.getInternalGraphFolder();
         File graphFile = new File(graphPath, "ReadWriteGraph.xml");
-        if (!graphFile.exists()) {
-            InputStream in = getClass().getResourceAsStream("graphs/ReadWriteGraph.xml");
+        if (graphFile.exists()) {
+            dialog.LoadGraph(graphFile);
+        } else {
+            InputStream graphFileStream = getClass().getClassLoader().getResourceAsStream("graphs/ReadWriteGraph.xml");
 
-            final java.net.URL url = GraphBuilderDialog.class.getClassLoader().getResource("graphs/ReadWriteGraph.xml");
-            graphFile = new File(url.getFile());
+            dialog.LoadGraph(graphFileStream);
         }
-
-        dialog.LoadGraph(graphFile);
         dialog.EnableInitialInstructions(true);
     }
 

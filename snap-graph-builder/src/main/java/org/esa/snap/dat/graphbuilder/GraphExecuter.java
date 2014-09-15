@@ -36,8 +36,7 @@ import org.esa.snap.gpf.ui.OperatorUI;
 import org.esa.snap.gpf.ui.OperatorUIDescriptor;
 import org.esa.snap.gpf.ui.OperatorUIRegistry;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -277,12 +276,24 @@ public class GraphExecuter extends Observable {
 
         try {
             if (filePath == null) return;
-            final Graph graphFromFile = GPFProcessor.readGraph(filePath, null);
+            final Graph graphFromFile = GPFProcessor.readGraph(new FileReader(filePath), null);
 
             setGraph(graphFromFile, addUI);
             lastLoadedGraphFile = filePath;
         } catch (Throwable e) {
             throw new GraphException("Unable to load graph " + filePath + '\n' + e.getMessage());
+        }
+    }
+
+    public void loadGraph(final InputStream fileStream, final boolean addUI) throws GraphException {
+
+        try {
+            if (fileStream == null) return;
+            final Graph graphFromFile = GPFProcessor.readGraph(new InputStreamReader(fileStream), null);
+
+            setGraph(graphFromFile, addUI);
+        } catch (Throwable e) {
+            throw new GraphException("Unable to load graph " + fileStream.toString() + '\n' + e.getMessage());
         }
     }
 

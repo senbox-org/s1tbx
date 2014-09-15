@@ -15,6 +15,7 @@
  */
 package org.esa.beam.util.io;
 
+import com.jidesoft.plaf.LookAndFeelFactory;
 import org.esa.beam.util.Debug;
 import sun.swing.FilePane;
 
@@ -230,6 +231,7 @@ public class BeamFileChooser extends JFileChooser {
     }
 
     /**
+<<<<<<< HEAD
      * Ensure the system laf gets used for the FileChooser
      */
     public void updateUI(){
@@ -238,6 +240,14 @@ public class BeamFileChooser extends JFileChooser {
         if(old.toString().contains(systemName)) {
             super.updateUI();
         } else {
+=======
+     * Ensure the system laf gets used for the FileChooser to override weblaf
+     */
+    public void updateUI(){
+        LookAndFeel old = UIManager.getLookAndFeel();
+        if(old.toString().contains("WebLookAndFeel")) {
+            int oldJideStyle = LookAndFeelFactory.getStyle();
+>>>>>>> master
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Throwable ex) {
@@ -248,9 +258,18 @@ public class BeamFileChooser extends JFileChooser {
             if (old != null) {
                 try {
                     UIManager.setLookAndFeel(old);
+<<<<<<< HEAD
                 } catch (UnsupportedLookAndFeelException ignored) {
                 } // shouldn't get here
             }
+=======
+                    LookAndFeelFactory.installJideExtension(oldJideStyle);
+                } catch (UnsupportedLookAndFeelException ignored) {
+                } // shouldn't get here
+            }
+        } else {
+            super.updateUI();
+>>>>>>> master
         }
     }
 

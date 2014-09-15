@@ -21,15 +21,13 @@ import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.ByteOrder;
+import java.nio.file.Files;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -45,25 +43,33 @@ public class EnviProductReader extends AbstractProductReader {
         super(readerPlugIn);
     }
 
-    public static File getEnviImageFile(File headerFile) {
+    public static File getEnviImageFile(File headerFile) throws IOException {
         final String hdrName = headerFile.getName();
         final String imgName = hdrName.substring(0, hdrName.indexOf('.'));
         final File parentFolder = headerFile.getParentFile();
-        for(final String ext : EnviConstants.IMAGE_EXTENSIONS) {
-            final File imgFile = new File(parentFolder, imgName + ext);
-            if (imgFile.exists())
-                return imgFile;
+
+        for (final String ext : EnviConstants.IMAGE_EXTENSIONS) {
+            final File imgFileLowerCase = new File(parentFolder, imgName + ext);
+            if (imgFileLowerCase.exists()) {
+                return imgFileLowerCase;
+            }
+
+            final File imgFileUpperCase = new File(parentFolder, imgName + ext.toUpperCase());
+            if (imgFileUpperCase.exists()) {
+                return imgFileUpperCase;
+            }
         }
-        
+
         final File[] files = parentFolder.listFiles();
         if (files != null) {
-            for(File f : files) {
-                if(f != headerFile && f.getName().startsWith(imgName)) {
-                    return f;
+            for (File file : files) {
+                if (!Files.isSameFile(file.toPath(), headerFile.toPath()) && file.getName().startsWith(imgName)) {
+                    return file;
                 }
             }
         }
-        return new File(parentFolder, imgName);
+
+        throw new IOException("No matching ENVI image file found for header file: " + headerFile.getPath());
     }
 
     @Override
@@ -72,7 +78,7 @@ public class EnviProductReader extends AbstractProductReader {
             return innerReadeProductNodes();
         } catch (IOException e) {
             close();
-            throw  e;
+            throw e;
         }
     }
 
@@ -94,7 +100,7 @@ public class EnviProductReader extends AbstractProductReader {
             final Header header = new Header(headerReader);
 
             final Product product = new Product(productName, header.getSensorType(), header.getNumSamples(),
-                                                header.getNumLines());
+                    header.getNumLines());
             product.setProductReader(this);
             product.setFileLocation(inputFile);
             product.setDescription(header.getDescription());
@@ -105,17 +111,12 @@ public class EnviProductReader extends AbstractProductReader {
 
             applyBeamProperties(product, header.getBeamProperties());
 
-	        initMetadata(product, inputFile);
             return product;
         } finally {
             if (headerReader != null) {
                 headerReader.close();
             }
         }
-    }
-
-    protected void initMetadata(final Product product, final File inputFile) throws IOException {
-
     }
 
     @Override
@@ -128,9 +129,6 @@ public class EnviProductReader extends AbstractProductReader {
                                           final ProductData destBuffer,
                                           final ProgressMonitor pm) throws IOException {
 
-        final int sourceMinX = sourceOffsetX;
-        final int sourceMinY = sourceOffsetY;
-        final int sourceMaxX = sourceOffsetX + sourceWidth - 1;
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
         Product product = destBand.getProduct();
         final int sourceRasterWidth = product.getSceneRasterWidth();
@@ -147,16 +145,16 @@ public class EnviProductReader extends AbstractProductReader {
             final long lineSizeInBytes = header.getNumSamples() * elemSize;
             int numBands = product.getNumBands();
 
-            pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceMaxY - sourceMinY);
+            pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceMaxY - sourceOffsetY);
             try {
                 int destPos = 0;
-                for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
+                for (int sourceY = sourceOffsetY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
                     if (pm.isCanceled()) {
                         break;
                     }
                     synchronized (imageInputStream) {
                         long lineStartPos = headerOffset + sourceY * numBands * lineSizeInBytes + bandIndex * lineSizeInBytes;
-                        imageInputStream.seek(lineStartPos + elemSize * sourceMinX);
+                        imageInputStream.seek(lineStartPos + elemSize * sourceOffsetX);
                         destBuffer.readFrom(destPos, destWidth, imageInputStream);
                         destPos += destWidth;
                     }
@@ -171,16 +169,16 @@ public class EnviProductReader extends AbstractProductReader {
             final long lineSizeInBytes = header.getNumSamples() * numBands * elemSize;
             ProductData lineData = ProductData.createInstance(destBuffer.getType(), sourceWidth * numBands);
 
-            pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceMaxY - sourceMinY);
+            pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceMaxY - sourceOffsetY);
             try {
                 int destPos = 0;
-                for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
+                for (int sourceY = sourceOffsetY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
                     if (pm.isCanceled()) {
                         break;
                     }
                     synchronized (imageInputStream) {
                         long lineStartPos = headerOffset + sourceY * lineSizeInBytes;
-                        imageInputStream.seek(lineStartPos + elemSize * sourceMinX * numBands);
+                        imageInputStream.seek(lineStartPos + elemSize * sourceOffsetX * numBands);
                         lineData.readFrom(0, sourceWidth * numBands, imageInputStream);
                     }
                     for (int x = 0; x < sourceWidth; x++) {
@@ -195,16 +193,16 @@ public class EnviProductReader extends AbstractProductReader {
             // band sequential (bsq), the default
             final long bandStartPosition = bandStreamPositionMap.get(destBand);
 
-            pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceMaxY - sourceMinY);
+            pm.beginTask("Reading band '" + destBand.getName() + "'...", sourceMaxY - sourceOffsetY);
             try {
                 int destPos = 0;
-                for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
+                for (int sourceY = sourceOffsetY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
                     if (pm.isCanceled()) {
                         break;
                     }
-                    final long sourcePosY = (long)sourceY * (long)sourceRasterWidth;
+                    final long sourcePosY = (long) sourceY * (long) sourceRasterWidth;
                     synchronized (imageInputStream) {
-                        long pos = bandStartPosition + elemSize * (sourcePosY + sourceMinX);
+                        long pos = bandStartPosition + elemSize * (sourcePosY + sourceOffsetX);
                         try {
                             imageInputStream.seek(pos);
                         } catch (IndexOutOfBoundsException e) {
@@ -224,9 +222,9 @@ public class EnviProductReader extends AbstractProductReader {
 
     @Override
     public void close() throws IOException {
-        for(Band band : imageInputStreamMap.keySet()) {
+        for (Band band : imageInputStreamMap.keySet()) {
             final ImageInputStream imageInputStream = imageInputStreamMap.get(band);
-             if (imageInputStream != null) {
+            if (imageInputStream != null) {
                 imageInputStream.close();
             }
         }
@@ -353,7 +351,7 @@ public class EnviProductReader extends AbstractProductReader {
         if (projectionInfo != null) {
             try {
                 crs = EnviCrsFactory.createCrs(projectionInfo.getProjectionNumber(), projectionInfo.getParameter(),
-                                               enviMapInfo.getDatum(), enviMapInfo.getUnit());
+                        enviMapInfo.getDatum(), enviMapInfo.getUnit());
             } catch (IllegalArgumentException ignore) {
             }
         }
@@ -468,9 +466,9 @@ public class EnviProductReader extends AbstractProductReader {
                 description = "non formatted band name: " + originalBandName;
             }
             final Band band = new Band(validBandName,
-                                       dataType,
-                                       product.getSceneRasterWidth(),
-                                       product.getSceneRasterHeight());
+                    dataType,
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight());
             band.setDescription(description);
             band.setSpectralWavelength(wavelength[i]);
             band.setSpectralBandwidth(bandwidth[i]);
@@ -505,7 +503,7 @@ public class EnviProductReader extends AbstractProductReader {
             if (classRGB.length == numClasses * 3) {
                 final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[numClasses];
                 for (int i = 0; i < numClasses; i++) {
-                    Color color = new Color(classRGB[i*3], classRGB[i*3 + 1], classRGB[i*3 + 2]);
+                    Color color = new Color(classRGB[i * 3], classRGB[i * 3 + 1], classRGB[i * 3 + 2]);
                     points[i] = new ColorPaletteDef.Point(i, color, classNames[i]);
                 }
                 ImageInfo imageInfo = new ImageInfo(new ColorPaletteDef(points, points.length));

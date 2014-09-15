@@ -42,6 +42,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.List;
 
@@ -328,6 +329,26 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
             initGraphEnabled = false;
             tabbedPanel.removeAll();
             graphEx.loadGraph(file, true);
+            if (allowGraphBuilding) {
+                graphPanel.showRightClickHelp(false);
+                graphPanel.repaint();
+            }
+            initGraphEnabled = true;
+        } catch (GraphException e) {
+            showErrorDialog(e.getMessage());
+        }
+    }
+
+    /**
+     * Loads a new graph from a file
+     *
+     * @param fileStream the graph file to load
+     */
+    public void LoadGraph(final InputStream fileStream) {
+        try {
+            initGraphEnabled = false;
+            tabbedPanel.removeAll();
+            graphEx.loadGraph(fileStream, true);
             if (allowGraphBuilding) {
                 graphPanel.showRightClickHelp(false);
                 graphPanel.repaint();

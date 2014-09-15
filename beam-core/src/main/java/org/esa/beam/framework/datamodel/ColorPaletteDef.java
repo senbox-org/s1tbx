@@ -18,7 +18,6 @@ package org.esa.beam.framework.datamodel;
 import com.bc.ceres.core.Assert;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Color;
 import java.io.File;
@@ -31,7 +30,7 @@ import java.util.Vector;
  * The <code>ColorPaletteDef</code> class represents a curve that is used to transform the sample values of a
  * geo-physical band into color palette indexes.
  * <p/>
- * <p> This special implemnentation of a gradation curve also provides separate color values for each of the tie points
+ * <p> This special implementation of a gradation curve also provides separate color values for each of the tie points
  * contained in the curve. This allows a better image interpretation because certain colors correspond to certain sample
  * values even if the curve points are used to create color gradient palettes.
  */
@@ -51,14 +50,17 @@ public class ColorPaletteDef implements Cloneable  {
     private boolean autoDistribute;
 
     public ColorPaletteDef(double minSample, double maxSample) {
-        this(minSample, 0.5 * (maxSample + minSample), maxSample);
+        this(new Point[]{
+                    new Point(minSample, Color.BLACK),
+                    new Point(maxSample, Color.WHITE)
+        }, 256);
     }
 
     public ColorPaletteDef(double minSample, double centerSample, double maxSample) {
         this(new Point[]{
-                    new Point(minSample, Color.black),
-                    new Point(centerSample, Color.gray),
-                    new Point(maxSample, Color.white)
+                    new Point(minSample, Color.BLACK),
+                    new Point(centerSample, Color.GRAY),
+                    new Point(maxSample, Color.WHITE)
         }, 256);
     }
 
@@ -103,6 +105,19 @@ public class ColorPaletteDef implements Cloneable  {
         while (getNumPoints() > numPoints) {
             removePointAt(getNumPoints() - 1);
         }
+    }
+
+    /**
+     * @return true, if all the colors in the palette definitions are fully opaque.
+     * @since SNAP 0.5
+     */
+    public boolean isFullyOpaque() {
+        for (Point point : points) {
+            if (point.getColor().getAlpha() != 255) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean isAutoDistribute() {
@@ -319,78 +334,6 @@ public class ColorPaletteDef implements Cloneable  {
         }
         return colors;
     }
-
-    /**
-     * @deprecated since BEAM 5.0,  use {@link org.esa.beam.jai.ImageManager#createColorPalette(ImageInfo)} instead
-     */
-    @Deprecated
-    public Color[] createColorPalette(Scaling scaling) {
-        // @todo 1 tb/tb take care of non-linear scalings 2014-03-26
-        final Color[] colorPalette = new Color[numColors];
-        final double displayMin = getMinDisplaySample();
-        final double displayMax = getMaxDisplaySample();
-        final double scalingFactor = 1 / (numColors - 1.0);
-        for (int i = 0; i < numColors; i++) {
-            final double w = i * scalingFactor;
-            final double sample = displayMin + w * (displayMax - displayMin);
-            colorPalette[i] = computeColor(sample, displayMin, displayMax);
-        }
-        return colorPalette;
-    }
-
-    public Color computeColor(final Scaling scaling, final double sample) {
-        // @todo 1 tb/tb take care of non-linear scalings 2014-03-26
-        return computeColor(sample, getMinDisplaySample(), getMaxDisplaySample());
-    }
-
-    private Color computeColor(double sample, double minDisplay, double maxDisplay) {
-        final Color c;
-        if (sample <= minDisplay) {
-            c = getFirstPoint().getColor();
-        } else if (sample >= maxDisplay) {
-            c = getLastPoint().getColor();
-        } else {
-            c = computeColor(sample);
-        }
-        return c;
-    }
-
-    private Color computeColor(final double sample) {
-        for (int i = 0; i < getNumPoints() - 1; i++) {
-            final Point p1 = getPointAt(i);
-            final Point p2 = getPointAt(i + 1);
-            final double sample1 = p1.getSample();
-            final double sample2 = p2.getSample();
-            final Color color1 = p1.getColor();
-            final Color color2 = p2.getColor();
-            if (sample >= sample1 && sample <= sample2) {
-                if (discrete) {
-                    return color1;
-                } else {
-                    return computeColor(sample, sample1, sample2, color1, color2);
-                }
-            }
-        }
-        return Color.BLACK;
-    }
-
-    private Color computeColor(double sample, double sample1, double sample2, Color color1, Color color2) {
-        final double f = (sample - sample1) / (sample2 - sample1);
-        final double r1 = color1.getRed();
-        final double r2 = color2.getRed();
-        final double g1 = color1.getGreen();
-        final double g2 = color2.getGreen();
-        final double b1 = color1.getBlue();
-        final double b2 = color2.getBlue();
-        final double a1 = color1.getAlpha();
-        final double a2 = color2.getAlpha();
-        final int red = (int) MathUtils.roundAndCrop(r1 + f * (r2 - r1), 0L, 255L);
-        final int green = (int) MathUtils.roundAndCrop(g1 + f * (g2 - g1), 0L, 255L);
-        final int blue = (int) MathUtils.roundAndCrop(b1 + f * (b2 - b1), 0L, 255L);
-        final int alpha = (int) MathUtils.roundAndCrop(a1 + f * (a2 - a1), 0L, 255L);
-        return new Color(red, green, blue, alpha);
-    }
-
 
     @Override
     public boolean equals(Object o) {

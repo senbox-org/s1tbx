@@ -48,18 +48,14 @@ import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.text.DecimalFormat;
 
 
@@ -110,6 +106,7 @@ public abstract class ImageInfoEditor extends JPanel {
     private Color[] palette;
     private ModelCL modelCL;
     private JidePopup popup;
+    private BufferedImage paletteBackgound;
 
     public ImageInfoEditor() {
         labelFont = createLabelFont();
@@ -283,11 +280,10 @@ public abstract class ImageInfoEditor extends JPanel {
     }
 
     private boolean isValidModel() {
-        if (model == null) {
-            return false;
-        }
-        return model.getMinSample() <= model.getMaxSample()
-               && model.getSampleScaling() != null && model.getSampleStx() != null;
+        return model != null
+               && model.getMinSample() <= model.getMaxSample()
+               && model.getSampleScaling() != null
+               && model.getSampleStx() != null;
     }
 
     public void computeZoomOutVertical() {
@@ -309,6 +305,14 @@ public abstract class ImageInfoEditor extends JPanel {
     }
 
     private void drawPalette(Graphics2D g2d) {
+
+        if (paletteBackgound == null
+            || paletteBackgound.getWidth() != paletteRect.width
+            || paletteBackgound.getHeight() != paletteRect.height ) {
+            this.paletteBackgound = createAlphaBackground(paletteRect.width, paletteRect.height);
+        }
+        g2d.drawImage(paletteBackgound, paletteRect.x, paletteRect.y, null);
+
         long paletteX1 = paletteRect.x + Math.round(getRelativeSliderPos(getFirstSliderSample()));
         long paletteX2 = paletteRect.x + Math.round(getRelativeSliderPos(getLastSliderSample()));
         g2d.setStroke(STROKE_1);
@@ -337,6 +341,20 @@ public abstract class ImageInfoEditor extends JPanel {
         g2d.draw(paletteRect);
     }
 
+    private static BufferedImage createAlphaBackground(int width, int height) {
+        BufferedImage background = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        DataBufferInt dataBuffer = (DataBufferInt) background.getRaster().getDataBuffer();
+        int[] data = dataBuffer.getData();
+        int gray = Color.LIGHT_GRAY.getRGB();
+        int white = Color.WHITE.getRGB();
+        for (int i = 0; i < data.length; i++) {
+            int x = i % width;
+            int y = i / width;
+            data[i] = ((x / 4) % 2 == (y / 4) % 2) ? gray : white;
+        }
+        return background;
+    }
+
     private Color[] getColorPalette() {
         if (palette == null) {
             palette = getModel().createColorPalette();
@@ -348,28 +366,30 @@ public abstract class ImageInfoEditor extends JPanel {
         g2d.translate(sliderBaseLineRect.x, sliderBaseLineRect.y);
         g2d.setStroke(STROKE_1);
         for (int i = 0; i < getSliderCount(); i++) {
-            double sliderPos = getRelativeSliderPos(getSliderSample(i));
+            if (isSliderVisible(i)) {
+                double sliderPos = getRelativeSliderPos(getSliderSample(i));
 
-            g2d.translate(sliderPos, 0.0);
+                g2d.translate(sliderPos, 0.0);
 
-            final Color sliderColor = getSliderColor(i);
-            g2d.setPaint(sliderColor);
-            g2d.fill(sliderShape);
+                final Color sliderColor = getSliderColor(i);
+                g2d.setPaint(sliderColor);
+                g2d.fill(sliderShape);
 
-            int gray = (sliderColor.getRed() + sliderColor.getGreen() + sliderColor.getBlue()) / 3;
-            g2d.setColor(gray < 128 ? Color.white : Color.black);
-            g2d.draw(sliderShape);
+                int gray = (sliderColor.getRed() + sliderColor.getGreen() + sliderColor.getBlue()) / 3;
+                g2d.setColor(gray < 128 ? Color.white : Color.black);
+                g2d.draw(sliderShape);
 
-            String text = getFormattedValue(getSliderSample(i));
-            g2d.setColor(Color.black);
-            // save the old transformation
-            final AffineTransform oldTransform = g2d.getTransform();
-            g2d.transform(AffineTransform.getRotateInstance(Math.PI / 2));
-            g2d.drawString(text, 3 + 0.5f * SLIDER_HEIGHT, 0.35f * FONT_SIZE);
-            // restore the old transformation
-            g2d.setTransform(oldTransform);
+                String text = getFormattedValue(getSliderSample(i));
+                g2d.setColor(Color.black);
+                // save the old transformation
+                final AffineTransform oldTransform = g2d.getTransform();
+                g2d.transform(AffineTransform.getRotateInstance(Math.PI / 2));
+                g2d.drawString(text, 3 + 0.5f * SLIDER_HEIGHT, 0.35f * FONT_SIZE);
+                // restore the old transformation
+                g2d.setTransform(oldTransform);
 
-            g2d.translate(-sliderPos, 0.0);
+                g2d.translate(-sliderPos, 0.0);
+            }
         }
 
         g2d.translate(-sliderBaseLineRect.x, -sliderBaseLineRect.y);
@@ -578,6 +598,14 @@ public abstract class ImageInfoEditor extends JPanel {
     }
 
     private Color getSliderColor(int index) {
+        ImageInfo.UncertaintyVisualisationMode uvMode = getModel().getImageInfo().getUncertaintyVisualisationMode();
+        if (uvMode != null) {
+            if (uvMode == ImageInfo.UncertaintyVisualisationMode.Transparency_Blending) {
+                return Color.WHITE;
+            } else if (uvMode == ImageInfo.UncertaintyVisualisationMode.Monochromatic_Blending) {
+                return getModel().getSliderColor(getSliderCount() - 1);
+            }
+        }
         return getModel().getSliderColor(index);
     }
 
@@ -735,17 +763,42 @@ public abstract class ImageInfoEditor extends JPanel {
 
         showPopup(evt, panel);
 
-        panel.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                hidePopup();
-                if (panel.getSelectedColor() != null) {
-                    setSliderColor(sliderIndex, panel.getSelectedColor());
-                } else {
-                    setSliderColor(sliderIndex, ImageInfo.NO_COLOR);
-                }
+        panel.addItemListener(e -> {
+            hidePopup();
+            if (panel.getSelectedColor() != null) {
+                setSliderColor(sliderIndex, panel.getSelectedColor());
+            } else {
+                setSliderColor(sliderIndex, ImageInfo.NO_COLOR);
             }
         });
+    }
+
+    private boolean isSliderVisible(int sliderIndex) {
+        if (sliderIndex == 0 || sliderIndex == getSliderCount() - 1) {
+            return true;
+        }
+        ImageInfo.UncertaintyVisualisationMode uvMode = getModel().getImageInfo().getUncertaintyVisualisationMode();
+        return uvMode == null
+               || uvMode == ImageInfo.UncertaintyVisualisationMode.None
+                || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending
+                || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Overlay;
+    }
+
+    private boolean isSliderEditable(int sliderIndex) {
+        ImageInfo.UncertaintyVisualisationMode uvMode = getModel().getImageInfo().getUncertaintyVisualisationMode();
+        return uvMode == null
+               || uvMode == ImageInfo.UncertaintyVisualisationMode.None
+                || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending
+                || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Overlay
+                || (uvMode == ImageInfo.UncertaintyVisualisationMode.Monochromatic_Blending && isLastSliderIndex(sliderIndex));
+    }
+
+    private boolean canChangeSliderCount() {
+        ImageInfo.UncertaintyVisualisationMode uvMode = getModel().getImageInfo().getUncertaintyVisualisationMode();
+        return uvMode == null
+               || uvMode == ImageInfo.UncertaintyVisualisationMode.None
+                || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending
+                || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Overlay;
     }
 
     private void editSliderSample(MouseEvent evt, final int sliderIndex) {
@@ -773,15 +826,11 @@ public abstract class ImageInfoEditor extends JPanel {
 
         showPopup(evt, field);
 
-        ctx.addPropertyChangeListener("sample", new PropertyChangeListener() {
-
-            @Override
-            public void propertyChange(PropertyChangeEvent pce) {
-                hidePopup();
-                setSliderSample(sliderIndex, (Double) ctx.getBinding("sample").getPropertyValue());
-                computeZoomInToSliderLimits();
-                applyChanges();
-            }
+        ctx.addPropertyChangeListener("sample", pce -> {
+            hidePopup();
+            setSliderSample(sliderIndex, (Double) ctx.getBinding("sample").getPropertyValue());
+            computeZoomInToSliderLimits();
+            applyChanges();
         });
     }
 
@@ -928,17 +977,23 @@ public abstract class ImageInfoEditor extends JPanel {
         private void showSliderActions(MouseEvent evt, final int sliderIndex) {
             final JPopupMenu menu = new JidePopupMenu();
             boolean showPopupMenu = false;
-            JMenuItem menuItem = createMenuItemAddNewSlider(sliderIndex, evt);
-            if (menuItem != null) {
-                menu.add(menuItem);
-                showPopupMenu = true;
+            JMenuItem menuItem;
+            if (canChangeSliderCount()) {
+                menuItem = createMenuItemAddNewSlider(sliderIndex, evt);
+                if (menuItem != null) {
+                    menu.add(menuItem);
+                    showPopupMenu = true;
+                }
+                if (getSliderCount() > 2 && sliderIndex != INVALID_INDEX) {
+                    menuItem = createMenuItemDeleteSlider(sliderIndex);
+                    menu.add(menuItem);
+                    showPopupMenu = true;
+                }
             }
-            if (getSliderCount() > 3 && sliderIndex != INVALID_INDEX) {
-                menuItem = createMenuItemDeleteSlider(sliderIndex);
-                menu.add(menuItem);
-                showPopupMenu = true;
-            }
-            if (getSliderCount() > 2 && sliderIndex > 0 && sliderIndex < getSliderCount() - 1) {
+            if (getSliderCount() > 2
+                && sliderIndex > 0
+                && sliderIndex < getSliderCount() - 1
+                && isSliderEditable(sliderIndex)) {
                 menuItem = createMenuItemCenterSampleValue(sliderIndex);
                 menu.add(menuItem);
                 menuItem = createMenuItemCenterColorValue(sliderIndex);
@@ -952,51 +1007,39 @@ public abstract class ImageInfoEditor extends JPanel {
 
         private JMenuItem createMenuItemCenterColorValue(final int sliderIndex) {
             JMenuItem menuItem = new JMenuItem();
-            menuItem.setText("Center slider colour"); /* I18N */
+            menuItem.setText("Center Slider Colour"); /* I18N */
             menuItem.setMnemonic('c');
-            menuItem.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent actionEvent) {
-                    final Color newColor = ColorPaletteDef.getCenterColor(getSliderColor(sliderIndex - 1),
-                                                                          getSliderColor(sliderIndex + 1));
-                    setSliderColor(sliderIndex, newColor);
-                    hidePopup();
-                    applyChanges();
-                }
+            menuItem.addActionListener(actionEvent -> {
+                final Color newColor = ColorPaletteDef.getCenterColor(getSliderColor(sliderIndex - 1),
+                                                                      getSliderColor(sliderIndex + 1));
+                setSliderColor(sliderIndex, newColor);
+                hidePopup();
+                applyChanges();
             });
             return menuItem;
         }
 
         private JMenuItem createMenuItemCenterSampleValue(final int sliderIndex) {
             JMenuItem menuItem = new JMenuItem();
-            menuItem.setText("Center slider position"); /* I18N */
+            menuItem.setText("Center Slider Position"); /* I18N */
             menuItem.setMnemonic('s');
-            menuItem.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent actionEvent) {
-                    final double center = scale(0.5 * (scaleInverse(getSliderSample(sliderIndex - 1)) + scaleInverse(
-                            getSliderSample(sliderIndex + 1))));
-                    setSliderSample(sliderIndex, center, false);
-                    hidePopup();
-                    applyChanges();
-                }
+            menuItem.addActionListener(actionEvent -> {
+                final double center = scale(0.5 * (scaleInverse(getSliderSample(sliderIndex - 1)) + scaleInverse(
+                        getSliderSample(sliderIndex + 1))));
+                setSliderSample(sliderIndex, center, false);
+                hidePopup();
+                applyChanges();
             });
             return menuItem;
         }
 
         private JMenuItem createMenuItemDeleteSlider(final int removeIndex) {
-            JMenuItem menuItem = new JMenuItem("Remove slider");
+            JMenuItem menuItem = new JMenuItem("Remove Slider");
             menuItem.setMnemonic('D');
-            menuItem.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    getModel().removeSlider(removeIndex);
-                    hidePopup();
-                    applyChanges();
-                }
+            menuItem.addActionListener(e -> {
+                getModel().removeSlider(removeIndex);
+                hidePopup();
+                applyChanges();
             });
             return menuItem;
         }
@@ -1018,19 +1061,15 @@ public abstract class ImageInfoEditor extends JPanel {
                 return null;
             }
             final int index = insertIndex;
-            JMenuItem menuItem = new JMenuItem("Add new slider");
+            JMenuItem menuItem = new JMenuItem("Add new Slider");
             menuItem.setMnemonic('A');
-            menuItem.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    assert getModel() != null : "getModel() != null";
-                    if (index != INVALID_INDEX && index < getModel().getSliderCount() - 1) {
-                        getModel().createSliderAfter(index);
-                    }
-                    hidePopup();
-                    applyChanges();
+            menuItem.addActionListener(e -> {
+                assert getModel() != null : "getModel() != null";
+                if (index < getModel().getSliderCount() - 1) {
+                    getModel().createSliderAfter(index);
                 }
+                hidePopup();
+                applyChanges();
             });
             return menuItem;
         }
