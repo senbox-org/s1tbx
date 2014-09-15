@@ -23,6 +23,7 @@ import org.esa.nest.dataio.SARReader;
 import org.esa.snap.gpf.ReaderUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.zip.ZipFile;
@@ -75,7 +76,11 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
 
     public static boolean isLevel1(final File file) {
         if (SARReader.isZip(file)) {
-            return findInZip(file, "s1", ".tiff");
+            if(findInZip(file, "s1", ".tiff")) {
+                return true;
+            }
+            final String name = file.getName().toUpperCase();
+            return name.contains("_1AS") || name.contains("_1AD") || name.contains("_1SS") || name.contains("_1SD");
         } else {
             final File baseFolder = file.getParentFile();
             final File annotationFolder = new File(baseFolder, "annotation");
@@ -103,6 +108,24 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         } else {
             final File baseFolder = file.getParentFile();
             return checkFolder(baseFolder, ".dat");
+        }
+    }
+
+    static void validateInput(final File file) throws IOException {
+        if (SARReader.isZip(file)) {
+            if(!findInZip(file, "s1", ".tiff")) {
+                throw new IOException("measurement folder is missing in product");
+            }
+        } else {
+            final File baseFolder = file.getParentFile();
+            final File annotationFolder = new File(baseFolder, "annotation");
+            if (!annotationFolder.exists()) {
+                throw new IOException("annotation folder is missing in product");
+            }
+            final File measurementFolder = new File(baseFolder, "measurement");
+            if (!measurementFolder.exists()) {
+                throw new IOException("measurement folder is missing in product");
+            }
         }
     }
 

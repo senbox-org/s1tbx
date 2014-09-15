@@ -35,6 +35,7 @@ import org.jdom2.Element;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -317,7 +318,12 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
         int numBands = 0;
         final String annotFolder = getRootFolder() + "annotation";
-        final String[] filenames = listFiles(annotFolder);
+        final String[] filenames;
+        try {
+            filenames = listFiles(annotFolder);
+        } catch(FileNotFoundException e) {
+            throw new IOException("annotations missing from products");
+        }
         for (String metadataFile : filenames) {
 
             final Document xmlDoc = XMLSupport.LoadXML(getInputStream(annotFolder+'/'+metadataFile));
