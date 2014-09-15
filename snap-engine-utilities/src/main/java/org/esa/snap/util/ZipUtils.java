@@ -22,6 +22,9 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.esa.beam.util.io.FileUtils;
 
 import java.io.*;
+import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * For zipping and unzipping compressed files
@@ -38,6 +41,45 @@ public class ZipUtils {
         }
         return false;
     }
+
+    public static boolean isZip(final File inputFile) {
+        return inputFile.getName().toLowerCase().endsWith(".zip");
+    }
+
+    public static boolean findInZip(final File file, final String prefix, final String suffix) {
+        try {
+            final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
+
+            final Optional result = productZip.stream()
+                    .filter(ze -> !ze.isDirectory())
+                    .filter(ze -> ze.getName().toLowerCase().endsWith(suffix))
+                    .filter(ze -> ze.getName().toLowerCase().startsWith(prefix))
+                    .findFirst();
+            return result.isPresent();
+        } catch (Exception e) {
+            //
+        }
+        return false;
+    }
+
+    public static String getRootFolder(final File file, final String headerFileName) throws IOException {
+        final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
+
+        final Optional result = productZip.stream()
+                .filter(ze -> !ze.isDirectory())
+                .filter(ze -> ze.getName().toLowerCase().endsWith(headerFileName))
+                .findFirst();
+        ZipEntry ze = (ZipEntry) result.get();
+        String path = ze.toString();
+        int sepIndex = path.lastIndexOf('/');
+        if (sepIndex > 0) {
+            return path.substring(0, sepIndex) + '/';
+        } else {
+            return "";
+        }
+    }
+
+    // 7zip
 
     public static File[] unzipToFolder(final File inFile, final File outFolder) throws Exception {
 

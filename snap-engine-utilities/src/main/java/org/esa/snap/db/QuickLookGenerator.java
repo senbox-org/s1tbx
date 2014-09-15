@@ -16,6 +16,7 @@
 package org.esa.snap.db;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.VirtualDir;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.Band;
@@ -24,16 +25,14 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.ZipUtils;
 
 import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
 import java.awt.*;
 import java.awt.image.*;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Generates Quicklooks
@@ -180,20 +179,37 @@ public class QuickLookGenerator {
 
     private static File findProductBrowseImage(final File productFile) {
 
-        final File parentFolder = productFile.getParentFile();
-        // try Sentinel-1
-        File browseFile = new File(parentFolder, "preview" + File.separator + "quick-look.png");
-        if (browseFile.exists())
-            return browseFile;
-        // try TerraSAR-X
-        browseFile = new File(parentFolder, "PREVIEW" + File.separator + "BROWSE.tif");
-        if (browseFile.exists())
-            return browseFile;
-        // try Radarsat-2
-        browseFile = new File(parentFolder, "BrowseImage.tif");
-        if (browseFile.exists())
-            return browseFile;
-        return null;
+        if(ZipUtils.isZip(productFile)) {
+            try {
+                if (ZipUtils.findInZip(productFile, "s1", "quick-look.png")) {
+                    VirtualDir zipDir = VirtualDir.create(productFile);
+                    String rootFolder = ZipUtils.getRootFolder(productFile, "manifest.safe");
+                    return zipDir.getFile(rootFolder + "preview/quick-look.png");
+                } else if (ZipUtils.findInZip(productFile, "rs2", "browseimage.tif")) {
+                    VirtualDir zipDir = VirtualDir.create(productFile);
+                    String rootFolder = ZipUtils.getRootFolder(productFile, "product.xml");
+                    return zipDir.getFile(rootFolder + "BrowseImage.tif");
+                }
+            } catch(Exception e) {
+                return null;
+            }
+            return null; //todo read quicklook from stream not yet supported
+        } else {
+            final File parentFolder = productFile.getParentFile();
+            // try Sentinel-1
+            File browseFile = new File(parentFolder, "preview" + File.separator + "quick-look.png");
+            if (browseFile.exists())
+                return browseFile;
+            // try TerraSAR-X
+            browseFile = new File(parentFolder, "PREVIEW" + File.separator + "BROWSE.tif");
+            if (browseFile.exists())
+                return browseFile;
+            // try Radarsat-2
+            browseFile = new File(parentFolder, "BrowseImage.tif");
+            if (browseFile.exists())
+                return browseFile;
+            return null;
+        }
     }
 
     public static boolean createQuickLook(final int id, final File productFile) throws IOException {
