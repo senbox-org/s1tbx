@@ -31,7 +31,7 @@ import java.io.RandomAccessFile;
 public class GeoTiffProductWriterTest extends TestCase {
 
     private static final String FILENAME = "temp.tif";
-    private static final boolean bigTiff = false;
+    private static final boolean bigTiff = true;
     private GeoTiffProductWriter _productWriter;
     private Product _product;
 
@@ -54,7 +54,7 @@ public class GeoTiffProductWriterTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         _productWriter.close();
-        new File(FILENAME).delete();
+        //new File(FILENAME).delete();
     }
 
     public void testGeoTIFFProductWriterCreation() {
