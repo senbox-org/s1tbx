@@ -49,7 +49,7 @@ public class TestUtils {
     private final static String contextID = ResourceUtils.getContextID();
     private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap(contextID + ".tests");
 
-    public final static String rootPathExpectedProducts;
+    public final static String rootPathTestProducts;
 
     public final static String rootPathTerraSarX;
     public final static String rootPathASAR;
@@ -76,7 +76,7 @@ public class TestUtils {
 
     static {
         if(testPreferences != null) {
-            rootPathExpectedProducts = testPreferences.getPropertyString(contextID + ".test.rootPathExpectedProducts");
+            rootPathTestProducts = testPreferences.getPropertyString(contextID + ".test.rootPathTestProducts");
             rootPathTerraSarX = testPreferences.getPropertyString(contextID + ".test.rootPathTerraSarX");
             rootPathASAR = testPreferences.getPropertyString(contextID + ".test.rootPathASAR");
             rootPathRadarsat2 = testPreferences.getPropertyString(contextID + ".test.rootPathRadarsat2");
@@ -100,7 +100,7 @@ public class TestUtils {
             canTestReadersOnAllProducts = testReadersOnAllProducts != null && testReadersOnAllProducts.equalsIgnoreCase("true");
             canTestProcessingOnAllProducts = testProcessingOnAllProducts != null && testProcessingOnAllProducts.equalsIgnoreCase("true");
         } else {
-            rootPathExpectedProducts = "";
+            rootPathTestProducts = "";
             rootPathTerraSarX = "";
             rootPathASAR = "";
             rootPathRadarsat2 = "";
