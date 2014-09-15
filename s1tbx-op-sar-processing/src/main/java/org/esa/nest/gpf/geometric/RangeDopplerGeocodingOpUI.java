@@ -411,6 +411,9 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             saveSigmaNoughtCheckBox.setEnabled(applyRadiometricNormalization);
             saveGammaNoughtCheckBox.setEnabled(applyRadiometricNormalization);
             saveBetaNoughtCheckBox.setEnabled(applyRadiometricNormalization);
+        } else {
+            enableRadiometricNormalization(false);
+            saveSelectedSourceBandCheckBox.setSelected(true);
         }
 
         paramVal = (Boolean) paramMap.get("saveBetaNought");
