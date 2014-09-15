@@ -43,7 +43,7 @@ public class GeoTiffProductWriterTest extends TestCase {
         _productWriter = new GeoTiffProductWriter(writerPlugin);
 
         if (bigTiff) {
-            _productWriter.setFormatName(GeoTiffProductWriterPlugIn.BIGTIFF_FORMAT_NAME);
+            _productWriter.setFormatName("BigTIFF");
         }
 
         _product = new Product("temp", "type", 10, 20);
@@ -62,7 +62,7 @@ public class GeoTiffProductWriterTest extends TestCase {
 
         final GeoTiffProductWriter productWriter = new GeoTiffProductWriter(writerPlugin);
         if (bigTiff) {
-            productWriter.setFormatName(GeoTiffProductWriterPlugIn.BIGTIFF_FORMAT_NAME);
+            productWriter.setFormatName("BigTIFF");
         }
         assertNotNull(productWriter.getWriterPlugIn());
     }

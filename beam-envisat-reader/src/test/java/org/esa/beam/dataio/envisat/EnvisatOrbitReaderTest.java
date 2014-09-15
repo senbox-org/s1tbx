@@ -34,24 +34,12 @@ import static org.junit.Assert.*;
 public class EnvisatOrbitReaderTest {
 
     private final static String doris_por_orbit =
-            "org/esa/beam/dataio/testdata/DOR_POR_AXVF-P20080404_014700_20080401_215527_20080403_002327";
+            "org/esa/beam/dataio/testdata/DOR_POR_AXVF-P20080404_014700_20080401_215527_20080403_002327.zip";
     private final static String doris_vor_orbit =
-            "org/esa/beam/dataio/testdata/DOR_VOR_AXVF-P20080331_075200_20080301_215527_20080303_002327";
-
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
+            "org/esa/beam/dataio/testdata/DOR_VOR_AXVF-P20080331_075200_20080301_215527_20080303_002327.zip";
 
     @Test
     public void testPOROrbitFiles() throws IOException {
-
-        final File orbFile = EnvisatAuxReader.getFile(doris_por_orbit);
-        if (!orbFile.exists())
-            return;
 
         final EnvisatOrbitReader reader = new EnvisatOrbitReader();
 
@@ -72,10 +60,6 @@ public class EnvisatOrbitReaderTest {
     @Test
     public void testVOROrbitFiles() throws IOException {
 
-        final File orbFile = EnvisatAuxReader.getFile(doris_vor_orbit);
-        if (!orbFile.exists())
-            return;
-
         final EnvisatOrbitReader reader = new EnvisatOrbitReader();
 
         reader.readProduct(doris_vor_orbit);
@@ -94,10 +78,6 @@ public class EnvisatOrbitReaderTest {
 
     @Test
     public void testInterpolation() throws Exception {
-
-        final File orbFile = EnvisatAuxReader.getFile(doris_vor_orbit);
-        if (!orbFile.exists())
-            return;
 
         final EnvisatOrbitReader reader = new EnvisatOrbitReader();
 

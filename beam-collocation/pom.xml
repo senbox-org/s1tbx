@@ -24,11 +24,11 @@
     <parent>
         <artifactId>snap-beam</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>snap-collocation</artifactId>
-    <name>BEAM Geographic Collocation Tool</name>
+    <name>SNAP Geographic Collocation Tool</name>
 
     <dependencies>
         <dependency>
@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-visat</artifactId>
+            <artifactId>snap-visat-rcp</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>

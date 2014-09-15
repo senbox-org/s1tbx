@@ -41,7 +41,7 @@ public class MetadataUtils {
 
     public static final String GLOBAL_ATTRIBUTES = "Global_Attributes";
     public static final String VARIABLE_ATTRIBUTES = "Variable_Attributes";
-    private static final String PROPERTY_KEY_METADATA_ELEMENT_LIMIT = "beam.netcdf.metadataElementLimit";
+    private static final String PROPERTY_KEY_METADATA_ELEMENT_LIMIT = "snap.netcdf.metadataElementLimit";
     private static final String DEFAULT_MAX_NUM_VALUES_READ = "100";
 
     private MetadataUtils() {

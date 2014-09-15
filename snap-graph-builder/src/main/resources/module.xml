@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>snap-graph-builder</symbolicName>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.5</version>
     <name>SNAP Graph Builder</name>
 
     <description>SNAP Graph Builder</description>

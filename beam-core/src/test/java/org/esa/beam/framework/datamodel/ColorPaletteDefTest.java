@@ -15,13 +15,13 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import static org.esa.beam.framework.datamodel.ColorPaletteDef.Point;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-
-import org.junit.*;
+import org.junit.Test;
 
 import java.awt.Color;
+
+import static org.esa.beam.framework.datamodel.ColorPaletteDef.Point;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ColorPaletteDefTest {
 
@@ -29,13 +29,11 @@ public class ColorPaletteDefTest {
     public void testConstructors() {
         ColorPaletteDef cpd = new ColorPaletteDef(-1.0, 1.0);
         assertEquals(256, cpd.getNumColors());
-        assertEquals(3, cpd.getNumPoints());
+        assertEquals(2, cpd.getNumPoints());
         assertEquals(-1.0, cpd.getPointAt(0).getSample(), 1e-10);
-        assertEquals(+0.0, cpd.getPointAt(1).getSample(), 1e-10);
-        assertEquals(+1.0, cpd.getPointAt(2).getSample(), 1e-10);
+        assertEquals(+1.0, cpd.getPointAt(1).getSample(), 1e-10);
         assertEquals(Color.BLACK, cpd.getPointAt(0).getColor());
-        assertEquals(Color.GRAY, cpd.getPointAt(1).getColor());
-        assertEquals(Color.WHITE, cpd.getPointAt(2).getColor());
+        assertEquals(Color.WHITE, cpd.getPointAt(1).getColor());
 
         cpd = new ColorPaletteDef(-1.0, 0.5, 1.0);
         assertEquals(256, cpd.getNumColors());
@@ -48,34 +46,44 @@ public class ColorPaletteDefTest {
         assertEquals(Color.WHITE, cpd.getPointAt(2).getColor());
 
         cpd = new ColorPaletteDef(new Point[]{
-                    new Point(100, Color.ORANGE),
-                    new Point(200, Color.MAGENTA),
-                    new Point(500, Color.BLUE),
-                    new Point(600, Color.WHITE)
+                new Point(100, Color.ORANGE),
+                new Point(200, Color.MAGENTA),
+                new Point(500, Color.BLUE),
+                new Point(600, Color.WHITE)
         });
         assertEquals(4, cpd.getNumPoints());
         assertEquals(256, cpd.getNumColors());
+        assertEquals(true, cpd.isFullyOpaque());
 
 
         cpd = new ColorPaletteDef(new Point[]{
-                    new Point(100, Color.ORANGE),
-                    new Point(200, Color.MAGENTA),
-                    new Point(500, Color.BLUE),
-                    new Point(600, Color.WHITE)
+                new Point(100, Color.ORANGE),
+                new Point(200, Color.MAGENTA),
+                new Point(500, Color.BLUE),
+                new Point(600, Color.WHITE)
         }, 512);
         assertEquals(4, cpd.getNumPoints());
         assertEquals(512, cpd.getNumColors());
+        assertEquals(true, cpd.isFullyOpaque());
+
+        cpd = new ColorPaletteDef(new Point[]{
+                new Point(100, new Color(100, 100, 100, 100)),
+                new Point(600, Color.WHITE)
+        }, 16);
+        assertEquals(2, cpd.getNumPoints());
+        assertEquals(16, cpd.getNumColors());
+        assertEquals(false, cpd.isFullyOpaque());
     }
 
     @Test
     public void testCreateClone_andEquals() {
         //preparation
         final Point[] points = {
-                    new Point(1, Color.black),
-                    new Point(2, Color.red),
-                    new Point(3, Color.green),
-                    new Point(4, Color.blue),
-                    new Point(5, Color.white),
+                new Point(1, Color.black),
+                new Point(2, Color.red),
+                new Point(3, Color.green),
+                new Point(4, Color.blue),
+                new Point(5, Color.white),
         };
         final ColorPaletteDef cpd = new ColorPaletteDef(points, 256);
         cpd.setDiscrete(true);

@@ -106,7 +106,7 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
     }
     void writeGeoTIFFProduct(ImageOutputStream stream, final Product sourceProduct) throws IOException {
         outputStream = stream;
-        boolean bigTiff = format.equalsIgnoreCase(GeoTiffProductWriterPlugIn.BIGTIFF_FORMAT_NAME);
+        boolean bigTiff = format.equalsIgnoreCase("BigTIFF");
         final TiffHeader tiffHeader = new TiffHeader(new Product[]{sourceProduct}, bigTiff);
         tiffHeader.write(stream);
         bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), stream, sourceProduct);

@@ -14,7 +14,7 @@ public class FakeUncertaintyGeneratorVPI implements VisatPlugIn {
 
     @Override
     public void start(VisatApp visatApp) {
-        if (Boolean.getBoolean("beam.uncertainty.test")) {
+        if (Boolean.getBoolean("s3tbx.uncertainty.test")) {
             visatApp.getProductManager().addListener(new ProductManager.Listener() {
                 @Override
                 public void productAdded(ProductManager.Event event) {

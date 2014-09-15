@@ -522,9 +522,18 @@ public class BandArithmetic {
             if (band.getFlagCoding() != null) {
                 for (int j = 0; j < band.getFlagCoding().getNumAttributes(); j++) {
                     final MetadataAttribute attribute = band.getFlagCoding().getAttributeAt(j);
-                    final int flagMask = attribute.getData().getElemInt();
+                    final ProductData flagData = attribute.getData();
+                    final int flagMask;
+                    final int flagValue;
+                    if (flagData.getNumElems() == 2) {
+                        flagMask = flagData.getElemIntAt(0);
+                        flagValue = flagData.getElemIntAt(1);
+                    }  else {
+                        flagMask =
+                        flagValue = flagData.getElemInt();
+                    }
                     final String symbolName = namePrefix + band.getName() + "." + attribute.getName();
-                    final Symbol symbol = new SingleFlagSymbol(symbolName, band, flagMask);
+                    final Symbol symbol = new SingleFlagSymbol(symbolName, band, flagMask, flagValue);
                     namespace.registerSymbol(symbol);
                 }
             }

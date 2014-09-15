@@ -3,7 +3,7 @@
 
     <symbolicName>snap-statistics-op</symbolicName>
     <version>0.5</version>
-    <name>BEAM Statistics Operator</name>
+    <name>SNAP Statistics Operator</name>
     <funding>EU</funding>
 
     <description>

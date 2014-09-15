@@ -17,7 +17,6 @@ package org.esa.beam.visat;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeRunnable;
-import com.jidesoft.utils.Lm;
 import com.jidesoft.utils.SystemInfo;
 import org.esa.beam.BeamUiActivator;
 import org.esa.beam.framework.dataio.ProductIO;
@@ -48,7 +47,7 @@ import java.util.Locale;
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  */
-public class VisatMain implements RuntimeRunnable {
+public abstract class VisatMain implements RuntimeRunnable {
     /**
      * Entry point for the VISAT application called by the Ceres runtime.
      *
@@ -132,9 +131,7 @@ public class VisatMain implements RuntimeRunnable {
         });
     }
 
-    protected void verifyJideLicense() {
-        Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
-    }
+    protected abstract void verifyJideLicense();
 
     protected VisatApp createApplication(ApplicationDescriptor applicationDescriptor) {
         return new VisatApp(applicationDescriptor);

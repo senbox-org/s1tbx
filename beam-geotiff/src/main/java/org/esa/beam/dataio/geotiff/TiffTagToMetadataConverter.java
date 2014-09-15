@@ -15,19 +15,12 @@
  */
 
 package org.esa.beam.dataio.geotiff;
-/*
-import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
-import com.sun.media.imageio.plugins.tiff.TIFFField;
-import com.sun.media.imageio.plugins.tiff.TIFFTag;
-import com.sun.media.imageioimpl.plugins.tiff.TIFFIFD;
-import com.sun.media.imageioimpl.plugins.tiff.TIFFImageMetadata;
-*/
+
 import it.geosolutions.imageio.plugins.tiff.GeoTIFFTagSet;
 import it.geosolutions.imageio.plugins.tiff.TIFFField;
 import it.geosolutions.imageio.plugins.tiff.TIFFTag;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFIFD;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageMetadata;
-
 import org.esa.beam.dataio.geotiff.internal.GeoKeyEntry;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;

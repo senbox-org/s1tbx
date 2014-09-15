@@ -20,23 +20,23 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <name>BEAM</name>
+    <name>SNAP-BEAM</name>
     <url>http://www.brockmann-consult.de/beam-wiki</url>
     <groupId>org.esa.snap</groupId>
     <artifactId>snap-beam</artifactId>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.5.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <snap.version>0.5.0-SNAPSHOT</snap.version>
 
-        <snap.version>0.5-SNAPSHOT</snap.version>
         <hdf.version>2.7</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>
         <geotools.version>2.7.4</geotools.version>
-        <jide.version>3.5.3</jide.version>
-		
-		<outputdir>../../output</outputdir>
+        <jide.version>3.6.1</jide.version>
+
+        <outputdir>../../output</outputdir>
     </properties>
 
     <modules>
@@ -52,20 +52,18 @@
         <module>beam-help</module>
         <module>beam-scripting</module>
         <module>beam-ui</module>
-        <module>beam-visat</module>
         <module>beam-visat-rcp</module>
-        <module>beam-installer</module>
         <!--module>beam-reader-tests</module-->
         <module>beam-python</module>
 
-		<module>snap-engine-utilities</module>
-		<module>snap-graph-builder</module>
-		
+        <module>snap-engine-utilities</module>
+        <module>snap-graph-builder</module>
+
         <!-- BEAM Plugin Modules -->
 
         <module>beam-aatsr-sst</module>
         <module>beam-alos-reader</module>
-		<module>beam-arcbingrid-reader</module>
+        <module>beam-arcbingrid-reader</module>
         <module>beam-atsr-reader</module>
         <module>beam-avhrr-reader</module>
         <module>beam-binning</module>
@@ -204,11 +202,6 @@
             </dependency>
             <dependency>
                 <groupId>org.esa.snap</groupId>
-                <artifactId>snap-visat</artifactId>
-                <version>${snap.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.esa.snap</groupId>
                 <artifactId>snap-netcdf</artifactId>
                 <version>${snap.version}</version>
             </dependency>
@@ -250,6 +243,21 @@
                 <artifactId>jackson-databind</artifactId>
                 <version>2.2.2</version>
             </dependency>
+
+            <!-- JDOM Library ############################################# -->
+
+            <dependency>
+                <groupId>jdom</groupId>
+                <artifactId>jdom</artifactId>
+                <version>1.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jdom</groupId>
+                <artifactId>jdom2</artifactId>
+                <version>2.0.4</version>
+            </dependency>
+
 
             <!-- GeoTools Libraries ############################################# -->
             <!-- Sadly there is no global exclusion so every geotools artifact -->
@@ -436,9 +444,25 @@
                         <groupId>javax.media</groupId>
                         <artifactId>jai_imageio</artifactId>
                     </exclusion>
+					<exclusion>
+                        <groupId>it.geosolutions.imageio-ext</groupId>
+                        <artifactId>imageio-ext-tiff</artifactId>
+                    </exclusion>
+					<exclusion>
+                        <groupId>it.geosolutions.imageio-ext</groupId>
+                        <artifactId>imageio-ext-utilities</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
+			<!-- ImageioIO-Ext ############################################# -->
+			
+			<dependency>
+				<groupId>it.geosolutions.imageio-ext</groupId>
+				<artifactId>imageio-ext-tiff</artifactId>
+				<version>1.1.9</version>
+			</dependency>
+			
             <!-- JAI Libraries ############################################# -->
 
             <dependency>
@@ -473,14 +497,6 @@
                 <groupId>javax.help</groupId>
                 <artifactId>javahelp</artifactId>
                 <version>2.0.02</version>
-            </dependency>
-
-            <!-- JDOM Library ############################################# -->
-
-            <dependency>
-                <groupId>org.jdom</groupId>
-                <artifactId>jdom2</artifactId>
-                <version>2.0.4</version>
             </dependency>
 
             <!-- BC Neural Network Library ############################################# -->
@@ -636,7 +652,7 @@
     </pluginRepositories>
 
     <build>
-        <outputDirectory>${outputdir}/modules/${project.artifactId}-${project.version}</outputDirectory>
+        <outputDirectory>${outputdir}/modules/${project.artifactId}-${snap.version}</outputDirectory>
 
         <!-- Maven plugin configurations common to all BEAM modules -->
         <pluginManagement>

@@ -18,14 +18,11 @@ package org.esa.snap.util;
 import com.bc.ceres.core.runtime.internal.RuntimeActivator;
 import org.esa.beam.util.SystemUtils;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Properties;
@@ -40,7 +37,6 @@ public final class ResourceUtils {
     public static ImageIcon arrayIcon = LoadIcon("org/esa/snap/icons/array_logo.png");
     public static ImageIcon esaIcon = LoadIcon("org/esa/snap/icons/esa.png");
     public static ImageIcon esaPlanetIcon = LoadIcon("org/esa/snap/icons/esa-planet.png");
-    public static ImageIcon s1Icon = LoadIcon("org/esa/snap/icons/S1-64.png");
     public static ImageIcon geoAusIcon = LoadIcon("org/esa/snap/icons/geo_aus.png");
 
     public static ImageIcon LoadIcon(final String path) {
@@ -87,28 +83,10 @@ public final class ResourceUtils {
         // If not found in jar, then load from disk
         final java.net.URL resURL = theClass.getClassLoader().getResource(filename);
         if (resURL != null) {
-            try {
-                return new FileInputStream(resURL.toURI().getPath());
-            } catch (URISyntaxException e) {
-                //
-            }
+            return theClass.getClassLoader().getResourceAsStream(filename);
         }
 
         return new FileInputStream(filename);
-    }
-
-    public static File getResourceAsFile(final String filename, final Class theClass) throws IOException {
-
-        try {
-            // load from disk
-            final java.net.URL resURL = theClass.getClassLoader().getResource(filename);
-            if (resURL != null) {
-                return new File(resURL.getFile());
-            }
-        } catch (Exception e) {
-            throw new IOException("Unable to open " + filename);
-        }
-        throw new IOException("resURL==null Unable to open " + filename);
     }
 
     /**
@@ -157,20 +135,6 @@ public final class ResourceUtils {
         return new File(ResourceUtils.getHomeUrl(), "resource");
     }
 
-    public static File findUserAppFile(String filename) {
-        // check userhome/.nest first
-        final File appHomePath = ResourceUtils.getApplicationUserDir(false);
-        final String filePath = appHomePath.getAbsolutePath()
-                + File.separator + filename;
-
-        final File outFile = new File(filePath);
-        if (outFile.exists())
-            return outFile;
-
-        // next check config folder
-        return findConfigFile(filename);
-    }
-
     public static File findConfigFile(String filename) {
         final String homeDir = System.getProperty(getContextID() + ".home");
         if (homeDir != null && homeDir.length() > 0) {
@@ -208,38 +172,6 @@ public final class ResourceUtils {
         return new File(homePathStr);
     }
 
-    public static File findInHomeFolder(String filename) {
-        final File homePath = findHomeFolder();
-        String homePathStr = homePath.getAbsolutePath();
-        filename = filename.replaceAll("/", File.separator);
-        if (!File.separator.equals("\\")) {
-            filename = filename.replaceAll("\\\\", File.separator);
-        }
-        if (homePathStr.endsWith(".") && homePathStr.length() > 1)
-            homePathStr = homePathStr.substring(0, homePathStr.lastIndexOf(File.separator));
-        String filePath = homePathStr + filename;
-
-        final File outFile = new File(filePath);
-        if (outFile.exists())
-            return outFile;
-
-        filePath = homePathStr.substring(0, homePathStr.lastIndexOf(File.separator)) + filename;
-
-        final File outFile2 = new File(filePath);
-        if (outFile2.exists())
-            return outFile2;
-
-        filePath = homePathStr.substring(0, homePathStr.lastIndexOf(File.separator)) + File.separator + "beam" + filename;
-
-        final File outFile3 = new File(filePath);
-        if (outFile3.exists())
-            return outFile3;
-
-        System.out.println("findInHomeFolder " + filename + " not found in " + homePath);
-
-        return null;
-    }
-
     public static void sortFileList(final File[] filelist) {
         Comparator<File> byDirThenAlpha = new DirAlphaComparator();
 
@@ -259,22 +191,5 @@ public final class ResourceUtils {
                 return filea.getName().compareToIgnoreCase(fileb.getName());
             }
         }
-    }
-
-    /**
-     * can be overriden to load the image to use
-     *
-     * @param imgFile the file to load
-     * @return BufferedImage
-     */
-    public static BufferedImage loadImage(final File imgFile) {
-        if (imgFile != null && imgFile.exists()) {
-            try {
-                return ImageIO.read(imgFile);
-            } catch (Exception e) {
-                //
-            }
-        }
-        return null;
     }
 }

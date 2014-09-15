@@ -23,16 +23,16 @@
     <parent>
         <artifactId>snap-beam</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.5.0-SNAPSHOT</version>
     </parent>
 
-    <name>BEAM Pixel Extraction Tool</name>
+    <name>SNAP Pixel Extraction Tool</name>
     <artifactId>snap-pixel-extraction</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-visat</artifactId>
+            <artifactId>snap-visat-rcp</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>

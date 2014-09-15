@@ -14,16 +14,10 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 package org.esa.beam.util.geotiff;
-/*
+
 import com.sun.media.imageio.plugins.tiff.BaselineTIFFTagSet;
 import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
 import com.sun.media.imageio.plugins.tiff.TIFFTag;
-*/
-
-import it.geosolutions.imageio.plugins.tiff.BaselineTIFFTagSet;
-import it.geosolutions.imageio.plugins.tiff.GeoTIFFTagSet;
-import it.geosolutions.imageio.plugins.tiff.TIFFTag;
-
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;

@@ -52,18 +52,15 @@ import java.util.concurrent.ExecutionException;
  */
 public class OpenSessionAction extends ExecCommand {
 
-    @Deprecated
-    public static final BeamFileFilter SESSION_FILE_FILTER = getSessionFileFilter();
-
     public static final String ID = "openSession";
 
     public static final String LAST_SESSION_DIR_KEY = "beam.lastSessionDir";
     private static final String TITLE = "Open Session";
 
     public static BeamFileFilter getSessionFileFilter() {
-        return new BeamFileFilter("BEAM-SESSION",
-                                  String.format(".%s", SystemUtils.getApplicationContextId()),
-                                  String.format("%s session", SystemUtils.getApplicationName()));
+        return new BeamFileFilter("SESSION",
+                                  new String[] {String.format(".%s", SystemUtils.getApplicationContextId()), ".beam"},
+                                  String.format("%s Session file", SystemUtils.getApplicationName()));
     }
 
     @Override

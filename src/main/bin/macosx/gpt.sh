@@ -1,23 +1,23 @@
 #! /bin/sh
 
-export BEAM4_HOME=${installer:sys.installationDir}
+export S3TBX_HOME=${installer:sys.installationDir}
 
-if [ -z "$BEAM4_HOME" ]; then
+if [ -z "$S3TBX_HOME" ]; then
     echo
-    echo Error: BEAM4_HOME not found in your environment.
-    echo Please set the BEAM4_HOME variable in your environment to match the
-    echo location of the BEAM 4.x installation
+    echo Error: S3TBX_HOME not found in your environment.
+    echo Please set the S3TBX_HOME variable in your environment to match the
+    echo location of the S3TBX installation
     echo
     exit 2
 fi
 
 java \
     -Xmx${installer:maxHeapSize} \
-    -Dceres.context=beam \
-    "-Dbeam.mainClass=org.esa.beam.framework.gpf.main.GPT" \
-    "-Dbeam.home=$BEAM4_HOME" \
-    "-Dncsa.hdf.hdflib.HDFLibrary.hdflib=$BEAM4_HOME/modules/lib-hdf-${hdf.version}/lib/libjhdf.jnilib" \
-    "-Dncsa.hdf.hdf5lib.H5.hdf5lib=$BEAM4_HOME/modules/lib-hdf-${hdf.version}/lib/libjhdf5.jnilib" \
-    -jar "$BEAM4_HOME/bin/snap-launcher.jar" "$@"
+    -Dceres.context=s3tbx \
+    "-Ds3tbx.mainClass=org.esa.beam.framework.gpf.main.GPT" \
+    "-Ds3tbx.home=$S3TBX_HOME" \
+    "-Dncsa.hdf.hdflib.HDFLibrary.hdflib=$S3TBX_HOME/modules/lib-hdf-${hdf.version}/lib/libjhdf.jnilib" \
+    "-Dncsa.hdf.hdf5lib.H5.hdf5lib=$S3TBX_HOME/modules/lib-hdf-${hdf.version}/lib/libjhdf5.jnilib" \
+    -jar "$S3TBX_HOME/bin/snap-launcher.jar" "$@"
 
 exit $?

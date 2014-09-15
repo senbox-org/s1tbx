@@ -58,6 +58,7 @@ public class ImageInfo implements Cloneable {
     private RGBChannelDef rgbChannelDef;
     private Color noDataColor;
     private HistogramMatching histogramMatching;
+    private String uncertaintyBandName;
     private boolean logScaled;
 
     /**
@@ -132,6 +133,14 @@ public class ImageInfo implements Cloneable {
         this.noDataColor = noDataColor;
     }
 
+    public String getUncertaintyBandName() {
+        return uncertaintyBandName;
+    }
+
+    public void setUncertaintyBandName(String uncertaintyBandName) {
+        this.uncertaintyBandName = uncertaintyBandName;
+    }
+
     public HistogramMatching getHistogramMatching() {
         return histogramMatching;
     }
@@ -191,7 +200,6 @@ public class ImageInfo implements Cloneable {
             return null;
         }
         Color[] palette = ImageManager.createColorPalette(this);
-//        Color[] palette = colorPaletteDef.createColorPalette(scaling);
         final int numColors = palette.length;
         final byte[] red = new byte[numColors];
         final byte[] green = new byte[numColors];

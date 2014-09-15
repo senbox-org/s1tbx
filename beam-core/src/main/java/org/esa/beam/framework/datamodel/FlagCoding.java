@@ -65,7 +65,21 @@ public class FlagCoding extends SampleCoding {
      * @return A new attribute representing the flag.
      */
     public MetadataAttribute addFlag(String name, int flagMask, String description) {
-        return addSample(name, flagMask, description);
+        return addSamples(name, new int[]{flagMask}, description);
+    }
+
+    /**
+     * Adds a new flag definition to this flags coding.
+     *
+     * @param name        the flag name
+     * @param flagMask    the flag's bit mask
+     * @param description the description text
+     * @throws IllegalArgumentException if <code>name</code> is null
+     * @return A new attribute representing the flag.
+     * @since SNAP 0.5
+     */
+    public MetadataAttribute addFlag(String name, int flagMask, int flagValue, String description) {
+        return addSamples(name, new int[]{flagMask, flagValue}, description);
     }
 
     /**
@@ -82,7 +96,7 @@ public class FlagCoding extends SampleCoding {
             throw new IllegalArgumentException("flag '" + name + "' not found");
         }
         Debug.assertTrue(attribute.getData().isInt());
-        Debug.assertTrue(attribute.getData().isScalar());
+        Debug.assertTrue(attribute.getData().getNumElems() == 1 || attribute.getData().getNumElems() == 2);
         return attribute.getData().getElemInt();
     }
 

@@ -15,14 +15,6 @@
         ]]>
     </description>
 
-    <changelog>
-        <![CDATA[
-        <b>Changes in 5.0</b><br/>
-            [BEAM-1533] KMZ exports have slightly wrong image envelope coordinates<br/>
-            [BEAM-1497] Command 'Time Series as Google Earth KMZ' misplaced in tools menu<br/>
-        ]]>
-    </changelog>
-
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>

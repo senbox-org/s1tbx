@@ -1573,12 +1573,16 @@ public class DimapProductHelpers {
             final String bandRasterWidthStr = element.getChildTextTrim(DimapProductConstants.TAG_BAND_RASTER_WIDTH);
             final String bandRasterHeightStr = element.getChildTextTrim(DimapProductConstants.TAG_BAND_RASTER_HEIGHT);
 
-            int rasterWidth = product.getSceneRasterWidth();
-            int rasterHeight = product.getSceneRasterHeight();
+            final int rasterWidth;
+            final int rasterHeight;
             if (bandRasterWidthStr != null && bandRasterHeightStr != null) {
                 rasterWidth = Integer.parseInt(bandRasterWidthStr);
                 rasterHeight = Integer.parseInt(bandRasterHeightStr);
+            } else {
+                rasterWidth = product.getSceneRasterWidth();
+                rasterHeight = product.getSceneRasterHeight();
             }
+
             final String description = element.getChildTextTrim(DimapProductConstants.TAG_BAND_DESCRIPTION);
             final int type = ProductData.getType(element.getChildTextTrim(DimapProductConstants.TAG_DATA_TYPE));
             if (type == ProductData.TYPE_UNDEFINED) {

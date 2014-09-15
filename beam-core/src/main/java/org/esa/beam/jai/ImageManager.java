@@ -111,7 +111,7 @@ public class ImageManager {
                                                                          DefaultCartesianCS.DISPLAY);
 
     private static final boolean CACHE_INTERMEDIATE_TILES = Boolean.getBoolean(
-            "beam.imageManager.enableIntermediateTileCaching");
+            "snap.imageManager.enableIntermediateTileCaching");
 
     private final Map<MaskKey, MultiLevelImage> maskImageMap = new HashMap<>(101);
     private final ProductNodeListener rasterDataChangeListener;
@@ -428,10 +428,10 @@ public class ImageManager {
      * be broken (repeatedly) as the API evolves.</p>
      */
     public static RasterDataNode getUncertaintyBand(RasterDataNode valueBand) {
-        final String[] names = {"uncertainty", "error", "variance", "confidence"};
+        final String[] roleNames = {"uncertainty", "error", "variance", "confidence"};
         RasterDataNode uncertaintyBand = null;
-        for (String name : names) {
-            uncertaintyBand = valueBand.getAncillaryBand(name);
+        for (String roleName : roleNames) {
+            uncertaintyBand = valueBand.getAncillaryBand(roleName);
             if (uncertaintyBand != null) {
                 break;
             }
@@ -777,11 +777,22 @@ public class ImageManager {
             palette = createColorPalette(rasterDataNode.getImageInfo());
         }
 
-        final byte[][] lutData = new byte[3][palette.length];
-        for (int i = 0; i < palette.length; i++) {
-            lutData[0][i] = (byte) palette[i].getRed();
-            lutData[1][i] = (byte) palette[i].getGreen();
-            lutData[2][i] = (byte) palette[i].getBlue();
+        final byte[][] lutData;
+        if (colorPaletteDef.isFullyOpaque()) {
+            lutData = new byte[3][palette.length];
+            for (int i = 0; i < palette.length; i++) {
+                lutData[0][i] = (byte) palette[i].getRed();
+                lutData[1][i] = (byte) palette[i].getGreen();
+                lutData[2][i] = (byte) palette[i].getBlue();
+            }
+        } else {
+            lutData = new byte[4][palette.length];
+            for (int i = 0; i < palette.length; i++) {
+                lutData[0][i] = (byte) palette[i].getRed();
+                lutData[1][i] = (byte) palette[i].getGreen();
+                lutData[2][i] = (byte) palette[i].getBlue();
+                lutData[3][i] = (byte) palette[i].getAlpha();
+            }
         }
         return createLookupOp(sourceImage, lutData);
     }
@@ -1101,6 +1112,25 @@ public class ImageManager {
         Debug.assertNotNull(cpd);
         Debug.assertTrue(cpd.getNumPoints() >= 2);
 
+        final int numColors = cpd.getNumColors();
+        final Color[] colorPalette = new Color[numColors];
+
+        ImageInfo.UncertaintyVisualisationMode uvMode = imageInfo.getUncertaintyVisualisationMode();
+        if (uvMode == ImageInfo.UncertaintyVisualisationMode.Transparency_Blending) {
+            for (int i = 0; i < colorPalette.length; i++) {
+                int alpha = 255 - (256 * i) / colorPalette.length;
+                colorPalette[i] = new Color(255, 255, 255, alpha);
+            }
+            return colorPalette;
+        } else if (uvMode == ImageInfo.UncertaintyVisualisationMode.Monochromatic_Blending) {
+            Color color = cpd.getLastPoint().getColor();
+            for (int i = 0; i < colorPalette.length; i++) {
+                int alpha = (256 * i) / colorPalette.length;
+                colorPalette[i] = new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+            }
+            return colorPalette;
+        }
+
         final double minSample;
         final double maxSample;
         if (logScaled) {
@@ -1110,9 +1140,7 @@ public class ImageManager {
             minSample = getSample(cpd.getFirstPoint());
             maxSample = getSample(cpd.getLastPoint());
         }
-        final int numColors = cpd.getNumColors();
         final double scalingFactor = 1 / (numColors - 1.0);
-        final Color[] colorPalette = new Color[numColors];
         int pointIndex = 0;
         final int maxPointIndex = cpd.getNumPoints() - 2;
         BorderSamplesAndColors boSaCo = getBorderSamplesAndColors(imageInfo, pointIndex, null);
@@ -1131,6 +1159,22 @@ public class ImageManager {
             }
         }
         colorPalette[numColors - 1] = boSaCo.color2;
+
+        if (uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending
+            || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Overlay) {
+            boolean blend = uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending;
+            int alpha = 127;
+            for (int i = 0; i < colorPalette.length; i++) {
+                Color color = colorPalette[i];
+                if (blend) {
+                    alpha = (256 * i) / colorPalette.length;
+                }
+                colorPalette[i] = new Color(color.getRed(),
+                                            color.getGreen(),
+                                            color.getBlue(),
+                                            alpha);
+            }
+        }
         return colorPalette;
     }
 

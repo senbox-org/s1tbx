@@ -516,7 +516,7 @@ public class VisatApp extends BasicApp implements AppContext {
             try {
                 // Generate and register the OSXAdapter, passing it a hash of all the methods we wish to
                 // use as delegates for various com.apple.eawt.ApplicationListener methods
-                OSXAdapter.setQuitHandler(this, getClass().getDeclaredMethod("shutDown", (Class[]) null));
+                OSXAdapter.setQuitHandler(this, getClass().getMethod("shutDown", (Class[]) null));
                 JMenu fileMenu = findMainMenu("file");
                 JMenuItem menuItem = findMenuItem("exit", fileMenu);
                 fileMenu.remove(menuItem);
@@ -2294,6 +2294,7 @@ public class VisatApp extends BasicApp implements AppContext {
         menu.insert(deleteAction, 7);
         menu.insertSeparator(8);
     }
+
 
     /**
      * Creates an internal frame and adds it to VISAT's desktop.

@@ -7,11 +7,11 @@
     <parent>
         <artifactId>snap-beam</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>snap-binning</artifactId>
-    <name>BEAM Level-3 Binning</name>
+    <name>SNAP Level-3 Binning</name>
 
     <dependencies>
 

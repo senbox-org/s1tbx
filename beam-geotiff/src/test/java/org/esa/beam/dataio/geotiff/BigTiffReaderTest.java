@@ -16,31 +16,19 @@
 
 package org.esa.beam.dataio.geotiff;
 
-import com.bc.ceres.core.ProgressMonitor;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFRenderedImage;
-//import com.sun.media.jai.codec.ByteArraySeekableStream;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import junit.framework.TestCase;
-import org.apache.commons.math3.stat.inference.TestUtils;
-import org.esa.beam.dataio.geotiff.internal.TiffHeader;
-import org.esa.beam.dataio.geotiff.internal.TiffIFD;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.VirtualBand;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.MemoryCacheImageInputStream;
-import javax.imageio.stream.MemoryCacheImageOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.FileInputStream;
 import java.util.Iterator;
-//import org.esa.snap.util.TestUtils;
-import static org.junit.Assert.assertEquals;
+
 
 /**
  * TiffHeader Tester.
