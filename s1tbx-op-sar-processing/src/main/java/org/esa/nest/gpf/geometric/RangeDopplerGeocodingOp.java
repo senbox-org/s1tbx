@@ -34,6 +34,7 @@ import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.EarthGravitationalModel96;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.*;
+import org.esa.nest.gpf.InputProductValidator;
 import org.esa.nest.gpf.Sentinel1Calibrator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
@@ -243,9 +244,8 @@ public class RangeDopplerGeocodingOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            if (OperatorUtils.isMapProjected(sourceProduct)) {
-                throw new OperatorException("Source product is already map projected");
-            }
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfMapProjected();
 
             checkUserInput();
 

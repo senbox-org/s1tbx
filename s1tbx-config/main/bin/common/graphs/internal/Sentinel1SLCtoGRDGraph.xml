@@ -57,7 +57,7 @@
       <nRgLooks>2</nRgLooks>
       <nAzLooks>2</nAzLooks>
       <outputIntensity>true</outputIntensity>
-      <grSquarePixel>false</grSquarePixel>
+      <grSquarePixel>true</grSquarePixel>
       <note>Currently, detection for complex data is performed without any resampling</note>
     </parameters>
   </node>

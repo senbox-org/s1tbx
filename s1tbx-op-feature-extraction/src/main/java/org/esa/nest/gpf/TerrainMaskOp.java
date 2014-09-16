@@ -114,10 +114,6 @@ public final class TerrainMaskOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            if (OperatorUtils.isMapProjected(sourceProduct)) {
-                throw new OperatorException("Source product already map projected");
-            }
-
             setWindowSize();
 
             getSourceImageDimension();

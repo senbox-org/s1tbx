@@ -33,6 +33,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
+import org.esa.nest.gpf.InputProductValidator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.eo.Constants;
@@ -136,9 +137,8 @@ public final class TerrainFlatteningOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            if (OperatorUtils.isMapProjected(sourceProduct)) {
-                throw new OperatorException("Source product already map projected");
-            }
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfMapProjected();
 
             getMetadata();
 
