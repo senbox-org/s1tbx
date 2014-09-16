@@ -173,6 +173,12 @@ public final class TOPSARSplitOp extends Operator {
         absRoot.setAttributeDouble(AbstractMetadata.slant_range_to_first_pixel,
                 subSwathInfo[subSwathIndex - 1].slrTimeToFirstPixel * Constants.lightSpeed);
 
+        absRoot.setAttributeDouble(AbstractMetadata.range_spacing,
+                subSwathInfo[subSwathIndex - 1].rangePixelSpacing);
+
+        absRoot.setAttributeDouble(AbstractMetadata.azimuth_spacing,
+                subSwathInfo[subSwathIndex - 1].azimuthPixelSpacing);
+
         final int rows = subSwathInfo[subSwathIndex - 1].latitude.length;
         final int cols = subSwathInfo[subSwathIndex - 1].latitude[0].length;
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat,
