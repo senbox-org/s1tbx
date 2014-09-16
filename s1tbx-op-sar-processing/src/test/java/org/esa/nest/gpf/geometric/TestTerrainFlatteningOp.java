@@ -15,48 +15,98 @@
  */
 package org.esa.nest.gpf.geometric;
 
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.nest.dataio.dem.ElevationModel;
+import org.esa.nest.dataio.dem.ElevationModelDescriptor;
+import org.esa.nest.dataio.dem.ElevationModelRegistry;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
+
+import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Unit test for Geolocation Grid.
+ * Unit test for Range Doppler.
  */
-public class TestGeolocationGridOp {
+public class TestTerrainFlatteningOp {
 
     static {
         TestUtils.initTestEnvironment();
     }
-    private final static OperatorSpi spi = new GeolocationGridGeocodingOp.Spi();
+    private final static OperatorSpi spi = new TerrainFlatteningOp.Spi();
 
     private final static String inputPathWSM = TestUtils.rootPathTestProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-    private final static String expectedPathWSM = TestUtils.rootPathTestProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_EC.dim";
+
+    private final static String inputPathIMS = TestUtils.rootPathTestProducts + "\\input\\ENVISAT-ASA_IMS_1PNDPA20050405_211952_000000162036_00115_16201_8523.dim";
+
+    private final static String inputPathAPM = TestUtils.rootPathTestProducts + "\\input\\ASA_APM_1PNIPA20030327_091853_000000152015_00036_05601_5422.N1";
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
-    private String[] exceptionExemptions = {"not supported", "already map projected"};
+    private String[] exceptionExemptions = {"not supported", "already map projected", "outside of SRTM valid area"};
 
     /**
-     * Processes a product and compares it to processed product known to be correct
+     * Processes a WSM product and compares it to processed product known to be correct
      *
      * @throws Exception general exception
      */
     @Test
-    public void testProcessing() throws Exception {
+    public void testProcessWSM() throws Exception {
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputPathWSM);
 
-        final GeolocationGridGeocodingOp op = (GeolocationGridGeocodingOp) spi.createOperator();
+        final TerrainFlatteningOp op = (TerrainFlatteningOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
 
-        final String[] excemptionList = {"total_size"};
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, false, false);
-        TestUtils.compareProducts(targetProduct, expectedPathWSM, excemptionList);
+    }
+
+    /**
+     * Processes a IMS product and compares it to processed product known to be correct
+     *
+     * @throws Exception general exception
+     */
+    @Test
+    public void testProcessIMS() throws Exception {
+
+        final Product sourceProduct = TestUtils.readSourceProduct(inputPathIMS);
+
+        final TerrainFlatteningOp op = (TerrainFlatteningOp) spi.createOperator();
+        assertNotNull(op);
+        op.setSourceProduct(sourceProduct);
+
+        // get targetProduct: execute initialize()
+        final Product targetProduct = op.getTargetProduct();
+        TestUtils.verifyProduct(targetProduct, false, false);
+    }
+
+    /**
+     * Processes a APM product and compares it to processed product known to be correct
+     *
+     * @throws Exception general exception
+     */
+    @Test
+    public void testProcessAPM() throws Exception {
+
+        final Product sourceProduct = TestUtils.readSourceProduct(inputPathAPM);
+
+        final TerrainFlatteningOp op = (TerrainFlatteningOp) spi.createOperator();
+        assertNotNull(op);
+        op.setSourceProduct(sourceProduct);
+
+        // get targetProduct: execute initialize()
+        final Product targetProduct = op.getTargetProduct();
+        TestUtils.verifyProduct(targetProduct, false, false);
     }
 
     @Test
@@ -70,7 +120,8 @@ public class TestGeolocationGridOp {
     }
 
     @Test
-    public void testProcessAllALOS() throws Exception {
+    public void testProcessAllALOS() throws Exception
+    {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, exceptionExemptions);
     }
 
