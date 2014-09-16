@@ -438,6 +438,10 @@ public class SRGROp extends Operator {
             }
         }
 
+        final MetadataElement srgrElem = absTgt.getElement(AbstractMetadata.srgr_coefficients);
+        if (srgrElem != null) {
+            absTgt.removeElement(srgrElem);
+        }
         absTgt.addElement(srgrCoefficientsElem);
     }
 

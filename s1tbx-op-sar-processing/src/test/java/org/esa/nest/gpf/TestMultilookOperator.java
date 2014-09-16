@@ -75,7 +75,7 @@ public class TestMultilookOperator {
         band.readPixels(0, 0, 4, 2, floatValues, ProgressMonitor.NULL);
 
         // compare with expected outputs:
-        final float[] expectedValues = {10.5f, 14.5f, 18.5f, 22.5f, 42.5f, 46.5f, 50.5f, 54.5f};
+        final float[] expectedValues = {11.0f, 15.0f, 19.0f, 23.0f, 43.0f, 47.0f, 51.0f, 55.0f};
         assertTrue(Arrays.equals(expectedValues, floatValues));
 
         // compare updated metadata
