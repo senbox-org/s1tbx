@@ -21,11 +21,11 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.Debug;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.generic.GenericReader;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 
@@ -90,7 +90,7 @@ public class TerraSarXProductReader extends SARReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
 
-        Product product;
+        Product product = null;
         try {
             final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
             dataDir = new TerraSarXProductDirectory(fileFromInput);
@@ -106,11 +106,8 @@ public class TerraSarXProductReader extends SARReader {
             }    */
             product.getGcpGroup();
             product.setModified(false);
-        } catch (Exception e) {
-            Debug.trace(e.toString());
-            final IOException ioException = new IOException(e.getMessage());
-            ioException.initCause(e);
-            throw ioException;
+        } catch (Throwable e) {
+            handleReaderException(e);
         }
 
         return product;
@@ -154,14 +151,15 @@ public class TerraSarXProductReader extends SARReader {
             } else {
 
                 final ImageInputStream iiStream = dataDir.getCosarImageInputStream(destBand);
+                final boolean isImaginary = destBand.getUnit() != null && destBand.getUnit().equals(Unit.IMAGINARY);
                 readBandRasterDataSLCShort(sourceOffsetX, sourceOffsetY,
                         sourceWidth, sourceHeight,
                         sourceStepX, sourceStepY,
                         destWidth, destBuffer,
-                        !bandInfo.isImaginary, iiStream, pm);
+                        !isImaginary, iiStream, pm);
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            handleReaderException(e);
         }
     }
 
@@ -286,10 +284,10 @@ public class TerraSarXProductReader extends SARReader {
                 }
 
                 // Read source line
-                synchronized (iiStream) {
+                //synchronized (iiStream) {
                     iiStream.seek(imageRecordLength * y + xpos);
                     iiStream.readFully(srcLine, 0, srcLine.length);
-                }
+                //}
 
                 // Copy source line into destination buffer
                 final int currentLineIndex = (y - sourceOffsetY) * destWidth;
@@ -303,7 +301,7 @@ public class TerraSarXProductReader extends SARReader {
                 pm.worked(1);
             }
         } catch (Exception e) {
-            System.out.println(e.toString());
+            //System.out.println(e.toString());
             final int currentLineIndex = (y - sourceOffsetY) * destWidth;
             Arrays.fill(destLine, (short) 0);
             System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);

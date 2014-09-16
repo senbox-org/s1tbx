@@ -97,12 +97,11 @@ public class Radarsat2ProductReader extends SARReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
 
-        Product product;
         try {
             final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
             dataDir = createDirectory(fileFromInput);
             dataDir.readProductDirectory();
-            product = dataDir.createProduct();
+            final Product product = dataDir.createProduct();
 
             final MetadataElement absMeta = AbstractMetadata.getAbstractedMetadata(product);
             isAscending = absMeta.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
@@ -114,14 +113,11 @@ public class Radarsat2ProductReader extends SARReader {
             product.setProductReader(this);
             setQuicklookBandName(product);
 
+            return product;
         } catch (Exception e) {
-            Debug.trace(e.toString());
-            final IOException ioException = new IOException(e.getMessage());
-            ioException.initCause(e);
-            throw ioException;
+            handleReaderException(e);
         }
-
-        return product;
+        return null;
     }
 
     protected Radarsat2ProductDirectory createDirectory(final File fileFromInput) {

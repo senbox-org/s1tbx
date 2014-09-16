@@ -98,11 +98,7 @@ public class AlosPalsarProductReader extends CEOSProductReader {
             }
 
         } catch (Exception e) {
-            final IOException ioException = new IOException(e.getMessage());
-            ioException.initCause(e);
-            throw ioException;
+            handleReaderException(e);
         }
-
     }
-
 }

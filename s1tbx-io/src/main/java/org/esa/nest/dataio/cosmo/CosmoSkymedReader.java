@@ -84,61 +84,66 @@ public class CosmoSkymedReader extends SARReader {
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        final File inputFile = ReaderUtils.getFileFromInput(getInput());
-        initReader();
+        try {
+            final File inputFile = ReaderUtils.getFileFromInput(getInput());
+            initReader();
 
-        final NetcdfFile netcdfFile = NetcdfFile.open(inputFile.getPath());
-        if (netcdfFile == null) {
-            close();
-            throw new IllegalFileFormatException(inputFile.getName() +
-                    " Could not be interpretted by the reader.");
+            final NetcdfFile netcdfFile = NetcdfFile.open(inputFile.getPath());
+            if (netcdfFile == null) {
+                close();
+                throw new IllegalFileFormatException(inputFile.getName() +
+                        " Could not be interpreted by the reader.");
+            }
+
+            final Map<NcRasterDim, List<Variable>> variableListMap = NetCDFUtils.getVariableListMap(netcdfFile.getRootGroup());
+            if (variableListMap.isEmpty()) {
+                close();
+                throw new IllegalFileFormatException("No netCDF variables found which could\n" +
+                        "be interpreted as remote sensing bands.");  /*I18N*/
+            }
+            removeQuickLooks(variableListMap);
+
+            final NcRasterDim rasterDim = NetCDFUtils.getBestRasterDim(variableListMap);
+            final Variable[] rasterVariables = getRasterVariables(variableListMap, rasterDim);
+            final Variable[] tiePointGridVariables = NetCDFUtils.getTiePointGridVariables(variableListMap, rasterVariables);
+
+            this.netcdfFile = netcdfFile;
+            variableMap = new NcVariableMap(rasterVariables);
+            yFlipped = false;
+
+            final NcAttributeMap globalAttributes = NcAttributeMap.create(this.netcdfFile);
+
+            final String productType = NetCDFUtils.getProductType(globalAttributes, readerPlugIn.getFormatNames()[0]);
+            final int rasterWidth = rasterDim.getDimX().getLength();
+            final int rasterHeight = rasterDim.getDimY().getLength();
+
+            product = new Product(inputFile.getName(),
+                    productType,
+                    rasterWidth, rasterHeight,
+                    this);
+            product.setFileLocation(inputFile);
+            product.setDescription(NetCDFUtils.getProductDescription(globalAttributes));
+            product.setStartTime(NetCDFUtils.getSceneRasterStartTime(globalAttributes));
+            product.setEndTime(NetCDFUtils.getSceneRasterStopTime(globalAttributes));
+
+            addMetadataToProduct();
+            addBandsToProduct(rasterVariables);
+            addTiePointGridsToProduct(tiePointGridVariables);
+            addGeoCodingToProduct(rasterDim);
+            addSlantRangeToFirstPixel();
+            addFirstLastLineTimes(rasterHeight);
+            addSRGRCoefficients();
+            addDopplerCentroidCoefficients();
+            setQuicklookBandName(product);
+
+            product.getGcpGroup();
+            product.setModified(false);
+
+            return product;
+        } catch(Exception e) {
+            handleReaderException(e);
         }
-
-        final Map<NcRasterDim, List<Variable>> variableListMap = NetCDFUtils.getVariableListMap(netcdfFile.getRootGroup());
-        if (variableListMap.isEmpty()) {
-            close();
-            throw new IllegalFileFormatException("No netCDF variables found which could\n" +
-                    "be interpreted as remote sensing bands.");  /*I18N*/
-        }
-        removeQuickLooks(variableListMap);
-
-        final NcRasterDim rasterDim = NetCDFUtils.getBestRasterDim(variableListMap);
-        final Variable[] rasterVariables = getRasterVariables(variableListMap, rasterDim);
-        final Variable[] tiePointGridVariables = NetCDFUtils.getTiePointGridVariables(variableListMap, rasterVariables);
-
-        this.netcdfFile = netcdfFile;
-        variableMap = new NcVariableMap(rasterVariables);
-        yFlipped = false;
-
-        final NcAttributeMap globalAttributes = NcAttributeMap.create(this.netcdfFile);
-
-        final String productType = NetCDFUtils.getProductType(globalAttributes, readerPlugIn.getFormatNames()[0]);
-        final int rasterWidth = rasterDim.getDimX().getLength();
-        final int rasterHeight = rasterDim.getDimY().getLength();
-
-        product = new Product(inputFile.getName(),
-                productType,
-                rasterWidth, rasterHeight,
-                this);
-        product.setFileLocation(inputFile);
-        product.setDescription(NetCDFUtils.getProductDescription(globalAttributes));
-        product.setStartTime(NetCDFUtils.getSceneRasterStartTime(globalAttributes));
-        product.setEndTime(NetCDFUtils.getSceneRasterStopTime(globalAttributes));
-
-        addMetadataToProduct();
-        addBandsToProduct(rasterVariables);
-        addTiePointGridsToProduct(tiePointGridVariables);
-        addGeoCodingToProduct(rasterDim);
-        addSlantRangeToFirstPixel();
-        addFirstLastLineTimes(rasterHeight);
-        addSRGRCoefficients();
-        addDopplerCentroidCoefficients();
-        setQuicklookBandName(product);
-
-        product.getGcpGroup();
-        product.setModified(false);
-
-        return product;
+        return null;
     }
 
     @Override
