@@ -112,7 +112,7 @@ public final class XMLSupport {
             System.out.println(msg);
             throw new IOException(msg);
         } catch (IOException e) {
-            System.out.println("Path to xml is not valid: " + e.getMessage());
+            //System.out.println("Path to xml is not valid: " + e.getMessage());
             throw e;
         } catch (SAXException e) {
             System.out.println("cannot parse xml : " + e.getMessage());
