@@ -164,7 +164,7 @@ public class TiffDirectoryEntryTest extends TestCase {
         };
         final TiffDirectoryEntry entry = new TiffDirectoryEntry(new TiffShort(12), values, bigTiff);
 
-        assertEquals(TiffDirectoryEntry.BYTES_PER_ENTRY, entry.getSize());
+        assertEquals(entry.getBytesPerEntry(), entry.getSize());
     }
 
     public void testGetSize_TiffShort_TwoValues() {
@@ -174,7 +174,7 @@ public class TiffDirectoryEntryTest extends TestCase {
         };
         final TiffDirectoryEntry entry = new TiffDirectoryEntry(new TiffShort(12), values, bigTiff);
 
-        assertEquals(TiffDirectoryEntry.BYTES_PER_ENTRY, entry.getSize());
+        assertEquals(entry.getBytesPerEntry(), entry.getSize());
     }
 
     public void testGetSize_TiffShort_MoreThanTwoValues() {
@@ -185,7 +185,7 @@ public class TiffDirectoryEntryTest extends TestCase {
         };
         final TiffDirectoryEntry entry = new TiffDirectoryEntry(new TiffShort(12), values, bigTiff);
 
-        final int expectedSize = TiffDirectoryEntry.BYTES_PER_ENTRY + 6;
+        final int expectedSize = entry.getBytesPerEntry() + 6;
         assertEquals(expectedSize, entry.getSize());
     }
 
@@ -195,7 +195,7 @@ public class TiffDirectoryEntryTest extends TestCase {
         };
         final TiffDirectoryEntry entry = new TiffDirectoryEntry(new TiffShort(12), values, bigTiff);
 
-        assertEquals(TiffDirectoryEntry.BYTES_PER_ENTRY, entry.getSize());
+        assertEquals(entry.getBytesPerEntry(), entry.getSize());
     }
 
     public void testGetSize_TiffLong_ValueArray() {
@@ -206,7 +206,7 @@ public class TiffDirectoryEntryTest extends TestCase {
         };
         final TiffDirectoryEntry entry = new TiffDirectoryEntry(new TiffShort(12), values, bigTiff);
 
-        final int expectedSize = TiffDirectoryEntry.BYTES_PER_ENTRY + 12;
+        final int expectedSize = entry.getBytesPerEntry() + 12;
         assertEquals(expectedSize, entry.getSize());
     }
 
@@ -216,7 +216,7 @@ public class TiffDirectoryEntryTest extends TestCase {
         };
         final TiffDirectoryEntry entry = new TiffDirectoryEntry(new TiffShort(12), values, bigTiff);
 
-        final int expectedSize = TiffDirectoryEntry.BYTES_PER_ENTRY + 8;
+        final int expectedSize = entry.getBytesPerEntry() + 8;
         assertEquals(expectedSize, entry.getSize());
     }
 
@@ -227,7 +227,7 @@ public class TiffDirectoryEntryTest extends TestCase {
         };
         final TiffDirectoryEntry entry = new TiffDirectoryEntry(new TiffShort(12), values, bigTiff);
 
-        final int expectedSize = TiffDirectoryEntry.BYTES_PER_ENTRY + 16;
+        final int expectedSize = entry.getBytesPerEntry() + 16;
         assertEquals(expectedSize, entry.getSize());
     }
 

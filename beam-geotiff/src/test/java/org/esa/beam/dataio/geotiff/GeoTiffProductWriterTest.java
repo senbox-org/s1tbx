@@ -31,7 +31,7 @@ import java.io.RandomAccessFile;
 public class GeoTiffProductWriterTest extends TestCase {
 
     private static final String FILENAME = "temp.tif";
-    private static final boolean bigTiff = true;
+    private static final boolean bigTiff = false;
     private GeoTiffProductWriter _productWriter;
     private Product _product;
 

@@ -361,6 +361,7 @@ public abstract class ProductData implements Cloneable {
             case TYPE_FLOAT32:
             case TYPE_UTC:
                 return 4;
+            case TYPE_ULONG64:
             case TYPE_FLOAT64:
                 return 8;
             default:
@@ -398,6 +399,8 @@ public abstract class ProductData implements Cloneable {
                 return TYPESTRING_UINT32;
             case TYPE_FLOAT32:
                 return TYPESTRING_FLOAT32;
+            case TYPE_ULONG64:
+                return TYPESTRING_ULONG64;
             case TYPE_FLOAT64:
                 return TYPESTRING_FLOAT64;
             case TYPE_ASCII:
@@ -429,6 +432,8 @@ public abstract class ProductData implements Cloneable {
             return TYPE_UINT32;
         } else if (TYPESTRING_FLOAT32.equals(type)) {
             return TYPE_FLOAT32;
+        } else if (TYPESTRING_ULONG64.equals(type)) {
+            return TYPE_ULONG64;
         } else if (TYPESTRING_FLOAT64.equals(type)) {
             return TYPE_FLOAT64;
         } else if (TYPESTRING_ASCII.equals(type)) {
@@ -1608,6 +1613,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
+            //System.out.println("INT16 write (" + this + ") " + sourceStartPos + " " + numSourceElems);
             destination.writeShorts(_array, sourceStartPos, numSourceElems);
         }
 
@@ -1963,6 +1969,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
+            //System.out.println("INT32 write (" + this + ") " + sourceStartPos + " " + numSourceElems);
             destination.writeInts(_array, sourceStartPos, numSourceElems);
         }
 
@@ -2334,6 +2341,7 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
+            //System.out.println ("ULONG 64 write (" + this + ") " + sourceStartPos + " " + numSourceElems);
             destination.writeLongs(_array, sourceStartPos, numSourceElems);
         }
 
