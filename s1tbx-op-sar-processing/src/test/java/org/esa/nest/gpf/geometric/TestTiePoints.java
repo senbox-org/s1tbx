@@ -23,6 +23,7 @@ import org.esa.snap.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
@@ -99,9 +100,7 @@ public class TestTiePoints {
         for (int y = 0; y < h; ++y) {
             for (int x = 0; x < w; ++x) {
                 final float f = tpg.getPixelFloat(x, y);
-
-                System.out.println(x + ',' + y + ' ' + f + "    " + floats[y * w + x]);
-                assertEquals(f, floats[y * w + x]);
+                assertTrue(f == floats[y * w + x]);
             }
         }
     }
