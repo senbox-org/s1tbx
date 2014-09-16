@@ -61,23 +61,10 @@
       <note>Currently, detection for complex data is performed without any resampling</note>
     </parameters>
   </node>
-  <node id="SRGR">
-    <operator>SRGR</operator>
-    <sources>
-      <sourceProduct refid="Multilook"/>
-    </sources>
-    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <sourceBands>
-        <band></band>
-      </sourceBands>
-      <warpPolynomialOrder>4</warpPolynomialOrder>
-      <interpolationMethod>Linear interpolation</interpolationMethod>
-    </parameters>
-  </node>
   <node id="Speckle-Filter">
     <operator>Speckle-Filter</operator>
     <sources>
-      <sourceProduct refid="SRGR"/>
+      <sourceProduct refid="Multilook"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceBands/>
@@ -116,9 +103,6 @@
     </node>
     <node id="Multilook">
       <displayPosition y="138.0" x="97.0"/>
-    </node>
-    <node id="SRGR">
-      <displayPosition y="136.0" x="213.0"/>
     </node>
     <node id="Speckle-Filter">
       <displayPosition y="137.0" x="302.0"/>
