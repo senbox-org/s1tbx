@@ -262,6 +262,7 @@ public final class Sentinel1Utils {
         subSwath.azimuthTimeInterval = Double.parseDouble(imageInformation.getAttributeString("azimuthTimeInterval")) /
                 Constants.secondsInDay; // s to day
         subSwath.rangePixelSpacing = Double.parseDouble(imageInformation.getAttributeString("rangePixelSpacing"));
+        subSwath.azimuthPixelSpacing = Double.parseDouble(imageInformation.getAttributeString("azimuthPixelSpacing"));
         subSwath.slrTimeToFirstPixel = Double.parseDouble(imageInformation.getAttributeString("slantRangeTime")) / 2.0; // 2-way to 1-way
         subSwath.slrTimeToLastPixel = subSwath.slrTimeToFirstPixel +
                 (subSwath.numOfSamples - 1) * subSwath.rangePixelSpacing / Constants.lightSpeed;
@@ -1070,6 +1071,7 @@ public final class Sentinel1Utils {
         public double slrTimeToLastPixel;
         public double azimuthTimeInterval;
         public double rangePixelSpacing;
+        public double azimuthPixelSpacing;
         public double radarFrequency;
         public double azimuthSteeringRate;
 
