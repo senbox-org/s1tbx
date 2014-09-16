@@ -51,7 +51,6 @@ public class GraphExecuter extends Observable {
     private String graphDescription = "";
     private File lastLoadedGraphFile = null;
 
-    private int idCount = 0;
     private final GraphNodeList graphNodeList = new GraphNodeList();
 
     public enum events {ADD_EVENT, REMOVE_EVENT, SELECT_EVENT}
@@ -59,7 +58,9 @@ public class GraphExecuter extends Observable {
     public GraphExecuter() {
 
         gpf = GPF.getDefaultInstance();
-        gpf.getOperatorSpiRegistry().loadOperatorSpis();
+        if(gpf.getOperatorSpiRegistry().getOperatorSpis().isEmpty()) {
+            gpf.getOperatorSpiRegistry().loadOperatorSpis();
+        }
 
         graph = new Graph("Graph");
     }
@@ -77,7 +78,6 @@ public class GraphExecuter extends Observable {
         graph = new Graph("Graph");
         lastLoadedGraphFile = null;
         graphNodeList.clear();
-        idCount = 0;
     }
 
     public void setSelectedNode(GraphNode node) {
@@ -329,7 +329,6 @@ public class GraphExecuter extends Observable {
                 notifyObservers(new GraphEvent(events.ADD_EVENT, newGraphNode));
                 clearChanged();
             }
-            idCount = nodes.length;
         }
     }
 
