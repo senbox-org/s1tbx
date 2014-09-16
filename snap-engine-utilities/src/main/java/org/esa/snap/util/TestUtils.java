@@ -229,6 +229,18 @@ public class TestUtils {
         for (Band b : product.getBands()) {
             if (b.getUnit() == null || b.getUnit().isEmpty())
                 throw new Exception("band " + b.getName() + " has null unit");
+
+            // readPixels gets computeTiles to be executed
+            final float[] floatValues = new float[b.getSceneRasterWidth()*b.getSceneRasterHeight()];
+            b.readPixels(0, 0, b.getSceneRasterWidth(), b.getSceneRasterHeight(), floatValues, ProgressMonitor.NULL);
+            boolean allNoData = true;
+            for(float f : floatValues) {
+                if(!(f == b.getNoDataValue() || f == 0 || f == Float.NaN))
+                    allNoData = false;
+            }
+            if(allNoData) {
+                throw new Exception("band " + b.getName() + " is all no data value");
+            }
         }
     }
 
