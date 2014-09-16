@@ -28,7 +28,7 @@ s1tbx.test.subsetY = 100
 s1tbx.test.subsetWidth = 100
 s1tbx.test.subsetHeight = 100
 
-s1tbx.test.rootPathExpectedProducts = 	P:\\nest\\nest\\ESA Data\\test\\
+s1tbx.test.rootPathTestProducts = 		P:\\nest\\nest\\ESA Data\\test\\
 s1tbx.test.rootPathSentinel1 = 			P:\\s1tbx\\s1tbx\\Data\\First Images
 s1tbx.test.rootPathTerraSarX = 			P:\\nest\\nest\\ESA Data\\RADAR\\TerraSarX
 s1tbx.test.rootPathASAR= 				P:\\nest\\nest\\ESA Data\\RADAR\\ASAR

@@ -35,11 +35,11 @@ public class TestPolarimetricMatricesOp {
 
     private final static OperatorSpi spi = new PolarimetricMatricesOp.Spi();
 
-    private final static String quadInputPath = TestUtils.rootPathExpectedProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
-    private final static String inputQuadFullStack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
+    private final static String quadInputPath = TestUtils.rootPathTestProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
+    private final static String inputQuadFullStack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
 
-    private final static String expectedPathC3 = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_C3.dim";
-    private final static String expectedPathT3 = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_T3.dim";
+    private final static String expectedPathC3 = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_C3.dim";
+    private final static String expectedPathT3 = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_T3.dim";
 
     private Product runMatrix(final PolarimetricMatricesOp op,
                               final String decompositionName, final String path) throws Exception {

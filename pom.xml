@@ -1010,6 +1010,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
 					<outputDirectory>${pacakgedir}</outputDirectory>
+					<finalName>s1tbx</finalName>
                     <descriptors>
 						<descriptor>s1tbx-config/main/assembly/bin-windows64.xml</descriptor>
 						<descriptor>s1tbx-config/main/assembly/bin-windows.xml</descriptor>						

@@ -31,6 +31,7 @@ import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.XMLSupport;
+import org.esa.snap.util.ZipUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
@@ -65,7 +66,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     }
 
     protected String getHeaderFileName() {
-        if (SARReader.isZip(headerFile)) {
+        if (ZipUtils.isZip(headerFile)) {
             return ""; //todo
         } else {
             return headerFile.getName();

@@ -127,8 +127,4 @@ public abstract class SARReader extends AbstractProductReader {
             }
         }
     }
-
-    public static boolean isZip(final File inputFile) {
-        return inputFile.getName().toLowerCase().endsWith(".zip");
-    }
 }

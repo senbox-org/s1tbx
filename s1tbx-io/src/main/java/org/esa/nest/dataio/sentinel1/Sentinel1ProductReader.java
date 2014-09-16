@@ -93,6 +93,9 @@ public class Sentinel1ProductReader extends SARReader {
             } else if (Sentinel1ProductReaderPlugIn.isLevel0(fileFromInput)) {
                 dataDir = new Sentinel1Level0Directory(fileFromInput);
             }
+            if(dataDir == null) {
+                Sentinel1ProductReaderPlugIn.validateInput(fileFromInput);
+            }
             dataDir.readProductDirectory();
             product = dataDir.createProduct();
             product.getGcpGroup();

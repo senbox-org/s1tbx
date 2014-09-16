@@ -35,14 +35,14 @@ public class TestPolarimetricSpeckleFilterOp {
 
     private final static OperatorSpi spi = new PolarimetricSpeckleFilterOp.Spi();
 
-    private final static String inputPathQuad = TestUtils.rootPathExpectedProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
-    private final static String inputQuadFullStack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
-    private final static String inputC3Stack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-C3-Stack.dim";
-    private final static String inputT3Stack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-T3-Stack.dim";
+    private final static String inputPathQuad = TestUtils.rootPathTestProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
+    private final static String inputQuadFullStack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
+    private final static String inputC3Stack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-C3-Stack.dim";
+    private final static String inputT3Stack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-T3-Stack.dim";
 
-    private final static String expectedBoxCar = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_BoxCar.dim";
-    private final static String expectedRefinedLee = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_RefinedLee.dim";
-    private final static String expectedIDAN = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_IDAN.dim";
+    private final static String expectedBoxCar = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_BoxCar.dim";
+    private final static String expectedRefinedLee = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_RefinedLee.dim";
+    private final static String expectedIDAN = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_IDAN.dim";
 
     private Product runFilter(final PolarimetricSpeckleFilterOp op,
                               final String filterName, final String path) throws Exception {

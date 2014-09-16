@@ -34,7 +34,7 @@ public class TestOceanToolsGraph {
     @Test
     @Ignore
     public void testProcessGraph() throws Exception {
-        final File inputFile = new File(TestUtils.rootPathExpectedProducts, ASAR_IMM);
+        final File inputFile = new File(TestUtils.rootPathTestProducts, ASAR_IMM);
         final File outputFile = new File(ResourceUtils.getApplicationUserTempDataDir(), "tmpOut.dim");
         if (!inputFile.exists()) {
             TestUtils.skipTest(this);

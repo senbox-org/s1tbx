@@ -16,11 +16,9 @@
 package org.esa.nest.gpf.filtering;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.util.TestUtils;
@@ -41,8 +39,8 @@ public class SpeckleFilterOperatorTest {
     }
     private OperatorSpi spi = new SpeckleFilterOp.Spi();
 
-    private final static String inputPathWSM = TestUtils.rootPathExpectedProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-    private final static String expectedPathWSM = TestUtils.rootPathExpectedProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_Spk.dim";
+    private final static String inputPathWSM = TestUtils.rootPathTestProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
+    private final static String expectedPathWSM = TestUtils.rootPathTestProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_Spk.dim";
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
 

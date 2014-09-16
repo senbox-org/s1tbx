@@ -25,10 +25,12 @@ import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.XMLSupport;
+import org.esa.snap.util.ZipUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -54,7 +56,7 @@ public abstract class XMLProductDirectory {
     protected XMLProductDirectory(final File inputFile) {
         Guardian.assertNotNull("inputFile", inputFile);
 
-        if (SARReader.isZip(inputFile)) {
+        if (ZipUtils.isZip(inputFile)) {
             productDir = VirtualDir.create(inputFile);
             baseDir = inputFile;
             baseName = inputFile.getName();
@@ -70,20 +72,7 @@ public abstract class XMLProductDirectory {
             return rootFolder;
         try {
             if (productDir.isCompressed()) {
-                final ZipFile productZip = new ZipFile(baseDir, ZipFile.OPEN_READ);
-
-                final Optional result = productZip.stream()
-                        .filter(ze -> !ze.isDirectory())
-                        .filter(ze -> ze.getName().toLowerCase().endsWith(getHeaderFileName()))
-                        .findFirst();
-                ZipEntry ze = (ZipEntry) result.get();
-                String path = ze.toString();
-                int sepIndex = path.lastIndexOf('/');
-                if (sepIndex > 0) {
-                    rootFolder = path.substring(0, sepIndex) + '/';
-                } else {
-                    rootFolder = "";
-                }
+                rootFolder = ZipUtils.getRootFolder(baseDir, getHeaderFileName());
             } else {
                 rootFolder = "";
             }
@@ -119,7 +108,12 @@ public abstract class XMLProductDirectory {
 
     protected void findImages() throws IOException {
         final String parentPath = getRelativePathToImageFolder();
-        final String[] listing = productDir.list(parentPath);
+        String[] listing;
+        try {
+            listing = productDir.list(parentPath);
+        } catch (FileNotFoundException e) {
+            listing = null;
+        }
         if (listing != null) {
             for (String imgPath : listing) {
                 addImageFile(parentPath + imgPath);
