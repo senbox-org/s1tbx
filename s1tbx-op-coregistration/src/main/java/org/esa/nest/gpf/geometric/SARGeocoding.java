@@ -198,7 +198,7 @@ public class SARGeocoding {
         // find the exact time using Doppler frequency and bisection method
         double lowerBoundTime = firstVecTime;
         double upperBoundTime = secondVecTime;
-        double lowerBoundFreq = firstVecTime;
+        double lowerBoundFreq = firstVecFreq;
         double upperBoundFreq = secondVecFreq;
         double diffTime = Math.abs(upperBoundTime - lowerBoundTime);
         while (diffTime > Math.abs(lineTimeInterval)) {
