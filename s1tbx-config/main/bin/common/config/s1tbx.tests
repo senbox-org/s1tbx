@@ -18,11 +18,11 @@
 
 # Test Paths
 # Some unit tests open all products within a folder and apply thier processing to verify they don't get any error
-s1tbx.test.ReadersOnAllProducts = true
-s1tbx.test.ProcessingOnAllProducts = true
+s1tbx.test.ReadersOnAllProducts = false
+s1tbx.test.ProcessingOnAllProducts = false
 s1tbx.test.RunBenchmarks = false
 # max number of products to test from each root folder. Use -1 to test all.
-s1tbx.test.maxProductsPerRootFolder = -1
+s1tbx.test.maxProductsPerRootFolder = 1
 s1tbx.test.subsetX = 100
 s1tbx.test.subsetY = 100
 s1tbx.test.subsetWidth = 100

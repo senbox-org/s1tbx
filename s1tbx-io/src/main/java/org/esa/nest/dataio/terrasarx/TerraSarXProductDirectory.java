@@ -409,7 +409,11 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
     protected void addImageFile(final String imgPath) throws IOException {
         if (imgPath.toUpperCase().endsWith("COS")) {
-           throw new IOException("not supported yet");
+            final File file = new File(getBaseDir(), imgPath);
+
+            cosarFileList.add(file);
+            setSLC(true);
+
         } else {
             final String name = imgPath.toLowerCase();
             if ((name.endsWith("tif") || name.endsWith("tiff")) && name.startsWith("image")) {

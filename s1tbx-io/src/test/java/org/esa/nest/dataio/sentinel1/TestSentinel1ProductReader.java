@@ -37,9 +37,9 @@ public class TestSentinel1ProductReader {
     private Sentinel1ProductReaderPlugIn readerPlugin;
     private ProductReader reader;
 
-    final String s1ZipFilePath = TestUtils.rootPathTestProducts+"input\\S1A_S1_GRDM_1SDV_20140607T172812_20140607T172836_000947_000EBD_7543.zip";
-    final String s1AnnotationProductPath = TestUtils.rootPathTestProducts+"input\\S1A_IW_GRDH_1ADV_20140819T224528_20140819T224546_002015_001F3B_979A.SAFE\\manifest.safe";
-    final String s1ZipAnnotationProductPath = TestUtils.rootPathTestProducts+"input\\S1A_IW_GRDH_1ADV_20140819T224528_20140819T224546_002015_001F3B_979A.zip";
+    final String s1ZipFilePath = TestUtils.rootPathTestProducts+"input\\S1\\S1A_S1_GRDM_1SDV_20140607T172812_20140607T172836_000947_000EBD_7543.zip";
+    final String s1AnnotationProductPath = TestUtils.rootPathTestProducts+"input\\S1\\S1A_IW_GRDH_1ADV_20140819T224528_20140819T224546_002015_001F3B_979A.SAFE\\manifest.safe";
+    final String s1ZipAnnotationProductPath = TestUtils.rootPathTestProducts+"input\\S1\\S1A_IW_GRDH_1ADV_20140819T224528_20140819T224546_002015_001F3B_979A.zip";
     final String s1FolderFilePath = "P:\\s1tbx\\s1tbx\\Data\\First Images\\S1A_S1_SLC__1SDV_20140607T172812_20140607T172836_000947_000EBD_4DB2.SAFE";
 
     public TestSentinel1ProductReader() throws Exception {

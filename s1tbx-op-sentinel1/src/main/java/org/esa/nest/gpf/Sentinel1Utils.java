@@ -749,10 +749,9 @@ public final class Sentinel1Utils {
     public static String[] getProductPolarizations(final MetadataElement absRoot) {
 
         final MetadataElement[] elems = absRoot.getElements();
-        final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         final List<String> polList = new ArrayList<String>(4);
         for (MetadataElement elem : elems) {
-            if (elem.getName().contains(acquisitionMode)) {
+            if (elem.getName().contains("Band_")) {
                 final String pol = elem.getAttributeString("polarization");
                 if (!polList.contains(pol)) {
                     polList.add(pol);

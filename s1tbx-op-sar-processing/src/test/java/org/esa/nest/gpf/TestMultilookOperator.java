@@ -144,6 +144,7 @@ public class TestMultilookOperator {
         AbstractMetadata.setAttribute(abs, AbstractMetadata.azimuth_looks, 1);
         AbstractMetadata.setAttribute(abs, AbstractMetadata.range_looks, 1);
         AbstractMetadata.setAttribute(abs, AbstractMetadata.line_time_interval, 0.01F);
+        AbstractMetadata.setAttribute(abs, AbstractMetadata.slant_range_to_first_pixel, 881619);
         AbstractMetadata.setAttribute(abs, AbstractMetadata.first_line_time,
                 AbstractMetadata.parseUTC("10-MAY-2008 20:32:46.885684"));
 
@@ -182,6 +183,11 @@ public class TestMultilookOperator {
     @Test
     public void testProcessAllCosmo() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, null, exceptionExemptions);
+    }
+
+    @Test
+    public void testProcessAllSentinel1() throws Exception {
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathSentinel1, null, exceptionExemptions);
     }
 
     @Test
