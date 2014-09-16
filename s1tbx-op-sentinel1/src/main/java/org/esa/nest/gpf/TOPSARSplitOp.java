@@ -55,6 +55,10 @@ public final class TOPSARSplitOp extends Operator {
     @Parameter(description = "The list of polarisations", label = "Polarisations")
     private String[] selectedPolarisations;
 
+    private Sentinel1Utils su = null;
+    private Sentinel1Utils.SubSwathInfo[] subSwathInfo = null;
+    private int subSwathIndex = 0;
+
     /**
      * Initializes this operator and sets the one and only target product.
      * <p>The target product can be either defined by a field of type {@link org.esa.beam.framework.datamodel.Product} annotated with the
@@ -75,6 +79,15 @@ public final class TOPSARSplitOp extends Operator {
             if (subswath == null) {
                 final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
                 subswath = acquisitionMode + '1';
+            }
+
+            su = new Sentinel1Utils(sourceProduct);
+            subSwathInfo = su.getSubSwath();
+            for (int i = 0; i < subSwathInfo.length; i++) {
+                if (subSwathInfo[i].subSwathName.contains(subswath)) {
+                    subSwathIndex = i + 1;
+                    break;
+                }
             }
 
             if (selectedPolarisations == null || selectedPolarisations.length == 0) {
@@ -147,6 +160,37 @@ public final class TOPSARSplitOp extends Operator {
     private void updateTargetProductMetadata() {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
+
+        absRoot.setAttributeUTC(AbstractMetadata.first_line_time,
+                new ProductData.UTC(subSwathInfo[subSwathIndex - 1].firstLineTime));
+
+        absRoot.setAttributeUTC(AbstractMetadata.last_line_time,
+                new ProductData.UTC(subSwathInfo[subSwathIndex - 1].lastLineTime));
+
+        absRoot.setAttributeDouble(AbstractMetadata.line_time_interval,
+                subSwathInfo[subSwathIndex - 1].azimuthTimeInterval);
+
+        absRoot.setAttributeDouble(AbstractMetadata.slant_range_to_first_pixel,
+                subSwathInfo[subSwathIndex - 1].slrTimeToFirstPixel * Constants.lightSpeed);
+
+        final int rows = subSwathInfo[subSwathIndex - 1].latitude.length;
+        final int cols = subSwathInfo[subSwathIndex - 1].latitude[0].length;
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat,
+                subSwathInfo[subSwathIndex - 1].latitude[0][0]);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long,
+                subSwathInfo[subSwathIndex - 1].longitude[0][0]);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat,
+                subSwathInfo[subSwathIndex - 1].latitude[0][cols - 1]);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long,
+                subSwathInfo[subSwathIndex - 1].longitude[0][cols - 1]);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat,
+                subSwathInfo[subSwathIndex - 1].latitude[rows - 1][0]);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long,
+                subSwathInfo[subSwathIndex - 1].longitude[rows - 1][0]);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat,
+                subSwathInfo[subSwathIndex - 1].latitude[rows - 1][cols - 1]);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long,
+                subSwathInfo[subSwathIndex - 1].longitude[rows - 1][cols - 1]);
 
         final MetadataElement[] bandMetadataList = AbstractMetadata.getBandAbsMetadataList(absRoot);
         for (MetadataElement bandMeta : bandMetadataList) {
