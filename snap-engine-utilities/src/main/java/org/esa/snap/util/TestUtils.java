@@ -49,7 +49,7 @@ public class TestUtils {
     private final static String contextID = ResourceUtils.getContextID();
     private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap(contextID + ".tests");
 
-    public final static String rootPathExpectedProducts;
+    public final static String rootPathTestProducts;
 
     public final static String rootPathTerraSarX;
     public final static String rootPathASAR;
@@ -76,7 +76,7 @@ public class TestUtils {
 
     static {
         if(testPreferences != null) {
-            rootPathExpectedProducts = testPreferences.getPropertyString(contextID + ".test.rootPathExpectedProducts");
+            rootPathTestProducts = testPreferences.getPropertyString(contextID + ".test.rootPathTestProducts");
             rootPathTerraSarX = testPreferences.getPropertyString(contextID + ".test.rootPathTerraSarX");
             rootPathASAR = testPreferences.getPropertyString(contextID + ".test.rootPathASAR");
             rootPathRadarsat2 = testPreferences.getPropertyString(contextID + ".test.rootPathRadarsat2");
@@ -100,7 +100,7 @@ public class TestUtils {
             canTestReadersOnAllProducts = testReadersOnAllProducts != null && testReadersOnAllProducts.equalsIgnoreCase("true");
             canTestProcessingOnAllProducts = testProcessingOnAllProducts != null && testProcessingOnAllProducts.equalsIgnoreCase("true");
         } else {
-            rootPathExpectedProducts = "";
+            rootPathTestProducts = "";
             rootPathTerraSarX = "";
             rootPathASAR = "";
             rootPathRadarsat2 = "";
@@ -229,6 +229,18 @@ public class TestUtils {
         for (Band b : product.getBands()) {
             if (b.getUnit() == null || b.getUnit().isEmpty())
                 throw new Exception("band " + b.getName() + " has null unit");
+
+            // readPixels gets computeTiles to be executed
+            final float[] floatValues = new float[b.getSceneRasterWidth()*b.getSceneRasterHeight()];
+            b.readPixels(0, 0, b.getSceneRasterWidth(), b.getSceneRasterHeight(), floatValues, ProgressMonitor.NULL);
+            boolean allNoData = true;
+            for(float f : floatValues) {
+                if(!(f == b.getNoDataValue() || f == 0 || f == Float.NaN))
+                    allNoData = false;
+            }
+            if(allNoData) {
+                throw new Exception("band " + b.getName() + " is all no data value");
+            }
         }
     }
 
