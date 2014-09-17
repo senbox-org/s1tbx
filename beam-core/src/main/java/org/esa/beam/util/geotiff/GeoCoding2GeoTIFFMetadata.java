@@ -16,7 +16,8 @@
 
 package org.esa.beam.util.geotiff;
 
-import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
+//import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
+import it.geosolutions.imageio.plugins.tiff.GeoTIFFTagSet;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;

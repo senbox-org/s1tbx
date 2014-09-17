@@ -348,8 +348,8 @@ public class BeamFileChooser extends JFileChooser {
         public void paintIcon(Component c, Graphics g, int x, int y) {
             baseIcon.paintIcon(c, g, x, y);
             compoundDocumentIcon.paintIcon(c, g,
-                                           x + baseIcon.getIconWidth() - compoundDocumentIcon.getIconWidth(),
-                                           y + baseIcon.getIconHeight() - compoundDocumentIcon.getIconHeight());
+                    x + baseIcon.getIconWidth() - compoundDocumentIcon.getIconWidth(),
+                    y + baseIcon.getIconHeight() - compoundDocumentIcon.getIconHeight());
         }
 
         @Override

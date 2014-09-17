@@ -31,15 +31,20 @@ import java.io.RandomAccessFile;
 public class GeoTiffProductWriterTest extends TestCase {
 
     private static final String FILENAME = "temp.tif";
-    private static final boolean bigTiff = false;
+    private static final boolean bigTiff = true;
     private GeoTiffProductWriter _productWriter;
     private Product _product;
 
     @Override
     protected void setUp() throws Exception {
         new File(FILENAME).delete();
+        GeoTiffProductWriterPlugIn writerPlugin = new GeoTiffProductWriterPlugIn();
 
-        _productWriter = new GeoTiffProductWriter(new GeoTiffProductWriterPlugIn(bigTiff));
+        _productWriter = new GeoTiffProductWriter(writerPlugin);
+
+        if (bigTiff) {
+            _productWriter.setFormatName(GeoTiffProductWriterPlugIn.BIGTIFF_FORMAT_NAME);
+        }
 
         _product = new Product("temp", "type", 10, 20);
         _product.addBand("b1", ProductData.TYPE_UINT32);
@@ -49,12 +54,16 @@ public class GeoTiffProductWriterTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         _productWriter.close();
-        new File(FILENAME).delete();
+        //new File(FILENAME).delete();
     }
 
     public void testGeoTIFFProductWriterCreation() {
-        final GeoTiffProductWriter productWriter = new GeoTiffProductWriter(new GeoTiffProductWriterPlugIn(bigTiff));
+        GeoTiffProductWriterPlugIn writerPlugin = new GeoTiffProductWriterPlugIn();
 
+        final GeoTiffProductWriter productWriter = new GeoTiffProductWriter(writerPlugin);
+        if (bigTiff) {
+            productWriter.setFormatName(GeoTiffProductWriterPlugIn.BIGTIFF_FORMAT_NAME);
+        }
         assertNotNull(productWriter.getWriterPlugIn());
     }
 

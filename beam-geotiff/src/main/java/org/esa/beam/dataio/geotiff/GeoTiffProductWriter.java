@@ -43,7 +43,7 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
     private File outputFile;
     private ImageOutputStream outputStream;
     private GeoTiffBandWriter bandWriter;
-    private boolean bigTiff = false;
+    private String format = "";
 
     /**
      * Construct a new instance of a product writer for the given GeoTIFF product writer plug-in.
@@ -53,7 +53,12 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
     public GeoTiffProductWriter(final ProductWriterPlugIn writerPlugIn) {
 
         super(writerPlugIn);
-        bigTiff = ((GeoTiffProductWriterPlugIn) writerPlugIn).isBigTiff();
+        /*
+        if (((GeoTiffProductWriterPlugIn) writerPlugIn).isBigTiff()) {
+            setFormatName(((GeoTiffProductWriterPlugIn) writerPlugIn).BIGTIFF_FORMAT_NAME);
+        }
+        */
+
     }
 
     /**
@@ -87,6 +92,13 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
         writeGeoTIFFProduct(new FileImageOutputStream(outputFile), getSourceProduct());
     }
 
+    /**
+     * Overwrite this method to set the format to write for writers which handle multiple formats.
+     */
+    public void setFormatName(final String formatName) {
+        format = formatName;
+    }
+
     private void ensureNamingConvention() {
         if (outputFile != null) {
             getSourceProduct().setName(FileUtils.getFilenameWithoutExtension(outputFile));
@@ -94,6 +106,7 @@ public class GeoTiffProductWriter extends AbstractProductWriter {
     }
     void writeGeoTIFFProduct(ImageOutputStream stream, final Product sourceProduct) throws IOException {
         outputStream = stream;
+        boolean bigTiff = format.equalsIgnoreCase(GeoTiffProductWriterPlugIn.BIGTIFF_FORMAT_NAME);
         final TiffHeader tiffHeader = new TiffHeader(new Product[]{sourceProduct}, bigTiff);
         tiffHeader.write(stream);
         bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), stream, sourceProduct);
