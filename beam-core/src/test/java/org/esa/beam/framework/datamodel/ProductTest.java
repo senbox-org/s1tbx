@@ -451,6 +451,116 @@ public class ProductTest {
     }
 
     @Test
+         public void testGetAndSetBandAutoGroupingSubGroups() {
+        final Product product = new Product("A", "B", 10, 10);
+        product.setAutoGrouping("L_1:L_1/err:L_2:L_2/err:L_10:L_10/err:L_11:L_11/err:L_21:L_21/err");
+        final Product.AutoGrouping autoGrouping = product.getAutoGrouping();
+
+        assertNotNull(autoGrouping);
+        assertEquals(10, autoGrouping.size());
+
+        assertArrayEquals(new String[]{"L_1"}, autoGrouping.get(0));
+        assertArrayEquals(new String[]{"L_1", "err"}, autoGrouping.get(1));
+        assertArrayEquals(new String[]{"L_2"}, autoGrouping.get(2));
+        assertArrayEquals(new String[]{"L_2", "err"}, autoGrouping.get(3));
+        assertArrayEquals(new String[]{"L_10"}, autoGrouping.get(4));
+        assertArrayEquals(new String[]{"L_10", "err"}, autoGrouping.get(5));
+        assertArrayEquals(new String[]{"L_11"}, autoGrouping.get(6));
+        assertArrayEquals(new String[]{"L_11", "err"}, autoGrouping.get(7));
+        assertArrayEquals(new String[]{"L_21"}, autoGrouping.get(8));
+        assertArrayEquals(new String[]{"L_21", "err"}, autoGrouping.get(9));
+
+        assertEquals(0, autoGrouping.indexOf("L_1_CAM1"));
+        assertEquals(0, autoGrouping.indexOf("L_1_CAM5"));
+        assertEquals(1, autoGrouping.indexOf("L_1_err_CAM1"));
+        assertEquals(1, autoGrouping.indexOf("L_1_err_CAM5"));
+        assertEquals(2, autoGrouping.indexOf("L_2_CAM1"));
+        assertEquals(2, autoGrouping.indexOf("L_2_CAM5"));
+        assertEquals(3, autoGrouping.indexOf("L_2_err_CAM1"));
+        assertEquals(3, autoGrouping.indexOf("L_2_err_CAM5"));
+        assertEquals(4, autoGrouping.indexOf("L_10_CAM1"));
+        assertEquals(4, autoGrouping.indexOf("L_10_CAM5"));
+        assertEquals(5, autoGrouping.indexOf("L_10_err_CAM1"));
+        assertEquals(5, autoGrouping.indexOf("L_10_err_CAM5"));
+        assertEquals(6, autoGrouping.indexOf("L_11_CAM1"));
+        assertEquals(6, autoGrouping.indexOf("L_11_CAM5"));
+        assertEquals(7, autoGrouping.indexOf("L_11_err_CAM1"));
+        assertEquals(7, autoGrouping.indexOf("L_11_err_CAM5"));
+        assertEquals(8, autoGrouping.indexOf("L_21_CAM1"));
+        assertEquals(8, autoGrouping.indexOf("L_21_CAM5"));
+        assertEquals(9, autoGrouping.indexOf("L_21_err_CAM1"));
+        assertEquals(9, autoGrouping.indexOf("L_21_err_CAM5"));
+    }
+
+    @Test
+    public void testGetAndSetBandAutoGroupingSubGroupsWithWildcards() {
+        final Product product = new Product("A", "B", 10, 10);
+        product.setAutoGrouping("L_1:L_1/*err*CAM*:L_2:L_2/*err*CAM*:L_10:L_10/*err*CAM*:L_11:L_11/*err*CAM*:L_21:L_21/*err*CAM*");
+        final Product.AutoGrouping autoGrouping = product.getAutoGrouping();
+
+        assertNotNull(autoGrouping);
+        assertEquals(10, autoGrouping.size());
+
+        assertArrayEquals(new String[]{"L_1"}, autoGrouping.get(0));
+        assertArrayEquals(new String[]{"L_1", "*err*CAM*"}, autoGrouping.get(1));
+        assertArrayEquals(new String[]{"L_2"}, autoGrouping.get(2));
+        assertArrayEquals(new String[]{"L_2", "*err*CAM*"}, autoGrouping.get(3));
+        assertArrayEquals(new String[]{"L_10"}, autoGrouping.get(4));
+        assertArrayEquals(new String[]{"L_10", "*err*CAM*"}, autoGrouping.get(5));
+        assertArrayEquals(new String[]{"L_11"}, autoGrouping.get(6));
+        assertArrayEquals(new String[]{"L_11", "*err*CAM*"}, autoGrouping.get(7));
+        assertArrayEquals(new String[]{"L_21"}, autoGrouping.get(8));
+        assertArrayEquals(new String[]{"L_21", "*err*CAM*"}, autoGrouping.get(9));
+
+        assertEquals(0, autoGrouping.indexOf("L_1_CAM1"));
+        assertEquals(0, autoGrouping.indexOf("L_1_CAM5"));
+        assertEquals(1, autoGrouping.indexOf("L_1_err_CAM1"));
+        assertEquals(1, autoGrouping.indexOf("L_1_err_CAM5"));
+        assertEquals(2, autoGrouping.indexOf("L_2_CAM1"));
+        assertEquals(2, autoGrouping.indexOf("L_2_CAM5"));
+        assertEquals(3, autoGrouping.indexOf("L_2_err_CAM1"));
+        assertEquals(3, autoGrouping.indexOf("L_2_err_CAM5"));
+        assertEquals(4, autoGrouping.indexOf("L_10_CAM1"));
+        assertEquals(4, autoGrouping.indexOf("L_10_CAM5"));
+        assertEquals(5, autoGrouping.indexOf("L_10_err_CAM1"));
+        assertEquals(5, autoGrouping.indexOf("L_10_err_CAM5"));
+        assertEquals(6, autoGrouping.indexOf("L_11_CAM1"));
+        assertEquals(6, autoGrouping.indexOf("L_11_CAM5"));
+        assertEquals(7, autoGrouping.indexOf("L_11_err_CAM1"));
+        assertEquals(7, autoGrouping.indexOf("L_11_err_CAM5"));
+        assertEquals(8, autoGrouping.indexOf("L_21_CAM1"));
+        assertEquals(8, autoGrouping.indexOf("L_21_CAM5"));
+        assertEquals(9, autoGrouping.indexOf("L_21_err_CAM1"));
+        assertEquals(9, autoGrouping.indexOf("L_21_err_CAM5"));
+    }
+
+    @Test
+    public void testGetAndSetBandAutoGroupingNestedSubGroupsWithWildcards() {
+        final Product product = new Product("A", "B", 10, 10);
+        product.setAutoGrouping("L_1:L_1/*err*CAM*:L_1/*err*CAM*/5:L_2:L_2/*err*CAM*:L_2/*err*CAM*/5");
+        final Product.AutoGrouping autoGrouping = product.getAutoGrouping();
+
+        assertNotNull(autoGrouping);
+        assertEquals(6, autoGrouping.size());
+
+        assertArrayEquals(new String[]{"L_1"}, autoGrouping.get(0));
+        assertArrayEquals(new String[]{"L_1", "*err*CAM*"}, autoGrouping.get(1));
+        assertArrayEquals(new String[]{"L_1", "*err*CAM*", "5"}, autoGrouping.get(2));
+        assertArrayEquals(new String[]{"L_2"}, autoGrouping.get(3));
+        assertArrayEquals(new String[]{"L_2", "*err*CAM*"}, autoGrouping.get(4));
+        assertArrayEquals(new String[]{"L_2", "*err*CAM*", "5"}, autoGrouping.get(5));
+
+        assertEquals(0, autoGrouping.indexOf("L_1_CAM1"));
+        assertEquals(0, autoGrouping.indexOf("L_1_CAM5"));
+        assertEquals(1, autoGrouping.indexOf("L_1_err_CAM1"));
+        assertEquals(2, autoGrouping.indexOf("L_1_err_CAM5"));
+        assertEquals(3, autoGrouping.indexOf("L_2_CAM1"));
+        assertEquals(3, autoGrouping.indexOf("L_2_CAM5"));
+        assertEquals(4, autoGrouping.indexOf("L_2_err_CAM1"));
+        assertEquals(5, autoGrouping.indexOf("L_2_err_CAM5"));
+    }
+
+    @Test
     public void testModifiedProperty() {
 
         assertEquals("product should be initially un-modified", false, product.isModified());
