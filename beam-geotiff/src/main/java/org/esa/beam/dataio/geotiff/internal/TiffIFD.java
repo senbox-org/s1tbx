@@ -50,16 +50,19 @@ public class TiffIFD {
     private static final int TIFF_COLORMAP_SIZE = 256;
     private static final int BYTES_FOR_NEXT_IFD_OFFSET = 4;
     private static final int BYTES_FOR_NUMBER_OF_ENTRIES = 2;
-    
+
+    private static final int BIGTIFF_BYTES_FOR_NEXT_IFD_OFFSET = 8;
+    private static final int BIGTIFF_BYTES_FOR_NUMBER_OF_ENTRIES = 8;
+
     private final TiffDirectoryEntrySet entrySet;
     private int maxElemSizeBandDataType;
-    private boolean bigTiff = false;
+    private final boolean bigTiff;
 
 
     public TiffIFD(final Product product, boolean bigTiff) {
         entrySet = new TiffDirectoryEntrySet();
-        initEntrys(product);
         this.bigTiff = bigTiff;
+        initEntrys(product);
     }
 
     public void write(final ImageOutputStream ios, final long ifdOffset, final long nextIfdOffset) throws IOException {
@@ -67,12 +70,24 @@ public class TiffIFD {
         computeOffsets(ifdOffset);
         ios.seek(ifdOffset);
         final TiffDirectoryEntry[] entries = entrySet.getEntries();
-        new TiffShort(entries.length).write(ios);
+        //System.out.println("Before num entries");
+        if (bigTiff) {
+            new TiffLong(entries.length, bigTiff).write(ios);
+        }
+        else {
+            new TiffShort(entries.length).write(ios);
+        }
+        //System.out.println("After num entries");
         long entryPosition = ios.getStreamPosition();
         for (TiffDirectoryEntry entry : entries) {
             ios.seek(entryPosition);
             entry.write(ios);
-            entryPosition += TiffDirectoryEntry.BYTES_PER_ENTRY;
+            if (bigTiff) {
+                entryPosition += TiffDirectoryEntry.BIGTIFF_BYTES_PER_ENTRY;
+            }
+            else {
+                entryPosition += TiffDirectoryEntry.BYTES_PER_ENTRY;
+            }
         }
         writeNextIfdOffset(ios, ifdOffset, nextIfdOffset);
     }
@@ -93,7 +108,11 @@ public class TiffIFD {
 
     public long getRequiredIfdSize() {
         final TiffDirectoryEntry[] entries = entrySet.getEntries();
-        return BYTES_FOR_NUMBER_OF_ENTRIES + entries.length * TiffDirectoryEntry.BYTES_PER_ENTRY + BYTES_FOR_NEXT_IFD_OFFSET;
+        long result = BYTES_FOR_NUMBER_OF_ENTRIES + entries.length * TiffDirectoryEntry.BYTES_PER_ENTRY + BYTES_FOR_NEXT_IFD_OFFSET;
+        if (bigTiff) {
+            result = BIGTIFF_BYTES_FOR_NUMBER_OF_ENTRIES + entries.length * TiffDirectoryEntry.BIGTIFF_BYTES_PER_ENTRY + BIGTIFF_BYTES_FOR_NEXT_IFD_OFFSET;
+        }
+        return result;
     }
 
     public long getRequiredReferencedValuesSize() {
@@ -142,9 +161,11 @@ public class TiffIFD {
     }
 
     private long computeStartOffsetForValues(final int numEntries, final long ifdOffset) {
-        final short bytesPerEntry = TiffDirectoryEntry.BYTES_PER_ENTRY;
-        final int bytesForEntries = numEntries * bytesPerEntry;
-        return ifdOffset + BYTES_FOR_NUMBER_OF_ENTRIES + bytesForEntries + BYTES_FOR_NEXT_IFD_OFFSET;
+        long result = ifdOffset + BYTES_FOR_NUMBER_OF_ENTRIES + numEntries * TiffDirectoryEntry.BYTES_PER_ENTRY + BYTES_FOR_NEXT_IFD_OFFSET;
+        if (bigTiff) {
+            result = ifdOffset + BIGTIFF_BYTES_FOR_NUMBER_OF_ENTRIES + numEntries * TiffDirectoryEntry.BIGTIFF_BYTES_PER_ENTRY + BIGTIFF_BYTES_FOR_NEXT_IFD_OFFSET;
+        }
+        return result;
     }
 
     private void setEntry(final TiffDirectoryEntry entry) {

@@ -30,6 +30,7 @@ import java.io.IOException;
 public class TiffDirectoryEntry {
 
     public static final short BYTES_PER_ENTRY = 12;
+    public static final short BIGTIFF_BYTES_PER_ENTRY = 20;
     private TiffShort tag;
     private TiffShort type;
     private TiffLong count;
@@ -44,9 +45,10 @@ public class TiffDirectoryEntry {
     public TiffDirectoryEntry(final TiffShort tiffTag, final TiffValue[] values, boolean bigTiff) {
         type = TiffType.getType(values);
         tag = tiffTag;
+        this.bigTiff = bigTiff;
         count = getCount(values);
         this.values = values;
-        this.bigTiff = bigTiff;
+
     }
 
     public TiffShort getTag() {
@@ -69,16 +71,17 @@ public class TiffDirectoryEntry {
         if (mustValuesBeReferenced() && valuesOffset == null) {
             throw new IllegalStateException("no value offset given");
         }
-
+        //System.out.println("tag type count");
         tag.write(ios);
         type.write(ios);
         count.write(ios);
-
+        //System.out.println("END tag type count");
         if (valuesOffset == null) {
             writeValuesInsideEnty(ios);
         } else {
             writeValuesReferenced(ios);
         }
+        //System.out.println("END values");
     }
 
     private void writeValuesInsideEnty(final ImageOutputStream ios) throws IOException {
@@ -106,7 +109,11 @@ public class TiffDirectoryEntry {
     }
 
     public long getSize() {
-        return BYTES_PER_ENTRY + getReferencedValuesSizeInBytes();
+        long result = BYTES_PER_ENTRY + getReferencedValuesSizeInBytes();
+        if (bigTiff) {
+            result = BIGTIFF_BYTES_PER_ENTRY + getReferencedValuesSizeInBytes();
+        }
+        return result;
     }
 
     public boolean mustValuesBeReferenced() {
@@ -146,5 +153,13 @@ public class TiffDirectoryEntry {
             size += value.getSizeInBytes();
         }
         return new TiffLong(size, bigTiff);
+    }
+
+    public short getBytesPerEntry () {
+        short result = BYTES_PER_ENTRY;
+        if (bigTiff) {
+            result = BIGTIFF_BYTES_PER_ENTRY;
+        }
+        return result;
     }
 }

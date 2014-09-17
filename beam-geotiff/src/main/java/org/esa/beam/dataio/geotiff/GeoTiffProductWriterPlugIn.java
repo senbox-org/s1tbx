@@ -32,8 +32,7 @@ import java.util.Locale;
  */
 public class GeoTiffProductWriterPlugIn implements ProductWriterPlugIn {
 
-    public static final String GEOTIFF_FORMAT_NAME = "GeoTIFF";
-    public static final String BIGTIFF_FORMAT_NAME = "BigTIFF";
+    private static final String[] FORMAT_NAMES = new String[]{"GeoTIFF", "BigTIFF"};
     public static final String[] GEOTIFF_FILE_EXTENSION = {".tif", ".tiff"};
     private static final String DESCRIPTION = "GeoTIFF product";
     //private boolean bigTiff = false;
@@ -46,10 +45,10 @@ public class GeoTiffProductWriterPlugIn implements ProductWriterPlugIn {
 
 
     /**
-     * Returns a string array containing the single entry <code>&quot;GEOTIFF&quot;</code>.
+     * Returns a string array containing the handled format names.
      */
     public String[] getFormatNames() {
-        return new String[]{GEOTIFF_FORMAT_NAME, BIGTIFF_FORMAT_NAME};
+        return FORMAT_NAMES;
     }
 
     /**

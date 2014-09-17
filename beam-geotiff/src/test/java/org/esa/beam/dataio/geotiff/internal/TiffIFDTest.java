@@ -387,7 +387,12 @@ public class TiffIFDTest extends TestCase {
         for (int i = 0; i < entryTags.length; i++) {
             ios.seek(nextEntryPos);
             ifd.getEntry(entryTags[i]).write(ios);
-            nextEntryPos += TiffDirectoryEntry.BYTES_PER_ENTRY;
+            if (bigTiff) {
+                nextEntryPos += TiffDirectoryEntry.BIGTIFF_BYTES_PER_ENTRY;
+            }
+            else {
+                nextEntryPos += TiffDirectoryEntry.BYTES_PER_ENTRY;
+            }
         }
         ios.writeInt(nextIFDOffset);
 

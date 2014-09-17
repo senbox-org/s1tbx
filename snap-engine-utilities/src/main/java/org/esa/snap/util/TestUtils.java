@@ -17,7 +17,6 @@ package org.esa.snap.util;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeConfig;
-import com.bc.ceres.core.runtime.RuntimeConfigException;
 import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.*;
@@ -31,7 +30,6 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.gpf.RecursiveProcessor;
 
 import javax.media.jai.JAI;
 import java.io.File;
@@ -51,27 +49,17 @@ public class TestUtils {
     private final static String contextID = ResourceUtils.getContextID();
     private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap(contextID + ".tests");
 
-    @Deprecated
-    public final static String rootPathExpectedProducts;
-    @Deprecated
+    public final static String rootPathTestProducts;
+
     public final static String rootPathTerraSarX;
-    @Deprecated
     public final static String rootPathASAR;
-    @Deprecated
     public final static String rootPathRadarsat2;
-    @Deprecated
     public final static String rootPathRadarsat1;
-    @Deprecated
     public final static String rootPathSentinel1;
-    @Deprecated
     public final static String rootPathERS;
-    @Deprecated
     public final static String rootPathJERS;
-    @Deprecated
     public final static String rootPathALOS;
-    @Deprecated
     public final static String rootPathCosmoSkymed;
-    @Deprecated
     public final static String rootPathMixProducts;
 
     private final static int subsetX;
@@ -88,7 +76,7 @@ public class TestUtils {
 
     static {
         if(testPreferences != null) {
-            rootPathExpectedProducts = testPreferences.getPropertyString(contextID + ".test.rootPathExpectedProducts");
+            rootPathTestProducts = testPreferences.getPropertyString(contextID + ".test.rootPathTestProducts");
             rootPathTerraSarX = testPreferences.getPropertyString(contextID + ".test.rootPathTerraSarX");
             rootPathASAR = testPreferences.getPropertyString(contextID + ".test.rootPathASAR");
             rootPathRadarsat2 = testPreferences.getPropertyString(contextID + ".test.rootPathRadarsat2");
@@ -112,7 +100,7 @@ public class TestUtils {
             canTestReadersOnAllProducts = testReadersOnAllProducts != null && testReadersOnAllProducts.equalsIgnoreCase("true");
             canTestProcessingOnAllProducts = testProcessingOnAllProducts != null && testProcessingOnAllProducts.equalsIgnoreCase("true");
         } else {
-            rootPathExpectedProducts = "";
+            rootPathTestProducts = "";
             rootPathTerraSarX = "";
             rootPathASAR = "";
             rootPathRadarsat2 = "";
@@ -138,22 +126,25 @@ public class TestUtils {
         }
     }
 
-    private static final boolean DEBUG = true;
     private static final boolean FailOnSkip = false;
     private static boolean testEnvironmentInitialized = false;
 
-    public static void initTestEnvironment() throws RuntimeConfigException {
+    public static void initTestEnvironment() {
         if (testEnvironmentInitialized)
             return;
 
-        final RuntimeConfig runtimeConfig = new DefaultRuntimeConfig();
+        try {
+            final RuntimeConfig runtimeConfig = new DefaultRuntimeConfig();
 
-        JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
-        MemUtils.configureJaiTileCache();
+            JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
+            MemUtils.configureJaiTileCache();
 
-        //disable JAI media library
-        System.setProperty("com.sun.media.jai.disableMediaLib", "true");
-        testEnvironmentInitialized = true;
+            //disable JAI media library
+            System.setProperty("com.sun.media.jai.disableMediaLib", "true");
+            testEnvironmentInitialized = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static int getMaxIterations() {
@@ -161,9 +152,12 @@ public class TestUtils {
     }
 
     public static Product readSourceProduct(final String path) throws IOException {
-        final File inputFile = new File(path);
+        return readSourceProduct(new File(path));
+    }
+
+    public static Product readSourceProduct(final File inputFile) throws IOException {
         if (!inputFile.exists()) {
-            throw new IOException(path + " not found");
+            throw new IOException(inputFile.getAbsolutePath() + " not found");
         }
 
         final ProductReader reader = ProductIO.getProductReaderForInput(inputFile);
@@ -217,7 +211,7 @@ public class TestUtils {
         if (product == null)
             throw new Exception("product is null");
         if (verifyGeoCoding && product.getGeoCoding() == null) {
-            System.out.println("Geocoding is null for " + product.getFileLocation().getAbsolutePath());
+            log.warning("Geocoding is null for " + product.getFileLocation().getAbsolutePath());
             //throw new Exception("geocoding is null");
         }
         if (product.getMetadataRoot() == null)
@@ -235,6 +229,18 @@ public class TestUtils {
         for (Band b : product.getBands()) {
             if (b.getUnit() == null || b.getUnit().isEmpty())
                 throw new Exception("band " + b.getName() + " has null unit");
+
+            // readPixels gets computeTiles to be executed
+            final float[] floatValues = new float[b.getSceneRasterWidth()*b.getSceneRasterHeight()];
+            b.readPixels(0, 0, b.getSceneRasterWidth(), b.getSceneRasterHeight(), floatValues, ProgressMonitor.NULL);
+            boolean allNoData = true;
+            for(float f : floatValues) {
+                if(!(f == b.getNoDataValue() || f == 0 || f == Float.NaN))
+                    allNoData = false;
+            }
+            if(allNoData) {
+                throw new Exception("band " + b.getName() + " is all no data value");
+            }
         }
     }
 
@@ -438,7 +444,7 @@ public class TestUtils {
                 if (reader != null) {
                     productList.add(file);
                 } else {
-                    System.out.println(file.getAbsolutePath() + " is non valid");
+                    log.warning(file.getAbsolutePath() + " is non valid");
                 }
             } catch (Exception e) {
                 boolean ok = false;
@@ -452,7 +458,7 @@ public class TestUtils {
                     }
                 }    */
                 if (!ok) {
-                    System.out.println("Failed to process " + file.toString());
+                    log.severe("Failed to process " + file.toString());
                     throw e;
                 }
             }
@@ -540,32 +546,14 @@ public class TestUtils {
                                             final String[] productTypeExemptions,
                                             final String[] exceptionExemptions) throws Exception {
         final File folder = new File(folderPath);
-        if (!folder.exists()) return;
+        if (!folder.exists()) {
+            skipTest(spi, folderPath+ " not found");
+            return;
+        }
 
         if (canTestProcessingOnAllProducts) {
             int iterations = 0;
             recurseProcessFolder(spi, folder, iterations, productTypeExemptions, exceptionExemptions);
-        }
-    }
-
-    /**
-     * Processes all products in a folder
-     *
-     * @param processor             the RecursiveProcessor to create the graph
-     * @param folderPath            the path to recurse through
-     * @param productTypeExemptions product types to ignore
-     * @param exceptionExemptions   exceptions that are ok and can be ignored for the test
-     * @throws Exception general exception
-     */
-    public static void testProcessAllInPath(final RecursiveProcessor processor, final String folderPath,
-                                            final String[] productTypeExemptions,
-                                            final String[] exceptionExemptions) throws Exception {
-        final File folder = new File(folderPath);
-        if (!folder.exists()) return;
-
-        if (canTestProcessingOnAllProducts) {
-            int iterations = 0;
-            processor.recurseProcessFolder(folder, iterations, productTypeExemptions, exceptionExemptions);
         }
     }
 
@@ -599,7 +587,7 @@ public class TestUtils {
             if (readerPlugin.getDecodeQualification(file) == DecodeQualification.INTENDED) {
 
                 try {
-                    //System.out.println("Reading "+ file.toString());
+                    log.info("Reading "+ file.toString());
 
                     final Product product = reader.readProductNodes(file, null);
                     if (productTypeExemptions != null && containsProductType(productTypeExemptions, product.getProductType()))
@@ -615,13 +603,13 @@ public class TestUtils {
                         for (String excemption : exceptionExemptions) {
                             if (e.getMessage() != null && e.getMessage().contains(excemption)) {
                                 ok = true;
-                                System.out.println("Excemption for " + e.getMessage());
+                                log.info("Excemption for " + e.getMessage());
                                 break;
                             }
                         }
                     }
                     if (!ok) {
-                        System.out.println("Failed to read " + file.toString());
+                        log.severe("Failed to read " + file.toString());
                         throw e;
                     }
                 }
@@ -631,11 +619,13 @@ public class TestUtils {
     }
 
     public static boolean skipTest(final Object obj) throws Exception {
-        if (DEBUG) {
-            System.out.println(obj.getClass().getName() + " skipped");
-        }
+        return skipTest(obj, "");
+    }
+
+    public static boolean skipTest(final Object obj, final String msg) throws Exception {
+        log.severe(obj.getClass().getName() + " skipped "+msg);
         if (FailOnSkip) {
-            throw new Exception(obj.getClass().getName() + " skipped");
+            throw new Exception(obj.getClass().getName() + " skipped "+msg);
         }
         return true;
     }

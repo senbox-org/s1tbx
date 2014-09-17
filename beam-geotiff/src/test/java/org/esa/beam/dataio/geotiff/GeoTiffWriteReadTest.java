@@ -17,9 +17,8 @@
 package org.esa.beam.dataio.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
-//import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
 import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
-import com.sun.media.imageioimpl.plugins.tiff.TIFFRenderedImage;
+import it.geosolutions.imageioimpl.plugins.tiff.TIFFRenderedImage;
 import com.sun.media.jai.codec.ByteArraySeekableStream;
 
 

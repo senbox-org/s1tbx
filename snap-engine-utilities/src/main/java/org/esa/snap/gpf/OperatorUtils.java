@@ -48,31 +48,12 @@ public final class OperatorUtils {
     /**
      * Get incidence angle tie point grid.
      *
-     * @param sourceProduct    The source product.
-     * @param tiePointGridName The tie point grid name.
-     * @return srcTPG The incidence angle tie point grid.
-     */
-    private static TiePointGrid getTiePointGrid(final Product sourceProduct, final String tiePointGridName) {
-
-        for (int i = 0; i < sourceProduct.getNumTiePointGrids(); i++) {
-            final TiePointGrid srcTPG = sourceProduct.getTiePointGridAt(i);
-            if (srcTPG.getName().equals(tiePointGridName)) {
-                return srcTPG;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Get incidence angle tie point grid.
-     *
      * @param sourceProduct The source product.
      * @return srcTPG The incidence angle tie point grid.
      */
     public static TiePointGrid getIncidenceAngle(final Product sourceProduct) {
 
-        return getTiePointGrid(sourceProduct, TPG_INCIDENT_ANGLE);
+        return sourceProduct.getTiePointGrid(TPG_INCIDENT_ANGLE);
     }
 
     /**
@@ -83,7 +64,7 @@ public final class OperatorUtils {
      */
     public static TiePointGrid getSlantRangeTime(final Product sourceProduct) {
 
-        return getTiePointGrid(sourceProduct, TPG_SLANT_RANGE_TIME);
+        return sourceProduct.getTiePointGrid(TPG_SLANT_RANGE_TIME);
     }
 
     /**
@@ -94,7 +75,7 @@ public final class OperatorUtils {
      */
     public static TiePointGrid getLatitude(final Product sourceProduct) {
 
-        return getTiePointGrid(sourceProduct, TPG_LATITUDE);
+        return sourceProduct.getTiePointGrid(TPG_LATITUDE);
     }
 
     /**
@@ -105,7 +86,7 @@ public final class OperatorUtils {
      */
     public static TiePointGrid getLongitude(final Product sourceProduct) {
 
-        return getTiePointGrid(sourceProduct, TPG_LONGITUDE);
+        return sourceProduct.getTiePointGrid(TPG_LONGITUDE);
     }
 
     public static String getBandPolarization(final String bandName, final MetadataElement absRoot) {

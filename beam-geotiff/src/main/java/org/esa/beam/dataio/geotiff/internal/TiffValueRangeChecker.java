@@ -37,7 +37,7 @@ class TiffValueRangeChecker {
     }
 
     public static void checkValueTiffLong(final long value, final String name) {
-        checkValue(value, name, 0, UNSIGNED_INT_MAX);
+        checkValue(value, name, Long.MIN_VALUE, Long.MAX_VALUE);
     }
 
     public static void checkValueTiffShort(final int value, final String name) {

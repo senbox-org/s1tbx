@@ -37,7 +37,7 @@ public class TiffHeader {
     private static final TiffShort LITTLE_ENDIAN = new TiffShort(0x4949);
     private static final TiffShort BIG_ENDIAN = new TiffShort(0x4D4D);
     public static final TiffLong FIRST_IFD_OFFSET = new TiffLong(10, false);
-    public static final TiffLong BIG_TIFF_FIRST_IFD_OFFSET = new TiffLong(16, false);
+    public static final TiffLong BIG_TIFF_FIRST_IFD_OFFSET = new TiffLong(16, true);
 
     private final TiffIFD[] ifds;
     private boolean bigEndianOrder = true;
@@ -76,12 +76,16 @@ public class TiffHeader {
             offset = FIRST_IFD_OFFSET.getValue();
         }
 
+        //System.out.println("Before offsets");
+
         for (int i = 0; i < ifds.length; i++) {
             final TiffIFD ifd = ifds[i];
             final long nextOffset = computeNextIfdOffset(i, offset, ifd);
             ifd.write(ios, offset, nextOffset);
             offset = nextOffset;
         }
+
+        //System.out.println("After offsets");
     }
 
     public static TiffLong getFirstIfdOffset (boolean bigTiff) {

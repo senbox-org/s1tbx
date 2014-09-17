@@ -49,7 +49,7 @@ public class TestProductDao {
 
         final File folder1 = new File(TestUtils.rootPathASAR);
         if (!folder1.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this , folder1.getAbsolutePath()+ " not found");
             return;
         }
 

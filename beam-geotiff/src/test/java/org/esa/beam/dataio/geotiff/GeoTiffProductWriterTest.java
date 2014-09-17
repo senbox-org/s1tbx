@@ -31,7 +31,7 @@ import java.io.RandomAccessFile;
 public class GeoTiffProductWriterTest extends TestCase {
 
     private static final String FILENAME = "temp.tif";
-    private static final boolean bigTiff = true;
+    private static final boolean bigTiff = false;
     private GeoTiffProductWriter _productWriter;
     private Product _product;
 
@@ -43,7 +43,7 @@ public class GeoTiffProductWriterTest extends TestCase {
         _productWriter = new GeoTiffProductWriter(writerPlugin);
 
         if (bigTiff) {
-            _productWriter.setFormatName(GeoTiffProductWriterPlugIn.BIGTIFF_FORMAT_NAME);
+            _productWriter.setFormatName("BigTIFF");
         }
 
         _product = new Product("temp", "type", 10, 20);
@@ -54,7 +54,7 @@ public class GeoTiffProductWriterTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         _productWriter.close();
-        //new File(FILENAME).delete();
+        new File(FILENAME).delete();
     }
 
     public void testGeoTIFFProductWriterCreation() {
@@ -62,7 +62,7 @@ public class GeoTiffProductWriterTest extends TestCase {
 
         final GeoTiffProductWriter productWriter = new GeoTiffProductWriter(writerPlugin);
         if (bigTiff) {
-            productWriter.setFormatName(GeoTiffProductWriterPlugIn.BIGTIFF_FORMAT_NAME);
+            productWriter.setFormatName("BigTIFF");
         }
         assertNotNull(productWriter.getWriterPlugIn());
     }
