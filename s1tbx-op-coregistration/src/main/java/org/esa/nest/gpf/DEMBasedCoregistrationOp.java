@@ -716,9 +716,8 @@ public class DEMBasedCoregistrationOp extends Operator {
         data.azimuthTime = zeroDopplerTime * Constants.secondsInDay; // day to s
         data.azimuthIndex = (zeroDopplerTime - imageInfo.firstLineUTC) / imageInfo.lineTimeInterval;
 
-        final double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime - imageInfo.firstLineUTC,
-                imageInfo.orbit.xPosCoeff, imageInfo.orbit.yPosCoeff, imageInfo.orbit.zPosCoeff,
-                data.earthPoint, data.sensorPos);
+        final double slantRange = SARGeocoding.computeSlantRange(
+                zeroDopplerTime, imageInfo.orbit, data.earthPoint, data.sensorPos);
 
         data.slantRangeTime = slantRange / Constants.lightSpeed; // in s
 
