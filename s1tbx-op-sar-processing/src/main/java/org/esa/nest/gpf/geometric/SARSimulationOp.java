@@ -443,8 +443,7 @@ public final class SARSimulationOp extends Operator {
                     continue;
                 }
 
-                final double slantRange = SARGeocoding.computeSlantRange(
-                        zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+                final double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
 
                 final double zeroDopplerTimeWithoutBias = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
 
@@ -813,8 +812,7 @@ public final class SARSimulationOp extends Operator {
             return false;
         }
 
-        data.slantRange = SARGeocoding.computeSlantRange(
-                zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, data.earthPoint, data.sensorPos);
+        data.slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, data.earthPoint, data.sensorPos);
 
         final double zeroDopplerTimeWithoutBias =
                 zeroDopplerTime + data.slantRange / Constants.lightSpeedInMetersPerDay;
@@ -826,7 +824,7 @@ public final class SARSimulationOp extends Operator {
         }
 
         data.slantRange = SARGeocoding.computeSlantRange(
-                zeroDopplerTimeWithoutBias - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, data.earthPoint, data.sensorPos);
+                zeroDopplerTimeWithoutBias, orbit, data.earthPoint, data.sensorPos);
 
         if (!srgrFlag) {
             data.rangeIndex = (data.slantRange - nearEdgeSlantRange) / rangeSpacing;

@@ -929,8 +929,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                         continue;
                     }
 
-                    double slantRange = SARGeocoding.computeSlantRange(
-                            zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+                    double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
 
                     double azimuthIndex = 0.0;
                     double rangeIndex = 0.0;
@@ -940,8 +939,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                         zeroDoppler = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
                     }
 
-                    slantRange = SARGeocoding.computeSlantRange(
-                            zeroDoppler - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+                    slantRange = SARGeocoding.computeSlantRange(zeroDoppler, orbit, earthPoint, sensorPos);
 
                     rangeIndex = SARGeocoding.computeRangeIndex(srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC,
                             rangeSpacing, zeroDoppler, slantRange, nearEdgeSlantRange, srgrConvParams);

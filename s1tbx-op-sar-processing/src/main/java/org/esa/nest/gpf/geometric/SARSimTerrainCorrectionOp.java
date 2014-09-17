@@ -946,16 +946,14 @@ public class SARSimTerrainCorrectionOp extends Operator {
                         continue;
                     }
 
-                    double slantRange = SARGeocoding.computeSlantRange(
-                            zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+                    double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
 
                     double zeroDoppler = zeroDopplerTime;
                     if (!skipBistaticCorrection) {
                         // skip bistatic correction for COSMO, TerraSAR-X and RadarSAT-2
                         zeroDoppler = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
 
-                        slantRange = SARGeocoding.computeSlantRange(
-                                zeroDoppler - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+                        slantRange = SARGeocoding.computeSlantRange(zeroDoppler, orbit, earthPoint, sensorPos);
                     }
 
                     final double azimuthIndex = (zeroDoppler - firstLineUTC) / lineTimeInterval;

@@ -381,8 +381,7 @@ public final class TerrainFlatteningOp extends Operator {
                             firstLineUTC, lineTimeInterval, wavelength, earthPoint,
                             orbit.sensorPosition, orbit.sensorVelocity);
 
-                    double slantRange = SARGeocoding.computeSlantRange(
-                            zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+                    double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
 
                     final double zeroDopplerTimeWithoutBias =
                             zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
@@ -390,7 +389,7 @@ public final class TerrainFlatteningOp extends Operator {
                     azimuthIndex[i] = (zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval;
 
                     slantRange = SARGeocoding.computeSlantRange(
-                            zeroDopplerTimeWithoutBias - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+                            zeroDopplerTimeWithoutBias, orbit, earthPoint, sensorPos);
 
                     rangeIndex[i] = SARGeocoding.computeRangeIndex(
                             srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC, rangeSpacing,
@@ -575,8 +574,7 @@ public final class TerrainFlatteningOp extends Operator {
         final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
                 firstLineUTC, lineTimeInterval, wavelength, earthPoint, orbit.sensorPosition, orbit.sensorVelocity);
 
-        final double slantRange = SARGeocoding.computeSlantRange(
-                zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+        final double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
 
         final double zeroDopplerTimeWithoutBias = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
 
