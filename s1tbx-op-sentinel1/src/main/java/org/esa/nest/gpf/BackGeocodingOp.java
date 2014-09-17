@@ -596,8 +596,8 @@ public final class BackGeocodingOp extends Operator {
         data.azimuthTime = zeroDopplerTime * Constants.secondsInDay; // day to s
         data.azimuthIndex = (zeroDopplerTime - su.firstLineUTC) / su.lineTimeInterval;
 
-        final double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime - su.firstLineUTC,
-                orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, data.earthPoint, data.sensorPos);
+        final double slantRange = SARGeocoding.computeSlantRange(
+                zeroDopplerTime, orbit, data.earthPoint, data.sensorPos);
 
         data.slantRangeTime = slantRange / Constants.lightSpeed; // in s
 
