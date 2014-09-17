@@ -31,6 +31,11 @@ public class TiffDirectoryEntry {
 
     public static final short BYTES_PER_ENTRY = 12;
     public static final short BIGTIFF_BYTES_PER_ENTRY = 20;
+    // this is the size of the field that holds values
+    // if the vales take up more than this an offset is written in this field instead
+    public static final short BYTES_PER_ALL_VALUES = 4;
+    public static final short BIGTIFF_BYTES_PER_ALL_VALUES = 8;
+
     private TiffShort tag;
     private TiffShort type;
     private TiffLong count;
@@ -90,7 +95,7 @@ public class TiffDirectoryEntry {
     }
 
     private void fillEntry(final ImageOutputStream ios) throws IOException {
-        final long bytesToWrite = 4 - getValuesSizeInBytes();
+        final long bytesToWrite = getBytesPerAllValues () - getValuesSizeInBytes();
         for (int i = 0; i < bytesToWrite; i++) {
             ios.writeByte(0);
         }
@@ -117,7 +122,7 @@ public class TiffDirectoryEntry {
     }
 
     public boolean mustValuesBeReferenced() {
-        return getValuesSizeInBytes() > 4;
+        return getValuesSizeInBytes() > getBytesPerAllValues ();
     }
 
     public long getValuesSizeInBytes() {
@@ -159,6 +164,14 @@ public class TiffDirectoryEntry {
         short result = BYTES_PER_ENTRY;
         if (bigTiff) {
             result = BIGTIFF_BYTES_PER_ENTRY;
+        }
+        return result;
+    }
+
+    public short getBytesPerAllValues () {
+        short result = BYTES_PER_ALL_VALUES;
+        if (bigTiff) {
+            result = BIGTIFF_BYTES_PER_ALL_VALUES;
         }
         return result;
     }
