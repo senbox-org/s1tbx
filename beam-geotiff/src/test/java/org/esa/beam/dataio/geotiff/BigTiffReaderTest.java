@@ -76,7 +76,7 @@ public class BigTiffReaderTest extends TestCase {
 
         final ImageReadParam readParam = imageReader.getDefaultReadParam();
         TIFFRenderedImage image = (TIFFRenderedImage) imageReader.readAsRenderedImage(0, readParam);
-        System.out.println("image " + image);
+        //System.out.println("image " + image);
         //assertEquals(1, image.getSampleModel().getNumBands());
         inputStream.close();
     }

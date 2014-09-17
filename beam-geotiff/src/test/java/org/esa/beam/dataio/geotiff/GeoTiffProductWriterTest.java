@@ -54,7 +54,7 @@ public class GeoTiffProductWriterTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         _productWriter.close();
-        //new File(FILENAME).delete();
+        new File(FILENAME).delete();
     }
 
     public void testGeoTIFFProductWriterCreation() {
