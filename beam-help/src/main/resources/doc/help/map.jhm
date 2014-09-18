@@ -11,7 +11,8 @@
     <mapID target="doc" url="images/HelpDoc.jpg"/>
 
     <mapID target="beamOverview" url="general/BeamOverview.html"/>
-    <mapID target="beamWhatsNew" url="general/BeamWhatsNew.html"/>
+    <!--<mapID target="beamWhatsNew" url="general/BeamWhatsNew.html"/>-->
+    <mapID target="beamDefinitions" url="general/BeamDefinitions.html"/>
     <mapID target="beamDefinitions" url="general/BeamDefinitions.html"/>
     <mapID target="beamDataSources" url="general/BeamDataSources.html"/>
     <mapID target="beamRelatedLinks" url="general/BeamRelatedLinks.html"/>

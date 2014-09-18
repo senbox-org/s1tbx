@@ -10,7 +10,6 @@
     <tocitem text="Data Processors">
         <tocitem text="Thematic Water Processing">
             <tocitem text="FLH/MCI Processor" target="flhMciScientificTool">
-                <tocitem text="Overview" target="flhMciScientificTool"/>
                 <tocitem text="Algorithm Specification" target="flhMciAlgorithmSpec"/>
                 <tocitem text="Processor Description" target="flhMciProcessorDesc"/>
             </tocitem>

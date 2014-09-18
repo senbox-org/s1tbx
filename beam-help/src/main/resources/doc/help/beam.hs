@@ -4,7 +4,7 @@
         "http://java.sun.com/products/javahelp/helpset_2_0.dtd">
 
 <helpset version="2.0">
-    <title>BEAM Help</title>
+    <title>Sentinel-3 Toolbox Help</title>
     <maps>
         <homeID>top</homeID>
         <mapref location="map.jhm"/>
@@ -23,7 +23,7 @@
     </view>
 
     <presentation default="true">
-        <name>BEAM Help</name>
+        <name>Sentinel-3 Toolbox Help</name>
         <size width="800" height="600"/>
         <location x="100" y="100"/>
     </presentation>

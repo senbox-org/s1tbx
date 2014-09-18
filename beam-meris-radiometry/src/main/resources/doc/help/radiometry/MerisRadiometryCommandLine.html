@@ -35,26 +35,26 @@
 
 <h3>Processor Description</h3>
 
-Since the MERIS Radiometric Correction processor makes use of the BEAM graph processing framework, it can be
-used also as a command line tool outside BEAM-VISAT. The graph processing is invoked
+Since the MERIS Radiometric Correction processor makes use of the SNAP graph processing framework, it can be
+used also as a command line tool. The graph processing is invoked
 by the command
 <ul>
     <li>
-        ${BEAM-INSTALL-DIR}/bin/gpt
+        ${S3TBX-INSTALL-DIR}/bin/gpt
     </li>
 </ul>
 
 To obtain general help on the graph processing, use the command
 <ul>
     <li>
-        ${BEAM-INSTALL-DIR}/bin/gpt -h
+        ${S3TBX-INSTALL-DIR}/bin/gpt -h
     </li>
 </ul>
 
 Specific help on the MERIS Radiometry Correction processor, can be obtained with
 <ul>
     <li>
-        ${BEAM-INSTALL-DIR}/bin/gpt -h Meris.CorrectRadiometry
+        ${S3TBX-INSTALL-DIR}/bin/gpt -h Meris.CorrectRadiometry
     </li>
 </ul>
 In this case, information on the usage and a list of all available parameters are given.

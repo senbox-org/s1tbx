@@ -10,7 +10,6 @@
     <tocitem text="Data Processors">
         <tocitem text="Thematic Land Processing">
             <tocitem text="SMAC Processor" target="smacScientificTool">
-                <tocitem text="Overview" target="smacScientificTool"/>
                 <tocitem text="Algorithm Specification" target="smacAlgorithmSpec"/>
                 <tocitem text="Processor Description" target="smacProcessorDesc"/>
             </tocitem>

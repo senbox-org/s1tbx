@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>BEAM Help - Definitions, Acronyms, Abbreviations</title>
+    <title>Sentinel-3 Toolbox Help - Definitions, Acronyms, Abbreviations</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -37,7 +37,7 @@
 
     <tr><td>(Data) Product</td>
         <td>An object that contains remote sensing data for a well known scene on the earth.
-            Within BEAM, a product can contain meta-data, geo-coding information, tie-point grids and bands.
+            Within the Sentinel-3 Toolbox, a product can contain meta-data, geo-coding information, tie-point grids and bands.
             All band raster datasets within a product have the same pixel resolution and share the same
             geo-coding.
         </td></tr>
@@ -63,14 +63,15 @@
         </td></tr>
 
     <tr><td>Flag-Dataset</td>
-        <td>A special band type which contains quality flag information. Flag datasets
-            always have an unsigned integer data type (8 to 32 bit). Each bit in a sample
-            corresponds to a special flag value. Each flag's metadata is stored in a
-            corresponding flag coding object. </td>
+        <td>A special band type which contains quality flag information.
+            Flag datasets always have an unsigned integer data type (8 to 32 bit).
+            Flag values are encoded through one or more bits:
+            A flag is considered as set when a specific bit combination is met.
+            Each flag's metadata is stored in a corresponding flag coding object.</td>
     </tr>
 
     <tr><td>Flag-Coding</td>
-        <td>Flag codings are used to specify the bit positions of single flags within a integer sample value
+        <td>Flag codings are used to specify the bit positions of single flags within an integer sample value
             of a quality flags dataset. Each element in a flag coding provides the metadata for a flag such as
             the name, description and a bit-index.
         </td></tr>
@@ -85,8 +86,8 @@
         <td>Provides the geodetic co-ordinates for a given pixel of a product.
             An image is geo-coded if it is somehow possible to find the geographical latitude and longitude values for
             any pixel.
-            ENVISAT products store their geo-coding information in the tie-point grids
-            named <code>latitude</code> and <code>longitue</code>. If a product has been map transformed,
+            Sentinel-3 products store their geo-coding information in tie-point grids or bands.
+            If a product has been map transformed,
             it is known to be geo-referenced and as such, tie-point information is no longer required.
         </td></tr>
 
@@ -127,7 +128,7 @@
         </td></tr>
 
     <tr><td>Pixel coordinates</td>
-        <td>In the BEAM software, pixel values always refer to the upper
+        <td>In the Sentinel-3 Toolbox, pixel values always refer to the upper
             left corner of the pixel. Pixel co-ordinates are always zero based, the pixel at <code>X=0,Y=0</code> refers
             to the upper left
             pixel of an image and the upper left corner of that pixel.
@@ -136,7 +137,7 @@
     <tr><td>Pixel value</td>
         <td>In general a composite of red, green and blue <i>sample values</i> resulting in a colour as part of an
             image.
-            Within the BEAM software, often synonymously referred to as the single, geophysical sample value of a band
+            Within the Sentinel-3 Toolbox, often synonymously referred to as the single, geophysical sample value of a band
             or tie-point grid.
         </td></tr>
 
@@ -185,6 +186,7 @@
     <tr><td>SAR</td> <td>Synthetic Aperture Radar (http://earth.esa.int)</td></tr>
     <tr><td>SeaDAS</td> <td>SeaWiFS Data Analysis System (see http://seadas.gsfc.nasa.gov/)</td></tr>
     <tr><td>SeaWiFS</td> <td>Sea-viewing Wide Field-of-view Sensor (see http://seawifs.gsfc.nasa.gov/)</td></tr>
+    <tr><td>SNAP</td> <td>Sentinel Application Platform</td></tr>
     <tr><td>SPH</td> <td>Specific Product Header in an ENVISAT data product</td></tr>
     <tr><td>SW</td> <td>Software</td></tr>
 </table>
