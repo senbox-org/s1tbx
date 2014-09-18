@@ -16,9 +16,7 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -28,19 +26,23 @@ import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.gpf.OperatorUtils;
 
 import java.awt.*;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Merges Sentinel-1 slice products
  */
-@OperatorMetadata(alias = "MergeSlices",
+@OperatorMetadata(alias = "SliceAssembly",
         category = "SAR Processing/SENTINEL-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Merges Sentinel-1 slice products", internal=true)
-public final class MergeSlicesOp extends Operator {
+public final class SliceAssemblyOp extends Operator {
 
     @SourceProducts
     private Product[] sourceProducts;
@@ -49,13 +51,14 @@ public final class MergeSlicesOp extends Operator {
 
     private MetadataElement absRoot = null;
 
+    private Product[] sliceProducts;
     private int targetWidth = 0, targetHeight = 0;
 
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
-    public MergeSlicesOp() {
+    public SliceAssemblyOp() {
     }
 
     /**
@@ -74,7 +77,9 @@ public final class MergeSlicesOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
+            sliceProducts = determineSliceProducts();
+
+            absRoot = AbstractMetadata.getAbstractedMetadata(sliceProducts[0]);
 
             computeTargetWidthAndHeight();
 
@@ -83,10 +88,72 @@ public final class MergeSlicesOp extends Operator {
             updateTargetProductMetadata();
 
         } catch (Throwable e) {
-            throw new OperatorException(e.getMessage());
+            OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
+    private Product[] determineSliceProducts() throws Exception {
+        if(sourceProducts.length < 2) {
+            throw new Exception("Slice assembly requires at least two consecutive slice products");
+        }
+
+        final TreeMap<Integer, Product> productSet = new TreeMap<>();
+        for(Product srcProduct : sourceProducts) {
+            final MetadataElement origMetaRoot = AbstractMetadata.getOriginalProductMetadata(srcProduct);
+            final MetadataElement generalProductInformation = getGeneralProductInformation(origMetaRoot);
+            if(!isSliceProduct(generalProductInformation)) {
+                throw new Exception(srcProduct.getName() +" is not a slice product");
+            }
+
+            final int totalSlices = generalProductInformation.getAttributeInt("totalSlices");
+            final int sliceNumber = generalProductInformation.getAttributeInt("sliceNumber");
+
+            productSet.put(sliceNumber, srcProduct);
+        }
+
+        //check if consecutive
+        Integer prev = productSet.firstKey();
+        for(Integer i : productSet.keySet()) {
+            if(!i.equals(prev)) {
+                if(!prev.equals(i-1)) {
+                    throw new Exception("Products are not consecutive slices");
+                }
+                prev = i;
+            }
+        }
+
+        return productSet.values().toArray(new Product[productSet.size()]);
+    }
+
+    private static MetadataElement getGeneralProductInformation(final MetadataElement origMetaRoot) {
+        final MetadataElement XFDU = origMetaRoot.getElement("XFDU");
+        final MetadataElement metadataSection = XFDU.getElement("metadataSection");
+
+        final MetadataElement metadataObject = findElementByID(metadataSection, "ID", "generalProductInformation");
+        final MetadataElement metadataWrap = metadataObject.getElement("metadataWrap");
+        final MetadataElement xmlData = metadataWrap.getElement("xmlData");
+        MetadataElement generalProductInformation = xmlData.getElement("generalProductInformation");
+        if (generalProductInformation == null)
+            generalProductInformation = xmlData.getElement("standAloneProductInformation");
+        return generalProductInformation;
+    }
+
+    private static boolean isSliceProduct(final MetadataElement generalProductInformation) {
+        final String sliceProductFlag = generalProductInformation.getAttributeString("sliceProductFlag");
+        return sliceProductFlag.equals("true");
+    }
+
+    private static MetadataElement findElementByID(final MetadataElement metadataSection, final String tag, final String id) {
+        final MetadataElement[] metadataObjectList = metadataSection.getElements();
+
+        for (MetadataElement metadataObject : metadataObjectList) {
+            final String attrib = metadataObject.getAttributeString(tag, null);
+            if (attrib.equals(id)) {
+                return metadataObject;
+            }
+        }
+        return null;
+    }
 
     private void computeTargetWidthAndHeight() {
         for (Product srcProduct : sourceProducts) {
@@ -94,23 +161,22 @@ public final class MergeSlicesOp extends Operator {
                 targetWidth = srcProduct.getSceneRasterWidth();
             targetHeight += srcProduct.getSceneRasterHeight();
         }
-
     }
 
     private void createTargetProduct() {
 
-        final Product srcProduct0 = sourceProducts[0];
-        targetProduct = new Product(srcProduct0.getName(), srcProduct0.getProductType(), targetWidth, targetHeight);
+        final Product firstSliceProduct = sliceProducts[0];
+        targetProduct = new Product(firstSliceProduct.getName(), firstSliceProduct.getProductType(), targetWidth, targetHeight);
 
-        final Band[] sourceBands = srcProduct0.getBands();
+   /*     final Band[] sourceBands = firstSliceProduct.getBands();
         for (Band srcBand : sourceBands) {
             final Band newBand = targetProduct.addBand(srcBand.getName(), srcBand.getDataType());
             ProductUtils.copyRasterDataNodeProperties(srcBand, newBand);
 
             targetProduct.addBand(newBand);
-        }
+        }*/
 
-        ProductUtils.copyProductNodes(srcProduct0, targetProduct);
+        ProductUtils.copyProductNodes(firstSliceProduct, targetProduct);
     }
 
     private void updateTargetProductMetadata() {
@@ -249,7 +315,7 @@ public final class MergeSlicesOp extends Operator {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(MergeSlicesOp.class);
+            super(SliceAssemblyOp.class);
         }
     }
 }

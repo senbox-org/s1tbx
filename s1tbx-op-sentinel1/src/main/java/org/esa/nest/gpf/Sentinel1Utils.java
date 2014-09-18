@@ -64,7 +64,7 @@ public final class Sentinel1Utils {
 
         getMetadataRoot();
 
-        getGeneralImageInfo();
+        getAbstractedMetadata();
 
         getProductAcquisitionMode();
 
@@ -79,23 +79,6 @@ public final class Sentinel1Utils {
         computeDopplerRate(); // todo: should compute on request
 
         computeReferenceTime(); // todo: should compute on request
-    }
-
-    public Sentinel1Utils(final Product sourceProduct, final boolean outputSigmaBand, final boolean outputGammaBand,
-                          final boolean outputBetaBand, final boolean outputDNBand) {
-
-
-        this.sourceProduct = sourceProduct;
-
-        getMetadataRoot();
-
-        getProductAcquisitionMode();
-
-        getProductPolarizations();
-
-        getSubSwathParameters();
-
-        getSubSwathCalibrationVectors(outputSigmaBand, outputBetaBand, outputGammaBand, outputDNBand);
     }
 
     private void getMetadataRoot() {
@@ -121,7 +104,7 @@ public final class Sentinel1Utils {
         }
     }
 
-    private void getGeneralImageInfo() throws Exception {
+    private void getAbstractedMetadata() throws Exception {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
@@ -212,7 +195,7 @@ public final class Sentinel1Utils {
                 subSwath[i].subSwathName = acquisitionMode;
             }
             final MetadataElement subSwathMetadata = getSubSwathMetadata(subSwath[i].subSwathName);
-            setParameters(subSwathMetadata, subSwath[i]);
+            getSubSwathParameters(subSwathMetadata, subSwath[i]);
         }
     }
 
@@ -245,7 +228,7 @@ public final class Sentinel1Utils {
      * @param subSwathMetadata The root metadata element of a given sub-swath.
      * @param subSwath         The SubSwathInfo object.
      */
-    private static void setParameters(final MetadataElement subSwathMetadata, final SubSwathInfo subSwath) {
+    private static void getSubSwathParameters(final MetadataElement subSwathMetadata, final SubSwathInfo subSwath) {
 
         final MetadataElement product = subSwathMetadata.getElement("product");
         final MetadataElement imageAnnotation = product.getElement("imageAnnotation");
@@ -994,7 +977,7 @@ public final class Sentinel1Utils {
         }
     }
 
-    public static int[] getIntArray(final MetadataElement elem, final String tag) {
+    private static int[] getIntArray(final MetadataElement elem, final String tag) {
 
         MetadataAttribute attribute = elem.getAttribute(tag);
         if (attribute == null) {
@@ -1018,7 +1001,7 @@ public final class Sentinel1Utils {
         return array;
     }
 
-    public static double[] getDoubleArray(final MetadataElement elem, final String tag) {
+    private static double[] getDoubleArray(final MetadataElement elem, final String tag) {
 
         MetadataAttribute attribute = elem.getAttribute(tag);
         if (attribute == null) {
