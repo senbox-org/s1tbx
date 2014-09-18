@@ -17,7 +17,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <snapVersionRange>[0.5.0-SNAPSHOT,1.0-SNAPSHOT)</snapVersionRange>
-        <s1tbx.version>0.5.0-SNAPSHOT</s1tbx.version>
+        <s1tbx.version>0.7.0-SNAPSHOT</s1tbx.version>
         <s2tbx.version>0.6.0</s2tbx.version>
         <s3tbx.version>0.5.0-SNAPSHOT</s3tbx.version>
 
