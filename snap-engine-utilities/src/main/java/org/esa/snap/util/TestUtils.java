@@ -208,6 +208,11 @@ public class TestUtils {
     }
 
     public static void verifyProduct(final Product product, final boolean verifyTimes, final boolean verifyGeoCoding) throws Exception {
+        verifyProduct(product, verifyTimes, verifyGeoCoding, false);
+    }
+
+    public static void verifyProduct(final Product product, final boolean verifyTimes, final boolean verifyGeoCoding,
+                                     final boolean verifyBandData) throws Exception {
         if (product == null)
             throw new Exception("product is null");
         if (verifyGeoCoding && product.getGeoCoding() == null) {
@@ -226,20 +231,28 @@ public class TestUtils {
             if (product.getEndTime() == null)
                 throw new Exception("endTime is null");
         }
-        for (Band b : product.getBands()) {
-            if (b.getUnit() == null || b.getUnit().isEmpty())
-                throw new Exception("band " + b.getName() + " has null unit");
+        if(verifyBandData) {
+            for (Band b : product.getBands()) {
+                if (b.getUnit() == null || b.getUnit().isEmpty())
+                    throw new Exception("band " + b.getName() + " has null unit");
 
-            // readPixels gets computeTiles to be executed
-            final float[] floatValues = new float[b.getSceneRasterWidth()*b.getSceneRasterHeight()];
-            b.readPixels(0, 0, b.getSceneRasterWidth(), b.getSceneRasterHeight(), floatValues, ProgressMonitor.NULL);
-            boolean allNoData = true;
-            for(float f : floatValues) {
-                if(!(f == b.getNoDataValue() || f == 0 || f == Float.NaN))
-                    allNoData = false;
-            }
-            if(allNoData) {
-                throw new Exception("band " + b.getName() + " is all no data value");
+                // readPixels gets computeTiles to be executed
+                final int w = b.getSceneRasterWidth();
+                final int h = b.getSceneRasterHeight();
+                if (w > subsetWidth*2 || h > subsetHeight*2) {
+                    throw new IOException("Test product too large " + w + "," + h);
+                }
+
+                final float[] floatValues = new float[w * h];
+                b.readPixels(0, 0, w, h, floatValues, ProgressMonitor.NULL);
+                boolean allNoData = true;
+                for (float f : floatValues) {
+                    if (!(f == b.getNoDataValue() || f == 0 || f == Float.NaN))
+                        allNoData = false;
+                }
+                if (allNoData) {
+                    throw new Exception("band " + b.getName() + " is all no data value");
+                }
             }
         }
     }
@@ -376,22 +389,8 @@ public class TestUtils {
     public static void executeOperator(final Operator op) throws Exception {
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        verifyProduct(targetProduct, false, false);
-
-        final Band targetBand = targetProduct.getBandAt(0);
-        if (targetBand == null)
-            throwErr("targetBand at 0 is null");
-
-        final int bandWidth = targetBand.getSceneRasterWidth();
-        final int bandHeight = targetBand.getSceneRasterHeight();
-
         // readPixels: execute computeTiles()
-        final float[] floatValues = new float[10000];
-        targetBand.readPixels(within(subsetX, bandWidth),
-                within(subsetY, bandHeight),
-                within(subsetWidth, bandWidth),
-                within(subsetHeight, bandHeight),
-                floatValues, ProgressMonitor.NULL);
+        verifyProduct(targetProduct, true, true, true);
     }
 
     public static Product createSubsetProduct(final Product sourceProduct) throws IOException {
@@ -402,13 +401,35 @@ public class TestUtils {
         final ProductSubsetDef subsetDef = new ProductSubsetDef();
 
         subsetDef.addNodeNames(sourceProduct.getTiePointGridNames());
+        subsetDef.addNodeNames(sourceProduct.getBandNames());
+        final int w = within(subsetWidth, bandWidth);
+        final int h = within(subsetHeight, bandHeight);
+        subsetDef.setRegion(within(subsetX, bandWidth-w), within(subsetY, bandHeight-h), w, h);
+        subsetDef.setIgnoreMetadata(false);
+        subsetDef.setTreatVirtualBandsAsRealBands(false);
+
+        final Product subsetProduct = subsetReader.readProductNodes(sourceProduct, subsetDef);
+        if(subsetProduct.getSceneRasterWidth() > subsetWidth || subsetProduct.getSceneRasterHeight() > subsetHeight) {
+            throw new IOException("product size mismatch");
+        }
+
+        return subsetProduct;
+    }
+
+    public static Product writeSubsetProduct(final Product sourceProduct) throws IOException {
+        final int bandWidth = sourceProduct.getSceneRasterWidth();
+        final int bandHeight = sourceProduct.getSceneRasterHeight();
+
+        final ProductSubsetBuilder subsetReader = new ProductSubsetBuilder();
+        final ProductSubsetDef subsetDef = new ProductSubsetDef();
+
+        subsetDef.addNodeNames(sourceProduct.getTiePointGridNames());
 
         final String bandName = ProductUtils.findSuitableQuicklookBandName(sourceProduct);
         subsetDef.addNodeNames(new String[]{bandName});
-        subsetDef.setRegion(within(subsetX, bandWidth),
-                within(subsetY, bandHeight),
-                within(subsetWidth, bandWidth),
-                within(subsetHeight, bandHeight));
+        final int w = within(subsetWidth, bandWidth);
+        final int h = within(subsetHeight, bandHeight);
+        subsetDef.setRegion(within(subsetX, bandWidth-w), within(subsetY, bandHeight-h), w, h);
         subsetDef.setIgnoreMetadata(false);
         subsetDef.setTreatVirtualBandsAsRealBands(true);
 
@@ -490,10 +511,12 @@ public class TestUtils {
                     if (productTypeExemptions != null && containsProductType(productTypeExemptions, sourceProduct.getProductType()))
                         continue;
 
-                    verifyProduct(sourceProduct, false, false);
+                    verifyProduct(sourceProduct, true, true, false);
+
+                    final Product subsetProduct = createSubsetProduct(sourceProduct);
 
                     final Operator op = spi.createOperator();
-                    op.setSourceProduct(sourceProduct);
+                    op.setSourceProduct(subsetProduct);
 
                     TestUtils.log.info(spi.getOperatorAlias() + " Processing " + file.toString());
                     TestUtils.executeOperator(op);
@@ -592,7 +615,7 @@ public class TestUtils {
                     final Product product = reader.readProductNodes(file, null);
                     if (productTypeExemptions != null && containsProductType(productTypeExemptions, product.getProductType()))
                         continue;
-                    verifyProduct(product, true, true);
+                    verifyProduct(product, true, true, false);
                     ++iterations;
 
                     if (maxIteration > 0 && iterations >= maxIteration)
