@@ -1147,7 +1147,7 @@ public abstract class ProductFile {
         if(productType != null && productType.endsWith("C")) {
             productType = productType.substring(0, productType.length()-1) + "P";
         }
-        if (!productType.endsWith("P")) {
+        if (!productType.endsWith("P") && !productType.endsWith("X")) {
             final String newType = productType.substring(0, 9) + "P";
             getLogger().warning("mapping to regular product type '" + newType +
                                 "' due to missing specification for products of type '" + productType + "'");
