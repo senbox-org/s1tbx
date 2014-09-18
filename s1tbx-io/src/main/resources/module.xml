@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s1tbx-io</symbolicName>
-    <version>0.6</version>
+    <version>0.7</version>
     <name>S1TBX Readers and Writers</name>
 
     <description>

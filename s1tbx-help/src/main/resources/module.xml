@@ -3,7 +3,7 @@
 
     <symbolicName>s1tbx-help</symbolicName>
     <name>Help</name>
-    <version>0.6</version>
+    <version>0.7</version>
     <packaging>dir</packaging>
 
     <vendor>Array Systems Computing Inc</vendor>

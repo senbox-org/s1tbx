@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s1tbx-op-sar-processing</symbolicName>
-    <version>0.6</version>
+    <version>0.7</version>
     <name>S1TBX SAR Processing</name>
     <description>S1TBX SAR Processing</description>
 
