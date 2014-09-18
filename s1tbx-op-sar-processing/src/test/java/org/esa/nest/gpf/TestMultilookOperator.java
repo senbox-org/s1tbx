@@ -42,7 +42,7 @@ public class TestMultilookOperator {
     private final static String expectedPathWSM = TestUtils.rootPathTestProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_ML.dim";
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
-    private String[] exceptionExemptions = {"not supported", "not intended"};
+    private String[] exceptionExemptions = {"not supported", "not intended", "not be map projected"};
 
     /**
      * Tests multi-look operator with a 4x16 "DETECTED" test product.
