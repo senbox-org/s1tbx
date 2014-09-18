@@ -17,9 +17,9 @@ package org.esa.nest.datamodel;
 
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.nest.gpf.*;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.eo.Constants;
-import org.esa.nest.gpf.*;
 
 /**
  * The abstract base class for all calibration operators intended to be extended by clients.

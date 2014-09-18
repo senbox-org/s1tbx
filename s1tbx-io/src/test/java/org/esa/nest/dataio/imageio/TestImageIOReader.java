@@ -15,51 +15,43 @@
  */
 package org.esa.nest.dataio.imageio;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Test ERS CEOS Product Reader.
  *
  * @author lveci
  */
-public class TestImageIOReader extends TestCase {
+public class TestImageIOReader {
 
+    static {
+        TestUtils.initTestEnvironment();
+    }
     ImageIOReaderPlugIn readerPlugin;
     ProductReader reader;
 
     String filePath = "P:\\nest\\nest\\ESA Data\\Other\\Imagefiles\\Submarine_operators_countries.png";
 
-    public TestImageIOReader(String name) {
-        super(name);
-    }
-
-    public void setUp() throws Exception {
-        super.setUp();
-
-        TestUtils.initTestEnvironment();
+    public TestImageIOReader() {
         readerPlugin = new ImageIOReaderPlugIn();
         reader = readerPlugin.createReaderInstance();
     }
 
-    public void tearDown() throws Exception {
-        super.tearDown();
-
-        reader = null;
-        readerPlugin = null;
-    }
-
+    @Test
     public void testImageIO() throws IOException {
-        String[] readerFormats = ImageIO.getReaderFormatNames();
-        String[] readerSuffixes = ImageIO.getReaderFileSuffixes();
-        String[] writerFormats = ImageIO.getWriterFormatNames();
-        String[] writerSuffixes = ImageIO.getWriterFileSuffixes();
+        final String[] readerFormats = ImageIO.getReaderFormatNames();
+        final String[] readerSuffixes = ImageIO.getReaderFileSuffixes();
+        final String[] writerFormats = ImageIO.getWriterFormatNames();
+        final String[] writerSuffixes = ImageIO.getWriterFileSuffixes();
 
         for (String s : readerFormats)
             TestUtils.log.info("ImageIOreader: " + s);
@@ -71,11 +63,16 @@ public class TestImageIOReader extends TestCase {
             TestUtils.log.info("ImageIOwriterSuffix: " + s);
     }
 
-    public void testOpen() throws IOException {
+    @Test
+    public void testOpen() throws Exception {
         File file = new File(filePath);
-        if (!file.exists()) return;
+        if (!file.exists()) {
+            TestUtils.skipTest(this, filePath+" not found");
+            return;
+        }
 
         Product product = reader.readProductNodes(file, null);
+        assertNotNull(product);
     }
 
 }

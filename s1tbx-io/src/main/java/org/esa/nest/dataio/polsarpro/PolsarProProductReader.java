@@ -108,7 +108,6 @@ public class PolsarProProductReader extends EnviProductReader {
 
         applyBeamProperties(product, mainHeader.getBeamProperties());
 
-        initMetadata(product, mainHeaderFile);
         product.setFileLocation(mainHeaderFile);
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);

@@ -16,7 +16,7 @@ public class TiePointInterpolator {
     private double[][] quadraticInterpCoeffs = null; // 2 order quadratic polynomial coefficients
     private double[] biquadraticInterpCoeffs = null; // 2 order biquadratic polynomial coefficients
 
-    public enum InterpMode { BILINEAR, QUADRATIC, BIQUADRATIC }
+    public enum InterpMode {BILINEAR, QUADRATIC, BIQUADRATIC}
 
     public TiePointInterpolator(final TiePointGrid tpg) {
         this.tpg = tpg;
@@ -40,19 +40,19 @@ public class TiePointInterpolator {
 
         final double[][] sampleIndexArray = new double[width][numCoeff];
         for (int c = 0; c < width; c++) {
-            final int x = (int)(tpg.getOffsetX() + c* tpg.getSubSamplingX());
+            final int x = (int) (tpg.getOffsetX() + c * tpg.getSubSamplingX());
             sampleIndexArray[c][0] = 1.0;
-            sampleIndexArray[c][1] = (double)(x);
-            sampleIndexArray[c][2] = (double)(x*x);
+            sampleIndexArray[c][1] = (double) (x);
+            sampleIndexArray[c][2] = (double) (x * x);
         }
         final Matrix A = new Matrix(sampleIndexArray);
 
         quadraticInterpCoeffs = new double[height][numCoeff];
         final double[] tiePointArray = new double[width];
         for (int r = 0; r < height; r++) {
-            final int rwidth = r*width;
+            final int rwidth = r * width;
             for (int c = 0; c < width; c++) {
-                tiePointArray[c] = (double)(tiePoints[rwidth + c]);
+                tiePointArray[c] = (double) (tiePoints[rwidth + c]);
             }
             final Matrix b = new Matrix(tiePointArray, width);
             final Matrix x = A.solve(b);
@@ -72,22 +72,22 @@ public class TiePointInterpolator {
         final int numCoeff = 6;
         final int w = tpg.getRasterWidth();
         final int h = tpg.getRasterHeight();
-        final int n = w*h;
+        final int n = w * h;
 
         // prepare matrix A
         final double[][] sampleIndexArray = new double[n][numCoeff];
         for (int i = 0; i < h; i++) {
-            final int y = (int)(i* tpg.getSubSamplingY());
-            final double yy = y*y;
-            final int iw = i*w;
+            final int y = (int) (i * tpg.getSubSamplingY());
+            final double yy = y * y;
+            final int iw = i * w;
             for (int j = 0; j < w; j++) {
                 final int k = iw + j;
-                final int x = (int)(j* tpg.getSubSamplingX());
+                final int x = (int) (j * tpg.getSubSamplingX());
                 sampleIndexArray[k][0] = 1.0;
-                sampleIndexArray[k][1] = (double)(x);
-                sampleIndexArray[k][2] = (double)(y);
-                sampleIndexArray[k][3] = (double)(x*x);
-                sampleIndexArray[k][4] = (double)(y*x);
+                sampleIndexArray[k][1] = (double) (x);
+                sampleIndexArray[k][2] = (double) (y);
+                sampleIndexArray[k][3] = (double) (x * x);
+                sampleIndexArray[k][4] = (double) (y * x);
                 sampleIndexArray[k][5] = yy;
             }
         }
@@ -98,7 +98,7 @@ public class TiePointInterpolator {
 
         final double[] tiePointArray = new double[n];
         for (int i = 0; i < n; i++) {
-            tiePointArray[i] = (double)(tiePoints[i]);
+            tiePointArray[i] = (double) (tiePoints[i]);
         }
         final Matrix b = new Matrix(tiePointArray, n);
 
@@ -110,13 +110,13 @@ public class TiePointInterpolator {
 
     /**
      * Computes the interpolated sample for the pixel located at (x,y) given as floating point co-ordinates. <p/>
-     * <p/>
+     * <p>
      * If the pixel co-odinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
      *
-     * @param x The X co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
-     *          this tie-pint grid belongs to.
-     * @param y The Y co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
-     *          this tie-pint grid belongs to.
+     * @param x            The X co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
+     *                     this tie-pint grid belongs to.
+     * @param y            The Y co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
+     *                     this tie-pint grid belongs to.
      * @param interpMethod String indicating the interpolation method.
      * @return The interpolated sample value.
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
@@ -136,15 +136,15 @@ public class TiePointInterpolator {
             if (r >= quadraticInterpCoeffs.length) {
                 r = quadraticInterpCoeffs.length - 1;
             }
-            return (float)(quadraticInterpCoeffs[r][0] + quadraticInterpCoeffs[r][1]*x + quadraticInterpCoeffs[r][2]*x*x);
+            return (float) (quadraticInterpCoeffs[r][0] + quadraticInterpCoeffs[r][1] * x + quadraticInterpCoeffs[r][2] * x * x);
 
         } else if (interpMethod == InterpMode.BIQUADRATIC) {
 
             if (biquadraticInterpCoeffs == null) {
                 computeBiquadraticInterpCoeffs();
             }
-            return (float)(biquadraticInterpCoeffs[0] + biquadraticInterpCoeffs[1]*x + biquadraticInterpCoeffs[2]*y
-                    + biquadraticInterpCoeffs[3]*x*x + biquadraticInterpCoeffs[4]*x*y + biquadraticInterpCoeffs[5]*y*y);
+            return (float) (biquadraticInterpCoeffs[0] + biquadraticInterpCoeffs[1] * x + biquadraticInterpCoeffs[2] * y
+                    + biquadraticInterpCoeffs[3] * x * x + biquadraticInterpCoeffs[4] * x * y + biquadraticInterpCoeffs[5] * y * y);
 
         } else {
             throw new IllegalArgumentException("unsupported interpolation method");
@@ -155,12 +155,12 @@ public class TiePointInterpolator {
      * Retrieves an array of tie point data interpolated to the product width and height as float array. If the given
      * array is <code>null</code> a new one is created and returned.
      *
-     * @param x0     the x coordinate of the array to be read
-     * @param y0     the y coordinate of the array to be read
-     * @param w      the width of the array to be read
-     * @param h      the height of the array to be read
-     * @param pixels the float array to be filled with data
-     * @param pm     a monitor to inform the user about progress
+     * @param x0           the x coordinate of the array to be read
+     * @param y0           the y coordinate of the array to be read
+     * @param w            the width of the array to be read
+     * @param h            the height of the array to be read
+     * @param pixels       the float array to be filled with data
+     * @param pm           a monitor to inform the user about progress
      * @param interpMethod String indicating the interpolation method.
      * @return Array of interpolated sample values.
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
@@ -201,7 +201,11 @@ public class TiePointInterpolator {
     }
 
     public final static class InterpInput {
-        final float wi; final float wj; final int i0; final int j0;
+        final float wi;
+        final float wj;
+        final int i0;
+        final int j0;
+
         InterpInput(float wi, float wj, int i0, int j0) {
             this.wi = wi;
             this.wj = wj;

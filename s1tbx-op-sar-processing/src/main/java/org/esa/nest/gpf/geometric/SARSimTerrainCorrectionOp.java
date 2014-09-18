@@ -248,9 +248,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            if (OperatorUtils.isMapProjected(sourceProduct)) {
-                throw new OperatorException("Source product is already map projected");
-            }
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfMapProjected();
 
             maskBand = sourceProduct.getBand(SARSimulationOp.layoverShadowMaskBandName);
 
@@ -947,16 +946,14 @@ public class SARSimTerrainCorrectionOp extends Operator {
                         continue;
                     }
 
-                    double slantRange = SARGeocoding.computeSlantRange(
-                            zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+                    double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
 
                     double zeroDoppler = zeroDopplerTime;
                     if (!skipBistaticCorrection) {
                         // skip bistatic correction for COSMO, TerraSAR-X and RadarSAT-2
                         zeroDoppler = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
 
-                        slantRange = SARGeocoding.computeSlantRange(
-                                zeroDoppler - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+                        slantRange = SARGeocoding.computeSlantRange(zeroDoppler, orbit, earthPoint, sensorPos);
                     }
 
                     final double azimuthIndex = (zeroDoppler - firstLineUTC) / lineTimeInterval;

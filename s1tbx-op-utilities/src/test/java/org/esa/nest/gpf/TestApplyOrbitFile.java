@@ -15,10 +15,12 @@
  */
 package org.esa.nest.gpf;
 
-import junit.framework.TestCase;
 import org.esa.beam.dataio.envisat.EnvisatOrbitReader;
+import org.junit.Test;
 
 import java.io.File;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by IntelliJ IDEA.
@@ -26,25 +28,14 @@ import java.io.File;
  * Date: Sep 4, 2008
  * To change this template use File | Settings | File Templates.
  */
-public class TestApplyOrbitFile extends TestCase {
+public class TestApplyOrbitFile {
 
     File vorPath = new File("P:\\nest\\nest\\ESA Data\\Orbits\\Doris\\vor");
 
-    public TestApplyOrbitFile(String name) {
-        super(name);
-    }
-
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testOpenFile() {
 
         EnvisatOrbitReader reader = new EnvisatOrbitReader();
-
+        assertNotNull(reader);
     }
 }

@@ -120,9 +120,9 @@ public class WarpOp extends Operator {
     public static final String TS8P = "Truncated sinc (8 points)";
     public static final String TS16P = "Truncated sinc (16 points)";
 
-    private final Map<Band, Band> sourceRasterMap = new HashMap<Band, Band>(10);
-    private final Map<Band, Band> complexSrcMap = new HashMap<Band, Band>(10);
-    private final Map<Band, WarpData> warpDataMap = new HashMap<Band, WarpData>(10);
+    private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
+    private final Map<Band, Band> complexSrcMap = new HashMap<>(10);
+    private final Map<Band, WarpData> warpDataMap = new HashMap<>(10);
 
     private String processedSlaveBand;
     private String[] masterBandNames = null;
@@ -166,29 +166,41 @@ public class WarpOp extends Operator {
             // The following code is temporary
             if (complexCoregistration) {
 
-                if (interpolationMethod.equals(CC4P)) {
-                    constructInterpolationTable(CC4P);
-                } else if (interpolationMethod.equals(CC6P)) {
-                    constructInterpolationTable(CC6P);
-                } else if (interpolationMethod.equals(TS6P)) {
-                    constructInterpolationTable(TS6P);
-                } else if (interpolationMethod.equals(TS8P)) {
-                    constructInterpolationTable(TS8P);
-                } else if (interpolationMethod.equals(TS16P)) {
-                    constructInterpolationTable(TS16P);
-                } else {
-                    interp = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
+                switch (interpolationMethod) {
+                    case CC4P:
+                        constructInterpolationTable(CC4P);
+                        break;
+                    case CC6P:
+                        constructInterpolationTable(CC6P);
+                        break;
+                    case TS6P:
+                        constructInterpolationTable(TS6P);
+                        break;
+                    case TS8P:
+                        constructInterpolationTable(TS8P);
+                        break;
+                    case TS16P:
+                        constructInterpolationTable(TS16P);
+                        break;
+                    default:
+                        interp = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
+                        break;
                 }
             } else { // detected products
 
-                if (interpolationMethod.equals(NEAREST_NEIGHBOR)) {
-                    interp = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
-                } else if (interpolationMethod.equals(BILINEAR)) {
-                    interp = Interpolation.getInstance(Interpolation.INTERP_BILINEAR);
-                } else if (interpolationMethod.equals(BICUBIC)) {
-                    interp = Interpolation.getInstance(Interpolation.INTERP_BICUBIC);
-                } else if (interpolationMethod.equals(BICUBIC2)) {
-                    interp = Interpolation.getInstance(Interpolation.INTERP_BICUBIC_2);
+                switch (interpolationMethod) {
+                    case NEAREST_NEIGHBOR:
+                        interp = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
+                        break;
+                    case BILINEAR:
+                        interp = Interpolation.getInstance(Interpolation.INTERP_BILINEAR);
+                        break;
+                    case BICUBIC:
+                        interp = Interpolation.getInstance(Interpolation.INTERP_BICUBIC);
+                        break;
+                    case BICUBIC2:
+                        interp = Interpolation.getInstance(Interpolation.INTERP_BICUBIC_2);
+                        break;
                 }
             }
 
@@ -674,7 +686,7 @@ public class WarpOp extends Operator {
      */
     public static boolean eliminateGCPsBasedOnRMS(final WarpData warpData, final float threshold) {
 
-        final List<Placemark> pinList = new ArrayList<Placemark>();
+        final List<Placemark> pinList = new ArrayList<>();
         if (warpData.slaveGCPList.size() < warpData.rms.length) {
             warpData.notEnoughGCPs = true;
             return true;
@@ -928,7 +940,7 @@ public class WarpOp extends Operator {
     }
 
     public static class WarpData {
-        public final List<Placemark> slaveGCPList = new ArrayList<Placemark>();
+        public final List<Placemark> slaveGCPList = new ArrayList<>();
         private WarpPolynomial jaiWarp = null;
         public double[] xCoef = null;
         public double[] yCoef = null;

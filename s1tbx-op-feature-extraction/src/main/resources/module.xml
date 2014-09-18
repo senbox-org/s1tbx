@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s1tbx-op-feature-extraction</symbolicName>
-    <version>0.5</version>
+    <version>0.7</version>
     <name>S1TBX Feature ExtractionTools</name>
 
     <description>S1TBX Feature Extraction Tools</description>

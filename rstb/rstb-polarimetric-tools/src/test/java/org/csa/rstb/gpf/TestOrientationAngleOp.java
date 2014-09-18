@@ -15,38 +15,38 @@
  */
 package org.csa.rstb.gpf;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
+
+import java.io.File;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test for OrientationAngleOp.
  */
-public class TestOrientationAngleOp extends TestCase {
+public class TestOrientationAngleOp {
 
-    private OperatorSpi spi;
-
-    private final static String inputPathQuad = TestUtils.rootPathExpectedProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
-    private final static String inputQuadFullStack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
-    private final static String inputC3Stack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-C3-Stack.dim";
-    private final static String inputT3Stack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-T3-Stack.dim";
-
-    @Override
-    protected void setUp() throws Exception {
+    static {
         TestUtils.initTestEnvironment();
-        spi = new OrientationAngleCorrectionOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
-    }
+    private final static OperatorSpi spi = new OrientationAngleCorrectionOp.Spi();
 
-    private static Product runOrientation(final OrientationAngleCorrectionOp op, final String path) throws Exception {
-        final Product sourceProduct = TestUtils.readSourceProduct(path);
+    private final static String inputPathQuad = TestUtils.rootPathTestProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
+    private final static String inputQuadFullStack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
+    private final static String inputC3Stack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-C3-Stack.dim";
+    private final static String inputT3Stack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-T3-Stack.dim";
+
+    private Product runOrientation(final OrientationAngleCorrectionOp op, final String path) throws Exception {
+        final File inputFile = new File(path);
+        if (!inputFile.exists()) {
+            TestUtils.skipTest(this, path + " not found");
+            return null;
+        }
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
@@ -57,6 +57,7 @@ public class TestOrientationAngleOp extends TestCase {
         return targetProduct;
     }
 
+    @Test
     public void testOrientationAngle() throws Exception {
 
         runOrientation((OrientationAngleCorrectionOp) spi.createOperator(), inputPathQuad);

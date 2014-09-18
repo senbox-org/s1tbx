@@ -2,7 +2,7 @@ package org.esa.nest.dataio.orbits;
 
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.snap.datamodel.Orbits;
-import org.junit.Before;
+import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
 /**
@@ -10,17 +10,13 @@ import org.junit.Test;
  */
 public class TestSentinelPODOrbitFile {
 
-    @Before
-    public void setUp() throws Exception {
-
-        System.out.println("TestSentinelPODOrbitFile.setup: do nothing");
-    }
+    private final static String orbitFile = "P:\\s1tbx\\s1tbx\\Data\\Orbit\\unzipped\\S1A_OPER_AUX_RESORB_OPOD_20140611T152302_V20140525T151921_20140525T183641.EOF";
 
     @Test
     public void testSentinelPODOrbitFile() throws Throwable {
 
-        System.out.println("testSentinelPODOrbitFile...");
-        SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile("P:\\s1tbx\\s1tbx\\Data\\Orbit\\unzipped\\S1A_OPER_AUX_RESORB_OPOD_20140611T152302_V20140525T151921_20140525T183641.EOF");
+        TestUtils.log.info("testSentinelPODOrbitFile...");
+        final SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile(orbitFile);
 
         // First OSV (exact match)
         String utcStr1 = "UTC=2014-05-25T15:19:21.698661";
@@ -101,35 +97,35 @@ public class TestSentinelPODOrbitFile {
 
 
         String str = podOrbitFile.getMissionFromHeader();
-        System.out.println("Mission from Header = " + str);
+        TestUtils.log.info("Mission from Header = " + str);
         assert(str.startsWith("Sentinel-1"));
 
         str = podOrbitFile.getFileTypeFromHeader();
-        System.out.println("File_Type from Header = " + str);
+        TestUtils.log.info("File_Type from Header = " + str);
         assert(str.equals("AUX_RESORB"));
 
         str = podOrbitFile.getValidityStartFromHeader();
-        System.out.println("Validity_Start from Header = " + str);
+        TestUtils.log.info("Validity_Start from Header = " + str);
         assert(str.equals("UTC=2014-05-25T15:19:21"));
 
         str = podOrbitFile.getValidityStopFromHeader();
-        System.out.println("Validity_Stop from Header = " + str);
+        TestUtils.log.info("Validity_Stop from Header = " + str);
         assert(str.equals("UTC=2014-05-25T18:36:41"));
 
         final String missionID = SentinelPODOrbitFile.getMissionIDFromFilename("S1A_OPER_AUX_POEORB_OPOD_20140526T151322_V20140509T225944_20140511T005944.EOF");
-        System.out.println("mission ID from filename = " + missionID);
+        TestUtils.log.info("mission ID from filename = " + missionID);
         assert(missionID.equals("S1A"));
 
         final String fileType = SentinelPODOrbitFile.getFileTypeFromFilename("S1A_OPER_AUX_POEORB_OPOD_20140526T151322_V20140509T225944_20140511T005944.EOF");
-        System.out.println("file type from filename = " + fileType);
+        TestUtils.log.info("file type from filename = " + fileType);
         assert(fileType.equals("AUX_POEORB"));
 
         final String vStart = SentinelPODOrbitFile.getValidityStartFromFilename("S1A_OPER_AUX_POEORB_OPOD_20140526T151322_V20140509T225944_20140511T005944.EOF");
-        System.out.println("validity start from filename = " + vStart );
+        TestUtils.log.info("validity start from filename = " + vStart );
         assert(vStart.equals("UTC=2014-05-09T22:59:44"));
 
         final String vStop = SentinelPODOrbitFile.getValidityStopFromFilename("S1A_OPER_AUX_POEORB_OPOD_20140526T151322_V20140509T225944_20140511T005944.EOF");
-        System.out.println("validity stop from filename = " + vStop);
+        TestUtils.log.info("validity stop from filename = " + vStop);
         assert(vStop.equals("UTC=2014-05-11T00:59:44"));
     }
 }

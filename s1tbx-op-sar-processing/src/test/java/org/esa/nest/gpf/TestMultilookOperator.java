@@ -17,14 +17,11 @@ package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.TestUtils;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -36,20 +33,16 @@ import java.util.Arrays;
  */
 public class TestMultilookOperator {
 
-    private OperatorSpi spi;
+    static {
+        TestUtils.initTestEnvironment();
+    }
+    private final static OperatorSpi spi = new MultilookOp.Spi();
 
-    private final static String inputPathWSM = TestUtils.rootPathExpectedProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-    private final static String expectedPathWSM = TestUtils.rootPathExpectedProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_ML.dim";
+    private final static String inputPathWSM = TestUtils.rootPathTestProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
+    private final static String expectedPathWSM = TestUtils.rootPathTestProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_ML.dim";
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
     private String[] exceptionExemptions = {"not supported", "not intended"};
-
-    @Before
-    public void setUp() throws Exception {
-        TestUtils.initTestEnvironment();
-        spi = new MultilookOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
-    }
 
     /**
      * Tests multi-look operator with a 4x16 "DETECTED" test product.
@@ -57,7 +50,6 @@ public class TestMultilookOperator {
      * @throws Exception general exception
      */
     @Test
-    @Ignore
     public void testMultilookOfRealImage() throws Exception {
 
         final Product sourceProduct = createTestProduct(16, 4);
@@ -83,7 +75,7 @@ public class TestMultilookOperator {
         band.readPixels(0, 0, 4, 2, floatValues, ProgressMonitor.NULL);
 
         // compare with expected outputs:
-        final float[] expectedValues = {10.5f, 14.5f, 18.5f, 22.5f, 42.5f, 46.5f, 50.5f, 54.5f};
+        final float[] expectedValues = {11.0f, 15.0f, 19.0f, 23.0f, 43.0f, 47.0f, 51.0f, 55.0f};
         assertTrue(Arrays.equals(expectedValues, floatValues));
 
         // compare updated metadata
@@ -152,6 +144,7 @@ public class TestMultilookOperator {
         AbstractMetadata.setAttribute(abs, AbstractMetadata.azimuth_looks, 1);
         AbstractMetadata.setAttribute(abs, AbstractMetadata.range_looks, 1);
         AbstractMetadata.setAttribute(abs, AbstractMetadata.line_time_interval, 0.01F);
+        AbstractMetadata.setAttribute(abs, AbstractMetadata.slant_range_to_first_pixel, 881619);
         AbstractMetadata.setAttribute(abs, AbstractMetadata.first_line_time,
                 AbstractMetadata.parseUTC("10-MAY-2008 20:32:46.885684"));
 
@@ -190,6 +183,11 @@ public class TestMultilookOperator {
     @Test
     public void testProcessAllCosmo() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, null, exceptionExemptions);
+    }
+
+    @Test
+    public void testProcessAllSentinel1() throws Exception {
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathSentinel1, null, exceptionExemptions);
     }
 
     @Test

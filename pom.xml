@@ -13,20 +13,19 @@
 		<context>s1tbx</context>
 		
 		<skipTests>false</skipTests>
-		<test.jvm.maxpermsize>512m</test.jvm.maxpermsize>
         <test.jvm.maxheapsize>5024m</test.jvm.maxheapsize>
-        <test.jvm.arguments>-Xmx${test.jvm.maxheapsize} -XX:MaxPermSize=${test.jvm.maxpermsize}</test.jvm.arguments>
+        <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${context}</surefire.jvm.args>
 
 		<jlinda.version>0.8.1</jlinda.version>
 		<rstb.version>6.2-SNAPSHOT</rstb.version>
-		<s1tbx.version>0.5.0-SNAPSHOT</s1tbx.version>
+		<s1tbx.version>0.7.0-SNAPSHOT</s1tbx.version>
 		<snap.version>0.5.0-SNAPSHOT</snap.version>
 		
 		<geotools.version>2.7.4</geotools.version>
-		<jide.version>3.5.3</jide.version>
+		<jide.version>3.6.1</jide.version>
 		<hdf.version>2.7</hdf.version>
-        <netcdf.version>4.3.21</netcdf.version>	
+        <netcdf.version>4.3.22</netcdf.version>	
 		
 		<outputdir>../../output</outputdir>
 		<pacakgedir>../package</pacakgedir>
@@ -40,7 +39,7 @@
     <url>https://earth.esa.int/web/sentinel-tbx/home</url>
     <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.7.0-SNAPSHOT</version>
 
 	<issueManagement>
         <system>JIRA</system>
@@ -1011,6 +1010,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
 					<outputDirectory>${pacakgedir}</outputDirectory>
+					<finalName>s1tbx</finalName>
                     <descriptors>
 						<descriptor>s1tbx-config/main/assembly/bin-windows64.xml</descriptor>
 						<descriptor>s1tbx-config/main/assembly/bin-windows.xml</descriptor>						

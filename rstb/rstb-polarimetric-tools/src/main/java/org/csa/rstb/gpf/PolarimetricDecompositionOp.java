@@ -30,9 +30,9 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.gpf.OperatorUtils;
-import org.esa.nest.dataio.PolBandUtils;
 
 import java.awt.*;
 import java.util.Map;
@@ -176,38 +176,39 @@ public final class PolarimetricDecompositionOp extends Operator {
             throw new OperatorException("Source image dimensions unknown");
         }
 
-        if (decomposition.equals(SINCLAIR_DECOMPOSITION)) {
-            return new Sinclair(srcBandList, sourceProductType,
-                    windowSize, sourceImageWidth, sourceImageHeight);
-        } else if (decomposition.equals(PAULI_DECOMPOSITION)) {
-            return new Pauli(srcBandList, sourceProductType,
-                    windowSize, sourceImageWidth, sourceImageHeight);
-        } else if (decomposition.equals(FREEMAN_DURDEN_DECOMPOSITION)) {
-            return new FreemanDurden(srcBandList, sourceProductType,
-                    windowSize, sourceImageWidth, sourceImageHeight);
-        } else if (decomposition.equals(YAMAGUCHI_DECOMPOSITION)) {
-            return new Yamaguchi(srcBandList, sourceProductType,
-                    windowSize, sourceImageWidth, sourceImageHeight);
-        } else if (decomposition.equals(VANZYL_DECOMPOSITION)) {
-            return new vanZyl(srcBandList, sourceProductType,
-                    windowSize, sourceImageWidth, sourceImageHeight);
-        } else if (decomposition.equals(CLOUDE_DECOMPOSITION)) {
-            return new Cloude(srcBandList, sourceProductType,
-                    windowSize, sourceImageWidth, sourceImageHeight);
-        } else if (decomposition.equals(H_A_ALPHA_DECOMPOSITION)) {
-            return new hAAlpha(srcBandList, sourceProductType,
-                    windowSize, sourceImageWidth, sourceImageHeight,
-                    outputHAAlpha,
-                    outputBetaDeltaGammaLambda,
-                    outputAlpha123,
-                    outputLambda123);
-        } else if (decomposition.equals(TOUZI_DECOMPOSITION)) {
-            return new Touzi(srcBandList, sourceProductType,
-                    windowSize, sourceImageWidth, sourceImageHeight,
-                    outputTouziParamSet0,
-                    outputTouziParamSet1,
-                    outputTouziParamSet2,
-                    outputTouziParamSet3);
+        switch (decomposition) {
+            case SINCLAIR_DECOMPOSITION:
+                return new Sinclair(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
+            case PAULI_DECOMPOSITION:
+                return new Pauli(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
+            case FREEMAN_DURDEN_DECOMPOSITION:
+                return new FreemanDurden(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
+            case YAMAGUCHI_DECOMPOSITION:
+                return new Yamaguchi(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
+            case VANZYL_DECOMPOSITION:
+                return new vanZyl(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
+            case CLOUDE_DECOMPOSITION:
+                return new Cloude(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
+            case H_A_ALPHA_DECOMPOSITION:
+                return new hAAlpha(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight,
+                        outputHAAlpha,
+                        outputBetaDeltaGammaLambda,
+                        outputAlpha123,
+                        outputLambda123);
+            case TOUZI_DECOMPOSITION:
+                return new Touzi(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight,
+                        outputTouziParamSet0,
+                        outputTouziParamSet1,
+                        outputTouziParamSet2,
+                        outputTouziParamSet3);
         }
         return null;
     }

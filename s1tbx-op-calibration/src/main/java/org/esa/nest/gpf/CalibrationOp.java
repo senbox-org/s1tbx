@@ -25,9 +25,9 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.CalibrationFactory;
 import org.esa.nest.datamodel.Calibrator;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.gpf.OperatorUtils;
 
 import java.io.File;

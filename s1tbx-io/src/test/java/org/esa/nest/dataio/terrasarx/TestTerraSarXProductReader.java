@@ -17,7 +17,6 @@ package org.esa.nest.dataio.terrasarx;
 
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.snap.util.TestUtils;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -32,9 +31,7 @@ public class TestTerraSarXProductReader {
     private TerraSarXProductReaderPlugIn readerPlugin;
     private ProductReader reader;
 
-    @Before
-    public void setUp() throws Exception {
-        TestUtils.initTestEnvironment();
+    public TestTerraSarXProductReader() {
         readerPlugin = new TerraSarXProductReaderPlugIn();
         reader = readerPlugin.createReaderInstance();
     }

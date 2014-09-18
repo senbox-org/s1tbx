@@ -17,6 +17,8 @@ package org.esa.nest.gpf.geometric;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
+import org.esa.nest.datamodel.CalibrationFactory;
+import org.esa.nest.datamodel.Calibrator;
 import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
@@ -205,14 +207,9 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
                     final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
                     if (absRoot != null) {
-                        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
                         final int isCalibrated = absRoot.getAttributeInt(AbstractMetadata.abs_calibration_flag, 0);
 
-                        // todo ALOS
-                        // todo move this into calibrator.canRadiometricallyNormalize(mission)
-                        if (isCalibrated == 0 && (mission.equals("ENVISAT") || mission.contains("ERS") ||
-                                mission.equals("RS2") || mission.contains("TSX") || mission.contains("TDX") ||
-                                mission.contains("ALOS") || mission.contains("CSKS"))) {
+                        if (isCalibrated == 0 && canCalibrate()) {
 
                             enableRadiometricNormalization(true);
 
@@ -280,6 +277,16 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         });
 
         return panel;
+    }
+
+    private boolean canCalibrate() {
+        Calibrator calibrator = null;
+        try {
+            calibrator = CalibrationFactory.createCalibrator(sourceProducts[0]);
+        } catch (Exception calEx) {
+            //
+        }
+        return calibrator != null;
     }
 
     @Override
@@ -404,6 +411,9 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
             saveSigmaNoughtCheckBox.setEnabled(applyRadiometricNormalization);
             saveGammaNoughtCheckBox.setEnabled(applyRadiometricNormalization);
             saveBetaNoughtCheckBox.setEnabled(applyRadiometricNormalization);
+        } else {
+            enableRadiometricNormalization(false);
+            saveSelectedSourceBandCheckBox.setSelected(true);
         }
 
         paramVal = (Boolean) paramMap.get("saveBetaNought");
@@ -475,9 +485,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
                             " constant and incidence angle corrections will be performed for radiometric normalization");
                 }
 
-                if (!mission.equals("RS2") && !mission.contains("TSX") && !mission.contains("TDX") && !mission.equals("ENVISAT") &&
-                        !mission.contains("ERS") && !mission.contains("CSK") && !mission.contains("ALOS") && !mission.equals(" ") &&
-                        applyRadiometricNormalization) {
+                if (!canCalibrate() && applyRadiometricNormalization) {
                     applyRadiometricNormalization = false;
                     return new UIValidation(UIValidation.State.WARNING, "Radiometric normalization currently is" +
                             " not available for " + mission + " products");

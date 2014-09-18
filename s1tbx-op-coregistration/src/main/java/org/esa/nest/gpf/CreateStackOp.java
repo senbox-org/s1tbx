@@ -94,8 +94,8 @@ public class CreateStackOp extends Operator {
     final static String MIN_EXTENT = "Minimum";
     final static String MAX_EXTENT = "Maximum";
 
-    private final Map<Band, Band> sourceRasterMap = new HashMap<Band, Band>(10);
-    private final Map<Product, int[]> slaveOffsettMap = new HashMap<Product, int[]>(10);
+    private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
+    private final Map<Product, int[]> slaveOffsettMap = new HashMap<>(10);
 
     private boolean appendToMaster = false;
     private boolean productPixelSpacingChecked = false;
@@ -145,7 +145,7 @@ public class CreateStackOp extends Operator {
 
             appendToMaster = AbstractMetadata.getAbstractedMetadata(masterProduct).
                     getAttributeInt(AbstractMetadata.coregistered_stack, 0) == 1;
-            final List<String> masterProductBands = new ArrayList<String>(masterProduct.getNumBands());
+            final List<String> masterProductBands = new ArrayList<>(masterProduct.getNumBands());
 
             final Band[] slaveBandList = getSlaveBands();
             if (masterProduct == null || slaveBandList.length == 0 || slaveBandList[0] == null) {
@@ -161,18 +161,22 @@ public class CreateStackOp extends Operator {
                 extent = MASTER_EXTENT;
             }
 
-            if (extent.equals(MASTER_EXTENT)) {
+            switch (extent) {
+                case MASTER_EXTENT:
 
-                targetProduct = new Product(masterProduct.getName(),
-                        masterProduct.getProductType(),
-                        masterProduct.getSceneRasterWidth(),
-                        masterProduct.getSceneRasterHeight());
+                    targetProduct = new Product(masterProduct.getName(),
+                            masterProduct.getProductType(),
+                            masterProduct.getSceneRasterWidth(),
+                            masterProduct.getSceneRasterHeight());
 
-                ProductUtils.copyProductNodes(masterProduct, targetProduct);
-            } else if (extent.equals(MIN_EXTENT)) {
-                determinMinExtents();
-            } else {
-                determinMaxExtents();
+                    ProductUtils.copyProductNodes(masterProduct, targetProduct);
+                    break;
+                case MIN_EXTENT:
+                    determinMinExtents();
+                    break;
+                default:
+                    determinMaxExtents();
+                    break;
             }
 
             if (appendToMaster) {
@@ -320,7 +324,7 @@ public class CreateStackOp extends Operator {
         for (Product prod : sourceProduct) {
             if (prod != masterProduct) {
                 final String suffix = StackUtils.getBandTimeStamp(prod);
-                final List<String> bandNames = new ArrayList<String>(10);
+                final List<String> bandNames = new ArrayList<>(10);
                 for (Band tgtBand : sourceRasterMap.keySet()) {
                     final Band srcBand = sourceRasterMap.get(tgtBand);
                     final Product srcProduct = srcBand.getProduct();
@@ -345,7 +349,7 @@ public class CreateStackOp extends Operator {
     }
 
     private Band[] getSlaveBands() throws OperatorException {
-        final List<Band> bandList = new ArrayList<Band>(5);
+        final List<Band> bandList = new ArrayList<>(5);
 
         // add master band
         if (masterProduct == null) {
@@ -824,11 +828,6 @@ public class CreateStackOp extends Operator {
 
         if (productPixelSpacingChecked) {
             return;
-        }
-        try {
-
-        } catch (Throwable e) {
-            throw new OperatorException(e.getMessage());
         }
 
         productPixelSpacingChecked = true;

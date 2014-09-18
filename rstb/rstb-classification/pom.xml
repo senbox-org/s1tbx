@@ -12,7 +12,6 @@
     </parent>
 
     <name>RSTB Classification Tools</name>
-    <groupId>org.csa.rstb</groupId>
     <artifactId>rstb-classification</artifactId>
 
     <packaging>jar</packaging>

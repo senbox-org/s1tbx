@@ -16,6 +16,7 @@
 package org.esa.nest.dataio.netcdf;
 
 import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.io.IOException;
 
@@ -23,24 +24,13 @@ import java.io.IOException;
 /**
  * @author lveci
  */
-public class TestNetCDFReader extends TestCase {
+public class TestNetCDFReader {
 
     private final String geoTiffFile = "F:\\data\\GIS\\Tiff\\Osaka Japan\\tc_osaka_geo.tif";
     private final String netCDFFile = "C:\\Data\\netcdf_data\\tos_O1_2001-2002.nc";
     private final String hdfFile = "C:\\Data\\netcdf_data\\PALAPR01.h5";
 
-    public TestNetCDFReader(String name) {
-        super(name);
-    }
-
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testOpenNetCDF() throws IOException {
 /*        NetcdfDataset ds = NetcdfDataset.openDataset(netCDFFile);
 
@@ -51,6 +41,7 @@ public class TestNetCDFReader extends TestCase {
 
     }
 
+    @Test
     public void testOpenHDF() throws IOException {
   /*      NetcdfDataset ds = NetcdfDataset.openDataset(hdfFile);
 
@@ -61,6 +52,7 @@ public class TestNetCDFReader extends TestCase {
         */
     }
 
+    @Test
     public void testWriteHDF() throws IOException {
 
         //NetcdfFileWriteable netCDFWriteable = NetcdfFileWriteable.createNew("ha");

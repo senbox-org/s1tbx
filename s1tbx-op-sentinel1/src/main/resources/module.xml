@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s1tbx-op-sentinel1</symbolicName>
-    <version>0.5</version>
+    <version>0.7</version>
     <name>S1TBX Sentinel-1 Tools</name>
 
     <description>Tools for Sentinel-1 products</description>
@@ -81,6 +81,7 @@
             <operatorName>TOPSAR-Split</operatorName>
             <dialogTitle>Sentinel1 TOPSAR split operator</dialogTitle>
             <shortDescr>Split a Sentinel1 TOPSAR product</shortDescr>
+            <targetProductNameSuffix>_split</targetProductNameSuffix>
         </action>
 
         <action>

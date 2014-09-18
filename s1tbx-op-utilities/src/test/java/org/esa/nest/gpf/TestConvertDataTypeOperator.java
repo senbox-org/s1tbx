@@ -16,40 +16,32 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
 
 import java.util.Arrays;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for ConvertDatatypeOperator.
  */
-public class TestConvertDataTypeOperator extends TestCase {
+public class TestConvertDataTypeOperator {
 
-    private OperatorSpi spi;
+    private final static OperatorSpi spi = new ConvertDataTypeOp.Spi();
     private final static int width = 4;
     private final static int height = 2;
-
-    @Override
-    protected void setUp() throws Exception {
-        spi = new ConvertDataTypeOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
-    }
 
     /**
      * @throws Exception general exception
      */
+    @Test
     public void testDoubleToInt32Linear() throws Exception {
 
         final double[] values = convert(ProductData.TYPESTRING_INT32, ConvertDataTypeOp.SCALING_LINEAR);
@@ -58,6 +50,7 @@ public class TestConvertDataTypeOperator extends TestCase {
         assertTrue(Arrays.equals(expectedValues, values));
     }
 
+    @Test
     public void testDoubleToInt16Linear() throws Exception {
 
         final double[] values = convert(ProductData.TYPESTRING_INT16, ConvertDataTypeOp.SCALING_LINEAR);
@@ -66,6 +59,7 @@ public class TestConvertDataTypeOperator extends TestCase {
         assertTrue(Arrays.equals(expectedValues, values));
     }
 
+    @Test
     public void testDoubleToInt8Linear() throws Exception {
 
         final double[] values = convert(ProductData.TYPESTRING_INT8, ConvertDataTypeOp.SCALING_LINEAR);
@@ -74,6 +68,7 @@ public class TestConvertDataTypeOperator extends TestCase {
         assertTrue(Arrays.equals(expectedValues, values));
     }
 
+    @Test
     public void testDoubleToUInt32Linear() throws Exception {
 
         final double[] values = convert(ProductData.TYPESTRING_UINT32, ConvertDataTypeOp.SCALING_TRUNCATE);
@@ -82,6 +77,7 @@ public class TestConvertDataTypeOperator extends TestCase {
         assertTrue(Arrays.equals(expectedValues, values));
     }
 
+    @Test
     public void testDoubleToUInt16Linear() throws Exception {
 
         final double[] values = convert(ProductData.TYPESTRING_UINT16, ConvertDataTypeOp.SCALING_LINEAR);
@@ -90,6 +86,7 @@ public class TestConvertDataTypeOperator extends TestCase {
         assertTrue(Arrays.equals(expectedValues, values));
     }
 
+    @Test
     public void testDoubleToUInt8Linear() throws Exception {
 
         final double[] values = convert(ProductData.TYPESTRING_UINT8, ConvertDataTypeOp.SCALING_LINEAR);
@@ -98,7 +95,7 @@ public class TestConvertDataTypeOperator extends TestCase {
         assertTrue(Arrays.equals(expectedValues, values));
     }
 
-
+    @Test
     public void testDoubleToInt32Truncate() throws Exception {
 
         final double[] values = convert(ProductData.TYPESTRING_INT32, ConvertDataTypeOp.SCALING_TRUNCATE);
@@ -107,6 +104,7 @@ public class TestConvertDataTypeOperator extends TestCase {
         assertTrue(Arrays.equals(expectedValues, values));
     }
 
+    @Test
     public void testDoubleToInt16Truncate() throws Exception {
 
         final double[] values = convert(ProductData.TYPESTRING_INT16, ConvertDataTypeOp.SCALING_TRUNCATE);
@@ -115,6 +113,7 @@ public class TestConvertDataTypeOperator extends TestCase {
         assertTrue(Arrays.equals(expectedValues, values));
     }
 
+    @Test
     public void testDoubleToInt8Truncate() throws Exception {
 
         final double[] values = convert(ProductData.TYPESTRING_INT8, ConvertDataTypeOp.SCALING_TRUNCATE);
@@ -123,6 +122,7 @@ public class TestConvertDataTypeOperator extends TestCase {
         assertTrue(Arrays.equals(expectedValues, values));
     }
 
+    @Test
     public void testDoubleToInt32LogScale() throws Exception {
 
         final double[] values = convert(ProductData.TYPESTRING_INT32, ConvertDataTypeOp.SCALING_LOGARITHMIC);
@@ -131,6 +131,7 @@ public class TestConvertDataTypeOperator extends TestCase {
         assertTrue(Arrays.equals(expectedValues, values));
     }
 
+    @Test
     public void testDoubleToInt16LogScale() throws Exception {
 
         final double[] values = convert(ProductData.TYPESTRING_INT16, ConvertDataTypeOp.SCALING_LOGARITHMIC);
@@ -139,6 +140,7 @@ public class TestConvertDataTypeOperator extends TestCase {
         assertTrue(Arrays.equals(expectedValues, values));
     }
 
+    @Test
     public void testDoubleToInt8LogScale() throws Exception {
 
         final double[] values = convert(ProductData.TYPESTRING_INT8, ConvertDataTypeOp.SCALING_LOGARITHMIC);
@@ -146,7 +148,6 @@ public class TestConvertDataTypeOperator extends TestCase {
         final double[] expectedValues = {0.0, 0.0, 0.0, 0.0, 12.0, 17.0, 20.0, 21.0};
         assertTrue(Arrays.equals(expectedValues, values));
     }
-
 
     private double[] convert(final String targetType, final String scaling) throws Exception {
         final Product sourceProduct = createTestProduct(width, height, 100000, 500000);

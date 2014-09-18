@@ -49,8 +49,8 @@ public class DEMBasedCoregistrationOpUI extends BaseOperatorUI {
     private final JList mstBandList = new JList();
     private final JList slvBandList = new JList();
 
-    private final JComboBox<String> demName = new JComboBox<String>(DEMFactory.getDEMNameList());
-    private final JComboBox demResamplingMethod = new JComboBox<String>(ResamplingFactory.resamplingNames);
+    private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
+    private final JComboBox demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
     private final JComboBox resamplingType = new JComboBox(ResamplingFactory.resamplingNames);
 
     private final JTextField externalDEMFile = new JTextField("");
@@ -63,8 +63,8 @@ public class DEMBasedCoregistrationOpUI extends BaseOperatorUI {
 
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
 
-    private final List<Integer> defaultMasterBandIndices = new ArrayList<Integer>(2);
-    private final List<Integer> defaultSlaveBandIndices = new ArrayList<Integer>(2);
+    private final List<Integer> defaultMasterBandIndices = new ArrayList<>(2);
+    private final List<Integer> defaultSlaveBandIndices = new ArrayList<>(2);
 
     private Product masterProduct = null;
 
@@ -129,7 +129,7 @@ public class DEMBasedCoregistrationOpUI extends BaseOperatorUI {
     private static List<Integer> getSelectedIndices(final String[] allBandNames,
                                                     final String[] selBandNames,
                                                     final List<Integer> defaultIndices) {
-        final List<Integer> bandIndices = new ArrayList<Integer>(2);
+        final List<Integer> bandIndices = new ArrayList<>(2);
         if (selBandNames != null && selBandNames.length > 0) {
             int i = 0;
             for (String bandName : allBandNames) {
@@ -246,7 +246,7 @@ public class DEMBasedCoregistrationOpUI extends BaseOperatorUI {
             }
         }
 
-        final List<String> bandNames = new ArrayList<String>(5);
+        final List<String> bandNames = new ArrayList<>(5);
         boolean masterBandsSelected = false;
         for (Product prod : sourceProducts) {
             if (sourceProducts.length > 1) {

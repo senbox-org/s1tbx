@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.1.12" transformSequenceNumber="4">
   <directoryPresets config="../main/bin/macosx" />
-  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="S1TBX" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="0.5.0" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
+  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="S1TBX" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="0.6.0" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -39,56 +39,56 @@
       <mountPoint id="5498" root="5497" location="" mode="755" />
     </mountPoints>
     <entries>
-      <dirEntry mountPoint="17" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/auxdata" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="auxdata" excludeSuffixes="" dirMode="755" overrideDirMode="true">
+      <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/auxdata" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="auxdata" excludeSuffixes="" dirMode="755" overrideDirMode="true">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="17" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="true">
+      <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="true">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="17" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/commandline" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="commandline" excludeSuffixes="" dirMode="755" overrideDirMode="true">
+      <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/commandline" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="commandline" excludeSuffixes="" dirMode="755" overrideDirMode="true">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="17" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/config" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="config" excludeSuffixes="" dirMode="755" overrideDirMode="true">
+      <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/config" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="config" excludeSuffixes="" dirMode="755" overrideDirMode="true">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="17" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/graphs" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="graphs" excludeSuffixes="" dirMode="755" overrideDirMode="true">
+      <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/graphs" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="graphs" excludeSuffixes="" dirMode="755" overrideDirMode="true">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="17" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/images" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="images" excludeSuffixes="" dirMode="755" overrideDirMode="true">
+      <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/images" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="images" excludeSuffixes="" dirMode="755" overrideDirMode="true">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="17" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="true">
+      <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="true">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="17" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/licenses" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="licenses" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+      <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/licenses" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="licenses" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="17" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/resource" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="resource" excludeSuffixes="" dirMode="755" overrideDirMode="true">
+      <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/resource" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="resource" excludeSuffixes="" dirMode="755" overrideDirMode="true">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="17" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/modules" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="modules" excludeSuffixes="" dirMode="755" overrideDirMode="true">
+      <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/modules" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="modules" excludeSuffixes="" dirMode="755" overrideDirMode="true">
         <exclude>
           <entry location="s3tbx-app-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="snap-beam-help-0.5.0-SNAPSHOT" fileType="regular" />
         </exclude>
       </dirEntry>
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/CYGGCC_S-1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/CYGWIN1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/IESHIMS.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/LIBGCC_S_SJLJ-1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/LIBGFORTRAN-3.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/cli.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/clib_jiio.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/clib_jiio_sse2.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/clib_jiio_util.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/dat.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/gluegen-rt.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/gpt.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/jhdf.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/jhdf5.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/jogl.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/jogl_awt.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-0.5.0-SNAPSHOT-bin-win64/jogl_cg.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/CYGGCC_S-1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/CYGWIN1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/IESHIMS.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/LIBGCC_S_SJLJ-1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/LIBGFORTRAN-3.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/cli.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/clib_jiio.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/clib_jiio_sse2.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/clib_jiio_util.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/dat.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/gluegen-rt.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/gpt.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/jhdf.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/jhdf5.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/jogl.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/jogl_awt.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/jogl_cg.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/cli.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/clib_jiio.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/clib_jiio_sse2.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
@@ -134,8 +134,8 @@
       <component name="Sentinels Application Platform" id="5274" customizedId="" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
-          <entry location="modules/blue-marble-worldmap-0.5.0-SNAPSHOT" fileType="regular" />
-          <entry location="modules/lib-hdf-2.7" fileType="regular" />
+          <entry location="modules/blue-marble-worldmap-0.5.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/lib-hdf-2.7.jar" fileType="regular" />
           <entry location="modules/snap-arcbingrid-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-binding-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-binio-0.5.0-SNAPSHOT.jar" fileType="regular" />
@@ -162,7 +162,7 @@
           <entry location="modules/snap-pconvert-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-pgx-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-pixel-extraction-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-python-0.5.0-SNAPSHOT" fileType="regular" />
+          <entry location="modules/snap-python-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-scripting-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-statistics-op-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-temporal-percentile-op-0.5.0-SNAPSHOT.jar" fileType="regular" />
@@ -186,17 +186,17 @@
           <entry location="resource" fileType="regular" />
           <entry location="modules/jlinda-core-0.8.1.jar" fileType="regular" />
           <entry location="modules/jlinda-nest-0.8.1.jar" fileType="regular" />
-          <entry location="modules/s1tbx-dem-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-help-0.5.0-SNAPSHOT" fileType="regular" />
-          <entry location="modules/s1tbx-io-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-calibration-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-coregistration-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-feature-extraction-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-sar-processing-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-sentinel1-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-utilities-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-rcp-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-worldwind-0.5.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-dem-0.6.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-help-0.6.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-io-0.6.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-calibration-0.6.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-coregistration-0.6.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-feature-extraction-0.6.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-sar-processing-0.6.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-sentinel1-0.6.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-utilities-0.6.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-rcp-0.6.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-worldwind-0.6.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="s1tbx" fileType="launcher" />
         </include>
         <dependencies>
@@ -214,23 +214,22 @@
           <component id="5134" />
         </dependencies>
       </component>
-      <component name="Sentinel-2 Toolbox Modules" id="5273" customizedId="" displayDescription="true" hideHelpButton="true" selected="false" changeable="true" downloadable="true" hidden="false">
+      <component name="Sentinel-2 Toolbox Modules" id="5273" customizedId="" displayDescription="true" hideHelpButton="true" selected="false" changeable="false" downloadable="false" hidden="false">
         <description>High Resolution Optical Tools</description>
         <include all="false">
-          <entry location="modules/lib-openjpeg-2.1.0" fileType="regular" />
-          <entry location="modules/s2tbx-commons-0.6.0.jar" fileType="regular" />
-          <entry location="modules/s2tbx-rapideye-reader-0.6.0" fileType="regular" />
-          <entry location="modules/s2tbx-reader-0.6.0.jar" fileType="regular" />
-          <entry location="modules/s2tbx-spot-reader-0.6.0" fileType="regular" />
+          <entry location="modules/lib-openjpeg-2.1.0.jar" fileType="regular" />
+          <entry location="modules/s2tbx-commons-0.5.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s2tbx-rapideye-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s2tbx-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s2tbx-spot-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
         </include>
         <dependencies />
       </component>
-      <component name="Sentinel-3 Toolbox Modules" id="5140" customizedId="" displayDescription="true" hideHelpButton="true" selected="false" changeable="true" downloadable="true" hidden="false">
+      <component name="Sentinel-3 Toolbox Modules" id="5140" customizedId="" displayDescription="true" hideHelpButton="true" selected="false" changeable="false" downloadable="false" hidden="false">
         <description>Medium Resolution Optical Tools</description>
         <include all="false">
-          <entry location="modules/globcover-worldmap-0.5.0-SNAPSHOT" fileType="regular" />
+          <entry location="modules/globcover-worldmap-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s3tbx-alos-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s3tbx-app-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s3tbx-atsr-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s3tbx-avhrr-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s3tbx-chris-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
@@ -2242,7 +2241,7 @@ if (wizardContext != null) {
       </installerScript>
     </unixInstaller>
   </mediaSets>
-  <buildIds buildAll="false">
+  <buildIds buildAll="true">
     <mediaSet refId="5501" />
   </buildIds>
   <buildOptions verbose="false" faster="false" disableSigning="false" debug="false" />

@@ -83,7 +83,6 @@ public class Sentinel1ProductReader extends SARReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
 
-        Product product;
         try {
             final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
             if (Sentinel1ProductReaderPlugIn.isLevel1(fileFromInput)) {
@@ -93,8 +92,11 @@ public class Sentinel1ProductReader extends SARReader {
             } else if (Sentinel1ProductReaderPlugIn.isLevel0(fileFromInput)) {
                 dataDir = new Sentinel1Level0Directory(fileFromInput);
             }
+            if(dataDir == null) {
+                Sentinel1ProductReaderPlugIn.validateInput(fileFromInput);
+            }
             dataDir.readProductDirectory();
-            product = dataDir.createProduct();
+            final Product product = dataDir.createProduct();
             product.getGcpGroup();
             product.setFileLocation(fileFromInput);
             product.setProductReader(this);
@@ -103,14 +105,13 @@ public class Sentinel1ProductReader extends SARReader {
             }
             setQuicklookBandName(product);
             product.setModified(false);
+
+            return product;
         } catch (Exception e) {
-            Debug.trace(e.toString());
-            final IOException ioException = new IOException(e.getMessage());
-            ioException.initCause(e);
-            throw ioException;
+            handleReaderException(e);
         }
 
-        return product;
+        return null;
     }
 
     /**

@@ -15,43 +15,43 @@
  */
 package org.csa.rstb.gpf;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
+
+import java.io.File;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test for PolarimetricSpeckleFilterOp.
  */
-public class TestPolarimetricSpeckleFilterOp extends TestCase {
+public class TestPolarimetricSpeckleFilterOp {
 
-    private OperatorSpi spi;
-
-    private final static String inputPathQuad = TestUtils.rootPathExpectedProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
-    private final static String inputQuadFullStack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
-    private final static String inputC3Stack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-C3-Stack.dim";
-    private final static String inputT3Stack = TestUtils.rootPathExpectedProducts + "\\input\\QuadPolStack\\RS2-T3-Stack.dim";
-
-    private final static String expectedBoxCar = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_BoxCar.dim";
-    private final static String expectedRefinedLee = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_RefinedLee.dim";
-    private final static String expectedIDAN = TestUtils.rootPathExpectedProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_IDAN.dim";
-
-    @Override
-    protected void setUp() throws Exception {
+    static {
         TestUtils.initTestEnvironment();
-        spi = new PolarimetricSpeckleFilterOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
-    }
+    private final static OperatorSpi spi = new PolarimetricSpeckleFilterOp.Spi();
 
-    private static Product runFilter(final PolarimetricSpeckleFilterOp op,
-                                     final String filterName, final String path) throws Exception {
-        final Product sourceProduct = TestUtils.readSourceProduct(path);
+    private final static String inputPathQuad = TestUtils.rootPathTestProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
+    private final static String inputQuadFullStack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
+    private final static String inputC3Stack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-C3-Stack.dim";
+    private final static String inputT3Stack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-T3-Stack.dim";
+
+    private final static String expectedBoxCar = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_BoxCar.dim";
+    private final static String expectedRefinedLee = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_RefinedLee.dim";
+    private final static String expectedIDAN = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_IDAN.dim";
+
+    private Product runFilter(final PolarimetricSpeckleFilterOp op,
+                              final String filterName, final String path) throws Exception {
+        final File inputFile = new File(path);
+        if (!inputFile.exists()) {
+            TestUtils.skipTest(this, path + " not found");
+            return null;
+        }
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
@@ -68,6 +68,7 @@ public class TestPolarimetricSpeckleFilterOp extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testBoxCarFilter() throws Exception {
 
         final PolarimetricSpeckleFilterOp op = (PolarimetricSpeckleFilterOp) spi.createOperator();
@@ -81,6 +82,7 @@ public class TestPolarimetricSpeckleFilterOp extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testRefinedLeeFilter() throws Exception {
 
         final PolarimetricSpeckleFilterOp op = (PolarimetricSpeckleFilterOp) spi.createOperator();
@@ -94,6 +96,7 @@ public class TestPolarimetricSpeckleFilterOp extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testIDANFilter() throws Exception {
 
         final PolarimetricSpeckleFilterOp op = (PolarimetricSpeckleFilterOp) spi.createOperator();
@@ -104,6 +107,7 @@ public class TestPolarimetricSpeckleFilterOp extends TestCase {
 
     // Stack
 
+    @Test
     public void testBoxCarStack() throws Exception {
 
         runFilter((PolarimetricSpeckleFilterOp) spi.createOperator(),
@@ -116,6 +120,7 @@ public class TestPolarimetricSpeckleFilterOp extends TestCase {
                 PolarimetricSpeckleFilterOp.BOXCAR_SPECKLE_FILTER, inputT3Stack);
     }
 
+    @Test
     public void testRefinedLeeStack() throws Exception {
 
         runFilter((PolarimetricSpeckleFilterOp) spi.createOperator(),
@@ -128,6 +133,7 @@ public class TestPolarimetricSpeckleFilterOp extends TestCase {
                 PolarimetricSpeckleFilterOp.REFINED_LEE_FILTER, inputT3Stack);
     }
 
+    @Test
     public void testIDANStack() throws Exception {
 
         runFilter((PolarimetricSpeckleFilterOp) spi.createOperator(),

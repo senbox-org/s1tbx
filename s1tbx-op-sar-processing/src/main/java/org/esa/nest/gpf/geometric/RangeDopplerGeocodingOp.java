@@ -34,6 +34,8 @@ import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.EarthGravitationalModel96;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.*;
+import org.esa.nest.gpf.InputProductValidator;
+import org.esa.nest.gpf.Sentinel1Calibrator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.eo.*;
@@ -242,9 +244,8 @@ public class RangeDopplerGeocodingOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            if (OperatorUtils.isMapProjected(sourceProduct)) {
-                throw new OperatorException("Source product is already map projected");
-            }
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfMapProjected();
 
             checkUserInput();
 
@@ -271,6 +272,20 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             if (saveSigmaNought) {
                 calibrator = CalibrationFactory.createCalibrator(sourceProduct);
+
+                if (calibrator instanceof Sentinel1Calibrator) {
+                    final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+                    final Set<String> polList = new HashSet<>();
+                    for(Band band : sourceBands) {
+                        polList.add(OperatorUtils.getBandPolarization(band.getName(), absRoot));
+                    }
+                    final String[] selectedPolarisations = polList.toArray(new String[polList.size()]);
+
+                    Sentinel1Calibrator cal = (Sentinel1Calibrator) calibrator;
+                    cal.setUserSelections(sourceProduct,
+                            selectedPolarisations, saveSigmaNought, saveGammaNought, saveBetaNought, false);
+                }
+
                 calibrator.setAuxFileFlag(auxFile);
                 calibrator.setExternalAuxFile(externalAuxFile);
                 calibrator.initialize(this, sourceProduct, targetProduct, true, true);
@@ -914,8 +929,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                         continue;
                     }
 
-                    double slantRange = SARGeocoding.computeSlantRange(
-                            zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+                    double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
 
                     double azimuthIndex = 0.0;
                     double rangeIndex = 0.0;
@@ -925,8 +939,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                         zeroDoppler = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
                     }
 
-                    slantRange = SARGeocoding.computeSlantRange(
-                            zeroDoppler - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+                    slantRange = SARGeocoding.computeSlantRange(zeroDoppler, orbit, earthPoint, sensorPos);
 
                     rangeIndex = SARGeocoding.computeRangeIndex(srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC,
                             rangeSpacing, zeroDoppler, slantRange, nearEdgeSlantRange, srgrConvParams);

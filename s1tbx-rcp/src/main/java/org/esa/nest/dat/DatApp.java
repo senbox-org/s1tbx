@@ -111,11 +111,14 @@ public class DatApp extends VisatApp {
 
     protected void loadLayout() {
         final String getStarted = VisatApp.getApp().getPreferences().getPropertyString("visat.showGettingStarted", "true");
+        getMainFrame().setMinimumSize(new Dimension(1200, 800));
         if (getStarted == null || getStarted.equals("true")) {
             LoadTabbedLayoutAction.loadTabbedLayout();
 
             HelpSys.showTheme("top");
             VisatApp.getApp().getPreferences().setPropertyString("visat.showGettingStarted", "false");
+
+            getMainFrame().setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
         } else {
             getMainFrame().getLayoutPersistence().loadLayoutData(); // </JIDE>
         }

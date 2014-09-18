@@ -17,6 +17,7 @@ package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -116,6 +117,7 @@ public final class TOPSARDeburstOp extends Operator {
 
             su = new Sentinel1Utils(sourceProduct);
             subSwath = su.getSubSwath();
+            numOfSubSwath = su.getNumOfSubSwath();
 
             checkIfSplitProduct();
 
@@ -165,19 +167,12 @@ public final class TOPSARDeburstOp extends Operator {
     /**
      * Get acquisition mode from abstracted metadata.
      */
-    private void getAcquisitionMode() {
+    private void getAcquisitionMode() throws OperatorException {
 
         acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
 
-        switch (acquisitionMode) {
-            case "IW":
-                numOfSubSwath = 3;
-                break;
-            case "EW":
-                numOfSubSwath = 5;
-                break;
-            default:
-                throw new OperatorException("Acquisition mode is not IW or EW");
+        if (!(acquisitionMode.equals("IW") || acquisitionMode.equals("EW"))) {
+            throw new OperatorException("Acquisition mode is not IW or EW");
         }
     }
 
@@ -210,7 +205,7 @@ public final class TOPSARDeburstOp extends Operator {
         final String[] subSwathNames = su.getSubSwathNames();
         if (subSwathNames.length == 1) {
             isSplitProduct = true;
-            subSwathIndex = Integer.parseInt(subSwathNames[0].substring(subSwathNames[0].length()-1));
+            subSwathIndex = 1;//Integer.parseInt(subSwathNames[0].substring(subSwathNames[0].length()-1));
         }
     }
 
@@ -218,14 +213,6 @@ public final class TOPSARDeburstOp extends Operator {
      * Compute azimuth time for the first and last line in the target product.
      */
     private void computeTargetStartEndTime() {
-
-        if (isSplitProduct) {
-
-            targetFirstLineTime = subSwath[subSwathIndex - 1].firstLineTime;
-            targetLastLineTime = subSwath[subSwathIndex - 1].lastLineTime;
-            targetLineTimeInterval = subSwath[subSwathIndex - 1].azimuthTimeInterval; // days
-
-        } else {
 
             targetFirstLineTime = subSwath[0].firstLineTime;
             targetLastLineTime = subSwath[0].lastLineTime;
@@ -239,7 +226,6 @@ public final class TOPSARDeburstOp extends Operator {
                 }
             }
             targetLineTimeInterval = subSwath[0].azimuthTimeInterval; // days
-        }
     }
 
     /**
@@ -247,15 +233,9 @@ public final class TOPSARDeburstOp extends Operator {
      */
     private void computeTargetSlantRangeTimeToFirstAndLastPixels() {
 
-        if (isSplitProduct) {
-            targetSlantRangeTimeToFirstPixel = subSwath[subSwathIndex - 1].slrTimeToFirstPixel;
-            targetSlantRangeTimeToLastPixel = subSwath[subSwathIndex - 1].slrTimeToLastPixel;
-            targetDeltaSlantRangeTime = subSwath[subSwathIndex - 1].rangePixelSpacing / Constants.lightSpeed;
-        } else {
             targetSlantRangeTimeToFirstPixel = subSwath[0].slrTimeToFirstPixel;
             targetSlantRangeTimeToLastPixel = subSwath[numOfSubSwath - 1].slrTimeToLastPixel;
             targetDeltaSlantRangeTime = subSwath[0].rangePixelSpacing / Constants.lightSpeed;
-        }
     }
 
     /**
@@ -437,6 +417,9 @@ public final class TOPSARDeburstOp extends Operator {
         targetProduct.addTiePointGrid(lonGrid);
         targetProduct.addTiePointGrid(slrtGrid);
         targetProduct.addTiePointGrid(incGrid);
+
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        targetProduct.setGeoCoding(tpGeoCoding);
     }
 
     /**
@@ -732,8 +715,10 @@ public final class TOPSARDeburstOp extends Operator {
         if (firstY >= lastY)
             return;
 
-        final Band srcBandI = sourceProduct.getBand(bandNameI + firstSubSwathIndex + '_' + pol);
-        final Band srcBandQ = sourceProduct.getBand(bandNameQ + firstSubSwathIndex + '_' + pol);
+        final String swathIndexStr = numOfSubSwath == 1 ? su.getSubSwathNames()[0].substring(2) : String.valueOf(firstSubSwathIndex);
+
+        final Band srcBandI = sourceProduct.getBand(bandNameI + swathIndexStr + '_' + pol);
+        final Band srcBandQ = sourceProduct.getBand(bandNameQ + swathIndexStr + '_' + pol);
         final Tile sourceRasterI = getSourceTile(srcBandI, sourceRectangle[0]);
         final Tile sourceRasterQ = getSourceTile(srcBandQ, sourceRectangle[0]);
         final TileIndex srcTileIndex = new TileIndex(sourceRasterI);
@@ -873,7 +858,9 @@ public final class TOPSARDeburstOp extends Operator {
         if (firstY >= lastY)
             return;
 
-        final Band srcBand = sourceProduct.getBand(bandName + firstSubSwathIndex + '_' + pol);
+        final String swathIndexStr = numOfSubSwath == 1 ? su.getSubSwathNames()[0].substring(2) : String.valueOf(firstSubSwathIndex);
+
+        final Band srcBand = sourceProduct.getBand(bandName + swathIndexStr + '_' + pol);
         final Tile sourceRaster = getSourceTile(srcBand, sourceRectangle[0]);
         final TileIndex srcTileIndex = new TileIndex(sourceRaster);
         final TileIndex tgtIndex = new TileIndex(targetTile);

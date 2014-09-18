@@ -159,17 +159,6 @@ public final class Sentinel1Utils {
     private void getProductAcquisitionMode() {
 
         acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-
-        switch (acquisitionMode) {
-            case "IW":
-                numOfSubSwath = 3;
-                break;
-            case "EW":
-                numOfSubSwath = 5;
-                break;
-            default:
-                numOfSubSwath = 1;
-        }
     }
 
     /**
@@ -206,6 +195,7 @@ public final class Sentinel1Utils {
             }
         }
         subSwathNames =  subSwathNameList.toArray(new String[subSwathNameList.size()]);
+        numOfSubSwath = subSwathNames.length;
     }
 
     /**
@@ -272,6 +262,7 @@ public final class Sentinel1Utils {
         subSwath.azimuthTimeInterval = Double.parseDouble(imageInformation.getAttributeString("azimuthTimeInterval")) /
                 Constants.secondsInDay; // s to day
         subSwath.rangePixelSpacing = Double.parseDouble(imageInformation.getAttributeString("rangePixelSpacing"));
+        subSwath.azimuthPixelSpacing = Double.parseDouble(imageInformation.getAttributeString("azimuthPixelSpacing"));
         subSwath.slrTimeToFirstPixel = Double.parseDouble(imageInformation.getAttributeString("slantRangeTime")) / 2.0; // 2-way to 1-way
         subSwath.slrTimeToLastPixel = subSwath.slrTimeToFirstPixel +
                 (subSwath.numOfSamples - 1) * subSwath.rangePixelSpacing / Constants.lightSpeed;
@@ -759,10 +750,9 @@ public final class Sentinel1Utils {
     public static String[] getProductPolarizations(final MetadataElement absRoot) {
 
         final MetadataElement[] elems = absRoot.getElements();
-        final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         final List<String> polList = new ArrayList<String>(4);
         for (MetadataElement elem : elems) {
-            if (elem.getName().contains(acquisitionMode)) {
+            if (elem.getName().contains("Band_")) {
                 final String pol = elem.getAttributeString("polarization");
                 if (!polList.contains(pol)) {
                     polList.add(pol);
@@ -1081,6 +1071,7 @@ public final class Sentinel1Utils {
         public double slrTimeToLastPixel;
         public double azimuthTimeInterval;
         public double rangePixelSpacing;
+        public double azimuthPixelSpacing;
         public double radarFrequency;
         public double azimuthSteeringRate;
 
