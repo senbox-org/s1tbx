@@ -169,7 +169,7 @@ public final class Sentinel1Utils {
         final MetadataElement[] elems = absRoot.getElements();
         final List<String> polList = new ArrayList<String>(4);
         for (MetadataElement elem : elems) {
-            if (elem.getName().contains(acquisitionMode)) {
+            if (elem.getName().contains("Band_")) {
                 final String pol = elem.getAttributeString("polarization");
                 if (!polList.contains(pol)) {
                     polList.add(pol);
