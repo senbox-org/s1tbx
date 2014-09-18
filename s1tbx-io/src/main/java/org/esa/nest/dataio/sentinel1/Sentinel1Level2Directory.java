@@ -177,6 +177,10 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
     @Override
     protected void addGeoCoding(final Product product) {
 
+        addGeoCodingForLevel2Products(product);
+
+        // TODO Don't know if this code is needed...
+        /*
         TiePointGrid latGrid = product.getTiePointGrid(OperatorUtils.TPG_LATITUDE);
         TiePointGrid lonGrid = product.getTiePointGrid(OperatorUtils.TPG_LONGITUDE);
         if (latGrid != null && lonGrid != null) {
@@ -250,6 +254,7 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, llGeo.getLon());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, lrGeo.getLat());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lrGeo.getLon());
+        */
     }
 
     @Override
@@ -499,7 +504,7 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
         // This is because...
         // in addBandAbstractedMetadata() (which is called by addAbstractedMetadataHeader() which is called by
         // addMetaData()), for it to add annotations to metadata, OCNReader has to have already been created by
-        // findImages().
+        // addImageFile() (which is called by findImages()).
         findImages();
         final MetadataElement newRoot = addMetaData();
 
@@ -522,5 +527,121 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
         ReaderUtils.addMetadataProductSize(product);
 
         return product;
+    }
+
+    public void addGeoCodingToBands(final Product product) {
+
+        OCNReader.addGeoCodingToBands(product);
+    }
+
+    // TODO This method appears in SentinelLevel0Directory as well. So may be we should put it in the base class
+    // XMLProductDirectory.
+    private MetadataElement getMetadataObject(final MetadataElement origProdRoot, final String metadataObjectName) {
+
+        final MetadataElement metadataSection = origProdRoot.getElement("XFDU").getElement("metadataSection");
+        final MetadataElement[] metadataObjects = metadataSection.getElements();
+
+        for (MetadataElement elem : metadataObjects) {
+
+            if (elem.getAttribute("ID").getData().getElemString().equals(metadataObjectName)) {
+
+                return elem;
+            }
+        }
+
+        return null;
+    }
+
+    private void addGeoCodingForLevel2Products(final Product product) {
+
+        float minLat = 999F;
+        float maxLat = -999F;
+        float minLon = 999F;
+        float maxLon = -999F;
+
+        final MetadataElement elem = getMetadataObject(AbstractMetadata.getOriginalProductMetadata(product), "measurementFrameSet");
+
+        if (elem != null) {
+
+            final MetadataElement frameSet = elem.getElement("metadataWrap").getElement("xmlData").getElement("frameSet");
+            final MetadataElement[] frames = frameSet.getElements();
+
+            for (MetadataElement frame : frames) {
+
+                final MetadataAttribute coordinates = frame.getElement("footPrint").getAttribute("coordinates");
+                final String coordinatesStr = coordinates.getData().getElemString();
+
+                //System.out.println("Sentinel1Level2Directory.addGeoCodingForLevel2Products: coordinates = " + coordinatesStr);
+
+                final String[] latLonPairsStr = coordinatesStr.split(" ");
+
+                for (String s : latLonPairsStr) {
+
+                    final String[] latStrLonStr = s.split(",");
+
+                    final float lat = Float.parseFloat(latStrLonStr[0]);
+                    final float lon = Float.parseFloat(latStrLonStr[1]);
+
+                    if (lat < minLat) {
+                        minLat = lat;
+                    }
+                    if (lat > maxLat) {
+                        maxLat = lat;
+                    }
+                    if (lon < minLon) {
+                        minLon = lon;
+                    }
+                    if (lon > maxLon) {
+                        maxLon = lon;
+                    }
+                }
+            }
+
+            //System.out.println("Sentinel1Level2Directory.addGeoCodingForLevel2Products: minLat = " + minLat + " maxLat = " + maxLat + " minLon = " + minLon + " maxLon = " + maxLon);
+        }
+
+        if (minLat > maxLat || minLon > maxLon) {
+            System.out.println("Sentinel1Level2Directory.addGeoCodingForLevel2Products: ERROR failed to get valid footprint");
+            return;
+        }
+
+        final float[] latCorners = new float[4];
+        final float[] lonCorners = new float[latCorners.length];
+
+        // The footprint
+        // index 0                                          index 1
+        // (maxLat, minLon)                                 (maxLat, maxLon)
+        //      -----------------------------------------------------
+        //      |                                                   |
+        //      |                                                   |
+        //      |                                                   |
+        //      -----------------------------------------------------
+        // (minLat, minLon)                                 (minLat, maxLon)
+        // index 2                                          index 3
+
+        // top left corner
+        latCorners[0] = maxLat;
+        lonCorners[0] = minLon;
+
+        // top right corner
+        latCorners[1] = maxLat;
+        lonCorners[1] = maxLon;
+
+        // bottom left corner
+        latCorners[2] = minLat;
+        lonCorners[2] = minLon;
+
+        // bottom right corner
+        latCorners[3] = minLat;
+        lonCorners[3] = maxLon;
+
+        /*
+        System.out.println("Sentinel1Level2Directory.addGeoCodingForLevel2Products: corners of footprint (TopL, TopR, bottomL, bottomR):");
+        for (int i = 0; i < latCorners.length; i++) {
+            System.out.println(" " + latCorners[i] + ", " + lonCorners[i]);
+        }
+        */
+
+        ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
     }
 }

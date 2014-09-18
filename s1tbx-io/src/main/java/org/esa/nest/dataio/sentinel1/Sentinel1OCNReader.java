@@ -17,7 +17,6 @@ package org.esa.nest.dataio.sentinel1;
 
 import org.esa.beam.dataio.netcdf.util.MetadataUtils;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.nest.dataio.netcdf.NcRasterDim;
 import org.esa.nest.dataio.netcdf.NetCDFUtils;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
@@ -27,10 +26,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * NetCDF reader for Level-2 OCN products
@@ -242,6 +238,33 @@ public class Sentinel1OCNReader {
                 }
             }
         }
+    }
+
+    public void addGeoCodingToBands(final Product product) {
+
+        final Band[] bands = product.getBands();
+
+        for (Band band : bands) {
+
+            final String bandName = band.getName();
+            if (bandName.substring(7).equals("rvlRadVel") ||
+                bandName.substring(7).equals("owiWindSpeed")    ) {
+
+                final String bandNamePrefix = bandName.substring(0,10);
+                final Band latBand = product.getBand(bandNamePrefix + "Lat");
+                final Band lonBand = product.getBand(bandNamePrefix + "Lon");
+
+                if (latBand == null || lonBand == null) {
+                    System.out.println("Sentinel1OCNReader.addDisplayBands: missing " + bandName + " Lat and/or Lon: latBand is " + latBand + " lonBand is " + lonBand);
+                    continue;
+                }
+
+                final int searchRadius = 5; // TODO No idea what this should be
+                PixelGeoCoding pixGeoCoding = new PixelGeoCoding(latBand, lonBand, null, searchRadius);
+                band.setGeoCoding(pixGeoCoding);
+            }
+        }
+
     }
 
     private void addBand(final Product product, String bandName, final Variable variable, final int width, final int height) {

@@ -100,6 +100,9 @@ public class Sentinel1ProductReader extends SARReader {
             product.getGcpGroup();
             product.setFileLocation(fileFromInput);
             product.setProductReader(this);
+            if (dataDir instanceof Sentinel1Level2Directory) {
+                ((Sentinel1Level2Directory) dataDir).addGeoCodingToBands(product);
+            }
             setQuicklookBandName(product);
             product.setModified(false);
 
