@@ -581,7 +581,12 @@ public class SpectrumToolView extends AbstractToolView {
                 final Iterator<String[]> iterator = autoGrouping.iterator();
                 int i = 0;
                 while (iterator.hasNext()) {
-                    final String spectrumName = iterator.next()[0];
+                    final String[] autoGroupingNameAsArray = iterator.next();
+                    StringBuilder spectrumNameBuilder = new StringBuilder(autoGroupingNameAsArray[0]);
+                    for (String autoGroupingNamePart : autoGroupingNameAsArray) {
+                        spectrumNameBuilder.append("_").append(autoGroupingNamePart);
+                    }
+                    final String spectrumName = spectrumNameBuilder.toString();
                     int symbolIndex = SpectrumShapeProvider.getValidIndex(i, false);
                     DisplayableSpectrum spectrum = new DisplayableSpectrum(spectrumName, symbolIndex);
                     spectrum.setSelected(i == selectedSpectrumIndex);
