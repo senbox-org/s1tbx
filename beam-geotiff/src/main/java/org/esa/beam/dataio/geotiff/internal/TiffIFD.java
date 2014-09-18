@@ -99,7 +99,11 @@ public class TiffIFD {
     }
 
     private long getPosForNextIfdOffset(final long ifdOffset) {
-        return ifdOffset + getRequiredIfdSize() - 4;
+        long result = ifdOffset + getRequiredIfdSize() - BYTES_FOR_NEXT_IFD_OFFSET;
+        if (bigTiff) {
+            result = ifdOffset + getRequiredIfdSize() - BIGTIFF_BYTES_FOR_NEXT_IFD_OFFSET;
+        }
+        return result;
     }
 
     public TiffDirectoryEntry getEntry(final TiffShort tag) {
@@ -366,7 +370,11 @@ public class TiffIFD {
                     maxFloatType = Math.max(maxFloatType, dt);
                 }
             }
-
+            /*
+            if (maxUnsignedIntType == ProductData.TYPE_ULONG64) {
+                return ProductData.TYPE_ULONG64;
+            }
+            */
            if (maxFloatType != -1) {
                 return ProductData.TYPE_FLOAT32;
             }
