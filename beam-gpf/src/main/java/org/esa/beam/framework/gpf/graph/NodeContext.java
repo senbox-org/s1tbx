@@ -144,7 +144,7 @@ public class NodeContext {
             operatorContext = null;
             operator = null;
         }
-        if (targetProduct != null) {
+        if (targetProduct != null && targetProduct.getFileLocation() == null) {
             targetProduct.dispose();
             targetProduct = null;
         }
