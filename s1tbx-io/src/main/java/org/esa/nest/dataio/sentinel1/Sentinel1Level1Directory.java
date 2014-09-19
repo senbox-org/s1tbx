@@ -35,7 +35,6 @@ import org.jdom2.Element;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -47,6 +46,7 @@ import java.util.StringTokenizer;
  */
 public class Sentinel1Level1Directory extends XMLProductDirectory implements Sentinel1Directory {
 
+    private final Map<Band, TiePointGeoCoding> bandGeocodingMap = new HashMap<>(5);
     private final transient Map<String, String> imgBandMetadataMap = new HashMap<>(4);
     private String acqMode = "";
 
@@ -318,12 +318,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
         int numBands = 0;
         final String annotFolder = getRootFolder() + "annotation";
-        final String[] filenames;
-        try {
-            filenames = listFiles(annotFolder);
-        } catch(FileNotFoundException e) {
-            throw new IOException("annotations missing from products");
-        }
+        final String[] filenames = listFiles(annotFolder);
         for (String metadataFile : filenames) {
 
             final Document xmlDoc = XMLSupport.LoadXML(getInputStream(annotFolder+'/'+metadataFile));
@@ -650,10 +645,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         if (firstSWBand == null && lastSWBand == null)
             return;
 
-        final GeoCoding firstSWBandGeoCoding = firstSWBand.getGeoCoding();
+        final GeoCoding firstSWBandGeoCoding = bandGeocodingMap.get(firstSWBand);
         final int firstSWBandHeight = firstSWBand.getRasterHeight();
 
-        final GeoCoding lastSWBandGeoCoding = lastSWBand.getGeoCoding();
+        final GeoCoding lastSWBandGeoCoding = bandGeocodingMap.get(lastSWBand);
         final int lastSWBandWidth = lastSWBand.getRasterWidth();
         final int lastSWBandHeight = lastSWBand.getRasterHeight();
 
@@ -685,6 +680,12 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, llGeo.getLon());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, lrGeo.getLat());
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lrGeo.getLon());
+
+        // add band geocoding
+        final Band[] bands = product.getBands();
+        for (Band band : bands) {
+            band.setGeoCoding(bandGeocodingMap.get(band));
+        }
     }
 
     @Override
@@ -692,7 +693,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         // replaced by call to addTiePointGrids(band)
     }
 
-    private static void addTiePointGrids(final Band band, final String imgXMLName, final String tpgPrefix) {
+    private void addTiePointGrids(final Band band, final String imgXMLName, final String tpgPrefix) {
 
         final Product product = band.getProduct();
         String pre = "";
@@ -752,8 +753,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final float[] newIncList = new float[newGridWidth * newGridHeight];
         final float[] newElevList = new float[newGridWidth * newGridHeight];
         final float[] newslrtList = new float[newGridWidth * newGridHeight];
-        final int sceneRasterWidth = product.getSceneRasterWidth();
-        final int sceneRasterHeight = product.getSceneRasterHeight();
+        final int sceneRasterWidth = band.getSceneRasterWidth();
+        final int sceneRasterHeight = band.getSceneRasterHeight();
         final float subSamplingX = (float) sceneRasterWidth / (newGridWidth - 1);
         final float subSamplingY = (float) sceneRasterHeight / (newGridHeight - 1);
 
@@ -810,9 +811,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         }
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
-        band.setGeoCoding(tpGeoCoding);
-
-        //setLatLongMetadata(product, latGrid, lonGrid);
+        bandGeocodingMap.put(band, tpGeoCoding);
     }
 
     private static void setLatLongMetadata(Product product, TiePointGrid latGrid, TiePointGrid lonGrid) {
