@@ -19,6 +19,9 @@ package org.esa.beam.visat.actions;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
+import com.bc.ceres.swing.selection.SelectionChangeEvent;
+import com.bc.ceres.swing.selection.SelectionChangeListener;
+import com.bc.ceres.swing.selection.SelectionManager;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -32,7 +35,6 @@ import org.esa.beam.framework.datamodel.TransectProfileDataBuilder;
 import org.esa.beam.framework.ui.SelectExportMethodDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.StringUtils;
@@ -55,10 +57,15 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
 
-public class ExportTransectPixelsAction extends ExecCommand {
+public class ExportTransectPixelsAction extends AbstractVisatAction implements SelectionChangeListener {
 
     private static final String DLG_TITLE = "Export Transect Pixels";
     private static final String ERR_MSG_BASE = "Transect pixels cannot be exported:\n";
+    private boolean listenerIsRegistered = false;
+
+    public ExportTransectPixelsAction() {
+
+    }
 
     /**
      * Invoked when a command action is performed.
@@ -80,9 +87,18 @@ public class ExportTransectPixelsAction extends ExecCommand {
      */
     @Override
     public void updateState(CommandEvent event) {
+        ensureListenerIsRegistered();
         ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
-        boolean enabled = view != null && view.getCurrentShapeFigure() != null;
+        boolean enabled = view != null && view.getCurrentShapeFigure() != null && view.getCurrentShapeFigure().isSelected();
         setEnabled(enabled);
+    }
+
+    private void ensureListenerIsRegistered() {
+        if(!listenerIsRegistered) {
+            SelectionManager selectionManager = getAppContext().getApplicationPage().getSelectionManager();
+            selectionManager.addSelectionChangeListener(this);
+            listenerIsRegistered = true;
+        }
     }
 
     private void exportTransectPixels() {
@@ -268,6 +284,16 @@ public class ExportTransectPixelsAction extends ExecCommand {
             }
         }
         return numTransectPixels;
+    }
+
+    @Override
+    public void selectionChanged(SelectionChangeEvent event) {
+        updateState();
+    }
+
+    @Override
+    public void selectionContextChanged(SelectionChangeEvent event) {
+        updateState();
     }
 
 
