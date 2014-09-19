@@ -63,10 +63,6 @@ public class ExportTransectPixelsAction extends AbstractVisatAction implements S
     private static final String ERR_MSG_BASE = "Transect pixels cannot be exported:\n";
     private boolean listenerIsRegistered = false;
 
-    public ExportTransectPixelsAction() {
-
-    }
-
     /**
      * Invoked when a command action is performed.
      *
