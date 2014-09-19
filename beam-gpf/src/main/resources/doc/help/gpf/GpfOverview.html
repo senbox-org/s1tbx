@@ -17,7 +17,7 @@
 <html>
 
 <head>
-    <title>BEAM GPF</title>
+    <title>SNAP GPF</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -26,7 +26,7 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            BEAM GPF
+            SNAP GPF
         </td>
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="images/BeamHeader.jpg"
                                                                                      border=0></a>
@@ -34,26 +34,28 @@
     </tr>
 </table>
 
-<h1>The BEAM Graph Processing Framework (GPF)</h1>
+<h1>The SNAP Graph Processing Framework (GPF)</h1>
 
 <h2>Introduction</h2>
 
 <p>
-    Within BEAM, the term data processor refers to a software module which creates an output product from one or more
+    Within SNAP, the term data processor refers to a software module which creates an output product from one or more
     input products configured by a set of processing parameters. A product is basically a collection of bands which
-    again provide numerical raster data for a spectral radiance, geophysical property or quality flag. The first
+    again provide numerical raster data for a spectral radiance, geophysical property or quality flag.
+    The GPF was originally developed for BEAM.
+    The first
     version of BEAM was released end of the year 2002 and included data processors used for <i>MERIS Smile Effect
     Correction</i> and <i>Atmospheric Correction for MERIS</i>, for computation of the <i>AATSR Sea Surface
     Temperature</i> and to generate general Level 3 products using the <i>SeaWiFS binning algorithm</i>.
     Since this time, a number of data processors have been developed; some of them are standard modules while others
-    are contributed by 3rd parties. All this data processors have been developed using a dedicated processing
+    are contributed by 3rd parties. All of these data processors have been developed using a dedicated processing
     framework which was already part of the first version of BEAM. It enforces a programming model in which
     developers have to implement the three obvious lifecycle phases of a processor:
 </p>
 
 <p>
 <ol>
-    <li><b>Initialise:</b>
+    <li><b>Initialize:</b>
         <ol>
             <li>Open the input product files</li>
             <li>Validate input products and parameters</li>
@@ -94,8 +96,8 @@
 </p>
 
 <p>
-    Based on the experience collected within a number of projects, the authors have developed the new
-    <i>BEAM Graph Processing Framework (GPF)</i>.
+    Based on the experience collected within a number of projects, the authors have developed what is now the
+    <i>SNAP Graph Processing Framework (GPF)</i>.
     The GPF addresses all the issues mentioned above, adds a number of new features for developers,
     reduces the amount of source code to write while drastically improving its readability and maintainability.
 </p>
@@ -107,7 +109,7 @@
     graph refers to a GPF operator, which implements the algorithm to be executed. The node also has the role to
     configure the operation by specifying the operator?s source nodes and providing values for the processing
     parameters.
-    The main difference to the first BEAM processing framework is an inversion of the execution flow. Using the earlier
+    The main difference to the BEAM processing framework is an inversion of the execution flow. Using the earlier
     processing framework, the developer was responsible to control the way how the output product is written. Using
     the GPF, the framework controls the execution flow by requesting the computation of target samples from the GPF
     operator. In turn, the operator will request source samples from one or more predecessor nodes. This execution
@@ -148,11 +150,11 @@
 </p>
 
 <p>
-    Many BEAM EO Data Processors are implemented as GPF operators and can be invoked via the Windows or Unix
+    Many SNAP EO Data Processors are implemented as GPF operators and can be invoked via the Windows or Unix
     command-line using the <a href="GraphProcessingTool.html">GPF Graph Processing Tool</a> <code>gpt</code>
-    which can be found in the <code>bin</code> directory of your BEAM installation. Most of them also have dedicated
-    user interfaces in BEAM/VISAT. The list of available GPF operators bundled with BEAM is given in the
-    <a href="OperatorIndex.html">Operator Index</a>.
+    which can be found in the <code>bin</code> directory of your Sentinel-3 Toolbox installation.
+    Most of them also have dedicated user interfaces in the Sentinel-3 Toolbox.
+    The list of available GPF operators bundled with SNAP is given in the <a href="OperatorIndex.html">Operator Index</a>.
 </p>
 
 <hr/>
