@@ -44,7 +44,7 @@ import java.util.Arrays;
  */
 public abstract class AbstractShapeFigure extends AbstractFigure implements ShapeFigure {
 
-    private static final double SELECTION_TOLERANCE = 12.0;
+    private static final double SELECTION_TOLERANCE = 24.0;
     private Rank rank;
 
     protected AbstractShapeFigure() {
@@ -158,6 +158,7 @@ public abstract class AbstractShapeFigure extends AbstractFigure implements Shap
                 double y = viewPoint.getY() - SELECTION_TOLERANCE / 2;
                 double w = SELECTION_TOLERANCE;
                 double h = SELECTION_TOLERANCE;
+                //todo check against circle instead of rectangle
                 Rectangle2D.Double aDouble = new Rectangle2D.Double(x, y, w, h);
                 Rectangle2D rectangle2D = m2v.createInverse().createTransformedShape(aDouble).getBounds2D();
                 return getShape().intersects(rectangle2D);
