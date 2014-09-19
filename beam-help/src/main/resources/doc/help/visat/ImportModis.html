@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>VISAT Help - Import MODIS</title>
+    <title>Sentinel-3 Toolbox Help - Import MODIS</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 
@@ -32,16 +32,17 @@
 
 <h3>Import MODIS Product</h3>
 
-<h4>BEAM Implementation of the MODIS Product Reader</h4>
+<h4>SNAP Implementation of the MODIS Product Reader</h4>
 
-<p>BEAM supports a subset of the products available of the NASA sensor MODIS,
-    both on the Aqua and Terra platform. These products can be imported into VISAT, used as input products in the
-    scientific data processors (where applicable) and accessed by Java developers using the Java product I/O framework.
+<p>SNAP supports a subset of the products available of the NASA sensor MODIS,
+    both on the Aqua and Terra platform. These products can be imported into the Sentinel-3 Toolbox,
+    used as input products in the scientific data processors (where applicable)
+    and accessed by Java developers using the Java product I/O framework.
 </p>
 
 <h4>Supported MODIS Data Products</h4>
 
-<p>The following MODIS data product types are supported by BEAM:
+<p>The following MODIS data product types are supported by SNAP:
 </p>
 
 <table>
@@ -129,34 +130,34 @@
 </table>
 
 
-<h4>Geolocation of MODIS Products</h4>
-
-<p>Due to the operational mode of the MODIS sensor, all MODIS products available
-    from NASA experience "overlapping" scan lines. This is the so called "bow-tie" effect.
-    These artifacts will be automatically removed by map-projecting the MODIS products.
-</p>
-
-<p align="center"> <img src="images/MODISBowTieEffect.jpg" width="292" height="250" border=0>
-</p>
-
-<p class="inote">
-    Since BEAM 3.5 this issue is solved by a special geo-coding.
-    So these artifacts do not occure any more even in not map-projected MODIS products.
-</p>
+<!--<h4>Geolocation of MODIS Products</h4>-->
+<!---->
+<!--<p>Due to the operational mode of the MODIS sensor, all MODIS products available-->
+    <!--from NASA experience "overlapping" scan lines. This is the so called "bow-tie" effect.-->
+    <!--These artifacts will be automatically removed by map-projecting the MODIS products.-->
+<!--</p>-->
+<!---->
+<!--<p align="center"> <img src="images/MODISBowTieEffect.jpg" width="292" height="250" border=0>-->
+<!--</p>-->
+<!---->
+<!--<p class="inote">-->
+    <!--Since BEAM 3.5 this issue is solved by a special geo-coding.-->
+    <!--So these artifacts do not occure any more even in not map-projected MODIS products.-->
+<!--</p>-->
 
 
 <h4>MODIS Level 2 Products</h4>
 
 <p>The supported MODIS Level 2 products do not contain geo-location information. Instead, this
-    information is stored in an accompagnying quality control file (<code>MxDOCQC</code>). The BEAM software tries
+    information is stored in an accompanying quality control file (<code>MxDOCQC</code>). The SNAP software tries
     to locate this file in the same directory as the Level 2 product resides. If the geo-location file is not
     present, the Level 2 product will be opened as raw datasets without geo-coding.
 </p>
 
 <h4>MODIS Quality Flags</h4>
 
-<p>The current version of BEAM does not support flag coding of MODIS products and therefore bitmask overlays
-    are currently not possible.
+<p>The current version of the Sentinel-3 Toolbox does not support flag coding of MODIS products and therefore
+    bitmask overlays are currently not possible.
 </p>
 
 
