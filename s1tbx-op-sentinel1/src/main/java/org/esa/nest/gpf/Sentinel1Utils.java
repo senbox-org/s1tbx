@@ -189,11 +189,7 @@ public final class Sentinel1Utils {
         subSwath = new SubSwathInfo[numOfSubSwath];
         for (int i = 0; i < numOfSubSwath; i++) {
             subSwath[i] = new SubSwathInfo();
-            if (numOfSubSwath > 1) {
-                subSwath[i].subSwathName = acquisitionMode + (i + 1);
-            } else {
-                subSwath[i].subSwathName = acquisitionMode;
-            }
+			subSwath[i].subSwathName = subSwathNames[i];
             final MetadataElement subSwathMetadata = getSubSwathMetadata(subSwath[i].subSwathName);
             getSubSwathParameters(subSwathMetadata, subSwath[i]);
         }
