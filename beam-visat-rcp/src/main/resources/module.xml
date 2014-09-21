@@ -1418,7 +1418,7 @@
             <mnemonic>L</mnemonic>
         </action>
 
-        <action>
+        <!--action>
             <parent>processing</parent>
             <id>processing.imageAnalysis</id>
             <placeAfter>processing.thematicLand</placeAfter>
@@ -1426,7 +1426,7 @@
             <shortDescr>Group of Image Analysis Processing Steps</shortDescr>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <mnemonic>A</mnemonic>
-        </action>
+        </action-->
 
         <action>
             <parent>processing</parent>
