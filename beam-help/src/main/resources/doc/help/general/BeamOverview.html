@@ -32,23 +32,26 @@
     </tr>
 </table>
 
-<h3>BEAM Version 5</h3>
+<h3>Sentinel-3 Toolbox Version 1.0</h3>
 
 
 <h4>Overview</h4>
 
-<p>The <b>BEAM Earth Observation Toolbox and Development Platform</b>, is a collection of executable tools and
+<p>The <b>Sentinel Application Platform</b> - or <b>SNAP</b> - in short is a collection of executable tools and
     Application Programming Interfaces (APIs) which have been developed to facilitate the utilisation, viewing and
-    processing of a variety of remotely sensed data. The purpose of the BEAM is not to duplicate existing
+    processing of a variety of remotely sensed data. The functionality of SNAP is accessed through the <b>Sentinel-3
+    Toolbox</b>. The purpose of the Sentinel-3 Toolbox is not to duplicate existing
     commercial packages, but to complement them with functions dedicated to the handling of
-    data products of earth observing satellites.</p>
+    data products of earth observing satellites.</p>.
 
-<p>The main components of the BEAM are:</p>
+<p>The main components of the Sentinel-3 Toolbox are:</p>
 <ul>
-    <li><b>VISAT</b> - An intuitive desktop application used for EO data visualisation, analysing and processing.</li>
-    <li>A set of scientific data processors running either from the command-line or invoked by VISAT.</li>
+    <li>An intuitive desktop application used for EO data visualisation, analysing and processing.</li>
+    <li>A set of scientific data processors running either from the command-line or invoked by the desktop
+        application.
+    </li>
     <li>The command-line tool <b>gpt</b> (graph processing tool) is used to execute
-        processing graphs made up of <i>operators</i> nodes developed using the BEAM GPF (see Java API below).
+        processing graphs made up of <i>operators</i> nodes developed using the SNAP GPF (see Java API below).
     </li>
     <li>A data product converter tool <b>pconvert</b> allowing a user to convert raw data products to the
         <a href="BeamDimapFormat.html">BEAM-DIMAP</a> standard format,
@@ -57,8 +60,8 @@
 
     </li>
     <li>A <b>Java&#153; API</b> which provides ready-to-use components for remote sensing related application
-        development and plug-in points for new BEAM extension modules. Besides a number of extension points such as
-        product reader and writers, the BEAM API comprises the <b>Graph Processing Framework</b> (GPF) which is
+        development and plug-in points for new SNAP extension modules. Besides a number of extension points such as
+        product reader and writers, the SNAP API comprises the <b>Graph Processing Framework</b> (GPF) which is
         used to rapidly create raster data processors. The <b>VISAT Rich Client Platform</b>
         is used to develop rich GUI user interface applications based on BEAM VISAT.
     </li>

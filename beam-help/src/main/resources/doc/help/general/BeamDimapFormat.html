@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>BEAM Help - BEAM-DIMAP Product Format</title>
+    <title>Sentinel-3 Toolbox Help - BEAM-DIMAP Product Format</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -34,14 +34,17 @@
 
 <h3>Introduction</h3>
 
-<p>VISAT and the scientific data processors use a simple data input/output format,
-    which makes it easy to import ENVISAT data in other imaging applications. The
+<p>The Sentinel-3 Toolbox and the scientific data processors use a simple data input/output format,
+    which makes it easy to import Sentinel-3 data in other imaging applications. The
     format is called <a href="http://www.spotimage.fr/dimap/spec/dimap.htm">DIMAP</a>
-    and has been developed by SPOT-Image, France. The BEAM software uses a special
+    and has been developed by SPOT-Image, France. The SNAP software uses a special
     DIMAP profile called BEAM-DIMAP.
 
-<p>The BEAM-DIMAP is the standard I/O product format for VISAT and the BEAM Scientific Tools.
-    The format was chosen, because it has a very simple and easy-to-understand structure.</p>
+<p>The BEAM-DIMAP is the standard I/O product format for the Sentinel-3 Toolbox and the Scientific Tools.
+    The format was chosen because it has a very simple and easy-to-understand structure.
+    It was originally developed for the (<a href="http://www.brockmann-consult.de/beam/">BEAM toolbox and development platform</a>),
+    hence the name.
+</p>
 
 <h3>Overview</h3>
 
@@ -74,7 +77,7 @@
     be viewed in a text editor or an XML viewer. The following contains a closer look at the
     components of the product format.</p>
 
-<p class="inote"><b>Important Note</b>: In the BEAM software, pixel values always refer to the upper
+<p class="inote"><b>Important Note</b>: In the SNAP software, pixel values always refer to the upper
     left corner of the pixel. Map co-ordinates also typically refer to the upper left corner of the pixel.
     Pixel co-ordinates are always zero based, the pixel at <code>X=0,Y=0</code> refers to the upper left
     pixel of an image and the upper left corner of that pixel.</p>

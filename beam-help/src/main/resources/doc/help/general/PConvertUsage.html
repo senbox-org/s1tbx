@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>BEAM Help - pconvert Usage</title>
+    <title>Sentinel-3 Toolbox Help - pconvert Usage</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -40,7 +40,7 @@
     The tool can also generate greyscale and RGB images in TIFF, JPEG, PNG and BMP
     image formats.</p>
 
-<p>ENVI users probably might profit from the fact, that they can directly open
+<p>ENVI users probably might profit from the fact that they can directly open
     a product band's image with ENVI after the product has been converted to the
     <a href="BeamDimapFormat.html">BEAM-DIMAP</a> format.
 </p>
@@ -48,7 +48,7 @@
 <h3>Running pconvert</h3>
 
 <p>For executing the pconvert tool there is an executable script file located in the <code>bin</code> directory
-    of your BEAM installation directory. The file name is <code>pconvert.bat</code> for MS Windows, <code>pconvert.sh</code> for Mac OS X and <code>
+    of your Sentinel-3 Toolbox installation directory. The file name is <code>pconvert.bat</code> for MS Windows, <code>pconvert.sh</code> for Mac OS X and <code>
     pconvert.sh</code> for UNIX operating systems.</p>
 
 <p><code>pconvert</code> is a command-line application and as such it is invoked from a console
@@ -57,7 +57,7 @@
 </p>
 
 <p><b>NOTE:</b> The BEAM installer does not automatically append the <code>bin</code> directory of
-    the BEAM installation directory to the system's <code>PATH</code> environment variable. If
+    the Sentinel-3 Toolbox installation directory to the system's <code>PATH</code> environment variable. If
     you need to run <code>pconvert</code> from a directory other then <code>bin</code> you have to adjust
     the <code>PATH</code> variable by your own.
 </p>
@@ -68,7 +68,7 @@
 <p>The following examples assume that you
 <ul>
     <li>have opened a shell or console window (on MS Windows either command.exe or cmd.exe)</li>
-    <li>have copied a test product to your <code><i>$BEAM-INSTALL-DIR$</i>/bin</code> directory
+    <li>have copied a test product to your <code><i>$S3TBX-INSTALL-DIR$</i>/bin</code> directory
         (in the following examples referred to as <code>MER_RR__1P_TEST.N1</code> - a MERIS Level 1B
         product)</li>
     <li>and that you have changed the current working directory to be the <code>bin</code> directory.</li>
@@ -94,7 +94,7 @@
 
 <p><b><code>&gt;&nbsp;pconvert MER_RR__1P_TEST.N1</code></b> &nbsp; <i>Converts
     the entire product into the MERIS/(A)ATSR Toolbox's standard <a href="BeamDimapFormat.html">BEAM-DIMAP</a>
-    product format. VISAT and the data processors will be able to open the output
+    product format. The Sentinel-3 Toolbox and the data processors will be able to open the output
     product directly. The output file will have the name <code>MER_RR__1P_TEST.N1.dim</code>.
     Additionally a directory <code>MER_RR__1P_TEST.N1.data</code> will be created.
     It includes the raw data for the product's geophysical tie-point grids and bands.

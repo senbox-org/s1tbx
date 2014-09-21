@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>BEAM Data Processors - MERIS Cloud Probability</title>
+    <title>SNAP Data Processors - MERIS Cloud Probability</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -42,7 +42,7 @@
     <b>Name: </b>
     Used to select the spectral source product. The source product shall
     contain spectral bands providing a source spectrum at each pixel. Use the <b>...</b> button to
-    open a data product currently not opened in VISAT.
+    open a data product currently not opened in the Sentinel-3 Toolbox.
 </p>
 
 <h5>Target Product Group</h5>
@@ -59,19 +59,19 @@
 </p>
 
 <p class="i1">
-    <b>Open in VISAT:</b>
-    Used to specify whether the target product should be opened in VISAT. When the
-    the target product is not saved, it is opened in VISAT automatically.
+    <b>Open in ESA S3-Toolbox:</b>
+    Used to specify whether the target product should be opened in the Sentinel-3 Toolbox.
+    When the target product is not saved, it is opened in the Sentinel-3 Toolbox automatically.
 </p>
 
 
 <h3>Advanced configuration</h3>
 
 <p>The algorithm uses two different neural nets. The first for usage over land and the second for usage
- over the open ocean. By default every pixel which altitude is below -50m is treated as ocean.</p>
+ over the open ocean. By default every pixel with an altitude below -50m is treated as ocean.</p>
  <p>This selection can be edited in the config files, which together with the neural nets are unpacked 
  into a subdirectory of the user directory. The subdirectory used is 
- <code>.beam/cloud-probability-processor/auxdata</code>
+ <code>.snap/snap-meris-cloud/auxdata</code>
  The file <code>cloud_config.txt</code> specifies which configuration for the land and the ocean case are used.
  In the respective configuration files following properties are of interest:
  <ul>

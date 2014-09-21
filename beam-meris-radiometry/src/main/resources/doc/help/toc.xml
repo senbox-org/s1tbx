@@ -26,7 +26,7 @@
                 <tocitem text="Overview" target="merisRadiometryCorrection"/>
                 <tocitem text="Processor Description" target="merisRadiometryCorrectionProcessorDescription"/>
                 <tocitem text="Command Line Description" target="merisRadiometryCommandLine"/>
-                <tocitem text="Equalisation Algorithm Specification" target="merisEqualizationAlgorithmSpecification"/>
+                <tocitem text="Equalization Algorithm Specification" target="merisEqualizationAlgorithmSpecification"/>
                 <tocitem text="Radiometry Recalibration Algorithm Specification"
                          target="merisRecalibrationAlgorithmSpecification"/>
                 <tocitem text="Smile Correction Algorithm Specification"

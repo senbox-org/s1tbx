@@ -11,7 +11,8 @@
     <mapID target="doc" url="images/HelpDoc.jpg"/>
 
     <mapID target="beamOverview" url="general/BeamOverview.html"/>
-    <mapID target="beamWhatsNew" url="general/BeamWhatsNew.html"/>
+    <!--<mapID target="beamWhatsNew" url="general/BeamWhatsNew.html"/>-->
+    <mapID target="beamDefinitions" url="general/BeamDefinitions.html"/>
     <mapID target="beamDefinitions" url="general/BeamDefinitions.html"/>
     <mapID target="beamDataSources" url="general/BeamDataSources.html"/>
     <mapID target="beamRelatedLinks" url="general/BeamRelatedLinks.html"/>
@@ -51,7 +52,7 @@
     <mapID target="importMermaid" url="visat/ImportMermaid.html"/>
     <mapID target="importSeaDASTrack" url="visat/ImportSeaDASTrack.html"/>
     <mapID target="importShapefile" url="visat/ImportShapefile.html"/>
-    <mapID target="importLandsatTMProduct" url="visat/ImportLandsat.html"/>
+    <mapID target="importLandsatProduct" url="visat/ImportLandsat.html"/>
     <mapID target="importAVHRR" url="visat/ImportAVHRR.html"/>
     <mapID target="importAvnir2Product" url="visat/ImportAVNIR2.html"/>
     <mapID target="importNasaObpgProduct" url="visat/ImportNasaObpgHDF.html"/>
