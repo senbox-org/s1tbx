@@ -5,6 +5,8 @@ import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
+import java.io.File;
+
 /**
  * To test SentinelPODOrbitFile
  */
@@ -14,7 +16,11 @@ public class TestSentinelPODOrbitFile {
 
     @Test
     public void testSentinelPODOrbitFile() throws Throwable {
-
+        final File file = new File(orbitFile);
+        if (!file.exists()) {
+            TestUtils.skipTest(this);
+            return;
+        }
         TestUtils.log.info("testSentinelPODOrbitFile...");
         final SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile(orbitFile);
 
