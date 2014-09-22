@@ -254,15 +254,10 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             final String pol = cal.polarization;
             final String ss = cal.subSwath;
             for (String bandName : targetBandNames) {
-                if (!isGRD) {
-                    if (bandName.contains(pol) && bandName.contains(ss)) {
-                        targetBandToCalInfo.put(bandName, cal);
-
-                    }
-                } else {
-                    if (bandName.contains(pol)) {
-                        targetBandToCalInfo.put(bandName, cal);
-                    }
+                if (bandName.contains(pol) && bandName.contains(ss)) {
+                    targetBandToCalInfo.put(bandName, cal);
+                } else if (bandName.contains(pol)) {
+                    targetBandToCalInfo.put(bandName, cal);
                 }
             }
         }
