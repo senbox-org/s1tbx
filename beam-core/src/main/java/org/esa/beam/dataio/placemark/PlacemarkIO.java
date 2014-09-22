@@ -253,7 +253,7 @@ public class PlacemarkIO {
         int columnCount = columnCountMin + additionalColumnNames.length;
         try (PrintWriter pw = new PrintWriter(writer)) {
             // Write file header
-            pw.println("# BEAM " + roleLabel + " export table");
+            pw.println("# SNAP " + roleLabel + " export table");
             pw.println("#");
             pw.println("# Product:\t" + productName);
             pw.println("# Created on:\t" + new Date());
