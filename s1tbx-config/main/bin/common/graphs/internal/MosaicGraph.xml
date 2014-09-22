@@ -1,16 +1,16 @@
 <graph id="Graph">
   <version>1.0</version>
-  <node id="1-ProductSet-Reader">
+  <node id="ProductSet-Reader">
     <operator>ProductSet-Reader</operator>
     <sources/>
     <parameters>
       <fileList/>
     </parameters>
   </node>
-  <node id="2-Mosaic">
-    <operator>Mosaic</operator>
+  <node id="SAR-Mosaic">
+    <operator>SAR-Mosaic</operator>
     <sources>
-      <sourceProduct refid="1-ProductSet-Reader"/>
+      <sourceProduct refid="ProductSet-Reader"/>
     </sources>
     <parameters>
       <sourceBands>
@@ -27,10 +27,10 @@
 	  <convergenceThreshold>1e-4</convergenceThreshold>
     </parameters>
   </node>
-  <node id="3-Write">
+  <node id="Write">
     <operator>Write</operator>
     <sources>
-      <sourceProduct refid="2-Mosaic"/>
+      <sourceProduct refid="SAR-Mosaic"/>
     </sources>
     <parameters>
       <formatName>BEAM-DIMAP</formatName>
@@ -39,13 +39,13 @@
   </node>
   <applicationData id="Presentation">
     <Description/>
-    <node id="1-ProductSet-Reader">
+    <node id="ProductSet-Reader">
       <displayPosition y="142.0" x="72.0"/>
     </node>
-    <node id="2-Mosaic">
+    <node id="SAR-Mosaic">
       <displayPosition y="142.0" x="234.0"/>
     </node>
-    <node id="3-Write">
+    <node id="Write">
       <displayPosition y="142.0" x="346.0"/>
     </node>
   </applicationData>
