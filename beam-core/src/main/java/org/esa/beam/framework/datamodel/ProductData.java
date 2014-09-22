@@ -266,7 +266,7 @@ public abstract class ProductData implements Cloneable {
             case TYPE_UINT32:
                 return new ProductData.UInt((int[]) data);
             case TYPE_ULONG64:
-                return new ProductData.UInt((long[]) data);
+                return new ProductData.ULong((long[]) data);
             case TYPE_FLOAT32:
                 return new ProductData.Float((float[]) data);
             case TYPE_FLOAT64:
@@ -2177,7 +2177,7 @@ public abstract class ProductData implements Cloneable {
          * @param unsigned if <code>true</code> an unsigned value type is constructed
          */
         protected ULong(long[] array, boolean unsigned) {
-            super(unsigned ? TYPE_UINT32 : TYPE_INT32);
+            super(TYPE_ULONG64);
             _array = array;
         }
 
