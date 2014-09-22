@@ -155,9 +155,11 @@ public class GraphNode {
     }
 
     void updateParameters() throws GraphException {
-        final XppDomElement config = new XppDomElement("parameters");
-        updateParameterMap(config);
-        node.setConfiguration(config);
+        if (operatorUI != null) {
+            final XppDomElement config = new XppDomElement("parameters");
+            updateParameterMap(config);
+            node.setConfiguration(config);
+        }
     }
 
     void AssignParameters(final XppDom presentationXML) throws GraphException {
@@ -316,14 +318,12 @@ public class GraphNode {
     }
 
     void updateParameterMap(final XppDomElement parentElement) throws GraphException {
-        if (operatorUI != null) {
-            try {
-                //if(operatorUI.hasSourceProducts())
-                operatorUI.updateParameters();
-                operatorUI.convertToDOM(parentElement);
-            } catch (Exception e) {
-                throw new GraphException(operatorUI.getOperatorName() + " error setting parameter " + e.getMessage());
-            }
+        try {
+            //if(operatorUI.hasSourceProducts())
+            operatorUI.updateParameters();
+            operatorUI.convertToDOM(parentElement);
+        } catch (Exception e) {
+            throw new GraphException(operatorUI.getOperatorName() + " error setting parameter " + e.getMessage());
         }
     }
 
