@@ -310,6 +310,13 @@
             <green>Intensity_VV</green>
             <blue>(Intensity_HH+Intensity_VV)/2</blue>
         </rgbProfile>
-
+    </extension>
+	
+	<extension point="snap-ui:helpSets">
+        <helpSet>
+            <parent>snap-help</parent>
+            <id>S1TBX-IO-Help</id>
+            <path>doc/help/s1tbx-io.hs</path>
+        </helpSet>
     </extension>
 </module>

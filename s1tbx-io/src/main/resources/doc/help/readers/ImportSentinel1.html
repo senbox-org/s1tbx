@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Import Sentinel-1</title>
+
+<link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp; Import Sentinel-1 </td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Import Sentinel-1&nbsp;Product</h3>
+<p>This option allows to import Sentinel-1 products.</p>
+<p>The supported&nbsp;Sentinel-1 product types are:</p>
+<ul></ul>
+<ul><li>Level-0 RAW (read only)</li><li>Level-1 SLC for IW, EW, SM modes</li><li>Level-1 GRD for IW, EW, SM modes</li><li>Level-2 OCN for IW, EW, SM, WV modes</li></ul><br>
+
+<p class="MsoNormal"><span style="">SENTINEL data
+products are distributed using a SENTINEL-specific variation of the Standard
+Archive Format for Europe (SAFE) format specification. The SAFE format has been
+designed to act as a common format for archiving and conveying data within ESA
+Earth Observation archiving facilities.&nbsp;<o:p></o:p></span></p>
+
+<p class="MsoNormal"><span style="">The SENTINEL-SAFE
+format wraps a folder containing image data in a binary data format and product
+metadata in XML. This flexibility allows the format to be scalable enough to
+represent all levels of SENTINEL products.<o:p></o:p></span></p>
+
+<p class="MsoNormal"><span style="">A SENTINEL product
+refers to a directory folder that contains a collection of information. It
+includes:<o:p></o:p></span></p>
+
+<ul style="margin-top: 0cm;" type="disc"><li class="MsoNormal" style=""><span style="">a 'manifest.safe' file which holds the general product information
+     in XML<o:p></o:p></span></li><li class="MsoNormal" style=""><span style="">subfolders for measurement datasets containing image data in
+     various binary formats<o:p></o:p></span></li><li class="MsoNormal" style=""><span style="">a preview folder containing 'quicklooks' in PNG format, Google
+     Earth overlays in KML format and HTML preview files<o:p></o:p></span></li><li class="MsoNormal" style=""><span style="">an annotation folder containing the product metadata in XML as well
+     as calibration data<o:p></o:p></span></li><li class="MsoNormal" style=""><span style="">a support folder containing the XML schemes describing the product
+     XML.<o:p></o:p></span></li></ul>
+
+<p class="MsoNormal"><span style="">The manifest file
+is an XML file containing the mandatory product metadata common to all SENTINEL-1
+products.<o:p></o:p></span></p>
+
+<p class="MsoNormal"><span style="">Annotated data sets
+contain metadata describing the properties and characteristics of the
+measurement data or how they were generated. For each band of data there is a
+product annotation data set that contains metadata describing the main
+characteristics corresponding to that band such as the state of the platform
+during acquisition, image properties, polarisation, Doppler information, swath
+merging and geographic location. Calibration annotations contain calibration
+information and the beta nought, sigma nought, gamma and digital number look-up
+tables that can be used for absolute product calibration. Noise data
+annotations contain the estimated thermal noise look-up tables. Annotated data
+sets are provided in XML format. Level-2 products do not contain annotation
+data sets as all product metadata is contained within the netCDF product file.<o:p></o:p></span></p>
+
+<p class="MsoNormal"><span style="">In the preview
+folder, quicklook data sets are power detected, averaged and decimated to
+produce a lower resolution version of the image. Single polarisation products
+are represented with a greyscale image. Dual polarisation products are
+represented by a single composite colour image in RGB with the red channel (R)
+representing the first polarisation, the green channel (G) represents the
+second polarisation and the blue channel (B) represents an average of the
+absolute values of the two polarisations. Level-2 OCN products do not contain
+quicklooks.<o:p></o:p></span></p>
+
+<p class="MsoNormal"><span style="">Representation data
+sets found in the support folder contain information about the format or syntax
+of the measurement and annotated data sets and can be used to validate and
+exploit these data. Representation data sets are provided as XML schemas.<o:p></o:p></span></p>
+
+<p class="MsoNormal"><span style="">Measurement data
+sets contain the binary information of the actual acquired or processed data.
+For Level-0 this is the instrument data, for Level-1 it is the processed images
+and for Level-2 it is the derived data. There is one measurement data set per
+polarisation and per swath. TOPSAR SLC products contain one complex measurement
+dataset in GeoTIFF format per swath per polarisation. Level-1 GRD products
+contain one detected measurement dataset in GeoTIFF format per polarisation.<o:p></o:p></span></p>
+
+<p class="MsoNormal"><span style="">Measurement data
+sets are provided in GeoTIFF format for Level-1 products and netCDF format for
+Level-2 products. The Level-2 OCN products in netCDF format include both the
+annotation and measurement datasets described as netCDF attributes, dimensions
+and variables in one self-describing, self-contained file.<o:p></o:p></span></p>
+
+<p class="MsoNormal"><b><u><span style="">Level 1 SLC</span></u></b><span style="">: </span><span style="">L1 Single Look
+Complex (SLC) products consists of focused SAR data geo-referenced using orbit
+and attitude data from the satellite and provided in zero-Doppler slant-range
+geometry. The products include the full TX signal bandwidth and uses complex
+samples preserving the phase information. Stripmap SLCs contain one image per swath
+and polarization band. SM contains 1 image per polarization band. IW, having 3
+swaths, has 3 images in single pol and 6 images for dual pol. EW, having 5
+swaths, has 5 image for single pol and 10 image for dual pol. Each sub-swath
+consists of a series of bursts. Each burst has been processed as a separate SLC
+image.<o:p></o:p></span></p>
+
+<p class="MsoNormal"><b><u><span style="">Level 1 GRD</span></u></b><b><span style="">: </span></b><span style="">L1 Ground Range Detected (GRD) products
+consist of focused SAR data that has been projected to ground range using an
+Earth ellipsoid model, detected and multilooked. Phase information is lost.</span><span style=""> </span><span style="">GRD products
+can be in one of three resolutions Full Resolution (FR), High Resolution (HR),
+or Medium Resolution (MR). L1 GRD products come in MR and HR for IW and EW
+modes, MR for WV mode and MR, HR and FR or SM mode.<o:p></o:p></span></p>
+
+<p class="MsoNormal"><b><u><span style="">Level 2 OCN</span></u></b><u><span style="">: </span></u><span style="">The L2 Ocean
+products may include Ocean WInd field (OWI), Ocean SWell spectra (OSW) and
+surface Radial VeLocity (RVL) information derived from the SAR data. The OWI is
+a ground range gridded estimate of the surface wind speed and direction at 10m
+above the surface derived from the L1 GRD images of SM, IW or EW modes. The OSW
+is a two-dimensional ocean surface swell spectra and also includes an estimate
+of the wind speed and direction per swell spectrum. The OSW is generated from
+SM and WV modes only. For SM, there are multiple spectras derived from the L1
+SLC image. For WV, there is one spectra per vignette. The RVL is a ground range
+gridded difference between the measured L2 Doppler grid and the L1 calculated
+geometrical Doppler.<o:p></o:p></span></p>
+<br><hr>
+</body></html>

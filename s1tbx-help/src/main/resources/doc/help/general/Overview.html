@@ -4,7 +4,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <link rel="stylesheet" href="../style.css">
 </head>
-
 <body>
 <table class="header" width="100%">
 <tbody>
@@ -16,17 +15,33 @@
 </table>
 <h3>SENTINEL-1 Toolbox</h3>
 <h4>Overview</h4>
-<p>The Sentinel-1 Toolbox (S1TBX) is an open source (<a href="http://www.gnu.org/copyleft/gpl.html">GNU GPL</a>)
-toolbox for reading, post-processing, analysing and visualising the
-large archive of data (from Level 1) from ESA SAR missions including
-ERS-1 &amp; 2, ENVISAT and Sentinel-1. In addition, S1TBX supports
-handling of products from third party missions including JERS-1, ALOS
-PALSAR, TerraSAR-X, RADARSAT-1&amp;2 and Cosmo-Skymed.&nbsp;S1TBX
-has been built using the SeNtinels Application Platform (SNAP).</p>
+
+<p>The
+Sentinel-1 Toolbox (S1TBX) is an open source (<a href="http://www.gnu.org/copyleft/gpl.html">GNU GPL</a>)
+toolbox consisting of a collection of processing tools, data
+product
+readers and writers and a display and analysis applications to support
+the
+large archive of data from ESA SAR missions including Sentinel-1, ERS1 &amp; 2
+and ENVISAT,
+as well as third party SAR-data from ALOS PALSAR, TerraSAR-X,
+Cosmo-Skymed and
+RADARSAT-2. S1TBX
+has been built using the SeNtinels Application Platform (SNAP) making it compatible with the SENTINEL-2 and
+SENTINEL-3 Toolboxes and incorporating tools for multispectral optical
+products. The
+Toolbox is composed of a Display and Analysis Tool (DAT) and various
+processing
+tools that could be run independently from the command-line and also
+integrated
+within the graphical user interface. The Toolbox includes tools for calibration, speckle
+filtering,
+coregistration, orthorectification, mosaicking, data conversion,
+polarimetry
+and interferometry.</p>
 <h4>Architecture Highlights</h4>
 <ul>
-<big> </big><li><big><span style="font-size: smaller;">Display and Analysis Tool (DAT):
-integrated graphical user-friendly interface</span> </big></li>
+<big> </big>
 <big> </big><li><big><span style="font-size: smaller;">Graph Processing Framework
 (GPF): user-defined processing chains</span></big></li>
 <big> </big><li><big><span style="font-size: smaller;">Graphical or command-line
@@ -43,7 +58,6 @@ their own modules via APIs</span></big></li>
 processor support</span></big></li>
 <big> </big><li><big><span style="font-size: smaller;">Integrated WorldWind
 visualisation</span></big></li>
-
 </ul>
 <h4>Main Features</h4>
 <ul>
@@ -74,7 +88,7 @@ efficiently </li>
 <li>Ocean tools: basic routines for oil spill detection, ship
 detection and wind field estimation from SAR data </li>
 <li>Fully integrated and featured <span style="font-weight: bold;">InSAR</span> processor
-(JLinda) for Stripmap and Zero-Doppler focused data </li>
+(JLinda) for Stripmap and Zero-Doppler focused data</li><li>Polarimetric tools for decompositions and classification</li>
 <li>Compatibility with <a href="http://earth.eo.esa.int/polsarpro/">PolSARpro</a>
 Toolbox &nbsp;(Reader, Writer) </li>
 </ul>
@@ -84,7 +98,7 @@ Toolbox &nbsp;(Reader, Writer) </li>
 <h4 style="margin-left: 40px;">SAR Data Products</h4>
 <ul>
 <ul>
-<li>ENVISAT ASAR,&nbsp;MERIS, AATSR</li>
+<li>Sentinel-1</li><li>ENVISAT ASAR,&nbsp;MERIS, AATSR</li>
 <li>ERS AMI 1 &amp; 2 (CEOS &amp; Envisat format from
 PGS and VMP) </li>
 <li>JERS SAR</li>
@@ -120,14 +134,12 @@ PGS and VMP) </li>
 <li>GTOPO30 tiles</li>
 </ul>
 </ul>
-<p>For further details on which products are support, please see
-the <a href="www.array.ca/nest-web/docs/Supported_Mission-Product_vs_Operators_table.xls">Supported_Mission-Product_vs_Operators_table.xls</a>
-</p>
+
 <ul>
 </ul>
 <h4>Source Code</h4>
 <p>The complete&nbsp;S1TBX software has been developed under
-the GNU public license and comes with full source code in Java<sup>TM</sup>.</p>
+the GNU public license and comes with full source code in Java.</p>
 <p>An Application Programming Interface (API) is provided
 with&nbsp;S1TBX to allow easy extension by users to add new data
 readers/writers of other formats and to support data formats of future
@@ -137,8 +149,8 @@ know about the complexities of the whole software.</p>
 <h4>Supported Platforms</h4>
 <p>S1TBX&nbsp;is programmed in Java&#8482; to allow a maximum
 portability. The&nbsp;S1TBX software has been successfully tested
-under MS Windows&#8482;&nbsp;XP<sup>®</sup>, Vista and 7 as
-well as under Linux, Solaris<sup>®</sup> and Mac OS X
+under MS Windows&#8482;&nbsp;XP<sup>®</sup>, Vista, 7 and 8 as
+well as under Linux,&nbsp;and Mac OS X
 operating systems.</p>
 <hr>
 </body></html>
