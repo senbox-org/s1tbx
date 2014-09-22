@@ -4,12 +4,10 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="VISAT">
-        <tocitem text="Tools">
-            <tocitem text="Import and Export Tools">
+    <tocitem text="DAT">
+            <tocitem text="Product Readers">
                 <tocitem text="OPeNDAP Client" target="opendap-client"/>
             </tocitem>
-        </tocitem>
     </tocitem>
 
 </toc>

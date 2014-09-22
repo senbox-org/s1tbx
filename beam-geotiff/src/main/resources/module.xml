@@ -69,10 +69,10 @@
         </action>
     </extension>
 
-    <extension point="snap-ui:helpSets">
+    <!--extension point="snap-ui:helpSets">
         <helpSet>
             <parent>snap-beam-help</parent>
             <path>doc/help/geotiff.hs</path>
         </helpSet>
-    </extension>
+    </extension-->
 </module>
