@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.1.12" transformSequenceNumber="4">
   <directoryPresets config="../main/bin/macosx" />
-  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="S1TBX" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="0.6.0" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
+  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="S1TBX" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="0.7.0" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -134,16 +134,14 @@
       <component name="Sentinels Application Platform" id="5274" customizedId="" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
-          <entry location="modules/blue-marble-worldmap-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/lib-hdf-2.7.jar" fileType="regular" />
+          <entry location="modules/blue-marble-worldmap-0.5.0-SNAPSHOT" fileType="regular" />
+          <entry location="modules/lib-hdf-2.7" fileType="regular" />
           <entry location="modules/snap-arcbingrid-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-binding-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-binio-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-binning-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-ceres-core-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-ceres-ui-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-cluster-analysis-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-collocation-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-core-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-csv-dataio-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-engine-utilities-0.5.0-SNAPSHOT.jar" fileType="regular" />
@@ -159,10 +157,9 @@
           <entry location="modules/snap-metadata-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-netcdf-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-opendap-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-pconvert-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-pgx-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-pixel-extraction-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-python-0.5.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/snap-python-0.5.0-SNAPSHOT" fileType="regular" />
           <entry location="modules/snap-scripting-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-statistics-op-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-temporal-percentile-op-0.5.0-SNAPSHOT.jar" fileType="regular" />
@@ -186,17 +183,17 @@
           <entry location="resource" fileType="regular" />
           <entry location="modules/jlinda-core-0.8.1.jar" fileType="regular" />
           <entry location="modules/jlinda-nest-0.8.1.jar" fileType="regular" />
-          <entry location="modules/s1tbx-dem-0.6.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-help-0.6.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-io-0.6.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-calibration-0.6.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-coregistration-0.6.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-feature-extraction-0.6.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-sar-processing-0.6.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-sentinel1-0.6.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-utilities-0.6.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-rcp-0.6.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s1tbx-worldwind-0.6.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-dem-0.7.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-help-0.7.0-SNAPSHOT" fileType="regular" />
+          <entry location="modules/s1tbx-io-0.7.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-calibration-0.7.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-coregistration-0.7.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-feature-extraction-0.7.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-sar-processing-0.7.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-sentinel1-0.7.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-utilities-0.7.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-rcp-0.7.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s1tbx-worldwind-0.7.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="s1tbx" fileType="launcher" />
         </include>
         <dependencies>
@@ -223,31 +220,33 @@
           <entry location="modules/s2tbx-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s2tbx-spot-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
         </include>
-        <dependencies />
+        <dependencies>
+          <component id="5274" />
+        </dependencies>
       </component>
       <component name="Sentinel-3 Toolbox Modules" id="5140" customizedId="" displayDescription="true" hideHelpButton="true" selected="false" changeable="false" downloadable="false" hidden="false">
         <description>Medium Resolution Optical Tools</description>
         <include all="false">
-          <entry location="modules/globcover-worldmap-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s3tbx-alos-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s3tbx-atsr-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s3tbx-avhrr-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s3tbx-chris-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s3tbx-landsat-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s3tbx-meris-cloud-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s3tbx-meris-radiometry-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s3tbx-meris-smac-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s3tbx-merisl3-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s3tbx-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s3tbx-spot-vgt-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/seadas-reader-1.5.6.jar" fileType="regular" />
-          <entry location="modules/snap-aatsr-sst-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-flhmci-0.5.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/snap-modis-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-ndvi-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-unmix-0.5.0-SNAPSHOT.jar" fileType="regular" />
         </include>
-        <dependencies />
+        <dependencies>
+          <component id="5274" />
+        </dependencies>
+      </component>
+      <component name="Globcover World Map" id="5755" customizedId="" displayDescription="false" hideHelpButton="false" selected="false" changeable="true" downloadable="true" hidden="false">
+        <description />
+        <include all="false">
+          <entry location="modules/globcover-worldmap-0.5.0-SNAPSHOT" fileType="regular" />
+        </include>
+        <dependencies>
+          <component id="5274" />
+        </dependencies>
       </component>
       <component name="Win64" id="5136" customizedId="" displayDescription="false" hideHelpButton="false" selected="true" changeable="false" downloadable="false" hidden="true">
         <description />
@@ -609,7 +608,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                       <void property="script">
                         <object class="com.install4j.api.beans.ScriptProperty">
                           <void property="value">
-                            <string>(int)Math.max(1024, context.getMediaName().contains("32") || context.getMediaName().contains("Unix") ? 1300 : (SystemInfo.getPhysicalMemory() * 0.75f) / (1024 * 1024)) + "M"</string>
+                            <string>(int)Math.max(1024, context.getMediaName().contains("32") || context.getMediaName().contains("Unix") ? 1300 : (SystemInfo.getPhysicalMemory() * 0.70f) / (1024 * 1024)) + "M"</string>
                           </void>
                         </object>
                       </void>
@@ -2146,7 +2145,7 @@ if (wizardContext != null) {
     </applications>
   </installerGui>
   <mediaSets>
-    <windows name="Win64 JRE" id="4707" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_win64_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="64" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-amd64-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/" verifyIntegrity="true">
+    <windows name="Win64 JRE" id="4707" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_win64_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="64" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-amd64-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/1.0/" verifyIntegrity="true">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
@@ -2160,10 +2159,11 @@ if (wizardContext != null) {
         <component id="5264" />
         <component id="5271" />
         <component id="5272" />
+        <component id="5499" />
       </excludedComponents>
       <includedDownloadableComponents />
     </windows>
-    <windows name="Win32 JRE" id="20" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_win32_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-x86-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/" verifyIntegrity="true">
+    <windows name="Win32 JRE" id="20" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_win32_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="32" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="windows-x86-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/1.0/" verifyIntegrity="true">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
@@ -2177,10 +2177,11 @@ if (wizardContext != null) {
         <component id="5136" />
         <component id="5271" />
         <component id="5272" />
+        <component id="5499" />
       </excludedComponents>
       <includedDownloadableComponents />
     </windows>
-    <macos name="Mac OS X Single Bundle" id="5501" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_macOSX_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="macosx-amd64-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" appleJre="false" requiredVmIdPrefix="" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/" signLaunchers="false" launcherId="5638">
+    <macos name="Mac OS X Single Bundle" id="5501" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_macOSX_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="macosx-amd64-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" appleJre="false" requiredVmIdPrefix="" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/1.0/" signLaunchers="false" launcherId="5638">
       <excludedBeans>
         <bean refId="3743" />
         <bean refId="9" />
@@ -2200,7 +2201,7 @@ if (wizardContext != null) {
       </excludedComponents>
       <includedDownloadableComponents />
     </macos>
-    <unixInstaller name="Linux64" id="4500" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux64_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-1.8.0_20_linux64.tar.gz" manualJREEntry="true" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
+    <unixInstaller name="Linux64" id="4500" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux64_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-1.8.0_20_linux64.tar.gz" manualJREEntry="true" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/1.0/">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
@@ -2214,13 +2215,14 @@ if (wizardContext != null) {
         <component id="5136" />
         <component id="5264" />
         <component id="5272" />
+        <component id="5499" />
       </excludedComponents>
       <includedDownloadableComponents />
       <installerScript mode="1" file="">
         <content />
       </installerScript>
     </unixInstaller>
-    <unixInstaller name="Linux32" id="5413" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux32_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-1.8.0_20_linux32.tar.gz" manualJREEntry="true" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/0.5/">
+    <unixInstaller name="Linux32" id="5413" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux32_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-1.8.0_20_linux32.tar.gz" manualJREEntry="true" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/1.0/">
       <excludedLaunchers />
       <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
@@ -2234,6 +2236,7 @@ if (wizardContext != null) {
         <component id="5136" />
         <component id="5264" />
         <component id="5271" />
+        <component id="5499" />
       </excludedComponents>
       <includedDownloadableComponents />
       <installerScript mode="1" file="">
@@ -2244,6 +2247,6 @@ if (wizardContext != null) {
   <buildIds buildAll="true">
     <mediaSet refId="5501" />
   </buildIds>
-  <buildOptions verbose="false" faster="false" disableSigning="false" debug="false" />
+  <buildOptions verbose="false" faster="true" disableSigning="false" debug="false" />
 </install4j>
 
