@@ -34,10 +34,11 @@ import java.io.IOException;
 public class ImportVectorDataNodeFromCsvAction extends AbstractImportVectorDataNodeAction {
 
     private VectorDataNodeImporter importer;
+    private static final String vector_data_type = "CSV";
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        final BeamFileFilter filter = new BeamFileFilter("CSV",
+        final BeamFileFilter filter = new BeamFileFilter(getVectorDataType(),
                                                          new String[]{".txt", ".dat", ".csv"},
                                                          "Plain text");
         importer = new VectorDataNodeImporter(getHelpId(), filter, new DefaultVectorDataNodeReader(), "Import CSV file", "csv.io.dir");
@@ -55,6 +56,11 @@ public class ImportVectorDataNodeFromCsvAction extends AbstractImportVectorDataN
     @Override
     protected String getDialogTitle() {
         return importer.getDialogTitle();
+    }
+
+    @Override
+    protected String getVectorDataType() {
+        return vector_data_type;
     }
 
     private class DefaultVectorDataNodeReader implements VectorDataNodeImporter.VectorDataNodeReader {
