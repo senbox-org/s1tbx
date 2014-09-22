@@ -33,10 +33,11 @@ import java.io.IOException;
 public class ImportVectorDataNodeFromMermaidAction extends AbstractImportVectorDataNodeAction {
 
     private VectorDataNodeImporter importer;
+    private static final String vector_data_type = "CSV";
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        final BeamFileFilter filter = new BeamFileFilter("CSV",
+        final BeamFileFilter filter = new BeamFileFilter(getVectorDataType(),
                                                          new String[]{".txt", ".dat", ".csv"},
                                                          "Plain text");
         importer = new VectorDataNodeImporter(getHelpId(), filter, new MermaidReader(), "Import MERMAID Extraction File", "csv.io.dir");
@@ -54,6 +55,11 @@ public class ImportVectorDataNodeFromMermaidAction extends AbstractImportVectorD
     @Override
     protected String getDialogTitle() {
         return importer.getDialogTitle();
+    }
+
+    @Override
+    protected String getVectorDataType() {
+        return vector_data_type;
     }
 
     private class MermaidReader implements VectorDataNodeImporter.VectorDataNodeReader {

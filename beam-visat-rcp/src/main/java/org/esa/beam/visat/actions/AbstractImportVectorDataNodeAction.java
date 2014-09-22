@@ -106,7 +106,7 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
         }
 
         private CoordinateReferenceSystem promptForFeatureCrs(VisatApp visatApp, Product product) {
-            final FeatureCrsDialog dialog = new FeatureCrsDialog(visatApp, product, "Import CSV Data");
+            final FeatureCrsDialog dialog = new FeatureCrsDialog(visatApp, product, "Import " + getVectorDataType() + " Data");
 
             featureCrsDialogResult = dialog.show();
             if (featureCrsDialogResult == ModalDialog.ID_OK) {
@@ -119,5 +119,7 @@ abstract class AbstractImportVectorDataNodeAction extends ExecCommand {
     }
 
     protected abstract String getDialogTitle();
+
+    protected abstract String getVectorDataType();
 
 }

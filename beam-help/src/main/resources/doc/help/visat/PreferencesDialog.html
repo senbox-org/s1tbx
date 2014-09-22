@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>VISAT Help - The Preferences Dialog</title>
+    <title>Sentinel-3 Toolbox Help - The Preferences Dialog</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 
@@ -55,24 +55,24 @@
     <li><b>Show only pixel values of displayed bands</b><br>
         If selected, the pixel info view will only show pixel values of bands
         which are currently displayed in an image view. If this option is not selected,
-        VISAT displays <b>all</b> bands contained in a product.
-        For those bands which are currently not displayed, VISAT reads the sample values directly
+        the Sentinel-3 Toolbox displays <b>all</b> bands contained in a product.
+        For those bands which are currently not displayed, the Sentinel-3 Toolbox reads the sample values directly
         from the product file. Depending on your computer's I/O performance and the
         location of the product file (e.g. CD-ROM, harddrive, network) this can have
-        an impact of VISAT's runtime performance.
+        an impact on the runtime performance.
     </li>
 
     <li><b>On low memory, warn if free RAM falls below</b><br>
-        Here you can enter a value in megabytes, which uses VISAT to decide to pop-up
+        Here you can enter a value in megabytes, which the Sentinel-3 Toolbox uses to decide when to pop-up
         a low memory message box. Set this value to zero, if you don't want to get
         any warnings.
     </li>
 
-    <li><b>Check for new version on VISAT start</b><br>
-        Checks on application start, if a new version of VISAT is available.
+    <li><b>Check for new version on ESA S-3 Toolbox start</b><br>
+        Checks on application start, if a new version of the Sentinel-3 Toolbox is available.
     </li>
     <li><b>Show all suppressed tips and messages again</b> <br>
-        Some dialogs of VISAT can be disabled by checking the option &quot;Don't show
+        Some dialogs of the Sentinel-3 Toolbox can be disabled by checking the option &quot;Don't show
         this message again&quot;. You can select this option to enable all message and tip dialog boxes again.
     </li>
 </ul>
@@ -81,10 +81,10 @@
 <h4><a name="uiappearance">UI Appearance</a></h4>
 <ul>
     <li><b>UI Font:</b><br>
-        Sets VISAT user interface font name and size.
+        Sets the user interface font name and size the Sentinel-3 Toolbox shall use.
     </li>
     <li><b>UI Look and Feel:</b><br>
-        Lets you select the appearance (Look and Feel) of the user interface of VISAT.
+        Lets you select the appearance (Look and Feel) of the user interface of the Sentinel-3 Toolbox.
     </li>
 </ul>
 
@@ -132,7 +132,7 @@
 <h4><a name="geolocationdisplay">Geo-location Display</a></h4>
 
 <p>
-    VISAT uses an image coordinate system whose origin (x=0, y=0) is the upper left corner of the
+    The Sentinel-3 Toolbox uses an image coordinate system whose origin (x=0, y=0) is the upper left corner of the
     upper left pixel. Image X-coordinates increase to the right, Y-values increase downwards.
     The center of the pixel in the origin is then located at (x=0.5, y=0.5).
 </p>
@@ -156,7 +156,7 @@
     <li><b>Save product header (MPH, SPH)</b><br>
         This options allows you to include/exclude the main product header (MPH) and
         specific product header (SPH) of ENVISAT products in/from the file being saved.
-        If this option is selected, VISAT stores the MPH and SPH as meta-data in the
+        If this option is selected, the Sentinel-3 Toolbox stores the MPH and SPH as meta-data in the
         BEAM-DIMAP (XML) header.<br>
         It is recommended to always include this meta data.
     </li>
@@ -168,13 +168,13 @@
     <li><b>Save product annotation data sets (ADS)</b><br>
         This options allows you to include/exclude all annotation data sets (ADS) of
         ENVISAT products in/from the file being saved. If this option is selected,
-        VISAT stores ADS as meta-data in the BEAM-DIMAP (XML) header.<br>
+        The Sentinel-3 Toolbox stores ADS as meta-data in the BEAM-DIMAP (XML) header.<br>
         For ENVISAT products, location and annotation data sets (provided at tie-points)
-        need not to be stored as meta data, since VISAT automatically converts them
+        need not to be stored as meta data, since the Sentinel-3 Toolbox automatically converts them
         into <i>tie point grids</i>, which are separately saved.
     </li>
     <li><b>Use incremental Save</b><br>
-        If this option is selected (recommended), VISAT will only save the modifications
+        If this option is selected (recommended), the Sentinel-3 Toolbox will only save the modifications
         applied to a product, such as band modified or created with band maths
         tool or the removal of bands.
     </li>
@@ -183,15 +183,15 @@
 <h4><a name="layerproperties">Layer Properties -&gt;</a></h4>
 <ul>
     <li><b>Use anti-aliasing for rendering text and vector graphics</b><br>
-        If this option is selected, VISAT uses anti-aliasing to smooth vector graphics
+        If this option is selected, the Sentinel-3 Toolbox uses anti-aliasing to smooth vector graphics
         within image views.
     </li>
     <li><b>Show a navigation widget in image views</b><br>
-        If this option is selected, VISAT shows a navigation widget in image views
+        If this option is selected, the Sentinel-3 Toolbox shows a navigation widget in image views
         for moving and rotating images within the viewport.
     </li>
     <li><b>Show scroll bars in image views</b><br>
-        If this option is selected, VISAT image views are shown with horizontal and
+        If this option is selected, image views are shown with horizontal and
         vertical scroll bars.
     </li>
 </ul>
@@ -203,14 +203,13 @@
         image processing.
     </li>
 </ul>
-
 <ul>
     <li><b>Background colour</b><br>
         Choose a background colour for the image displayed in the <a href="ProductSceneView.html">Image View</a>.
     </li>
     <li><b>Show image border </b><br>
-        Here you can specify if an image border should be visible in the <a href="ProductSceneView.html">Image View</a>.
-        If yes, you can also set the border size and colour.
+        Here you can specify whether an image border should be visible in the <a href="ProductSceneView.html">Image View</a>.
+        If set, you can also assign the border size and colour.
     </li>
     <li><b>Show pixel border in magnified views </b><br>
         Define whether a border should be drawn around a pixel under magnification when the mouse cursor points at it.
@@ -219,7 +218,7 @@
 
 <h4><a name="nodataoverlay">No-Data Overlay</a></h4>
 
-<p>This preferences page provides options to customize VISAT's <a href="NoDataOverlay.html">No-Data Overlay</a>.</p>
+<p>This preferences page provides options to customize the <a href="NoDataOverlay.html">No-Data Overlay</a>.</p>
 <ul>
     <li><b>Color:</b><br>
         Sets the fill colour of the <a href="NoDataOverlay.html">No-Data Overlay</a>.
@@ -231,7 +230,7 @@
 
 <h4><a name="maskOverlay">Mask Overlay</a></h4>
 
-<p>This preferences page provides options to customize VISAT's mask overlay.</p>
+<p>This preferences page provides options to customize the mask overlay.</p>
 <ul>
     <li><b>Mask colour:</b><br>
         Sets the default colour for newly created masks.
@@ -243,7 +242,7 @@
 
 <h4><a name="graticuleoverlay">Graticule Overlay</a></h4>
 
-<p>This preferences page provides options to customize VISAT's graticule overlay.</p>
+<p>This preferences page provides options to customize the graticule overlay.</p>
 <ul>
     <li><b>Grid behaviour:</b>
         <ul>
@@ -297,7 +296,7 @@
 
 <h4><a name="worldmapoverlay">World Map Layer</a></h4>
 
-<p>This preferences page provides options to customize VISAT's world map overlay.</p>
+<p>This preferences page provides options to customize the world map overlay.</p>
 <ul>
     <li><b>World Map Layer:</b><br>
         Sets the world map to ESA GlobCover (default) or to NASA Blue Marble.
@@ -333,32 +332,32 @@
 
 
 <p class="inote"><b>Note: </b>
-    The expressions are not validated by VISAT, keep care of using the correct syntax.<br>
+    The expressions are not validated by the Sentinel-3 Toolbox, keep care of using the correct syntax.<br>
     Please refer to the <a href="ExpressionEditor.html">Maths Expression Editor</a>
     documentation for the syntax and capablities of expressions. <br>
 </p>
 
 <h4><a name="logging">Logging</a></h4>
 
-<p>This preferences page provides options to customize VISAT's logging behavior.</p>
+<p>This preferences page provides options to customize the logging behaviour of the Sentinel-3 Toolbox.</p>
 <ul>
     <li><b>Enable logging</b><br>
-        If this option is selected, VISAT writes a log file which can be used to reconstruct
+        If this option is selected, the Sentinel-3 toolbox writes a log file which can be used to reconstruct
         user interactions and to trace system failures.
     </li>
     <li><b>Log filename prefix:</b><br>
         Here you can enter a prefix for the log file name. The disk file name will
         be assembled of this prefix plus a log file version number and an identification
-        number. Log files are always written the folder <b>log</b> located in the BEAM installation directory.
+        number. Log files are always written the folder <b>log</b> located in the Sentinel-3 Toolbox installation directory.
     </li>
     <li><b>Echo log output (effective only with console)</b><br>
-        If VISAT is started with a text console window using the
-        <b><i>$BeamInstallDir$</i>/bin/visat-console.bat</b> (Windows) or
-        <b><i>$BeamInstallDir$</i>/bin/visat-console.sh</b> (Unix)
+        If the Sentinel-3 Toolbox is started with a text console window using the
+        <b><i>$S3TBXInstallDir$</i>/bin/s3tbx-d.bat</b> (Windows) or
+        <b><i>$S3TBXInstallDir$</i>/bin/s3tbx.sh</b> (Unix)
         scripts, the log file entries are also printed out to the console window.
     </li>
     <li><b>Log extra debugging information</b><br>
-        Sets VISAT into the debugging mode which can be helpful to find software bugs.
+        Sets the Sentinel-3 Toolbox into the debugging mode which can be helpful to find software bugs.
     </li>
 </ul>
 

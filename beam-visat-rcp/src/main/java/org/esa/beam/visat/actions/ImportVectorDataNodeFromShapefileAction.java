@@ -36,10 +36,11 @@ import java.io.IOException;
 public class ImportVectorDataNodeFromShapefileAction extends AbstractImportVectorDataNodeAction {
 
     private VectorDataNodeImporter importer;
+    private static final String vector_data_type = "SHAPEFILE";
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        final BeamFileFilter filter = new BeamFileFilter("SHAPEFILE",
+        final BeamFileFilter filter = new BeamFileFilter(getVectorDataType(),
                                                          new String[]{".shp"},
                                                          "ESRI Shapefiles");
         importer = new VectorDataNodeImporter(getHelpId(), filter, new VdnShapefileReader(), "Import Shapefile", "shape.io.dir");
@@ -57,6 +58,11 @@ public class ImportVectorDataNodeFromShapefileAction extends AbstractImportVecto
     @Override
     protected String getDialogTitle() {
         return importer.getDialogTitle();
+    }
+
+    @Override
+    protected String getVectorDataType() {
+        return vector_data_type;
     }
 
     class VdnShapefileReader implements VectorDataNodeImporter.VectorDataNodeReader {
