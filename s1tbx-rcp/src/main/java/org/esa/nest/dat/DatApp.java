@@ -377,7 +377,7 @@ public class DatApp extends VisatApp {
         menuBar.add(createJMenu("view", "View", 'V'));
         menuBar.add(createAnalysisMenu());
         menuBar.add(createJMenu("tools", "Utilities", 'U'));
-        menuBar.add(createJMenu("processing", "Optical Processing", 'O'));
+        //menuBar.add(createJMenu("processing", "Optical Processing", 'O'));
         menuBar.add(createJMenu("Sar Processing", "SAR Processing", 'S'));
         if (incImageProcessing)
             menuBar.add(createJMenu("image-processing", "Image Processing", 'M'));

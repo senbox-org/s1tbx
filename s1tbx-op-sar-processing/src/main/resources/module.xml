@@ -201,7 +201,7 @@
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>geometry</parent>
-            <text>Mosaic</text>
+            <text>SAR Mosaic</text>
             <shortDescr>Mosaic various images together</shortDescr>
             <dialogTitle>Mosaic</dialogTitle>
             <graphFile>MosaicGraph.xml</graphFile>
