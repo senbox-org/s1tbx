@@ -53,7 +53,7 @@ import java.util.logging.Logger;
                   description = "Applies a clear sky conservative cloud detection algorithm.")
 public class CloudOperator extends Operator {
 
-    public static final String AUXDATA_DIR = "beam-meris-cloud/auxdata";
+    public static final String AUXDATA_DIR = "snap-meris-cloud/auxdata";
 
     @SourceProduct(alias = "source", label = "Source product", description="The MERIS Level 1b source product.")
     private Product l1bProduct;

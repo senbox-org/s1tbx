@@ -6,7 +6,6 @@
 
     <tocitem text="Data Processors">
         <tocitem text="Level 3 Binning Operator" target="binning_overview">
-            <tocitem text="Overview" target="binning_overview"/>
             <tocitem text="User Interface" target="binning_user_interface"/>
         </tocitem>
     </tocitem>
