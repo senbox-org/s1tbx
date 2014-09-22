@@ -951,7 +951,6 @@ public final class Sentinel1Utils {
     public static void updateBandNames(
             final MetadataElement absRoot, final java.util.List<String> selectedPolList, final String[] bandNames) {
 
-        final boolean isGRD = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE).equals("GRD");
         final MetadataElement[] children = absRoot.getElements();
         for (MetadataElement child : children) {
             final String childName = child.getName();
@@ -961,7 +960,9 @@ public final class Sentinel1Utils {
                 if (selectedPolList.contains(pol)) {
                     String bandNameArray = "";
                     for (String bandName : bandNames) {
-                        if (!isGRD && bandName.contains(sw_pol) || isGRD && bandName.contains(pol)) {
+                        if (bandName.contains(sw_pol)) {
+                            bandNameArray += bandName + " ";
+                        } else if (bandName.contains(pol)) {
                             bandNameArray += bandName + " ";
                         }
                     }
