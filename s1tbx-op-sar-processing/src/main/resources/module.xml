@@ -79,7 +79,7 @@
         <OperatorUI>
             <id>org.esa.nest.gpf.geometric.MosaicOpUI</id>
             <class>org.esa.nest.gpf.geometric.MosaicOpUI</class>
-            <operatorName>Image-Mosaic</operatorName>
+            <operatorName>SAR-Mosaic</operatorName>
         </OperatorUI>
         <OperatorUI>
             <id>org.esa.nest.gpf.geometric.SARSimulationOpUI</id>
@@ -201,7 +201,7 @@
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>geometry</parent>
-            <text>Mosaic</text>
+            <text>SAR Mosaic</text>
             <shortDescr>Mosaic various images together</shortDescr>
             <dialogTitle>Mosaic</dialogTitle>
             <graphFile>MosaicGraph.xml</graphFile>

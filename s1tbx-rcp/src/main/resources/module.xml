@@ -61,6 +61,16 @@
                 <id>selectTool</id>
                 <id>createDemRelatedBands</id>
                 <id>showImageView</id>
+                <id>processing.preProcessing</id>
+                <id>processing.thematicWater</id>
+                <id>processing.thematicLand</id>
+                <id>processing.imageAnalysis</id>
+                <id>processing.geomOperations</id>
+                <id>orthorectificationAction</id>
+                <id>mosaicAction</id>
+                <id>reprojectionAction</id>
+                <id>flipping</id>
+                <id>createSubsetFromView</id>
             </excludedActions>
             <excludedToolViews>
                 <!--id>org.esa.beam.visat.toolviews.worldmap.WorldMapToolView</id-->
@@ -530,6 +540,48 @@
             <description>Export the product as Google Earth KMZ file.</description>
             <helpId>exportKmzFile</helpId>
             <placeAfter>exportKmzFile</placeAfter>
+        </action>
+
+
+        <action>
+            <parent>geometry</parent>
+            <id>reprojection2</id>
+            <placeFirst>true</placeFirst>
+            <class>org.esa.beam.gpf.operators.reproject.ReprojectionAction</class>
+            <text>Reprojection...</text>
+            <shortDescr>Apply a reprojection.</shortDescr>
+            <helpId>reprojectionAction</helpId>
+        </action>
+
+        <action>
+            <parent>geometry</parent>
+            <id>mosaic2</id>
+            <placeAfter>orthorectificationAction</placeAfter>
+            <text>Mosaicing...</text>
+            <class>org.esa.beam.gpf.operators.mosaic.MosaicAction</class>
+            <shortDescr>Create a mosaic of multiple products.</shortDescr>
+            <helpId>mosaicAction</helpId>
+        </action>
+
+        <action>
+            <parent>tools</parent>
+            <id>createSubsetFromView2</id>
+            <placeAfter>mosaicAction</placeAfter>
+            <text>Spatial Subset from View...</text>
+            <class>org.esa.beam.visat.actions.CreateSubsetFromViewAction</class>
+            <shortDescr>Creates a product subset from the selected view.</shortDescr>
+            <context>image</context>
+            <helpId>subsetFromView</helpId>
+        </action>
+
+        <action>
+            <parent>tools</parent>
+            <id>flipping2</id>
+            <placeAfter>createSubsetFromView</placeAfter>
+            <text>Flipping...</text>
+            <class>org.esa.beam.visat.actions.FlippingAction</class>
+            <shortDescr>Apply Data Flip</shortDescr>
+            <helpId>flipDialog</helpId>
         </action>
 
         <!--action>
