@@ -39,7 +39,7 @@
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>DEM Tools</text>
             <parent>geometry</parent>
-            <placeAfter>EllipsoidCorrection</placeAfter>
+            <placeAfter>TerrainFlattening</placeAfter>
         </action>
 
         <action>
