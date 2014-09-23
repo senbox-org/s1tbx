@@ -49,7 +49,7 @@ public class PixExFormatStrategyTest_writeHeader {
 
         // verifying
         final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
-        assertThat(reader.readLine(), equalTo("# BEAM pixel extraction export table"));
+        assertThat(reader.readLine(), equalTo("# SNAP pixel extraction export table"));
         assertThat(reader.readLine(), equalTo("#"));
         assertThat(reader.readLine(), equalTo("# Window size: 9"));
         assertThat(reader.readLine(), equalTo("# Expression: expression"));
@@ -74,7 +74,7 @@ public class PixExFormatStrategyTest_writeHeader {
 
         // verifying
         final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
-        assertThat(reader.readLine(), equalTo("# BEAM pixel extraction export table"));
+        assertThat(reader.readLine(), equalTo("# SNAP pixel extraction export table"));
         assertThat(reader.readLine(), equalTo("#"));
         assertThat(reader.readLine(), equalTo("# Window size: 9"));
         assertThat(reader.readLine(), equalTo("# Expression: expression"));
@@ -98,7 +98,7 @@ public class PixExFormatStrategyTest_writeHeader {
 
         // verifying
         final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
-        assertThat(reader.readLine(), equalTo("# BEAM pixel extraction export table"));
+        assertThat(reader.readLine(), equalTo("# SNAP pixel extraction export table"));
         assertThat(reader.readLine(), equalTo("#"));
         assertThat(reader.readLine(), equalTo("# Window size: 3"));
         assertThat(reader.readLine(), startsWith(
@@ -128,7 +128,7 @@ public class PixExFormatStrategyTest_writeHeader {
 
         // verifying
         final BufferedReader reader = new BufferedReader(new StringReader(stringWriter.toString()));
-        assertThat(reader.readLine(), equalTo("# BEAM pixel extraction export table"));
+        assertThat(reader.readLine(), equalTo("# SNAP pixel extraction export table"));
         assertThat(reader.readLine(), equalTo("#"));
         assertThat(reader.readLine(), equalTo("# Window size: 3"));
         assertThat(reader.readLine(), startsWith(
