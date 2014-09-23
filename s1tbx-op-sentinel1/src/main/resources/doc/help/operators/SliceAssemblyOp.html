@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Sentinel-1</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../style.css"></head>
+<body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp; Slice Assembly<br>
+</td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Sentinel-1 Slice Assembly</h3>
+<p class="MsoNormal">The SENTINEL-1 SAR is capable of operating up to 25 minutes
+per orbit in any of the three high bit rate modes (SM, IW, EW). To avoid
+distributing huge unwieldy products to end users, the Level-0 and Level-1
+products are segmented into 'slices' of defined length along a track. Product
+slices make the data more manageable for users and enable the ground segment to
+process slice data in parallel.</p>
+
+<p class="MsoNormal">Each product slice is a stand-alone product that can be
+processed independently. Slices are ~25 seconds in length for SM and IW and ~60
+seconds for EW. Each GeoTIFF band within a product slice will be no larger than
+2 GB. However, since a product could contain several bands for swaths and
+polarisations, the overall product size could be much larger.</p>
+
+<p class="MsoNormal">WV data is not sliced and the full segment is processed into
+Level-2.</p>
+
+<p class="MsoNormal">Level-1 slice products are of seamless quality without any
+data gap or duplicated lines and with no geometric, radiometric or phase
+discontinuity. Sliced products may be seamlessly combined, including the
+metadata, into an assembled product. Product assembly follows specific rules
+for including, merging and concatenating the various components of the slice
+products.</p>
+
+<p class="MsoNormal">The amount of black-fill at near and far range of the
+Level-1 image can vary with the segment length. The longer the segment the more
+black-fill is potentially needed.</p>
+
+<p class="MsoNormal">Slice products can be combined to form an assembled Level-1
+product with the same product characteristics covering the complete segment.
+Assembly is performed following the three strategies of Include, Merge and
+Concatenate.</p>
+
+<ul style="margin-top: 0cm;" type="disc"><li class="MsoNormal" style="">Include - the value of the
+     information is identical for all slices and a single occurrence of the
+     value is copied into the assembled product.</li><li class="MsoNormal" style="">Merge - the value of the
+     information may differ between slices and a single value must be
+     amalgamated into the assembled product using the values from all slices.
+     This can be accomplished by means of averaging, majority polling, summing,
+     etc.</li><li class="MsoNormal" style="">Concatenate - the
+     information is stored in list format and the values from each slice are
+     appended to the appropriate list in the assembled product in Zero Doppler
+     Time (ZDT) ordered sequence and the list count attribute is updated to
+     contain the number of items in the concatenated list. This applies to both
+     binary image data and XML lists.</li></ul>
+
+
+<br>
+<hr>
+</body></html>
