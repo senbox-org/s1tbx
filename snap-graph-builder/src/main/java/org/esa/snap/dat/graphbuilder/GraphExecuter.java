@@ -347,25 +347,27 @@ public class GraphExecuter extends Observable {
             if (n.getOperatorName().equalsIgnoreCase(OperatorSpi.getOperatorAlias(WriteOp.class))) {
                 final DomElement config = n.getConfiguration();
                 final DomElement fileParam = config.getChild("file");
-                final String filePath = fileParam.getValue();
-                if (filePath != null && !filePath.isEmpty()) {
-                    final File file = new File(filePath);
-                    if (file.exists()) {
-                        fileList.add(file);
-                    } else {
-                        final DomElement formatParam = config.getChild("formatName");
-                        final String format = formatParam.getValue();
-
-                        final String ext = ReaderUtils.findExtensionForFormat(format);
-
-                        File newFile = new File(file.getAbsolutePath() + ext);
-                        if (newFile.exists()) {
-                            fileList.add(newFile);
+                if(fileParam != null) {
+                    final String filePath = fileParam.getValue();
+                    if (filePath != null && !filePath.isEmpty()) {
+                        final File file = new File(filePath);
+                        if (file.exists()) {
+                            fileList.add(file);
                         } else {
-                            final String name = FileUtils.getFilenameWithoutExtension(file);
-                            newFile = new File(name + ext);
-                            if (newFile.exists())
+                            final DomElement formatParam = config.getChild("formatName");
+                            final String format = formatParam.getValue();
+
+                            final String ext = ReaderUtils.findExtensionForFormat(format);
+
+                            File newFile = new File(file.getAbsolutePath() + ext);
+                            if (newFile.exists()) {
                                 fileList.add(newFile);
+                            } else {
+                                final String name = FileUtils.getFilenameWithoutExtension(file);
+                                newFile = new File(name + ext);
+                                if (newFile.exists())
+                                    fileList.add(newFile);
+                            }
                         }
                     }
                 }
