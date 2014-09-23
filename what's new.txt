@@ -11,12 +11,15 @@ Support for Sentinel-1
 	- S-1 Calibration and de-noising
 	- TOPSAR Split
 	- TOPSAR SLC to GRD processing
-	- Reading of BigTiff files
+	- Reading and writing of BigTiff files
 Polarimetric tools from the RADARSAT-2 Toolbox
 	- Polarimetric speckle filtering
 	- Polarimetric decompositions
 	- Supervised and Unsupervised Wishart classifiers
 Performance improvements, bug fixes and more...
+
+Known issues:
+	- zip64 files are not yet supported
 
 What will be available in version 2.0:
 	- S-1 TOPSAR interferometry
