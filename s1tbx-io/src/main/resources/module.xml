@@ -246,6 +246,15 @@
             <shortDescr>Export GeoTIFF+XML</shortDescr>
             <helpId>exportGeoTiffXML</helpId>
         </action>
+        <action>
+            <id>exportBTF</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <formatName>BTF</formatName>
+            <text>BigTIFF</text>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Export BigTIFF</shortDescr>
+            <helpId>exportGeoTiff</helpId>
+        </action>
 
 
         <!--action>

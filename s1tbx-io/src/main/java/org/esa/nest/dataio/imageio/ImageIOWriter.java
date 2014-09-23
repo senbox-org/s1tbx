@@ -76,7 +76,7 @@ public class ImageIOWriter extends AbstractProductWriter {
         _outputStream = null;
 
         file = ReaderUtils.getFileFromInput(getOutput());
-        // ensure extension // this should not be done here
+        // ensure extension //todo this should not be done here
         if (!file.getName().toLowerCase().endsWith(format.toLowerCase())) {
             file = new File(file.getAbsolutePath() + '.' + format.toLowerCase());
         }
