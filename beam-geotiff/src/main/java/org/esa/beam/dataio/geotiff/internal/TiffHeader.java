@@ -33,24 +33,20 @@ import java.nio.ByteOrder;
 public class TiffHeader {
 
     public static final TiffShort MAGIC_NUMBER = new TiffShort(42);
-    public static final TiffShort BIG_TIFF_MAGIC_NUMBER = new TiffShort(43);
     private static final TiffShort LITTLE_ENDIAN = new TiffShort(0x4949);
     private static final TiffShort BIG_ENDIAN = new TiffShort(0x4D4D);
-    public static final TiffLong FIRST_IFD_OFFSET = new TiffLong(10, false);
-    public static final TiffLong BIG_TIFF_FIRST_IFD_OFFSET = new TiffLong(16, true);
+    public static final TiffLong FIRST_IFD_OFFSET = new TiffLong(10);
 
     private final TiffIFD[] ifds;
     private boolean bigEndianOrder = true;
-    private boolean bigTiff = false;
 
-    public TiffHeader(final Product[] products, boolean bigTiff) {
+    public TiffHeader(final Product[] products) {
         Guardian.assertNotNull("products", products);
         Guardian.assertGreaterThan("products.length", products.length, 0);
         ifds = new TiffIFD[products.length];
         for (int i = 0; i < products.length; i++) {
-            ifds[i] = new TiffIFD(products[i], bigTiff);
+            ifds[i] = new TiffIFD(products[i]);
         }
-        this.bigTiff = bigTiff;
     }
 
     public void write(final ImageOutputStream ios) throws IOException {
@@ -61,39 +57,15 @@ public class TiffHeader {
             ios.setByteOrder(ByteOrder.LITTLE_ENDIAN);
             LITTLE_ENDIAN.write(ios);
         }
-        // the first offset
-        long offset = 0;
-        if (bigTiff) {
-            BIG_TIFF_MAGIC_NUMBER.write(ios);
-            (new TiffShort(8)).write(ios);
-            (new TiffShort(0)).write(ios);
-            BIG_TIFF_FIRST_IFD_OFFSET.write(ios);
-            offset = BIG_TIFF_FIRST_IFD_OFFSET.getValue();
-        }
-        else {
-            MAGIC_NUMBER.write(ios);
-            FIRST_IFD_OFFSET.write(ios);
-            offset = FIRST_IFD_OFFSET.getValue();
-        }
+        MAGIC_NUMBER.write(ios);
+        FIRST_IFD_OFFSET.write(ios);
 
-        //System.out.println("Before offsets");
-
+        long offset = FIRST_IFD_OFFSET.getValue();
         for (int i = 0; i < ifds.length; i++) {
             final TiffIFD ifd = ifds[i];
             final long nextOffset = computeNextIfdOffset(i, offset, ifd);
             ifd.write(ios, offset, nextOffset);
             offset = nextOffset;
-        }
-
-        //System.out.println("After offsets");
-    }
-
-    public static TiffLong getFirstIfdOffset (boolean bigTiff) {
-        if (bigTiff) {
-            return BIG_TIFF_FIRST_IFD_OFFSET;
-        }
-        else {
-            return FIRST_IFD_OFFSET;
         }
     }
 

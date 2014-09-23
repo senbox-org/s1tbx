@@ -45,7 +45,6 @@ public class GeoTiffBandWriterTest extends TestCase {
 
     private static final int _WIDTH = 20;
     private static final int _HEIGHT = 35;
-    private static final boolean bigTiff = false;
     private MemoryCacheImageOutputStream _ios;
     private Product _product;
 
@@ -58,7 +57,7 @@ public class GeoTiffBandWriterTest extends TestCase {
 
     public void testCreation() {
         _product.addBand("b1", ProductData.TYPE_UINT32);
-        final TiffIFD ifd = new TiffIFD(_product, bigTiff);
+        final TiffIFD ifd = new TiffIFD(_product);
 
         new GeoTiffBandWriter(ifd, _ios, _product);
     }
@@ -71,7 +70,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         final ProductData data1 = createProductDataForBand(_product.getBand("b1"), startValues[0]);
         final ProductData data2 = createProductDataForBand(_product.getBand("b2"), startValues[1]);
         final ProductData data3 = createProductDataForBand(_product.getBand("b3"), startValues[2]);
-        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product}, bigTiff);
+        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product});
         final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), _ios, _product);
 
         tiffHeader.write(_ios);
@@ -106,7 +105,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _product.addBand("b1", ProductData.TYPE_UINT8);
         final int startValue = 1;
         final ProductData data = createProductDataForBand(_product.getBand("b1"), startValue);
-        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product}, bigTiff);
+        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product});
         final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), _ios, _product);
         tiffHeader.write(_ios);
 
@@ -132,7 +131,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _product.addBand("b1", ProductData.TYPE_UINT16);
         final int startValue = 1;
         final ProductData data = createProductDataForBand(_product.getBand("b1"), startValue);
-        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product}, bigTiff);
+        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product});
         final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), _ios, _product);
         tiffHeader.write(_ios);
 
@@ -158,7 +157,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _product.addBand("b1", ProductData.TYPE_UINT32);
         final int startValue = 1;
         final ProductData data = createProductDataForBand(_product.getBand("b1"), startValue);
-        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product}, bigTiff);
+        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product});
         final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), _ios, _product);
         tiffHeader.write(_ios);
 
@@ -184,7 +183,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _product.addBand("b1", ProductData.TYPE_INT8);
         final int startValue = 1;
         final ProductData data = createProductDataForBand(_product.getBand("b1"), startValue);
-        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product}, bigTiff);
+        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product});
         final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), _ios, _product);
         tiffHeader.write(_ios);
 
@@ -210,7 +209,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _product.addBand("b1", ProductData.TYPE_INT16);
         final int startValue = 1;
         final ProductData data = createProductDataForBand(_product.getBand("b1"), startValue);
-        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product}, bigTiff);
+        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product});
         final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), _ios, _product);
         tiffHeader.write(_ios);
 
@@ -236,7 +235,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _product.addBand("b1", ProductData.TYPE_INT32);
         final int startValue = 1;
         final ProductData data = createProductDataForBand(_product.getBand("b1"), startValue);
-        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product}, bigTiff);
+        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product});
         final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), _ios, _product);
         tiffHeader.write(_ios);
 
@@ -262,7 +261,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _product.addBand("b1", ProductData.TYPE_FLOAT32);
         final float startValue = 1.5f;
         final ProductData data = createProductDataForBand(_product.getBand("b1"), startValue);
-        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product}, bigTiff);
+        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product});
         final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), _ios, _product);
         tiffHeader.write(_ios);
 
@@ -288,7 +287,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _product.addBand("b1", ProductData.TYPE_FLOAT64);
         final double startValue = 1.5f;
         final ProductData data = createProductDataForBand(_product.getBand("b1"), startValue);
-        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product}, bigTiff);
+        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product});
         final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), _ios, _product);
         tiffHeader.write(_ios);
 
@@ -316,7 +315,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _product.getBand("b1").setScalingFactor(scalingFactor);
         final int startValue = 1;
         final ProductData data = createProductDataForBand(_product.getBand("b1"), startValue);
-        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product}, bigTiff);
+        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product});
         final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), _ios, _product);
         tiffHeader.write(_ios);
 
@@ -341,7 +340,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         final ProductData data = ProductData.createInstance(ProductData.TYPE_UINT32, _WIDTH * _HEIGHT);
         final Band band = new Band("b1", ProductData.TYPE_UINT32, _WIDTH, _HEIGHT);
         _product.addBand(band);
-        final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(new TiffIFD(_product, bigTiff), _ios, _product);
+        final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(new TiffIFD(_product), _ios, _product);
 
         bandWriter.writeBandRasterData(band, 0, 0, _WIDTH, _HEIGHT, data, ProgressMonitor.NULL);
 
@@ -354,7 +353,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _product.addBand("b2", ProductData.TYPE_INT16);
         final int startValue = 1;
         final ProductData data = createProductDataForBand(_product.getBand("b1"), startValue);
-        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product}, bigTiff);
+        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product});
         final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), _ios, _product);
         tiffHeader.write(_ios);
         final Band bandNotInProd = new Band("notInProduct", ProductData.TYPE_INT16, 10, 15);
@@ -395,7 +394,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         final ProductData data3 = createProductDataPartAsUINT32(_product.getBand("b1"), region3);
         final ProductData data4 = createProductDataPartAsUINT32(_product.getBand("b1"), region4);
         final ProductData data5 = createProductDataPartAsUINT32(_product.getBand("b1"), region5);
-        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product}, bigTiff);
+        final TiffHeader tiffHeader = new TiffHeader(new Product[]{_product});
         final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(tiffHeader.getIfdAt(0), _ios, _product);
 
         tiffHeader.write(_ios);
@@ -426,7 +425,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _product.addBand(band);
         final WriteIOExceptionImageOutputStream exceptionStream = new WriteIOExceptionImageOutputStream(
                 new ByteArrayOutputStream());
-        final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(new TiffIFD(_product, bigTiff), exceptionStream, _product);
+        final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(new TiffIFD(_product), exceptionStream, _product);
 
         try {
             bandWriter.writeBandRasterData(band, 0, 0, _WIDTH, _HEIGHT, data, ProgressMonitor.NULL);
@@ -444,7 +443,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _product.addBand(band);
         final SeekIOExceptionImageOutputStream exceptionStream = new SeekIOExceptionImageOutputStream(
                 new ByteArrayOutputStream());
-        final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(new TiffIFD(_product, bigTiff), exceptionStream, _product);
+        final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(new TiffIFD(_product), exceptionStream, _product);
 
         try {
             bandWriter.writeBandRasterData(band, 0, 0, _WIDTH, _HEIGHT, data, ProgressMonitor.NULL);
@@ -459,7 +458,7 @@ public class GeoTiffBandWriterTest extends TestCase {
     public void testDispose() throws Exception {
         _product.addBand("b1", ProductData.TYPE_UINT16);
         final ProductData data = createProductDataForBand(_product.getBand("b1"), 0);
-        final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(new TiffIFD(_product, bigTiff), _ios, _product);
+        final GeoTiffBandWriter bandWriter = new GeoTiffBandWriter(new TiffIFD(_product), _ios, _product);
         bandWriter.dispose();
 
         try {

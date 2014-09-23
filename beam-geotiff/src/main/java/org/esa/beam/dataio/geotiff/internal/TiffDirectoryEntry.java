@@ -30,30 +30,21 @@ import java.io.IOException;
 public class TiffDirectoryEntry {
 
     public static final short BYTES_PER_ENTRY = 12;
-    public static final short BIGTIFF_BYTES_PER_ENTRY = 20;
-    // this is the size of the field that holds values
-    // if the vales take up more than this an offset is written in this field instead
-    public static final short BYTES_PER_ALL_VALUES = 4;
-    public static final short BIGTIFF_BYTES_PER_ALL_VALUES = 8;
-
     private TiffShort tag;
     private TiffShort type;
     private TiffLong count;
     private TiffValue[] values;
     private TiffLong valuesOffset;
-    private boolean bigTiff = false;
 
-    public TiffDirectoryEntry(final TiffShort tiffTag, final TiffValue value, boolean bigTiff) {
-        this(tiffTag, new TiffValue[]{value}, bigTiff);
+    public TiffDirectoryEntry(final TiffShort tiffTag, final TiffValue value) {
+        this(tiffTag, new TiffValue[]{value});
     }
 
-    public TiffDirectoryEntry(final TiffShort tiffTag, final TiffValue[] values, boolean bigTiff) {
+    public TiffDirectoryEntry(final TiffShort tiffTag, final TiffValue[] values) {
         type = TiffType.getType(values);
         tag = tiffTag;
-        this.bigTiff = bigTiff;
         count = getCount(values);
         this.values = values;
-
     }
 
     public TiffShort getTag() {
@@ -76,17 +67,16 @@ public class TiffDirectoryEntry {
         if (mustValuesBeReferenced() && valuesOffset == null) {
             throw new IllegalStateException("no value offset given");
         }
-        //System.out.println("tag type count");
+
         tag.write(ios);
         type.write(ios);
         count.write(ios);
-        //System.out.println("END tag type count");
+
         if (valuesOffset == null) {
             writeValuesInsideEnty(ios);
         } else {
             writeValuesReferenced(ios);
         }
-        //System.out.println("END values");
     }
 
     private void writeValuesInsideEnty(final ImageOutputStream ios) throws IOException {
@@ -95,7 +85,7 @@ public class TiffDirectoryEntry {
     }
 
     private void fillEntry(final ImageOutputStream ios) throws IOException {
-        final long bytesToWrite = getBytesPerAllValues () - getValuesSizeInBytes();
+        final long bytesToWrite = 4 - getValuesSizeInBytes();
         for (int i = 0; i < bytesToWrite; i++) {
             ios.writeByte(0);
         }
@@ -110,19 +100,15 @@ public class TiffDirectoryEntry {
     }
 
     public void setValuesOffset(final long offset) {
-        valuesOffset = new TiffLong(offset, bigTiff);
+        valuesOffset = new TiffLong(offset);
     }
 
     public long getSize() {
-        long result = BYTES_PER_ENTRY + getReferencedValuesSizeInBytes();
-        if (bigTiff) {
-            result = BIGTIFF_BYTES_PER_ENTRY + getReferencedValuesSizeInBytes();
-        }
-        return result;
+        return BYTES_PER_ENTRY + getReferencedValuesSizeInBytes();
     }
 
     public boolean mustValuesBeReferenced() {
-        return getValuesSizeInBytes() > getBytesPerAllValues ();
+        return getValuesSizeInBytes() > 4;
     }
 
     public long getValuesSizeInBytes() {
@@ -151,28 +137,12 @@ public class TiffDirectoryEntry {
 
     private TiffLong getCount(final TiffValue[] values) {
         if (type.getValue() != TiffType.ASCII.getValue()) {
-            return new TiffLong(values.length, bigTiff);
+            return new TiffLong(values.length);
         }
         long size = 0;
         for (TiffValue value : values) {
             size += value.getSizeInBytes();
         }
-        return new TiffLong(size, bigTiff);
-    }
-
-    public short getBytesPerEntry () {
-        short result = BYTES_PER_ENTRY;
-        if (bigTiff) {
-            result = BIGTIFF_BYTES_PER_ENTRY;
-        }
-        return result;
-    }
-
-    public short getBytesPerAllValues () {
-        short result = BYTES_PER_ALL_VALUES;
-        if (bigTiff) {
-            result = BIGTIFF_BYTES_PER_ALL_VALUES;
-        }
-        return result;
+        return new TiffLong(size);
     }
 }

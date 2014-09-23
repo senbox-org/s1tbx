@@ -50,7 +50,7 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
             }
 			if(input instanceof String || input instanceof File) {
 				 final String ext = FileUtils.getExtension((File)imageIOInput);
-                 if(ext.equalsIgnoreCase(".tif") || ext.equalsIgnoreCase(".tiff")) {
+                 if(ext.equalsIgnoreCase(".tif") || ext.equalsIgnoreCase(".tiff") || ext.equalsIgnoreCase(".btf")) {
                      return DecodeQualification.INTENDED;
                  } else if(ext.equalsIgnoreCase(".zip") && isZipped((File)imageIOInput)) {
                      return DecodeQualification.INTENDED;
@@ -80,7 +80,7 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
             final ZipEntry zipEntry = entries.nextElement();
             if (zipEntry != null && !zipEntry.isDirectory()) {
                 final String name = zipEntry.getName().toLowerCase();
-                return name.endsWith(".tif") || name.endsWith(".tiff");
+                return name.endsWith(".tif") || name.endsWith(".tiff") || name.endsWith(".btf");
             }
         } catch(Exception e) {
             //
@@ -125,7 +125,7 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
 
     @Override
     public String[] getDefaultFileExtensions() {
-        return new String[]{".tif", ".tiff", ".zip"};
+        return new String[]{".tif", ".tiff", ".btf", ".zip"};
     }
 
     @Override

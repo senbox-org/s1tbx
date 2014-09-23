@@ -17,11 +17,9 @@
 package org.esa.beam.dataio.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
-import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
-import it.geosolutions.imageioimpl.plugins.tiff.TIFFRenderedImage;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFRenderedImage;
 import com.sun.media.jai.codec.ByteArraySeekableStream;
-
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
@@ -88,15 +86,12 @@ public class GeoTiffWriteReadTest {
     private ByteArrayOutputStream outputStream;
     private GeoTiffProductReader reader;
     private File location;
-    private boolean bigTiff;
 
     @Before
     public void setup() {
         reader = (GeoTiffProductReader) new GeoTiffProductReaderPlugIn().createReaderInstance();
         outputStream = new ByteArrayOutputStream();
         location = new File("memory.tif");
-        bigTiff = false;
-
         final int width = 14;
         final int height = 14;
         outProduct = new Product("P", "T", width, height);
@@ -152,8 +147,7 @@ public class GeoTiffWriteReadTest {
                                                         outProduct.getSceneRasterWidth(),
                                                         outProduct.getSceneRasterHeight(), "X * Y");
         outProduct.addBand(virtualBand);
-        GeoTiffProductWriterPlugIn writerPlugin = new GeoTiffProductWriterPlugIn();
-        final GeoTiffProductWriter writer = (GeoTiffProductWriter) writerPlugin.createWriterInstance();
+        final GeoTiffProductWriter writer = (GeoTiffProductWriter) new GeoTiffProductWriterPlugIn().createWriterInstance();
         outProduct.setProductWriter(writer);
         writer.writeGeoTIFFProduct(new MemoryCacheImageOutputStream(outputStream), outProduct);
         final Band[] bands = outProduct.getBands();
@@ -508,9 +502,7 @@ public class GeoTiffWriteReadTest {
     }
 
     private Product writeReadProduct() throws IOException {
-        GeoTiffProductWriterPlugIn writerPlugin = new GeoTiffProductWriterPlugIn();
-
-        final GeoTiffProductWriter writer = (GeoTiffProductWriter) writerPlugin.createWriterInstance();
+        final GeoTiffProductWriter writer = (GeoTiffProductWriter) new GeoTiffProductWriterPlugIn().createWriterInstance();
         outProduct.setProductWriter(writer);
         writer.writeGeoTIFFProduct(new MemoryCacheImageOutputStream(outputStream), outProduct);
         final Band[] bands = outProduct.getBands();

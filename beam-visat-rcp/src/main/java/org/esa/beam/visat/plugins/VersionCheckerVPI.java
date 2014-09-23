@@ -52,7 +52,7 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
         if (!isVersionCheckQuestionSuppressed() || isVersionCheckEnabled()) {
             final Timer timer = new Timer(DELAY_MILLIS, new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    //runAuto(); //NESTMOD disable for now
+                    runAuto();
                 }
             });
             timer.setRepeats(false);

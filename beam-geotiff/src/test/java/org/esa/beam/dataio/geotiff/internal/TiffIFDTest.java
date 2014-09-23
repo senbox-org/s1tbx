@@ -36,7 +36,7 @@ public class TiffIFDTest extends TestCase {
     private Product _product;
     private static final int WIDTH = 10;
     private static final int HEIGHT = 20;
-    private static final boolean bigTiff = false;
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -45,7 +45,7 @@ public class TiffIFDTest extends TestCase {
 
     public void testTiffIFDCreation_WithEmptyProduct() {
         try {
-            new TiffIFD(_product, bigTiff);
+            new TiffIFD(_product);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
 
@@ -66,7 +66,7 @@ public class TiffIFDTest extends TestCase {
         _product.setPreferredTileSize(tileSize);
 
 
-        final TiffIFD ifd = new TiffIFD(_product, bigTiff);
+        final TiffIFD ifd = new TiffIFD(_product);
 
 
         final double[] expWidth = new double[]{WIDTH};
@@ -140,7 +140,7 @@ public class TiffIFDTest extends TestCase {
         final Dimension tileSize = JAIUtils.computePreferredTileSize(WIDTH, HEIGHT, 1);
         _product.setPreferredTileSize(tileSize);
 
-        final TiffIFD ifd = new TiffIFD(_product, bigTiff);
+        final TiffIFD ifd = new TiffIFD(_product);
 
 
         final double[] expWidth = new double[]{WIDTH};
@@ -213,7 +213,7 @@ public class TiffIFDTest extends TestCase {
         final MemoryCacheImageOutputStream stream = new MemoryCacheImageOutputStream(new ByteArrayOutputStream());
 
 
-        final TiffIFD ifd = new TiffIFD(_product, bigTiff);
+        final TiffIFD ifd = new TiffIFD(_product);
         ifd.write(stream, startOffset, 0);
 
 
@@ -250,24 +250,24 @@ public class TiffIFDTest extends TestCase {
         final TiffLong expOffset3 = null;
         final TiffLong expOffset4 = null;
         final TiffLong expOffset5 = null;
-        final TiffLong expOffset6 = new TiffLong(offset, bigTiff);
+        final TiffLong expOffset6 = new TiffLong(offset);
         offset += expImageDescription.getSizeInBytes();
-        final TiffLong expOffset7 = new TiffLong(offset, bigTiff);
+        final TiffLong expOffset7 = new TiffLong(offset);
         final TiffLong expOffset8 = null;
         final TiffLong expOffset9 = null;
         offset += 8;
-        final TiffLong expOffset10 = new TiffLong(offset, bigTiff);
+        final TiffLong expOffset10 = new TiffLong(offset);
         final TiffLong expOffset11 = null;
         final TiffLong expOffset12 = null;
         final TiffLong expOffset13 = null;
         final TiffLong expOffset14 = null;
         offset += 8;
-        final TiffLong expOffset15 = new TiffLong(offset, bigTiff);
+        final TiffLong expOffset15 = new TiffLong(offset);
         offset += 8;
-        final TiffLong expOffset16 = new TiffLong(offset, bigTiff);
+        final TiffLong expOffset16 = new TiffLong(offset);
         final TiffLong expOffset17 = null;
         offset += 8;
-        final TiffLong expOffset18 = new TiffLong(offset, bigTiff);
+        final TiffLong expOffset18 = new TiffLong(offset);
         final TiffAscii beamMetadata = TiffIFD.getBeamMetadata(_product);
 
         checkTag(TiffTag.IMAGE_WIDTH, TiffLong.class, expWidth, expOffset1, ifd);
@@ -301,7 +301,7 @@ public class TiffIFDTest extends TestCase {
         fillBandWithData(_product.getBandAt(0), 20);
         final MemoryCacheImageOutputStream stream = new MemoryCacheImageOutputStream(new ByteArrayOutputStream());
 
-        final TiffIFD ifd = new TiffIFD(_product, bigTiff);
+        final TiffIFD ifd = new TiffIFD(_product);
         final int illegalOffset = -1;
         try {
             ifd.write(stream, illegalOffset, 0);
@@ -318,7 +318,7 @@ public class TiffIFDTest extends TestCase {
         _product.addBand("b1", ProductData.TYPE_UINT16);
         fillBandWithData(_product.getBandAt(0), 20);
         final MemoryCacheImageOutputStream stream = new MemoryCacheImageOutputStream(new ByteArrayOutputStream());
-        final TiffIFD ifd = new TiffIFD(_product, bigTiff);
+        final TiffIFD ifd = new TiffIFD(_product);
 
         ifd.write(stream, firstIFDOffset, 0);
         final TiffLong[] stripOffsets = (TiffLong[]) ifd.getEntry(TiffTag.STRIP_OFFSETS).getValues();
@@ -387,12 +387,7 @@ public class TiffIFDTest extends TestCase {
         for (int i = 0; i < entryTags.length; i++) {
             ios.seek(nextEntryPos);
             ifd.getEntry(entryTags[i]).write(ios);
-            if (bigTiff) {
-                nextEntryPos += TiffDirectoryEntry.BIGTIFF_BYTES_PER_ENTRY;
-            }
-            else {
-                nextEntryPos += TiffDirectoryEntry.BYTES_PER_ENTRY;
-            }
+            nextEntryPos += TiffDirectoryEntry.BYTES_PER_ENTRY;
         }
         ios.writeInt(nextIFDOffset);
 

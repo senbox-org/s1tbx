@@ -50,18 +50,12 @@ public class TiffIFD {
     private static final int TIFF_COLORMAP_SIZE = 256;
     private static final int BYTES_FOR_NEXT_IFD_OFFSET = 4;
     private static final int BYTES_FOR_NUMBER_OF_ENTRIES = 2;
-
-    private static final int BIGTIFF_BYTES_FOR_NEXT_IFD_OFFSET = 8;
-    private static final int BIGTIFF_BYTES_FOR_NUMBER_OF_ENTRIES = 8;
-
+    
     private final TiffDirectoryEntrySet entrySet;
     private int maxElemSizeBandDataType;
-    private final boolean bigTiff;
 
-
-    public TiffIFD(final Product product, boolean bigTiff) {
+    public TiffIFD(final Product product) {
         entrySet = new TiffDirectoryEntrySet();
-        this.bigTiff = bigTiff;
         initEntrys(product);
     }
 
@@ -70,24 +64,12 @@ public class TiffIFD {
         computeOffsets(ifdOffset);
         ios.seek(ifdOffset);
         final TiffDirectoryEntry[] entries = entrySet.getEntries();
-        //System.out.println("Before num entries");
-        if (bigTiff) {
-            new TiffLong(entries.length, bigTiff).write(ios);
-        }
-        else {
-            new TiffShort(entries.length).write(ios);
-        }
-        //System.out.println("After num entries");
+        new TiffShort(entries.length).write(ios);
         long entryPosition = ios.getStreamPosition();
         for (TiffDirectoryEntry entry : entries) {
             ios.seek(entryPosition);
             entry.write(ios);
-            if (bigTiff) {
-                entryPosition += TiffDirectoryEntry.BIGTIFF_BYTES_PER_ENTRY;
-            }
-            else {
-                entryPosition += TiffDirectoryEntry.BYTES_PER_ENTRY;
-            }
+            entryPosition += TiffDirectoryEntry.BYTES_PER_ENTRY;
         }
         writeNextIfdOffset(ios, ifdOffset, nextIfdOffset);
     }
@@ -95,15 +77,11 @@ public class TiffIFD {
     private void writeNextIfdOffset(final ImageOutputStream ios, final long ifdOffset, final long nextIfdOffset) throws
             IOException {
         ios.seek(getPosForNextIfdOffset(ifdOffset));
-        new TiffLong(nextIfdOffset, bigTiff).write(ios);
+        new TiffLong(nextIfdOffset).write(ios);
     }
 
     private long getPosForNextIfdOffset(final long ifdOffset) {
-        long result = ifdOffset + getRequiredIfdSize() - BYTES_FOR_NEXT_IFD_OFFSET;
-        if (bigTiff) {
-            result = ifdOffset + getRequiredIfdSize() - BIGTIFF_BYTES_FOR_NEXT_IFD_OFFSET;
-        }
-        return result;
+        return ifdOffset + getRequiredIfdSize() - 4;
     }
 
     public TiffDirectoryEntry getEntry(final TiffShort tag) {
@@ -112,11 +90,7 @@ public class TiffIFD {
 
     public long getRequiredIfdSize() {
         final TiffDirectoryEntry[] entries = entrySet.getEntries();
-        long result = BYTES_FOR_NUMBER_OF_ENTRIES + entries.length * TiffDirectoryEntry.BYTES_PER_ENTRY + BYTES_FOR_NEXT_IFD_OFFSET;
-        if (bigTiff) {
-            result = BIGTIFF_BYTES_FOR_NUMBER_OF_ENTRIES + entries.length * TiffDirectoryEntry.BIGTIFF_BYTES_PER_ENTRY + BIGTIFF_BYTES_FOR_NEXT_IFD_OFFSET;
-        }
-        return result;
+        return BYTES_FOR_NUMBER_OF_ENTRIES + entries.length * TiffDirectoryEntry.BYTES_PER_ENTRY + BYTES_FOR_NEXT_IFD_OFFSET;
     }
 
     public long getRequiredReferencedValuesSize() {
@@ -160,16 +134,14 @@ public class TiffIFD {
         for (int i = 0; i < values.length; i++) {
             final long oldValue = values[i].getValue();
             final long newValue = oldValue + stripsStart;
-            values[i] = new TiffLong(newValue, bigTiff);
+            values[i] = new TiffLong(newValue);
         }
     }
 
     private long computeStartOffsetForValues(final int numEntries, final long ifdOffset) {
-        long result = ifdOffset + BYTES_FOR_NUMBER_OF_ENTRIES + numEntries * TiffDirectoryEntry.BYTES_PER_ENTRY + BYTES_FOR_NEXT_IFD_OFFSET;
-        if (bigTiff) {
-            result = ifdOffset + BIGTIFF_BYTES_FOR_NUMBER_OF_ENTRIES + numEntries * TiffDirectoryEntry.BIGTIFF_BYTES_PER_ENTRY + BIGTIFF_BYTES_FOR_NEXT_IFD_OFFSET;
-        }
-        return result;
+        final short bytesPerEntry = TiffDirectoryEntry.BYTES_PER_ENTRY;
+        final int bytesForEntries = numEntries * bytesPerEntry;
+        return ifdOffset + BYTES_FOR_NUMBER_OF_ENTRIES + bytesForEntries + BYTES_FOR_NEXT_IFD_OFFSET;
     }
 
     private void setEntry(final TiffDirectoryEntry entry) {
@@ -185,23 +157,23 @@ public class TiffIFD {
         final int width = product.getSceneRasterWidth();
         final int height = product.getSceneRasterHeight();
 
-        setEntry(new TiffDirectoryEntry(TiffTag.IMAGE_WIDTH, new TiffLong(width, bigTiff), bigTiff));
-        setEntry(new TiffDirectoryEntry(TiffTag.IMAGE_LENGTH, new TiffLong(height, bigTiff), bigTiff));
-        setEntry(new TiffDirectoryEntry(TiffTag.BITS_PER_SAMPLE, calculateBitsPerSample(product), bigTiff));
-        setEntry(new TiffDirectoryEntry(TiffTag.COMPRESSION, new TiffShort(1), bigTiff));
-        setEntry(new TiffDirectoryEntry(TiffTag.IMAGE_DESCRIPTION, new TiffAscii(product.getName()), bigTiff));
-        setEntry(new TiffDirectoryEntry(TiffTag.SAMPLES_PER_PIXEL, new TiffShort(getNumBands(product)), bigTiff));
+        setEntry(new TiffDirectoryEntry(TiffTag.IMAGE_WIDTH, new TiffLong(width)));
+        setEntry(new TiffDirectoryEntry(TiffTag.IMAGE_LENGTH, new TiffLong(height)));
+        setEntry(new TiffDirectoryEntry(TiffTag.BITS_PER_SAMPLE, calculateBitsPerSample(product)));
+        setEntry(new TiffDirectoryEntry(TiffTag.COMPRESSION, new TiffShort(1)));
+        setEntry(new TiffDirectoryEntry(TiffTag.IMAGE_DESCRIPTION, new TiffAscii(product.getName())));
+        setEntry(new TiffDirectoryEntry(TiffTag.SAMPLES_PER_PIXEL, new TiffShort(getNumBands(product))));
 
-        setEntry(new TiffDirectoryEntry(TiffTag.STRIP_OFFSETS, calculateStripOffsets(), bigTiff));
-        setEntry(new TiffDirectoryEntry(TiffTag.ROWS_PER_STRIP, new TiffLong(height, bigTiff), bigTiff));
-        setEntry(new TiffDirectoryEntry(TiffTag.STRIP_BYTE_COUNTS, calculateStripByteCounts(), bigTiff));
+        setEntry(new TiffDirectoryEntry(TiffTag.STRIP_OFFSETS, calculateStripOffsets()));
+        setEntry(new TiffDirectoryEntry(TiffTag.ROWS_PER_STRIP, new TiffLong(height)));
+        setEntry(new TiffDirectoryEntry(TiffTag.STRIP_BYTE_COUNTS, calculateStripByteCounts()));
 
-        setEntry(new TiffDirectoryEntry(TiffTag.X_RESOLUTION, new TiffRational(1, 1), bigTiff));
-        setEntry(new TiffDirectoryEntry(TiffTag.Y_RESOLUTION, new TiffRational(1, 1), bigTiff));
-        setEntry(new TiffDirectoryEntry(TiffTag.RESOLUTION_UNIT, new TiffShort(1), bigTiff));
-        setEntry(new TiffDirectoryEntry(TiffTag.PLANAR_CONFIGURATION, TiffCode.PLANAR_CONFIG_PLANAR, bigTiff));
-        setEntry(new TiffDirectoryEntry(TiffTag.SAMPLE_FORMAT, calculateSampleFormat(product), bigTiff));
-        setEntry(new TiffDirectoryEntry(TiffTag.BEAM_METADATA, getBeamMetadata(product), bigTiff));
+        setEntry(new TiffDirectoryEntry(TiffTag.X_RESOLUTION, new TiffRational(1, 1)));
+        setEntry(new TiffDirectoryEntry(TiffTag.Y_RESOLUTION, new TiffRational(1, 1)));
+        setEntry(new TiffDirectoryEntry(TiffTag.RESOLUTION_UNIT, new TiffShort(1)));
+        setEntry(new TiffDirectoryEntry(TiffTag.PLANAR_CONFIGURATION, TiffCode.PLANAR_CONFIG_PLANAR));
+        setEntry(new TiffDirectoryEntry(TiffTag.SAMPLE_FORMAT, calculateSampleFormat(product)));
+        setEntry(new TiffDirectoryEntry(TiffTag.BEAM_METADATA, getBeamMetadata(product)));
 
         TiffShort[] colorMap = null;
         if (isValidColorMapProduct(product)) {
@@ -209,10 +181,10 @@ public class TiffIFD {
         }
 
         if (colorMap != null) {
-            setEntry(new TiffDirectoryEntry(TiffTag.PHOTOMETRIC_INTERPRETATION, TiffCode.PHOTOMETRIC_RGB_PALETTE, bigTiff));
-            setEntry(new TiffDirectoryEntry(TiffTag.COLOR_MAP, colorMap, bigTiff));
+            setEntry(new TiffDirectoryEntry(TiffTag.PHOTOMETRIC_INTERPRETATION, TiffCode.PHOTOMETRIC_RGB_PALETTE));
+            setEntry(new TiffDirectoryEntry(TiffTag.COLOR_MAP, colorMap));
         } else {
-            setEntry(new TiffDirectoryEntry(TiffTag.PHOTOMETRIC_INTERPRETATION, TiffCode.PHOTOMETRIC_BLACK_IS_ZERO, bigTiff));
+            setEntry(new TiffDirectoryEntry(TiffTag.PHOTOMETRIC_INTERPRETATION, TiffCode.PHOTOMETRIC_BLACK_IS_ZERO));
         }
 
         addGeoTiffTags(product);
@@ -304,22 +276,22 @@ public class TiffIFD {
                 asciiValues.add(geoTIFFMetadata.getGeoAsciiParam(data[0]));
             }
         }
-        setEntry(new TiffDirectoryEntry(TiffTag.GeoKeyDirectoryTag, directoryTagValues, bigTiff));
+        setEntry(new TiffDirectoryEntry(TiffTag.GeoKeyDirectoryTag, directoryTagValues));
         if (!doubleValues.isEmpty()) {
             final TiffDouble[] tiffDoubles = doubleValues.toArray(new TiffDouble[doubleValues.size()]);
-            setEntry(new TiffDirectoryEntry(TiffTag.GeoDoubleParamsTag, tiffDoubles, bigTiff));
+            setEntry(new TiffDirectoryEntry(TiffTag.GeoDoubleParamsTag, tiffDoubles));
         }
         if (!asciiValues.isEmpty()) {
             final String[] tiffAsciies = asciiValues.toArray(new String[asciiValues.size()]);
-            setEntry(new TiffDirectoryEntry(TiffTag.GeoAsciiParamsTag, new GeoTiffAscii(tiffAsciies), bigTiff));
+            setEntry(new TiffDirectoryEntry(TiffTag.GeoAsciiParamsTag, new GeoTiffAscii(tiffAsciies)));
         }
         double[] modelTransformation = geoTIFFMetadata.getModelTransformation();
         if (!isZeroArray(modelTransformation)) {
-            setEntry(new TiffDirectoryEntry(TiffTag.ModelTransformationTag, toTiffDoubles(modelTransformation), bigTiff));
+            setEntry(new TiffDirectoryEntry(TiffTag.ModelTransformationTag, toTiffDoubles(modelTransformation)));
         } else {
             double[] modelPixelScale = geoTIFFMetadata.getModelPixelScale();
             if (!isZeroArray(modelPixelScale)) {
-                setEntry(new TiffDirectoryEntry(TiffTag.ModelPixelScaleTag, toTiffDoubles(modelPixelScale), bigTiff));
+                setEntry(new TiffDirectoryEntry(TiffTag.ModelPixelScaleTag, toTiffDoubles(modelPixelScale)));
             }
             final int numModelTiePoints = geoTIFFMetadata.getNumModelTiePoints();
             if (numModelTiePoints > 0) {
@@ -331,7 +303,7 @@ public class TiffIFD {
                         tiePoints[i * 6 + j] = new TiffDouble(data[j]);
                     }
                 }
-                setEntry(new TiffDirectoryEntry(TiffTag.ModelTiepointTag, tiePoints, bigTiff));
+                setEntry(new TiffDirectoryEntry(TiffTag.ModelTiepointTag, tiePoints));
             }
         }
     }
@@ -370,11 +342,7 @@ public class TiffIFD {
                     maxFloatType = Math.max(maxFloatType, dt);
                 }
             }
-            /*
-            if (maxUnsignedIntType == ProductData.TYPE_ULONG64) {
-                return ProductData.TYPE_ULONG64;
-            }
-            */
+
            if (maxFloatType != -1) {
                 return ProductData.TYPE_FLOAT32;
             }
@@ -424,7 +392,7 @@ public class TiffIFD {
         final TiffLong[] tiffValues = new TiffLong[bitsPerSample.length];
         for (int i = 0; i < tiffValues.length; i++) {
             long byteCount = getByteCount(bitsPerSample, i);
-            tiffValues[i] = new TiffLong(byteCount, bigTiff);
+            tiffValues[i] = new TiffLong(byteCount);
         }
         return tiffValues;
     }
@@ -434,7 +402,7 @@ public class TiffIFD {
         final TiffLong[] tiffValues = new TiffLong[bitsPerSample.length];
         long offset = 0;
         for (int i = 0; i < tiffValues.length; i++) {
-            tiffValues[i] = new TiffLong(offset, bigTiff);
+            tiffValues[i] = new TiffLong(offset);
             long byteCount = getByteCount(bitsPerSample, i);
             offset += byteCount;
         }

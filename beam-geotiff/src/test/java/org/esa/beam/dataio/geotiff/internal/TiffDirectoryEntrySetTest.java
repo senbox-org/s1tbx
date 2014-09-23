@@ -20,8 +20,6 @@ import junit.framework.TestCase;
 
 public class TiffDirectoryEntrySetTest extends TestCase {
 
-    private static final boolean bigTiff = false;
-
     public void testCreation() {
         final TiffDirectoryEntrySet entrySet = new TiffDirectoryEntrySet();
 
@@ -32,7 +30,7 @@ public class TiffDirectoryEntrySetTest extends TestCase {
 
     public void testSetEntry() {
         final TiffDirectoryEntrySet entrySet = new TiffDirectoryEntrySet();
-        final TiffDirectoryEntry entry = new TiffDirectoryEntry(new TiffShort(45), new TiffLong(45678, bigTiff), bigTiff);
+        final TiffDirectoryEntry entry = new TiffDirectoryEntry(new TiffShort(45), new TiffLong(45678));
 
         entrySet.set(entry);
 
@@ -43,8 +41,8 @@ public class TiffDirectoryEntrySetTest extends TestCase {
 
     public void testSetEntry_ReplaceExistingEntry() {
         final TiffDirectoryEntrySet entrySet = new TiffDirectoryEntrySet();
-        final TiffDirectoryEntry entry = new TiffDirectoryEntry(new TiffShort(45), new TiffLong(45678, bigTiff), bigTiff);
-        final TiffDirectoryEntry entry2 = new TiffDirectoryEntry(new TiffShort(45), new TiffLong(4234, bigTiff), bigTiff);
+        final TiffDirectoryEntry entry = new TiffDirectoryEntry(new TiffShort(45), new TiffLong(45678));
+        final TiffDirectoryEntry entry2 = new TiffDirectoryEntry(new TiffShort(45), new TiffLong(4234));
 
         entrySet.set(entry);
         entrySet.set(entry2);
@@ -56,8 +54,8 @@ public class TiffDirectoryEntrySetTest extends TestCase {
 
     public void testSetEntry_OrderEntries() {
         final TiffDirectoryEntrySet entrySet = new TiffDirectoryEntrySet();
-        final TiffDirectoryEntry entry = new TiffDirectoryEntry(new TiffShort(45), new TiffLong(45678, bigTiff), bigTiff);
-        final TiffDirectoryEntry entry2 = new TiffDirectoryEntry(new TiffShort(43), new TiffLong(4234, bigTiff), bigTiff);
+        final TiffDirectoryEntry entry = new TiffDirectoryEntry(new TiffShort(45), new TiffLong(45678));
+        final TiffDirectoryEntry entry2 = new TiffDirectoryEntry(new TiffShort(43), new TiffLong(4234));
 
         entrySet.set(entry);
         entrySet.set(entry2);
@@ -70,9 +68,9 @@ public class TiffDirectoryEntrySetTest extends TestCase {
 
     public void testSetEntry_ReplaceAndOrderEntries() {
         final TiffDirectoryEntrySet entrySet = new TiffDirectoryEntrySet();
-        final TiffDirectoryEntry entry1 = new TiffDirectoryEntry(new TiffShort(45), new TiffLong(45678, bigTiff), bigTiff);
-        final TiffDirectoryEntry entry2 = new TiffDirectoryEntry(new TiffShort(43), new TiffLong(4234, bigTiff), bigTiff);
-        final TiffDirectoryEntry entry3 = new TiffDirectoryEntry(new TiffShort(45), new TiffLong(42634, bigTiff), bigTiff);
+        final TiffDirectoryEntry entry1 = new TiffDirectoryEntry(new TiffShort(45), new TiffLong(45678));
+        final TiffDirectoryEntry entry2 = new TiffDirectoryEntry(new TiffShort(43), new TiffLong(4234));
+        final TiffDirectoryEntry entry3 = new TiffDirectoryEntry(new TiffShort(45), new TiffLong(42634));
 
         entrySet.set(entry1);
         entrySet.set(entry2);
@@ -87,11 +85,11 @@ public class TiffDirectoryEntrySetTest extends TestCase {
     public void testGetEntry() {
         final TiffDirectoryEntrySet entrySet = new TiffDirectoryEntrySet();
         final TiffShort tag1 = new TiffShort(45);
-        final TiffDirectoryEntry entry1 = new TiffDirectoryEntry(tag1, new TiffLong(45678, bigTiff), bigTiff);
+        final TiffDirectoryEntry entry1 = new TiffDirectoryEntry(tag1, new TiffLong(45678));
         final TiffShort tag2 = new TiffShort(60);
-        final TiffDirectoryEntry entry2 = new TiffDirectoryEntry(tag2, new TiffLong(4234, bigTiff), bigTiff);
+        final TiffDirectoryEntry entry2 = new TiffDirectoryEntry(tag2, new TiffLong(4234));
         final TiffShort tag3 = new TiffShort(44);
-        final TiffDirectoryEntry entry3 = new TiffDirectoryEntry(tag3, new TiffLong(42634, bigTiff), bigTiff);
+        final TiffDirectoryEntry entry3 = new TiffDirectoryEntry(tag3, new TiffLong(42634));
         final TiffShort noEntryTag = new TiffShort(66);
 
         entrySet.set(entry1);

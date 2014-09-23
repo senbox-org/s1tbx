@@ -101,16 +101,9 @@ public abstract class ProductData implements Cloneable {
     public static final int TYPE_UINT32 = 22;
 
     /**
-     * The ID for an unsigned 64-bit long data type.
-     */
-    public static final int TYPE_ULONG64 = 23;
-
-    /**
      * The ID for a signed 32-bit floating point data type.
      */
     public static final int TYPE_FLOAT32 = 30;
-
-
 
     /**
      * The ID for a signed 64-bit floating point data type.
@@ -157,10 +150,6 @@ public abstract class ProductData implements Cloneable {
      * The string representation of <code>TYPE_UINT32</code>
      */
     public static final String TYPESTRING_UINT32 = "uint32";
-    /**
-     * The string representation of <code>TYPE_ULONG64</code>
-     */
-    public static final String TYPESTRING_ULONG64 = "ulong64";
     /**
      * The string representation of <code>TYPE_FLOAT32</code>
      */
@@ -226,8 +215,6 @@ public abstract class ProductData implements Cloneable {
                 return new ProductData.UShort(numElems);
             case TYPE_UINT32:
                 return new ProductData.UInt(numElems);
-            case TYPE_ULONG64:
-                return new ProductData.ULong(numElems);
             case TYPE_FLOAT32:
                 return new ProductData.Float(numElems);
             case TYPE_FLOAT64:
@@ -265,8 +252,6 @@ public abstract class ProductData implements Cloneable {
                 return new ProductData.UShort((short[]) data);
             case TYPE_UINT32:
                 return new ProductData.UInt((int[]) data);
-            case TYPE_ULONG64:
-                return new ProductData.ULong((long[]) data);
             case TYPE_FLOAT32:
                 return new ProductData.Float((float[]) data);
             case TYPE_FLOAT64:
@@ -361,7 +346,6 @@ public abstract class ProductData implements Cloneable {
             case TYPE_FLOAT32:
             case TYPE_UTC:
                 return 4;
-            case TYPE_ULONG64:
             case TYPE_FLOAT64:
                 return 8;
             default:
@@ -399,8 +383,6 @@ public abstract class ProductData implements Cloneable {
                 return TYPESTRING_UINT32;
             case TYPE_FLOAT32:
                 return TYPESTRING_FLOAT32;
-            case TYPE_ULONG64:
-                return TYPESTRING_ULONG64;
             case TYPE_FLOAT64:
                 return TYPESTRING_FLOAT64;
             case TYPE_ASCII:
@@ -432,8 +414,6 @@ public abstract class ProductData implements Cloneable {
             return TYPE_UINT32;
         } else if (TYPESTRING_FLOAT32.equals(type)) {
             return TYPE_FLOAT32;
-        } else if (TYPESTRING_ULONG64.equals(type)) {
-            return TYPE_ULONG64;
         } else if (TYPESTRING_FLOAT64.equals(type)) {
             return TYPE_FLOAT64;
         } else if (TYPESTRING_ASCII.equals(type)) {
@@ -548,16 +528,6 @@ public abstract class ProductData implements Cloneable {
     }
 
     /**
-     * Returns the value as an unsigned <code>int</code> given as a <code>long</code>. <p>The method assumes that this
-     * value is a scalar and therefore simply returns <code>getElemULongAt(0)</code>.
-     *
-     * @see #getElemULongAt(int index)
-     */
-    public long getElemULong() {
-        return getElemULongAt(0);
-    }
-
-    /**
      * Returns the value as an <code>float</code>. <p>The method assumes that this value is a scalar and therefore
      * simply returns <code>getElemFloatAt(0)</code>.
      *
@@ -625,15 +595,6 @@ public abstract class ProductData implements Cloneable {
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public abstract long getElemUIntAt(int index);
-
-    /**
-     * Gets the value element with the given index as a <code>long</code>.
-     *
-     * @param index the value index, must be <code>&gt;=0</code> and <code>&lt;getNumDataElems()</code>
-     *
-     * @throws IndexOutOfBoundsException if the index is out of bounds
-     */
-    public abstract long getElemULongAt(int index);
 
     /**
      * Gets the value element with the given index as a <code>float</code>.
@@ -1129,14 +1090,6 @@ public abstract class ProductData implements Cloneable {
         }
 
         /**
-         * Please refer to {@link ProductData#getElemULongAt(int)}.
-         */
-        @Override
-        public long getElemULongAt(int index) {
-            return _array[index];
-        }
-
-        /**
          * Please refer to {@link ProductData#getElemFloatAt(int)}.
          */
         @Override
@@ -1342,14 +1295,6 @@ public abstract class ProductData implements Cloneable {
         }
 
         /**
-         * Please refer to {@link ProductData#getElemUIntAt(int)}.
-         */
-        @Override
-        public long getElemULongAt(int index) {
-            return getElemULongAt(index);
-        }
-
-        /**
          * Please refer to {@link ProductData#getElemFloatAt(int)}.
          */
         @Override
@@ -1492,13 +1437,6 @@ public abstract class ProductData implements Cloneable {
         }
 
         /**
-         * Please refer to {@link ProductData#getElemULongAt(int)}.
-         */
-        @Override
-        public long getElemULongAt(int index) {
-            return _array[index];
-        }
-        /**
          * Please refer to {@link ProductData#getElemFloatAt(int)}.
          */
         @Override
@@ -1613,7 +1551,6 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
-            //System.out.println("INT16 write (" + this + ") " + sourceStartPos + " " + numSourceElems);
             destination.writeShorts(_array, sourceStartPos, numSourceElems);
         }
 
@@ -1697,13 +1634,7 @@ public abstract class ProductData implements Cloneable {
         public long getElemUIntAt(int index) {
             return getElemIntAt(index);
         }
-        /**
-         * Please refer to {@link ProductData#getElemUIntAt(int)}.
-         */
-        @Override
-        public long getElemULongAt(int index) {
-            return getElemULongAt(index);
-        }
+
         /**
          * Please refer to {@link ProductData#getElemFloatAt(int)}.
          */
@@ -1847,14 +1778,6 @@ public abstract class ProductData implements Cloneable {
         }
 
         /**
-         * Please refer to {@link ProductData#getElemULongAt(int)}.
-         */
-        @Override
-        public long getElemULongAt(int index) {
-            return _array[index];
-        }
-
-        /**
          * Please refer to {@link ProductData#getElemFloatAt(int)}.
          */
         @Override
@@ -1969,7 +1892,6 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
-            //System.out.println("INT32 write (" + this + ") " + sourceStartPos + " " + numSourceElems);
             destination.writeInts(_array, sourceStartPos, numSourceElems);
         }
 
@@ -2069,13 +1991,7 @@ public abstract class ProductData implements Cloneable {
         public long getElemUIntAt(int index) {
             return _array[index] & 0xffffffffL;
         }
-        /**
-         * Please refer to {@link ProductData#getElemULongAt(int)}.
-         */
-        @Override
-        public long getElemULongAt(int index) {
-            return _array[index] & 0xffffffffL;
-        }
+
         /**
          * Please refer to {@link ProductData#getElemFloatAt(int)}.
          */
@@ -2129,237 +2045,6 @@ public abstract class ProductData implements Cloneable {
             super.setElems(data);
         }
     }
-
-    /**
-     * The <code>Int</code> class is a <code>ProductData</code> specialisation for signed 32-bit integer fields.
-     * <p/>
-     * <p> Internally, data is stored in an array of the type <code>int[]</code>.
-     */
-    public static class ULong extends ProductData {
-
-        /**
-         * The internal data array holding this value's data elements.
-         */
-        protected long[] _array;
-
-        /**
-         * Constructs a new signed <code>int</code> value.
-         *
-         * @param numElems the number of elements, must not be less than one
-         */
-        public ULong(int numElems) {
-            this(numElems, false);
-        }
-
-        /**
-         * Constructs a new signed <code>int</code> value.
-         *
-         * @param numElems the number of elements, must not be less than one
-         * @param unsigned if <code>true</code> an unsigned value type is constructed
-         */
-        protected ULong(int numElems, boolean unsigned) {
-            this(new long[numElems], unsigned);
-        }
-
-        /**
-         * Constructs a new signed <code>int</code> value.
-         *
-         * @param array the elements
-         */
-        public ULong(long[] array) {
-            this(array, false);
-        }
-
-        /**
-         * Constructs a new signed <code>int</code> value.
-         *
-         * @param array    the elements
-         * @param unsigned if <code>true</code> an unsigned value type is constructed
-         */
-        protected ULong(long[] array, boolean unsigned) {
-            super(TYPE_ULONG64);
-            _array = array;
-        }
-
-        /**
-         * Retuns a "deep" copy of this product data.
-         *
-         * @return a copy of this product data
-         */
-        @Override
-        protected ProductData createDeepClone() {
-            final ULong data = new ULong(_array.length);
-            System.arraycopy(_array, 0, data._array, 0, _array.length);
-            return data;
-        }
-
-
-        /**
-         * Returns the number of data elements this value has.
-         */
-        @Override
-        public int getNumElems() {
-            return _array.length;
-        }
-
-        /**
-         * Please refer to {@link ProductData#getElemIntAt(int)}.
-         */
-        @Override
-        public int getElemIntAt(int index) {
-            return (int) _array[index];
-        }
-
-        /**
-         * Please refer to {@link ProductData#getElemUIntAt(int)}.
-         */
-        @Override
-        public long getElemUIntAt(int index) {
-            return _array[index];
-        }
-
-        /**
-         * Please refer to {@link ProductData#getElemUIntAt(int)}.
-         */
-        @Override
-        public long getElemULongAt(int index) {
-            return _array[index];
-        }
-
-        /**
-         * Please refer to {@link ProductData#getElemFloatAt(int)}.
-         */
-        @Override
-        public float getElemFloatAt(int index) {
-            return _array[index];
-        }
-
-        /**
-         * Please refer to {@link ProductData#getElemDoubleAt(int)}.
-         */
-        @Override
-        public double getElemDoubleAt(int index) {
-            return _array[index];
-        }
-
-        /**
-         * Please refer to {@link ProductData#getElemStringAt(int)}.
-         */
-        @Override
-        public String getElemStringAt(int index) {
-            return String.valueOf(getElemIntAt(index));
-        }
-
-        /**
-         * Please refer to {@link ProductData#setElemIntAt(int, int)}.
-         */
-        @Override
-        public void setElemIntAt(int index, int value) {
-            _array[index] = value;
-        }
-
-        /**
-         * Please refer to {@link ProductData#setElemUIntAt(int, long)}.
-         */
-        @Override
-        public void setElemUIntAt(int index, long value) {
-            _array[index] = value;
-        }
-
-        /**
-         * Please refer to {@link ProductData#setElemFloatAt(int, float)}.
-         */
-        @Override
-        public void setElemFloatAt(int index, float value) {
-            _array[index] = Math.round(value);
-        }
-
-        /**
-         * Please refer to {@link ProductData#setElemDoubleAt(int, double)}.
-         */
-        @Override
-        public void setElemDoubleAt(int index, double value) {
-            _array[index] = Math.round(value);
-        }
-
-        /**
-         * Returns the internal data array holding this value's data elements.
-         *
-         * @return the internal data array, never <code>null</code>
-         */
-        public final long[] getArray() {
-            return _array;
-        }
-
-        /**
-         * Gets the actual value value(s). The value returned can safely been casted to an array object of the type
-         * <code>int[]</code>.
-         *
-         * @return this value's value, always a <code>int[]</code>, never <code>null</code>
-         */
-        @Override
-        public Object getElems() {
-            return _array;
-        }
-
-        /**
-         * Sets the data of this value. The data must be an array of the type <code>int[]</code> or
-         * <code>String[]</code> and have a length that is equal to the value returned by the
-         * <code>getNumDataElems</code> method.
-         *
-         * @param data the data array
-         *
-         * @throws IllegalArgumentException if data is <code>null</code> or it is not an array of the required type or
-         *                                  does not have the required array length.
-         */
-        @Override
-        public void setElems(Object data) {
-            Guardian.assertNotNull("data", data);
-            if (data instanceof String[] && ((String[]) data).length == getNumElems()) {
-                final String[] strings = (String[]) data;
-                for (int i = 0; i < getNumElems(); i++) {
-                    _array[i] = Integer.parseInt(strings[i]);
-                }
-                return;
-            }
-            if (!(data instanceof int[]) || ((int[]) data).length != getNumElems()) {
-                throw new IllegalArgumentException("data is not an int[" + getNumElems() + "]");
-            }
-            System.arraycopy(data, 0, _array, 0, getNumElems());
-        }
-
-        /**
-         * Please refer to {@link ProductData#readFrom(int, int, ImageInputStream)}.
-         */
-        @Override
-        public void readFrom(int startPos, int numElems, ImageInputStream source) throws IOException {
-            source.readFully(_array, startPos, numElems);
-        }
-
-        /**
-         * Please refer to {@link ProductData#writeTo(int, int, ImageOutputStream)}.
-         */
-        @Override
-        public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
-            //System.out.println ("ULONG 64 write (" + this + ") " + sourceStartPos + " " + numSourceElems);
-            destination.writeLongs(_array, sourceStartPos, numSourceElems);
-        }
-
-        /**
-         * Releases all of the resources used by this object instance and all of its owned children. Its primary use is
-         * to allow the garbage collector to perform a vanilla job.
-         * <p/>
-         * <p>This method should be called only if it is for sure that this object instance will never be used again.
-         * The results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-         * <p/>
-         * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
-         */
-        @Override
-        public void dispose() {
-            _array = null;
-        }
-    }
-
 
     /**
      * The <code>ProductData.Float</code> class is a <code>ProductData</code> specialisation for 32-bit floating point
@@ -2427,14 +2112,6 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public long getElemUIntAt(int index) {
-            return Math.round(_array[index]);
-        }
-
-        /**
-         * Please refer to {@link ProductData#getElemULongAt(int)}.
-         */
-        @Override
-        public long getElemULongAt(int index) {
             return Math.round(_array[index]);
         }
 
@@ -2655,14 +2332,6 @@ public abstract class ProductData implements Cloneable {
          */
         @Override
         public long getElemUIntAt(int index) {
-            return Math.round(_array[index]);
-        }
-
-        /**
-         * Please refer to {@link ProductData#getElemUIntAt(int)}.
-         */
-        @Override
-        public long getElemULongAt(int index) {
             return Math.round(_array[index]);
         }
 

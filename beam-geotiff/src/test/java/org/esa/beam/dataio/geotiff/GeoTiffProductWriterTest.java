@@ -31,20 +31,14 @@ import java.io.RandomAccessFile;
 public class GeoTiffProductWriterTest extends TestCase {
 
     private static final String FILENAME = "temp.tif";
-    private static final boolean bigTiff = false;
     private GeoTiffProductWriter _productWriter;
     private Product _product;
 
     @Override
     protected void setUp() throws Exception {
         new File(FILENAME).delete();
-        GeoTiffProductWriterPlugIn writerPlugin = new GeoTiffProductWriterPlugIn();
 
-        _productWriter = new GeoTiffProductWriter(writerPlugin);
-
-        if (bigTiff) {
-            _productWriter.setFormatName("BigTIFF");
-        }
+        _productWriter = new GeoTiffProductWriter(new GeoTiffProductWriterPlugIn());
 
         _product = new Product("temp", "type", 10, 20);
         _product.addBand("b1", ProductData.TYPE_UINT32);
@@ -58,12 +52,8 @@ public class GeoTiffProductWriterTest extends TestCase {
     }
 
     public void testGeoTIFFProductWriterCreation() {
-        GeoTiffProductWriterPlugIn writerPlugin = new GeoTiffProductWriterPlugIn();
+        final GeoTiffProductWriter productWriter = new GeoTiffProductWriter(new GeoTiffProductWriterPlugIn());
 
-        final GeoTiffProductWriter productWriter = new GeoTiffProductWriter(writerPlugin);
-        if (bigTiff) {
-            productWriter.setFormatName("BigTIFF");
-        }
         assertNotNull(productWriter.getWriterPlugIn());
     }
 
@@ -109,8 +99,8 @@ public class GeoTiffProductWriterTest extends TestCase {
     }
 
     private long computeExpectedSize(final Product product) {
-        final TiffIFD tiffIFD = new TiffIFD(product, bigTiff);
-        return tiffIFD.getRequiredEntireSize() + TiffHeader.getFirstIfdOffset(bigTiff).getValue();
+        final TiffIFD tiffIFD = new TiffIFD(product);
+        return tiffIFD.getRequiredEntireSize() + TiffHeader.FIRST_IFD_OFFSET.getValue();
     }
 
     private void fillBandWithData(final Band band, final int start) {

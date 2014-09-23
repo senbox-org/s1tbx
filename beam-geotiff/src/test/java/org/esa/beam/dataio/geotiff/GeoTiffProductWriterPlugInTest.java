@@ -36,11 +36,9 @@ import java.util.Locale;
 public class GeoTiffProductWriterPlugInTest {
 
     private GeoTiffProductWriterPlugIn plugIn;
-    private static final boolean bigTiff = false;
 
     @Before
     public void setup() {
-
         plugIn = new GeoTiffProductWriterPlugIn();
     }
 

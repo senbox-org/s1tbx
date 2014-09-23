@@ -32,23 +32,23 @@ import java.util.Locale;
  */
 public class GeoTiffProductWriterPlugIn implements ProductWriterPlugIn {
 
-    private static final String[] FORMAT_NAMES = new String[]{"GeoTIFF", "BigTIFF"};
+    public static final String GEOTIFF_FORMAT_NAME = "GeoTIFF";
     public static final String[] GEOTIFF_FILE_EXTENSION = {".tif", ".tiff"};
     private static final String DESCRIPTION = "GeoTIFF product";
-    //private boolean bigTiff = false;
+
+
     /**
      * Constructs a new GeoTIFF product writer plug-in instance.
      */
     public GeoTiffProductWriterPlugIn() {
-
     }
 
 
     /**
-     * Returns a string array containing the handled format names.
+     * Returns a string array containing the single entry <code>&quot;GEOTIFF&quot;</code>.
      */
     public String[] getFormatNames() {
-        return FORMAT_NAMES;
+        return new String[]{GEOTIFF_FORMAT_NAME};
     }
 
     /**
@@ -80,16 +80,6 @@ public class GeoTiffProductWriterPlugIn implements ProductWriterPlugIn {
                 File.class,
         };
     }
-
-    /*
-    public boolean isBigTiff() {
-        return bigTiff;
-    }
-
-    public void setBigTiff(boolean bigTiff) {
-        this.bigTiff = bigTiff;
-    }
-    */
 
     /**
      * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is

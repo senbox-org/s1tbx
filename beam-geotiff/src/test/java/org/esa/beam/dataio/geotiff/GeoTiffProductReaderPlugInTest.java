@@ -47,12 +47,10 @@ import static org.junit.Assert.*;
 public class GeoTiffProductReaderPlugInTest {
 
     private GeoTiffProductReaderPlugIn plugIn;
-    private boolean bigTiff = false;
+
     @Before
     public void setup() {
-
         plugIn = new GeoTiffProductReaderPlugIn();
-        bigTiff = false;
     }
 
     @Test
@@ -60,7 +58,7 @@ public class GeoTiffProductReaderPlugInTest {
         final Product product = new Product("p", "t", 20, 10);
         final Band band = product.addBand("band1", ProductData.TYPE_INT8);
         band.ensureRasterData();
-        final ImageInputStream inputStream = writeToInputStream(product, bigTiff);
+        final ImageInputStream inputStream = writeToInputStream(product);
         final DecodeQualification decodeQualification = GeoTiffProductReaderPlugIn.getDecodeQualificationImpl(
                 inputStream);
 
@@ -76,7 +74,7 @@ public class GeoTiffProductReaderPlugInTest {
         mapInfo.setSceneWidth(product.getSceneRasterWidth());
         mapInfo.setSceneHeight(product.getSceneRasterHeight());
         product.setGeoCoding(new MapGeoCoding(mapInfo));
-        final ImageInputStream inputStream = writeToInputStream(product, bigTiff);
+        final ImageInputStream inputStream = writeToInputStream(product);
         final DecodeQualification decodeQualification = GeoTiffProductReaderPlugIn.getDecodeQualificationImpl(inputStream);
         assertEquals(DecodeQualification.SUITABLE, decodeQualification);
     }
@@ -87,10 +85,9 @@ public class GeoTiffProductReaderPlugInTest {
 
         assertNotNull(fileExtensions);
         final List<String> extensionList = Arrays.asList(fileExtensions);
-        assertEquals(3, extensionList.size());
+        assertEquals(2, extensionList.size());
         assertEquals(true, extensionList.contains(".tif"));
         assertEquals(true, extensionList.contains(".tiff"));
-        assertEquals(true, extensionList.contains(".zip"));
     }
 
     @Test
@@ -124,12 +121,10 @@ public class GeoTiffProductReaderPlugInTest {
         assertEquals(true, beamFileFilter.getDescription().contains(plugIn.getDescription(Locale.getDefault())));
     }
 
-    private static ImageInputStream writeToInputStream(Product product, boolean bigTiff) throws IOException {
+    private static ImageInputStream writeToInputStream(Product product) throws IOException {
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         final ImageOutputStream outputStream = new MemoryCacheImageOutputStream(byteStream);
-        GeoTiffProductWriterPlugIn writerPlugin = new GeoTiffProductWriterPlugIn();
-
-        final GeoTiffProductWriter writer = (GeoTiffProductWriter) writerPlugin.createWriterInstance();
+        final GeoTiffProductWriter writer = (GeoTiffProductWriter) new GeoTiffProductWriterPlugIn().createWriterInstance();
         product.setProductWriter(writer);
         writer.writeGeoTIFFProduct(outputStream, product);
         final Band[] bands = product.getBands();

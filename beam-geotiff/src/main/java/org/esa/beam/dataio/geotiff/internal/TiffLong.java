@@ -27,21 +27,11 @@ import org.esa.beam.framework.datamodel.ProductData;
  * @version $Revision: 2182 $ $Date: 2008-06-12 11:09:11 +0200 (Do, 12 Jun 2008) $
  */
 public class TiffLong extends TiffValue {
-    private boolean bigTiff;
-    public TiffLong(final long value, boolean bigTiff) {
-        TiffValueRangeChecker.checkValueTiffLong(value, "value");
-        if (bigTiff) {
-            setData(ProductData.createInstance(ProductData.TYPE_ULONG64));
-        }
-        else {
-            setData(ProductData.createInstance(ProductData.TYPE_UINT32));
-        }
-        this.bigTiff = bigTiff;
-        getData().setElemUInt(value);
-    }
 
-    public boolean isBigTiff () {
-        return bigTiff;
+    public TiffLong(final long value) {
+        TiffValueRangeChecker.checkValueTiffLong(value, "value");
+        setData(ProductData.createInstance(ProductData.TYPE_UINT32));
+        getData().setElemUInt(value);
     }
 
     public long getValue() {
