@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>VISAT Help - Create Filtered Band</title>
+    <title>Sentinel-3 Toolbox Help - Create Filtered Band</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -39,7 +39,7 @@
     band.
     The term <em>filtering</em> is used here in a narrow sense, meaning that a target pixel value is computed from the
     N x M pixel neighborhood of a corresponding source pixel.
-    BEAM supports basically two types of image filters, linear and non-linear filters:</p>
+    The Sentinel-3 toolbox supports basically two types of image filters, linear and non-linear filters:</p>
 
 <p><strong>Linear filters (Convolution):</strong> A target pixel is computed by element-wise multiplication of the N x M source
     pixel neighborhood with a given N x M convolution kernel.</p>
@@ -50,13 +50,13 @@
         kernel acts as the filter's <i>structuring element</i>.
 </p>
 
-<p>As of BEAM 5, image filters take full advantage of the no-data / valid-mask properties of a given source band.
+<p>Image filters take full advantage of the no-data / valid-mask properties of a given source band.
     If the source pixel is a no-data pixel or if no-data pixels are encountered in its neighborhood,
     the target pixel will also become a no-data pixel (value will be NaN).</p>
 
 <h4>Pre-defined Filters</h4>
 
-<p>BEAM has the following pre-defined filters:</p>
+<p>SNAP has the following pre-defined filters:</p>
 
 <ul>
     <li><strong>Detect Lines</strong>: Horizontal Edges, Vertical Edges, Diagonal Edges, Compass Edge Detector, Roberts Cross</li>
@@ -70,7 +70,7 @@
 
 <h4>User-defined Filters</h4>
 
-<p>Since BEAM 5, users can define their own linear, non-linear, or morphological filters.</p>
+<p>Users can define their own linear, non-linear, or morphological filters.</p>
 
 <h4>Example images</h4>
 

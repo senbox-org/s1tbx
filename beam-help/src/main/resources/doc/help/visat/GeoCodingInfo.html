@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>VISAT Help - Geo-Coding Information</title>
+    <title>Sentinel-3 Toolbox Help - Geo-Coding Information</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -34,14 +34,14 @@
 <h3>Geo-Coding Information</h3>
 
 <p>This dialog, opened via <img src="images/icons/PhiLam24.gif">, shows the geo-coding information for the selected data
-    product. Geo-coding enables VISAT to transform pixel co-odinates to geographical co-ordinates and vice versa.
+    product. Geo-coding enables the Sentinel-3 Toolbox to transform pixel co-odinates to geographical co-ordinates and vice versa.
     Geo-coding can be either based on a map projection (product is geo-referenced) or based on tie point grids
-    (product is geo-coded). If a product is not geo-referenced, VISAT uses the tie point grids "latitude" and
+    (product is geo-coded). If a product is not geo-referenced, the Sentinel-3 Toolbox uses the tie point grids "latitude" and
     "longitude" for geo-coding.
 </p>
 
 <p>For tie point grid based geo-codings the transformation of a geographical co-ordinate to a pixel position is
-    more complicated than the other way round. VISAT uses either an iterative algorithm or a polynomial approximation
+    more complicated than the other way round. The Sentinel-3 Toolbox uses either an iterative algorithm or a polynomial approximation
     depending on the root mean square error (RMSE) of the approximation. If the RMSE is underneath half a pixel, the
     approximation is used instead of the iteration because the latter can sometimes have no clear attraction point and
     would yield to infinite looping.</p>
