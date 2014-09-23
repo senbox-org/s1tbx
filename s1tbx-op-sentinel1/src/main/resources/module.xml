@@ -85,8 +85,8 @@
         </action>
 
         <action>
-            <id>Sentinel1SLCtoPRI</id>
-            <helpId>Sentinel1SLCtoPRI</helpId>
+            <id>Sentinel1SLCtoGRD</id>
+            <helpId>Sentinel1SLCtoGRD</helpId>
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
@@ -122,4 +122,11 @@
 
     </extension>
 
+	<extension point="snap-ui:helpSets">
+        <helpSet>
+            <parent>snap-help</parent>
+            <id>s1tbx-op-sentinel1-help</id>
+            <path>doc/help/s1tbx-op-sentinel1.hs</path>
+        </helpSet>
+    </extension>
 </module>
