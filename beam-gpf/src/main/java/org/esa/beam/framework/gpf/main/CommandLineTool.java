@@ -367,6 +367,13 @@ class CommandLineTool implements GraphProcessingObserver {
             graph.addNode(targetNode);
         }
 
+        // handle product sets
+        final ProductSetHandler productSet = new ProductSetHandler(graph);
+        final ProductSetHandler.ProductSetData[] productSetDataList = productSet.findProductSetStacks("");
+        if(productSetDataList.length != 0) {
+            productSet.replaceAllProductSets(productSetDataList);
+        }
+
         executeGraph(graph);
 
         VelocityContext velocityContext = metadataResourceEngine.getVelocityContext();
