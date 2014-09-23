@@ -694,7 +694,7 @@ class ColorManipulationForm {
     }
 
     private File getSystemAuxdataDir() {
-        return new File(SystemUtils.getApplicationDataDir(), "beam-ui/auxdata/color-palettes");
+        return new File(SystemUtils.getApplicationDataDir(), "snap-ui/auxdata/color-palettes");
     }
 
     private ImageInfo createDefaultImageInfo() {

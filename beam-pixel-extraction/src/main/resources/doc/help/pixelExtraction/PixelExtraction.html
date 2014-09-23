@@ -53,7 +53,7 @@
     It writes a file for each product type it has found within its input products (such as MER_FRS), each starting with
     a header looking like this:<br/><br/>
     <code>
-        # BEAM pixel extraction export table<br/>
+        # SNAP pixel extraction export table<br/>
         #<br/>
         # Window size: 1<br/>
         # Expression: l1_flags.LAND_OCEAN<br/>
@@ -197,7 +197,7 @@
     <li>an output directory for the extracted values</li>
     <li>a prefix the output files shall share</li>
     <li>a field that allows the user to extract the time from the product filename. This field may come in handy when
-        there are products that don't carry time information readable by the BEAM reader.
+        there are products that don't carry time information readable by the product reader.
     </li>
 </ul>
 The Input/Output-pane is explained in detail within the next section.
@@ -222,7 +222,7 @@ next.
     for data products. Using the <img src="images/plus.png" alt="plusbutton">-Button, data products can be added to
     the list in multiple ways:
 <ul>
-    <li><b style="color:#3333cc">Add product(s)...</b> by choosing a product already opened in VISAT. In front of the
+    <li><b style="color:#3333cc">Add product(s)...</b> by choosing a product already opened in the Sentinel-3 Toolbox. In front of the
         products name you can see the index of the product e.g. [1].<br><i>
             <small>See line 1 of "Source paths:" field in the Input/Output Pane above.</small>
         </i></li>
@@ -242,7 +242,7 @@ next.
 
 <p class="i1">
     <b>Time extraction:</b>
-    If the products carry no time information that is readable by the BEAM reader, it is possible to extract the time
+    If the products carry no time information that is readable by the reader, it is possible to extract the time
     information from the product filename. In order to do so, the date/time pattern needs to be provided (which would
     be, e.g., ddMMyyyy_HHmmss or for files like sst_26012010_164712.nc or yyyyDDD for SST L3 product like
     A2010159.L3m_DAY_SST_4),
@@ -274,7 +274,7 @@ next.
     <b>Coordinates:</b>
     The coordinates table shows the user-specified geographic coordinates which are used to extract the values.
     They consist of a name and their latitude/longitude-values. Initially, the table is filled with the pins of the
-    product currently selected in VISAT. Additional coordinates may be added by
+    product currently selected in the Sentinel-3 Toolbox. Additional coordinates may be added by
 <ul>
     <li>creating new coordinates</li>
     <li>reading them from a pin file.

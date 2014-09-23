@@ -45,7 +45,7 @@ public abstract class AbstractFormatStrategy implements FormatStrategy {
     }
 
     protected void writeStandardHeader(PrintWriter writer) {
-        writer.printf("# BEAM pixel extraction export table%n");
+        writer.printf("# SNAP pixel extraction export table%n");
         writer.printf("#%n");
         writer.printf(Locale.ENGLISH, "# Window size: %d%n", windowSize);
         if (expression != null) {
