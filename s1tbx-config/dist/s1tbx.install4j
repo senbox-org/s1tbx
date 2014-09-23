@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.1.12" transformSequenceNumber="4">
-  <directoryPresets config="../main/bin/macosx" />
+  <directoryPresets config="../../what's new.txt" />
   <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="S1TBX" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="0.7.0" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
@@ -72,6 +72,7 @@
           <entry location="snap-beam-help-0.5.0-SNAPSHOT" fileType="regular" />
         </exclude>
       </dirEntry>
+      <fileEntry mountPoint="17" file="../../what's new.txt" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/CYGGCC_S-1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/CYGWIN1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/IESHIMS.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
@@ -194,6 +195,7 @@
           <entry location="modules/s1tbx-op-utilities-0.7.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s1tbx-rcp-0.7.0-SNAPSHOT.jar" fileType="regular" />
           <entry location="modules/s1tbx-worldwind-0.7.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="what's new.txt" fileType="regular" />
           <entry location="s1tbx" fileType="launcher" />
         </include>
         <dependencies>
@@ -376,7 +378,7 @@
       </iconImageFiles>
     </launcher>
   </launchers>
-  <installerGui installerType="1" addOnAppId="" suggestPreviousLocations="true" autoUpdateDescriptorUrl="" useAutoUpdateBaseUrl="false" autoUpdateBaseUrl="">
+  <installerGui installerType="1" addOnAppId="" suggestPreviousLocations="true" autoUpdateDescriptorUrl="http://sentinel1.s3.amazonaws.com/updates.xml" useAutoUpdateBaseUrl="false" autoUpdateBaseUrl="">
     <customCode />
     <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
       <commentFiles />
@@ -1111,6 +1113,20 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                 <condition>context.getBooleanVariable("executeLauncherAction") &amp;&amp;
                             (!context.isUnattended())</condition>
               </action>
+              <action name="" id="5880" customizedId="" beanClass="com.install4j.runtime.beans.actions.finish.ShowFileAction" enabled="true" commentSet="false" comment="" actionElevationType="none" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.finish.ShowFileAction">
+                      <void property="file">
+                        <object class="java.io.File">
+                          <string>what's new.txt</string>
+                        </object>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition>context.getBooleanVariable("showFileAction") &amp;&amp; (!context.isUnattended())</condition>
+              </action>
             </actions>
             <formComponents>
               <formComponent name="Execute launcher" id="3744" customizedId="" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
@@ -1125,6 +1141,25 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                       </void>
                       <void property="variableName">
                         <string>executeLauncherAction</string>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <initScript />
+                <visibilityScript />
+              </formComponent>
+              <formComponent name="Show file" id="5881" customizedId="" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
+                      <void property="checkboxText">
+                        <string>Show me what is new</string>
+                      </void>
+                      <void property="initiallySelected">
+                        <boolean>true</boolean>
+                      </void>
+                      <void property="variableName">
+                        <string>showFileAction</string>
                       </void>
                     </object>
                   </java>
@@ -1485,7 +1520,7 @@ This directory will be entirely removed if you select this option.</string>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.update.CheckForUpdateAction">
                       <void property="updateDescriptorUrl">
-                        <string>http://www.brockmann-consult.de/beam/software/beam4/installers/updates.xml</string>
+                        <string>http://sentinel1.s3.amazonaws.com/updates.xml</string>
                       </void>
                       <void property="variable">
                         <string>updateDescriptor</string>
@@ -2247,6 +2282,6 @@ if (wizardContext != null) {
   <buildIds buildAll="true">
     <mediaSet refId="5501" />
   </buildIds>
-  <buildOptions verbose="false" faster="true" disableSigning="false" debug="false" />
+  <buildOptions verbose="false" faster="false" disableSigning="false" debug="false" />
 </install4j>
 
