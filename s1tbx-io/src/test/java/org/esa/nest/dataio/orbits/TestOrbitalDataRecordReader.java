@@ -15,6 +15,7 @@
  */
 package org.esa.nest.dataio.orbits;
 
+import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 import org.junit.Assert;
 
@@ -25,14 +26,14 @@ import org.junit.Assert;
  */
 public class TestOrbitalDataRecordReader {
 
-    String envisatOrbitFilePath = "org/esa/nest/data/envisat_ODR.051";
-    String ers1OrbitFilePath = "org/esa/nest/data/ers1_ODR.079";
-    String ers2OrbitFilePath = "org/esa/nest/data/ers2_ODR.015";
+    private final static String envisatOrbitFilePath = "org/esa/nest/data/envisat_ODR.051";
+    private final static String ers1OrbitFilePath = "org/esa/nest/data/ers1_ODR.079";
+    private final static String ers2OrbitFilePath = "org/esa/nest/data/ers2_ODR.015";
 
     @Test
     public void testOpenFile() {
 
-        OrbitalDataRecordReader reader = new OrbitalDataRecordReader();
+        final OrbitalDataRecordReader reader = new OrbitalDataRecordReader();
 
         Assert.assertTrue(reader.OpenOrbitFile(envisatOrbitFilePath));
     }
@@ -40,7 +41,7 @@ public class TestOrbitalDataRecordReader {
     @Test
     public void testReadHeader() {
 
-        OrbitalDataRecordReader reader = new OrbitalDataRecordReader();
+        final OrbitalDataRecordReader reader = new OrbitalDataRecordReader();
 
         if (reader.OpenOrbitFile(envisatOrbitFilePath)) {
 
@@ -53,36 +54,33 @@ public class TestOrbitalDataRecordReader {
 
     @Test
     public void testReadERS1OrbitFiles() throws Exception {
-        System.out.print("ERS1 ORD ");
-        readOrbitFile(ers1OrbitFilePath);
+        readOrbitFile("ERS1 ORD", ers1OrbitFilePath);
     }
 
     @Test
     public void testReadERS2OrbitFile() throws Exception {
-        System.out.print("ERS2 ORD ");
-        readOrbitFile(ers2OrbitFilePath);
+        readOrbitFile("ERS2 ORD", ers2OrbitFilePath);
     }
 
     @Test
     public void testReadEnvisatOrbitFile() throws Exception {
-        System.out.print("Envisat ORD ");
-        readOrbitFile(envisatOrbitFilePath);
+        readOrbitFile("Envisat ORD", envisatOrbitFilePath);
     }
 
-    private static void readOrbitFile(String path) throws Exception {
+    private static void readOrbitFile(final String name, final String path) throws Exception {
         final OrbitalDataRecordReader reader = new OrbitalDataRecordReader();
-        boolean res = reader.readOrbitFile(path);
+        final boolean res = reader.readOrbitFile(path);
         assert(res);
 
-        OrbitalDataRecordReader.OrbitDataRecord[] orbits = reader.getDataRecords();
-        System.out.print("Num Orbits " + orbits.length);
+        final OrbitalDataRecordReader.OrbitDataRecord[] orbits = reader.getDataRecords();
+        final StringBuilder str = new StringBuilder(name+ " Num Orbits " + orbits.length);
         for (int i = 0; i < 2; ++i) {
-            System.out.print(" Orbit time " + orbits[i].time);
-            System.out.print(" lat " + orbits[i].latitude);
-            System.out.print(" lng " + orbits[i].longitude);
-            System.out.print(" hgt " + orbits[i].heightOfCenterOfMass);
-            System.out.println();
+            str.append(" Orbit time " + orbits[i].time);
+            str.append(" lat " + orbits[i].latitude);
+            str.append(" lng " + orbits[i].longitude);
+            str.append(" hgt " + orbits[i].heightOfCenterOfMass);
         }
+        TestUtils.log.info(str.toString());
     }
 
 }

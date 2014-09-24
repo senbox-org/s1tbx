@@ -20,8 +20,8 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.snap.datamodel.Unit;
 import org.esa.nest.dataio.PolBandUtils;
+import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;

@@ -78,22 +78,19 @@ public abstract class CEOSProductReader extends SARReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
-        Product product;
+        Product product = null;
         try {
             _dataDir = createProductDirectory(fileFromInput);
             _dataDir.readProductDirectory();
             product = _dataDir.createProduct();
             product.setFileLocation(fileFromInput);
             setQuicklookBandName(product);
+            product.getGcpGroup();
+            product.setProductReader(this);
+            product.setModified(false);
         } catch (Exception e) {
-            Debug.trace(e.toString());
-            final IOException ioException = new IOException(e.getMessage());
-            ioException.initCause(e);
-            throw ioException;
+            handleReaderException(e);
         }
-        product.getGcpGroup();
-        product.setProductReader(this);
-        product.setModified(false);
 
         return product;
     }

@@ -198,7 +198,7 @@
     </parameters>
   </node>
   <node id="16-Mosaic">
-    <operator>Mosaic</operator>
+    <operator>SAR-Mosaic</operator>
     <sources>
       <sourceProduct refid="11-Multilook"/>
       <sourceProduct refid="12-Multilook"/>

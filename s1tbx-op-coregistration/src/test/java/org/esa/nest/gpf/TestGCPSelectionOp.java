@@ -16,32 +16,27 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for GCPSelectionOp.
  */
-public class TestGCPSelectionOp extends TestCase {
+public class TestGCPSelectionOp {
 
-    private OperatorSpi spi;
-
-    @Override
-    protected void setUp() throws Exception {
-        spi = new GCPSelectionOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
+    static {
+        TestUtils.initTestEnvironment();
     }
+    private final static OperatorSpi spi = new GCPSelectionOp.Spi();
 
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
-    }
-
+    @Test
     public void testOperator() throws Exception {
 
         final Product product = createTestMasterProduct(40, 40);

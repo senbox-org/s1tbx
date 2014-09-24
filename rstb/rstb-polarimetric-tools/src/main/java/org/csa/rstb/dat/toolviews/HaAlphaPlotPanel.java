@@ -94,7 +94,7 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
     private boolean plotColorsInverted;
     private JCheckBox toggleZoneOverlayCheckBox;
 
-    private final static Color annotColour =  Color.DARK_GRAY;
+    private final static Color annotColour = Color.DARK_GRAY;
     private final static Font annotFont = new Font("Ariel", Font.BOLD, 14);
 
     public HaAlphaPlotPanel(ToolView parentDialog, String helpId) {
@@ -269,14 +269,14 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
         GridBagUtils.addToPanel(optionsPanel, new JLabel("Zones Descriptions:"), gbc, "gridy=8,insets.left=0,insets.right=0");
         JTextArea textArea = new JTextArea(
                 "Z1 - Dihedral Reflector\n" +
-                "Z2 - Dipole\n" +
-                "Z3 - Bragg Surface\n" +
-                "Z4 - Double Reflection\n" +
-                "Z5 - Anisotropic Particles\n" +
-                "Z6 - Random Surface\n" +
-                "Z7 - Complex Structures\n" +
-                "Z8 - Random Anisotropic Scatterers\n" +
-                "Z9 - Non-feasible");
+                        "Z2 - Dipole\n" +
+                        "Z3 - Bragg Surface\n" +
+                        "Z4 - Double Reflection\n" +
+                        "Z5 - Anisotropic Particles\n" +
+                        "Z6 - Random Surface\n" +
+                        "Z7 - Complex Structures\n" +
+                        "Z8 - Random Anisotropic Scatterers\n" +
+                        "Z9 - Non-feasible");
         GridBagUtils.addToPanel(optionsPanel, textArea, gbc, "gridy=9,insets.left=0,insets.right=0");
         return optionsPanel;
     }
@@ -432,11 +432,11 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
 
                     // clear the list
                     java.util.List<XYAnnotation> annotList = plot.getAnnotations();
-                    for(XYAnnotation an : annotList) {
+                    for (XYAnnotation an : annotList) {
                         plot.removeAnnotation(an);
                     }
 
-                    if(toggleZoneOverlayCheckBox.isSelected()) {
+                    if (toggleZoneOverlayCheckBox.isSelected()) {
                         drawZoneOverlay();
                     }
 
@@ -495,17 +495,17 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
         line = new XYLineAnnotation(H2, Alpha5, maxX, Alpha5, stroke, annotColour);
         plot.addAnnotation(line);
 
-        addText("Z1", minX+(H2-minX)/2, Alpha3+(maxY-Alpha3)/2);
-        addText("Z2", minX+(H2-minX)/2, Alpha4+(Alpha3-Alpha4)/2);
-        addText("Z3", minX+(H2-minX)/2, minY+(Alpha4-minY)/2);
+        addText("Z1", minX + (H2 - minX) / 2, Alpha3 + (maxY - Alpha3) / 2);
+        addText("Z2", minX + (H2 - minX) / 2, Alpha4 + (Alpha3 - Alpha4) / 2);
+        addText("Z3", minX + (H2 - minX) / 2, minY + (Alpha4 - minY) / 2);
 
-        addText("Z4", H2+(H1-H2)/2, Alpha2+(maxY-Alpha2)/2);
-        addText("Z5", H2+(H1-H2)/2, Alpha5+(Alpha2-Alpha5)/2);
-        addText("Z6", H2+(H1-H2)/2, minY+(Alpha5-minY)/2);
+        addText("Z4", H2 + (H1 - H2) / 2, Alpha2 + (maxY - Alpha2) / 2);
+        addText("Z5", H2 + (H1 - H2) / 2, Alpha5 + (Alpha2 - Alpha5) / 2);
+        addText("Z6", H2 + (H1 - H2) / 2, minY + (Alpha5 - minY) / 2);
 
-        addText("Z7", H1+(maxX-H1)/2, Alpha1+(maxY-Alpha1)/2);
-        addText("Z8", H1+(maxX-H1)/2, Alpha5+(Alpha1-Alpha5)/2);
-        addText("Z9", H1+(maxX-H1)/2, minY+(Alpha5-minY)/2);
+        addText("Z7", H1 + (maxX - H1) / 2, Alpha1 + (maxY - Alpha1) / 2);
+        addText("Z8", H1 + (maxX - H1) / 2, Alpha5 + (Alpha1 - Alpha5) / 2);
+        addText("Z9", H1 + (maxX - H1) / 2, minY + (Alpha5 - minY) / 2);
 
         //Arc2D.Double arc = new Arc2D.Double(
         //        0, 0, 30, 2 * 30, 3.14, 3.14, Arc2D.OPEN);
@@ -523,7 +523,7 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
 
     private void setRange(int varIndex, RasterDataNode raster, Mask mask, ProgressMonitor pm) throws IOException {
         final AxisRangeControl axisRangeControl = axisRangeControls[varIndex];
-        if(varIndex == X_VAR) {
+        if (varIndex == X_VAR) {
             axisRangeControl.adjustComponents(0.0, 1.0, NUM_DECIMALS);
             return;
         }

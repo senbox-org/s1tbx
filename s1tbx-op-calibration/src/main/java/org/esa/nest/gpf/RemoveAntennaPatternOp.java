@@ -29,9 +29,9 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.CalibrationFactory;
 import org.esa.nest.datamodel.Calibrator;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
 
@@ -142,7 +142,7 @@ public class RemoveAntennaPatternOp extends Operator {
 
         if (sourceBandNames == null || sourceBandNames.length == 0) {
             final Band[] bands = sourceProduct.getBands();
-            final List<String> bandNameList = new ArrayList<String>(sourceProduct.getNumBands());
+            final List<String> bandNameList = new ArrayList<>(sourceProduct.getNumBands());
             for (Band band : bands) {
                 final String unit = band.getUnit();
                 if (unit != null && (unit.contains(Unit.PHASE) || unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY))) {

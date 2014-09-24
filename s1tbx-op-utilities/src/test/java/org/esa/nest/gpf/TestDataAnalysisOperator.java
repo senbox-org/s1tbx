@@ -16,30 +16,22 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for SingleTileOperator.
  */
-public class TestDataAnalysisOperator extends TestCase {
+public class TestDataAnalysisOperator {
 
-    private OperatorSpi spi;
+    private final static OperatorSpi spi = new DataAnalysisOp.Spi();
 
-    @Override
-    protected void setUp() throws Exception {
-        spi = new DataAnalysisOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
-    }
-
+    @Test
     public void testSampleOperator() throws Exception {
 
         Product sourceProduct = createTestProduct(4, 4);

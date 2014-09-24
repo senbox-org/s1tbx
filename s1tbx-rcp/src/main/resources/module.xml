@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s1tbx-rcp</symbolicName>
-    <version>0.5</version>
+    <version>0.7</version>
     <name>S1TBX Rich Client Platform</name>
 
     <description>S1TBX Rich Client Platform</description>
@@ -39,8 +39,19 @@
         <applicationDescriptor>
             <applicationId>S1TBXMain</applicationId>
             <displayName>SENTINEL-1 TOOLBOX</displayName>
-            <frameIcon>/org/esa/snap/icons/esa-planet.png</frameIcon>
-            <image>/org/esa/snap/icons/esa-planet.png</image>
+
+            <version>${s1tbx.version}</version>
+            <buildId>${s1tbx.build.id}</buildId>
+            <buildDate>${s1tbx.build.date}</buildDate>
+            <frameIcons>
+                /org/esa/s1tbx/icons/s1tbx-icon-16.png,
+                /org/esa/s1tbx/icons/s1tbx-icon-32.png,
+                /org/esa/s1tbx/icons/s1tbx-icon-64.png
+            </frameIcons>
+            <aboutImage>
+                /org/esa/s1tbx/icons/s1tbx-about.png
+            </aboutImage>
+
             <excludedActions>
                 <id>showDataSources</id>
                 <id>createAsarNrcsBands</id>
@@ -50,6 +61,16 @@
                 <id>selectTool</id>
                 <id>createDemRelatedBands</id>
                 <id>showImageView</id>
+                <id>processing.preProcessing</id>
+                <id>processing.thematicWater</id>
+                <id>processing.thematicLand</id>
+                <id>processing.imageAnalysis</id>
+                <id>processing.geomOperations</id>
+                <id>orthorectificationAction</id>
+                <id>mosaicAction</id>
+                <id>reprojectionAction</id>
+                <id>flipping</id>
+                <id>createSubsetFromView</id>
             </excludedActions>
             <excludedToolViews>
                 <!--id>org.esa.beam.visat.toolviews.worldmap.WorldMapToolView</id-->
@@ -519,6 +540,48 @@
             <description>Export the product as Google Earth KMZ file.</description>
             <helpId>exportKmzFile</helpId>
             <placeAfter>exportKmzFile</placeAfter>
+        </action>
+
+
+        <action>
+            <parent>geometry</parent>
+            <id>reprojection2</id>
+            <placeFirst>true</placeFirst>
+            <class>org.esa.beam.gpf.operators.reproject.ReprojectionAction</class>
+            <text>Reprojection...</text>
+            <shortDescr>Apply a reprojection.</shortDescr>
+            <helpId>reprojectionAction</helpId>
+        </action>
+
+        <action>
+            <parent>geometry</parent>
+            <id>mosaic2</id>
+            <placeAfter>orthorectificationAction</placeAfter>
+            <text>Mosaicing...</text>
+            <class>org.esa.beam.gpf.operators.mosaic.MosaicAction</class>
+            <shortDescr>Create a mosaic of multiple products.</shortDescr>
+            <helpId>mosaicAction</helpId>
+        </action>
+
+        <action>
+            <parent>tools</parent>
+            <id>createSubsetFromView2</id>
+            <placeAfter>mosaicAction</placeAfter>
+            <text>Spatial Subset from View...</text>
+            <class>org.esa.beam.visat.actions.CreateSubsetFromViewAction</class>
+            <shortDescr>Creates a product subset from the selected view.</shortDescr>
+            <context>image</context>
+            <helpId>subsetFromView</helpId>
+        </action>
+
+        <action>
+            <parent>tools</parent>
+            <id>flipping2</id>
+            <placeAfter>createSubsetFromView</placeAfter>
+            <text>Flipping...</text>
+            <class>org.esa.beam.visat.actions.FlippingAction</class>
+            <shortDescr>Apply Data Flip</shortDescr>
+            <helpId>flipDialog</helpId>
         </action>
 
         <!--action>

@@ -47,7 +47,7 @@ import java.util.List;
  */
 
 @OperatorMetadata(alias = "Change-Detection",
-        category = "Classification/Primitive Features",
+        category = "Image Analysis/Primitive Features",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Change Detection.")

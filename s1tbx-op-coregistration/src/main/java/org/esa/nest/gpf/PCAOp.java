@@ -52,7 +52,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "Principle-Components", description = "Principle Component Analysis",
-        category = "Classification/Primitive Features")
+        category = "Image Analysis/Primitive Features")
 public class PCAOp extends Operator {
 
     @SourceProduct
@@ -188,7 +188,7 @@ public class PCAOp extends Operator {
         // if no source band is selected by user, then select all bands
         if (sourceBandNames == null || sourceBandNames.length == 0) {
             final Band[] bands = sourceProduct.getBands();
-            final List<String> bandNameList = new ArrayList<String>(sourceProduct.getNumBands());
+            final List<String> bandNameList = new ArrayList<>(sourceProduct.getNumBands());
             for (Band band : bands) {
                 bandNameList.add(band.getName());
             }

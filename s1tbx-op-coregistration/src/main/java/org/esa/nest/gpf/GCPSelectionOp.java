@@ -120,10 +120,10 @@ public class GCPSelectionOp extends Operator {
 
     //    @Parameter(description = "The coherence function tolerance", interval = "(0, *)", defaultValue = "1.e-6",
 //                label="Coherence Function Tolerance")
-    private final double coherenceFuncToler = 1.e-5;
+    private static final double coherenceFuncToler = 1.e-5;
     //    @Parameter(description = "The coherence value tolerance", interval = "(0, *)", defaultValue = "1.e-3",
 //                label="Coherence Value Tolerance")
-    private final double coherenceValueToler = 1.e-2;
+    private static final double coherenceValueToler = 1.e-2;
     // =========================================================================================
     @Parameter(defaultValue = "false", label = "Estimate Coarse Offset")
     private boolean computeOffset = false;
@@ -159,9 +159,9 @@ public class GCPSelectionOp extends Operator {
     private final static double CGOLD = 0.3819660; // CGOLD is the golden ratio;
     private final static double ZEPS = 1.0e-10;    // ZEPS is a small number that protects against trying to achieve fractional
 
-    private final Map<Band, Band> sourceRasterMap = new HashMap<Band, Band>(10);
-    private final Map<Band, Band> complexSrcMap = new HashMap<Band, Band>(10);
-    private final Map<Band, Boolean> gcpsComputedMap = new HashMap<Band, Boolean>(10);
+    private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
+    private final Map<Band, Band> complexSrcMap = new HashMap<>(10);
+    private final Map<Band, Boolean> gcpsComputedMap = new HashMap<>(10);
     private Band primarySlaveBand = null;    // the slave band to process
     private boolean collocatedStack = false;
 
@@ -216,15 +216,11 @@ public class GCPSelectionOp extends Operator {
 
             createTargetProduct();
 
-            //masterGcpGroup = sourceProduct.getGcpGroup(masterBand1);
             masterGcpGroup = GCPManager.instance().getGcpGroup(masterBand1);
             if (masterGcpGroup.getNodeCount() <= 0) {
                 addGCPGrid(sourceImageWidth, sourceImageHeight, numGCPtoGenerate, masterGcpGroup,
                         targetProduct.getGeoCoding());
             }
-
-            OperatorUtils.copyGCPsToTarget(masterGcpGroup, GCPManager.instance().getGcpGroup(targetProduct.getBandAt(0)),
-                    targetProduct.getGeoCoding());
 
             if (complexCoregistration && applyFineRegistration) {
                 fWindowWidth = Integer.parseInt(fineRegistrationWindowWidth);
@@ -360,9 +356,9 @@ public class GCPSelectionOp extends Operator {
             final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
 
             // select only one band per slave product
-            final Map<String, Band> singleSlvBandMap = new HashMap<String, Band>();
+            final Map<String, Band> singleSlvBandMap = new HashMap<>();
 
-            final Map<Band, Band> bandList = new HashMap<Band, Band>();
+            final Map<Band, Band> bandList = new HashMap<>();
             for (Band targetBand : targetProduct.getBands()) {
 
                 final Band slaveBand = sourceRasterMap.get(targetBand);
@@ -1234,9 +1230,9 @@ public class GCPSelectionOp extends Operator {
     private static void outputRealImage(final double[][] I) {
         final int row = I.length;
         final int col = I[0].length;
-        for (int r = 0; r < row; r++) {
+        for (double[] aI : I) {
             for (int c = 0; c < col; c++) {
-                System.out.print(I[r][c] + ",");
+                System.out.print(aI[c] + ",");
             }
         }
         System.out.println();

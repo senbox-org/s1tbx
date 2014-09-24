@@ -45,8 +45,8 @@ public class CreateStackOpUI extends BaseOperatorUI {
     private final JList mstBandList = new JList();
     private final JList slvBandList = new JList();
 
-    private final List<Integer> defaultMasterBandIndices = new ArrayList<Integer>(2);
-    private final List<Integer> defaultSlaveBandIndices = new ArrayList<Integer>(2);
+    private final List<Integer> defaultMasterBandIndices = new ArrayList<>(2);
+    private final List<Integer> defaultSlaveBandIndices = new ArrayList<>(2);
 
     private final JComboBox resamplingType = new JComboBox(ResamplingFactory.resamplingNames);
 
@@ -81,7 +81,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
     private static List<Integer> getSelectedIndices(final String[] allBandNames,
                                                     final String[] selBandNames,
                                                     final List<Integer> defaultIndices) {
-        final List<Integer> bandIndices = new ArrayList<Integer>(2);
+        final List<Integer> bandIndices = new ArrayList<>(2);
         if (selBandNames != null && selBandNames.length > 0) {
             int i = 0;
             for (String bandName : allBandNames) {
@@ -212,7 +212,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
             }
         }
 
-        final List<String> bandNames = new ArrayList<String>(5);
+        final List<String> bandNames = new ArrayList<>(5);
         boolean masterBandsSelected = false;
         for (Product prod : sourceProducts) {
             if (sourceProducts.length > 1) {

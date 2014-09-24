@@ -1,24 +1,24 @@
 <graph id="Graph">
   <version>1.0</version>
-  <node id="1-Read">
+  <node id="Read">
     <operator>Read</operator>
     <sources/>
     <parameters/>
   </node>
-  <node id="2-Write">
+  <node id="Write">
     <operator>Write</operator>
     <sources>
-      <sourceProduct refid="3-Multilook"/>
+      <sourceProduct refid="Multilook"/>
     </sources>
     <parameters>
       <formatName>BEAM-DIMAP</formatName>
       <file>multilooked.dim</file>
     </parameters>
   </node>
-  <node id="3-Multilook">
+  <node id="Multilook">
     <operator>Multilook</operator>
     <sources>
-      <sourceProduct refid="1-Read"/>
+      <sourceProduct refid="Read"/>
     </sources>
     <parameters>
       <sourceBands/>
@@ -30,13 +30,13 @@
   </node>
   <applicationData id="Presentation">
     <Description/>
-    <node id="1-Read">
+    <node id="Read">
       <displayPosition y="134.0" x="37.0"/>
     </node>
-    <node id="2-Write">
+    <node id="Write">
       <displayPosition y="135.0" x="455.0"/>
     </node>
-    <node id="3-Multilook">
+    <node id="Multilook">
       <displayPosition y="134.0" x="220.0"/>
     </node>
   </applicationData>

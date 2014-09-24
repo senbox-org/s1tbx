@@ -15,10 +15,8 @@
  */
 package org.esa.nest.gpf;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -28,6 +26,8 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 
 import java.util.ArrayList;
@@ -55,6 +55,10 @@ public final class TOPSARSplitOp extends Operator {
     @Parameter(description = "The list of polarisations", label = "Polarisations")
     private String[] selectedPolarisations;
 
+    private Sentinel1Utils su = null;
+    private Sentinel1Utils.SubSwathInfo[] subSwathInfo = null;
+    private int subSwathIndex = 0;
+
     /**
      * Initializes this operator and sets the one and only target product.
      * <p>The target product can be either defined by a field of type {@link org.esa.beam.framework.datamodel.Product} annotated with the
@@ -75,6 +79,15 @@ public final class TOPSARSplitOp extends Operator {
             if (subswath == null) {
                 final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
                 subswath = acquisitionMode + '1';
+            }
+
+            su = new Sentinel1Utils(sourceProduct);
+            subSwathInfo = su.getSubSwath();
+            for (int i = 0; i < subSwathInfo.length; i++) {
+                if (subSwathInfo[i].subSwathName.contains(subswath)) {
+                    subSwathIndex = i + 1;
+                    break;
+                }
             }
 
             if (selectedPolarisations == null || selectedPolarisations.length == 0) {
@@ -98,17 +111,29 @@ public final class TOPSARSplitOp extends Operator {
                     selectedBands.get(0).getSceneRasterHeight());
 
             for (Band srcBand : selectedBands) {
-                ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+                if (srcBand instanceof VirtualBand) {
+                    final VirtualBand sourceBand = (VirtualBand) srcBand;
+                    final VirtualBand targetBand = new VirtualBand(sourceBand.getName(),
+                            sourceBand.getDataType(),
+                            sourceBand.getRasterWidth(),
+                            sourceBand.getRasterHeight(),
+                            sourceBand.getExpression());
+                    ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
+                    targetProduct.addBand(targetBand);
+                } else {
+                    ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+                }
             }
             for (TiePointGrid srcTPG : sourceProduct.getTiePointGrids()) {
                 if (srcTPG.getName().contains(subswath)) {
-                    targetProduct.addTiePointGrid(srcTPG.cloneTiePointGrid());
+                    final TiePointGrid dstTPG = srcTPG.cloneTiePointGrid();
+                    dstTPG.setName(srcTPG.getName().replace(subswath+'_', ""));
+                    targetProduct.addTiePointGrid(dstTPG);
                 }
             }
 
             ProductUtils.copyMetadata(sourceProduct, targetProduct);
             ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
-            ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
             ProductUtils.copyMasks(sourceProduct, targetProduct);
             ProductUtils.copyVectorData(sourceProduct, targetProduct);
             ProductUtils.copyIndexCodings(sourceProduct, targetProduct);
@@ -116,10 +141,17 @@ public final class TOPSARSplitOp extends Operator {
             targetProduct.setEndTime(sourceProduct.getEndTime());
             targetProduct.setDescription(sourceProduct.getDescription());
 
+            addGeocoding();
             updateTargetProductMetadata();
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
+    }
+
+    private void addGeocoding() {
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(targetProduct.getTiePointGrid(OperatorUtils.TPG_LATITUDE),
+                                                                    targetProduct.getTiePointGrid(OperatorUtils.TPG_LONGITUDE), Datum.WGS_84);
+        targetProduct.setGeoCoding(tpGeoCoding);
     }
 
     /**
@@ -128,6 +160,43 @@ public final class TOPSARSplitOp extends Operator {
     private void updateTargetProductMetadata() {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
+
+        absRoot.setAttributeUTC(AbstractMetadata.first_line_time,
+                new ProductData.UTC(subSwathInfo[subSwathIndex - 1].firstLineTime));
+
+        absRoot.setAttributeUTC(AbstractMetadata.last_line_time,
+                new ProductData.UTC(subSwathInfo[subSwathIndex - 1].lastLineTime));
+
+        absRoot.setAttributeDouble(AbstractMetadata.line_time_interval,
+                subSwathInfo[subSwathIndex - 1].azimuthTimeInterval);
+
+        absRoot.setAttributeDouble(AbstractMetadata.slant_range_to_first_pixel,
+                subSwathInfo[subSwathIndex - 1].slrTimeToFirstPixel * Constants.lightSpeed);
+
+        absRoot.setAttributeDouble(AbstractMetadata.range_spacing,
+                subSwathInfo[subSwathIndex - 1].rangePixelSpacing);
+
+        absRoot.setAttributeDouble(AbstractMetadata.azimuth_spacing,
+                subSwathInfo[subSwathIndex - 1].azimuthPixelSpacing);
+
+        final int rows = subSwathInfo[subSwathIndex - 1].latitude.length;
+        final int cols = subSwathInfo[subSwathIndex - 1].latitude[0].length;
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat,
+                subSwathInfo[subSwathIndex - 1].latitude[0][0]);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long,
+                subSwathInfo[subSwathIndex - 1].longitude[0][0]);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat,
+                subSwathInfo[subSwathIndex - 1].latitude[0][cols - 1]);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long,
+                subSwathInfo[subSwathIndex - 1].longitude[0][cols - 1]);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat,
+                subSwathInfo[subSwathIndex - 1].latitude[rows - 1][0]);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long,
+                subSwathInfo[subSwathIndex - 1].longitude[rows - 1][0]);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat,
+                subSwathInfo[subSwathIndex - 1].latitude[rows - 1][cols - 1]);
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long,
+                subSwathInfo[subSwathIndex - 1].longitude[rows - 1][cols - 1]);
 
         final MetadataElement[] bandMetadataList = AbstractMetadata.getBandAbsMetadataList(absRoot);
         for (MetadataElement bandMeta : bandMetadataList) {
@@ -145,6 +214,23 @@ public final class TOPSARSplitOp extends Operator {
             if (!include) {
                 // remove band metadata if polarization or subswath is not included
                 absRoot.removeElement(bandMeta);
+            }
+        }
+
+        final MetadataElement origMeta = AbstractMetadata.getOriginalProductMetadata(targetProduct);
+        removeElements(origMeta, "annotation");
+        removeElements(origMeta, "calibration");
+        removeElements(origMeta, "noise");
+    }
+
+    private void removeElements(final MetadataElement origMeta, final String parent) {
+        final MetadataElement parentElem = origMeta.getElement(parent);
+        if(parentElem != null) {
+            final MetadataElement[] elemList = parentElem.getElements();
+            for (MetadataElement elem : elemList) {
+                if (!elem.getName().toUpperCase().contains(subswath)) {
+                    parentElem.removeElement(elem);
+                }
             }
         }
     }

@@ -15,7 +15,6 @@
  */
 package org.esa.nest.dat;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -23,24 +22,18 @@ import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
 
 import java.util.Arrays;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for AmplitudeToIntensity.
  */
-public class TestAmplitudeToIntensity extends TestCase {
+public class TestAmplitudeToIntensity {
 
-    @Override
-    protected void setUp() throws Exception {
-
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-
-    }
-
+    @Test
     public void testAmplitudeToIntensity() {
 
         final Product product = createTestProduct("Amplitude", Unit.AMPLITUDE, 16, 4);
@@ -54,6 +47,7 @@ public class TestAmplitudeToIntensity extends TestCase {
         assertTrue(band2.getName().endsWith("Intensity"));
     }
 
+    @Test
     public void testdIntensityToAmplitude() {
 
         final Product product = createTestProduct("Intensity", Unit.INTENSITY, 16, 4);

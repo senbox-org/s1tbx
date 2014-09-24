@@ -17,6 +17,7 @@ package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -60,6 +61,7 @@ public final class TOPSARDeburstOp extends Operator {
     private String acquisitionMode = null;
     private String productType = null;
     private int numOfSubSwath = 0;
+    private int subSwathIndex = 0;
     private int targetWidth = 0;
     private int targetHeight = 0;
 
@@ -78,6 +80,7 @@ public final class TOPSARDeburstOp extends Operator {
     private boolean inputBetaBand = false;
     private boolean inputGammaBand = false;
     private boolean inputDNBand = false;
+    private boolean isSplitProduct = false;
 
     /**
      * Default constructor. The graph processing framework
@@ -114,6 +117,10 @@ public final class TOPSARDeburstOp extends Operator {
 
             su = new Sentinel1Utils(sourceProduct);
             subSwath = su.getSubSwath();
+            numOfSubSwath = su.getNumOfSubSwath();
+
+            checkIfSplitProduct();
+
             if (selectedPolarisations == null || selectedPolarisations.length == 0) {
                 selectedPolarisations = su.getPolarizations();
             }
@@ -126,7 +133,9 @@ public final class TOPSARDeburstOp extends Operator {
 
             createTargetProduct();
 
-            computeSubSwathEffectStartEndPixels();
+            if (!isSplitProduct) {
+                computeSubSwathEffectStartEndPixels();
+            }
 
             updateTargetProductMetadata();
 
@@ -140,7 +149,7 @@ public final class TOPSARDeburstOp extends Operator {
      */
     private void getMission() {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.equals("SENTINEL-1A")) {
+        if (!mission.startsWith("SENTINEL-1")) {
             throw new OperatorException(mission + " is not a valid mission for Sentinel1 product");
         }
     }
@@ -158,19 +167,12 @@ public final class TOPSARDeburstOp extends Operator {
     /**
      * Get acquisition mode from abstracted metadata.
      */
-    private void getAcquisitionMode() {
+    private void getAcquisitionMode() throws OperatorException {
 
         acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
 
-        switch (acquisitionMode) {
-            case "IW":
-                numOfSubSwath = 3;
-                break;
-            case "EW":
-                numOfSubSwath = 5;
-                break;
-            default:
-                throw new OperatorException("Acquisition mode is not IW or EW");
+        if (!(acquisitionMode.equals("IW") || acquisitionMode.equals("EW"))) {
+            throw new OperatorException("Acquisition mode is not IW or EW");
         }
     }
 
@@ -198,23 +200,32 @@ public final class TOPSARDeburstOp extends Operator {
         }
     }
 
+    private void checkIfSplitProduct() {
+
+        final String[] subSwathNames = su.getSubSwathNames();
+        if (subSwathNames.length == 1) {
+            isSplitProduct = true;
+            subSwathIndex = 1;//Integer.parseInt(subSwathNames[0].substring(subSwathNames[0].length()-1));
+        }
+    }
+
     /**
      * Compute azimuth time for the first and last line in the target product.
      */
     private void computeTargetStartEndTime() {
 
-        targetFirstLineTime = subSwath[0].firstLineTime;
-        targetLastLineTime = subSwath[0].lastLineTime;
-        for (int i = 1; i < numOfSubSwath; i++) {
-            if (targetFirstLineTime > subSwath[i].firstLineTime) {
-                targetFirstLineTime = subSwath[i].firstLineTime;
-            }
+            targetFirstLineTime = subSwath[0].firstLineTime;
+            targetLastLineTime = subSwath[0].lastLineTime;
+            for (int i = 1; i < numOfSubSwath; i++) {
+                if (targetFirstLineTime > subSwath[i].firstLineTime) {
+                    targetFirstLineTime = subSwath[i].firstLineTime;
+                }
 
-            if (targetLastLineTime < subSwath[i].lastLineTime) {
-                targetLastLineTime = subSwath[i].lastLineTime;
+                if (targetLastLineTime < subSwath[i].lastLineTime) {
+                    targetLastLineTime = subSwath[i].lastLineTime;
+                }
             }
-        }
-        targetLineTimeInterval = subSwath[0].azimuthTimeInterval; // days
+            targetLineTimeInterval = subSwath[0].azimuthTimeInterval; // days
     }
 
     /**
@@ -222,9 +233,9 @@ public final class TOPSARDeburstOp extends Operator {
      */
     private void computeTargetSlantRangeTimeToFirstAndLastPixels() {
 
-        targetSlantRangeTimeToFirstPixel = subSwath[0].slrTimeToFirstPixel;
-        targetSlantRangeTimeToLastPixel = subSwath[numOfSubSwath - 1].slrTimeToLastPixel;
-        targetDeltaSlantRangeTime = subSwath[0].rangePixelSpacing / Constants.lightSpeed;
+            targetSlantRangeTimeToFirstPixel = subSwath[0].slrTimeToFirstPixel;
+            targetSlantRangeTimeToLastPixel = subSwath[numOfSubSwath - 1].slrTimeToLastPixel;
+            targetDeltaSlantRangeTime = subSwath[0].rangePixelSpacing / Constants.lightSpeed;
     }
 
     /**
@@ -232,7 +243,7 @@ public final class TOPSARDeburstOp extends Operator {
      */
     private void computeTargetWidthAndHeight() {
 
-        targetHeight = (int)((targetLastLineTime - targetFirstLineTime) / subSwath[0].azimuthTimeInterval);
+        targetHeight = (int)((targetLastLineTime - targetFirstLineTime) / targetLineTimeInterval);
 
         targetWidth = (int)((targetSlantRangeTimeToLastPixel - targetSlantRangeTimeToFirstPixel) /
                 targetDeltaSlantRangeTime);
@@ -406,6 +417,9 @@ public final class TOPSARDeburstOp extends Operator {
         targetProduct.addTiePointGrid(lonGrid);
         targetProduct.addTiePointGrid(slrtGrid);
         targetProduct.addTiePointGrid(incGrid);
+
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        targetProduct.setGeoCoding(tpGeoCoding);
     }
 
     /**
@@ -442,8 +456,10 @@ public final class TOPSARDeburstOp extends Operator {
 
     private void updateOriginalMetadata() {
 
-        updateCalibrationVector();
-        //updateNoiseVector(); //todo: not implemented yet
+        if (!isSplitProduct) {
+            updateCalibrationVector();
+            //updateNoiseVector(); //todo: not implemented yet
+        }
     }
 
     private void updateCalibrationVector() {
@@ -536,6 +552,7 @@ public final class TOPSARDeburstOp extends Operator {
         return mergedVectorStr.toString();
     }
 
+
     /**
      * Called by the framework in order to compute the stack of tiles for the given target bands.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
@@ -559,22 +576,30 @@ public final class TOPSARDeburstOp extends Operator {
 
             // determine subswaths covered by the tile
             int firstSubSwathIndex = 0;
-            for (int i = 0; i < numOfSubSwath; i++) {
-                if (tileSlrtToFirstPixel >= subSwath[i].slrTimeToFirstPixel &&
-                        tileSlrtToFirstPixel <= subSwath[i].slrTimeToLastPixel) {
-                    firstSubSwathIndex = i + 1;
-                    break;
-                }
-            }
-
             int lastSubSwathIndex = 0;
-            if (firstSubSwathIndex == numOfSubSwath) {
-                lastSubSwathIndex = firstSubSwathIndex;
+
+            if (isSplitProduct) {
+                firstSubSwathIndex = subSwathIndex;
+                lastSubSwathIndex = subSwathIndex;
+
             } else {
+
                 for (int i = 0; i < numOfSubSwath; i++) {
-                    if (tileSlrtToLastPixel >= subSwath[i].slrTimeToFirstPixel &&
-                            tileSlrtToLastPixel <= subSwath[i].slrTimeToLastPixel) {
-                        lastSubSwathIndex = i + 1;
+                    if (tileSlrtToFirstPixel >= subSwath[i].slrTimeToFirstPixel &&
+                            tileSlrtToFirstPixel <= subSwath[i].slrTimeToLastPixel) {
+                        firstSubSwathIndex = i + 1;
+                        break;
+                    }
+                }
+
+                if (firstSubSwathIndex == numOfSubSwath) {
+                    lastSubSwathIndex = firstSubSwathIndex;
+                } else {
+                    for (int i = 0; i < numOfSubSwath; i++) {
+                        if (tileSlrtToLastPixel >= subSwath[i].slrTimeToFirstPixel &&
+                                tileSlrtToLastPixel <= subSwath[i].slrTimeToLastPixel) {
+                            lastSubSwathIndex = i + 1;
+                        }
                     }
                 }
             }
@@ -690,8 +715,10 @@ public final class TOPSARDeburstOp extends Operator {
         if (firstY >= lastY)
             return;
 
-        final Band srcBandI = sourceProduct.getBand(bandNameI + firstSubSwathIndex + '_' + pol);
-        final Band srcBandQ = sourceProduct.getBand(bandNameQ + firstSubSwathIndex + '_' + pol);
+        final String swathIndexStr = numOfSubSwath == 1 ? su.getSubSwathNames()[0].substring(2) : String.valueOf(firstSubSwathIndex);
+
+        final Band srcBandI = sourceProduct.getBand(bandNameI + swathIndexStr + '_' + pol);
+        final Band srcBandQ = sourceProduct.getBand(bandNameQ + swathIndexStr + '_' + pol);
         final Tile sourceRasterI = getSourceTile(srcBandI, sourceRectangle[0]);
         final Tile sourceRasterQ = getSourceTile(srcBandQ, sourceRectangle[0]);
         final TileIndex srcTileIndex = new TileIndex(sourceRasterI);
@@ -831,7 +858,9 @@ public final class TOPSARDeburstOp extends Operator {
         if (firstY >= lastY)
             return;
 
-        final Band srcBand = sourceProduct.getBand(bandName + firstSubSwathIndex + '_' + pol);
+        final String swathIndexStr = numOfSubSwath == 1 ? su.getSubSwathNames()[0].substring(2) : String.valueOf(firstSubSwathIndex);
+
+        final Band srcBand = sourceProduct.getBand(bandName + swathIndexStr + '_' + pol);
         final Tile sourceRaster = getSourceTile(srcBand, sourceRectangle[0]);
         final TileIndex srcTileIndex = new TileIndex(sourceRaster);
         final TileIndex tgtIndex = new TileIndex(targetTile);

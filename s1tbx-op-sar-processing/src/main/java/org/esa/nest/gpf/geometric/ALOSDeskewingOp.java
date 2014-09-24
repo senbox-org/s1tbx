@@ -400,8 +400,7 @@ public class ALOSDeskewingOp extends Operator {
                 continue;
             }
 
-            final double slantRange = SARGeocoding.computeSlantRange(
-                    zeroDopplerTime - firstLineTime, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+            final double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
 
             final double zeroDopplerTimeWithoutBias =
                     zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
@@ -424,12 +423,16 @@ public class ALOSDeskewingOp extends Operator {
         final PosVector pos = new PosVector();
         final PosVector vel = new PosVector();
 
-        pos.x = Maths.polyVal(time - firstLineTime, orbit.xPosCoeff);
-        pos.y = Maths.polyVal(time - firstLineTime, orbit.yPosCoeff);
-        pos.z = Maths.polyVal(time - firstLineTime, orbit.zPosCoeff);
-        vel.x = Maths.polyVal(time - firstLineTime, orbit.xVelCoeff);
-        vel.y = Maths.polyVal(time - firstLineTime, orbit.yVelCoeff);
-        vel.z = Maths.polyVal(time - firstLineTime, orbit.zVelCoeff);
+        final double[] position = new double[3];
+        final double[] velocity = new double[3];
+        orbit.getPositionVelocity(time, position, velocity);
+
+        pos.x = position[0];
+        pos.y = position[1];
+        pos.z = position[2];
+        vel.x = velocity[0];
+        vel.y = velocity[1];
+        vel.z = velocity[2];
 
         return new stateVector(time, pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
     }

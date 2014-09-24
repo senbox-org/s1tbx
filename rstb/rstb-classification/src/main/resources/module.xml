@@ -25,7 +25,7 @@
     <dependency>
         <module>s1tbx-rcp</module>
     </dependency>
-	<dependency>
+    <dependency>
         <module>s1tbx-io</module>
     </dependency>
     <dependency>

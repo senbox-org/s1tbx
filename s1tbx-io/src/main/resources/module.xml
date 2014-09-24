@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s1tbx-io</symbolicName>
-    <version>0.5</version>
+    <version>0.7</version>
     <name>S1TBX Readers and Writers</name>
 
     <description>
@@ -246,6 +246,15 @@
             <shortDescr>Export GeoTIFF+XML</shortDescr>
             <helpId>exportGeoTiffXML</helpId>
         </action>
+        <action>
+            <id>exportBTF</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <formatName>BTF</formatName>
+            <text>BigTIFF</text>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Export BigTIFF</shortDescr>
+            <helpId>exportGeoTiff</helpId>
+        </action>
 
 
         <!--action>
@@ -310,6 +319,13 @@
             <green>Intensity_VV</green>
             <blue>(Intensity_HH+Intensity_VV)/2</blue>
         </rgbProfile>
-
+    </extension>
+	
+	<extension point="snap-ui:helpSets">
+        <helpSet>
+            <parent>snap-help</parent>
+            <id>S1TBX-IO-Help</id>
+            <path>doc/help/s1tbx-io.hs</path>
+        </helpSet>
     </extension>
 </module>

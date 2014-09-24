@@ -763,7 +763,7 @@ public class Sentinel1Level0Reader {
 
         for (DataElement elem : elemList) {
 
-            if (elem.baseType != BIT_BASE_TYPE) {
+            if (!elem.baseType.equals(BIT_BASE_TYPE)) {
                 total += (elem.numBytes * elem.numOccurrences);
             } else if (elem.startBit == 0) {
                 total += 1;

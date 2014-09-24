@@ -15,26 +15,18 @@
  */
 package org.csa.rstb.gpf;
 
-import junit.framework.TestCase;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for PolOpUtils.
  */
-public class TestPolOpUtils extends TestCase {
+public class TestPolOpUtils {
 
-    public TestPolOpUtils(String name) {
-        super(name);
-    }
-
-    protected void setUp() throws Exception {
+    static {
         TestUtils.initTestEnvironment();
-        super.setUp();
-    }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
     }
 
     /**
@@ -42,6 +34,7 @@ public class TestPolOpUtils extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testC4ToT4() throws Exception {
 
         final double[][] c4Re = {

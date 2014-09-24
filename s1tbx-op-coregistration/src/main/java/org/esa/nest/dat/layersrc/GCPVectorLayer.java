@@ -40,7 +40,7 @@ public class GCPVectorLayer extends Layer {
     private final Product product;
     private final Band band;
     private static final float lineThickness = 4.0f;
-    private final List<GCPData> gcpList = new ArrayList<GCPData>(200);
+    private final List<GCPData> gcpList = new ArrayList<>(200);
 
     public GCPVectorLayer(PropertySet configuration) {
         super(LayerTypeRegistry.getLayerType(GCPVectorLayerType.class.getName()), configuration);

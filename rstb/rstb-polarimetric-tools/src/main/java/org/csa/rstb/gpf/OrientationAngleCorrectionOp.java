@@ -28,9 +28,9 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.gpf.OperatorUtils;
-import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
@@ -111,7 +111,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
      */
     private void addSelectedBands() throws OperatorException {
 
-        final List<String> targetBandNameList = new ArrayList<String>(10);
+        final List<String> targetBandNameList = new ArrayList<>(10);
         targetBandNameList.add("T11");
         targetBandNameList.add("T12_real");
         targetBandNameList.add("T12_imag");

@@ -16,45 +16,40 @@
 package org.esa.nest.gpf.filtering;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
 
 import java.util.Arrays;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for SpeckleFilterOperator.
  */
-public class SpeckleFilterOperatorTest extends TestCase {
+public class SpeckleFilterOperatorTest {
 
-    private OperatorSpi spi;
-    private final static String inputPathWSM = TestUtils.rootPathExpectedProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-    private final static String expectedPathWSM = TestUtils.rootPathExpectedProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_Spk.dim";
+    static {
+        TestUtils.initTestEnvironment();
+    }
+    private OperatorSpi spi = new SpeckleFilterOp.Spi();
+
+    private final static String inputPathWSM = TestUtils.rootPathTestProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
+    private final static String expectedPathWSM = TestUtils.rootPathTestProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_Spk.dim";
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
-
-    @Override
-    protected void setUp() throws Exception {
-        TestUtils.initTestEnvironment();
-        spi = new SpeckleFilterOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
-    }
 
     /**
      * Tests Mean speckle filter with a 4-by-4 test product.
      *
      * @throws Exception The exception.
      */
+    @Test
     public void testMeanFilter() throws Exception {
         final Product sourceProduct = createTestProduct(4, 4);
 
@@ -86,6 +81,7 @@ public class SpeckleFilterOperatorTest extends TestCase {
      *
      * @throws Exception anything
      */
+    @Test
     public void testMedianFilter() throws Exception {
         final Product sourceProduct = createTestProduct(4, 4);
 
@@ -116,6 +112,7 @@ public class SpeckleFilterOperatorTest extends TestCase {
      *
      * @throws Exception anything
      */
+    @Test
     public void testFrostFilter() throws Exception {
         final Product sourceProduct = createTestProduct(4, 4);
 
@@ -146,6 +143,7 @@ public class SpeckleFilterOperatorTest extends TestCase {
      *
      * @throws Exception anything
      */
+    @Test
     public void testGammaFilter() throws Exception {
         final Product sourceProduct = createTestProduct(4, 4);
 
@@ -176,6 +174,7 @@ public class SpeckleFilterOperatorTest extends TestCase {
      *
      * @throws Exception anything
      */
+    @Test
     public void testLeeFilter() throws Exception {
         final Product sourceProduct = createTestProduct(4, 4);
 
@@ -207,6 +206,7 @@ public class SpeckleFilterOperatorTest extends TestCase {
      *
      * @throws Exception anything
      */
+    @Test
     public void testRefinedLeeFilter() throws Exception {
         final Product sourceProduct = createRefinedLeeTestProduct();
 
@@ -286,6 +286,7 @@ public class SpeckleFilterOperatorTest extends TestCase {
      *
      * @throws Exception general exception
      */
+    @Test
     public void testProcessing() throws Exception {
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputPathWSM);
@@ -300,30 +301,42 @@ public class SpeckleFilterOperatorTest extends TestCase {
         TestUtils.compareProducts(targetProduct, expectedPathWSM, null);
     }
 
+    @Test
     public void testProcessAllASAR() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, null);
     }
 
+    @Test
     public void testProcessAllERS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, null, null);
     }
 
+    @Test
     public void testProcessAllALOS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, null);
     }
 
+    @Test
     public void testProcessAllRadarsat2() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, null, null);
     }
 
+    @Test
     public void testProcessAllTerraSARX() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathTerraSarX, null, null);
     }
 
+    @Test
     public void testProcessAllCosmo() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, null, null);
     }
 
+    @Test
+    public void testProcessAllSentinel1() throws Exception {
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathSentinel1, null, null);
+    }
+
+    @Test
     public void testProcessAllNestBox() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, null);
     }

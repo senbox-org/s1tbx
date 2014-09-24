@@ -20,6 +20,7 @@ import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.snap.gpf.GPFProcessor;
 
 import java.io.File;
+import java.io.FileReader;
 
 /**
  * Defines a File in a Project
@@ -42,7 +43,7 @@ public class ProjectFile {
         folderType = folder;
         if (folderType == ProjectSubFolder.FolderType.GRAPH) {
             try {
-                Graph graph = GPFProcessor.readGraph(file, null);
+                Graph graph = GPFProcessor.readGraph(new FileReader(file), null);
                 if (graph != null) {
                     XppDom presXML = graph.getApplicationData("Presentation");
                     if (presXML != null) {

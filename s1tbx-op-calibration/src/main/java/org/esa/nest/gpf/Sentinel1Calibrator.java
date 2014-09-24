@@ -16,22 +16,27 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.ProductUtils;
-import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.nest.datamodel.BaseCalibrator;
 import org.esa.nest.datamodel.Calibrator;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Calibration for Sentinel1 data products.
@@ -45,14 +50,14 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     private int numOfSubSwath = 1;
     private CalibrationInfo[] calibration = null;
     private boolean isGRD = false;
-    protected final HashMap<String, CalibrationInfo> targetBandToCalInfo = new HashMap<String, CalibrationInfo>(2);
+    protected final HashMap<String, CalibrationInfo> targetBandToCalInfo = new HashMap<>(2);
     private java.util.List<String> selectedPolList = null;
     private boolean outputSigmaBand = false;
     private boolean outputGammaBand = false;
     private boolean outputBetaBand = false;
     private boolean outputDNBand = false;
 
-    public enum CALTYPE { SIGMA0, BETA0, GAMMA, DN }
+    public enum CALTYPE {SIGMA0, BETA0, GAMMA, DN}
 
     /**
      * Default constructor. The graph processing framework
@@ -94,7 +99,12 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             selectedPols = Sentinel1Utils.getProductPolarizations(absRoot);
         }
-        selectedPolList = Arrays.asList(selectedPols);
+
+        selectedPolList = new ArrayList<String>(4);
+        for (String pol : selectedPols) {
+            selectedPolList.add(pol.toUpperCase());
+        }
+        //selectedPolList = Arrays.asList(selectedPols);
 
         if (!outputSigmaBand && !outputGammaBand && !outputBetaBand && !outputDNBand) {
             throw new OperatorException("No output product is selected");
@@ -126,9 +136,8 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
             getSampleType();
 
-            calibration = new CalibrationInfo[numOfSubSwath * selectedPolList.size()];
-            getCalibrationVectors(sourceProduct, selectedPolList, outputSigmaBand, outputBetaBand, outputGammaBand,
-                    outputDNBand, calibration);
+            calibration = getCalibrationVectors(sourceProduct, selectedPolList,
+                    outputSigmaBand, outputBetaBand, outputGammaBand, outputDNBand);
 
             createTargetBandToCalInfoMap();
 
@@ -146,7 +155,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
      */
     private void getMission() {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.equals("SENTINEL-1A")) {
+        if (!mission.startsWith("SENTINEL-1")) {
             throw new OperatorException(mission + " is not a valid mission for Sentinel1 product");
         }
     }
@@ -200,16 +209,14 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     /**
      * Get calibration vectors from metadata.
      */
-    public static void getCalibrationVectors(final Product sourceProduct, final java.util.List<String> selectedPolList,
-                                             final boolean outputSigmaBand, final boolean outputBetaBand,
-                                             final boolean outputGammaBand, final boolean outputDNBand,
-                                             CalibrationInfo[] calibration) {
-
+    public static CalibrationInfo[] getCalibrationVectors(final Product sourceProduct, final java.util.List<String> selectedPolList,
+                                                          final boolean outputSigmaBand, final boolean outputBetaBand,
+                                                          final boolean outputGammaBand, final boolean outputDNBand) {
+        final List<CalibrationInfo> calibrationInfoList = new ArrayList<>();
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
         final MetadataElement calibrationElem = origProdRoot.getElement("calibration");
         final MetadataElement[] calibrationDataSetListElem = calibrationElem.getElements();
 
-        int dataSetIndex = 0;
         for (MetadataElement dataSetListElem : calibrationDataSetListElem) {
 
             final MetadataElement calElem = dataSetListElem.getElement("calibration");
@@ -230,11 +237,11 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                     Sentinel1Utils.getCalibrationVector(
                             calVecListElem, outputSigmaBand, outputBetaBand, outputGammaBand, outputDNBand);
 
-            calibration[dataSetIndex] = new CalibrationInfo(subSwath, pol,
-                    firstLineTime, lastLineTime, numOfLines, count, calibrationVectorList);
-
-            dataSetIndex++;
+            calibrationInfoList.add(new CalibrationInfo(subSwath, pol,
+                    firstLineTime, lastLineTime, numOfLines, count, calibrationVectorList));
         }
+
+        return calibrationInfoList.toArray(new CalibrationInfo[calibrationInfoList.size()]);
     }
 
     /**
@@ -247,15 +254,10 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             final String pol = cal.polarization;
             final String ss = cal.subSwath;
             for (String bandName : targetBandNames) {
-                if (!isGRD) {
-                    if (bandName.contains(pol) && bandName.contains(ss)) {
-                        targetBandToCalInfo.put(bandName, cal);
-
-                    }
-                } else {
-                    if (bandName.contains(pol)) {
-                        targetBandToCalInfo.put(bandName, cal);
-                    }
+                if (bandName.contains(pol) && bandName.contains(ss)) {
+                    targetBandToCalInfo.put(bandName, cal);
+                } else if (bandName.contains(pol)) {
+                    targetBandToCalInfo.put(bandName, cal);
                 }
             }
         }
@@ -299,15 +301,15 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         Sentinel1Utils.updateBandNames(absRoot, selectedPolList, targetBandNames);
 
         final MetadataElement[] bandMetadataList = AbstractMetadata.getBandAbsMetadataList(absRoot);
-        for(MetadataElement bandMeta : bandMetadataList) {
+        for (MetadataElement bandMeta : bandMetadataList) {
             boolean polFound = false;
-            for(String pol : selectedPolList) {
-                if(bandMeta.getName().contains(pol)) {
+            for (String pol : selectedPolList) {
+                if (bandMeta.getName().contains(pol)) {
                     polFound = true;
                     break;
                 }
             }
-            if(!polFound) {
+            if (!polFound) {
                 // remove band metadata if polarization is not included
                 absRoot.removeElement(bandMeta);
             }
@@ -473,10 +475,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
         final boolean complexData = bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY;
         final CalibrationInfo calInfo = targetBandToCalInfo.get(targetBandName);
-        calInfo.calculateVectors(targetBandName, x0, y0);
-
-        final float[] vec0LUT=calInfo.vec0LUT, vec1LUT=calInfo.vec1LUT;
-        final int[] vec0Pixels=calInfo.vec0Pixels;
+        final Sentinel1Calibrator.CALTYPE calType = Sentinel1Calibrator.getCalibrationType(targetBandName);
 
         double dn, i, q, muX, lutVal;
         int srcIdx, trgIdx;
@@ -484,20 +483,22 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             srcIndex.calculateStride(y);
             trgIndex.calculateStride(y);
 
+            final int calVecIdx = calInfo.getCalibrationVectorIndex(y);
+            final Sentinel1Utils.CalibrationVector vec0 = calInfo.getCalibrationVector(calVecIdx);
+            final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
+            final float[] vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
+            final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
             final double azTime = calInfo.firstLineTime + y * calInfo.lineTimeInterval;
-            final double muY = (azTime - calInfo.azT0) / calInfo.timeRange;
-            int pixelIdx = calInfo.pixelIdx0;
+            final double muY = (azTime - vec0.timeMJD) / (vec1.timeMJD - vec0.timeMJD);
 
             for (int x = x0; x < maxX; ++x) {
                 srcIdx = srcIndex.getIndex(x);
                 trgIdx = trgIndex.getIndex(x);
 
-                if (x > vec0Pixels[pixelIdx + 1]) {
-                    pixelIdx++;
-                }
-                muX = (x - vec0Pixels[pixelIdx]) / (double) (vec0Pixels[pixelIdx + 1] - vec0Pixels[pixelIdx]);
-                //interpolationBiLinear
-                lutVal = (1 - muY) * ((1 - muX) * vec0LUT[pixelIdx] + muX * vec0LUT[pixelIdx + 1]) + muY * ((1 - muX) * vec1LUT[pixelIdx] + muX * vec1LUT[pixelIdx + 1]);
+                final int pixelIdx = calInfo.getPixelIndex(x, calVecIdx);
+                muX = (x - vec0.pixels[pixelIdx]) / (double)(vec0.pixels[pixelIdx + 1] - vec0.pixels[pixelIdx]);
+                lutVal = (1 - muY) * ((1 - muX) * vec0LUT[pixelIdx] + muX * vec0LUT[pixelIdx + 1]) +
+                        muY * ((1 - muX) * vec1LUT[pixelIdx] + muX * vec1LUT[pixelIdx + 1]);
 
                 // todo: check if lut should be squared
                 if (complexData) {
@@ -539,52 +540,50 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         }
     }
 
-    /**
-     * Get index of the calibration vector in the list for a given line.
-     *
-     * @param y       Line coordinate.
-     * @param calInfo Object of CalibrationInfo class.
-     * @return The calibration vector index.
-     */
-    static int getCalibrationVectorIndex(final int y, final CalibrationInfo calInfo) {
-
-        for (int i = 0; i < calInfo.count; i++) {
-            if (y < calInfo.calibrationVectorList[i].line) {
-                return i - 1;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Get pixel index in a given calibration vector for a given pixel.
-     *
-     * @param x         Pixel coordinate.
-     * @param calVecIdx Calibration vector index.
-     * @param calInfo   Object of CalibrationInfo class.
-     * @return The pixel index.
-     */
-    static int getPixelIndex(final int x, final int calVecIdx, final CalibrationInfo calInfo) {
-
-        for (int i = 0; i < calInfo.calibrationVectorList[calVecIdx].pixels.length; i++) {
-            if (x < calInfo.calibrationVectorList[calVecIdx].pixels[i]) {
-                return i - 1;
-            }
-        }
-        return -1;
-    }
-
 
     public double applyCalibration(
             final double v, final double rangeIndex, final double azimuthIndex, final double slantRange,
             final double satelliteHeight, final double sceneToEarthCentre, final double localIncidenceAngle,
             final String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
 
-        return 0.0;
+        final String targetBandName = "Sigma0_" + bandPolar.toUpperCase();
+        final CalibrationInfo calInfo = targetBandToCalInfo.get(targetBandName);
+        final int calVecIdx = calInfo.getCalibrationVectorIndex((int)azimuthIndex);
+        final Sentinel1Utils.CalibrationVector vec0 = calInfo.getCalibrationVector(calVecIdx);
+        final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
+        final Sentinel1Calibrator.CALTYPE calType = Sentinel1Calibrator.getCalibrationType(targetBandName);
+        final float[] vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
+        final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
+        final int pixelIdx = calInfo.getPixelIndex((int)rangeIndex, calVecIdx);
+        final double azTime = calInfo.firstLineTime + azimuthIndex * calInfo.lineTimeInterval;
+        final double muY = (azTime - vec0.timeMJD) / (vec1.timeMJD - vec0.timeMJD);
+        final double muX =
+                (rangeIndex - vec0.pixels[pixelIdx]) / (double)(vec0.pixels[pixelIdx + 1] - vec0.pixels[pixelIdx]);
+
+        final double lutVal =
+                (1 - muY) * ((1 - muX) * vec0LUT[pixelIdx] + muX * vec0LUT[pixelIdx + 1]) +
+                        muY * ((1 - muX) * vec1LUT[pixelIdx] + muX * vec1LUT[pixelIdx + 1]);
+
+        double sigma = 0.0;
+        if (bandUnit == Unit.UnitType.AMPLITUDE) {
+            sigma = v * v;
+        } else if (bandUnit == Unit.UnitType.INTENSITY ||
+                bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
+            sigma = v;
+        } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
+            sigma = Math.pow(10, v / 10.0); // convert dB to linear scale
+        } else {
+            throw new OperatorException("Unknown band unit");
+        }
+
+        return sigma / lutVal;
     }
 
-    public double applyRetroCalibration(int x, int y, double v, String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
-        return 0.0;
+    public double applyRetroCalibration(
+            int x, int y, double v, String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
+
+        // no need to do anything because s-1 GRD product has not yet been calibrated
+        return v;
     }
 
     public void removeFactorsForCurrentTile(final Band targetBand, final Tile targetTile,
@@ -603,13 +602,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         public final int numOfLines;
         public final int count; // number of calibrationVector records within the list
         public final Sentinel1Utils.CalibrationVector[] calibrationVectorList;
-
         public final double lineTimeInterval;
-
-        int pixelIdx0=0;
-        float[] vec0LUT=null, vec1LUT=null;
-        int[] vec0Pixels=null;
-        double timeRange=0, azT0=0, azT1=0;
 
         CalibrationInfo(String subSwath, String polarization, final double firstLineTime, final double lastLineTime,
                         final int numOfLines, final int count,
@@ -625,20 +618,27 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             this.lineTimeInterval = (lastLineTime - firstLineTime) / (numOfLines - 1);
         }
 
-        public void calculateVectors(final String targetBandName, final int x0, final int y0) {
-            int calVecIdx = getCalibrationVectorIndex(y0, this);
-            pixelIdx0 = getPixelIndex(x0, calVecIdx, this);
+        public int getCalibrationVectorIndex(final int y) {
+            for (int i = 0; i < count; i++) {
+                if (y < calibrationVectorList[i].line) {
+                    return i - 1;
+                }
+            }
+            return -1;
+        }
 
-            final Sentinel1Utils.CalibrationVector vec0 = calibrationVectorList[calVecIdx];
-            final Sentinel1Utils.CalibrationVector vec1 = calibrationVectorList[calVecIdx + 1];
-            vec0Pixels = vec0.pixels;
+        public Sentinel1Utils.CalibrationVector getCalibrationVector(final int calVecIdx) {
+            return calibrationVectorList[calVecIdx];
+        }
 
-            final Sentinel1Calibrator.CALTYPE calType = Sentinel1Calibrator.getCalibrationType(targetBandName);
-            vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
-            vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
-            azT0 = vec0.timeMJD;
-            azT1 = vec1.timeMJD;
-            timeRange = (azT1 - azT0);
+        public int getPixelIndex(final int x, final int calVecIdx) {
+
+            for (int i = 0; i < calibrationVectorList[calVecIdx].pixels.length; i++) {
+                if (x < calibrationVectorList[calVecIdx].pixels[i]) {
+                    return i - 1;
+                }
+            }
+            return calibrationVectorList[calVecIdx].pixels.length - 2;
         }
     }
 }

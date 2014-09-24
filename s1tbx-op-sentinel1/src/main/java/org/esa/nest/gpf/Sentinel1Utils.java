@@ -39,6 +39,7 @@ public final class Sentinel1Utils {
     private SubSwathInfo[] subSwath = null;
     private SARGeocoding.Orbit orbit = null;
     private String[] polarizations = null;
+    private String[] subSwathNames = null;
     private boolean isDopplerCentroidAvailable = false;
 
     public double firstLineUTC = 0.0; // in days
@@ -63,11 +64,13 @@ public final class Sentinel1Utils {
 
         getMetadataRoot();
 
-        getGeneralImageInfo();
+        getAbstractedMetadata();
 
         getProductAcquisitionMode();
 
         getProductPolarizations();
+
+        getProductSubSwathNames();
 
         getSubSwathParameters();
 
@@ -76,23 +79,6 @@ public final class Sentinel1Utils {
         computeDopplerRate(); // todo: should compute on request
 
         computeReferenceTime(); // todo: should compute on request
-    }
-
-    public Sentinel1Utils(final Product sourceProduct, final boolean outputSigmaBand, final boolean outputGammaBand,
-                          final boolean outputBetaBand, final boolean outputDNBand) {
-
-
-        this.sourceProduct = sourceProduct;
-
-        getMetadataRoot();
-
-        getProductAcquisitionMode();
-
-        getProductPolarizations();
-
-        getSubSwathParameters();
-
-        getSubSwathCalibrationVectors(outputSigmaBand, outputBetaBand, outputGammaBand, outputDNBand);
     }
 
     private void getMetadataRoot() {
@@ -113,12 +99,12 @@ public final class Sentinel1Utils {
         }
 
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.equals("SENTINEL-1A")) {
+        if (!mission.startsWith("SENTINEL-1")) {
             throw new OperatorException(mission + " is not a valid mission for Sentinel1 product.");
         }
     }
 
-    private void getGeneralImageInfo() throws Exception {
+    private void getAbstractedMetadata() throws Exception {
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
@@ -156,17 +142,6 @@ public final class Sentinel1Utils {
     private void getProductAcquisitionMode() {
 
         acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-
-        switch (acquisitionMode) {
-            case "IW":
-                numOfSubSwath = 3;
-                break;
-            case "EW":
-                numOfSubSwath = 5;
-                break;
-            default:
-                numOfSubSwath = 1;
-        }
     }
 
     /**
@@ -177,7 +152,7 @@ public final class Sentinel1Utils {
         final MetadataElement[] elems = absRoot.getElements();
         final List<String> polList = new ArrayList<String>(4);
         for (MetadataElement elem : elems) {
-            if (elem.getName().contains(acquisitionMode)) {
+            if (elem.getName().contains("Band_")) {
                 final String pol = elem.getAttributeString("polarization");
                 if (!polList.contains(pol)) {
                     polList.add(pol);
@@ -188,6 +163,25 @@ public final class Sentinel1Utils {
     }
 
     /**
+     * Get source product subSwath names.
+     */
+    private void getProductSubSwathNames() {
+
+        final MetadataElement[] elems = absRoot.getElements();
+        final List<String> subSwathNameList = new ArrayList<String>(4);
+        for (MetadataElement elem : elems) {
+            if (elem.getName().contains(acquisitionMode)) {
+                final String swath = elem.getAttributeString("swath");
+                if (!subSwathNameList.contains(swath)) {
+                    subSwathNameList.add(swath);
+                }
+            }
+        }
+        subSwathNames =  subSwathNameList.toArray(new String[subSwathNameList.size()]);
+        numOfSubSwath = subSwathNames.length;
+    }
+
+    /**
      * Get parameters for all sub-swaths.
      */
     private void getSubSwathParameters() {
@@ -195,13 +189,9 @@ public final class Sentinel1Utils {
         subSwath = new SubSwathInfo[numOfSubSwath];
         for (int i = 0; i < numOfSubSwath; i++) {
             subSwath[i] = new SubSwathInfo();
-            if (numOfSubSwath > 1) {
-                subSwath[i].subSwathName = acquisitionMode + (i + 1);
-            } else {
-                subSwath[i].subSwathName = acquisitionMode;
-            }
+			subSwath[i].subSwathName = subSwathNames[i];
             final MetadataElement subSwathMetadata = getSubSwathMetadata(subSwath[i].subSwathName);
-            setParameters(subSwathMetadata, subSwath[i]);
+            getSubSwathParameters(subSwathMetadata, subSwath[i]);
         }
     }
 
@@ -234,7 +224,7 @@ public final class Sentinel1Utils {
      * @param subSwathMetadata The root metadata element of a given sub-swath.
      * @param subSwath         The SubSwathInfo object.
      */
-    private static void setParameters(final MetadataElement subSwathMetadata, final SubSwathInfo subSwath) {
+    private static void getSubSwathParameters(final MetadataElement subSwathMetadata, final SubSwathInfo subSwath) {
 
         final MetadataElement product = subSwathMetadata.getElement("product");
         final MetadataElement imageAnnotation = product.getElement("imageAnnotation");
@@ -251,6 +241,7 @@ public final class Sentinel1Utils {
         subSwath.azimuthTimeInterval = Double.parseDouble(imageInformation.getAttributeString("azimuthTimeInterval")) /
                 Constants.secondsInDay; // s to day
         subSwath.rangePixelSpacing = Double.parseDouble(imageInformation.getAttributeString("rangePixelSpacing"));
+        subSwath.azimuthPixelSpacing = Double.parseDouble(imageInformation.getAttributeString("azimuthPixelSpacing"));
         subSwath.slrTimeToFirstPixel = Double.parseDouble(imageInformation.getAttributeString("slantRangeTime")) / 2.0; // 2-way to 1-way
         subSwath.slrTimeToLastPixel = subSwath.slrTimeToFirstPixel +
                 (subSwath.numOfSamples - 1) * subSwath.rangePixelSpacing / Constants.lightSpeed;
@@ -738,10 +729,9 @@ public final class Sentinel1Utils {
     public static String[] getProductPolarizations(final MetadataElement absRoot) {
 
         final MetadataElement[] elems = absRoot.getElements();
-        final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         final List<String> polList = new ArrayList<String>(4);
         for (MetadataElement elem : elems) {
-            if (elem.getName().contains(acquisitionMode)) {
+            if (elem.getName().contains("Band_")) {
                 final String pol = elem.getAttributeString("polarization");
                 if (!polList.contains(pol)) {
                     polList.add(pol);
@@ -770,6 +760,15 @@ public final class Sentinel1Utils {
      */
     public String[] getPolarizations() {
         return polarizations;
+    }
+
+    /**
+     * Get source product subSwath names.
+     *
+     * @return The subSwath name array.
+     */
+    public String[] getSubSwathNames() {
+        return subSwathNames;
     }
 
     public SubSwathInfo[] getSubSwath() {
@@ -952,7 +951,6 @@ public final class Sentinel1Utils {
     public static void updateBandNames(
             final MetadataElement absRoot, final java.util.List<String> selectedPolList, final String[] bandNames) {
 
-        final boolean isGRD = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE).equals("GRD");
         final MetadataElement[] children = absRoot.getElements();
         for (MetadataElement child : children) {
             final String childName = child.getName();
@@ -962,7 +960,9 @@ public final class Sentinel1Utils {
                 if (selectedPolList.contains(pol)) {
                     String bandNameArray = "";
                     for (String bandName : bandNames) {
-                        if (!isGRD && bandName.contains(sw_pol) || isGRD && bandName.contains(pol)) {
+                        if (bandName.contains(sw_pol)) {
+                            bandNameArray += bandName + " ";
+                        } else if (bandName.contains(pol)) {
                             bandNameArray += bandName + " ";
                         }
                     }
@@ -974,7 +974,7 @@ public final class Sentinel1Utils {
         }
     }
 
-    public static int[] getIntArray(final MetadataElement elem, final String tag) {
+    private static int[] getIntArray(final MetadataElement elem, final String tag) {
 
         MetadataAttribute attribute = elem.getAttribute(tag);
         if (attribute == null) {
@@ -998,7 +998,7 @@ public final class Sentinel1Utils {
         return array;
     }
 
-    public static double[] getDoubleArray(final MetadataElement elem, final String tag) {
+    private static double[] getDoubleArray(final MetadataElement elem, final String tag) {
 
         MetadataAttribute attribute = elem.getAttribute(tag);
         if (attribute == null) {
@@ -1051,6 +1051,7 @@ public final class Sentinel1Utils {
         public double slrTimeToLastPixel;
         public double azimuthTimeInterval;
         public double rangePixelSpacing;
+        public double azimuthPixelSpacing;
         public double radarFrequency;
         public double azimuthSteeringRate;
 

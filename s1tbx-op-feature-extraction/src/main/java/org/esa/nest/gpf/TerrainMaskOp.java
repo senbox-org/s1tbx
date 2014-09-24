@@ -44,7 +44,7 @@ import java.io.File;
  */
 
 @OperatorMetadata(alias = "Terrain-Mask",
-        category = "Classification/Masks",
+        category = "Utilities/Masks",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Terrain Mask Generation")
@@ -114,10 +114,6 @@ public final class TerrainMaskOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            if (OperatorUtils.isMapProjected(sourceProduct)) {
-                throw new OperatorException("Source product already map projected");
-            }
-
             setWindowSize();
 
             getSourceImageDimension();

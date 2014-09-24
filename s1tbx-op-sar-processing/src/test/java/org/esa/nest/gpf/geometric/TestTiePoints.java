@@ -21,9 +21,9 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.snap.util.TestUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
@@ -32,15 +32,17 @@ import java.io.File;
  */
 public class TestTiePoints {
 
-    final File inputFile = new File(TestUtils.rootPathExpectedProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim");
+    static {
+        TestUtils.initTestEnvironment();
+    }
+
+    final File inputFile = new File(TestUtils.rootPathTestProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim");
 
     private Product product1 = null;
     private Product product2 = null;
 
     @Before
     public void setUp() throws Exception {
-        TestUtils.initTestEnvironment();
-
         if (inputFile.exists()) {
             product1 = ProductIO.readProduct(inputFile);
             product2 = ProductIO.readProduct(inputFile);
@@ -82,7 +84,6 @@ public class TestTiePoints {
     }
 
     @Test
-    @Ignore
     public void testCompareFloats() throws Exception {
 
         if (product1 == null) {
@@ -99,9 +100,7 @@ public class TestTiePoints {
         for (int y = 0; y < h; ++y) {
             for (int x = 0; x < w; ++x) {
                 final float f = tpg.getPixelFloat(x, y);
-
-                System.out.println(x + ',' + y + ' ' + f + "    " + floats[y * w + x]);
-                assertEquals(f, floats[y * w + x]);
+                assertTrue(f == floats[y * w + x]);
             }
         }
     }

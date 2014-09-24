@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE map
+        PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 2.0//EN"
+        "http://java.sun.com/products/javahelp/map_2_0.dtd">
+
+<map version="2.0">
+
+    <!-- Product Readers -->
+	<mapID target="importSentinel1Product" url="readers/ImportSentinel1.html"/>
+    <mapID target="importEnvisatProduct" url="readers/ImportEnvisat.html"/>
+    <mapID target="importErsProduct" url="readers/ImportErs.html"/>
+    <mapID target="ImportERSCeos" url="readers/ImportERSCeos.html"/>
+    <mapID target="ImportJERSCeos" url="readers/ImportJERSCeos.html"/>
+    <mapID target="ImportAlosPalsar" url="readers/ImportAlosPalsar.html"/>
+    <mapID target="ImportRadarsat1" url="readers/ImportRadarsat1.html"/>
+    <mapID target="ImportRadarsat2" url="readers/ImportRadarsat2.html"/>
+    <mapID target="ImportTerraSarX" url="readers/ImportTerraSarX.html"/>
+    <mapID target="ImportCosmoSkymed" url="readers/ImportCosmoSkymed.html"/>
+    <mapID target="ImportPolsarPro" url="readers/ImportPolsarPro.html"/>
+    <!-- DEMs -->
+    <mapID target="importGETASSE30" url="visat/GETASSE30ElevationModel.html"/>
+    <mapID target="importGTOPO30" url="readers/ImportGTOPO30.html"/>
+    <mapID target="importACE" url="readers/ImportACE.html"/>
+    <mapID target="importSRTM" url="readers/ImportSRTM.html"/>
+    <!-- Common File Formats -->
+    <mapID target="ImportGeoTIFF" url="readers/ImportGeoTIFF.html"/>
+    <mapID target="ImportImageIO" url="readers/ImportImageIO.html"/>
+    <mapID target="importNetCDF" url="readers/ImportNetCDF.html"/>
+    <mapID target="importHDF" url="readers/ImportHDF.html"/>
+    <mapID target="importGenericBinary" url="readers/ImportGenericBinary.html"/>
+    <mapID target="importComplexGenericBinary" url="readers/ImportComplexGenericBinary.html"/>
+    <mapID target="importDimapProduct" url="readers/BeamDimapFormat.html"/>
+    <mapID target="ImportEnvi" url="readers/ImportEnvi.html"/>
+    <!-- Multispectral -->
+    <mapID target="importLandsatTMProduct" url="readers/ImportLandsatTM.html"/>
+    <mapID target="ImportAlosAVNIR2" url="readers/ImportAVNIR2.html"/>
+    <mapID target="ImportAlosPRISM" url="readers/ImportPRISM.html"/>
+
+    <mapID target="importGeometry" url="readers/ImportGeometry.html"/>
+
+    <!-- Product Writers -->
+    <mapID target="exportDimapProduct" url="writers/ExportDimapProduct.html"/>
+    <mapID target="exportEnviGcpFile" url="writers/ExportEnviGcpFile.html"/>
+    <mapID target="exportHdf5Product" url="writers/ExportHDF.html"/>
+    <mapID target="exportNetCDF" url="writers/ExportNetCDF.html"/>
+    <mapID target="exportImageFile" url="writers/ExportImage.html"/>
+    <mapID target="exportKml" url="writers/ExportKml.html"/>
+    <mapID target="exportROIPixels" url="writers/ExportROIPixels.html"/>
+    <mapID target="exportTransectPixels" url="writers/ExportTransectPixels.html"/>
+    <mapID target="exportGeoTIFF" url="writers/ExportGeoTIFF.html"/>
+    <mapID target="exportColorPalette" url="writers/ExportColorPalette.html"/>
+
+</map>

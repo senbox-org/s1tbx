@@ -1,14 +1,12 @@
 #! /bin/sh
 echo Starting S1TBX...
 
-if [ -z "$S1TBX_HOME" ]; then
-    export S1TBX_HOME=$PWD
-fi
+set S1TBX_HOME=${installer:sys.installationDir}
 
 $S1TBX_HOME/jre/bin/java \
-	-server -Xms512M -Xmx3000M -XX:PermSize=512m -XX:MaxPermSize=512m -Xverify:none \
-    -XX:+AggressiveOpts -XX:+UseFastAccessorMethods \
-    -XX:+UseParallelGC -XX:+UseNUMA -XX:+UseLoopPredicate -XX:+UseStringCache \
+	-Xmx${installer:maxHeapSize} \
+    -Xverify:none -XX:+AggressiveOpts -XX:+UseFastAccessorMethods \
+    -XX:+UseParallelGC -XX:+UseNUMA -XX:+UseLoopPredicate \
     -Dceres.context=s1tbx \
 	"-Ds1tbx.home=$S1TBX_HOME" \
     "-Ds1tbx.debug=false" \

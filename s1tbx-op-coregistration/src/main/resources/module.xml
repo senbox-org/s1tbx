@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s1tbx-op-coregistration</symbolicName>
-    <version>0.5</version>
+    <version>0.7</version>
     <name>S1TBX Coregistration</name>
     <description>S1TBX Coregistration</description>
 
@@ -112,7 +112,7 @@
             <graphFile>CoregistrationGraph.xml</graphFile>
         </action>
 
-        <action>
+        <!--action>
             <id>DEMBasedCoregistrationOp</id>
             <helpId>DEMBasedCoregistrationOp</helpId>
             <class>org.esa.snap.dat.actions.GraphAction</class>
@@ -123,7 +123,7 @@
             <shortDescr>DEM Based Coregistration</shortDescr>
             <graphFile>DEMBasedCoregistrationGraph.xml</graphFile>
             <placeAfter>CoregistrationGraph</placeAfter>
-        </action>
+        </action-->
 
         <action>
             <id>PrincipalComponents</id>
@@ -139,14 +139,6 @@
         </action>
 
         <action>
-            <id>stack-utilities</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Stack Utilities</text>
-            <parent>Sar Processing</parent>
-            <placeAfter>SpeckleFiltering</placeAfter>
-        </action>
-
-        <action>
             <id>StackAveraging</id>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
@@ -155,7 +147,7 @@
             <dialogTitle>Stack Averaging</dialogTitle>
             <targetProductNameSuffix>_avg</targetProductNameSuffix>
             <shortDescr>Stack Averaging</shortDescr>
-            <parent>stack-utilities</parent>
+            <parent>CoregistrationGroup</parent>
             <helpId>StackAveraging</helpId>
         </action>
 

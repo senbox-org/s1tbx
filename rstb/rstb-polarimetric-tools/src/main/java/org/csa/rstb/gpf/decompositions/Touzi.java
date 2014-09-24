@@ -61,7 +61,7 @@ public class Touzi extends DecompositionBase implements Decomposition {
      * @return list of band names
      */
     public String[] getTargetBandNames() {
-        final List<String> targetBandNameList = new ArrayList<String>(4);
+        final List<String> targetBandNameList = new ArrayList<>(4);
 
         if (!outputTouziParamSet0 && !outputTouziParamSet1 && !outputTouziParamSet2 && !outputTouziParamSet3) {
             throw new OperatorException("Please select decomposition parameters to output");

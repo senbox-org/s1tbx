@@ -18,6 +18,7 @@ package org.esa.nest.dat.wizards;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import org.esa.beam.framework.ui.ModelessDialog;
+import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.VisatApp;
 import org.esa.snap.dat.actions.OperatorAction;
 import org.esa.snap.util.ResourceUtils;
@@ -31,29 +32,34 @@ import org.esa.snap.util.ResourceUtils;
  * file name suffix for the target product can be given via the {@code targetProductNameSuffix} property.</p>
  */
 public class WizardAction extends OperatorAction {
-    WizardPanel wizardPanel;
+    ConfigurationElement config;
+    String wizardClassStr;
 
     @Override
     public void configure(ConfigurationElement config) throws CoreException {
         super.configure(config);
+        this.config = config;
+        wizardClassStr = getConfigString(config, "wizardPanelClass");
+    }
 
-        try {
-            String panelClass = getConfigString(config, "wizardPanelClass");
-            Class wizardClass = config.getDeclaringExtension().getDeclaringModule().loadClass(panelClass);
-
-            wizardPanel = (WizardPanel) wizardClass.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @Override
+    public void actionPerformed(CommandEvent event) {
+        createOperatorDialog();
     }
 
     @Override
     protected ModelessDialog createOperatorDialog() {
+        try {
+            final Class wizardClass = config.getDeclaringExtension().getDeclaringModule().loadClass(wizardClassStr);
+            final WizardPanel wizardPanel = (WizardPanel) wizardClass.newInstance();
 
-        final WizardDialog dialog = new WizardDialog(VisatApp.getApp().getMainFrame(), false,
-                dialogTitle, getHelpId(), wizardPanel);
-        dialog.setIcon(ResourceUtils.rstbIcon);
-        dialog.setVisible(true);
+            final WizardDialog dialog = new WizardDialog(VisatApp.getApp().getMainFrame(), false,
+                    dialogTitle, getHelpId(), wizardPanel);
+            dialog.setIcon(ResourceUtils.rstbIcon);
+            dialog.setVisible(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
 }

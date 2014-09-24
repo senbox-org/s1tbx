@@ -17,9 +17,9 @@ package org.esa.nest.datamodel;
 
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.nest.gpf.*;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.eo.Constants;
-import org.esa.nest.gpf.*;
 
 /**
  * The abstract base class for all calibration operators intended to be extended by clients.
@@ -48,7 +48,7 @@ public class CalibrationFactory {
             return new TerraSARXCalibrator();
         } else if (mission.contains("CSK")) {
             return new CosmoSkymedCalibrator();
-        } else if (mission.contains("SENTINEL-1A")) {
+        } else if (mission.contains("SENTINEL-1")) {
             return new Sentinel1Calibrator();
         } else {
             throw new OperatorException("Mission " + mission + " is currently not supported for calibration.");

@@ -16,11 +16,11 @@
 package org.esa.nest.gpf;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.ui.AppContext;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.gpf.OperatorUIUtils;
 import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.snap.gpf.ui.UIValidation;
-import org.esa.beam.framework.ui.AppContext;
-import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
@@ -34,7 +34,7 @@ import java.util.Map;
  */
 public class Sentinel1RemoveThermalNoiseOpUI extends BaseOperatorUI {
 
-    private final JList<String> polList = new JList<String>();
+    private final JList<String> polList = new JList<>();
     private final JCheckBox removeThermalNoiseCheckBox = new JCheckBox("Remove Thermal Noise");
     private final JCheckBox reIntroduceThermalNoiseCheckBox = new JCheckBox("Re-Introduce Thermal Noise");
     private boolean removeThermalNoise = false;

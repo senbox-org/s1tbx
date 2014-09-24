@@ -20,8 +20,8 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
-import org.esa.snap.datamodel.Unit;
 import org.esa.nest.gpf.CalibrationOp;
+import org.esa.snap.datamodel.Unit;
 
 /**
  * Sigma0toGamma0Action action.

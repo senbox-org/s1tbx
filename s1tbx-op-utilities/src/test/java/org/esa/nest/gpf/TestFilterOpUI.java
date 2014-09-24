@@ -15,43 +15,51 @@
  */
 package org.esa.nest.gpf;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.snap.util.TestUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Unit test for SingleTileOperator.
  */
-public class TestFilterOpUI extends TestCase {
+public class TestFilterOpUI {
 
-    private FilterOpUI filterOpUI;
+    static {
+        TestUtils.initTestEnvironment();
+    }
+    private final static OperatorSpi spi = new FilterOperator.Spi();
+    private final static String operatorName = "Image-Filter";
+
+    private FilterOpUI filterOpUI = new FilterOpUI();
     private final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
 
-    @Override
-    protected void setUp() throws Exception {
-        filterOpUI = new FilterOpUI();
-
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new FilterOperator.Spi());
+    @Before
+    public void Setup() {
+        //if(GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName) != null) {
+            GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
+        //}
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        filterOpUI = null;
-    }
-
+    @Test
     public void testCreateOpTab() {
-
-        JComponent component = filterOpUI.CreateOpTab("Image-Filter", parameterMap, null);
+        JComponent component = filterOpUI.CreateOpTab(operatorName, parameterMap, null);
         assertNotNull(component);
     }
 
+    @Test
     public void testLoadParameters() {
 
         parameterMap.put("selectedFilterName", "High-Pass 5x5");
-        JComponent component = filterOpUI.CreateOpTab("Image-Filter", parameterMap, null);
+        JComponent component = filterOpUI.CreateOpTab(operatorName, parameterMap, null);
         assertNotNull(component);
 
         FilterOperator.Filter filter = FilterOpUI.getSelectedFilter(filterOpUI.getTree());

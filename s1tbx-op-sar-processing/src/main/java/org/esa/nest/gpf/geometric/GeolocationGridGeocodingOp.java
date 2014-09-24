@@ -28,6 +28,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.nest.gpf.InputProductValidator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
@@ -132,9 +133,8 @@ public final class GeolocationGridGeocodingOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            if (OperatorUtils.isMapProjected(sourceProduct)) {
-                throw new OperatorException("Source product is already map projected");
-            }
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfMapProjected();
 
             getSourceImageDimension();
 

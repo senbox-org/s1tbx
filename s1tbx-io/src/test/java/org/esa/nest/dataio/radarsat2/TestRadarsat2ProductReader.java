@@ -20,13 +20,10 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.snap.util.TestUtils;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 
 /**
  * Test Product Reader.
@@ -35,15 +32,16 @@ import java.io.InputStream;
  */
 public class TestRadarsat2ProductReader {
 
+    static {
+        TestUtils.initTestEnvironment();
+    }
     private Radarsat2ProductReaderPlugIn readerPlugin;
     private ProductReader reader;
 
-    final String rs2ZipFilePath = "E:\\data\\zip\\RS2-standard.zip";
-    final String rs2FolderFilePath = "J:\\Data\\zips\\RS2_OK22935_PK237498_DK219956_FQ1W_20111102_223848_HH_VV_HV_VH_SLC";
+    private final static String rs2ZipFilePath = "E:\\data\\zip\\RS2-standard.zip";
+    private final static String rs2FolderFilePath = "J:\\Data\\zips\\RS2_OK22935_PK237498_DK219956_FQ1W_20111102_223848_HH_VV_HV_VH_SLC";
 
-    @Before
-    public void setUp() throws Exception {
-        TestUtils.initTestEnvironment();
+    public TestRadarsat2ProductReader() {
         readerPlugin = new Radarsat2ProductReaderPlugIn();
         reader = readerPlugin.createReaderInstance();
     }
@@ -66,7 +64,6 @@ public class TestRadarsat2ProductReader {
     }
 
     @Test
-    @Ignore
     public void testOpeningFolder() throws Exception {
         final File inputFile = new File(rs2FolderFilePath, "product.xml");
         if(!inputFile.exists()) {

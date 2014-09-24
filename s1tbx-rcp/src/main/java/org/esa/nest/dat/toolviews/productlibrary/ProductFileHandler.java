@@ -31,7 +31,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 public class ProductFileHandler {
 
-    private static final String[] singleFileExt = {"n1", "e1", "e2", "tif", "tiff"};
+    private static final String[] singleFileExt = {"n1", "e1", "e2", "tif", "tiff", "zip"};
     private static final String[] folderExt = {"safe"};
     private static final String[] folderMissions = {"RS2", "TSX", "TDX", "CSKS1", "CSKS2", "CSKS3", "CSKS4",
             "ALOS", "JERS1", "RS1"};

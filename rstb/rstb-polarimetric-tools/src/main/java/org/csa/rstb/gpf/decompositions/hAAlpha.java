@@ -23,9 +23,9 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.math.MathUtils;
+import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
-import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
@@ -65,7 +65,7 @@ public class hAAlpha extends DecompositionBase implements Decomposition {
      * @return list of band names
      */
     public String[] getTargetBandNames() {
-        final List<String> targetBandNameList = new ArrayList<String>(4);
+        final List<String> targetBandNameList = new ArrayList<>(4);
 
         if (!outputHAAlpha && !outputBetaDeltaGammaLambda && !outputAlpha123 && !outputLambda123) {
             throw new OperatorException("Please select decomposition parameters to output");

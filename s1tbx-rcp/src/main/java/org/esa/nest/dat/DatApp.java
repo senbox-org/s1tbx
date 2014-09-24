@@ -20,10 +20,7 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.action.DockableBarContext;
-import com.jidesoft.status.LabelStatusBarItem;
-import org.esa.beam.BeamUiActivator;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
-import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -36,7 +33,6 @@ import org.esa.beam.framework.ui.command.CommandManager;
 import org.esa.beam.util.ResourceInstaller;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
-import org.esa.beam.visat.toolviews.stat.*;
 import org.esa.nest.dat.actions.LoadTabbedLayoutAction;
 import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
 import org.esa.nest.dat.views.polarview.PolarView;
@@ -111,11 +107,14 @@ public class DatApp extends VisatApp {
 
     protected void loadLayout() {
         final String getStarted = VisatApp.getApp().getPreferences().getPropertyString("visat.showGettingStarted", "true");
+        getMainFrame().setMinimumSize(new Dimension(1200, 800));
         if (getStarted == null || getStarted.equals("true")) {
             LoadTabbedLayoutAction.loadTabbedLayout();
 
             HelpSys.showTheme("top");
             VisatApp.getApp().getPreferences().setPropertyString("visat.showGettingStarted", "false");
+
+            getMainFrame().setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
         } else {
             getMainFrame().getLayoutPersistence().loadLayoutData(); // </JIDE>
         }
@@ -374,11 +373,11 @@ public class DatApp extends VisatApp {
         menuBar.add(createJMenu("view", "View", 'V'));
         menuBar.add(createAnalysisMenu());
         menuBar.add(createJMenu("tools", "Utilities", 'U'));
-        menuBar.add(createJMenu("processing", "Optical Processing", 'O'));
+        //menuBar.add(createJMenu("processing", "Optical Processing", 'O'));
         menuBar.add(createJMenu("Sar Processing", "SAR Processing", 'S'));
         if (incImageProcessing)
-            menuBar.add(createJMenu("image-processing", "Image Processing", 'I'));
-        menuBar.add(createJMenu("Classification", "Classification", 'C'));
+            menuBar.add(createJMenu("image-processing", "Image Processing", 'M'));
+        menuBar.add(createJMenu("processing.imageAnalysis", "Image Analysis", 'I'));
         menuBar.add(createJMenu("Graphs", "Graphs", 'G'));
         menuBar.add(createJMenu("window", "Window", 'W'));
         menuBar.add(createJMenu("help", "Help", 'H'));

@@ -85,7 +85,7 @@ public final class S1TBXApp extends DatApp {
     }
 
     protected void loadJideExtension() {
-        LookAndFeelFactory.installJideExtension(LookAndFeelFactory.ECLIPSE3X_STYLE);
+        LookAndFeelFactory.installJideExtension(LookAndFeelFactory.EXTENSION_STYLE_ECLIPSE);
 
         UIManager.getDefaults().put("DockableFrameTitlePane.showIcon", Boolean.TRUE);
         UIManager.getDefaults().put("SidePane.alwaysShowTabText", Boolean.TRUE);

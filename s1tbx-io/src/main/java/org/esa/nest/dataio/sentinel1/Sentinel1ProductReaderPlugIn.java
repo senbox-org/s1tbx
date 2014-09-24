@@ -21,8 +21,10 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.nest.dataio.SARReader;
 import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.util.ZipUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.zip.ZipFile;
@@ -48,7 +50,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
                 if (isLevel1(file) || isLevel2(file) || isLevel0(file))
                     return DecodeQualification.INTENDED;
             }
-            if (SARReader.isZip(file) && findInZip(file, "s1", Sentinel1Constants.PRODUCT_HEADER_NAME)) {
+            if (ZipUtils.isZip(file) && ZipUtils.findInZip(file, "s1", Sentinel1Constants.PRODUCT_HEADER_NAME)) {
                 return DecodeQualification.INTENDED;
             }
         }
@@ -57,25 +59,13 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         return DecodeQualification.UNABLE;
     }
 
-    static boolean findInZip(final File file, final String prefix, final String suffix) {
-        try {
-            final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
-
-            final Optional result = productZip.stream()
-                    .filter(ze -> !ze.isDirectory())
-                    .filter(ze -> ze.getName().toLowerCase().endsWith(suffix))
-                    .filter(ze -> ze.getName().toLowerCase().startsWith(prefix))
-                    .findFirst();
-            return result.isPresent();
-        } catch (Exception e) {
-            //
-        }
-        return false;
-    }
-
     public static boolean isLevel1(final File file) {
-        if (SARReader.isZip(file)) {
-            return findInZip(file, "s1", ".tiff");
+        if (ZipUtils.isZip(file)) {
+            if(ZipUtils.findInZip(file, "s1", ".tiff")) {
+                return true;
+            }
+            final String name = file.getName().toUpperCase();
+            return name.contains("_1AS") || name.contains("_1AD") || name.contains("_1SS") || name.contains("_1SD");
         } else {
             final File baseFolder = file.getParentFile();
             final File annotationFolder = new File(baseFolder, "annotation");
@@ -88,8 +78,8 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
     public static boolean isLevel2(final File file) {
-        if (SARReader.isZip(file)) {
-            return findInZip(file, "s1", ".nc");
+        if (ZipUtils.isZip(file)) {
+            return ZipUtils.findInZip(file, "s1", ".nc");
         } else {
             final File baseFolder = file.getParentFile();
             final File measurementFolder = new File(baseFolder, "measurement");
@@ -98,11 +88,29 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
     public static boolean isLevel0(final File file) {
-        if (SARReader.isZip(file)) {
-            return findInZip(file, "s1", ".dat");
+        if (ZipUtils.isZip(file)) {
+            return ZipUtils.findInZip(file, "s1", ".dat");
         } else {
             final File baseFolder = file.getParentFile();
             return checkFolder(baseFolder, ".dat");
+        }
+    }
+
+    static void validateInput(final File file) throws IOException {
+        if (ZipUtils.isZip(file)) {
+            if(!ZipUtils.findInZip(file, "s1", ".tiff")) {
+                throw new IOException("measurement folder is missing in product");
+            }
+        } else {
+            final File baseFolder = file.getParentFile();
+            final File annotationFolder = new File(baseFolder, "annotation");
+            if (!annotationFolder.exists()) {
+                throw new IOException("annotation folder is missing in product");
+            }
+            final File measurementFolder = new File(baseFolder, "measurement");
+            if (!measurementFolder.exists()) {
+                throw new IOException("measurement folder is missing in product");
+            }
         }
     }
 

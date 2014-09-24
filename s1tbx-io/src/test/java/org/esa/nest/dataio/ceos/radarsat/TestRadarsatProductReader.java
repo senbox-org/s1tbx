@@ -15,10 +15,9 @@
  */
 package org.esa.nest.dataio.ceos.radarsat;
 
-
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
 
 import java.io.File;
 
@@ -27,29 +26,14 @@ import java.io.File;
  *
  * @author lveci
  */
-public class TestRadarsatProductReader extends TestCase {
+public class TestRadarsatProductReader {
 
     private RadarsatProductReaderPlugIn readerPlugin;
     private ProductReader reader;
 
-    public TestRadarsatProductReader(String name) {
-        super(name);
-    }
-
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-
+    public TestRadarsatProductReader() {
         readerPlugin = new RadarsatProductReaderPlugIn();
         reader = readerPlugin.createReaderInstance();
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-
-        reader = null;
-        readerPlugin = null;
     }
 
     /**
@@ -57,6 +41,7 @@ public class TestRadarsatProductReader extends TestCase {
      *
      * @throws Exception anything
      */
+    @Test
     public void testOpenAll() throws Exception {
         final File folder = new File(TestUtils.rootPathRadarsat1);
         if (!folder.exists()) {

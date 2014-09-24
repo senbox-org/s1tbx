@@ -48,7 +48,7 @@ import java.util.List;
 /**
  * The Mosaic operator.
  */
-@OperatorMetadata(alias = "Image-Mosaic",
+@OperatorMetadata(alias = "SAR-Mosaic",
         category = "SAR Processing/Geometric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",

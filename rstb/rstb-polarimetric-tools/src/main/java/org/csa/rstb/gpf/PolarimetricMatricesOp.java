@@ -29,9 +29,9 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.gpf.OperatorUtils;
-import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
@@ -59,7 +59,7 @@ public final class PolarimetricMatricesOp extends Operator {
     private String matrix = T3;
 
     private PolBandUtils.QuadSourceBand[] srcBandList;
-    private final Map<Band, MatrixElem> matrixBandMap = new HashMap<Band, MatrixElem>(8);
+    private final Map<Band, MatrixElem> matrixBandMap = new HashMap<>(8);
 
     private PolBandUtils.MATRIX matrixType = PolBandUtils.MATRIX.C3;
 
@@ -132,28 +132,33 @@ public final class PolarimetricMatricesOp extends Operator {
     private void addSelectedBands() throws OperatorException {
 
         String[] bandNames;
-        if (matrix.equals(C3)) {
+        switch (matrix) {
+            case C3:
 
-            bandNames = PolBandUtils.getC3BandNames();
-            matrixType = PolBandUtils.MATRIX.C3;
+                bandNames = PolBandUtils.getC3BandNames();
+                matrixType = PolBandUtils.MATRIX.C3;
 
-        } else if (matrix.equals(C4)) {
+                break;
+            case C4:
 
-            bandNames = PolBandUtils.getC4BandNames();
-            matrixType = PolBandUtils.MATRIX.C4;
+                bandNames = PolBandUtils.getC4BandNames();
+                matrixType = PolBandUtils.MATRIX.C4;
 
-        } else if (matrix.equals(T3)) {
+                break;
+            case T3:
 
-            bandNames = PolBandUtils.getT3BandNames();
-            matrixType = PolBandUtils.MATRIX.T3;
+                bandNames = PolBandUtils.getT3BandNames();
+                matrixType = PolBandUtils.MATRIX.T3;
 
-        } else if (matrix.equals(T4)) {
+                break;
+            case T4:
 
-            bandNames = PolBandUtils.getT4BandNames();
-            matrixType = PolBandUtils.MATRIX.T4;
+                bandNames = PolBandUtils.getT4BandNames();
+                matrixType = PolBandUtils.MATRIX.T4;
 
-        } else {
-            throw new OperatorException("Unknown matrix type: " + matrix);
+                break;
+            default:
+                throw new OperatorException("Unknown matrix type: " + matrix);
         }
 
         for (PolBandUtils.QuadSourceBand bandList : srcBandList) {

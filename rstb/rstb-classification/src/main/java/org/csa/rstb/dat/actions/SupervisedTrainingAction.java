@@ -95,7 +95,7 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
 
     /**
      * Called when a command should update its state.
-     * <p/>
+     * <p>
      * <p> This method can contain some code which analyzes the underlying element and makes a decision whether
      * this item or group should be made visible/invisible or enabled/disabled etc.
      *
@@ -253,7 +253,7 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
         }
 
         private static String[] createSubGeometries(final Product product, final String[] geometries) {
-            final List<String> subGeometries = new ArrayList<String>(geometries.length);
+            final List<String> subGeometries = new ArrayList<>(geometries.length);
             try {
                 for (String geometry : geometries) {
                     final VectorDataNode vec = product.getVectorDataGroup().get(geometry);

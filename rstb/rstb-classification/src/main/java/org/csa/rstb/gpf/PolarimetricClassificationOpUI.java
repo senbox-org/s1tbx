@@ -15,9 +15,9 @@
  */
 package org.csa.rstb.gpf;
 
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.snap.gpf.ui.UIValidation;
-import org.esa.beam.framework.ui.AppContext;
 import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;

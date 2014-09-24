@@ -77,7 +77,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private ThermalNoiseInfo[] noise = null;
     private Sentinel1Calibrator.CalibrationInfo[] calibration = null;
     private java.util.List<String> selectedPolList = null;
-    private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>(2);
+    private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>(2);
 
     /**
      * Default constructor. The graph processing framework
@@ -139,7 +139,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      */
     private void getMission() {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.equals("SENTINEL-1A")) {
+        if (!mission.startsWith("SENTINEL-1")) {
             throw new OperatorException(mission + " is not a valid mission for Sentinel1 product");
         }
     }
@@ -275,16 +275,13 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      */
     private void getCalibrationVectors() {
 
-        calibration = new Sentinel1Calibrator.CalibrationInfo[numOfSubSwath * selectedPolList.size()];
-
-        Sentinel1Calibrator.getCalibrationVectors(
+        calibration = Sentinel1Calibrator.getCalibrationVectors(
                 sourceProduct,
                 selectedPolList,
                 inputSigmaBand,
                 inputBetaBand,
                 inputGammaBand,
-                inputDNBand,
-                calibration);
+                inputDNBand);
     }
 
     /**
@@ -470,10 +467,10 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         final boolean complexData = bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY;
 
         Sentinel1Calibrator.CalibrationInfo calInfo = null;
-
+        Sentinel1Calibrator.CALTYPE calType = null;
         if (absoluteCalibrationPerformed) {
             calInfo = getCalInfo(targetBandName);
-            calInfo.calculateVectors(targetBandName, x0, y0);
+            calType = Sentinel1Calibrator.getCalibrationType(targetBandName);
         }
 
         double dn, dn2, i, q;
@@ -484,12 +481,16 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
             final double[] lut = new double[w];
             if (absoluteCalibrationPerformed) {
+                final int calVecIdx = calInfo.getCalibrationVectorIndex(y);
+                final Sentinel1Utils.CalibrationVector vec0 = calInfo.getCalibrationVector(calVecIdx);
+                final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
+                final float[] vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
+                final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
+                final int pixelIdx0 = calInfo.getPixelIndex(x0, calVecIdx);
 
-                computeTileScaledNoiseLUT(y, x0, y0, w, noiseInfo, calInfo, calInfo.azT0, calInfo.azT1,
-                        calInfo.vec0LUT, calInfo.vec1LUT, calInfo.vec0Pixels, calInfo.pixelIdx0, lut);
+                computeTileScaledNoiseLUT(y, x0, y0, w, noiseInfo, calInfo, vec0.timeMJD, vec1.timeMJD,
+                        vec0LUT, vec1LUT, vec0.pixels, pixelIdx0, lut);
 
-                final double azTime = calInfo.firstLineTime + y * calInfo.lineTimeInterval;
-                final double muY = (azTime - calInfo.azT0) / calInfo.timeRange;
             } else {
                 computeTileNoiseLUT(y, x0, y0, w, noiseInfo, lut);
             }
@@ -567,13 +568,13 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     /**
      * Compute scaled noise LUTs for the given range line.
      *
-     * @param y              Index of the given range line.
-     * @param x0             X coordinate of the upper left corner pixel of the given tile.
-     * @param y0             Y coordinate of the upper left corner pixel of the given tile.
-     * @param w              Tile width.
-     * @param noiseInfo      Object of ThermalNoiseInfo class.
-     * @param calInfo        Object of CalibrationInfo class.
-     * @param lut            The scaled noise LUT.
+     * @param y         Index of the given range line.
+     * @param x0        X coordinate of the upper left corner pixel of the given tile.
+     * @param y0        Y coordinate of the upper left corner pixel of the given tile.
+     * @param w         Tile width.
+     * @param noiseInfo Object of ThermalNoiseInfo class.
+     * @param calInfo   Object of CalibrationInfo class.
+     * @param lut       The scaled noise LUT.
      */
     private void computeTileScaledNoiseLUT(final int y, final int x0, final int y0, final int w,
                                            final ThermalNoiseInfo noiseInfo,
@@ -604,11 +605,11 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     /**
      * Compute calibration LUTs for the given range line.
      *
-     * @param y              Index of the given range line.
-     * @param x0             X coordinate of the upper left corner pixel of the given tile.
-     * @param w              Tile width.
-     * @param calInfo        Object of CalibrationInfo class.
-     * @param lut            LUT for calibration.
+     * @param y       Index of the given range line.
+     * @param x0      X coordinate of the upper left corner pixel of the given tile.
+     * @param w       Tile width.
+     * @param calInfo Object of CalibrationInfo class.
+     * @param lut     LUT for calibration.
      */
     public static void computeTileCalibrationLUTs(final int y, final int x0, final int w,
                                                   final Sentinel1Calibrator.CalibrationInfo calInfo,
@@ -620,7 +621,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         double muX, muY = (azTime - azT0) / (azT1 - azT0);
 
         int pixelIdx = pixelIdx0;
-        final int maxX =  x0 + w;
+        final int maxX = x0 + w;
         for (int x = x0; x < maxX; x++) {
             if (x > vec0Pixels[pixelIdx + 1]) {
                 pixelIdx++;

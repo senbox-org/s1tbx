@@ -16,42 +16,35 @@
 package org.esa.nest.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.nest.gpf.geometric.SRGROp;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
 
 import java.util.Arrays;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for SRGROperator.
  */
-public class TestSRGROperator extends TestCase {
+public class TestSRGROperator {
 
-    private OperatorSpi spi;
+    static {
+        TestUtils.initTestEnvironment();
+    }
+    private final static OperatorSpi spi = new SRGROp.Spi();
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
     private String[] exceptionExemptions = {"conversion has already been applied", "not supported", "GeoCoding is null"};
 
-    @Override
-    protected void setUp() throws Exception {
-        TestUtils.initTestEnvironment();
-        spi = new SRGROp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
-    }
-
     /**
      * Tests SRGR operator with a 4x16 "DETECTED" test product.
      */
+    @Test
     public void testSRGROperator() throws Exception {
 
         Product sourceProduct = createTestProduct(16, 4);
@@ -159,30 +152,42 @@ public class TestSRGROperator extends TestCase {
         return testProduct;
     }
 
+    @Test
     public void testProcessAllASAR() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, exceptionExemptions);
     }
 
+    @Test
     public void testProcessAllERS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, exceptionExemptions);
     }
 
+    @Test
     public void testProcessAllALOS() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, exceptionExemptions);
     }
 
+    @Test
     public void testProcessAllRadarsat2() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, null, exceptionExemptions);
     }
 
+    @Test
     public void testProcessAllTerraSARX() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathTerraSarX, null, exceptionExemptions);
     }
 
+    @Test
     public void testProcessAllCosmo() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, null, exceptionExemptions);
     }
 
+    @Test
+    public void testProcessAllSentinel1() throws Exception {
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathSentinel1, null, exceptionExemptions);
+    }
+
+    @Test
     public void testProcessAllNestBox() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, exceptionExemptions);
     }

@@ -1,16 +1,28 @@
-#################################################
-### New in S1TBX 0.1
-#################################################
+New in S1TBX 1.0
 
 Harmonized common Sentinel code base from BEAM and NEST
+Compatibility with Sentinel-2 and Sentinel-3 toolboxes
+Support for Sentinel-1
+	- Reading of Sentinel-1 level-0, level-1 and level-2 products
+	- Reading directly from zipped products
+	- TOPSAR deburst and merge
+	- S-1 Calibration and de-noising
+	- TOPSAR Split
+	- TOPSAR SLC to GRD processing
+	- Reading and writing of BigTiff files
 Polarimetric tools from the RADARSAT-2 Toolbox
-Reading of S1 level-0, level-1 and level-2
-TOPSAR deburst and merge
-S-1 Calibration and de-noising
-TOPSAR SLC to GRD processing
-Performance improvements and more...
+	- Polarimetric speckle filtering
+	- Polarimetric decompositions
+	- Supervised and Unsupervised Wishart classifiers
+Performance improvements, bug fixes and more...
 
-Please note, this is an ESA internal release. The first public stable release of the toolbox will be in September.
+Known issues:
+	- zip64 files are not yet supported
+
+What will be available in version 2.0:
+	- S-1 TOPSAR interferometry
+	- S-1 Level-2 visualization
+	- Common SNAP application and installer for all toolboxes
 
 
 

@@ -33,6 +33,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
+import org.esa.nest.gpf.InputProductValidator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.eo.Constants;
@@ -136,9 +137,8 @@ public final class TerrainFlatteningOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            if (OperatorUtils.isMapProjected(sourceProduct)) {
-                throw new OperatorException("Source product already map projected");
-            }
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfMapProjected();
 
             getMetadata();
 
@@ -381,8 +381,7 @@ public final class TerrainFlatteningOp extends Operator {
                             firstLineUTC, lineTimeInterval, wavelength, earthPoint,
                             orbit.sensorPosition, orbit.sensorVelocity);
 
-                    double slantRange = SARGeocoding.computeSlantRange(
-                            zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+                    double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
 
                     final double zeroDopplerTimeWithoutBias =
                             zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
@@ -390,7 +389,7 @@ public final class TerrainFlatteningOp extends Operator {
                     azimuthIndex[i] = (zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval;
 
                     slantRange = SARGeocoding.computeSlantRange(
-                            zeroDopplerTimeWithoutBias - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+                            zeroDopplerTimeWithoutBias, orbit, earthPoint, sensorPos);
 
                     rangeIndex[i] = SARGeocoding.computeRangeIndex(
                             srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC, rangeSpacing,
@@ -575,8 +574,7 @@ public final class TerrainFlatteningOp extends Operator {
         final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
                 firstLineUTC, lineTimeInterval, wavelength, earthPoint, orbit.sensorPosition, orbit.sensorVelocity);
 
-        final double slantRange = SARGeocoding.computeSlantRange(
-                zeroDopplerTime - firstLineUTC, orbit.xPosCoeff, orbit.yPosCoeff, orbit.zPosCoeff, earthPoint, sensorPos);
+        final double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
 
         final double zeroDopplerTimeWithoutBias = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
 

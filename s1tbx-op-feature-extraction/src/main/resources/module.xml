@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s1tbx-op-feature-extraction</symbolicName>
-    <version>0.5</version>
+    <version>0.7</version>
     <name>S1TBX Feature ExtractionTools</name>
 
     <description>S1TBX Feature Extraction Tools</description>
@@ -67,7 +67,7 @@
             <id>Masks</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Masks</text>
-            <parent>Classification</parent>
+            <parent>tools</parent>
             <placeBefore>FeatureExtraction</placeBefore>
         </action>
 
@@ -93,7 +93,7 @@
             <text>Land/Sea Mask</text>
             <shortDescr>Create a Land/Sea Mask</shortDescr>
             <dialogTitle>Create a Land/Sea Mask</dialogTitle>
-            <operatorName>Create-LandMask</operatorName>
+            <operatorName>Land-Sea-Mask</operatorName>
             <targetProductNameSuffix>_msk</targetProductNameSuffix>
         </action>
 
@@ -101,7 +101,7 @@
             <id>PrimitiveFeatureGroup</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Primitive Features</text>
-            <parent>Classification</parent>
+            <parent>processing.imageAnalysis</parent>
             <placeAfter>Masks</placeAfter>
         </action>
 

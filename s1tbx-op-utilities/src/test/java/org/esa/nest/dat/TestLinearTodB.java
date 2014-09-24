@@ -15,7 +15,6 @@
  */
 package org.esa.nest.dat;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -23,26 +22,20 @@ import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
 
 import java.util.Arrays;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for LinearTodB.
  */
-public class TestLinearTodB extends TestCase {
+public class TestLinearTodB {
 
     private static final String dBStr = "_" + Unit.DB;
 
-    @Override
-    protected void setUp() throws Exception {
-
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-
-    }
-
+    @Test
     public void testLinearTodB() {
 
         final Product product = createTestProduct(16, 4);
@@ -56,6 +49,7 @@ public class TestLinearTodB extends TestCase {
         assertTrue(band2.getName().endsWith(dBStr));
     }
 
+    @Test
     public void testdBToLinear() {
 
         final Product product = createTestProduct(16, 4);

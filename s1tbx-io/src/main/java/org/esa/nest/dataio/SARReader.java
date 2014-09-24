@@ -20,10 +20,11 @@ import com.bc.ceres.core.runtime.RuntimeContext;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.util.ExceptionLog;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -128,7 +129,20 @@ public abstract class SARReader extends AbstractProductReader {
         }
     }
 
-    public static boolean isZip(final File inputFile) {
-        return inputFile.getName().toLowerCase().endsWith(".zip");
+    public void handleReaderException(final Throwable e) throws IOException {
+
+        String message = this.toString() + ":\n";
+        message = message.replace("[input", "\n[input");
+        if (e.getMessage() != null)
+            message += e.getMessage();
+        else
+            message += e.toString();
+
+        if (Boolean.getBoolean("sendErrorOnException")) {
+            ExceptionLog.log(message);
+        }
+
+        BeamLogManager.getSystemLogger().severe(message);
+        throw new IOException(message);
     }
 }
