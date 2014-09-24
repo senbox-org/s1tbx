@@ -195,7 +195,7 @@ public class ReprojectionOp extends Operator {
     protected boolean addDeltaBands;
 
     protected ElevationModel elevationModel;
-    protected MultiLevelModel srcModel;
+    protected MultiLevelModel sourceModel;
     protected MultiLevelModel targetModel;
     protected Reproject reprojection;
 
@@ -260,7 +260,7 @@ public class ReprojectionOp extends Operator {
         targetProduct.setStartTime(meanTime);
         targetProduct.setEndTime(meanTime);
 
-        srcModel = ImageManager.getMultiLevelModel(sourceProduct.getBandAt(0));
+        sourceModel = ImageManager.getMultiLevelModel(sourceProduct.getBandAt(0));
         targetModel = ImageManager.createMultiLevelModel(targetProduct);
         reprojection = new Reproject(targetModel.getLevelCount());
         reprojectRasterDataNodes(sourceProduct.getBands());
@@ -460,7 +460,8 @@ public class ReprojectionOp extends Operator {
 
             @Override
             public RenderedImage createImage(int targetLevel) {
-                int sourceLevel = getSourceLevel(srcModel, targetLevel);
+                final double targetScale = targetModel.getScale(targetLevel);
+                final int sourceLevel = sourceModel.getLevel(targetScale);
                 RenderedImage leveledSourceImage = sourceImage.getImage(sourceLevel);
 
                 final Rectangle sourceBounds = new Rectangle(leveledSourceImage.getWidth(),
@@ -468,8 +469,8 @@ public class ReprojectionOp extends Operator {
 
                 // the following transformation maps the source level image to level zero and then to the model,
                 // which either is a map or an image CRS
-                final AffineTransform i2mSource = srcModel.getImageToModelTransform(sourceLevel);
-                i2mSource.concatenate(srcModel.getModelToImageTransform(0));
+                final AffineTransform i2mSource = sourceModel.getImageToModelTransform(sourceLevel);
+                i2mSource.concatenate(sourceModel.getModelToImageTransform(0));
                 i2mSource.concatenate(i2mSourceProduct);
 
                 ImageGeometry sourceGeometry = new ImageGeometry(sourceBounds,
@@ -512,8 +513,8 @@ public class ReprojectionOp extends Operator {
         });
     }
 
-    private int getSourceLevel(MultiLevelModel srcModel, int targetLevel) {
-        int maxSourceLevel = srcModel.getLevelCount() - 1;
+    private int getSourceLevel(MultiLevelModel sourceModel, int targetLevel) {
+        int maxSourceLevel = sourceModel.getLevelCount() - 1;
         return maxSourceLevel < targetLevel ? maxSourceLevel : targetLevel;
     }
 
