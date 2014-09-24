@@ -230,8 +230,8 @@ public final class SliceAssemblyOp extends Operator {
                 newGridHeight += tpg2.getRasterHeight()-1;
             }
 
-            final int subSamplingX = targetWidth / gridWidth;
-            final int subSamplingY = targetHeight / newGridHeight;
+            final int subSamplingX = targetWidth / (gridWidth-1);
+            final int subSamplingY = targetHeight / (newGridHeight-1);
 
             final float[] pointArray = new float[newPoints.size()];
             int i=0;
