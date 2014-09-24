@@ -46,22 +46,21 @@
     connection is fast enough. If you like to install by yourself, please follow the instructions given here:
     <ol>
         <li>Download <code>GETASSE30.zip</code> from the BEAM home page.</li>
-        <li>Create directory <code>${USER_HOME}/.beam/beam-core/auxdata/dem/GETASSE30</code></li>
+        <li>Create directory <code>${USER_HOME}/.s3tbx/beam-core/auxdata/dem/GETASSE30</code></li>
         <li>The simplest way is unzip the <code>GETASSE30.zip</code> and copy the files into
             <p><code>${USER_HOME}/.beam/beam-core/auxdata/dem/GETASSE30/</code>.</p>
             The DEM is now installed.</li>
     </ol>
 
     <p>
-        If you like to share the DEM along multiple BEAM installations in your network
-        or if simply don't want to install in BEAM's auxdata folder, then:
+        If you like to share the DEM along multiple Sentinel-3 Toolbox installations in your network
+        or if you simply don't want to install in the auxdata folder, then:
     </p>
     <ol start=4>
         <li>Copy the unzipped GETASSE30 dataset to a location accessible
-            by your BEAM installation(s). This directory we call <code>${SHARED_GETASSE30}</code> from now on.</li>
-        <li>Create a file named "dem.properties" in <code>${USER_HOME}/.beam/beam-core/auxdata/dem/GETASSE30/</code> and open the
-            new
-            file in a text editor. <br>
+            by your Sentinel-3 Toolbox installation(s). This directory we call <code>${SHARED_GETASSE30}</code> from now on.</li>
+        <li>Create a file named "dem.properties" in <code>${USER_HOME}/.s3tbx/beam-core/auxdata/dem/GETASSE30/</code> and open the
+            new file in a text editor. <br>
             Add the following line <p><code>dem.installDir = ${SHARED_GETASSE30}</code></p> to it and don't forget to
             replace
             <code> ${SHARED_GETASSE30}</code> by your actual, shared DEM installation path. The properties file format
@@ -85,9 +84,8 @@
     of the arctic and antarctic continents there are some tens of strange negative values (down to -700 m) inherent to
     the ACE dataset. All latitude/longitude values refer to the center of a pixel, not to one of its corners.
     The GETASSE30 dataset is organised as multiple tiles. Each tile is stored in associated file which can be imported
-    into
-    VISAT using the <a href="ImportGETASSE30.html">GETASSE30 Reader</a>. (This reader is also internally used by the
-    <a href="OrthorectificationAlgo.html">Orthorectification</a> algorithm.)
+    into the Sentinel-3 Toolbox using the <a href="ImportGETASSE30.html">GETASSE30 Reader</a>.
+    (This reader is also internally used by the <a href="OrthorectificationAlgo.html">Orthorectification</a> algorithm.)
 </p>
 
 <p align="center"> <img src="images/GETASSE30Example.jpg" border=0 width="300" height="300"><br>
