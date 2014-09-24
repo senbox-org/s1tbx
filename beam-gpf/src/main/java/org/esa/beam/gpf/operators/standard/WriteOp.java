@@ -131,6 +131,7 @@ public class WriteOp extends Operator {
 
     private boolean outputFileExists = false;
     private boolean incremental = false;
+    private boolean productNodesWritten = false;
 
     public WriteOp() {
         setParameterDefaultValues();
@@ -254,9 +255,14 @@ public class WriteOp extends Operator {
                 tileInfoMap.put(band, new TileInfo(band, tileSize));
             }
         }
+    }
 
+    private synchronized void writeProductNodes() {
+        if(productNodesWritten)
+            return;
         try {
             productWriter.writeProductNodes(targetProduct, file);
+            productNodesWritten = true;
         } catch (IOException e) {
             throw new OperatorException("Not able to write product file: '" + file.getAbsolutePath() + "'", e);
         }
@@ -264,6 +270,9 @@ public class WriteOp extends Operator {
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        if(!productNodesWritten) {
+            writeProductNodes();
+        }
         if (!writableBands.contains(targetBand)) {
             return;
         }
