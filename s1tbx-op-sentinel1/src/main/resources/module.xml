@@ -96,17 +96,17 @@
             <graphFile>Sentinel1SLCtoGRDGraph.xml</graphFile>
         </action>
 
-        <!--action>
-            <id>MergeSlices</id>
-            <helpId>MergeSlices</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+        <action>
+            <id>SliceAssembly</id>
+            <helpId>SliceAssembly</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
-            <text>Merge Slices</text>
-            <operatorName>MergeSlices</operatorName>
+            <text>Sentinel-1 Slice Assembly</text>
             <shortDescr>Merge slice products together</shortDescr>
-            <dialogTitle>Merge Slices</dialogTitle>
-        </action-->
+            <dialogTitle>Slice Assembly</dialogTitle>
+            <graphFile>Sentinel1SliceAssemblyGraph.xml</graphFile>
+        </action>
 
         <!--action>
             <id>BackGeocodingOp</id>

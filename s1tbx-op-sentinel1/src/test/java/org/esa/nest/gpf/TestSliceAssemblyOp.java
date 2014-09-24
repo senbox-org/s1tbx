@@ -35,10 +35,10 @@ public class TestSliceAssemblyOp {
     }
     private final static OperatorSpi spi = new SliceAssemblyOp.Spi();
 
-    private final File slice1File = new File("E:\\data\\S-1\\Slices\\S1A_EW_GRDH_1SSV_20120101T053442_20120101T053517_001772_000001_F181.SAFE\\manifest.safe");
-    private final File slice2File = new File("E:\\data\\S-1\\Slices\\S1A_EW_GRDH_1SSV_20120101T053517_20120101T053539_001772_000001_D87D.SAFE\\manifest.safe");
+    private final File slice1File = new File("D:\\RS\\Slices\\S1A_EW_GRDH_1SSV_20120101T053442_20120101T053517_001772_000001_F181.SAFE\\manifest.safe");
+    private final File slice2File = new File("D:\\RS\\Slices\\S1A_EW_GRDH_1SSV_20120101T053517_20120101T053539_001772_000001_D87D.SAFE\\manifest.safe");
 
-    private final File nonSliceFile = new File("E:\\data\\S-1\\Slices\\S1A_EW_GRDH_1SSV_20120101T053442_20120101T053539_001772_000001_73AC.SAFE\\manifest.safe");
+    private final File nonSliceFile = new File("D:\\RS\\Slices\\S1A_EW_GRDH_1SSV_20120101T053442_20120101T053539_001772_000001_73AC.SAFE\\manifest.safe");
 
     @Test
     public void testSingleProduct() throws Exception {
@@ -103,7 +103,7 @@ public class TestSliceAssemblyOp {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
+        TestUtils.verifyProduct(targetProduct, true, true, true);
     }
 
     @Test
@@ -122,7 +122,7 @@ public class TestSliceAssemblyOp {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
+        TestUtils.verifyProduct(targetProduct, true, true, true);
     }
 
     @Test

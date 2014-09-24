@@ -17,6 +17,7 @@ package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -29,10 +30,8 @@ import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.gpf.OperatorUtils;
 
 import java.awt.*;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.List;
 
 /**
  * Merges Sentinel-1 slice products
@@ -41,7 +40,7 @@ import java.util.TreeSet;
         category = "SAR Processing/SENTINEL-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Merges Sentinel-1 slice products", internal=true)
+        description = "Merges Sentinel-1 slice products")
 public final class SliceAssemblyOp extends Operator {
 
     @SourceProducts
@@ -80,8 +79,6 @@ public final class SliceAssemblyOp extends Operator {
             sliceProducts = determineSliceProducts();
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sliceProducts[0]);
-
-            computeTargetWidthAndHeight();
 
             createTargetProduct();
 
@@ -156,27 +153,104 @@ public final class SliceAssemblyOp extends Operator {
     }
 
     private void computeTargetWidthAndHeight() {
-        for (Product srcProduct : sourceProducts) {
+        for (Product srcProduct : sliceProducts) {
             if (targetWidth < srcProduct.getSceneRasterWidth())
                 targetWidth = srcProduct.getSceneRasterWidth();
             targetHeight += srcProduct.getSceneRasterHeight();
         }
     }
 
+    private void computeTargetBandWidthAndHeight(final String bandName, final Dimension dim) throws OperatorException {
+        for (Product srcProduct : sliceProducts) {
+            final Band srcBand = srcProduct.getBand(bandName);
+            if(srcBand == null) {
+                throw new OperatorException(bandName +" not found in product "+srcProduct.getName());
+            }
+
+            dim.setSize(Math.max(dim.width, srcBand.getRasterWidth()), dim.height + srcBand.getRasterHeight());
+        }
+    }
+
     private void createTargetProduct() {
+        computeTargetWidthAndHeight();
 
         final Product firstSliceProduct = sliceProducts[0];
+        final Product lastSliceProduct = sliceProducts[sliceProducts.length-1];
         targetProduct = new Product(firstSliceProduct.getName(), firstSliceProduct.getProductType(), targetWidth, targetHeight);
 
-   /*     final Band[] sourceBands = firstSliceProduct.getBands();
+        final Band[] sourceBands = firstSliceProduct.getBands();
         for (Band srcBand : sourceBands) {
-            final Band newBand = targetProduct.addBand(srcBand.getName(), srcBand.getDataType());
+            final Dimension dim = new Dimension(0,0);
+            computeTargetBandWidthAndHeight(srcBand.getName(), dim);
+            final Band newBand = new Band(srcBand.getName(), srcBand.getDataType(), dim.width, dim.height);
             ProductUtils.copyRasterDataNodeProperties(srcBand, newBand);
 
             targetProduct.addBand(newBand);
-        }*/
+        }
 
-        ProductUtils.copyProductNodes(firstSliceProduct, targetProduct);
+        ProductUtils.copyMetadata(firstSliceProduct, targetProduct);
+        ProductUtils.copyFlagCodings(firstSliceProduct, targetProduct);
+        ProductUtils.copyMasks(firstSliceProduct, targetProduct);
+        ProductUtils.copyVectorData(firstSliceProduct, targetProduct);
+        ProductUtils.copyIndexCodings(firstSliceProduct, targetProduct);
+        targetProduct.setStartTime(firstSliceProduct.getStartTime());
+        targetProduct.setEndTime(lastSliceProduct.getEndTime());
+        targetProduct.setDescription(firstSliceProduct.getDescription());
+
+        createTiePointGrids();
+        addGeocoding();
+    }
+
+    private void createTiePointGrids() {
+        final Product firstSliceProduct = sliceProducts[0];
+
+        final TiePointGrid[] tpgList = firstSliceProduct.getTiePointGrids();
+        for(TiePointGrid tpg : tpgList) {
+            final List<Float> newPoints = new ArrayList<>();
+
+            final int gridWidth = tpg.getRasterWidth();
+            final int gridHeight = tpg.getRasterHeight();
+            final float[] points = tpg.getTiePoints();
+
+            for(float f : points) {
+                newPoints.add(f);
+            }
+            int newGridHeight = gridHeight;
+
+            for(Product srcProduct : sliceProducts) {
+                if(srcProduct == firstSliceProduct)
+                    continue;
+
+                final TiePointGrid tpg2 = srcProduct.getTiePointGrid(tpg.getName());
+                final float[] points2 = tpg2.getTiePoints();
+
+                for(int i=gridWidth; i < points2.length; ++i) {
+                    newPoints.add(points2[i]);
+                }
+                newGridHeight += tpg2.getRasterHeight()-1;
+            }
+
+            final int subSamplingX = targetWidth / gridWidth;
+            final int subSamplingY = targetHeight / newGridHeight;
+
+            final float[] pointArray = new float[newPoints.size()];
+            int i=0;
+            for(Float f : newPoints) {
+                pointArray[i++] = f;
+            }
+
+            final TiePointGrid newGrid = new TiePointGrid(
+                    tpg.getName(), gridWidth, newGridHeight, 0, 0, subSamplingX, subSamplingY, pointArray);
+            targetProduct.addTiePointGrid(newGrid);
+        }
+    }
+
+    private void addGeocoding() {
+        final TiePointGrid latGrid = targetProduct.getTiePointGrid(OperatorUtils.TPG_LATITUDE);
+        final TiePointGrid lonGrid = targetProduct.getTiePointGrid(OperatorUtils.TPG_LONGITUDE);
+
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        targetProduct.setGeoCoding(tpGeoCoding);
     }
 
     private void updateTargetProductMetadata() {
@@ -186,123 +260,65 @@ public final class SliceAssemblyOp extends Operator {
     }
 
     /**
-     * Called by the framework in order to compute the stack of tiles for the given target bands.
+     * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      *
-     * @param targetTiles The current tiles to be computed for each target band.
-     * @param pm          A progress monitor which should be used to determine computation cancellation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException if an error occurs during computation of the target rasters.
+     * @param targetBand The target band.
+     * @param targetTile The current tile associated with the target band to be computed.
+     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
-    @Override
-    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
-
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
-   /*         final int tx0 = targetRectangle.x;
-            final int ty0 = targetRectangle.y;
-            final int tw = targetRectangle.width;
-            final int th = targetRectangle.height;
-            final double tileSlrtToFirstPixel = targetSlantRangeTimeToFirstPixel + tx0*targetDeltaSlantRangeTime;
-            final double tileSlrtToLastPixel = targetSlantRangeTimeToFirstPixel + (tx0+tw-1)*targetDeltaSlantRangeTime;
-            //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
+            final Rectangle targetTileRectangle = targetTile.getRectangle();
+            final int tx0 = targetTileRectangle.x;
+            final int ty0 = targetTileRectangle.y;
+            final int tw = targetTileRectangle.width;
+            final int th = targetTileRectangle.height;
+            final int maxY = ty0 + th;
+            final int maxX = tx0 + tw;
 
-            // determine subswaths covered by the tile
-            int firstSubSwathIndex = 0;
-            for (int i = 0; i < numOfSubSwath; i++) {
-                if (tileSlrtToFirstPixel >= subSwath[i].slrTimeToFirstPixel &&
-                    tileSlrtToFirstPixel <= subSwath[i].slrTimeToLastPixel) {
-                    firstSubSwathIndex = i + 1;
-                    break;
-                }
+            final Map<BandLines, Band> bandLineMap = new HashMap<>(sliceProducts.length);
+            int height = 0;
+            for(Product srcProduct : sliceProducts) {
+                final Band srcBand = srcProduct.getBand(targetBand.getName());
+                int start = height;
+                height += srcBand.getRasterHeight();
+                int end = height;
+                bandLineMap.put(new BandLines(start, end), srcBand);
             }
 
-            int lastSubSwathIndex = 0;
-            for (int i = 0; i < numOfSubSwath; i++) {
-                if (tileSlrtToLastPixel >= subSwath[i].slrTimeToFirstPixel &&
-                    tileSlrtToLastPixel <= subSwath[i].slrTimeToLastPixel) {
-                    lastSubSwathIndex = i + 1;
-                }
-            }
+            final Set<BandLines> lines = bandLineMap.keySet();
+            for(int y=ty0; y < maxY; ++y) {
+                for(BandLines line : lines) {
+                    if(y >= line.start && y < line.end) {
+                        final Band srcBand = bandLineMap.get(line);
+                        final Tile sourceRaster = getSourceTile(srcBand, new Rectangle(0, y-line.start, targetBand.getRasterWidth(), 1));
 
-            final int numOfSourceTiles = lastSubSwathIndex - firstSubSwathIndex + 1;
-            final boolean tileInOneSubSwath = (numOfSourceTiles == 1);
+                        final ProductData trgData = targetTile.getDataBuffer();
+                        final ProductData srcData = sourceRaster.getDataBuffer();
 
-            final Rectangle[] sourceRectangle = new Rectangle[numOfSourceTiles];
-            int k = 0;
-            for (int i = firstSubSwathIndex; i <= lastSubSwathIndex; i++) {
-                 sourceRectangle[k++] = getSourceRectangle(tx0, ty0, tw, th, i);
-            }
-
-            final BurstInfo burstInfo = new BurstInfo();
-            final int lastX = tx0 + tw;
-            final String bandNameI = "i_" + acquisitionMode;
-            final String bandNameQ = "q_" + acquisitionMode;
-
-            for (String pol:selectedPolarisations) {
-                if (pol != null) {
-                    final Tile targetTileI = targetTiles.get(targetProduct.getBand("i_" + pol));
-                    final Tile targetTileQ = targetTiles.get(targetProduct.getBand("q_" + pol));
-
-                    if (tileInOneSubSwath) {
-                        computeTileInOneSwath(tx0, ty0, lastX, th, firstSubSwathIndex, pol,
-                                sourceRectangle, bandNameI, bandNameQ, targetTileI, targetTileQ);
-
+                        for (int x = tx0; x < maxX; ++x) {
+                            final double val = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(x, y-line.start));
+                            trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), val);
+                        }
                     }
                 }
-            }     */
+            }
+
         } catch (Throwable e) {
             throw new OperatorException(e.getMessage());
         }
     }
 
-    private void computeTileInOneSwath(final int tx0, final int ty0, final int lastX, final int th,
-                                       final int firstSubSwathIndex, final String pol,
-                                       final Rectangle[] sourceRectangle,
-                                       final String bandNameI, final String bandNameQ,
-                                       final Tile targetTileI, final Tile targetTileQ) {
-
-   /*     final int yMin = computeYMin(subSwath[firstSubSwathIndex - 1]);
-        final int yMax = computeYMax(subSwath[firstSubSwathIndex-1]);
-        final int firstY = Math.max(ty0, yMin);
-        final int lastY = Math.min(ty0 + th, yMax + 1);
-
-        if(firstY >= lastY)
-            return;
-
-        final Band srcBandI = sourceProduct.getBand(bandNameI + firstSubSwathIndex + '_' + pol);
-        final Band srcBandQ = sourceProduct.getBand(bandNameQ + firstSubSwathIndex + '_' + pol);
-        final Tile sourceRasterI = getSourceTile(srcBandI, sourceRectangle[0]);
-        final Tile sourceRasterQ = getSourceTile(srcBandQ, sourceRectangle[0]);
-        final TileIndex srcTileIndex = new TileIndex(sourceRasterI);
-        final TileIndex tgtIndex = new TileIndex(targetTileI);
-
-        final short[] srcArrayI = (short[])sourceRasterI.getDataBuffer().getElems();
-        final short[] srcArrayQ = (short[])sourceRasterQ.getDataBuffer().getElems();
-        final short[] tgtArrayI = (short[])targetTileI.getDataBuffer().getElems();
-        final short[] tgtArrayQ = (short[])targetTileQ.getDataBuffer().getElems();
-
-        for (int y = firstY; y < lastY; y++) {
-
-            if(!getLineIndicesInSourceProduct(y, subSwath[firstSubSwathIndex-1], burstInfo)) {
-                continue;
-            }
-
-            final int tgtOffset = tgtIndex.calculateStride(y);
-            final SubSwathInfo firstSubSwath = subSwath[firstSubSwathIndex-1];
-            int offset;
-            if (burstInfo.sy1 != -1 && burstInfo.targetTime > burstInfo.midTime) {
-                offset = srcTileIndex.calculateStride(burstInfo.sy1);
-            } else {
-                offset = srcTileIndex.calculateStride(burstInfo.sy0);
-            }
-
-            final int sx = (int)Math.round(( (targetSlantRangeTimeToFirstPixel + tx0*targetDeltaSlantRangeTime)
-                    - firstSubSwath.slrTimeToFirstPixel)/targetDeltaSlantRangeTime);
-
-            System.arraycopy(srcArrayI, sx-offset, tgtArrayI, tx0-tgtOffset, lastX-tx0);
-            System.arraycopy(srcArrayQ, sx-offset, tgtArrayQ, tx0-tgtOffset, lastX-tx0);
-        }    */
+    private static class BandLines {
+        final int start;
+        final int end;
+        BandLines(final int s, final int e) {
+            this.start = s;
+            this.end = e;
+        }
     }
-
 
     /**
      * The SPI is used to register this operator in the graph processing framework
