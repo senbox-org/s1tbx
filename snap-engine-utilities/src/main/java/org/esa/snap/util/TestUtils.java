@@ -127,6 +127,7 @@ public class TestUtils {
     }
 
     private static final boolean FailOnSkip = false;
+    private static final boolean FailOnLargeTestProducts = false;
     private static boolean testEnvironmentInitialized = false;
 
     public static void initTestEnvironment() {
@@ -239,16 +240,18 @@ public class TestUtils {
                 // readPixels gets computeTiles to be executed
                 final int w = b.getSceneRasterWidth();
                 final int h = b.getSceneRasterHeight();
-                if (w > subsetWidth*2 || h > subsetHeight*2) {
+                if (FailOnLargeTestProducts && (w > subsetWidth*2 || h > subsetHeight*2)) {
                     throw new IOException("Test product too large " + w + "," + h);
                 }
 
-                final float[] floatValues = new float[w * h];
-                b.readPixels(0, 0, w, h, floatValues, ProgressMonitor.NULL);
                 boolean allNoData = true;
-                for (float f : floatValues) {
-                    if (!(f == b.getNoDataValue() || f == 0 || f == Float.NaN))
-                        allNoData = false;
+                for(int y=0; y < h; ++y) {
+                    final float[] floatValues = new float[w];
+                    b.readPixels(0, y, w, 1, floatValues, ProgressMonitor.NULL);
+                    for (float f : floatValues) {
+                        if (!(f == b.getNoDataValue() || f == 0 || f == Float.NaN))
+                            allNoData = false;
+                    }
                 }
                 if (allNoData) {
                     throw new Exception("band " + b.getName() + " is all no data value");
