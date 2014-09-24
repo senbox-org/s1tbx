@@ -19,6 +19,7 @@ import com.bc.ceres.swing.TreeCellExtender;
 import org.esa.beam.dataio.dimap.DimapProductReader;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
@@ -338,10 +339,9 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                     if (selPath != null) {
                         AbstractTN node = (AbstractTN) selPath.getLastPathComponent();
                         final Object nodeContent = node.getContent();
-                        if(nodeContent instanceof RasterDataNode) {
-                            final RasterDataNode rasterDataNode = (RasterDataNode) nodeContent;
-                            ContextHelp.showContextHelp(rasterDataNode.getName(),
-                                                        rasterDataNode.getProduct().getProductType());
+                        if(nodeContent instanceof DataNode) {
+                            final DataNode dataNode = (DataNode) nodeContent;
+                            ContextHelp.showContextHelp(dataNode.getName(), dataNode.getProduct().getProductType());
                         }
                     }
                 }
