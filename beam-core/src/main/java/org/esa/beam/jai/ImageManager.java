@@ -1057,7 +1057,7 @@ public class ImageManager {
 
             @Override
             public RenderedImage createImage(int sourceLevel) {
-                return new ReplaceValueOpImage(srcImage, noDataValue, newValue, targetDataType);
+                return new ReplaceValueOpImage(srcImage.getImage(sourceLevel), noDataValue, newValue, targetDataType);
             }
         });
     }
