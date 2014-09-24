@@ -66,7 +66,7 @@ public abstract class BaseOperatorUI implements OperatorUI {
 
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
         if (operatorSpi == null) {
-            throw new IllegalArgumentException("operator "+operatorName+" not found");
+            throw new IllegalArgumentException("operator " + operatorName + " not found");
         }
 
         paramMap = parameterMap;

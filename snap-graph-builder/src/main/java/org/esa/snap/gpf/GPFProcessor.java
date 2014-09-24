@@ -22,7 +22,6 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.graph.*;
 import org.esa.beam.gpf.operators.standard.ReadOp;
 import org.esa.beam.gpf.operators.standard.WriteOp;
-import org.esa.snap.util.FileIOUtils;
 
 import java.io.File;
 import java.io.FileReader;

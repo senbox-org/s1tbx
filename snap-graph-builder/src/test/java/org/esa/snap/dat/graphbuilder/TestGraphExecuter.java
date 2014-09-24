@@ -16,7 +16,6 @@
 package org.esa.snap.dat.graphbuilder;
 
 import org.esa.beam.framework.gpf.graph.GraphException;
-import org.esa.snap.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 

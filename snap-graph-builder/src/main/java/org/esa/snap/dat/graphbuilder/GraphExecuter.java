@@ -58,7 +58,7 @@ public class GraphExecuter extends Observable {
     public GraphExecuter() {
 
         gpf = GPF.getDefaultInstance();
-        if(gpf.getOperatorSpiRegistry().getOperatorSpis().isEmpty()) {
+        if (gpf.getOperatorSpiRegistry().getOperatorSpis().isEmpty()) {
             gpf.getOperatorSpiRegistry().loadOperatorSpis();
         }
 
@@ -243,6 +243,25 @@ public class GraphExecuter extends Observable {
         processor.executeGraph(graphContext, pm);
     }
 
+    public File[] getPotentialOutputFiles() {
+        final List<File> fileList = new ArrayList<>();
+        final Node[] nodes = graph.getNodes();
+        for (Node n : nodes) {
+            if (n.getOperatorName().equalsIgnoreCase(OperatorSpi.getOperatorAlias(WriteOp.class))) {
+                final DomElement config = n.getConfiguration();
+                final DomElement fileParam = config.getChild("file");
+                if (fileParam != null) {
+                    final String filePath = fileParam.getValue();
+                    if (filePath != null && !filePath.isEmpty()) {
+                        final File file = new File(filePath);
+                        fileList.add(file);
+                    }
+                }
+            }
+        }
+        return fileList.toArray(new File[fileList.size()]);
+    }
+
     File saveGraph() throws GraphException {
 
         String filename = "myGraph";
@@ -347,7 +366,7 @@ public class GraphExecuter extends Observable {
             if (n.getOperatorName().equalsIgnoreCase(OperatorSpi.getOperatorAlias(WriteOp.class))) {
                 final DomElement config = n.getConfiguration();
                 final DomElement fileParam = config.getChild("file");
-                if(fileParam != null) {
+                if (fileParam != null) {
                     final String filePath = fileParam.getValue();
                     if (filePath != null && !filePath.isEmpty()) {
                         final File file = new File(filePath);
