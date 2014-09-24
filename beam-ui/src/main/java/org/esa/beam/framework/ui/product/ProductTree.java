@@ -342,6 +342,9 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                         if(nodeContent instanceof DataNode) {
                             final DataNode dataNode = (DataNode) nodeContent;
                             ContextHelp.showContextHelp(dataNode.getName(), dataNode.getProduct().getProductType());
+                        } else if(nodeContent instanceof MetadataElement) {
+                            final MetadataElement metadataElement = (MetadataElement) nodeContent;
+                            ContextHelp.showContextHelp(metadataElement.getName(), metadataElement.getProduct().getProductType());
                         }
                     }
                 }
