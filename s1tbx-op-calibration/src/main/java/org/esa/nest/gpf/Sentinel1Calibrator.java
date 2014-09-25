@@ -221,14 +221,17 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         boolean getBetaLUT = outputBetaBand;
         boolean getGammaLUT = outputGammaBand;
         boolean getDNLUT = outputDNBand;
-        if (dataType.equals(CALTYPE.SIGMA0)) {
-            getSigmaLUT = true;
-        } else if (dataType.equals(CALTYPE.BETA0)) {
-            getBetaLUT = true;
-        } else if (dataType.equals(CALTYPE.GAMMA)) {
-            getGammaLUT = true;
-        } else {
-            getDNLUT = true;
+
+        if (dataType != null) {
+            if (dataType.equals(CALTYPE.SIGMA0)) {
+                getSigmaLUT = true;
+            } else if (dataType.equals(CALTYPE.BETA0)) {
+                getBetaLUT = true;
+            } else if (dataType.equals(CALTYPE.GAMMA)) {
+                getGammaLUT = true;
+            } else {
+                getDNLUT = true;
+            }
         }
 
         final List<CalibrationInfo> calibrationInfoList = new ArrayList<>();
