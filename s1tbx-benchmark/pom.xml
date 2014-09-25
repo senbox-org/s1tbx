@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>0.7.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
 
     <name>S1TBX Benchmark Tests</name>

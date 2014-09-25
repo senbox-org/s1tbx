@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s1tbx-dem</symbolicName>
-    <version>0.7</version>
+    <version>1.0</version>
     <name>S1TBX DEM Reader</name>
 
     <description>Enables reading of SRTM, ACE and D-TED digital elevation models.</description>

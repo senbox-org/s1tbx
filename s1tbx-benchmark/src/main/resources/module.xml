@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s1tbx-benchmark</symbolicName>
-    <version>0.7</version>
+    <version>1.0</version>
     <name>S1TBX Benchmark</name>
 
     <description>S1TBX Benchmark Tests</description>
