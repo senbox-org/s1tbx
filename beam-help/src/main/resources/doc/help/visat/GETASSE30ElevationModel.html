@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>Sentinel-3 Toolbox Help - GETASSE30 Elevation Model</title>
+    <title>Sentinel Toolbox Help - GETASSE30 Elevation Model</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 
@@ -35,11 +35,11 @@
 
 <p>
     GETASSE30 stands for <b>G</b>lobal <b>E</b>arth <b>T</b>opography <b>A</b>nd <b>S</b>ea <b>S</b>urface <b>E</b>levation
-    at <b>30</b> arc second resolution. This elevation model is currently the default DEM of the Sentinel-3 Toolbox and
+    at <b>30</b> arc second resolution. This elevation model is currently the default DEM of the Sentinel Toolbox and
     has kindly been provided to the development team by Marc Bouvet (marc.bouvet@esa.int) of ESA/ESRIN.
     This documentation is also by courtesy of Marc Bouvet.
 
-<p>Because of its size, the Sentinel-3 Toolbox installer will not automatically install the GETASSE30 DEM files. But at first use
+<p>Because of its size, the Sentinel Toolbox installer will not automatically install the GETASSE30 DEM files. But at first use
     the Toolbox will offer to download the DEM for you. Alternatively the GETASSE30 dataset can be manually downloaded
     from the BEAM home page at <a href="http://envisat.esa.int/services/beam/">http://envisat.esa.int/services/beam/</a>.
     The size is about 300 MB zipped and 2.3 GB unzipped. Due to the file size, we recommend this only if your internet
@@ -48,17 +48,17 @@
         <li>Download <code>GETASSE30.zip</code> from the BEAM home page.</li>
         <li>Create directory <code>${USER_HOME}/.s3tbx/beam-core/auxdata/dem/GETASSE30</code></li>
         <li>The simplest way is unzip the <code>GETASSE30.zip</code> and copy the files into
-            <p><code>${USER_HOME}/.beam/beam-core/auxdata/dem/GETASSE30/</code>.</p>
+            <p><code>${USER_HOME}/.s3tbx/beam-core/auxdata/dem/GETASSE30/</code>.</p>
             The DEM is now installed.</li>
     </ol>
 
     <p>
-        If you like to share the DEM along multiple Sentinel-3 Toolbox installations in your network
+        If you like to share the DEM along multiple Sentinel Toolbox installations in your network
         or if you simply don't want to install in the auxdata folder, then:
     </p>
     <ol start=4>
         <li>Copy the unzipped GETASSE30 dataset to a location accessible
-            by your Sentinel-3 Toolbox installation(s). This directory we call <code>${SHARED_GETASSE30}</code> from now on.</li>
+            by your Sentinel Toolbox installation(s). This directory we call <code>${SHARED_GETASSE30}</code> from now on.</li>
         <li>Create a file named "dem.properties" in <code>${USER_HOME}/.s3tbx/beam-core/auxdata/dem/GETASSE30/</code> and open the
             new file in a text editor. <br>
             Add the following line <p><code>dem.installDir = ${SHARED_GETASSE30}</code></p> to it and don't forget to
@@ -84,7 +84,7 @@
     of the arctic and antarctic continents there are some tens of strange negative values (down to -700 m) inherent to
     the ACE dataset. All latitude/longitude values refer to the center of a pixel, not to one of its corners.
     The GETASSE30 dataset is organised as multiple tiles. Each tile is stored in associated file which can be imported
-    into the Sentinel-3 Toolbox using the <a href="ImportGETASSE30.html">GETASSE30 Reader</a>.
+    into the Sentinel Toolbox using the <a href="ImportGETASSE30.html">GETASSE30 Reader</a>.
     (This reader is also internally used by the <a href="OrthorectificationAlgo.html">Orthorectification</a> algorithm.)
 </p>
 
