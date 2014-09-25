@@ -1,7 +1,0 @@
-Installer.Welcome.Title=SENTINEL-1 Toolbox
-Installer.Welcome.Text=Welcome to the S1TBX Setup Wizard. 
-Installer.Parameter.installdir.explanation=Please specify the directory where the software will be installed.
-Installer.Ready.Text1=Setup is now ready to begin installing S1TBX on your computer.
-Installer.Installing.Text=Please wait while Setup installs S1TBX on your computer.
-Installer.Installation.Finished.Title=Thank you for installing the SENTINEL-1 Toolbox
-Installer.Installation.Finished.Text=Setup has finished installing S1TBX on your computer.\n\nYou may also install optional plug-in modules from the module manager in the help menu.

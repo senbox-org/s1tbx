@@ -337,10 +337,10 @@
         <content />
       </infoPlist>
       <iconImageFiles>
-        <file path="../main/bin/common/resource/snap-s1.png" />
+        <file path="../main/bin/common/resource/images/s1_64x.png" />
       </iconImageFiles>
     </launcher>
-    <launcher name="s1tbx_mac" id="5638" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="S1 Toolbox" icnsFile="../main/bin/macosx/snap_s1.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="5496" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="">
+    <launcher name="s1tbx_mac" id="5638" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="S1 Toolbox" icnsFile="../main/bin/macosx/snap-s1.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="5496" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="">
       <executable name="s1tbx" type="1" iconSet="true" iconFile="" executableDir="" redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="true" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory="/Applications/S1TBX.app/Contents/java/app" singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false">
         <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" productName="" />
       </executable>
@@ -374,7 +374,7 @@
         <content />
       </infoPlist>
       <iconImageFiles>
-        <file path="../main/bin/common/resource/snap-s1.png" />
+        <file path="../main/bin/common/resource/images/s1_64x.png" />
       </iconImageFiles>
     </launcher>
   </launchers>
@@ -391,13 +391,13 @@
             <object class="com.install4j.runtime.beans.applications.InstallerApplication">
               <void property="customHeaderImage">
                 <object class="com.install4j.api.beans.ExternalFile">
-                  <string>../main/bin/common/resource/snap-s1.png</string>
+                  <string>../main/bin/common/resource/images/s1_64x.png</string>
                 </object>
               </void>
               <void property="customIconImageFiles">
                 <void method="add">
                   <object class="com.install4j.api.beans.ExternalFile">
-                    <string>../main/bin/common/resource/snap-s1.png</string>
+                    <string>../main/bin/common/resource/images/s1_64x.png</string>
                   </object>
                 </void>
               </void>
@@ -638,7 +638,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                             <string>-Ds1tbx.home=${installer:sys.installationDir}</string>
                           </void>
                           <void index="2">
-                            <string>-Ds1tbx.splash.image=${installer:sys.installationDir}/resource/snap_splash.png</string>
+                            <string>-Ds1tbx.splash.image=${installer:sys.installationDir}/resource/images/snap_splash.png</string>
                           </void>
                           <void index="3">
                             <string>-Ds1tbx.build.date=${compiler:sys.date}</string>
@@ -986,7 +986,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                       </void>
                       <void property="windowsIconFile">
                         <object class="com.install4j.api.beans.ExternalFile">
-                          <string>../main/bin/common/resource/dat.png</string>
+                          <string>../main/bin/common/resource/images/s1_64x.png</string>
                         </object>
                       </void>
                     </object>
@@ -1009,7 +1009,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                       </void>
                       <void property="windowsIconFile">
                         <object class="com.install4j.api.beans.ExternalFile">
-                          <string>../main/bin/common/resource/dat.png</string>
+                          <string>../main/bin/common/resource/images/s1_64x.png</string>
                         </object>
                       </void>
                     </object>
@@ -1032,7 +1032,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                       </void>
                       <void property="windowsIconFile">
                         <object class="com.install4j.api.beans.ExternalFile">
-                          <string>../main/bin/common/resource/dat.png</string>
+                          <string>../main/bin/common/resource/images/s1_64x.png</string>
                         </object>
                       </void>
                     </object>
@@ -1055,7 +1055,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                       </void>
                       <void property="windowsIconFile">
                         <object class="com.install4j.api.beans.ExternalFile">
-                          <string>../main/bin/common/resource/dat.png</string>
+                          <string>../main/bin/common/resource/images/s1_64x.png</string>
                         </object>
                       </void>
                     </object>
@@ -1078,7 +1078,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                       </void>
                       <void property="windowsIconFile">
                         <object class="com.install4j.api.beans.ExternalFile">
-                          <string>../main/bin/common/resource/dat.png</string>
+                          <string>../main/bin/common/resource/images/s1_64x.png</string>
                         </object>
                       </void>
                     </object>
@@ -1190,7 +1190,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
             <object class="com.install4j.runtime.beans.applications.UninstallerApplication">
               <void property="customHeaderImage">
                 <object class="com.install4j.api.beans.ExternalFile">
-                  <string>../main/bin/common/resource/snap-s1.png</string>
+                  <string>../main/bin/common/resource/images/s1_64x.png</string>
                 </object>
               </void>
               <void property="customWatermarkText">

@@ -44,9 +44,10 @@
             <buildId>${s1tbx.build.id}</buildId>
             <buildDate>${s1tbx.build.date}</buildDate>
             <frameIcons>
-                /org/esa/s1tbx/icons/s1tbx-icon-16.png,
-                /org/esa/s1tbx/icons/s1tbx-icon-32.png,
-                /org/esa/s1tbx/icons/s1tbx-icon-64.png
+                /org/esa/s1tbx/icons/s1_16x.png,
+                /org/esa/s1tbx/icons/s1_24x.png,
+                /org/esa/s1tbx/icons/s1_32x.png,
+                /org/esa/s1tbx/icons/s1_64x.png
             </frameIcons>
             <aboutImage>
                 /org/esa/s1tbx/icons/s1tbx-about.png
