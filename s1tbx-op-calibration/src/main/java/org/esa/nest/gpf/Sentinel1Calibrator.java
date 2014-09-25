@@ -56,6 +56,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     private boolean outputGammaBand = false;
     private boolean outputBetaBand = false;
     private boolean outputDNBand = false;
+    private CALTYPE dataType = null;
 
     public enum CALTYPE {SIGMA0, BETA0, GAMMA, DN}
 
@@ -124,8 +125,6 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
-            getCalibrationFlag();
-
             getMission();
 
             getProductType();
@@ -136,8 +135,12 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
             getSampleType();
 
+            if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
+                dataType = getCalibrationType(sourceProduct.getBandAt(0).getName());
+            }
+
             calibration = getCalibrationVectors(sourceProduct, selectedPolList,
-                    outputSigmaBand, outputBetaBand, outputGammaBand, outputDNBand);
+                    outputSigmaBand, outputBetaBand, outputGammaBand, outputDNBand, dataType);
 
             createTargetBandToCalInfoMap();
 
@@ -209,9 +212,25 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     /**
      * Get calibration vectors from metadata.
      */
-    public static CalibrationInfo[] getCalibrationVectors(final Product sourceProduct, final java.util.List<String> selectedPolList,
-                                                          final boolean outputSigmaBand, final boolean outputBetaBand,
-                                                          final boolean outputGammaBand, final boolean outputDNBand) {
+    public static CalibrationInfo[] getCalibrationVectors(
+            final Product sourceProduct, final java.util.List<String> selectedPolList,
+            final boolean outputSigmaBand, final boolean outputBetaBand, final boolean outputGammaBand,
+            final boolean outputDNBand, final CALTYPE dataType) {
+
+        boolean getSigmaLUT = outputSigmaBand;
+        boolean getBetaLUT = outputBetaBand;
+        boolean getGammaLUT = outputGammaBand;
+        boolean getDNLUT = outputDNBand;
+        if (dataType.equals(CALTYPE.SIGMA0)) {
+            getSigmaLUT = true;
+        } else if (dataType.equals(CALTYPE.BETA0)) {
+            getBetaLUT = true;
+        } else if (dataType.equals(CALTYPE.GAMMA)) {
+            getGammaLUT = true;
+        } else {
+            getDNLUT = true;
+        }
+
         final List<CalibrationInfo> calibrationInfoList = new ArrayList<>();
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
         final MetadataElement calibrationElem = origProdRoot.getElement("calibration");
@@ -235,7 +254,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             final int count = calVecListElem.getAttributeInt("count");
             final Sentinel1Utils.CalibrationVector[] calibrationVectorList =
                     Sentinel1Utils.getCalibrationVector(
-                            calVecListElem, outputSigmaBand, outputBetaBand, outputGammaBand, outputDNBand);
+                            calVecListElem, getSigmaLUT, getBetaLUT, getGammaLUT, getDNLUT);
 
             calibrationInfoList.add(new CalibrationInfo(subSwath, pol,
                     firstLineTime, lastLineTime, numOfLines, count, calibrationVectorList));
@@ -346,7 +365,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                 throw new OperatorException("band " + srcBand.getName() + " requires a unit");
             }
 
-            if (!unit.contains(Unit.REAL) && !unit.contains(Unit.AMPLITUDE)) {
+            if (!unit.contains(Unit.REAL) && !unit.contains(Unit.AMPLITUDE) && !unit.contains(Unit.INTENSITY)) {
                 continue;
             }
 
@@ -367,7 +386,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                 srcBandNames[1] = sourceBands[i + 1].getName();
                 ++i;
 
-            } else { // GRD
+            } else { // GRD or calibrated product
 
                 srcBandNames = new String[1];
                 srcBandNames[0] = srcBand.getName();
@@ -477,7 +496,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         final CalibrationInfo calInfo = targetBandToCalInfo.get(targetBandName);
         final Sentinel1Calibrator.CALTYPE calType = Sentinel1Calibrator.getCalibrationType(targetBandName);
 
-        double dn, i, q, muX, lutVal;
+        double dn, dn2, i, q, muX, lutVal, retroLutVal = 1.0;
         int srcIdx, trgIdx;
         for (int y = y0; y < maxY; ++y) {
             srcIndex.calculateStride(y);
@@ -488,6 +507,12 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
             final float[] vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
             final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
+            float[] retroVec0LUT = null;
+            float[] retroVec1LUT = null;
+            if (dataType != null) {
+                retroVec0LUT = Sentinel1Calibrator.getVector(dataType, vec0);
+                retroVec1LUT = Sentinel1Calibrator.getVector(dataType, vec1);
+            }
             final double azTime = calInfo.firstLineTime + y * calInfo.lineTimeInterval;
             final double muY = (azTime - vec0.timeMJD) / (vec1.timeMJD - vec0.timeMJD);
 
@@ -497,30 +522,37 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
                 final int pixelIdx = calInfo.getPixelIndex(x, calVecIdx);
                 muX = (x - vec0.pixels[pixelIdx]) / (double)(vec0.pixels[pixelIdx + 1] - vec0.pixels[pixelIdx]);
+
                 lutVal = (1 - muY) * ((1 - muX) * vec0LUT[pixelIdx] + muX * vec0LUT[pixelIdx + 1]) +
                         muY * ((1 - muX) * vec1LUT[pixelIdx] + muX * vec1LUT[pixelIdx + 1]);
 
-                // todo: check if lut should be squared
+                if (dataType != null) {
+                    retroLutVal = (1 - muY) * ((1 - muX) * retroVec0LUT[pixelIdx] + muX * retroVec0LUT[pixelIdx + 1]) +
+                            muY * ((1 - muX) * retroVec1LUT[pixelIdx] + muX * retroVec1LUT[pixelIdx + 1]);
+                }
+                    // todo: check if lut should be squared
                 if (complexData) {
                     i = srcData1.getElemDoubleAt(srcIdx);
                     q = srcData2.getElemDoubleAt(srcIdx);
                     trgData.setElemDoubleAt(trgIdx, (i * i + q * q) / lutVal);
-                } else {
-                    // amplitude
+                } else if (bandUnit == Unit.UnitType.AMPLITUDE) {
                     dn = srcData1.getElemDoubleAt(srcIdx);
                     trgData.setElemDoubleAt(trgIdx, (dn * dn) / lutVal);
+                } else { // intensity
+                    dn2 = srcData1.getElemDoubleAt(srcIdx);
+                    trgData.setElemDoubleAt(trgIdx, dn2 * retroLutVal / lutVal);
                 }
             }
         }
     }
 
-    public static CALTYPE getCalibrationType(final String targetBandName) {
+    public static CALTYPE getCalibrationType(final String bandName) {
         CALTYPE calType;
-        if (targetBandName.contains("Sigma")) {
+        if (bandName.contains("Sigma")) {
             calType = CALTYPE.SIGMA0;
-        } else if (targetBandName.contains("Beta")) {
+        } else if (bandName.contains("Beta")) {
             calType = CALTYPE.BETA0;
-        } else if (targetBandName.contains("Gamma")) {
+        } else if (bandName.contains("Gamma")) {
             calType = CALTYPE.GAMMA;
         } else {
             calType = CALTYPE.DN;
@@ -529,7 +561,9 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     }
 
     public static float[] getVector(final CALTYPE calType, final Sentinel1Utils.CalibrationVector vec) {
-        if (calType.equals(CALTYPE.SIGMA0)) {
+        if (calType == null) {
+            return null;
+        }else if (calType.equals(CALTYPE.SIGMA0)) {
             return vec.sigmaNought;
         } else if (calType.equals(CALTYPE.BETA0)) {
             return vec.betaNought;
