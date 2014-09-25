@@ -271,7 +271,7 @@ public class ProductSetPanel extends JPanel implements TableModelListener {
 
         panel.add(addButton);
         panel.add(addAllOpenButton);
-        panel.add(dbQueryButton);
+        //panel.add(dbQueryButton); //todo
         panel.add(moveUpButton);
         panel.add(moveDownButton);
         panel.add(removeButton);
