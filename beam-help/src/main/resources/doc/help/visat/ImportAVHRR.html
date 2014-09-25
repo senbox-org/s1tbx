@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>Sentinel-3 Toolbox Help - Import AVHRR/3</title>
+    <title>Sentinel Toolbox Help - Import AVHRR/3</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -32,7 +32,7 @@
 
 <h3>Import AVHRR/3</h3>
 
-<p>The NOAA AVHRR/3 reader enables the Sentinel-3 Toolbox to import NOAA AVHRR/3 HRPT and AVHRR/3 LAC Level-1b data
+<p>The NOAA AVHRR/3 reader enables the Sentinel Toolbox to import NOAA AVHRR/3 HRPT and AVHRR/3 LAC Level-1b data
     products.</p>
 
 <p class="inote"><b>Note: </b>The AVHRR/3 reader is implemented in line with the "NOAA KLM User's
@@ -47,7 +47,7 @@
 
 <p>While AVHRR pixel data is read into memory it is calibrated on the fly. Scan lines with
     calibration errors are detected and corresponding sample values are set to a special no-data-value.
-    The Sentinel-3 Toolbox will exclude those no-data-values from pixels statistics and displays them in a separate
+    The Sentinel Toolbox will exclude those no-data-values from pixels statistics and displays them in a separate
     image overlay.</p>
 
 <h4>Features</h4>
@@ -82,7 +82,7 @@
 
 <p>The reader has been tested with products obtained from the NOAA CLASS server which conforms to
     the format version 2 used for the NOAA -15, -16 and -17 satellites. Recently, NOAA has changed to
-    the new version 3 format. The AVHRR/3 reader for the Sentinel-3 Toolbox already supports both existing 10-bit packed
+    the new version 3 format. The AVHRR/3 reader for the Sentinel Toolbox already supports both existing 10-bit packed
     format versions. AVHRR/3 data products can optionally have an Archive Retrieval System (ARS) Header
     Record. If this header is present, it is automatically detected by the reader. In particular, the
     AVHRR/3 reader implementation has the following features:</p>

@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>Sentinel-3 Toolbox Help - Vector Data Management</title>
+    <title>Sentinel Toolbox Help - Vector Data Management</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -39,7 +39,7 @@ Thus, vector data are stored to and restored to from <a href="../general/BeamDim
 files. A product can comprise any number of named <i>vector data containers</i>. Each container may virtually comprise
 any number of vector data nodes.
 
-There are two general occurrences of vector data in the Sentinel-3 Toolbox: <b>geometries</b> and <b>correlative</b> data. Both of these
+There are two general occurrences of vector data in the Sentinel Toolbox: <b>geometries</b> and <b>correlative</b> data. Both of these
 concepts are thoroughly described below.
 
 <h3>1) Geometries</h3>
@@ -51,7 +51,7 @@ concepts are thoroughly described below.
             the geometry container selected in the <b>Vector Data</b> node of the
             <a href="ProductBrowser.html">Products View</a> tool window as shown in the screenshot. If there isn't a
             single geometry container yet, SNAP will create a default container named <b>geometry</b>.<br/>
-            (This default behaviour can be customized in the Sentinel-3 Toolbox configuration file
+            (This default behaviour can be customized in the Sentinel Toolbox configuration file
             <code>${S3TBX_HOME}/config/s3tbx.config</code>.)
         </td>
         <td style="border-width:0">
@@ -95,7 +95,7 @@ concepts are thoroughly described below.
 
 <p>
     Once an image view is opened, new geometries are created by using the various drawing tools provided by
-    the Sentinel-3 Toolbox through the <b>Interactions Toolbar</b>:
+    the Sentinel Toolbox through the <b>Interactions Toolbar</b>:
 </p>
 
 <table>
@@ -234,7 +234,7 @@ concepts are thoroughly described below.
 <h3>2) Correlative Data</h3>
 
 <p>
-    The Sentinel-3 Toolbox considers vector data that does not originate from satellite data as <i>correlative data</i>.
+    The Sentinel Toolbox considers vector data that does not originate from satellite data as <i>correlative data</i>.
     The Toolbox supports exploiting of correlative data in some ways, for examples see the help for the
     <a href="ProfilePlotDialog.html">Profile Plot</a> dialog or the
     <a href="CorrelativePlotDialog.html">Correlative Plot</a> dialog.
@@ -252,7 +252,7 @@ concepts are thoroughly described below.
 <h4>Vector data import</h4>
 
 <p>
-    There are several built-in strategies for importing vector data into the Sentinel-3 Toolbox:
+    There are several built-in strategies for importing vector data into the Sentinel Toolbox:
     <ol>
         <li>Import ESRI shapefiles (see below)</li>
         <li>Import generic correlative data from CSV files (see <a href="ImportCSV.html">here</a>)</li>
@@ -265,7 +265,7 @@ concepts are thoroughly described below.
     The <a href="ImportShapefile.html">Import Shapefile</a> command allows the user to import geometries from <i>ESRI
     Shapefiles(*.shp)</i>: Multiple geometries can be imported from a Shapefile.
     The geometry coordinates used in the Shapefile will be converted to the coordinates reference system used by the
-    current data product. Note that the Sentinel-3 Toolbox does only offer limited support regarding the various style settings which
+    current data product. Note that the Sentinel Toolbox does only offer limited support regarding the various style settings which
     may be attached to a specific Shapefile. It also currently ignores all the attribute data that usually
     come with a Shapefile. This may change in later SNAP versions.
 </p>
