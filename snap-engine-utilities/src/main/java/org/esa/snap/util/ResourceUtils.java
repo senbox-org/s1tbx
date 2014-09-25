@@ -32,7 +32,6 @@ import java.util.Properties;
  */
 public final class ResourceUtils {
 
-    public static ImageIcon nestIcon = LoadIcon("org/esa/snap/icons/dat.png");
     public static ImageIcon rstbIcon = LoadIcon("org/esa/snap/icons/csa.png");
     public static ImageIcon arrayIcon = LoadIcon("org/esa/snap/icons/array_logo.png");
     public static ImageIcon esaIcon = LoadIcon("org/esa/snap/icons/esa.png");
