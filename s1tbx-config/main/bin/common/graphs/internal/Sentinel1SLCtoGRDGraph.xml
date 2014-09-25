@@ -77,10 +77,21 @@
       <enl>1.0</enl>
     </parameters>
   </node>
-    <node id="Write">
-    <operator>Write</operator>
+  <node id="SRGR">
+    <operator>SRGR</operator>
     <sources>
       <sourceProduct refid="Speckle-Filter"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+      <warpPolynomialOrder>4</warpPolynomialOrder>
+      <interpolationMethod>Linear interpolation</interpolationMethod>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="SRGR"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <formatName>BEAM-DIMAP</formatName>
@@ -90,25 +101,28 @@
   <applicationData id="Presentation">
     <Description/>
     <node id="Read">
-      <displayPosition y="34.0" x="20.0"/>
+      <displayPosition x="20.0" y="34.0"/>
     </node>
-	<node id="Calibration">
-      <displayPosition y="36.0" x="113.0"/>
+    <node id="Calibration">
+      <displayPosition x="113.0" y="36.0"/>
     </node>
     <node id="ThermalNoiseRemoval">
-      <displayPosition y="35.0" x="196.0"/>
+      <displayPosition x="196.0" y="35.0"/>
     </node>
     <node id="TOPSAR-Deburst">
-      <displayPosition y="85.0" x="209.0"/>
+      <displayPosition x="209.0" y="85.0"/>
     </node>
     <node id="Multilook">
-      <displayPosition y="138.0" x="97.0"/>
+      <displayPosition x="97.0" y="138.0"/>
     </node>
     <node id="Speckle-Filter">
-      <displayPosition y="137.0" x="302.0"/>
+      <displayPosition x="198.0" y="137.0"/>
     </node>
-	<node id="Write">
-      <displayPosition y="138.0" x="424.0"/>
+	<node id="SRGR">
+      <displayPosition x="319.0" y="138.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition x="424.0" y="138.0"/>
     </node>
   </applicationData>
 </graph>
