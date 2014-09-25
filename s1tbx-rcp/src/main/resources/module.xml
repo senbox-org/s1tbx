@@ -187,9 +187,17 @@
         </action>
 
         <action>
+            <id>Projects</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Projects</text>
+            <placeBefore>Session</placeBefore>
+            <parent>file</parent>
+        </action>
+
+        <action>
             <id>newProject</id>
             <class>org.esa.nest.dat.actions.NewProjectAction</class>
-            <parent>file</parent>
+            <parent>Projects</parent>
             <placeFirst>true</placeFirst>
             <text>New Project...</text>
             <accelerator>control P</accelerator>
@@ -203,7 +211,7 @@
         <action>
             <id>loadProject</id>
             <class>org.esa.nest.dat.actions.LoadProjectAction</class>
-            <parent>file</parent>
+            <parent>Projects</parent>
             <text>Load Project...</text>
             <accelerator>control L</accelerator>
             <placeAfter>newProject</placeAfter>
@@ -217,7 +225,7 @@
         <action>
             <id>saveProject</id>
             <class>org.esa.nest.dat.actions.SaveProjectAction</class>
-            <parent>file</parent>
+            <parent>Projects</parent>
             <text>Save Project</text>
             <placeAfter>loadProject</placeAfter>
             <shortDescr>Save current project</shortDescr>
@@ -229,7 +237,7 @@
         <action>
             <id>saveProjectAs</id>
             <class>org.esa.nest.dat.actions.SaveProjectAsAction</class>
-            <parent>file</parent>
+            <parent>Projects</parent>
             <text>Save Project As...</text>
             <placeAfter>saveProject</placeAfter>
             <shortDescr>Save current project to a new location</shortDescr>
@@ -241,7 +249,7 @@
         <action>
             <id>closeProject</id>
             <class>org.esa.nest.dat.actions.CloseProjectAction</class>
-            <parent>file</parent>
+            <parent>Projects</parent>
             <text>Close Project</text>
             <placeAfter>saveProjectAs</placeAfter>
             <shortDescr>Close current project</shortDescr>
