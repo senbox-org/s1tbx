@@ -5,10 +5,11 @@ Compatibility with Sentinel-2 and Sentinel-3 toolboxes
 Support for Sentinel-1
 	- Reading of Sentinel-1 level-0, level-1 and level-2 products
 	- Reading directly from zipped products
+	- Sentinel-1 Calibration and de-noising
 	- TOPSAR deburst and merge
-	- S-1 Calibration and de-noising
 	- TOPSAR Split
 	- TOPSAR SLC to GRD processing
+	- Slice Assembly
 	- Reading and writing of BigTiff files
 Polarimetric tools from the RADARSAT-2 Toolbox
 	- Polarimetric speckle filtering
