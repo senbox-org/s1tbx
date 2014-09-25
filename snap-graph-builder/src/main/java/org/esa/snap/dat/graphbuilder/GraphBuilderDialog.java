@@ -251,6 +251,9 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
     public void DoProcessing() {
 
         if (ValidateAllNodes()) {
+            if (!checkIfOutputExists()) {
+                return;
+            }
 
             MemUtils.freeAllMemory();
 
@@ -262,6 +265,22 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
         } else {
             showErrorDialog(statusLabel.getText());
         }
+    }
+
+    private boolean checkIfOutputExists() {
+        final File[] files = graphEx.getPotentialOutputFiles();
+        for (File file : files) {
+            if (file.exists()) {
+                final int answer = JOptionPane.showOptionDialog(getJDialog(),
+                        "File " + file.getPath() + " already exists.\nWould you like to overwrite?", "Overwrite?",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+
+                if (answer == JOptionPane.NO_OPTION) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void CancelProcessing() {
