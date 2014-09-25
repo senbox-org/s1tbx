@@ -192,7 +192,7 @@ public class OperatorHandlerHtml implements OperatorHandler {
                 "        <td class=\"header\">&nbsp;"+title+"</td>\n" +
                 "        <td class=\"header\" align=\"right\">\n" +
                 "           <a href=\"../general/BeamOverview.html\">" +
-                "             <img src=\"images/BeamHeader.jpg\" border=\"0\"/></a>\n" +
+                "             <img src=\"images/snap_header.jpg\" border=\"0\"/></a>\n" +
                 "        </td>\n" +
                 "    </tr>\n" +
                 "</table>");
