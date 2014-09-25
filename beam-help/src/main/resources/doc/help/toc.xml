@@ -18,7 +18,7 @@
         <tocitem text="The 'pconvert' Tool" target="pconvertTool"/>
     </tocitem>
 
-    <tocitem text="VISAT">
+    <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Introduction" target="visat"/>
         <tocitem text="Tools">
             <tocitem text="Import and Export Tools">
