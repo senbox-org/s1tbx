@@ -137,7 +137,7 @@ th {
 }
 
 td {
-    font-size: 11;
+    font-size: 12;
     border-width: 1;
     border-color: #BBBBBB;
     border-style: solid;
@@ -155,7 +155,7 @@ table.header {
     font-size: 17;
     color: #ffffff;
     vertical-align: middle;
-    background-color: #993333;
+    background-color: #1d3752;
     border-width: 0;
     padding: 0;
     margin: 0;
@@ -164,9 +164,9 @@ table.header {
 .header {
     font-size: 17;
     height: 29;
-    color: #003300;
+    color: #ffffff;
     vertical-align: middle;
-    background-color: #EEEFFF;
+    background-color: #1d3752;
     border-width: 0;
     padding: 0;
     white-space: nowrap;
@@ -177,5 +177,5 @@ hr {
     color: #000063;
     border-color: #000063;
     border-style: solid;
-    border-width: 0;
+    border-width: 1;
 }
