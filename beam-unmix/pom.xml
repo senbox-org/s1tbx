@@ -54,7 +54,6 @@
             <plugin>
                 <groupId>com.bc.maven.plugins</groupId>
                 <artifactId>maven-javahelp-plugin</artifactId>
-                <version>1.0</version>
             </plugin>
         </plugins>
     </build>
