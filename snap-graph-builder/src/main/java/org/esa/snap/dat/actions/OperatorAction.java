@@ -80,7 +80,7 @@ public class OperatorAction extends AbstractVisatAction {
 
     protected void addIcon(final ModelessDialog dlg) {
         if (iconName == null) {
-            setIcon(dlg, ResourceUtils.nestIcon);
+            setIcon(dlg, ResourceUtils.esaPlanetIcon);
         } else if (iconName.equals("esaIcon")) {
             setIcon(dlg, ResourceUtils.esaPlanetIcon);
         } else if (iconName.equals("rstbIcon")) {
