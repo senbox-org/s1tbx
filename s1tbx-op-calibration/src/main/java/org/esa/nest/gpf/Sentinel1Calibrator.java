@@ -139,8 +139,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                 dataType = getCalibrationType(sourceProduct.getBandAt(0).getName());
             }
 
-            calibration = getCalibrationVectors(sourceProduct, selectedPolList,
-                    outputSigmaBand, outputBetaBand, outputGammaBand, outputDNBand, dataType);
+            getVectors();
 
             createTargetBandToCalInfoMap();
 
@@ -209,13 +208,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         }
     }
 
-    /**
-     * Get calibration vectors from metadata.
-     */
-    public static CalibrationInfo[] getCalibrationVectors(
-            final Product sourceProduct, final java.util.List<String> selectedPolList,
-            final boolean outputSigmaBand, final boolean outputBetaBand, final boolean outputGammaBand,
-            final boolean outputDNBand, final CALTYPE dataType) {
+    private void getVectors() {
 
         boolean getSigmaLUT = outputSigmaBand;
         boolean getBetaLUT = outputBetaBand;
@@ -233,6 +226,18 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                 getDNLUT = true;
             }
         }
+
+        calibration = getCalibrationVectors(sourceProduct, selectedPolList,
+                getSigmaLUT, getBetaLUT, getGammaLUT, getDNLUT);
+    }
+
+    /**
+     * Get calibration vectors from metadata.
+     */
+    public static CalibrationInfo[] getCalibrationVectors(
+            final Product sourceProduct, final java.util.List<String> selectedPolList,
+            final boolean getSigmaLUT, final boolean getBetaLUT, final boolean getGammaLUT,
+            final boolean getDNLUT) {
 
         final List<CalibrationInfo> calibrationInfoList = new ArrayList<>();
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);

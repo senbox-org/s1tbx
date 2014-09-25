@@ -275,19 +275,13 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      */
     private void getCalibrationVectors() {
 
-        Sentinel1Calibrator.CALTYPE dataType = null;
-        if (absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean()) {
-            dataType = Sentinel1Calibrator.getCalibrationType(sourceProduct.getBandAt(0).getName());
-        }
-
         calibration = Sentinel1Calibrator.getCalibrationVectors(
                 sourceProduct,
                 selectedPolList,
                 inputSigmaBand,
                 inputBetaBand,
                 inputGammaBand,
-                inputDNBand,
-                dataType);
+                inputDNBand);
     }
 
     /**
