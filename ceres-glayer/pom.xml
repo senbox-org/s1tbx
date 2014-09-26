@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.esa.snap</groupId>
         <artifactId>ceres</artifactId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
 
     <name>Ceres GLayer Library</name>
