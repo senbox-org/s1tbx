@@ -77,6 +77,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public static final String PROPERTY_NAME_VALID_PIXEL_EXPRESSION = "validPixelExpression";
     public static final String PROPERTY_NAME_GEOCODING = Product.PROPERTY_NAME_GEOCODING;
     public static final String PROPERTY_NAME_STX = "stx";
+    public static final String PROPERTY_NAME_ANCILLARY_BANDS = "ancillaryBands";
 
     /**
      * Text returned by the <code>{@link #getPixelString(int, int)}</code> method if no data is available at the given pixel
@@ -212,10 +213,15 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @since BEAM 5.1
      */
     public void setAncillaryBand(String roleName, RasterDataNode band) {
+        RasterDataNode oldBand = ancillaryBands.get(roleName);
         if (band != null) {
             ancillaryBands.put(roleName, band);
         } else {
             ancillaryBands.remove(roleName);
+        }
+        RasterDataNode newBand = ancillaryBands.get(roleName);
+        if (oldBand != newBand) {
+            fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_BANDS, ancillaryBands, ancillaryBands);
         }
     }
 

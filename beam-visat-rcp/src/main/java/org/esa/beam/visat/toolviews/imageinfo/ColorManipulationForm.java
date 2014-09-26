@@ -699,6 +699,7 @@ class ColorManipulationForm {
 
         @Override
         public void nodeChanged(final ProductNodeEvent event) {
+
             final RasterDataNode[] rasters = childForm.getRasters();
             RasterDataNode raster = null;
             for (RasterDataNode dataNode : rasters) {
@@ -709,6 +710,9 @@ class ColorManipulationForm {
             if (raster != null) {
                 final String propertyName = event.getPropertyName();
                 if (ProductNode.PROPERTY_NAME_NAME.equalsIgnoreCase(propertyName)) {
+                    updateTitle();
+                    childForm.handleRasterPropertyChange(event, raster);
+                } else if (RasterDataNode.PROPERTY_NAME_ANCILLARY_BANDS.equalsIgnoreCase(propertyName)) {
                     updateTitle();
                     childForm.handleRasterPropertyChange(event, raster);
                 } else if (RasterDataNode.PROPERTY_NAME_UNIT.equalsIgnoreCase(propertyName)) {
