@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>snap-jai</symbolicName>
-    <version>0.5</version>
+    <version>1.0.0</version>
     <name>Ceres JAI Library</name>
 
     <categories>System,Library</categories>
@@ -14,8 +14,6 @@
 
     <changelog>
         <![CDATA[
-         Changes in 0.14
-         - fixed initialisation of SampleModel in ReinterpretOpImage
                 ]]>
     </changelog>
 

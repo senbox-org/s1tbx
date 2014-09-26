@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>snap-binio</symbolicName>
-    <version>0.5</version>
+    <version>1.0.0</version>
     <name>Ceres Binary I/O Library</name>
 
     <categories>System,Library</categories>
@@ -13,10 +13,7 @@
 
     <changelog>
         <![CDATA[
-            <p/>Changes from 0.8 to 0.9:<br/>
-            [CERES-31] BINIO shall directly support BINX schemas<br/>
-            [CERES-30] BINIO API revision required<br/>
-        ]]>
+                ]]>
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>

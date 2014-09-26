@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>snap-glayer</symbolicName>
-    <version>0.5</version>
+    <version>1.0.0</version>
     <name>Ceres GLayer Library</name>
 
     <categories>System,Library</categories>
@@ -18,9 +18,7 @@
 
     <changelog>
         <![CDATA[
-            <b>Changes in 0.14.1</b><br/>
-            [CERES-60] flashing tiles (optimised image tile rendering for high resolution data on high resolution displays)<br/>
-        ]]>
+                ]]>
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>

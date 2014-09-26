@@ -2,45 +2,13 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>snap-ceres-core</symbolicName>
-    <version>0.5</version>
+    <version>1.0.0</version>
     <name>Ceres Runtime Library</name>
     <activator>com.bc.ceres.core.runtime.internal.RuntimeActivator</activator>
 
     <changelog>
         <![CDATA[
-        Changes in 0.14<br/>
-        [CERES-58] Temp directory is only usable by the first user<br/>
-        Changes in 0.13.1<br/>
-        [CERES-057] Version text in splash screen shall be configurable<br/>
-        Changes in 0.13<br/>
-        [CERES-056] Use latest XStream library<br/>
-        [CERES-055] Core API: Add extension point "adapters" in order to have declarative extension types<br/>
-        [CERES-054] Core API: ExtensionManager should query all possible extension factories<br/>
-        Changes in 0.12<br/>
-        [CERES-053] Native modules cannot discriminate between 32 and 64-bit VMs<br/>
-        [CERES-050] Launcher returns with exit code zero in error case<br/>
-        Changes in 0.11<br/>
-        [CERES-048] All zip files are appended to classpath using GPT<br/>
-        [CERES-046] The module resolver treats all zip files inside a dir-module as implicit libraries<br/>
-        Changes in 0.10<br/>
-        [CERES-044] Speedup service provider registration<br/>
-        [CERES-035] Typo in classname com.bc.ceres.core.runtime.ConfigurationShemaElement<br/>
-        Changes in 0.9<br/>
-        [CERES-029] ExtensionManager shall consider complete type hierarchy<br/>
-        Changes in 0.7<br/>
-        [CERES-027] Modules shall inherit extension points<br/>
-        [CERES-025] Add support for extension objects<br/>
-        [CERES-024] Splash screen shall not be top-most<br/>
-        [CERES-020] Runtime does not consider version-controlled dependencies<br/>
-        [CERES-007] Use Version class in Module interface<br/>
-        <br/>Changes in 0.6<br/>
-        [CERES-008] Speed up module repository scanning<br/>
-        [CERES-009] Replace simple extension points by META-INF/services<br/>
-        [CERES-011] Support standard Java SPI mechanism<br/>
-        [CERES-012] Cyclic dependency detection needs simplification<br/>
-        [CERES-013] Optional dependencies not handled<br/>
-        [CERES-014] Provide custom splash screen implementation<br/>
-        ]]>
+                ]]>
     </changelog>
 
     <description>
