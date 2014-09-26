@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s3tbx-landsat-reader</symbolicName>
-    <version>0.5</version>
+    <version>1.0.0</version>
     <name>Landsat Product Reader</name>
     <description>
         A product reader for Landsat files. It supports the instruments MSS of Landsat 1-5, TM of Landsat 4 and 5, ETM+ of Landsat 7

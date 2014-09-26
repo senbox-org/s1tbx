@@ -3,7 +3,7 @@
 
     <symbolicName>blue-marble-worldmap</symbolicName>
     <name>NASA Blue Marble Worldmap</name>
-    <version>0.5</version>
+    <version>1.0.0</version>
     <description>
         This module provides a NASA Blue Marble world map layer in WGS84.
     </description>

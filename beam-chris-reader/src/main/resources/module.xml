@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s3tbx-chris-reader</symbolicName>
-    <version>0.5</version>
+    <version>1.0.0</version>
     <name>CHRIS/Proba Product Reader</name>
 
     <description>Enables SNAP to read CHRIS/Proba HDF4 data products.</description>
