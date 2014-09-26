@@ -24,7 +24,7 @@
     <parent>
         <artifactId>snap-beam</artifactId>
         <groupId>org.esa.snap</groupId>
-        <version>0.5.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
 
     <name>SNAP Cluster Analysis</name>
