@@ -27,6 +27,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.gpf.OperatorUtils;
 
 import java.awt.*;
@@ -180,12 +181,23 @@ public final class SliceAssemblyOp extends Operator {
 
         final Band[] sourceBands = firstSliceProduct.getBands();
         for (Band srcBand : sourceBands) {
-            final Dimension dim = new Dimension(0,0);
-            computeTargetBandWidthAndHeight(srcBand.getName(), dim);
-            final Band newBand = new Band(srcBand.getName(), srcBand.getDataType(), dim.width, dim.height);
-            ProductUtils.copyRasterDataNodeProperties(srcBand, newBand);
+            if (srcBand instanceof VirtualBand) {
+                final VirtualBand sourceBand = (VirtualBand) srcBand;
+                final VirtualBand targetBand = new VirtualBand(sourceBand.getName(),
+                        sourceBand.getDataType(),
+                        sourceBand.getRasterWidth(),
+                        sourceBand.getRasterHeight(),
+                        sourceBand.getExpression());
+                ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
+                targetProduct.addBand(targetBand);
+            } else {
+                final Dimension dim = new Dimension(0, 0);
+                computeTargetBandWidthAndHeight(srcBand.getName(), dim);
+                final Band newBand = new Band(srcBand.getName(), srcBand.getDataType(), dim.width, dim.height);
+                ProductUtils.copyRasterDataNodeProperties(srcBand, newBand);
 
-            targetProduct.addBand(newBand);
+                targetProduct.addBand(newBand);
+            }
         }
 
         ProductUtils.copyMetadata(firstSliceProduct, targetProduct);
@@ -253,10 +265,56 @@ public final class SliceAssemblyOp extends Operator {
         targetProduct.setGeoCoding(tpGeoCoding);
     }
 
-    private void updateTargetProductMetadata() {
+    private void updateTargetProductMetadata() throws Exception {
 
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        final Product firstSliceProduct = sliceProducts[0];
+        final Product lastSliceProduct = sliceProducts[sliceProducts.length-1];
+        final MetadataElement absFirst = AbstractMetadata.getAbstractedMetadata(firstSliceProduct);
+        final MetadataElement absLast = AbstractMetadata.getAbstractedMetadata(lastSliceProduct);
 
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_line_time,
+                AbstractMetadata.getAttributeDouble(absFirst, AbstractMetadata.first_line_time));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_lat,
+                AbstractMetadata.getAttributeDouble(absLast, AbstractMetadata.last_line_time));
+
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, targetHeight);
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, targetWidth);
+
+        for(Band band : targetProduct.getBands()) {
+            MetadataElement bandMeta = AbstractMetadata.getBandAbsMetadata(absTgt, band);
+
+            AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.first_line_time,
+                    AbstractMetadata.getAttributeDouble(absFirst, AbstractMetadata.first_line_time));
+            AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.last_far_lat,
+                    AbstractMetadata.getAttributeDouble(absLast, AbstractMetadata.last_line_time));
+
+            AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, band.getRasterHeight());
+            AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, band.getRasterWidth());
+        }
+
+        final List<OrbitStateVector> orbVectorList = new ArrayList<>();
+        final List<AbstractMetadata.SRGRCoefficientList> srgrList = new ArrayList<>();
+        final List<AbstractMetadata.DopplerCentroidCoefficientList> dopList = new ArrayList<>();
+        for(Product srcProduct : sliceProducts) {
+            final MetadataElement absSrc = AbstractMetadata.getAbstractedMetadata(srcProduct);
+
+            // update orbit state vectors
+            final OrbitStateVector[] orbs = AbstractMetadata.getOrbitStateVectors(absSrc);
+            orbVectorList.addAll(Arrays.asList(orbs));
+
+            // update srgr coeffs
+            final AbstractMetadata.SRGRCoefficientList[] srgr = AbstractMetadata.getSRGRCoefficients(absSrc);
+            srgrList.addAll(Arrays.asList(srgr));
+
+            // update Doppler centroid coeffs
+            final AbstractMetadata.DopplerCentroidCoefficientList[] dop = AbstractMetadata.getDopplerCentroidCoefficients(absSrc);
+            dopList.addAll(Arrays.asList(dop));
+        }
+
+        AbstractMetadata.setOrbitStateVectors(absTgt, orbVectorList.toArray(new OrbitStateVector[orbVectorList.size()]));
+        AbstractMetadata.setSRGRCoefficients(absTgt, srgrList.toArray(new AbstractMetadata.SRGRCoefficientList[srgrList.size()]));
+        AbstractMetadata.setDopplerCentroidCoefficients(absTgt, dopList.toArray(new AbstractMetadata.DopplerCentroidCoefficientList[dopList.size()]));
     }
 
     /**
@@ -265,7 +323,7 @@ public final class SliceAssemblyOp extends Operator {
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
+     * @param pm         A progress monitor which should be used to determine computation cancellation requests.
      * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {

@@ -97,8 +97,8 @@
         </action>
 
         <action>
-            <id>SliceAssembly</id>
-            <helpId>SliceAssembly</helpId>
+            <id>SliceAssemblyOp</id>
+            <helpId>SliceAssemblyOp</helpId>
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
