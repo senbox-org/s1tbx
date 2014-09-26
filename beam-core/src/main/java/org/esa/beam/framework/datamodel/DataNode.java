@@ -204,18 +204,18 @@ public abstract class DataNode extends ProductNode {
         return unit;
     }
 
-    /**
-     * @deprecated since BEAM 4.10 (not used, no replacement)
-     */
-    @Deprecated
+//    /**
+//     * @deprecated since BEAM 4.10 (not used, no replacement)
+//     */
+//    @Deprecated
     public boolean isSynthetic() {
         return synthetic;
     }
 
-    /**
-     * @deprecated since BEAM 4.10 (not used, no replacement)
-     */
-    @Deprecated
+//    /**
+//     * @deprecated since BEAM 4.10 (not used, no replacement)
+//     */
+//    @Deprecated
     public void setSynthetic(boolean synthetic) {
         final boolean oldValue = this.synthetic;
         if (oldValue != synthetic) {
