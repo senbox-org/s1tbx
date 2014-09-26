@@ -6,7 +6,7 @@
 
     <groupId>org.esa.snap</groupId>
     <artifactId>snap</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>SNAP Root</name>
     <url>http://www.brockmann-consult.de/</url>
 
@@ -16,10 +16,10 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <snapVersionRange>[0.5.0-SNAPSHOT,1.0-SNAPSHOT)</snapVersionRange>
+        <snapVersionRange>[1.0.0,1.1.0-SNAPSHOT)</snapVersionRange>
         <s1tbx.version>1.0.0</s1tbx.version>
-        <s2tbx.version>0.5.0-SNAPSHOT</s2tbx.version>
-        <s3tbx.version>0.5.0-SNAPSHOT</s3tbx.version>
+        <s2tbx.version>1.0.0</s2tbx.version>
+        <s3tbx.version>1.0.0</s3tbx.version>
 
         <outputdir>../../output</outputdir>
         <pacakgedir>../package</pacakgedir>
