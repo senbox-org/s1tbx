@@ -36,6 +36,11 @@
             <operatorName>TOPSAR-Deburst</operatorName>
         </OperatorUI>
         <OperatorUI>
+            <id>org.esa.nest.gpf.SliceAssemblyOpUI</id>
+            <class>org.esa.nest.gpf.SliceAssemblyOpUI</class>
+            <operatorName>SliceAssembly</operatorName>
+        </OperatorUI>
+        <OperatorUI>
             <id>org.esa.nest.gpf.TOPSARSplitOpUI</id>
             <class>org.esa.nest.gpf.TOPSARSplitOpUI</class>
             <operatorName>TOPSAR-Split</operatorName>

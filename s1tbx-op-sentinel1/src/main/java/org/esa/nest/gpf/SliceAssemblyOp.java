@@ -23,12 +23,15 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.StringUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
 import java.util.*;
@@ -49,9 +52,13 @@ public final class SliceAssemblyOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
+    @Parameter(description = "The list of polarisations", label = "Polarisations")
+    private String[] selectedPolarisations;
+
     private MetadataElement absRoot = null;
 
     private Product[] sliceProducts;
+    private Map<Band, BandLines[]> bandLineMap = new HashMap<>();
     private int targetWidth = 0, targetHeight = 0;
 
     /**
@@ -81,10 +88,16 @@ public final class SliceAssemblyOp extends Operator {
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sliceProducts[0]);
 
+            if (selectedPolarisations == null || selectedPolarisations.length == 0) {
+                final Sentinel1Utils su = new Sentinel1Utils(sliceProducts[0]);
+                selectedPolarisations = su.getPolarizations();
+            }
+
             createTargetProduct();
 
             updateTargetProductMetadata();
 
+            determineBandStartEndTimes();
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -181,6 +194,14 @@ public final class SliceAssemblyOp extends Operator {
 
         final Band[] sourceBands = firstSliceProduct.getBands();
         for (Band srcBand : sourceBands) {
+            boolean selectedPol = false;
+            for (String pol : selectedPolarisations) {
+                if (srcBand.getName().contains(pol))
+                    selectedPol = true;
+            }
+            if(!selectedPol)
+                continue;
+
             if (srcBand instanceof VirtualBand) {
                 final VirtualBand sourceBand = (VirtualBand) srcBand;
                 final VirtualBand targetBand = new VirtualBand(sourceBand.getName(),
@@ -274,9 +295,9 @@ public final class SliceAssemblyOp extends Operator {
         final MetadataElement absLast = AbstractMetadata.getAbstractedMetadata(lastSliceProduct);
 
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_line_time,
-                AbstractMetadata.getAttributeDouble(absFirst, AbstractMetadata.first_line_time));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_lat,
-                AbstractMetadata.getAttributeDouble(absLast, AbstractMetadata.last_line_time));
+                absFirst.getAttributeUTC(AbstractMetadata.first_line_time));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_line_time,
+                absLast.getAttributeUTC(AbstractMetadata.last_line_time));
 
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, targetHeight);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, targetWidth);
@@ -285,9 +306,9 @@ public final class SliceAssemblyOp extends Operator {
             MetadataElement bandMeta = AbstractMetadata.getBandAbsMetadata(absTgt, band);
 
             AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.first_line_time,
-                    AbstractMetadata.getAttributeDouble(absFirst, AbstractMetadata.first_line_time));
-            AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.last_far_lat,
-                    AbstractMetadata.getAttributeDouble(absLast, AbstractMetadata.last_line_time));
+                    absFirst.getAttributeUTC(AbstractMetadata.first_line_time));
+            AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.last_line_time,
+                    absLast.getAttributeUTC(AbstractMetadata.last_line_time));
 
             AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, band.getRasterHeight());
             AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, band.getRasterWidth());
@@ -317,6 +338,22 @@ public final class SliceAssemblyOp extends Operator {
         AbstractMetadata.setDopplerCentroidCoefficients(absTgt, dopList.toArray(new AbstractMetadata.DopplerCentroidCoefficientList[dopList.size()]));
     }
 
+    private void determineBandStartEndTimes() {
+        for(Band targetBand : targetProduct.getBands()) {
+            final List<BandLines> bandLineList = new ArrayList<>(sliceProducts.length);
+            int height = 0;
+            for (Product srcProduct : sliceProducts) {
+                final Band srcBand = srcProduct.getBand(targetBand.getName());
+                int start = height;
+                height += srcBand.getRasterHeight();
+                int end = height;
+                bandLineList.add(new BandLines(srcBand, start, end));
+            }
+            final BandLines[] lines = bandLineList.toArray(new BandLines[bandLineList.size()]);
+            bandLineMap.put(targetBand, lines);
+        }
+    }
+
     /**
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
@@ -331,39 +368,46 @@ public final class SliceAssemblyOp extends Operator {
             final Rectangle targetTileRectangle = targetTile.getRectangle();
             final int tx0 = targetTileRectangle.x;
             final int ty0 = targetTileRectangle.y;
-            final int tw = targetTileRectangle.width;
-            final int th = targetTileRectangle.height;
-            final int maxY = ty0 + th;
-            final int maxX = tx0 + tw;
+            final int maxY = ty0 + targetTileRectangle.height;
+            final int maxX = tx0 + targetTileRectangle.width;
 
-            final Map<BandLines, Band> bandLineMap = new HashMap<>(sliceProducts.length);
-            int height = 0;
-            for(Product srcProduct : sliceProducts) {
-                final Band srcBand = srcProduct.getBand(targetBand.getName());
-                int start = height;
-                height += srcBand.getRasterHeight();
-                int end = height;
-                bandLineMap.put(new BandLines(start, end), srcBand);
-            }
+            final BandLines[] lines = bandLineMap.get(targetBand);
+            final ProductData trgData = targetTile.getDataBuffer();
+            final int targetBandWidth = targetBand.getRasterWidth();
 
-            final Set<BandLines> lines = bandLineMap.keySet();
+            final TileIndex trgIndex = new TileIndex(targetTile);
+            final Rectangle srcRect = new Rectangle();
+
+            BandLines line = lines[0];
             for(int y=ty0; y < maxY; ++y) {
-                for(BandLines line : lines) {
-                    if(y >= line.start && y < line.end) {
-                        final Band srcBand = bandLineMap.get(line);
-                        final Tile sourceRaster = getSourceTile(srcBand, new Rectangle(0, y-line.start, targetBand.getRasterWidth(), 1));
-
-                        final ProductData trgData = targetTile.getDataBuffer();
-                        final ProductData srcData = sourceRaster.getDataBuffer();
-
-                        for (int x = tx0; x < maxX; ++x) {
-                            final double val = srcData.getElemDoubleAt(sourceRaster.getDataBufferIndex(x, y-line.start));
-                            trgData.setElemDoubleAt(targetTile.getDataBufferIndex(x, y), val);
+                boolean validLine = y >= line.start && y < line.end;
+                if(!validLine) {
+                    for(BandLines l : lines) {
+                        if(y >= l.start && y < l.end) {
+                            line = l;
+                            validLine = true;
+                            break;
                         }
                     }
+                    if(!validLine) {
+                        // should never get here
+                        throw new OperatorException("line "+y+" not found in slice products");
+                    }
+                }
+
+                final int yy = y-line.start;
+                srcRect.setBounds(0, yy, targetBandWidth, 1);
+                final Tile sourceRaster = getSourceTile(line.band, srcRect);
+
+                final ProductData srcData = sourceRaster.getDataBuffer();
+                final TileIndex srcIndex = new TileIndex(sourceRaster);
+                trgIndex.calculateStride(y);
+                srcIndex.calculateStride(yy);
+
+                for (int x = tx0; x < maxX; ++x) {
+                    trgData.setElemDoubleAt(trgIndex.getIndex(x), srcData.getElemDoubleAt(srcIndex.getIndex(x)));
                 }
             }
-
         } catch (Throwable e) {
             throw new OperatorException(e.getMessage());
         }
@@ -372,7 +416,9 @@ public final class SliceAssemblyOp extends Operator {
     private static class BandLines {
         final int start;
         final int end;
-        BandLines(final int s, final int e) {
+        final Band band;
+        BandLines(final Band band, final int s, final int e) {
+            this.band = band;
             this.start = s;
             this.end = e;
         }

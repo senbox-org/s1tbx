@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * User interface for S-1 Deburst
  */
-public class TOPSARDeburstOpUI extends BaseOperatorUI {
+public class SliceAssemblyOpUI extends BaseOperatorUI {
 
     private final JList<String> polList = new JList<>();
 
