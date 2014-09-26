@@ -65,10 +65,5 @@
             <artifactId>gt-render</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.alee</groupId>
-            <artifactId>weblaf</artifactId>
-        </dependency>
-
     </dependencies>
 </project>
