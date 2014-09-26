@@ -168,7 +168,7 @@ public final class TOPSARSplitOp extends Operator {
                 new ProductData.UTC(subSwathInfo[subSwathIndex - 1].lastLineTime));
 
         absRoot.setAttributeDouble(AbstractMetadata.line_time_interval,
-                subSwathInfo[subSwathIndex - 1].azimuthTimeInterval);
+                subSwathInfo[subSwathIndex - 1].azimuthTimeInterval * Constants.secondsInDay);// day to s
 
         absRoot.setAttributeDouble(AbstractMetadata.slant_range_to_first_pixel,
                 subSwathInfo[subSwathIndex - 1].slrTimeToFirstPixel * Constants.lightSpeed);
