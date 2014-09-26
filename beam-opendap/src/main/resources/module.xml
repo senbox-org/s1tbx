@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>opendap-download-tool</symbolicName>
-    <version>0.5</version>
+    <version>1.0.0</version>
     <name>OPeNDAP Download Tool</name>
     <funding>EU</funding>
 

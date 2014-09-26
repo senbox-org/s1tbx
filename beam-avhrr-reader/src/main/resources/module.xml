@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s3tbx-avhrr-reader</symbolicName>
-    <version>0.5</version>
+    <version>1.0.0</version>
     <name>AVHRR Product Reader</name>
 
     <description>Enables SNAP to read AVHRR/3 Level-1b data products.</description>

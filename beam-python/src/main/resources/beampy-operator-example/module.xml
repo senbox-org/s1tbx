@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>snappy-operator-example</symbolicName>
-    <version>0.5</version>
+    <version>1.0.0</version>
     <name>SNAP GPF Operator for Python Example</name>
     <packaging>dir</packaging>
 

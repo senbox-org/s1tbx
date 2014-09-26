@@ -559,15 +559,6 @@
             </dependency>
 
 
-            <!-- WEBLAF Library ############################################# -->
-
-            <dependency>
-                <groupId>com.alee</groupId>
-                <artifactId>weblaf</artifactId>
-                <version>1.27</version>
-            </dependency>
-
-
             <!-- XStream Libraries ############################################# -->
 
             <dependency>

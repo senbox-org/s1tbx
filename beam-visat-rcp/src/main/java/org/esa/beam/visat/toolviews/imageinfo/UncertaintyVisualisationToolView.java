@@ -18,7 +18,7 @@ package org.esa.beam.visat.toolviews.imageinfo;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import com.bc.ceres.swing.binding.BindingContext;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
@@ -28,7 +28,6 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
-import java.awt.Color;
 import java.awt.Component;
 
 
@@ -38,6 +37,7 @@ import java.awt.Component;
 public class UncertaintyVisualisationToolView extends AbstractToolView {
 
     public static final String ID = UncertaintyVisualisationToolView.class.getName();
+    public static final String UNCERTAINTY_MODE_PROPERTY = "uncertaintyMode";
 
     public UncertaintyVisualisationToolView() {
     }
@@ -90,6 +90,11 @@ public class UncertaintyVisualisationToolView extends AbstractToolView {
         }
 
         @Override
+        public boolean isMoreOptionsFormCollapsedOnInit() {
+            return false;
+        }
+
+        @Override
         public void modifyMoreOptionsForm(MoreOptionsForm moreOptionsForm) {
 
             JComboBox<ImageInfo.UncertaintyVisualisationMode> modeBox = new JComboBox<>(ImageInfo.UncertaintyVisualisationMode.values());
@@ -97,7 +102,7 @@ public class UncertaintyVisualisationToolView extends AbstractToolView {
 
             moreOptionsForm.insertRow(0, new JLabel("Visualisation mode: "), modeBox);
 
-            Property modeProperty = Property.create("mode", ImageInfo.UncertaintyVisualisationMode.class);
+            Property modeProperty = Property.create(UNCERTAINTY_MODE_PROPERTY, ImageInfo.UncertaintyVisualisationMode.class);
             RasterDataNode uncertaintyBand = getRaster();
             try {
                 if (uncertaintyBand != null) {
@@ -127,6 +132,22 @@ public class UncertaintyVisualisationToolView extends AbstractToolView {
         }
 
         @Override
+        public void updateMoreOptionsFromImageInfo(MoreOptionsForm moreOptionsForm) {
+            super.updateMoreOptionsFromImageInfo(moreOptionsForm);
+            BindingContext bindingContext = moreOptionsForm.getBindingContext();
+            ImageInfo.UncertaintyVisualisationMode mode = getModifiedImageInfo().getUncertaintyVisualisationMode();
+            bindingContext.getBinding(UNCERTAINTY_MODE_PROPERTY).setPropertyValue(mode);
+        }
+
+        @Override
+        public void updateImageInfoFromMoreOptions(MoreOptionsForm moreOptionsForm) {
+            super.updateImageInfoFromMoreOptions(moreOptionsForm);
+            BindingContext bindingContext = moreOptionsForm.getBindingContext();
+            ImageInfo.UncertaintyVisualisationMode mode = (ImageInfo.UncertaintyVisualisationMode) bindingContext.getBinding(UNCERTAINTY_MODE_PROPERTY).getPropertyValue();
+            getModifiedImageInfo().setUncertaintyVisualisationMode(mode);
+        }
+
+        @Override
         public Component createEmptyContentPanel() {
             return new JLabel("<html>This tool window is used to visualise the<br>" +
                               "<b>uncertainty information</b> associated<br>" +
@@ -134,15 +155,5 @@ public class UncertaintyVisualisationToolView extends AbstractToolView {
                               "Right now, there is no selected image view or<br>" +
                               "uncertainty information is unavailable.", SwingConstants.CENTER);
         }
-    }
-
-    private static ColorPaletteDef.Point[] getTwoSingleColorPoints(ImageInfo imageInfo, Color color) {
-        ColorPaletteDef colorPaletteDef = imageInfo.getColorPaletteDef();
-        ColorPaletteDef.Point firstPoint = colorPaletteDef.getFirstPoint();
-        ColorPaletteDef.Point lastPoint = colorPaletteDef.getLastPoint();
-        return new ColorPaletteDef.Point[]{
-                new ColorPaletteDef.Point(firstPoint.getSample(), color),
-                new ColorPaletteDef.Point(lastPoint.getSample(), color),
-        };
     }
 }

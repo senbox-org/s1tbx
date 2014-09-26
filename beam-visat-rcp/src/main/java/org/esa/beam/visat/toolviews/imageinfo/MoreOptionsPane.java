@@ -20,11 +20,15 @@ import com.jidesoft.swing.TitledSeparator;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Map;
+import javax.swing.AbstractButton;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.Color;
 
 class MoreOptionsPane {
     private static ImageIcon[] icons;
@@ -39,7 +43,7 @@ class MoreOptionsPane {
     private JComponent component;
     private boolean collapsed;
 
-    MoreOptionsPane(ColorManipulationForm colorManipulationForm) {
+    MoreOptionsPane(ColorManipulationForm colorManipulationForm, boolean collapsed) {
         this.colorManipulationForm = colorManipulationForm;
 
         if (icons == null) {
@@ -65,17 +69,12 @@ class MoreOptionsPane {
             headerLabels[1].setForeground(headerLabelColor);
         }
 
-        component = new JLabel(); // dummy
-        collapsed = true;
+        this.component = new JLabel(); // dummy
+        this.collapsed = collapsed;
 
         headerButton = ToolButtonFactory.createButton(icons[0], false);
         headerButton.setName("MoreOptionsPane.headerButton");
-        headerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setCollapsed(!isCollapsed());
-            }
-        });
+        headerButton.addActionListener(e -> setCollapsed(!isCollapsed()));
 
         final JPanel titleBar = new JPanel(new BorderLayout(2, 2));
         titleBar.add(headerButton, BorderLayout.WEST);
@@ -86,14 +85,6 @@ class MoreOptionsPane {
         contentPanel = new JPanel(new BorderLayout(2, 2));
         contentPanel.add(titleBar, BorderLayout.NORTH);
         contentPanel.setName("MoreOptionsPane.contentPanel");
-    }
-
-    private void printDefaults(UIDefaults uiDefaults, String name) {
-        System.out.printf(">>>> %s >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n", name);
-        for (Map.Entry<Object, Object> objectObjectEntry : uiDefaults.entrySet()) {
-            System.out.printf("  %s = %s\n", objectObjectEntry.getKey(), objectObjectEntry.getValue());
-        }
-        System.out.printf("<<<< %s <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n", name);
     }
 
     public JPanel getContentPanel() {
