@@ -284,51 +284,33 @@ class ColorManipulationForm {
 
     private void initContentPanel() {
 
-        moreOptionsPane = new MoreOptionsPane(this);
+        moreOptionsPane = new MoreOptionsPane(this, formModel.isMoreOptionsFormCollapsedOnInit());
 
         resetButton = createButton("icons/Undo24.gif");
         resetButton.setName("ResetButton");
         resetButton.setToolTipText("Reset to defaults"); /*I18N*/
-        resetButton.addActionListener(wrapWithAutoApplyActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                resetToDefaults();
-            }
-        }));
+        resetButton.addActionListener(wrapWithAutoApplyActionListener(e -> resetToDefaults()));
 
         multiApplyButton = createButton("icons/MultiAssignBands24.gif");
         multiApplyButton.setName("MultiApplyButton");
         multiApplyButton.setToolTipText("Apply to other bands"); /*I18N*/
-        multiApplyButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                applyMultipleColorPaletteDef();
-            }
-        });
+        multiApplyButton.addActionListener(e -> applyMultipleColorPaletteDef());
 
         importButton = createButton("/com/bc/ceres/swing/actions/icons_16x16/document-open.png");
         importButton.setName("ImportButton");
         importButton.setToolTipText("Import colour palette from text file."); /*I18N*/
-        importButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                importColorPaletteDef();
-                applyChanges();
-            }
+        importButton.addActionListener(e -> {
+            importColorPaletteDef();
+            applyChanges();
         });
         importButton.setEnabled(true);
 
         exportButton = createButton("/com/bc/ceres/swing/actions/icons_16x16/document-save.png");
         exportButton.setName("ExportButton");
         exportButton.setToolTipText("Save colour palette to text file."); /*I18N*/
-        exportButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                exportColorPaletteDef();
-                childForm.updateFormModel(getFormModel());
-            }
+        exportButton.addActionListener(e -> {
+            exportColorPaletteDef();
+            childForm.updateFormModel(getFormModel());
         });
         exportButton.setEnabled(true);
 

@@ -89,7 +89,17 @@ class FormModel {
         return true;
     }
 
+    public boolean isMoreOptionsFormCollapsedOnInit() {
+        return true;
+    }
+
     public void modifyMoreOptionsForm(MoreOptionsForm moreOptionsForm) {
+    }
+
+    public void updateMoreOptionsFromImageInfo(MoreOptionsForm moreOptionsForm) {
+    }
+
+    public void updateImageInfoFromMoreOptions(MoreOptionsForm moreOptionsForm) {
     }
 
     public Component createEmptyContentPanel() {
@@ -97,4 +107,5 @@ class FormModel {
                           "<b>colouring of images</b> shown in an image view.<br>" +
                           " Right now, there is no selected image view.", SwingConstants.CENTER);
     }
+
 }

@@ -95,7 +95,23 @@ class MoreOptionsForm {
 
         bindingContext = new BindingContext(propertyContainer);
 
-        final PropertyChangeListener pcl = evt -> {
+        JLabel noDataColorLabel = new JLabel("No-data colour: ");
+        ColorComboBox noDataColorComboBox = new ColorComboBox();
+        noDataColorComboBox.setColorValueVisible(false);
+        noDataColorComboBox.setAllowDefaultColor(true);
+        Binding noDataColorBinding = bindingContext.bind(NO_DATA_COLOR_PROPERTY, new ColorComboBoxAdapter(noDataColorComboBox));
+        noDataColorBinding.addComponent(noDataColorLabel);
+        addRow(noDataColorLabel, noDataColorComboBox);
+
+        if (this.hasHistogramMatching) {
+            JLabel histogramMatchingLabel = new JLabel("Histogram matching: ");
+            JComboBox histogramMatchingBox = new JComboBox();
+            Binding histogramMatchingBinding = bindingContext.bind(HISTOGRAM_MATCHING_PROPERTY, histogramMatchingBox);
+            histogramMatchingBinding.addComponent(histogramMatchingLabel);
+            addRow(histogramMatchingLabel, histogramMatchingBox);
+        }
+
+        bindingContext.addPropertyChangeListener(evt -> {
             final ImageInfo.HistogramMatching matching = getHistogramMatching();
             if (matching != null && matching != ImageInfo.HistogramMatching.None) {
                 final String message = "<html>Histogram matching will be applied to the currently displayed image.<br/>" +
@@ -104,25 +120,7 @@ class MoreOptionsForm {
                 VisatApp.getApp().showInfoDialog("Histogram Matching", message, "warningHistogramMatching");
             }
             updateModel();
-        };
-
-        JLabel noDataColorLabel = new JLabel("No-data colour: ");
-        ColorComboBox noDataColorComboBox = new ColorComboBox();
-        noDataColorComboBox.setColorValueVisible(false);
-        noDataColorComboBox.setAllowDefaultColor(true);
-        Binding noDataColorBinding = bindingContext.bind(NO_DATA_COLOR_PROPERTY, new ColorComboBoxAdapter(noDataColorComboBox));
-        noDataColorBinding.addComponent(noDataColorLabel);
-        addRow(noDataColorLabel, noDataColorComboBox);
-        bindingContext.addPropertyChangeListener(NO_DATA_COLOR_PROPERTY, pcl);
-
-        if (this.hasHistogramMatching) {
-            JLabel histogramMatchingLabel = new JLabel("Histogram matching: ");
-            JComboBox histogramMatchingBox = new JComboBox();
-            Binding histogramMatchingBinding = bindingContext.bind(HISTOGRAM_MATCHING_PROPERTY, histogramMatchingBox);
-            histogramMatchingBinding.addComponent(histogramMatchingLabel);
-            addRow(histogramMatchingLabel, histogramMatchingBox);
-            bindingContext.addPropertyChangeListener(HISTOGRAM_MATCHING_PROPERTY, pcl);
-        }
+        });
     }
 
     private ImageInfo getImageInfo() {
@@ -184,6 +182,7 @@ class MoreOptionsForm {
         if (hasHistogramMatching) {
             setHistogramMatching(getImageInfo().getHistogramMatching());
         }
+        getParentForm().getFormModel().updateMoreOptionsFromImageInfo(this);
     }
 
     public void updateModel() {
@@ -191,6 +190,7 @@ class MoreOptionsForm {
         if (hasHistogramMatching) {
             getImageInfo().setHistogramMatching(getHistogramMatching());
         }
+        getParentForm().getFormModel().updateImageInfoFromMoreOptions(this);
         getParentForm().applyChanges();
     }
 
