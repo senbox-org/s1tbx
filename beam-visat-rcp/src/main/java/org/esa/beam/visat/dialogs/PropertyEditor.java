@@ -67,10 +67,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 public class PropertyEditor {
 
+    private static final String UNCERTAINTY_ROLE_NAME = "uncertainty";
     private final VisatApp visatApp;
     private ModalDialog dialog;
 
@@ -155,6 +158,8 @@ public class PropertyEditor {
         private Parameter paramBandSubGroupPaths;
         private Parameter paramNoDataValueUsed;
         private Parameter paramNoDataValue;
+        private Parameter paramAncillaryRoleName;
+        private Parameter paramAncillaryBandName;
         private Parameter paramGeophysUnit;
         private Parameter paramValidPixelExpr;
         private Parameter paramVBExpression;
@@ -346,6 +351,13 @@ public class PropertyEditor {
                     }
                     rasterDataNode.setUnit(paramGeophysUnit.getValueAsText());
                     rasterDataNode.setValidPixelExpression(paramValidPixelExpr.getValueAsText());
+
+                    String uncertaintyRoleName = paramAncillaryRoleName.getValueAsText();
+                    String uncertaintyBandName = paramAncillaryBandName.getValueAsText();
+                    if (!uncertaintyRoleName.isEmpty()) {
+                        RasterDataNode uncertaintyBand = !uncertaintyBandName.isEmpty() ? rasterDataNode.getProduct().getRasterDataNode(uncertaintyBandName) : null;
+                        rasterDataNode.setAncillaryBand(uncertaintyRoleName, uncertaintyBand);
+                    }
                 }
                 if (band != null) {
                     band.setSpectralWavelength((Float) paramSpectralWavelength.getValue());
@@ -438,6 +450,7 @@ public class PropertyEditor {
             initNoDataValueParam();
             initUnitParam();
             initValidPixelExpressionParam();
+            initUncertaintyBandNameParam();
         }
 
         private void initParamsForBand(Band band) {
@@ -561,6 +574,59 @@ public class PropertyEditor {
             });
         }
 
+        private void initUncertaintyBandNameParam() {
+            List<String> defaultRoleNames = Arrays.asList("uncertainty", "error", "variance", "confidence");
+
+            Map<String, RasterDataNode> ancillaryBands = rasterDataNode.getAncillaryBands();
+            LinkedHashSet<String> roleNames = new LinkedHashSet<>(ancillaryBands.keySet());
+            String ancillaryRoleName;
+            if (!roleNames.isEmpty()) {
+                ancillaryRoleName = (String) roleNames.toArray()[0];
+            } else {
+                ancillaryRoleName = defaultRoleNames.get(0);
+            }
+            roleNames.addAll(defaultRoleNames);
+
+            RasterDataNode ancillaryBand = ancillaryBands.get(ancillaryRoleName);
+            String ancillaryBandName = ancillaryBand != null ? ancillaryBand.getName() : "";
+
+            final ParamProperties arnProperties = new ParamProperties(String.class);
+            arnProperties.setNullValueAllowed(false);
+            arnProperties.setEmptyValuesNotAllowed(true);
+            arnProperties.setLabel("Ancillary band role"); /*I18N*/
+            arnProperties.setDescription("Role of the ancillary band"); /*I18N*/
+            arnProperties.setValueSet(roleNames.toArray(new String[roleNames.size()]));
+            arnProperties.setValueSetBound(false);
+            paramAncillaryRoleName = new Parameter("ancillaryRoleName", ancillaryRoleName, arnProperties);
+
+            final ParamProperties abnProperties = new ParamProperties(String.class);
+            abnProperties.setNullValueAllowed(false);
+            abnProperties.setEmptyValuesNotAllowed(false);
+            abnProperties.setLabel("Ancillary band name"); /*I18N*/
+            abnProperties.setDescription("Name of an ancillary band"); /*I18N*/
+            abnProperties.setDefaultValue(ancillaryBandName);
+            ArrayList<String> valueList = new ArrayList<>(Arrays.asList(rasterDataNode.getProduct().getBandNames()));
+            if (!valueList.contains(ancillaryBandName)) {
+                valueList.add(0, ancillaryBandName);
+            }
+            if (!valueList.contains("")) {
+                valueList.add(0, "");
+            }
+            abnProperties.setValueSet(valueList.toArray(new String[valueList.size()]));
+            paramAncillaryBandName = new Parameter("ancillaryBandName", ancillaryBandName, abnProperties);
+            paramAncillaryBandName.addParamChangeListener(event -> {
+                String bandName = paramAncillaryBandName.getValueAsText();
+                for (Map.Entry<String, RasterDataNode> entry : rasterDataNode.getAncillaryBands().entrySet()) {
+                    String roleName = entry.getKey();
+                    String otherBandName = entry.getValue().getName();
+                    if (bandName.equals(otherBandName)) {
+                        paramAncillaryRoleName.setValueAsText(roleName, null);
+                        break;
+                    }
+                }
+            });
+        }
+
         private void initUnitParam() {
             final ParamProperties properties = new ParamProperties(String.class);
             properties.setLabel("Geophysical unit");       /*I18N*/
@@ -660,6 +726,26 @@ public class PropertyEditor {
             gbc.weighty = 2000;
             gbc.fill = GridBagConstraints.BOTH;
             add(paramValidPixelExpr.getEditor().getComponent(), gbc);
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.weighty = 1;
+
+            gbc.gridy++;
+            gbc.weightx = 0;
+            add(paramAncillaryBandName.getEditor().getLabelComponent(), gbc);
+            gbc.weightx = 1;
+            gbc.weighty = 2000;
+            gbc.fill = GridBagConstraints.BOTH;
+            add(paramAncillaryBandName.getEditor().getComponent(), gbc);
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.weighty = 1;
+
+            gbc.gridy++;
+            gbc.weightx = 0;
+            add(paramAncillaryRoleName.getEditor().getLabelComponent(), gbc);
+            gbc.weightx = 1;
+            gbc.weighty = 2000;
+            gbc.fill = GridBagConstraints.BOTH;
+            add(paramAncillaryRoleName.getEditor().getComponent(), gbc);
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.weighty = 1;
         }
