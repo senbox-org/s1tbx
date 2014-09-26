@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>snap-app</symbolicName>
-    <version>0.5-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>SNAP Application</name>
 
     <description>Sentinel Toolbox Display and Analysis Tool</description>
