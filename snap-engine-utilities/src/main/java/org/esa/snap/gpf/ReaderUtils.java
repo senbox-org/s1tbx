@@ -189,8 +189,8 @@ public final class ReaderUtils {
         final float inc2 = tpg.getPixelFloat(product.getSceneRasterWidth(), midAz);
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_near, Math.min(inc1, inc2));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_far, Math.max(inc1, inc2));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_near, (double)Math.min(inc1, inc2));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_far, (double)Math.max(inc1, inc2));
     }
 
     public static ProductData.UTC getTime(final MetadataElement elem, final String tag, final DateFormat timeFormat) {
