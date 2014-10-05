@@ -135,38 +135,38 @@
       <component name="Sentinels Application Platform" id="5274" customizedId="" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
-          <entry location="modules/blue-marble-worldmap-0.5.0-SNAPSHOT" fileType="regular" />
+          <entry location="modules/blue-marble-worldmap-1.0.0" fileType="regular" />
           <entry location="modules/lib-hdf-2.7" fileType="regular" />
-          <entry location="modules/snap-arcbingrid-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-binding-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-binio-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-ceres-core-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-ceres-ui-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-cluster-analysis-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-core-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-csv-dataio-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-engine-utilities-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-envi-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-envisat-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-geotiff-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-glayer-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-gpf-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-graph-builder-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-hdf5-writer-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-jai-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-launcher-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-metadata-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-netcdf-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-opendap-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-pgx-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-pixel-extraction-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-python-0.5.0-SNAPSHOT" fileType="regular" />
-          <entry location="modules/snap-scripting-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-statistics-op-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-temporal-percentile-op-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-time-series-tool-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-ui-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-visat-rcp-0.5.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/snap-arcbingrid-reader-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-binding-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-binio-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-ceres-core-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-ceres-ui-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-cluster-analysis-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-core-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-csv-dataio-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-engine-utilities-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-envi-reader-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-envisat-reader-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-geotiff-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-glayer-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-gpf-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-graph-builder-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-hdf5-writer-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-jai-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-launcher-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-metadata-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-netcdf-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-opendap-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-pgx-reader-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-pixel-extraction-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-python-1.0.0" fileType="regular" />
+          <entry location="modules/snap-scripting-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-statistics-op-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-temporal-percentile-op-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-time-series-tool-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-ui-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-visat-rcp-1.0.0.jar" fileType="regular" />
         </include>
         <dependencies />
       </component>
@@ -229,13 +229,13 @@
       <component name="Sentinel-3 Toolbox Modules" id="5140" customizedId="" displayDescription="true" hideHelpButton="true" selected="false" changeable="false" downloadable="false" hidden="false">
         <description>Medium Resolution Optical Tools</description>
         <include all="false">
-          <entry location="modules/s3tbx-alos-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s3tbx-atsr-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s3tbx-avhrr-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s3tbx-chris-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s3tbx-landsat-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/s3tbx-spot-vgt-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
-          <entry location="modules/snap-modis-reader-0.5.0-SNAPSHOT.jar" fileType="regular" />
+          <entry location="modules/s3tbx-alos-reader-1.0.0.jar" fileType="regular" />
+          <entry location="modules/s3tbx-atsr-reader-1.0.0.jar" fileType="regular" />
+          <entry location="modules/s3tbx-avhrr-reader-1.0.0.jar" fileType="regular" />
+          <entry location="modules/s3tbx-chris-reader-1.0.0.jar" fileType="regular" />
+          <entry location="modules/s3tbx-landsat-reader-1.0.0.jar" fileType="regular" />
+          <entry location="modules/s3tbx-spot-vgt-reader-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-modis-reader-1.0.0.jar" fileType="regular" />
         </include>
         <dependencies>
           <component id="5274" />
@@ -244,7 +244,7 @@
       <component name="Globcover World Map" id="5755" customizedId="" displayDescription="false" hideHelpButton="false" selected="false" changeable="true" downloadable="true" hidden="false">
         <description />
         <include all="false">
-          <entry location="modules/globcover-worldmap-0.5.0-SNAPSHOT" fileType="regular" />
+          <entry location="modules/globcover-worldmap-1.0.0" fileType="regular" />
         </include>
         <dependencies>
           <component id="5274" />
@@ -2279,6 +2279,6 @@ if (wizardContext != null) {
   <buildIds buildAll="true">
     <mediaSet refId="5501" />
   </buildIds>
-  <buildOptions verbose="false" faster="true" disableSigning="false" debug="false" />
+  <buildOptions verbose="false" faster="false" disableSigning="false" debug="false" />
 </install4j>
 
