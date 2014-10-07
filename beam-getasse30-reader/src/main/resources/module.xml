@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>snap-getasse30-reader</symbolicName>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>GETASSE30 DEM Reader</name>
 
 

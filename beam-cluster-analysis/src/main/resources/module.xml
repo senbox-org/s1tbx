@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>snap-cluster-analysis</symbolicName>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>SNAP Cluster Analysis</name>
 
     <description>

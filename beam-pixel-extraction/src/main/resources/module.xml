@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>snap-pixel-extraction</symbolicName>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>SNAP Pixel Extraction Tool</name>
 
     <description>The SNAP Pixel Extraction Tool can be used to generate a CSV file from a given pixel location
