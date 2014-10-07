@@ -6,7 +6,7 @@
 
     <groupId>org.esa.snap</groupId>
     <artifactId>ceres</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>Ceres</name>
     <url>http://www.brockmann-consult.de/</url>
 

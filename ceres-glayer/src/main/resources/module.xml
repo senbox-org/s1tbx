@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>snap-glayer</symbolicName>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>Ceres GLayer Library</name>
 
     <categories>System,Library</categories>
