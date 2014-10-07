@@ -392,7 +392,7 @@ public final class DatabasePane extends JPanel {
         dbQuery.setFreeQuery(metadataArea.getText());
     }
 
-    private void queryDatabase() {
+    public void queryDatabase() {
         if (db == null) {
             try {
                 connectToDatabase();

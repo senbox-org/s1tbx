@@ -1,7 +1,6 @@
 package org.esa.nest.dat.toolviews.productlibrary.timeline;
 
 import com.alee.laf.panel.WebPanel;
-import org.esa.nest.dat.toolviews.productlibrary.DatabasePane;
 import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
 import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseStatistics;
 import org.esa.snap.util.DialogUtils;
@@ -22,11 +21,10 @@ public class TimelinePanel extends WebPanel implements DatabaseQueryListener {
     private JPanel yearsPanel;
     private JPanel monthsPanel;
 
-    public TimelinePanel(final DatabaseStatistics stats, final DatabasePane dbPane) {
+    public TimelinePanel(final DatabaseStatistics stats) {
         this.stats = stats;
         createPanel();
         setMaximumSize(new Dimension(500, 30));
-        dbPane.addListener(this);
     }
 
     private void createPanel() {
@@ -42,7 +40,7 @@ public class TimelinePanel extends WebPanel implements DatabaseQueryListener {
         gbc.weightx = 10;
         gbc.weighty = 10;
         centrePanel.add(timelinePanel, gbc);
-        centrePanel.add(yearsPanel, gbc);
+        //centrePanel.add(yearsPanel, gbc);
         centrePanel.add(monthsPanel, gbc);
         hideShowPanels(timelinePanel);
 
@@ -84,7 +82,7 @@ public class TimelinePanel extends WebPanel implements DatabaseQueryListener {
         });
 
         controlPanel.add(timelineButton);
-        controlPanel.add(yearsButton);
+        //controlPanel.add(yearsButton);
         controlPanel.add(monthsButton);
 
         return controlPanel;

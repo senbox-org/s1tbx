@@ -69,7 +69,7 @@ public class DatabaseStatistics implements DatabaseQueryListener {
         //showStats();
     }
 
-    public Map<Integer, YearData> getYearData() {
+    public Map<Integer, YearData> getYearDataMap() {
         return yearDataMap;
     }
 
@@ -119,6 +119,7 @@ public class DatabaseStatistics implements DatabaseQueryListener {
         public int yearCnt = 0;
         public int maxDayCnt = 0;
         public final Map<Integer, Integer> dayOfYearMap = new HashMap<>(365); // starts from 1
+        private boolean isSelected = true;
 
         YearData(final int year) {
             this.year = year;
@@ -144,9 +145,17 @@ public class DatabaseStatistics implements DatabaseQueryListener {
             }
             yearCnt += 1;
         }
+
+        public boolean isSelected() {
+            return isSelected;
+        }
+
+        public void setSelected(final boolean selected) {
+            isSelected = selected;
+        }
     }
 
-    public static class MonthData {
+    public class MonthData {
         private int maxMonthCnt = 0;
         private final Map<Integer, Integer> monthMap = new HashMap<>(12); // starts from 0
 
@@ -172,12 +181,21 @@ public class DatabaseStatistics implements DatabaseQueryListener {
             return monthMap.keySet();
         }
 
-        public Integer get(Integer m) {
+        public Integer get(final Integer m) {
             return monthMap.get(m);
         }
 
         public int getMaxMonthCnt() {
             return maxMonthCnt;
+        }
+
+        public void setSelected(final int m, final boolean selected) {
+            dbPane.getDBQuery().setMonthSelected(m, selected);
+            dbPane.queryDatabase();
+        }
+
+        public boolean isSelected(final int m) {
+            return dbPane.getDBQuery().isMonthSelected(m);
         }
     }
 }
