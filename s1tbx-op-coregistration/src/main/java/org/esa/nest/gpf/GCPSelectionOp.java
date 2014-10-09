@@ -91,9 +91,9 @@ public class GCPSelectionOp extends Operator {
     private String rowInterpFactor = "2";
     @Parameter(valueSet = {"2", "4", "8", "16"}, defaultValue = "2", label = "Column Interpolation Factor")
     private String columnInterpFactor = "2";
-    @Parameter(description = "The maximum number of iterations", interval = "(1, 10]", defaultValue = "2",
+    @Parameter(description = "The maximum number of iterations", interval = "(1, 10]", defaultValue = "10",
             label = "Max Iterations")
-    private int maxIteration = 2;
+    private int maxIteration = 10;
     @Parameter(description = "Tolerance in slave GCP validation check", interval = "(0, *)", defaultValue = "0.5",
             label = "GCP Tolerance")
     private double gcpTolerance = 0.5;
@@ -216,6 +216,7 @@ public class GCPSelectionOp extends Operator {
 
             createTargetProduct();
 
+            GCPManager.instance().removeAllGcpGroups(); // need this line, otherwise cached data from previous run is used
             masterGcpGroup = GCPManager.instance().getGcpGroup(masterBand1);
             if (masterGcpGroup.getNodeCount() <= 0) {
                 addGCPGrid(sourceImageWidth, sourceImageHeight, numGCPtoGenerate, masterGcpGroup,
@@ -769,7 +770,13 @@ public class GCPSelectionOp extends Operator {
                                               final PixelPos mGCPPixelPos, final PixelPos sGCPPixelPos) {
 
         try {
-            final double[] mI = getMasterImagette(mGCPPixelPos);
+            final double[] mI = new double[cWindowWidth * cWindowHeight];
+            final double[] sI = new double[cWindowWidth * cWindowHeight];
+
+            final boolean getMISuccess = getMasterImagette(mGCPPixelPos, mI);
+            if (!getMISuccess) {
+                return false;
+            }
             //System.out.println("Master imagette:");
             //outputRealImage(mI);
 
@@ -787,7 +794,10 @@ public class GCPSelectionOp extends Operator {
                     return false;
                 }
 
-                final double[] sI = getSlaveImagette(slaveBand, slaveBand2, sGCPPixelPos);
+                final boolean getSISuccess = getSlaveImagette(slaveBand, slaveBand2, sGCPPixelPos, sI);
+                if (!getSISuccess) {
+                    return false;
+                }
                 //System.out.println("Slave imagette:");
                 //outputRealImage(sI);
 
@@ -810,8 +820,8 @@ public class GCPSelectionOp extends Operator {
         return false;
     }
 
-    private double[] getMasterImagette(final PixelPos gcpPixelPos) throws OperatorException {
-        final double[] mI = new double[cWindowWidth * cWindowHeight];
+    private boolean getMasterImagette(final PixelPos gcpPixelPos, final double[] mI) throws OperatorException {
+
         final int x0 = (int) gcpPixelPos.x;
         final int y0 = (int) gcpPixelPos.y;
         final int xul = x0 - cHalfWindowWidth + 1;
@@ -821,11 +831,14 @@ public class GCPSelectionOp extends Operator {
         try {
             final Tile masterImagetteRaster1 = getSourceTile(masterBand1, masterImagetteRectangle);
             final ProductData masterData1 = masterImagetteRaster1.getDataBuffer();
+            final double noDataValue1 = masterBand1.getNoDataValue();
 
             ProductData masterData2 = null;
+            double noDataValue2 = 0.0;
             if (complexCoregistration) {
                 final Tile masterImagetteRaster2 = getSourceTile(masterBand2, masterImagetteRectangle);
                 masterData2 = masterImagetteRaster2.getDataBuffer();
+                noDataValue2 = masterBand2.getNoDataValue();
             }
 
             final TileIndex mstIndex = new TileIndex(masterImagetteRaster1);
@@ -838,27 +851,35 @@ public class GCPSelectionOp extends Operator {
                     if (complexCoregistration) {
                         final double v1 = masterData1.getElemDoubleAt(index);
                         final double v2 = masterData2.getElemDoubleAt(index);
+                        if (v1 == noDataValue1 || v2 == noDataValue2) {
+                            return false;
+                        }
                         mI[k++] = v1 * v1 + v2 * v2;
                     } else {
-                        mI[k++] = masterData1.getElemDoubleAt(index);
+                        final double v = masterData1.getElemDoubleAt(index);
+                        if (v == noDataValue1) {
+                            return false;
+                        }
+                        mI[k++] = v;
                     }
                 }
             }
+
             masterData1.dispose();
             if (masterData2 != null)
                 masterData2.dispose();
-            return mI;
+            return true;
 
-        } catch (Exception e) {
-            System.out.println("Error in getMasterImagette");
-            throw new OperatorException(e);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("getMasterImagette", e);
         }
+        return false;
     }
 
-    private double[] getSlaveImagette(final Band slaveBand, final Band slaveBand2, final PixelPos gcpPixelPos)
+    private boolean getSlaveImagette(
+            final Band slaveBand1, final Band slaveBand2, final PixelPos gcpPixelPos, final double[] sI)
             throws OperatorException {
 
-        final double[] sI = new double[cWindowWidth * cWindowHeight];
         final double xx = gcpPixelPos.x;
         final double yy = gcpPixelPos.y;
         final int xul = (int) xx - cHalfWindowWidth;
@@ -866,17 +887,18 @@ public class GCPSelectionOp extends Operator {
         final Rectangle slaveImagetteRectangle = new Rectangle(xul, yul, cWindowWidth + 3, cWindowHeight + 3);
         int k = 0;
 
-        final double nodataValue = slaveBand.getNoDataValue();
-
         try {
-            final Tile slaveImagetteRaster1 = getSourceTile(slaveBand, slaveImagetteRectangle);
+            final Tile slaveImagetteRaster1 = getSourceTile(slaveBand1, slaveImagetteRectangle);
             final ProductData slaveData1 = slaveImagetteRaster1.getDataBuffer();
+            final double noDataValue1 = slaveBand1.getNoDataValue();
 
             Tile slaveImagetteRaster2 = null;
             ProductData slaveData2 = null;
+            double noDataValue2 = 0.0;
             if (complexCoregistration) {
                 slaveImagetteRaster2 = getSourceTile(slaveBand2, slaveImagetteRectangle);
                 slaveData2 = slaveImagetteRaster2.getDataBuffer();
+                noDataValue2 = slaveBand2.getNoDataValue();
             }
 
             final TileIndex index0 = new TileIndex(slaveImagetteRaster1);
@@ -888,7 +910,7 @@ public class GCPSelectionOp extends Operator {
                 final int y1 = y0 + 1;
                 final int offset0 = index0.calculateStride(y0);
                 final int offset1 = index1.calculateStride(y1);
-                final double wy = (double) (y - y0);
+                final double wy = y - y0;
                 for (int i = 0; i < cWindowWidth; i++) {
                     final double x = xx - cHalfWindowWidth + i + 1;
                     final int x0 = (int) x;
@@ -912,16 +934,21 @@ public class GCPSelectionOp extends Operator {
                                 slaveData2.getElemDoubleAt(x10),
                                 slaveData2.getElemDoubleAt(x11));
 
+                        if (v1 == noDataValue1 || v2 == noDataValue2) {
+                            return false;
+                        }
                         sI[k] = v1 * v1 + v2 * v2;
                     } else {
 
-                        sI[k] = MathUtils.interpolate2D(wy, wx, slaveData1.getElemDoubleAt(x00),
+                        final double v = MathUtils.interpolate2D(wy, wx, slaveData1.getElemDoubleAt(x00),
                                 slaveData1.getElemDoubleAt(x01),
                                 slaveData1.getElemDoubleAt(x10),
                                 slaveData1.getElemDoubleAt(x11));
-                    }
-                    if (sI[k] == nodataValue) {
-                        //System.out.print("nodata value");
+
+                        if (v == noDataValue1) {
+                            return false;
+                        }
+                        sI[k] = v;
                     }
                     ++k;
                 }
@@ -929,12 +956,12 @@ public class GCPSelectionOp extends Operator {
             slaveData1.dispose();
             if (slaveData2 != null)
                 slaveData2.dispose();
-            return sI;
+            return true;
 
-        } catch (Exception e) {
-            System.out.println("Error in getSlaveImagette");
-            throw new OperatorException(e);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("getSlaveImagette", e);
         }
+        return false;
     }
 
     private boolean getSlaveGCPShift(final double[] shift, final double[] mI, final double[] sI) {
