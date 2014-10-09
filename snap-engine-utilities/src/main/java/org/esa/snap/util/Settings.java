@@ -19,6 +19,7 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
+import java.util.regex.Matcher;
 
 /**
  * Created by IntelliJ IDEA.
@@ -71,7 +72,8 @@ public final class Settings {
                     out = value.replace(fullKey, settingStr);
                 } else {
                     if (keyWord.equalsIgnoreCase("AuxDataPath")) {
-                        out = value.replace(fullKey, getAuxDataFolder().getAbsolutePath());
+                        File auxFolder = getAuxDataFolder();
+                        out = value.replace(fullKey, auxFolder.getPath());
                     } else if (keyWord.equalsIgnoreCase(ResourceUtils.getContextID() + ".home") || keyWord.equalsIgnoreCase("NEST_HOME")
                             || keyWord.equalsIgnoreCase("SNAP_HOME")) {
                         out = value.replace(fullKey, ResourceUtils.findHomeFolder().getAbsolutePath());
@@ -93,6 +95,8 @@ public final class Settings {
         if (val != null && val.contains("${")) {
             val = resolve(auxdataConfig, val);
         }
+        val = val.replaceAll(Matcher.quoteReplacement("/"), Matcher.quoteReplacement(File.separator));
+        val = val.replaceAll(Matcher.quoteReplacement("\\"), Matcher.quoteReplacement(File.separator));
         return val;
     }
 
@@ -106,7 +110,7 @@ public final class Settings {
             if(isWindowsOS()) {
                 auxDataPath = "c:\\AuxData";
             } else {
-                auxDataPath = "~\\AuxData";
+                auxDataPath = SystemUtils.getUserHomeDir()+File.separator+"AuxData";
             }
         }
         if (auxDataPath == null)
