@@ -1,5 +1,6 @@
 package org.esa.nest.gpf.geometric;
 
+import Jama.Matrix;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.nest.dataio.dem.ElevationModel;
@@ -911,30 +912,32 @@ public class SARGeocoding {
 
         private void computePolyFitCoeff(final int[] adjVecIndices) {
 
-            double[] timeArray = new double[adjVecIndices.length];
-            double[] xPosArray = new double[adjVecIndices.length];
-            double[] yPosArray = new double[adjVecIndices.length];
-            double[] zPosArray = new double[adjVecIndices.length];
-            double[] xVelArray = new double[adjVecIndices.length];
-            double[] yVelArray = new double[adjVecIndices.length];
-            double[] zVelArray = new double[adjVecIndices.length];
+            final double[] timeArray = new double[adjVecIndices.length];
+            final double[] xPosArray = new double[adjVecIndices.length];
+            final double[] yPosArray = new double[adjVecIndices.length];
+            final double[] zPosArray = new double[adjVecIndices.length];
+            final double[] xVelArray = new double[adjVecIndices.length];
+            final double[] yVelArray = new double[adjVecIndices.length];
+            final double[] zVelArray = new double[adjVecIndices.length];
 
             for (int i = 0; i < adjVecIndices.length; i++) {
-                timeArray[i] = orbitStateVectors[adjVecIndices[i]].time_mjd - firstLineUTC;
-                xPosArray[i] = orbitStateVectors[adjVecIndices[i]].x_pos; // m
-                yPosArray[i] = orbitStateVectors[adjVecIndices[i]].y_pos; // m
-                zPosArray[i] = orbitStateVectors[adjVecIndices[i]].z_pos; // m
-                xVelArray[i] = orbitStateVectors[adjVecIndices[i]].x_vel; // m/s
-                yVelArray[i] = orbitStateVectors[adjVecIndices[i]].y_vel; // m/s
-                zVelArray[i] = orbitStateVectors[adjVecIndices[i]].z_vel; // m/s
+                final int idx = adjVecIndices[i];
+                timeArray[i] = orbitStateVectors[idx].time_mjd - firstLineUTC;
+                xPosArray[i] = orbitStateVectors[idx].x_pos; // m
+                yPosArray[i] = orbitStateVectors[idx].y_pos; // m
+                zPosArray[i] = orbitStateVectors[idx].z_pos; // m
+                xVelArray[i] = orbitStateVectors[idx].x_vel; // m/s
+                yVelArray[i] = orbitStateVectors[idx].y_vel; // m/s
+                zVelArray[i] = orbitStateVectors[idx].z_vel; // m/s
             }
 
-            xPosCoeff = Maths.polyFit(timeArray, xPosArray, polyDegree);
-            yPosCoeff = Maths.polyFit(timeArray, yPosArray, polyDegree);
-            zPosCoeff = Maths.polyFit(timeArray, zPosArray, polyDegree);
-            xVelCoeff = Maths.polyFit(timeArray, xVelArray, polyDegree);
-            yVelCoeff = Maths.polyFit(timeArray, yVelArray, polyDegree);
-            zVelCoeff = Maths.polyFit(timeArray, zVelArray, polyDegree);
+            final Matrix A = Maths.createVandermondeMatrix(timeArray, polyDegree);
+            xPosCoeff = Maths.polyFit(A, xPosArray);
+            yPosCoeff = Maths.polyFit(A, yPosArray);
+            zPosCoeff = Maths.polyFit(A, zPosArray);
+            xVelCoeff = Maths.polyFit(A, xVelArray);
+            yVelCoeff = Maths.polyFit(A, yVelArray);
+            zVelCoeff = Maths.polyFit(A, zVelArray);
 
             /*
             double[] tmp = new double[timeArray.length];
