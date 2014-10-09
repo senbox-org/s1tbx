@@ -548,8 +548,10 @@ public class ProductLibraryToolView extends AbstractToolView {
         final JPanel southPanel = createButtonPanel();
 
         final DatabaseStatistics stats = new DatabaseStatistics(dbPane);
+        final TimelinePanel timeLinePanel = new TimelinePanel(stats);
+        dbPane.addListener(timeLinePanel);
         final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                createCentrePanel(), new TimelinePanel(stats, dbPane));
+                createCentrePanel(), timeLinePanel);
         splitPane.setOneTouchExpandable(true);
         splitPane.setResizeWeight(0.99);
 
