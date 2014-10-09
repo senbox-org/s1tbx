@@ -44,4 +44,8 @@ public class GCPManager {
     public void removeGcpGroup(final Band band) {
         bandGCPGroup.remove(createKey(band));
     }
+
+    public void removeAllGcpGroups() {
+        bandGCPGroup.clear();
+    }
 }
