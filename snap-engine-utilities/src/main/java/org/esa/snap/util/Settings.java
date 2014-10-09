@@ -70,7 +70,10 @@ public final class Settings {
                 if (settingStr != null && settingStr.length() > 0) {
                     out = value.replace(fullKey, settingStr);
                 } else {
-                    if (keyWord.equalsIgnoreCase(ResourceUtils.getContextID() + ".home") || keyWord.equalsIgnoreCase("NEST_HOME")) {
+                    if (keyWord.equalsIgnoreCase("AuxDataPath")) {
+                        out = value.replace(fullKey, getAuxDataFolder().getAbsolutePath());
+                    } else if (keyWord.equalsIgnoreCase(ResourceUtils.getContextID() + ".home") || keyWord.equalsIgnoreCase("NEST_HOME")
+                            || keyWord.equalsIgnoreCase("SNAP_HOME")) {
                         out = value.replace(fullKey, ResourceUtils.findHomeFolder().getAbsolutePath());
                     } else {
                         out = value.replace(fullKey, keyWord);
@@ -99,8 +102,13 @@ public final class Settings {
 
     public static File getAuxDataFolder() {
         String auxDataPath = Settings.instance().get("AuxDataPath");
-        if (auxDataPath == null)
-            auxDataPath = Settings.instance().get("dataPath");
+        if (auxDataPath == null || auxDataPath.isEmpty()) {
+            if(isWindowsOS()) {
+                auxDataPath = "c:\\AuxData";
+            } else {
+                auxDataPath = "~\\AuxData";
+            }
+        }
         if (auxDataPath == null)
             return new File(SystemUtils.getApplicationDataDir(true), "AuxData");
         return new File(auxDataPath);
