@@ -33,7 +33,7 @@ public class MapToolsOptions {
     private final JCheckBox mapOverview = new JCheckBox("Show Map Overview", false);
     private final JCheckBox info = new JCheckBox("Show Product Info", false);
     private final JCheckBox scale = new JCheckBox("Show Scale", true);
-    private final JCheckBox nestLogo = new JCheckBox("Show NEST logo", true);
+    private final JCheckBox processedByLogo = new JCheckBox("Show Logo", true);
     private MapToolsLayer layer = null;
 
     public MapToolsOptions() {
@@ -49,7 +49,7 @@ public class MapToolsOptions {
         mapOverview.addActionListener(updateStateListenser);
         info.addActionListener(updateStateListenser);
         scale.addActionListener(updateStateListenser);
-        nestLogo.addActionListener(updateStateListenser);
+        processedByLogo.addActionListener(updateStateListenser);
     }
 
     public void setLayer(MapToolsLayer layer) {
@@ -81,7 +81,7 @@ public class MapToolsOptions {
     }
 
     public boolean showNestLogo() {
-        return nestLogo.isSelected();
+        return processedByLogo.isSelected();
     }
 
     public JPanel createPanel() {
@@ -98,7 +98,7 @@ public class MapToolsOptions {
         //gbc.gridy++;
         panel.add(scale, gbc);
         gbc.gridy++;
-        panel.add(nestLogo, gbc);
+        panel.add(processedByLogo, gbc);
 
         return panel;
     }
