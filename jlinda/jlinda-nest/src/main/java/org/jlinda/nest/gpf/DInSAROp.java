@@ -44,7 +44,7 @@ import java.util.Map;
 
 // TODO: support for multiple DEFO interferometric pairs in sourceProduct
 
-@OperatorMetadata(alias = "DInSAR",
+@OperatorMetadata(alias = "Three-passDInSAR",
         category = "SAR Processing/InSAR/Products",
         description = "Differential Interferometry", internal = false)
 public class DInSAROp extends Operator {

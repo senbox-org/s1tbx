@@ -128,7 +128,7 @@
         <action>
             <id>DInSAROp</id>
             <class>org.jlinda.nest.dat.DInSARAction</class>
-            <text>Differential InSAR</text>
+            <text>Three-pass Differential InSAR</text>
             <shortDescr>Three-Pass differential InSAR</shortDescr>
             <placeAfter>CoherenceOp</placeAfter>
             <parent>products</parent>
