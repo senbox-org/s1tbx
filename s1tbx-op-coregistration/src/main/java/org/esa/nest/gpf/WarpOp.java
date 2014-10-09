@@ -85,9 +85,9 @@ public class WarpOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "The RMS threshold for eliminating invalid GCPs", interval = "(0, *)", defaultValue = "1.0",
+    @Parameter(description = "The RMS threshold for eliminating invalid GCPs", interval = "(0, *)", defaultValue = "0.5",
             label = "RMS Threshold")
-    private float rmsThreshold = 1.0f;
+    private float rmsThreshold = 0.5f;
 
     @Parameter(description = "The order of WARP polynomial function", valueSet = {"1", "2", "3"}, defaultValue = "2",
             label = "Warp Polynomial Order")
@@ -338,7 +338,7 @@ public class WarpOp extends Operator {
             inc = 2;
 
         final ProductNodeGroup<Placemark> masterGCPGroup = GCPManager.instance().getGcpGroup(masterBand);
-        GCPManager.instance().removeGcpGroup(masterBand);
+        //GCPManager.instance().removeGcpGroup(masterBand);
 
         boolean appendFlag = false;
         for (int i = 0; i < numSrcBands; i += inc) {
@@ -349,7 +349,6 @@ public class WarpOp extends Operator {
                 continue;
 
             ProductNodeGroup<Placemark> slaveGCPGroup = GCPManager.instance().getGcpGroup(srcBand);
-            GCPManager.instance().removeGcpGroup(srcBand);
             if (slaveGCPGroup.getNodeCount() < 3) {
                 // find others for same slave product
                 final String slvProductName = StackUtils.getSlaveProductName(sourceProduct, srcBand, null);
@@ -358,7 +357,6 @@ public class WarpOp extends Operator {
                         final String productName = StackUtils.getSlaveProductName(sourceProduct, band, null);
                         if (slvProductName != null && slvProductName.equals(productName)) {
                             slaveGCPGroup = GCPManager.instance().getGcpGroup(band);
-                            GCPManager.instance().removeGcpGroup(band);
                             if (slaveGCPGroup.getNodeCount() >= 3)
                                 break;
                         }
@@ -388,6 +386,8 @@ public class WarpOp extends Operator {
         }
 
         announceGCPWarning();
+
+        GCPManager.instance().removeAllGcpGroups();
 
         if (openResidualsFile) {
             final File residualsFile = getResidualsFile(sourceProduct);
