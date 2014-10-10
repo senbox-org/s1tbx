@@ -394,6 +394,13 @@ public final class Maths {
         return x.getColumnPackedCopy();
     }
 
+    public static double[] polyFit(final Matrix A, final double[] y) {
+
+        final Matrix b = new Matrix(y, y.length);
+        final Matrix x = A.solve(b);
+        return x.getColumnPackedCopy();
+    }
+
     public static double polyVal(final double t, final double[] coeff) {
 
         double val = 0.0;
