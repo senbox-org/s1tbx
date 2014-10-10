@@ -1,4 +1,11 @@
-New in S1TBX 1.0
+New in S1TBX 1.0.1
+
+fix for coregistering terrain corrected products
+fix for coregistering multi-pol products
+fix for linux paths for the auxdata
+added selection by months/seasons in the product library
+
+New in S1TBX 1.0.0
 
 Harmonized common Sentinel code base from BEAM and NEST
 Compatibility with Sentinel-2 and Sentinel-3 toolboxes
