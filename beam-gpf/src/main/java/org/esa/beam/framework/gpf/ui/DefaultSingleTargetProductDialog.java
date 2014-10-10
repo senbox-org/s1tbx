@@ -154,7 +154,6 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             final JPanel parametersPanel = parametersPane.createPanel();
             parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             form.add("Processing Parameters", new JScrollPane(parametersPanel));
-            bindingContext.adjustComponents();
             updateSourceProduct();
         }
     }
