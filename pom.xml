@@ -19,8 +19,8 @@
 
 		<jlinda.version>0.8.1</jlinda.version>
 		<rstb.version>6.2</rstb.version>
-		<s1tbx.version>1.0.0</s1tbx.version>
-		<snap.version>1.0.0</snap.version>
+		<s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
+		<snap.version>2.0.0-SNAPSHOT</snap.version>
 		
 		<geotools.version>2.7.4</geotools.version>
 		<jide.version>3.6.1</jide.version>
@@ -39,7 +39,7 @@
     <url>https://earth.esa.int/web/sentinel-tbx/home</url>
     <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0-SNAPSHOT</version>
 
 	<issueManagement>
         <system>JIRA</system>
