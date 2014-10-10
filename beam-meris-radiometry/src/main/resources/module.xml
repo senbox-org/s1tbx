@@ -17,7 +17,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s3tbx-meris-radiometry</symbolicName>
-    <version>1.0.1</version>
+    <version>2.0.0</version>
     <name>MERIS L1b Radiometric Correction</name>
 
     <description>
