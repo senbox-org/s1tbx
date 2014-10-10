@@ -86,8 +86,8 @@
     </licenses>
 
     <scm>
-	 <connection>scm:git:git://github.com/arraydev/s1tbx.git</connection>
-     <url>https://earth.esa.int/web/sentinel-tbx/home</url>
+	 <connection>scm:git:git://github.com/senbox-org/s1tbx.git</connection>
+     <url>https://earth.esa.int/web/sentinel-tbx</url>
     </scm>
 
 	<repositories>
@@ -229,7 +229,7 @@
                 <version>${snap.version}</version>
             </dependency>
 			
-            <!-- BEAM System Level Modules ############################################# -->
+            <!-- SNAP Modules ############################################# -->
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
@@ -252,8 +252,6 @@
 				<version>${snap.version}</version>
             </dependency>
 
-            <!-- BEAM Modules ############################################# -->
-
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-envisat-reader</artifactId>
@@ -272,6 +270,18 @@
                 <version>${snap.version}</version>
             </dependency>
 
+			<dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-engine-utilities</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
+			
+			<dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-graph-builder</artifactId>
+			    <version>${snap.version}</version>
+            </dependency>
+			
             <dependency>
                 <groupId>ncsa.hdf</groupId>
                 <artifactId>lib-hdf</artifactId>
@@ -310,19 +320,7 @@
                 <version>${jlinda.version}</version>
             </dependency>
 			
-            <!-- NEST Modules ############################################# -->
-
-            <dependency>
-                <groupId>org.esa.snap</groupId>
-                <artifactId>snap-engine-utilities</artifactId>
-                <version>${snap.version}</version>
-            </dependency>
-			
-			<dependency>
-                <groupId>org.esa.snap</groupId>
-                <artifactId>snap-graph-builder</artifactId>
-			    <version>${snap.version}</version>
-            </dependency>
+            <!-- S1TBX Modules ############################################# -->
 			
 			<dependency>
                 <groupId>org.esa.s1tbx</groupId>
