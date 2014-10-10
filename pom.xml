@@ -637,7 +637,7 @@
     </pluginRepositories>
 
     <build>
-        <outputDirectory>${outputdir}/modules/${project.artifactId}-${snap.version}</outputDirectory>
+        <outputDirectory>${outputdir}/modules/${project.artifactId}-${project.version}</outputDirectory>
 
         <!-- Maven plugin configurations common to all BEAM modules -->
         <pluginManagement>
