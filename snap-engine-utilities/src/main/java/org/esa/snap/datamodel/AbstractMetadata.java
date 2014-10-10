@@ -448,18 +448,14 @@ public final class AbstractMetadata {
     public static void setAttribute(final MetadataElement dest, final String tag, final String value) {
         if (dest == null)
             return;
-        final MetadataAttribute attrib = dest.getAttribute(tag);
-        if (attrib != null && value != null) {
-            if (value.isEmpty())
-                attrib.getData().setElems(NO_METADATA_STRING);
-            else
-                attrib.getData().setElems(value);
-        } else {
-            if (attrib == null)
-                System.out.println(tag + " not found in metadata");
-            if (value == null)
-                System.out.println(tag + " metadata value is null");
+        MetadataAttribute attrib = dest.getAttribute(tag);
+        if(attrib == null) {
+            attrib = new MetadataAttribute(tag, ProductData.TYPE_ASCII);
         }
+        if (value == null || value.isEmpty())
+            attrib.getData().setElems(NO_METADATA_STRING);
+        else
+            attrib.getData().setElems(value);
     }
 
     /**
@@ -511,20 +507,26 @@ public final class AbstractMetadata {
         if (dest == null)
             return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
-        if (attrib == null)
-            System.out.println(tag + " not found in metadata");
-        else
+        if (attrib != null) {
             attrib.getData().setElemDouble(value);
+        } else {
+            final MetadataAttribute newAttrib = new MetadataAttribute(tag, ProductData.TYPE_FLOAT64);
+            dest.addAttribute(newAttrib);
+            newAttrib.getData().setElemDouble(value);
+        }
     }
 
     public static void setAttribute(final MetadataElement dest, final String tag, final Double value) {
-        if (dest == null)
+        if (dest == null || value == null)
             return;
         final MetadataAttribute attrib = dest.getAttribute(tag);
-        if (attrib == null)
-            System.out.println(tag + " not found in metadata");
-        else if (value != null)
+        if (attrib != null) {
             attrib.getData().setElemDouble(value);
+        } else {
+            final MetadataAttribute newAttrib = new MetadataAttribute(tag, ProductData.TYPE_FLOAT64);
+            dest.addAttribute(newAttrib);
+            newAttrib.getData().setElemDouble(value);
+        }
     }
 
     public static ProductData.UTC parseUTC(final String timeStr) {
@@ -716,17 +718,22 @@ public final class AbstractMetadata {
      * @param orbitStateVectors The orbit state vectors.
      * @throws Exception if orbit state vector length is not correct
      */
-    public static void setOrbitStateVectors(final MetadataElement absRoot, OrbitStateVector[] orbitStateVectors) throws Exception {
+    public static void setOrbitStateVectors(final MetadataElement absRoot, final OrbitStateVector[] orbitStateVectors) throws Exception {
 
         final MetadataElement elemRoot = absRoot.getElement(orbit_state_vectors);
-        final int numElems = elemRoot.getNumElements();
-        if (numElems != orbitStateVectors.length) {
-            throw new Exception("Length of orbit state vector array is not correct");
-        }
 
-        for (int i = 0; i < numElems; i++) {
-            final OrbitStateVector vector = orbitStateVectors[i];
-            final MetadataElement subElemRoot = elemRoot.getElement(orbit_vector + (i + 1));
+        //remove old
+        final MetadataElement[] oldList = elemRoot.getElements();
+        for(MetadataElement old : oldList) {
+            elemRoot.removeElement(old);
+        }
+        //add new
+        int i = 1;
+        for(OrbitStateVector vector : orbitStateVectors) {
+            final MetadataElement subElemRoot = new MetadataElement(orbit_vector + i);
+            elemRoot.addElement(subElemRoot);
+            ++i;
+
             subElemRoot.setAttributeUTC(orbit_vector_time, vector.time);
             subElemRoot.setAttributeDouble(orbit_vector_x_pos, vector.x_pos);
             subElemRoot.setAttributeDouble(orbit_vector_y_pos, vector.y_pos);
@@ -767,6 +774,44 @@ public final class AbstractMetadata {
     }
 
     /**
+     * Set SRGR Coefficients.
+     *
+     * @param absRoot Abstracted metadata root.
+     */
+    public static void setSRGRCoefficients(final MetadataElement absRoot, final SRGRCoefficientList[] srgrCoefList) {
+
+        final MetadataElement elemRoot = absRoot.getElement(srgr_coefficients);
+
+        //remove old
+        final MetadataElement[] oldList = elemRoot.getElements();
+        for(MetadataElement old : oldList) {
+            elemRoot.removeElement(old);
+        }
+
+        //add new
+        int listCnt = 1;
+        for(SRGRCoefficientList srgrCoef : srgrCoefList) {
+            final MetadataElement srgrListElem = new MetadataElement(srgr_coef_list + '.' + listCnt);
+            elemRoot.addElement(srgrListElem);
+            ++listCnt;
+
+            srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, srgrCoef.time);
+            AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, srgrCoef.ground_range_origin);
+
+            int cnt = 1;
+            for(double val : srgrCoef.coefficients) {
+                final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + cnt);
+                srgrListElem.addElement(coefElem);
+                ++cnt;
+                AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.srgr_coef,
+                        ProductData.TYPE_FLOAT64, "", "SRGR Coefficient");
+                AbstractMetadata.setAttribute(coefElem, AbstractMetadata.srgr_coef, val);
+
+            }
+        }
+    }
+
+    /**
      * Get Doppler Centroid Coefficients.
      *
      * @param absRoot Abstracted metadata root.
@@ -793,6 +838,42 @@ public final class AbstractMetadata {
             dopCoefficientList[k++] = dopList;
         }
         return dopCoefficientList;
+    }
+
+    public static void setDopplerCentroidCoefficients(final MetadataElement absRoot, final DopplerCentroidCoefficientList[] dopList) {
+
+        final MetadataElement elemRoot = absRoot.getElement(AbstractMetadata.dop_coefficients);
+
+        //remove old
+        final MetadataElement[] oldList = elemRoot.getElements();
+        for(MetadataElement old : oldList) {
+            elemRoot.removeElement(old);
+        }
+
+        //add new
+        int listCnt = 1;
+        for (DopplerCentroidCoefficientList dop : dopList) {
+            final MetadataElement dopplerListElem = new MetadataElement(AbstractMetadata.dop_coef_list + '.' + listCnt);
+            elemRoot.addElement(dopplerListElem);
+            ++listCnt;
+
+            dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, dop.time);
+
+            AbstractMetadata.addAbstractedAttribute(dopplerListElem, AbstractMetadata.slant_range_time,
+                    ProductData.TYPE_FLOAT64, "ns", "Slant Range Time");
+            AbstractMetadata.setAttribute(dopplerListElem, AbstractMetadata.slant_range_time, dop.slant_range_time);
+
+            final double[] coef = dop.coefficients;
+            int cnt = 1;
+            for(double coefValue : coef) {
+                final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + cnt);
+                dopplerListElem.addElement(coefElem);
+                ++cnt;
+                AbstractMetadata.addAbstractedAttribute(coefElem, AbstractMetadata.dop_coef,
+                        ProductData.TYPE_FLOAT64, "", "Doppler Centroid Coefficient");
+                AbstractMetadata.setAttribute(coefElem, AbstractMetadata.dop_coef, coefValue);
+            }
+        }
     }
 
     public static class SRGRCoefficientList {

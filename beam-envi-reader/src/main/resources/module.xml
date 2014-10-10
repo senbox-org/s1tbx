@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>snap-envi-reader</symbolicName>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
     <name>ENVI Product Reader</name>
     <funding>ESA</funding>
 
