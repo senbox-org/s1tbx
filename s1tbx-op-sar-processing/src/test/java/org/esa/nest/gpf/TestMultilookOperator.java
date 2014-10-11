@@ -26,6 +26,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.Arrays;
 
 /**
@@ -96,8 +97,12 @@ public class TestMultilookOperator {
      */
     @Test
     public void testProcessing() throws Exception {
-
-        final Product sourceProduct = TestUtils.readSourceProduct(inputPathWSM);
+        final File inputFile = new File(inputPathWSM);
+        if (!inputFile.exists()) {
+            TestUtils.skipTest(this, inputPathWSM + " not found");
+            return;
+        }
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final MultilookOp op = (MultilookOp) spi.createOperator();
         assertNotNull(op);
