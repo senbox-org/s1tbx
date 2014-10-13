@@ -19,7 +19,6 @@ import com.bc.ceres.swing.TreeCellExtender;
 import org.esa.beam.dataio.dimap.DimapProductReader;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
@@ -30,7 +29,6 @@ import org.esa.beam.framework.datamodel.SampleCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.help.ContextHelp;
 import org.esa.beam.framework.ui.PopupMenuFactory;
 import org.esa.beam.framework.ui.PopupMenuHandler;
 import org.esa.beam.framework.ui.UIUtils;
@@ -121,7 +119,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                                                      : TreeSelectionModel.SINGLE_TREE_SELECTION);
         addTreeSelectionListener(new PTSelectionListener());
         addMouseListener(new PTMouseListener());
-        addMouseListener(new ContextHelpMouseListener());
         setCellRenderer(new PTCellRenderer());
         setRootVisible(false);
         setShowsRootHandles(true);
@@ -326,31 +323,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                 }
             }
         }
-    }
-
-    private class ContextHelpMouseListener extends MouseAdapter {
-
-        @Override
-        public void mousePressed(MouseEvent event) {
-            if (event.isShiftDown()) {
-                int selRow = getRowForLocation(event.getX(), event.getY());
-                if (selRow >= 0) {
-                    TreePath selPath = getPathForLocation(event.getX(), event.getY());
-                    if (selPath != null) {
-                        AbstractTN node = (AbstractTN) selPath.getLastPathComponent();
-                        final Object nodeContent = node.getContent();
-                        if(nodeContent instanceof DataNode) {
-                            final DataNode dataNode = (DataNode) nodeContent;
-                            ContextHelp.showContextHelp(dataNode.getName(), dataNode.getProduct().getProductType());
-                        } else if(nodeContent instanceof MetadataElement) {
-                            final MetadataElement metadataElement = (MetadataElement) nodeContent;
-                            ContextHelp.showContextHelp(metadataElement.getName(), metadataElement.getProduct().getProductType());
-                        }
-                    }
-                }
-            }
-        }
-
     }
 
     private class PTSelectionListener implements TreeSelectionListener {
