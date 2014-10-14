@@ -15,22 +15,26 @@
  */
 package org.esa.nest.dataio.dem;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
 
  */
-public class TestDescriptorLoadedAsService extends TestCase {
+public class TestDescriptorLoadedAsService {
 
+    @Test
     public void testACEDescriptorIsLoaded() {
-        testDescriptorIsLoaded("ACE30");
+        checkDescriptorIsLoaded("ACE30");
     }
 
-    public void testSRTM30DescriptorIsLoaded() {
-        //testDescriptorIsLoaded("SRTM30");
+    @Test
+    public void testSRTM3DescriptorIsLoaded() {
+        checkDescriptorIsLoaded("SRTM 3Sec");
     }
 
-    private static void testDescriptorIsLoaded(String name) {
+    private static void checkDescriptorIsLoaded(String name) {
         final ElevationModelRegistry registry = ElevationModelRegistry.getInstance();
         final ElevationModelDescriptor descriptor = registry.getDescriptor(name);
         assertNotNull(descriptor);

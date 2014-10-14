@@ -17,6 +17,7 @@ package org.esa.nest.gpf;
 
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -38,7 +39,7 @@ public class TestSliceAssemblyOp {
     private final File slice1File = new File("D:\\RS\\Slices\\S1A_EW_GRDH_1SSV_20120101T053442_20120101T053517_001772_000001_F181.SAFE\\manifest.safe");
     private final File slice2File = new File("D:\\RS\\Slices\\S1A_EW_GRDH_1SSV_20120101T053517_20120101T053539_001772_000001_D87D.SAFE\\manifest.safe");
 
-    private final File nonSliceFile = new File("D:\\RS\\Slices\\S1A_EW_GRDH_1SSV_20120101T053442_20120101T053539_001772_000001_73AC.SAFE\\manifest.safe");
+    private final File nonSliceFile = TestData.inputS1_GRD;
 
     @Test
     public void testSingleProduct() throws Exception {

@@ -15,16 +15,19 @@
  */
 package org.esa.nest.dataio.dem.ace;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class TestACEElevationModelDescriptor extends TestCase {
+import static org.junit.Assert.assertEquals;
 
-    final ACEElevationModelDescriptor _descriptor = new ACEElevationModelDescriptor();
+public class TestACEElevationModelDescriptor {
+
+    private final ACEElevationModelDescriptor _descriptor = new ACEElevationModelDescriptor();
 
     public void testConstantProperties() {
         assertEquals("ACE30", _descriptor.getName());
     }
 
+    @Test
     public void testFilenameCreation() {
 
         assertEquals("45S004W.ACE", _descriptor.createTileFilename(-45, -4));

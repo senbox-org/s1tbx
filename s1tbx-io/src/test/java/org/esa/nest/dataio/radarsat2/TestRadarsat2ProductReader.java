@@ -18,9 +18,9 @@ package org.esa.nest.dataio.radarsat2;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -37,9 +37,6 @@ public class TestRadarsat2ProductReader {
     }
     private Radarsat2ProductReaderPlugIn readerPlugin;
     private ProductReader reader;
-
-    private final static String rs2ZipFilePath = "E:\\data\\zip\\RS2-standard.zip";
-    private final static String rs2FolderFilePath = "J:\\Data\\zips\\RS2_OK22935_PK237498_DK219956_FQ1W_20111102_223848_HH_VV_HV_VH_SLC";
 
     public TestRadarsat2ProductReader() {
         readerPlugin = new Radarsat2ProductReaderPlugIn();
@@ -65,7 +62,7 @@ public class TestRadarsat2ProductReader {
 
     @Test
     public void testOpeningFolder() throws Exception {
-        final File inputFile = new File(rs2FolderFilePath, "product.xml");
+        final File inputFile = new File(TestUtils.rootPathTestProducts, "input\\RS2\\standard\\product.xml");
         if(!inputFile.exists()) {
             TestUtils.skipTest(this);
             return;
@@ -80,7 +77,7 @@ public class TestRadarsat2ProductReader {
 
     @Test
     public void testOpeningZip() throws Exception {
-        final File inputFile = new File(rs2ZipFilePath);
+        final File inputFile = TestData.inputRS2_SQuad;
         if(!inputFile.exists()){
             TestUtils.skipTest(this);
             return;

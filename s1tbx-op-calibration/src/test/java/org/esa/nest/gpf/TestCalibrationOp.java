@@ -65,6 +65,26 @@ public class TestCalibrationOp {
     }
 
     @Test
+    public void testProcessingASAR_IMS() throws Exception {
+        final File inputFile = TestData.inputASAR_IMS;
+        if (!inputFile.exists()) {
+            TestUtils.skipTest(this, inputFile + " not found");
+            return;
+        }
+        final Product targetProduct = processFile(inputFile);
+
+        final Band band = targetProduct.getBand("sigma0_VV");
+        assertNotNull(band);
+
+        final float[] floatValues = new float[8];
+        band.readPixels(0, 0, 4, 2, floatValues, ProgressMonitor.NULL);
+
+        assertEquals(0.043132662773132324, floatValues[0], 0.0001);
+        assertEquals(3.3039296977221966E-4, floatValues[1], 0.0001);
+        assertEquals(0.06897620856761932, floatValues[2], 0.0001);
+    }
+
+    @Test
     public void testProcessingERS_IMP() throws Exception {
         final File inputFile = TestData.inputERS_IMP;
         if (!inputFile.exists()) {
@@ -124,10 +144,30 @@ public class TestCalibrationOp {
         assertEquals(0.02168026752769947, floatValues[2], 0.0001);
     }
 
+    @Test
+    public void testProcessingS1_StripmapSLC() throws Exception {
+        final File inputFile = TestData.inputS1_StripmapSLC;
+        if (!inputFile.exists()) {
+            TestUtils.skipTest(this, inputFile + " not found");
+            return;
+        }
+        final Product targetProduct = processFile(inputFile);
+
+        final Band band = targetProduct.getBand("sigma0_VV");
+        assertNotNull(band);
+
+        final float[] floatValues = new float[8];
+        band.readPixels(0, 0, 4, 2, floatValues, ProgressMonitor.NULL);
+
+        assertEquals(4.557766437530518, floatValues[0], 0.0001);
+        assertEquals(17.115325927734375, floatValues[1], 0.0001);
+        assertEquals(43.94808578491211, floatValues[2], 0.0001);
+    }
+
     /**
      * Processes a product and compares it to processed product known to be correct
      *
-     * @param inputFile    the path to the input product
+     * @param inputFile the path to the input product
      * @throws Exception general exception
      */
     private static Product processFile(final File inputFile) throws Exception {
