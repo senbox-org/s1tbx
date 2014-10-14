@@ -20,9 +20,8 @@ import com.bc.io.FileUnpacker;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.logging.BeamLogManager;
 
-import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -52,11 +51,11 @@ class ElevationModelInstaller extends SwingWorker {
 
     /**
      * Computes a result, or throws an exception if unable to do so.
-     * <p/>
-     * <p/>
+     * <p>
+     * <p>
      * Note that this method is executed only once.
-     * <p/>
-     * <p/>
+     * <p>
+     * <p>
      * Note: this method is executed in a background thread.
      *
      * @return the computed result
@@ -93,8 +92,8 @@ class ElevationModelInstaller extends SwingWorker {
             } else {
                 _status = ElevationModelDescriptor.DEM_INSTALLATION_ERROR;
                 BeamLogManager.getSystemLogger().log(Level.SEVERE,
-                                                     "Failed to install DEM " + _descriptor.getName(),
-                                                     _ioException);
+                        "Failed to install DEM " + _descriptor.getName(),
+                        _ioException);
                 Debug.trace(_ioException);
             }
         }
@@ -110,38 +109,38 @@ class ElevationModelInstaller extends SwingWorker {
         if (_ioException == null) {
             if (_descriptor.isDemInstalled()) {
                 JOptionPane.showMessageDialog(_parent,
-                                              "The DEM '" + _descriptor.getName() + "' has successfully been installed in directory\n" +
-                                                      _descriptor.getDemInstallDir(),
-                                              "DEM Installed",
-                                              JOptionPane.INFORMATION_MESSAGE);
+                        "The DEM '" + _descriptor.getName() + "' has successfully been installed in directory\n" +
+                                _descriptor.getDemInstallDir(),
+                        "DEM Installed",
+                        JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(_parent,
-                                              "Failed to install DEM '" + _descriptor.getName() + "' in directory\n" +
-                                                      _descriptor.getDemInstallDir() + "\n" +
-                                                      "An unknown error occurred.\n",
-                                              "DEM Installation Error",
-                                              JOptionPane.ERROR_MESSAGE);
+                        "Failed to install DEM '" + _descriptor.getName() + "' in directory\n" +
+                                _descriptor.getDemInstallDir() + "\n" +
+                                "An unknown error occurred.\n",
+                        "DEM Installation Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         } else {
             JOptionPane.showMessageDialog(_parent,
-                                          "Failed to install DEM '" + _descriptor.getName() + "' in directory\n" +
-                                                  _descriptor.getDemInstallDir() + "\n" +
-                                                  "An I/O error occurred:\n"
-                                                  + _ioException.getMessage(),
-                                          "DEM Installation Error",
-                                          JOptionPane.ERROR_MESSAGE);
+                    "Failed to install DEM '" + _descriptor.getName() + "' in directory\n" +
+                            _descriptor.getDemInstallDir() + "\n" +
+                            "An I/O error occurred:\n"
+                            + _ioException.getMessage(),
+                    "DEM Installation Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void promptForArchiveFileDeletion() {
         if (_archiveFile != null && _archiveFile.exists()) {
             final int answer = JOptionPane.showConfirmDialog(_parent,
-                                                             "Delete the zipped DEM archive file\n" +
-                                                                     "'" + _archiveFile.getPath() + "'?\n\n" +
-                                                                     "(Not required anymore.)",
-                                                             "Delete File",
-                                                             JOptionPane.YES_NO_OPTION,
-                                                             JOptionPane.QUESTION_MESSAGE);
+                    "Delete the zipped DEM archive file\n" +
+                            "'" + _archiveFile.getPath() + "'?\n\n" +
+                            "(Not required anymore.)",
+                    "Delete File",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
             if (answer == JOptionPane.YES_OPTION) {
                 _archiveFile.delete();
             }

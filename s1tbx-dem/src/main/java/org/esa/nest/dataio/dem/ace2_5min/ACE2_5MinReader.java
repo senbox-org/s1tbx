@@ -61,7 +61,7 @@ class ACE2_5MinReader extends AbstractProductReader {
     /**
      * Provides an implementation of the <code>readProductNodes</code> interface method. Clients implementing this
      * method can be sure that the input object and eventually the subset information has already been set.
-     * <p/>
+     * <p>
      * <p>This method is called as a last step in the <code>readProductNodes(input, subsetInfo)</code> method.
      *
      * @throws java.io.IOException if an I/O error occurs
@@ -104,7 +104,7 @@ class ACE2_5MinReader extends AbstractProductReader {
     /**
      * The template method which is called by the method after an optional spatial subset has been applied to the input
      * parameters.
-     * <p/>
+     * <p>
      * <p>The destination band, buffer and region parameters are exactly the ones passed to the original  call. Since
      * the <code>destOffsetX</code> and <code>destOffsetY</code> parameters are already taken into acount in the
      * <code>sourceOffsetX</code> and <code>sourceOffsetY</code> parameters, an implementor of this method is free to
@@ -145,10 +145,10 @@ class ACE2_5MinReader extends AbstractProductReader {
     /**
      * Closes the access to all currently opened resources such as file input streams and all resources of this children
      * directly owned by this reader. Its primary use is to allow the garbage collector to perform a vanilla job.
-     * <p/>
+     * <p>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>close()</code> are undefined.
-     * <p/>
+     * <p>
      * <p>Overrides of this method should always call <code>super.close();</code> after disposing this instance.
      *
      * @throws java.io.IOException if an I/O error occurs

@@ -19,11 +19,11 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.bc.io.FileDownloader;
 import com.bc.io.FileUnpacker;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.nest.dataio.dem.AbstractElevationModelDescriptor;
-import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.dataio.dem.AbstractElevationModelDescriptor;
+import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.snap.util.Settings;
 
 import java.awt.*;
