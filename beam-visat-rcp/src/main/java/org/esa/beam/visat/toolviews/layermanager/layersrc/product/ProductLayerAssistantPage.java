@@ -23,12 +23,7 @@ import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.LayerTypeRegistry;
 import com.bc.ceres.glayer.support.ImageLayer;
 import com.jidesoft.tree.AbstractTreeModel;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductManager;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.layer.AbstractLayerSourceAssistantPage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -39,24 +34,17 @@ import org.geotools.referencing.CRS;
 import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.BorderLayout;
-import java.awt.Component;
+import java.awt.*;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
 
@@ -74,7 +62,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         tree.setShowsRootHandles(true);
         tree.setRootVisible(false);
         tree.setCellRenderer(new ProductNodeTreeCellRenderer());
-        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         tree.getSelectionModel().addTreeSelectionListener(new ProductNodeSelectionListener());
 
         List<CompatibleNodeList> nodeLists = model.compatibleNodeLists;
@@ -107,27 +95,33 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
 
     @Override
     public boolean performFinish() {
-        final RasterDataNode rasterDataNode = (RasterDataNode) tree.getSelectionPath().getLastPathComponent();
+        //allow multiple selections
+        final TreePath[] selectionPaths = tree.getSelectionPaths();
+        if (selectionPaths == null) {
+            return false;
+        }
+        for (TreePath treePath : selectionPaths) {
+            final RasterDataNode rasterDataNode = (RasterDataNode) treePath.getLastPathComponent();
 
-        LayerType type = LayerTypeRegistry.getLayerType(RasterImageLayerType.class.getName());
-        PropertySet configuration = type.createLayerConfig(getContext().getLayerContext());
-        configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTER, rasterDataNode);
-        configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
-        configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
-        configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
-        configuration.setValue(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_SHOWN, false);
-        final ImageLayer imageLayer = (ImageLayer) type.createLayer(getContext().getLayerContext(),
-                                                                    configuration);
-        imageLayer.setName(rasterDataNode.getDisplayName());
+            LayerType type = LayerTypeRegistry.getLayerType(RasterImageLayerType.class.getName());
+            PropertySet configuration = type.createLayerConfig(getContext().getLayerContext());
+            configuration.setValue(RasterImageLayerType.PROPERTY_NAME_RASTER, rasterDataNode);
+            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_SHOWN, false);
+            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_COLOR, ImageLayer.DEFAULT_BORDER_COLOR);
+            configuration.setValue(ImageLayer.PROPERTY_NAME_BORDER_WIDTH, ImageLayer.DEFAULT_BORDER_WIDTH);
+            configuration.setValue(ImageLayer.PROPERTY_NAME_PIXEL_BORDER_SHOWN, false);
+            final ImageLayer imageLayer = (ImageLayer) type.createLayer(getContext().getLayerContext(),
+                    configuration);
+            imageLayer.setName(rasterDataNode.getDisplayName());
 
-        ProductSceneView sceneView = getContext().getAppContext().getSelectedProductSceneView();
-        Layer rootLayer = sceneView.getRootLayer();
-        rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
+            ProductSceneView sceneView = getContext().getAppContext().getSelectedProductSceneView();
+            Layer rootLayer = sceneView.getRootLayer();
+            rootLayer.getChildren().add(sceneView.getFirstImageLayerIndex(), imageLayer);
 
-        final LayerDataHandler layerDataHandler = new LayerDataHandler(rasterDataNode, imageLayer);
-        rasterDataNode.getProduct().addProductNodeListener(layerDataHandler);
-        rootLayer.addListener(layerDataHandler);
-
+            final LayerDataHandler layerDataHandler = new LayerDataHandler(rasterDataNode, imageLayer);
+            rasterDataNode.getProduct().addProductNodeListener(layerDataHandler);
+            rootLayer.addListener(layerDataHandler);
+        }
         return true;
     }
 
@@ -145,8 +139,8 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
     private ProductTreeModel createTreeModel(AppContext ctx) {
         Product selectedProduct = ctx.getSelectedProductSceneView().getProduct();
 
-        ArrayList<CompatibleNodeList> compatibleNodeLists = new ArrayList<CompatibleNodeList>(3);
-        List<RasterDataNode> compatibleNodes = new ArrayList<RasterDataNode>();
+        ArrayList<CompatibleNodeList> compatibleNodeLists = new ArrayList<>(3);
+        List<RasterDataNode> compatibleNodes = new ArrayList<>();
         compatibleNodes.addAll(Arrays.asList(selectedProduct.getBands()));
         compatibleNodes.addAll(Arrays.asList(selectedProduct.getTiePointGrids()));
         if (!compatibleNodes.isEmpty()) {
@@ -156,17 +150,19 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
         RasterDataNode raster = ctx.getSelectedProductSceneView().getRaster();
         GeoCoding geoCoding = raster.getGeoCoding();
         CoordinateReferenceSystem modelCRS = ImageManager.getModelCrs(geoCoding);
-        final ProductManager productManager = ctx.getProductManager();
-        final Product[] products = productManager.getProducts();
-        for (Product product : products) {
-            if (product == selectedProduct) {
-                continue;
-            }
-            compatibleNodes = new ArrayList<RasterDataNode>();
-            collectCompatibleRasterDataNodes(modelCRS, product.getBands(), compatibleNodes);
-            collectCompatibleRasterDataNodes(modelCRS, product.getTiePointGrids(), compatibleNodes);
-            if (!compatibleNodes.isEmpty()) {
-                compatibleNodeLists.add(new CompatibleNodeList(product.getDisplayName(), compatibleNodes));
+        if (modelCRS != null) {
+            final ProductManager productManager = ctx.getProductManager();
+            final Product[] products = productManager.getProducts();
+            for (Product product : products) {
+                if (product == selectedProduct) {
+                    continue;
+                }
+                compatibleNodes = new ArrayList<>();
+                collectCompatibleRasterDataNodes(modelCRS, product.getBands(), compatibleNodes);
+                collectCompatibleRasterDataNodes(modelCRS, product.getTiePointGrids(), compatibleNodes);
+                if (!compatibleNodes.isEmpty()) {
+                    compatibleNodeLists.add(new CompatibleNodeList(product.getDisplayName(), compatibleNodes));
+                }
             }
         }
         return new ProductTreeModel(compatibleNodeLists);
@@ -234,7 +230,7 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
                 label.setText(MessageFormat.format("<html><b>{0}</b></html>", ((Band) value).getName()));
             } else if (value instanceof TiePointGrid) {
                 label.setText(MessageFormat.format("<html><b>{0}</b> (Tie-point grid)</html>",
-                                                   ((TiePointGrid) value).getName()));
+                        ((TiePointGrid) value).getName()));
             }
             return label;
         }
