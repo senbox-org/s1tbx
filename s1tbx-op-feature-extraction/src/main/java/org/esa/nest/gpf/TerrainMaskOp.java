@@ -64,7 +64,7 @@ public final class TerrainMaskOp extends Operator {
             ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
             ResamplingFactory.CUBIC_CONVOLUTION_NAME,
             ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
-            ResamplingFactory.BISINC_INTERPOLATION_NAME},
+            ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME},
             defaultValue = ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
             label = "DEM Resampling Method")
     private String demResamplingMethod = ResamplingFactory.NEAREST_NEIGHBOUR_NAME;

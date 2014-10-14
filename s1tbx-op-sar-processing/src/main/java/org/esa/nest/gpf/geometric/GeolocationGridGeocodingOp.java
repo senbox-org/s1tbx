@@ -494,7 +494,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
                 srcRect = new Rectangle(Math.max(0, x0 - 2), Math.max(0, y0 - 2), 5, 5);
 
-            } else if (imgResampling.equals(Resampling.BISINC_INTERPOLATION)) {
+            } else if (imgResampling.equals(Resampling.BISINC_5_POINT_INTERPOLATION)) {
 
                 srcRect = new Rectangle(Math.max(0, x0 - 3), Math.max(0, y0 - 3), 6, 6);
 
