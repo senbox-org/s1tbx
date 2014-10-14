@@ -498,6 +498,14 @@ public final class GeolocationGridGeocodingOp extends Operator {
 
                 srcRect = new Rectangle(Math.max(0, x0 - 3), Math.max(0, y0 - 3), 6, 6);
 
+            } else if (imgResampling == Resampling.BISINC_11_POINT_INTERPOLATION) {
+
+                srcRect = new Rectangle(Math.max(0, x0 - 6), Math.max(0, y0 - 6), 12, 12);
+
+            } else if (imgResampling == Resampling.BISINC_21_POINT_INTERPOLATION) {
+
+                srcRect = new Rectangle(Math.max(0, x0 - 11), Math.max(0, y0 - 11), 22, 22);
+
             } else if (imgResampling.equals(Resampling.BICUBIC_INTERPOLATION)) {
 
                 srcRect = new Rectangle(Math.max(0, x0 - 2), Math.max(0, y0 - 2), 5, 5);
