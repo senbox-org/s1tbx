@@ -24,6 +24,8 @@ import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
+import java.io.File;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -47,8 +49,12 @@ public class TestCreateElevationOp {
      */
     @Test
     public void testProcessing() throws Exception {
-
-        final Product sourceProduct = TestUtils.readSourceProduct(inputPathWSM);
+        final File inputFile = new File(inputPathWSM);
+        if (!inputFile.exists()) {
+            TestUtils.skipTest(this, inputPathWSM + " not found");
+            return;
+        }
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final CreateElevationOp op = (CreateElevationOp) spi.createOperator();
         assertNotNull(op);

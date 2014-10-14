@@ -24,6 +24,7 @@ import org.esa.snap.datamodel.Unit;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertNotNull;
@@ -288,8 +289,12 @@ public class SpeckleFilterOperatorTest {
      */
     @Test
     public void testProcessing() throws Exception {
-
-        final Product sourceProduct = TestUtils.readSourceProduct(inputPathWSM);
+        final File inputFile = new File(inputPathWSM);
+        if (!inputFile.exists()) {
+            TestUtils.skipTest(this, inputPathWSM + " not found");
+            return;
+        }
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final SpeckleFilterOp op = (SpeckleFilterOp) spi.createOperator();
         assertNotNull(op);

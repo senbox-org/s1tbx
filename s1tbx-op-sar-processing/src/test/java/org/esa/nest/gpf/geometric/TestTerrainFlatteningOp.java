@@ -59,8 +59,12 @@ public class TestTerrainFlatteningOp {
      */
     @Test
     public void testProcessWSM() throws Exception {
-
-        final Product sourceProduct = TestUtils.readSourceProduct(inputPathWSM);
+        final File inputFile = new File(inputPathWSM);
+        if (!inputFile.exists()) {
+            TestUtils.skipTest(this, inputPathWSM + " not found");
+            return;
+        }
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final TerrainFlatteningOp op = (TerrainFlatteningOp) spi.createOperator();
         assertNotNull(op);
@@ -78,8 +82,12 @@ public class TestTerrainFlatteningOp {
      */
     @Test
     public void testProcessIMS() throws Exception {
-
-        final Product sourceProduct = TestUtils.readSourceProduct(inputPathIMS);
+        final File inputFile = new File(inputPathIMS);
+        if (!inputFile.exists()) {
+            TestUtils.skipTest(this, inputPathIMS + " not found");
+            return;
+        }
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final TerrainFlatteningOp op = (TerrainFlatteningOp) spi.createOperator();
         assertNotNull(op);
@@ -97,8 +105,12 @@ public class TestTerrainFlatteningOp {
      */
     @Test
     public void testProcessAPM() throws Exception {
-
-        final Product sourceProduct = TestUtils.readSourceProduct(inputPathAPM);
+        final File inputFile = new File(inputPathWSM);
+        if (!inputFile.exists()) {
+            TestUtils.skipTest(this, inputPathWSM + " not found");
+            return;
+        }
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final TerrainFlatteningOp op = (TerrainFlatteningOp) spi.createOperator();
         assertNotNull(op);
