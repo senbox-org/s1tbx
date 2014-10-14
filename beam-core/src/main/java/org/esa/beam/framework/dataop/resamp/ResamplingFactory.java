@@ -26,14 +26,18 @@ public final class ResamplingFactory {
     public static final String NEAREST_NEIGHBOUR_NAME = "NEAREST_NEIGHBOUR";
     public static final String BILINEAR_INTERPOLATION_NAME = "BILINEAR_INTERPOLATION";
     public static final String CUBIC_CONVOLUTION_NAME = "CUBIC_CONVOLUTION";
-    public static final String BISINC_INTERPOLATION_NAME = "BISINC_INTERPOLATION";
+    public static final String BISINC_5_POINT_INTERPOLATION_NAME = "BISINC_5_POINT_INTERPOLATION";
+    public static final String BISINC_11_POINT_INTERPOLATION_NAME = "BISINC_11_POINT_INTERPOLATION";
+    public static final String BISINC_21_POINT_INTERPOLATION_NAME = "BISINC_21_POINT_INTERPOLATION";
     public static final String BICUBIC_INTERPOLATION_NAME = "BICUBIC_INTERPOLATION";
 
     public static final String[] resamplingNames = new String[]{
             NEAREST_NEIGHBOUR_NAME,
             BILINEAR_INTERPOLATION_NAME,
             CUBIC_CONVOLUTION_NAME,
-            BISINC_INTERPOLATION_NAME,
+            BISINC_5_POINT_INTERPOLATION_NAME,
+            BISINC_11_POINT_INTERPOLATION_NAME,
+            BISINC_21_POINT_INTERPOLATION_NAME,
             BICUBIC_INTERPOLATION_NAME};
 
     /**
@@ -44,7 +48,9 @@ public final class ResamplingFactory {
      * @see ResamplingFactory#NEAREST_NEIGHBOUR_NAME
      * @see ResamplingFactory#BILINEAR_INTERPOLATION_NAME
      * @see ResamplingFactory#CUBIC_CONVOLUTION_NAME
-     * @see ResamplingFactory#BISINC_INTERPOLATION_NAME
+     * @see ResamplingFactory#BISINC_5_POINT_INTERPOLATION_NAME
+     * @see ResamplingFactory#BISINC_11_POINT_INTERPOLATION_NAME
+     * @see ResamplingFactory#BISINC_21_POINT_INTERPOLATION_NAME
      * @see ResamplingFactory#BICUBIC_INTERPOLATION_NAME
      */
     public static Resampling createResampling(final String resamplingName) {
@@ -56,8 +62,12 @@ public final class ResamplingFactory {
                 return Resampling.BILINEAR_INTERPOLATION;
             case CUBIC_CONVOLUTION_NAME:
                 return Resampling.CUBIC_CONVOLUTION;
-            case BISINC_INTERPOLATION_NAME:
-                return Resampling.BISINC_INTERPOLATION;
+            case BISINC_5_POINT_INTERPOLATION_NAME:
+                return Resampling.BISINC_5_POINT_INTERPOLATION;
+            case BISINC_11_POINT_INTERPOLATION_NAME:
+                return Resampling.BISINC_11_POINT_INTERPOLATION;
+            case BISINC_21_POINT_INTERPOLATION_NAME:
+                return Resampling.BISINC_21_POINT_INTERPOLATION;
             case BICUBIC_INTERPOLATION_NAME:
                 return Resampling.BICUBIC_INTERPOLATION;
             default:
