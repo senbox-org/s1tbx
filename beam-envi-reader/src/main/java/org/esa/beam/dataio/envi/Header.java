@@ -229,17 +229,16 @@ public class Header {
     public MetadataElement getAsMetadata() {
         MetadataElement headerElem = new MetadataElement("Header");
         for (Map.Entry<String, String> entry : headerParser.getHeaderEntries()) {
-            String value = entry.getValue();
-            if (value == null || value.isEmpty()) {  // empty strings are not allowed
-                value = " ";
-            }
+            // empty strings are not allowed
+            String value = entry.getValue().isEmpty() ? " " : entry.getValue();
             headerElem.setAttributeString(entry.getKey(), value);
         }
         Set<Map.Entry<String, String>> historyEntries = headerParser.getHistoryEntries();
         if (!historyEntries.isEmpty()) {
             MetadataElement historyElem = new MetadataElement("History");
             for (Map.Entry<String, String> entry : historyEntries) {
-                historyElem.setAttributeString(entry.getKey(), entry.getValue());
+                String value = entry.getValue().isEmpty() ? " " : entry.getValue();
+                historyElem.setAttributeString(entry.getKey(), value);
             }
             headerElem.addElement(historyElem);
         }

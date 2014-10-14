@@ -358,8 +358,7 @@ public class BandMathsDialog extends ModalDialog {
             final Product product = productsList.getAt(i);
             if (targetProduct != product) {
                 Debug.trace("  with:      " + product.getDisplayName());
-                //NESTMOD
-                //final boolean isCompatibleProduct = targetProduct.isCompatibleProduct(product, geolocationEps);
+                // band maths should only care that the rasters are the same size
                 final boolean isCompatibleProduct = (targetProduct.getSceneRasterWidth() == product.getSceneRasterWidth() &&
                                                      targetProduct.getSceneRasterHeight() == product.getSceneRasterHeight());
                 Debug.trace("  result:    " + isCompatibleProduct);

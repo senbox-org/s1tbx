@@ -87,8 +87,8 @@ public class CustomCrsPanel extends JPanel {
     private final CustomCrsPanel.Model model;
     private final PropertyContainer vc;
     private final Window parent;
-    public JComboBox<AbstractCrsProvider> projectionComboBox;
-    public JComboBox<GeodeticDatum> datumComboBox;
+    private JComboBox<AbstractCrsProvider> projectionComboBox;
+    private JComboBox<GeodeticDatum> datumComboBox;
     private JButton paramButton;
     private static final String SEMI_MAJOR_PARAM_NAME = "semi_major";
     private static final String SEMI_MINOR_PARAM_NAME = "semi_minor";

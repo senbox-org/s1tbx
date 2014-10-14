@@ -152,10 +152,6 @@ public class TestUtils {
         return maxIteration;
     }
 
-    public static Product readSourceProduct(final String path) throws IOException {
-        return readSourceProduct(new File(path));
-    }
-
     public static Product readSourceProduct(final File inputFile) throws IOException {
         if (!inputFile.exists()) {
             throw new IOException(inputFile.getAbsolutePath() + " not found");
