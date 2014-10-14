@@ -49,7 +49,7 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
 
     protected AbstractElevationModelDescriptor() {
         demPropertiesDir = new File(SystemUtils.getApplicationDataDir(),
-                                    "beam-core/auxdata/dem" + File.separator + getName());
+                "beam-core/auxdata/dem" + File.separator + getName());
         if (!demPropertiesDir.exists()) {
             demPropertiesDir.mkdirs();
         }
@@ -116,18 +116,18 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
         double archiveSizeMB = Math.round(10.0 * archiveSizeB / (1024 * 1024)) / 10.0;
 
         message += String.format("\n%s can also download and install the DEM for you now.\n" +
-                                         "The size of the DEM archive to be downloaded is %s MB,\n" +
-                                         "total disk space for the DEM will be around 8x the archive size.\n" +
-                                         "You can continue using %s while the DEM is installed.\n\n" +
-                                         "Do you wish to install the DEM now?",
-                                 SystemUtils.getApplicationName(),
-                                 archiveSizeMB,
-                                 SystemUtils.getApplicationName());   /*I18N*/
+                        "The size of the DEM archive to be downloaded is %s MB,\n" +
+                        "total disk space for the DEM will be around 8x the archive size.\n" +
+                        "You can continue using %s while the DEM is installed.\n\n" +
+                        "Do you wish to install the DEM now?",
+                SystemUtils.getApplicationName(),
+                archiveSizeMB,
+                SystemUtils.getApplicationName());   /*I18N*/
         final int answer = JOptionPane.showConfirmDialog(parent,
-                                                         message,
-                                                         title,
-                                                         JOptionPane.YES_NO_OPTION,
-                                                         JOptionPane.QUESTION_MESSAGE);
+                message,
+                title,
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
         if (answer != JOptionPane.YES_OPTION) {
             return false;
         }
@@ -227,12 +227,12 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
         if (selectAnswer == JFileChooser.APPROVE_OPTION && selectedDir != null) {
             if (!selectedDir.exists()) {
                 final int createAnswer = JOptionPane.showConfirmDialog(parent,
-                                                                       "The selected directory\n" +
-                                                                               selectedDir.getPath() + "\n" +
-                                                                               "does not exists. Shall it be created?",
-                                                                       dialogTitle,
-                                                                       JOptionPane.YES_NO_OPTION,
-                                                                       JOptionPane.QUESTION_MESSAGE);
+                        "The selected directory\n" +
+                                selectedDir.getPath() + "\n" +
+                                "does not exists. Shall it be created?",
+                        dialogTitle,
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE);
                 if (createAnswer != JOptionPane.YES_OPTION) {
                     return null;
                 }

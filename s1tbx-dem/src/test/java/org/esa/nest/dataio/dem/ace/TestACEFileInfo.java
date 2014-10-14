@@ -15,20 +15,16 @@
  */
 package org.esa.nest.dataio.dem.ace;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.text.ParseException;
 
-
-public class TestACEFileInfo extends TestCase {
-
-    protected void setUp() throws Exception {
-    }
-
-    protected void tearDown() throws Exception {
-    }
+import static org.junit.Assert.*;
 
 
+public class TestACEFileInfo {
+
+    @Test
     public void testValidFileSize() {
         assertTrue(ACEFileInfo.isValidFileSize(2 * (1L * 1L)));
         assertTrue(ACEFileInfo.isValidFileSize(2 * (2L * 2L)));
@@ -52,6 +48,7 @@ public class TestACEFileInfo extends TestCase {
         assertFalse(ACEFileInfo.isValidFileSize(-76));
     }
 
+    @Test
     public void testExtractEastingNorthingWithValidStrings() throws ParseException {
         int[] values = ACEFileInfo.parseEastingNorthing("00N015W.ACE");
         assertNotNull(values);
@@ -66,6 +63,7 @@ public class TestACEFileInfo extends TestCase {
         assertEquals(-75, values[1]);
     }
 
+    @Test
     public void testExtractEastingNorthingWithInvalidStrings() {
         try {
             ACEFileInfo.parseEastingNorthing("020n10w");  // string length  = 7

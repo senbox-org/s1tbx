@@ -17,7 +17,6 @@ package org.esa.nest.dataio.dem;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-
 import org.esa.beam.BeamCoreActivator;
 import org.esa.beam.util.Guardian;
 
@@ -67,7 +66,7 @@ public class ElevationModelRegistry {
     public ElevationModelDescriptor[] getAllDescriptors() {
         return descriptors.getServices().toArray(new ElevationModelDescriptor[0]);
     }
-    
+
     // Initialization on demand holder idiom
     private static class Holder {
         private static final ElevationModelRegistry instance = new ElevationModelRegistry();

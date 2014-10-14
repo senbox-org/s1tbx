@@ -27,7 +27,6 @@ import java.net.URL;
  * specified geographical datum for a given geographical position.
  *
  * @author Norman Fomferra
-
  */
 public interface ElevationModelDescriptor {
 
@@ -94,12 +93,14 @@ public interface ElevationModelDescriptor {
 
     /**
      * Gets the number of tiles in x direction
+     *
      * @return number of rows
      */
     int getNumXTiles();
 
     /**
      * Gets the number of tiles in y direction
+     *
      * @return number of columns
      */
     int getNumYTiles();
@@ -156,7 +157,7 @@ public interface ElevationModelDescriptor {
      *
      * @param uiComponent an optional UI component which serves as parent for progress monitoring
      * @return true, if the DEM is already installed, is being installed or will be installed. False, if an error occured
-     *         or the user canceled the installation
+     * or the user canceled the installation
      */
     boolean installDemFiles(Object uiComponent);
 
@@ -167,6 +168,7 @@ public interface ElevationModelDescriptor {
 
     /**
      * create the file name of a tile based on the position
+     *
      * @param tileX x position
      * @param tileY y position
      * @return tile name

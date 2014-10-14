@@ -39,7 +39,7 @@ public class TestRemoveThermalNoiseOp {
 
     private final static OperatorSpi spi = new Sentinel1RemoveThermalNoiseOp.Spi();
 
-    final String s1ZipFilePath = TestUtils.rootPathTestProducts+"input\\S1\\S1A_S1_GRDM_1SDV_20140607T172812_20140607T172836_000947_000EBD_7543.zip";
+    final String s1ZipFilePath = TestUtils.rootPathTestProducts + "input\\S1\\S1A_S1_GRDM_1SDV_20140607T172812_20140607T172836_000947_000EBD_7543.zip";
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR", "GeoTIFF", "SCS_U"};
     private String[] exceptionExemptions = {"not supported",
@@ -66,12 +66,32 @@ public class TestRemoveThermalNoiseOp {
         assertEquals(1444.0, floatValues[2], 0.0001);
     }
 
-        /**
-         * Processes a product and compares it to processed product known to be correct
-         *
-         * @param inputFile    the path to the input product
-         * @throws Exception general exception
-         */
+    @Test
+    public void testProcessingS1_StripmapSLC() throws Exception {
+        final File inputFile = TestData.inputS1_StripmapSLC;
+        if (!inputFile.exists()) {
+            TestUtils.skipTest(this, inputFile + " not found");
+            return;
+        }
+        final Product targetProduct = processFile(inputFile);
+
+        final Band band = targetProduct.getBand("Intensity_VV");
+        assertNotNull(band);
+
+        final float[] floatValues = new float[8];
+        band.readPixels(0, 0, 4, 2, floatValues, ProgressMonitor.NULL);
+
+        assertEquals(629.0, floatValues[0], 0.0001);
+        assertEquals(2362.0, floatValues[1], 0.0001);
+        assertEquals(6065.0, floatValues[2], 0.0001);
+    }
+
+    /**
+     * Processes a product and compares it to processed product known to be correct
+     *
+     * @param inputFile the path to the input product
+     * @throws Exception general exception
+     */
     private static Product processFile(final File inputFile) throws Exception {
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 

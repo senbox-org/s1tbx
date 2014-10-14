@@ -61,7 +61,7 @@ public class ACE2_5MinReaderPlugIn implements ProductReaderPlugIn {
 
     /**
      * Returns an array containing the classes that represent valid input types for this reader.
-     * <p/>
+     * <p>
      * <p> Intances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
      * <code>ProductReader</code> interface (the method will not throw an <code>InvalidArgumentException</code> in this
      * case).
@@ -111,7 +111,7 @@ public class ACE2_5MinReaderPlugIn implements ProductReaderPlugIn {
     /**
      * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is
      * used.
-     * <p/>
+     * <p>
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used

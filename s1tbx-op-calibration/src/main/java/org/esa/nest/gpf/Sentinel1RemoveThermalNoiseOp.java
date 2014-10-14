@@ -71,7 +71,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private boolean inputBetaBand = false;
     private boolean inputGammaBand = false;
     private boolean inputDNBand = false;
-    private boolean isSLC = false;
+    private boolean isTOPSARSLC = false;
     private String productType = null;
     private int numOfSubSwath = 1;
     private ThermalNoiseInfo[] noise = null;
@@ -152,8 +152,9 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         if (!productType.equals("SLC") && !productType.equals("GRD")) {
             throw new OperatorException(productType + " is not a valid product type for Sentinel1 product");
         }
+        String mode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
 
-        isSLC = productType.equals("SLC");
+        isTOPSARSLC = productType.contains("SLC") && (mode.contains("IW") || mode.contains("EW"));
     }
 
     /**
@@ -386,7 +387,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             return sourceBandName;
         }
 
-        final String pol = sourceBandName.substring(sourceBandName.indexOf("_"));
+        final String pol = sourceBandName.substring(sourceBandName.indexOf('_'));
         return "Intensity" + pol;
     }
 
@@ -523,22 +524,20 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      * @param targetBandName Target band name.
      * @return The ThermalNoiseInfo object.
      */
-    private ThermalNoiseInfo getNoiseInfo(final String targetBandName) {
+    private ThermalNoiseInfo getNoiseInfo(final String targetBandName) throws OperatorException {
 
         for (ThermalNoiseInfo noiseInfo : noise) {
-            final String pol = noiseInfo.polarization;
-            final String ss = noiseInfo.subSwath;
-            if (isSLC) {
-                if (targetBandName.contains(pol) && targetBandName.contains(ss)) {
+            if (isTOPSARSLC) {
+                if (targetBandName.contains(noiseInfo.polarization) && targetBandName.contains(noiseInfo.subSwath)) {
                     return noiseInfo;
                 }
             } else {
-                if (targetBandName.contains(pol)) {
+                if (targetBandName.contains(noiseInfo.polarization)) {
                     return noiseInfo;
                 }
             }
         }
-        return null;
+        throw new OperatorException("NoiseInfo not found for "+targetBandName);
     }
 
     /**
@@ -552,7 +551,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         for (Sentinel1Calibrator.CalibrationInfo cal : calibration) {
             final String pol = cal.polarization;
             final String ss = cal.subSwath;
-            if (isSLC) {
+            if (isTOPSARSLC) {
                 if (targetBandName.contains(pol) && targetBandName.contains(ss)) {
                     return cal;
                 }
@@ -643,7 +642,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      * @param noiseInfo Object of ThermalNoiseInfo class.
      * @param lut       The noise LUT.
      */
-    private void computeTileNoiseLUT(final int y, final int x0, final int y0, final int w,
+    private static void computeTileNoiseLUT(final int y, final int x0, final int y0, final int w,
                                      final ThermalNoiseInfo noiseInfo, final double[] lut) {
 
         double v00, v01, v10, v11, muX, muY;
@@ -682,7 +681,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      * @return The noise vector index.
      */
     private static int getNoiseVectorIndex(final int y, final ThermalNoiseInfo noiseInfo) {
-
         for (int i = 0; i < noiseInfo.count; i++) {
             if (y < noiseInfo.noiseVectorList[i].line) {
                 return i - 1;

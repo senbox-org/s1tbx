@@ -15,62 +15,56 @@
  */
 package org.esa.nest.dataio.dem.ace;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
+import org.junit.Test;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import static org.junit.Assert.*;
 
-public class TestACEReaderPlugIn extends TestCase {
+public class TestACEReaderPlugIn {
 
-    private ACEReaderPlugIn _plugIn;
+    private ACEReaderPlugIn _plugIn = new ACEReaderPlugIn();
 
-    @Override
-    protected void setUp() throws Exception {
-        _plugIn = new ACEReaderPlugIn();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        _plugIn = null;
-    }
-
+    @Test
     public void testValidInputs() {
-        testValidInput("./ACE/00N015W.ACE");
-        testValidInput("./ACE/00N015W.ACE");
-        testValidInput("./ACE/00N015W.ACE");
+        checkValidInput("./ACE/00N015W.ACE");
+        checkValidInput("./ACE/00N015W.ACE");
+        checkValidInput("./ACE/00N015W.ACE");
     }
 
-    private void testValidInput(final String s) {
+    private void checkValidInput(final String s) {
         assertTrue(_plugIn.getDecodeQualification(s) == DecodeQualification.INTENDED);
         assertTrue(_plugIn.getDecodeQualification(new File(s)) == DecodeQualification.INTENDED);
     }
 
+    @Test
     public void testInvalidInputs() {
-        testInvalidInput("10n143w.ACE.zip");
-        testInvalidInput("./ACE/00N015W.ACE.zip");
-        testInvalidInput("./ACE/00N015W.ACE.zip");
-        testInvalidInput("./ACE/readme.txt");
-        testInvalidInput("./ACE/readme.txt.zip");
-        testInvalidInput("./ACE/readme");
-        testInvalidInput("./ACE/");
-        testInvalidInput("./");
-        testInvalidInput(".");
-        testInvalidInput("");
-        testInvalidInput("./ACE/.hgt");
-        testInvalidInput("./ACE/.hgt.zip");
-        testInvalidInput("./ACE/.hgt");
-        testInvalidInput("./ACE/.hgt.zip");
+        checkInvalidInput("10n143w.ACE.zip");
+        checkInvalidInput("./ACE/00N015W.ACE.zip");
+        checkInvalidInput("./ACE/00N015W.ACE.zip");
+        checkInvalidInput("./ACE/readme.txt");
+        checkInvalidInput("./ACE/readme.txt.zip");
+        checkInvalidInput("./ACE/readme");
+        checkInvalidInput("./ACE/");
+        checkInvalidInput("./");
+        checkInvalidInput(".");
+        checkInvalidInput("");
+        checkInvalidInput("./ACE/.hgt");
+        checkInvalidInput("./ACE/.hgt.zip");
+        checkInvalidInput("./ACE/.hgt");
+        checkInvalidInput("./ACE/.hgt.zip");
     }
 
-    private void testInvalidInput(final String s) {
+    private void checkInvalidInput(final String s) {
         assertEquals(DecodeQualification.UNABLE, _plugIn.getDecodeQualification(s));
         assertEquals(DecodeQualification.UNABLE, _plugIn.getDecodeQualification(new File(s)));
     }
 
+    @Test
     public void testThatOtherTypesCannotBeDecoded() throws MalformedURLException {
         assertEquals(DecodeQualification.UNABLE, _plugIn.getDecodeQualification(null));
         final URL url = new File("./ACE/readme.txt").toURI().toURL();
@@ -79,11 +73,13 @@ public class TestACEReaderPlugIn extends TestCase {
         assertEquals(DecodeQualification.UNABLE, _plugIn.getDecodeQualification(object));
     }
 
+    @Test
     public void testCreateReaderInstance() {
         final ProductReader reader = _plugIn.createReaderInstance();
         assertTrue(reader instanceof ACEReader);
     }
 
+    @Test
     public void testGetInputTypes() {
         final Class[] inputTypes = _plugIn.getInputTypes();
         assertNotNull(inputTypes);
@@ -92,6 +88,7 @@ public class TestACEReaderPlugIn extends TestCase {
         assertEquals(File.class, inputTypes[1]);
     }
 
+    @Test
     public void testGetFormatNames() {
         final String[] formatNames = _plugIn.getFormatNames();
         assertNotNull(formatNames);
@@ -99,6 +96,7 @@ public class TestACEReaderPlugIn extends TestCase {
         assertEquals("ACE", formatNames[0]);
     }
 
+    @Test
     public void testGetDefaultFileExtensions() {
         final String[] defaultFileExtensions = _plugIn.getDefaultFileExtensions();
         assertNotNull(defaultFileExtensions);

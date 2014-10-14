@@ -24,29 +24,30 @@ import org.esa.beam.framework.dataop.resamp.Resampling;
  * specified geographical datum for a given geographical position.
  *
  * @author Norman Fomferra
-
  */
 public interface ElevationModel {
 
     /**
      * Gets the descriptor of this DEM.
+     *
      * @return the descriptor which is never null
      */
     ElevationModelDescriptor getDescriptor();
 
     /**
      * Gets the elevation at the geographical coordinate in meters.
-     * @param geoPos  the geographical coordinate
-     * @return  an elevation in meters, or the special value returned by {@link ElevationModelDescriptor#getNoDataValue()} if an elevation is not available
-     * @exception Exception if a non-runtime error occurs, e.g I/O error
+     *
+     * @param geoPos the geographical coordinate
+     * @return an elevation in meters, or the special value returned by {@link ElevationModelDescriptor#getNoDataValue()} if an elevation is not available
+     * @throws Exception if a non-runtime error occurs, e.g I/O error
      */
     double getElevation(GeoPos geoPos) throws Exception;
 
     /**
      * Gets the pixel index in the DEM reference system at the geographical coordinate in meters.
      *
-     * @param geoPos  the geographical coordinate
-     * @return  (x,y) coordinates in the reference system of a given DEM
+     * @param geoPos the geographical coordinate
+     * @return (x, y) coordinates in the reference system of a given DEM
      * @throws Exception if a non-runtime error occurs, e.g I/O error
      */
     PixelPos getIndex(GeoPos geoPos) throws Exception;
@@ -54,8 +55,8 @@ public interface ElevationModel {
     /**
      * Gets the geographical coordinates for the input pixel coordinates in the DEM reference system.
      *
-     * @param pixelPos  the pixel (x,y) coordinate
-     * @return  (lat,lon) geographical coordinates in the reference system of a given DEM
+     * @param pixelPos the pixel (x,y) coordinate
+     * @return (lat, lon) geographical coordinates in the reference system of a given DEM
      * @throws Exception if a non-runtime error occurs, e.g I/O error
      */
     GeoPos getGeoPos(PixelPos pixelPos) throws Exception;
@@ -63,9 +64,9 @@ public interface ElevationModel {
     /**
      * Gets the elevation at the point defined by (x,y) coordinates in DEM reference system. This method does not interpolated the elevation map!
      *
-     * @param x  coordinate
-     * @param y  coordinate
-     * @return  an elevation in meters, or the special value returned by {@link ElevationModelDescriptor#getNoDataValue()} if an elevation is not available
+     * @param x coordinate
+     * @param y coordinate
+     * @return an elevation in meters, or the special value returned by {@link ElevationModelDescriptor#getNoDataValue()} if an elevation is not available
      * @throws Exception if a non-runtime error occurs, e.g I/O error
      */
     float getSample(double x, double y) throws Exception;
@@ -79,12 +80,12 @@ public interface ElevationModel {
     /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
-     * <p/>
+     * <p>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-     * <p/>
+     * <p>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
-     * <p/>
+     * <p>
      */
     void dispose();
 

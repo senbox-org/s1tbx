@@ -15,11 +15,16 @@
  */
 package org.esa.nest.dataio.dem.ace;
 
-import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.beam.framework.dataop.resamp.Resampling;
+import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.snap.util.TestUtils;
+import org.junit.Test;
+
+import java.util.Arrays;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by IntelliJ IDEA.
@@ -27,16 +32,15 @@ import org.esa.snap.util.TestUtils;
  * Date: Apr 25, 2008
  * To change this template use File | Settings | File Templates.
  */
-public class TestACEElevationModel extends TestCase {
+public class TestACEElevationModel {
 
+    private final ACEElevationModelDescriptor demDescriptor = new ACEElevationModelDescriptor();
 
-    final ACEElevationModelDescriptor demDescriptor = new ACEElevationModelDescriptor();
-
-    float[] expectedValues = {
-            1098.5f, 1148.25f, 1232.0f, 1311.0f, 999.75f, 731.75f, 766.5f, 582.75f, 461.25f, 485.0f, 452.0f, 833.25f,
-            614.25f, 393.0f, 525.75f, 2107.25f, 11.5f, 1529.75f, 655.25f, 185.5f, 96.25f, 820.0f, -500.0f, 1979.25f, 842.97363f
+    private static double[] expectedValues = {
+            1117.27197265625, 1164.29296875, 1092.7359619140625, 1047.0989990234375
     };
 
+    @Test
     public void testElevationModel() throws Exception {
 
         if (!demDescriptor.isDemInstalled()) {
@@ -45,12 +49,12 @@ public class TestACEElevationModel extends TestCase {
         }
 
         final ElevationModel dem = demDescriptor.createDem(Resampling.BILINEAR_INTERPOLATION);
-        final double[] demValues = new double[expectedValues.length];
+        int height = 2;
+        int width = 2;
+        final double[] demValues = new double[width*height];
         int count = 0;
 
         final GeoPos geoPos = new GeoPos(-18, 20);
-        int height = 5;
-        int width = 5;
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 geoPos.setLocation(geoPos.getLat() + x, geoPos.getLon() + y);
@@ -62,6 +66,6 @@ public class TestACEElevationModel extends TestCase {
             }
         }
 
-        //assertTrue(Arrays.equals(expectedValues, demValues));
+        assertTrue(Arrays.equals(expectedValues, demValues));
     }
 }

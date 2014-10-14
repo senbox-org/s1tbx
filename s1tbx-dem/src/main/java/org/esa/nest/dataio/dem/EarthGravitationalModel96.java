@@ -25,19 +25,19 @@ import java.util.StringTokenizer;
 
 /**
  * "WW15MGH.GRD"
- * <p/>
+ * <p>
  * This file contains 1038961 point values in grid form.  The first row of the file is the "header" of the file
  * and shows the south, north, west, and east limits of the file followed by the grid spacing in n-s and e-w.
  * All values in the "header" are in DECIMAL DEGREES.
- * <p/>
+ * <p>
  * The geoid undulation grid is computed at 15 arc minute spacings in north/south and east/west with the new
  * "EGM96" spherical harmonic potential coefficient set complete to degree and order 360 and a geoid height
  * correction value computed from a set of spherical harmonic coefficients ("CORRCOEF"), also to degree and
  * order 360.  The file is arranged from north to south, west to east (i.e., the data after the header is
  * the north most latitude band and is ordered from west to east).
- * <p/>
+ * <p>
  * The coverage of this file is:
- * <p/>
+ * <p>
  * 90.00 N  +------------------+
  * |                  |
  * | 15' spacing N/S  |

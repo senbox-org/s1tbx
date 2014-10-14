@@ -15,27 +15,25 @@
  */
 package org.esa.nest.dataio.dem;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.junit.Test;
 
 import java.util.Iterator;
+
+import static org.junit.Assert.assertEquals;
 
 /**
 
  */
-public class TestReaderLoadedAsService extends TestCase {
+public class TestReaderLoadedAsService {
 
+    @Test
     public void testACEReaderIsLoaded() {
-        testReaderIsLoaded("ACE");
+        checkReaderIsLoaded("ACE");
     }
 
-    public void testSRTM30ReaderIsLoaded() {
-        //testReaderIsLoaded("SRTM30");
-    }
-
-    private static void testReaderIsLoaded(String name) {
+    private static void checkReaderIsLoaded(String name) {
         int readerCount = 0;
         final ProductIOPlugInManager plugInManager = ProductIOPlugInManager.getInstance();
         final Iterator readerPlugIns = plugInManager.getReaderPlugIns(name);
@@ -46,7 +44,7 @@ public class TestReaderLoadedAsService extends TestCase {
             //System.out.println("readerPlugIn.Class = " + plugIn.getClass());
             //System.out.println("readerPlugIn.Descr = " + plugIn.getDescription(null));
         }
-        Assert.assertEquals(1, readerCount);
+        assertEquals(1, readerCount);
     }
 
 }

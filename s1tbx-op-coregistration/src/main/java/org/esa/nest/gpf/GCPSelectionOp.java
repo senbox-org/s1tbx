@@ -158,6 +158,7 @@ public class GCPSelectionOp extends Operator {
     private final static double TINY = 1.0e-20;
     private final static double CGOLD = 0.3819660; // CGOLD is the golden ratio;
     private final static double ZEPS = 1.0e-10;    // ZEPS is a small number that protects against trying to achieve fractional
+    private final static double MaxInvalidPixelPercentage = 0.66; // maximum percentage of invalid pixels allowed in xcorrelation
 
     private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
     private final Map<Band, Band> complexSrcMap = new HashMap<>(10);
@@ -844,6 +845,7 @@ public class GCPSelectionOp extends Operator {
             final TileIndex mstIndex = new TileIndex(masterImagetteRaster1);
 
             int k = 0;
+            int numInvalidPixels = 0;
             for (int j = 0; j < cWindowHeight; j++) {
                 final int offset = mstIndex.calculateStride(yul + j);
                 for (int i = 0; i < cWindowWidth; i++) {
@@ -851,14 +853,14 @@ public class GCPSelectionOp extends Operator {
                     if (complexCoregistration) {
                         final double v1 = masterData1.getElemDoubleAt(index);
                         final double v2 = masterData2.getElemDoubleAt(index);
-                        if (v1 == noDataValue1 || v2 == noDataValue2) {
-                            return false;
+                        if (v1 == noDataValue1 && v2 == noDataValue2) {
+                            numInvalidPixels++;
                         }
                         mI[k++] = v1 * v1 + v2 * v2;
                     } else {
                         final double v = masterData1.getElemDoubleAt(index);
                         if (v == noDataValue1) {
-                            return false;
+                            numInvalidPixels++;
                         }
                         mI[k++] = v;
                     }
@@ -868,6 +870,10 @@ public class GCPSelectionOp extends Operator {
             masterData1.dispose();
             if (masterData2 != null)
                 masterData2.dispose();
+
+            if (numInvalidPixels > MaxInvalidPixelPercentage*cWindowHeight*cWindowWidth) {
+                return false;
+            }
             return true;
 
         } catch (Throwable e) {
@@ -904,6 +910,7 @@ public class GCPSelectionOp extends Operator {
             final TileIndex index0 = new TileIndex(slaveImagetteRaster1);
             final TileIndex index1 = new TileIndex(slaveImagetteRaster1);
 
+            int numInvalidPixels = 0;
             for (int j = 0; j < cWindowHeight; j++) {
                 final double y = yy - cHalfWindowHeight + j + 1;
                 final int y0 = (int) y;
@@ -934,8 +941,8 @@ public class GCPSelectionOp extends Operator {
                                 slaveData2.getElemDoubleAt(x10),
                                 slaveData2.getElemDoubleAt(x11));
 
-                        if (v1 == noDataValue1 || v2 == noDataValue2) {
-                            return false;
+                        if (v1 == noDataValue1 && v2 == noDataValue2) {
+                            numInvalidPixels++;
                         }
                         sI[k] = v1 * v1 + v2 * v2;
                     } else {
@@ -946,7 +953,7 @@ public class GCPSelectionOp extends Operator {
                                 slaveData1.getElemDoubleAt(x11));
 
                         if (v == noDataValue1) {
-                            return false;
+                            numInvalidPixels++;
                         }
                         sI[k] = v;
                     }
@@ -956,6 +963,10 @@ public class GCPSelectionOp extends Operator {
             slaveData1.dispose();
             if (slaveData2 != null)
                 slaveData2.dispose();
+
+            if (numInvalidPixels > MaxInvalidPixelPercentage*cWindowHeight*cWindowWidth) {
+                return false;
+            }
             return true;
 
         } catch (Throwable e) {
