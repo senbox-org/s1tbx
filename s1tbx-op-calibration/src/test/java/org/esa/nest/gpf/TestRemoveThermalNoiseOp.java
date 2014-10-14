@@ -15,13 +15,17 @@
  */
 package org.esa.nest.gpf;
 
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
 import java.io.File;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -43,24 +47,32 @@ public class TestRemoveThermalNoiseOp {
             "Cannot apply calibration to coregistered product"};
 
     @Test
-    public void testProcessingGRD() throws Exception {
-        processFile(s1ZipFilePath, null);
-    }
-
-    /**
-     * Processes a product and compares it to processed product known to be correct
-     *
-     * @param inputPath    the path to the input product
-     * @param expectedPath the path to the expected product
-     * @throws Exception general exception
-     */
-    public void processFile(String inputPath, String expectedPath) throws Exception {
-        final File inputFile = new File(inputPath);
+    public void testProcessingS1_GRD() throws Exception {
+        final File inputFile = TestData.inputS1_GRD;
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputPath + " not found");
+            TestUtils.skipTest(this, inputFile + " not found");
             return;
         }
+        final Product targetProduct = processFile(inputFile);
 
+        final Band band = targetProduct.getBand("Intensity_VV");
+        assertNotNull(band);
+
+        final float[] floatValues = new float[8];
+        band.readPixels(0, 0, 4, 2, floatValues, ProgressMonitor.NULL);
+
+        assertEquals(1024.0, floatValues[0], 0.0001);
+        assertEquals(1024.0, floatValues[1], 0.0001);
+        assertEquals(1444.0, floatValues[2], 0.0001);
+    }
+
+        /**
+         * Processes a product and compares it to processed product known to be correct
+         *
+         * @param inputFile    the path to the input product
+         * @throws Exception general exception
+         */
+    private static Product processFile(final File inputFile) throws Exception {
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final Sentinel1RemoveThermalNoiseOp op = (Sentinel1RemoveThermalNoiseOp) spi.createOperator();
@@ -69,7 +81,8 @@ public class TestRemoveThermalNoiseOp {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
+        TestUtils.verifyProduct(targetProduct, true, true, true);
+        return targetProduct;
     }
 
     @Test
