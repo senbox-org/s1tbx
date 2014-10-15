@@ -4,7 +4,8 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="DAT">
+    <tocitem text="Sentinel Toolbox Application">
+        <tocitem text="Tools">
             <tocitem text="Time Series Tool">
                 <tocitem text="Time Series Manager" target="timeSeriesManager"/>
                 <tocitem text="Time Series Graph" target="timeSeriesGraph"/>
@@ -12,6 +13,7 @@
                 <tocitem text="Time Series Matrix" target="timeSeriesMatrix"/>
                 <tocitem text="Export Time Series as Google Earth KMZ-file" target="kmzExport"/>
             </tocitem>
+        </tocitem>
     </tocitem>
 
 </toc>

@@ -20,10 +20,12 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="DAT">
-            <tocitem text="Product Writers">
+    <tocitem text="Sentinel Toolbox Application">
+        <tocitem text="Tools">
+            <tocitem text="Import and Export Tools">
                 <tocitem text="Extract Pixel Values" target="pixelExtraction"/>
             </tocitem>
+        </tocitem>
     </tocitem>
 
 </toc>
