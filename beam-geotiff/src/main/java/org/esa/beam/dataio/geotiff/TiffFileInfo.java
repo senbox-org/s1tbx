@@ -16,9 +16,9 @@
 package org.esa.beam.dataio.geotiff;
 
 import com.bc.ceres.core.Assert;
-import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
-import com.sun.media.imageio.plugins.tiff.TIFFDirectory;
-import com.sun.media.imageio.plugins.tiff.TIFFField;
+import it.geosolutions.imageio.plugins.tiff.GeoTIFFTagSet;
+import it.geosolutions.imageio.plugins.tiff.TIFFDirectory;
+import it.geosolutions.imageio.plugins.tiff.TIFFField;
 import org.esa.beam.dataio.geotiff.internal.GeoKeyEntry;
 import org.esa.beam.dataio.geotiff.internal.GeoKeyHeader;
 import org.esa.beam.framework.dataio.ProductIOException;

@@ -16,13 +16,13 @@
 package org.esa.beam.dataio.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.sun.media.imageio.plugins.tiff.BaselineTIFFTagSet;
-import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
-import com.sun.media.imageio.plugins.tiff.TIFFField;
-import com.sun.media.imageio.plugins.tiff.TIFFTag;
-import com.sun.media.imageioimpl.plugins.tiff.TIFFImageMetadata;
-import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
-import com.sun.media.imageioimpl.plugins.tiff.TIFFRenderedImage;
+import it.geosolutions.imageio.plugins.tiff.BaselineTIFFTagSet;
+import it.geosolutions.imageio.plugins.tiff.GeoTIFFTagSet;
+import it.geosolutions.imageio.plugins.tiff.TIFFField;
+import it.geosolutions.imageio.plugins.tiff.TIFFTag;
+import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageMetadata;
+import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
+import it.geosolutions.imageioimpl.plugins.tiff.TIFFRenderedImage;
 import org.esa.beam.dataio.dimap.DimapProductHelpers;
 import org.esa.beam.dataio.geotiff.internal.GeoKeyEntry;
 import org.esa.beam.framework.dataio.AbstractProductReader;
@@ -445,7 +445,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
     }
 
-    private boolean isGlobal(Product product, TiffFileInfo info) {
+    private static boolean isGlobal(Product product, TiffFileInfo info) {
         boolean isGlobal = false;
         final TIFFField pixelScaleField = info.getField(GeoTIFFTagSet.TAG_MODEL_PIXEL_SCALE);
         if (pixelScaleField != null) {
@@ -460,7 +460,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         return isGlobal;
     }
 
-    private boolean isPixelScaleValid(double[] pixelScales) {
+    private static boolean isPixelScaleValid(double[] pixelScales) {
         return pixelScales != null &&
                !Double.isNaN(pixelScales[0]) && !Double.isInfinite(pixelScales[0]) &&
                !Double.isNaN(pixelScales[1]) && !Double.isInfinite(pixelScales[1]);
