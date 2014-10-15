@@ -28,8 +28,8 @@ s1tbx.test.subsetY = 100
 s1tbx.test.subsetWidth = 100
 s1tbx.test.subsetHeight = 100
 
-s1tbx.test.rootPathTestProducts = 		P:\\nest\\nest\\ESA Data\\test\\
-s1tbx.test.rootPathSentinel1 = 			P:\\s1tbx\\s1tbx\\Data\\First Images
+s1tbx.test.rootPathTestProducts = 		${SNAP_HOME}\\..\\testdata\\
+s1tbx.test.rootPathSentinel1 = 			P:\\s1tbx\\s1tbx\\Data\\
 s1tbx.test.rootPathTerraSarX = 			P:\\nest\\nest\\ESA Data\\RADAR\\TerraSarX
 s1tbx.test.rootPathASAR= 				P:\\nest\\nest\\ESA Data\\RADAR\\ASAR
 s1tbx.test.rootPathRadarsat2 = 			P:\\nest\\nest\\ESA Data\\RADAR\\Radarsat2
@@ -39,7 +39,6 @@ s1tbx.test.rootPathERS = 				P:\\nest\\nest\\ESA Data\\RADAR\\ERS_products
 #s1tbx.test.rootPathALOS = 				P:\\nest\\nest\\ESA Data\\RADAR\\ALOS PALSAR
 s1tbx.test.rootPathCosmoSkymed = 		P:\\nest\\nest\\ESA Data\\RADAR\\Cosmo
 s1tbx.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\NestBox
-#s1tbx.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\RADAR\\Global Monitoring Mode
 
 ####################################################################################
 #Automated Graph Processing and Product Comparison of Expected Results
