@@ -4,7 +4,7 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="Graph Processing">
+    <tocitem text="Data Processors">
         <tocitem text="Sentinel-1">
             <tocitem text="Sentinel1 SLC to GRD" target="Sentinel1SLCtoGRD"/>
             <tocitem text="TOPSAR Deburst" target="TOPSARDeburstOp"/>

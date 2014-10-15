@@ -12,7 +12,7 @@
         <tocitem text="Abstracted Metadata" target="AbstractedMetadata"/>
     </tocitem>
 
-    <tocitem text="DAT">
+    <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Display and Analysis Tool" target="dat"/>
 
         <tocitem text="Tool Views">

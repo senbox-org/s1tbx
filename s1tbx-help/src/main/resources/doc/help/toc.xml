@@ -12,10 +12,10 @@
         <tocitem text="Supported Products" target="SupportedProducts"/>
     </tocitem>
 
-    <tocitem text="DAT">
+    <tocitem text="Sentinel Toolbox Application">
     </tocitem>
 
-    <tocitem text="Graph Processing">
+    <tocitem text="Data Processors">
         <tocitem text="Introduction" target="introduction"/>
         <tocitem text="Graph Tools">
             <tocitem text="Graph Processing Tool" target="gpt"/>
