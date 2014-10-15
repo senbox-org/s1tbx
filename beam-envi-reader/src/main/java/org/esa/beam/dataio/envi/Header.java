@@ -135,7 +135,7 @@ public class Header {
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
-    private EnviMapInfo parseMapInfo(String line) {
+    private static EnviMapInfo parseMapInfo(String line) {
         try {
             EnviMapInfo mapInfo = new EnviMapInfo();
             final StringTokenizer tokenizer = createTokenizerFromLine(line);
@@ -151,7 +151,7 @@ public class Header {
                 mapInfo.setUtmHemisphere(tokenizer.nextToken().trim());
             }
             mapInfo.setDatum(tokenizer.nextToken().trim());
-            while(tokenizer.hasMoreTokens()) {
+            while (tokenizer.hasMoreTokens()) {
                 String token = tokenizer.nextToken().trim();
                 if (token.startsWith("units=")) {
                     mapInfo.setUnit(token.substring("units=".length()));
@@ -171,7 +171,7 @@ public class Header {
         return new StringTokenizer(line, ",");
     }
 
-    private EnviProjectionInfo parseProjectionInfo(String line) {
+    private static EnviProjectionInfo parseProjectionInfo(String line) {
         EnviProjectionInfo projectionInfo = new EnviProjectionInfo();
         final StringTokenizer tokenizer = createTokenizerFromLine(line);
         projectionInfo.setProjectionNumber(Integer.parseInt(tokenizer.nextToken().trim()));
@@ -197,7 +197,7 @@ public class Header {
         return projectionInfo;
     }
 
-    private BeamProperties parseBeamProperties(final String txt)  {
+    private static BeamProperties parseBeamProperties(final String txt) {
         if (txt != null && txt.contains(BEAM_PROPERTIES)) {
             final int propsIdx = txt.indexOf(BEAM_PROPERTIES);
             final int openIdx = txt.indexOf('[', propsIdx);
@@ -229,13 +229,16 @@ public class Header {
     public MetadataElement getAsMetadata() {
         MetadataElement headerElem = new MetadataElement("Header");
         for (Map.Entry<String, String> entry : headerParser.getHeaderEntries()) {
-            headerElem.setAttributeString(entry.getKey(), entry.getValue());
+            // empty strings are not allowed
+            String value = entry.getValue().isEmpty() ? " " : entry.getValue();
+            headerElem.setAttributeString(entry.getKey(), value);
         }
         Set<Map.Entry<String, String>> historyEntries = headerParser.getHistoryEntries();
         if (!historyEntries.isEmpty()) {
             MetadataElement historyElem = new MetadataElement("History");
             for (Map.Entry<String, String> entry : historyEntries) {
-                historyElem.setAttributeString(entry.getKey(), entry.getValue());
+                String value = entry.getValue().isEmpty() ? " " : entry.getValue();
+                historyElem.setAttributeString(entry.getKey(), value);
             }
             headerElem.addElement(historyElem);
         }
