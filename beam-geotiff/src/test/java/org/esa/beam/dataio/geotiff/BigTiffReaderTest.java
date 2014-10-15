@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,71 +13,46 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-
 package org.esa.beam.dataio.geotiff;
 
-import it.geosolutions.imageioimpl.plugins.tiff.TIFFRenderedImage;
-import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
-import junit.framework.TestCase;
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
 import org.junit.Test;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.MemoryCacheImageInputStream;
+import javax.imageio.stream.FileCacheImageInputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.FileInputStream;
-import java.util.Iterator;
+import java.net.URL;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 /**
- * TiffHeader Tester.
+ * BigTiff reading
  *
- * @author <Authors name>
- * @version 1.0
- * @since <pre>02/11/2005</pre>
+ * @author Serge Stankovic
  */
 
-public class BigTiffReaderTest extends TestCase {
-
-    @Override
-    public void setUp() throws Exception {
-        //TestUtils.initTestEnvironment();
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-    }
+public class BigTiffReaderTest {
 
     @Test
     public void testReadImageFile() throws IOException {
+        final URL resource = getClass().getResource("tiger-minisblack-strip-16.tif");
+        final String filePath = resource.getFile();
+        final GeoTiffProductReader reader = new GeoTiffProductReader(new GeoTiffProductReaderPlugIn());
+        final Product product = reader.readGeoTIFFProduct(new FileCacheImageInputStream(resource.openStream(), null), new File(filePath));
+        assertNotNull(product);
 
-        //String filePath = "\\\\fileserver\\Projects\\s1tbx\\s1tbx\\Data\\InSAR\\NapaValley\\S1A_S1_SLC__1SSV_20140807T142342_20140807T142411_001835_001BC1_05AA.SAFE\\measurement\\";
-        //String fileName = "s1a-s1-slc-vv-20140807t142342-20140807t142411-001835-001bc1-001.tiff";
-        String filePath = "C:\\beam\\";
-        String fileName = "temp.tif";
-        FileInputStream inputStream = new FileInputStream(filePath + fileName);
-        //ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());
-        final MemoryCacheImageInputStream imageStream = new MemoryCacheImageInputStream(inputStream);
-        Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageStream);
-        TIFFImageReader imageReader = null;
-        while(imageReaders.hasNext()) {
-            final ImageReader nextReader = imageReaders.next();
-            if (nextReader instanceof TIFFImageReader) {
-                imageReader = (TIFFImageReader) nextReader;
-            }
-        }
-        if (imageReader == null) {
-            throw new IllegalStateException("No TIFFImageReader found");
-        }
+        final Band band = product.getBandAt(0);
+        assertNotNull(band);
 
-        imageReader.setInput(imageStream);
-        //assertEquals(1, imageReader.getNumImages(true));
+        final int[] pixels = new int[band.getRasterWidth() * band.getRasterHeight()];
+        band.readPixels(0, 0, band.getRasterWidth(), band.getRasterHeight(), pixels, ProgressMonitor.NULL);
 
-        final ImageReadParam readParam = imageReader.getDefaultReadParam();
-        TIFFRenderedImage image = (TIFFRenderedImage) imageReader.readAsRenderedImage(0, readParam);
-        //System.out.println("image " + image);
-        //assertEquals(1, image.getSampleModel().getNumBands());
-        inputStream.close();
+        assertEquals(52428, pixels[20]);
+        assertEquals(18295, pixels[40]);
+        assertEquals(52418, pixels[60]);
     }
 }

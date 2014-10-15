@@ -57,6 +57,7 @@ import java.util.regex.Pattern;
  */
 public class LandsatGeotiffReader extends AbstractProductReader {
 
+    private static final String SYSPROP_DO_NOT_SCALE_TO_PAN_RESOLUTION = "s3tbx.landsat.doNotScaleToPanResolution";
     private static final String UNITS = "W/(m^2*sr*µm)";
 
     private LandsatMetadata landsatMetadata;
@@ -92,7 +93,9 @@ public class LandsatGeotiffReader extends AbstractProductReader {
         Dimension productDim = new Dimension(0, 0);
         productDim = max(productDim, refDim);
         productDim = max(productDim, thmDim);
-        productDim = max(productDim, panDim);
+        if (!Boolean.getBoolean(SYSPROP_DO_NOT_SCALE_TO_PAN_RESOLUTION)) {
+            productDim = max(productDim, panDim);
+        }
 
         MetadataElement metadataElement = landsatMetadata.getMetaDataElementRoot();
         Product product = new Product(getProductName(mtlFile), landsatMetadata.getProductType(), productDim.width, productDim.height);
