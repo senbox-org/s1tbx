@@ -20,7 +20,7 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="VISAT">
+    <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Tools">
             <tocitem text="Import and Export Tools">
                 <tocitem text="Extract Pixel Values" target="pixelExtraction"/>
