@@ -30,7 +30,7 @@ import java.util.regex.Matcher;
 public final class Settings {
 
     private static Settings _instance = null;
-    private final PropertyMap auxdataConfig = new PropertyMap();
+    private final PropertiesMap auxdataConfig = new PropertiesMap();
 
     /**
      * @return The unique instance of this class.
@@ -52,52 +52,8 @@ public final class Settings {
         return (osName.toLowerCase().contains("win"));
     }
 
-    private static String resolve(final PropertyMap prop, final String value) {
-        final int idx1 = value.indexOf("${");
-        final int idx2 = value.indexOf('}') + 1;
-        final String keyWord = value.substring(idx1 + 2, idx2 - 1);
-        final String fullKey = value.substring(idx1, idx2);
-
-        String out;
-        final String property = System.getProperty(keyWord);
-        if (property != null && property.length() > 0) {
-            out = value.replace(fullKey, property);
-        } else {
-            final String env = null; //System.getenv(keyWord);
-            if (env != null && env.length() > 0) {
-                out = value.replace(fullKey, env);
-            } else {
-                final String settingStr = prop.getPropertyString(keyWord);
-                if (settingStr != null && settingStr.length() > 0) {
-                    out = value.replace(fullKey, settingStr);
-                } else {
-                    if (keyWord.equalsIgnoreCase("AuxDataPath")) {
-                        File auxFolder = getAuxDataFolder();
-                        out = value.replace(fullKey, auxFolder.getPath());
-                    } else if (keyWord.equalsIgnoreCase(ResourceUtils.getContextID() + ".home") || keyWord.equalsIgnoreCase("NEST_HOME")
-                            || keyWord.equalsIgnoreCase("SNAP_HOME")) {
-                        out = value.replace(fullKey, ResourceUtils.findHomeFolder().getAbsolutePath());
-                    } else {
-                        out = value.replace(fullKey, keyWord);
-                    }
-                }
-            }
-        }
-
-        if (out.contains("${"))
-            out = resolve(prop, out);
-
-        return out;
-    }
-
     public String get(final String key) {
-        String val = auxdataConfig.getPropertyString(key);
-        if (val != null && val.contains("${")) {
-            val = resolve(auxdataConfig, val);
-        }
-        val = val.replaceAll(Matcher.quoteReplacement("/"), Matcher.quoteReplacement(File.separator));
-        val = val.replaceAll(Matcher.quoteReplacement("\\"), Matcher.quoteReplacement(File.separator));
-        return val;
+        return auxdataConfig.getPropertyPath(key);
     }
 
     public PropertyMap getAuxdataProperty() {
@@ -113,8 +69,6 @@ public final class Settings {
                 auxDataPath = SystemUtils.getUserHomeDir()+File.separator+"AuxData";
             }
         }
-        if (auxDataPath == null)
-            return new File(SystemUtils.getApplicationDataDir(true), "AuxData");
         return new File(auxDataPath);
     }
 }

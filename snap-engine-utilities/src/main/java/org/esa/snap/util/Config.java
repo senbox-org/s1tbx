@@ -15,7 +15,6 @@
  */
 package org.esa.snap.util;
 
-import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
@@ -31,8 +30,8 @@ import java.util.Map;
  */
 public class Config {
 
-    private final PropertyMap appConfig = new PropertyMap();
-    private final Map<String, PropertyMap> testPrefs = new HashMap<String, PropertyMap>(10);
+    private final PropertiesMap appConfig = new PropertiesMap();
+    private final Map<String, PropertiesMap> testPrefs = new HashMap<>(10);
     private static Config _instance = null;
 
     public static Config instance() {
@@ -46,7 +45,7 @@ public class Config {
         load(appConfig, new File(SystemUtils.getApplicationHomeDir(), "config" + File.separator + SystemUtils.getApplicationContextId() + ".config"));
     }
 
-    public static void load(final PropertyMap propMap, final File file) {
+    public static void load(final PropertiesMap propMap, final File file) {
         if (!file.exists()) {
             BeamLogManager.getSystemLogger().severe(file.getAbsolutePath() + " not found");
         }
@@ -63,7 +62,7 @@ public class Config {
         final File[] testFiles = getTestFiles(new File(SystemUtils.getApplicationHomeDir(), "config"));
         for (File testFile : testFiles) {
             try {
-                PropertyMap testPref = new PropertyMap();
+                final PropertiesMap testPref = new PropertiesMap();
                 testPref.load(testFile);
                 testPrefs.put(testFile.getName(), testPref);
 
@@ -74,7 +73,7 @@ public class Config {
     }
 
     private static File[] getTestFiles(final File folder) {
-        final List<File> testFiles = new ArrayList<File>(10);
+        final List<File> testFiles = new ArrayList<>(10);
         final File[] files = folder.listFiles();
         if (files != null) {
             for (File file : files) {
@@ -86,11 +85,11 @@ public class Config {
         return testFiles.toArray(new File[testFiles.size()]);
     }
 
-    public static PropertyMap getAppConfigPropertyMap() {
+    public static PropertiesMap getAppConfigPropertyMap() {
         return instance().appConfig;
     }
 
-    public static PropertyMap getAutomatedTestConfigPropertyMap(final String name) {
+    public static PropertiesMap getAutomatedTestConfigPropertyMap(final String name) {
         if (instance().testPrefs.isEmpty()) {
             instance().loadTestConfigs();
         }
