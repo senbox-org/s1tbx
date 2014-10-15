@@ -17,6 +17,7 @@
 package org.esa.beam.jai;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
@@ -31,6 +32,7 @@ import org.junit.Test;
 import java.awt.Color;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.io.File;
 import java.util.Arrays;
 
 /**
@@ -42,7 +44,7 @@ public class ImageManagerUncertaintyTest {
     public static final int SIZE = 4;
     public static final int WIDTH = SIZE;
     public static final int HEIGHT = SIZE;
-    public static final Color NO_DATA_COLOR = new Color(0, 0, 0, 0);
+    public static final Color TRANSPARENCY = new Color(0, 0, 0, 0);
     public static final String[] CHANNELS = new String[]{"R", "G", "B", "A"};
 
     private Product product;
@@ -71,7 +73,7 @@ public class ImageManagerUncertaintyTest {
                 new ColorPaletteDef.Point(2, Color.BLUE),
                 new ColorPaletteDef.Point(3, Color.WHITE),
         }));
-        valueImageInfo.setNoDataColor(NO_DATA_COLOR);
+        valueImageInfo.setNoDataColor(TRANSPARENCY);
 
         ImageInfo errorImageInfo = new ImageInfo(new ColorPaletteDef(new ColorPaletteDef.Point[]{
                 new ColorPaletteDef.Point(1, Color.WHITE),
@@ -80,7 +82,7 @@ public class ImageManagerUncertaintyTest {
         }));
         errorImageInfo.setNoDataColor(Color.YELLOW);
 
-        Product product = new Product("test", "test", WIDTH, HEIGHT);
+        Product product = new Product("SNAP-5", "SNAP-5", WIDTH, HEIGHT);
 
         valueBand = product.addBand("value", ProductData.TYPE_UINT16);
         valueBand.setSourceImage(ImageUtils.createRenderedImage(WIDTH, HEIGHT, ProductData.createInstance(valueData)));
@@ -98,6 +100,10 @@ public class ImageManagerUncertaintyTest {
 
         valueBand.setAncillaryBand("error", errorBand);
 
+        File file = new File("SNAP-5.dim");
+        if (!file.exists()) {
+            ProductIO.writeProduct(product, file, "BEAM-DIMAP", false);
+        }
     }
 
     @Test
@@ -147,28 +153,28 @@ public class ImageManagerUncertaintyTest {
         Color[][] expectedImage = new Color[][]{
                 /*y=0*/
                 {
-                        new Color(0, 0, 0, 0),
+                        new Color(255, 255, 0, 255),
                         new Color(0, 0, 0, 0),
                         new Color(0, 0, 0, 0),
                         new Color(0, 0, 0, 0)
                 },
                 /*y=1*/
                 {
-                        new Color(0, 0, 0, 255),
+                        new Color(255, 255, 0, 255),
                         new Color(0, 0, 0, 255),
                         new Color(0, 0, 0, 128),
                         new Color(0, 0, 0, 0)
                 },
                 /*y=2*/
                 {
-                        new Color(1, 1, 255, 255),
+                        new Color(255, 255, 0, 255),
                         new Color(1, 1, 255, 255),
                         new Color(1, 1, 255, 128),
                         new Color(0, 0, 0, 0)
                 },
                 /*y=3*/
                 {
-                        new Color(255, 255, 255, 255),
+                        new Color(255, 255, 0, 255),
                         new Color(255, 255, 255, 255),
                         new Color(255, 255, 255, 128),
                         new Color(0, 0, 0, 0)
@@ -186,28 +192,28 @@ public class ImageManagerUncertaintyTest {
         Color[][] expectedImage = new Color[][]{
                 /*y=0*/
                 {
-                        new Color(255, 0, 0, 255),
-                        new Color(255, 0, 0, 255),
-                        new Color(255, 0, 0, 255),
-                        new Color(255, 0, 0, 255)
+                        new Color(255, 255, 0, 255),
+                        new Color(0, 0, 0, 0),
+                        new Color(0, 0, 0, 0),
+                        new Color(0, 0, 0, 0),
                 },
                 /*y=1*/
                 {
-                        new Color(0, 0, 0, 255),
+                        new Color(255, 255, 0, 255),
                         new Color(0, 0, 0, 255),
                         new Color(126, 0, 0, 255),
                         new Color(255, 0, 0, 255)
                 },
                 /*y=2*/
                 {
-                        new Color(1, 1, 255, 255),
+                        new Color(255, 255, 0, 255),
                         new Color(1, 1, 255, 255),
                         new Color(127, 0, 128, 255),
                         new Color(255, 0, 0, 255)
                 },
                 /*y=3*/
                 {
-                        new Color(255, 255, 255, 255),
+                        new Color(255, 255, 0, 255),
                         new Color(255, 255, 255, 255),
                         new Color(255, 128, 128, 255),
                         new Color(255, 0, 0, 255)
@@ -226,27 +232,27 @@ public class ImageManagerUncertaintyTest {
                 /*y=0*/
                 {
                         new Color(255, 255, 0, 255),
-                        new Color(255, 255, 255, 255),
-                        new Color(255, 127, 127, 255),
-                        new Color(255, 0, 0, 255)
+                        new Color(0, 0, 0, 0),
+                        new Color(0, 0, 0, 0),
+                        new Color(0, 0, 0, 0),
                 },
                 /*y=1*/
                 {
-                        new Color(0, 0, 0, 255),
+                        new Color(255, 255, 0, 255),
                         new Color(0, 0, 0, 255),
                         new Color(126, 63, 63, 255),
                         new Color(255, 0, 0, 255)
                 },
                 /*y=2*/
                 {
-                        new Color(1, 1, 255, 255),
+                        new Color(255, 255, 0, 255),
                         new Color(1, 1, 255, 255),
                         new Color(127, 63, 191, 255),
                         new Color(255, 0, 0, 255)
                 },
                 /*y=3*/
                 {
-                        new Color(255, 255, 255, 255),
+                        new Color(255, 255, 0, 255),
                         new Color(255, 255, 255, 255),
                         new Color(255, 191, 191, 255),
                         new Color(255, 0, 0, 255)
@@ -265,27 +271,27 @@ public class ImageManagerUncertaintyTest {
                 /*y=0*/
                 {
                         new Color(255, 255, 0, 255),
-                        new Color(255, 255, 255, 255),
-                        new Color(255, 127, 127, 255),
-                        new Color(255, 0, 0, 255),
+                        new Color(0, 0, 0, 0),
+                        new Color(0, 0, 0, 0),
+                        new Color(0, 0, 0, 0),
                 },
                 /*y=1*/
                 {
-                        new Color(127, 127, 0, 255),
+                        new Color(255, 255, 0, 255),
                         new Color(127, 127, 127, 255),
                         new Color(127, 63, 63, 255),
                         new Color(127, 0, 0, 255),
                 },
                 /*y=2*/
                 {
-                        new Color(128, 128, 127, 255),
+                        new Color(255, 255, 0, 255),
                         new Color(128, 128, 255, 255),
                         new Color(128, 64, 190, 255),
                         new Color(128, 0, 127, 255),
                 },
                 /*y=3*/
                 {
-                        new Color(255, 255, 127, 255),
+                        new Color(255, 255, 0, 255),
                         new Color(255, 255, 255, 255),
                         new Color(255, 190, 190, 255),
                         new Color(255, 127, 127, 255),

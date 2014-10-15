@@ -394,14 +394,15 @@ public class ImageManager {
         PlanarImage valueImage = createByteIndexedImage(valueBand, sourceImage, valueImageInfo);
         valueImage = createMatchCdfImage(valueImage, valueImageInfo.getHistogramMatching(), new Stx[]{valueBand.getStx()});
         valueImage = createLookupRgbImage(valueBand, valueImage, valueImageInfo);
-        PlanarImage validMaskImage = getValidMaskImage(valueBand, level);
-        if (validMaskImage != null) {
-            valueImage = maskRgbImage(valueImage, validMaskImage, valueImageInfo.getNoDataColor());
-        }
+        PlanarImage valueValidMaskImage = getValidMaskImage(valueBand, level);
         RasterDataNode uncertaintyBand = getUncertaintyBand(valueBand);
         if (uncertaintyBand != null) {
+            if (valueValidMaskImage != null) {
+                valueImage = maskRgbImage(valueImage, valueValidMaskImage, valueImageInfo.getNoDataColor());
+            }
             ImageInfo uncertaintyImageInfo = uncertaintyBand.getImageInfo(ProgressMonitor.NULL);
             PlanarImage uncertaintySourceImage = getSourceImage(uncertaintyBand, level);
+            PlanarImage uncertaintyValidMaskImage = getValidMaskImage(uncertaintyBand, level);
             if (uncertaintyImageInfo.getUncertaintyVisualisationMode() == ImageInfo.UncertaintyVisualisationMode.Transparency_Blending) {
                 PlanarImage uncertaintyImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, true);
                 valueImage = maskRgbImage(valueImage, uncertaintyImage, new Color(0, 0, 0, 0));
@@ -416,6 +417,8 @@ public class ImageManager {
                 PlanarImage uncertaintyImage = createColored1BandImage(uncertaintyBand, uncertaintyImageInfo, level);
                 valueImage = maskRgbImage(valueImage, uncertaintyImage, 0.5);
             }
+        } else if (valueValidMaskImage != null) {
+            valueImage = maskRgbImage(valueImage, valueValidMaskImage, valueImageInfo.getNoDataColor());
         }
 
         return valueImage;
