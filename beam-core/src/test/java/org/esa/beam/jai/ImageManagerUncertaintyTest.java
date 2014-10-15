@@ -25,7 +25,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.util.ImageUtils;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,6 +33,8 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.util.Arrays;
+
+import static org.junit.Assert.fail;
 
 /**
  * @author Norman Fomferra
@@ -310,12 +311,17 @@ public class ImageManagerUncertaintyTest {
                 Color expectedColor = expectedImage[y][x];
                 int[] expectedPixel = new int[]{expectedColor.getRed(), expectedColor.getGreen(), expectedColor.getBlue(), expectedColor.getAlpha()};
                 int[] actualPixel = data.getPixel(x, y, (int[]) null);
+                if (expectedPixel.length != actualPixel.length) {
+                    fail(String.format("expected number of channels is %s, but got %s",
+                                       expectedPixel.length,
+                                       actualPixel.length));
+                }
                 for (int b = 0; b < 4; b++) {
                     if (expectedPixel[b] != actualPixel[b]) {
-                        Assert.fail(String.format("x=%d, y=%d: in channel %s: expected %s, but got %s",
-                                                  x, y, CHANNELS[b],
-                                                  Arrays.toString(expectedPixel),
-                                                  Arrays.toString(actualPixel)));
+                        fail(String.format("x=%d, y=%d: in channel %s: expected %s, but got %s",
+                                           x, y, CHANNELS[b],
+                                           Arrays.toString(expectedPixel),
+                                           Arrays.toString(actualPixel)));
                     }
                 }
             }

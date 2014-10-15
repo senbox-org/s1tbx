@@ -397,30 +397,42 @@ public class ImageManager {
         PlanarImage valueValidMaskImage = getValidMaskImage(valueBand, level);
         RasterDataNode uncertaintyBand = getUncertaintyBand(valueBand);
         if (uncertaintyBand != null) {
-            if (valueValidMaskImage != null) {
-                valueImage = maskRgbImage(valueImage, valueValidMaskImage, valueImageInfo.getNoDataColor());
-            }
             ImageInfo uncertaintyImageInfo = uncertaintyBand.getImageInfo(ProgressMonitor.NULL);
             PlanarImage uncertaintySourceImage = getSourceImage(uncertaintyBand, level);
             PlanarImage uncertaintyValidMaskImage = getValidMaskImage(uncertaintyBand, level);
             if (uncertaintyImageInfo.getUncertaintyVisualisationMode() == ImageInfo.UncertaintyVisualisationMode.Transparency_Blending) {
-                PlanarImage uncertaintyImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, true);
-                valueImage = maskRgbImage(valueImage, uncertaintyImage, new Color(0, 0, 0, 0));
+                PlanarImage confidenceImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, true);
+                valueImage = maskRgbImage(valueImage, confidenceImage, new Color(0, 0, 0, 0));
+                valueImage = mergeNoDataColors(valueImage, valueImageInfo, valueValidMaskImage, uncertaintyImageInfo, uncertaintyValidMaskImage);
             } else if (uncertaintyImageInfo.getUncertaintyVisualisationMode() == ImageInfo.UncertaintyVisualisationMode.Monochromatic_Blending) {
-                PlanarImage uncertaintyImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, true);
-                valueImage = maskRgbImage(valueImage, uncertaintyImage, uncertaintyImageInfo.getColorPaletteDef().getLastPoint().getColor());
+                PlanarImage confidenceImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, true);
+                valueImage = maskRgbImage(valueImage, confidenceImage, uncertaintyImageInfo.getColorPaletteDef().getLastPoint().getColor());
+                valueImage = mergeNoDataColors(valueImage, valueImageInfo, valueValidMaskImage, uncertaintyImageInfo, uncertaintyValidMaskImage);
             } else if (uncertaintyImageInfo.getUncertaintyVisualisationMode() == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending) {
-                PlanarImage uncertaintyImage = createColored1BandImage(uncertaintyBand, uncertaintyImageInfo, level);
-                PlanarImage maskImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, true);
-                valueImage = maskRgbImage(valueImage, maskImage, uncertaintyImage);
+                PlanarImage confidenceImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, false);
+                PlanarImage uncertaintyImage = createLookupRgbImage(uncertaintyBand, confidenceImage, uncertaintyImageInfo);
+                valueImage = maskRgbImage(valueImage, confidenceImage, uncertaintyImage);
+                valueImage = mergeNoDataColors(valueImage, valueImageInfo, valueValidMaskImage, uncertaintyImageInfo, uncertaintyValidMaskImage);
             } else if (uncertaintyImageInfo.getUncertaintyVisualisationMode() == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Overlay) {
-                PlanarImage uncertaintyImage = createColored1BandImage(uncertaintyBand, uncertaintyImageInfo, level);
+                PlanarImage confidenceImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, false);
+                PlanarImage uncertaintyImage = createLookupRgbImage(uncertaintyBand, confidenceImage, uncertaintyImageInfo);
                 valueImage = maskRgbImage(valueImage, uncertaintyImage, 0.5);
+                valueImage = mergeNoDataColors(valueImage, valueImageInfo, valueValidMaskImage, uncertaintyImageInfo, uncertaintyValidMaskImage);
             }
         } else if (valueValidMaskImage != null) {
             valueImage = maskRgbImage(valueImage, valueValidMaskImage, valueImageInfo.getNoDataColor());
         }
 
+        return valueImage;
+    }
+
+    private static PlanarImage mergeNoDataColors(PlanarImage valueImage, ImageInfo valueImageInfo, PlanarImage valueValidMaskImage, ImageInfo uncertaintyImageInfo, PlanarImage uncertaintyValidMaskImage) {
+        if (valueValidMaskImage != null) {
+            valueImage = maskRgbImage(valueImage, valueValidMaskImage, valueImageInfo.getNoDataColor());
+        }
+        if (uncertaintyValidMaskImage != null) {
+            valueImage = maskRgbImage(valueImage, uncertaintyValidMaskImage, uncertaintyImageInfo.getNoDataColor());
+        }
         return valueImage;
     }
 
@@ -441,6 +453,7 @@ public class ImageManager {
         }
         return uncertaintyBand;
     }
+
 
     private static PlanarImage maskRgbImage(PlanarImage sourceImage, PlanarImage maskImage, Color maskColor) {
         RenderingHints renderingHints = createDefaultRenderingHints(sourceImage, null);
