@@ -7,7 +7,7 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="DAT">
+    <tocitem text="Sentinel Toolbox Application">
 
         <tocitem text="Product Readers">
 			<tocitem text="Open Sentinel-1 Data Product" target="importSentinel1Product"/>

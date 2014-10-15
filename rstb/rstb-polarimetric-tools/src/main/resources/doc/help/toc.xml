@@ -4,7 +4,7 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="Graph Processing">
+    <tocitem text="Data Processors">
         <tocitem text="Polarimetric Tools">
             <tocitem text="Polarimetric Matrices" target="PolarimetricMatricesOp"/>
             <tocitem text="Polarimetric Decomposition" target="PolarimetricDecompositionOp"/>
