@@ -63,7 +63,6 @@ public class TestUtils {
     public final static String rootPathJERS;
     public final static String rootPathALOS;
     public final static String rootPathCosmoSkymed;
-    public final static String rootPathMixProducts;
 
     private final static int subsetX;
     private final static int subsetY;
@@ -89,7 +88,6 @@ public class TestUtils {
             rootPathJERS = testPreferences.getPropertyPath(contextID + ".test.rootPathJERS");
             rootPathALOS = testPreferences.getPropertyPath(contextID + ".test.rootPathALOS");
             rootPathCosmoSkymed = testPreferences.getPropertyPath(contextID + ".test.rootPathCosmoSkymed");
-            rootPathMixProducts = testPreferences.getPropertyPath(contextID + ".test.rootPathMixProducts");
 
             subsetX = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetX"));
             subsetY = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetY"));
@@ -113,7 +111,6 @@ public class TestUtils {
             rootPathJERS = "";
             rootPathALOS = "";
             rootPathCosmoSkymed = "";
-            rootPathMixProducts = "";
 
             subsetX = 0;
             subsetY = 0;
