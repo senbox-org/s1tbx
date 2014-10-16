@@ -46,9 +46,7 @@ public class ImageManagerUncertaintyTest {
     public static final int WIDTH = SIZE;
     public static final int HEIGHT = SIZE;
     public static final Color TRANSPARENCY = new Color(0, 0, 0, 0);
-    public static final String[] CHANNELS = new String[]{"R", "G", "B", "A"};
 
-    private Product product;
     private Band errorBand;
     private Band valueBand;
 
@@ -155,9 +153,9 @@ public class ImageManagerUncertaintyTest {
                 /*y=0*/
                 {
                         new Color(255, 255, 0, 255),
-                        new Color(0, 0, 0, 0),
-                        new Color(0, 0, 0, 0),
-                        new Color(0, 0, 0, 0)
+                        new Color(255, 255, 0, 255),
+                        new Color(255, 255, 0, 255),
+                        new Color(255, 255, 0, 255)
                 },
                 /*y=1*/
                 {
@@ -312,14 +310,14 @@ public class ImageManagerUncertaintyTest {
                 int[] expectedPixel = new int[]{expectedColor.getRed(), expectedColor.getGreen(), expectedColor.getBlue(), expectedColor.getAlpha()};
                 int[] actualPixel = data.getPixel(x, y, (int[]) null);
                 if (expectedPixel.length != actualPixel.length) {
-                    fail(String.format("expected number of channels is %s, but got %s",
+                    fail(String.format("expected number of samples is %s, but got %s",
                                        expectedPixel.length,
                                        actualPixel.length));
                 }
                 for (int b = 0; b < 4; b++) {
                     if (expectedPixel[b] != actualPixel[b]) {
-                        fail(String.format("x=%d, y=%d: in channel %s: expected %s, but got %s",
-                                           x, y, CHANNELS[b],
+                        fail(String.format("x=%d, y=%d: expected pixel %s, but got %s",
+                                           x, y,
                                            Arrays.toString(expectedPixel),
                                            Arrays.toString(actualPixel)));
                     }
