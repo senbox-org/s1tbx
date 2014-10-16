@@ -139,9 +139,4 @@ public class TestCalibrationOp {
     public void testProcessAllSentinel1() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathSentinel1, productTypeExemptions, exceptionExemptions);
     }
-
-    @Test
-    public void testProcessAllNestBox() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, exceptionExemptions);
-    }
 }

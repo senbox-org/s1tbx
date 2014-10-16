@@ -340,9 +340,4 @@ public class SpeckleFilterOperatorTest {
     public void testProcessAllSentinel1() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathSentinel1, null, null);
     }
-
-    @Test
-    public void testProcessAllNestBox() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, null);
-    }
 }

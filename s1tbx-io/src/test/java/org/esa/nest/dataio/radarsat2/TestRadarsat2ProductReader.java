@@ -62,7 +62,7 @@ public class TestRadarsat2ProductReader {
 
     @Test
     public void testOpeningFolder() throws Exception {
-        final File inputFile = new File(TestUtils.rootPathTestProducts, "input\\RS2\\standard\\product.xml");
+        final File inputFile = TestData.inputRS2_SQuad;
         if(!inputFile.exists()) {
             TestUtils.skipTest(this);
             return;

@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -40,8 +41,6 @@ public class TestCreateElevationOp {
 
     private final static OperatorSpi spi = new CreateElevationOp.Spi();
 
-    private final static String inputPathWSM = TestUtils.rootPathTestProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-
     /**
      * Processes a product and compares it to processed product known to be correct
      *
@@ -49,9 +48,9 @@ public class TestCreateElevationOp {
      */
     @Test
     public void testProcessing() throws Exception {
-        final File inputFile = new File(inputPathWSM);
+        final File inputFile = TestData.inputASAR_WSM;
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputPathWSM + " not found");
+            TestUtils.skipTest(this, inputFile + " not found");
             return;
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);

@@ -18,6 +18,7 @@ package org.esa.nest.dataio.sentinel1;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -81,7 +82,7 @@ public class TestSentinel1ProductReader {
 
     @Test
     public void testOpeningZip() throws Exception {
-        final File inputFile = new File(s1ZipFilePath);
+        final File inputFile = TestData.inputS1_GRD;
         if(!inputFile.exists()) {
             TestUtils.skipTest(this);
             return;

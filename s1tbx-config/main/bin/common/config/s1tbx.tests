@@ -12,7 +12,7 @@
 #Automated Reader and Operator Tests
 #-----------------------------------
 #No output is produced. Readers and Operators are run on all products to
-#ensure no expections are thrown and processing completes.
+#ensure no exceptions are thrown and processing completes.
 ####################################################################################
 
 
@@ -38,7 +38,6 @@ s1tbx.test.rootPathERS = 				P:\\nest\\nest\\ESA Data\\RADAR\\ERS_products
 #s1tbx.test.rootPathJERS = 				P:\\nest\\nest\\ESA Data\\RADAR\\JERS
 #s1tbx.test.rootPathALOS = 				P:\\nest\\nest\\ESA Data\\RADAR\\ALOS PALSAR
 s1tbx.test.rootPathCosmoSkymed = 		P:\\nest\\nest\\ESA Data\\RADAR\\Cosmo
-s1tbx.test.rootPathMixProducts = 		P:\\nest\\nest\\ESA Data\\NestBox
 
 ####################################################################################
 #Automated Graph Processing and Product Comparison of Expected Results
