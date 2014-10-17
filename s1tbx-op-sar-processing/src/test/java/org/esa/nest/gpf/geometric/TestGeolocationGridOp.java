@@ -17,6 +17,7 @@ package org.esa.nest.gpf.geometric;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -34,9 +35,6 @@ public class TestGeolocationGridOp {
     }
     private final static OperatorSpi spi = new GeolocationGridGeocodingOp.Spi();
 
-    private final static String inputPathWSM = TestUtils.rootPathTestProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-    private final static String expectedPathWSM = TestUtils.rootPathTestProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_EC.dim";
-
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
     private String[] exceptionExemptions = {"not supported", "already map projected"};
 
@@ -47,9 +45,9 @@ public class TestGeolocationGridOp {
      */
     @Test
     public void testProcessing() throws Exception {
-        final File inputFile = new File(inputPathWSM);
+        final File inputFile = TestData.inputASAR_WSM;
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputPathWSM + " not found");
+            TestUtils.skipTest(this, inputFile + " not found");
             return;
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
@@ -61,8 +59,8 @@ public class TestGeolocationGridOp {
         final String[] excemptionList = {"total_size"};
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
-        TestUtils.compareProducts(targetProduct, expectedPathWSM, excemptionList);
+        TestUtils.verifyProduct(targetProduct, true, true, true);
+
     }
 
     @Test

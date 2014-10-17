@@ -40,8 +40,6 @@ public class TestMultilookOperator {
     }
     private final static OperatorSpi spi = new MultilookOp.Spi();
 
-    private final static String expectedPathWSM = TestUtils.rootPathTestProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_ML.dim";
-
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
     private String[] exceptionExemptions = {"not supported", "not intended", "not be map projected"};
 
@@ -110,8 +108,10 @@ public class TestMultilookOperator {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
-        TestUtils.compareProducts(targetProduct, expectedPathWSM, null);
+        TestUtils.verifyProduct(targetProduct, true, true, true);
+
+        final float[] expected = new float[] { 668.0f, 564.0f, 574.0f };
+        TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), expected);
     }
 
     /**

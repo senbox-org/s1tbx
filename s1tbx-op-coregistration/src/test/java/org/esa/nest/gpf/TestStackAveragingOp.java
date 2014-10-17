@@ -61,7 +61,10 @@ public class TestStackAveragingOp {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
+        TestUtils.verifyProduct(targetProduct, true, true, true);
+
+        final float[] expected = new float[] { 2.0f,12.5f,33.5f };
+        TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), expected);
     }
 
 }
