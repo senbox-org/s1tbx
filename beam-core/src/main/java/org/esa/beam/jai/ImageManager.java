@@ -413,12 +413,13 @@ public class ImageManager {
                     valueImage = mergeNoDataColors(valueImage, valueImageInfo, valueValidMaskImage, uncertaintyImageInfo, uncertaintyValidMaskImage);
                 } else if (visualisationMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending) {
                     PlanarImage confidenceImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, true);
-                    PlanarImage uncertaintyImage = createLookupRgbImage(uncertaintyBand, confidenceImage, uncertaintyImageInfo);
+                    PlanarImage distrustImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, false);
+                    PlanarImage uncertaintyImage = createLookupRgbImage(uncertaintyBand, distrustImage, uncertaintyImageInfo);
                     valueImage = maskRgbImage(valueImage, confidenceImage, uncertaintyImage);
                     valueImage = mergeNoDataColors(valueImage, valueImageInfo, valueValidMaskImage, uncertaintyImageInfo, uncertaintyValidMaskImage);
                 } else if (visualisationMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Overlay) {
-                    PlanarImage confidenceImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, true);
-                    PlanarImage uncertaintyImage = createLookupRgbImage(uncertaintyBand, confidenceImage, uncertaintyImageInfo);
+                    PlanarImage distrustImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, false);
+                    PlanarImage uncertaintyImage = createLookupRgbImage(uncertaintyBand, distrustImage, uncertaintyImageInfo);
                     valueImage = maskRgbImage(valueImage, uncertaintyImage, 0.5);
                     valueImage = mergeNoDataColors(valueImage, valueImageInfo, valueValidMaskImage, uncertaintyImageInfo, uncertaintyValidMaskImage);
                 } else {
@@ -428,7 +429,8 @@ public class ImageManager {
             }
         }
         if (valueValidMaskImage != null) {
-            valueImage = maskRgbImage(valueImage, valueValidMaskImage, valueImageInfo.getNoDataColor());
+            RenderingHints renderingHints = createDefaultRenderingHints(valueImage, null);
+            valueImage = PaintDescriptor.create(valueImage, valueValidMaskImage, valueImageInfo.getNoDataColor(), false, renderingHints);
         }
         return valueImage;
     }
@@ -454,21 +456,10 @@ public class ImageManager {
     private static PlanarImage mergeNoDataColors(PlanarImage valueImage,
                                                  ImageInfo valueImageInfo, PlanarImage valueValidMaskImage,
                                                  ImageInfo uncertaintyImageInfo, PlanarImage uncertaintyValidMaskImage) {
-        /*
-        if (valueValidMaskImage != null) {
-            valueImage = maskRgbImage(valueImage, valueValidMaskImage, valueImageInfo.getNoDataColor(), true);
-        }
-        if (uncertaintyValidMaskImage != null) {
-            valueImage = maskRgbImage(valueImage, uncertaintyValidMaskImage, uncertaintyImageInfo.getNoDataColor(), false);
-        }
-        */
-        valueImage = paint(valueImage, valueValidMaskImage, valueImageInfo.getNoDataColor());
-        valueImage = paint(valueImage, uncertaintyValidMaskImage, uncertaintyImageInfo.getNoDataColor());
+        RenderingHints renderingHints = createDefaultRenderingHints(valueImage, null);
+        valueImage = PaintDescriptor.create(valueImage, valueValidMaskImage, valueImageInfo.getNoDataColor(), false, renderingHints);
+        valueImage = PaintDescriptor.create(valueImage, uncertaintyValidMaskImage, uncertaintyImageInfo.getNoDataColor(), false, renderingHints);
         return valueImage;
-    }
-
-    private static PlanarImage paint(PlanarImage sourceImage, PlanarImage maskImage, Color maskColor) {
-        return PaintDescriptor.create(sourceImage, maskImage, maskColor, null);
     }
 
     private static PlanarImage maskRgbImage(PlanarImage sourceImage, PlanarImage maskImage, Color maskColor) {
@@ -603,9 +594,9 @@ public class ImageManager {
         }
     }
 
-    private PlanarImage createByteIndexedImage(RasterDataNode band, PlanarImage sourceImage, ImageInfo imageInfo, boolean switchRamp) {
+    private PlanarImage createByteIndexedImage(RasterDataNode band, PlanarImage sourceImage, ImageInfo imageInfo, boolean invertRamp) {
         ColorPaletteDef colorPaletteDef = imageInfo.getColorPaletteDef();
-        if (switchRamp) {
+        if (invertRamp) {
             return createByteIndexedImage(band, sourceImage, colorPaletteDef.getMaxDisplaySample(), colorPaletteDef.getMinDisplaySample(), 1.0);
         } else {
             return createByteIndexedImage(band, sourceImage, colorPaletteDef.getMinDisplaySample(), colorPaletteDef.getMaxDisplaySample(), 1.0);

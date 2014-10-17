@@ -17,7 +17,6 @@
 package org.esa.beam.jai;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
@@ -31,7 +30,6 @@ import org.junit.Test;
 import java.awt.Color;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
-import java.io.File;
 import java.util.Arrays;
 
 import static org.junit.Assert.fail;
@@ -99,10 +97,12 @@ public class ImageManagerUncertaintyTest {
 
         valueBand.setAncillaryBand("error", errorBand);
 
+        /*
         File file = new File("SNAP-5.dim");
         if (!file.exists()) {
             ProductIO.writeProduct(product, file, "BEAM-DIMAP", false);
         }
+        */
     }
 
     @Test
@@ -153,9 +153,9 @@ public class ImageManagerUncertaintyTest {
                 /*y=0*/
                 {
                         new Color(255, 255, 0, 255),
-                        new Color(255, 255, 0, 255),
-                        new Color(255, 255, 0, 255),
-                        new Color(255, 255, 0, 255)
+                        new Color(0, 0, 0, 0),
+                        new Color(0, 0, 0, 0),
+                        new Color(0, 0, 0, 0)
                 },
                 /*y=1*/
                 {
