@@ -87,8 +87,8 @@ class MoreOptionsForm {
         contentRows = new ArrayList<>();
 
         constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.anchor = GridBagConstraints.BASELINE;
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.weightx = 0.5;
         constraints.weighty = 0.0;
         constraints.insets = new Insets(1, 0, 1, 0);
