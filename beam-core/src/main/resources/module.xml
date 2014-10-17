@@ -33,6 +33,7 @@
         <![CDATA[
             <b>Changes in 2.0.0</b><br/>
                 [SNAP-13] Bisince Interpolation<br/>
+                [SNAP-5] Some uncertainty visualisation modes hide no-data pixels<br/>
         ]]>
     </changelog>
 
