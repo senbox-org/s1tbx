@@ -16,7 +16,14 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.Term;
+import com.bc.jexp.WritableNamespace;
+import com.bc.jexp.impl.ParserImpl;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -204,11 +211,24 @@ public final class SliceAssemblyOp extends Operator {
 
             if (srcBand instanceof VirtualBand) {
                 final VirtualBand sourceBand = (VirtualBand) srcBand;
-                final VirtualBand targetBand = new VirtualBand(sourceBand.getName(),
-                        sourceBand.getDataType(),
-                        sourceBand.getRasterWidth(),
-                        sourceBand.getRasterHeight(),
-                        sourceBand.getExpression());
+                int destWidth = 0;
+                int destHeight = 0;
+
+                final Term term = createTerm(sourceBand.getExpression(), sliceProducts);
+                final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
+                for (RasterDataSymbol symbol : refRasterDataSymbols) {
+                    String name = symbol.getName();
+                    final Band trgBand = targetProduct.getBand(name);
+                    if(trgBand != null) {
+                        destWidth = trgBand.getRasterWidth();
+                        destHeight = trgBand.getRasterHeight();
+                        break;
+                    }
+                }
+
+                final VirtualBand targetBand = new VirtualBand(sourceBand.getName(), sourceBand.getDataType(),
+                        destWidth, destHeight, sourceBand.getExpression());
+
                 ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
                 targetProduct.addBand(targetBand);
             } else {
@@ -232,6 +252,18 @@ public final class SliceAssemblyOp extends Operator {
 
         createTiePointGrids();
         addGeocoding();
+    }
+
+    private Term createTerm(final String expression, final Product[] availableProducts) {
+        WritableNamespace namespace = BandArithmetic.createDefaultNamespace(availableProducts, 0);
+        final Term term;
+        try {
+            Parser parser = new ParserImpl(namespace, false);
+            term = parser.parse(expression);
+        } catch (ParseException e) {
+            throw new OperatorException("Could not parse expression: " + expression, e);
+        }
+        return term;
     }
 
     private void createTiePointGrids() {
