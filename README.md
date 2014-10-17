@@ -10,16 +10,31 @@ Building S1TBX from the source
 2. Add $JAVA_HOME/bin, $MAVEN_HOME/bin to your PATH.
 
 3. Clone the S1TBX source code and related repositories into MY_PROJECTS/
-	git clone https://github.com/arraydev/s1tbx.git
+
+	git clone https://github.com/senbox-org/s1tbx.git
+	
 	git clone https://github.com/arraydev/beam.git
-	git clone https://github.com/bcdev/ceres.git
-4. Check out the nestmod branch in the beam repository
+	
+	git clone https://github.com/arraydev/ceres.git
+	
+4. Check out the nestmod branch in the beam and ceres repositories
+
 	CD into MY_PROJECTS/beam
+	
 	git checkout nestmod
+	
+	CD into MY_PROJECTS/ceres
+	
+	git checkout nestmod
+	
 5. CD into MY_PROJECTS/s1tbx and build S1TBX from source: 
+
 	mvn compile -P withbeam
+	
 	or 
+	
 	mvn package -P withbeam
+	
 6. Open the pom.xml file from within IntelliJ IDEA to import.
 7. Activate the maven profile withbeam
 8. Use the following configuration to run DAT:
