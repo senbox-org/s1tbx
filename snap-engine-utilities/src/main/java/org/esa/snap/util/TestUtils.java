@@ -38,6 +38,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 /**
  * Utilities for Operator unit tests
  * In order to test the datasets at Array, set the following to true in the nest.config
@@ -47,7 +50,7 @@ public class TestUtils {
 
     public static final Logger log = BeamLogManager.getSystemLogger();
     private final static String contextID = ResourceUtils.getContextID();
-    private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap(contextID + ".tests");
+    private static final PropertiesMap testPreferences = Config.getAutomatedTestConfigPropertyMap(contextID + ".tests");
 
     public final static String rootPathTestProducts;
 
@@ -60,7 +63,6 @@ public class TestUtils {
     public final static String rootPathJERS;
     public final static String rootPathALOS;
     public final static String rootPathCosmoSkymed;
-    public final static String rootPathMixProducts;
 
     private final static int subsetX;
     private final static int subsetY;
@@ -76,17 +78,16 @@ public class TestUtils {
 
     static {
         if(testPreferences != null) {
-            rootPathTestProducts = testPreferences.getPropertyString(contextID + ".test.rootPathTestProducts");
-            rootPathTerraSarX = testPreferences.getPropertyString(contextID + ".test.rootPathTerraSarX");
-            rootPathASAR = testPreferences.getPropertyString(contextID + ".test.rootPathASAR");
-            rootPathRadarsat2 = testPreferences.getPropertyString(contextID + ".test.rootPathRadarsat2");
-            rootPathRadarsat1 = testPreferences.getPropertyString(contextID + ".test.rootPathRadarsat1");
-            rootPathSentinel1 = testPreferences.getPropertyString(contextID + ".test.rootPathSentinel1");
-            rootPathERS = testPreferences.getPropertyString(contextID + ".test.rootPathERS");
-            rootPathJERS = testPreferences.getPropertyString(contextID + ".test.rootPathJERS");
-            rootPathALOS = testPreferences.getPropertyString(contextID + ".test.rootPathALOS");
-            rootPathCosmoSkymed = testPreferences.getPropertyString(contextID + ".test.rootPathCosmoSkymed");
-            rootPathMixProducts = testPreferences.getPropertyString(contextID + ".test.rootPathMixProducts");
+            rootPathTestProducts = testPreferences.getPropertyPath(contextID + ".test.rootPathTestProducts");
+            rootPathTerraSarX = testPreferences.getPropertyPath(contextID + ".test.rootPathTerraSarX");
+            rootPathASAR = testPreferences.getPropertyPath(contextID + ".test.rootPathASAR");
+            rootPathRadarsat2 = testPreferences.getPropertyPath(contextID + ".test.rootPathRadarsat2");
+            rootPathRadarsat1 = testPreferences.getPropertyPath(contextID + ".test.rootPathRadarsat1");
+            rootPathSentinel1 = testPreferences.getPropertyPath(contextID + ".test.rootPathSentinel1");
+            rootPathERS = testPreferences.getPropertyPath(contextID + ".test.rootPathERS");
+            rootPathJERS = testPreferences.getPropertyPath(contextID + ".test.rootPathJERS");
+            rootPathALOS = testPreferences.getPropertyPath(contextID + ".test.rootPathALOS");
+            rootPathCosmoSkymed = testPreferences.getPropertyPath(contextID + ".test.rootPathCosmoSkymed");
 
             subsetX = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetX"));
             subsetY = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetY"));
@@ -110,7 +111,6 @@ public class TestUtils {
             rootPathJERS = "";
             rootPathALOS = "";
             rootPathCosmoSkymed = "";
-            rootPathMixProducts = "";
 
             subsetX = 0;
             subsetY = 0;
@@ -150,10 +150,6 @@ public class TestUtils {
 
     public static int getMaxIterations() {
         return maxIteration;
-    }
-
-    public static Product readSourceProduct(final String path) throws IOException {
-        return readSourceProduct(new File(path));
     }
 
     public static Product readSourceProduct(final File inputFile) throws IOException {
@@ -356,6 +352,18 @@ public class TestUtils {
         }
     }
 
+    public static void comparePixels(final Product targetProduct, final String bandName,
+                                     final float[] expected) throws IOException {
+        final Band band = targetProduct.getBand(bandName);
+        assertNotNull(band);
+
+        final float[] floatValues = new float[expected.length];
+        band.readPixels(0, 0, expected.length, 1, floatValues, ProgressMonitor.NULL);
+
+        for(int i=0; i < expected.length; ++i) {
+            assertEquals(expected[i], floatValues[i], 0.0001);
+        }
+    }
 
     public static void compareProducts(final Product targetProduct,
                                        final String expectedPath, final String[] excemptionList) throws Exception {
