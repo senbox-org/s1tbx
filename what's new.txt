@@ -3,6 +3,7 @@ New in S1TBX 1.0.1
 fix for coregistering terrain corrected products
 fix for coregistering multi-pol products
 fix for linux paths for the auxdata
+fix for slice assembly on TOPSAR SLC
 added selection by months/seasons in the product library
 
 New in S1TBX 1.0.0
@@ -26,6 +27,7 @@ Performance improvements, bug fixes and more...
 
 Known issues:
 	- zip64 files are not yet supported
+	- only abstracted metadata updated for slice assembly
 
 What will be available in version 2.0:
 	- S-1 TOPSAR interferometry
