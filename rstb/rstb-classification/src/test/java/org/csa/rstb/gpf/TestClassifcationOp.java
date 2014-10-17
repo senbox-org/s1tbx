@@ -17,6 +17,7 @@ package org.csa.rstb.gpf;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -35,16 +36,10 @@ public class TestClassifcationOp {
 
     private final static OperatorSpi spi = new PolarimetricClassificationOp.Spi();
 
-    private final static String inputPathQuad = TestUtils.rootPathTestProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
-    private final static String inputQuadFullStack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
-    private final static String inputC3Stack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-C3-Stack.dim";
-    private final static String inputT3Stack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-T3-Stack.dim";
-
     private Product runClassification(final PolarimetricClassificationOp op, final String classifier,
-                                      final String path) throws Exception {
-        final File inputFile = new File(path);
+                                      final File inputFile) throws Exception {
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this, path + " not found");
+            TestUtils.skipTest(this, inputFile + " not found");
             return null;
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
@@ -55,7 +50,7 @@ public class TestClassifcationOp {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
+        TestUtils.verifyProduct(targetProduct, true, true, true);
         return targetProduct;
     }
 
@@ -63,38 +58,38 @@ public class TestClassifcationOp {
     public void testCloudePottierClassifier() throws Exception {
 
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
-                PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, inputPathQuad);
+                PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, TestData.inputQuad);
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
-                PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, inputQuadFullStack);
+                PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, TestData.inputQuadFullStack);
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
-                PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, inputC3Stack);
+                PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, TestData.inputC3Stack);
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
-                PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, inputT3Stack);
+                PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, TestData.inputT3Stack);
     }
 
     @Test
     public void testWishartClassifier() throws Exception {
 
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
-                PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, inputPathQuad);
+                PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, TestData.inputQuad);
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
-                PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, inputQuadFullStack);
+                PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, TestData.inputQuadFullStack);
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
-                PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, inputC3Stack);
+                PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, TestData.inputC3Stack);
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
-                PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, inputT3Stack);
+                PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, TestData.inputT3Stack);
     }
 
     @Test
     public void testTerrainClassifier() throws Exception {
 
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
-                PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION, inputPathQuad);
+                PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION, TestData.inputQuad);
 //        runClassification((PolarimetricClassificationOp)spi.createOperator(),
-//                PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION, inputQuadFullStack);
+//                PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION, TestData.inputQuadFullStack);
 //        runClassification((PolarimetricClassificationOp)spi.createOperator(),
-//                PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION, inputC3Stack);
+//                PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION, TestData.inputC3Stack);
 //        runClassification((PolarimetricClassificationOp)spi.createOperator(),
-//                PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION, inputT3Stack);
+//                PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION, TestData.inputT3Stack);
     }
 }

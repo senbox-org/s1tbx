@@ -43,32 +43,17 @@ public class TestRemoveAntennaPatternOp {
 
     @Test
     public void testProcessingASAR_WSM() throws Exception {
-        final File inputFile = TestData.inputASAR_WSM;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        processFile(inputFile);
+        processFile(TestData.inputASAR_WSM);
     }
 
     @Test
     public void testProcessingERS_IMP() throws Exception {
-        final File inputFile = TestData.inputERS_IMP;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        processFile(inputFile);
+        processFile(TestData.inputERS_IMP);
     }
 
     @Test
     public void testProcessingERS_IMS() throws Exception {
-        final File inputFile = TestData.inputERS_IMS;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        processFile(inputFile);
+        processFile(TestData.inputERS_IMS);
     }
 
     /**
@@ -77,7 +62,11 @@ public class TestRemoveAntennaPatternOp {
      * @param inputFile    the path to the input product
      * @throws Exception general exception
      */
-    private static Product processFile(final File inputFile) throws Exception {
+    private void processFile(final File inputFile) throws Exception {
+        if (!inputFile.exists()) {
+            TestUtils.skipTest(this, inputFile + " not found");
+            return;
+        }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final RemoveAntennaPatternOp op = (RemoveAntennaPatternOp) spi.createOperator();
@@ -87,7 +76,6 @@ public class TestRemoveAntennaPatternOp {
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
-        return targetProduct;
     }
 
     @Test

@@ -66,7 +66,7 @@ public class TestConnectivityAction extends ExecCommand {
 
         String msg = msg1 + "\n" + msg2;
         if (failed) {
-            msg += "\n\nPlease verify that all paths are correct in your $NEST_HOME/config/settings.xml";
+            msg += "\n\nPlease verify that all paths are correct in your $SNAP_HOME/config/settings.xml";
             msg += "\nAlso verify that FTP is not blocked by your firewall.";
             if (exception1 != null)
                 msg += "\n\n" + exception1.getMessage();

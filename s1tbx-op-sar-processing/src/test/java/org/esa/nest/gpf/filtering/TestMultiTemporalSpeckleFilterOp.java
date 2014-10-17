@@ -17,6 +17,7 @@ package org.esa.nest.gpf.filtering;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -35,24 +36,20 @@ public class TestMultiTemporalSpeckleFilterOp {
 
     private final static OperatorSpi spi = new MultiTemporalSpeckleFilterOp.Spi();
 
-    private final static String inputPathStackIMS = TestUtils.rootPathTestProducts + "\\input\\Stack\\coregistered_stack.dim";
-
     @Test
     public void testProcessingIMS() throws Exception {
-        processFile(inputPathStackIMS, null);
+        processFile(TestData.inputStackIMS);
     }
 
     /**
      * Processes a product and compares it to processed product known to be correct
      *
-     * @param inputPath    the path to the input product
-     * @param expectedPath the path to the expected product
+     * @param inputFile    the path to the input product
      * @throws Exception general exception
      */
-    public void processFile(String inputPath, String expectedPath) throws Exception {
-        final File inputFile = new File(inputPath);
+    public void processFile(final File inputFile) throws Exception {
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputPath + " not found");
+            TestUtils.skipTest(this, inputFile + " not found");
             return;
         }
 
@@ -64,7 +61,10 @@ public class TestMultiTemporalSpeckleFilterOp {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
+        TestUtils.verifyProduct(targetProduct, true, true, true);
+
+        final float[] expected = new float[] { 340.0f,8906.0f,9673.0f };
+        TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), expected);
     }
 
 }

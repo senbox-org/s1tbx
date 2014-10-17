@@ -26,6 +26,7 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.nest.dataio.dem.ElevationModelDescriptor;
 import org.esa.nest.dataio.dem.ElevationModelRegistry;
+import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -59,9 +60,9 @@ public class TestTerrainFlatteningOp {
      */
     @Test
     public void testProcessWSM() throws Exception {
-        final File inputFile = new File(inputPathWSM);
+        final File inputFile = TestData.inputASAR_WSM;
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputPathWSM + " not found");
+            TestUtils.skipTest(this, inputFile + " not found");
             return;
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
@@ -72,7 +73,10 @@ public class TestTerrainFlatteningOp {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
+        TestUtils.verifyProduct(targetProduct, true, true, true);
+
+        final float[] expected = new float[] { 0.0f,1994.0f,11320.0f,3290.0f,5116.0f,4721.0f,3657.0f,5954.0f,2610.0f,19597.0f };
+        TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), expected);
     }
 
     /**
@@ -155,10 +159,5 @@ public class TestTerrainFlatteningOp {
     @Test
     public void testProcessAllSentinel1() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathSentinel1, null, exceptionExemptions);
-    }
-
-    @Test
-    public void testProcessAllNestBox() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, exceptionExemptions);
     }
 }

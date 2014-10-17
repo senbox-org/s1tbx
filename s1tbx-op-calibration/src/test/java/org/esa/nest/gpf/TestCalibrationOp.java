@@ -15,8 +15,6 @@
  */
 package org.esa.nest.gpf;
 
-import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.util.TestData;
@@ -46,131 +44,59 @@ public class TestCalibrationOp {
 
     @Test
     public void testProcessingASAR_WSM() throws Exception {
-        final File inputFile = TestData.inputASAR_WSM;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product targetProduct = processFile(inputFile);
 
-        final Band band = targetProduct.getBand("sigma0_VV");
-        assertNotNull(band);
-
-        final float[] floatValues = new float[8];
-        band.readPixels(0, 0, 4, 2, floatValues, ProgressMonitor.NULL);
-
-        assertEquals(0.027908697724342346, floatValues[0], 0.0001);
-        assertEquals(0.019894488155841827, floatValues[1], 0.0001);
-        assertEquals(0.020605698227882385, floatValues[2], 0.0001);
+        final float[] expected = new float[] {0.027908697724342346f, 0.019894488155841827f, 0.020605698227882385f};
+        processFile(TestData.inputASAR_WSM, "sigma0_VV", expected);
     }
 
     @Test
     public void testProcessingASAR_IMS() throws Exception {
-        final File inputFile = TestData.inputASAR_IMS;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product targetProduct = processFile(inputFile);
 
-        final Band band = targetProduct.getBand("sigma0_VV");
-        assertNotNull(band);
-
-        final float[] floatValues = new float[8];
-        band.readPixels(0, 0, 4, 2, floatValues, ProgressMonitor.NULL);
-
-        assertEquals(0.043132662773132324, floatValues[0], 0.0001);
-        assertEquals(3.3039296977221966E-4, floatValues[1], 0.0001);
-        assertEquals(0.06897620856761932, floatValues[2], 0.0001);
+        final float[] expected = new float[] {0.043132662773132324f, 3.3039296977221966E-4f, 0.06897620856761932f};
+        processFile(TestData.inputASAR_IMS, "sigma0_VV", expected);
     }
 
     @Test
     public void testProcessingERS_IMP() throws Exception {
-        final File inputFile = TestData.inputERS_IMP;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product targetProduct = processFile(inputFile);
 
-        final Band band = targetProduct.getBand("sigma0_VV");
-        assertNotNull(band);
-
-        final float[] floatValues = new float[8];
-        band.readPixels(0, 0, 4, 2, floatValues, ProgressMonitor.NULL);
-
-        assertEquals(0.19550558924674988, floatValues[0], 0.0001);
-        assertEquals(0.19353462755680084, floatValues[1], 0.0001);
-        assertEquals(0.1338571310043335, floatValues[2], 0.0001);
+        final float[] expected = new float[] {0.19550558924674988f, 0.19353462755680084f, 0.1338571310043335f};
+        processFile(TestData.inputERS_IMP, "sigma0_VV", expected);
     }
 
     @Test
     public void testProcessingERS_IMS() throws Exception {
-        final File inputFile = TestData.inputERS_IMS;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product targetProduct = processFile(inputFile);
 
-        final Band band = targetProduct.getBand("sigma0_VV");
-        assertNotNull(band);
-
-        final float[] floatValues = new float[8];
-        band.readPixels(0, 0, 4, 2, floatValues, ProgressMonitor.NULL);
-
-        assertEquals(0.11003237217664719, floatValues[0], 0.0001);
-        assertEquals(0.09509188681840897, floatValues[1], 0.0001);
-        assertEquals(0.01090210024267435, floatValues[2], 0.0001);
+        final float[] expected = new float[] {0.11003237217664719f, 0.09509188681840897f, 0.01090210024267435f};
+        processFile(TestData.inputERS_IMS, "sigma0_VV", expected);
     }
 
     @Test
     public void testProcessingS1_GRD() throws Exception {
-        final File inputFile = TestData.inputS1_GRD;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product targetProduct = processFile(inputFile);
 
-        final Band band = targetProduct.getBand("sigma0_VV");
-        assertNotNull(band);
-
-        final float[] floatValues = new float[8];
-        band.readPixels(0, 0, 4, 2, floatValues, ProgressMonitor.NULL);
-
-        assertEquals(0.015372134745121002, floatValues[0], 0.0001);
-        assertEquals(0.01537325419485569, floatValues[1], 0.0001);
-        assertEquals(0.02168026752769947, floatValues[2], 0.0001);
+        final float[] expected = new float[] {0.015372134745121002f, 0.01537325419485569f, 0.02168026752769947f};
+        processFile(TestData.inputS1_GRD, "sigma0_VV", expected);
     }
 
     @Test
     public void testProcessingS1_StripmapSLC() throws Exception {
-        final File inputFile = TestData.inputS1_StripmapSLC;
-        if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product targetProduct = processFile(inputFile);
 
-        final Band band = targetProduct.getBand("sigma0_VV");
-        assertNotNull(band);
-
-        final float[] floatValues = new float[8];
-        band.readPixels(0, 0, 4, 2, floatValues, ProgressMonitor.NULL);
-
-        assertEquals(4.557766437530518, floatValues[0], 0.0001);
-        assertEquals(17.115325927734375, floatValues[1], 0.0001);
-        assertEquals(43.94808578491211, floatValues[2], 0.0001);
+        final float[] expected = new float[] {4.557766437530518f, 17.115325927734375f, 43.94808578491211f};
+        processFile(TestData.inputS1_StripmapSLC, "sigma0_VV", expected);
     }
 
     /**
      * Processes a product and compares it to processed product known to be correct
      *
      * @param inputFile the path to the input product
+     * @param bandName the target band name to verify
+     * @param expected expected values
      * @throws Exception general exception
      */
-    private static Product processFile(final File inputFile) throws Exception {
+    private void processFile(final File inputFile, final String bandName, final float[] expected) throws Exception {
+        if (!inputFile.exists()) {
+            TestUtils.skipTest(this, inputFile + " not found");
+            return;
+        }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
         final CalibrationOp op = (CalibrationOp) spi.createOperator();
@@ -181,7 +107,7 @@ public class TestCalibrationOp {
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
-        return targetProduct;
+        TestUtils.comparePixels(targetProduct, bandName, expected);
     }
 
     @Test
@@ -212,10 +138,5 @@ public class TestCalibrationOp {
     @Test
     public void testProcessAllSentinel1() throws Exception {
         TestUtils.testProcessAllInPath(spi, TestUtils.rootPathSentinel1, productTypeExemptions, exceptionExemptions);
-    }
-
-    @Test
-    public void testProcessAllNestBox() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathMixProducts, productTypeExemptions, exceptionExemptions);
     }
 }

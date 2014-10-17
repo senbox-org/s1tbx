@@ -85,8 +85,6 @@
             <shortDescr>Start PolSARPro</shortDescr>
             <separatorBefore>true</separatorBefore>
             <separatorAfter>true</separatorAfter>
-            <smallIcon>/org/esa/snap/icons/esa.png</smallIcon>
-            <largeIcon>/org/esa/snap/icons/esa.png</largeIcon>
             <placeLast>true</placeLast>
         </action>
 
