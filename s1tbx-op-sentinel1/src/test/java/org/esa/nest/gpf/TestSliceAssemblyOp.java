@@ -43,7 +43,7 @@ public class TestSliceAssemblyOp {
 
     @Test
     public void testSingleProduct() throws Exception {
-        if(!nonSliceFile.exists()) {
+        if(!slice1File.exists()) {
             TestUtils.skipTest(this);
             return;
         }
@@ -66,7 +66,7 @@ public class TestSliceAssemblyOp {
 
     @Test
     public void testNonSliceProduct() throws Exception {
-        if(!nonSliceFile.exists()) {
+        if(!nonSliceFile.exists() || !slice1File.exists()) {
             TestUtils.skipTest(this);
             return;
         }
@@ -90,7 +90,7 @@ public class TestSliceAssemblyOp {
 
     @Test
     public void testOrder1_2() throws Exception {
-        if(!nonSliceFile.exists()) {
+        if(!slice1File.exists() || !slice2File.exists()) {
             TestUtils.skipTest(this);
             return;
         }
@@ -109,7 +109,7 @@ public class TestSliceAssemblyOp {
 
     @Test
     public void testOrder2_1() throws Exception {
-        if(!nonSliceFile.exists()) {
+        if(!slice1File.exists() || !slice2File.exists()) {
             TestUtils.skipTest(this);
             return;
         }
@@ -126,8 +126,4 @@ public class TestSliceAssemblyOp {
         TestUtils.verifyProduct(targetProduct, true, true, true);
     }
 
-    @Test
-    public void testFindSliceProducts() throws Exception {
-        //TestUtils.testProcessAllInPath(spi, TestUtils.rootPathSentinel1, null, null);
-    }
 }
