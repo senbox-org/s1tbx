@@ -40,11 +40,13 @@ public class PaintRIF implements RenderedImageFactory {
         RenderedImage source0 = paramBlock.getRenderedSource(0);
         RenderedImage source1 = paramBlock.getRenderedSource(1);
         Color paintColor = (Color) paramBlock.getObjectParameter(0);
+        Boolean alphaIsFirst = (Boolean) paramBlock.getObjectParameter(1);
         ImageLayout layout = new ImageLayout(source0);
         return new PaintOpImage(source0,
                                 source1,
                                 renderHints,
                                 layout,
-                                paintColor);
+                                paintColor,
+                                alphaIsFirst);
     }
 }

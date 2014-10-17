@@ -23,11 +23,13 @@ import javax.media.jai.RasterFactory;
 import javax.media.jai.RasterFormatTag;
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.image.ComponentSampleModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
+import java.util.Arrays;
 import java.util.Map;
 
 
@@ -74,10 +76,22 @@ import java.util.Map;
  */
 public final class PaintOpImage extends PointOpImage {
 
+    private final static boolean DEBUG = false;
+
     /**
      * The paint color.
      */
-    private final Color paintColor;
+    private Color paintColor;
+
+    /**
+     * Whether alpha is the first band.
+     */
+    private boolean alphaIsFirst;
+
+    // dependent helper
+    private final int[] srcBands;
+    // dependent helper
+    private int[] paintPixel;
 
     /**
      * Creates a ConvolveOpImage given a ParameterBlock containing the image
@@ -98,7 +112,8 @@ public final class PaintOpImage extends PointOpImage {
                         RenderedImage source1,
                         Map config,
                         ImageLayout layout,
-                        Color paintColor) {
+                        Color paintColor,
+                        boolean alphaIsFirst) {
         super(source0,
               source1,
               layout,
@@ -118,14 +133,14 @@ public final class PaintOpImage extends PointOpImage {
         }
 
         SampleModel sm = source0.getSampleModel();
-        int numBands = Math.max(sm.getNumBands(), paintColor.getAlpha() == 255 ? 3 : 4);
+        int numDestBands = Math.max(sm.getNumBands(), paintColor.getAlpha() == 255 ? 3 : 4);
 
-        if (sampleModel.getNumBands() != numBands) {
+        if (sampleModel.getNumBands() != numDestBands) {
             sampleModel = RasterFactory.createComponentSampleModel(sampleModel,
                                                                    sm.getDataType(),
                                                                    tileWidth,
                                                                    tileHeight,
-                                                                   numBands);
+                                                                   numDestBands);
             if (colorModel != null) {
                 if (!colorModel.isCompatibleSampleModel(sampleModel)) {
                     colorModel = createColorModel(sampleModel);
@@ -134,6 +149,66 @@ public final class PaintOpImage extends PointOpImage {
         }
 
         this.paintColor = paintColor;
+        this.alphaIsFirst = alphaIsFirst;
+
+        int numSourceBands = source0.getSampleModel().getNumBands();
+        srcBands = new int[numDestBands];
+        int iOffset;
+        if (numDestBands > numSourceBands && alphaIsFirst) {
+            iOffset = numDestBands - numSourceBands;
+        } else {
+            iOffset = 0;
+        }
+        Arrays.fill(srcBands, -1);
+        for (int i = 0; i < numSourceBands; i++) {
+            srcBands[i + iOffset] = i;
+        }
+
+        if (numDestBands == 3) {
+            paintPixel = new int[]{
+                    paintColor.getRed(),
+                    paintColor.getGreen(),
+                    paintColor.getBlue(),
+            };
+        } else {
+            if (alphaIsFirst) {
+                paintPixel = new int[]{
+                        paintColor.getAlpha(),
+                        paintColor.getRed(),
+                        paintColor.getGreen(),
+                        paintColor.getBlue(),
+                };
+            } else {
+                paintPixel = new int[]{
+                        paintColor.getRed(),
+                        paintColor.getGreen(),
+                        paintColor.getBlue(),
+                        paintColor.getAlpha(),
+                };
+            }
+        }
+
+        if (DEBUG) {
+            System.out.println("PaintOpImage: " + this);
+            System.out.println("  colorModel = " + colorModel.getClass());
+            System.out.println("  sampleModel = " + sampleModel.getClass());
+            System.out.println("  paintColor = " + this.paintColor);
+            System.out.println("  alphaIsFirst = " + this.alphaIsFirst);
+            System.out.println("  paintPixel = " + Arrays.toString(paintPixel));
+            System.out.println("  srcBands = " + Arrays.toString(srcBands));
+            if (source0.getSampleModel() instanceof ComponentSampleModel) {
+                ComponentSampleModel csm = (ComponentSampleModel) source0.getSampleModel();
+                int[] srcBandOffsets = csm.getBandOffsets();
+                System.out.println("  srcBandOffsets = " + Arrays.toString(srcBandOffsets));
+            }
+            if (sampleModel instanceof ComponentSampleModel) {
+                ComponentSampleModel csm = (ComponentSampleModel) sampleModel;
+                int[] dstBandOffsets = csm.getBandOffsets();
+                System.out.println("  dstBandOffsets = " + Arrays.toString(dstBandOffsets));
+            }
+        }
+
+
         permitInPlaceOperation();
     }
 
@@ -183,13 +258,7 @@ public final class PaintOpImage extends PointOpImage {
         int dnumBands = dst.getNumBands();
         int snumBands = src0.getNumBands();
 
-        int[] paintPixel = new int[]{
-                paintColor.getRed(),
-                paintColor.getGreen(),
-                paintColor.getBlue(),
-                paintColor.getAlpha(),
-        };
-        int paintAlpha =  paintColor.getAlpha();
+        int paintAlpha = paintColor.getAlpha();
 
         byte dstDataArrays[][] = dst.getByteDataArrays();
         int dstBandOffsets[] = dst.getBandOffsets();
@@ -206,22 +275,23 @@ public final class PaintOpImage extends PointOpImage {
         int src1PixelStride = src1.getPixelStride();
         int src1ScanlineStride = src1.getScanlineStride();
 
-        for (int k = 0; k < dnumBands; k++) {
-            byte src0Data[] = k < snumBands ? src0DataArrays[k] : null;
+        for (int dstBand = 0; dstBand < dnumBands; dstBand++) {
+            int srcBand = srcBands[dstBand];
+            byte src0Data[] = srcBand >= 0 ? src0DataArrays[srcBand] : null;
             byte src1Data[] = src1DataArrays[0];
-            byte dstData[] = dstDataArrays[k];
-            int src0ScanlineOffset = k < snumBands ? src0BandOffsets[k] : 0;
+            byte dstData[] = dstDataArrays[dstBand];
+            int src0ScanlineOffset = dstBand < snumBands ? src0BandOffsets[dstBand] : 0;
             int src1ScanlineOffset = src1BandOffsets[0];
-            int dstScanlineOffset = dstBandOffsets[k];
-            for (int j = 0; j < dheight; j++) {
+            int dstScanlineOffset = dstBandOffsets[dstBand];
+            for (int y = 0; y < dheight; y++) {
                 if (src0Data != null) {
                     int src0PixelOffset = src0ScanlineOffset;
                     int src1PixelOffset = src1ScanlineOffset;
                     int dstPixelOffset = dstScanlineOffset;
-                    for (int i = 0; i < dwidth; i++) {
+                    for (int x = 0; x < dwidth; x++) {
                         int src0Val = (int) src0Data[src0PixelOffset] & 0xff;
                         int src1Val = (int) src1Data[src1PixelOffset] & 0xff;
-                        int dstVal = (src1Val * src0Val + (255 - src1Val) * paintPixel[k]) / 255;
+                        int dstVal = (src1Val * src0Val + (255 - src1Val) * paintPixel[dstBand]) / 255;
                         dstData[dstPixelOffset] = (byte) dstVal;
                         src0PixelOffset += src0PixelStride;
                         src1PixelOffset += src1PixelStride;
@@ -231,11 +301,13 @@ public final class PaintOpImage extends PointOpImage {
                     src1ScanlineOffset += src1ScanlineStride;
                     dstScanlineOffset += dstScanlineStride;
                 } else {
+                    // Source has no alpha, compute one from paint color and mask
                     int src1PixelOffset = src1ScanlineOffset;
                     int dstPixelOffset = dstScanlineOffset;
                     for (int i = 0; i < dwidth; i++) {
+                        int src0Val = 255;
                         int src1Val = (int) src1Data[src1PixelOffset] & 0xff;
-                        int dstVal = (src1Val * paintAlpha + (255 - src1Val) * paintPixel[k]) / 255;
+                        int dstVal = (src1Val * src0Val + (255 - src1Val) * paintPixel[dstBand]) / 255;
                         dstData[dstPixelOffset] = (byte) dstVal;
                         src1PixelOffset += src1PixelStride;
                         dstPixelOffset += dstPixelStride;

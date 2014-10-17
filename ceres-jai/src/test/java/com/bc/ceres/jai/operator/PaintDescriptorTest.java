@@ -62,51 +62,42 @@ public class PaintDescriptorTest {
     }
 
     @Test
-    public void testRgbBasics() {
-        RenderedOp paintedImage = PaintDescriptor.create(source0rgb, source1, Color.RED, null);
-        assertNotNull(paintedImage);
-
-        Raster data = paintedImage.getData();
-        assertNotNull(data);
-
-        assertEquals(DataBuffer.TYPE_BYTE, data.getSampleModel().getDataType());
-        assertEquals(3, data.getSampleModel().getNumBands());
-        assertEquals(2, data.getWidth());
-        assertEquals(2, data.getHeight());
+    public void testImagePropertiesFromRGBWithOpaquePaint() {
+        testImageProperties(3, source0rgb, new Color(255, 0, 0));
     }
 
     @Test
-    public void testRgbBasicsWithSemiTransparentColor() {
-        RenderedOp paintedImage = PaintDescriptor.create(source0rgb, source1, new Color(255, 0, 0, 127), null);
-        assertNotNull(paintedImage);
-
-        Raster data = paintedImage.getData();
-        assertNotNull(data);
-
-        assertEquals(DataBuffer.TYPE_BYTE, data.getSampleModel().getDataType());
-        assertEquals(4, data.getSampleModel().getNumBands());
-        assertEquals(2, data.getWidth());
-        assertEquals(2, data.getHeight());
+    public void testImagePropertiesFromRGBAWithOpaquePaint() {
+        testImageProperties(4, source0rgba, new Color(255, 0, 0));
     }
 
     @Test
-    public void testRgbaBasics() {
-        RenderedOp paintedImage = PaintDescriptor.create(source0rgba, source1, Color.RED, null);
-        assertNotNull(paintedImage);
-
-        Raster data = paintedImage.getData();
-        assertNotNull(data);
-
-        assertEquals(DataBuffer.TYPE_BYTE, data.getSampleModel().getDataType());
-        assertEquals(4, data.getSampleModel().getNumBands());
-        assertEquals(2, data.getWidth());
-        assertEquals(2, data.getHeight());
+    public void testImagePropertiesFromRGBWithAlphaPaint() {
+        testImageProperties(4, source0rgb, new Color(255, 0, 0, 127));
     }
 
     @Test
-    public void testPaintOpaqueRed() {
+    public void testImagePropertiesFromRGBAWithAlphaPaint() {
+        testImageProperties(4, source0rgba, new Color(255, 0, 0, 127));
+    }
+
+    @Test
+    public void testRgbPaintOpaqueRed() {
         Color paintColor = new Color(255, 0, 0);
-        RenderedOp paintedImage = PaintDescriptor.create(source0rgba, source1, paintColor, null);
+        RenderedOp paintedImage = PaintDescriptor.create(source0rgb, source1, paintColor, false, null);
+        assertNotNull(paintedImage);
+
+        Raster destData = paintedImage.getData();
+        assertArrayEquals(new int[]{255, 255, 255}, destData.getPixel(0, 0, (int[]) null));
+        assertArrayEquals(new int[]{255, 0, 0}, destData.getPixel(1, 0, (int[]) null));
+        assertArrayEquals(new int[]{255, 0, 0}, destData.getPixel(0, 1, (int[]) null));
+        assertArrayEquals(new int[]{255, 127, 127}, destData.getPixel(1, 1, (int[]) null));
+    }
+
+    @Test
+    public void testRgbaPaintOpaqueRed() {
+        Color paintColor = new Color(255, 0, 0);
+        RenderedOp paintedImage = PaintDescriptor.create(source0rgba, source1, paintColor, false, null);
         assertNotNull(paintedImage);
 
         Raster destData = paintedImage.getData();
@@ -117,9 +108,9 @@ public class PaintDescriptorTest {
     }
 
     @Test
-    public void testPaintSemiTransparentRed() {
+    public void testRgbaPaintSemiTransparentRed() {
         Color paintColor = new Color(255, 0, 0, 127);
-        RenderedOp paintedImage = PaintDescriptor.create(source0rgba, source1, paintColor, null);
+        RenderedOp paintedImage = PaintDescriptor.create(source0rgba, source1, paintColor, false, null);
         assertNotNull(paintedImage);
 
         Raster destData = paintedImage.getData();
@@ -130,9 +121,9 @@ public class PaintDescriptorTest {
     }
 
     @Test
-    public void testPaintFullyTransparentColor() {
+    public void testRgbaPaintFullyTransparentColor() {
         Color paintColor = new Color(0, 0, 0, 0);
-        RenderedOp paintedImage = PaintDescriptor.create(source0rgba, source1, paintColor, null);
+        RenderedOp paintedImage = PaintDescriptor.create(source0rgba, source1, paintColor, false, null);
         assertNotNull(paintedImage);
 
         Raster destData = paintedImage.getData();
@@ -141,4 +132,15 @@ public class PaintDescriptorTest {
         assertArrayEquals(new int[]{0, 0, 0, 0}, destData.getPixel(0, 1, (int[]) null));
         assertArrayEquals(new int[]{127, 127, 127, 127}, destData.getPixel(1, 1, (int[]) null));
     }
+
+
+    private void testImageProperties(int expectedNumBands, BufferedImage sourceImage, Color paintColor) {
+        RenderedOp paintedImage = PaintDescriptor.create(sourceImage, source1, paintColor, false, null);
+        assertNotNull(paintedImage);
+        assertEquals(DataBuffer.TYPE_BYTE, paintedImage.getSampleModel().getDataType());
+        assertEquals(expectedNumBands, paintedImage.getSampleModel().getNumBands());
+        assertEquals(2, paintedImage.getWidth());
+        assertEquals(2, paintedImage.getHeight());
+    }
+
 }
