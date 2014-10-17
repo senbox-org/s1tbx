@@ -36,8 +36,14 @@ public class ResamplingFactoryTest {
         resampling = ResamplingFactory.createResampling(ResamplingFactory.BILINEAR_INTERPOLATION_NAME);
         assertEquals(resampling.getName(), Resampling.BILINEAR_INTERPOLATION.getName());
 
-        resampling = ResamplingFactory.createResampling(ResamplingFactory.BISINC_INTERPOLATION_NAME);
-        assertEquals(resampling.getName(), Resampling.BISINC_INTERPOLATION.getName());
+        resampling = ResamplingFactory.createResampling(ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME);
+        assertEquals(resampling.getName(), Resampling.BISINC_5_POINT_INTERPOLATION.getName());
+
+        resampling = ResamplingFactory.createResampling(ResamplingFactory.BISINC_11_POINT_INTERPOLATION_NAME);
+        assertEquals(resampling.getName(), Resampling.BISINC_11_POINT_INTERPOLATION.getName());
+
+        resampling = ResamplingFactory.createResampling(ResamplingFactory.BISINC_21_POINT_INTERPOLATION_NAME);
+        assertEquals(resampling.getName(), Resampling.BISINC_21_POINT_INTERPOLATION.getName());
 
         resampling = ResamplingFactory.createResampling(ResamplingFactory.BICUBIC_INTERPOLATION_NAME);
         assertEquals(resampling.getName(), Resampling.BICUBIC_INTERPOLATION.getName());
