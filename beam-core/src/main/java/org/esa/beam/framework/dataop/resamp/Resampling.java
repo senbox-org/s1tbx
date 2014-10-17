@@ -39,7 +39,9 @@ public interface Resampling {
     /**
      * The bisinc interpolation resampling method.
      */
-    Resampling BISINC_INTERPOLATION = new BiSincInterpolationResampling();
+    Resampling BISINC_5_POINT_INTERPOLATION = new BiSinc5PointInterpolationResampling();
+    Resampling BISINC_11_POINT_INTERPOLATION = new BiSinc11PointInterpolationResampling();
+    Resampling BISINC_21_POINT_INTERPOLATION = new BiSinc21PointInterpolationResampling();
     /**
      * The bicubic spline interpolation resampling method.
      */
@@ -81,6 +83,10 @@ public interface Resampling {
      * @throws Exception if a non-runtime error occurs, e.g I/O error
      */
     double resample(Raster raster, Index index) throws Exception;
+
+    default int getKernelSize() {
+        return 4;
+    }
 
     /**
      * A raster is a rectangular grid which provides sample values at a given raster position x,y.
