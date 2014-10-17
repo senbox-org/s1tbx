@@ -29,6 +29,13 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
+    <changelog>
+        <![CDATA[
+            <b>Changes in 2.0.0</b><br/>
+                [SNAP-13] Bisince Interpolation<br/>
+        ]]>
+    </changelog>
+
     <dependency>
         <module>snap-ceres-core</module>
     </dependency>

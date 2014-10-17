@@ -25,6 +25,14 @@
         analyse and manipulate data products of a number of EO sensors.
     </description>
 
+
+    <changelog>
+        <![CDATA[
+        <b>Changes in 2.0.0</b><br/>
+            [SNAP-14] Allow multiple selection when adding new layer<br/>
+        ]]>
+    </changelog>
+
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>

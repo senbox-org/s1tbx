@@ -26,6 +26,14 @@
     <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
+
+    <changelog>
+        <![CDATA[
+        <b>Changes in 2.0.0</b><br/>
+            [SNAP-15] Support BigTIFF data format<br/>
+        ]]>
+    </changelog>
+
     <dependency>
         <module>snap-core</module>
     </dependency>
