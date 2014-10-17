@@ -168,14 +168,14 @@ public class ImageManagerUncertaintyTest {
                 {
                         new Color(255, 255, 0, 255),
                         new Color(1, 1, 255, 255),
-                        new Color(1, 1, 255, 128),
+                        new Color(0, 0, 128, 128),
                         new Color(0, 0, 0, 0)
                 },
                 /*y=3*/
                 {
                         new Color(255, 255, 0, 255),
                         new Color(255, 255, 255, 255),
-                        new Color(255, 255, 255, 128),
+                        new Color(128, 128, 128, 128),
                         new Color(0, 0, 0, 0)
                 },
         };
@@ -200,7 +200,7 @@ public class ImageManagerUncertaintyTest {
                 {
                         new Color(255, 255, 0, 255),
                         new Color(0, 0, 0, 255),
-                        new Color(126, 0, 0, 255),
+                        new Color(127, 0, 0, 255),
                         new Color(255, 0, 0, 255)
                 },
                 /*y=2*/
@@ -246,7 +246,7 @@ public class ImageManagerUncertaintyTest {
                 {
                         new Color(255, 255, 0, 255),
                         new Color(1, 1, 255, 255),
-                        new Color(127, 63, 191, 255),
+                        new Color(127, 64, 191, 255),
                         new Color(255, 0, 0, 255)
                 },
                 /*y=3*/
