@@ -2,6 +2,7 @@ package org.esa.nest.dataio.orbits;
 
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.snap.datamodel.Orbits;
+import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -12,7 +13,8 @@ import java.io.File;
  */
 public class TestSentinelPODOrbitFile {
 
-    private final static String orbitFile = "P:\\s1tbx\\s1tbx\\Data\\Orbit\\unzipped\\S1A_OPER_AUX_RESORB_OPOD_20140611T152302_V20140525T151921_20140525T183641.EOF";
+    private final static String orbitFile = TestData.inputSAR+"Orbits"+TestData.sep+
+            "S1A_OPER_AUX_RESORB_OPOD_20140611T152302_V20140525T151921_20140525T183641.EOF";
 
     @Test
     public void testSentinelPODOrbitFile() throws Throwable {
