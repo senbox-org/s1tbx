@@ -129,6 +129,7 @@ public class TestUtils {
     private static final boolean FailOnSkip = false;
     private static final boolean FailOnLargeTestProducts = false;
     private static boolean testEnvironmentInitialized = false;
+    private static final String SKIPTEST = "skipTest";
 
     public static void initTestEnvironment() {
         if (testEnvironmentInitialized)
@@ -352,13 +353,17 @@ public class TestUtils {
         }
     }
 
+    public static void comparePixels(final Product targetProduct, final String bandName, final float[] expected) throws IOException {
+        comparePixels(targetProduct, bandName, 0, 0, expected);
+    }
+
     public static void comparePixels(final Product targetProduct, final String bandName,
-                                     final float[] expected) throws IOException {
+                                     final int x, final int y, final float[] expected) throws IOException {
         final Band band = targetProduct.getBand(bandName);
         assertNotNull(band);
 
         final float[] floatValues = new float[expected.length];
-        band.readPixels(0, 0, expected.length, 1, floatValues, ProgressMonitor.NULL);
+        band.readPixels(x, y, expected.length, 1, floatValues, ProgressMonitor.NULL);
 
         for(int i=0; i < expected.length; ++i) {
             assertEquals(expected[i], floatValues[i], 0.0001);
@@ -461,7 +466,7 @@ public class TestUtils {
 
         final File[] folderList = origFolder.listFiles(ProductFunctions.directoryFileFilter);
         for (File folder : folderList) {
-            if (!folder.getName().contains("skipTest")) {
+            if (!folder.getName().contains(SKIPTEST)) {
                 recurseFindReadableProducts(folder, productList, maxCount);
             }
         }
@@ -505,7 +510,7 @@ public class TestUtils {
         for (File folder : folderList) {
             if (maxIteration > 0 && iterations >= maxIteration)
                 break;
-            if (!folder.getName().contains("skipTest")) {
+            if (!folder.getName().contains(SKIPTEST)) {
                 iterations = recurseProcessFolder(spi, folder, iterations, productTypeExemptions, exceptionExemptions);
             }
         }
@@ -579,13 +584,13 @@ public class TestUtils {
     public static void testProcessAllInPath(final OperatorSpi spi, final String folderPath,
                                             final String[] productTypeExemptions,
                                             final String[] exceptionExemptions) throws Exception {
-        final File folder = new File(folderPath);
-        if (!folder.exists()) {
-            skipTest(spi, folderPath+ " not found");
-            return;
-        }
-
         if (canTestProcessingOnAllProducts) {
+            final File folder = new File(folderPath);
+            if (!folder.exists()) {
+                skipTest(spi, folderPath+ " not found");
+                return;
+            }
+
             int iterations = 0;
             recurseProcessFolder(spi, folder, iterations, productTypeExemptions, exceptionExemptions);
         }
@@ -593,15 +598,19 @@ public class TestUtils {
 
     private final static ProductFunctions.ValidProductFileFilter fileFilter = new ProductFunctions.ValidProductFileFilter(false);
 
-    public static void recurseReadFolder(final File origFolder,
+    public static void recurseReadFolder(final Object callingClass, final File origFolder,
                                          final ProductReaderPlugIn readerPlugin,
                                          final ProductReader reader,
                                          final String[] productTypeExemptions,
                                          final String[] exceptionExemptions) throws Exception {
+        if (!origFolder.exists()) {
+            TestUtils.skipTest(callingClass, "Folder "+origFolder+" not found");
+            return;
+        }
         recurseReadFolder(origFolder, readerPlugin, reader, productTypeExemptions, exceptionExemptions, 0);
     }
 
-    public static int recurseReadFolder(final File origFolder,
+    private static int recurseReadFolder(final File origFolder,
                                         final ProductReaderPlugIn readerPlugin,
                                         final ProductReader reader,
                                         final String[] productTypeExemptions,
@@ -609,7 +618,7 @@ public class TestUtils {
                                         int iterations) throws Exception {
         final File[] folderList = origFolder.listFiles(ProductFunctions.directoryFileFilter);
         for (File folder : folderList) {
-            if (!folder.getName().contains("skipTest")) {
+            if (!folder.getName().contains(SKIPTEST)) {
                 iterations = recurseReadFolder(folder, readerPlugin, reader, productTypeExemptions, exceptionExemptions, iterations);
                 if (maxIteration > 0 && iterations >= maxIteration)
                     return iterations;

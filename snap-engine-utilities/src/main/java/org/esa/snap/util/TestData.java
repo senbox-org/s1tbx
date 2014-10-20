@@ -8,9 +8,12 @@ import java.io.File;
 public class TestData {
 
     public final static String sep = File.separator;
-    public final static String inputSAR = TestUtils.rootPathTestProducts+sep+"input"+sep+"SAR"+sep;
+    public final static String input = TestUtils.rootPathTestProducts+sep+"input"+sep;
+    public final static String inputSAR = input+"SAR"+sep;
 
     //ASAR
+    public final static File inputASAR_IMM = new File(inputSAR+"ASAR"+sep+"ASA_IMM.zip");
+    public final static File inputASAR_APM = new File(inputSAR+"ASAR"+sep+"ASA_APM.zip");
     public final static File inputASAR_WSM = new File(inputSAR+"ASAR"+sep+"subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim");
     public final static File inputASAR_IMS = new File(inputSAR+"ASAR"+sep+"subset_3_ASA_IMS_1PNUPA20031203_061259_000000162022_00120_09192_0099.dim");
 
