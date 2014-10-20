@@ -44,12 +44,7 @@ public class TestTerraSarXProductReader {
     @Test
     public void testOpenAll() throws Exception {
         final File folder = new File(TestUtils.rootPathTerraSarX);
-        if (!folder.exists()) {
-            TestUtils.skipTest(this);
-            return;
-        }
-
         if (TestUtils.canTestReadersOnAllProducts)
-            TestUtils.recurseReadFolder(folder, readerPlugin, reader, null, null);
+            TestUtils.recurseReadFolder(this, folder, readerPlugin, reader, null, null);
     }
 }

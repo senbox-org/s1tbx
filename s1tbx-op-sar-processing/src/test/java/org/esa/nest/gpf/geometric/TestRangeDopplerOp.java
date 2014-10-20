@@ -26,6 +26,7 @@ import org.esa.nest.dataio.dem.ElevationModelDescriptor;
 import org.esa.nest.dataio.dem.ElevationModelRegistry;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -62,9 +63,9 @@ public class TestRangeDopplerOp {
      */
     @Test
     public void testProcessWSM() throws Exception {
-        final File inputFile = new File(inputPathWSM);
+        final File inputFile = TestData.inputASAR_WSM;
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputPathWSM + " not found");
+            TestUtils.skipTest(this, inputFile + " not found");
             return;
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
@@ -78,16 +79,18 @@ public class TestRangeDopplerOp {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
-        TestUtils.compareProducts(targetProduct, expectedPathWSM, null);
+        TestUtils.verifyProduct(targetProduct, true, true, true);
+
+        final float[] expected = new float[] { 0.5932531952857971f,0.8568953275680542f,0.5849599242210388f };
+        TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), 500, 500, expected);
     }
 
     @Test
     public void testGetLocalDEM() throws Exception {
 
-        final File inputFile = new File("P:\\nest\\nest\\ESA Data\\RADAR\\ASAR\\Image Mode Medium Resolution\\ASA_IMM_1PNIPA20080507_220932_000000502068_00230_32348_0581.N1");
+        final File inputFile = TestData.inputASAR_IMM;
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, inputFile+" not found");
             return;
         }
 
@@ -120,9 +123,9 @@ public class TestRangeDopplerOp {
      */
     @Test
     public void testProcessIMS() throws Exception {
-        final File inputFile = new File(inputPathIMS);
+        final File inputFile = TestData.inputASAR_IMS;
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputPathIMS + " not found");
+            TestUtils.skipTest(this, inputFile + " not found");
             return;
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
@@ -136,8 +139,10 @@ public class TestRangeDopplerOp {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
-        TestUtils.compareProducts(targetProduct, expectedPathIMS, null);
+        TestUtils.verifyProduct(targetProduct, true, true, true);
+
+        final float[] expected = new float[] { 0.04975456744432449f,0.13621896505355835f,0.07706855237483978f};
+        TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), expected);
     }
 
     /**
@@ -147,9 +152,9 @@ public class TestRangeDopplerOp {
      */
     @Test
     public void testProcessAPM() throws Exception {
-        final File inputFile = new File(inputPathAPM);
+        final File inputFile = TestData.inputASAR_APM;
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputPathAPM + " not found");
+            TestUtils.skipTest(this, inputFile + " not found");
             return;
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
@@ -163,8 +168,10 @@ public class TestRangeDopplerOp {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
-        TestUtils.compareProducts(targetProduct, expectedPathAPM, null);
+        TestUtils.verifyProduct(targetProduct, true, true);
+
+        final float[] expected = new float[] { 0.08639660477638245f,0.08651735633611679f,0.10073450207710266f };
+        TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), 500, 500, expected);
     }
 
     @Test

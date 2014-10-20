@@ -54,13 +54,8 @@ public class TestSentinel1ProductReader {
     @Test
     public void testOpenAll() throws Exception {
         final File folder = new File(TestUtils.rootPathSentinel1);
-        if (!folder.exists()) {
-            TestUtils.skipTest(this);
-            return;
-        }
-
         if (TestUtils.canTestReadersOnAllProducts)
-            TestUtils.recurseReadFolder(folder, readerPlugin, reader, null, null);
+            TestUtils.recurseReadFolder(this, folder, readerPlugin, reader, null, null);
     }
 
     @Test

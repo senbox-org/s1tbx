@@ -15,17 +15,9 @@
  */
 package org.esa.nest.gpf.geometric;
 
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
+
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.dataio.dem.ElevationModel;
-import org.esa.nest.dataio.dem.ElevationModelDescriptor;
-import org.esa.nest.dataio.dem.ElevationModelRegistry;
 import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
@@ -43,12 +35,6 @@ public class TestTerrainFlatteningOp {
         TestUtils.initTestEnvironment();
     }
     private final static OperatorSpi spi = new TerrainFlatteningOp.Spi();
-
-    private final static String inputPathWSM = TestUtils.rootPathTestProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-
-    private final static String inputPathIMS = TestUtils.rootPathTestProducts + "\\input\\ENVISAT-ASA_IMS_1PNDPA20050405_211952_000000162036_00115_16201_8523.dim";
-
-    private final static String inputPathAPM = TestUtils.rootPathTestProducts + "\\input\\ASA_APM_1PNIPA20030327_091853_000000152015_00036_05601_5422.N1";
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
     private String[] exceptionExemptions = {"not supported", "already map projected", "outside of SRTM valid area"};
@@ -86,9 +72,9 @@ public class TestTerrainFlatteningOp {
      */
     @Test
     public void testProcessIMS() throws Exception {
-        final File inputFile = new File(inputPathIMS);
+        final File inputFile = TestData.inputASAR_IMS;
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputPathIMS + " not found");
+            TestUtils.skipTest(this, inputFile + " not found");
             return;
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
@@ -109,9 +95,9 @@ public class TestTerrainFlatteningOp {
      */
     @Test
     public void testProcessAPM() throws Exception {
-        final File inputFile = new File(inputPathWSM);
+        final File inputFile = TestData.inputASAR_APM;
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputPathWSM + " not found");
+            TestUtils.skipTest(this, inputFile + " not found");
             return;
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
