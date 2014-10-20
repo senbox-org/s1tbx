@@ -8,8 +8,8 @@ import java.io.File;
 public class TestData {
 
     public final static String sep = File.separator;
-    public final static String input = TestUtils.rootPathTestProducts+sep+"input";
-    public final static String inputSAR = input+sep+"SAR"+sep;
+    public final static String input = TestUtils.rootPathTestProducts+sep+"input"+sep;
+    public final static String inputSAR = input+"SAR"+sep;
 
     //ASAR
     public final static File inputASAR_IMM = new File(inputSAR+"ASAR"+sep+"ASA_IMM.zip");

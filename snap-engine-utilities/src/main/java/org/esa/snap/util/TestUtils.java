@@ -129,6 +129,7 @@ public class TestUtils {
     private static final boolean FailOnSkip = false;
     private static final boolean FailOnLargeTestProducts = false;
     private static boolean testEnvironmentInitialized = false;
+    private static final String SKIPTEST = "skipTest";
 
     public static void initTestEnvironment() {
         if (testEnvironmentInitialized)
@@ -465,7 +466,7 @@ public class TestUtils {
 
         final File[] folderList = origFolder.listFiles(ProductFunctions.directoryFileFilter);
         for (File folder : folderList) {
-            if (!folder.getName().contains("skipTest")) {
+            if (!folder.getName().contains(SKIPTEST)) {
                 recurseFindReadableProducts(folder, productList, maxCount);
             }
         }
@@ -509,7 +510,7 @@ public class TestUtils {
         for (File folder : folderList) {
             if (maxIteration > 0 && iterations >= maxIteration)
                 break;
-            if (!folder.getName().contains("skipTest")) {
+            if (!folder.getName().contains(SKIPTEST)) {
                 iterations = recurseProcessFolder(spi, folder, iterations, productTypeExemptions, exceptionExemptions);
             }
         }
@@ -617,7 +618,7 @@ public class TestUtils {
                                         int iterations) throws Exception {
         final File[] folderList = origFolder.listFiles(ProductFunctions.directoryFileFilter);
         for (File folder : folderList) {
-            if (!folder.getName().contains("skipTest")) {
+            if (!folder.getName().contains(SKIPTEST)) {
                 iterations = recurseReadFolder(folder, readerPlugin, reader, productTypeExemptions, exceptionExemptions, iterations);
                 if (maxIteration > 0 && iterations >= maxIteration)
                     return iterations;
