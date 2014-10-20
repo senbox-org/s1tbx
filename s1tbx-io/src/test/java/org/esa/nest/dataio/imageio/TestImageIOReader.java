@@ -40,7 +40,7 @@ public class TestImageIOReader {
     ImageIOReaderPlugIn readerPlugin;
     ProductReader reader;
 
-    String filePath = TestData.input+File.separator+"image"+File.separator+"PNG"+File.separator+"s1_64x.png";
+    String filePath = TestData.input+"image"+TestData.sep+"PNG"+TestData.sep+"s1_64x.png";
 
     public TestImageIOReader() {
         readerPlugin = new ImageIOReaderPlugIn();
