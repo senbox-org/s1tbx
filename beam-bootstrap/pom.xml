@@ -147,6 +147,11 @@
 
 
         <dependency>
+            <groupId>it.geosolutions.imageio-ext</groupId>
+            <artifactId>imageio-ext-tiff</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-main</artifactId>
         </dependency>
@@ -166,6 +171,8 @@
             <groupId>org.geotools</groupId>
             <artifactId>gt-epsg-hsql</artifactId>
         </dependency>
+
+
 
         <dependency>
             <groupId>edu.ucar</groupId>

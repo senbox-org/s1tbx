@@ -259,6 +259,14 @@
             </dependency>
 
 
+            <!-- ImageioIO-Ext ############################################# -->
+
+            <dependency>
+                <groupId>it.geosolutions.imageio-ext</groupId>
+                <artifactId>imageio-ext-tiff</artifactId>
+                <version>1.1.9</version>
+            </dependency>
+
             <!-- GeoTools Libraries ############################################# -->
             <!-- Sadly there is no global exclusion so every geotools artifact -->
             <!-- has to exclude the 'wrong' jai version -->
@@ -368,6 +376,15 @@
                         <groupId>javax.media</groupId>
                         <artifactId>jai_imageio</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>it.geosolutions.imageio-ext</groupId>
+                        <artifactId>imageio-ext-tiff</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>it.geosolutions.imageio-ext</groupId>
+                        <artifactId>imageio-ext-utilities</artifactId>
+                    </exclusion>
+
                 </exclusions>
             </dependency>
             <dependency>
@@ -455,14 +472,6 @@
                 </exclusions>
             </dependency>
 
-			<!-- ImageioIO-Ext ############################################# -->
-			
-			<dependency>
-				<groupId>it.geosolutions.imageio-ext</groupId>
-				<artifactId>imageio-ext-tiff</artifactId>
-				<version>1.1.9</version>
-			</dependency>
-			
             <!-- JAI Libraries ############################################# -->
 
             <dependency>
