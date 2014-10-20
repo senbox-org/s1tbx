@@ -44,9 +44,7 @@ public class TestERSProductReader {
     @Test
     public void testOpenAll() throws Exception {
         final File folder = new File(TestUtils.rootPathERS);
-        if (!folder.exists()) return;
-
         if (TestUtils.canTestReadersOnAllProducts)
-            TestUtils.recurseReadFolder(folder, readerPlugin, reader, null, null);
+            TestUtils.recurseReadFolder(this, folder, readerPlugin, reader, null, null);
     }
 }

@@ -46,12 +46,7 @@ public class TestAlosPalsarProductReader {
     @Test
     public void testOpenAll() throws Exception {
         final File folder = new File(TestUtils.rootPathALOS);
-        if (!folder.exists()) {
-            TestUtils.skipTest(this);
-            return;
-        }
-
         if (TestUtils.canTestReadersOnAllProducts)
-            TestUtils.recurseReadFolder(folder, readerPlugin, reader, null, exceptionExemptions);
+            TestUtils.recurseReadFolder(this, folder, readerPlugin, reader, null, exceptionExemptions);
     }
 }
