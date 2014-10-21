@@ -179,6 +179,14 @@ public class BandMathsOp extends Operator {
          * Target band's spectral bandwidth in nm.
          */
         public Float spectralBandwidth;
+        /**
+         * Target band's offset.
+         */
+        public Double scalingOffset;
+        /**
+         * Target band's scale factor.
+         */
+        public Double scalingFactor;
     }
 
     /**
@@ -354,6 +362,12 @@ public class BandMathsOp extends Operator {
         }
         if (bandDescriptor.spectralBandwidth != null) {
             band.setSpectralBandwidth(bandDescriptor.spectralBandwidth);
+        }
+        if (bandDescriptor.scalingOffset != null) {
+            band.setScalingOffset(bandDescriptor.scalingOffset);
+        }
+        if (bandDescriptor.scalingFactor != null) {
+            band.setScalingFactor(bandDescriptor.scalingFactor);
         }
         descriptorMap.put(band, bandDescriptor);
         try {

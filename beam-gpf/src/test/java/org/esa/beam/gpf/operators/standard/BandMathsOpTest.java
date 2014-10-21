@@ -138,7 +138,7 @@ public class BandMathsOpTest {
 
     @Test
     public void testScaledInputBand() throws Exception {
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[2];
         bandDescriptors[0] = createBandDescription("aBandName", "band3", ProductData.TYPESTRING_FLOAT32, "milliUnits");
         bandDescriptors[1] = createBandDescription("bBandName", "band3.raw & 64", ProductData.TYPESTRING_INT32, "noUnits");
@@ -168,9 +168,34 @@ public class BandMathsOpTest {
     }
 
     @Test
+    public void testScaledOutputBand() throws Exception {
+        Map<String, Object> parameters = new HashMap<>();
+        BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
+        bandDescriptors[0] = createBandDescription("aBandName", "band1", ProductData.TYPESTRING_FLOAT32, "milliUnits", 0.1, 5.0);
+        parameters.put("targetBands", bandDescriptors);
+        Product sourceProduct = createTestProduct(4, 4);
+        Product targetProduct = GPF.createProduct("BandMaths", parameters, sourceProduct);
+
+        assertNotNull(targetProduct);
+        Band band = targetProduct.getBand("aBandName");
+        assertNotNull(band);
+        assertEquals("aDescription", band.getDescription());
+        assertEquals("milliUnits", band.getUnit());
+        assertEquals(ProductData.TYPE_FLOAT32, band.getDataType());
+        assertEquals(0.1, band.getScalingFactor(), 1E-6);
+        assertEquals(5.0, band.getScalingOffset(), 1E-6);
+
+        float[] floatValues = new float[16];
+        band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
+        float[] expectedValues = new float[16];
+        Arrays.fill(expectedValues, 1.0F);
+        assertTrue(Arrays.equals(expectedValues, floatValues));
+    }
+
+    @Test
     public void testTwoSourceBandsOneTargetBand() throws Exception {
         Product sourceProduct = createTestProduct(4, 4);
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "band1 + band2", ProductData.TYPESTRING_FLOAT32, "");
         parameters.put("targetBands", bandDescriptors);
@@ -327,12 +352,18 @@ public class BandMathsOpTest {
     }
 
     private static BandMathsOp.BandDescriptor createBandDescription(String bandName, String expression, String type, String unit) {
+        return createBandDescription(bandName, expression, type, unit, null, null);
+    }
+
+    private static BandMathsOp.BandDescriptor createBandDescription(String bandName, String expression, String type, String unit, Double scalingFactor, Double scalingOffset) {
         BandMathsOp.BandDescriptor bandDescriptor = new BandMathsOp.BandDescriptor();
         bandDescriptor.name = bandName;
         bandDescriptor.description = "aDescription";
         bandDescriptor.expression = expression;
         bandDescriptor.type = type;
         bandDescriptor.unit = unit;
+        bandDescriptor.scalingFactor = scalingFactor;
+        bandDescriptor.scalingOffset = scalingOffset;
         return bandDescriptor;
     }
 

@@ -25,19 +25,20 @@
         analyse and manipulate data products of a number of EO sensors.
     </description>
 
-
-    <changelog>
-        <![CDATA[
-        <b>Changes in 2.0.0</b><br/>
-            [SNAP-14] Allow multiple selection when adding new layer<br/>
-        ]]>
-    </changelog>
-
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <changelog>
+        <![CDATA[
+        <b>Changes in 2.0.0</b><br/>
+            [SNAP-14] Allow multiple selection when adding new layer<br/>
+        <b>Changes in 1.0.1</b><br/>
+            [SNAP-17] Saving a product takes too long<br/>
+        ]]>
+    </changelog>
 
     <activator>org.esa.beam.visat.VisatActivator</activator>
 
