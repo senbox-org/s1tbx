@@ -5,6 +5,7 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.util.StringUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.gpf.OperatorUtils;
 
@@ -25,8 +26,23 @@ public class InputProductValidator {
 
     }
 
-    public void checkIfTOPSARDeburst() throws OperatorException {
+    public void checkIfTOPSARBurstProduct(final boolean shouldbe) throws OperatorException {
+        final String[] bandNames = product.getBandNames();
+        final boolean isBurst = (contains(bandNames, "IW1") && contains(bandNames, "IW2")) ||
+                (contains(bandNames, "EW1") && contains(bandNames, "EW2"));
+        if(shouldbe && !isBurst) {
+            throw new OperatorException("Source product should an SLC burst product");
+        } else if(!shouldbe && isBurst) {
+            throw new OperatorException("Source product should should first be deburst");
+        }
+    }
 
+    private boolean contains(final String[] list, final String tag) {
+        for(String s : list) {
+            if(s.contains(tag))
+                return true;
+        }
+        return false;
     }
 
     public void checkIfQuadPol() throws OperatorException {

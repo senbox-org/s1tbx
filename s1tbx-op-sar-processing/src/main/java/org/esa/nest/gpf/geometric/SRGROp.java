@@ -27,6 +27,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.nest.gpf.InputProductValidator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.GeoUtils;
@@ -108,6 +109,10 @@ public class SRGROp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfMapProjected();
+            validator.checkIfTOPSARBurstProduct(false);
+
             if (numRangePoints < warpPolynomialOrder + 2) {
                 throw new OperatorException("numRangePoints must be greater than warpPolynomialOrder");
             }
