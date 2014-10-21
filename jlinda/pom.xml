@@ -15,7 +15,7 @@
 		<context>s1tbx</context>
 		
         <jlinda.version>0.8.1</jlinda.version>
-		<s1tbx.version>1.0.0</s1tbx.version>
+		<s1tbx.version>1.0.2</s1tbx.version>
 		<snap.version>1.0.0</snap.version>
         <jblas.version>1.2.3</jblas.version>
         <junit.version>4.11</junit.version>
