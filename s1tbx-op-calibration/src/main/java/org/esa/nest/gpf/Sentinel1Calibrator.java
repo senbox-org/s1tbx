@@ -500,13 +500,13 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             final int calVecIdx = calInfo.getCalibrationVectorIndex(y);
             final Sentinel1Utils.CalibrationVector vec0 = calInfo.getCalibrationVector(calVecIdx);
             final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
-            final float[] vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
-            final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
+            final float[] vec0LUT = getVector(calType, vec0);
+            final float[] vec1LUT = getVector(calType, vec1);
             float[] retroVec0LUT = null;
             float[] retroVec1LUT = null;
             if (dataType != null) {
-                retroVec0LUT = Sentinel1Calibrator.getVector(dataType, vec0);
-                retroVec1LUT = Sentinel1Calibrator.getVector(dataType, vec1);
+                retroVec0LUT = getVector(dataType, vec0);
+                retroVec1LUT = getVector(dataType, vec1);
             }
             final double azTime = calInfo.firstLineTime + y * calInfo.lineTimeInterval;
             final double muY = (azTime - vec0.timeMJD) / (vec1.timeMJD - vec0.timeMJD);
@@ -648,7 +648,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         }
 
         public int getCalibrationVectorIndex(final int y) {
-            for (int i = 0; i < count; i++) {
+            for (int i = 1; i < count; i++) {
                 if (y < calibrationVectorList[i].line) {
                     return i - 1;
                 }
