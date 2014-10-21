@@ -128,6 +128,7 @@ public class TestUtils {
 
     private static final boolean FailOnSkip = false;
     private static final boolean FailOnLargeTestProducts = false;
+    private static final boolean FailOnAllNoData = false;
     private static boolean testEnvironmentInitialized = false;
     private static final String SKIPTEST = "skipTest";
 
@@ -229,22 +230,24 @@ public class TestUtils {
             if (product.getEndTime() == null)
                 throw new Exception("endTime is null");
         }
-        if(verifyBandData) {
+        if(verifyBandData && FailOnAllNoData) {
             for (Band b : product.getBands()) {
                 if (b.getUnit() == null || b.getUnit().isEmpty())
                     throw new Exception("band " + b.getName() + " has null unit");
 
                 // readPixels gets computeTiles to be executed
-                final int w = b.getSceneRasterWidth();
-                final int h = b.getSceneRasterHeight();
+                final int w = b.getSceneRasterWidth()/2;
+                final int h = b.getSceneRasterHeight()/2;
                 if (FailOnLargeTestProducts && (w > subsetWidth*2 || h > subsetHeight*2)) {
                     throw new IOException("Test product too large " + w + "," + h);
                 }
+                final int x0 = w/2;
+                final int y0 = h/2;
 
                 boolean allNoData = true;
-                for(int y=0; y < h; ++y) {
+                for(int y=y0; y < y0+h; ++y) {
                     final float[] floatValues = new float[w];
-                    b.readPixels(0, y, w, 1, floatValues, ProgressMonitor.NULL);
+                    b.readPixels(x0, y, w, 1, floatValues, ProgressMonitor.NULL);
                     for (float f : floatValues) {
                         if (!(f == b.getNoDataValue() || f == 0 || f == Float.NaN))
                             allNoData = false;
