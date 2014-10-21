@@ -39,12 +39,9 @@ public class TestRemoveThermalNoiseOp {
 
     private final static OperatorSpi spi = new Sentinel1RemoveThermalNoiseOp.Spi();
 
-    final String s1ZipFilePath = TestUtils.rootPathTestProducts + "input\\S1\\S1A_S1_GRDM_1SDV_20140607T172812_20140607T172836_000947_000EBD_7543.zip";
-
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR", "GeoTIFF", "SCS_U"};
     private String[] exceptionExemptions = {"not supported",
-            "calibration has already been applied",
-            "Cannot apply calibration to coregistered product"};
+            "not a valid mission for Sentinel1 product"};
 
     @Test
     public void testProcessingS1_GRD() throws Exception {
