@@ -54,7 +54,8 @@ public class TestRangeDopplerOp {
     private final static String expectedPathAPM = TestUtils.rootPathTestProducts + "\\expected\\ENVISAT-ASA_APM_1PNIPA20030327_091853_000000152015_00036_05601_5422.N1_TC.dim";
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
-    private String[] exceptionExemptions = {"not supported", "already map projected", "outside of SRTM valid area"};
+    private String[] exceptionExemptions = {"not supported", "already map projected", "outside of SRTM valid area",
+                                "Source product should should first be deburst"};
 
     /**
      * Processes a WSM product and compares it to processed product known to be correct

@@ -38,6 +38,7 @@ public class TestRemoveAntennaPatternOp {
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR", "GeoTIFF", "SCS_U"};
     private String[] exceptionExemptions = {"not supported",
+            "ASA_IMS_1P is not a valid ASAR product type for the operator",
             "calibration has already been applied",
             "Cannot apply calibration to coregistered product"};
 
@@ -80,11 +81,11 @@ public class TestRemoveAntennaPatternOp {
 
     @Test
     public void testProcessAllASAR() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllERS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, exceptionExemptions);
     }
 }
