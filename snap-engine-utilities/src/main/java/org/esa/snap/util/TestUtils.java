@@ -48,6 +48,12 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TestUtils {
 
+    private static final boolean FailOnSkip = true;
+    private static final boolean FailOnLargeTestProducts = false;
+    private static final boolean FailOnAllNoData = false;
+    private static boolean testEnvironmentInitialized = false;
+    private static final String SKIPTEST = "skipTest";
+
     public static final Logger log = BeamLogManager.getSystemLogger();
     private final static String contextID = ResourceUtils.getContextID();
     private static final PropertiesMap testPreferences = Config.getAutomatedTestConfigPropertyMap(contextID + ".tests");
@@ -125,12 +131,6 @@ public class TestUtils {
             canTestProcessingOnAllProducts = false;
         }
     }
-
-    private static final boolean FailOnSkip = false;
-    private static final boolean FailOnLargeTestProducts = false;
-    private static final boolean FailOnAllNoData = false;
-    private static boolean testEnvironmentInitialized = false;
-    private static final String SKIPTEST = "skipTest";
 
     public static void initTestEnvironment() {
         if (testEnvironmentInitialized)
