@@ -39,7 +39,8 @@ public class TestSRGROperator {
     private final static OperatorSpi spi = new SRGROp.Spi();
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
-    private String[] exceptionExemptions = {"conversion has already been applied", "not supported", "GeoCoding is null"};
+    private String[] exceptionExemptions = {"conversion has already been applied", "not supported", "GeoCoding is null",
+            "Source product should should first be deburst"};
 
     /**
      * Tests SRGR operator with a 4x16 "DETECTED" test product.

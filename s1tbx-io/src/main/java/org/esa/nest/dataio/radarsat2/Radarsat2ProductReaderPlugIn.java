@@ -74,7 +74,7 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
                 return result.isPresent();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return false;
     }

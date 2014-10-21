@@ -32,6 +32,7 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
+import org.esa.nest.gpf.InputProductValidator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.Unit;
@@ -200,6 +201,9 @@ public final class SARSimulationOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfTOPSARBurstProduct(false);
+
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
             getSourceImageDimension();

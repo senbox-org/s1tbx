@@ -39,7 +39,8 @@ public class TestSARSimulationOp {
     private final static String expectedPathWSM = TestUtils.rootPathTestProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_SIM.dim";
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
-    private String[] exceptionExemptions = {"not supported", "already map projected", "outside of SRTM valid area"};
+    private String[] exceptionExemptions = {"not supported", "already map projected", "outside of SRTM valid area",
+                "Source product should should first be deburst"};
 
     /**
      * Processes a product and compares it to processed product known to be correct

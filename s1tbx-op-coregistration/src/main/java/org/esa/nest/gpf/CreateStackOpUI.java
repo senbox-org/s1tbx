@@ -48,6 +48,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
     private final List<Integer> defaultMasterBandIndices = new ArrayList<>(2);
     private final List<Integer> defaultSlaveBandIndices = new ArrayList<>(2);
 
+    private final JLabel masterProductLabel = new JLabel();
     private final JComboBox resamplingType = new JComboBox(ResamplingFactory.resamplingNames);
 
     private final JComboBox extent = new JComboBox(new String[]{CreateStackOp.MASTER_EXTENT,
@@ -71,9 +72,16 @@ public class CreateStackOpUI extends BaseOperatorUI {
     @Override
     public void initParameters() {
 
+        if (masterProduct == null && sourceProducts != null && sourceProducts.length > 0) {
+            masterProduct = sourceProducts[0];
+        }
+
         //enableOptimalMasterButton();
         //updateMasterSlaveSelections();
 
+        if(masterProduct != null) {
+            masterProductLabel.setText(masterProduct.getName());
+        }
         resamplingType.setSelectedItem(paramMap.get("resamplingType"));
         extent.setSelectedItem(paramMap.get("extent"));
     }
@@ -146,6 +154,9 @@ public class CreateStackOpUI extends BaseOperatorUI {
         gbc.gridx = 0;
         gbc.gridy++;        */
 
+
+        DialogUtils.addComponent(contentPane, gbc, "Master:", masterProductLabel);
+        gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Resampling Type:", resamplingType);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Output Extents:", extent);
@@ -155,6 +166,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
             public void actionPerformed(ActionEvent e) {
                 if (sourceProducts != null) {
                     masterProduct = MasterSelection.findOptimalMasterProduct(sourceProducts);
+                    masterProductLabel.setText(masterProduct.getName());
                 }
                 updateMasterSlaveSelections();
             }
@@ -197,9 +209,7 @@ public class CreateStackOpUI extends BaseOperatorUI {
         if (sourceProducts == null) {
             return new String[]{};
         }
-        if (masterProduct == null && sourceProducts.length > 0) {
-            masterProduct = sourceProducts[0];
-        }
+
         defaultMasterBandIndices.clear();
         defaultSlaveBandIndices.clear();
 
