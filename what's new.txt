@@ -1,3 +1,8 @@
+New in S1TBX 1.0.2
+
+Fix for S-1 Calibration and Denoising
+Fix for automatic updates
+
 New in S1TBX 1.0.1
 
 fix for coregistering terrain corrected products

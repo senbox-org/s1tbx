@@ -579,7 +579,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     private void getProductAcquisitionTime() {
         try {
-            final ProductData.UTC acqTimeUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time);
+            final ProductData.UTC acqTimeUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.first_line_time));
             acquisitionTime = acqTimeUTC.getAsDate();
             //System.out.println("The acquisition time is " + acquisitionTime);
         } catch (Exception e) {
@@ -592,7 +592,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     private void getProcessingTime() {
         try {
-            final ProductData.UTC procTimeUTC = absRoot.getAttributeUTC(AbstractMetadata.PROC_TIME);
+            final ProductData.UTC procTimeUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.PROC_TIME));
             processingTime = procTimeUTC.getAsDate();
             //System.out.println("The processing time is " + processingTime);
         } catch (Exception e) {

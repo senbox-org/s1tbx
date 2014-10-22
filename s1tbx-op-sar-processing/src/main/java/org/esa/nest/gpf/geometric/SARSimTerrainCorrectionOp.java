@@ -41,6 +41,7 @@ import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.*;
 import org.esa.nest.gpf.*;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.TileGeoreferencing;

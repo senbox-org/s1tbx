@@ -147,13 +147,15 @@ public abstract class CEOSImageFile {
     }
 
     public static String[] getImageFileNames(File baseDir, String[] prefixList) {
-        final List<String> list = new ArrayList<String>(2);
+        final List<String> list = new ArrayList<>(4);
         final File[] fileList = baseDir.listFiles();
-        for (File file : fileList) {
-            final String name = file.getName().toUpperCase();
-            for (String prefix : prefixList) {
-                if (name.startsWith(prefix) || name.endsWith('.' + prefix)) {
-                    list.add(file.getName());
+        if(fileList != null) {
+            for (File file : fileList) {
+                final String name = file.getName().toUpperCase();
+                for (String prefix : prefixList) {
+                    if (name.startsWith(prefix) || name.endsWith('.' + prefix)) {
+                        list.add(file.getName());
+                    }
                 }
             }
         }

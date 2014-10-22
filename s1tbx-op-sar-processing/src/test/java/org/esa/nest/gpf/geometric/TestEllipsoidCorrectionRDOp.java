@@ -30,7 +30,7 @@ public class TestEllipsoidCorrectionRDOp {
     private final static OperatorSpi spi = new EllipsoidCorrectionRDOp.Spi();
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "GeoTIFF", "DOR_VOR_AX"};
-    private String[] exceptionExemptions = {"not supported", "already map projected",
+    private String[] exceptionExemptions = {"not supported", "not be map projected",
             "Source product should should first be deburst"};
 
     @Test

@@ -495,6 +495,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             } else {
                 computeTileNoiseLUT(y, x0, y0, w, noiseInfo, lut);
             }
+
             for (int x = x0; x < maxX; ++x) {
                 final int xx = x - x0;
                 srcIdx = srcIndex.getIndex(x);
@@ -512,7 +513,6 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                     throw new OperatorException("Unhandled unit");
                 }
 
-                // todo: check if lut should be squared
                 trgData.setElemDoubleAt(tgtIdx, dn2 - lut[xx]);
             }
         }
@@ -592,11 +592,11 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
 
         if (removeThermalNoise) {
             for (int i = 0; i < w; i++) {
-                lut[i] = noiseLut[i] / calLut[i];
+                lut[i] = noiseLut[i] / (calLut[i]*calLut[i]);
             }
         } else { // reIntroduceThermalNoise
             for (int i = 0; i < w; i++) {
-                lut[i] = -noiseLut[i] / calLut[i];
+                lut[i] = -noiseLut[i] / (calLut[i]*calLut[i]);
             }
         }
     }

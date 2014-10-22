@@ -28,6 +28,7 @@ import org.esa.nest.datamodel.BaseCalibrator;
 import org.esa.nest.datamodel.Calibrator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 
@@ -47,9 +48,8 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     private String productType = null;
     private String acquisitionMode = null;
     private String polarization = null;
-    private int numOfSubSwath = 1;
     private CalibrationInfo[] calibration = null;
-    private boolean isGRD = false;
+    private boolean isMultiSwath = false;
     protected final HashMap<String, CalibrationInfo> targetBandToCalInfo = new HashMap<>(2);
     private java.util.List<String> selectedPolList = null;
     private boolean outputSigmaBand = false;
@@ -124,12 +124,12 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             targetProduct = tgtProduct;
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            isMultiSwath = validator.isMultiSwath();
 
             getMission();
 
             getProductType();
-
-            getAcquisitionMode();
 
             getProductPolarization();
 
@@ -169,23 +169,6 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
         if (!productType.equals("SLC") && !productType.equals("GRD")) {
             throw new OperatorException(productType + " is not a valid product type for Sentinel1 product");
-        }
-        isGRD = productType.equals("GRD");
-    }
-
-    /**
-     * Get acquisition mode from abstracted metadata.
-     */
-    private void getAcquisitionMode() {
-
-        acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-
-        if (productType.equals("SLC")) {
-            if (acquisitionMode.equals("IW")) {
-                numOfSubSwath = 3;
-            } else if (acquisitionMode.equals("EW")) {
-                numOfSubSwath = 5;
-            }
         }
     }
 
@@ -281,10 +264,14 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             final String pol = cal.polarization;
             final String ss = cal.subSwath;
             for (String bandName : targetBandNames) {
-                if (bandName.contains(pol) && bandName.contains(ss)) {
-                    targetBandToCalInfo.put(bandName, cal);
-                } else if (bandName.contains(pol)) {
-                    targetBandToCalInfo.put(bandName, cal);
+                if (isMultiSwath) {
+                    if (bandName.contains(pol) && bandName.contains(ss)) {
+                        targetBandToCalInfo.put(bandName, cal);
+                    }
+                } else {
+                    if (bandName.contains(pol)) {
+                        targetBandToCalInfo.put(bandName, cal);
+                    }
                 }
             }
         }
@@ -513,13 +500,13 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             final int calVecIdx = calInfo.getCalibrationVectorIndex(y);
             final Sentinel1Utils.CalibrationVector vec0 = calInfo.getCalibrationVector(calVecIdx);
             final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
-            final float[] vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
-            final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
+            final float[] vec0LUT = getVector(calType, vec0);
+            final float[] vec1LUT = getVector(calType, vec1);
             float[] retroVec0LUT = null;
             float[] retroVec1LUT = null;
             if (dataType != null) {
-                retroVec0LUT = Sentinel1Calibrator.getVector(dataType, vec0);
-                retroVec1LUT = Sentinel1Calibrator.getVector(dataType, vec1);
+                retroVec0LUT = getVector(dataType, vec0);
+                retroVec1LUT = getVector(dataType, vec1);
             }
             final double azTime = calInfo.firstLineTime + y * calInfo.lineTimeInterval;
             final double muY = (azTime - vec0.timeMJD) / (vec1.timeMJD - vec0.timeMJD);
@@ -538,17 +525,17 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                     retroLutVal = (1 - muY) * ((1 - muX) * retroVec0LUT[pixelIdx] + muX * retroVec0LUT[pixelIdx + 1]) +
                             muY * ((1 - muX) * retroVec1LUT[pixelIdx] + muX * retroVec1LUT[pixelIdx + 1]);
                 }
-                    // todo: check if lut should be squared
+
                 if (complexData) {
                     i = srcData1.getElemDoubleAt(srcIdx);
                     q = srcData2.getElemDoubleAt(srcIdx);
-                    trgData.setElemDoubleAt(trgIdx, (i * i + q * q) / lutVal);
+                    trgData.setElemDoubleAt(trgIdx, (i * i + q * q) / (lutVal*lutVal));
                 } else if (bandUnit == Unit.UnitType.AMPLITUDE) {
                     dn = srcData1.getElemDoubleAt(srcIdx);
-                    trgData.setElemDoubleAt(trgIdx, (dn * dn) / lutVal);
+                    trgData.setElemDoubleAt(trgIdx, (dn * dn) / (lutVal*lutVal));
                 } else { // intensity
                     dn2 = srcData1.getElemDoubleAt(srcIdx);
-                    trgData.setElemDoubleAt(trgIdx, dn2 * retroLutVal / lutVal);
+                    trgData.setElemDoubleAt(trgIdx, dn2 * retroLutVal / (lutVal*lutVal));
                 }
             }
         }
@@ -661,7 +648,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
         }
 
         public int getCalibrationVectorIndex(final int y) {
-            for (int i = 0; i < count; i++) {
+            for (int i = 1; i < count; i++) {
                 if (y < calibrationVectorList[i].line) {
                     return i - 1;
                 }
