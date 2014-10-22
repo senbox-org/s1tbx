@@ -36,7 +36,7 @@ public class TestGeolocationGridOp {
     private final static OperatorSpi spi = new GeolocationGridGeocodingOp.Spi();
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
-    private String[] exceptionExemptions = {"not supported", "already map projected",
+    private String[] exceptionExemptions = {"not supported", "not be map projected",
                     "Source product should should first be deburst"};
 
     /**

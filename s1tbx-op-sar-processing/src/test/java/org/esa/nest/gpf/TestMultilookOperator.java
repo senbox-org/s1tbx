@@ -162,17 +162,17 @@ public class TestMultilookOperator {
 
     @Test
     public void testProcessAllASAR() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllERS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllALOS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, exceptionExemptions);
     }
 
     @Test
@@ -182,7 +182,7 @@ public class TestMultilookOperator {
 
     @Test
     public void testProcessAllTerraSARX() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathTerraSarX, null, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathTerraSarX, null, exceptionExemptions);
     }
 
     @Test

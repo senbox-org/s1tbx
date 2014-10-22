@@ -363,7 +363,7 @@ public final class MultilookOp extends Operator {
         final double newNearEdgeSlantRange = oldNearEdgeSlantRange + rangeSpacing * (nRgLooks - 1) / 2.0;
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.slant_range_to_first_pixel, newNearEdgeSlantRange);
 
-        double oldFirstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
+        double oldFirstLineUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
         double newFirstLineUTC = oldFirstLineUTC + oldLineTimeInterval * ((nAzLooks - 1) / 2.0) / Constants.secondsInDay;
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_line_time, new ProductData.UTC(newFirstLineUTC));
     }

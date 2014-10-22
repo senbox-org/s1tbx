@@ -394,8 +394,8 @@ public class RangeDopplerGeocodingOp extends Operator {
             throw new OperatorException("Invalid input for azimuth pixel spacing: " + azimuthSpacing);
         }
 
-        firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
-        lastLineUTC = absRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD(); // in days
+        firstLineUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
+        lastLineUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.last_line_time)).getMJD(); // in days
         lineTimeInterval = (lastLineUTC - firstLineUTC) / (sourceImageHeight - 1); // in days
         if (lastLineUTC == 0.0) {
             throw new OperatorException("Invalid input for Line Time Interval: " + lineTimeInterval);
