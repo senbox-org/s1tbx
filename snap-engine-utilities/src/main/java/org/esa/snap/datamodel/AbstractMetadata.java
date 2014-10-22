@@ -38,7 +38,7 @@ public final class AbstractMetadata {
      */
     public static final int NO_METADATA = 99999;
     public static final short NO_METADATA_BYTE = 0;
-    public static final String NO_METADATA_STRING = " ";
+    public static final String NO_METADATA_STRING = "-";
     public static final ProductData.UTC NO_METADATA_UTC = new ProductData.UTC(0);
 
     public static final String abstracted_metadata_version = "metadata_version";
@@ -535,8 +535,20 @@ public final class AbstractMetadata {
                 return NO_METADATA_UTC;
             return ProductData.UTC.parse(timeStr);
         } catch (ParseException e) {
-            return NO_METADATA_UTC;
+            try {
+                final int dotPos = timeStr.lastIndexOf(".");
+                if (dotPos > 0) {
+                    String fractionString = timeStr.substring(dotPos + 1, timeStr.length());
+                    //fix some ERS times
+                    fractionString = fractionString.replaceAll("-","");
+                    String newTimeStr = timeStr.substring(0, dotPos)+fractionString;
+                    return ProductData.UTC.parse(newTimeStr);
+                }
+            } catch (ParseException e2) {
+                return NO_METADATA_UTC;
+            }
         }
+        return NO_METADATA_UTC;
     }
 
     public static ProductData.UTC parseUTC(final String timeStr, final DateFormat format) {
