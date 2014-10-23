@@ -42,7 +42,10 @@ public class ProductFileHandler {
 
     public static void copyTo(final ProductEntry entry, final File targetFolder) throws Exception {
 
-        if (isDimap(entry)) {
+        if (isSingleFile(entry)) {
+            final File newFile = new File(targetFolder, entry.getFile().getName());
+            Files.copy(entry.getFile().toPath(), newFile.toPath(), REPLACE_EXISTING);
+        } else if (isDimap(entry)) {
             final File newFile = new File(targetFolder, entry.getFile().getName());
             Files.copy(entry.getFile().toPath(), newFile.toPath(), REPLACE_EXISTING);
             final String dataFolderName = entry.getFile().getName().replace(
@@ -60,15 +63,15 @@ public class ProductFileHandler {
         } else if (isFolderProduct(entry)) {
             final File newFile = new File(targetFolder, entry.getFile().getParentFile().getName());
             FileIOUtils.copyFolder(entry.getFile().getParentFile().toPath(), newFile.toPath());
-        } else if (isSingleFile(entry)) {
-            final File newFile = new File(targetFolder, entry.getFile().getName());
-            Files.copy(entry.getFile().toPath(), newFile.toPath(), REPLACE_EXISTING);
         }
     }
 
     public static void moveTo(final ProductEntry entry, final File targetFolder) throws Exception {
 
-        if (isDimap(entry)) {
+        if (isSingleFile(entry)) {
+            final File newFile = new File(targetFolder, entry.getFile().getName());
+            Files.move(entry.getFile().toPath(), newFile.toPath(), REPLACE_EXISTING, ATOMIC_MOVE);
+        } else if (isDimap(entry)) {
             final File newFile = new File(targetFolder, entry.getFile().getName());
             Files.move(entry.getFile().toPath(), newFile.toPath(), REPLACE_EXISTING, ATOMIC_MOVE);
             final String dataFolderName = entry.getFile().getName().replace(
@@ -86,9 +89,6 @@ public class ProductFileHandler {
         } else if (isFolderProduct(entry)) {
             final File newFile = new File(targetFolder, entry.getFile().getParentFile().getName());
             FileIOUtils.moveFolder(entry.getFile().getParentFile().toPath(), newFile.toPath());
-        } else if (isSingleFile(entry)) {
-            final File newFile = new File(targetFolder, entry.getFile().getName());
-            Files.move(entry.getFile().toPath(), newFile.toPath(), REPLACE_EXISTING, ATOMIC_MOVE);
         }
     }
 
