@@ -31,7 +31,7 @@ public class TestEllipsoidCorrectionRDOp {
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "GeoTIFF", "DOR_VOR_AX"};
     private String[] exceptionExemptions = {"not supported", "not be map projected",
-            "Source product should should first be deburst"};
+            "Source product should first be deburst"};
 
     @Test
     public void testProcessAllASAR() throws Exception {
