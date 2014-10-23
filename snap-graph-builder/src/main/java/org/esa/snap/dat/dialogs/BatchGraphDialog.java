@@ -53,10 +53,10 @@ import java.util.Map;
 public class BatchGraphDialog extends ModelessDialog {
 
     private final AppContext appContext;
-    private final ProductSetPanel productSetPanel;
-    private final List<GraphExecuter> graphExecutorList = new ArrayList<>(10);
+    protected final ProductSetPanel productSetPanel;
+    protected final List<GraphExecuter> graphExecutorList = new ArrayList<>(10);
 
-    private final static File defaultGraphPath = ResourceUtils.getGraphFolder("");
+    protected final static File defaultGraphPath = ResourceUtils.getGraphFolder("");
 
     private final JTabbedPane tabbedPane;
     private final JLabel statusLabel;
@@ -124,7 +124,7 @@ public class BatchGraphDialog extends ModelessDialog {
         getButton(ID_APPLY).setText("Run");
         getButton(ID_YES).setText("Load Graph");
 
-        graphFile = new File(defaultGraphPath + File.separator + "internal", "ReadWriteGraph.xml");
+        graphFile = getDefaultGraphFile();
         if (!graphFile.exists()) {
             InputStream in = getClass().getResourceAsStream("graphs/ReadWriteGraph.xml");
 
@@ -135,6 +135,10 @@ public class BatchGraphDialog extends ModelessDialog {
 
         setContent(mainPanel);
         super.getJDialog().setMinimumSize(new Dimension(400, 300));
+    }
+
+    protected File getDefaultGraphFile() {
+        return new File(defaultGraphPath + File.separator + "internal", "ReadWriteGraph.xml");
     }
 
     @Override
@@ -406,7 +410,7 @@ public class BatchGraphDialog extends ModelessDialog {
         slaveFileMap = fileMap;
     }
 
-    void assignParameters() {
+    protected void assignParameters() {
         final File[] fileList = productSetPanel.getFileList();
         int graphIndex = 0;
         for (File f : fileList) {
@@ -434,7 +438,7 @@ public class BatchGraphDialog extends ModelessDialog {
         }
     }
 
-    private static void setIO(final GraphExecuter graphEx,
+    protected static void setIO(final GraphExecuter graphEx,
                               final String readID, final File readPath,
                               final String writeID, final File writePath,
                               final String format) {
@@ -461,7 +465,7 @@ public class BatchGraphDialog extends ModelessDialog {
      * @param masterFile   master file
      * @param slaveFiles   slave file list
      */
-    private static void setSlaveIO(final GraphExecuter graphEx, final String productSetID,
+    protected static void setSlaveIO(final GraphExecuter graphEx, final String productSetID,
                                    final File masterFile, final File[] slaveFiles) {
         final GraphNode productSetNode = graphEx.getGraphNodeList().findGraphNodeByOperator(productSetID);
         if (productSetNode != null) {
