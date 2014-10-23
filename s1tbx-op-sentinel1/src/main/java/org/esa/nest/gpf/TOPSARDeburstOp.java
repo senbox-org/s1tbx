@@ -30,14 +30,15 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.Maths;
 
 import java.awt.*;
-import java.util.*;
-import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * De-Burst a Sentinel-1 TOPSAR product
@@ -105,9 +106,12 @@ public final class TOPSARDeburstOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
-            absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSentinel1Product();
+            validator.checkProductType(new String[]{"SLC"});
+            validator.checkAcquisitionMode(new String[]{"IW","EW"});
 
-            getMission();
+            absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
             getProductType();
 
@@ -145,35 +149,17 @@ public final class TOPSARDeburstOp extends Operator {
     }
 
     /**
-     * Get product mission from abstracted metadata.
-     */
-    private void getMission() {
-        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.startsWith("SENTINEL-1")) {
-            throw new OperatorException(mission + " is not a valid mission for Sentinel1 product");
-        }
-    }
-
-    /**
      * Get product type from abstracted metadata.
      */
     private void getProductType() {
         productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        if (!productType.equals("SLC")) {
-            throw new OperatorException(productType + " is not a SLC product");
-        }
     }
 
     /**
      * Get acquisition mode from abstracted metadata.
      */
     private void getAcquisitionMode() throws OperatorException {
-
         acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-
-        if (!(acquisitionMode.equals("IW") || acquisitionMode.equals("EW"))) {
-            throw new OperatorException("Acquisition mode is not IW or EW");
-        }
     }
 
     /**

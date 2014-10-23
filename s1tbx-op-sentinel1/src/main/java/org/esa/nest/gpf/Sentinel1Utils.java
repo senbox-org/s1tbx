@@ -966,7 +966,9 @@ public final class Sentinel1Utils {
                             bandNameArray += bandName + " ";
                         }
                     }
-                    child.setAttributeString(AbstractMetadata.band_names, bandNameArray);
+                    if(!bandNameArray.isEmpty()) {
+                        child.setAttributeString(AbstractMetadata.band_names, bandNameArray);
+                    }
                 } else {
                     absRoot.removeElement(child);
                 }

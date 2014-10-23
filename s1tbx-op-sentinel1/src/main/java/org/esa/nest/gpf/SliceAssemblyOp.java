@@ -34,9 +34,9 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.StringUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 
@@ -91,6 +91,13 @@ public final class SliceAssemblyOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            for(Product srcProduct : sourceProducts) {
+                final InputProductValidator validator = new InputProductValidator(srcProduct);
+                validator.checkIfSentinel1Product();
+                validator.checkProductType(new String[]{"SLC", "GRD"});
+                validator.checkAcquisitionMode(new String[]{"SM","IW","EW"});
+            }
+
             sliceProducts = determineSliceProducts();
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sliceProducts[0]);

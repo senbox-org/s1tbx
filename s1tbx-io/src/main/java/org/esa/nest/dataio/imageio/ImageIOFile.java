@@ -28,6 +28,7 @@ import java.awt.*;
 import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -244,27 +245,44 @@ public class ImageIOFile {
                 sourceOffsetY % sourceStepY);
         final Raster data = getData(param, destOffsetX, destOffsetY, destWidth, destHeight);
 
-
         final DataBuffer dataBuffer = data.getDataBuffer();
         final SampleModel sampleModel = data.getSampleModel();
         final int dataBufferType = dataBuffer.getDataType();
         final int sampleOffset = imageID + bandSampleOffset;
         final Object dest = destBuffer.getElems();
 
-        if (dest instanceof int[] && (dataBufferType == DataBuffer.TYPE_USHORT || dataBufferType == DataBuffer.TYPE_SHORT
-                || dataBufferType == DataBuffer.TYPE_INT)) {
-            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[]) dest, dataBuffer);
-        } else if (dataBufferType == DataBuffer.TYPE_FLOAT && dest instanceof float[]) {
-            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (float[]) dest, dataBuffer);
-        } else if (dataBufferType == DataBuffer.TYPE_DOUBLE && dest instanceof double[]) {
-            sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (double[]) dest, dataBuffer);
-        } else {
-            final double[] dArray = new double[destWidth * destHeight];
-            sampleModel.getSamples(0, 0, data.getWidth(), data.getHeight(), sampleOffset, dArray, dataBuffer);
+        try {
+            if (dest instanceof int[] && (dataBufferType == DataBuffer.TYPE_USHORT || dataBufferType == DataBuffer.TYPE_SHORT
+                    || dataBufferType == DataBuffer.TYPE_INT)) {
+                sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (int[]) dest, dataBuffer);
+            } else if (dataBufferType == DataBuffer.TYPE_FLOAT && dest instanceof float[]) {
+                sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (float[]) dest, dataBuffer);
+            } else if (dataBufferType == DataBuffer.TYPE_DOUBLE && dest instanceof double[]) {
+                sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, (double[]) dest, dataBuffer);
+            } else {
+                final double[] dArray = new double[destWidth * destHeight];
+                sampleModel.getSamples(0, 0, data.getWidth(), data.getHeight(), sampleOffset, dArray, dataBuffer);
 
-            int i = 0;
-            for (double value : dArray) {
-                destBuffer.setElemDoubleAt(i++, value);
+                int i = 0;
+                for (double value : dArray) {
+                    destBuffer.setElemDoubleAt(i++, value);
+                }
+            }
+        } catch (Exception e) {
+            try {
+                final double[] dArray = new double[destWidth * destHeight];
+                sampleModel.getSamples(0, 0, data.getWidth(), data.getHeight(), sampleOffset, dArray, dataBuffer);
+
+                int i = 0;
+                for (double value : dArray) {
+                    destBuffer.setElemDoubleAt(i++, value);
+                }
+            } catch (Exception e2) {
+
+                int size = destWidth * destHeight;
+                for (int i = 0; i < size; ++i) {
+                    destBuffer.setElemDoubleAt(i++, 0);
+                }
             }
         }
     }
