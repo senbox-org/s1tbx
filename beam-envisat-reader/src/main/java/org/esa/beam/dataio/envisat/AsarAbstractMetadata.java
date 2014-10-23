@@ -16,9 +16,9 @@
 
 package org.esa.beam.dataio.envisat;
 
+import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.ProductData;
 
 import java.io.File;
@@ -84,7 +84,7 @@ public final class AsarAbstractMetadata {
         if (productType.startsWith("ASA_WS"))
             mode = "ScanSAR";
         addAbstractedAttribute("ACQUISITION_MODE", mode, absRoot, "Acquisition mode");
-        addAbstractedAttribute("BEAMS", " ", absRoot, "Beams used");
+        addAbstractedAttribute("BEAMS", "", absRoot, "Beams used");
         if (waveProduct) {
             addAbstractedAttribute("SWATH", sph.getAttributeString("SWATH_1", ""), absRoot, "Swath name");
         } else {
@@ -120,7 +120,7 @@ public final class AsarAbstractMetadata {
             addAbstractedAttribute("last_far_long", 0, "deg", absRoot, "");
 
             addAbstractedAttribute(sph, "PASS", absRoot, "ASCENDING or DESCENDING");
-            addAbstractedAttribute("SAMPLE_TYPE", " ", absRoot, "DETECTED or COMPLEX");
+            addAbstractedAttribute("SAMPLE_TYPE", "", absRoot, "DETECTED or COMPLEX");
 
             String mds1_tx_rx_polar = sph.getAttributeString("tx_rx_polar", "");
             mds1_tx_rx_polar = mds1_tx_rx_polar.replace("/", "");
@@ -149,10 +149,10 @@ public final class AsarAbstractMetadata {
             addAbstractedAttribute("SAMPLE_TYPE", sph.getAttributeString("SAMPLE_TYPE").trim(), absRoot, "DETECTED or COMPLEX");
 
             String mds1_tx_rx_polar = sph.getAttributeString("mds1_tx_rx_polar", "");
-            mds1_tx_rx_polar = mds1_tx_rx_polar.replace("/", "");
+            mds1_tx_rx_polar = mds1_tx_rx_polar.replace("/", "").trim();
             addAbstractedAttribute("mds1_tx_rx_polar", mds1_tx_rx_polar, absRoot, "Polarization");
             String mds2_tx_rx_polar = sph.getAttributeString("mds2_tx_rx_polar", "");
-            mds2_tx_rx_polar = mds2_tx_rx_polar.replace("/", "");
+            mds2_tx_rx_polar = mds2_tx_rx_polar.replace("/", "").trim();
             addAbstractedAttribute("mds2_tx_rx_polar", mds2_tx_rx_polar, absRoot, "Polarization");
             addAbstractedAttribute("mds3_tx_rx_polar", "", absRoot, "Polarization");
             addAbstractedAttribute("mds4_tx_rx_polar", "", absRoot, "Polarization");
@@ -253,7 +253,7 @@ public final class AsarAbstractMetadata {
                 addAbstractedAttribute("srgr_flag", 0, "", absRoot, "SRGR applied");
 
             addAbstractedAttribute("avg_scene_height", 0, "m", absRoot, "Average scene height ellipsoid");
-            addAbstractedAttribute("map_projection", " ", absRoot, "Map projection applied");
+            addAbstractedAttribute("map_projection", "", absRoot, "Map projection applied");
 
             addAbstractedAttribute("is_terrain_corrected", 0, "flag", absRoot, "orthorectification applied");
             addAbstractedAttribute("DEM", "", absRoot, "Digital Elevation Model used");
@@ -335,7 +335,7 @@ public final class AsarAbstractMetadata {
      */
     private static void addAbstractedAttribute(String tag, String value, MetadataElement dest, String desc) {
         if (value == null || value.isEmpty())
-            value = " ";
+            value = "-";
         final MetadataAttribute attribute = new MetadataAttribute(tag, ProductData.TYPE_ASCII, 1);
         attribute.getData().setElems(value);
         attribute.setDescription(desc);
@@ -406,7 +406,7 @@ public final class AsarAbstractMetadata {
                                                             String unit, String desc, MetadataElement dest) {
         final MetadataAttribute attribute = new MetadataAttribute(tag, dataType, 1);
         if (dataType == ProductData.TYPE_ASCII)
-            attribute.getData().setElems(" ");
+            attribute.getData().setElems("-");
         attribute.setUnit(unit);
         attribute.setDescription(desc);
         attribute.setReadOnly(false);
