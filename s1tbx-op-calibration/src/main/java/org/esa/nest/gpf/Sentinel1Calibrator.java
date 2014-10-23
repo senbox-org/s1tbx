@@ -35,7 +35,6 @@ import org.esa.snap.gpf.TileIndex;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -123,11 +122,12 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             sourceProduct = srcProduct;
             targetProduct = tgtProduct;
 
-            absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
-            isMultiSwath = validator.isMultiSwath();
+            validator.checkIfSentinel1Product();
+            validator.checkProductType(new String[] {"SLC","GRD"});
 
-            getMission();
+            absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            isMultiSwath = validator.isMultiSwath();
 
             getProductType();
 
@@ -153,23 +153,10 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
     }
 
     /**
-     * Get product mission from abstracted metadata.
-     */
-    private void getMission() {
-        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.startsWith("SENTINEL-1")) {
-            throw new OperatorException(mission + " is not a valid mission for Sentinel1 product");
-        }
-    }
-
-    /**
      * Get product type from abstracted metadata.
      */
     private void getProductType() {
         productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        if (!productType.equals("SLC") && !productType.equals("GRD")) {
-            throw new OperatorException(productType + " is not a valid product type for Sentinel1 product");
-        }
     }
 
     /**

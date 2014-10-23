@@ -31,6 +31,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.Maths;
@@ -102,10 +103,12 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSentinel1Product();
+            validator.checkProductType(new String[] {"SLC","GRD"});
+
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             origMetadataRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
-
-            getMission();
 
             getProductType();
 
@@ -135,23 +138,10 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     }
 
     /**
-     * Get product mission from abstracted metadata.
-     */
-    private void getMission() {
-        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.startsWith("SENTINEL-1")) {
-            throw new OperatorException(mission + " is not a valid mission for Sentinel1 product");
-        }
-    }
-
-    /**
      * Get product type from abstracted metadata.
      */
     private void getProductType() {
         productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        if (!productType.equals("SLC") && !productType.equals("GRD")) {
-            throw new OperatorException(productType + " is not a valid product type for Sentinel1 product");
-        }
         String mode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
 
         isTOPSARSLC = productType.contains("SLC") && (mode.contains("IW") || mode.contains("EW"));

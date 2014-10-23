@@ -40,7 +40,7 @@ public class TestSARSimulationOp {
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
     private String[] exceptionExemptions = {"not supported", "already map projected", "outside of SRTM valid area",
-                "Source product should should first be deburst"};
+                "Source product should first be deburst"};
 
     /**
      * Processes a product and compares it to processed product known to be correct
