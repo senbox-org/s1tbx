@@ -1790,11 +1790,11 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         final List<Pix> bgPixelList = new ArrayList<>(anSize);
 
         if (distance(data11Real[rc][cc], data22Real[rc][cc], data33Real[rc][cc], seed) < threshold) {
-            visited.put(rc * sw + cc, true);
             anPixelList.add(new Pix(xc, yc));
         } else {
             bgPixelList.add(new Pix(xc, yc));
         }
+        visited.put(rc * sw + cc, true);
 
         final List<Pix> front = new ArrayList<>(anSize);
         front.add(new Pix(xc, yc));
@@ -1820,9 +1820,9 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                         c = x[i] - sx0;
                         index = r * sw + c;
                         if (visited.get(index) == null) {
+                            visited.put(index, true);
                             final Pix newPos = new Pix(x[i], y[i]);
                             if (distance(data11Real[r][c], data22Real[r][c], data33Real[r][c], seed) < threshold) {
-                                visited.put(index, true);
                                 anPixelList.add(newPos);
                                 newfront.add(newPos);
                             } else {
