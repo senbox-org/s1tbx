@@ -1,13 +1,10 @@
 package org.esa.snap.gpf;
 
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.StringUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.gpf.OperatorUtils;
 
 /**
  * Validates input products using commonly used verifications
@@ -32,12 +29,38 @@ public class InputProductValidator {
                 (contains(bandNames, "EW1") && contains(bandNames, "EW2"));
     }
 
+    public void checkIfSentinel1Product() {
+        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
+        if (!mission.startsWith("SENTINEL-1")) {
+            throw new OperatorException("Input should be a Sentinel-1 product.");
+        }
+    }
+
+    public void checkProductType(final String[] validProductTypes) {
+        final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
+        for(String validProductType : validProductTypes) {
+            if(productType.equals(validProductType))
+                return;
+        }
+        throw new OperatorException(productType + " is not a valid product type from: "+ StringUtils.arrayToString(validProductTypes,","));
+    }
+
+    public void checkAcquisitionMode(final String[] validModes){
+        final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+
+        for(String validMode : validModes) {
+            if(acquisitionMode.equals(validMode))
+                return;
+        }
+        throw new OperatorException(acquisitionMode + " is not a valid product type from: "+ StringUtils.arrayToString(validModes,","));
+    }
+
     public void checkIfTOPSARBurstProduct(final boolean shouldbe) throws OperatorException {
         final boolean isMultiSwath = isMultiSwath();
         if(shouldbe && !isMultiSwath) {
-            throw new OperatorException("Source product should an SLC burst product");
+            throw new OperatorException("Source product should be an SLC burst product");
         } else if(!shouldbe && isMultiSwath) {
-            throw new OperatorException("Source product should should first be deburst");
+            throw new OperatorException("Source product should first be deburst");
         }
     }
 
