@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="5.1.12" transformSequenceNumber="4">
-  <directoryPresets config="../../what's new.txt" />
-  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="S1TBX" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="1.0.1" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
+  <directoryPresets config="../main/bin/common/VERSION.txt" />
+  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="S1TBX" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="1.0.2" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -73,6 +73,7 @@
         </exclude>
       </dirEntry>
       <fileEntry mountPoint="17" file="../../what's new.txt" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="17" file="../main/bin/common/VERSION.txt" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/CYGGCC_S-1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/CYGWIN1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/IESHIMS.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
@@ -184,18 +185,19 @@
           <entry location="resource" fileType="regular" />
           <entry location="modules/jlinda-core-0.8.1.jar" fileType="regular" />
           <entry location="modules/jlinda-nest-0.8.1.jar" fileType="regular" />
-          <entry location="modules/s1tbx-dem-1.0.0.jar" fileType="regular" />
-          <entry location="modules/s1tbx-help-1.0.0" fileType="regular" />
-          <entry location="modules/s1tbx-io-1.0.0.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-calibration-1.0.0.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-coregistration-1.0.0.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-feature-extraction-1.0.0.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-sar-processing-1.0.0.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-sentinel1-1.0.0.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-utilities-1.0.0.jar" fileType="regular" />
-          <entry location="modules/s1tbx-rcp-1.0.0.jar" fileType="regular" />
-          <entry location="modules/s1tbx-worldwind-1.0.0.jar" fileType="regular" />
+          <entry location="modules/s1tbx-dem-1.0.2.jar" fileType="regular" />
+          <entry location="modules/s1tbx-help-1.0.2" fileType="regular" />
+          <entry location="modules/s1tbx-io-1.0.2.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-calibration-1.0.2.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-coregistration-1.0.2.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-feature-extraction-1.0.2.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-sar-processing-1.0.2.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-sentinel1-1.0.2.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-utilities-1.0.2.jar" fileType="regular" />
+          <entry location="modules/s1tbx-rcp-1.0.2.jar" fileType="regular" />
+          <entry location="modules/s1tbx-worldwind-1.0.2.jar" fileType="regular" />
           <entry location="what's new.txt" fileType="regular" />
+          <entry location="VERSION.txt" fileType="regular" />
           <entry location="s1tbx" fileType="launcher" />
         </include>
         <dependencies>
