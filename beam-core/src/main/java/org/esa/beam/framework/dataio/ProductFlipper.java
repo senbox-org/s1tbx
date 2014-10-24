@@ -161,8 +161,8 @@ public class ProductFlipper extends AbstractProductBuilder {
         }
 
 
-        final int sourceW = sourceProduct.getSceneRasterWidth();
-        final int sourceH = sourceProduct.getSceneRasterHeight();
+        final int sourceW = destBand.getRasterWidth();
+        final int sourceH = destBand.getRasterHeight();
 
         float[] line = new float[sourceW];
 
@@ -179,7 +179,9 @@ public class ProductFlipper extends AbstractProductBuilder {
                     sourceBand.readPixels(0, sourceY, sourceW, 1, line, SubProgressMonitor.create(pm, 1));
                     for (int i = 0; i < destWidth; i++) {
                         sourceX = sourceW - (destOffsetX + i + 1);
-                        destBuffer.setElemFloatAt(j * destWidth + i, line[sourceX]);
+                        if(sourceX >= 0 && sourceX < sourceW) {
+                            destBuffer.setElemFloatAt(j * destWidth + i, line[sourceX]);
+                        }
                     }
                 }
             } else if (flipType == FLIP_VERTICAL) {
@@ -191,7 +193,9 @@ public class ProductFlipper extends AbstractProductBuilder {
                     sourceBand.readPixels(0, sourceY, sourceW, 1, line, SubProgressMonitor.create(pm, 1));
                     for (int i = 0; i < destWidth; i++) {
                         sourceX = destOffsetX + i;
-                        destBuffer.setElemFloatAt(j * destWidth + i, line[sourceX]);
+                        if(sourceX >= 0 && sourceX < sourceW) {
+                            destBuffer.setElemFloatAt(j * destWidth + i, line[sourceX]);
+                        }
                     }
                 }
             } else {
@@ -203,10 +207,14 @@ public class ProductFlipper extends AbstractProductBuilder {
                     sourceBand.readPixels(0, sourceY, sourceW, 1, line, SubProgressMonitor.create(pm, 1));
                     for (int i = 0; i < destWidth; i++) {
                         sourceX = sourceW - (destOffsetX + i + 1);
-                        destBuffer.setElemFloatAt(j * destWidth + i, line[sourceX]);
+                        if(sourceX >= 0 && sourceX < sourceW) {
+                            destBuffer.setElemFloatAt(j * destWidth + i, line[sourceX]);
+                        }
                     }
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             pm.done();
         }
@@ -312,13 +320,13 @@ public class ProductFlipper extends AbstractProductBuilder {
                 if (sourceBand.isScalingApplied()) {
                     destBand = new Band(bandName,
                                         ProductData.TYPE_FLOAT32,
-                                        getSceneRasterWidth(),
-                                        getSceneRasterHeight());
+                                        sourceBand.getRasterWidth(),
+                                        sourceBand.getRasterHeight());
                 } else {
                     destBand = new Band(bandName,
                                         sourceBand.getDataType(),
-                                        getSceneRasterWidth(),
-                                        getSceneRasterHeight());
+                                        sourceBand.getRasterWidth(),
+                                        sourceBand.getRasterHeight());
                 }
                 if (sourceBand.getUnit() != null) {
                     destBand.setUnit(sourceBand.getUnit());
