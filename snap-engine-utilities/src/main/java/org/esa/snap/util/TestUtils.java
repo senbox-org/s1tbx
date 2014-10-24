@@ -26,7 +26,6 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
@@ -36,6 +35,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
@@ -58,42 +59,32 @@ public class TestUtils {
     private final static String contextID = ResourceUtils.getContextID();
     private static final PropertiesMap testPreferences = Config.getAutomatedTestConfigPropertyMap(contextID + ".tests");
 
-    public final static String rootPathTestProducts;
+    public static String rootPathTestProducts = "";
 
-    public final static String rootPathTerraSarX;
-    public final static String rootPathASAR;
-    public final static String rootPathRadarsat2;
-    public final static String rootPathRadarsat1;
-    public final static String rootPathSentinel1;
-    public final static String rootPathERS;
-    public final static String rootPathJERS;
-    public final static String rootPathALOS;
-    public final static String rootPathCosmoSkymed;
+    public final static File[] rootPathsTerraSarX = loadFilePath(".test.rootPathTerraSarX");
+    public final static File[] rootPathsASAR = loadFilePath(".test.rootPathASAR");
+    public final static File[] rootPathsRadarsat2 = loadFilePath(".test.rootPathRadarsat2");
+    public final static File[] rootPathsRadarsat1 = loadFilePath(".test.rootPathRadarsat1");
+    public final static File[] rootPathsSentinel1 = loadFilePath(".test.rootPathSentinel1");
+    public final static File[] rootPathsERS = loadFilePath(".test.rootPathERS");
+    public final static File[] rootPathsJERS = loadFilePath(".test.rootPathJERS");
+    public final static File[] rootPathsALOS = loadFilePath(".test.rootPathALOS");
+    public final static File[] rootPathsCosmoSkymed = loadFilePath(".test.rootPathCosmoSkymed");
 
-    private final static int subsetX;
-    private final static int subsetY;
-    private final static int subsetWidth;
-    private final static int subsetHeight;
+    private static int subsetX = 0;
+    private static int subsetY = 0;
+    private static int subsetWidth = 0;
+    private static int subsetHeight = 0;
 
-    private static final int maxIteration;
-    private static final String testReadersOnAllProducts;
-    private static final String testProcessingOnAllProducts;
+    private static int maxIteration = 0;
 
-    public static final boolean canTestReadersOnAllProducts;
-    public static final boolean canTestProcessingOnAllProducts;
+    public static boolean canTestReadersOnAllProducts = false;
+    public static boolean canTestProcessingOnAllProducts = false;
 
     static {
+
         if(testPreferences != null) {
             rootPathTestProducts = testPreferences.getPropertyPath(contextID + ".test.rootPathTestProducts");
-            rootPathTerraSarX = testPreferences.getPropertyPath(contextID + ".test.rootPathTerraSarX");
-            rootPathASAR = testPreferences.getPropertyPath(contextID + ".test.rootPathASAR");
-            rootPathRadarsat2 = testPreferences.getPropertyPath(contextID + ".test.rootPathRadarsat2");
-            rootPathRadarsat1 = testPreferences.getPropertyPath(contextID + ".test.rootPathRadarsat1");
-            rootPathSentinel1 = testPreferences.getPropertyPath(contextID + ".test.rootPathSentinel1");
-            rootPathERS = testPreferences.getPropertyPath(contextID + ".test.rootPathERS");
-            rootPathJERS = testPreferences.getPropertyPath(contextID + ".test.rootPathJERS");
-            rootPathALOS = testPreferences.getPropertyPath(contextID + ".test.rootPathALOS");
-            rootPathCosmoSkymed = testPreferences.getPropertyPath(contextID + ".test.rootPathCosmoSkymed");
 
             subsetX = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetX"));
             subsetY = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetY"));
@@ -101,35 +92,25 @@ public class TestUtils {
             subsetHeight = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetHeight"));
 
             maxIteration = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.maxProductsPerRootFolder"));
-            testReadersOnAllProducts = testPreferences.getPropertyString(contextID + ".test.ReadersOnAllProducts");
-            testProcessingOnAllProducts = testPreferences.getPropertyString(contextID + ".test.ProcessingOnAllProducts");
+            String testReadersOnAllProducts = testPreferences.getPropertyString(contextID + ".test.ReadersOnAllProducts");
+            String testProcessingOnAllProducts = testPreferences.getPropertyString(contextID + ".test.ProcessingOnAllProducts");
 
             canTestReadersOnAllProducts = testReadersOnAllProducts != null && testReadersOnAllProducts.equalsIgnoreCase("true");
             canTestProcessingOnAllProducts = testProcessingOnAllProducts != null && testProcessingOnAllProducts.equalsIgnoreCase("true");
-        } else {
-            rootPathTestProducts = "";
-            rootPathTerraSarX = "";
-            rootPathASAR = "";
-            rootPathRadarsat2 = "";
-            rootPathRadarsat1 = "";
-            rootPathSentinel1 = "";
-            rootPathERS = "";
-            rootPathJERS = "";
-            rootPathALOS = "";
-            rootPathCosmoSkymed = "";
-
-            subsetX = 0;
-            subsetY = 0;
-            subsetWidth = 0;
-            subsetHeight = 0;
-
-            maxIteration = 0;
-            testReadersOnAllProducts = "";
-            testProcessingOnAllProducts = "";
-
-            canTestReadersOnAllProducts = false;
-            canTestProcessingOnAllProducts = false;
         }
+    }
+
+    private static File[] loadFilePath(final String id) {
+        if(testPreferences == null)
+            return new File[]{};
+
+        final List<File> fileList = new ArrayList<>(3);
+        final String pathsStr = testPreferences.getPropertyPath(contextID + id);
+        final StringTokenizer st = new StringTokenizer(pathsStr, ",");
+        while(st.hasMoreTokens()) {
+            fileList.add(new File(st.nextToken()));
+        }
+        return fileList.toArray(new File[fileList.size()]);
     }
 
     public static void initTestEnvironment() {
@@ -505,7 +486,7 @@ public class TestUtils {
         }
     }
 
-    public static int recurseProcessFolder(final OperatorSpi spi, final File origFolder, int iterations,
+    private static int recurseProcessFolder(final OperatorSpi spi, final File origFolder, int iterations,
                                            final String[] productTypeExemptions,
                                            final String[] exceptionExemptions) throws Exception {
 
@@ -537,7 +518,7 @@ public class TestUtils {
                     final Operator op = spi.createOperator();
                     op.setSourceProduct(subsetProduct);
 
-                    TestUtils.log.info(spi.getOperatorAlias() + " Processing " + file.toString());
+                    TestUtils.log.info(spi.getOperatorAlias() + " Processing ["+iterations+"] " + file.toString());
                     TestUtils.executeOperator(op);
 
                     ++iterations;
@@ -579,18 +560,34 @@ public class TestUtils {
      * Processes all products in a folder
      *
      * @param spi                   the OperatorSpi to create the operator
-     * @param folderPath            the path to recurse through
+     * @param folderPaths           list of paths to recurse through
      * @param productTypeExemptions product types to ignore
      * @param exceptionExemptions   exceptions that are ok and can be ignored for the test
      * @throws Exception general exception
      */
-    public static void testProcessAllInPath(final OperatorSpi spi, final String folderPath,
+    public static void testProcessAllInPath(final OperatorSpi spi, final File[] folderPaths,
+                                            final String[] productTypeExemptions,
+                                            final String[] exceptionExemptions) throws Exception {
+        for(File folderPath : folderPaths) {
+            testProcessAllInPath(spi, folderPath, productTypeExemptions, exceptionExemptions);
+        }
+    }
+
+    /**
+     * Processes all products in a folder
+     *
+     * @param spi               the OperatorSpi to create the operator
+     * @param folder            the path to recurse through
+     * @param productTypeExemptions product types to ignore
+     * @param exceptionExemptions   exceptions that are ok and can be ignored for the test
+     * @throws Exception general exception
+     */
+    private static void testProcessAllInPath(final OperatorSpi spi, final File folder,
                                             final String[] productTypeExemptions,
                                             final String[] exceptionExemptions) throws Exception {
         if (canTestProcessingOnAllProducts) {
-            final File folder = new File(folderPath);
             if (!folder.exists()) {
-                skipTest(spi, folderPath+ " not found");
+                skipTest(spi, folder+ " not found");
                 return;
             }
 
@@ -601,16 +598,20 @@ public class TestUtils {
 
     private final static ProductFunctions.ValidProductFileFilter fileFilter = new ProductFunctions.ValidProductFileFilter(false);
 
-    public static void recurseReadFolder(final Object callingClass, final File origFolder,
-                                         final ProductReaderPlugIn readerPlugin,
-                                         final ProductReader reader,
-                                         final String[] productTypeExemptions,
-                                         final String[] exceptionExemptions) throws Exception {
-        if (!origFolder.exists()) {
-            TestUtils.skipTest(callingClass, "Folder "+origFolder+" not found");
+    public static void recurseReadFolder(final Object callingClass, final File[] folderPaths,
+                                            final ProductReaderPlugIn readerPlugin,
+                                            final ProductReader reader,
+                                            final String[] productTypeExemptions,
+                                            final String[] exceptionExemptions) throws Exception {
+        if (!TestUtils.canTestReadersOnAllProducts)
             return;
+        for(File folderPath : folderPaths) {
+            if (!folderPath.exists()) {
+                TestUtils.skipTest(callingClass, "Folder "+folderPath+" not found");
+                return;
+            }
+            recurseReadFolder(folderPath, readerPlugin, reader, productTypeExemptions, exceptionExemptions, 0);
         }
-        recurseReadFolder(origFolder, readerPlugin, reader, productTypeExemptions, exceptionExemptions, 0);
     }
 
     private static int recurseReadFolder(final File origFolder,
@@ -633,7 +634,7 @@ public class TestUtils {
             if (readerPlugin.getDecodeQualification(file) == DecodeQualification.INTENDED) {
 
                 try {
-                    log.info("Reading "+ file.toString());
+                    log.info("Reading "+iterations+"] "+ file.toString());
 
                     final Product product = reader.readProductNodes(file, null);
                     if (productTypeExemptions != null && containsProductType(productTypeExemptions, product.getProductType()))
