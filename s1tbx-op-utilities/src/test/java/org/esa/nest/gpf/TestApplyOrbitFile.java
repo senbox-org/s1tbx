@@ -21,6 +21,7 @@ import org.junit.Test;
 import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by IntelliJ IDEA.
@@ -37,5 +38,10 @@ public class TestApplyOrbitFile {
 
         EnvisatOrbitReader reader = new EnvisatOrbitReader();
         assertNotNull(reader);
+    }
+
+    @Test
+    public void testProcessing() {
+        assertTrue(false);
     }
 }

@@ -38,6 +38,7 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * The product reader for Radarsat2 products.
@@ -106,7 +107,7 @@ public class Radarsat2ProductReader extends SARReader {
             final MetadataElement absMeta = AbstractMetadata.getAbstractedMetadata(product);
             isAscending = absMeta.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
             isAntennaPointingRight = absMeta.getAttributeString(AbstractMetadata.antenna_pointing).equals("right");
-            addCalibrationLUT(product, fileFromInput.getParentFile());
+            addCalibrationLUT(product);
 
             product.getGcpGroup();
             product.setFileLocation(fileFromInput);
@@ -128,29 +129,30 @@ public class Radarsat2ProductReader extends SARReader {
      * Read the LUT for use in calibration
      *
      * @param product the target product
-     * @param folder  the folder containing the input
      * @throws IOException if can't read lut
      */
-    private void addCalibrationLUT(final Product product, final File folder) throws IOException {
+    private void addCalibrationLUT(final Product product) throws IOException {
 
         final boolean flipLUT = flipToSARGeometry && ((isAscending && !isAntennaPointingRight) || (!isAscending && isAntennaPointingRight));
-
-        final File sigmaLUT = new File(folder, lutsigma + ".xml");
-        final File gammaLUT = new File(folder, lutgamma + ".xml");
-        final File betaLUT = new File(folder, lutbeta + ".xml");
-
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
 
-        readCalibrationLUT(sigmaLUT, lutsigma, origProdRoot, flipLUT);
-        readCalibrationLUT(gammaLUT, lutgamma, origProdRoot, flipLUT);
-        readCalibrationLUT(betaLUT, lutbeta, origProdRoot, flipLUT);
+        readCalibrationLUT(lutsigma, origProdRoot, flipLUT);
+        readCalibrationLUT(lutgamma, origProdRoot, flipLUT);
+        readCalibrationLUT(lutbeta, origProdRoot, flipLUT);
     }
 
-    private static void readCalibrationLUT(final File file, final String lutName, final MetadataElement root,
+    private void readCalibrationLUT(final String lutName, final MetadataElement root,
                                            final boolean flipLUT) throws IOException {
-        if (!file.exists())
+        InputStream is;
+        if(dataDir.exists(dataDir.getRootFolder() + lutName + ".xml")) {
+            is = dataDir.getInputStream(dataDir.getRootFolder() + lutsigma + ".xml");
+        } else if(dataDir.exists(dataDir.getRootFolder() + lutName.toLowerCase() + ".xml")) {
+            is = dataDir.getInputStream(dataDir.getRootFolder() + lutsigma.toLowerCase() + ".xml");
+        } else {
             return;
-        final Document xmlDoc = XMLSupport.LoadXML(file.getAbsolutePath());
+        }
+
+        final Document xmlDoc = XMLSupport.LoadXML(is);
         final Element rootElement = xmlDoc.getRootElement();
 
         final Element offsetElem = rootElement.getChild("offset");

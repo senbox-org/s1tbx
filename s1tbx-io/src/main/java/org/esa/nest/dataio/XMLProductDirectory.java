@@ -67,7 +67,7 @@ public abstract class XMLProductDirectory {
         }
     }
 
-    protected final String getRootFolder() {
+    public final String getRootFolder() {
         if (rootFolder != null)
             return rootFolder;
         try {
@@ -87,7 +87,7 @@ public abstract class XMLProductDirectory {
     }
 
     public void readProductDirectory() throws IOException {
-        xmlDoc = XMLSupport.LoadXML(productDir.getInputStream(getRootFolder() + getHeaderFileName()));
+        xmlDoc = XMLSupport.LoadXML(getInputStream(getRootFolder() + getHeaderFileName()));
     }
 
     protected abstract String getHeaderFileName();
@@ -188,7 +188,11 @@ public abstract class XMLProductDirectory {
         }
     }
 
-    protected InputStream getInputStream(final String path) throws IOException {
+    public boolean exists(final String path) {
+        return productDir.exists(path);
+    }
+
+    public InputStream getInputStream(final String path) throws IOException {
         return productDir.getInputStream(path);
     }
 
