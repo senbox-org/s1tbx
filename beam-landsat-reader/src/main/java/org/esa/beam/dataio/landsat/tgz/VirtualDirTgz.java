@@ -72,6 +72,17 @@ public class VirtualDirTgz extends VirtualDir {
     }
 
     @Override
+    public boolean exists(String path) {
+        try {
+            ensureUnpacked();
+        } catch (IOException e) {
+            return false;
+        }
+        final File file = new File(extractDir, path);
+        return file.exists();
+    }
+
+    @Override
     public void close() {
         if (extractDir != null) {
             FileUtils.deleteTree(extractDir);
