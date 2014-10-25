@@ -16,6 +16,7 @@
 package org.esa.nest.gpf;
 
 import org.esa.beam.dataio.envisat.EnvisatOrbitReader;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -41,6 +42,7 @@ public class TestApplyOrbitFile {
     }
 
     @Test
+    @Ignore("not implemented")
     public void testProcessing() {
         assertTrue(false);
     }

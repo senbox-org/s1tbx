@@ -37,7 +37,7 @@ public class TestTerrainFlatteningOp {
     private final static OperatorSpi spi = new TerrainFlatteningOp.Spi();
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
-    private String[] exceptionExemptions = {"not supported", "already map projected", "outside of SRTM valid area"};
+    private String[] exceptionExemptions = {"not supported", "not be map projected", "outside of SRTM valid area"};
 
     /**
      * Processes a WSM product and compares it to processed product known to be correct
