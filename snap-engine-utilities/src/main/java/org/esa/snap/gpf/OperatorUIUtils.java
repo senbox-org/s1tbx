@@ -72,10 +72,10 @@ public final class OperatorUIUtils {
                 }
             }
         }
-        if(selectedValues.isEmpty() && defaultSelection != null) {
+        if (selectedValues.isEmpty() && defaultSelection != null) {
             int j = 0;
-            for(String name : availNames) {
-                for(String defaultSel : defaultSelection) {
+            for (String name : availNames) {
+                for (String defaultSel : defaultSelection) {
                     if (name.equals(defaultSel)) {
                         indices.add(j);
                     }

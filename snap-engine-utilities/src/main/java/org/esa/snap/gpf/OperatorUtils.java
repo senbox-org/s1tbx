@@ -199,7 +199,7 @@ public final class OperatorUtils {
         if (product.getGeoCoding() instanceof MapGeoCoding || product.getGeoCoding() instanceof CrsGeoCoding)
             return true;
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        return absRoot != null && !(absRoot.getAttributeString(AbstractMetadata.map_projection, "").equals(AbstractMetadata.NO_METADATA_STRING)||
+        return absRoot != null && !(absRoot.getAttributeString(AbstractMetadata.map_projection, "").equals(AbstractMetadata.NO_METADATA_STRING) ||
                 absRoot.getAttributeString(AbstractMetadata.map_projection, "").trim().isEmpty());
     }
 

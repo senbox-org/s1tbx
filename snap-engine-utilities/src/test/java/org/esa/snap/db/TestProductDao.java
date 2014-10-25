@@ -47,7 +47,7 @@ public class TestProductDao {
     @Test
     public void testAddAll() throws Exception {
 
-        for(File folder : TestUtils.rootPathsERS) {
+        for (File folder : TestUtils.rootPathsERS) {
             if (!folder.exists()) {
                 TestUtils.skipTest(this, folder + " not found");
                 return;

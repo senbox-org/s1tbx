@@ -170,7 +170,7 @@ public final class ftpUtils {
         if (!listingFile.exists())
             useCachedListing = false;
 
-        final Map<String, Long> fileSizeMap = new HashMap<String, Long>(900);
+        final Map<String, Long> fileSizeMap = new HashMap<>(900);
 
         if (useCachedListing) {
             Document doc = null;

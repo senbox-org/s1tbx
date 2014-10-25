@@ -360,7 +360,7 @@ public class GraphExecuter extends Observable {
     }
 
     public List<File> getProductsToOpenInDAT() {
-        final List<File> fileList = new ArrayList<File>(2);
+        final List<File> fileList = new ArrayList<>(2);
         final Node[] nodes = graph.getNodes();
         for (Node n : nodes) {
             if (n.getOperatorName().equalsIgnoreCase(OperatorSpi.getOperatorAlias(WriteOp.class))) {

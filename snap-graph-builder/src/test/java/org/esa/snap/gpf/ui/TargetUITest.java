@@ -43,7 +43,7 @@ public class TargetUITest {
     TargetUI targetUI;
     private Product[] defaultProducts;
     private AppContext appContext;
-    private final Map<String, Object> parameterMap = new HashMap<String, Object>();
+    private final Map<String, Object> parameterMap = new HashMap<>();
     private final String FILE_PARAMETER = "file";
 
     @Before

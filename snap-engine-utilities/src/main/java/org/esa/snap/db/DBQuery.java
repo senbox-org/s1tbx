@@ -179,12 +179,12 @@ public class DBQuery {
     }
 
     public boolean isMonthSelected(final int month) {
-        assert(month < 12);
+        assert (month < 12);
         return selectedMonths[month];
     }
 
     public void setMonthSelected(final int month, final boolean selected) {
-        assert(month < 12);
+        assert (month < 12);
         selectedMonths[month] = selected;
     }
 
@@ -269,18 +269,18 @@ public class DBQuery {
             queryStr.append(ProductTable.TABLE + '.' + AbstractMetadata.first_line_time + "<='" + end.toString() + '\'');
         }
 
-        if(selectedMonths != null && monthSelectionMade()) {
+        if (selectedMonths != null && monthSelectionMade()) {
             SQLUtils.addAND(queryStr);
             final StringBuilder monthSelectionStr = new StringBuilder();
-            for(int m=0; m < selectedMonths.length; ++m) {
-                if(!selectedMonths[m]) {
-                    if(monthSelectionStr.length() > 0) {
+            for (int m = 0; m < selectedMonths.length; ++m) {
+                if (!selectedMonths[m]) {
+                    if (monthSelectionStr.length() > 0) {
                         monthSelectionStr.append(" OR ");
                     }
-                    monthSelectionStr.append("MONTH(" + ProductTable.TABLE + '.' + AbstractMetadata.first_line_time + ") = "+(m+1));
+                    monthSelectionStr.append("MONTH(" + ProductTable.TABLE + '.' + AbstractMetadata.first_line_time + ") = " + (m + 1));
                 }
             }
-            queryStr.append("NOT ("+monthSelectionStr+")");
+            queryStr.append("NOT (" + monthSelectionStr + ")");
         }
 
         final Set<String> metadataNames = metadataQueryMap.keySet();
@@ -391,8 +391,8 @@ public class DBQuery {
     }
 
     private boolean monthSelectionMade() {
-        for(boolean b : selectedMonths) {
-            if(b == false)
+        for (boolean b : selectedMonths) {
+            if (b == false)
                 return true;
         }
         return false;

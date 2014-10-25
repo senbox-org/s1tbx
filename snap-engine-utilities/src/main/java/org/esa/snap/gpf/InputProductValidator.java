@@ -38,35 +38,35 @@ public class InputProductValidator {
 
     public void checkProductType(final String[] validProductTypes) {
         final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        for(String validProductType : validProductTypes) {
-            if(productType.equals(validProductType))
+        for (String validProductType : validProductTypes) {
+            if (productType.equals(validProductType))
                 return;
         }
-        throw new OperatorException(productType + " is not a valid product type from: "+ StringUtils.arrayToString(validProductTypes,","));
+        throw new OperatorException(productType + " is not a valid product type from: " + StringUtils.arrayToString(validProductTypes, ","));
     }
 
-    public void checkAcquisitionMode(final String[] validModes){
+    public void checkAcquisitionMode(final String[] validModes) {
         final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
 
-        for(String validMode : validModes) {
-            if(acquisitionMode.equals(validMode))
+        for (String validMode : validModes) {
+            if (acquisitionMode.equals(validMode))
                 return;
         }
-        throw new OperatorException(acquisitionMode + " is not a valid product type from: "+ StringUtils.arrayToString(validModes,","));
+        throw new OperatorException(acquisitionMode + " is not a valid product type from: " + StringUtils.arrayToString(validModes, ","));
     }
 
     public void checkIfTOPSARBurstProduct(final boolean shouldbe) throws OperatorException {
         final boolean isMultiSwath = isMultiSwath();
-        if(shouldbe && !isMultiSwath) {
+        if (shouldbe && !isMultiSwath) {
             throw new OperatorException("Source product should be an SLC burst product");
-        } else if(!shouldbe && isMultiSwath) {
+        } else if (!shouldbe && isMultiSwath) {
             throw new OperatorException("Source product should first be deburst");
         }
     }
 
     private static boolean contains(final String[] list, final String tag) {
-        for(String s : list) {
-            if(s.contains(tag))
+        for (String s : list) {
+            if (s.contains(tag))
                 return true;
         }
         return false;

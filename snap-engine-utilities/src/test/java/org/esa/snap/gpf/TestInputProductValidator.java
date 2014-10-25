@@ -42,7 +42,7 @@ public class TestInputProductValidator {
             assertEquals(e.getMessage(), "Source product should be an SLC burst product");
         }
         try {
-            validator.checkAcquisitionMode(new String[]{"IW","EW"});
+            validator.checkAcquisitionMode(new String[]{"IW", "EW"});
         } catch (OperatorException e) {
             assertTrue(e.getMessage().contains("is not a valid product type"));
         }
@@ -54,7 +54,7 @@ public class TestInputProductValidator {
         final InputProductValidator validator = new InputProductValidator(sourceProduct);
 
         validator.checkIfSentinel1Product();
-        validator.checkProductType(new String[] {"GRD"});
+        validator.checkProductType(new String[]{"GRD"});
         validator.checkIfTOPSARBurstProduct(false);
         validator.checkAcquisitionMode(new String[]{"SM"});
     }
@@ -65,7 +65,7 @@ public class TestInputProductValidator {
         final InputProductValidator validator = new InputProductValidator(sourceProduct);
 
         validator.checkIfSentinel1Product();
-        validator.checkProductType(new String[] {"SLC"});
+        validator.checkProductType(new String[]{"SLC"});
         validator.checkIfTOPSARBurstProduct(false);
         validator.checkAcquisitionMode(new String[]{"SM"});
     }

@@ -53,8 +53,10 @@ public final class StackUtils {
             value.append(name);
             value.append(' ');
         }
-
-        targetSlaveMetadataRoot.setAttributeString(AbstractMetadata.MASTER_BANDS, value.toString().trim());
+        final String masterBandNames = value.toString().trim();
+        if (!masterBandNames.isEmpty()) {
+            targetSlaveMetadataRoot.setAttributeString(AbstractMetadata.MASTER_BANDS, masterBandNames);
+        }
     }
 
     public static void saveSlaveProductBandNames(final Product targetProduct, final String slvProductName,
@@ -159,7 +161,7 @@ public final class StackUtils {
     }
 
     public static ProductData.UTC[] getProductTimes(final Product sourceProduct) {
-        final List<ProductData.UTC> utcList = new ArrayList<ProductData.UTC>();
+        final List<ProductData.UTC> utcList = new ArrayList<>();
         // add master time
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
         if (absRoot != null) {

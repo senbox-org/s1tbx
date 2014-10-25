@@ -46,7 +46,7 @@ public abstract class MultiGraphDialog extends ModelessDialog {
 
     protected final AppContext appContext;
     protected final IOPanel ioPanel;
-    protected final List<GraphExecuter> graphExecuterList = new ArrayList<GraphExecuter>(3);
+    protected final List<GraphExecuter> graphExecuterList = new ArrayList<>(3);
 
     private final JPanel mainPanel;
     protected final JTabbedPane tabbedPane;

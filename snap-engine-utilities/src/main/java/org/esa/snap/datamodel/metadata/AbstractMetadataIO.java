@@ -191,7 +191,7 @@ public final class AbstractMetadataIO {
             final Element elem = (Element) o;
             final String name = elem.getName();
             final List content = elem.getContent();
-            final List<Float> valueList = new ArrayList<Float>();
+            final List<Float> valueList = new ArrayList<>();
             int columnCount = 0;
             int rowCount = 0;
             for (Object row : content) {

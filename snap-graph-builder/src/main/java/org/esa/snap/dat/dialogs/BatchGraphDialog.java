@@ -439,9 +439,9 @@ public class BatchGraphDialog extends ModelessDialog {
     }
 
     protected static void setIO(final GraphExecuter graphEx,
-                              final String readID, final File readPath,
-                              final String writeID, final File writePath,
-                              final String format) {
+                                final String readID, final File readPath,
+                                final String writeID, final File writePath,
+                                final String format) {
         final GraphNode readNode = graphEx.getGraphNodeList().findGraphNodeByOperator(readID);
         if (readNode != null) {
             graphEx.setOperatorParam(readNode.getID(), "file", readPath.getAbsolutePath());
@@ -466,7 +466,7 @@ public class BatchGraphDialog extends ModelessDialog {
      * @param slaveFiles   slave file list
      */
     protected static void setSlaveIO(final GraphExecuter graphEx, final String productSetID,
-                                   final File masterFile, final File[] slaveFiles) {
+                                     final File masterFile, final File[] slaveFiles) {
         final GraphNode productSetNode = graphEx.getGraphNodeList().findGraphNodeByOperator(productSetID);
         if (productSetNode != null) {
             StringBuilder str = new StringBuilder(masterFile.getAbsolutePath());
@@ -505,7 +505,7 @@ public class BatchGraphDialog extends ModelessDialog {
     }
 
     public File[] getAllBatchProcessedTargetProducts() {
-        final List<File> targetFileList = new ArrayList<File>();
+        final List<File> targetFileList = new ArrayList<>();
         for (GraphExecuter graphEx : graphExecutorList) {
             targetFileList.addAll(graphEx.getProductsToOpenInDAT());
         }
@@ -523,7 +523,7 @@ public class BatchGraphDialog extends ModelessDialog {
         private final ProgressMonitor pm;
         private ProcessTimeMonitor timeMonitor = new ProcessTimeMonitor();
         private boolean errorOccured = false;
-        final List<String> errMsgs = new ArrayList<String>();
+        final List<String> errMsgs = new ArrayList<>();
 
         public ProcessThread(final ProgressMonitor pm) {
             this.pm = pm;

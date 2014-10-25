@@ -33,8 +33,8 @@ public abstract class BaseFileModel extends AbstractTableModel implements FileTa
     protected Class types[] = null;
     protected int widths[] = null;
 
-    protected final List<File> fileList = new ArrayList<File>(10);
-    protected final List<TableData> dataList = new ArrayList<TableData>(10);
+    protected final List<File> fileList = new ArrayList<>(10);
+    protected final List<TableData> dataList = new ArrayList<>(10);
 
     public BaseFileModel() {
         setColumnData();
@@ -170,7 +170,7 @@ public abstract class BaseFileModel extends AbstractTableModel implements FileTa
     }
 
     public File[] getFilesAt(final int[] indices) {
-        final List<File> files = new ArrayList<File>(indices.length);
+        final List<File> files = new ArrayList<>(indices.length);
         for (int i : indices) {
             files.add(fileList.get(i));
         }

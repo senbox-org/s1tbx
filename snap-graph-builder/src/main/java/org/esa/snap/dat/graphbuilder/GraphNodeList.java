@@ -108,7 +108,7 @@ public class GraphNodeList {
     }
 
     public GraphNode[] findConnectedNodes(final GraphNode sourceNode) {
-        final List<GraphNode> connectedNodes = new ArrayList<GraphNode>();
+        final List<GraphNode> connectedNodes = new ArrayList<>();
         for (GraphNode n : nodeList) {
             if (n.isNodeSource(sourceNode))
                 connectedNodes.add(n);

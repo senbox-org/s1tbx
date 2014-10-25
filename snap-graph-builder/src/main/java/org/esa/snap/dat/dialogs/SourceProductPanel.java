@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class SourceProductPanel extends JPanel {
 
-    private final List<SourceProductSelector> sourceProductSelectorList = new ArrayList<SourceProductSelector>(3);
+    private final List<SourceProductSelector> sourceProductSelectorList = new ArrayList<>(3);
 
     public SourceProductPanel(final AppContext appContext) {
 

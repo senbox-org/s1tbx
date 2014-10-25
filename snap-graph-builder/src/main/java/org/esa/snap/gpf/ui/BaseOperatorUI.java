@@ -148,7 +148,7 @@ public abstract class BaseOperatorUI implements OperatorUI {
     }
 
     protected String[] getBandNames() {
-        final ArrayList<String> bandNames = new ArrayList<String>(5);
+        final ArrayList<String> bandNames = new ArrayList<>(5);
         if (sourceProducts != null) {
             for (Product prod : sourceProducts) {
                 if (sourceProducts.length > 1) {
@@ -176,7 +176,7 @@ public abstract class BaseOperatorUI implements OperatorUI {
     }
 
     protected String[] getGeometries() {
-        final ArrayList<String> geometryNames = new ArrayList<String>(5);
+        final ArrayList<String> geometryNames = new ArrayList<>(5);
         if (sourceProducts != null) {
             for (Product prod : sourceProducts) {
                 if (sourceProducts.length > 1) {

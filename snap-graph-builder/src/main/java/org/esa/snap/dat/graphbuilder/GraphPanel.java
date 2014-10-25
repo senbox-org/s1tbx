@@ -142,8 +142,9 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
             Collections.sort(nodes, new GraphNodePosComparator());
 
             for (int i = 0; i < nodes.size() - 1; ++i) {
-                nodes.get(i).disconnectAllSources();
-                nodes.get(i).connectOperatorSource(nodes.get(i + 1).getID());
+                if (!nodes.get(i).HasSources()) {
+                    nodes.get(i).connectOperatorSource(nodes.get(i + 1).getID());
+                }
             }
             repaint();
         }
