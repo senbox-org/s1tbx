@@ -27,10 +27,10 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.GeoUtils;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.Maths;
 
@@ -52,7 +52,7 @@ public class SRGROp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
+    @Parameter(description = "The list of source bands.", alias = "sourceBands",
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
