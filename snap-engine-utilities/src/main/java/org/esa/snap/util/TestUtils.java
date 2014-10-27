@@ -258,7 +258,7 @@ public class TestUtils {
     }
 
     private static void compareMetadata(final Product testProduct, final Product expectedProduct,
-                                        final String[] excemptionList) throws Exception {
+                                        final String[] exemptionList) throws Exception {
         final MetadataElement testAbsRoot = AbstractMetadata.getAbstractedMetadata(testProduct);
         if (testAbsRoot == null)
             throwErr("Metadata is null");
@@ -266,13 +266,13 @@ public class TestUtils {
         if (expectedAbsRoot == null)
             throwErr("Metadata is null");
 
-        if (excemptionList != null) {
-            Arrays.sort(excemptionList);
+        if (exemptionList != null) {
+            Arrays.sort(exemptionList);
         }
 
         final MetadataAttribute[] attribList = expectedAbsRoot.getAttributes();
         for (MetadataAttribute expectedAttrib : attribList) {
-            if (excemptionList != null && Arrays.binarySearch(excemptionList, expectedAttrib.getName()) >= 0)
+            if (exemptionList != null && Arrays.binarySearch(exemptionList, expectedAttrib.getName()) >= 0)
                 continue;
 
             final MetadataAttribute result = testAbsRoot.getAttribute(expectedAttrib.getName());
@@ -355,7 +355,7 @@ public class TestUtils {
     }
 
     public static void compareProducts(final Product targetProduct,
-                                       final String expectedPath, final String[] excemptionList) throws Exception {
+                                       final String expectedPath, final String[] exemptionList) throws Exception {
 
         final Band targetBand = targetProduct.getBandAt(0);
         if (targetBand == null)
@@ -383,7 +383,7 @@ public class TestUtils {
         }
 
         // compare updated metadata
-        compareMetadata(targetProduct, expectedProduct, excemptionList);
+        compareMetadata(targetProduct, expectedProduct, exemptionList);
     }
 
     public static void executeOperator(final Operator op) throws Exception {
@@ -470,10 +470,10 @@ public class TestUtils {
             } catch (Exception e) {
                 boolean ok = false;
                /* if(exceptionExemptions != null) {
-                    for(String excemption : exceptionExemptions) {
-                        if(e.getMessage().contains(excemption)) {
+                    for(String exemption : exceptionExemptions) {
+                        if(e.getMessage().contains(exemption)) {
                             ok = true;
-                            System.out.println("Excemption for "+e.getMessage());
+                            System.out.println("Exemption for "+e.getMessage());
                             break;
                         }
                     }
@@ -634,7 +634,7 @@ public class TestUtils {
             if (readerPlugin.getDecodeQualification(file) == DecodeQualification.INTENDED) {
 
                 try {
-                    log.info("Reading " + iterations + "] " + file.toString());
+                    log.info("Reading [" + iterations + "] " + file.toString());
 
                     final Product product = reader.readProductNodes(file, null);
                     if (productTypeExemptions != null && containsProductType(productTypeExemptions, product.getProductType()))
@@ -647,10 +647,10 @@ public class TestUtils {
                 } catch (Exception e) {
                     boolean ok = false;
                     if (exceptionExemptions != null) {
-                        for (String excemption : exceptionExemptions) {
-                            if (e.getMessage() != null && e.getMessage().contains(excemption)) {
+                        for (String exemption : exceptionExemptions) {
+                            if (e.getMessage() != null && e.getMessage().contains(exemption)) {
                                 ok = true;
-                                log.info("Excemption for " + e.getMessage());
+                                log.info("Exemption for " + e.getMessage());
                                 break;
                             }
                         }

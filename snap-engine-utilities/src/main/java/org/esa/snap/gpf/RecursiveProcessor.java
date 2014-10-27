@@ -55,10 +55,10 @@ public abstract class RecursiveProcessor {
                 } catch (Exception e) {
                     boolean ok = false;
                     if (exceptionExemptions != null) {
-                        for (String excemption : exceptionExemptions) {
-                            if (e.getMessage().contains(excemption)) {
+                        for (String exemption : exceptionExemptions) {
+                            if (e.getMessage().contains(exemption)) {
                                 ok = true;
-                                System.out.println("Excemption for " + e.getMessage());
+                                System.out.println("Exemption for " + e.getMessage());
                                 break;
                             }
                         }
