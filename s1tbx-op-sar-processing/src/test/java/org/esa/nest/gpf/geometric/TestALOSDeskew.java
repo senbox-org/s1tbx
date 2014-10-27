@@ -20,7 +20,7 @@ public class TestALOSDeskew {
     }
     private final static OperatorSpi spi = new ALOSDeskewingOp.Spi();
 
-    private String[] exceptionExemptions = {};
+    private String[] exceptionExemptions = {"PALSAR products only"};
 
     /**
      * Processes a product and compares it to processed product known to be correct

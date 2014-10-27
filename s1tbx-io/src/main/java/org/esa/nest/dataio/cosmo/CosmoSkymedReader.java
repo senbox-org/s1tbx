@@ -257,7 +257,8 @@ public class CosmoSkymedReader extends SARReader {
             throw new IOException("Complex " + mode + " products are not supported for Cosmo-Skymed");
         }
 
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, globalElem.getAttributeString("Satellite_Id", "CSK"));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "CSK");
+        //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.satellite, globalElem.getAttributeString("Satellite_Id", "CSK"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
                 ReaderUtils.getTime(globalElem, "Product_Generation_UTC", AbstractMetadata.dateFormat));
 
@@ -358,11 +359,31 @@ public class CosmoSkymedReader extends SARReader {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_bandwidth, azimuthBW);
 
             // Calibration constant read from Global_Metadata during calibration initialization
+        } else {
+            final String prefix = "S01_";
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
+                    globalElem.getAttributeDouble(prefix+"PRF", defInt));
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
+                    globalElem.getAttributeDouble(prefix+"Sampling_Rate", defInt) / Constants.oneMillion);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds1_tx_rx_polar,
+                    globalElem.getAttributeString(prefix+"Polarisation", defStr));
+
+            // add Range and Azimuth bandwidth
+            final double rangeBW = globalElem.getAttributeDouble(prefix+"Range_Focusing_Bandwidth"); // Hz
+            final double azimuthBW = globalElem.getAttributeDouble(prefix+"Azimuth_Focusing_Bandwidth"); // Hz
+
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_bandwidth, rangeBW / Constants.oneMillion);
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_bandwidth, azimuthBW);
         }
+
         final MetadataElement s02Elem = globalElem.getElement("S02");
         if (s02Elem != null) {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds2_tx_rx_polar,
                     s02Elem.getAttributeString("Polarisation", defStr));
+        } else {
+            final String prefix = "S02_";
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.mds2_tx_rx_polar,
+                    globalElem.getAttributeString(prefix+"Polarisation", defStr));
         }
 
         if (isComplex) {
@@ -456,11 +477,21 @@ public class CosmoSkymedReader extends SARReader {
         final double referenceUTC = ReaderUtils.getTime(globalElem, "Reference_UTC", AbstractMetadata.dateFormat).getMJD(); // in days
         double firstLineTime = bandElem.getAttributeDouble("Zero_Doppler_Azimuth_First_Time", 0) / (24 * 3600); // in days
         if (firstLineTime == 0) {
-            firstLineTime = globalElem.getElement("S01").getElement("B001").getAttributeDouble("Azimuth_First_Time") / (24 * 3600); // in days
+            final MetadataElement s01Elem = globalElem.getElement("S01");
+            if(s01Elem != null) {
+                firstLineTime = s01Elem.getElement("B001").getAttributeDouble("Azimuth_First_Time") / (24 * 3600); // in days
+            } else {
+                firstLineTime = globalElem.getAttributeDouble("S01_B001_Azimuth_First_Time") / (24 * 3600); // in days
+            }
         }
         double lastLineTime = bandElem.getAttributeDouble("Zero_Doppler_Azimuth_Last_Time", 0) / (24 * 3600); // in days
         if (lastLineTime == 0) {
-            lastLineTime = globalElem.getElement("S01").getElement("B001").getAttributeDouble("Azimuth_Last_Time") / (24 * 3600); // in days
+            final MetadataElement s01Elem = globalElem.getElement("S01");
+            if(s01Elem != null) {
+                lastLineTime = s01Elem.getElement("B001").getAttributeDouble("Azimuth_Last_Time") / (24 * 3600); // in days
+            } else {
+                lastLineTime = globalElem.getAttributeDouble("S01_B001_Azimuth_Last_Time") / (24 * 3600); // in days
+            }
         }
         double lineTimeInterval = bandElem.getAttributeDouble("Line_Time_Interval", 0); // in s
         final ProductData.UTC startTime = new ProductData.UTC(referenceUTC + firstLineTime);
@@ -580,6 +611,11 @@ public class CosmoSkymedReader extends SARReader {
             final MetadataElement s01Elem = globalElem.getElement("S0" + cnt);
             if (s01Elem != null) {
                 final String polStr = s01Elem.getAttributeString("Polarisation", "");
+                if (!polStr.isEmpty())
+                    return polStr;
+            } else {
+                final String prefix = "S0" + cnt + '_';
+                final String polStr = globalElem.getAttributeString(prefix+"Polarisation", "");
                 if (!polStr.isEmpty())
                     return polStr;
             }

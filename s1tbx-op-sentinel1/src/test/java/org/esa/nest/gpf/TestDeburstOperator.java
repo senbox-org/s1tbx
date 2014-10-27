@@ -21,6 +21,7 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.util.TestUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 
@@ -48,6 +49,7 @@ public class TestDeburstOperator {
      * @throws Exception general exception
      */
     @Test
+    @Ignore
     public void testProcessing() throws Exception {
         final File inputFile = new File(s1FolderFilePath);
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);

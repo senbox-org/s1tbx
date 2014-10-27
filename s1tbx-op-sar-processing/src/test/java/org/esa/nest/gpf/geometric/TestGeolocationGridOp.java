@@ -57,7 +57,6 @@ public class TestGeolocationGridOp {
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
 
-        final String[] excemptionList = {"total_size"};
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
