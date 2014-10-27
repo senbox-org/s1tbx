@@ -411,6 +411,11 @@ public final class AbstractMetadata {
         return origMetadata;
     }
 
+    public static boolean isNoData(final MetadataElement elem, final String tag) {
+        final String val = elem.getAttributeString(tag, NO_METADATA_STRING).trim();
+        return val.equals(NO_METADATA_STRING) || val.isEmpty();
+    }
+
     /**
      * Adds an attribute into dest
      *
