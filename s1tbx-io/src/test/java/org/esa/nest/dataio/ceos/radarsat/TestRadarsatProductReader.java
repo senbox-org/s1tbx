@@ -19,8 +19,6 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
-import java.io.File;
-
 /**
  * Test Radarsat 1 CEOS Product Reader.
  *
@@ -43,9 +41,7 @@ public class TestRadarsatProductReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        final File folder = new File(TestUtils.rootPathRadarsat1);
-        if (TestUtils.canTestReadersOnAllProducts)
-            TestUtils.recurseReadFolder(this, folder, readerPlugin, reader, null, null);
+        TestUtils.recurseReadFolder(this, TestUtils.rootPathsRadarsat1, readerPlugin, reader, null, null);
     }
 
 }

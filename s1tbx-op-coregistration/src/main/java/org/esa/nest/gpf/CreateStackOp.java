@@ -90,7 +90,7 @@ public class CreateStackOp extends Operator {
             label = "Output Extents")
     private String extent = MASTER_EXTENT;
 
-    @Parameter
+    @Parameter(defaultValue = "true")
     private boolean includeMaster = true;
 
     final static String MASTER_EXTENT = "Master";

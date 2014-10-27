@@ -50,8 +50,6 @@ public class TestEnvisatReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        final File folder = new File(TestUtils.rootPathASAR);
-        if (TestUtils.canTestReadersOnAllProducts)
-            TestUtils.recurseReadFolder(this, folder, readerPlugin, reader, productTypeExemptions, null);
+        TestUtils.recurseReadFolder(this, TestUtils.rootPathsASAR, readerPlugin, reader, productTypeExemptions, null);
     }
 }
