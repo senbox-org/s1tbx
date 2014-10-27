@@ -119,6 +119,9 @@ public class VirtualDirTest {
             assertNotNull(virtualDir.getFile("dir1/File4"));
             assertNotNull(virtualDir.getFile("dir2"));
 
+            assertTrue(virtualDir.exists("File2"));
+            assertFalse(virtualDir.exists("nonExistentFile"));
+
             assertEquals(36, virtualDir.getFile("File5.gz").length());
             LineNumberReader reader = new LineNumberReader(virtualDir.getReader("File5.gz"));
             try {

@@ -106,6 +106,8 @@ public abstract class VirtualDir {
      */
     public abstract String[] list(String path) throws IOException;
 
+    public abstract boolean exists(String path);
+
     /**
      * Closes access to this virtual directory.
      */
@@ -178,6 +180,12 @@ public abstract class VirtualDir {
         public String[] list(String path) throws IOException {
             File child = getFile(path);
             return child.list();
+        }
+
+        @Override
+        public boolean exists(String path) {
+            File child = new File(dir, path);
+            return child.exists();
         }
 
         @Override
@@ -272,6 +280,16 @@ public abstract class VirtualDir {
                 throw new FileNotFoundException(getBasePath() + "!" + path);
             }
             return nameSet.toArray(new String[nameSet.size()]);
+        }
+
+        @Override
+        public boolean exists(String path) {
+            try {
+                ZipEntry zipEntry = getEntry(path);
+                return zipEntry != null;
+            } catch (FileNotFoundException e) {
+                return false;
+            }
         }
 
         @Override
