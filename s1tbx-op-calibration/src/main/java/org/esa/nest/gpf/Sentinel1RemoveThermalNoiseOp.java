@@ -671,7 +671,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      * @return The noise vector index.
      */
     private static int getNoiseVectorIndex(final int y, final ThermalNoiseInfo noiseInfo) {
-        for (int i = 0; i < noiseInfo.count; i++) {
+        for (int i = 1; i < noiseInfo.count; i++) {
             if (y < noiseInfo.noiseVectorList[i].line) {
                 return i - 1;
             }
