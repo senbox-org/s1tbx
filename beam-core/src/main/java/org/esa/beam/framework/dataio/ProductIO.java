@@ -249,11 +249,7 @@ public class ProductIO {
         } else if((filename.startsWith("TSX") || filename.startsWith("TDX")) && filename.endsWith("xml")) {
             return ProductIO.readProduct(file, "TerraSarX");
         } else if(filename.equals("product.xml")) {
-            try {
-                return ProductIO.readProduct(file, "RADARSAT-2");
-            } catch(IOException e) {
-                return ProductIO.readProduct(file, "RADARSAT-2 NITF");
-            }
+            return ProductIO.readProduct(file, "RADARSAT-2");
         } else if(filename.endsWith("tif")) {
             return ProductIO.readProduct(file, "GeoTIFF");
         } else if(filename.endsWith("dbl")) {
