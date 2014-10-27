@@ -93,7 +93,9 @@ public class GraphNodeList {
         if (graphContext != null) {
             for (GraphNode n : nodeList) {
                 final NodeContext context = graphContext.getNodeContext(n.getNode());
-                n.setSourceProducts(context.getSourceProducts());
+                if(context.getOperator() != null) {
+                    n.setSourceProducts(context.getSourceProducts());
+                }
                 n.updateParameters();
             }
         }
