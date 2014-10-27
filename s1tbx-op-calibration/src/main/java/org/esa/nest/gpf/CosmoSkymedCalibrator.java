@@ -170,6 +170,12 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
             pol = s01Elem.getAttributeString("Polarisation").toUpperCase();
             factor = s01Elem.getAttributeDouble("Calibration_Constant");
             calibrationFactor.put(pol, factor);
+        } else {
+            pol = globalElem.getAttributeString("S01_"+"Polarisation", "").toUpperCase();
+            if(!pol.isEmpty()) {
+                factor = globalElem.getAttributeDouble("S01_" + "Calibration_Constant");
+                calibrationFactor.put(pol, factor);
+            }
         }
 
         final MetadataElement s02Elem = globalElem.getElement("S02");
@@ -177,6 +183,12 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
             pol = s02Elem.getAttributeString("Polarisation").toUpperCase();
             factor = s02Elem.getAttributeDouble("Calibration_Constant");
             calibrationFactor.put(pol, factor);
+        } else {
+            pol = globalElem.getAttributeString("S02_"+"Polarisation", "").toUpperCase();
+            if(!pol.isEmpty()) {
+                factor = globalElem.getAttributeDouble("S02_" + "Calibration_Constant");
+                calibrationFactor.put(pol, factor);
+            }
         }
 
         referenceSlantRange = absRoot.getAttributeDouble(

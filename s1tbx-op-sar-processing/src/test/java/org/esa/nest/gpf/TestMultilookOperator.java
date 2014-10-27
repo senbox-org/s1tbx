@@ -40,7 +40,7 @@ public class TestMultilookOperator {
     }
     private final static OperatorSpi spi = new MultilookOp.Spi();
 
-    private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
+    private String[] productTypeExemptions = {"-","_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
     private String[] exceptionExemptions = {"not supported", "not intended", "not be map projected"};
 
     /**
@@ -172,26 +172,26 @@ public class TestMultilookOperator {
 
     @Test
     public void testProcessAllALOS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsALOS, null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsALOS, productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllRadarsat2() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsRadarsat2, null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsRadarsat2, productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllTerraSARX() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsTerraSarX, null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsTerraSarX, productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllCosmo() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsCosmoSkymed, null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsCosmoSkymed, productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllSentinel1() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsSentinel1, null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsSentinel1, productTypeExemptions, exceptionExemptions);
     }
 }

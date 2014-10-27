@@ -105,10 +105,10 @@ public class ReplaceMetadataOp extends Operator {
 
     public static void resetPolarizations(final MetadataElement absRoot, final int isPolsar, final int isCal) {
         if (isPolsar > 0) {
-            absRoot.setAttributeString(AbstractMetadata.mds1_tx_rx_polar, " ");
-            absRoot.setAttributeString(AbstractMetadata.mds2_tx_rx_polar, " ");
-            absRoot.setAttributeString(AbstractMetadata.mds3_tx_rx_polar, " ");
-            absRoot.setAttributeString(AbstractMetadata.mds4_tx_rx_polar, " ");
+            absRoot.setAttributeString(AbstractMetadata.mds1_tx_rx_polar, AbstractMetadata.NO_METADATA_STRING);
+            absRoot.setAttributeString(AbstractMetadata.mds2_tx_rx_polar, AbstractMetadata.NO_METADATA_STRING);
+            absRoot.setAttributeString(AbstractMetadata.mds3_tx_rx_polar, AbstractMetadata.NO_METADATA_STRING);
+            absRoot.setAttributeString(AbstractMetadata.mds4_tx_rx_polar, AbstractMetadata.NO_METADATA_STRING);
             absRoot.setAttributeInt(AbstractMetadata.polsarData, 1);
         }
         if (isCal > 0) {     // polsarpro input already calibrated -- set by polsarpro reader
