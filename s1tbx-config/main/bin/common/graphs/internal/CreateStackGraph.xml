@@ -17,6 +17,7 @@
       <sourceBands/>
       <resamplingType>NONE</resamplingType>
 	  <extent>Master</extent>
+	  <includeMaster>true</includeMaster>
     </parameters>
   </node>
   <node id="3-Write">
