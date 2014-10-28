@@ -54,6 +54,8 @@ public class DBQuery {
     public static final String ORBIT_VERIFIED = "Verified";
     public static final String DB_QUERY = "dbQuery";
 
+    private static final String NoData = AbstractMetadata.NO_METADATA_STRING;
+
     private String selectedMissions[] = {};
     private String selectedProductTypes[] = {};
     private String selectedAcquisitionMode = "";
@@ -179,12 +181,12 @@ public class DBQuery {
     }
 
     public boolean isMonthSelected(final int month) {
-        assert(month < 12);
+        assert (month < 12);
         return selectedMonths[month];
     }
 
     public void setMonthSelected(final int month, final boolean selected) {
-        assert(month < 12);
+        assert (month < 12);
         selectedMonths[month] = selected;
     }
 
@@ -269,18 +271,18 @@ public class DBQuery {
             queryStr.append(ProductTable.TABLE + '.' + AbstractMetadata.first_line_time + "<='" + end.toString() + '\'');
         }
 
-        if(selectedMonths != null && monthSelectionMade()) {
+        if (selectedMonths != null && monthSelectionMade()) {
             SQLUtils.addAND(queryStr);
             final StringBuilder monthSelectionStr = new StringBuilder();
-            for(int m=0; m < selectedMonths.length; ++m) {
-                if(!selectedMonths[m]) {
-                    if(monthSelectionStr.length() > 0) {
+            for (int m = 0; m < selectedMonths.length; ++m) {
+                if (!selectedMonths[m]) {
+                    if (monthSelectionStr.length() > 0) {
                         monthSelectionStr.append(" OR ");
                     }
-                    monthSelectionStr.append("MONTH(" + ProductTable.TABLE + '.' + AbstractMetadata.first_line_time + ") = "+(m+1));
+                    monthSelectionStr.append("MONTH(" + ProductTable.TABLE + '.' + AbstractMetadata.first_line_time + ") = " + (m + 1));
                 }
             }
-            queryStr.append("NOT ("+monthSelectionStr+")");
+            queryStr.append("NOT (" + monthSelectionStr + ")");
         }
 
         final Set<String> metadataNames = metadataQueryMap.keySet();
@@ -337,12 +339,13 @@ public class DBQuery {
     }
 
     private void formPolorizationQuery(final StringBuilder queryStr) {
+
         SQLUtils.addAND(queryStr);
         switch (selectedPolarization) {
             case HHVV:
                 queryStr.append("( " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='"+NoData+"' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='"+NoData+"' AND " +
                         " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'HH'" + " OR " +
                         MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'VV'" + " ) " + " AND " +
                         " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'HH'" + " OR " +
@@ -350,8 +353,8 @@ public class DBQuery {
                 break;
             case HHHV:
                 queryStr.append("( " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='"+NoData+"' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='"+NoData+"' AND " +
                         " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'HH'" + " OR " +
                         MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'HV'" + " ) " + " AND " +
                         " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'HH'" + " OR " +
@@ -359,8 +362,8 @@ public class DBQuery {
                 break;
             case VVVH:
                 queryStr.append("( " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='"+NoData+"' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='"+NoData+"' AND " +
                         " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'VV'" + " OR " +
                         MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "=" + "'VH'" + " ) " + " AND " +
                         " ( " + MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "=" + "'VV'" + " OR " +
@@ -368,17 +371,17 @@ public class DBQuery {
                 break;
             case DUALPOL:
                 queryStr.append("( " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "='' )");
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='"+NoData+"' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='"+NoData+"' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "='"+NoData+"' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "='"+NoData+"' )");
                 break;
             case QUADPOL:
                 queryStr.append("( " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "!='' AND " +
-                        MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "!='' )");
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds1_tx_rx_polar + "!='"+NoData+"' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds2_tx_rx_polar + "!='"+NoData+"' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds3_tx_rx_polar + "!='"+NoData+"' AND " +
+                        MetadataTable.TABLE + '.' + AbstractMetadata.mds4_tx_rx_polar + "!='"+NoData+"' )");
                 break;
             default:
                 queryStr.append("( " +
@@ -391,8 +394,8 @@ public class DBQuery {
     }
 
     private boolean monthSelectionMade() {
-        for(boolean b : selectedMonths) {
-            if(b == false)
+        for (boolean b : selectedMonths) {
+            if (b == false)
                 return true;
         }
         return false;

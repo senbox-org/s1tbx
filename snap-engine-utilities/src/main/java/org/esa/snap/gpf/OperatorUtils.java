@@ -199,14 +199,13 @@ public final class OperatorUtils {
         if (product.getGeoCoding() instanceof MapGeoCoding || product.getGeoCoding() instanceof CrsGeoCoding)
             return true;
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        return absRoot != null && !(absRoot.getAttributeString(AbstractMetadata.map_projection, "").equals(AbstractMetadata.NO_METADATA_STRING)||
-                absRoot.getAttributeString(AbstractMetadata.map_projection, "").trim().isEmpty());
+        return absRoot != null && !AbstractMetadata.isNoData(absRoot, AbstractMetadata.map_projection);
     }
 
     public static boolean isComplex(final Product product) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         if (absRoot != null) {
-            final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE, "").trim();
+            final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE, AbstractMetadata.NO_METADATA_STRING).trim();
             if (sampleType.equalsIgnoreCase("complex"))
                 return true;
         }
@@ -216,11 +215,10 @@ public final class OperatorUtils {
     public static boolean isQuadPol(final Product product) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         if (absRoot != null) {
-            final String pol1 = absRoot.getAttributeString(AbstractMetadata.mds1_tx_rx_polar, "").trim();
-            final String pol2 = absRoot.getAttributeString(AbstractMetadata.mds2_tx_rx_polar, "").trim();
-            final String pol3 = absRoot.getAttributeString(AbstractMetadata.mds3_tx_rx_polar, "").trim();
-            final String pol4 = absRoot.getAttributeString(AbstractMetadata.mds4_tx_rx_polar, "").trim();
-            if (!pol1.isEmpty() && !pol2.isEmpty() && !pol3.isEmpty() && !pol4.isEmpty())
+            if (!AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds1_tx_rx_polar) &&
+                    !AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds2_tx_rx_polar) &&
+                    !AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds2_tx_rx_polar) &&
+                    !AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds4_tx_rx_polar))
                 return true;
         }
         return false;

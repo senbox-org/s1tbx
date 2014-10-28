@@ -411,6 +411,11 @@ public final class AbstractMetadata {
         return origMetadata;
     }
 
+    public static boolean isNoData(final MetadataElement elem, final String tag) {
+        final String val = elem.getAttributeString(tag, NO_METADATA_STRING).trim();
+        return val.equals(NO_METADATA_STRING) || val.isEmpty();
+    }
+
     /**
      * Adds an attribute into dest
      *
@@ -449,7 +454,7 @@ public final class AbstractMetadata {
         if (dest == null)
             return;
         MetadataAttribute attrib = dest.getAttribute(tag);
-        if(attrib == null) {
+        if (attrib == null) {
             attrib = new MetadataAttribute(tag, ProductData.TYPE_ASCII);
         }
         if (value == null || value.isEmpty())
@@ -540,8 +545,8 @@ public final class AbstractMetadata {
                 if (dotPos > 0) {
                     String fractionString = timeStr.substring(dotPos + 1, timeStr.length());
                     //fix some ERS times
-                    fractionString = fractionString.replaceAll("-","");
-                    String newTimeStr = timeStr.substring(0, dotPos)+fractionString;
+                    fractionString = fractionString.replaceAll("-", "");
+                    String newTimeStr = timeStr.substring(0, dotPos) + fractionString;
                     return ProductData.UTC.parse(newTimeStr);
                 }
             } catch (ParseException e2) {
@@ -617,7 +622,7 @@ public final class AbstractMetadata {
         MetadataElement abstractedMetadata = root.getElement(AbstractMetadata.ABSTRACT_METADATA_ROOT);
         if (abstractedMetadata == null) {
             abstractedMetadata = root.getElement("Abstracted Metadata"); // legacy
-            if(abstractedMetadata == null) {
+            if (abstractedMetadata == null) {
                 abstractedMetadata = addAbstractedMetadataHeader(root);
             }
         }
@@ -736,12 +741,12 @@ public final class AbstractMetadata {
 
         //remove old
         final MetadataElement[] oldList = elemRoot.getElements();
-        for(MetadataElement old : oldList) {
+        for (MetadataElement old : oldList) {
             elemRoot.removeElement(old);
         }
         //add new
         int i = 1;
-        for(OrbitStateVector vector : orbitStateVectors) {
+        for (OrbitStateVector vector : orbitStateVectors) {
             final MetadataElement subElemRoot = new MetadataElement(orbit_vector + i);
             elemRoot.addElement(subElemRoot);
             ++i;
@@ -796,13 +801,13 @@ public final class AbstractMetadata {
 
         //remove old
         final MetadataElement[] oldList = elemRoot.getElements();
-        for(MetadataElement old : oldList) {
+        for (MetadataElement old : oldList) {
             elemRoot.removeElement(old);
         }
 
         //add new
         int listCnt = 1;
-        for(SRGRCoefficientList srgrCoef : srgrCoefList) {
+        for (SRGRCoefficientList srgrCoef : srgrCoefList) {
             final MetadataElement srgrListElem = new MetadataElement(srgr_coef_list + '.' + listCnt);
             elemRoot.addElement(srgrListElem);
             ++listCnt;
@@ -811,7 +816,7 @@ public final class AbstractMetadata {
             AbstractMetadata.setAttribute(srgrListElem, AbstractMetadata.ground_range_origin, srgrCoef.ground_range_origin);
 
             int cnt = 1;
-            for(double val : srgrCoef.coefficients) {
+            for (double val : srgrCoef.coefficients) {
                 final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + cnt);
                 srgrListElem.addElement(coefElem);
                 ++cnt;
@@ -858,7 +863,7 @@ public final class AbstractMetadata {
 
         //remove old
         final MetadataElement[] oldList = elemRoot.getElements();
-        for(MetadataElement old : oldList) {
+        for (MetadataElement old : oldList) {
             elemRoot.removeElement(old);
         }
 
@@ -877,7 +882,7 @@ public final class AbstractMetadata {
 
             final double[] coef = dop.coefficients;
             int cnt = 1;
-            for(double coefValue : coef) {
+            for (double coefValue : coef) {
                 final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + cnt);
                 dopplerListElem.addElement(coefElem);
                 ++cnt;
