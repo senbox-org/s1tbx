@@ -36,7 +36,7 @@ public class DefaultUI extends BaseOperatorUI {
                                   final Map<String, Object> parameterMap, final AppContext appContext) {
 
         initializeOperatorUI(operatorName, parameterMap);
-        final BindingContext context = new BindingContext(valueContainer);
+        final BindingContext context = new BindingContext(propertySet);
 
         initParameters();
 
@@ -61,14 +61,14 @@ public class DefaultUI extends BaseOperatorUI {
     }
 
     private void updateSourceBands() {
-        if (valueContainer == null) return;
+        if (propertySet == null) return;
 
-        final Property[] properties = valueContainer.getProperties();
+        final Property[] properties = propertySet.getProperties();
         for (Property p : properties) {
             final PropertyDescriptor descriptor = p.getDescriptor();
-            final String itemAlias = descriptor.getItemAlias();
+            final String alias = descriptor.getAlias();
 
-            if (sourceProducts != null && itemAlias != null && itemAlias.equals("band")) {
+            if (sourceProducts != null && alias != null && alias.equals("sourceBands")) {
                 final String[] bandNames = getBandNames();
                 if (bandNames.length > 0) {
                     final ValueSet valueSet = new ValueSet(bandNames);

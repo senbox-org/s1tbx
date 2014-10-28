@@ -211,7 +211,7 @@ public class ProductSetPanel extends JPanel implements TableModelListener {
                     return;
                 }
                 final int[] selRows = table.getSelectedRows();
-                final java.util.List<File> filesToRemove = new ArrayList<File>(selRows.length);
+                final java.util.List<File> filesToRemove = new ArrayList<>(selRows.length);
                 for (int row : selRows) {
                     filesToRemove.add(tableModel.getFileAt(row));
                 }
@@ -228,7 +228,7 @@ public class ProductSetPanel extends JPanel implements TableModelListener {
 
             public void actionPerformed(final ActionEvent e) {
                 final int[] selRows = table.getSelectedRows();
-                final java.util.List<File> filesToMove = new ArrayList<File>(selRows.length);
+                final java.util.List<File> filesToMove = new ArrayList<>(selRows.length);
                 for (int row : selRows) {
                     filesToMove.add(tableModel.getFileAt(row));
                 }
@@ -247,7 +247,7 @@ public class ProductSetPanel extends JPanel implements TableModelListener {
 
             public void actionPerformed(final ActionEvent e) {
                 final int[] selRows = table.getSelectedRows();
-                final java.util.List<File> filesToMove = new ArrayList<File>(selRows.length);
+                final java.util.List<File> filesToMove = new ArrayList<>(selRows.length);
                 for (int row : selRows) {
                     filesToMove.add(tableModel.getFileAt(row));
                 }

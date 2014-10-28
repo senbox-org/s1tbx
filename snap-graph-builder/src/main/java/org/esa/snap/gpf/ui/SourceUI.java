@@ -41,7 +41,7 @@ public class SourceUI extends BaseOperatorUI {
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
 
         paramMap = parameterMap;
-        final List<SourceProductSelector> sourceProductSelectorList = new ArrayList<SourceProductSelector>(3);
+        final List<SourceProductSelector> sourceProductSelectorList = new ArrayList<>(3);
         sourceProductSelector = new SourceProductSelector(appContext);
         sourceProductSelectorList.add(sourceProductSelector);
 

@@ -43,7 +43,7 @@ public class SourceUITest {
     SourceUI sourceUI;
     private Product[] defaultProducts;
     private AppContext appContext;
-    private final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
+    private final Map<String, Object> parameterMap = new HashMap<>(5);
     private static final String FILE_PARAMETER = "file";
 
     @Before

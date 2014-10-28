@@ -41,7 +41,7 @@ public class IOPanel {
     private final AppContext appContext;
     private final TargetProductSelector targetProductSelector;
     private final boolean useSourceSelector;
-    private final List<SourceProductSelector> sourceProductSelectorList = new ArrayList<SourceProductSelector>(3);
+    private final List<SourceProductSelector> sourceProductSelectorList = new ArrayList<>(3);
     private String targetProductNameSuffix = "";
 
     IOPanel(final AppContext theAppContext, final JTabbedPane tabbedPane, boolean createSourceSelector) {
