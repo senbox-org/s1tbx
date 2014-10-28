@@ -16,11 +16,13 @@
 package org.esa.nest.gpf;
 
 import org.esa.beam.dataio.envisat.EnvisatOrbitReader;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by IntelliJ IDEA.
@@ -37,5 +39,11 @@ public class TestApplyOrbitFile {
 
         EnvisatOrbitReader reader = new EnvisatOrbitReader();
         assertNotNull(reader);
+    }
+
+    @Test
+    @Ignore("not implemented")
+    public void testProcessing() {
+        assertTrue(false);
     }
 }

@@ -241,7 +241,7 @@ public class MosaicOp extends Operator {
         final List<Band> bandList = new ArrayList<Band>(20);
         final Set<Product> selectedProductSet = new HashSet<Product>(sourceProduct.length);
 
-        if (sourceBandNames.length == 0) {
+        if (sourceBandNames == null || sourceBandNames.length == 0) {
             for (final Product srcProduct : sourceProduct) {
                 for (final Band band : srcProduct.getBands()) {
                     if (band instanceof VirtualBand)

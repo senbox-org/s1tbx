@@ -50,9 +50,7 @@ public class TestRadarsat2ProductReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        final File folder = new File(TestUtils.rootPathRadarsat2);
-        if (TestUtils.canTestReadersOnAllProducts)
-            TestUtils.recurseReadFolder(this, folder, readerPlugin, reader, null, null);
+        TestUtils.recurseReadFolder(this, TestUtils.rootPathsRadarsat2, readerPlugin, reader, null, null);
     }
 
     @Test

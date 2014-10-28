@@ -308,36 +308,36 @@ public class SpeckleFilterOperatorTest {
 
     @Test
     public void testProcessAllASAR() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsASAR, productTypeExemptions, null);
     }
 
     @Test
     public void testProcessAllERS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, null, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsERS, null, null);
     }
 
     @Test
     public void testProcessAllALOS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsALOS, null, null);
     }
 
     @Test
     public void testProcessAllRadarsat2() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, null, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsRadarsat2, null, null);
     }
 
     @Test
     public void testProcessAllTerraSARX() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathTerraSarX, null, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsTerraSarX, null, null);
     }
 
     @Test
     public void testProcessAllCosmo() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, null, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsCosmoSkymed, null, null);
     }
 
     @Test
     public void testProcessAllSentinel1() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathSentinel1, null, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsSentinel1, null, null);
     }
 }

@@ -45,8 +45,6 @@ public class TestCosmoSkymedReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        final File folder = new File(TestUtils.rootPathCosmoSkymed);
-        if (TestUtils.canTestReadersOnAllProducts)
-            TestUtils.recurseReadFolder(this, folder, readerPlugin, reader, null, exceptionExemptions);
+        TestUtils.recurseReadFolder(this, TestUtils.rootPathsCosmoSkymed, readerPlugin, reader, null, exceptionExemptions);
     }
 }

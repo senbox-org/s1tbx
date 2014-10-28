@@ -26,8 +26,8 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 
 import java.util.ArrayList;
@@ -75,6 +75,12 @@ public final class TOPSARSplitOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSentinel1Product();
+            validator.checkIfTOPSARBurstProduct(true);
+            validator.checkProductType(new String[]{"SLC"});
+            validator.checkAcquisitionMode(new String[]{"IW","EW"});
+
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             if (subswath == null) {
                 final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
