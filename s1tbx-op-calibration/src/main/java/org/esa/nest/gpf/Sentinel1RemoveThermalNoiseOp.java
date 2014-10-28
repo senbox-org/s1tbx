@@ -426,85 +426,89 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         final int h = targetTileRectangle.height;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h + ", target band = " + targetBand.getName());
 
-        final String targetBandName = targetBand.getName();
-        final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
+        try {
+            final String targetBandName = targetBand.getName();
+            final ThermalNoiseInfo noiseInfo = getNoiseInfo(targetBandName);
 
-        Tile sourceRaster1 = null;
-        ProductData srcData1 = null;
-        ProductData srcData2 = null;
-        Band sourceBand1 = null;
+            Tile sourceRaster1 = null;
+            ProductData srcData1 = null;
+            ProductData srcData2 = null;
+            Band sourceBand1 = null;
 
-        final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
-        if (srcBandNames.length == 1) {
-            sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
-            sourceRaster1 = getSourceTile(sourceBand1, targetTileRectangle);
-            srcData1 = sourceRaster1.getDataBuffer();
-        } else {
-            sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
-            final Band sourceBand2 = sourceProduct.getBand(srcBandNames[1]);
-            sourceRaster1 = getSourceTile(sourceBand1, targetTileRectangle);
-            final Tile sourceRaster2 = getSourceTile(sourceBand2, targetTileRectangle);
-            srcData1 = sourceRaster1.getDataBuffer();
-            srcData2 = sourceRaster2.getDataBuffer();
-        }
-
-        final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
-        final ProductData trgData = targetTile.getDataBuffer();
-        final TileIndex srcIndex = new TileIndex(sourceRaster1);
-        final TileIndex tgtIndex = new TileIndex(targetTile);
-        final int maxY = y0 + h;
-        final int maxX = x0 + w;
-
-        final boolean complexData = bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY;
-
-        Sentinel1Calibrator.CalibrationInfo calInfo = null;
-        Sentinel1Calibrator.CALTYPE calType = null;
-        if (absoluteCalibrationPerformed) {
-            calInfo = getCalInfo(targetBandName);
-            calType = Sentinel1Calibrator.getCalibrationType(targetBandName);
-        }
-
-        double dn, dn2, i, q;
-        int srcIdx, tgtIdx;
-        for (int y = y0; y < maxY; ++y) {
-            srcIndex.calculateStride(y);
-            tgtIndex.calculateStride(y);
-
-            final double[] lut = new double[w];
-            if (absoluteCalibrationPerformed) {
-                final int calVecIdx = calInfo.getCalibrationVectorIndex(y);
-                final Sentinel1Utils.CalibrationVector vec0 = calInfo.getCalibrationVector(calVecIdx);
-                final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
-                final float[] vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
-                final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
-                final int pixelIdx0 = calInfo.getPixelIndex(x0, calVecIdx);
-
-                computeTileScaledNoiseLUT(y, x0, y0, w, noiseInfo, calInfo, vec0.timeMJD, vec1.timeMJD,
-                        vec0LUT, vec1LUT, vec0.pixels, pixelIdx0, lut);
-
+            final String[] srcBandNames = targetBandNameToSourceBandName.get(targetBand.getName());
+            if (srcBandNames.length == 1) {
+                sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
+                sourceRaster1 = getSourceTile(sourceBand1, targetTileRectangle);
+                srcData1 = sourceRaster1.getDataBuffer();
             } else {
-                computeTileNoiseLUT(y, x0, y0, w, noiseInfo, lut);
+                sourceBand1 = sourceProduct.getBand(srcBandNames[0]);
+                final Band sourceBand2 = sourceProduct.getBand(srcBandNames[1]);
+                sourceRaster1 = getSourceTile(sourceBand1, targetTileRectangle);
+                final Tile sourceRaster2 = getSourceTile(sourceBand2, targetTileRectangle);
+                srcData1 = sourceRaster1.getDataBuffer();
+                srcData2 = sourceRaster2.getDataBuffer();
             }
 
-            for (int x = x0; x < maxX; ++x) {
-                final int xx = x - x0;
-                srcIdx = srcIndex.getIndex(x);
-                tgtIdx = tgtIndex.getIndex(x);
-                if (bandUnit == Unit.UnitType.AMPLITUDE) {
-                    dn = srcData1.getElemDoubleAt(srcIdx);
-                    dn2 = dn * dn;
-                } else if (complexData) {
-                    i = srcData1.getElemDoubleAt(srcIdx);
-                    q = srcData2.getElemDoubleAt(srcIdx);
-                    dn2 = i * i + q * q;
-                } else if (bandUnit == Unit.UnitType.INTENSITY) {
-                    dn2 = srcData1.getElemDoubleAt(srcIdx);
+            final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
+            final ProductData trgData = targetTile.getDataBuffer();
+            final TileIndex srcIndex = new TileIndex(sourceRaster1);
+            final TileIndex tgtIndex = new TileIndex(targetTile);
+            final int maxY = y0 + h;
+            final int maxX = x0 + w;
+
+            final boolean complexData = bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY;
+
+            Sentinel1Calibrator.CalibrationInfo calInfo = null;
+            Sentinel1Calibrator.CALTYPE calType = null;
+            if (absoluteCalibrationPerformed) {
+                calInfo = getCalInfo(targetBandName);
+                calType = Sentinel1Calibrator.getCalibrationType(targetBandName);
+            }
+
+            double dn, dn2, i, q;
+            int srcIdx, tgtIdx;
+            for (int y = y0; y < maxY; ++y) {
+                srcIndex.calculateStride(y);
+                tgtIndex.calculateStride(y);
+
+                final double[] lut = new double[w];
+                if (absoluteCalibrationPerformed) {
+                    final int calVecIdx = calInfo.getCalibrationVectorIndex(y);
+                    final Sentinel1Utils.CalibrationVector vec0 = calInfo.getCalibrationVector(calVecIdx);
+                    final Sentinel1Utils.CalibrationVector vec1 = calInfo.getCalibrationVector(calVecIdx + 1);
+                    final float[] vec0LUT = Sentinel1Calibrator.getVector(calType, vec0);
+                    final float[] vec1LUT = Sentinel1Calibrator.getVector(calType, vec1);
+                    final int pixelIdx0 = calInfo.getPixelIndex(x0, calVecIdx);
+
+                    computeTileScaledNoiseLUT(y, x0, y0, w, noiseInfo, calInfo, vec0.timeMJD, vec1.timeMJD,
+                            vec0LUT, vec1LUT, vec0.pixels, pixelIdx0, lut);
+
                 } else {
-                    throw new OperatorException("Unhandled unit");
+                    computeTileNoiseLUT(y, x0, y0, w, noiseInfo, lut);
                 }
 
-                trgData.setElemDoubleAt(tgtIdx, dn2 - lut[xx]);
+                for (int x = x0; x < maxX; ++x) {
+                    final int xx = x - x0;
+                    srcIdx = srcIndex.getIndex(x);
+                    tgtIdx = tgtIndex.getIndex(x);
+                    if (bandUnit == Unit.UnitType.AMPLITUDE) {
+                        dn = srcData1.getElemDoubleAt(srcIdx);
+                        dn2 = dn * dn;
+                    } else if (complexData) {
+                        i = srcData1.getElemDoubleAt(srcIdx);
+                        q = srcData2.getElemDoubleAt(srcIdx);
+                        dn2 = i * i + q * q;
+                    } else if (bandUnit == Unit.UnitType.INTENSITY) {
+                        dn2 = srcData1.getElemDoubleAt(srcIdx);
+                    } else {
+                        throw new OperatorException("Unhandled unit");
+                    }
+
+                    trgData.setElemDoubleAt(tgtIdx, dn2 - lut[xx]);
+                }
             }
+        } catch (Throwable e) {
+            throw new OperatorException(e.getMessage());
         }
     }
 
@@ -635,31 +639,36 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private static void computeTileNoiseLUT(final int y, final int x0, final int y0, final int w,
                                      final ThermalNoiseInfo noiseInfo, final double[] lut) {
 
-        double v00, v01, v10, v11, muX, muY;
-        int noiseVecIdx = getNoiseVectorIndex(y0, noiseInfo);
-        int pixelIdx = getPixelIndex(x0, noiseVecIdx, noiseInfo);
+        try {
+            double v00, v01, v10, v11, muX, muY;
+            int noiseVecIdx = getNoiseVectorIndex(y0, noiseInfo);
+            int pixelIdx = getPixelIndex(x0, noiseVecIdx, noiseInfo);
 
-        final double azTime = noiseInfo.firstLineTime + y * noiseInfo.lineTimeInterval;
-        final double azT0 = noiseInfo.noiseVectorList[noiseVecIdx].timeMJD;
-        final double azT1 = noiseInfo.noiseVectorList[noiseVecIdx + 1].timeMJD;
-        muY = (azTime - azT0) / (azT1 - azT0);
+            final double azTime = noiseInfo.firstLineTime + y * noiseInfo.lineTimeInterval;
+            final double azT0 = noiseInfo.noiseVectorList[noiseVecIdx].timeMJD;
+            final double azT1 = noiseInfo.noiseVectorList[noiseVecIdx + 1].timeMJD;
+            muY = (azTime - azT0) / (azT1 - azT0);
 
-        for (int x = x0; x < x0 + w; x++) {
+            for (int x = x0; x < x0 + w; x++) {
 
-            if (x > noiseInfo.noiseVectorList[noiseVecIdx].pixels[pixelIdx + 1]) {
-                pixelIdx++;
+                if (x > noiseInfo.noiseVectorList[noiseVecIdx].pixels[pixelIdx + 1] &&
+                        pixelIdx < noiseInfo.noiseVectorList[noiseVecIdx].pixels.length - 2) {
+                    pixelIdx++;
+                }
+
+                final int xx0 = noiseInfo.noiseVectorList[noiseVecIdx].pixels[pixelIdx];
+                final int xx1 = noiseInfo.noiseVectorList[noiseVecIdx].pixels[pixelIdx + 1];
+                muX = (double) (x - xx0) / (double) (xx1 - xx0);
+
+                v00 = noiseInfo.noiseVectorList[noiseVecIdx].noiseLUT[pixelIdx];
+                v01 = noiseInfo.noiseVectorList[noiseVecIdx].noiseLUT[pixelIdx + 1];
+                v10 = noiseInfo.noiseVectorList[noiseVecIdx + 1].noiseLUT[pixelIdx];
+                v11 = noiseInfo.noiseVectorList[noiseVecIdx + 1].noiseLUT[pixelIdx + 1];
+
+                lut[x - x0] = Maths.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
             }
-
-            final int xx0 = noiseInfo.noiseVectorList[noiseVecIdx].pixels[pixelIdx];
-            final int xx1 = noiseInfo.noiseVectorList[noiseVecIdx].pixels[pixelIdx + 1];
-            muX = (double) (x - xx0) / (double) (xx1 - xx0);
-
-            v00 = noiseInfo.noiseVectorList[noiseVecIdx].noiseLUT[pixelIdx];
-            v01 = noiseInfo.noiseVectorList[noiseVecIdx].noiseLUT[pixelIdx + 1];
-            v10 = noiseInfo.noiseVectorList[noiseVecIdx + 1].noiseLUT[pixelIdx];
-            v11 = noiseInfo.noiseVectorList[noiseVecIdx + 1].noiseLUT[pixelIdx + 1];
-
-            lut[x - x0] = Maths.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("computeTileNoiseLUT", e);
         }
     }
 
@@ -676,7 +685,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 return i - 1;
             }
         }
-        return -1;
+        return noiseInfo.count - 2;
     }
 
     /**
@@ -694,7 +703,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 return i - 1;
             }
         }
-        return -1;
+        return noiseInfo.noiseVectorList[noiseVecIdx].pixels.length - 2;
     }
 
 
