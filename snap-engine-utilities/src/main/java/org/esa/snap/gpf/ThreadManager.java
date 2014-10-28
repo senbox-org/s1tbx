@@ -24,7 +24,7 @@ import java.util.List;
 public class ThreadManager {
 
     private static int numCPU = Runtime.getRuntime().availableProcessors();
-    private final List<Thread> threadList = new ArrayList<Thread>(numCPU);
+    private final List<Thread> threadList = new ArrayList<>(numCPU);
 
     public ThreadManager() {
     }

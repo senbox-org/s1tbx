@@ -26,7 +26,7 @@ import java.util.List;
 public class ProgressMonitorList {
 
     private static ProgressMonitorList _instance = null;
-    private List<ProgressMonitor> list = new ArrayList<ProgressMonitor>(1);
+    private List<ProgressMonitor> list = new ArrayList<>(1);
 
     public static ProgressMonitorList instance() {
         if (_instance == null) {

@@ -19,7 +19,6 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
-import java.util.regex.Matcher;
 
 /**
  * Created by IntelliJ IDEA.
@@ -63,10 +62,10 @@ public final class Settings {
     public static File getAuxDataFolder() {
         String auxDataPath = Settings.instance().get("AuxDataPath");
         if (auxDataPath == null || auxDataPath.isEmpty()) {
-            if(isWindowsOS()) {
+            if (isWindowsOS()) {
                 auxDataPath = "c:\\AuxData";
             } else {
-                auxDataPath = SystemUtils.getUserHomeDir()+File.separator+"AuxData";
+                auxDataPath = SystemUtils.getUserHomeDir() + File.separator + "AuxData";
             }
         }
         return new File(auxDataPath);

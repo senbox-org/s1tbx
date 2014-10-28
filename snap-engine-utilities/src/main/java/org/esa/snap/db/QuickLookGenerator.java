@@ -32,7 +32,10 @@ import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
 import java.awt.*;
 import java.awt.image.*;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 /**
  * Generates Quicklooks
@@ -179,7 +182,7 @@ public class QuickLookGenerator {
 
     private static File findProductBrowseImage(final File productFile) {
 
-        if(ZipUtils.isZip(productFile)) {
+        if (ZipUtils.isZip(productFile)) {
             try {
                 if (ZipUtils.findInZip(productFile, "s1", "quick-look.png")) {
                     VirtualDir zipDir = VirtualDir.create(productFile);
@@ -190,7 +193,7 @@ public class QuickLookGenerator {
                     String rootFolder = ZipUtils.getRootFolder(productFile, "product.xml");
                     return zipDir.getFile(rootFolder + "BrowseImage.tif");
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 return null;
             }
             return null; //todo read quicklook from stream not yet supported

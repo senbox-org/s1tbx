@@ -47,13 +47,14 @@ public class TestProductDao {
     @Test
     public void testAddAll() throws Exception {
 
-        final File folder1 = new File(TestUtils.rootPathASAR);
-        if (!folder1.exists()) {
-            TestUtils.skipTest(this , folder1.getAbsolutePath()+ " not found");
-            return;
-        }
+        for (File folder : TestUtils.rootPathsERS) {
+            if (!folder.exists()) {
+                TestUtils.skipTest(this, folder + " not found");
+                return;
+            }
 
-        recurseProcessFolder(folder1, db);
+            recurseProcessFolder(folder, db);
+        }
     }
 
     public static void recurseProcessFolder(final File folder, final ProductDB db) throws SQLException {

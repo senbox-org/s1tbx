@@ -237,7 +237,7 @@ public final class XMLSupport {
     }
 
     public static String[] getStringList(final Element elem) {
-        final List<String> array = new ArrayList<String>();
+        final List<String> array = new ArrayList<>();
         final List contentList = elem.getContent();
         for (Object o : contentList) {
             if (o instanceof Element) {
