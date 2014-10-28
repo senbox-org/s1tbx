@@ -25,6 +25,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
+import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.beam.framework.gpf.descriptor.PropertySetDescriptorFactory;
 import org.esa.beam.framework.ui.AppContext;
 
 import javax.swing.*;
@@ -43,7 +45,7 @@ import java.util.Set;
  */
 public abstract class BaseOperatorUI implements OperatorUI {
 
-    protected PropertyContainer valueContainer = null;
+    protected PropertySet propertySet = null;
     protected Map<String, Object> paramMap = null;
     protected Product[] sourceProducts = null;
     protected String operatorName = "";
@@ -63,19 +65,26 @@ public abstract class BaseOperatorUI implements OperatorUI {
 
     protected void initializeOperatorUI(final String operatorName, final Map<String, Object> parameterMap) {
         this.operatorName = operatorName;
+        this.paramMap = parameterMap;
 
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
         if (operatorSpi == null) {
             throw new IllegalArgumentException("operator " + operatorName + " not found");
         }
 
-        paramMap = parameterMap;
-        final ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
-        valueContainer = PropertyContainer.createMapBacked(paramMap, operatorSpi.getOperatorClass(), parameterDescriptorFactory);
+        final ParameterDescriptorFactory descriptorFactory = new ParameterDescriptorFactory();
+        final OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
+        final PropertySetDescriptor propertySetDescriptor;
+        try {
+            propertySetDescriptor = PropertySetDescriptorFactory.createForOperator(operatorDescriptor, descriptorFactory.getSourceProductMap());
+        } catch (ConversionException e) {
+            throw new IllegalStateException("Not able to init OperatorParameterSupport.", e);
+        }
+        propertySet = PropertyContainer.createMapBacked(paramMap, propertySetDescriptor);
 
         if (paramMap.isEmpty()) {
             try {
-                valueContainer.setDefaultValues();
+                propertySet.setDefaultValues();
             } catch (IllegalStateException e) {
                 // todo - handle exception here
                 e.printStackTrace();
@@ -98,12 +107,12 @@ public abstract class BaseOperatorUI implements OperatorUI {
 
     public void convertToDOM(final XppDomElement parentElement) {
 
-        if (valueContainer == null) {
+        if (propertySet == null) {
             setParamsToConfiguration(parentElement.getXppDom());
             return;
         }
 
-        final Property[] properties = valueContainer.getProperties();
+        final Property[] properties = propertySet.getProperties();
         for (Property p : properties) {
             final PropertyDescriptor descriptor = p.getDescriptor();
             final DomConverter domConverter = descriptor.getDomConverter();
@@ -138,7 +147,12 @@ public abstract class BaseOperatorUI implements OperatorUI {
                     final Object childValue = p.getValue();
                     final Converter converter = descriptor.getConverter();
 
-                    final String text = converter.format(childValue);
+                    final String alias = descriptor.getAlias();
+
+                    String text = converter.format(childValue);
+                    if(alias != null && alias.equals("sourceBands")) {
+                        text = "";
+                    }
                     if (text != null && !text.isEmpty()) {
                         childElement.setValue(text);
                     }
@@ -148,7 +162,7 @@ public abstract class BaseOperatorUI implements OperatorUI {
     }
 
     protected String[] getBandNames() {
-        final ArrayList<String> bandNames = new ArrayList<String>(5);
+        final ArrayList<String> bandNames = new ArrayList<>(5);
         if (sourceProducts != null) {
             for (Product prod : sourceProducts) {
                 if (sourceProducts.length > 1) {
@@ -176,7 +190,7 @@ public abstract class BaseOperatorUI implements OperatorUI {
     }
 
     protected String[] getGeometries() {
-        final ArrayList<String> geometryNames = new ArrayList<String>(5);
+        final ArrayList<String> geometryNames = new ArrayList<>(5);
         if (sourceProducts != null) {
             for (Product prod : sourceProducts) {
                 if (sourceProducts.length > 1) {

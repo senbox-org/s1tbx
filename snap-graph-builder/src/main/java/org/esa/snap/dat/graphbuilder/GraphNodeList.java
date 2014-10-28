@@ -93,7 +93,9 @@ public class GraphNodeList {
         if (graphContext != null) {
             for (GraphNode n : nodeList) {
                 final NodeContext context = graphContext.getNodeContext(n.getNode());
-                n.setSourceProducts(context.getSourceProducts());
+                if(context.getOperator() != null) {
+                    n.setSourceProducts(context.getSourceProducts());
+                }
                 n.updateParameters();
             }
         }
@@ -108,7 +110,7 @@ public class GraphNodeList {
     }
 
     public GraphNode[] findConnectedNodes(final GraphNode sourceNode) {
-        final List<GraphNode> connectedNodes = new ArrayList<GraphNode>();
+        final List<GraphNode> connectedNodes = new ArrayList<>();
         for (GraphNode n : nodeList) {
             if (n.isNodeSource(sourceNode))
                 connectedNodes.add(n);
