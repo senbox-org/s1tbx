@@ -29,7 +29,7 @@ public class TestALOSDeskew {
      */
     @Test
     public void testProcessing() throws Exception {
-        final File inputFile = TestData.inputASAR_WSM;
+        final File inputFile = TestData.inputALOS1_1;
         if (!inputFile.exists()) {
             TestUtils.skipTest(this, inputFile + " not found");
             return;
@@ -44,8 +44,8 @@ public class TestALOSDeskew {
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
-        final float[] expected = new float[] { 668.0f, 564.0f, 574.0f };
-        TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), expected);
+        final float[] expected = new float[] { 86331.03125f,36645.12109375f,14375.0380859375f };
+        TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), 300, 400, expected);
     }
 
     @Test
