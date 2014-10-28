@@ -38,7 +38,7 @@ public class NorthArrowComponent implements MapToolsComponent {
         final int rasterWidth = raster.getRasterWidth();
         final int rasterHeight = raster.getRasterHeight();
         final int margin = (int) (0.02 * FastMath.hypot(rasterWidth, rasterHeight));
-        final PixelPos point1 = new PixelPos(margin, margin);
+        PixelPos point1 = new PixelPos(margin, margin);
 
         final GeoCoding geoCoding = raster.getGeoCoding();
         if (geoCoding == null) {
@@ -48,7 +48,20 @@ public class NorthArrowComponent implements MapToolsComponent {
 
         final GeoPos point1Geo = geoCoding.getGeoPos(point1, null);
         final GeoPos centrePointGeo = geoCoding.getGeoPos(new PixelPos(rasterWidth / 2, rasterHeight / 2), null);
-        final PixelPos point2 = geoCoding.getPixelPos(new GeoPos(centrePointGeo.getLat(), point1Geo.getLon()), null);
+        PixelPos point2 = geoCoding.getPixelPos(new GeoPos(centrePointGeo.getLat(), point1Geo.getLon()), null);
+
+        if (Double.isNaN(point2.getX()) || Double.isNaN(point2.getY())) {
+
+            // point2 falls outside the raster
+
+            // So set new point2 to be the centre point
+            point2 = new PixelPos(rasterWidth / 2, rasterHeight / 2);
+
+            // Set new point1 to be in the same longitude of centre point but latitude of the old point1
+            final PixelPos oldPoint1 = point1;
+            final GeoPos oldPoint1Geo = geoCoding.getGeoPos(oldPoint1, null);
+            point1 = geoCoding.getPixelPos(new GeoPos(oldPoint1Geo.getLat(), centrePointGeo.getLon()), null);
+        }
 
         final double op = point1.x - point2.x;
         final double hyp = FastMath.hypot(op, point1.y - point2.y);
