@@ -37,6 +37,7 @@ import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.visat.VisatApp;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -57,6 +58,8 @@ import java.awt.GridBagConstraints;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -81,13 +84,15 @@ class DensityPlotPanel extends ChartPagePanel {
             ZOOM_TIP_MESSAGE;
     private static final String CHART_TITLE = "Scatter Plot";
 
-    public final static String PROPERTY_NAME_AUTO_MIN_MAX = "autoMinMax";
-    public final static String PROPERTY_NAME_MIN = "min";
-    public final static String PROPERTY_NAME_MAX = "max";
-    public final static String PROPERTY_NAME_USE_ROI_MASK = "useRoiMask";
-    public final static String PROPERTY_NAME_ROI_MASK = "roiMask";
-    public final static String PROPERTY_NAME_X_BAND = "xBand";
-    public final static String PROPERTY_NAME_Y_BAND = "yBand";
+    private final static String PROPERTY_NAME_AUTO_MIN_MAX = "autoMinMax";
+    private final static String PROPERTY_NAME_MIN = "min";
+    private final static String PROPERTY_NAME_MAX = "max";
+    private final static String PROPERTY_NAME_USE_ROI_MASK = "useRoiMask";
+    private final static String PROPERTY_NAME_ROI_MASK = "roiMask";
+    private final static String PROPERTY_NAME_X_PRODUCT = "xProduct";
+    private final static String PROPERTY_NAME_Y_PRODUCT = "yProduct";
+    private final static String PROPERTY_NAME_X_BAND = "xBand";
+    private final static String PROPERTY_NAME_Y_BAND = "yBand";
 
     private static final int X_VAR = 0;
     private static final int Y_VAR = 1;
@@ -96,8 +101,12 @@ class DensityPlotPanel extends ChartPagePanel {
 
     private BindingContext bindingContext;
     private DataSourceConfig dataSourceConfig;
+    private Property xProductProperty;
+    private Property yProductProperty;
     private Property xBandProperty;
     private Property yBandProperty;
+    private JComboBox<ListCellRenderer> xProductList;
+    private JComboBox<ListCellRenderer> yProductList;
     private JComboBox<ListCellRenderer> xBandList;
     private JComboBox<ListCellRenderer> yBandList;
 
@@ -125,7 +134,9 @@ class DensityPlotPanel extends ChartPagePanel {
 
     private void initActionEnablers() {
         RefreshActionEnabler roiMaskActionEnabler = new RefreshActionEnabler(refreshButton, PROPERTY_NAME_USE_ROI_MASK,
-                                                                             PROPERTY_NAME_ROI_MASK, PROPERTY_NAME_X_BAND, PROPERTY_NAME_Y_BAND);
+                                                                            PROPERTY_NAME_ROI_MASK,
+                                                                            PROPERTY_NAME_X_PRODUCT, PROPERTY_NAME_Y_PRODUCT,
+                                                                            PROPERTY_NAME_X_BAND, PROPERTY_NAME_Y_BAND);
         bindingContext.addPropertyChangeListener(roiMaskActionEnabler);
         RefreshActionEnabler rangeControlActionEnabler = new RefreshActionEnabler(refreshButton, PROPERTY_NAME_MIN, PROPERTY_NAME_AUTO_MIN_MAX,
                                                                                   PROPERTY_NAME_MAX);
@@ -163,21 +174,45 @@ class DensityPlotPanel extends ChartPagePanel {
                 plot.getDomainAxis().setLabel("X");
                 plot.getRangeAxis().setLabel("Y");
             }
-            final ValueSet valueSet = new ValueSet(createAvailableBandList());
-            xBandProperty.getDescriptor().setValueSet(valueSet);
-            yBandProperty.getDescriptor().setValueSet(valueSet);
-            toggleColorCheckBox.setEnabled(false);
-            if (valueSet.getItems().length > 0) {
-                RasterDataNode currentRaster = getRaster();
+            final ValueSet productValueSet = new ValueSet(createAvailableProductList());
+            xProductProperty.getDescriptor().setValueSet(productValueSet);
+            yProductProperty.getDescriptor().setValueSet(productValueSet);
+
+            if (productValueSet.getItems().length > 0) {
+                Product currentProduct = getProduct();
                 try {
-                    xBandProperty.setValue(currentRaster);
-                    yBandProperty.setValue(currentRaster);
+                    xProductProperty.setValue(currentProduct);
+                    yProductProperty.setValue(currentProduct);
                 } catch (ValidationException ignored) {
                     Debug.trace(ignored);
                 }
             }
+
+            updateBandList(getProduct(), xBandProperty);
+            updateBandList(getProduct(), yBandProperty);
+
+            toggleColorCheckBox.setEnabled(false);
         }
         refreshButton.setEnabled(xBandProperty.getValue() != null && yBandProperty.getValue() != null);
+    }
+
+    private void updateBandList(final Product product, final Property bandProperty) {
+        if (product == null)
+            return;
+
+        final ValueSet bandValueSet = new ValueSet(createAvailableBandList(product));
+        bandProperty.getDescriptor().setValueSet(bandValueSet);
+        if (bandValueSet.getItems().length > 0) {
+            RasterDataNode currentRaster = getRaster();
+            if (bandValueSet.contains(getRaster())) {
+                currentRaster = getRaster();
+            }
+            try {
+                bandProperty.setValue(currentRaster);
+            } catch (ValidationException ignored) {
+                Debug.trace(ignored);
+            }
+        }
     }
 
     private void initParameters() {
@@ -187,6 +222,48 @@ class DensityPlotPanel extends ChartPagePanel {
         plotColorsInverted = false;
         dataSourceConfig = new DataSourceConfig();
         bindingContext = new BindingContext(PropertyContainer.createObjectBacked(dataSourceConfig));
+
+        xProductList = new JComboBox<>();
+        xProductList.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent event) {
+                if (event.getStateChange() == ItemEvent.SELECTED) {
+                    updateBandList((Product)event.getItem(), xBandProperty);
+                }
+            }
+        });
+        xProductList.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value != null) {
+                    this.setText(formatProductName((Product) value));
+                }
+                return this;
+            }
+        });
+        bindingContext.bind(PROPERTY_NAME_X_PRODUCT, xProductList);
+        xProductProperty = bindingContext.getPropertySet().getProperty(PROPERTY_NAME_X_PRODUCT);
+
+        yProductList = new JComboBox<>();
+        yProductList.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent event) {
+                if (event.getStateChange() == ItemEvent.SELECTED) {
+                    updateBandList((Product)event.getItem(), yBandProperty);
+                }
+            }
+        });
+        yProductList.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value != null) {
+                    this.setText(formatProductName((Product)value));
+                }
+                return this;
+            }
+        });
+        bindingContext.bind(PROPERTY_NAME_Y_PRODUCT, yProductList);
+        yProductProperty = bindingContext.getPropertySet().getProperty(PROPERTY_NAME_Y_PRODUCT);
 
         xBandList = new JComboBox<>();
         xBandList.setRenderer(new DefaultListCellRenderer() {
@@ -215,6 +292,13 @@ class DensityPlotPanel extends ChartPagePanel {
         });
         bindingContext.bind(PROPERTY_NAME_Y_BAND, yBandList);
         yBandProperty = bindingContext.getPropertySet().getProperty(PROPERTY_NAME_Y_BAND);
+    }
+
+    private static String formatProductName(final Product product) {
+        String name = product.getName().substring(0, Math.min(10, product.getName().length()));
+        if (product.getName().length() > 10)
+            name += "...";
+        return product.getProductRefString()+name;
     }
 
     private void initColorModels() {
@@ -306,12 +390,14 @@ class DensityPlotPanel extends ChartPagePanel {
         final JPanel optionsPanel = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=HORIZONTAL,insets.top=0,weightx=1,gridx=0");
         GridBagUtils.addToPanel(optionsPanel, axisRangeControls[X_VAR].getPanel(), gbc, "gridy=0");
-        GridBagUtils.addToPanel(optionsPanel, xBandList, gbc, "gridy=1,insets.left=4,insets.right=2");
-        GridBagUtils.addToPanel(optionsPanel, axisRangeControls[Y_VAR].getPanel(), gbc, "gridy=2,insets.left=0,insets.right=0");
-        GridBagUtils.addToPanel(optionsPanel, yBandList, gbc, "gridy=3,insets.left=4,insets.right=2");
-        GridBagUtils.addToPanel(optionsPanel, new JPanel(), gbc, "gridy=4");
-        GridBagUtils.addToPanel(optionsPanel, new JSeparator(), gbc, "gridy=5,insets.left=4,insets.right=2");
-        GridBagUtils.addToPanel(optionsPanel, toggleColorCheckBox, gbc, "gridy=6,insets.left=0,insets.right=0");
+        GridBagUtils.addToPanel(optionsPanel, xProductList, gbc, "gridy=1,insets.left=4,insets.right=2");
+        GridBagUtils.addToPanel(optionsPanel, xBandList, gbc, "gridy=2,insets.left=4,insets.right=2");
+        GridBagUtils.addToPanel(optionsPanel, axisRangeControls[Y_VAR].getPanel(), gbc, "gridy=3,insets.left=0,insets.right=0");
+        GridBagUtils.addToPanel(optionsPanel, yProductList, gbc, "gridy=4,insets.left=4,insets.right=2");
+        GridBagUtils.addToPanel(optionsPanel, yBandList, gbc, "gridy=5,insets.left=4,insets.right=2");
+        GridBagUtils.addToPanel(optionsPanel, new JPanel(), gbc, "gridy=6");
+        GridBagUtils.addToPanel(optionsPanel, new JSeparator(), gbc, "gridy=7,insets.left=4,insets.right=2");
+        GridBagUtils.addToPanel(optionsPanel, toggleColorCheckBox, gbc, "gridy=8,insets.left=0,insets.right=0");
         return optionsPanel;
     }
 
@@ -354,17 +440,11 @@ class DensityPlotPanel extends ChartPagePanel {
         if (product == null) {
             return null;
         }
-        final String rasterName;// = rasterNameParams[varIndex].getValue().toString();
+        final RasterDataNode raster;
         if (varIndex == X_VAR) {
-            rasterName = dataSourceConfig.xBand.getName();
+            raster = dataSourceConfig.xBand;
         } else {
-            rasterName = dataSourceConfig.yBand.getName();
-        }
-        RasterDataNode raster = product.getRasterDataNode(rasterName);
-        if (raster == null) {
-            if (getRaster() != null && rasterName.equalsIgnoreCase(getRaster().getName())) {
-                raster = getRaster();
-            }
+            raster = dataSourceConfig.yBand;
         }
         Debug.assertTrue(raster != null);
         return raster;
@@ -374,7 +454,7 @@ class DensityPlotPanel extends ChartPagePanel {
         super.updateComponents();
     }
 
-    private void checkBandsForRange() throws IllegalArgumentException {
+    private static void checkBandsForRange() throws IllegalArgumentException {
         if (axisRangeControls[X_VAR].getMin().equals(axisRangeControls[X_VAR].getMax()) &&
                 axisRangeControls[Y_VAR].getMin().equals(axisRangeControls[Y_VAR].getMax())) {
             throw new IllegalArgumentException("Value range of at least one band must be larger than one");
@@ -479,7 +559,7 @@ class DensityPlotPanel extends ChartPagePanel {
         swingWorker.execute();
     }
 
-    private void setRange(int varIndex, RasterDataNode raster, Mask mask, ProgressMonitor pm) throws IOException {
+    private static void setRange(int varIndex, RasterDataNode raster, Mask mask, ProgressMonitor pm) throws IOException {
         final AxisRangeControl axisRangeControl = axisRangeControls[varIndex];
         if (axisRangeControl.isAutoMinMax()) {
             Stx stx;
@@ -492,8 +572,11 @@ class DensityPlotPanel extends ChartPagePanel {
         }
     }
 
-    private RasterDataNode[] createAvailableBandList() {
-        final Product product = getProduct();
+    private static Product[] createAvailableProductList() {
+        return VisatApp.getApp().getProductManager().getProducts();
+    }
+
+    private RasterDataNode[] createAvailableBandList(final Product product) {
         final List<RasterDataNode> availableBandList = new ArrayList<>(17);
         if (product != null) {
             for (int i = 0; i < product.getNumBands(); i++) {
@@ -541,7 +624,7 @@ class DensityPlotPanel extends ChartPagePanel {
         return true;
     }
 
-    private byte[] getValidData(BufferedImage image) {
+    private static byte[] getValidData(BufferedImage image) {
         if (image != null &&
                 image.getColorModel() instanceof IndexColorModel &&
                 image.getData().getDataBuffer() instanceof DataBufferByte) {
@@ -644,8 +727,12 @@ class DensityPlotPanel extends ChartPagePanel {
     private static class DataSourceConfig {
         public boolean useRoiMask;
         public Mask roiMask;
+        private Product xProduct;
+        private Product yProduct;
         private RasterDataNode xBand;
         private RasterDataNode yBand;
+        private Property xProductProperty;
+        private Property yProductProperty;
         private Property xBandProperty;
         private Property yBandProperty;
     }
