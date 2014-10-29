@@ -281,7 +281,18 @@ public final class TerrainFlatteningOp extends Operator {
 
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
         for (Band band : sourceBands) {
-            ProductUtils.copyBand(band.getName(), sourceProduct, band.getName(), targetProduct, false);
+            final String bandName = band.getName();
+            if (bandName == null || bandName.length() == 0) {
+                continue;
+            }
+
+            final Band sourceBand = sourceProduct.getBand(bandName);
+            if (sourceBand == null) {
+                continue;
+            }
+
+            Band targetBand = targetProduct.addBand(bandName, ProductData.TYPE_FLOAT32);
+            ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
         }
 
         targetBands = targetProduct.getBands();
