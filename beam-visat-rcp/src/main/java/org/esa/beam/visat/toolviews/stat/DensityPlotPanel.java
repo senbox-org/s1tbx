@@ -204,7 +204,7 @@ class DensityPlotPanel extends ChartPagePanel {
         bandProperty.getDescriptor().setValueSet(bandValueSet);
         if (bandValueSet.getItems().length > 0) {
             RasterDataNode currentRaster = getRaster();
-            if(bandValueSet.contains(getRaster())) {
+            if (bandValueSet.contains(getRaster())) {
                 currentRaster = getRaster();
             }
             try {
