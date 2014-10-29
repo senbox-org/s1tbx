@@ -16,17 +16,19 @@ import java.util.HashSet;
 */
 public class RefreshActionEnabler implements PropertyChangeListener {
 
-    public final static String PROPERTY_NAME_AUTO_MIN_MAX = "autoMinMax";
-    public final static String PROPERTY_NAME_MIN = "min";
-    public final static String PROPERTY_NAME_MAX = "max";
-    public static final String PROPERTY_NAME_NUM_BINS = "numBins";
-    public final static String PROPERTY_NAME_USE_ROI_MASK = "useRoiMask";
-    public final static String PROPERTY_NAME_ROI_MASK = "roiMask";
-    public final static String PROPERTY_NAME_X_BAND = "xBand";
-    public final static String PROPERTY_NAME_Y_BAND = "yBand";
+    private final static String PROPERTY_NAME_AUTO_MIN_MAX = "autoMinMax";
+    private final static String PROPERTY_NAME_MIN = "min";
+    private final static String PROPERTY_NAME_MAX = "max";
+    private static final String PROPERTY_NAME_NUM_BINS = "numBins";
+    private final static String PROPERTY_NAME_USE_ROI_MASK = "useRoiMask";
+    private final static String PROPERTY_NAME_ROI_MASK = "roiMask";
+    private final static String PROPERTY_NAME_X_PRODUCT = "xProduct";
+    private final static String PROPERTY_NAME_Y_PRODUCT = "yProduct";
+    private final static String PROPERTY_NAME_X_BAND = "xBand";
+    private final static String PROPERTY_NAME_Y_BAND = "yBand";
 
-    HashSet<String> names = new HashSet<String>();
-    AbstractButton refreshButton;
+    private HashSet<String> names = new HashSet<>();
+    private AbstractButton refreshButton;
 
     public RefreshActionEnabler(AbstractButton rb, String ... componentNames) {
         for(String name:componentNames){
@@ -54,6 +56,14 @@ public class RefreshActionEnabler implements PropertyChangeListener {
             }
             else if(evt.getPropertyName().equals(PROPERTY_NAME_MAX) && (evt.getOldValue().equals(evt.getNewValue()) ||
                     ((PropertyContainer)evt.getSource()).getProperty(PROPERTY_NAME_AUTO_MIN_MAX).getValue().equals(true))){
+                return;
+            }
+            else if(evt.getPropertyName().equals(PROPERTY_NAME_X_PRODUCT) &&
+                    ((PropertyContainer)evt.getSource()).getProperty(PROPERTY_NAME_Y_PRODUCT).getValue()==null){
+                return;
+            }
+            else if(evt.getPropertyName().equals(PROPERTY_NAME_Y_PRODUCT) &&
+                    ((PropertyContainer)evt.getSource()).getProperty(PROPERTY_NAME_X_PRODUCT).getValue()==null){
                 return;
             }
             else if(evt.getPropertyName().equals(PROPERTY_NAME_X_BAND) &&
