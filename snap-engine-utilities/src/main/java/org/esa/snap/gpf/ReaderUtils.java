@@ -68,6 +68,28 @@ public final class ReaderUtils {
         product.setQuicklookBandName(virtBand.getName());
     }
 
+    public static void createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ,
+                                                  final String bandName, final String countStr) {
+        final String expression = bandI.getName() + " * " + bandI.getName() + " + " +
+                bandQ.getName() + " * " + bandQ.getName();
+
+        final VirtualBand virtBand = new VirtualBand(bandName + countStr,
+                ProductData.TYPE_FLOAT32,
+                bandI.getSceneRasterWidth(),
+                bandI.getSceneRasterHeight(),
+                expression);
+        virtBand.setUnit(Unit.INTENSITY);
+        virtBand.setDescription("Intensity from complex data");
+        virtBand.setNoDataValueUsed(true);
+        product.addBand(virtBand);
+
+        if (bandI.getGeoCoding() != product.getGeoCoding()) {
+            virtBand.setGeoCoding(bandI.getGeoCoding());
+        }
+        // set as band to use for quicklook
+        product.setQuicklookBandName(virtBand.getName());
+    }
+
     /**
      * Returns a <code>File</code> if the given input is a <code>String</code> or <code>File</code>,
      * otherwise it returns null;
