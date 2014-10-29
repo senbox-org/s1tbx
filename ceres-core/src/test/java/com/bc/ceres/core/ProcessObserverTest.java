@@ -1,6 +1,10 @@
 package com.bc.ceres.core;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.File;
+import java.net.URL;
 
 import static org.junit.Assert.*;
 
@@ -8,13 +12,19 @@ import static org.junit.Assert.*;
  * @author Norman Fomferra
  */
 public class ProcessObserverTest {
-    public static final String CP = "target/test-classes";
-    public static final String JAVA_HOME = System.getProperty("java.home", ".");
-    public static final String JAVA_EXEC_PATH = JAVA_HOME + "/bin/java";
+    private static final String JAVA_HOME = System.getProperty("java.home", ".");
+    private static final String JAVA_EXEC_PATH = JAVA_HOME + "/bin/java";
+    private static String classPath;
+
+    @BeforeClass
+    public static void setUp() throws Exception {
+        URL location = TestExecutable.class.getProtectionDomain().getCodeSource().getLocation();
+        classPath = new File(location.toURI()).getCanonicalPath();
+    }
 
     @Test
     public void testJavaProcessOk() throws Exception {
-        final String commandLine = String.format(JAVA_EXEC_PATH + " -cp %s %s 2 10", CP, TestExecutable.class.getName());
+        final String commandLine = String.format(JAVA_EXEC_PATH + " -cp %s %s 2 10", classPath, TestExecutable.class.getName());
         final Process process = Runtime.getRuntime().exec(commandLine);
         final MyHandler handler = new MyHandler();
         new ProcessObserver(process).setHandler(handler).start();
@@ -33,12 +43,12 @@ public class ProcessObserverTest {
                              "Done\n", handler.out);
         assertEquals("", handler.err);
         assertTrue(handler.ended);
-        assertEquals(0, handler.exitCode);
+        assertEquals(0, handler.exitCode.intValue());
     }
 
     @Test
     public void testJavaProcessMissingArg() throws Exception {
-        final String commandLine = String.format(JAVA_EXEC_PATH + " -cp %s %s 2", CP, TestExecutable.class.getName());
+        final String commandLine = String.format(JAVA_EXEC_PATH + " -cp %s %s 2", classPath, TestExecutable.class.getName());
         final Process process = Runtime.getRuntime().exec(commandLine);
         final MyHandler handler = new MyHandler();
         new ProcessObserver(process).setHandler(handler).start();
@@ -46,12 +56,12 @@ public class ProcessObserverTest {
         assertEquals("", handler.out);
         assertEquals("Usage: TestExecutable <seconds> <steps>\n", handler.err);
         assertTrue(handler.ended);
-        assertEquals(1, handler.exitCode);
+        assertEquals(1, handler.exitCode.intValue());
     }
 
     @Test
     public void testJavaProcessCancel() throws Exception {
-        final String commandLine = String.format(JAVA_EXEC_PATH + " -cp %s %s 10 2", CP, TestExecutable.class.getName());
+        final String commandLine = String.format(JAVA_EXEC_PATH + " -cp %s %s 10 2", classPath, TestExecutable.class.getName());
         final Process process = Runtime.getRuntime().exec(commandLine);
         final MyHandler handler = new MyHandler();
         final ProcessObserver.ObservedProcess observedProcess = new ProcessObserver(process)
@@ -64,7 +74,7 @@ public class ProcessObserverTest {
         assertEquals("Start\n", handler.out);
         assertEquals("", handler.err);
         assertFalse(handler.ended);
-        assertEquals(0, handler.exitCode);
+        assertNull(handler.exitCode);
     }
 
     private static class MyHandler implements ProcessObserver.Handler {
@@ -72,7 +82,7 @@ public class ProcessObserverTest {
         String out = "";
         String err = "";
         boolean ended;
-        int exitCode;
+        Integer exitCode;
 
         @Override
         public void onObservationStarted(ProcessObserver.ObservedProcess process, ProgressMonitor pm) {
