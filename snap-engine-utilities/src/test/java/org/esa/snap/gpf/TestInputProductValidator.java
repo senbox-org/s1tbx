@@ -6,6 +6,7 @@ import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 
 import static junit.framework.TestCase.assertEquals;
@@ -17,8 +18,14 @@ import static org.junit.Assert.assertTrue;
 public class TestInputProductValidator {
 
     @Test
-    public void TestNotSentinel1Product() throws IOException {
-        final Product sourceProduct = TestUtils.readSourceProduct(TestData.inputASAR_WSM);
+    public void TestNotSentinel1Product() throws Exception {
+        final File inputFile = TestData.inputASAR_WSM;
+        if(!inputFile.exists()) {
+            TestUtils.skipTest(this, inputFile + " not found");
+            return;
+        }
+
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
         final InputProductValidator validator = new InputProductValidator(sourceProduct);
 
         try {
@@ -49,8 +56,13 @@ public class TestInputProductValidator {
     }
 
     @Test
-    public void TestSentinel1GRDProduct() throws IOException {
-        final Product sourceProduct = TestUtils.readSourceProduct(TestData.inputS1_GRD);
+    public void TestSentinel1GRDProduct() throws Exception {
+        final File inputFile = TestData.inputS1_GRD;
+        if(!inputFile.exists()) {
+            TestUtils.skipTest(this, inputFile + " not found");
+            return;
+        }
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
         final InputProductValidator validator = new InputProductValidator(sourceProduct);
 
         validator.checkIfSentinel1Product();
@@ -60,8 +72,13 @@ public class TestInputProductValidator {
     }
 
     @Test
-    public void TestSentinel1SLCProduct() throws IOException {
-        final Product sourceProduct = TestUtils.readSourceProduct(TestData.inputS1_StripmapSLC);
+    public void TestSentinel1SLCProduct() throws Exception {
+        final File inputFile = TestData.inputS1_StripmapSLC;
+        if(!inputFile.exists()) {
+            TestUtils.skipTest(this, inputFile + " not found");
+            return;
+        }
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
         final InputProductValidator validator = new InputProductValidator(sourceProduct);
 
         validator.checkIfSentinel1Product();
