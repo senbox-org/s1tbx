@@ -33,12 +33,14 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
+import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.Maths;
 
@@ -118,6 +120,7 @@ public final class TerrainFlatteningOp extends Operator {
 
     private OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
+    private Band[] targetBands = null;
 
     private boolean nearRangeOnLeft = true;
 
@@ -279,6 +282,16 @@ public final class TerrainFlatteningOp extends Operator {
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
         for (Band band : sourceBands) {
             ProductUtils.copyBand(band.getName(), sourceProduct, band.getName(), targetProduct, false);
+        }
+
+        targetBands = targetProduct.getBands();
+        for(int i=0; i < targetBands.length; ++i) {
+            if(targetBands[i].getUnit().equals(Unit.REAL)) {
+                final String trgBandName = targetBands[i].getName();
+                final String suffix = trgBandName.substring(trgBandName.indexOf("_"));
+                ReaderUtils.createVirtualIntensityBand(
+                        targetProduct, targetBands[i], targetBands[i + 1], "Gamma0", suffix);
+            }
         }
     }
 
@@ -466,7 +479,6 @@ public final class TerrainFlatteningOp extends Operator {
                                        final double[][] simulatedImage, final Map<Band, Tile> targetTiles,
                                        final Rectangle targetRectangle) {
 
-        final Band[] targetBands = targetProduct.getBands();
         final int numBands = targetBands.length;
         final ProductData[] targetData = new ProductData[numBands];
         Tile targetTile = null;
@@ -492,7 +504,8 @@ public final class TerrainFlatteningOp extends Operator {
                     final int xx = x - x0;
                     final int idx = trgIndex.getIndex(x);
                     if (simulatedImage[yy][xx] != noDataValue && simulatedImage[yy][xx] != 0.0) {
-                        targetData[n].setElemDoubleAt(idx, sourceData[n].getElemDoubleAt(idx) / simulatedImage[yy][xx]);
+                        targetData[n].setElemDoubleAt(idx, sourceData[n].getElemDoubleAt(idx) /
+                                Math.sqrt(simulatedImage[yy][xx]));
                     } else {
                         targetData[n].setElemDoubleAt(idx, noDataValue);
                     }
