@@ -19,6 +19,12 @@ public class InputProductValidator {
         absRoot = AbstractMetadata.getAbstractedMetadata(product);
     }
 
+    public void checkIfCoregisteredStack() throws OperatorException {
+        if (!StackUtils.isCoregisteredStack(product)) {
+            throw new OperatorException("Input should be a coregistered stack");
+        }
+    }
+
     public void checkIfSLC() throws OperatorException {
 
     }
@@ -29,14 +35,14 @@ public class InputProductValidator {
                 (contains(bandNames, "EW1") && contains(bandNames, "EW2"));
     }
 
-    public void checkIfSentinel1Product() {
+    public void checkIfSentinel1Product() throws OperatorException {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
         if (!mission.startsWith("SENTINEL-1")) {
             throw new OperatorException("Input should be a Sentinel-1 product.");
         }
     }
 
-    public void checkProductType(final String[] validProductTypes) {
+    public void checkProductType(final String[] validProductTypes) throws OperatorException {
         final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
         for (String validProductType : validProductTypes) {
             if (productType.equals(validProductType))
@@ -45,7 +51,7 @@ public class InputProductValidator {
         throw new OperatorException(productType + " is not a valid product type from: " + StringUtils.arrayToString(validProductTypes, ","));
     }
 
-    public void checkAcquisitionMode(final String[] validModes) {
+    public void checkAcquisitionMode(final String[] validModes) throws OperatorException {
         final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
 
         for (String validMode : validModes) {
