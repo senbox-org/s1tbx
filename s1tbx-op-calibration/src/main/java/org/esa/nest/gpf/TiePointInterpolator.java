@@ -102,7 +102,7 @@ public class TiePointInterpolator {
         }
         final Matrix b = new Matrix(tiePointArray, n);
 
-        // comoute coefficients
+        // compute coefficients
         final Matrix x = A.solve(b);
         biquadraticInterpCoeffs = x.getColumnPackedCopy();
     }
@@ -185,7 +185,6 @@ public class TiePointInterpolator {
             return pixels;
 
         } else {
-
             throw new IllegalArgumentException("unsupported interpolation method");
         }
     }
@@ -198,19 +197,5 @@ public class TiePointInterpolator {
             throw new IllegalArgumentException("The length of the given array is less than " + length);
         }
         return array;
-    }
-
-    public final static class InterpInput {
-        final float wi;
-        final float wj;
-        final int i0;
-        final int j0;
-
-        InterpInput(float wi, float wj, int i0, int j0) {
-            this.wi = wi;
-            this.wj = wj;
-            this.i0 = i0;
-            this.j0 = j0;
-        }
     }
 }
