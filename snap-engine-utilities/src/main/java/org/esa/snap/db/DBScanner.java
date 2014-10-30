@@ -166,10 +166,7 @@ public final class DBScanner extends SwingWorker {
                         @Override
                         public void run() {
                             try {
-                                boolean isCorrupt = QuickLookGenerator.createQuickLook(qlID, file);
-                                if (isCorrupt) {
-                                    errorList.add(new ErrorFile(file, ErrorFile.CORRUPT));
-                                }
+                                QuickLookGenerator.createQuickLook(qlID, file);
                             } catch (Throwable e) {
                                 System.out.println("QL Unable to read " + file.getAbsolutePath() + '\n' + e.getMessage());
                             }

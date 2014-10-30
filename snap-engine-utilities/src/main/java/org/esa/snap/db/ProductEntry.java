@@ -362,7 +362,9 @@ public class ProductEntry {
 
     public BufferedImage getQuickLook() {
         if (quickLookImage == null) {
-            quickLookImage = QuickLookGenerator.loadQuickLook(this);
+            if(QuickLookGenerator.quickLookExists(this)) {
+                quickLookImage = QuickLookGenerator.loadQuickLook(this);
+            }
         }
         return quickLookImage;
     }

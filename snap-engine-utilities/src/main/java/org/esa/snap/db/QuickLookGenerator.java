@@ -16,14 +16,15 @@
 package org.esa.snap.db;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.core.VirtualDir;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.math.MathUtils;
+import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.ZipUtils;
 
@@ -36,6 +37,8 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Generates Quicklooks
@@ -45,11 +48,10 @@ public class QuickLookGenerator {
     private static final String QUICKLOOK_PREFIX = "QL_";
     private static final String QUICKLOOK_EXT = ".jpg";
     private static final int MAX_WIDTH = 400;
+    private static final int MULTILOOK_FACTOR = 1;
 
     private static final File dbStorageDir = new File(ResourceUtils.getApplicationUserDir(true),
-            ProductDB.DEFAULT_PRODUCT_DATABASE_NAME +
-                    File.separator + "QuickLooks"
-    );
+            ProductDB.DEFAULT_PRODUCT_DATABASE_NAME + File.separator + "QuickLooks");
 
     public static boolean quickLookExists(final ProductEntry entry) {
         final File quickLookFile = getQuickLookFile(dbStorageDir, entry.getId());
@@ -61,6 +63,14 @@ public class QuickLookGenerator {
         BufferedImage bufferedImage = null;
         if (quickLookFile.exists() && quickLookFile.length() > 0) {
             bufferedImage = loadFile(quickLookFile);
+        } else {
+            if(entry.getFile() != null && entry.getId() >= 0) {
+                try {
+                    bufferedImage = createQuickLook(entry.getId(), entry.getFile());
+                } catch (IOException e) {
+                    //return null;
+                }
+            }
         }
         return bufferedImage;
     }
@@ -73,6 +83,46 @@ public class QuickLookGenerator {
 
     private static File getQuickLookFile(final File storageDir, final int id) {
         return new File(storageDir, QUICKLOOK_PREFIX + id + QUICKLOOK_EXT);
+    }
+
+    public static BufferedImage createQuickLook(final Product product) {
+        // check if quicklook exist with product
+        File browseFile = findProductBrowseImage(product.getFileLocation());
+        if (browseFile != null) {
+            try {
+                final Product sourceProduct = ProductIO.readProduct(browseFile);
+                if (sourceProduct != null) {
+                    BufferedImage img = createQuickLookImage(product, true, false);
+                    sourceProduct.dispose();
+                    return img;
+                }
+            } catch (IOException e) {
+                //
+            }
+        }
+        try {
+            return createQuickLookImage(product, true, true);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public static BufferedImage createQuickLook(final int id, final File productFile) throws IOException {
+        boolean preprocess = false;
+        // check if quicklook exist with product
+        File browseFile = findProductBrowseImage(productFile);
+        if (browseFile == null) {
+            browseFile = productFile;
+            preprocess = true;
+        }
+
+        final Product sourceProduct = ProductIO.readProduct(browseFile);
+        if (sourceProduct != null) {
+            BufferedImage img = createQuickLook(id, sourceProduct, preprocess);
+            sourceProduct.dispose();
+            return img;
+        }
+        return null;
     }
 
     private static BufferedImage loadFile(final File file) {
@@ -89,54 +139,112 @@ public class QuickLookGenerator {
         return bufferedImage;
     }
 
-    private static BufferedImage createQuickLookImage(final Product product, final boolean preprocess) throws IOException {
+    private static String[] getQuicklookBand(final Product product) {
+        final String[] bandNames = product.getBandNames();
+        final List<String> nameList = new ArrayList<>(3);
+        for(String name : bandNames) {
+            if(name.toLowerCase().startsWith("intensity") || name.toLowerCase().startsWith("band")) {
+                nameList.add(name);
+                if(nameList.size() > 2)
+                    break;
+            }
+        }
+        if(!nameList.isEmpty()) {
+            return nameList.toArray(new String[nameList.size()]);
+        }
+        String quicklookBandName = ProductUtils.findSuitableQuicklookBandName(product);
 
-        final String quicklookBandName = ProductUtils.findSuitableQuicklookBandName(product);
-        String srcBandName = quicklookBandName;
+        // db
+       // final String expression = quicklookBandName + "==0 ? 0 : 10 * log10(abs(" + quicklookBandName + "))";
+      //  final VirtualBand virtBand = new VirtualBand("QuickLook",
+      //          ProductData.TYPE_FLOAT32,
+      //          srcBand.getSceneRasterWidth(),
+      //          srcBand.getSceneRasterHeight(),
+      //          expression);
+      //  product.addBand(virtBand);
+      //  srcBandName = virtBand.getName();
+
+
+        return new String[] {quicklookBandName};
+    }
+
+    private static BufferedImage createQuickLookImage(final Product product, final boolean subsample, final boolean preprocess) throws IOException {
+
+        final String[] quicklookBandNames = getQuicklookBand(product);
         Product productSubset = product;
 
-        if (preprocess) {
+        if (subsample) {
+            final int maxWidth = preprocess ? MAX_WIDTH*(MULTILOOK_FACTOR*2) : MAX_WIDTH;
             final ProductSubsetDef productSubsetDef = new ProductSubsetDef("subset");
-            int scaleFactor = Math.max(product.getSceneRasterWidth(), product.getSceneRasterHeight()) / MAX_WIDTH;
+            int scaleFactor = Math.max(product.getSceneRasterWidth(), product.getSceneRasterHeight()) / maxWidth;
             if (scaleFactor < 1) {
                 scaleFactor = 1;
             }
             productSubsetDef.setSubSampling(scaleFactor, scaleFactor);
 
-            final Band srcBand = product.getBand(quicklookBandName);
-            // if not db make db using a virtual band
-            if (false) { //!srcBand.getUnit().contains("db")) {
-                final String expression = quicklookBandName + "==0 ? 0 : 10 * log10(abs(" + quicklookBandName + "))";
-                final VirtualBand virtBand = new VirtualBand("QuickLook",
-                        ProductData.TYPE_FLOAT32,
-                        srcBand.getSceneRasterWidth(),
-                        srcBand.getSceneRasterHeight(),
-                        expression);
-                product.addBand(virtBand);
-                srcBandName = virtBand.getName();
-            } else {
+            if(quicklookBandNames.length == 1) {
+                final Band srcBand = product.getBand(quicklookBandNames[0]);
                 // if not virtual set as single band in subset
                 if (!(srcBand instanceof VirtualBand)) {
-                    productSubsetDef.setNodeNames(new String[]{quicklookBandName});
+                    productSubsetDef.setNodeNames(new String[]{srcBand.getName()});
                 }
             }
-
             productSubset = product.createSubset(productSubsetDef, null, null);
         }
-        final BufferedImage image = ProductUtils.createColorIndexedImage(productSubset.getBand(srcBandName),
-                ProgressMonitor.NULL);
-        //if (productSubset.isCorrupt()) {
-        //    product.setCorrupt(true);
-        //}
-        productSubset.dispose();
+
+        final BufferedImage image;
+        if(quicklookBandNames.length == 1) {
+            image = ProductUtils.createColorIndexedImage(productSubset.getBand(quicklookBandNames[0]), ProgressMonitor.NULL);
+            productSubset.dispose();
+        } else {
+            List<Band> bandList = new ArrayList<>(3);
+            for(int i=0; i < Math.min(3,quicklookBandNames.length); ++i) {
+                bandList.add(productSubset.getBand(quicklookBandNames[i]));
+            }
+            final Band[] bands = bandList.toArray(new Band[bandList.size()]);
+            ImageInfo imageInfo = ProductUtils.createImageInfo(bands, true, ProgressMonitor.NULL);
+            image = ProductUtils.createRgbImage(bands, imageInfo, ProgressMonitor.NULL);
+            productSubset.dispose();
+        }
 
         return image;
     }
 
-    private static BufferedImage average(BufferedImage image) {
+    private static BufferedImage average(final Product product, final BufferedImage image) {
 
-        final int rangeFactor = 4;
-        final int azimuthFactor = 4;
+        int rangeFactor = MULTILOOK_FACTOR;
+        int azimuthFactor = MULTILOOK_FACTOR;
+
+        if(AbstractMetadata.hasAbstractedMetadata(product)) {
+            final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(product);
+            final boolean srgrFlag = abs.getAttributeInt(AbstractMetadata.srgr_flag, 0) == 1;
+            double rangeSpacing = abs.getAttributeDouble(AbstractMetadata.range_spacing, 1);
+            double azimuthSpacing = abs.getAttributeDouble(AbstractMetadata.azimuth_spacing, 1);
+
+            double groundRangeSpacing = rangeSpacing;
+            if (rangeSpacing == AbstractMetadata.NO_METADATA) {
+                azimuthSpacing = 1;
+                groundRangeSpacing = 1;
+            } else if (!srgrFlag) {
+                final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(product);
+                if (incidenceAngle != null) {
+                    final float x = product.getSceneRasterWidth() / 2f;
+                    final float y = product.getSceneRasterHeight() / 2f;
+                    final double incidenceAngleAtCentreRangePixel = incidenceAngle.getPixelFloat(x, y);
+
+                    groundRangeSpacing /= Math.sin(incidenceAngleAtCentreRangePixel * MathUtils.DTOR);
+                }
+            }
+
+            final double nAzLooks = MULTILOOK_FACTOR * groundRangeSpacing / azimuthSpacing;
+            if (nAzLooks < 1.0) {
+                azimuthFactor = 1;
+                rangeFactor = (int) Math.min(MULTILOOK_FACTOR * 2, Math.round(azimuthSpacing / groundRangeSpacing));
+            } else {
+                azimuthFactor = (int) Math.min(MULTILOOK_FACTOR * 2, Math.round(nAzLooks));
+            }
+        }
+
         final int rangeAzimuth = rangeFactor * azimuthFactor;
         final Raster raster = image.getData();
 
@@ -215,42 +323,24 @@ public class QuickLookGenerator {
         }
     }
 
-    public static boolean createQuickLook(final int id, final File productFile) throws IOException {
-        boolean preprocess = false;
-        // check if quicklook exist with product
-        File browseFile = findProductBrowseImage(productFile);
-        if (browseFile == null) {
-            browseFile = productFile;
-            preprocess = true;
-        }
-
-        boolean isCorrupt = false;
-        final Product sourceProduct = ProductIO.readProduct(browseFile);
-        if (sourceProduct != null) {
-            createQuickLook(id, sourceProduct, preprocess);
-            //isCorrupt = sourceProduct.isCorrupt();
-
-            sourceProduct.dispose();
-        }
-        return isCorrupt;
-    }
-
-    public static void createQuickLook(final int id, final Product product, final boolean preprocess) {
+    private static BufferedImage createQuickLook(final int id, final Product product, final boolean preprocess) {
         final File quickLookFile = getQuickLookFile(dbStorageDir, id);
         try {
             if (!dbStorageDir.exists())
                 dbStorageDir.mkdirs();
             quickLookFile.createNewFile();
-            final BufferedImage bufferedImage = createQuickLookImage(product, true);
+            final BufferedImage bufferedImage = createQuickLookImage(product, true, preprocess);
 
-            if (true) {
-                ImageIO.write(average(bufferedImage), "JPG", quickLookFile);
+            if (preprocess) {
+                ImageIO.write(average(product, bufferedImage), "JPG", quickLookFile);
             } else {
                 ImageIO.write(bufferedImage, "JPG", quickLookFile);
             }
+            return bufferedImage;
         } catch (Exception e) {
             System.out.println("Quicklook create data failed :" + product.getFileLocation() + "\n" + e.getMessage());
             quickLookFile.delete();
         }
+        return null;
     }
 }
