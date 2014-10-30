@@ -46,6 +46,7 @@ import org.esa.snap.util.Maths;
 
 import java.awt.*;
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -90,6 +91,9 @@ public final class TerrainFlatteningOp extends Operator {
     @Parameter(label = "DEM No Data Value", defaultValue = "0")
     private double externalDEMNoDataValue = 0;
 
+    @Parameter(defaultValue = "false", label = "Output Simulated Image")
+    private boolean outputSimulatedImage = false;
+
     private ElevationModel dem = null;
     private FileElevationModel fileElevationModel = null;
     private TiePointGrid latitudeTPG = null;
@@ -121,7 +125,7 @@ public final class TerrainFlatteningOp extends Operator {
     private OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
     private Band[] targetBands = null;
-
+    protected final HashMap<Band, Band> targetBandToSourceBandMap = new HashMap<>(2);
     private boolean nearRangeOnLeft = true;
 
     /**
@@ -280,19 +284,56 @@ public final class TerrainFlatteningOp extends Operator {
     private void addSelectedBands() {
 
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
-        for (Band band : sourceBands) {
-            final String bandName = band.getName();
-            if (bandName == null || bandName.length() == 0) {
-                continue;
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+
+        String tgtBandName;
+        String tgtUnit;
+        for (int i = 0; i < sourceBands.length; i++) {
+            final Band srcBand = sourceBands[i];
+            final String srcBandName = srcBand.getName();
+            final String unit = srcBand.getUnit();
+            if (unit == null) {
+                throw new OperatorException("band " + srcBandName + " requires a unit");
             }
 
-            final Band sourceBand = sourceProduct.getBand(bandName);
-            if (sourceBand == null) {
+            if (unit.contains(Unit.DB)) {
+                throw new OperatorException("Terrain flattening of bands in dB is not supported");
+            } else if (unit.contains(Unit.PHASE)) {
                 continue;
+            } else if (unit.contains(Unit.IMAGINARY)) {
+                throw new OperatorException("Real and imaginary bands should be selected in pairs");
+            } else if (unit.contains(Unit.REAL)) {
+
+                if (i + 1 >= sourceBands.length) {
+                    throw new OperatorException("Real and imaginary bands should be selected in pairs");
+                }
+                final String nextUnit = sourceBands[i + 1].getUnit();
+                if (nextUnit == null || !nextUnit.contains(Unit.IMAGINARY)) {
+                    throw new OperatorException("Real and imaginary bands should be selected in pairs");
+                }
+                tgtBandName = srcBandName;
+                tgtUnit = unit;
+
+            } else { // amplitude or intensity
+
+                final String pol = OperatorUtils.getBandPolarization(srcBandName, absRoot);
+                tgtBandName = "Gamma0";
+                if (pol != null && !pol.isEmpty()) {
+                    tgtBandName = "Gamma0_" + pol.toUpperCase();
+                }
+                tgtUnit = Unit.INTENSITY;
             }
 
-            Band targetBand = targetProduct.addBand(bandName, ProductData.TYPE_FLOAT32);
-            ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
+            if (targetProduct.getBand(tgtBandName) == null) {
+                Band tgtBand = targetProduct.addBand(tgtBandName, ProductData.TYPE_FLOAT32);
+                tgtBand.setUnit(tgtUnit);
+                targetBandToSourceBandMap.put(tgtBand, srcBand);
+            }
+        }
+
+        if (outputSimulatedImage) {
+            Band tgtBand = targetProduct.addBand("simulatedImage", ProductData.TYPE_FLOAT32);
+            tgtBand.setUnit("Ratio");
         }
 
         targetBands = targetProduct.getBands();
@@ -490,24 +531,22 @@ public final class TerrainFlatteningOp extends Operator {
                                        final double[][] simulatedImage, final Map<Band, Tile> targetTiles,
                                        final Rectangle targetRectangle) {
 
-        final int numBands = targetBands.length;
-        final ProductData[] targetData = new ProductData[numBands];
-        Tile targetTile = null;
-        for (int i = 0; i < numBands; i++) {
-            targetTile = targetTiles.get(targetBands[i]);
-            targetData[i] = targetTile.getDataBuffer();
-        }
-        final TileIndex trgIndex = new TileIndex(targetTile);
+        for (Band tgtBand:targetBands) {
+            final Tile targetTile = targetTiles.get(tgtBand);
+            final ProductData targetData = targetTile.getDataBuffer();
+            final TileIndex trgIndex = new TileIndex(targetTile);
+            final String unit = tgtBand.getUnit();
 
-        final Tile[] sourceTile = new Tile[numBands];
-        final ProductData[] sourceData = new ProductData[numBands];
-        for (int i = 0; i < numBands; i++) {
-            final Band srcBand = sourceProduct.getBand(targetBands[i].getName());
-            sourceTile[i] = getSourceTile(srcBand, targetRectangle);
-            sourceData[i] = sourceTile[i].getDataBuffer();
-        }
+            Band srcBand = null;
+            Tile sourceTile = null;
+            ProductData sourceData = null;
+            if (!unit.contains("Ratio")) {
+                srcBand = targetBandToSourceBandMap.get(tgtBand);
+                sourceTile = getSourceTile(srcBand, targetRectangle);
+                sourceData = sourceTile.getDataBuffer();
+            }
 
-        for (int n = 0; n < numBands; n++) {
+            double v;
             for (int y = y0; y < y0 + h; y++) {
                 final int yy = y - y0;
                 trgIndex.calculateStride(y);
@@ -515,11 +554,24 @@ public final class TerrainFlatteningOp extends Operator {
                     final int xx = x - x0;
                     final int idx = trgIndex.getIndex(x);
                     if (simulatedImage[yy][xx] != noDataValue && simulatedImage[yy][xx] != 0.0) {
-                        targetData[n].setElemDoubleAt(idx, sourceData[n].getElemDoubleAt(idx) /
-                                Math.sqrt(simulatedImage[yy][xx]));
+
+                        if (unit.contains(Unit.AMPLITUDE)) {
+                            v = sourceData.getElemDoubleAt(idx);
+                            targetData.setElemDoubleAt(idx, v*v / simulatedImage[yy][xx]);
+                        } else if (unit.contains(Unit.INTENSITY)) {
+                            v = sourceData.getElemDoubleAt(idx);
+                            targetData.setElemDoubleAt(idx, v / simulatedImage[yy][xx]);
+                        } else if (unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY)) {
+                            v = sourceData.getElemDoubleAt(idx);
+                            targetData.setElemDoubleAt(idx, v / Math.sqrt(simulatedImage[yy][xx]));
+                        } else if (unit.contains("Ratio")) {
+                            targetData.setElemDoubleAt(idx, simulatedImage[yy][xx]);
+                        }
+
                     } else {
-                        targetData[n].setElemDoubleAt(idx, noDataValue);
+                        targetData.setElemDoubleAt(idx, noDataValue);
                     }
+
                 }
             }
         }

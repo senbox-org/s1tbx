@@ -41,16 +41,16 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
     private final JList bandList = new JList();
     private final JComboBox<String> demName = new JComboBox<String>(DEMFactory.getDEMNameList());
     private static final String externalDEMStr = "External DEM";
+    //private final JCheckBox outputSimulatedImageCheckBox = new JCheckBox("Output Simulated Image");
 
     private final JComboBox<String> demResamplingMethod = new JComboBox<String>(ResamplingFactory.resamplingNames);
-
     private final JTextField externalDEMFile = new JTextField("");
     private final JTextField externalDEMNoDataValue = new JTextField("");
     private final JButton externalDEMBrowseButton = new JButton("...");
     private final JLabel externalDEMFileLabel = new JLabel("External DEM:");
     private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
-
     private Double extNoDataValue = 0.0;
+    //private boolean outputSimulatedImage = false;
 
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
 
@@ -88,6 +88,12 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
 
         externalDEMNoDataValue.addKeyListener(textAreaKeyListener);
 
+        /*outputSimulatedImageCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                outputSimulatedImage = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });*/
+
         return new JScrollPane(panel);
     }
 
@@ -109,6 +115,8 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
             }
         }
+
+        //outputSimulatedImageCheckBox.setSelected(outputSimulatedImage);
     }
 
     @Override
@@ -130,6 +138,8 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
             paramMap.put("externalDEMFile", new File(extFileStr));
             paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
         }
+
+        //paramMap.put("outputSimulatedImage", outputSimulatedImage);
     }
 
     private JComponent createPanel() {
@@ -153,6 +163,8 @@ public class TerrainFlatteningOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, externalDEMNoDataValueLabel, externalDEMNoDataValue);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "DEM Resampling Method:", demResamplingMethod);
+        //gbc.gridy++;
+        //contentPane.add(outputSimulatedImageCheckBox, gbc);
 
         DialogUtils.fillPanel(contentPane, gbc);
 
