@@ -237,6 +237,9 @@ public class CreateStackOp extends Operator {
                     } else {
                         suffix = "_slv" + cnt++ + StackUtils.getBandTimeStamp(srcBand.getProduct());
                     }
+                    if(!includeMaster) {
+                        suffix = "";
+                    }
                     final String tgtBandName = srcBand.getName() + suffix;
 
                     if (targetProduct.getBand(tgtBandName) == null) {
