@@ -316,8 +316,19 @@ public class WarpOp extends Operator {
      * Update metadata in the target product.
      */
     private void updateTargetProductMetadata() {
-        final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.coregistered_stack, 1);
+        boolean includesMaster = false;
+        for(String name : targetProduct.getBandNames()) {
+            if(name.contains("_mst")) {
+                includesMaster = true;
+                break;
+            }
+        }
+
+        if(includesMaster) {
+            // only if its a full coregistered stack including master bands
+            final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+            AbstractMetadata.setAttribute(absTgt, AbstractMetadata.coregistered_stack, 1);
+        }
     }
 
     private synchronized void getWarpData(final Rectangle targetRectangle) throws OperatorException {

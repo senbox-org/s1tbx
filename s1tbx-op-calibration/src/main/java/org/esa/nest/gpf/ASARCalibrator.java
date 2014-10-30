@@ -88,6 +88,9 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
     private float[][] newAntennaPatternSingleSwath = null; // new antenna pattern gains for single swath product, in dB
     private float[][] newAntennaPatternWideSwath = null; // new antenna pattern gains for single swath product, in dB
 
+    private TiePointInterpolator incidenceTPGInterp = null;
+    private TiePointInterpolator slantRangeTPGInterp = null;
+
     private int numMPPRecords; // number of MPP ADSR records
     private String swath;
     private OrbitStateVector[] orbitStateVectors = null;
@@ -364,6 +367,9 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         slantRangeTime = OperatorUtils.getSlantRangeTime(sourceProduct);
         incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
         latitude = OperatorUtils.getLatitude(sourceProduct);
+
+         incidenceTPGInterp = new TiePointInterpolator(incidenceAngle);
+         slantRangeTPGInterp = new TiePointInterpolator(slantRangeTime);
     }
 
     /**
@@ -910,18 +916,15 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
             if (wideSwathProductFlag) {
                 computeWideSwathAntennaPatternForCurrentTile(x0, y0, w, h,
-                        targetTileOldAntPat, targetTileNewAntPat, targetTileSlantRange);
+                        targetTileOldAntPat, targetTileNewAntPat, targetTileSlantRange, slantRangeTPGInterp);
             } else {
                 computeSingleSwathAntennaPatternForCurrentTile(x0, y0, w, h,
-                        targetTileOldAntPat, targetTileNewAntPat, targetTileSlantRange, prodBand);
+                        targetTileOldAntPat, targetTileNewAntPat, targetTileSlantRange, prodBand, slantRangeTPGInterp);
             }
         }
 
         double sigma, dn = 0, i, q;
         final double theCalibrationFactor = newCalibrationConstant[prodBand];
-
-        final TiePointInterpolator incidenceTPGInterp = new TiePointInterpolator(incidenceAngle);
-        final TiePointInterpolator slantRangeTPGInterp = new TiePointInterpolator(slantRangeTime);
 
         int srcIdx, tgtIdx;
         for (int y = y0, yy = 0; y < maxY; ++y, ++yy) {
@@ -997,7 +1000,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                                                                 final double[][] targetTileOldAntPat,
                                                                 final double[][] targetTileNewAntPat,
                                                                 final double[][] targetTileSlantRange,
-                                                                final int band) {
+                                                                final int band,
+                                                                final TiePointInterpolator slantRangeTPGInterp) {
 
         final int yMax = y0 + h;
         for (int y = y0; y < yMax; y++) {
@@ -1015,7 +1019,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
             for (int x = x0; x < xMax; x++) {
 
                 final int xx = x - x0;
-                targetTileSlantRange[yy][xx] = computeSlantRange(x, y, srgrConvParam); // in m
+                targetTileSlantRange[yy][xx] = computeSlantRange(x, y, srgrConvParam, slantRangeTPGInterp); // in m
 
                 final double localEarthRadius = getEarthRadius(x, y);
 
@@ -1049,7 +1053,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
     private void computeWideSwathAntennaPatternForCurrentTile(final int x0, final int y0, final int w, final int h,
                                                               final double[][] targetTileOldAntPat,
                                                               final double[][] targetTileNewAntPat,
-                                                              final double[][] targetTileSlantRange) {
+                                                              final double[][] targetTileSlantRange,
+                                                              final TiePointInterpolator slantRangeTPGInterp) {
 
         final int yMax = y0 + h;
         for (int y = y0; y < yMax; y++) {
@@ -1067,7 +1072,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
             for (int x = x0; x < xMax; x++) {
 
                 final int xx = x - x0;
-                targetTileSlantRange[yy][xx] = computeSlantRange(x, y, srgrConvParam); // in m
+                targetTileSlantRange[yy][xx] = computeSlantRange(x, y, srgrConvParam, slantRangeTPGInterp); // in m
 
                 final double localEarthRadius = getEarthRadius(x, y);
 
@@ -1204,7 +1209,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param srgrConvParam The SRGR coefficients.
      * @return The slant range (in meters).
      */
-    private double computeSlantRange(int x, int y, AbstractMetadata.SRGRCoefficientList srgrConvParam) {
+    private double computeSlantRange(int x, int y, AbstractMetadata.SRGRCoefficientList srgrConvParam,
+                                     final TiePointInterpolator slantRangeTPGInterp) {
 
         if (srgrFlag) { // for ground detected product, compute slant range from SRGR coefficients
             return Maths.computePolynomialValue(
@@ -1212,7 +1218,6 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
         } else { // for slant range product, compute slant range from slant range time
 
-            final TiePointInterpolator slantRangeTPGInterp = new TiePointInterpolator(slantRangeTime);
             final double time = slantRangeTPGInterp.getPixelFloat((float) x, (float) y, TiePointInterpolator.InterpMode.QUADRATIC) /
                     Constants.oneBillion; //convert ns to s
             return time * Constants.halfLightSpeed; // in m
@@ -1343,7 +1348,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
             srgrConvParam = getSRGRCoefficientsForARangeLine(zeroDopplerTime);
         }
 
-        final double slantRange = computeSlantRange(x, y, srgrConvParam); // in m
+        final TiePointInterpolator slantRangeTPGInterp = new TiePointInterpolator(slantRangeTime);
+        final double slantRange = computeSlantRange(x, y, srgrConvParam, slantRangeTPGInterp); // in m
         final double elevationAngle = computeElevationAngle(slantRange, satelitteHeight, avgSceneHeight + getEarthRadius(x, y));
 
         double gain = 0.0;
@@ -1452,7 +1458,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
             double gain;
             if (wideSwathProductFlag) {
                 if (subSwathIndex[0] == INVALID_SUB_SWATH_INDEX) { // Rem(AP+RSL)/ApplyADC Op is used
-                    computeSubSwathIndex(rangeIndex, azimuthIndex, newRefElevationAngle, subSwathIndex);
+                    final TiePointInterpolator slantRangeTPGInterp = new TiePointInterpolator(slantRangeTime);
+                    computeSubSwathIndex(rangeIndex, azimuthIndex, newRefElevationAngle, subSwathIndex, slantRangeTPGInterp);
                 }
                 gain = getAntennaPatternGain(
                         elevationAngle, bandPolarIdx, newRefElevationAngle, newAntennaPatternWideSwath, false, subSwathIndex);
@@ -1468,7 +1475,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
     }
 
     private void computeSubSwathIndex(final double rangeIndex, final double azimuthIndex,
-                                      final double[] refElevationAngle, int[] subSwathIndex) {
+                                      final double[] refElevationAngle, int[] subSwathIndex,
+                                      final TiePointInterpolator slantRangeTPGInterp) {
 
         final int x = (int) (rangeIndex + 0.5);
         final int y = (int) (azimuthIndex + 0.5);
@@ -1481,7 +1489,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
             srgrConvParam = getSRGRCoefficientsForARangeLine(zeroDopplerTime);
         }
 
-        final double slantRange = computeSlantRange(x, y, srgrConvParam); // in m
+        final double slantRange = computeSlantRange(x, y, srgrConvParam, slantRangeTPGInterp); // in m
         final double elevationAngle = computeElevationAngle(slantRange, satelitteHeight, avgSceneHeight + getEarthRadius(x, y));
         subSwathIndex[0] = findSubSwath(elevationAngle, refElevationAngle);
     }
@@ -1516,12 +1524,14 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         final double[][] targetTileSlantRange = new double[h][w];
         final double[][] targetTileOldAntPat = new double[h][w];
 
+        final TiePointInterpolator slantRangeTPGInterp = new TiePointInterpolator(slantRangeTime);
+
         if (wideSwathProductFlag) {
             computeWideSwathAntennaPatternForCurrentTile(x0, y0, w, h,
-                    targetTileOldAntPat, targetTileNewAntPat, targetTileSlantRange);
+                    targetTileOldAntPat, targetTileNewAntPat, targetTileSlantRange, slantRangeTPGInterp);
         } else {
             computeSingleSwathAntennaPatternForCurrentTile(x0, y0, w, h,
-                    targetTileOldAntPat, targetTileNewAntPat, targetTileSlantRange, prodBand);
+                    targetTileOldAntPat, targetTileNewAntPat, targetTileSlantRange, prodBand, slantRangeTPGInterp);
         }
 
         final int maxY = y0 + h;
