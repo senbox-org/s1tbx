@@ -48,10 +48,15 @@ public final class ReaderUtils {
     }
 
     public static void createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ, final String countStr) {
+        createVirtualIntensityBand(product, bandI, bandQ, "Intensity", countStr);
+    }
+
+    public static void createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ,
+                                                  final String bandName, final String countStr) {
         final String expression = bandI.getName() + " * " + bandI.getName() + " + " +
                 bandQ.getName() + " * " + bandQ.getName();
 
-        final VirtualBand virtBand = new VirtualBand("Intensity" + countStr,
+        final VirtualBand virtBand = new VirtualBand(bandName + countStr,
                 ProductData.TYPE_FLOAT32,
                 bandI.getSceneRasterWidth(),
                 bandI.getSceneRasterHeight(),
