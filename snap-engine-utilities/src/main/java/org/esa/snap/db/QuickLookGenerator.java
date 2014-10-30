@@ -16,7 +16,6 @@
 package org.esa.snap.db;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.core.VirtualDir;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
@@ -193,11 +192,11 @@ public class QuickLookGenerator {
         }
 
         final BufferedImage image;
-        if(quicklookBandNames.length == 1) {
+        if(quicklookBandNames.length < 3) {
             image = ProductUtils.createColorIndexedImage(productSubset.getBand(quicklookBandNames[0]), ProgressMonitor.NULL);
             productSubset.dispose();
         } else {
-            List<Band> bandList = new ArrayList<>(3);
+            final List<Band> bandList = new ArrayList<>(3);
             for(int i=0; i < Math.min(3,quicklookBandNames.length); ++i) {
                 bandList.add(productSubset.getBand(quicklookBandNames[i]));
             }
