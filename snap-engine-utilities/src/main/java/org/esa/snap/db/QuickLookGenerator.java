@@ -118,7 +118,6 @@ public class QuickLookGenerator {
         final Product sourceProduct = ProductIO.readProduct(browseFile);
         if (sourceProduct != null) {
             BufferedImage img = createQuickLook(id, sourceProduct, preprocess);
-            sourceProduct.dispose();
             return img;
         }
         return null;
