@@ -300,22 +300,10 @@ public final class TerrainFlatteningOp extends Operator {
                 throw new OperatorException("Terrain flattening of bands in dB is not supported");
             } else if (unit.contains(Unit.PHASE)) {
                 continue;
-            } else if (unit.contains(Unit.IMAGINARY)) {
-                throw new OperatorException("Real and imaginary bands should be selected in pairs");
-            } else if (unit.contains(Unit.REAL)) {
-
-                if (i + 1 >= sourceBands.length) {
-                    throw new OperatorException("Real and imaginary bands should be selected in pairs");
-                }
-                final String nextUnit = sourceBands[i + 1].getUnit();
-                if (nextUnit == null || !nextUnit.contains(Unit.IMAGINARY)) {
-                    throw new OperatorException("Real and imaginary bands should be selected in pairs");
-                }
+            } else if (unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY)) {
                 tgtBandName = srcBandName;
                 tgtUnit = unit;
-
             } else { // amplitude or intensity
-
                 final String pol = OperatorUtils.getBandPolarization(srcBandName, absRoot);
                 tgtBandName = "Gamma0";
                 if (pol != null && !pol.isEmpty()) {
@@ -340,7 +328,11 @@ public final class TerrainFlatteningOp extends Operator {
         for(int i=0; i < targetBands.length; ++i) {
             if(targetBands[i].getUnit().equals(Unit.REAL)) {
                 final String trgBandName = targetBands[i].getName();
-                final String suffix = trgBandName.substring(trgBandName.indexOf("_"));
+                final int idx = trgBandName.indexOf("_");
+                String suffix = "";
+                if (idx != -1) {
+                    suffix = trgBandName.substring(trgBandName.indexOf("_"));
+                }
                 ReaderUtils.createVirtualIntensityBand(
                         targetProduct, targetBands[i], targetBands[i + 1], "Gamma0", suffix);
             }
