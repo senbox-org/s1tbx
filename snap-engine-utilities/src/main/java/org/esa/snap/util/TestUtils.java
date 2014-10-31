@@ -409,6 +409,7 @@ public class TestUtils {
         subsetDef.setTreatVirtualBandsAsRealBands(false);
 
         final Product subsetProduct = subsetReader.readProductNodes(sourceProduct, subsetDef);
+        subsetProduct.setFileLocation(sourceProduct.getFileLocation());
         if (subsetProduct.getSceneRasterWidth() > subsetWidth || subsetProduct.getSceneRasterHeight() > subsetHeight) {
             throw new IOException("product size mismatch");
         }
