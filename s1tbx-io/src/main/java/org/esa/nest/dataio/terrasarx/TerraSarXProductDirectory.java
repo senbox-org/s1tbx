@@ -157,9 +157,9 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 imageRaster.getAttributeDouble("azimuthLooks", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
                 imageRaster.getAttributeDouble("rangeLooks", defInt));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
-                imageRaster.getAttributeInt("numberOfColumns", defInt));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
+                imageRaster.getAttributeInt("numberOfColumns", defInt));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
                 imageRaster.getAttributeInt("numberOfRows", defInt));
 
         if (sceneInfo != null) {
@@ -422,7 +422,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 if (imgStream == null)
                     throw new IOException("Unable to open " + imgPath);
 
-                final ImageIOFile img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream));
+                final ImageIOFile img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
+                        1, 1, ProductData.TYPE_UINT16);
                 bandImageFileMap.put(img.getName(), img);
             }
         }
