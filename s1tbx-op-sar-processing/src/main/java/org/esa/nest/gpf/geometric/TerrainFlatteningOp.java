@@ -60,7 +60,7 @@ import java.util.Map;
         category = "SAR Processing/Radiometric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Terrain Flattening")
+        description = "Terrain Flattening", internal=true)
 public final class TerrainFlatteningOp extends Operator {
 
     @SourceProduct(alias = "source")
