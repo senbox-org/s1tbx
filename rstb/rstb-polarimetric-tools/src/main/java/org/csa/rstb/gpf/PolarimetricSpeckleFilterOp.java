@@ -982,7 +982,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                 final double diff = neighborValue - mean;
                 var += diff * diff;
             }
-            var /= neighborValues.length;
+            var /= (neighborValues.length - 1);
         }
 
         return var;
@@ -2024,6 +2024,11 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
                     PolOpUtils.getT3(srcIdx, sourceProductType, sourceDataBuffers, Tr, Ti);
 
+                    if (isPointTarget[yy][xx]) {
+                        saveT3(Tr, Ti, trgIdx, targetDataBuffers);
+                        continue;
+                    }
+
                     if (y - halfFilterSize < sy0 || y + halfFilterSize > sy0 + sh - 1 ||
                             x - halfFilterSize < sx0 || x + halfFilterSize > sx0 + sw - 1) {
 
@@ -2031,11 +2036,6 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                         getWindowPixelT3s(x, y, sourceDataBuffers, sx0, sy0, sw, sh, sourceTiles[0], filterWindowT3);
                         final int n = setPixelsInSigmaRange(filterWindowT3);
                         computeFilteredT3(filterWindowT3, n, sigmaVSqr, Tr, Ti);
-                        saveT3(Tr, Ti, trgIdx, targetDataBuffers);
-                        continue;
-                    }
-
-                    if (isPointTarget[yy][xx]) {
                         saveT3(Tr, Ti, trgIdx, targetDataBuffers);
                         continue;
                     }
@@ -2081,7 +2081,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         final int sh = sourceRectangle.height;
         final int maxY = sy0 + sh;
         final int maxX = sx0 + sw;
-        final int z98Index = (int) (sw * sh * 0.98);
+        final int z98Index = (int) (sw * sh * 0.98) - 1;
 
         double[] t11 = new double[sw * sh];
         double[] t22 = new double[sw * sh];
