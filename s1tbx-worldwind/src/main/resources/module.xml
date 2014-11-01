@@ -44,7 +44,7 @@
             <id>org.esa.nest.dat.toolviews.nestwwview.FlatEarthWWToolView</id>
             <class>org.esa.nest.dat.toolviews.nestwwview.FlatEarthWWToolView</class>
             <title>WorldWind Map</title>
-            <tabTitle>WorldWind Map</tabTitle>
+            <tabTitle>WorldWind</tabTitle>
             <description>Display WorldWind view.</description>
             <smallIcon>/org/esa/snap/icons/WorldMap16.png</smallIcon>
             <largeIcon>/org/esa/snap/icons/WorldMap24.png</largeIcon>

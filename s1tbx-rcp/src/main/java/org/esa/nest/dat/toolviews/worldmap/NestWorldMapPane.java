@@ -58,8 +58,10 @@ public class NestWorldMapPane extends JPanel {
     private boolean navControlShown;
     private WakefulComponent navControlWrapper;
 
-    private final static Color transWhiteColor = new Color(255, 255, 255, 10);
+    private final static Color transWhiteColor = new Color(255, 255, 255, 5);
+    private final static Color borderWhiteColor = new Color(255, 255, 255, 100);
     private final static Color transRedColor = new Color(255, 0, 0, 30);
+    private final static Color borderRedColor = new Color(255, 0, 0, 100);
 
     private final static Color selectionFillColor = new Color(255, 255, 0, 70);
     private final static Color selectionBorderColor = new Color(255, 255, 0, 255);
@@ -357,12 +359,12 @@ public class NestWorldMapPane extends JPanel {
 
             for (final GeoPos[] extraGeoBoundary : dataModel.getAdditionalGeoBoundaries()) {
                 drawGeoBoundary(rendering.getGraphics(), extraGeoBoundary, null, null,
-                        transWhiteColor, Color.WHITE);
+                        transWhiteColor, borderWhiteColor);
             }
 
             for (final GeoPos[] selectGeoBoundary : dataModel.getSelectedGeoBoundaries()) {
                 drawGeoBoundary(rendering.getGraphics(), selectGeoBoundary, null, null,
-                        transRedColor, Color.RED);
+                        transRedColor, borderRedColor);
             }
 
             final Product selectedProduct = dataModel.getSelectedProduct();
