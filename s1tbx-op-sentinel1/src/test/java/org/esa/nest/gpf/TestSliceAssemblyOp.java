@@ -44,7 +44,7 @@ public class TestSliceAssemblyOp {
     @Test
     public void testSingleProduct() throws Exception {
         if(!slice1File.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, slice1File +" not found");
             return;
         }
 
@@ -67,7 +67,7 @@ public class TestSliceAssemblyOp {
     @Test
     public void testNonSliceProduct() throws Exception {
         if(!nonSliceFile.exists() || !slice1File.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, "input not found");
             return;
         }
 
@@ -91,7 +91,7 @@ public class TestSliceAssemblyOp {
     @Test
     public void testOrder1_2() throws Exception {
         if(!slice1File.exists() || !slice2File.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, "input not found");
             return;
         }
 
@@ -110,7 +110,7 @@ public class TestSliceAssemblyOp {
     @Test
     public void testOrder2_1() throws Exception {
         if(!slice1File.exists() || !slice2File.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, "input not found");
             return;
         }
 

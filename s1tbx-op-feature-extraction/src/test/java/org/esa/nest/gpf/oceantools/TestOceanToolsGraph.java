@@ -37,7 +37,7 @@ public class TestOceanToolsGraph {
         final File inputFile = new File(TestUtils.rootPathTestProducts, ASAR_IMM);
         final File outputFile = new File(ResourceUtils.getApplicationUserTempDataDir(), "tmpOut.dim");
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, inputFile +" not found");
             return;
         }
         

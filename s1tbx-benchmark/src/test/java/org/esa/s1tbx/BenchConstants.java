@@ -16,8 +16,8 @@
 package org.esa.s1tbx;
 
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.SystemUtils;
 import org.esa.snap.util.Config;
-import org.esa.snap.util.ResourceUtils;
 
 /**
  * Constants for benchmarking
@@ -27,7 +27,7 @@ public class BenchConstants {
     public static int maxDimensions = 3000;
 
     private static final PropertyMap testPreferences = Config.getAppConfigPropertyMap();
-    private final static String contextID = ResourceUtils.getContextID();
+    private final static String contextID = SystemUtils.getApplicationContextId();
 
     private static final String testBenchmarks = testPreferences.getPropertyString(contextID + ".test.RunBenchmarks");
     public static final boolean runBenchmarks = testBenchmarks != null && testBenchmarks.equalsIgnoreCase("true");

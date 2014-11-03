@@ -62,10 +62,10 @@ public class TerraSarXProductReader extends SARReader {
     /**
      * Closes the access to all currently opened resources such as file input streams and all resources of this children
      * directly owned by this reader. Its primary use is to allow the garbage collector to perform a vanilla job.
-     * <p/>
+     * <p>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>close()</code> are undefined.
-     * <p/>
+     * <p>
      * <p>Overrides of this method should always call <code>super.close();</code> after disposing this instance.
      *
      * @throws java.io.IOException if an I/O error occurs
@@ -82,7 +82,7 @@ public class TerraSarXProductReader extends SARReader {
     /**
      * Provides an implementation of the <code>readProductNodes</code> interface method. Clients implementing this
      * method can be sure that the input object and eventually the subset information has already been set.
-     * <p/>
+     * <p>
      * <p>This method is called as a last step in the <code>readProductNodes(input, subsetInfo)</code> method.
      *
      * @throws java.io.IOException if an I/O error occurs
@@ -170,7 +170,6 @@ public class TerraSarXProductReader extends SARReader {
                                         final int destWidth, final int destHeight,
                                         final int imageID, final ImageIOFile img,
                                         final int bandSampleOffset) throws IOException {
-
         final Raster data;
 
         synchronized (dataDir) {
@@ -181,24 +180,26 @@ public class TerraSarXProductReader extends SARReader {
                     sourceOffsetY % sourceStepY);
 
             final RenderedImage image = reader.readAsRenderedImage(0, param);
-            data = image.getData(new Rectangle(destOffsetX, img.getSceneHeight() - destOffsetY - destHeight,
-                    destWidth, destHeight));
+            Rectangle rect = new Rectangle(destOffsetX, Math.max(0, img.getSceneHeight() - destOffsetY - destHeight),
+                    destWidth, destHeight);
+            data = image.getData(rect);
         }
 
+        final int w = data.getWidth();
+        final int h = data.getHeight();
         final DataBuffer dataBuffer = data.getDataBuffer();
         final SampleModel sampleModel = data.getSampleModel();
-        final int destSize = destWidth * destHeight;
         final int sampleOffset = imageID + bandSampleOffset;
 
-        final double[] dArray = new double[destSize];
-        sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
+        final double[] dArray = new double[dataBuffer.getSize()];
+        sampleModel.getSamples(0, 0, w, h, sampleOffset, dArray, dataBuffer);
 
         // flip the image upside down
         int is, id;
-        for (int r = 0; r < destHeight; r++) {
-            for (int c = 0; c < destWidth; c++) {
-                is = r * destWidth + c;
-                id = (destHeight - r - 1) * destWidth + c;
+        for (int r = 0; r < h; r++) {
+            for (int c = 0; c < w; c++) {
+                is = r * w + c;
+                id = (h - r - 1) * w + c;
                 destBuffer.setElemDoubleAt(id, dArray[is]);
             }
         }
@@ -222,24 +223,25 @@ public class TerraSarXProductReader extends SARReader {
                     sourceOffsetY % sourceStepY);
 
             final RenderedImage image = reader.readAsRenderedImage(0, param);
-            data = image.getData(new Rectangle(img.getSceneWidth() - destOffsetX - destWidth,
+            data = image.getData(new Rectangle(Math.max(0, img.getSceneWidth() - destOffsetX - destWidth),
                     destOffsetY, destWidth, destHeight));
         }
 
+        final int w = data.getWidth();
+        final int h = data.getHeight();
         final DataBuffer dataBuffer = data.getDataBuffer();
         final SampleModel sampleModel = data.getSampleModel();
-        final int destSize = destWidth * destHeight;
         final int sampleOffset = imageID + bandSampleOffset;
 
-        final double[] dArray = new double[destSize];
-        sampleModel.getSamples(0, 0, destWidth, destHeight, sampleOffset, dArray, dataBuffer);
+        final double[] dArray = new double[dataBuffer.getSize()];
+        sampleModel.getSamples(0, 0, w, h, sampleOffset, dArray, dataBuffer);
 
         // flip the image left to right
         int is, id;
-        for (int r = 0; r < destHeight; r++) {
-            for (int c = 0; c < destWidth; c++) {
-                is = r * destWidth + c;
-                id = r * destWidth + destWidth - c - 1;
+        for (int r = 0; r < h; r++) {
+            for (int c = 0; c < w; c++) {
+                is = r * w + c;
+                id = r * w + w - c - 1;
                 destBuffer.setElemDoubleAt(id, dArray[is]);
             }
         }
@@ -285,8 +287,8 @@ public class TerraSarXProductReader extends SARReader {
 
                 // Read source line
                 //synchronized (iiStream) {
-                    iiStream.seek(imageRecordLength * y + xpos);
-                    iiStream.readFully(srcLine, 0, srcLine.length);
+                iiStream.seek(imageRecordLength * y + xpos);
+                iiStream.readFully(srcLine, 0, srcLine.length);
                 //}
 
                 // Copy source line into destination buffer

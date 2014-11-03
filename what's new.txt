@@ -2,6 +2,8 @@ New in S1TBX 1.0.3
 
 Fix for Cosmo dual pol calibration
 Fix for alos start/end times
+Fix reading of TSX detected products
+Terrain Flattening temporarily removed until gamma0 corrected
 
 New in S1TBX 1.0.2
 

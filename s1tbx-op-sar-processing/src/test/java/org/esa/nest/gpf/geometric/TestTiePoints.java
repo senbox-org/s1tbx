@@ -23,9 +23,10 @@ import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test performance of tie point grid geocoding
@@ -52,7 +53,7 @@ public class TestTiePoints {
     @Test
     public void testGetPixelFloat() throws Exception {
         if (product1 == null) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, product1 +" not found");
             return;
         }
         TiePointGrid tpg = product1.getTiePointGridAt(0);
@@ -72,7 +73,7 @@ public class TestTiePoints {
     @Test
     public void testGetPixelFloats() throws Exception {
         if (product2 == null) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, product2 +" not found");
             return;
         }
         TiePointGrid tpg = product2.getTiePointGridAt(0);
@@ -87,7 +88,7 @@ public class TestTiePoints {
     public void testCompareFloats() throws Exception {
 
         if (product1 == null) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, product1 +" not found");
             return;
         }
         final TiePointGrid tpg = product1.getTiePointGridAt(0);

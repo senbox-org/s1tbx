@@ -18,6 +18,7 @@ package org.esa.nest.dat;
 import com.alee.extended.panel.WebAccordion;
 import com.alee.extended.panel.WebAccordionStyle;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.snap.util.ResourceUtils;
 
@@ -112,7 +113,7 @@ class DatAboutBox extends ModalDialog {
     }
 
     private static String getVersionHtml() {
-        final String ver = System.getProperty(ResourceUtils.getContextID() + ".version");
+        final String ver = System.getProperty(SystemUtils.getApplicationContextId() + ".version");
         final String pattern =
                 "<html>" +
                         "<b>S1TBX</b>" +
