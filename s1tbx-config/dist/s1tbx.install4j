@@ -690,6 +690,18 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                             </void>
                           </object>
                         </void>
+                        <void method="add">
+                          <object class="com.install4j.runtime.beans.screens.components.ProgramGroupFileConfig">
+                            <void property="name">
+                              <string>Update Toolbox</string>
+                            </void>
+                            <void property="target">
+                              <object class="java.io.File">
+                                <string>bin/updater</string>
+                              </object>
+                            </void>
+                          </object>
+                        </void>
                       </void>
                       <void property="uninstallerMenuName">
                         <string>${i18n:UninstallerMenuEntry(${compiler:sys.fullName})}</string>
