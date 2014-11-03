@@ -41,6 +41,6 @@ public class TestTerraSarXProductReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        TestUtils.recurseReadFolder(this, TestUtils.rootArchivePaths, readerPlugin, reader, null, null);
+        TestUtils.recurseReadFolder(this, TestUtils.rootPathsTerraSarX, readerPlugin, reader, null, null);
     }
 }

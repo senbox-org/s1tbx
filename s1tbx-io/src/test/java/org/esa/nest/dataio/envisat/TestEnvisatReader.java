@@ -48,6 +48,6 @@ public class TestEnvisatReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        TestUtils.recurseReadFolder(this, TestUtils.rootArchivePaths, readerPlugin, reader, productTypeExemptions, null);
+        TestUtils.recurseReadFolder(this, TestUtils.rootPathsASAR, readerPlugin, reader, productTypeExemptions, null);
     }
 }

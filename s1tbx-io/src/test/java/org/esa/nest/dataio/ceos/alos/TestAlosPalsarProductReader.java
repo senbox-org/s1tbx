@@ -43,6 +43,6 @@ public class TestAlosPalsarProductReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        TestUtils.recurseReadFolder(this, TestUtils.rootArchivePaths, readerPlugin, reader, null, exceptionExemptions);
+        TestUtils.recurseReadFolder(this, TestUtils.rootPathsALOS, readerPlugin, reader, null, exceptionExemptions);
     }
 }

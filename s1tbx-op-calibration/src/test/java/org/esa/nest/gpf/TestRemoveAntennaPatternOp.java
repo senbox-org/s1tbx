@@ -81,11 +81,11 @@ public class TestRemoveAntennaPatternOp {
 
     @Test
     public void testProcessAllASAR() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootArchivePaths, "ENVISAT", productTypeExemptions, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsASAR, "ENVISAT", productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllERS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootArchivePaths, "ERS CEOS", productTypeExemptions, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsERS, "ERS CEOS", productTypeExemptions, exceptionExemptions);
     }
 }

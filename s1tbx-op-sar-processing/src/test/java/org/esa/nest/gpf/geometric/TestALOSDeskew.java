@@ -50,6 +50,6 @@ public class TestALOSDeskew {
 
     @Test
     public void testProcessAllALOS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootArchivePaths, "ALOS PALSAR CEOS", null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsALOS, "ALOS PALSAR CEOS", null, exceptionExemptions);
     }
 }

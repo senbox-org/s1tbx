@@ -43,6 +43,6 @@ public class TestCosmoSkymedReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        TestUtils.recurseReadFolder(this, TestUtils.rootArchivePaths, readerPlugin, reader, null, exceptionExemptions);
+        TestUtils.recurseReadFolder(this, TestUtils.rootPathsCosmoSkymed, readerPlugin, reader, null, exceptionExemptions);
     }
 }

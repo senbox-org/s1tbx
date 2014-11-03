@@ -112,36 +112,36 @@ public class TestCalibrationOp {
 
     @Test
     public void testProcessAllASAR() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootArchivePaths, "ENVISAT", productTypeExemptions, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsASAR, "ENVISAT", productTypeExemptions, null);
     }
 
     @Test
     public void testProcessAllERS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootArchivePaths, "ERS CEOS", productTypeExemptions, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsERS, "ERS CEOS", productTypeExemptions, null);
     }
 
     @Test
     public void testProcessAllALOS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootArchivePaths, "ALOS PALSAR CEOS", productTypeExemptions, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsALOS, "ALOS PALSAR CEOS", productTypeExemptions, null);
     }
 
     @Test
     public void testProcessAllRadarsat2() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootArchivePaths, "RADARSAT-2", productTypeExemptions, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsRadarsat2, "RADARSAT-2", productTypeExemptions, null);
     }
 
     @Test
     public void testProcessAllCosmo() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootArchivePaths, "CosmoSkymed", productTypeExemptions, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsCosmoSkymed, "CosmoSkymed", productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllTSX() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootArchivePaths, "TerraSarX", productTypeExemptions, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsTerraSarX, "TerraSarX", productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllSentinel1() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootArchivePaths, "SENTINEL-1", productTypeExemptions, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsSentinel1, "SENTINEL-1", productTypeExemptions, exceptionExemptions);
     }
 }

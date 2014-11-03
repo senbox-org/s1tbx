@@ -41,6 +41,6 @@ public class TestERSProductReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        TestUtils.recurseReadFolder(this, TestUtils.rootArchivePaths, readerPlugin, reader, null, null);
+        TestUtils.recurseReadFolder(this, TestUtils.rootPathsERS, readerPlugin, reader, null, null);
     }
 }

@@ -104,6 +104,6 @@ public class TestRemoveThermalNoiseOp {
 
     @Test
     public void testProcessAllSentinel1() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootArchivePaths, "SENTINEL-1", productTypeExemptions, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsSentinel1, "SENTINEL-1", productTypeExemptions, exceptionExemptions);
     }
 }
