@@ -41,7 +41,7 @@ public class TestRadarsatProductReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        TestUtils.recurseReadFolder(this, TestUtils.rootPathsRadarsat1, readerPlugin, reader, null, null);
+        TestUtils.recurseReadFolder(this, TestUtils.rootArchivePaths, readerPlugin, reader, null, null);
     }
 
 }

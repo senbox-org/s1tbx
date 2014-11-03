@@ -18,17 +18,18 @@
 
 # Test Paths
 # Some unit tests open all products within a folder and apply thier processing to verify they don't get any error
-s1tbx.test.ReadersOnAllProducts = false
-s1tbx.test.ProcessingOnAllProducts = false
+s1tbx.test.ReadersOnAllProducts = true
+s1tbx.test.ProcessingOnAllProducts = true
 s1tbx.test.RunBenchmarks = false
 # max number of products to test from each root folder. Use -1 to test all.
-s1tbx.test.maxProductsPerRootFolder = 1
+s1tbx.test.maxProductsPerRootFolder = -1
 s1tbx.test.subsetX = 100
 s1tbx.test.subsetY = 100
 s1tbx.test.subsetWidth = 100
 s1tbx.test.subsetHeight = 100
 
 s1tbx.test.rootPathTestProducts = 		${SNAP_HOME}\\..\\testdata\\
+s1tbx.test.rootArchivePaths =			P:\\nest\\nest\\ESA Data,D:\\EO
 s1tbx.test.rootPathSentinel1 = 			P:\\s1tbx\\s1tbx\\Data\\
 s1tbx.test.rootPathTerraSarX = 			P:\\nest\\nest\\ESA Data\\RADAR\\TerraSarX
 s1tbx.test.rootPathASAR= 				P:\\nest\\nest\\ESA Data\\RADAR\\ASAR

@@ -20,7 +20,7 @@ public class TestSentinelPODOrbitFile {
     public void testSentinelPODOrbitFile() throws Throwable {
         final File file = new File(orbitFile);
         if (!file.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, file + " not found");
             return;
         }
         TestUtils.log.info("testSentinelPODOrbitFile...");

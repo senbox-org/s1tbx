@@ -318,7 +318,7 @@ public class SpeckleFilterOperatorTest {
 
     @Test
     public void testProcessAllALOS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsALOS, null, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootArchivePaths, "ALOS PALSAR CEOS", null, null);
     }
 
     @Test

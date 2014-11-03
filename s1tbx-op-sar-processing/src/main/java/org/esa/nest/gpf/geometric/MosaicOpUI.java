@@ -17,14 +17,14 @@ package org.esa.nest.gpf.geometric;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
-import org.esa.snap.gpf.ui.BaseOperatorUI;
-import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.util.SystemUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.gpf.OperatorUIUtils;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ui.BaseOperatorUI;
+import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.snap.util.DialogUtils;
-import org.esa.snap.util.ResourceUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -66,7 +66,7 @@ public class MosaicOpUI extends BaseOperatorUI {
     private double pixelSizeHeightRatio = 1;
     private final OperatorUtils.SceneProperties scnProp = new OperatorUtils.SceneProperties();
 
-    private final static String useGradientDomainStr = System.getProperty(ResourceUtils.getContextID() + ".mosaic.allow.gradient.domain");
+    private final static String useGradientDomainStr = System.getProperty(SystemUtils.getApplicationContextId() + ".mosaic.allow.gradient.domain");
     private final static boolean useGradientDomain = useGradientDomainStr != null && useGradientDomainStr.equals("true");
 
     @Override
