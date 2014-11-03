@@ -36,8 +36,8 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
-import org.esa.snap.util.ResourceUtils;
 
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
@@ -59,7 +59,7 @@ public class FlatEarthWWToolView extends AbstractToolView implements WWView {
     private ObservedViewportHandler observedViewportHandler;
 
     private static final boolean includeStatusBar = true;
-    private final static String useflatWorld = System.getProperty(ResourceUtils.getContextID() + ".use.flat.worldmap");
+    private final static String useflatWorld = System.getProperty(SystemUtils.getApplicationContextId() + ".use.flat.worldmap");
     private final static boolean flatWorld = !(useflatWorld != null && useflatWorld.equals("false"));
 
     public FlatEarthWWToolView() {

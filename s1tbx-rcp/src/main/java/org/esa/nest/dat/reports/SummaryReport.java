@@ -16,7 +16,7 @@
 package org.esa.nest.dat.reports;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.snap.util.ResourceUtils;
+import org.esa.beam.util.SystemUtils;
 
 /**
  * Report to show metadata
@@ -29,7 +29,7 @@ public class SummaryReport implements Report {
 
     public String getAsHTML() {
 
-        final String ver = System.getProperty(ResourceUtils.getContextID() + ".version");
+        final String ver = System.getProperty(SystemUtils.getApplicationContextId() + ".version");
         final String pattern =
                 "<html>" +
                         "<b>NEST  Version " + ver + "</b>" +

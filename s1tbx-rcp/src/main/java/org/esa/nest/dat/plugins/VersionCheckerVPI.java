@@ -22,6 +22,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.CommandManager;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.VersionChecker;
 import org.esa.beam.visat.AbstractVisatPlugIn;
 import org.esa.beam.visat.VisatApp;
@@ -127,7 +128,7 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
 
     private static int getVersionStatus() throws IOException {
         final VersionChecker versionChecker = new VersionChecker();
-        String localVersion = "VERSION " + System.getProperty(ResourceUtils.getContextID() + ".version");
+        String localVersion = "VERSION " + System.getProperty(SystemUtils.getApplicationContextId() + ".version");
         localVersion = localVersion.replace("beta", "").trim();
         versionChecker.setLocalVersion(localVersion);
         versionChecker.setRemoteVersionUrlString(remoteVersionUrl);
