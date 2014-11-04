@@ -302,6 +302,18 @@
             <blue>Intensity_VV</blue>
         </rgbProfile>
         <rgbProfile>
+            <name>Pauli</name>
+            <red>((i_HH-i_VV)*(i_HH-i_VV)+(q_HH-q_VV)*(q_HH-q_VV))/2</red>
+            <green>((i_HV+i_VH)*(i_HV+i_VH)+(q_HV+q_VH)*(q_HV+q_VH))/2</green>
+            <blue>((i_HH+i_VV)*(i_HH+i_VV)+(q_HH+q_VV)*(q_HH+q_VV))/2</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>Sinclair</name>
+            <red>i_VV*i_VV+q_VV*q_VV</red>
+            <green>((i_HV+i_VH)*(i_HV+i_VH)+(q_HV+q_VH)*(q_HV+q_VH))/4</green>
+            <blue>i_HH*i_HH+q_HH*q_HH</blue>
+        </rgbProfile>
+        <rgbProfile>
             <name>Dual Pol HH+HV</name>
             <red>Intensity_HH</red>
             <green>Intensity_HV</green>
