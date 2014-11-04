@@ -92,7 +92,7 @@ public class DEMBasedCoregistrationOp extends Operator {
             ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
             ResamplingFactory.CUBIC_CONVOLUTION_NAME,
             ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
-            ResamplingFactory.BISINC_INTERPOLATION_NAME},
+            ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME},
             defaultValue = ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
             label = "DEM Resampling Method")
     private String demResamplingMethod = ResamplingFactory.BICUBIC_INTERPOLATION_NAME;

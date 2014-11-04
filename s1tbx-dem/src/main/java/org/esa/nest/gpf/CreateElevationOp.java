@@ -70,7 +70,7 @@ public final class CreateElevationOp extends Operator {
     private String externalDEM = " ";
 
     @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME, ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
-            ResamplingFactory.CUBIC_CONVOLUTION_NAME, ResamplingFactory.BISINC_INTERPOLATION_NAME,
+            ResamplingFactory.CUBIC_CONVOLUTION_NAME, ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
             ResamplingFactory.BICUBIC_INTERPOLATION_NAME}, defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
             label = "Resampling Method")
     private String resamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
