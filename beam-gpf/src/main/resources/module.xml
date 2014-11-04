@@ -28,6 +28,14 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
+    <changelog>
+        <![CDATA[
+         <b>Changes in 1.0.1</b><br/>
+            [SNAP-17] Saving a product takes too long<br/>
+            [SNAP-16] BandMathsOp shall consider scaling factor and scaling offset<br/>
+        ]]>
+    </changelog>
+
     <dependency>
         <module>snap-binding</module>
     </dependency>

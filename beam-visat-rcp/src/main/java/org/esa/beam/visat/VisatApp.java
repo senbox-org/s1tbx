@@ -62,6 +62,7 @@ import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.ProductVisitorAdapter;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.internal.OperatorProductReader;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamException;
 import org.esa.beam.framework.param.ParamExceptionHandler;
@@ -1645,11 +1646,11 @@ public class VisatApp extends BasicApp implements AppContext {
             }
         };
         try {
-            GPF.writeProduct(product,
-                             file,
-                             formatName,
-                             incremental,
-                             pm);
+            if (product.getProductReader() instanceof OperatorProductReader) {
+                GPF.writeProduct(product, file, formatName, incremental, pm);
+            } else {
+                ProductIO.writeProduct(product, file, formatName, incremental, pm);
+            }
             updateState();
             status = !pm.isCanceled();
         } catch (Exception e) {
