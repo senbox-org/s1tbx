@@ -127,6 +127,7 @@ public final class UpdateGeoRefOp extends Operator {
     private OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
 
+    private static double noDataValue = -999.0;
     public static String LATITUDE_BAND_NAME = "lat_band";
     public static String LONGITUDE_BAND_NAME = "lon_band";
 
@@ -410,8 +411,8 @@ public final class UpdateGeoRefOp extends Operator {
         final double[][] latArray = new double[h][w];
         final double[][] lonArray = new double[h][w];
         for (int r = 0; r < h; r++) {
-            Arrays.fill(latArray[r], -999.0);
-            Arrays.fill(lonArray[r], -999.0);
+            Arrays.fill(latArray[r], noDataValue);
+            Arrays.fill(lonArray[r], noDataValue);
         }
 
         final int ymin = Math.max(y0 - (int) (tileSize * tileOverlapPercentage[1]), 0);
@@ -523,6 +524,7 @@ public final class UpdateGeoRefOp extends Operator {
                 }
             }
 
+            // todo should replace the following code with Delaunay interpolation
             final TileIndex trgIndex = new TileIndex(latTile);
             for (int y = y0; y < y0+h; y++) {
                 final int yy = y - y0;
@@ -531,13 +533,13 @@ public final class UpdateGeoRefOp extends Operator {
                     final int xx = x - x0;
                     final int index = trgIndex.getIndex(x);
 
-                    if (latArray[yy][xx] == -999.0) {
+                    if (latArray[yy][xx] == noDataValue) {
                         latData.setElemFloatAt(index, (float) fillHole(xx, yy, latArray));
                     } else {
                         latData.setElemFloatAt(index, (float) latArray[yy][xx]);
                     }
 
-                    if (lonArray[yy][xx] == -999.0) {
+                    if (lonArray[yy][xx] == noDataValue) {
                         lonData.setElemFloatAt(index, (float) fillHole(xx, yy, lonArray));
                     } else {
                         lonData.setElemFloatAt(index, (float) lonArray[yy][xx]);
@@ -555,28 +557,69 @@ public final class UpdateGeoRefOp extends Operator {
         try {
             final int h = srcArray.length;
             final int w = srcArray[0].length;
-            final int radius = Math.max(w, h);
-            for (int i = 1; i <= radius; i++) {
-                final int xSt = Math.max(xx - i, 0);
-                final int xEd = Math.min(xx + i, w - 1);
-                final int ySt = Math.max(yy - i, 0);
-                final int yEd = Math.min(yy + i, h - 1);
 
-                double v = 0.0;
-                int k = 0;
-                for (int y = ySt; y <= yEd; y++) {
-                    for (int x = xSt; x <= xEd; x++) {
-                        if (srcArray[y][x] != -999.0) {
-                            v += srcArray[y][x];
-                            k++;
-                        }
-                    }
-                }
-
-                if (k != 0) {
-                    return v / k;
+            double vU = noDataValue, vD = noDataValue, vL = noDataValue, vR = noDataValue;
+            int yU = -1, yD = -1, xL = -1, xR = -1;
+            for (int y = yy; y >= 0; y--) {
+                if (srcArray[y][xx] != noDataValue) {
+                    vU = srcArray[y][xx];
+                    yU = y;
+                    break;
                 }
             }
+
+            for (int y = yy; y < h; y++) {
+                if (srcArray[y][xx] != noDataValue) {
+                    if (vU != noDataValue) {
+                        vD = srcArray[y][xx];
+                        yD = y;
+                        break;
+                    } else {
+                        vU = srcArray[y][xx];
+                        yU = y;
+                    }
+                }
+            }
+
+            for (int x = xx; x >= 0; x--) {
+                if (srcArray[yy][x] != noDataValue) {
+                    vL = srcArray[yy][x];
+                    xL = x;
+                    break;
+                }
+            }
+
+            for (int x = xx; x < w; x++) {
+                if (srcArray[yy][x] != noDataValue) {
+                    if (vL != noDataValue) {
+                        vR = srcArray[yy][x];
+                        xR = x;
+                        break;
+                    } else {
+                        vL = srcArray[yy][x];
+                        xL = x;
+                    }
+                }
+            }
+
+            if (vU != noDataValue && vD != noDataValue && vL != noDataValue && vR != noDataValue) {
+                final double vY = vU + (vD - vU) * (yy - yU) / (yD - yU);
+                final double vX = vL + (vR - vL) * (xx - xL) / (xR - xL);
+                return 0.5*(vY + vX);
+            } else if (vU != noDataValue && vD != noDataValue) {
+                return vU + (vD - vU) * (yy - yU) / (yD - yU);
+            } else if (vL != noDataValue && vR != noDataValue) {
+                return vL + (vR - vL) * (xx - xL) / (xR - xL);
+            } else if (vL != noDataValue) {
+                return vL;
+            } else if (vR != noDataValue) {
+                return vR;
+            } else if (vU != noDataValue) {
+                return vU;
+            } else if (vD != noDataValue) {
+                return vD;
+            }
+
         } catch (Exception e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
