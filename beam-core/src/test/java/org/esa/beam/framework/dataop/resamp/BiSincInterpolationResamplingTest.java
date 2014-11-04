@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 
 public class BiSincInterpolationResamplingTest extends TestCase {
 
-    final Resampling resampling = Resampling.BISINC_INTERPOLATION;
+    final Resampling resampling = Resampling.BISINC_5_POINT_INTERPOLATION;
     final TestRaster raster = new TestRaster();
 
     public void testCreateIndex() {

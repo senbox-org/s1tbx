@@ -242,10 +242,15 @@ public class WriteOp extends Operator {
         productWriter.setIncrementalMode(incremental);
         productWriter.setFormatName(formatName);
         targetProduct.setProductWriter(productWriter);
+        try {
+            productWriter.writeProductNodes(targetProduct, file);
+        } catch (IOException e) {
+            throw new OperatorException("Not able to write product file: '" + file.getAbsolutePath() + "'", e);
+        }
 
         tileSize = ImageManager.getPreferredTileSize(targetProduct);
         targetProduct.setPreferredTileSize(tileSize);
-
+        
         final Band[] bands = targetProduct.getBands();
         writableBands = new ArrayList<>(bands.length);
         for (final Band band : bands) {
@@ -260,12 +265,6 @@ public class WriteOp extends Operator {
     private synchronized void writeProductNodes() {
         if(productNodesWritten)
             return;
-        try {
-            productWriter.writeProductNodes(targetProduct, file);
-            productNodesWritten = true;
-        } catch (IOException e) {
-            throw new OperatorException("Not able to write product file: '" + file.getAbsolutePath() + "'", e);
-        }
     }
 
     @Override
@@ -372,13 +371,13 @@ public class WriteOp extends Operator {
         }
     }
 
-    private void markTileAsHandled(final TileInfo tileInfo, int tileX, int tileY) {
+    private static void markTileAsHandled(final TileInfo tileInfo, int tileX, int tileY) {
         tileInfo.tilesWritten[tileY][tileX] = true;
     }
 
     private boolean isRowWrittenCompletely(int rowNumber) {
-        for (Band targetBand : tileInfoMap.keySet()) {
-            final TileInfo tileInfo = tileInfoMap.get(targetBand);
+        for (Map.Entry<Band, TileInfo> bandTileInfoEntry : tileInfoMap.entrySet()) {
+            final TileInfo tileInfo = bandTileInfoEntry.getValue();
             for (boolean aYTileWritten : tileInfo.tilesWritten[rowNumber]) {
                 if (!aYTileWritten) {
                     return false;
@@ -389,8 +388,8 @@ public class WriteOp extends Operator {
     }
 
     private boolean isProductWrittenCompletely() {
-        for (Band targetBand : tileInfoMap.keySet()) {
-            final TileInfo tileInfo = tileInfoMap.get(targetBand);
+        for (Map.Entry<Band, TileInfo> bandTileInfoEntry : tileInfoMap.entrySet()) {
+            final TileInfo tileInfo = bandTileInfoEntry.getValue();
             for (int rowNumber = 0; rowNumber < tileInfo.tileCountY; rowNumber++) {
 
                 for (boolean aYTileWritten : tileInfo.tilesWritten[rowNumber]) {
