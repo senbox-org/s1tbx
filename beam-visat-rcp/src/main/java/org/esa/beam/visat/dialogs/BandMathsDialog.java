@@ -61,6 +61,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,6 +99,7 @@ public class BandMathsDialog extends ModalDialog {
     private String bandDescription = "";
     private String bandUnit = "";
     private float bandWavelength = 0;
+    private File lastLoadedGraphFile = null;
 
     private static int numNewBands = 0;
 
@@ -180,6 +186,14 @@ public class BandMathsDialog extends ModalDialog {
     }
 
     private void makeUI() {
+        JButton loadExpressionButton = new JButton("Load Expression...");
+        loadExpressionButton.setName("loadExpressionButton");
+        loadExpressionButton.addActionListener(createLoadExpressionButtonListener());
+
+        JButton saveExpressionButton = new JButton("Save Expression...");
+        saveExpressionButton.setName("saveExpressionButton");
+        saveExpressionButton.addActionListener(createSaveExpressionButtonListener());
+
         JButton editExpressionButton = new JButton("Edit Expression...");
         editExpressionButton.setName("editExpressionButton");
         editExpressionButton.addActionListener(createEditExpressionButtonListener());
@@ -248,8 +262,12 @@ public class BandMathsDialog extends ModalDialog {
         GridBagUtils.addToPanel(panel, expressionArea, gbc,
                                 "weighty=1, insets.top=3, gridwidth=3, fill=BOTH, anchor=WEST");
         gbc.gridy = ++line;
+        GridBagUtils.addToPanel(panel, loadExpressionButton, gbc,
+                                "weighty=0, insets.top=3, gridwidth=1, fill=NONE, anchor=WEST");
+        GridBagUtils.addToPanel(panel, saveExpressionButton, gbc,
+                                "weighty=0, insets.top=3, gridwidth=1, fill=NONE, anchor=CENTER");
         GridBagUtils.addToPanel(panel, editExpressionButton, gbc,
-                                "weighty=0, insets.top=3, gridwidth=3, fill=NONE, anchor=EAST");
+                                "weighty=0, insets.top=3, gridwidth=1, fill=NONE, anchor=EAST");
 
         gbc.gridy = ++line;
         GridBagUtils.addToPanel(panel, new JLabel(""), gbc,
@@ -373,6 +391,46 @@ public class BandMathsDialog extends ModalDialog {
     private float getGeolocationEps() {
         return (float) visatApp.getPreferences().getPropertyDouble(VisatApp.PROPERTY_KEY_GEOLOCATION_EPS,
                                                                    VisatApp.PROPERTY_DEFAULT_GEOLOCATION_EPS);
+    }
+
+    private ActionListener createLoadExpressionButtonListener() {
+        return new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    final File file = VisatApp.getApp().showFileOpenDialog(
+                            "Load Band Maths Expression", false, null, "BandMathsDialog.last_expression_path");
+                    if (file == null)
+                        return;
+
+                    lastLoadedGraphFile = file.getAbsoluteFile();
+                    expression = new String(Files.readAllBytes(file.toPath()));
+                    bindingContext.getBinding(PROPERTY_NAME_EXPRESSION).setPropertyValue(expression);
+                } catch (IOException ex) {
+                    showErrorDialog(ex.getMessage());
+                }
+            }
+        };
+    }
+
+    private ActionListener createSaveExpressionButtonListener() {
+        return new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    final File file = VisatApp.getApp().showFileSaveDialog(
+                            "Save Band Maths Expression", false, null, ".txt", "myExpression");
+
+                    final FileOutputStream out = new FileOutputStream(file.getAbsolutePath(), false);
+                    PrintStream p = new PrintStream(out);
+                    p.print(getExpression());
+                } catch (IOException ex) {
+                    showErrorDialog(ex.getMessage());
+                }
+            }
+        };
     }
 
     private ActionListener createEditExpressionButtonListener() {
