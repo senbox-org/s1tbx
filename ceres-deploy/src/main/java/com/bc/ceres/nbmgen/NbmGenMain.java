@@ -14,21 +14,27 @@ import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * <pre>
+ * Usage: NbmGenMain &lt;project-dir&gt; &lt;cluster&gt;
+ * </pre>
+ *
+ *
  * @author Norman
  */
 public class NbmGenMain {
 
-    public static final String POM_OLD_XML = "pom-old.xml";
+    public static final String ORIGINAL_POM_XML = "pom-original.xml";
     public static final String POM_XML = "pom.xml";
 
     public static void main(String[] args) throws JDOMException, IOException {
 
-        String projectDirPath = args.length == 1 ? args[0] : ".";
+        String projectDirPath = args[0];
+        String cluster = args[1];
+
         File[] moduleDirs = new File(projectDirPath).listFiles(file -> file.isDirectory() && getFile(file, "pom.xml").exists() && getFile(file, "src", "main", "resources", "module.xml").exists());
         if (moduleDirs == null) {
             System.err.print("No modules found in " + projectDirPath);
@@ -36,42 +42,45 @@ public class NbmGenMain {
         }
 
         for (File moduleDir : moduleDirs) {
-            File oldPomFile = getFile(moduleDir, POM_OLD_XML);
-            File pomFile;
-            if (!oldPomFile.exists()) {
-                pomFile = getFile(moduleDir, "pom.xml");
+            System.out.println("Project directory " + moduleDir.getName() + ":");
+
+            File originalPomFile = getFile(moduleDir, ORIGINAL_POM_XML);
+            File sourcePomFile;
+            if (!originalPomFile.exists()) {
+                sourcePomFile = getFile(moduleDir, POM_XML);
             } else {
-                pomFile = oldPomFile;
+                sourcePomFile = originalPomFile;
             }
 
-            Document pomDocument = readXml(pomFile);
+            Document pomDocument = readXml(sourcePomFile);
 
             File moduleFile = getFile(moduleDir, "src", "main", "resources", "module.xml");
             Document moduleDocument = readXml(moduleFile);
 
-            updatePomAndWriteManifest(moduleDir, pomFile, oldPomFile, pomDocument, moduleDocument);
+            updatePomAndWriteManifest(moduleDir, sourcePomFile, originalPomFile, pomDocument, moduleDocument, cluster);
         }
     }
 
-    private static void updatePomAndWriteManifest(File moduleDir, File pomFile, File oldPomFile, Document pomDocument, Document moduleDocument) throws IOException {
+    private static void updatePomAndWriteManifest(File moduleDir, File sourcePomFile, File originalPomFile, Document pomDocument, Document moduleDocument, String cluster) throws IOException {
+        File pomFile = getFile(moduleDir, "pom.xml");
+        File manifestBaseFile = getFile(moduleDir, "src", "main", "nbm", "manifest.mf");
+
         Element projectElement = pomDocument.getRootElement();
         Namespace ns = projectElement.getNamespace();
-
-        System.out.println("name: " + projectElement.getName());
-        System.out.println("groupId: " + projectElement.getChildText("groupId", ns));
-        System.out.println("artifactId: " + projectElement.getChildText("artifactId", ns));
-        System.out.println("version: " + projectElement.getChildText("version", ns));
-        System.out.println("name: " + projectElement.getChildText("name", ns));
-        System.out.println("description: " + projectElement.getChildText("description", ns));
 
         Element buildElement = getOrAddElement(projectElement, "build", ns);
         Element pluginsElement = getOrAddElement(buildElement, "plugins", ns);
 
-        HashMap<String, String> nbmConfiguration = new HashMap<>();
+        Map<String, String> nbmConfiguration = new LinkedHashMap<>();
+        nbmConfiguration.put("moduleType", "normal");
+        nbmConfiguration.put("cluster", cluster);
+        nbmConfiguration.put("defaultCluster", cluster);
+        nbmConfiguration.put("publicPackages", "");
+        nbmConfiguration.put("requiresRestart", "true");
         addPluginElement(pluginsElement,
                          "org.codehaus.mojo", "nbm-maven-plugin", nbmConfiguration, ns);
 
-        HashMap<String, String> jarConfiguration = new HashMap<>();
+        Map<String, String> jarConfiguration = new LinkedHashMap<>();
         jarConfiguration.put("useDefaultManifestFile", "true");
         addPluginElement(pluginsElement,
                          "org.apache.maven.plugins", "maven-jar-plugin", jarConfiguration, ns);
@@ -82,13 +91,13 @@ public class NbmGenMain {
             Element nameElement = getOrAddElement(projectElement, "name", ns);
             nameElement.setText(moduleName);
         }
-        String moduleDescription = moduleElement.getChildTextTrim("description");
+        String moduleDescription = moduleElement.getChildTextNormalize("description");
         if (moduleDescription != null) {
             Element descriptionElement = getOrAddElement(projectElement, "description", ns);
             descriptionElement.setText(moduleDescription);
         }
 
-        // todo - deal with the following content.
+        // todo - deal with the following content, e.g. add as HTML to OpenIDE-Module-Long-Description
         String moduleChangelog = moduleElement.getChildTextTrim("changelog");
         String moduleFunding = moduleElement.getChildTextTrim("funding");
         String moduleVendor = moduleElement.getChildTextTrim("vendor");
@@ -96,31 +105,39 @@ public class NbmGenMain {
         String moduleCopyright = moduleElement.getChildTextTrim("copyright");
         String moduleUrl = moduleElement.getChildTextTrim("url");
 
-        HashMap<String, String> manifestContent = new LinkedHashMap<>();
+        Map<String, String> manifestContent = new LinkedHashMap<>();
         manifestContent.put("Manifest-Version", "1.0");
         manifestContent.put("AutoUpdate-Show-In-Client", "false");
         manifestContent.put("AutoUpdate-Essential-Module", "true");
+        manifestContent.put("OpenIDE-Module-Java-Dependencies", "Java > 1.8");
         manifestContent.put("OpenIDE-Module-Display-Category", "SNAP");
         if (moduleDescription != null) {
             manifestContent.put("OpenIDE-Module-Long-Description", moduleDescription);
         }
 
-        if (!oldPomFile.exists()) {
-            Files.copy(pomFile.toPath(), oldPomFile.toPath());
+        if (!originalPomFile.exists()) {
+            Files.copy(sourcePomFile.toPath(), originalPomFile.toPath());
+            System.out.println("  Copied " + sourcePomFile + " to " + originalPomFile);
         }
 
         XMLOutputter xmlOutput = new XMLOutputter();
-        xmlOutput.setFormat(Format.getPrettyFormat());
-        xmlOutput.output(pomDocument, new FileWriter(getFile(moduleDir, "pom-new.xml")));
+        Format format = Format.getPrettyFormat();
+        format.setIndent("    ");
+        xmlOutput.setFormat(format);
+        xmlOutput.output(pomDocument, new FileWriter(pomFile));
+        if (pomFile.equals(sourcePomFile)) {
+            System.out.println("  Updated " + pomFile);
+        } else {
+            System.out.println("  Converted " + sourcePomFile + " to " + pomFile);
+        }
 
-        File manifestBaseFile = getFile(moduleDir, "src", "main", "nbm", "manifest.mf");
         //noinspection ResultOfMethodCallIgnored
         manifestBaseFile.getParentFile().mkdirs();
-
         writeManifest(manifestBaseFile, manifestContent);
+        System.out.println("  Written " + manifestBaseFile);
     }
 
-    private static void writeManifest(File manifestBaseFile, HashMap<String, String> nbmConfiguration) throws IOException {
+    private static void writeManifest(File manifestBaseFile, Map<String, String> nbmConfiguration) throws IOException {
         try (ManifestWriter manifestWriter = new ManifestWriter(new FileWriter(manifestBaseFile))) {
             for (Map.Entry<String, String> entry : nbmConfiguration.entrySet()) {
                 manifestWriter.write(entry.getKey(), entry.getValue());
@@ -128,7 +145,7 @@ public class NbmGenMain {
         }
     }
 
-    private static void addPluginElement(Element pluginsElement, String groupId, String artifactId, HashMap<String, String> configuration, Namespace ns) {
+    private static void addPluginElement(Element pluginsElement, String groupId, String artifactId, Map<String, String> configuration, Namespace ns) {
         Element pluginElement = new Element("plugin", ns);
         Element groupIdElement = new Element("groupId", ns);
         groupIdElement.setText(groupId);
