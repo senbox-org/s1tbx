@@ -151,6 +151,18 @@
             <helpId>StackAveraging</helpId>
         </action>
 
+        <action>
+            <id>StackSplit</id>
+            <helpId>StackSplit</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>CoregistrationGroup</parent>
+            <text>Stack Split</text>
+            <shortDescr>Stack Split</shortDescr>
+            <dialogTitle>Stack Split</dialogTitle>
+            <graphFile>StackSplitGraph.xml</graphFile>
+        </action>
+
     </extension>
 
     <extension point="snap-ui:helpSets">

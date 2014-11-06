@@ -31,6 +31,7 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.AutoCloseOptionPane;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.StackUtils;
@@ -96,6 +97,10 @@ public class WarpOp extends Operator {
     @Parameter(valueSet = {NEAREST_NEIGHBOR, BILINEAR, BICUBIC, BICUBIC2,
             TRI, CC4P, CC6P, TS6P, TS8P, TS16P}, defaultValue = BILINEAR, label = "Interpolation Method")
     private String interpolationMethod = BILINEAR;
+
+
+    @Parameter(defaultValue = "false")
+    private boolean excludeMaster = false;
 
     private Interpolation interp = null;
     private InterpolationTable interpTable = null;
@@ -204,10 +209,10 @@ public class WarpOp extends Operator {
                 }
             }
 
-            createTargetProduct();
-
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
             processedSlaveBand = absRoot.getAttributeString("processed_slave");
+
+            createTargetProduct();
 
         } catch (Throwable e) {
             openResidualsFile = true;
@@ -259,6 +264,18 @@ public class WarpOp extends Operator {
         }
     }
 
+    private String formatName(final Band srcBand) {
+        String name = srcBand.getName();
+        if(excludeMaster) {  // multi-output without master
+            String newName = StackUtils.getBandNameWithoutDate(name);
+            if(name.equals(processedSlaveBand)) {
+                processedSlaveBand = newName;
+            }
+            return newName;
+        }
+        return name;
+    }
+
     /**
      * Create target product.
      */
@@ -280,10 +297,13 @@ public class WarpOp extends Operator {
             Band targetBand;
             if (srcBand == masterBand || srcBand == masterBand2 ||
                     StringUtils.contains(masterBandNames, srcBand.getName())) {
+                if(excludeMaster) {
+                    continue;
+                }
                 targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
                 targetBand.setSourceImage(srcBand.getSourceImage());
             } else {
-                targetBand = targetProduct.addBand(srcBand.getName(), ProductData.TYPE_FLOAT32);
+                targetBand = targetProduct.addBand(formatName(srcBand), ProductData.TYPE_FLOAT32);
                 ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
             }
             sourceRasterMap.put(targetBand, srcBand);
@@ -296,13 +316,21 @@ public class WarpOp extends Operator {
                     targetBandQ = ProductUtils.copyBand(srcBandQ.getName(), sourceProduct, targetProduct, false);
                     targetBandQ.setSourceImage(srcBandQ.getSourceImage());
                 } else {
-                    targetBandQ = targetProduct.addBand(srcBandQ.getName(), ProductData.TYPE_FLOAT32);
+                    targetBandQ = targetProduct.addBand(formatName(srcBandQ), ProductData.TYPE_FLOAT32);
                     ProductUtils.copyRasterDataNodeProperties(srcBandQ, targetBandQ);
                 }
                 sourceRasterMap.put(targetBandQ, srcBandQ);
 
                 complexSrcMap.put(srcBandQ, srcBand);
-                final String suffix = '_' + OperatorUtils.getSuffixFromBandName(srcBand.getName());
+                String suffix = "";
+                if(excludeMaster) { // multi-output without master
+                    String pol = OperatorUtils.getPolarizationFromBandName(srcBand.getName());
+                    if(pol != null && !pol.isEmpty()) {
+                        suffix = '_' + pol.toUpperCase();
+                    }
+                } else {
+                    suffix = '_' + OperatorUtils.getSuffixFromBandName(srcBand.getName());
+                }
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetBand, targetBandQ, suffix);
             }
         }
@@ -316,17 +344,20 @@ public class WarpOp extends Operator {
      * Update metadata in the target product.
      */
     private void updateTargetProductMetadata() {
-        boolean includesMaster = false;
-        for(String name : targetProduct.getBandNames()) {
-            if(name.contains("_mst")) {
-                includesMaster = true;
-                break;
-            }
-        }
 
-        if(includesMaster) {
-            // only if its a full coregistered stack including master bands
-            final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
+
+        if(excludeMaster) {
+            final ProductData.UTC[] times = StackUtils.getProductTimes(sourceProduct);
+            targetProduct.setStartTime(times[1]);
+
+            double lineTimeInterval = absTgt.getAttributeDouble(AbstractMetadata.line_time_interval);
+            int height = sourceProduct.getSceneRasterHeight();
+            ProductData.UTC endTime = new ProductData.UTC(times[1].getMJD()+(lineTimeInterval*height)/ Constants.secondsInDay);
+            targetProduct.setEndTime(endTime);
+
+        } else {
+            // only if its a full coregistered stack including master band
             AbstractMetadata.setAttribute(absTgt, AbstractMetadata.coregistered_stack, 1);
         }
     }
@@ -393,7 +424,7 @@ public class WarpOp extends Operator {
                 appendFlag = true;
             }
 
-            addSlaveGCPs(warpData, srcBand.getName());
+            addSlaveGCPs(warpData, targetBand.getName());
         }
 
         announceGCPWarning();
