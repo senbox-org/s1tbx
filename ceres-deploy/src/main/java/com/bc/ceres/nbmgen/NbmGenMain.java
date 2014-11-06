@@ -21,7 +21,13 @@ import java.util.Map;
  * <pre>
  * Usage: NbmGenMain &lt;project-dir&gt; &lt;cluster&gt;
  * </pre>
- *
+ * </p>
+ * Scans a ${project-dir} for Ceres modules ({@code pom.xml} + {@code src/main/resources/module.xml})
+ * and converts each module to a NetBeans module.
+ * <p/>
+ * <b>WARNING: This tool will overwrite all of your {@code pom.xml} files the given ${project-dir}.
+ * It will also create or overwrite {@code src/main/nmb/manifest.mf} files. Make sure the originals
+ * of these files are committed/pushed to git before applying this tool.</b>
  *
  * @author Norman
  */
@@ -34,6 +40,7 @@ public class NbmGenMain {
 
         String projectDirPath = args[0];
         String cluster = args[1];
+        String  = args[2];
 
         File[] moduleDirs = new File(projectDirPath).listFiles(file -> file.isDirectory() && getFile(file, "pom.xml").exists() && getFile(file, "src", "main", "resources", "module.xml").exists());
         if (moduleDirs == null) {
@@ -42,7 +49,7 @@ public class NbmGenMain {
         }
 
         for (File moduleDir : moduleDirs) {
-            System.out.println("Project directory " + moduleDir.getName() + ":");
+            System.out.println("Module [" + moduleDir.getName() + "]:");
 
             File originalPomFile = getFile(moduleDir, ORIGINAL_POM_XML);
             File sourcePomFile;
@@ -97,6 +104,10 @@ public class NbmGenMain {
             descriptionElement.setText(moduleDescription);
         }
 
+        String modulePackaging = moduleElement.getChildTextTrim("packaging");
+        String moduleNative = moduleElement.getChildTextTrim("native");
+        String moduleActivator = moduleElement.getChildTextTrim("activator");
+
         // todo - deal with the following content, e.g. add as HTML to OpenIDE-Module-Long-Description
         String moduleChangelog = moduleElement.getChildTextTrim("changelog");
         String moduleFunding = moduleElement.getChildTextTrim("funding");
@@ -104,6 +115,9 @@ public class NbmGenMain {
         String moduleContactAddress = moduleElement.getChildTextTrim("contactAddress");
         String moduleCopyright = moduleElement.getChildTextTrim("copyright");
         String moduleUrl = moduleElement.getChildTextTrim("url");
+        String moduleAboutUrl = moduleElement.getChildTextTrim("aboutUrl");
+        String moduleLicenseUrl = moduleElement.getChildTextTrim("licenseUrl");
+
 
         Map<String, String> manifestContent = new LinkedHashMap<>();
         manifestContent.put("Manifest-Version", "1.0");
@@ -114,27 +128,38 @@ public class NbmGenMain {
         if (moduleDescription != null) {
             manifestContent.put("OpenIDE-Module-Long-Description", moduleDescription);
         }
+        if (moduleActivator != null) {
+            warnModuleDetail("Activator may be reimplemented for NB: " + moduleActivator + " (consider using @OnStart, @OnStop, @OnShowing, or a ModuleInstall)");
+            manifestContent.put("OpenIDE-Module-Install", moduleActivator);
+        }
+        if (modulePackaging != null && !"jar".equals( modulePackaging)) {
+            warnModuleDetail("Unsupported module packaging: " + modulePackaging + " (provide a ModuleInstall that does the job on install/uninstall)");
+        }
 
         if (!originalPomFile.exists()) {
             Files.copy(sourcePomFile.toPath(), originalPomFile.toPath());
-            System.out.println("  Copied " + sourcePomFile + " to " + originalPomFile);
+            infoModuleDetail("Copied " + sourcePomFile + " to " + originalPomFile);
         }
 
-        XMLOutputter xmlOutput = new XMLOutputter();
-        Format format = Format.getPrettyFormat();
-        format.setIndent("    ");
-        xmlOutput.setFormat(format);
-        xmlOutput.output(pomDocument, new FileWriter(pomFile));
+        writeXml(pomFile, pomDocument);
         if (pomFile.equals(sourcePomFile)) {
-            System.out.println("  Updated " + pomFile);
+            infoModuleDetail("Updated " + pomFile);
         } else {
-            System.out.println("  Converted " + sourcePomFile + " to " + pomFile);
+            infoModuleDetail("Converted " + sourcePomFile + " to " + pomFile);
         }
 
         //noinspection ResultOfMethodCallIgnored
         manifestBaseFile.getParentFile().mkdirs();
         writeManifest(manifestBaseFile, manifestContent);
-        System.out.println("  Written " + manifestBaseFile);
+        infoModuleDetail("Written " + manifestBaseFile);
+    }
+
+    private static void infoModuleDetail(String msg) {
+        System.out.println("- " + msg);
+    }
+
+    private static void warnModuleDetail(String msg) {
+        System.err.println("- WARNING: " + msg);
     }
 
     private static void writeManifest(File manifestBaseFile, Map<String, String> nbmConfiguration) throws IOException {
@@ -174,6 +199,14 @@ public class NbmGenMain {
 
     private static Document readXml(File file) throws JDOMException, IOException {
         return new SAXBuilder().build(file);
+    }
+
+    private static void writeXml(File file, Document document) throws IOException {
+        XMLOutputter xmlOutput = new XMLOutputter();
+        Format format = Format.getPrettyFormat();
+        format.setIndent("    ");
+        xmlOutput.setFormat(format);
+        xmlOutput.output(document, new FileWriter(file));
     }
 
     private static File getFile(File dir, String... names) {
