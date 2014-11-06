@@ -4,83 +4,70 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
-import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.FilterWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * Usage:
- * <p/>
  * <pre>
  *    NbmGenMain &lt;project-dir&gt; &lt;cluster&gt; &lt;dry-run&gt;
  * </pre>
- * </p>
+ * <p>
  * For example:
  * </p>
  * <pre>
- *   NbmGenMain . s1tbx true
+ *    NbmGenMain . s1tbx true
  * </pre>
+ * <p>Scans a ${project-dir} for Ceres modules ({@code pom.xml} + {@code src/main/resources/module.xml})
+ * and converts each module into a NetBeans module.
  * </p>
- * Scans a ${project-dir} for Ceres modules ({@code pom.xml} + {@code src/main/resources/module.xml})
- * and converts each module to a NetBeans module.
- * <p/>
- * <b>WARNING: This tool will overwrite all of your {@code pom.xml} files the given ${project-dir}.
+ * <p><b>WARNING: This tool will overwrite all of your {@code pom.xml} files the given ${project-dir}.
  * It will also create or overwrite {@code src/main/nmb/manifest.mf} files. Make sure the originals
  * of these files are committed/pushed to git before applying this tool.</b>
+ * </p>
  *
  * @author Norman
  */
-public class NbmGenMain {
+public class NbmGenMain implements CeresModuleProject.Processor  {
 
-    public static final String ORIGINAL_POM_XML = "pom-original.xml";
-    public static final String POM_XML = "pom.xml";
+    File projectDir;
+    String cluster;
+    boolean dryRun;
+
+    public NbmGenMain(File projectDir, String cluster, boolean dryRun) {
+        this.projectDir = projectDir;
+        this.cluster = cluster;
+        this.dryRun = dryRun;
+    }
 
     public static void main(String[] args) throws JDOMException, IOException {
 
-        String projectDirPath = args[0];
+        File projectDir = new File(args[0]);
         String cluster = args[1];
         boolean dryRun = args[2].equals("true");
 
-        File[] moduleDirs = new File(projectDirPath).listFiles(file -> file.isDirectory() && getFile(file, "pom.xml").exists() && getFile(file, "src", "main", "resources", "module.xml").exists());
-        if (moduleDirs == null) {
-            System.err.print("No modules found in " + projectDirPath);
-            System.exit(1);
-        }
+        NbmGenMain processor = new NbmGenMain(projectDir, cluster, dryRun);
 
-        for (File moduleDir : moduleDirs) {
-            System.out.println("Module [" + moduleDir.getName() + "]:");
+        CeresModuleProject.processParentDir(projectDir, processor);
+   }
 
-            File originalPomFile = getFile(moduleDir, ORIGINAL_POM_XML);
-            File sourcePomFile;
-            if (!originalPomFile.exists()) {
-                sourcePomFile = getFile(moduleDir, POM_XML);
-            } else {
-                sourcePomFile = originalPomFile;
-            }
+    @Override
+    public void process(CeresModuleProject project) throws JDOMException, IOException {
 
-            Document pomDocument = readXml(sourcePomFile);
+        System.out.println("Project [" + project.projectDir.getName() + "]:");
 
-            File moduleFile = getFile(moduleDir, "src", "main", "resources", "module.xml");
-            Document moduleDocument = readXml(moduleFile);
+        File originalPomFile = getFile(project.projectDir, CeresModuleProject.ORIGINAL_POM_XML);
+        File pomFile = getFile(project.projectDir, CeresModuleProject.POM_XML);
+        File manifestBaseFile = getFile(project.projectDir, "src", "main", "nbm", "manifest.mf");
 
-            updatePomAndWriteManifest(moduleDir, sourcePomFile, originalPomFile, pomDocument, moduleDocument, cluster, dryRun);
-        }
-    }
-
-    private static void updatePomAndWriteManifest(File moduleDir, File sourcePomFile, File originalPomFile, Document pomDocument, Document moduleDocument, String cluster, boolean dryRun) throws IOException {
-        File pomFile = getFile(moduleDir, "pom.xml");
-        File manifestBaseFile = getFile(moduleDir, "src", "main", "nbm", "manifest.mf");
-
-        Element projectElement = pomDocument.getRootElement();
+        Element projectElement = project.pomDocument.getRootElement();
         Namespace ns = projectElement.getNamespace();
 
         Element buildElement = getOrAddElement(projectElement, "build", ns);
@@ -107,7 +94,7 @@ public class NbmGenMain {
         addPluginElement(pluginsElement,
                          "org.apache.maven.plugins", "maven-jar-plugin", jarConfiguration, ns);
 
-        Element moduleElement = moduleDocument.getRootElement();
+        Element moduleElement = project.moduleDocument.getRootElement();
         String moduleName = moduleElement.getChildTextTrim("name");
         if (moduleName != null) {
             Element nameElement = getOrAddElement(projectElement, "name", ns);
@@ -157,30 +144,30 @@ public class NbmGenMain {
             manifestContent.put("OpenIDE-Module-Long-Description", longDescription);
         }
         if (moduleActivator != null) {
-            warnModuleDetail("Activator may be reimplemented for NB: " + moduleActivator + " (consider using @OnStart, @OnStop, @OnShowing, or a ModuleInstall)");
+            warnModuleDetail("Activator may be reimplemented for NB: " + moduleActivator + " (--> consider using @OnStart, @OnStop, @OnShowing, or a ModuleInstall)");
             manifestContent.put("OpenIDE-Module-Install", moduleActivator);
         }
-        if (modulePackaging != null && !"jar".equals( modulePackaging)) {
-            warnModuleDetail("Unsupported module packaging: " + modulePackaging + " (provide a ModuleInstall that does the job on install/uninstall)");
+        if (modulePackaging != null && !"jar".equals(modulePackaging)) {
+            warnModuleDetail("Unsupported module packaging: " + modulePackaging + " (--> provide a ModuleInstall that does the job on install/uninstall)");
         }
         if (moduleNative != null && "true".equals(moduleNative)) {
-            warnModuleDetail("Module contains native code: follow NB instructions, see http://bits.netbeans.org/dev/javadoc/org-openide-modules/org/openide/modules/doc-files/api.html#how-layer");
+            warnModuleDetail("Module contains native code: no auto-conversion possible (--> follow NB instructions see http://bits.netbeans.org/dev/javadoc/org-openide-modules/org/openide/modules/doc-files/api.html#how-layer");
         }
 
         if (!originalPomFile.exists()) {
             if (!dryRun) {
-                Files.copy(sourcePomFile.toPath(), originalPomFile.toPath());
+                Files.copy(project.pomFile.toPath(), originalPomFile.toPath());
             }
-            infoModuleDetail("Copied " + sourcePomFile + " to " + originalPomFile);
+            infoModuleDetail("Copied " + project.pomFile + " to " + originalPomFile);
         }
 
         if (!dryRun) {
-            writeXml(pomFile, pomDocument);
+            writeXml(pomFile, project.pomDocument);
         }
-        if (pomFile.equals(sourcePomFile)) {
+        if (pomFile.equals(project.pomFile)) {
             infoModuleDetail("Updated " + pomFile);
         } else {
-            infoModuleDetail("Converted " + sourcePomFile + " to " + pomFile);
+            infoModuleDetail("Converted " + project.pomFile + " to " + pomFile);
         }
 
         //noinspection ResultOfMethodCallIgnored
@@ -196,7 +183,7 @@ public class NbmGenMain {
     }
 
     private static void warnModuleDetail(String msg) {
-        System.err.println("- WARNING: " + msg);
+        System.out.println("- WARNING: " + msg);
     }
 
     private static void writeManifest(File manifestBaseFile, Map<String, String> nbmConfiguration) throws IOException {
@@ -234,10 +221,6 @@ public class NbmGenMain {
         return child;
     }
 
-    private static Document readXml(File file) throws JDOMException, IOException {
-        return new SAXBuilder().build(file);
-    }
-
     private static void writeXml(File file, Document document) throws IOException {
         XMLOutputter xmlOutput = new XMLOutputter();
         Format format = Format.getPrettyFormat();
@@ -254,61 +237,4 @@ public class NbmGenMain {
         return file;
     }
 
-    private static Element getChild(Element parent, String... names) {
-        Element child = parent;
-        for (String name : names) {
-            child = child.getChild(name, parent.getNamespace());
-            if (child == null) {
-                return null;
-            }
-        }
-        return child;
-    }
-
-    private static class ManifestWriter extends FilterWriter {
-        private int col;
-
-        ManifestWriter(Writer out) {
-            super(out);
-        }
-
-        public void write(String key, String value) throws IOException {
-            write(key);
-            write(':');
-            write(' ');
-            write(value);
-            write('\n');
-        }
-
-        @Override
-        public void write(int c) throws IOException {
-            if (col == 70 && c != '\n') {
-                super.write('\n');
-                super.write(' ');
-                col = 1;
-            }
-            super.write(c);
-            if (c == '\n') {
-                col = 0;
-            } else {
-                col++;
-            }
-        }
-
-        @Override
-        public void write(char[] cbuf, int off, int len) throws IOException {
-            int n = Math.min(off + len, cbuf.length);
-            for (int i = off; i < n; i++) {
-                write(cbuf[i]);
-            }
-        }
-
-        @Override
-        public void write(String str, int off, int len) throws IOException {
-            int n = Math.min(off + len, str.length());
-            for (int i = off; i < n; i++) {
-                write(str.charAt(i));
-            }
-        }
-    }
 }
