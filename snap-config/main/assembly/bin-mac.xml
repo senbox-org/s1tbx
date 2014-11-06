@@ -1,0 +1,117 @@
+<!-- binary distribution -->
+
+<assembly>
+    <id>bin-mac</id>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <formats>
+        <format>dir</format>
+    </formats>
+
+    <files>
+        <file>
+            <source>readme.md</source>
+            <lineEnding>unix</lineEnding>
+            <filtered>true</filtered>
+        </file>
+    </files>
+
+    <fileSets>
+
+		<fileSet>
+            <directory>snap-config/main/bin/macosx/__MACOSX</directory>
+            <outputDirectory>__MACOSX</outputDirectory>
+        </fileSet>
+		<fileSet>
+            <directory>snap-config/main/bin/macosx/SNAP.app</directory>
+            <outputDirectory>SNAP.app</outputDirectory>
+        </fileSet>
+		<fileSet>
+            <directory>snap-config/main/bin/common/</directory>
+            <outputDirectory></outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>snap-config/main/licenses</directory>
+            <outputDirectory>licenses</outputDirectory>
+        </fileSet>
+
+		<fileSet>
+            <directory>snap-config/main/bin/macosx</directory>
+            <outputDirectory></outputDirectory>
+			<includes>
+				<include>**/*.jnilib</include>
+			</includes>
+            <fileMode>0755</fileMode>
+            <directoryMode>0755</directoryMode>
+        </fileSet>		
+		<fileSet>
+            <directory>snap-config/main/bin/macosx</directory>
+            <outputDirectory></outputDirectory>
+			<includes>
+				<include>**/*.command</include>
+			</includes>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0755</fileMode>
+            <directoryMode>0755</directoryMode>
+        </fileSet>
+		
+		<fileSet>
+            <directory>../../dist/jdk7/mac64/jre</directory>
+            <outputDirectory>jre</outputDirectory>
+			<fileMode>0755</fileMode>
+            <directoryMode>0755</directoryMode>
+        </fileSet>
+    </fileSets>
+
+    <moduleSets>
+
+        <!-- (1) Artifacts that go into 'bin', 'lib' or 'modules' -->
+        <moduleSet>
+            <excludes>
+				<exclude>org.esa.beam:beam-bootstrap</exclude>
+				<exclude>org.esa.nest:nest-bootstrap</exclude>
+				<exclude>org.esa.nest:nest-benchmark</exclude>
+				<exclude>org.esa.nest:nest-src</exclude>
+				<exclude>org.esa.s2tbx:s2tbx-bootstrap</exclude>
+				<exclude>org.esa.s3tbx:s3tbx-bootstrap</exclude>
+				<exclude>org.esa.snap:snap-bootstrap</exclude>
+				<exclude>org.esa.snap:snap-config</exclude>
+                <exclude>com.bc.ceres:ceres-*</exclude>
+            </excludes>
+
+            <binaries>
+				<outputDirectory>modules</outputDirectory>
+				<unpack>false</unpack>
+                <outputFileNameMapping>${module.artifactId}-${module.version}.${module.extension}</outputFileNameMapping>
+                <includeDependencies>true</includeDependencies>
+                <dependencySets>
+                    <dependencySet>
+                        <outputDirectory>bin</outputDirectory>
+                        <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+                        <includes>
+                            <include>com.bc.ceres:ceres-launcher</include>
+                        </includes>
+                    </dependencySet>
+                    <dependencySet>
+                        <outputDirectory>lib</outputDirectory>
+						<outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
+                        <excludes>
+							<exclude>ncsa.hdf:lib-hdf</exclude>
+							<exclude>org.esa.nest:nest-*</exclude>
+							<exclude>org.jlinda:jlinda-*</exclude>
+							<exclude>org.csa.rstb:rstb-*</exclude>
+							<exclude>org.esa.s2tbx:s2tbx-*</exclude>
+							<exclude>org.esa.s3tbx:s3tbx-*</exclude>
+                            <exclude>org.esa.beam:beam-*</exclude>
+							<exclude>org.esa.pfa:pfa-*</exclude>
+                        </excludes>
+                    </dependencySet>
+                </dependencySets>
+            </binaries>
+
+        </moduleSet>
+
+    </moduleSets>
+
+</assembly>

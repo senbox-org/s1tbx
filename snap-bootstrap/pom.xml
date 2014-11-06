@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.esa.snap</groupId>
+        <artifactId>snap</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+    </parent>
+
+    <packaging>jar</packaging>
+
+    <artifactId>snap-bootstrap</artifactId>
+    <name>SNAP Bootstrap Classpath</name>
+    <description>Provides the bootstrap classpath to launch SNAP from your favourite IDE.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-beam-bootstrap</artifactId>
+            <version>${snapVersionRange}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alee</groupId>
+            <artifactId>weblaf</artifactId>
+            <version>1.27</version>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>s1tbx</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.esa.s1tbx</groupId>
+                    <artifactId>s1tbx-bootstrap</artifactId>
+                    <version>${s1tbx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>s2tbx</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.esa.s2tbx</groupId>
+                    <artifactId>s2tbx-bootstrap</artifactId>
+                    <version>${s2tbx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>s3tbx</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.esa.s3tbx</groupId>
+                    <artifactId>s3tbx-bootstrap</artifactId>
+                    <version>${s3tbx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>all</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.esa.s1tbx</groupId>
+                    <artifactId>s1tbx-bootstrap</artifactId>
+                    <version>${s1tbx.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.esa.s2tbx</groupId>
+                    <artifactId>s2tbx-bootstrap</artifactId>
+                    <version>${s2tbx.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.esa.s3tbx</groupId>
+                    <artifactId>s3tbx-bootstrap</artifactId>
+                    <version>${s3tbx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+</project>

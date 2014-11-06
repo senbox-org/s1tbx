@@ -1,0 +1,68 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>snap-app</symbolicName>
+    <version>2.0.0</version>
+    <name>SNAP Application</name>
+
+    <description>Sentinel Toolbox Display and Analysis Tool</description>
+
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <funding>European Space Agency</funding>
+
+    <dependency>
+        <module>snap-visat-rcp</module>
+    </dependency>
+    <dependency>
+        <module>snap-core</module>
+    </dependency>
+
+    <categories>Application</categories>
+
+    <extension point="snap-ceres-core:applications">
+        <application id="SNAPMain" class="org.esa.snap.SNAPMain"/>
+    </extension>
+
+    <extension point="snap-ui:applicationDescriptors">
+        <applicationDescriptor>
+            <applicationId>SNAPMain</applicationId>
+            <displayName>SENTINEL TOOLBOX</displayName>
+            <frameIcons>/org/esa/snap/icons/snap.png</frameIcons>
+            <aboutImage>/org/esa/snap/icons/snap.png</aboutImage>
+            <excludedActions>
+
+            </excludedActions>
+            <excludedToolViews>
+
+            </excludedToolViews>
+        </applicationDescriptor>
+    </extension>
+
+
+    <extension point="snap-ui:layerSources">
+
+    </extension>
+
+    <extension point="snap-ui:layerEditors">
+
+    </extension>
+
+    <extension point="snap-ui:toolViews">
+
+
+    </extension>
+
+    <extension point="snap-ui:actions">
+
+
+
+    </extension>
+
+    <extension point="snap-ui:helpSets">
+        <helpSet>
+            <parent>snap-beam-help</parent>
+            <id>Help</id>
+            <path>doc/help/dat.hs</path>
+        </helpSet>
+    </extension>
+
+</module>
