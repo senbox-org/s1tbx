@@ -1,0 +1,16 @@
+<!-- for ConfigurationElementImplTest -->
+
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>module-thing-declarer</symbolicName>
+
+    <extensionPoint id="things">
+        <thing type="com.bc.ceres.core.runtime.internal.ConfigurationElementImplTest$Thing"
+               class="com.bc.ceres.core.runtime.internal.ConfigurationElementImplTest$DefaultThing"
+               autoConfig="true">
+            <value1></value1>
+            <value2></value2>
+        </thing>
+    </extensionPoint>
+
+</module>

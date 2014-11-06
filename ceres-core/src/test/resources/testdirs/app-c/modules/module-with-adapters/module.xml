@@ -1,0 +1,24 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>module-with-adapters</symbolicName>
+
+    <extension point="snap-ceres-core:adapters">
+
+        <adapter>
+            <extensibleType>java.lang.String</extensibleType>
+            <extensionFactory>com.acme.ext.StringExtensionFactory</extensionFactory>
+        </adapter>
+
+        <adapter>
+            <extensibleType>java.lang.String</extensibleType>
+            <extensionType>com.acme.ext.StringExtension2</extensionType>
+        </adapter>
+
+        <adapter>
+            <extensibleType>java.lang.String</extensibleType>
+            <extensionType>com.acme.ext.StringExtension1</extensionType>
+            <extensionSubType>com.acme.ext.StringExtension3</extensionSubType>
+        </adapter>
+
+    </extension>
+</module>

@@ -1,0 +1,25 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+
+    <symbolicName>snap-binio</symbolicName>
+    <version>2.0.0</version>
+    <name>Ceres Binary I/O Library</name>
+
+    <categories>System,Library</categories>
+
+    <description>
+        The Ceres Binary I/O Library provides a generic access to binary data structures.
+    </description>
+
+    <changelog>
+        <![CDATA[
+                ]]>
+    </changelog>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2011 by Brockmann Consult GmbH</copyright>
+    <url>http://www.brockmann-consult.de/</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+</module>

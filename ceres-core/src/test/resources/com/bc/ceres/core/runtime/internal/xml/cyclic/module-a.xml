@@ -1,0 +1,16 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>module-a</symbolicName>
+    <name>Module A</name>
+    <description>This is Module A</description>
+    <dependency>
+        <lib>xstream</lib>
+    </dependency>
+    <dependency>
+        <lib>xpp3</lib>
+    </dependency>
+    <dependency>
+        <module>module-c</module>
+    </dependency>
+    <categories>CHRIS,MERIS ,Processor, Reader,Writer</categories>
+</module>

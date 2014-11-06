@@ -1,0 +1,45 @@
+Current capabilities:
+=====================
+
+* Image layers hava an imageLayerModel-to-model CS affine transformation
+* The basic layers properties are: name, visible flag and transparency
+* Layers are drawn using a current graphics context and a viewport.
+* A viewport has a model-to-view CS affine transformation and is used
+  to navigate the view through the model CS
+* Multi-resolution images, images cached at each level
+* Deferred, concurrent tile computation
+* Reuse of cached tiles from other resolution levels
+* Image info (range/histogram) generated for resolution level corresponding
+  to an imageLayerModel at a resolution <= 256*256 pixels
+
+Urgent TODOs:
+=============
+
+* A layer manager shall
+  o maintain a list of layers (=CollectionLayer?)
+  o specify *the* model CS for all layers.
+  o have an active layer
+  o have selected layers
+  o support listeners for the events: layer added, removed, moved
+  o support listeners for the events: layer selected, activated, shown, hidden
+* All layers shall
+  o be able to handle user interactions, e.g. mouse and keyboard inputs
+  o have an associated (style-) proerties editor UI
+  o have (style-) property change management
+* Image layers shall
+  o provide a means to dispose all caches and redraw everything from
+    scratch in the case that the JAI DAG of images changes.
+* Collection layers shall
+  o support listeners for the events: layer added, removed, moved
+* Shape layers shall
+  o provide shape selection
+  o provide basic shape creation, deletion and manipulation
+  o provide a light-weight, fast style model
+* Viewport shall
+  o have also the following methods
+    + setVisibleModelRegion(Rectangle2D modelRegion);
+    + Rectangle2D getVisibleModelRegion();
+                        â
+
+
+

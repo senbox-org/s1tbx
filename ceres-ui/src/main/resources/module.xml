@@ -1,0 +1,40 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+
+    <symbolicName>snap-ceres-ui</symbolicName>
+    <version>2.0.0</version>
+    <name>Ceres User Interface Library</name>
+
+    <categories>System,Library</categories>
+
+    <description>
+        The Ceres User Interface Library provides basic Java Swing user interface
+        components supporting the Ceres Runtime Library, e.g. a module manager
+        dialog and a configuration panel for connecting remote module repositories.
+    </description>
+
+    <dependency>
+        <module>snap-glayer</module>
+    </dependency>
+    <dependency>
+        <module>snap-binding</module>
+    </dependency>
+
+    <changelog>
+        <![CDATA[
+        ]]>
+    </changelog>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2011 by Brockmann Consult GmbH</copyright>
+    <url>http://www.brockmann-consult.de/</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <extension point="snap-ceres-core:applications">
+        <application id="UpdateUIMain" class="com.bc.ceres.swing.update.ModuleManagerMain"/>
+    </extension>
+    <extension point="snap-ceres-core:serviceProviders">
+        <serviceProvider>com.bc.ceres.swing.binding.PropertyEditor</serviceProvider>
+    </extension>
+</module>

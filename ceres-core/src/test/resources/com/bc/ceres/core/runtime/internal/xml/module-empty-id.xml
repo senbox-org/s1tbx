@@ -1,0 +1,5 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <!-- INVALID! 'id' must not be empty. -->
+    <symbolicName></symbolicName>
+</module>

@@ -1,0 +1,25 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>module-e</symbolicName>
+    <description>This is Module E</description>
+
+    <dependency>
+        <module>module-b</module>
+        <version>2.4.2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+        <module>module-d</module>
+        <version>3</version>
+    </dependency>
+    <dependency>
+        <lib>netcdf</lib>
+        <version>1.2.4</version>
+    </dependency>
+
+    <extension id="e-eb11" point="module-b:ep-1"/>
+    <extension id="e-eb21" point="module-b:ep-2"/>
+    <extension id="e-eb31" point="module-b:ep-3"/>
+    <extension id="e-eb32" point="module-b:ep-3"/>
+    <extension id="e-ed21" point="module-d:ep-2"/>
+    <extension id="e-ed22" point="module-d:ep-2"/>
+</module>

@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           targetNamespace="http://www.brockmann-consult.de/ceres-module-manifest/1.0.0"
+           xmlns="http://www.brockmann-consult.de/ceres-module-manifest/1.0.0">
+    <xs:element name="module" type="Manifest">
+        <xs:annotation>
+            <xs:documentation source="version">1.0.0</xs:documentation>
+            <xs:documentation source="description">
+                The &lt;code&gt;&amp;lt;module&amp;gt;&lt;/code&gt; element is the root of the manifest.
+                The following table lists all of the possible child elements.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:complexType name="Manifest">
+        <xs:annotation>
+            <xs:documentation source="version">1.0.0</xs:documentation>
+            <xs:documentation source="description">
+                The &lt;code&gt;&amp;lt;module&amp;gt;&lt;/code&gt; element is the root of the manifest.
+                The following table lists all of the possible child elements.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:all>
+            <xs:element name="manifestVersion" minOccurs="1" maxOccurs="1" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="version">1.0.0</xs:documentation>
+                    <xs:documentation source="description">Declares to which version of module descriptor this POM
+                        conforms.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="symbolicName" minOccurs="1" maxOccurs="1" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="version">1.0.0</xs:documentation>
+                    <xs:documentation source="description">
+                        The identifier for this module that is unique within the repository.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="packaging" minOccurs="0" type="xs:string" default="jar">
+                <xs:annotation>
+                    <xs:documentation source="version">1.0.0</xs:documentation>
+                    <xs:documentation source="description">
+                        The packaging type of module this module, can be &lt;code&gt;jar&lt;/code&gt;
+                        or &lt;code&gt;dir&lt;/code&gt;.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="name" minOccurs="0" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="version">1.0.0</xs:documentation>
+                    <xs:documentation source="description">
+                        The full name of the module.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="version" minOccurs="0" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="version">1.0.0</xs:documentation>
+                    <xs:documentation source="description">
+                        The current version of this module. Default value is "1.0.0".
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="description" minOccurs="0" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="version">1.0.0</xs:documentation>
+                    <xs:documentation source="description">
+                        A description of the module, used by Ceres whenever it needs to describe the module,
+                        such as on the web site. While this element can be specified as CDATA to enable
+                        the use of HTML tags within the description, it is discouraged to allow plain text
+                        representation.
+                        If you need to modify the index page of the generated web site, you are able to specify your own
+                        instead
+                        of adjusting this text.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="docUrl" minOccurs="0" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation source="version">1.0.0</xs:documentation>
+                    <xs:documentation source="description">
+                        The URL to the documentation of this module&apos;, if any.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <!-- add more elements here -->
+        </xs:all>
+    </xs:complexType>
+</xs:schema>
