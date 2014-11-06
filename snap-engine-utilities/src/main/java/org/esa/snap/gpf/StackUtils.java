@@ -121,21 +121,23 @@ public final class StackUtils {
     public static String[] getBandSuffixes(final Band[] bands) {
         final Set<String> suffixSet = new HashSet<>(bands.length);
         for(Band b : bands) {
-            final String bandName = b.getName();
-            final String suffix;
-            if (bandName.contains("_mst")) {
-                suffix = bandName.substring(bandName.lastIndexOf("_mst"), bandName.length());
-            } else if (bandName.contains("_slv")) {
-                suffix = bandName.substring(bandName.lastIndexOf("_slv"), bandName.length());
-            } else if (bandName.contains("_")) {
-                suffix = bandName.substring(bandName.lastIndexOf('_'), bandName.length());
-            } else {
-                suffix = bandName;
-            }
-            suffixSet.add(suffix);
+            suffixSet.add(getBandSuffix(b.getName()));
         }
-
         return suffixSet.toArray(new String[suffixSet.size()]);
+    }
+
+    public static String getBandSuffix(final String bandName) {
+        final String suffix;
+        if (bandName.contains("_mst")) {
+            suffix = bandName.substring(bandName.lastIndexOf("_mst"), bandName.length());
+        } else if (bandName.contains("_slv")) {
+            suffix = bandName.substring(bandName.lastIndexOf("_slv"), bandName.length());
+        } else if (bandName.contains("_")) {
+            suffix = bandName.substring(bandName.lastIndexOf('_'), bandName.length());
+        } else {
+            suffix = bandName;
+        }
+        return suffix;
     }
 
     public static String getSlaveProductName(final Product sourceProduct, final Band slvBand, final String mstPol) {
