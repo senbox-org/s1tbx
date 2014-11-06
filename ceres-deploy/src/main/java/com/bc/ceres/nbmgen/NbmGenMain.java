@@ -133,6 +133,19 @@ public class NbmGenMain {
         String moduleAboutUrl = moduleElement.getChildTextTrim("aboutUrl");
         String moduleLicenseUrl = moduleElement.getChildTextTrim("licenseUrl");
 
+        // check - we may apply the following code pattern to process metadata not supported in NMBs
+        String longDescription = "";
+        if (moduleFunding != null) {
+            longDescription += String.format("The development of this module has been funded by <b>%s</b>.<p/>", moduleFunding);
+        }
+        if (moduleDescription != null) {
+            longDescription += "<p>" + moduleDescription + "</p>";
+        }
+        if (moduleChangelog != null) {
+            // check - convert CDATA section? Or simply don't support this anymore?
+            longDescription += String.format("<p><b>CHANGELOG:</b><p>%s</p>", moduleChangelog);
+        }
+
 
         Map<String, String> manifestContent = new LinkedHashMap<>();
         manifestContent.put("Manifest-Version", "1.0");
@@ -140,8 +153,8 @@ public class NbmGenMain {
         manifestContent.put("AutoUpdate-Essential-Module", "true");
         manifestContent.put("OpenIDE-Module-Java-Dependencies", "Java > 1.8");
         manifestContent.put("OpenIDE-Module-Display-Category", "SNAP");
-        if (moduleDescription != null) {
-            manifestContent.put("OpenIDE-Module-Long-Description", moduleDescription);
+        if (!longDescription.isEmpty()) {
+            manifestContent.put("OpenIDE-Module-Long-Description", longDescription);
         }
         if (moduleActivator != null) {
             warnModuleDetail("Activator may be reimplemented for NB: " + moduleActivator + " (consider using @OnStart, @OnStop, @OnShowing, or a ModuleInstall)");
