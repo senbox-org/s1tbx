@@ -28,7 +28,7 @@
 
     <packaging>jar</packaging>
 
-    <name>SNAP Bootstrap Classpath</name>
+    <name>SNAP BEAM Bootstrap Classpath</name>
     <artifactId>snap-beam-bootstrap</artifactId>
 
     <description>Provides the bootstrap classpath to launch VISAT from your favourite IDE.</description>
