@@ -186,11 +186,11 @@ public class BandMathsDialog extends ModalDialog {
     }
 
     private void makeUI() {
-        JButton loadExpressionButton = new JButton("Load Expression...");
+        JButton loadExpressionButton = new JButton("Load...");
         loadExpressionButton.setName("loadExpressionButton");
         loadExpressionButton.addActionListener(createLoadExpressionButtonListener());
 
-        JButton saveExpressionButton = new JButton("Save Expression...");
+        JButton saveExpressionButton = new JButton("Save...");
         saveExpressionButton.setName("saveExpressionButton");
         saveExpressionButton.addActionListener(createSaveExpressionButtonListener());
 
@@ -262,10 +262,11 @@ public class BandMathsDialog extends ModalDialog {
         GridBagUtils.addToPanel(panel, expressionArea, gbc,
                                 "weighty=1, insets.top=3, gridwidth=3, fill=BOTH, anchor=WEST");
         gbc.gridy = ++line;
-        GridBagUtils.addToPanel(panel, loadExpressionButton, gbc,
+        final JPanel loadSavePanel = new JPanel();
+        loadSavePanel.add(loadExpressionButton);
+        loadSavePanel.add(saveExpressionButton);
+        GridBagUtils.addToPanel(panel, loadSavePanel, gbc,
                                 "weighty=0, insets.top=3, gridwidth=1, fill=NONE, anchor=WEST");
-        GridBagUtils.addToPanel(panel, saveExpressionButton, gbc,
-                                "weighty=0, insets.top=3, gridwidth=1, fill=NONE, anchor=CENTER");
         GridBagUtils.addToPanel(panel, editExpressionButton, gbc,
                                 "weighty=0, insets.top=3, gridwidth=1, fill=NONE, anchor=EAST");
 
