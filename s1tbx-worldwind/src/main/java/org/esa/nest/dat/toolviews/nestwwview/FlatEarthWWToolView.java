@@ -22,7 +22,7 @@ import gov.nasa.worldwind.View;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
-import gov.nasa.worldwind.examples.ClickAndGoSelectListener;
+import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.globes.EarthFlat;
 import gov.nasa.worldwind.layers.*;
@@ -218,8 +218,8 @@ public class FlatEarthWWToolView extends AbstractToolView implements WWView {
             super(new BorderLayout());
 
             this.wwd = new WorldWindowGLCanvas();
-            this.wwd.setPreferredSize(canvasSize);
-
+            //this.wwd.setPreferredSize(canvasSize);
+            //wwd.set
             // Create the default model as described in the current worldwind properties.            
             final Model m = (Model) WorldWind.createConfigurationComponent(AVKey.MODEL_CLASS_NAME);
             this.wwd.setModel(m);
@@ -239,6 +239,7 @@ public class FlatEarthWWToolView extends AbstractToolView implements WWView {
             this.wwd.addSelectListener(new ClickAndGoSelectListener(wwd, WorldMapLayer.class));
 
             this.add(this.wwd, BorderLayout.CENTER);
+
             if (includeStatusBar) {
                 this.statusBar = new MinimalStatusBar();
                 this.add(statusBar, BorderLayout.PAGE_END);
