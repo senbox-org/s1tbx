@@ -40,7 +40,6 @@ public class NbmGenMain {
 
         String projectDirPath = args[0];
         String cluster = args[1];
-        String  = args[2];
 
         File[] moduleDirs = new File(projectDirPath).listFiles(file -> file.isDirectory() && getFile(file, "pom.xml").exists() && getFile(file, "src", "main", "resources", "module.xml").exists());
         if (moduleDirs == null) {
