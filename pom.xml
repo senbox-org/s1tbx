@@ -20,7 +20,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <name>SNAP-BEAM</name>
+    <name>SNAP Engine</name>
     <url>http://www.brockmann-consult.de/beam-wiki</url>
     <groupId>org.esa.snap</groupId>
     <artifactId>snap-beam</artifactId>
@@ -29,7 +29,12 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <snap.version>2.0.0-SNAPSHOT</snap.version>
+        <snap.version>[2.0.0-SNAPSHOT,2.1.0-SNAPSHOT)</snap.version>
+
+        <!--<snapVersionRange>[2.0.0-SNAPSHOT,2.1.0-SNAPSHOT)</snapVersionRange>-->
+        <s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
+        <s2tbx.version>2.0.0-SNAPSHOT</s2tbx.version>
+        <s3tbx.version>2.0.0-SNAPSHOT</s3tbx.version>
 
         <hdf.version>2.7</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>
@@ -40,6 +45,22 @@
     </properties>
 
     <modules>
+        <module>ceres-launcher</module>
+        <module>ceres-core</module>
+        <module>ceres-binding</module>
+        <module>ceres-ui</module>
+        <module>ceres-deploy</module>
+        <module>ceres-glayer</module>
+        <module>ceres-jai</module>
+        <module>ceres-binio</module>
+        <module>ceres-metadata</module>
+        <module>ceres-site</module>
+
+        <module>snap-app</module>
+        <module>snap-bootstrap</module>
+        <module>snap-config</module>
+        <module>snap-help</module>
+
         <!-- the bootstrap module has no sources, its only purpose is to construct a class path for VISAT -->
         <module>beam-bootstrap</module>
 
@@ -611,7 +632,6 @@
 
         </dependencies>
     </dependencyManagement>
-
 
     <repositories>
         <repository>
