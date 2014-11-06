@@ -18,8 +18,16 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * Usage:
+ * <p/>
  * <pre>
- * Usage: NbmGenMain &lt;project-dir&gt; &lt;cluster&gt;
+ *    NbmGenMain &lt;project-dir&gt; &lt;cluster&gt; &lt;dry-run&gt;
+ * </pre>
+ * </p>
+ * For example:
+ * </p>
+ * <pre>
+ *   NbmGenMain . s1tbx true
  * </pre>
  * </p>
  * Scans a ${project-dir} for Ceres modules ({@code pom.xml} + {@code src/main/resources/module.xml})
@@ -40,6 +48,7 @@ public class NbmGenMain {
 
         String projectDirPath = args[0];
         String cluster = args[1];
+        boolean dryRun = args[2].equals("true");
 
         File[] moduleDirs = new File(projectDirPath).listFiles(file -> file.isDirectory() && getFile(file, "pom.xml").exists() && getFile(file, "src", "main", "resources", "module.xml").exists());
         if (moduleDirs == null) {
@@ -63,11 +72,11 @@ public class NbmGenMain {
             File moduleFile = getFile(moduleDir, "src", "main", "resources", "module.xml");
             Document moduleDocument = readXml(moduleFile);
 
-            updatePomAndWriteManifest(moduleDir, sourcePomFile, originalPomFile, pomDocument, moduleDocument, cluster);
+            updatePomAndWriteManifest(moduleDir, sourcePomFile, originalPomFile, pomDocument, moduleDocument, cluster, dryRun);
         }
     }
 
-    private static void updatePomAndWriteManifest(File moduleDir, File sourcePomFile, File originalPomFile, Document pomDocument, Document moduleDocument, String cluster) throws IOException {
+    private static void updatePomAndWriteManifest(File moduleDir, File sourcePomFile, File originalPomFile, Document pomDocument, Document moduleDocument, String cluster, boolean dryRun) throws IOException {
         File pomFile = getFile(moduleDir, "pom.xml");
         File manifestBaseFile = getFile(moduleDir, "src", "main", "nbm", "manifest.mf");
 
@@ -78,16 +87,23 @@ public class NbmGenMain {
         Element pluginsElement = getOrAddElement(buildElement, "plugins", ns);
 
         Map<String, String> nbmConfiguration = new LinkedHashMap<>();
+        // moduleType is actually a constant which can be put it into the <pluginManagement-element of the parent
         nbmConfiguration.put("moduleType", "normal");
+        // licenseName/File should also be constant
+        nbmConfiguration.put("licenseName", "GPL 3");
+        nbmConfiguration.put("licenseFile", "../LICENSE.html");
+
         nbmConfiguration.put("cluster", cluster);
         nbmConfiguration.put("defaultCluster", cluster);
         nbmConfiguration.put("publicPackages", "");
         nbmConfiguration.put("requiresRestart", "true");
+
         addPluginElement(pluginsElement,
                          "org.codehaus.mojo", "nbm-maven-plugin", nbmConfiguration, ns);
 
         Map<String, String> jarConfiguration = new LinkedHashMap<>();
         jarConfiguration.put("useDefaultManifestFile", "true");
+
         addPluginElement(pluginsElement,
                          "org.apache.maven.plugins", "maven-jar-plugin", jarConfiguration, ns);
 
@@ -134,13 +150,20 @@ public class NbmGenMain {
         if (modulePackaging != null && !"jar".equals( modulePackaging)) {
             warnModuleDetail("Unsupported module packaging: " + modulePackaging + " (provide a ModuleInstall that does the job on install/uninstall)");
         }
+        if (moduleNative != null && "true".equals(moduleNative)) {
+            warnModuleDetail("Module contains native code: follow NB instructions, see http://bits.netbeans.org/dev/javadoc/org-openide-modules/org/openide/modules/doc-files/api.html#how-layer");
+        }
 
         if (!originalPomFile.exists()) {
-            Files.copy(sourcePomFile.toPath(), originalPomFile.toPath());
+            if (!dryRun) {
+                Files.copy(sourcePomFile.toPath(), originalPomFile.toPath());
+            }
             infoModuleDetail("Copied " + sourcePomFile + " to " + originalPomFile);
         }
 
-        writeXml(pomFile, pomDocument);
+        if (!dryRun) {
+            writeXml(pomFile, pomDocument);
+        }
         if (pomFile.equals(sourcePomFile)) {
             infoModuleDetail("Updated " + pomFile);
         } else {
@@ -148,8 +171,10 @@ public class NbmGenMain {
         }
 
         //noinspection ResultOfMethodCallIgnored
-        manifestBaseFile.getParentFile().mkdirs();
-        writeManifest(manifestBaseFile, manifestContent);
+        if (!dryRun) {
+            manifestBaseFile.getParentFile().mkdirs();
+            writeManifest(manifestBaseFile, manifestContent);
+        }
         infoModuleDetail("Written " + manifestBaseFile);
     }
 
