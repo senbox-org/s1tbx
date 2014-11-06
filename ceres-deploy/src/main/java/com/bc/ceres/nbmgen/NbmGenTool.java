@@ -35,13 +35,13 @@ import java.util.Map;
  *
  * @author Norman
  */
-public class NbmGenMain implements CeresModuleProject.Processor  {
+public class NbmGenTool implements CeresModuleProject.Processor  {
 
     File projectDir;
     String cluster;
     boolean dryRun;
 
-    public NbmGenMain(File projectDir, String cluster, boolean dryRun) {
+    public NbmGenTool(File projectDir, String cluster, boolean dryRun) {
         this.projectDir = projectDir;
         this.cluster = cluster;
         this.dryRun = dryRun;
@@ -53,7 +53,7 @@ public class NbmGenMain implements CeresModuleProject.Processor  {
         String cluster = args[1];
         boolean dryRun = args[2].equals("true");
 
-        NbmGenMain processor = new NbmGenMain(projectDir, cluster, dryRun);
+        NbmGenTool processor = new NbmGenTool(projectDir, cluster, dryRun);
 
         CeresModuleProject.processParentDir(projectDir, processor);
    }

@@ -24,12 +24,12 @@ import java.util.List;
  *
  * @author Norman
  */
-public class NbCodeGenMain implements CeresModuleProject.Processor {
+public class NbCodeGenTool implements CeresModuleProject.Processor {
 
     File projectDir;
     boolean dryRun;
 
-    public NbCodeGenMain(File projectDir, boolean dryRun) {
+    public NbCodeGenTool(File projectDir, boolean dryRun) {
         this.projectDir = projectDir;
         this.dryRun = dryRun;
     }
@@ -39,7 +39,7 @@ public class NbCodeGenMain implements CeresModuleProject.Processor {
         File projectDir = new File(args[0]);
         boolean dryRun = args[1].equals("true");
 
-        NbCodeGenMain processor = new NbCodeGenMain(projectDir, dryRun);
+        NbCodeGenTool processor = new NbCodeGenTool(projectDir, dryRun);
 
         CeresModuleProject.processParentDir(projectDir, processor);
     }
