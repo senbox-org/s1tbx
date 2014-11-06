@@ -34,7 +34,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
@@ -67,7 +66,7 @@ public abstract class XMLProductDirectory {
         }
     }
 
-    protected final String getRootFolder() {
+    public final String getRootFolder() {
         if (rootFolder != null)
             return rootFolder;
         try {
@@ -87,7 +86,7 @@ public abstract class XMLProductDirectory {
     }
 
     public void readProductDirectory() throws IOException {
-        xmlDoc = XMLSupport.LoadXML(productDir.getInputStream(getRootFolder() + getHeaderFileName()));
+        xmlDoc = XMLSupport.LoadXML(getInputStream(getRootFolder() + getHeaderFileName()));
     }
 
     protected abstract String getHeaderFileName();
@@ -160,14 +159,18 @@ public abstract class XMLProductDirectory {
     }
 
     protected String[] listFiles(final String path) throws IOException {
-        final String[] listing = productDir.list(path);
-        final List<String> files = new ArrayList<>(listing.length);
-        for (String listEntry : listing) {
-            if (!isDirectory(path + '/' + listEntry)) {
-                files.add(listEntry);
+        try {
+            final String[] listing = productDir.list(path);
+            final List<String> files = new ArrayList<>(listing.length);
+            for (String listEntry : listing) {
+                if (!isDirectory(path + '/' + listEntry)) {
+                    files.add(listEntry);
+                }
             }
+            return files.toArray(new String[files.size()]);
+        } catch (Exception e) {
+            throw new IOException("Product is corrupt or incomplete\n"+e.getMessage());
         }
-        return files.toArray(new String[files.size()]);
     }
 
     private boolean isDirectory(final String path) throws IOException {
@@ -188,8 +191,16 @@ public abstract class XMLProductDirectory {
         }
     }
 
-    protected InputStream getInputStream(final String path) throws IOException {
-        return productDir.getInputStream(path);
+    public boolean exists(final String path) {
+        return productDir.exists(path);
+    }
+
+    public InputStream getInputStream(final String path) throws IOException {
+        InputStream inStream = productDir.getInputStream(path);
+        if(inStream == null) {
+            throw new IOException("Product is corrupt or incomplete: unreadable "+path);
+        }
+        return inStream;
     }
 
     protected File getBaseDir() {

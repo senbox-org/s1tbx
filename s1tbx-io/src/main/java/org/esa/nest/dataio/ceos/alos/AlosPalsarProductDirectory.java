@@ -60,6 +60,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
     private final transient Map<String, AlosPalsarImageFile> bandImageFileMap = new HashMap<String, AlosPalsarImageFile>(1);
     public static final DateFormat dateFormat1 = ProductData.UTC.createDateFormat("yyyyMMddHHmmssSSS");
     public static final DateFormat dateFormat2 = ProductData.UTC.createDateFormat("yyyyMMdd HH:mm:ss");
+    public static final DateFormat dateFormat3 = ProductData.UTC.createDateFormat("yyyyDDDSSSSSSSS");
 
     public AlosPalsarProductDirectory(final File dir) {
         Guardian.assertNotNull("dir", dir);
@@ -703,10 +704,21 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
                         final int year = imageRecordElem.getAttributeInt("Sensor acquisition year", 0);
                         final int days = imageRecordElem.getAttributeInt("Sensor acquisition day of year", 0);
                         final int milliseconds = imageRecordElem.getAttributeInt("Sensor acquisition milliseconds of day", 0);
-                        final int days_since_2000 = (year - 2000) * 365 + days + 1;
-                        final int seconds = milliseconds / 1000;
-                        final int microseconds = (milliseconds - seconds * 1000) * 1000;
-                        imgRecTime = new ProductData.UTC(days_since_2000, seconds, microseconds);
+
+                        StringBuffer sb = new StringBuffer(String.valueOf(year));
+                        String dayStr = String.valueOf(days);
+                        for (int i = dayStr.length(); i < 3; i++) {
+                            sb.append('0');
+                        }
+                        sb.append(dayStr);
+
+                        String millisecondStr = String.valueOf(milliseconds);
+                        for (int i = millisecondStr.length(); i < 8; i++) {
+                            sb.append('0');
+                        }
+                        sb.append(millisecondStr);
+
+                        imgRecTime = ProductData.UTC.parse(sb.toString(), dateFormat3);
                     }
                 }
 
@@ -772,13 +784,24 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
                     if (imageRecordElem != null) {
                         final int year = imageRecordElem.getAttributeInt("Sensor acquisition year", 0);
                         final int days = imageRecordElem.getAttributeInt("Sensor acquisition day of year", 0);
-                        double milliseconds = imageRecordElem.getAttributeInt("Sensor acquisition milliseconds of day", 0);
+                        int milliseconds = imageRecordElem.getAttributeInt("Sensor acquisition milliseconds of day", 0);
                         final double prf = imageRecordElem.getAttributeDouble("PRF", 0);
-                        final int days_since_2000 = (year - 2000) * 365 + days + 1;
-                        milliseconds += (double) (numRecords - 1) * Constants.oneMillion / prf;
-                        final int seconds = (int) (milliseconds / 1000);
-                        final double microseconds = (milliseconds - seconds * 1000.0) * 1000.0;
-                        imgRecTime = new ProductData.UTC(days_since_2000, seconds, (int) microseconds);
+                        milliseconds += (int)((numRecords - 1) * Constants.oneMillion / prf);
+
+                        StringBuffer sb = new StringBuffer(String.valueOf(year));
+                        String dayStr = String.valueOf(days);
+                        for (int i = dayStr.length(); i < 3; i++) {
+                            sb.append('0');
+                        }
+                        sb.append(dayStr);
+
+                        String millisecondStr = String.valueOf(milliseconds);
+                        for (int i = millisecondStr.length(); i < 8; i++) {
+                            sb.append('0');
+                        }
+                        sb.append(millisecondStr);
+
+                        imgRecTime = ProductData.UTC.parse(sb.toString(), dateFormat3);
                     }
                 }
 

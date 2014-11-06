@@ -289,9 +289,8 @@ public class DatApp extends VisatApp {
     @Override
     protected String getCSName(final RasterDataNode raster) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(raster.getProduct());
-        final String mapProjStr = absRoot.getAttributeString(AbstractMetadata.map_projection, "").trim();
-        if (!mapProjStr.isEmpty()) {
-            return mapProjStr;
+        if (!AbstractMetadata.isNoData(absRoot, AbstractMetadata.map_projection)) {
+            return absRoot.getAttributeString(AbstractMetadata.map_projection, AbstractMetadata.NO_METADATA_STRING);
         }
 
         final GeoCoding geoCoding = raster.getGeoCoding();

@@ -20,8 +20,6 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
-import java.io.File;
-
 /**
  * Test Product Reader.
  *
@@ -50,13 +48,6 @@ public class TestEnvisatReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        final File folder = new File(TestUtils.rootPathASAR);
-        if (!folder.exists()) {
-            TestUtils.skipTest(this, folder.getAbsolutePath() +" not found");
-            return;
-        }
-
-        if (TestUtils.canTestReadersOnAllProducts)
-            TestUtils.recurseReadFolder(folder, readerPlugin, reader, productTypeExemptions, null);
+        TestUtils.recurseReadFolder(this, TestUtils.rootPathsASAR, readerPlugin, reader, productTypeExemptions, null);
     }
 }

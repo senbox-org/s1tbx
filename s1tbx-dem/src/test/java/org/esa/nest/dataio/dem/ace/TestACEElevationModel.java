@@ -44,7 +44,7 @@ public class TestACEElevationModel {
     public void testElevationModel() throws Exception {
 
         if (!demDescriptor.isDemInstalled()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, demDescriptor.getName()+" not installed");
             return;
         }
 

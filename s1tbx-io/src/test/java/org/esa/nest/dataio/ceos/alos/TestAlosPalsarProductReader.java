@@ -19,8 +19,6 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
-import java.io.File;
-
 /**
  * Test ALOS PALSAR CEOS Product Reader.
  *
@@ -45,13 +43,6 @@ public class TestAlosPalsarProductReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        final File folder = new File(TestUtils.rootPathALOS);
-        if (!folder.exists()) {
-            TestUtils.skipTest(this);
-            return;
-        }
-
-        if (TestUtils.canTestReadersOnAllProducts)
-            TestUtils.recurseReadFolder(folder, readerPlugin, reader, null, exceptionExemptions);
+        TestUtils.recurseReadFolder(this, TestUtils.rootPathsALOS, readerPlugin, reader, null, exceptionExemptions);
     }
 }

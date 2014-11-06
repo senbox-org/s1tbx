@@ -19,8 +19,6 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
-import java.io.File;
-
 /**
  * Test Product Reader.
  *
@@ -45,13 +43,6 @@ public class TestCosmoSkymedReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        final File folder = new File(TestUtils.rootPathCosmoSkymed);
-        if (!folder.exists()) {
-            TestUtils.skipTest(this);
-            return;
-        }
-
-        if (TestUtils.canTestReadersOnAllProducts)
-            TestUtils.recurseReadFolder(folder, readerPlugin, reader, null, exceptionExemptions);
+        TestUtils.recurseReadFolder(this, TestUtils.rootPathsCosmoSkymed, readerPlugin, reader, null, exceptionExemptions);
     }
 }

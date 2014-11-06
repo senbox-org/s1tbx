@@ -30,41 +30,42 @@ public class TestEllipsoidCorrectionRDOp {
     private final static OperatorSpi spi = new EllipsoidCorrectionRDOp.Spi();
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "GeoTIFF", "DOR_VOR_AX"};
-    private String[] exceptionExemptions = {"not supported", "already map projected"};
+    private String[] exceptionExemptions = {"not supported", "not be map projected",
+            "Source product should first be deburst"};
 
     @Test
     public void testProcessAllASAR() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsASAR, productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllERS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsERS, productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllALOS() throws Exception
     {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsALOS, "ALOS PALSAR CEOS", null, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllRadarsat2() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsRadarsat2, null, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllTerraSARX() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathTerraSarX, null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsTerraSarX, null, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllCosmo() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsCosmoSkymed, null, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllSentinel1() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathSentinel1, null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsSentinel1, null, exceptionExemptions);
     }
 }

@@ -90,6 +90,9 @@ public class CreateStackOp extends Operator {
             label = "Output Extents")
     private String extent = MASTER_EXTENT;
 
+    @Parameter(defaultValue = "true")
+    private boolean includeMaster = true;
+
     final static String MASTER_EXTENT = "Master";
     final static String MIN_EXTENT = "Minimum";
     final static String MAX_EXTENT = "Maximum";
@@ -199,7 +202,7 @@ public class CreateStackOp extends Operator {
 
             String suffix = "_mst";
             // add master bands first
-            if (!appendToMaster) {
+            if (!appendToMaster && includeMaster) {
                 for (final Band srcBand : slaveBandList) {
                     if (srcBand == masterBands[0] || (masterBands.length > 1 && srcBand == masterBands[1])) {
                         suffix = "_mst" + StackUtils.getBandTimeStamp(srcBand.getProduct());
@@ -233,6 +236,9 @@ public class CreateStackOp extends Operator {
                     if (srcBand.getUnit() != null && srcBand.getUnit().equals(Unit.IMAGINARY)) {
                     } else {
                         suffix = "_slv" + cnt++ + StackUtils.getBandTimeStamp(srcBand.getProduct());
+                    }
+                    if(!includeMaster) {
+                        suffix = "";
                     }
                     final String tgtBandName = srcBand.getName() + suffix;
 

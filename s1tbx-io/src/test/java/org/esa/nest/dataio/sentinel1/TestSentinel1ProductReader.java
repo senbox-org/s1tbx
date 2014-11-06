@@ -53,21 +53,14 @@ public class TestSentinel1ProductReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        final File folder = new File(TestUtils.rootPathSentinel1);
-        if (!folder.exists()) {
-            TestUtils.skipTest(this);
-            return;
-        }
-
-        if (TestUtils.canTestReadersOnAllProducts)
-            TestUtils.recurseReadFolder(folder, readerPlugin, reader, null, null);
+        TestUtils.recurseReadFolder(this, TestUtils.rootPathsSentinel1, readerPlugin, reader, null, null);
     }
 
     @Test
     public void testOpeningFolder() throws Exception {
         final File inputFile = new File(inputS1_AnnotGRD, "manifest.safe");
         if(!inputFile.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, inputFile +" not found");
             return;
         }
 
@@ -82,7 +75,7 @@ public class TestSentinel1ProductReader {
     public void testOpeningZip() throws Exception {
         final File inputFile = TestData.inputS1_GRD;
         if(!inputFile.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, inputFile +" not found");
             return;
         }
 
@@ -97,7 +90,7 @@ public class TestSentinel1ProductReader {
     public void testOpeningAnnotationProduct() throws Exception {
         final File inputFile = inputS1_AnnotGRDZip;
         if(!inputFile.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, inputFile +" not found");
             return;
         }
 
@@ -112,7 +105,7 @@ public class TestSentinel1ProductReader {
     public void testOpeningZipAnnotationProduct() throws Exception {
         final File inputFile = TestData.inputS1_GRD;
         if(!inputFile.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, inputFile +" not found");
             return;
         }
 

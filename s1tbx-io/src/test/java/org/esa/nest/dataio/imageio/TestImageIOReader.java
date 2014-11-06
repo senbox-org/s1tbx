@@ -17,6 +17,7 @@ package org.esa.nest.dataio.imageio;
 
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -39,7 +40,7 @@ public class TestImageIOReader {
     ImageIOReaderPlugIn readerPlugin;
     ProductReader reader;
 
-    String filePath = "P:\\nest\\nest\\ESA Data\\Other\\Imagefiles\\Submarine_operators_countries.png";
+    String filePath = TestData.input+"image"+TestData.sep+"PNG"+TestData.sep+"s1_64x.png";
 
     public TestImageIOReader() {
         readerPlugin = new ImageIOReaderPlugIn();

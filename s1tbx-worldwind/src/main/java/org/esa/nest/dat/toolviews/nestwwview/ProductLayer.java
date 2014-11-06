@@ -40,6 +40,7 @@ import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
+import org.esa.snap.gpf.OperatorUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -527,13 +528,6 @@ public class ProductLayer extends RenderableLayer {
         }
     }
 
-    private static boolean isMapProjected(Product product) {
-        if (product.getGeoCoding() instanceof MapGeoCoding)
-            return true;
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        return absRoot != null && !absRoot.getAttributeString(AbstractMetadata.map_projection, "").trim().isEmpty();
-    }
-
     private static Product createSubsampledProduct(final Product product) throws IOException {
 
         final String quicklookBandName = ProductUtils.findSuitableQuicklookBandName(product);
@@ -547,7 +541,7 @@ public class ProductLayer extends RenderableLayer {
         productSubsetDef.setNodeNames(new String[]{quicklookBandName});
         Product productSubset = product.createSubset(productSubsetDef, quicklookBandName, null);
 
-        if (!isMapProjected(product)) {
+        if (!OperatorUtils.isMapProjected(product)) {
             try {
                 final Map<String, Object> projParameters = new HashMap<String, Object>();
                 Map<String, Product> projProducts = new HashMap<String, Product>();

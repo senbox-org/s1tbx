@@ -32,6 +32,7 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.Unit;
@@ -200,6 +201,9 @@ public final class SARSimulationOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfTOPSARBurstProduct(false);
+
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
             getSourceImageDimension();
@@ -245,8 +249,8 @@ public final class SARSimulationOp extends Operator {
         srgrFlag = AbstractMetadata.getAttributeBoolean(absRoot, AbstractMetadata.srgr_flag);
         wavelength = SARUtils.getRadarFrequency(absRoot);
         rangeSpacing = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_spacing);
-        firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
-        lastLineUTC = absRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD(); // in days
+        firstLineUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
+        lastLineUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.last_line_time)).getMJD(); // in days
         lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / Constants.secondsInDay; // s to day
         orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
 

@@ -34,7 +34,7 @@ import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.EarthGravitationalModel96;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.*;
-import org.esa.nest.gpf.InputProductValidator;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.nest.gpf.Sentinel1Calibrator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
@@ -246,6 +246,7 @@ public class RangeDopplerGeocodingOp extends Operator {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfMapProjected();
+            validator.checkIfTOPSARBurstProduct(false);
 
             checkUserInput();
 
@@ -393,8 +394,8 @@ public class RangeDopplerGeocodingOp extends Operator {
             throw new OperatorException("Invalid input for azimuth pixel spacing: " + azimuthSpacing);
         }
 
-        firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD(); // in days
-        lastLineUTC = absRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD(); // in days
+        firstLineUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
+        lastLineUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.last_line_time)).getMJD(); // in days
         lineTimeInterval = (lastLineUTC - firstLineUTC) / (sourceImageHeight - 1); // in days
         if (lastLineUTC == 0.0) {
             throw new OperatorException("Invalid input for Line Time Interval: " + lineTimeInterval);

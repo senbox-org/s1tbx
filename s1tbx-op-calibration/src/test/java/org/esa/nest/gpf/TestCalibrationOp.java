@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import java.io.File;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -40,6 +39,7 @@ public class TestCalibrationOp {
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR", "GeoTIFF", "SCS_U"};
     private String[] exceptionExemptions = {"not supported",
             "calibration has already been applied",
+            "The product has already been calibrated",
             "Cannot apply calibration to coregistered product"};
 
     @Test
@@ -73,14 +73,14 @@ public class TestCalibrationOp {
     @Test
     public void testProcessingS1_GRD() throws Exception {
 
-        final float[] expected = new float[] {0.015372134745121002f, 0.01537325419485569f, 0.02168026752769947f};
+        final float[] expected = new float[] {2.3076418642631324E-7f,2.3079778088685998E-7f,3.255083242947876E-7f};
         processFile(TestData.inputS1_GRD, "sigma0_VV", expected);
     }
 
     @Test
     public void testProcessingS1_StripmapSLC() throws Exception {
 
-        final float[] expected = new float[] {4.557766437530518f, 17.115325927734375f, 43.94808578491211f};
+        final float[] expected = new float[] {0.03302580863237381f,0.12401964515447617f,0.3184557855129242f};
         processFile(TestData.inputS1_StripmapSLC, "sigma0_VV", expected);
     }
 
@@ -112,31 +112,36 @@ public class TestCalibrationOp {
 
     @Test
     public void testProcessAllASAR() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsASAR, "ENVISAT", productTypeExemptions, null);
     }
 
     @Test
     public void testProcessAllERS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsERS, "ERS CEOS", productTypeExemptions, null);
     }
 
     @Test
     public void testProcessAllALOS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, productTypeExemptions, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsALOS, "ALOS PALSAR CEOS", productTypeExemptions, null);
     }
 
     @Test
     public void testProcessAllRadarsat2() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, productTypeExemptions, null);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsRadarsat2, "RADARSAT-2", productTypeExemptions, null);
     }
 
     @Test
     public void testProcessAllCosmo() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, productTypeExemptions, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsCosmoSkymed, "CosmoSkymed", productTypeExemptions, exceptionExemptions);
+    }
+
+    @Test
+    public void testProcessAllTSX() throws Exception {
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsTerraSarX, "TerraSarX", productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllSentinel1() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathSentinel1, productTypeExemptions, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsSentinel1, "SENTINEL-1", productTypeExemptions, exceptionExemptions);
     }
 }

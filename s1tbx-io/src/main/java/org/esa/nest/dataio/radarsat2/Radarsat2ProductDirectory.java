@@ -681,10 +681,10 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         class coefList {
             double utcSeconds = 0.0;
             double grOrigin = 0.0;
-            final List<Double> coefficients = new ArrayList<Double>();
+            final List<Double> coefficients = new ArrayList<>();
         }
 
-        final List<coefList> segmentsArray = new ArrayList<coefList>();
+        final List<coefList> segmentsArray = new ArrayList<>();
 
         for (MetadataElement elem : imageGenerationParameters.getElements()) {
             if (elem.getName().equalsIgnoreCase("slantRangeToGroundRange")) {

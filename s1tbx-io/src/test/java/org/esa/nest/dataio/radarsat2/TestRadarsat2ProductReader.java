@@ -50,21 +50,14 @@ public class TestRadarsat2ProductReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        final File folder = new File(TestUtils.rootPathRadarsat2);
-        if (!folder.exists()) {
-            TestUtils.skipTest(this);
-            return;
-        }
-
-        if (TestUtils.canTestReadersOnAllProducts)
-            TestUtils.recurseReadFolder(folder, readerPlugin, reader, null, null);
+        TestUtils.recurseReadFolder(this, TestUtils.rootPathsRadarsat2, readerPlugin, reader, null, null);
     }
 
     @Test
     public void testOpeningFolder() throws Exception {
         final File inputFile = TestData.inputRS2_SQuad;
         if(!inputFile.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, inputFile +" not found");
             return;
         }
 
@@ -79,7 +72,7 @@ public class TestRadarsat2ProductReader {
     public void testOpeningZip() throws Exception {
         final File inputFile = TestData.inputRS2_SQuad;
         if(!inputFile.exists()){
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, inputFile +" not found");
             return;
         }
 

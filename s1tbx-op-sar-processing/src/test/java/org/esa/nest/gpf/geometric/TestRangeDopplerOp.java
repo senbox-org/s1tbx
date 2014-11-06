@@ -26,6 +26,7 @@ import org.esa.nest.dataio.dem.ElevationModelDescriptor;
 import org.esa.nest.dataio.dem.ElevationModelRegistry;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -53,7 +54,8 @@ public class TestRangeDopplerOp {
     private final static String expectedPathAPM = TestUtils.rootPathTestProducts + "\\expected\\ENVISAT-ASA_APM_1PNIPA20030327_091853_000000152015_00036_05601_5422.N1_TC.dim";
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
-    private String[] exceptionExemptions = {"not supported", "already map projected", "outside of SRTM valid area"};
+    private String[] exceptionExemptions = {"not supported", "not be map projected", "outside of SRTM valid area",
+                                "Source product should first be deburst"};
 
     /**
      * Processes a WSM product and compares it to processed product known to be correct
@@ -62,9 +64,9 @@ public class TestRangeDopplerOp {
      */
     @Test
     public void testProcessWSM() throws Exception {
-        final File inputFile = new File(inputPathWSM);
+        final File inputFile = TestData.inputASAR_WSM;
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputPathWSM + " not found");
+            TestUtils.skipTest(this, inputFile + " not found");
             return;
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
@@ -78,16 +80,18 @@ public class TestRangeDopplerOp {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
-        TestUtils.compareProducts(targetProduct, expectedPathWSM, null);
+        TestUtils.verifyProduct(targetProduct, true, true, true);
+
+        final float[] expected = new float[] { 0.5932531952857971f,0.8568953275680542f,0.5849599242210388f };
+        TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), 500, 500, expected);
     }
 
     @Test
     public void testGetLocalDEM() throws Exception {
 
-        final File inputFile = new File("P:\\nest\\nest\\ESA Data\\RADAR\\ASAR\\Image Mode Medium Resolution\\ASA_IMM_1PNIPA20080507_220932_000000502068_00230_32348_0581.N1");
+        final File inputFile = TestData.inputASAR_IMM;
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this);
+            TestUtils.skipTest(this, inputFile+" not found");
             return;
         }
 
@@ -120,9 +124,9 @@ public class TestRangeDopplerOp {
      */
     @Test
     public void testProcessIMS() throws Exception {
-        final File inputFile = new File(inputPathIMS);
+        final File inputFile = TestData.inputASAR_IMS;
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputPathIMS + " not found");
+            TestUtils.skipTest(this, inputFile + " not found");
             return;
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
@@ -136,8 +140,10 @@ public class TestRangeDopplerOp {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
-        TestUtils.compareProducts(targetProduct, expectedPathIMS, null);
+        TestUtils.verifyProduct(targetProduct, true, true, true);
+
+        final float[] expected = new float[] { 0.04975456744432449f,0.13621896505355835f,0.07706855237483978f};
+        TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), expected);
     }
 
     /**
@@ -147,9 +153,9 @@ public class TestRangeDopplerOp {
      */
     @Test
     public void testProcessAPM() throws Exception {
-        final File inputFile = new File(inputPathAPM);
+        final File inputFile = TestData.inputASAR_APM;
         if (!inputFile.exists()) {
-            TestUtils.skipTest(this, inputPathAPM + " not found");
+            TestUtils.skipTest(this, inputFile + " not found");
             return;
         }
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
@@ -163,43 +169,45 @@ public class TestRangeDopplerOp {
 
         // get targetProduct: execute initialize()
         final Product targetProduct = op.getTargetProduct();
-        TestUtils.verifyProduct(targetProduct, false, false);
-        TestUtils.compareProducts(targetProduct, expectedPathAPM, null);
+        TestUtils.verifyProduct(targetProduct, true, true);
+
+        final float[] expected = new float[] { 0.08639660477638245f,0.08651735633611679f,0.10073450207710266f };
+        TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), 500, 500, expected);
     }
 
     @Test
     public void testProcessAllASAR() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathASAR, productTypeExemptions, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsASAR, productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllERS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathERS, productTypeExemptions, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsERS, productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllALOS() throws Exception
     {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathALOS, null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsALOS, "ALOS PALSAR CEOS", null, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllRadarsat2() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathRadarsat2, null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsRadarsat2, null, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllTerraSARX() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathTerraSarX, null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsTerraSarX, null, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllCosmo() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathCosmoSkymed, null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsCosmoSkymed, null, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllSentinel1() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathSentinel1, null, exceptionExemptions);
+        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsSentinel1, null, exceptionExemptions);
     }
 }

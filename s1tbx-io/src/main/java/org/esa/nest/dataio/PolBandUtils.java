@@ -381,12 +381,10 @@ public class PolBandUtils {
     public static String getPolarType(final Product product) throws Exception {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         if (absRoot != null) {
-            final String pol1 = absRoot.getAttributeString(AbstractMetadata.mds1_tx_rx_polar, "").trim();
-            final String pol2 = absRoot.getAttributeString(AbstractMetadata.mds2_tx_rx_polar, "").trim();
-            final String pol3 = absRoot.getAttributeString(AbstractMetadata.mds3_tx_rx_polar, "").trim();
-            final String pol4 = absRoot.getAttributeString(AbstractMetadata.mds4_tx_rx_polar, "").trim();
-            if (!pol1.isEmpty() && !pol2.isEmpty()) {
-                if (!pol3.isEmpty() && !pol4.isEmpty()) {
+            if (!AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds1_tx_rx_polar) &&
+                    !AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds2_tx_rx_polar)) {
+                if (!AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds3_tx_rx_polar) &&
+                        !AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds4_tx_rx_polar)) {
                     return "full";
                 }
                 return "dual";

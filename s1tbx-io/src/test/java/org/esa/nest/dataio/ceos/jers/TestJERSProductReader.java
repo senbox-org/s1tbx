@@ -19,8 +19,6 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
-import java.io.File;
-
 /**
  * Test JERS CEOS Product Reader.
  *
@@ -43,10 +41,6 @@ public class TestJERSProductReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        final File folder = new File(TestUtils.rootPathJERS);
-        if (!folder.exists()) return;
-
-        if (TestUtils.canTestReadersOnAllProducts)
-            TestUtils.recurseReadFolder(folder, readerPlugin, reader, null, null);
+        TestUtils.recurseReadFolder(this, TestUtils.rootPathsJERS, readerPlugin, reader, null, null);
     }
 }
