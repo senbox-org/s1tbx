@@ -29,8 +29,10 @@ import gov.nasa.worldwind.render.*;
 
 import gov.nasa.worldwind.util.BufferFactory;
 import gov.nasa.worldwind.util.BufferWrapper;
+import gov.nasa.worldwind.util.WWMath;
 import gov.nasa.worldwindx.examples.analytics.AnalyticSurface;
 import gov.nasa.worldwindx.examples.analytics.AnalyticSurfaceAttributes;
+import gov.nasa.worldwindx.examples.analytics.AnalyticSurfaceLegend;
 import gov.nasa.worldwindx.examples.util.DirectedPath;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.*;
@@ -48,6 +50,9 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.FieldPosition;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -140,92 +145,120 @@ public class ProductLayer extends RenderableLayer {
 
             try {
                 // CHANGED
-                //final Product newProduct = createSubsampledProduct(product);
-                final Product newProduct = product;
+                 if (product.getName().indexOf("_OCN_") >= 0) {
+                    final Product newProduct = product;
 
 
-                //System.out.println("called");
-                //final Band band = newProduct.getBandAt(0);
-                /*
-                for (String currBandName : newProduct.getBandNames()) {
-                    System.out.println("currBandName " + currBandName);
-                }
-                */
-
-
-                final Band lonBand = newProduct.getBand("hh_001_owiLon");
-                final Band latBand = newProduct.getBand("hh_001_owiLat");
-                final Band incAngleBand = newProduct.getBand("hh_001_owiIncidenceAngle");
-                final Band windSpeedBand = newProduct.getBand("hh_001_owiWindSpeed");
-                final Band windDirBand = newProduct.getBand("hh_001_owiWindDirection");
-
-                //final Band band = newProduct.getBand();
-                System.out.println("band 0 " + lonBand);
-                System.out.println("band width " + lonBand.getRasterWidth());
-                System.out.println("band height " + lonBand.getRasterHeight());
-
-                final float[] lonValues = new float[lonBand.getRasterWidth() * lonBand.getRasterHeight()];
-                lonBand.readPixels(0, 0, lonBand.getRasterWidth(), lonBand.getRasterHeight(), lonValues, com.bc.ceres.core.ProgressMonitor.NULL);
-
-                final float[] latValues = new float[latBand.getRasterWidth() * latBand.getRasterHeight()];
-                latBand.readPixels(0, 0, latBand.getRasterWidth(), latBand.getRasterHeight(), latValues, com.bc.ceres.core.ProgressMonitor.NULL);
-
-                final float[] incAngleValues = new float[incAngleBand.getRasterWidth() * incAngleBand.getRasterHeight()];
-                incAngleBand.readPixels(0, 0, incAngleBand.getRasterWidth(), incAngleBand.getRasterHeight(), incAngleValues, com.bc.ceres.core.ProgressMonitor.NULL);
-
-                final float[] windSpeedValues = new float[windSpeedBand.getRasterWidth() * windSpeedBand.getRasterHeight()];
-                windSpeedBand.readPixels(0, 0, windSpeedBand.getRasterWidth(), windSpeedBand.getRasterHeight(), windSpeedValues, com.bc.ceres.core.ProgressMonitor.NULL);
-
-                final float[] windDirValues = new float[windDirBand.getRasterWidth() * windDirBand.getRasterHeight()];
-                windDirBand.readPixels(0, 0, windDirBand.getRasterWidth(), windDirBand.getRasterHeight(), windDirValues, com.bc.ceres.core.ProgressMonitor.NULL);
-
-
-                double HUE_BLUE = 240d / 360d;
-                double HUE_RED = 0d / 360d;
-                createRandomColorSurface(HUE_BLUE, HUE_RED, 40, 40, this);
-
-                ShapeAttributes attrs = new BasicShapeAttributes();
-                attrs.setOutlineMaterial(Material.BLACK);
-                attrs.setOutlineWidth(2d);
-
-                for (int i = 0; i < latValues.length; i++) {
-                    //System.out.println(lonValues[i] + "::==::" + latValues[i] + "::==::" + incAngleValues[i] + "::==::" + windSpeedValues[i] + "::==::" + windDirValues[i] + "::==::");
-                    Position startPos = new Position(Angle.fromDegreesLatitude(latValues[i]), Angle.fromDegreesLongitude(lonValues[i]), 10.0);
-                    Position endPos = new Position(LatLon.greatCircleEndPosition(startPos, Angle.fromDegrees(windDirValues[i]), Angle.fromDegrees(0.01)), 10.0);
-
-                    //System.out.println("startPos " + startPos + " endPos " + endPos);
-
-                    ArrayList<Position> positions = new ArrayList<Position>();
-                    positions.add(startPos);
-                    positions.add(endPos);
-
+                    //System.out.println("called");
+                    //final Band band = newProduct.getBandAt(0);
                     /*
-                    Polyline pl = new Polyline();
-                    pl.setColor(Color.YELLOW);
-                    pl.setPositions(positions);
-                    pl.setPathType(Polyline.RHUMB_LINE);
-                    pl.setNumSubsegments(2);
-                    pl.setFollowTerrain(true);
+                    for (String currBandName : newProduct.getBandNames()) {
+                        System.out.println("currBandName " + currBandName);
+                    }
                     */
+                    System.out.println("product " + product.getName());
 
-                    DirectedPath directedPath = new DirectedPath(positions);
-                    directedPath.setAttributes(attrs);
-                    directedPath.setVisible(true);
-                    directedPath.setAltitudeMode(WorldWind.RELATIVE_TO_GROUND);
-                    directedPath.setPathType(AVKey.GREAT_CIRCLE);
+                    final Band lonBand = newProduct.getBand("hh_001_owiLon");
+                    final Band latBand = newProduct.getBand("hh_001_owiLat");
+                    final Band incAngleBand = newProduct.getBand("hh_001_owiIncidenceAngle");
+                    final Band windSpeedBand = newProduct.getBand("hh_001_owiWindSpeed");
+                    final Band windDirBand = newProduct.getBand("hh_001_owiWindDirection");
 
-                    addRenderable(directedPath);
+                    //final Band band = newProduct.getBand();
+                    System.out.println("band 0 " + lonBand);
+                    System.out.println("band width " + lonBand.getRasterWidth());
+                    System.out.println("band height " + lonBand.getRasterHeight());
 
+                    final float[] lonValues = new float[lonBand.getRasterWidth() * lonBand.getRasterHeight()];
+                    lonBand.readPixels(0, 0, lonBand.getRasterWidth(), lonBand.getRasterHeight(), lonValues, com.bc.ceres.core.ProgressMonitor.NULL);
+
+                    final float[] latValues = new float[latBand.getRasterWidth() * latBand.getRasterHeight()];
+                    latBand.readPixels(0, 0, latBand.getRasterWidth(), latBand.getRasterHeight(), latValues, com.bc.ceres.core.ProgressMonitor.NULL);
+
+                    final float[] incAngleValues = new float[incAngleBand.getRasterWidth() * incAngleBand.getRasterHeight()];
+                    incAngleBand.readPixels(0, 0, incAngleBand.getRasterWidth(), incAngleBand.getRasterHeight(), incAngleValues, com.bc.ceres.core.ProgressMonitor.NULL);
+
+                    final float[] windSpeedValues = new float[windSpeedBand.getRasterWidth() * windSpeedBand.getRasterHeight()];
+                    windSpeedBand.readPixels(0, 0, windSpeedBand.getRasterWidth(), windSpeedBand.getRasterHeight(), windSpeedValues, com.bc.ceres.core.ProgressMonitor.NULL);
+
+                    final float[] windDirValues = new float[windDirBand.getRasterWidth() * windDirBand.getRasterHeight()];
+                    windDirBand.readPixels(0, 0, windDirBand.getRasterWidth(), windDirBand.getRasterHeight(), windDirValues, com.bc.ceres.core.ProgressMonitor.NULL);
+
+
+                    final GeoPos geoPos1 = product.getGeoCoding().getGeoPos(new PixelPos(0, 0), null);
+                    final GeoPos geoPos2 = product.getGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
+                                    product.getSceneRasterHeight() - 1), null);
+
+                    double HUE_BLUE = 240d / 360d;
+                    double HUE_RED = 0d / 360d;
+                    double minValue = -200e3 * 2d;
+                    double maxValue = 200e3 / 2d;
+
+                    createRandomColorSurface(geoPos2.getLat(), geoPos1.getLat(), geoPos1.getLon(), geoPos2.getLon(), HUE_BLUE, HUE_RED, 40, 40, minValue, maxValue, this);
+                    //createRandomColorSurface(25, 35, -110, -100, HUE_BLUE, HUE_RED, 40, 40, minValue, maxValue, this);
+                    //createRandomColorSurface(geoPos2.getLat(),  geoPos1.getLat(), 55, 57, HUE_BLUE, HUE_RED, 40, 40, minValue, maxValue, this);
+                    System.out.println("geoPos1.getLat(), geoPos2.getLat(), geoPos1.getLon(), geoPos2.getLon() " + geoPos1.getLat() + " " + geoPos2.getLat() + " " + geoPos1.getLon() + " " + geoPos2.getLon());
+                    ShapeAttributes attrs = new BasicShapeAttributes();
+                    attrs.setOutlineMaterial(Material.BLACK);
+                    attrs.setOutlineWidth(2d);
+
+                     Format legendLabelFormat = new DecimalFormat("# m/s");
+                         /*
+                     {
+                         public StringBuffer format(double number, StringBuffer result, FieldPosition fieldPosition)
+                         {
+
+                             double altitudeMeters = altitude + verticalScale * number;
+                             double altitudeKm = altitudeMeters * WWMath.METERS_TO_KILOMETERS;
+                             return super.format(altitudeKm, result, fieldPosition);
+                         }
+                     };
+                     */
+                     AnalyticSurfaceLegend legend = AnalyticSurfaceLegend.fromColorGradient(minValue, maxValue, HUE_BLUE, HUE_RED,
+                             AnalyticSurfaceLegend.createDefaultColorGradientLabels(minValue, maxValue, legendLabelFormat),
+                             AnalyticSurfaceLegend.createDefaultTitle("Wind Speed"));
+                     legend.setOpacity(0.8);
+                     legend.setScreenLocation(new Point(650, 300));
+                    addRenderable(legend);
+
+                    for (int i = 0; i < latValues.length; i++) {
+                        //System.out.println(lonValues[i] + "::==::" + latValues[i] + "::==::" + incAngleValues[i] + "::==::" + windSpeedValues[i] + "::==::" + windDirValues[i] + "::==::");
+                        Position startPos = new Position(Angle.fromDegreesLatitude(latValues[i]), Angle.fromDegreesLongitude(lonValues[i]), 10.0);
+                        Position endPos = new Position(LatLon.greatCircleEndPosition(startPos, Angle.fromDegrees(windDirValues[i]), Angle.fromDegrees(0.01)), 10.0);
+
+                        //System.out.println("startPos " + startPos + " endPos " + endPos);
+
+                        ArrayList<Position> positions = new ArrayList<Position>();
+                        positions.add(startPos);
+                        positions.add(endPos);
+
+                        /*
+                        Polyline pl = new Polyline();
+                        pl.setColor(Color.YELLOW);
+                        pl.setPositions(positions);
+                        pl.setPathType(Polyline.RHUMB_LINE);
+                        pl.setNumSubsegments(2);
+                        pl.setFollowTerrain(true);
+                        */
+
+                        DirectedPath directedPath = new DirectedPath(positions);
+                        directedPath.setAttributes(attrs);
+                        directedPath.setVisible(true);
+                        directedPath.setAltitudeMode(WorldWind.RELATIVE_TO_GROUND);
+                        directedPath.setPathType(AVKey.GREAT_CIRCLE);
+
+                        addRenderable(directedPath);
+                    }
                 }
             } catch (Exception e) {
                 System.out.println("exception " + e);
                 e.printStackTrace();
             }
             // add image
-            /*
-            if (enableSurfaceImages)
-                addSurfaceImage(product);
-            */
+            if (product.getName().indexOf("_OCN_") < 0) {
+                if (enableSurfaceImages)
+                    addSurfaceImage(product);
+            }
             // add outline
             addOutline(product);
         }
@@ -283,21 +316,21 @@ public class ProductLayer extends RenderableLayer {
     }
 
     // ADDED
-    protected static void createRandomColorSurface(double minHue, double maxHue, int width, int height,
+    protected static void createRandomColorSurface(double minLat, double maxLat, double minLon, double maxLon, double minHue, double maxHue, int width, int height, double minValue, double maxValue,
                                                    RenderableLayer outLayer)
     {
-        double minValue = -200e3;
-        double maxValue = 200e3;
+        //double minValue = -200e3;
+        //double maxValue = 200e3;
 
         AnalyticSurface surface = new AnalyticSurface();
-        surface.setSector(Sector.fromDegrees(25, 35, -110, -100));
+        surface.setSector(Sector.fromDegrees(minLat, maxLat, minLon, maxLon));
         surface.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
         surface.setDimensions(width, height);
         surface.setClientLayer(outLayer);
         outLayer.addRenderable(surface);
 
-        //BufferWrapper firstBuffer = randomGridValues(width, height, minValue, maxValue);
-        BufferWrapper secondBuffer = randomGridValues(width, height, minValue * 2d, maxValue / 2d);
+        //BufferWrapper firstBuffer = randomGridValues(width, height, minValue / 2d, maxValue * 2d);
+        BufferWrapper secondBuffer = randomGridValues(width, height, minValue, maxValue);
 
         ArrayList<AnalyticSurface.GridPointAttributes> attributesList
                 = new ArrayList<AnalyticSurface.GridPointAttributes>();
@@ -314,7 +347,8 @@ public class ProductLayer extends RenderableLayer {
         AnalyticSurfaceAttributes attr = new AnalyticSurfaceAttributes();
         attr.setDrawShadow(false);
         attr.setInteriorOpacity(0.6);
-        attr.setOutlineWidth(3);
+        //attr.setOutlineWidth(3);
+        attr.setDrawOutline(false);
         surface.setSurfaceAttributes(attr);
     }
 
