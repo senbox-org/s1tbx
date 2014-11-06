@@ -36,7 +36,7 @@ public class DefaultRuntimeConfigTest extends AbstractRuntimeTest {
         clearContextSystemProperties("pacman");
     }
 
-    public void testWithNoProperties() throws RuntimeConfigException, IOException {
+    public void ignore_testWithNoProperties() throws RuntimeConfigException, IOException {
         DefaultRuntimeConfig config = new DefaultRuntimeConfig();
         assertEquals("ceres", config.getContextId());
 
