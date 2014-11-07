@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Display-Category: SNAP Engine
+AutoUpdate-Show-In-Client: true
+AutoUpdate-Essential-Module: true

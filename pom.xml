@@ -60,6 +60,7 @@
         <module>snap-bootstrap</module>
         <module>snap-config</module>
         <module>snap-help</module>
+        <module>snap-engine-kit</module>
 
         <!-- the bootstrap module has no sources, its only purpose is to construct a class path for VISAT -->
         <module>beam-bootstrap</module>
