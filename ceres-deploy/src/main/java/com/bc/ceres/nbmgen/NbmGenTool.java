@@ -19,13 +19,13 @@ import static com.bc.ceres.nbmgen.CeresModuleProject.getFile;
 /**
  * Usage:
  * <pre>
- *    NbmGenMain &lt;project-dir&gt; &lt;cluster&gt; &lt;dry-run&gt;
+ *    NbmGenTool &lt;project-dir&gt; &lt;cluster&gt; &lt;dry-run&gt;
  * </pre>
  * <p>
  * For example:
  * </p>
  * <pre>
- *    NbmGenMain . s1tbx true
+ *    NbmGenTool . s1tbx true
  * </pre>
  * <p>Scans a ${project-dir} for Ceres modules ({@code pom.xml} + {@code src/main/resources/module.xml})
  * and converts each module into a NetBeans module.
