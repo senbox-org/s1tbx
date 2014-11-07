@@ -27,17 +27,17 @@ import org.openide.util.NbBundle.Messages;
 
 @ActionID(
         category = "${category}",
-        id = "${package}.${classNameBase}Action}"
+        id = "${package}.${classNameBase}Action"
 )
 @ActionRegistration(
         displayName = "#CTL_${classNameBase}Action"
 )
-@ActionReference(path = ${menuPath}, position = ${position})
-@Messages("CTL_${classNameBase}Action=${name}")
-public final class ${classNameBase}Action extends AbstractAction {
+@ActionReference(path = "${path}", position = ${position})
+@Messages("CTL_${classNameBase}Action=${text}")
+public class ${classNameBase}Action extends ${baseClassName} {
 
     public ${classNameBase}Action() {
-        //put(Action., ${YYY});
+        //putValue(Action., ${YYY});
     }
 
     @Override

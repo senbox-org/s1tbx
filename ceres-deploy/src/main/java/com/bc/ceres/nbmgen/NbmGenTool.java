@@ -14,6 +14,8 @@ import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.bc.ceres.nbmgen.CeresModuleProject.getFile;
+
 /**
  * Usage:
  * <pre>
@@ -229,12 +231,5 @@ public class NbmGenTool implements CeresModuleProject.Processor  {
         xmlOutput.output(document, new FileWriter(file));
     }
 
-    private static File getFile(File dir, String... names) {
-        File file = dir;
-        for (String name : names) {
-            file = new File(file, name);
-        }
-        return file;
-    }
 
 }

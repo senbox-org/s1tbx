@@ -1,11 +1,19 @@
 package com.bc.ceres.nbmgen;
 
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Usage:
@@ -26,13 +34,60 @@ import java.util.List;
  */
 public class NbCodeGenTool implements CeresModuleProject.Processor {
 
+    interface Converter {
+        void convert(CeresModuleProject project, String point, Element extensionElement) throws IOException;
+    }
+
     File projectDir;
     boolean dryRun;
+
+    VelocityEngine velocityEngine;
+    HashMap<String, Converter> converters;
 
     public NbCodeGenTool(File projectDir, boolean dryRun) {
         this.projectDir = projectDir;
         this.dryRun = dryRun;
+        velocityEngine = createVelocityEngine();
+        converters = new HashMap<>();
+        initConverters();
     }
+
+    private void initConverters() {
+        Converter NULL = (project, point, extensionElement) -> {
+            warnNotImplemented(point);
+        };
+
+        converters.put("snap-ui:actions", new ActionConverter());
+        converters.put("snap-ceres-core:applications", NULL);
+        converters.put("snap-ceres-core:serviceProviders", NULL);
+        converters.put("snap-ceres-core:adapters", NULL);
+        converters.put("snap-core:rgbProfiles", NULL);
+        converters.put("snap-ui:applicationDescriptors", NULL);
+        converters.put("snap-ui:helpSets", NULL);
+        converters.put("snap-ui:actionGroups", NULL);
+        converters.put("snap-ui:toolViews", NULL);
+        converters.put("snap-ui:layerSources", NULL);
+        converters.put("snap-ui:layerEditors", NULL);
+        converters.put("snap-graph-builder:OperatorUIs", NULL);
+    }
+
+    private String getActionBaseName(String name) {
+        String simpleName;
+        int i = name.lastIndexOf('.');
+        if (i > 0) {
+            simpleName = name.substring(i + 1);
+        } else {
+            simpleName = name;
+        }
+        if (simpleName.endsWith("Action")) {
+            return simpleName.substring(0, simpleName.length() - "Action".length());
+        }
+        if (simpleName.endsWith("ActionGroup")) {
+            return simpleName.substring(0, simpleName.length() - "ActionGroup".length());
+        }
+        return simpleName;
+    }
+
 
     public static void main(String[] args) throws JDOMException, IOException {
 
@@ -51,113 +106,42 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
 
         Element moduleElement = project.moduleDocument.getRootElement();
 
-
-        List extensionPointElements = moduleElement.getChildren("extensionPoint");
-        for (Object obj : extensionPointElements) {
-            Element extensionPointElement = (Element) obj;
+        List<Element> extensionPointElements = (List<Element>) moduleElement.getChildren("extensionPoint");
+        for (Element extensionPointElement : extensionPointElements) {
             String id = extensionPointElement.getAttributeValue("id");
             infoModuleDetail("Found extensionPoint.id = " + id);
         }
 
-        List extensionElements = moduleElement.getChildren("extension");
-        for (Object obj : extensionElements) {
-            Element extensionElement = (Element) obj;
+        List<Element> extensionElements = (List<Element>) moduleElement.getChildren("extension");
+        for (Element extensionElement : extensionElements) {
             String point = extensionElement.getAttributeValue("point");
             infoModuleDetail("Found extension.point = " + point);
 
             List<Element> extensionConfigs = (List<Element>) extensionElement.getChildren();
-            if (!extensionConfigs.isEmpty()) {
-                switch (point) {
-                    case "snap-ceres-core:applications":
-                        convertApplications(point, extensionConfigs);
-                        break;
-                    case "snap-ceres-core:serviceProviders":
-                        convertServiceProviders(point, extensionConfigs);
-                        break;
-                    case "snap-ceres-core:adapters":
-                        convertAdapters(point, extensionConfigs);
-                        break;
-                    case "snap-core:rgbProfiles":
-                        convertRgbProfile(point, extensionConfigs);
-                        break;
-                    case "snap-ui:applicationDescriptors":
-                        convertApplicationDescriptor(point, extensionConfigs);
-                        break;
-                    case "snap-ui:helpSets":
-                        convertHelpSet(point, extensionConfigs);
-                        break;
-                    case "snap-ui:actions":
-                        convertAction(point, extensionConfigs);
-                        break;
-                    case "snap-ui:actionGroups":
-                        convertActionGroup(point, extensionConfigs);
-                        break;
-                    case "snap-ui:toolViews":
-                        convertToolView(point, extensionConfigs);
-                        break;
-                    case "snap-ui:layerSources":
-                        convertLayerSource(point, extensionConfigs);
-                        break;
-                    case "snap-ui:layerEditors":
-                        convertLayerEditor(point, extensionConfigs);
-                        break;
-                    case "snap-graph-builder:OperatorUIs":
-                        convertGraphBuilderOperatorUIs(point, extensionConfigs);
-                        break;
-                    default:
-                        warnModuleDetail("Don't know what to do with this extension: " + point);
-                        break;
+
+            for (Element extensionConfig : extensionConfigs) {
+                Converter converter = converters.get(point);
+                if (converter != null) {
+                    converter.convert(project, point, extensionConfig);
+                } else {
+                    warnModuleDetail("No converter for extension point: " + point);
                 }
             }
         }
     }
 
-    private void convertApplications(String point, List<Element> extensionElements) {
-        warnModuleDetail("Code generation not implemented yet: " + point);
+    private void evaluate(VelocityContext velocityContext, String resourceName, Writer writer) throws IOException {
+        try (Reader reader = new InputStreamReader(getClass().getResourceAsStream(resourceName))) {
+            evaluate(velocityContext, reader, writer);
+        }
     }
 
-    private void convertServiceProviders(String point, List<Element> extensionElements) {
-        warnModuleDetail("Code generation not implemented yet: " + point);
+    private void evaluate(VelocityContext velocityContext, Reader reader, Writer writer) {
+        velocityEngine.evaluate(velocityContext, writer, getClass().getSimpleName(), reader);
     }
 
-    private void convertAdapters(String point, List<Element> extensionElements) {
-        warnModuleDetail("Code generation not implemented yet: " + point);
-    }
-
-    private void convertRgbProfile(String point, List<Element> extensionElements) {
-        warnModuleDetail("Code generation not implemented yet: " + point);
-    }
-
-    private void convertApplicationDescriptor(String point, List<Element> extensionElements) {
-        warnModuleDetail("Code generation not implemented yet: " + point);
-    }
-
-    private void convertHelpSet(String point, List<Element> extensionElements) {
-        warnModuleDetail("Code generation not implemented yet: " + point);
-    }
-
-    private void convertAction(String point, List<Element> extensionElements) {
-        warnModuleDetail("Code generation not implemented yet: " + point);
-    }
-
-    private void convertActionGroup(String point, List<Element> extensionElements) {
-        warnModuleDetail("Code generation not implemented yet: " + point);
-    }
-
-    private void convertToolView(String point, List<Element> extensionElements) {
-        warnModuleDetail("Code generation not implemented yet: " + point);
-    }
-
-    private void convertLayerSource(String point, List<Element> extensionElements) {
-        warnModuleDetail("Code generation not implemented yet: " + point);
-    }
-
-    private void convertLayerEditor(String point, List<Element> extensionElements) {
-        warnModuleDetail("Code generation not implemented yet: " + point);
-    }
-
-    private void convertGraphBuilderOperatorUIs(String point, List<Element> extensionElements) {
-        warnModuleDetail("Code generation not implemented yet: " + point);
+    private void warnNotImplemented(String point) {
+        warnModuleDetail("converter not implemented for extension point: " + point);
     }
 
     private static void infoModuleDetail(String msg) {
@@ -166,5 +150,169 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
 
     private static void warnModuleDetail(String msg) {
         System.out.println("- WARNING: " + msg);
+    }
+
+    private static VelocityEngine createVelocityEngine() {
+        VelocityEngine velocityEngine = new VelocityEngine();
+        try {
+            velocityEngine.init();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to initialize velocity engine", e);
+        }
+        return velocityEngine;
+    }
+
+    private class ActionConverter implements Converter {
+
+        Map<String, Integer> classNameBases = new HashMap<>();
+
+        @Override
+        public void convert(CeresModuleProject project, String point, Element extensionElement) throws IOException {
+
+            Map<String, String> parentToPath = new HashMap<>();
+            parentToPath.put("file", "Menu/File");
+            parentToPath.put("importVectorData", "Menu/File/Import Vector Data");
+            parentToPath.put("importRasterData", "Menu/File/Import Raster Data");
+            parentToPath.put("importSAR", "Menu/File/Import Raster Data/SAR Data");
+            parentToPath.put("importMultispectral", "Menu/File/Import Raster Data/Multispectral Data");
+            parentToPath.put("importFileFormats", "Menu/File/Import Raster Data/Generic Formats");
+            parentToPath.put("exportOther", "Menu/File/Other Exports");
+            parentToPath.put("edit", "Menu/Edit");
+            parentToPath.put("view", "Menu/View");
+            parentToPath.put("tools", "Menu/Tools");  // ???
+            parentToPath.put("layoutToolViews", "Menu/View/Tool Window Layout");  // ???
+            parentToPath.put("toolBars", "Menu/Tools/Toolbars");  // ???
+            parentToPath.put("Graphs", "Menu/Graphs");  // ???
+            parentToPath.put("help", "Menu/Help");  // ???
+            parentToPath.put("processing", "Menu/Processing");  // ???
+            parentToPath.put("processing.preProcessing", "Menu/Processing/Pre-Processing");  // ???
+            parentToPath.put("processing.thematicLand", "Menu/Processing/Thematic Land Processing");  // ???
+            parentToPath.put("processing.thematicWater", "Menu/Processing/Thematic Water Processing");  // ???
+            parentToPath.put("processing.imageAnalysis", "Menu/Processing/Image Analysis");  // ???
+            parentToPath.put("processing.geomOperations", "Menu/Processing/Geometric Operations");  // ???
+
+            String id = extensionElement.getChildTextTrim("id");
+            String parent = extensionElement.getChildTextTrim("parent");
+            String placeAfter = extensionElement.getChildTextTrim("placeAfter");
+            String placeBefore = extensionElement.getChildTextTrim("placeBefore");
+            String separatorAfter = extensionElement.getChildTextTrim("separatorAfter");
+            String separatorBefore = extensionElement.getChildTextTrim("separatorBefore");
+            String actionClassName = extensionElement.getChildTextTrim("class");
+            String interactorClassName = extensionElement.getChildTextTrim("interactor");
+            String interceptorClassName = extensionElement.getChildTextTrim("interactorListener");
+            String text = extensionElement.getChildTextTrim("text");
+            String shortDescr = extensionElement.getChildTextTrim("shortDescr");
+            String longDescr = extensionElement.getChildTextTrim("longDescr");
+            String helpId = extensionElement.getChildTextTrim("helpId");
+            String mnemonic = extensionElement.getChildTextTrim("mnemonic");
+            String context = extensionElement.getChildTextTrim("context");
+            String popuptext = extensionElement.getChildTextTrim("popuptext");
+            String toggle = extensionElement.getChildTextTrim("toggle"); // true/false
+            String selected = extensionElement.getChildTextTrim("selected"); // true/false
+            String smallIcon = extensionElement.getChildTextTrim("smallIcon");
+            String largeIcon = extensionElement.getChildTextTrim("largeIcon");
+            String useAllFileFilter = extensionElement.getChildTextTrim("useAllFileFilter");
+            String formatName = extensionElement.getChildTextTrim("formatName");
+            String sortChildren = extensionElement.getChildTextTrim("sortChildren");
+            String operatorName = extensionElement.getChildTextTrim("operatorName");
+            String dialogTitle = extensionElement.getChildTextTrim("dialogTitle");
+            String targetProductNameSuffix = extensionElement.getChildTextTrim("targetProductNameSuffix");
+
+            if ("org.esa.beam.visat.actions.ActionGroup".equals(actionClassName)) {
+                warnModuleDetail("ActionGroup not converted: id = " + id);
+                return;
+            }
+
+            String classNameBase = NbCodeGenTool.this.getActionBaseName(actionClassName);
+            String path = parent != null ? parentToPath.get(parent) : "Menu/Extras";
+            String packageName = "generated.org.esa.snap.gui.action";
+            String category = "SNAP"; // todo
+            String baseClassName = "AbstractAction";
+            int position = 0;
+
+            switch (actionClassName) {
+                case "org.esa.beam.visat.actions.ProductImportAction":
+                    packageName += ".file.pimp";
+                    classNameBase = "Import_" + formatName.replace('-', '_').replace(' ', '_').replace('.', '_').replace('/', '_') + "_";
+                    baseClassName = packageName + ".ProductImportAction";
+                    // todo - do something with formatName
+                    // todo - do something with useAllFileFilter
+                    break;
+                case "org.esa.beam.visat.actions.ProductExportAction":
+                    packageName += ".file.pexp";
+                    classNameBase = "Export_" + formatName.replace('-', '_').replace(' ', '_').replace('.', '_').replace('/', '_') + "_";
+                    baseClassName = packageName + ".ProductExportAction";
+                    // todo - do something with formatName
+                    // todo - do something with useAllFileFilter
+                    break;
+                case "org.esa.beam.visat.actions.DefaultOperatorAction":
+                    packageName += ".op";
+                    classNameBase = "Invoke_" + operatorName + "_";
+                    baseClassName = packageName + ".DefaultOperatorAction";
+                    break;
+                case "org.esa.beam.visat.actions.ShowToolBarAction":
+                    packageName += ".view";
+                    classNameBase = Character.toUpperCase(id.charAt(0)) + id.substring(1);
+                    baseClassName = packageName + ".ShowToolBarAction";
+                    break;
+                case "org.esa.beam.visat.actions.ToolAction":
+                    packageName += ".tool";
+                    classNameBase = Character.toUpperCase(id.charAt(0)) + id.substring(1);
+                    baseClassName = packageName + ".ToolAction";
+                    break;
+                case "org.esa.beam.visat.actions.PlacemarkToolAction":
+                    packageName += ".tool";
+                    classNameBase = Character.toUpperCase(id.charAt(0)) + id.substring(1);
+                    baseClassName = packageName + ".PlacemarkToolAction";
+                    break;
+            }
+
+            Integer count = classNameBases.get(classNameBase);
+            if (count != null) {
+                count = count + 1;
+                classNameBases.put(classNameBase, count);
+                String classNameBaseOld = classNameBase;
+                if (count > 1) {
+                    classNameBase = classNameBase.endsWith("_") ? classNameBase + count + "_" : classNameBase + count;
+                }
+                String msg = String.format("Class base name already seen: %s, renamed to %s", classNameBaseOld, classNameBase);
+                warnModuleDetail(msg);
+                //throw new IllegalStateException(msg);
+            } else {
+                classNameBases.put(classNameBase, 1);
+            }
+
+
+            infoModuleDetail("Action template parameters:");
+            infoModuleDetail("  package = " + packageName);
+            infoModuleDetail("  classNameBase = " + classNameBase);
+            infoModuleDetail("  path = " + path);
+            infoModuleDetail("  text = " + text);
+            infoModuleDetail("  position = " + position);
+            infoModuleDetail("  category = " + category);
+
+            if (path == null) {
+                throw new IllegalStateException("path == null");
+            }
+
+            VelocityContext velocityContext = new VelocityContext();
+            velocityContext.put("package", packageName);
+            velocityContext.put("path", path);
+            velocityContext.put("position", position);
+            velocityContext.put("text", text);
+            velocityContext.put("category", category);
+            velocityContext.put("classNameBase", classNameBase);
+            velocityContext.put("baseClassName", baseClassName);
+
+            File javaFile = CeresModuleProject.getFile(projectDir, "src", "main", "java", packageName.replace('.', File.separatorChar), classNameBase + "Action.java");
+
+            if (!dryRun) {
+                javaFile.getParentFile().mkdirs();
+                try (FileWriter writer = new FileWriter(javaFile)) {
+                    NbCodeGenTool.this.evaluate(velocityContext, "Action.vm", writer);
+                }
+            }
+            infoModuleDetail("Written Java source: " + javaFile);
+        }
     }
 }

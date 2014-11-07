@@ -87,7 +87,7 @@ class CeresModuleProject {
         return Collections.emptyList();
     }
 
-    private static File getFile(File dir, String... names) {
+    static File getFile(File dir, String... names) {
         File file = dir;
         for (String name : names) {
             file = new File(file, name);
