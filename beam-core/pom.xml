@@ -23,7 +23,7 @@
 
     <parent>
         <groupId>org.esa.snap</groupId>
-        <artifactId>snap-beam</artifactId>
+        <artifactId>snap-engine</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 

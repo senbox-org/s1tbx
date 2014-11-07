@@ -9,7 +9,7 @@
     </properties>
 
     <parent>
-        <artifactId>snap-beam</artifactId>
+        <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
