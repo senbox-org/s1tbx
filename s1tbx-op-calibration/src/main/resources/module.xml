@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>s1tbx-op-calibration</symbolicName>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <name>S1TBX Calibration Operator</name>
     <description>S1TBX Calibration Operator</description>
 
