@@ -78,11 +78,24 @@ public class NbmGenTool implements CeresModuleProject.Processor {
 
         Element moduleElement = project.moduleDocument.getRootElement();
         String moduleName = moduleElement.getChildTextTrim("name");
+        String moduleDescription = moduleElement.getChildTextNormalize("description");
+        String modulePackaging = moduleElement.getChildTextTrim("packaging");
+        String moduleNative = moduleElement.getChildTextTrim("native");
+        String moduleActivator = moduleElement.getChildTextTrim("activator");
+        String moduleChangelog = moduleElement.getChildTextTrim("changelog");
+        String moduleFunding = moduleElement.getChildTextTrim("funding");
+        String moduleVendor = moduleElement.getChildTextTrim("vendor");
+        String moduleContactAddress = moduleElement.getChildTextTrim("contactAddress");
+        String moduleCopyright = moduleElement.getChildTextTrim("copyright");
+        String moduleLicenseUrl = moduleElement.getChildTextTrim("licenseUrl");
+        // Not used anymore:
+        //String moduleUrl = moduleElement.getChildTextTrim("url");
+        //String moduleAboutUrl = moduleElement.getChildTextTrim("aboutUrl");
+
         if (moduleName != null) {
             Element nameElement = getOrAddElement(projectElement, "name", ns);
             nameElement.setText(moduleName);
         }
-        String moduleDescription = moduleElement.getChildTextNormalize("description");
         if (moduleDescription != null) {
             int nameIndex = projectElement.indexOf(projectElement.getChild("name"));
             Element descriptionElement = getOrAddElement(projectElement, "description", nameIndex + 1, ns);
@@ -90,6 +103,9 @@ public class NbmGenTool implements CeresModuleProject.Processor {
         }
         Element descriptionElement = getOrAddElement(projectElement, "packaging", ns);
         descriptionElement.setText("nbm");
+
+        Element urlElement = getOrAddElement(projectElement, "url", ns);
+        urlElement.setText("https://sentinel.esa.int/web/sentinel/toolboxes");
 
         Element buildElement = getOrAddElement(projectElement, "build", ns);
         Element pluginsElement = getOrAddElement(buildElement, "plugins", ns);
@@ -113,19 +129,6 @@ public class NbmGenTool implements CeresModuleProject.Processor {
 
         addPluginElement(pluginsElement, "org.apache.maven.plugins", "maven-jar-plugin", jarConfiguration, ns);
 
-        String modulePackaging = moduleElement.getChildTextTrim("packaging");
-        String moduleNative = moduleElement.getChildTextTrim("native");
-        String moduleActivator = moduleElement.getChildTextTrim("activator");
-
-        // todo - deal with the following content, e.g. add as HTML to OpenIDE-Module-Long-Description
-        String moduleChangelog = moduleElement.getChildTextTrim("changelog");
-        String moduleFunding = moduleElement.getChildTextTrim("funding");
-        String moduleVendor = moduleElement.getChildTextTrim("vendor");
-        String moduleContactAddress = moduleElement.getChildTextTrim("contactAddress");
-        String moduleCopyright = moduleElement.getChildTextTrim("copyright");
-        String moduleUrl = moduleElement.getChildTextTrim("url");
-        String moduleAboutUrl = moduleElement.getChildTextTrim("aboutUrl");
-        String moduleLicenseUrl = moduleElement.getChildTextTrim("licenseUrl");
 
         StringBuilder longDescription = new StringBuilder();
 
