@@ -59,14 +59,14 @@ public class ReportDialog extends ModalDialog {
     public static JPanel createButtonPanel() {
         final JPanel panel = new JPanel(new GridLayout(10, 1));
 
-        final JButton pdfButton = DialogUtils.CreateButton("Export PDF", "Export PDF", null, panel);
+        final JButton pdfButton = DialogUtils.createButton("Export PDF", "Export PDF", null, panel, false);
         panel.add(pdfButton);
         pdfButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
 
             }
         });
-        final JButton htmlButton = DialogUtils.CreateButton("Export HTML", "Export HTML", null, panel);
+        final JButton htmlButton = DialogUtils.createButton("Export HTML", "Export HTML", null, panel, false);
         panel.add(htmlButton);
         htmlButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
