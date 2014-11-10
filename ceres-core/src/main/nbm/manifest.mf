@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
-AutoUpdate-Show-In-Client: false
-AutoUpdate-Essential-Module: true
+OpenIDE-Module-Implementation-Version: 2.0.0
+OpenIDE-Module-Friends: org.esa.snap.snap.ceres.ui
 OpenIDE-Module-Java-Dependencies: Java > 1.8
 OpenIDE-Module-Display-Category: SNAP
 OpenIDE-Module-Long-Description: <p>The Ceres Runtime provides a platf
@@ -12,3 +12,5 @@ OpenIDE-Module-Long-Description: <p>The Ceres Runtime provides a platf
  <p><b>Changelog:</b> </p>
 OpenIDE-Module-Install: com.bc.ceres.core.runtime.internal.RuntimeActi
  vator
+AutoUpdate-Show-In-Client: false
+AutoUpdate-Essential-Module: true
