@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.bc.ceres.nbmgen.CeresModuleProject.getFile;
@@ -37,7 +38,7 @@ import static com.bc.ceres.nbmgen.CeresModuleProject.getFile;
  *
  * @author Norman
  */
-public class NbmGenTool implements CeresModuleProject.Processor  {
+public class NbmGenTool implements CeresModuleProject.Processor {
 
     File projectDir;
     String cluster;
@@ -58,7 +59,7 @@ public class NbmGenTool implements CeresModuleProject.Processor  {
         NbmGenTool processor = new NbmGenTool(projectDir, cluster, dryRun);
 
         CeresModuleProject.processParentDir(projectDir, processor);
-   }
+    }
 
     @Override
     public void process(CeresModuleProject project) throws JDOMException, IOException {
@@ -71,6 +72,29 @@ public class NbmGenTool implements CeresModuleProject.Processor  {
 
         Element projectElement = project.pomDocument.getRootElement();
         Namespace ns = projectElement.getNamespace();
+
+        Element moduleElement = project.moduleDocument.getRootElement();
+        String moduleName = moduleElement.getChildTextTrim("name");
+        if (moduleName != null) {
+            Element nameElement = getOrAddElement(projectElement, "name", ns);
+            nameElement.setText(moduleName);
+        }
+        String moduleDescription = moduleElement.getChildTextNormalize("description");
+        if (moduleDescription != null) {
+            List<Element> children = moduleElement.getChildren();
+            int nameIndex = -1;
+            for (int i = 0; i < children.size(); i++) {
+                String name = children.get(i).getName();
+                if(name.equalsIgnoreCase("name")) {
+                    nameIndex = i;
+                }
+
+            }
+            Element descriptionElement = getOrAddElement(projectElement, "description", nameIndex, ns);
+            descriptionElement.setText(moduleDescription);
+        }
+        Element descriptionElement = getOrAddElement(projectElement, "packaging", ns);
+        descriptionElement.setText("nbm");
 
         Element buildElement = getOrAddElement(projectElement, "build", ns);
         Element pluginsElement = getOrAddElement(buildElement, "plugins", ns);
@@ -87,26 +111,12 @@ public class NbmGenTool implements CeresModuleProject.Processor  {
         nbmConfiguration.put("publicPackages", "");
         nbmConfiguration.put("requiresRestart", "true");
 
-        addPluginElement(pluginsElement,
-                         "org.codehaus.mojo", "nbm-maven-plugin", nbmConfiguration, ns);
+        addPluginElement(pluginsElement, "org.codehaus.mojo", "nbm-maven-plugin", nbmConfiguration, ns);
 
         Map<String, String> jarConfiguration = new LinkedHashMap<>();
         jarConfiguration.put("useDefaultManifestFile", "true");
 
-        addPluginElement(pluginsElement,
-                         "org.apache.maven.plugins", "maven-jar-plugin", jarConfiguration, ns);
-
-        Element moduleElement = project.moduleDocument.getRootElement();
-        String moduleName = moduleElement.getChildTextTrim("name");
-        if (moduleName != null) {
-            Element nameElement = getOrAddElement(projectElement, "name", ns);
-            nameElement.setText(moduleName);
-        }
-        String moduleDescription = moduleElement.getChildTextNormalize("description");
-        if (moduleDescription != null) {
-            Element descriptionElement = getOrAddElement(projectElement, "description", ns);
-            descriptionElement.setText(moduleDescription);
-        }
+        addPluginElement(pluginsElement, "org.apache.maven.plugins", "maven-jar-plugin", jarConfiguration, ns);
 
         String modulePackaging = moduleElement.getChildTextTrim("packaging");
         String moduleNative = moduleElement.getChildTextTrim("native");
@@ -146,14 +156,17 @@ public class NbmGenTool implements CeresModuleProject.Processor  {
             manifestContent.put("OpenIDE-Module-Long-Description", longDescription);
         }
         if (moduleActivator != null) {
-            warnModuleDetail("Activator may be reimplemented for NB: " + moduleActivator + " (--> consider using @OnStart, @OnStop, @OnShowing, or a ModuleInstall)");
+            warnModuleDetail("Activator may be reimplemented for NB: " + moduleActivator + " (--> " +
+                             "consider using @OnStart, @OnStop, @OnShowing, or a ModuleInstall)");
             manifestContent.put("OpenIDE-Module-Install", moduleActivator);
         }
         if (modulePackaging != null && !"jar".equals(modulePackaging)) {
-            warnModuleDetail("Unsupported module packaging: " + modulePackaging + " (--> provide a ModuleInstall that does the job on install/uninstall)");
+            warnModuleDetail("Unsupported module packaging: " + modulePackaging + " (--> " +
+                             "provide a ModuleInstall that does the job on install/uninstall)");
         }
         if (moduleNative != null && "true".equals(moduleNative)) {
-            warnModuleDetail("Module contains native code: no auto-conversion possible (--> follow NB instructions see http://bits.netbeans.org/dev/javadoc/org-openide-modules/org/openide/modules/doc-files/api.html#how-layer");
+            warnModuleDetail("Module contains native code: no auto-conversion possible (--> " +
+                             "follow NB instructions see http://bits.netbeans.org/dev/javadoc/org-openide-modules/org/openide/modules/doc-files/api.html#how-layer");
         }
 
         if (!originalPomFile.exists()) {
@@ -214,13 +227,22 @@ public class NbmGenTool implements CeresModuleProject.Processor  {
         pluginsElement.addContent(pluginElement);
     }
 
-    private static Element getOrAddElement(Element parent, String name, Namespace ns) {
+    private static Element getOrAddElement(Element parent, String name, int index, Namespace ns) {
         Element child = parent.getChild(name, ns);
         if (child == null) {
             child = new Element(name, ns);
-            parent.addContent(child);
+            if (index >= 0) {
+                parent.addContent(index, child);
+            }else {
+                parent.addContent(child);
+
+            }
         }
         return child;
+    }
+
+    private static Element getOrAddElement(Element parent, String name, Namespace ns) {
+        return getOrAddElement(parent, name, -1, ns);
     }
 
     private static void writeXml(File file, Document document) throws IOException {
