@@ -6,10 +6,13 @@
         <artifactId>snap-engine</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-    <name>Ceres Metadata handling Library</name>
+
     <artifactId>snap-metadata</artifactId>
     <packaging>nbm</packaging>
+
+    <name>Ceres Metadata handling Library</name>
     <description>The Ceres Metadata handling Library provides common access to velocity for metadata processing.</description>
+
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -31,13 +34,14 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
                 <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
                     <archive>
                         <manifest>
                             <mainClass>com.bc.monitoring.console.Starter</mainClass>
@@ -54,7 +58,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4</version>
                 <configuration>
                     <descriptors>
                         <descriptor>src/main/assembly/distribution.xml</descriptor>
@@ -74,24 +77,13 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
-                    <moduleType>normal</moduleType>
-                    <licenseName>GPL 3</licenseName>
-                    <licenseFile>../LICENSE.html</licenseFile>
-                    <cluster>snap</cluster>
-                    <defaultCluster>snap</defaultCluster>
-                    <publicPackages />
-                    <requiresRestart>true</requiresRestart>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                    <publicPackages>
+                        <publicPackage>com.bc.ceres.metadata</publicPackage>
+                        <publicPackage>com.bc.ceres.resource</publicPackage>
+                    </publicPackages>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
 </project>
 

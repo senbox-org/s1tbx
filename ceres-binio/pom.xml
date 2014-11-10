@@ -6,10 +6,13 @@
         <artifactId>snap-engine</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-    <name>Ceres Binary I/O Library</name>
+
     <artifactId>snap-binio</artifactId>
     <packaging>nbm</packaging>
+
+    <name>Ceres Binary I/O Library</name>
     <description>The Ceres Binary I/O Library provides a generic access to binary data structures.</description>
+
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -20,20 +23,19 @@
             <artifactId>jdom2</artifactId>
         </dependency>
     </dependencies>
-    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
-                    <moduleType>normal</moduleType>
-                    <licenseName>GPL 3</licenseName>
-                    <licenseFile>../LICENSE.html</licenseFile>
-                    <cluster>snap</cluster>
-                    <defaultCluster>snap</defaultCluster>
-                    <publicPackages />
-                    <requiresRestart>true</requiresRestart>
+                    <publicPackages>
+                        <publicPackage>com.bc.ceres.binio</publicPackage>
+                        <publicPackage>com.bc.ceres.binio.binx</publicPackage>
+                        <publicPackage>com.bc.ceres.binio.expr</publicPackage>
+                        <publicPackage>com.bc.ceres.binio.util</publicPackage>
+                    </publicPackages>
                 </configuration>
             </plugin>
             <plugin>

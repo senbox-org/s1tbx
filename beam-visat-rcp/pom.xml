@@ -14,17 +14,23 @@
   ~ You should have received a copy of the GNU General Public License along
   ~ with this program; if not, see http://www.gnu.org/licenses/
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <description>A desktop application used to open, browse, visualise, analyse and manipulate data products of a number of EO sensors.</description>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
+        <artifactId>snap-engine</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-    <name>VISAT Rich Client Platform</name>
+
     <artifactId>snap-visat-rcp</artifactId>
     <packaging>nbm</packaging>
+
+    <name>VISAT Rich Client Platform</name>
+    <description>A desktop application used to open, browse, visualise, analyse and manipulate data products of a number
+        of EO sensors.
+    </description>
+
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -62,20 +68,32 @@
             <artifactId>gt-render</artifactId>
         </dependency>
     </dependencies>
-    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
-                    <moduleType>normal</moduleType>
-                    <licenseName>GPL 3</licenseName>
-                    <licenseFile>../LICENSE.html</licenseFile>
-                    <cluster>snap</cluster>
-                    <defaultCluster>snap</defaultCluster>
-                    <publicPackages />
-                    <requiresRestart>true</requiresRestart>
+                    <publicPackages>
+                        <publicPackage>com.bc.ceres.swing</publicPackage>
+                        <publicPackage>com.bc.ceres.swing.actions</publicPackage>
+                        <publicPackage>com.bc.ceres.swing.binding</publicPackage>
+                        <publicPackage>com.bc.ceres.swing.debug</publicPackage>
+                        <publicPackage>com.bc.ceres.swing.figure</publicPackage>
+                        <publicPackage>com.bc.ceres.swing.progress</publicPackage>
+                        <publicPackage>com.bc.ceres.swing.selection</publicPackage>
+                        <publicPackage>com.bc.ceres.swing.undo</publicPackage>
+                        <publicPackage>com.bc.ceres.swing.update</publicPackage>
+                        <publicPackage>com.bc.swing.*</publicPackage>
+                        <publicPackage>org.esa.beam.framework.help</publicPackage>
+                        <publicPackage>org.esa.beam.framework.param.editors</publicPackage>
+                        <publicPackage>org.esa.beam.framework.ui.*</publicPackage>
+                        <publicPackage>org.esa.beam.visat</publicPackage>
+                        <publicPackage>org.esa.beam.visat.actions.*</publicPackage>
+                        <publicPackage>org.esa.beam.visat.dialogs.*</publicPackage>
+                        <publicPackage>org.esa.beam.visat.toolviews.*</publicPackage>
+                    </publicPackages>
                 </configuration>
             </plugin>
             <plugin>
