@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: false
+AutoUpdate-Essential-Module: true
+OpenIDE-Module-Java-Dependencies: Java > 1.8
+OpenIDE-Module-Display-Category: SNAP
+OpenIDE-Module-Long-Description: <p>A wrapper module for the native li
+ braries used to read data products in HDF format.</p><p><b>Vendor:</b
+ > Brockmann Consult GmbH</p><p><b>Contact address:</b> Max-Planck-Str
+ . 2, 21502 Geesthacht (Germany)</p><p><b>Copyright:</b> (C) 2014 by B
+ rockmann Consult GmbH</p><p><b>Vendor:</b> Brockmann Consult GmbH</p>
+ <p><b>License:</b> http://www.gnu.org/licenses/gpl.html</p><p><b>Chan
+ gelog:</b> <p>Changes in 2.7<br/>
+            [BEAM-1279] Add 64-bit HDF libraries for all platforms<br/
+ >
+        </p></p>

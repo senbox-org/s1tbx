@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <description>This module provides a product reader for importing Arc/Info Binary Grid data products into SNAP.</description>
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-	
     <artifactId>snap-arcbingrid-reader</artifactId>
     <name>Arc/Info Binary Grid Reader</name>
-
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -20,25 +18,53 @@
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-core</artifactId>
         </dependency>
-        <dependency> <!-- used to read Dbase files (*.dbf) -->
+        <dependency>
+            <!-- used to read Dbase files (*.dbf) -->
             <groupId>org.geotools</groupId>
             <artifactId>gt-shapefile</artifactId>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.jexcelapi</groupId>
             <artifactId>jxl</artifactId>
-			<version>2.6.12</version>
-			<exclusions>
+            <version>2.6.12</version>
+            <exclusions>
                 <exclusion>
                     <groupId>log4j</groupId>
                     <artifactId>log4j</artifactId>
                 </exclusion>
-			</exclusions>
+            </exclusions>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>uk.me.jstott</groupId>
             <artifactId>jcoord</artifactId>
-			<version>1.0</version>
+            <version>1.0</version>
         </dependency>
     </dependencies>
+    <packaging>nbm</packaging>
+    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <moduleType>normal</moduleType>
+                    <licenseName>GPL 3</licenseName>
+                    <licenseFile>../LICENSE.html</licenseFile>
+                    <cluster>snap</cluster>
+                    <defaultCluster>snap</defaultCluster>
+                    <publicPackages />
+                    <requiresRestart>true</requiresRestart>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
+

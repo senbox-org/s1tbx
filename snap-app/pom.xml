@@ -1,21 +1,15 @@
-<?xml version="1.0"?>
-<project
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <description>Sentinel Toolbox Display and Analysis Tool</description>
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.esa.snap</groupId>
         <artifactId>snap-engine</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-
     <name>SNAP Application</name>
     <artifactId>snap-app</artifactId>
-
     <packaging>jar</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -33,5 +27,6 @@
             <version>1.27</version>
         </dependency>
     </dependencies>
-
+    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
 </project>
+

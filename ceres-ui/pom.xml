@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <description>The Ceres User Interface Library provides basic Java Swing user interface components supporting the Ceres Runtime Library, e.g. a module manager dialog and a configuration panel for connecting remote module repositories.</description>
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.esa.snap</groupId>
         <artifactId>snap-engine</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-
-    <name>Ceres UI</name>
+    <name>Ceres User Interface Library</name>
     <artifactId>snap-ceres-ui</artifactId>
-
-    <packaging>jar</packaging>
-
+    <packaging>nbm</packaging>
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -33,5 +29,27 @@
             <version>3.6.1</version>
         </dependency>
     </dependencies>
-
+    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <publicPackages>
+                        <!-- todo - hide contained 'internal' package -->
+                        <publicPackage>com.bc.ceres.swing.*</publicPackage>
+                    </publicPackages>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
+

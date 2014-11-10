@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
   ~
@@ -13,30 +14,21 @@
   ~ You should have received a copy of the GNU General Public License along
   ~ with this program; if not, see http://www.gnu.org/licenses/
   -->
-
 <!--suppress MavenModelInspection -->
-<project
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <description>The basic framework for processing using Operators and the GPT.</description>
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-
     <name>SNAP Graph Processing Framework (GPF)</name>
     <artifactId>snap-gpf</artifactId>
-
-    <packaging>jar</packaging>
-
+    <packaging>nbm</packaging>
     <properties>
         <jdkToolsPath>${java.home}/../lib/tools.jar</jdkToolsPath>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -59,7 +51,6 @@
             <artifactId>mockito-all</artifactId>
         </dependency>
     </dependencies>
-
     <profiles>
         <profile>
             <id>oracle-tools</id>
@@ -80,5 +71,28 @@
             </dependencies>
         </profile>
     </profiles>
-
+    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <publicPackages>
+                        <!-- todo don't export 'internal' packages -->
+                        <publicPackage>org.esa.beam.framework.gpf.*</publicPackage>
+                        <publicPackage>org.esa.beam.gpf.operators.*</publicPackage>
+                    </publicPackages>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
+

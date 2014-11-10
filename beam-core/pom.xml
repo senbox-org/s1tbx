@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
   ~
@@ -13,25 +14,17 @@
   ~ You should have received a copy of the GNU General Public License along
   ~ with this program; if not, see http://www.gnu.org/licenses/
   -->
-
-<project
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <description>This is the base module of SNAP containing its core functionality.</description>
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.esa.snap</groupId>
         <artifactId>snap-engine</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-
-    <name>SNAP Core API</name>
+    <name>SNAP Core Library</name>
     <artifactId>snap-core</artifactId>
-
-    <packaging>jar</packaging>
-
+    <packaging>nbm</packaging>
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -126,15 +119,47 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
         </dependency>
-		<dependency>
-			<groupId>com.vividsolutions</groupId>
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
-			 <version>1.13</version>
-		</dependency>
+            <version>1.13</version>
+        </dependency>
         <dependency>
             <groupId>com.jidesoft</groupId>
             <artifactId>jide-common</artifactId>
         </dependency>
     </dependencies>
-
+    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <publicPackages>
+                        <publicPackage>com.bc.io</publicPackage>
+                        <publicPackage>com.bc.jexp</publicPackage>
+                        <publicPackage>com.bc.util</publicPackage>
+                        <publicPackage>org.esa.beam.dataio.*</publicPackage>
+                        <publicPackage>org.esa.beam.framework.*</publicPackage>
+                        <publicPackage>org.esa.beam.glayer.*</publicPackage>
+                        <publicPackage>org.esa.beam.glayer.*</publicPackage>
+                        <publicPackage>org.esa.beam.jai.*</publicPackage>
+                        <publicPackage>org.esa.beam.nn.*</publicPackage>
+                        <publicPackage>org.esa.beam.util.*</publicPackage>
+                        <publicPackage>org.esa.beam.examples.*</publicPackage>
+                        <publicPackage>org.esa.beam</publicPackage>
+                    </publicPackages>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
+

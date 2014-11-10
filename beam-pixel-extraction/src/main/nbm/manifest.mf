@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: false
+AutoUpdate-Essential-Module: true
+OpenIDE-Module-Java-Dependencies: Java > 1.8
+OpenIDE-Module-Display-Category: SNAP
+OpenIDE-Module-Long-Description: <p>The SNAP Pixel Extraction Tool can
+  be used to generate a CSV file from a given pixel location of specif
+ ied products. It is implemented as a GPF operator.</p><p><b>Vendor:</
+ b> Brockmann Consult GmbH</p><p><b>Contact address:</b> Max-Planck-St
+ r. 2, 21502 Geesthacht (Germany)</p><p><b>Copyright:</b> (C) 2014 by 
+ Brockmann Consult GmbH</p><p><b>Vendor:</b> Brockmann Consult GmbH</p
+ ><p><b>License:</b> http://www.gnu.org/licenses/gpl.html</p>

@@ -1,55 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <description>The Level-3 Binning Operator performs a spatial and temporal aggregation of a number of input (Level-2) products using the NASA SeaDAS binning scheme. This module has replaced the module 'snap-binning'.</description>
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-
     <artifactId>snap-binning</artifactId>
-    <name>SNAP Level-3 Binning</name>
-
+    <name>Level-3 Binning Processor (GPF)</name>
     <dependencies>
-
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-core</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-gpf</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-ui</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-visat-rcp</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-netcdf</artifactId>
         </dependency>
-
         <dependency>
             <groupId>edu.ucar</groupId>
             <artifactId>netcdf</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
         </dependency>
-
         <!-- Not a real dependency, but used for tests -->
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -57,24 +45,42 @@
             <version>${snap.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>blue-marble-worldmap</artifactId>
             <version>${snap.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
                 <groupId>com.bc.maven.plugins</groupId>
                 <artifactId>maven-javahelp-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <moduleType>normal</moduleType>
+                    <licenseName>GPL 3</licenseName>
+                    <licenseFile>../LICENSE.html</licenseFile>
+                    <cluster>snap</cluster>
+                    <defaultCluster>snap</defaultCluster>
+                    <publicPackages />
+                    <requiresRestart>true</requiresRestart>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
-
+    <packaging>nbm</packaging>
+    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
 </project>
+

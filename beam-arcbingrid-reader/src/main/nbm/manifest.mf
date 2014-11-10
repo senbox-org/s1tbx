@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: false
+AutoUpdate-Essential-Module: true
+OpenIDE-Module-Java-Dependencies: Java > 1.8
+OpenIDE-Module-Display-Category: SNAP
+OpenIDE-Module-Long-Description: <p>This module provides a product rea
+ der for importing Arc/Info Binary Grid data products into SNAP.</p><p
+ ><b>Vendor:</b> Brockmann Consult GmbH</p><p><b>Contact address:</b> 
+ Max Planck Str.2, 21502 Geesthacht (Germany)</p><p><b>Copyright:</b> 
+ (C) 2010 by Brockmann Consult GmbH</p><p><b>Vendor:</b> Brockmann Con
+ sult GmbH</p><p><b>License:</b> http://www.gnu.org/licenses/gpl.html<
+ /p><p><b>Changelog:</b> <p>Changes in 1.1:<br/>
+          [GBOX-001] 'Arc/Info Binary Grid Reader' does not work<br/>
+          </p></p>

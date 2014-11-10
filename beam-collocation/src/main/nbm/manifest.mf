@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: false
+AutoUpdate-Essential-Module: true
+OpenIDE-Module-Java-Dependencies: Java > 1.8
+OpenIDE-Module-Display-Category: SNAP
+OpenIDE-Module-Long-Description: <p>Performs a geographic collocation 
+ of two data products.</p><p><b>Vendor:</b> Brockmann Consult GmbH</p>
+ <p><b>Contact address:</b> Max-Planck-Str. 2, 21502 Geesthacht (Germa
+ ny)</p><p><b>Copyright:</b> (C) 2014 by Brockmann Consult GmbH</p><p>
+ <b>Vendor:</b> Brockmann Consult GmbH</p><p><b>License:</b> http://ww
+ w.gnu.org/licenses/gpl.html</p><p><b>Changelog:</b> <b>Changes in 5.0
+ .1</b><br/>
+        NPE fixed in mask expression string in Geocoding display panel
+ ; slight simplification in CollocateOp <br/></p>

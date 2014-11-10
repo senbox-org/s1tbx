@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: false
+AutoUpdate-Essential-Module: true
+OpenIDE-Module-Java-Dependencies: Java > 1.8
+OpenIDE-Module-Display-Category: SNAP
+OpenIDE-Module-Long-Description: <p>A module for reading and writing G
+ eoTIFF Data Products</p><p><b>Vendor:</b> Brockmann Consult GmbH</p><
+ p><b>Contact address:</b> Max-Planck-Str. 2, 21502 Geesthacht (German
+ y)</p><p><b>Copyright:</b> (C) 2014 by Brockmann Consult GmbH</p><p><
+ b>Vendor:</b> Brockmann Consult GmbH</p><p><b>License:</b> http://www
+ .gnu.org/licenses/gpl.html</p><p><b>Changelog:</b> <b>Changes in 2.0.
+ 0</b><br/>
+            [SNAP-15] Support BigTIFF data format<br/></p>

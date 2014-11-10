@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
   ~
@@ -13,25 +14,17 @@
   ~ You should have received a copy of the GNU General Public License along
   ~ with this program; if not, see http://www.gnu.org/licenses/
   -->
-
-<project
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <description>Provides a simple console for scripting SNAP using JavaScript (default) or other Java-enabled interpreter languages (add-on).</description>
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-
     <name>SNAP Scripting Interface</name>
     <artifactId>snap-scripting</artifactId>
-
-    <packaging>jar</packaging>
-
+    <packaging>nbm</packaging>
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -42,5 +35,30 @@
             <artifactId>snap-gpf</artifactId>
         </dependency>
     </dependencies>
-
+    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <moduleType>normal</moduleType>
+                    <licenseName>GPL 3</licenseName>
+                    <licenseFile>../LICENSE.html</licenseFile>
+                    <cluster>snap</cluster>
+                    <defaultCluster>snap</defaultCluster>
+                    <publicPackages />
+                    <requiresRestart>true</requiresRestart>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
+

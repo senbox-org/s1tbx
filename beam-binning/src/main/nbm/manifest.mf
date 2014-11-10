@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: false
+AutoUpdate-Essential-Module: true
+OpenIDE-Module-Java-Dependencies: Java > 1.8
+OpenIDE-Module-Display-Category: SNAP
+OpenIDE-Module-Long-Description: <p>The Level-3 Binning Operator perfo
+ rms a spatial and temporal aggregation of a number of input (Level-2)
+  products using the NASA SeaDAS binning scheme. This module has repla
+ ced the module 'snap-binning'.</p><p><b>Funding:</b> ESA, EU (Project
+  Aquamar)</p><p><b>Vendor:</b> Brockmann Consult GmbH</p><p><b>Contac
+ t address:</b> Max-Planck-Str. 2, 21502 Geesthacht (Germany)</p><p><b
+ >Copyright:</b> (C) 2014 by Brockmann Consult GmbH</p><p><b>Vendor:</
+ b> Brockmann Consult GmbH</p><p><b>License:</b> http://www.gnu.org/li
+ censes/gpl.html</p>
