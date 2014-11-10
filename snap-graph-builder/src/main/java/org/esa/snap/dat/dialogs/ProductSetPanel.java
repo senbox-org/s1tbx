@@ -153,7 +153,7 @@ public class ProductSetPanel extends JPanel implements TableModelListener {
 
         final JPanel panel = new JPanel(new GridLayout(10, 1));
 
-        final JButton addButton = DialogUtils.CreateButton("addButton", "Add", null, panel);
+        final JButton addButton = DialogUtils.createButton("addButton", "Add", null, panel, false);
         addButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -168,7 +168,7 @@ public class ProductSetPanel extends JPanel implements TableModelListener {
             }
         });
 
-        addAllOpenButton = DialogUtils.CreateButton("addAllOpenButton", "Add Opened", null, panel);
+        addAllOpenButton = DialogUtils.createButton("addAllOpenButton", "Add Opened", null, panel, false);
         addAllOpenButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -182,7 +182,7 @@ public class ProductSetPanel extends JPanel implements TableModelListener {
             }
         });
 
-        dbQueryButton = DialogUtils.CreateButton("dbQueryButton", "DB Query", null, panel);
+        dbQueryButton = DialogUtils.createButton("dbQueryButton", "DB Query", null, panel, false);
         dbQueryButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -201,7 +201,7 @@ public class ProductSetPanel extends JPanel implements TableModelListener {
             }
         });
 
-        removeButton = DialogUtils.CreateButton("removeButton", "Remove", null, panel);
+        removeButton = DialogUtils.createButton("removeButton", "Remove", null, panel, false);
         removeButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -223,7 +223,7 @@ public class ProductSetPanel extends JPanel implements TableModelListener {
 
         });
 
-        moveUpButton = DialogUtils.CreateButton("moveUpButton", "Move Up", null, panel);
+        moveUpButton = DialogUtils.createButton("moveUpButton", "Move Up", null, panel, false);
         moveUpButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -242,7 +242,7 @@ public class ProductSetPanel extends JPanel implements TableModelListener {
 
         });
 
-        moveDownButton = DialogUtils.CreateButton("moveDownButton", "Move Down", null, panel);
+        moveDownButton = DialogUtils.createButton("moveDownButton", "Move Down", null, panel, false);
         moveDownButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -261,7 +261,7 @@ public class ProductSetPanel extends JPanel implements TableModelListener {
 
         });
 
-        clearButton = DialogUtils.CreateButton("clearButton", "Clear", null, panel);
+        clearButton = DialogUtils.createButton("clearButton", "Clear", null, panel, false);
         clearButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
