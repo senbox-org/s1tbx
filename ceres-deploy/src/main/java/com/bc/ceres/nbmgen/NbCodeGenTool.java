@@ -97,6 +97,10 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
         NbCodeGenTool processor = new NbCodeGenTool(projectDir, dryRun);
 
         CeresModuleProject.processParentDir(projectDir, processor);
+
+        if (dryRun) {
+            warnModuleDetail("dry run: file system not modified");
+        }
     }
 
     @Override
