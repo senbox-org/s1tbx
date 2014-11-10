@@ -81,15 +81,7 @@ public class NbmGenTool implements CeresModuleProject.Processor {
         }
         String moduleDescription = moduleElement.getChildTextNormalize("description");
         if (moduleDescription != null) {
-            List<Element> children = moduleElement.getChildren();
-            int nameIndex = -1;
-            for (int i = 0; i < children.size(); i++) {
-                String name = children.get(i).getName();
-                if(name.equalsIgnoreCase("name")) {
-                    nameIndex = i;
-                }
-
-            }
+            int nameIndex = getChildIndex(moduleElement, "name");
             Element descriptionElement = getOrAddElement(projectElement, "description", nameIndex, ns);
             descriptionElement.setText(moduleDescription);
         }
@@ -227,6 +219,21 @@ public class NbmGenTool implements CeresModuleProject.Processor {
         pluginsElement.addContent(pluginElement);
     }
 
+    private int getChildIndex(Element parentElement, String childName) {
+        List<Element> children = parentElement.getChildren();
+        for (int i = 0; i < children.size(); i++) {
+            String name = children.get(i).getName();
+            if(name.equalsIgnoreCase(childName)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static Element getOrAddElement(Element parent, String name, Namespace ns) {
+        return getOrAddElement(parent, name, -1, ns);
+    }
+
     private static Element getOrAddElement(Element parent, String name, int index, Namespace ns) {
         Element child = parent.getChild(name, ns);
         if (child == null) {
@@ -239,10 +246,6 @@ public class NbmGenTool implements CeresModuleProject.Processor {
             }
         }
         return child;
-    }
-
-    private static Element getOrAddElement(Element parent, String name, Namespace ns) {
-        return getOrAddElement(parent, name, -1, ns);
     }
 
     private static void writeXml(File file, Document document) throws IOException {
