@@ -255,6 +255,8 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
             }
         });
 
+        final JPanel commandPanel = productLibraryActions.createCommandPanel();
+
         final JScrollPane tablePane = new JScrollPane(productEntryTable);
         tablePane.setMinimumSize(new Dimension(400, 400));
 
@@ -264,8 +266,6 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         final JSplitPane splitPaneV = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tablePane, worldMapUI.getWorlMapPane());
         splitPaneV.setOneTouchExpandable(true);
         splitPaneV.setResizeWeight(0.8);
-
-        final JPanel commandPanel = productLibraryActions.createCommandPanel();
 
         final JPanel centrePanel = new JPanel(new BorderLayout());
         centrePanel.add(leftPanel, BorderLayout.WEST);

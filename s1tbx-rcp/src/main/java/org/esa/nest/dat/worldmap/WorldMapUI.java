@@ -13,19 +13,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.nest.dat.toolviews.productlibrary;
+package org.esa.nest.dat.worldmap;
 
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
-import org.esa.nest.dat.worldmap.NestWorldMapPane;
-import org.esa.nest.dat.worldmap.NestWorldMapPaneDataModel;
 import org.esa.snap.db.GeoPosList;
 import org.esa.snap.db.ProductEntry;
 
 import javax.swing.event.MouseInputAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
 
@@ -35,24 +30,11 @@ public class WorldMapUI {
     private final NestWorldMapPaneDataModel worldMapDataModel;
     private final NestWorldMapPane worlMapPane;
 
-    private final List<DatabaseQueryListener> listenerList = new ArrayList<>(1);
-
     public WorldMapUI() {
 
         worldMapDataModel = new NestWorldMapPaneDataModel();
         worlMapPane = new NestWorldMapPane(worldMapDataModel);
         worlMapPane.getLayerCanvas().addMouseListener(new MouseHandler());
-    }
-
-    /**
-     * Adds a <code>DatabasePaneListener</code>.
-     *
-     * @param listener the <code>DatabasePaneListener</code> to be added.
-     */
-    public void addListener(final DatabaseQueryListener listener) {
-        if (!listenerList.contains(listener)) {
-            listenerList.add(listener);
-        }
     }
 
     public GeoPos[] getSelectionBox() {
@@ -65,21 +47,6 @@ public class WorldMapUI {
 
     public void setSelectionEnd(final float lat, final float lon) {
         worldMapDataModel.setSelectionBoxEnd(lat, lon);
-    }
-
-    /**
-     * Removes a <code>DatabasePaneListener</code>.
-     *
-     * @param listener the <code>DatabasePaneListener</code> to be removed.
-     */
-    public void removeListener(final DatabaseQueryListener listener) {
-        listenerList.remove(listener);
-    }
-
-    private void notifyQuery() {
-        for (final DatabaseQueryListener listener : listenerList) {
-            listener.notifyNewMapSelectionAvailable();
-        }
     }
 
     public NestWorldMapPane getWorlMapPane() {
@@ -141,7 +108,7 @@ public class WorldMapUI {
         @Override
         public void mouseReleased(MouseEvent e) {
             if (e.getButton() == MouseEvent.BUTTON1) {
-                notifyQuery();
+
             }
         }
     }

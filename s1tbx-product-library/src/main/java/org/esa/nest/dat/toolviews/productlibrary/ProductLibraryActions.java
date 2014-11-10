@@ -119,7 +119,11 @@ public class ProductLibraryActions {
         openAllSelectedButton.setEnabled(enable);
         copySelectedButton.setEnabled(enable);
         batchProcessButton.setEnabled(enable);
-        stackButton.setEnabled(enable);
+        stackButton.setEnabled(enable && getNumberOfSelections() > 1);
+    }
+
+    private int getNumberOfSelections() {
+        return productEntryTable.getSelectedRowCount();
     }
 
     public ProductEntry[] getSelectedProductEntries() {
