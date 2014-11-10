@@ -129,19 +129,6 @@
             <initIndex>0</initIndex>
         </toolView>
 
-        <toolView>
-            <id>org.esa.nest.dat.toolviews.productlibrary.ProductLibraryToolView</id>
-            <class>org.esa.nest.dat.toolviews.productlibrary.ProductLibraryToolView</class>
-            <title>Product Library - Local Catalogue</title>
-            <tabTitle>Product Library</tabTitle>
-            <mnemonic>D</mnemonic>
-            <accelerator>ctrl alt D</accelerator>
-            <smallIcon>/org/esa/nest/icons/product_library16.png</smallIcon>
-            <largeIcon>/org/esa/nest/icons/product_library24.png</largeIcon>
-            <initState>ICONIFIED</initState>
-            <initSide>EAST</initSide>
-            <initIndex>0</initIndex>
-        </toolView>
     </extension>
 
     <extension point="snap-ui:actions">
@@ -254,18 +241,6 @@
             <placeAfter>saveProjectAs</placeAfter>
             <shortDescr>Close current project</shortDescr>
             <description>Close current project</description>
-        </action>
-
-        <action>
-            <id>showProductLibrary</id>
-            <class>org.esa.nest.dat.actions.ShowProductLibraryAction</class>
-            <parent>file</parent>
-            <text>Product Library</text>
-            <placeAfter>open</placeAfter>
-            <shortDescr>Show Product Library Metadata Database</shortDescr>
-            <description>Show Product Library Metadata Database</description>
-            <smallIcon>/org/esa/nest/icons/product_library16.png</smallIcon>
-            <largeIcon>/org/esa/nest/icons/product_library24.png</largeIcon>
         </action>
 
         <action>
