@@ -340,7 +340,13 @@ public class Sentinel1OCNReader {
 
         final int[] origin = {sourceOffsetY, sourceOffsetX};
         final int[] shape = {(sourceHeight - 1) * sourceStepY + 1, (sourceWidth - 1) * sourceStepX + 1};
-
+        // ADDED
+        /*
+        System.out.println(":::::" + sourceOffsetX + " " + sourceOffsetY);
+        System.out.println(":::::" + sourceStepX + " " + sourceStepY);
+        System.out.println(":::::" + sourceWidth + " " + sourceHeight);
+        System.out.println(":::::" + destWidth + " " + destHeight);
+        */
         try {
 
             final Array srcArray = var.read(origin, shape);

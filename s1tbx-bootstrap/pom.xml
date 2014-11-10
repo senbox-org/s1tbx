@@ -79,16 +79,32 @@
         </dependency>
         <dependency>
             <groupId>gov.nasa</groupId>
-            <artifactId>nasa-worldwind</artifactId>
+            <artifactId>worldwind</artifactId>
         </dependency>
-        <dependency>
+		<dependency>
+			<groupId>gov.nasa</groupId>
+			<artifactId>worldwindx</artifactId>
+		</dependency>
+		
+		<dependency>
+			 <groupId>org.jogamp.gluegen</groupId>
+			 <artifactId>gluegen-rt-main</artifactId>
+			 <version>2.1.5-01</version>
+			 </dependency>
+			 
+			 <dependency>
+			 <groupId>org.jogamp.jogl</groupId>
+			 <artifactId>jogl-all-main</artifactId>
+			 <version>2.1.5-01</version>
+		</dependency>			
+        <!--dependency>
             <groupId>org.processing</groupId>
             <artifactId>jogl</artifactId>
         </dependency>
         <dependency>
             <groupId>org.processing</groupId>
             <artifactId>gluegen-rt</artifactId>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>edu.emory.mathcs</groupId>
             <artifactId>jtransforms</artifactId>
