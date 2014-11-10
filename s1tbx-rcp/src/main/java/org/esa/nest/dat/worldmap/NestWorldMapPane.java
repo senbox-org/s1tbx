@@ -28,6 +28,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ButtonOverlayControl;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.visat.VisatApp;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
 import javax.swing.*;
@@ -68,27 +69,32 @@ public class NestWorldMapPane extends JPanel {
 
     public NestWorldMapPane(NestWorldMapPaneDataModel dataModel) {
         this.dataModel = dataModel;
-        layerCanvas = new LayerCanvas();
-        layerCanvas.getModel().getViewport().setModelYAxisDown(false);
-        installLayerCanvasNavigation(layerCanvas, dataModel);
-        layerCanvas.addOverlay(new BoundaryOverlay());
-        final Layer rootLayer = layerCanvas.getLayer();
+        try {
+            layerCanvas = new LayerCanvas();
+            layerCanvas.getModel().getViewport().setModelYAxisDown(false);
+            installLayerCanvasNavigation(layerCanvas, dataModel);
+            layerCanvas.addOverlay(new BoundaryOverlay());
+            final Layer rootLayer = layerCanvas.getLayer();
 
-        final Dimension dimension = new Dimension(400, 150);
-        final Viewport viewport = layerCanvas.getViewport();
-        viewport.setViewBounds(new Rectangle(dimension));
+            final Dimension dimension = new Dimension(400, 150);
+            final Viewport viewport = layerCanvas.getViewport();
+            viewport.setViewBounds(new Rectangle(dimension));
 
-        setPreferredSize(dimension);
-        setSize(dimension);
-        setLayout(new BorderLayout());
-        add(layerCanvas, BorderLayout.CENTER);
+            setPreferredSize(dimension);
+            setSize(dimension);
+            setLayout(new BorderLayout());
+            add(layerCanvas, BorderLayout.CENTER);
 
-        dataModel.addModelChangeListener(new ModelChangeListener());
+            dataModel.addModelChangeListener(new ModelChangeListener());
 
-        worldMapLayer = dataModel.getWorldMapLayer(new WorldMapLayerContext(rootLayer));
-        layerCanvas.getLayer().getChildren().add(worldMapLayer);
-        layerCanvas.getViewport().zoom(worldMapLayer.getModelBounds());
-        setNavControlVisible(true);
+            worldMapLayer = dataModel.getWorldMapLayer(new WorldMapLayerContext(rootLayer));
+            layerCanvas.getLayer().getChildren().add(worldMapLayer);
+            layerCanvas.getViewport().zoom(worldMapLayer.getModelBounds());
+
+            setNavControlVisible(true);
+        } catch (Exception e) {
+            VisatApp.getApp().showErrorDialog("Error in worldmap initialization: "+e.getMessage());
+        }
 
     }
 
