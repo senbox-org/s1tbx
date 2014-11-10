@@ -43,11 +43,6 @@
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-op-coregistration</artifactId>
-            <version>${s1tbx.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-dem</artifactId>
             <version>${s1tbx.version}</version>
         </dependency>
@@ -55,11 +50,6 @@
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-visat-rcp</artifactId>
             <version>${snap.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-rcp</artifactId>
-            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>

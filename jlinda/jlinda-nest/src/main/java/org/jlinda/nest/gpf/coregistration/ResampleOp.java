@@ -18,8 +18,6 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.dialogs.AutoCloseOptionPane;
-import org.esa.nest.gpf.GCPManager;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
@@ -652,7 +650,7 @@ public class ResampleOp extends Operator {
         if(!msg.isEmpty()) {
             System.out.println(msg);
             if(VisatApp.getApp() != null) {
-                AutoCloseOptionPane.showWarningDialog("Some bands did not coregister", msg);
+                VisatApp.getApp().showWarningDialog("Some bands did not coregister", msg);
             }
         }
     }
