@@ -9,10 +9,10 @@ import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.visat.VisatApp;
 import org.esa.snap.dat.dialogs.ProductSetPanel;
-import org.esa.nest.dat.utils.ProductOpener;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.util.DialogUtils;
+import org.esa.snap.db.ProductEntry;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.util.DialogUtils;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.stacks.MasterSelection;
@@ -48,8 +48,8 @@ public class InSARMasterDialog extends ModelessDialog {
     private JButton openBtn;
     private final JCheckBox searchDBCheckBox = new JCheckBox("Search Product Library");
 
-    public InSARMasterDialog(String helpId) {
-        super(VisatApp.getApp().getMainFrame(), "Stack Overview and Optimal InSAR Master Selection", ModalDialog.ID_OK_CANCEL_HELP, helpId);
+    public InSARMasterDialog() {
+        super(VisatApp.getApp().getMainFrame(), "Stack Overview and Optimal InSAR Master Selection", ModalDialog.ID_OK_CANCEL_HELP, "InSARMaster");
 
         getButton(ID_OK).setText("Overview");
         getButton(ID_CANCEL).setText("Close");
@@ -61,7 +61,7 @@ public class InSARMasterDialog extends ModelessDialog {
         final JPanel contentPane = new JPanel(new BorderLayout());
 
         final JPanel buttonPanel1 = new JPanel(new GridLayout(10, 1));
-        final JButton addAllBtn = DialogUtils.CreateButton("addAllBtn", "Add Opened", null, buttonPanel1);
+        final JButton addAllBtn = DialogUtils.createButton("addAllBtn", "Add Opened", null, buttonPanel1, false);
         addAllBtn.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -78,7 +78,7 @@ public class InSARMasterDialog extends ModelessDialog {
         });
         buttonPanel1.add(addAllBtn);
 
-        final JButton clearBtn = DialogUtils.CreateButton("clearBtn", "Clear", null, buttonPanel1);
+        final JButton clearBtn = DialogUtils.createButton("clearBtn", "Clear", null, buttonPanel1, false);
         clearBtn.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -101,7 +101,7 @@ public class InSARMasterDialog extends ModelessDialog {
         //contentPane.add(optionsPane, BorderLayout.CENTER);
 
         final JPanel buttonPanel2 = new JPanel(new GridLayout(10, 1));
-        openBtn = DialogUtils.CreateButton("openButton", "     Open     ", null, buttonPanel2);
+        openBtn = DialogUtils.createButton("openButton", "     Open     ", null, buttonPanel2, false);
         openBtn.setEnabled(false);
         openBtn.addActionListener(new ActionListener() {
 
@@ -120,6 +120,11 @@ public class InSARMasterDialog extends ModelessDialog {
         setContent(contentPane);
     }
 
+    public void setInputProductList(final ProductEntry[] productEntryList) {
+        inputProductListPanel.setProductEntryList(productEntryList);
+        processStack();
+    }
+
     private void validate() throws Exception {
         final File[] inputFiles = inputProductListPanel.getFileList();
         if (inputFiles.length < 2) {
@@ -127,7 +132,7 @@ public class InSARMasterDialog extends ModelessDialog {
         }
     }
 
-    protected void onOK() {
+    private void processStack() {
         try {
             validate();
 
@@ -151,6 +156,10 @@ public class InSARMasterDialog extends ModelessDialog {
         } catch (Exception e) {
             VisatApp.getApp().showErrorDialog("Error: " + e.getMessage());
         }
+    }
+
+    protected void onOK() {
+        processStack();
     }
 
     public boolean IsOK() {

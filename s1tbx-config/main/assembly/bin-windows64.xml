@@ -102,6 +102,7 @@
                             <exclude>org.esa.s1tbx:s1tbx-op-coregistration</exclude>
                             <exclude>org.esa.s1tbx:s1tbx-dem</exclude>
                             <exclude>org.esa.s1tbx:s1tbx-io</exclude>
+							<exclude>org.esa.s1tbx:s1tbx-product-library</exclude>
                             <exclude>org.esa.s1tbx:s1tbx-rcp</exclude>
 							<exclude>org.esa.s2tbx:s2tbx-commons</exclude>
                             <exclude>org.esa.s3tbx:s3tbx-merisl3-reader</exclude>
