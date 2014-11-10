@@ -12,10 +12,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
-import static com.bc.ceres.nbmgen.CeresModuleProject.getFile;
+import static com.bc.ceres.nbmgen.CeresModuleProject.*;
 
 /**
  * Usage:
@@ -82,7 +81,7 @@ public class NbmGenTool implements CeresModuleProject.Processor {
         String moduleDescription = moduleElement.getChildTextNormalize("description");
         if (moduleDescription != null) {
             int nameIndex = projectElement.indexOf(getOrAddElement(projectElement, "name", ns));
-            Element descriptionElement = getOrAddElement(projectElement, "description", nameIndex+1, ns);
+            Element descriptionElement = getOrAddElement(projectElement, "description", nameIndex + 1, ns);
             descriptionElement.setText(moduleDescription);
         }
         Element descriptionElement = getOrAddElement(projectElement, "packaging", ns);
