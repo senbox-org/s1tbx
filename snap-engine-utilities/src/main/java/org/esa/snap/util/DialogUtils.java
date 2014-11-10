@@ -90,12 +90,14 @@ public final class DialogUtils {
     }
 
     public static JButton CreateButton(final String name, final String text, final ImageIcon icon, final JPanel panel) {
-        JButton button = new JButton();
+        final JButton button = new JButton();
         button.setName(name);
-        button = new JButton();
         button.setIcon(icon);
         button.setBackground(panel.getBackground());
-        button.setText(text);
+        if(icon == null) {
+            button.setText(text);
+        }
+        button.setToolTipText(text);
         button.setActionCommand(name);
         return button;
     }
