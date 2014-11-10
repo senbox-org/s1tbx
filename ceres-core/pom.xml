@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <description>The Ceres Runtime provides a platform for applications based on updatable, versioned modules.
-    </description>
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.esa.snap</groupId>
         <artifactId>snap-engine</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-    <name>Ceres Runtime Library</name>
+
     <artifactId>snap-ceres-core</artifactId>
     <packaging>nbm</packaging>
+
+    <name>Ceres Runtime Library</name>
+    <description>
+        The Ceres Runtime provides a platform for applications based on updatable, versioned modules.
+    </description>
+
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -26,25 +30,19 @@
             <artifactId>xpp3</artifactId>
         </dependency>
     </dependencies>
-    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
-                    <moduleType>normal</moduleType>
-                    <licenseName>GPL 3</licenseName>
-                    <licenseFile>../LICENSE.html</licenseFile>
-                    <cluster>snap</cluster>
-                    <defaultCluster>snap</defaultCluster>
                     <publicPackages>
                         <publicPackage>com.bc.ceres.launcher</publicPackage>
                         <publicPackage>com.bc.ceres.core</publicPackage>
                         <publicPackage>com.bc.ceres.core.runtime</publicPackage>
                         <publicPackage>com.thoughtworks.xstream.*</publicPackage>
                     </publicPackages>
-                    <requiresRestart>true</requiresRestart>
                 </configuration>
             </plugin>
             <plugin>
