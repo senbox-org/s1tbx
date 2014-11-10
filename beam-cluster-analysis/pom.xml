@@ -57,15 +57,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                <configuration>
-                    <moduleType>normal</moduleType>
-                    <licenseName>GPL 3</licenseName>
-                    <licenseFile>../LICENSE.html</licenseFile>
-                    <cluster>snap</cluster>
-                    <defaultCluster>snap</defaultCluster>
-                    <publicPackages />
-                    <requiresRestart>true</requiresRestart>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

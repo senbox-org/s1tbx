@@ -9,6 +9,8 @@
     </parent>
     <artifactId>snap-time-series-tool</artifactId>
     <name>Time Series Tool</name>
+    <packaging>nbm</packaging>
+    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -24,15 +26,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                <configuration>
-                    <moduleType>normal</moduleType>
-                    <licenseName>GPL 3</licenseName>
-                    <licenseFile>../LICENSE.html</licenseFile>
-                    <cluster>snap</cluster>
-                    <defaultCluster>snap</defaultCluster>
-                    <publicPackages />
-                    <requiresRestart>true</requiresRestart>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -43,7 +36,5 @@
             </plugin>
         </plugins>
     </build>
-    <packaging>nbm</packaging>
-    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
 </project>
 
