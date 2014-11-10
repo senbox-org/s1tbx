@@ -816,8 +816,12 @@
                     <version>3.14</version>
                     <extensions>true</extensions>
                     <configuration>
+                        <moduleType>normal</moduleType>
                         <licenseName>GPL 3</licenseName>
                         <licenseFile>../LICENSE.html</licenseFile>
+                        <cluster>snap</cluster>
+                        <defaultCluster>snap</defaultCluster>
+                        <requiresRestart>true</requiresRestart>
                     </configuration>
                 </plugin>
 
