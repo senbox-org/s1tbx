@@ -67,6 +67,11 @@
             <class>org.esa.nest.gpf.DEMBasedCoregistrationOpUI</class>
             <operatorName>DEM-Based-Coregistration</operatorName>
         </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.MultiInputStackAveragingOpUI</id>
+            <class>org.esa.nest.gpf.MultiInputStackAveragingOpUI</class>
+            <operatorName>Multi-Input-Stack-Averaging</operatorName>
+        </OperatorUI>
     </extension>
 
     <extension point="snap-ui:layerSources">
@@ -149,6 +154,30 @@
             <shortDescr>Stack Averaging</shortDescr>
             <parent>CoregistrationGroup</parent>
             <helpId>StackAveraging</helpId>
+        </action>
+
+        <action>
+            <id>StackSplit</id>
+            <helpId>StackSplit</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>CoregistrationGroup</parent>
+            <text>Stack Split</text>
+            <shortDescr>Stack Split</shortDescr>
+            <dialogTitle>Stack Split</dialogTitle>
+            <graphFile>StackSplitGraph.xml</graphFile>
+        </action>
+
+        <action>
+            <id>Multi-Input-Stack-Averaging</id>
+            <helpId>Multi-Input-Stack-Averaging</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>CoregistrationGroup</parent>
+            <text>Multi Input Stack Averaging</text>
+            <dialogTitle>Multi Input Stack Averaging</dialogTitle>
+            <shortDescr>Multi Input Stack Averaging</shortDescr>
+            <graphFile>MultiInputStackAveragingGraph.xml</graphFile>
         </action>
 
     </extension>

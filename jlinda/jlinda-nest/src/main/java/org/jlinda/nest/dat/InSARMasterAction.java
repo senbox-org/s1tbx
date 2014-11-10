@@ -23,7 +23,7 @@ public class InSARMasterAction extends AbstractVisatAction {
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        final InSARMasterDialog dialog = new InSARMasterDialog(event.getCommand().getHelpId());
+        final InSARMasterDialog dialog = new InSARMasterDialog();
         dialog.show();
     }
 
