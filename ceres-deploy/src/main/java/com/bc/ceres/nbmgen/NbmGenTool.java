@@ -14,7 +14,7 @@ import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.bc.ceres.nbmgen.CeresModuleProject.*;
+import static com.bc.ceres.nbmgen.CeresModuleProject.getFile;
 
 /**
  * Usage:
@@ -58,6 +58,10 @@ public class NbmGenTool implements CeresModuleProject.Processor {
         NbmGenTool processor = new NbmGenTool(projectDir, cluster, dryRun);
 
         CeresModuleProject.processParentDir(projectDir, processor);
+
+        if (dryRun) {
+            warnModuleDetail("dry run: file system not modified");
+        }
     }
 
     @Override
@@ -80,7 +84,7 @@ public class NbmGenTool implements CeresModuleProject.Processor {
         }
         String moduleDescription = moduleElement.getChildTextNormalize("description");
         if (moduleDescription != null) {
-            int nameIndex = projectElement.indexOf(getOrAddElement(projectElement, "name", ns));
+            int nameIndex = projectElement.indexOf(projectElement.getChild("name"));
             Element descriptionElement = getOrAddElement(projectElement, "description", nameIndex + 1, ns);
             descriptionElement.setText(moduleDescription);
         }
@@ -123,19 +127,17 @@ public class NbmGenTool implements CeresModuleProject.Processor {
         String moduleAboutUrl = moduleElement.getChildTextTrim("aboutUrl");
         String moduleLicenseUrl = moduleElement.getChildTextTrim("licenseUrl");
 
-        // check - we may apply the following code pattern to process metadata not supported in NMBs
-        String longDescription = "";
-        if (moduleFunding != null) {
-            longDescription += String.format("The development of this module has been funded by <b>%s</b>.<p/>", moduleFunding);
-        }
-        if (moduleDescription != null) {
-            longDescription += "<p>" + moduleDescription + "</p>";
-        }
-        if (moduleChangelog != null) {
-            // check - convert CDATA section? Or simply don't support this anymore?
-            longDescription += String.format("<p><b>CHANGELOG:</b><p>%s</p>", moduleChangelog);
-        }
+        StringBuilder longDescription = new StringBuilder();
 
+        longDescription
+                .append(moduleDescription != null ? "<p>" + moduleDescription + "</p>" : "")
+                .append(descriptionEntry("Funding", moduleFunding))
+                .append(descriptionEntry("Vendor", moduleVendor))
+                .append(descriptionEntry("Contact address", moduleContactAddress))
+                .append(descriptionEntry("Copyright", moduleCopyright))
+                .append(descriptionEntry("Vendor", moduleVendor))
+                .append(descriptionEntry("License", moduleLicenseUrl))
+                .append(descriptionEntry("Changelog", moduleChangelog));
 
         Map<String, String> manifestContent = new LinkedHashMap<>();
         manifestContent.put("Manifest-Version", "1.0");
@@ -143,8 +145,8 @@ public class NbmGenTool implements CeresModuleProject.Processor {
         manifestContent.put("AutoUpdate-Essential-Module", "true");
         manifestContent.put("OpenIDE-Module-Java-Dependencies", "Java > 1.8");
         manifestContent.put("OpenIDE-Module-Display-Category", "SNAP");
-        if (!longDescription.isEmpty()) {
-            manifestContent.put("OpenIDE-Module-Long-Description", longDescription);
+        if (longDescription.length() > 0) {
+            manifestContent.put("OpenIDE-Module-Long-Description", longDescription.toString());
         }
         if (moduleActivator != null) {
             warnModuleDetail("Activator may be reimplemented for NB: " + moduleActivator + " (--> " +
@@ -182,6 +184,10 @@ public class NbmGenTool implements CeresModuleProject.Processor {
             writeManifest(manifestBaseFile, manifestContent);
         }
         infoModuleDetail("Written " + manifestBaseFile);
+    }
+
+    private String descriptionEntry(String name, String value) {
+        return value != null ? String.format("<p><b>%s:</b> %s</p>", name, value) : "";
     }
 
     private static void infoModuleDetail(String msg) {
