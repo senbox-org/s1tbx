@@ -14,16 +14,23 @@
   ~ You should have received a copy of the GNU General Public License along
   ~ with this program; if not, see http://www.gnu.org/licenses/
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <description>The SNAP Pixel Extraction Tool can be used to generate a CSV file from a given pixel location of specified products. It is implemented as a GPF operator.</description>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-    <name>SNAP Pixel Extraction Tool</name>
+
     <artifactId>snap-pixel-extraction</artifactId>
+    <packaging>nbm</packaging>
+
+    <name>SNAP Pixel Extraction Tool</name>
+    <description>The SNAP Pixel Extraction Tool can be used to generate a CSV file from a given pixel location of specified products. It is
+        implemented as a GPF operator.
+    </description>
+
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -38,6 +45,7 @@
             <artifactId>snap-csv-dataio</artifactId>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -57,7 +65,5 @@
             </plugin>
         </plugins>
     </build>
-    <packaging>nbm</packaging>
-    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
 </project>
 

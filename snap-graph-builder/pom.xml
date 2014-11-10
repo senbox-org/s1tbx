@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <description>SNAP Graph Builder</description>
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-    <name>SNAP Graph Builder</name>
+
     <artifactId>snap-graph-builder</artifactId>
     <packaging>nbm</packaging>
+
+    <name>SNAP Graph Builder</name>
+    <description>SNAP Graph Builder</description>
+
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -33,6 +36,7 @@
             <version>${snap.version}</version>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -52,6 +56,5 @@
             </plugin>
         </plugins>
     </build>
-    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
 </project>
 

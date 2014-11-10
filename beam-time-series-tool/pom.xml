@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <description>This module provides the time series tool. In the user interface components are the &lt;i&gt;Time Series Manager&lt;/i&gt;, the &lt;i&gt;Time Series Player&lt;/i&gt; and the &lt;i&gt;Time Series Graph&lt;/i&gt;. It additionally provides export components, such as export of time series as Google Earth KMZ file, animated gif, and CSV-file.</description>
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>snap-time-series-tool</artifactId>
-    <name>Time Series Tool</name>
     <packaging>nbm</packaging>
-    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
+
+    <name>Time Series Tool</name>
+    <description>This module provides the time series tool. In the user interface components are the &lt;i&gt;Time Series Manager&lt;/i&gt;, the &lt;i&gt;Time Series Player&lt;/i&gt; and the &lt;i&gt;Time Series Graph&lt;/i&gt;. It additionally provides export components, such as export of time series as Google Earth KMZ file, animated gif, and CSV-file.</description>
+
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-visat-rcp</artifactId>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
