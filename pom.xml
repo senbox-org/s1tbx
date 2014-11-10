@@ -867,17 +867,6 @@
 			 <artifactId>jogl-all-main</artifactId>
 			 <version>2.1.5-01</version>
 			 </dependency>			
-
-			<!--dependency>
-	            <groupId>org.processing</groupId>
-	            <artifactId>jogl</artifactId>
-			    <version>1.5.r0196</version>
-	        </dependency>
-			<dependency>
-	            <groupId>org.processing</groupId>
-	            <artifactId>gluegen-rt</artifactId>
-				<version>1.5.r0196</version>
-	        </dependency-->
 		
 			<!-- Look and Feel ###############################################-->
 
