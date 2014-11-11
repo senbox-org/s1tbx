@@ -5,13 +5,13 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.swing.Grid;
 import com.bc.ceres.swing.ListControlBar;
-import org.apache.commons.lang.StringUtils;
 import org.esa.beam.binning.AggregatorConfig;
 import org.esa.beam.binning.operator.VariableConfig;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.util.StringUtils;
 
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
