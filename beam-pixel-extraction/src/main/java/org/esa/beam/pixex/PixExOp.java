@@ -58,7 +58,6 @@ import org.esa.beam.pixex.output.PixExRasterNamesFactory;
 import org.esa.beam.pixex.output.ProductRegistry;
 import org.esa.beam.pixex.output.ScatterPlotDecoratingStrategy;
 import org.esa.beam.pixex.output.TargetWriterFactoryAndMap;
-import org.esa.beam.statistics.ProductValidator;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.TimeStampExtractor;
@@ -229,7 +228,6 @@ public class PixExOp extends Operator {
                itemAlias = "variableCombination")
     private VariableCombination[] scatterPlotVariableCombinations;
 
-    private ProductValidator validator;
     private List<Coordinate> coordinateList;
     private boolean isTargetProductInitialized;
     private int timeDelta;
