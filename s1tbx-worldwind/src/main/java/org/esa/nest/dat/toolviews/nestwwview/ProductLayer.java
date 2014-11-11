@@ -164,6 +164,14 @@ public class ProductLayer extends RenderableLayer {
                     final Band windSpeedBand = newProduct.getBand("hh_001_owiWindSpeed");
                     final Band windDirBand = newProduct.getBand("hh_001_owiWindDirection");
 
+                     final Band oswLonBand = newProduct.getBand("hh_001_oswLon");
+                     final Band oswLatBand = newProduct.getBand("hh_001_oswLat");
+                     final Band oswWindDirBand = newProduct.getBand("hh_001_oswWindDirection");
+
+                     final Band rvlLonBand = newProduct.getBand("hh_001_rvlLon");
+                     final Band rvlLatBand = newProduct.getBand("hh_001_rvlLat");
+                     final Band rvlRadVelBand = newProduct.getBand("hh_001_rvlRadVel");
+
                     //final Band band = newProduct.getBand();
                     System.out.println("band 0 " + lonBand);
                     System.out.println("band width " + lonBand.getRasterWidth());
@@ -184,6 +192,24 @@ public class ProductLayer extends RenderableLayer {
                     final float[] windDirValues = new float[windDirBand.getRasterWidth() * windDirBand.getRasterHeight()];
                     windDirBand.readPixels(0, 0, windDirBand.getRasterWidth(), windDirBand.getRasterHeight(), windDirValues, com.bc.ceres.core.ProgressMonitor.NULL);
 
+
+                     final float[] oswLonValues = new float[oswLonBand.getRasterWidth() * oswLonBand.getRasterHeight()];
+                     incAngleBand.readPixels(0, 0, oswLonBand.getRasterWidth(), oswLonBand.getRasterHeight(), oswLonValues, com.bc.ceres.core.ProgressMonitor.NULL);
+
+                     final float[] oswLatValues = new float[oswLatBand.getRasterWidth() * oswLatBand.getRasterHeight()];
+                     oswLatBand.readPixels(0, 0, oswLatBand.getRasterWidth(), oswLatBand.getRasterHeight(), oswLatValues, com.bc.ceres.core.ProgressMonitor.NULL);
+
+                     final float[] oswWindDirValues = new float[oswWindDirBand.getRasterWidth() * oswWindDirBand.getRasterHeight()];
+                     oswWindDirBand.readPixels(0, 0, oswWindDirBand.getRasterWidth(), oswWindDirBand.getRasterHeight(), oswWindDirValues, com.bc.ceres.core.ProgressMonitor.NULL);
+
+                     final float[] rvlLonValues = new float[rvlLonBand.getRasterWidth() * rvlLonBand.getRasterHeight()];
+                     rvlLonBand.readPixels(0, 0, rvlLonBand.getRasterWidth(), rvlLonBand.getRasterHeight(), rvlLonValues, com.bc.ceres.core.ProgressMonitor.NULL);
+
+                     final float[] rvlLatValues = new float[rvlLatBand.getRasterWidth() * rvlLatBand.getRasterHeight()];
+                     windSpeedBand.readPixels(0, 0, rvlLatBand.getRasterWidth(), rvlLatBand.getRasterHeight(), rvlLatValues, com.bc.ceres.core.ProgressMonitor.NULL);
+
+                     final float[] rvlRadVelValues = new float[rvlRadVelBand.getRasterWidth() * rvlRadVelBand.getRasterHeight()];
+                     rvlRadVelBand.readPixels(0, 0, rvlRadVelBand.getRasterWidth(), rvlRadVelBand.getRasterHeight(), rvlRadVelValues, com.bc.ceres.core.ProgressMonitor.NULL);
 
                     final GeoPos geoPos1 = product.getGeoCoding().getGeoPos(new PixelPos(0, 0), null);
                     final GeoPos geoPos2 = product.getGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
