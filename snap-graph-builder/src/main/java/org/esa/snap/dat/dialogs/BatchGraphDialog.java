@@ -72,6 +72,7 @@ public class BatchGraphDialog extends ModelessDialog {
 
     private boolean isProcessing = false;
     protected File graphFile;
+    protected boolean openProcessedProducts = false;
 
     public BatchGraphDialog(final AppContext theAppContext, final String title, final String helpID,
                             final boolean closeOnDone) {
@@ -340,8 +341,9 @@ public class BatchGraphDialog extends ModelessDialog {
         return result;
     }
 
-    private void openTargetProducts(final ArrayList<File> fileList) {
-        if (!fileList.isEmpty()) {
+    private void openTargetProducts() {
+        final File[] fileList = getAllBatchProcessedTargetProducts();
+        if (fileList != null && fileList.length > 0) {
             for (File file : fileList) {
                 try {
 
@@ -421,7 +423,11 @@ public class BatchGraphDialog extends ModelessDialog {
             else
                 name = FileUtils.getFilenameWithoutExtension(f);
 
-            final File targetFile = new File(productSetPanel.getTargetFolder(), name);
+            final File targetFolder = productSetPanel.getTargetFolder();
+            if(!targetFolder.exists()) {
+                targetFolder.mkdirs();
+            }
+            final File targetFile = new File(targetFolder, name);
             final String targetFormat = productSetPanel.getTargetFormat();
 
             setIO(graphExecutorList.get(graphIndex),
@@ -599,10 +605,9 @@ public class BatchGraphDialog extends ModelessDialog {
                 statusLabel.setText("Processing completed in " + ProcessTimeMonitor.formatDuration(duration));
                 bottomStatusLabel.setText("");
 
-                //if(productSetPanel.isOpenInAppSelected()) {
-                //    final GraphExecuter graphEx = graphExecuterList.get(graphExecuterList.size()-1);
-                //    openTargetProducts(graphEx.getProductsToOpenInDAT());
-                //}
+                if(openProcessedProducts) {
+                    openTargetProducts();
+                }
             }
             if (!errMsgs.isEmpty()) {
                 final StringBuilder msg = new StringBuilder("The following errors occurred:\n");
