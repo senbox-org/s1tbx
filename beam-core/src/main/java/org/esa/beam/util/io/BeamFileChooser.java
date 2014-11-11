@@ -15,14 +15,21 @@
  */
 package org.esa.beam.util.io;
 
-import com.jidesoft.plaf.LookAndFeelFactory;
 import org.esa.beam.util.Debug;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Graphics;
+import java.awt.HeadlessException;
+import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeEvent;
@@ -229,32 +236,6 @@ public class BeamFileChooser extends JFileChooser {
         return (Window) w;
     }
 
-    /**
-     * Ensure the system laf gets used for the FileChooser to override weblaf
-     */
-    public void updateUI(){
-        LookAndFeel old = UIManager.getLookAndFeel();
-        if(old.toString().contains("WebLookAndFeel")) {
-            int oldJideStyle = LookAndFeelFactory.getStyle();
-            try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Throwable ex) {
-                old = null;
-            }
-            super.updateUI();
-
-            if (old != null) {
-                try {
-                    UIManager.setLookAndFeel(old);
-                    LookAndFeelFactory.installJideExtension(oldJideStyle);
-                } catch (UnsupportedLookAndFeelException ignored) {
-                } // shouldn't get here
-            }
-        } else {
-            super.updateUI();
-        }
-    }
-
     ///////////////////////////////////////////////////////////////////////////
     // private stuff
     ///////////////////////////////////////////////////////////////////////////
@@ -312,8 +293,8 @@ public class BeamFileChooser extends JFileChooser {
         if (selectedFile != null) {
             BeamFileFilter mff = getBeamFileFilter();
             if (mff != null
-                    && mff.getDefaultExtension() != null
-                    && !mff.checkExtension(selectedFile)) {
+                && mff.getDefaultExtension() != null
+                && !mff.checkExtension(selectedFile)) {
                 selectedFile = FileUtils.exchangeExtension(selectedFile, mff.getDefaultExtension());
                 Debug.trace("mod. selected file: " + selectedFile.getPath());
                 setSelectedFile(selectedFile);
