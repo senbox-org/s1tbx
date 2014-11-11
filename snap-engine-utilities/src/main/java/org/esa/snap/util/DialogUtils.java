@@ -16,6 +16,7 @@
 package org.esa.snap.util;
 
 import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -89,13 +90,19 @@ public final class DialogUtils {
         panel.add(new JPanel(), gbc);
     }
 
-    public static JButton CreateButton(final String name, final String text, final ImageIcon icon, final JPanel panel) {
-        JButton button = new JButton();
+    public static JButton createButton(final String name, final String text, final ImageIcon icon, final JPanel panel,
+                                       final boolean showTextAndIcon) {
+        final JButton button;
+        if(icon == null || showTextAndIcon) {
+            button = new JButton();
+            button.setText(text);
+        } else {
+            button = (JButton) ToolButtonFactory.createButton(icon, false);
+        }
         button.setName(name);
-        button = new JButton();
         button.setIcon(icon);
         button.setBackground(panel.getBackground());
-        button.setText(text);
+        button.setToolTipText(text);
         button.setActionCommand(name);
         return button;
     }

@@ -186,7 +186,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.NORTHWEST;
 
-        final JButton processButton = DialogUtils.CreateButton("processButton", "Process", processIcon, panel);
+        final JButton processButton = DialogUtils.createButton("processButton", "Process", processIcon, panel, true);
         processButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -194,7 +194,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
             }
         });
 
-        final JButton saveButton = DialogUtils.CreateButton("saveButton", "Save", saveIcon, panel);
+        final JButton saveButton = DialogUtils.createButton("saveButton", "Save", saveIcon, panel, true);
         saveButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -202,7 +202,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
             }
         });
 
-        final JButton loadButton = DialogUtils.CreateButton("loadButton", "Load", loadIcon, panel);
+        final JButton loadButton = DialogUtils.createButton("loadButton", "Load", loadIcon, panel, true);
         loadButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -210,7 +210,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
             }
         });
 
-        final JButton clearButton = DialogUtils.CreateButton("clearButton", "Clear", clearIcon, panel);
+        final JButton clearButton = DialogUtils.createButton("clearButton", "Clear", clearIcon, panel, true);
         clearButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -218,7 +218,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
             }
         });
 
-        final JButton infoButton = DialogUtils.CreateButton("infoButton", "Note", infoIcon, panel);
+        final JButton infoButton = DialogUtils.createButton("infoButton", "Note", infoIcon, panel, true);
         infoButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -226,7 +226,7 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
             }
         });
         //getClass().getName() + name
-        final JButton helpButton = DialogUtils.CreateButton("helpButton", "Help", helpIcon, panel);
+        final JButton helpButton = DialogUtils.createButton("helpButton", "Help", helpIcon, panel, true);
         helpButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
