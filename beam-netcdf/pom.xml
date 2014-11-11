@@ -14,7 +14,8 @@
   ~ You should have received a copy of the GNU General Public License along
   ~ with this program; if not, see http://www.gnu.org/licenses/
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>snap-engine</artifactId>
@@ -26,7 +27,9 @@
     <packaging>nbm</packaging>
 
     <name>NetCDF Product Reader and Writer</name>
-    <description>A product reader and writer for NetCDF files. It supports metadata profiles for CF, BEAM, HDF-EOS, ODESA.</description>
+    <description>A product reader and writer for NetCDF files. It supports metadata profiles for CF, BEAM, HDF-EOS,
+        ODESA.
+    </description>
 
     <dependencies>
         <dependency>
@@ -36,6 +39,10 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-binding</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-jai</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>

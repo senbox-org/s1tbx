@@ -15,16 +15,19 @@
   ~ with this program; if not, see http://www.gnu.org/licenses/
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <description>This is the base module of SNAP containing its core functionality.</description>
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.esa.snap</groupId>
         <artifactId>snap-engine</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-    <name>SNAP Core Library</name>
+
     <artifactId>snap-core</artifactId>
     <packaging>nbm</packaging>
+
+    <name>SNAP Core Library</name>
+    <description>This is the base module of SNAP containing its core functionality.</description>
+
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -45,26 +48,6 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-jai</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.media.jai</groupId>
-            <artifactId>jai-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.media.jai</groupId>
-            <artifactId>jai-codec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.media.jai</groupId>
-            <artifactId>mlibwrapper-jai</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.media</groupId>
-            <artifactId>jai-imageio</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.media</groupId>
-            <artifactId>clibwrapper-jiio</artifactId>
         </dependency>
         <dependency>
             <groupId>jdom</groupId>
@@ -115,6 +98,14 @@
             <artifactId>gt-cql</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-wms</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-render</artifactId>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
@@ -128,7 +119,7 @@
             <version>1.13</version>
         </dependency>
     </dependencies>
-    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
+
     <build>
         <plugins>
             <plugin>
@@ -139,10 +130,8 @@
                         <publicPackage>com.sun.media.*</publicPackage>
                         <publicPackage>com.sun.medialib.codec.*</publicPackage>
                         <publicPackage>com.sun.medialib.mlib.*</publicPackage>
-
                         <publicPackage>javax.media.jai.*</publicPackage>
                         <publicPackage>javax.measure.*</publicPackage>
-
                         <publicPackage>org.jdom.*</publicPackage>
                         <publicPackage>org.jdom2.*</publicPackage>
                         <publicPackage>org.geotools.*</publicPackage>
@@ -150,13 +139,11 @@
                         <publicPackage>com.vividsolutions.jts.*</publicPackage>
                         <publicPackage>Jama</publicPackage>
                         <publicPackage>org.apache.commons.math3.*</publicPackage>
-
                         <publicPackage>com.bc.io</publicPackage>
                         <publicPackage>com.bc.jexp</publicPackage>
                         <publicPackage>com.bc.jexp.impl</publicPackage>
                         <publicPackage>com.bc.util</publicPackage>
                         <publicPackage>com.bc.jnn</publicPackage>
-
                         <publicPackage>org.esa.beam</publicPackage>
                         <publicPackage>org.esa.beam.dataio.*</publicPackage>
                         <publicPackage>org.esa.beam.framework.*</publicPackage>
