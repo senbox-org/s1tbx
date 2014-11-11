@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <description>The Ceres JAI Library provides extensions based on the Java Advanced Imaging (JAI) library.</description>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <description>The Ceres JAI Library provides extensions based on the Java Advanced Imaging (JAI) library.
+    </description>
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.esa.snap</groupId>
@@ -58,7 +60,13 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
-                        <publicPackage>com.bc.ceres.*</publicPackage>
+                        <publicPackage>org.apache.commons.math3.*</publicPackage>
+                        <publicPackage>javax.media.jai.*</publicPackage>
+                        <publicPackage>com.sun.media.*</publicPackage>
+                        <publicPackage>com.sun.medialib.codec.*</publicPackage>
+                        <publicPackage>com.sun.medialib.mlib.*</publicPackage>
+                        <publicPackage>com.bc.ceres.compiler</publicPackage>
+                        <publicPackage>com.bc.ceres.jai.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

@@ -38,10 +38,21 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
-                        <publicPackage>com.bc.ceres.launcher</publicPackage>
+                        <!--
+                        todo - fix this export, without it we get for module snap-jai:
+                        [INFO] Private classes referenced in module: [javax.xml.namespace.QName]
+                        [ERROR] Project depends on packages not accessible at runtime in module org.esa.snap:snap-ceres-core:jar:2.0.0-SNAPSHOT
+                         -->
+                        <publicPackage>javax.xml.*</publicPackage>
+                        <publicPackage>org.xmlpull.*</publicPackage>
+                        <publicPackage>com.thoughtworks.xstream.*</publicPackage>
                         <publicPackage>com.bc.ceres.core</publicPackage>
                         <publicPackage>com.bc.ceres.core.runtime</publicPackage>
-                        <publicPackage>com.thoughtworks.xstream.*</publicPackage>
+                        <!-- todo - fix this export -->
+                        <publicPackage>com.bc.ceres.core.runtime.internal</publicPackage>
+                        <publicPackage>com.bc.ceres.core.runtime.support</publicPackage>
+                        <publicPackage>com.bc.ceres.launcher</publicPackage>
+                        <publicPackage>com.bc.ceres.util</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

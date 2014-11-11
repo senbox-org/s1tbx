@@ -15,23 +15,39 @@
   ~ with this program; if not, see http://www.gnu.org/licenses/
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                       http://maven.apache.org/maven-v4_0_0.xsd">
-    <description>Spectral unmixing tool.</description>
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-    <name>Spectral Unmixing</name>
+
     <artifactId>snap-unmix</artifactId>
+    <packaging>nbm</packaging>
+
+    <name>Spectral Unmixing</name>
+    <description>Spectral unmixing tool.</description>
+
     <dependencies>
         <dependency>
-            <groupId>Jama</groupId>
-            <artifactId>Jama</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ceres-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ceres-ui</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-binding</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ui</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -42,6 +58,7 @@
             <artifactId>snap-gpf</artifactId>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -70,7 +87,5 @@
             </plugin>
         </plugins>
     </build>
-    <packaging>nbm</packaging>
-    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
 </project>
 

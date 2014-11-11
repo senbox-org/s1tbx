@@ -29,7 +29,6 @@
         <dependency>
             <groupId>com.jidesoft</groupId>
             <artifactId>jide-common</artifactId>
-            <version>3.6.1</version>
         </dependency>
     </dependencies>
 
@@ -40,14 +39,35 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
+                        <publicPackage>com.jidesoft.swing</publicPackage>
+                        <publicPackage>com.jidesoft.swing.event</publicPackage>
+                        <publicPackage>com.jidesoft.utils</publicPackage>
+                        <publicPackage>com.jidesoft.plaf.*</publicPackage>
+                        <publicPackage>com.jidesoft.icons</publicPackage>
+                        <publicPackage>com.jidesoft.range</publicPackage>
+                        <publicPackage>com.jidesoft.grouper</publicPackage>
+                        <publicPackage>com.jidesoft.validation</publicPackage>
+                        <publicPackage>com.jidesoft.comparator</publicPackage>
+                        <publicPackage>com.jidesoft.converter</publicPackage>
+                        <publicPackage>com.jidesoft.popup</publicPackage>
+                        <publicPackage>com.jidesoft.hints</publicPackage>
+                        <publicPackage>com.jidesoft.spinner</publicPackage>
+                        <publicPackage>com.jidesoft.dialog</publicPackage>
+                        <publicPackage>com.jidesoft.list</publicPackage>
                         <publicPackage>com.bc.ceres.swing</publicPackage>
                         <publicPackage>com.bc.ceres.swing.actions</publicPackage>
                         <publicPackage>com.bc.ceres.swing.binding</publicPackage>
+                        <!-- todo - remove export of 'internal' package  -->
+                        <publicPackage>com.bc.ceres.swing.binding.internal</publicPackage>
                         <publicPackage>com.bc.ceres.swing.debug</publicPackage>
                         <publicPackage>com.bc.ceres.swing.figure</publicPackage>
+                        <publicPackage>com.bc.ceres.swing.figure.support</publicPackage>
+                        <publicPackage>com.bc.ceres.swing.figure.interactions</publicPackage>
                         <publicPackage>com.bc.ceres.swing.progress</publicPackage>
                         <publicPackage>com.bc.ceres.swing.selection</publicPackage>
+                        <publicPackage>com.bc.ceres.swing.selection.support</publicPackage>
                         <publicPackage>com.bc.ceres.swing.undo</publicPackage>
+                        <publicPackage>com.bc.ceres.swing.undo.support</publicPackage>
                         <publicPackage>com.bc.ceres.swing.update</publicPackage>
                     </publicPackages>
                 </configuration>

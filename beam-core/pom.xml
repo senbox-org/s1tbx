@@ -32,8 +32,11 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
+            <artifactId>snap-binding</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
             <artifactId>snap-binio</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -124,10 +127,6 @@
             <artifactId>jts</artifactId>
             <version>1.13</version>
         </dependency>
-        <dependency>
-            <groupId>com.jidesoft</groupId>
-            <artifactId>jide-common</artifactId>
-        </dependency>
     </dependencies>
     <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
     <build>
@@ -137,18 +136,36 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
+                        <publicPackage>com.sun.media.*</publicPackage>
+                        <publicPackage>com.sun.medialib.codec.*</publicPackage>
+                        <publicPackage>com.sun.medialib.mlib.*</publicPackage>
+
+                        <publicPackage>javax.media.jai.*</publicPackage>
+                        <publicPackage>javax.measure.*</publicPackage>
+
+                        <publicPackage>org.jdom.*</publicPackage>
+                        <publicPackage>org.jdom2.*</publicPackage>
+                        <publicPackage>org.geotools.*</publicPackage>
+                        <publicPackage>org.opengis.*</publicPackage>
+                        <publicPackage>com.vividsolutions.jts.*</publicPackage>
+                        <publicPackage>Jama</publicPackage>
+                        <publicPackage>org.apache.commons.math3.*</publicPackage>
+
                         <publicPackage>com.bc.io</publicPackage>
                         <publicPackage>com.bc.jexp</publicPackage>
+                        <publicPackage>com.bc.jexp.impl</publicPackage>
                         <publicPackage>com.bc.util</publicPackage>
+                        <publicPackage>com.bc.jnn</publicPackage>
+
+                        <publicPackage>org.esa.beam</publicPackage>
                         <publicPackage>org.esa.beam.dataio.*</publicPackage>
                         <publicPackage>org.esa.beam.framework.*</publicPackage>
                         <publicPackage>org.esa.beam.glayer.*</publicPackage>
-                        <publicPackage>org.esa.beam.glayer.*</publicPackage>
+                        <publicPackage>org.esa.beam.glevel.*</publicPackage>
                         <publicPackage>org.esa.beam.jai.*</publicPackage>
                         <publicPackage>org.esa.beam.nn.*</publicPackage>
                         <publicPackage>org.esa.beam.util.*</publicPackage>
                         <publicPackage>org.esa.beam.examples.*</publicPackage>
-                        <publicPackage>org.esa.beam</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

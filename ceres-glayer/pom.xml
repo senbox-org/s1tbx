@@ -52,6 +52,10 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
+                        <!-- todo use JAI wrapper module -->
+                        <publicPackage>com.sun.media.jai.*</publicPackage>
+                        <publicPackage>javax.media.jai.*</publicPackage>
+
                         <publicPackage>com.bc.ceres.glayer.*</publicPackage>
                         <publicPackage>com.bc.ceres.glevel.*</publicPackage>
                         <publicPackage>com.bc.ceres.grender.*</publicPackage>

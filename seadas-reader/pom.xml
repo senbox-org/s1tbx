@@ -34,6 +34,11 @@
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ceres-core</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
             <artifactId>snap-core</artifactId>
             <version>${snap.version}</version>
         </dependency>
@@ -46,10 +51,6 @@
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-visat-rcp</artifactId>
             <version>${snap.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.ucar</groupId>
-            <artifactId>netcdf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>

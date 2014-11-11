@@ -32,6 +32,14 @@
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ceres-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-glayer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
             <artifactId>snap-binding</artifactId>
         </dependency>
         <dependency>
@@ -63,10 +71,6 @@
             <artifactId>jide-components</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.jidesoft</groupId>
-            <artifactId>jide-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>jfree</groupId>
             <artifactId>jfreechart</artifactId>
         </dependency>
@@ -83,6 +87,18 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
+                        <publicPackage>com.jidesoft.action</publicPackage>
+                        <publicPackage>com.jidesoft.docking</publicPackage>
+                        <publicPackage>com.jidesoft.docking.event</publicPackage>
+                        <publicPackage>com.jidesoft.list</publicPackage>
+                        <publicPackage>com.jidesoft.grid</publicPackage>
+                        <publicPackage>com.jidesoft.combobox</publicPackage>
+                        <publicPackage>com.jidesoft.tree</publicPackage>
+                        <publicPackage>com.jidesoft.status</publicPackage>
+                        <publicPackage>org.jfree.chart.*</publicPackage>
+                        <publicPackage>org.jfree.data.*</publicPackage>
+                        <publicPackage>org.jfree.ui</publicPackage>
+                        <publicPackage>org.jfree.util</publicPackage>
                         <publicPackage>com.bc.ceres.swing</publicPackage>
                         <publicPackage>com.bc.ceres.swing.actions</publicPackage>
                         <publicPackage>com.bc.ceres.swing.binding</publicPackage>
@@ -93,6 +109,7 @@
                         <publicPackage>com.bc.ceres.swing.undo</publicPackage>
                         <publicPackage>com.bc.ceres.swing.update</publicPackage>
                         <publicPackage>com.bc.swing.*</publicPackage>
+                        <publicPackage>org.esa.beam</publicPackage>
                         <publicPackage>org.esa.beam.framework.help</publicPackage>
                         <publicPackage>org.esa.beam.framework.param.editors</publicPackage>
                         <publicPackage>org.esa.beam.framework.ui.*</publicPackage>

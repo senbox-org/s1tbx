@@ -34,6 +34,18 @@
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ceres-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ceres-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-glayer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
             <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
@@ -93,6 +105,7 @@
                         <publicPackage>org.esa.beam.visat.actions.*</publicPackage>
                         <publicPackage>org.esa.beam.visat.dialogs.*</publicPackage>
                         <publicPackage>org.esa.beam.visat.toolviews.*</publicPackage>
+                        <publicPackage>org.esa.beam.gpf.operators.reproject</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
