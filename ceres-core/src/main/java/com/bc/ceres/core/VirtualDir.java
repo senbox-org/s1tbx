@@ -18,7 +18,7 @@ package com.bc.ceres.core;
 
 import com.bc.ceres.core.runtime.RuntimeConfig;
 import com.bc.ceres.core.runtime.RuntimeContext;
-import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
+import com.bc.ceres.core.runtime.support.DefaultRuntimeConfig;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

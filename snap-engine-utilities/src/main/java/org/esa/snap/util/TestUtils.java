@@ -17,7 +17,7 @@ package org.esa.snap.util;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeConfig;
-import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
+import com.bc.ceres.core.runtime.support.DefaultRuntimeConfig;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.*;
 import org.esa.beam.framework.datamodel.*;
