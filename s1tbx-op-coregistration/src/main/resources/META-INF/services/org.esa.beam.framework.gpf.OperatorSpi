@@ -4,3 +4,5 @@ org.esa.nest.gpf.WarpOp$Spi
 org.esa.nest.gpf.PCAOp$Spi
 org.esa.nest.gpf.StackAveragingOp$Spi
 org.esa.nest.gpf.DEMBasedCoregistrationOp$Spi
+org.esa.nest.gpf.StackSplitWriter$Spi
+org.esa.nest.gpf.MultiInputStackAveragingOp$Spi

@@ -13,17 +13,11 @@ Building S1TBX from the source
 
 	git clone https://github.com/senbox-org/s1tbx.git
 	
-	git clone https://github.com/arraydev/beam.git
+	git clone https://github.com/arraydev/snap-engine.git
 	
-	git clone https://github.com/arraydev/ceres.git
-	
-4. Check out the nestmod branch in the beam and ceres repositories
+4. Check out the nestmod branch in the snap-engine repositories
 
-	CD into MY_PROJECTS/beam
-	
-	git checkout nestmod
-	
-	CD into MY_PROJECTS/ceres
+	CD into MY_PROJECTS/snap-engine
 	
 	git checkout nestmod
 	

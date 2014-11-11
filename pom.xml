@@ -18,7 +18,7 @@
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${context}</surefire.jvm.args>
 
 		<jlinda.version>0.8.1</jlinda.version>
-		<rstb.version>6.2</rstb.version>
+		<rstb.version>6.2.0</rstb.version>
 		<s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
 		<snap.version>2.0.0-SNAPSHOT</snap.version>
 		
@@ -64,6 +64,7 @@
 		<module>s1tbx-op-sar-processing</module>
 		<module>s1tbx-op-sentinel1</module>
 		<module>s1tbx-op-utilities</module>
+		<module>s1tbx-product-library</module>
 		<module>s1tbx-rcp</module>
 		<module>s1tbx-worldwind</module>
 		
@@ -866,17 +867,6 @@
 			 <artifactId>jogl-all-main</artifactId>
 			 <version>2.1.5-01</version>
 			 </dependency>			
-
-			<!--dependency>
-	            <groupId>org.processing</groupId>
-	            <artifactId>jogl</artifactId>
-			    <version>1.5.r0196</version>
-	        </dependency>
-			<dependency>
-	            <groupId>org.processing</groupId>
-	            <artifactId>gluegen-rt</artifactId>
-				<version>1.5.r0196</version>
-	        </dependency-->
 		
 			<!-- Look and Feel ###############################################-->
 
@@ -1210,15 +1200,13 @@
 		<profile>
             <id>withbeam</id>
             <modules>
-				<module>../ceres</module>
-				<module>../beam</module>
+				<module>../snap-engine</module>
             </modules>
 		</profile>
 		<profile>
             <id>all</id>
             <modules>
-				<module>../ceres</module>
-				<module>../beam</module>
+				<module>../snap-engine</module>
 				<module>../s2tbx</module>
 				<module>../s3tbx</module>
             </modules>

@@ -14,7 +14,7 @@
     <name>RADARSAT-2 Toolbox</name>
     <groupId>org.csa.rstb</groupId>
     <artifactId>rstb</artifactId>
-    <version>6.2</version>
+    <version>6.2.0</version>
 
     <description>RADARSAT-2 Polarimetric Tools</description>
 
@@ -22,7 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
-        <rstb.version>6.2</rstb.version>
+        <rstb.version>6.2.0</rstb.version>
 
         <outputdir>../../../output</outputdir>
     </properties>

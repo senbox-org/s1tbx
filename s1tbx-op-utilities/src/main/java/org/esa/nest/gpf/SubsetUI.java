@@ -27,9 +27,8 @@ import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
-import org.esa.nest.dat.toolviews.productlibrary.WorldMapUI;
-import org.esa.nest.dat.toolviews.worldmap.NestWorldMapPane;
+import org.esa.nest.dat.worldmap.WorldMapUI;
+import org.esa.nest.dat.worldmap.NestWorldMapPane;
 import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
@@ -67,7 +66,6 @@ public class SubsetUI extends BaseOperatorUI {
 
         initializeOperatorUI(operatorName, parameterMap);
         final JComponent panel = createPanel();
-        worldMapUI.addListener(new MapListener());
 
         initParameters();
 
@@ -284,15 +282,4 @@ public class SubsetUI extends BaseOperatorUI {
             VisatApp.getApp().showErrorDialog(e.getMessage());
         }
     }
-
-    private class MapListener implements DatabaseQueryListener {
-
-        public void notifyNewEntryListAvailable() {
-        }
-
-        public void notifyNewMapSelectionAvailable() {
-            getGeoRegion();
-        }
-    }
-
 }
