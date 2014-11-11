@@ -1198,17 +1198,15 @@
 
     <profiles>
 		<profile>
-            <id>withbeam</id>
+            <id>withsnap</id>
             <modules>
-				<module>../ceres</module>
-				<module>../beam</module>
+				<module>../snap-engine</module>
             </modules>
 		</profile>
 		<profile>
             <id>all</id>
             <modules>
-				<module>../ceres</module>
-				<module>../beam</module>
+				<module>../snap-engine</module>
 				<module>../s2tbx</module>
 				<module>../s3tbx</module>
             </modules>
