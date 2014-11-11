@@ -23,7 +23,7 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ExtensibleObject;
 import com.bc.ceres.grender.Rendering;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -56,6 +56,7 @@ public abstract class Layer extends ExtensibleObject {
 
     private boolean visible;
     private double transparency;
+    private double swipePercent;
     private Composite composite;
 
     private transient final ArrayList<LayerListener> layerListenerList;
@@ -73,6 +74,7 @@ public abstract class Layer extends ExtensibleObject {
      * <li>{@code name = getClass().getName()}</li>
      * <li>{@code visible = true}</li>
      * <li>{@code transparency = 0.0}</li>
+     * <li>{@code swipePercent = 1.0}</li>
      * </ul>
      *
      * @param layerType     the layer type.
@@ -89,6 +91,7 @@ public abstract class Layer extends ExtensibleObject {
 
         this.visible = true;
         this.transparency = 0.0;
+        this.swipePercent = 1.0;
         this.composite = Composite.SRC_OVER;
 
         this.layerListenerList = new ArrayList<LayerListener>(8);
@@ -236,6 +239,28 @@ public abstract class Layer extends ExtensibleObject {
     }
 
     /**
+     * Returns the swipe position of this layer.
+     *
+     * @return the swipe position of this layer.
+     */
+    public double getSwipePercent() {
+        return swipePercent;
+    }
+
+    /**
+     * Sets the swipe position of this layer to a new value.
+     *
+     * @param swipePercent the new swipe position value of this layer.
+     */
+    public void setSwipePercent(double swipePercent) {
+        final double oldValue = this.swipePercent;
+        if (oldValue != swipePercent) {
+            this.swipePercent = swipePercent;
+            fireLayerPropertyChanged("swipePercent", oldValue, this.swipePercent);
+        }
+    }
+
+    /**
      * Returns the composite of this layer.
      *
      * @return the composite of this layer.
@@ -373,6 +398,11 @@ public abstract class Layer extends ExtensibleObject {
             if (transparency > 0.0) {
                 oldComposite = g.getComposite();
                 g.setComposite(getComposite().getAlphaComposite((float) (1.0 - transparency)));
+            }
+            final double swipe = getSwipePercent();
+            if(swipe < 1.0) {
+                final Rectangle clip = rendering.getGraphics().getClipBounds();
+                rendering.getGraphics().clip(new Rectangle(clip.x,clip.y,(int)(clip.width*swipe),clip.height));
             }
             if (filter == null) {
                 renderLayer(rendering);

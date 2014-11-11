@@ -16,10 +16,11 @@
 
 package com.bc.ceres.glayer;
 
-import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.PropertyContainer;
-import static org.junit.Assert.*;
+import com.bc.ceres.binding.ValidationException;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class LayerTest {
 
@@ -44,6 +45,7 @@ public class LayerTest {
         assertEquals("Collection Layer", layer.getName());
         assertEquals(true, layer.isVisible());
         assertEquals(0.0, layer.getTransparency(), 1.0e-10);
+        assertEquals(1.0, layer.getSwipePercent(), 1.0e-10);
         assertEquals(Composite.SRC_OVER, layer.getComposite());
 
         assertNull(layer.getModelBounds());
@@ -76,6 +78,12 @@ public class LayerTest {
         assertEquals(0.1, layer.getTransparency(), 1.0e-10);
         layer.setTransparency(1.0);
         assertEquals(1.0, layer.getTransparency(), 1.0e-10);
+
+        assertEquals(1.0, layer.getSwipePercent(), 1.0e-10);
+        layer.setSwipePercent(0.1);
+        assertEquals(0.1, layer.getSwipePercent(), 1.0e-10);
+        layer.setSwipePercent(1.0);
+        assertEquals(1.0, layer.getSwipePercent(), 1.0e-10);
 
         assertEquals(Composite.SRC_OVER, layer.getComposite());
         layer.setComposite(Composite.DST_OUT);
