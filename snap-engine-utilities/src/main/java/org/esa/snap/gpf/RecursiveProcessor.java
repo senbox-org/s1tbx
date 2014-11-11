@@ -38,7 +38,7 @@ public abstract class RecursiveProcessor {
                 break;
 
             if (file.isDirectory()) {
-                if (!file.getName().contains("skipTest")) {
+                if (!file.getName().contains(TestUtils.SKIPTEST)) {
                     iterations = recurseProcessFolder(file, iterations, productTypeExemptions, exceptionExemptions);
                 }
             } else {
