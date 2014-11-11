@@ -1198,7 +1198,7 @@
 
     <profiles>
 		<profile>
-            <id>withsnap</id>
+            <id>withbeam</id>
             <modules>
 				<module>../snap-engine</module>
             </modules>
