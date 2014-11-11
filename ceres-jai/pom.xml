@@ -42,6 +42,11 @@
             <version>1.2-20090918</version>
         </dependency>
         <dependency>
+            <groupId>com.sun.media</groupId>
+            <artifactId>jai-imageio</artifactId>
+            <version>1.2-20090918</version>
+        </dependency>
+        <dependency>
             <groupId>rhino</groupId>
             <artifactId>js</artifactId>
             <version>1.7R1</version>
@@ -60,6 +65,7 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
+                        <publicPackage>org.jdom2.*</publicPackage>
                         <publicPackage>org.apache.commons.math3.*</publicPackage>
                         <publicPackage>javax.media.jai.*</publicPackage>
                         <publicPackage>com.sun.media.*</publicPackage>
