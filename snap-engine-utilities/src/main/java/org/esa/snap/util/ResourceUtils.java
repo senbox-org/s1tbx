@@ -15,7 +15,6 @@
  */
 package org.esa.snap.util;
 
-import com.bc.ceres.core.runtime.internal.RuntimeActivator;
 import org.esa.beam.util.SystemUtils;
 
 import javax.swing.*;
@@ -95,23 +94,15 @@ public final class ResourceUtils {
      * @return the current user's application data directory
      */
     public static File getApplicationUserDir(boolean forceCreate) {
-        final File dir = new File(SystemUtils.getUserHomeDir(), '.' + getContextID());
+        final File dir = new File(SystemUtils.getUserHomeDir(), '.' + SystemUtils.getApplicationContextId());
         if (forceCreate && !dir.exists()) {
             dir.mkdirs();
         }
         return dir;
     }
 
-    public static String getContextID() {
-        if (RuntimeActivator.getInstance() != null
-                && RuntimeActivator.getInstance().getModuleContext() != null) {
-            return RuntimeActivator.getInstance().getModuleContext().getRuntimeConfig().getContextId();
-        }
-        return System.getProperty("ceres.context", "unknown");
-    }
-
     public static String getHomeUrl() {
-        return System.getProperty(getContextID() + ".home", ".");
+        return System.getProperty(SystemUtils.getApplicationContextId() + ".home", ".");
     }
 
     /**
@@ -135,7 +126,7 @@ public final class ResourceUtils {
     }
 
     public static File findConfigFile(String filename) {
-        final String homeDir = System.getProperty(getContextID() + ".home");
+        final String homeDir = System.getProperty(SystemUtils.getApplicationContextId() + ".home");
         if (homeDir != null && homeDir.length() > 0) {
             final File homeDirFile = new File(homeDir);
 
@@ -159,7 +150,7 @@ public final class ResourceUtils {
     }
 
     public static File findHomeFolder() {
-        final String nestHome = System.getProperty(getContextID() + ".home");
+        final String nestHome = System.getProperty(SystemUtils.getApplicationContextId() + ".home");
         File homePath;
         if (nestHome == null)
             homePath = SystemUtils.getApplicationHomeDir();

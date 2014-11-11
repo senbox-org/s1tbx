@@ -1,6 +1,7 @@
 package org.esa.snap.util;
 
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
 import java.util.regex.Matcher;
@@ -42,7 +43,7 @@ public class PropertiesMap extends PropertyMap {
                     if (keyWord.equalsIgnoreCase("AuxDataPath")) {
                         File auxFolder = Settings.getAuxDataFolder();
                         out = value.replace(fullKey, auxFolder.getPath());
-                    } else if (keyWord.equalsIgnoreCase(ResourceUtils.getContextID() + ".home") || keyWord.equalsIgnoreCase("SNAP_HOME")) {
+                    } else if (keyWord.equalsIgnoreCase(SystemUtils.getApplicationContextId() + ".home") || keyWord.equalsIgnoreCase("SNAP_HOME")) {
                         out = value.replace(fullKey, ResourceUtils.findHomeFolder().getAbsolutePath());
                     } else {
                         out = value.replace(fullKey, keyWord);
