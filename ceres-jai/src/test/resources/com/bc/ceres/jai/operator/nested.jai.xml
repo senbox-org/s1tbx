@@ -1,0 +1,11 @@
+<operation>
+    <target>
+        <op>MultiplyConst</op>
+        <source>
+            <op>AddConst</op>
+            <source refid="source0"/>
+            <parameter>2.0</parameter>
+        </source>
+        <parameter>50.0</parameter>
+    </target>
+</operation>

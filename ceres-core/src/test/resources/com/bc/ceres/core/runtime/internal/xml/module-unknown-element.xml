@@ -1,0 +1,7 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>unknown-element</symbolicName>
+    <!-- INVALID! 'knastgitter' is an unknown element. -->
+    <knastgitter>
+    </knastgitter>
+</module>

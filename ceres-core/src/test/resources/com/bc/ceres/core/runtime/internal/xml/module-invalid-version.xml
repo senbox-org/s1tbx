@@ -1,0 +1,6 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>invalid-version</symbolicName>
+    <!-- INVALID! 'version' shall start with a digit. -->
+    <version>M1</version>
+</module>

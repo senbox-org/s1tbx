@@ -1,0 +1,5 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>module-c</symbolicName>
+    <version>3.0</version>
+</module>

@@ -1,0 +1,10 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>a-module-dir-with-jars-and-classes</symbolicName>
+    <extension point="snap-ceres-core:applications">
+        <application>
+            <symbolicName>X</symbolicName>
+            <class>Y</class>
+        </application>
+    </extension>
+</module>

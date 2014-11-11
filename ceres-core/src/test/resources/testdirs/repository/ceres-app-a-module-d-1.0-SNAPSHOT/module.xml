@@ -1,0 +1,8 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>module-d</symbolicName>
+    <activator>com.bc.ceres.ActivatorD</activator>
+    <dependency>
+        <module>module-a</module>
+    </dependency>
+</module>

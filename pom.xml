@@ -20,10 +20,10 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <name>SNAP-BEAM</name>
-    <url>http://www.brockmann-consult.de/beam-wiki</url>
+    <name>SNAP Engine Project</name>
+    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
     <groupId>org.esa.snap</groupId>
-    <artifactId>snap-beam</artifactId>
+    <artifactId>snap-engine</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
 
@@ -40,6 +40,16 @@
     </properties>
 
     <modules>
+        <module>ceres-launcher</module>
+        <module>ceres-core</module>
+        <module>ceres-binding</module>
+        <module>ceres-ui</module>
+        <module>ceres-deploy</module>
+        <module>ceres-glayer</module>
+        <module>ceres-jai</module>
+        <module>ceres-binio</module>
+        <module>ceres-metadata</module>
+        <module>ceres-site</module>
         <!-- the bootstrap module has no sources, its only purpose is to construct a class path for VISAT -->
         <module>beam-bootstrap</module>
 
@@ -102,7 +112,7 @@
 
     <organization>
         <name>Brockmann Consult GmbH</name>
-        <url>http://envisat.esa.int/beam/</url>
+        <url>http://www.brockmann-consult.de</url>
     </organization>
 
     <inceptionYear>2002</inceptionYear>
@@ -461,11 +471,11 @@
                         <groupId>javax.media</groupId>
                         <artifactId>jai_imageio</artifactId>
                     </exclusion>
-					<exclusion>
+                    <exclusion>
                         <groupId>it.geosolutions.imageio-ext</groupId>
                         <artifactId>imageio-ext-tiff</artifactId>
                     </exclusion>
-					<exclusion>
+                    <exclusion>
                         <groupId>it.geosolutions.imageio-ext</groupId>
                         <artifactId>imageio-ext-utilities</artifactId>
                     </exclusion>
@@ -612,7 +622,6 @@
         </dependencies>
     </dependencyManagement>
 
-
     <repositories>
         <repository>
             <id>snap-repo-public</id>
@@ -719,19 +728,6 @@
                 </plugin>
 
                 <plugin>
-                    <groupId>com.bc.maven.plugins</groupId>
-                    <artifactId>maven-javahelp-plugin</artifactId>
-                    <version>1.0</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>javahelp-indexer</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.17</version>
                     <configuration>
@@ -792,14 +788,45 @@
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>2.5</version>
                 </plugin>
+
                 <plugin>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>2.8</version>
                 </plugin>
+
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>2.8.1</version>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>nbm-maven-plugin</artifactId>
+                    <version>3.14</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <moduleType>normal</moduleType>
+                        <licenseName>GPL 3</licenseName>
+                        <licenseFile>../LICENSE.html</licenseFile>
+                        <cluster>snap</cluster>
+                        <defaultCluster>snap</defaultCluster>
+                        <requiresRestart>true</requiresRestart>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>com.bc.maven.plugins</groupId>
+                    <artifactId>maven-javahelp-plugin</artifactId>
+                    <version>1.0</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>javahelp-indexer</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
             </plugins>
         </pluginManagement>
 
@@ -933,12 +960,12 @@
     <!-- Dependency on SLF4J binding to Java logging. -->
     <!-- Its only purpose is to prevent SLF4 from outputting annoying 'missing binding' messages to System.err -->
     <!-- So, since it is not used in any module, it's included on the highest level. -->
-    <dependencies>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
-            <version>1.6.1</version>
-        </dependency>
-    </dependencies>
+    <!--<dependencies>-->
+        <!--<dependency>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<artifactId>slf4j-jdk14</artifactId>-->
+            <!--<version>1.6.1</version>-->
+        <!--</dependency>-->
+    <!--</dependencies>-->
 
 </project>

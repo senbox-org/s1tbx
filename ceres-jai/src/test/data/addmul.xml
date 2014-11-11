@@ -1,0 +1,27 @@
+<!--
+  @param in
+  @param out 
+  @param format
+-->
+
+<operation>
+    <source id="in">
+        <op>FileLoad</op>
+        <parameter>${in}</parameter>
+    </source>
+    <source id="out">
+        <op>MultiplyConst</op>
+        <source>
+            <op>AddConst</op>
+            <source refid="in"/>
+            <parameter>10</parameter>
+        </source>
+        <parameter>0.5</parameter>
+    </source>
+    <target>
+        <op>FileStore</op>
+        <source refid="out"/>
+        <parameter>${out}</parameter>
+        <parameter>${format}</parameter>
+    </target>
+</operation>

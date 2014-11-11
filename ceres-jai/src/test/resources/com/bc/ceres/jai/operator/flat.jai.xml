@@ -1,0 +1,14 @@
+<operation>
+    <parameter id="factor">50.0</parameter>
+    <parameter id="offset">2.0</parameter>
+    <source id="source1">
+        <op>AddConst</op>
+        <source refid="source0"/>
+        <parameter refid="offset"/>
+    </source>
+    <target>
+        <op>MultiplyConst</op>
+        <source refid="source1"/>
+        <parameter refid="factor"/>
+    </target>
+</operation>

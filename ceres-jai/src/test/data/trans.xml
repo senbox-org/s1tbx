@@ -1,0 +1,37 @@
+<operation>
+
+    <parameter id="input">chl-1.png</parameter>
+    <parameter id="output">test.png</parameter>
+
+    <source id="load">
+        <op>FileLoad</op>
+        <parameter refid="input"/>
+    </source>
+
+    <source id="trans" >
+        <op>Translate</op>
+        <source refid="load"/>
+        <parameter>-25.0</parameter>
+        <parameter>25.0</parameter>
+        <parameter>INTERP_BICUBIC</parameter>
+    </source>
+
+    <source id="subtract" >
+        <op>Subtract</op>
+        <source refid="load"/>
+        <source refid="trans"/>
+    </source>
+
+    <source id="abs_subtract" >
+        <op>Absolute</op>
+        <source refid="subtract"/>
+    </source>
+
+    <target>
+        <op>FileStore</op>
+        <source refid="abs_subtract"/>
+        <parameter refid="output"/>
+        <parameter>PNG</parameter>
+    </target>
+
+</operation>

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: false
+AutoUpdate-Essential-Module: true
+OpenIDE-Module-Java-Dependencies: Java > 1.8
+OpenIDE-Module-Display-Category: SNAP
+OpenIDE-Module-Long-Description: <p>The Ceres JAI Library provides ext
+ ensions based on the Java Advanced Imaging (JAI) library.</p><p><b>Ve
+ ndor:</b> Brockmann Consult GmbH</p><p><b>Contact address:</b> Max-Pl
+ anck-Str. 2, 21502 Geesthacht (Germany)</p><p><b>Copyright:</b> (C) 2
+ 011 by Brockmann Consult GmbH</p><p><b>Vendor:</b> Brockmann Consult 
+ GmbH</p><p><b>License:</b> http://www.gnu.org/licenses/gpl.html</p><p
+ ><b>Changelog:</b> </p>
+OpenIDE-Module-Install: com.bc.ceres.jai.ModuleActivator
