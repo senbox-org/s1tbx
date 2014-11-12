@@ -80,6 +80,7 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>edu.ucar.ral.nujan.netcdf</publicPackage>
+                        <publicPackage>ucar.ma2</publicPackage>
                         <publicPackage>ucar.nc2</publicPackage>
                         <publicPackage>ucar.nc2.constants</publicPackage>
                         <publicPackage>ucar.nc2.dataset</publicPackage>
@@ -91,10 +92,10 @@
                         <publicPackage>ucar.nc2.util.cache</publicPackage>
                         <publicPackage>ucar.nc2.units</publicPackage>
                         <publicPackage>ucar.nc2.iosp</publicPackage>
+                        <publicPackage>ucar.nc2.iosp.hdf5</publicPackage>
                         <publicPackage>ucar.unidata.geoloc</publicPackage>
                         <publicPackage>ucar.unidata.util</publicPackage>
                         <publicPackage>thredds.catalog</publicPackage>
-                        <publicPackage>ucar.ma2</publicPackage>
                         <publicPackage>org.slf4j</publicPackage>
                         <publicPackage>org.apache.commons.logging</publicPackage>
                         <publicPackage>org.esa.beam.dataio.netcdf.*</publicPackage>

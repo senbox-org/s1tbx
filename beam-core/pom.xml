@@ -105,6 +105,7 @@
             <groupId>org.geotools</groupId>
             <artifactId>gt-render</artifactId>
         </dependency>
+        <!-- JUnit dependency is needed because it is used in production code -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
