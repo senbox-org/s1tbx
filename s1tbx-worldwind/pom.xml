@@ -28,16 +28,20 @@
         </dependency>
         <dependency>
             <groupId>gov.nasa</groupId>
-            <artifactId>nasa-worldwind</artifactId>
+            <artifactId>worldwind</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.processing</groupId>
-            <artifactId>jogl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.processing</groupId>
-            <artifactId>gluegen-rt</artifactId>
-        </dependency>
+	    <dependency>
+			<groupId>gov.nasa</groupId>
+			<artifactId>worldwindx</artifactId>
+		</dependency>
+		<dependency>
+			 <groupId>org.jogamp.gluegen</groupId>
+			 <artifactId>gluegen-rt-main</artifactId>
+		</dependency>			 
+		<dependency>
+			 <groupId>org.jogamp.jogl</groupId>
+			 <artifactId>jogl-all-main</artifactId>
+		</dependency>			
     </dependencies>
 
 </project>

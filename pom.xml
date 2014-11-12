@@ -842,19 +842,27 @@
 			
 			<dependency>
 	            <groupId>gov.nasa</groupId>
-	            <artifactId>nasa-worldwind</artifactId>
-				<version>0.6.200</version>
+	            <artifactId>worldwind</artifactId>
+				<version>2.0.0-986</version>
 	        </dependency>
+			
 			<dependency>
-	            <groupId>org.processing</groupId>
-	            <artifactId>jogl</artifactId>
-			    <version>1.5.r0196</version>
-	        </dependency>
+				<groupId>gov.nasa</groupId>
+				<artifactId>worldwindx</artifactId>
+				<version>2.0.0-986</version>
+			</dependency>
+			
 			<dependency>
-	            <groupId>org.processing</groupId>
-	            <artifactId>gluegen-rt</artifactId>
-				<version>1.5.r0196</version>
-	        </dependency>
+				<groupId>org.jogamp.gluegen</groupId>
+				<artifactId>gluegen-rt-main</artifactId>
+				<version>2.1.5-01</version>
+			 </dependency>
+			 
+			 <dependency>
+				<groupId>org.jogamp.jogl</groupId>
+				<artifactId>jogl-all-main</artifactId>
+				<version>2.1.5-01</version>
+			 </dependency>
 		
 			<!-- Look and Feel ###############################################-->
 

@@ -23,17 +23,26 @@ import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.avlist.AVList;
 import gov.nasa.worldwind.avlist.AVListImpl;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
-import gov.nasa.worldwind.examples.ClickAndGoSelectListener;
-import gov.nasa.worldwind.examples.WMSLayersPanel;
+import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
+import gov.nasa.worldwindx.examples.WMSLayersPanel;
+import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
+import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.globes.Earth;
 import gov.nasa.worldwind.globes.ElevationModel;
 import gov.nasa.worldwind.layers.Earth.MSVirtualEarthLayer;
-import gov.nasa.worldwind.layers.Earth.OpenStreetMapLayer;
+// CHANGED
+//import gov.nasa.worldwind.layers.Earth.OpenStreetMapLayer;
+import gov.nasa.worldwind.layers.Earth.OSMMapnikLayer;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.LayerList;
+import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.layers.WorldMapLayer;
 import gov.nasa.worldwind.layers.placename.PlaceNameLayer;
+import gov.nasa.worldwind.render.AnnotationAttributes;
+import gov.nasa.worldwind.render.GlobeAnnotation;
+import gov.nasa.worldwind.render.Polyline;
+import gov.nasa.worldwind.render.ScreenAnnotation;
 import gov.nasa.worldwind.terrain.CompoundElevationModel;
 import gov.nasa.worldwind.terrain.WMSBasicElevationModel;
 import gov.nasa.worldwind.util.Logging;
@@ -43,6 +52,7 @@ import gov.nasa.worldwind.wms.Capabilities;
 import gov.nasa.worldwind.wms.CapabilitiesRequest;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
+import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
 import org.w3c.dom.Document;
@@ -63,6 +73,13 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.*;
+
+import gov.nasa.worldwind.event.SelectEvent;
+import gov.nasa.worldwind.event.SelectListener;
+
+// ADDED
+import gov.nasa.worldwind.ogc.wms.WMSCapabilities;
 
 /**
  * The window displaying the world map.
@@ -152,8 +169,9 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         virtualEarthLayerH.setName("MS Bing Hybrid");
         virtualEarthLayerH.setEnabled(false);
         insertTiledLayer(getWwd(), virtualEarthLayerH);
-
-        final OpenStreetMapLayer streetLayer = new OpenStreetMapLayer();
+        // CHANGED
+        //final OpenStreetMapLayer streetLayer = new OpenStreetMapLayer();
+        final OSMMapnikLayer streetLayer = new OSMMapnikLayer();
         streetLayer.setOpacity(0.7);
         streetLayer.setEnabled(false);
         streetLayer.setName("Open Street Map");
@@ -162,6 +180,63 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         productLayer.setOpacity(0.8);
         productLayer.setPickEnabled(false);
         productLayer.setName("Opened Products");
+
+        // ADDED
+        RenderableLayer testLayer = new RenderableLayer();
+
+
+        Polyline pLine = new Polyline();
+        pLine.setLineWidth(10);
+        pLine.setFollowTerrain(true);
+
+        java.util.List<Position> positions = new ArrayList<Position>();
+        positions.add(new Position(Angle.fromDegreesLatitude(10.0),
+                Angle.fromDegreesLongitude(10.0), 0.0));
+        positions.add(new Position(Angle.fromDegreesLatitude(10.0),
+                Angle.fromDegreesLongitude(20.0), 0.0));
+        positions.add(new Position(Angle.fromDegreesLatitude(20.0),
+                Angle.fromDegreesLongitude(20.0), 0.0));
+        positions.add(new Position(Angle.fromDegreesLatitude(20.0),
+                Angle.fromDegreesLongitude(10.0), 0.0));
+        positions.add(new Position(Angle.fromDegreesLatitude(10.0),
+                Angle.fromDegreesLongitude(10.0), 0.0));
+        pLine.setPositions(positions);
+
+
+        testLayer.addRenderable(pLine);
+
+        //System.out.println("POLYLINE WAS ADDED:");
+
+
+        AnnotationAttributes controlPointsAttributes = new AnnotationAttributes();
+        // Define an 8x8 square centered on the screen point
+        controlPointsAttributes.setFrameShape(AVKey.SHAPE_RECTANGLE);
+        controlPointsAttributes.setLeader(AVKey.SHAPE_NONE);
+        controlPointsAttributes.setAdjustWidthToText(AVKey.SIZE_FIXED);
+        controlPointsAttributes.setSize(new Dimension(12, 12));
+        controlPointsAttributes.setDrawOffset(new Point(0, -4));
+        controlPointsAttributes.setInsets(new Insets(0, 0, 0, 0));
+        controlPointsAttributes.setBorderWidth(0);
+        controlPointsAttributes.setCornerRadius(0);
+        controlPointsAttributes.setBackgroundColor(Color.BLUE);    // Normal color
+        controlPointsAttributes.setTextColor(Color.GREEN);         // Highlighted color
+        controlPointsAttributes.setHighlightScale(1.2);
+        controlPointsAttributes.setDistanceMaxScale(1);            // No distance scaling
+        controlPointsAttributes.setDistanceMinScale(1);
+        controlPointsAttributes.setDistanceMinOpacity(1);
+
+        Position pos = new Position(Angle.fromDegreesLatitude(10.0),
+                Angle.fromDegreesLongitude(10.0), 0.0);
+        GlobeAnnotation currControlPoint = new GlobeAnnotation("Test Point", pos, controlPointsAttributes);
+        testLayer.addRenderable(currControlPoint);
+
+        getWwd().getModel().getLayers().add(testLayer);
+        //insertTiledLayer(getWwd(), testLayer);
+        // ADDED: end
+
+
+
+        //this.wwjPanel.getWwd().getModel().getLayers().add(testLayer);
         insertTiledLayer(getWwd(), productLayer);
 
         // Add an internal frame listener to VISAT so that we can update our
@@ -193,6 +268,8 @@ public class NestWWToolView extends AbstractToolView implements WWView {
     }
 
     private void initialize(JPanel mainPane) {
+        // ADDED
+        //System.out.println("INITIALIZE IN NestWWToolView CALLED");
         // Create the WorldWindow.
         try {
             wwjPanel = new AppPanel(canvasSize, includeStatusBar);
@@ -247,6 +324,24 @@ public class NestWWToolView extends AbstractToolView implements WWView {
 
                 mainPane.add(tabbedPane, BorderLayout.EAST);
             }
+
+            // ADDED
+            this.wwjPanel.getWwd().addSelectListener(new SelectListener()
+            {
+
+                public void selected(SelectEvent event)
+                {
+                    System.out.println(event.getTopObject());
+                    System.out.println(event.getEventAction());
+                    if (event.getEventAction().equals(SelectEvent.LEFT_CLICK)) {
+                        System.out.println("selectedProduct " + getSelectedProduct());
+                        final ExecCommand command = datApp.getCommandManager().getExecCommand("showPolarWaveView");
+                        command.execute(2);
+                    }
+                }
+            });
+
+
         } catch (Throwable e) {
             System.out.println("Can't load openGL " + e.getMessage());
         }
@@ -282,6 +377,8 @@ public class NestWWToolView extends AbstractToolView implements WWView {
     }
 
     public void setSelectedProduct(Product product) {
+        // ADDED
+        //System.out.println("SET SELECTED PRODUCT " + product);
         if (productLayer != null)
             productLayer.setSelectedProduct(product);
         if (productPanel != null)
@@ -373,7 +470,9 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         final Document doc = docBuilder.parse(req.toString());
 
         // Parse the DOM as a capabilities document.
-        final Capabilities caps = Capabilities.parse(doc);
+        // CHANGED
+        //final Capabilities caps = Capabilities.parse(doc);
+        final WMSCapabilities caps = new WMSCapabilities (doc);
 
         final double HEIGHT_OF_MT_EVEREST = 8850d; // meters
         final double DEPTH_OF_MARIANAS_TRENCH = -11000d; // meters
@@ -412,6 +511,8 @@ public class NestWWToolView extends AbstractToolView implements WWView {
             this.wwd.setView(new BasicOrbitView());
 
             // Setup a select listener for the worldmap click-and-go feature
+            // ADDED: the following line was commented out
+            // NOTE: it doesn't seem to make difference, ProdectLayer doesn't seem to be notified about select events
             this.wwd.addSelectListener(new ClickAndGoSelectListener(this.getWwd(), WorldMapLayer.class));
 
             this.add(this.wwd, BorderLayout.CENTER);
