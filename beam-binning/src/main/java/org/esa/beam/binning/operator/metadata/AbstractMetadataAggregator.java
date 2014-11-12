@@ -4,11 +4,11 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 
 abstract class AbstractMetadataAggregator implements MetadataAggregator {
 
-    protected final MetadataElement source_products;
+    protected final MetadataElement inputsMetaElement;
     protected int aggregatedCount;
 
     AbstractMetadataAggregator() {
         aggregatedCount = 0;
-        source_products = new MetadataElement("source_products");
+        inputsMetaElement = new MetadataElement("sources");
     }
 }

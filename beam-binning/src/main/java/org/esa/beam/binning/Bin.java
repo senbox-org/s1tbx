@@ -41,11 +41,8 @@ public abstract class Bin implements BinContext {
     }
 
     public Bin(long index, int numFeatures) {
-        if (numFeatures < 0) {
-            throw new IllegalArgumentException("numFeatures < 0");
-        }
         this.index = index;
-        this.featureValues = new float[numFeatures];
+        setNumFeatures(numFeatures);
     }
 
     @Override
@@ -67,6 +64,14 @@ public abstract class Bin implements BinContext {
 
     public float[] getFeatureValues() {
         return featureValues;
+    }
+
+    // for Calvalus where bins are re-used
+    public void setNumFeatures(int numFeatures) {
+        if (numFeatures < 0) {
+            throw new IllegalArgumentException("numFeatures < 0");
+        }
+        featureValues = new float[numFeatures];
     }
 
     public WritableVector toVector() {

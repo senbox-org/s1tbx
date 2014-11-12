@@ -215,6 +215,7 @@ public class BinningOp extends Operator {
     private transient BinWriter binWriter;
     private transient Area regionArea;
     private transient MetadataAggregator metadataAggregator;
+    private transient String planetaryGridClass;
 
     private final Map<Product, List<Band>> addedVariableBands;
     private Product writtenProduct;
@@ -342,6 +343,14 @@ public class BinningOp extends Operator {
         this.metadataAggregatorName = metadataAggregatorName;
     }
 
+    public String getOutputFile() {
+        return outputFile;
+    }
+
+    public void setPlanetaryGridClass(String planetaryGridClass) {
+        this.planetaryGridClass = planetaryGridClass;
+    }
+
     /**
      * Processes all source products and writes the output file.
      * The target product represents the written output file
@@ -376,14 +385,7 @@ public class BinningOp extends Operator {
             regionArea = new Area();
         }
 
-        BinningConfig binningConfig = new BinningConfig();
-        binningConfig.setNumRows(numRows);
-        binningConfig.setSuperSampling(superSampling);
-        binningConfig.setMaskExpr(maskExpr);
-        binningConfig.setVariableConfigs(variableConfigs);
-        binningConfig.setAggregatorConfigs(aggregatorConfigs);
-        binningConfig.setPostProcessorConfig(postProcessorConfig);
-        binningConfig.setMinDataHour(minDataHour);
+        final BinningConfig binningConfig = createConfig();
 
         binningContext = binningConfig.createBinningContext(region, startDateUtc, periodDuration);
 
@@ -438,6 +440,27 @@ public class BinningOp extends Operator {
             writtenProduct.dispose();
         }
         super.dispose();
+    }
+
+    public BinningConfig createConfig() {
+        final BinningConfig config = new BinningConfig();
+        config.setNumRows(numRows);
+        config.setSuperSampling(superSampling);
+        config.setMaskExpr(maskExpr);
+        config.setVariableConfigs(variableConfigs);
+        config.setAggregatorConfigs(aggregatorConfigs);
+        config.setPostProcessorConfig(postProcessorConfig);
+        config.setMinDataHour(minDataHour);
+        config.setMetadataAggregatorName(metadataAggregatorName);
+        config.setStartDateTime(startDateTime);
+        config.setPeriodDuration(periodDuration);
+        config.setTimeFilterMethod(timeFilterMethod);
+        config.setOutputFile(outputFile);
+        config.setRegion(region);
+        if (planetaryGridClass != null) {
+            config.setPlanetaryGrid(planetaryGridClass);
+        }
+        return config;
     }
 
     private void validateInput() {
@@ -513,7 +536,7 @@ public class BinningOp extends Operator {
         parameter.setStartDateTime(startDateTime);
         parameter.setPeriodDuration(periodDuration);
 
-        globalMetadata = GlobalMetadata.create(parameter);
+        globalMetadata = GlobalMetadata.create(this);
         globalMetadata.load(metadataPropertiesFile, getLogger());
     }
 
@@ -678,8 +701,7 @@ public class BinningOp extends Operator {
 
         if (outputTargetProduct) {
             getLogger().info(String.format("Writing mapped product '%s'...", formatterConfig.getOutputFile()));
-            final MetadataElement globalAttributes = globalMetadata.asMetadataElement();
-            globalAttributes.addElement(metadataAggregator.getMetadata());
+            final MetadataElement processingGraphMetadata = getProcessingGraphMetadata();
             Formatter.format(binningContext.getPlanetaryGrid(),
                     getTemporalBinSource(temporalBins),
                     binningContext.getBinManager().getResultFeatureNames(),
@@ -687,7 +709,7 @@ public class BinningOp extends Operator {
                     region,
                     startTime,
                     stopTime,
-                    globalAttributes);
+                    processingGraphMetadata);
             stopWatch.stop();
 
             String msgPattern = "Writing mapped product '%s' done, took %s";
@@ -704,6 +726,14 @@ public class BinningOp extends Operator {
         } else {
             this.targetProduct = new Product("Dummy", "t", 10, 10);
         }
+    }
+
+    private MetadataElement getProcessingGraphMetadata() {
+        final MetadataElement processingGraphMetadata = globalMetadata.asMetadataElement();
+
+        final MetadataElement node_0 = processingGraphMetadata.getElement("node.0");
+        node_0.addElement(metadataAggregator.getMetadata());
+        return processingGraphMetadata;
     }
 
     private TemporalBinSource getTemporalBinSource(List<TemporalBin> temporalBins) throws IOException {

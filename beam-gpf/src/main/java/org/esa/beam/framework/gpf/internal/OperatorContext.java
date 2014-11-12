@@ -78,20 +78,9 @@ import java.awt.image.WritableRaster;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TimeZone;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -104,6 +93,12 @@ import java.util.regex.Pattern;
 public class OperatorContext {
 
     static final String PROCESSING_GRAPH_ELEMENT_NAME = "Processing_Graph";
+
+    private static final String DATETIME_OUTPUT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    private static final SimpleDateFormat DATETIME_OUTPUT_FORMAT = new SimpleDateFormat(DATETIME_OUTPUT_PATTERN);
+    static {
+        DATETIME_OUTPUT_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
 
     private static TileCache tileCache;
     private static TileComputationObserver tileComputationObserver;
@@ -549,7 +544,7 @@ public class OperatorContext {
         int nodeElementCount = 0;
         for (MetadataElement element : targetGraphME.getElements()) {
             MetadataAttribute idAttribute = element.getAttribute("id");
-            if (idAttribute.getData().getElemString().equals(opId)) {
+            if (idAttribute != null && idAttribute.getData().getElemString().equals(opId)) {
                 contains = true;
             }
             if (element.getName().startsWith("node")) {
@@ -599,7 +594,8 @@ public class OperatorContext {
                 targetNodeME.addAttribute(new MetadataAttribute("copyright", copyrightValue, false));
             }
         }
-
+        ProductData processingTime = ProductData.createInstance(DATETIME_OUTPUT_FORMAT.format(new Date()));
+        targetNodeME.addAttribute(new MetadataAttribute("processingTime", processingTime, false));
 
         List<MetadataAttribute> sourceAttributeList = new ArrayList<>(context.sourceProductList.size() * 2);
         //for (Product sourceProduct : context.sourceProductList) {

@@ -18,18 +18,7 @@ package org.esa.beam.binning.operator;
 
 import com.bc.ceres.binding.BindingException;
 import com.vividsolutions.jts.geom.Geometry;
-import org.esa.beam.binning.Aggregator;
-import org.esa.beam.binning.AggregatorConfig;
-import org.esa.beam.binning.AggregatorDescriptor;
-import org.esa.beam.binning.BinManager;
-import org.esa.beam.binning.BinningContext;
-import org.esa.beam.binning.CellProcessorConfig;
-import org.esa.beam.binning.CompositingType;
-import org.esa.beam.binning.DataPeriod;
-import org.esa.beam.binning.PlanetaryGrid;
-import org.esa.beam.binning.TemporalDataPeriod;
-import org.esa.beam.binning.TypedDescriptorsRegistry;
-import org.esa.beam.binning.VariableContext;
+import org.esa.beam.binning.*;
 import org.esa.beam.binning.support.BinningContextImpl;
 import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.binning.support.SpatialDataPeriod;
@@ -37,6 +26,7 @@ import org.esa.beam.binning.support.VariableContextImpl;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.ParameterBlockConverter;
+import org.esa.beam.util.converters.JtsGeometryConverter;
 
 import java.lang.reflect.Constructor;
 
@@ -64,7 +54,7 @@ public class BinningConfig {
     /**
      * Number of rows in the planetary grid.
      */
-    @Parameter
+    @Parameter(description = "Number of rows in the (global) planetary grid. Must be even.", defaultValue = "2160")
     private int numRows;
 
     /**
@@ -78,26 +68,29 @@ public class BinningConfig {
     /**
      * The number of pixels used for supersampling an input pixel into sub-pixel.
      */
-    @Parameter
+    @Parameter(description = "The square of the number of pixels used for super-sampling an input pixel into multiple sub-pixels", defaultValue = "1")
     private Integer superSampling;
 
     /**
      * The band maths expression used to filter input pixels.
      */
-    @Parameter
+    @Parameter(description = "The band maths expression used to filter input pixels")
     private String maskExpr;
 
     /**
      * List of variables. A variable will generate a {@link org.esa.beam.framework.datamodel.VirtualBand VirtualBand}
      * in the input data product to be binned, so that it can be used for binning.
      */
-    @Parameter(alias = "variables", itemAlias = "variable")
+    @Parameter(alias = "variables", itemAlias = "variable",
+            description = "List of variables. A variable will generate a virtual band " +
+                    "in each source data product, so that it can be used as input for the binning.")
     private VariableConfig[] variableConfigs;
 
     /**
      * List of aggregators. Aggregators generate the bands in the binned output products.
      */
-    @Parameter(alias = "aggregators", domConverter = AggregatorConfigDomConverter.class)
+    @Parameter(alias = "aggregators", domConverter = AggregatorConfigDomConverter.class,
+            description = "List of aggregators. Aggregators generate the bands in the binned output products")
     private AggregatorConfig[] aggregatorConfigs;
 
     @Parameter(alias = "postProcessor", domConverter = CellProcessorConfigDomConverter.class)
@@ -108,6 +101,40 @@ public class BinningConfig {
             "observations at the date line (the 180 degree meridian). Only used if parameter 'startDate' is set.")
     private Double minDataHour;
 
+    @Parameter(description = "The type of metadata aggregation to be used. Possible values are:\n" +
+            "'NAME': aggregate the name of each input product\n" +
+            "'FIRST_HISTORY': aggregates all input product names and the processing history of the first product\n" +
+            "'ALL_HISTORIES': aggregates all input product names and processing histories",
+            valueSet = {"NAME", "FIRST_HISTORY", "ALL_HISTORIES"},
+            defaultValue = "FIRST_HISTORY")
+    private String metadataAggregatorName;
+
+    @Parameter(pattern = "\\d{4}-\\d{2}-\\d{2}(\\s\\d{2}:\\d{2}:\\d{2})?",
+            description = "The UTC start date of the binning period. " +
+                    "The format is either 'yyyy-MM-dd HH:mm:ss' or 'yyyy-MM-dd'. If only the date part is given, the time 00:00:00 is assumed.")
+    private String startDateTime;
+
+    @Parameter(description = "Duration of the binning period in days.")
+    private Double periodDuration;
+
+    @Parameter(description = "The method that is used to decide which source pixels are used with respect to their observation time. " +
+            "'NONE': ignore pixel observation time, use all source pixels. " +
+            "'TIME_RANGE': use all pixels that have been acquired in the given binning period. " +
+            "'SPATIOTEMPORAL_DATA_DAY': use a sensor-dependent, spatial \"data-day\" definition with the goal " +
+            "to minimise the time between the first and last observation contributing to the same bin in the given binning period. " +
+            "The decision, whether a source pixel contributes to a bin or not, is a function of the pixel's observation longitude and time. " +
+            "Requires the parameter 'minDataHour'.",
+            defaultValue = "NONE")
+    private BinningOp.TimeFilterMethod timeFilterMethod;
+
+    @Parameter
+    private String outputFile;
+
+    @Parameter(converter = JtsGeometryConverter.class,
+            description = "The considered geographical region as a geometry in well-known text format (WKT).\n" +
+                    "If not given, the geographical region will be computed according to the extents of the " +
+                    "input products.")
+    Geometry region;
 
     public String getPlanetaryGrid() {
         return planetaryGrid;
@@ -182,6 +209,54 @@ public class BinningConfig {
         this.postProcessorConfig = cellProcessorConfig;
     }
 
+    public String getMetadataAggregatorName() {
+        return metadataAggregatorName;
+    }
+
+    public void setMetadataAggregatorName(String metadataAggregatorName) {
+        this.metadataAggregatorName = metadataAggregatorName;
+    }
+
+    public String getStartDateTime() {
+        return startDateTime;
+    }
+
+    public void setStartDateTime(String startDateTime) {
+        this.startDateTime = startDateTime;
+    }
+
+    public Double getPeriodDuration() {
+        return periodDuration;
+    }
+
+    public void setPeriodDuration(Double periodDuration) {
+        this.periodDuration = periodDuration;
+    }
+
+    public BinningOp.TimeFilterMethod getTimeFilterMethod() {
+        return timeFilterMethod;
+    }
+
+    public void setTimeFilterMethod(BinningOp.TimeFilterMethod timeFilterMethod) {
+        this.timeFilterMethod = timeFilterMethod;
+    }
+
+    public String getOutputFile() {
+        return outputFile;
+    }
+
+    public void setOutputFile(String outputFile) {
+        this.outputFile = outputFile;
+    }
+
+    public Geometry getRegion() {
+        return region;
+    }
+
+    public void setRegion(Geometry region) {
+        this.region = region;
+    }
+
     public static BinningConfig fromXml(String xml) throws BindingException {
         return new ParameterBlockConverter().convertXmlToObject(xml, new BinningConfig());
     }
@@ -198,11 +273,11 @@ public class BinningConfig {
     public BinningContext createBinningContext(Geometry region, ProductData.UTC startDate, Double periodDuration) {
         VariableContext variableContext = createVariableContext();
         return new BinningContextImpl(createPlanetaryGrid(),
-                                      createBinManager(variableContext),
-                                      compositingType,
-                                      getSuperSampling() != null ? getSuperSampling() : 1,
-                                      createDataPeriod(startDate, periodDuration, minDataHour),
-                                      region);
+                createBinManager(variableContext),
+                compositingType,
+                getSuperSampling() != null ? getSuperSampling() : 1,
+                createDataPeriod(startDate, periodDuration, minDataHour),
+                region);
     }
 
     /**

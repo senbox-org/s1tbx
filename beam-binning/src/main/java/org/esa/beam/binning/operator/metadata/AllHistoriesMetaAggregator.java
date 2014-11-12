@@ -2,23 +2,39 @@ package org.esa.beam.binning.operator.metadata;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.util.StringUtils;
 
 class AllHistoriesMetaAggregator extends AbstractMetadataAggregator {
 
     @Override
     public void aggregateMetadata(Product product) {
-        final MetadataElement productElement = Utilities.createProductMetaElement(product, aggregatedCount);
-
+        final String productName = Utilities.extractProductName(product);
         final MetadataElement processingGraphElement = Utilities.getProcessingGraphElement(product);
-        if (processingGraphElement != null) {
-            productElement.addElement(processingGraphElement.createDeepClone());
+
+        aggregate(productName, processingGraphElement);
+    }
+
+    @Override
+    public void aggregateMetadata(MetadataElement processingGraphElement) {
+        String productName = Utilities.extractProductName(processingGraphElement);
+        if (StringUtils.isNullOrEmpty(productName)) {
+            productName = "unknown";
         }
-        source_products.addElementAt(productElement, aggregatedCount);
-        ++aggregatedCount;
+
+        aggregate(productName, processingGraphElement);
     }
 
     @Override
     public MetadataElement getMetadata() {
-        return source_products;
+        return inputsMetaElement;
+    }
+
+    private void aggregate(String productName, MetadataElement processingGraphElement) {
+        final MetadataElement productElement = Utilities.createSourceMetaElement(productName, aggregatedCount);
+        if (processingGraphElement != null) {
+            productElement.addElement(processingGraphElement.createDeepClone());
+        }
+        inputsMetaElement.addElementAt(productElement, aggregatedCount);
+        ++aggregatedCount;
     }
 }

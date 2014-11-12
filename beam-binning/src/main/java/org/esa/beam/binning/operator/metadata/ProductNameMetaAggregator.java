@@ -2,25 +2,34 @@ package org.esa.beam.binning.operator.metadata;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.util.StringUtils;
 
 class ProductNameMetaAggregator extends AbstractMetadataAggregator {
 
-//    private final MetadataElement source_products;
-//    private int aggregatedCount;
-//
-//    ProductNameMetaAggregator() {
-//        source_products = new MetadataElement("source_products");
-//        aggregatedCount = 0;
-//    }
-
     public MetadataElement getMetadata() {
-        return source_products;
+        return inputsMetaElement;
     }
 
     public void aggregateMetadata(Product product) {
-        final MetadataElement productElement = Utilities.createProductMetaElement(product, aggregatedCount);
+        final String productName = Utilities.extractProductName(product);
 
-        source_products.addElementAt(productElement, aggregatedCount);
+        aggregate(productName);
+    }
+
+    @Override
+    public void aggregateMetadata(MetadataElement processingGraphElement) {
+        String productName = Utilities.extractProductName(processingGraphElement);
+        if (StringUtils.isNullOrEmpty(productName)) {
+            productName = "unknown";
+        }
+
+        aggregate(productName);
+    }
+
+    private void aggregate(String productName) {
+        final MetadataElement productElement = Utilities.createSourceMetaElement(productName, aggregatedCount);
+
+        inputsMetaElement.addElementAt(productElement, aggregatedCount);
         ++aggregatedCount;
     }
 }
