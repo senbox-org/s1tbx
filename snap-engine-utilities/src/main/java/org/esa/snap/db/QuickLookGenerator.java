@@ -197,14 +197,22 @@ public class QuickLookGenerator {
         } else {
             final List<Band> bandList = new ArrayList<>(3);
             for(int i=0; i < Math.min(3,quicklookBandNames.length); ++i) {
-                bandList.add(productSubset.getBand(quicklookBandNames[i]));
+                final Band band = productSubset.getBand(quicklookBandNames[i]);
+                if(band.getStx().getMean() != 0) {
+                    bandList.add(band);
+                }
             }
             final Band[] bands = bandList.toArray(new Band[bandList.size()]);
-            ImageInfo imageInfo = ProductUtils.createImageInfo(bands, true, ProgressMonitor.NULL);
-            image = ProductUtils.createRgbImage(bands, imageInfo, ProgressMonitor.NULL);
-            productSubset.dispose();
+
+            if(bands.length < 3) {
+                image = ProductUtils.createColorIndexedImage(bands[0], ProgressMonitor.NULL);
+            } else {
+                ImageInfo imageInfo = ProductUtils.createImageInfo(bands, true, ProgressMonitor.NULL);
+                image = ProductUtils.createRgbImage(bands, imageInfo, ProgressMonitor.NULL);
+            }
         }
 
+        productSubset.dispose();
         return image;
     }
 
@@ -277,7 +285,7 @@ public class QuickLookGenerator {
 
     private static BufferedImage createRenderedImage(byte[] array, int w, int h) {
 
-        // create rendered image with demension being width by height
+        // create rendered image with dimension being width by height
         final SampleModel sm = RasterFactory.createBandedSampleModel(DataBuffer.TYPE_BYTE, w, h, 1);
         final ColorModel cm = PlanarImage.createColorModel(sm);
         final DataBufferByte dataBuffer = new DataBufferByte(array, array.length);
