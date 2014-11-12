@@ -16,19 +16,23 @@
   -->
 <!--suppress MavenModelInspection -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <description>The basic framework for processing using Operators and the GPT.</description>
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>snap-engine</artifactId>
         <groupId>org.esa.snap</groupId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-    <name>SNAP Graph Processing Framework (GPF)</name>
+
     <artifactId>snap-gpf</artifactId>
     <packaging>nbm</packaging>
+
+    <name>SNAP Graph Processing Framework (GPF)</name>
+    <description>The basic framework for processing using Operators and the GPT.</description>
+
     <properties>
         <jdkToolsPath>${java.home}/../lib/tools.jar</jdkToolsPath>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -87,7 +91,7 @@
             </dependencies>
         </profile>
     </profiles>
-    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
+
     <build>
         <plugins>
             <plugin>

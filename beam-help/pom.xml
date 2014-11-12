@@ -21,10 +21,13 @@
         <groupId>org.esa.snap</groupId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
-    <packaging>nbm</packaging>
-    <name>SNAP Help</name>
+
     <artifactId>snap-beam-help</artifactId>
+    <packaging>nbm</packaging>
+
+    <name>SNAP Help</name>
     <description>Provides the software user manual.</description>
+
     <build>
         <plugins>
             <plugin>
@@ -50,6 +53,5 @@
             </plugin>
         </plugins>
     </build>
-    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
 </project>
 

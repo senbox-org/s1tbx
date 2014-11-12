@@ -13,13 +13,6 @@
     <name>SNAP Statistics Operator</name>
     <description>The snap-statistics module contains an operator for computing statistics for a set of input products and regions.</description>
 
-    <licenses>
-        <license>
-            <name>GNU General Public License (GPL)</name>
-            <url>http://www.gnu.org/licenses/gpl.html</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
