@@ -13,4 +13,3 @@ OpenIDE-Module-Long-Description: <p>This is the base module of SNAP co
                 [SNAP-13] Bisince Interpolation<br/>
                 [SNAP-5] Some uncertainty visualisation modes hide no-
  data pixels<br/></p>
-OpenIDE-Module-Install: org.esa.beam.BeamCoreActivator

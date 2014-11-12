@@ -15,4 +15,3 @@ OpenIDE-Module-Long-Description: <p>A desktop application used to open
  r/>
         <b>Changes in 1.0.1</b><br/>
             [SNAP-17] Saving a product takes too long<br/></p>
-OpenIDE-Module-Install: org.esa.beam.visat.VisatActivator

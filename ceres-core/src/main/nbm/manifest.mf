@@ -1,4 +1,6 @@
 Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: false
+AutoUpdate-Essential-Module: true
 OpenIDE-Module-Java-Dependencies: Java > 1.8
 OpenIDE-Module-Display-Category: SNAP
 OpenIDE-Module-Long-Description: <p>The Ceres Runtime provides a platf
@@ -8,7 +10,3 @@ OpenIDE-Module-Long-Description: <p>The Ceres Runtime provides a platf
   2011 by Brockmann Consult GmbH</p><p><b>Vendor:</b> Brockmann Consul
  t GmbH</p><p><b>License:</b> http://www.gnu.org/licenses/gpl.html</p>
  <p><b>Changelog:</b> </p>
-OpenIDE-Module-Install: com.bc.ceres.core.runtime.internal.RuntimeActi
- vator
-AutoUpdate-Show-In-Client: false
-AutoUpdate-Essential-Module: true

@@ -9,4 +9,3 @@ OpenIDE-Module-Long-Description: <p>SNAP Graph Builder</p><p><b>Fundin
  ada)</p><p><b>Copyright:</b> (C) 2014 by Array Systems Computing Inc<
  /p><p><b>Vendor:</b> Array Systems Computing Inc</p><p><b>License:</b
  > http://www.gnu.org/licenses/gpl.html</p>
-OpenIDE-Module-Install: org.esa.snap.gpf.ui.OperatorUIRegistry

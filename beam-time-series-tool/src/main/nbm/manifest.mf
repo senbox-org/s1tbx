@@ -13,5 +13,3 @@ OpenIDE-Module-Long-Description: <p>This module provides the time seri
  many)</p><p><b>Copyright:</b> (C) 2014 by Brockmann Consult GmbH</p><
  p><b>Vendor:</b> Brockmann Consult GmbH</p><p><b>License:</b> http://
  www.gnu.org/licenses/gpl.html</p>
-OpenIDE-Module-Install: org.esa.beam.timeseries.core.TimeSeriesToolAct
- ivator

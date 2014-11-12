@@ -10,4 +10,3 @@ OpenIDE-Module-Long-Description: <p>The Ceres JAI Library provides ext
  011 by Brockmann Consult GmbH</p><p><b>Vendor:</b> Brockmann Consult 
  GmbH</p><p><b>License:</b> http://www.gnu.org/licenses/gpl.html</p><p
  ><b>Changelog:</b> </p>
-OpenIDE-Module-Install: com.bc.ceres.jai.ModuleActivator

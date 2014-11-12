@@ -9,4 +9,3 @@ OpenIDE-Module-Long-Description: <p>This module provides user interfac
  acht (Germany)</p><p><b>Copyright:</b> (C) 2014 by Brockmann Consult 
  GmbH</p><p><b>Vendor:</b> Brockmann Consult GmbH</p><p><b>License:</b
  > http://www.gnu.org/licenses/gpl.html</p>
-OpenIDE-Module-Install: org.esa.beam.BeamUiActivator
