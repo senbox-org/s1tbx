@@ -17,11 +17,10 @@
 package com.bc.ceres.launcher.internal;
 
 import com.bc.ceres.core.runtime.RuntimeConfigException;
-import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
+import com.bc.ceres.core.runtime.support.DefaultRuntimeConfig;
+import junit.framework.TestCase;
 
 import java.io.File;
-
-import junit.framework.TestCase;
 
 public class BootstrapClasspathFactoryTest extends TestCase {
 

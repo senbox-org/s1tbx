@@ -16,7 +16,7 @@
 package org.esa.beam.util.logging;
 
 import com.bc.ceres.core.runtime.RuntimeConfigException;
-import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
+import com.bc.ceres.core.runtime.support.DefaultRuntimeConfig;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.SystemUtils;
 

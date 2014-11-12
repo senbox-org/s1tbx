@@ -128,12 +128,13 @@ public class OperatorContextTest {
 
         MetadataElement node0Element = elementPG.getElement("node.0");
         assertNotNull(node0Element);
-        assertEquals(8, node0Element.getNumAttributes());
+        assertEquals(9, node0Element.getNumAttributes());
         assertNotNull(node0Element.getAttribute("id"));
         assertNotNull(node0Element.getAttribute("operator"));
         assertNotNull(node0Element.getAttribute("moduleName"));
         assertEquals("snap-gpf", node0Element.getAttributeString("moduleName"));
         assertNotNull(node0Element.getAttribute("moduleVersion"));
+        assertNotNull(node0Element.getAttribute("processingTime"));
 
     }
 

@@ -24,6 +24,7 @@ import com.bc.ceres.core.ExtensionFactory;
 import com.bc.ceres.core.ExtensionManager;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeConfigException;
+import com.bc.ceres.core.runtime.support.DefaultRuntimeConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -47,10 +47,11 @@ import java.util.List;
  */
 public class TiffIFD {
 
+    private static final long MAX_FILE_SIZE = 4294967296L;
     private static final int TIFF_COLORMAP_SIZE = 256;
     private static final int BYTES_FOR_NEXT_IFD_OFFSET = 4;
     private static final int BYTES_FOR_NUMBER_OF_ENTRIES = 2;
-    
+
     private final TiffDirectoryEntrySet entrySet;
     private int maxElemSizeBandDataType;
 
@@ -74,8 +75,7 @@ public class TiffIFD {
         writeNextIfdOffset(ios, ifdOffset, nextIfdOffset);
     }
 
-    private void writeNextIfdOffset(final ImageOutputStream ios, final long ifdOffset, final long nextIfdOffset) throws
-            IOException {
+    private void writeNextIfdOffset(final ImageOutputStream ios, final long ifdOffset, final long nextIfdOffset) throws IOException {
         ios.seek(getPosForNextIfdOffset(ifdOffset));
         new TiffLong(nextIfdOffset).write(ios);
     }
@@ -224,13 +224,13 @@ public class TiffIFD {
         final TiffShort[] colorMap = new TiffShort[TIFF_COLORMAP_SIZE * 3];
         System.arraycopy(redColor, 0, colorMap, 0, redColor.length);
         System.arraycopy(greenColor, 0, colorMap, TIFF_COLORMAP_SIZE, greenColor.length);
-        System.arraycopy(blueColor, 0, colorMap, TIFF_COLORMAP_SIZE *2 , blueColor.length);
+        System.arraycopy(blueColor, 0, colorMap, TIFF_COLORMAP_SIZE * 2, blueColor.length);
         return colorMap;
     }
 
     private static boolean isValidColorMapProduct(Product product) {
         return getNumBands(product) == 1 && product.getBandAt(0).getIndexCoding() != null &&
-            product.getBandAt(0).getDataType() == ProductData.TYPE_UINT8;
+               product.getBandAt(0).getDataType() == ProductData.TYPE_UINT8;
     }
 
     static TiffAscii getBeamMetadata(final Product product) {
@@ -249,7 +249,7 @@ public class TiffIFD {
 
 //  for debug purpose
 //        geoTIFFMetadata.dump();
-        
+
         final int numEntries = geoTIFFMetadata.getNumGeoKeyEntries();
         final TiffShort[] directoryTagValues = new TiffShort[numEntries * 4];
         final ArrayList<TiffDouble> doubleValues = new ArrayList<TiffDouble>();
@@ -326,46 +326,46 @@ public class TiffIFD {
     }
 
     static int getMaxElemSizeBandDataType(final Band[] bands) {
-            int maxSignedIntType = -1;
-            int maxUnsignedIntType = -1;
-            int maxFloatType = -1;
-            for (Band band : bands) {
-                int dt = band.getDataType();
-                if (ProductData.isIntType(dt)) {
-                    if (ProductData.isUIntType(dt)) {
-                        maxUnsignedIntType = Math.max(maxUnsignedIntType, dt);
-                    } else {
-                        maxSignedIntType = Math.max(maxSignedIntType, dt);
-                    }
-                }
-                if (ProductData.isFloatingPointType(dt)) {
-                    maxFloatType = Math.max(maxFloatType, dt);
+        int maxSignedIntType = -1;
+        int maxUnsignedIntType = -1;
+        int maxFloatType = -1;
+        for (Band band : bands) {
+            int dt = band.getDataType();
+            if (ProductData.isIntType(dt)) {
+                if (ProductData.isUIntType(dt)) {
+                    maxUnsignedIntType = Math.max(maxUnsignedIntType, dt);
+                } else {
+                    maxSignedIntType = Math.max(maxSignedIntType, dt);
                 }
             }
-
-           if (maxFloatType != -1) {
-                return ProductData.TYPE_FLOAT32;
+            if (ProductData.isFloatingPointType(dt)) {
+                maxFloatType = Math.max(maxFloatType, dt);
             }
+        }
 
-            if (maxUnsignedIntType != -1) {
-                if (maxSignedIntType == -1) {
-                    return maxUnsignedIntType;
+        if (maxFloatType != -1) {
+            return ProductData.TYPE_FLOAT32;
+        }
+
+        if (maxUnsignedIntType != -1) {
+            if (maxSignedIntType == -1) {
+                return maxUnsignedIntType;
+            }
+            if (ProductData.getElemSize(maxUnsignedIntType) >= ProductData.getElemSize(maxSignedIntType)) {
+                int returnType = maxUnsignedIntType - 10 + 1;
+                if (returnType > 12) {
+                    return ProductData.TYPE_FLOAT32;
+                } else {
+                    return returnType;
                 }
-                if (ProductData.getElemSize(maxUnsignedIntType) >= ProductData.getElemSize(maxSignedIntType)) {
-                    int returnType = maxUnsignedIntType - 10 + 1;
-                    if (returnType > 12) {
-                        return ProductData.TYPE_FLOAT32;
-                    } else {
-                        return returnType;
-                    }
-                }
             }
+        }
 
-            if (maxSignedIntType != -1) {
-                return maxSignedIntType;
-            }
+        if (maxSignedIntType != -1) {
+            return maxSignedIntType;
+        }
 
-            return DataBuffer.TYPE_UNDEFINED;
+        return DataBuffer.TYPE_UNDEFINED;
     }
 
     private TiffShort[] calculateSampleFormat(final Product product) {
@@ -405,6 +405,10 @@ public class TiffIFD {
             tiffValues[i] = new TiffLong(offset);
             long byteCount = getByteCount(bitsPerSample, i);
             offset += byteCount;
+            if (offset > MAX_FILE_SIZE) {
+                String msg = String.format("File size too big. TIFF file size is limited to [%d] bytes!", MAX_FILE_SIZE);
+                throw new IllegalStateException(msg);
+            }
         }
         return tiffValues;
     }

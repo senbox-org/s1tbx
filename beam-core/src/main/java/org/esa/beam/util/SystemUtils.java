@@ -639,7 +639,11 @@ public class SystemUtils {
 
     public static String getApplicationRemoteVersionUrl() {
         final String key = getApplicationContextId() + ".remoteVersion.url";
-        return System.getProperty(key, getApplicationHomepageUrl() + "software/version.txt");
+        String applicationHomepageUrl = getApplicationHomepageUrl();
+        if(!applicationHomepageUrl.endsWith("/")){
+            applicationHomepageUrl = applicationHomepageUrl + "/";
+        }
+        return System.getProperty(key, applicationHomepageUrl + "software/version.txt");
     }
 
     /**

@@ -17,7 +17,7 @@
 package org.esa.beam.framework.gpf.main;
 
 import com.bc.ceres.core.runtime.RuntimeConfig;
-import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
+import com.bc.ceres.core.runtime.support.DefaultRuntimeConfig;
 import org.esa.beam.util.SystemUtils;
 
 import java.util.Locale;

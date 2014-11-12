@@ -23,6 +23,7 @@ import com.bc.ceres.core.ServiceRegistryManager;
 import com.bc.ceres.core.runtime.Constants;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.RuntimeConfigException;
+import com.bc.ceres.core.runtime.support.DefaultRuntimeConfig;
 import junit.framework.TestCase;
 
 import java.io.File;
