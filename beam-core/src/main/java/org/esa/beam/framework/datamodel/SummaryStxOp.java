@@ -39,10 +39,18 @@ final public class SummaryStxOp extends StxOp {
     private double meanSqr;
     private long sampleCount;
 
+    private double valueSum;
+    private double sqrSum;
+    private double power4Sum;
+
     public SummaryStxOp() {
         super("Summary");
         this.minimum = POSITIVE_INFINITY;
         this.maximum = NEGATIVE_INFINITY;
+        this.sampleCount = 0;
+        this.valueSum = 0;
+        this.sqrSum = 0;
+        this.power4Sum = 0;
     }
 
     public double getMinimum() {
@@ -65,6 +73,36 @@ final public class SummaryStxOp extends StxOp {
 
     public double getVariance() {
         return sampleCount > 1 ? meanSqr / (sampleCount - 1) : sampleCount == 1 ? 0.0 : NaN;
+    }
+
+    public double getCoefficientOfVariation(final String unit) {
+        double cv = 0.0;
+        if (unit != null && unit.contains("intensity")) {
+            final double m = valueSum / sampleCount;
+            final double m2 = sqrSum / sampleCount;
+            cv = Math.sqrt(m2 - m*m) / m;
+        } else {
+            final double m4 = power4Sum / sampleCount;
+            final double m2 = sqrSum / sampleCount;
+            cv = Math.sqrt(m4 - m2*m2) / m2;
+        }
+        return cv;
+    }
+
+    public double getEquivalentNumberOfLooks(final String unit) {
+        double enl = 0.0;
+        if (unit != null && unit.contains("intensity")) {
+            final double m = valueSum / sampleCount;
+            final double m2 = sqrSum / sampleCount;
+            final double mm = m*m;
+            enl = mm / (m2 - mm);
+        } else {
+            final double m4 = power4Sum / sampleCount;
+            final double m2 = sqrSum / sampleCount;
+            final double m2m2 = m2*m2;
+            enl = m2m2 / (m4 - m2m2);
+        }
+        return enl;
     }
 
     @Override
@@ -105,14 +143,21 @@ final public class SummaryStxOp extends StxOp {
         double tileMean = this.mean;
         double tileMeanSqr = this.meanSqr;
 
+        double tmpValueSum = this.valueSum;
+        double tmpSqrSum = this.sqrSum;
+        double tmpPower4Sum = this.power4Sum;
+
         double value, delta;
         for (int y = 0; y < height; y++) {
             int dataPixelOffset = dataLineOffset;
             int maskPixelOffset = maskLineOffset;
             for (int x = 0; x < width; x++) {
                 if (mask == null || mask[maskPixelOffset] != 0) {
-                    tileSampleCount++;
+
                     value = values.getDouble(dataPixelOffset);
+                    if(!Double.isInfinite(value) && !Double.isNaN(value)) {
+
+                    tileSampleCount++;
                     if (value < tileMinimum) {
                         tileMinimum = value;
                     }
@@ -122,6 +167,12 @@ final public class SummaryStxOp extends StxOp {
                     delta = value - tileMean;
                     tileMean += delta / tileSampleCount;
                     tileMeanSqr += delta * (value - tileMean);
+
+                    tmpValueSum += value;
+                    final double value2 = value * value;
+                    tmpSqrSum += value2;
+                    tmpPower4Sum += value2*value2;
+                    }
                 }
                 dataPixelOffset += dataPixelStride;
                 maskPixelOffset += maskPixelStride;
@@ -135,5 +186,9 @@ final public class SummaryStxOp extends StxOp {
         this.sampleCount = tileSampleCount;
         this.mean = tileMean;
         this.meanSqr = tileMeanSqr;
+
+        this.valueSum = tmpValueSum;
+        this.sqrSum = tmpSqrSum;
+        this.power4Sum = tmpPower4Sum;
     }
 }

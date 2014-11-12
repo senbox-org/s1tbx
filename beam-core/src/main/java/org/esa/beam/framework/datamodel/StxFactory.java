@@ -48,6 +48,9 @@ public class StxFactory {
     private Boolean logHistogram;
     private int[] histogramBins;
 
+    private Number coefficientOfVariation;
+    private Number enl;
+
     public StxFactory() {
     }
 
@@ -146,6 +149,8 @@ public class StxFactory {
         boolean intHistogram = this.intHistogram != null ? this.intHistogram : false;
         int level = this.resolutionLevel != null ? this.resolutionLevel : 0;
 
+        double coeffOfVariation = this.coefficientOfVariation != null ? this.coefficientOfVariation.doubleValue() : Double.NaN;
+        double enl = this.enl != null ? this.enl.doubleValue() : Double.NaN;
         Histogram histogram = this.histogram;
 
         Assert.argument(roiMasks == null || roiMasks.length == rasters.length, "roiMasks == null || roiMasks.length == rasters.length");
@@ -206,6 +211,12 @@ public class StxFactory {
                     if (this.standardDeviation == null) {
                         stdDev = meanOp.getStandardDeviation();
                     }
+                    if (this.coefficientOfVariation == null) {
+                        coeffOfVariation = meanOp.getCoefficientOfVariation(filteredRasters[0].getUnit());
+                    }
+                    if (this.enl == null) {
+                        enl = meanOp.getEquivalentNumberOfLooks(filteredRasters[0].getUnit());
+                    }
                 }
 
                 if (mustComputeHistogramStx) {
@@ -246,7 +257,7 @@ public class StxFactory {
             }
         }
 
-        return new Stx(minimum, maximum, mean, stdDev, logHistogram, intHistogram, histogram, level);
+        return new Stx(minimum, maximum, mean, stdDev, coeffOfVariation, enl, logHistogram, intHistogram, histogram, level);
     }
 
     /**
