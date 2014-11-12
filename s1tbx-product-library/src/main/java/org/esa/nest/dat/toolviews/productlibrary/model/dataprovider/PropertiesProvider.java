@@ -37,6 +37,7 @@ import java.util.Comparator;
 public class PropertiesProvider implements DataProvider {
 
     private static final DecimalFormat df = new DecimalFormat("#.##");
+    private static final DateFormat dateFormat = ProductData.UTC.createDateFormat("dd-MMM-yyyy");
 
     private static final String[] propertyLables = new String[]{
             "Name:",
@@ -83,17 +84,12 @@ public class PropertiesProvider implements DataProvider {
             setRowHeight(14);
             dataModel.setRowCount(propertyLables.length);
 
-            for (int i = 0; i < propertyLables.length; i++) {
-                dataModel.setValueAt(propertyLables[i], i, 0);
-                dataModel.setValueAt("", i, 1);
-            }
-
             setModel(dataModel);
-            valueFont = getFont().deriveFont(Font.PLAIN, 12); //getFont().deriveFont(Font.BOLD);
+            valueFont = getFont().deriveFont(Font.PLAIN, 12);
             boldFont = valueFont.deriveFont(Font.BOLD);
             getColumnModel().getColumn(0).setCellRenderer(new PropertyValueCellRenderer(valueFont, boldFont));
             getColumnModel().getColumn(1).setCellRenderer(new PropertyValueCellRenderer(valueFont, boldFont));
-            getColumnModel().getColumn(0).setMaxWidth(80);
+            getColumnModel().getColumn(0).setMaxWidth(0);
 
             //this.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
             getTableHeader().setVisible(false);
@@ -117,7 +113,6 @@ public class PropertiesProvider implements DataProvider {
                     final File file = entry.getFile();
                     final String fileSize = "(" + (entry.getFileSize() / (1024 * 1024)) + " MB)";
 
-                    final DateFormat dateFormat = ProductData.UTC.createDateFormat("dd-MMM-yyyy");
                     final String dateString = dateFormat.format(entry.getFirstLineTime().getAsDate());
 
                     String polStr = "";
@@ -181,12 +176,12 @@ public class PropertiesProvider implements DataProvider {
 
             final int lablesLength = getMaxStringLength(propertyLables, getFontMetrics(getFont()));
             int columnIndex = 0;
-            increasePreferredColumnWidth(getColumnModel().getColumn(columnIndex), lablesLength);
+            //increasePreferredColumnWidth(getColumnModel().getColumn(columnIndex), lablesLength);
 
             int valuesLength = 50;
             if (values != null) {
                 valuesLength = Math.min(200, getMaxStringLength(values, getFontMetrics(valueFont)));
-                increasePreferredColumnWidth(getColumnModel().getColumn(1), valuesLength);
+             //   increasePreferredColumnWidth(getColumnModel().getColumn(1), valuesLength);
             }
             int preferredWidth = lablesLength + valuesLength;
             //preferredWidth = (int) (preferredWidth + (preferredWidth * 0.01f));
