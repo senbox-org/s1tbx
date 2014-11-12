@@ -18,9 +18,13 @@ package org.esa.beam.binning.operator;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 import org.esa.beam.binning.AggregatorConfig;
+import org.esa.beam.binning.CellProcessorConfig;
 import org.esa.beam.binning.DataPeriod;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
+import org.esa.beam.binning.aggregators.AggregatorMinMax;
 import org.esa.beam.binning.aggregators.AggregatorPercentile;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.*;
@@ -110,32 +114,51 @@ public class BinningOpTest {
             SortedMap<String, String> metadataProperties = binningOp.getMetadataProperties();
             assertNotNull(metadataProperties);
 
-            assertEquals(7, metadataProperties.size());
+            assertEquals(17, metadataProperties.size());
             Set<String> strings = metadataProperties.keySet();
             String[] names = strings.toArray(new String[strings.size()]);
             String[] expectedNames = {
                     "aggregation_period_duration",
                     "aggregation_period_start",
-                    "processing_time",
+                    //"aggregator_config.0:outputCounts",
+                    //"aggregator_config.0:outputSums",
+                    //"aggregator_config.0:targetName",
+                    "aggregator_config.0:type",
+                    "aggregator_config.0:varName",
+                    //"aggregator_config.0:weightCoeff",
+                    "aggregator_config.1:percentage",
+                    //"aggregator_config.1:targetName",
+                    "aggregator_config.1:type",
+                    "aggregator_config.1:varName",
+                    "mask_expression",
+                    "metadata_aggregator_name",
+                    "num_rows",
+                    "pixel_size_in_km",
+                    //"processing_time",
                     "product_name",
+                    "region",
                     "software_name",
                     "software_qualified_name",
-                    "software_version"
+                    "software_version",
+                    "super_sampling"
             };
             assertArrayEquals(expectedNames, names);
 
-            assertTrue("processing_time", metadataProperties.get("processing_time").startsWith("201"));
+            //assertTrue("processing_time", metadataProperties.get("processing_time").startsWith("201"));
             assertEquals("target-1", metadataProperties.get("product_name"));
             assertEquals("Binning", metadataProperties.get("software_name"));
             assertEquals("org.esa.beam.binning.operator.BinningOp", metadataProperties.get("software_qualified_name"));
             assertEquals("1.0", metadataProperties.get("software_version"));
             assertEquals("2002-01-01", metadataProperties.get("aggregation_period_start"));
+            assertEquals("LINEARRING (0 0, 0 1, 1 1, 1 0, 0 0)", metadataProperties.get("region"));
+            // @todo 2 tb/tb add checks for other properties 2014-10-10
 
             final MetadataElement metadataRoot = targetProduct.getMetadataRoot();
-            final MetadataElement globalAttributes = metadataRoot.getElement("Global_Attributes");
-            final MetadataElement sourceProductsElement = globalAttributes.getElement("source_products");
-            assertNotNull(sourceProductsElement);
-            assertEquals(3, sourceProductsElement.getNumElements());
+            final MetadataElement processingGraph = metadataRoot.getElement("Processing_Graph");
+            final MetadataElement node_0 = processingGraph.getElement("node.0");
+            final MetadataElement sourcesElement = node_0.getElement("sources");
+            assertNotNull(sourcesElement);
+            assertEquals(3, sourcesElement.getNumElements());
         } finally {
             targetProduct.dispose();
         }
@@ -667,6 +690,48 @@ public class BinningOpTest {
         targetProduct.dispose();
     }
 
+    @Test
+    public void testCreateConfig() throws ParseException {
+        final BinningOp binningOp = createBinningOp();
+        binningOp.setNumRows(19);
+        binningOp.setSuperSampling(20);
+        binningOp.setMaskExpr("twenty-one");
+        binningOp.setVariableConfigs(new VariableConfig("yeah", "wow"));
+        binningOp.setAggregatorConfigs(new AggregatorMinMax.Config());
+        binningOp.setPostProcessorConfig(new TestCellProcessorConfig());
+        binningOp.setMinDataHour(25.0);
+        binningOp.setMetadataAggregatorName("clump");
+        binningOp.setStartDateTime("start-me-up");
+        binningOp.setPeriodDuration(26.0);
+        binningOp.setTimeFilterMethod(BinningOp.TimeFilterMethod.TIME_RANGE);
+        binningOp.setOutputFile("a_file");
+        final WKTReader wktReader = new WKTReader();
+        binningOp.setRegion(wktReader.read("POLYGON((10 10, 15 10, 15 12, 10 12, 10 10))"));
+
+        final BinningConfig config = binningOp.createConfig();
+        assertNotNull(config);
+        assertEquals(19, config.getNumRows());
+        assertEquals(20, config.getSuperSampling().intValue());
+        assertEquals("twenty-one", config.getMaskExpr());
+
+        final VariableConfig[] variableConfigs = config.getVariableConfigs();
+        assertEquals(1, variableConfigs.length);
+        assertEquals("wow", variableConfigs[0].getExpr());
+
+        final AggregatorConfig[] aggregatorConfigs = config.getAggregatorConfigs();
+        assertEquals(1, aggregatorConfigs.length);
+        assertEquals("MIN_MAX", aggregatorConfigs[0].getName());
+
+        assertNotNull(config.getPostProcessorConfig());
+        assertEquals(25.0, config.getMinDataHour(), 1e-8);
+        assertEquals("clump", config.getMetadataAggregatorName());
+        assertEquals("start-me-up", config.getStartDateTime());
+        assertEquals(26.0, config.getPeriodDuration(), 1e-8);
+        assertEquals(BinningOp.TimeFilterMethod.TIME_RANGE, config.getTimeFilterMethod());
+        assertEquals("a_file", config.getOutputFile());
+        assertEquals("POLYGON ((10 10, 15 10, 15 12, 10 12, 10 10))", config.getRegion().toString());
+    }
+
     private BinningOp createBinningOp() {
         BinningOp binningOp = new BinningOp();
         binningOp.setParameterDefaultValues();
@@ -807,4 +872,7 @@ public class BinningOpTest {
         return new File(TESTDATA_DIR, fileName);
     }
 
+    private static class TestCellProcessorConfig extends CellProcessorConfig {
+
+    }
 }

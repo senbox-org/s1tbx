@@ -24,19 +24,15 @@ import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class BinningConfigWithProcessorTest {
 
     private BinningConfig config;
 
     @Before
-    public void initBinningConfig() throws IOException, BindingException {
-        config = BinningConfigTest.loadConfig(getClass().getResourceAsStream("BinningConfigWithProcessorTest.xml"));
+    public void initBinningConfig() throws Exception {
+        config = BinningConfigTest.loadConfig("BinningConfigWithProcessorTest.xml");
     }
 
     @Test
@@ -49,7 +45,7 @@ public class BinningConfigWithProcessorTest {
 
         assertEquals(AggregatorOnMaxSet.class, binManager.getAggregator(1).getClass());
         assertArrayEquals(new String[]{"ndvi_max", "ndvi_mjd", "reflec_3", "reflec_7", "reflec_8"},
-                          binManager.getAggregator(1).getOutputFeatureNames());
+                binManager.getAggregator(1).getOutputFeatureNames());
 
         assertEquals(AggregatorMinMax.class, binManager.getAggregator(2).getClass());
         assertArrayEquals(new String[]{"chl_min", "chl_max"}, binManager.getAggregator(2).getOutputFeatureNames());

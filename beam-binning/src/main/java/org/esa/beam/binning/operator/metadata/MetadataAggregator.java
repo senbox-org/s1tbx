@@ -8,5 +8,7 @@ public interface MetadataAggregator {
 
     void aggregateMetadata(Product product);
 
+    void aggregateMetadata(MetadataElement processingGraphElement);
+
     MetadataElement getMetadata();
 }

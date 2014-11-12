@@ -17,13 +17,13 @@
 package org.esa.beam.binning.operator;
 
 import com.bc.ceres.binding.BindingException;
-import org.esa.beam.binning.BinManager;
-import org.esa.beam.binning.CompositingType;
-import org.esa.beam.binning.PlanetaryGrid;
-import org.esa.beam.binning.VariableContext;
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertySet;
+import org.esa.beam.binning.*;
 import org.esa.beam.binning.aggregators.AggregatorAverage;
 import org.esa.beam.binning.aggregators.AggregatorMinMax;
 import org.esa.beam.binning.aggregators.AggregatorOnMaxSet;
+import org.esa.beam.binning.cellprocessor.FeatureSelection;
 import org.esa.beam.binning.support.PlateCarreeGrid;
 import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.util.io.FileUtils;
@@ -31,38 +31,41 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class BinningConfigTest {
 
     private static BinningConfig config;
 
     @BeforeClass
-    public static void initBinningConfig() throws IOException, BindingException {
-        config = loadConfig(BinningConfigTest.class.getResourceAsStream("BinningConfigTest.xml"));
+    public static void initBinningConfig() throws Exception {
+        config = loadConfig("BinningConfigTest.xml");
     }
 
     @Test
-    public void testPlanetaryGrid() {
-        BinningConfig localConfig = new BinningConfig();
+    public void testPlanetaryGrid_default() {
+        final PlanetaryGrid grid = config.createPlanetaryGrid();
+        assertEquals(4320, grid.getNumRows());
+        assertEquals(SEAGrid.class, grid.getClass());
+    }
+
+    @Test
+    public void testPlanetaryGrid_parametrized() {
+        final BinningConfig localConfig = new BinningConfig();
+
         PlanetaryGrid grid = localConfig.createPlanetaryGrid();
         assertEquals(2160, grid.getNumRows());
         assertEquals(SEAGrid.class, grid.getClass());
 
         localConfig.setPlanetaryGrid("org.esa.beam.binning.support.PlateCarreeGrid");
         localConfig.setNumRows(2000);
+
         grid = localConfig.createPlanetaryGrid();
         assertEquals(2000, grid.getNumRows());
         assertEquals(PlateCarreeGrid.class, grid.getClass());
-
-        grid = config.createPlanetaryGrid();
-        assertEquals(4320, grid.getNumRows());
-        assertEquals(SEAGrid.class, grid.getClass());
     }
 
     @Test
@@ -71,7 +74,7 @@ public class BinningConfigTest {
     }
 
     @Test
-    public void testResultingVariableContext() {
+    public void testCreateVariableContext() {
         VariableContext variableContext = config.createVariableContext();
 
         assertEquals(6, variableContext.getVariableCount());
@@ -94,7 +97,7 @@ public class BinningConfigTest {
     }
 
     @Test
-    public void testResultingBinManager() {
+    public void testCreateBinningContext() {
         BinManager binManager = config.createBinningContext(null, null, null).getBinManager();
         assertEquals(3, binManager.getAggregatorCount());
 
@@ -103,7 +106,7 @@ public class BinningConfigTest {
 
         assertEquals(AggregatorOnMaxSet.class, binManager.getAggregator(1).getClass());
         assertArrayEquals(new String[]{"ndvi_max", "ndvi_mjd", "reflec_3", "reflec_7", "reflec_8"},
-                          binManager.getAggregator(1).getOutputFeatureNames());
+                binManager.getAggregator(1).getOutputFeatureNames());
 
         assertEquals(AggregatorMinMax.class, binManager.getAggregator(2).getClass());
         assertArrayEquals(new String[]{"chl_min", "chl_max"}, binManager.getAggregator(2).getOutputFeatureNames());
@@ -130,14 +133,53 @@ public class BinningConfigTest {
     }
 
     @Test
-    public void testNumRows() {
+    public void testGetNumNumRows_defaultValue() {
         assertEquals(4320, config.getNumRows());
     }
 
-    static BinningConfig loadConfig(InputStream is) throws IOException, BindingException {
-        try (InputStreamReader reader = new InputStreamReader(is)) {
-            return BinningConfig.fromXml(FileUtils.readText(reader));
-        }
+    @Test
+    public void testSetGetMetadataAggregatorName() {
+        final String aggregatorName = "Willi";
+
+        config.setMetadataAggregatorName(aggregatorName);
+        assertEquals(aggregatorName, config.getMetadataAggregatorName());
     }
 
+    @Test
+    public void testGetMetadataAggregatorName_defaultValue() {
+        assertEquals("FIRST_HISTORY", config.getMetadataAggregatorName());
+    }
+
+    @Test
+    public void testL3configForCellProcressing() throws Exception {
+        BinningConfig binningConfig = loadConfig("l3-cellProcessing.xml");
+        assertNotNull(binningConfig);
+        CellProcessorConfig postProcessorConfig = binningConfig.getPostProcessorConfig();
+        assertNotNull(postProcessorConfig);
+        assertSame(FeatureSelection.Config.class, postProcessorConfig.getClass());
+        PropertySet propertySet = postProcessorConfig.asPropertySet();
+        assertNotNull(propertySet);
+        Property[] properties = propertySet.getProperties();
+        assertEquals(2, properties.length);
+        System.out.println("properties = " + Arrays.toString(properties));
+        assertEquals("Selection", propertySet.getProperty("type").getValue());
+        String[] expected = {"tsm_mean", " tsm_sigma", " chl_min", "cmax = chl_max"};
+        String[] actual = propertySet.getProperty("varNames").getValue();
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testTimeFilterMethod_defaultValue() {
+        assertEquals(BinningOp.TimeFilterMethod.NONE, config.getTimeFilterMethod());
+    }
+
+    static BinningConfig loadConfig(String configPath) throws Exception {
+        return BinningConfig.fromXml(loadConfigProperties(configPath));
+    }
+
+    private static String loadConfigProperties(String configPath) throws IOException {
+        try (InputStreamReader inputStreamReader = new InputStreamReader(BinningConfigTest.class.getResourceAsStream(configPath))) {
+            return FileUtils.readText(inputStreamReader).trim();
+        }
+    }
 }

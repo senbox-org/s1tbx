@@ -41,12 +41,12 @@ public class AllHistoriesMetaAggregatorTest {
         TestHelper.assertCorrectNameAndNoAttributes(metadataElement);
 
         assertEquals(1, metadataElement.getNumElements());
-        TestHelper.assertProductElementAt(0, metadataElement);
+        TestHelper.assertInputElementAt(0, metadataElement);
     }
 
     @Test
-     public void testAggregateOneProductWithProcessingInfo() {
-        final Product product = TestHelper.createProductWithProcessingGraph(1);
+    public void testAggregateOneProductWithProcessingInfo() {
+        final Product product = TestHelper.createProductWithProcessingGraph(1, "schnickschnack");
 
         aggregator.aggregateMetadata(product);
 
@@ -54,26 +54,28 @@ public class AllHistoriesMetaAggregatorTest {
         TestHelper.assertCorrectNameAndNoAttributes(metadataElement);
 
         assertEquals(1, metadataElement.getNumElements());
-        TestHelper.assertProductElementWithGraphtAt(0, metadataElement);
+        TestHelper.assertProductElementWithGraphAt(0, "schnickschnack", metadataElement);
     }
 
     @Test
     public void testAggregateThreeProductMixed() {
-        Product product = TestHelper.createProductWithProcessingGraph(1);
+        Product product = TestHelper.createProductWithProcessingGraph(1, "one");
         aggregator.aggregateMetadata(product);
 
         product = TestHelper.createProduct(2);
         aggregator.aggregateMetadata(product);
 
-        product = TestHelper.createProductWithProcessingGraph(3);
+        product = TestHelper.createProductWithProcessingGraph(3, "three");
         aggregator.aggregateMetadata(product);
 
         final MetadataElement metadataElement = aggregator.getMetadata();
         TestHelper.assertCorrectNameAndNoAttributes(metadataElement);
 
         assertEquals(3, metadataElement.getNumElements());
-        TestHelper.assertProductElementWithGraphtAt(0, metadataElement);
-        TestHelper.assertProductElementWithoutGraphtAt(1, metadataElement);
-        TestHelper.assertProductElementWithGraphtAt(2, metadataElement);
+        TestHelper.assertProductElementWithGraphAt(0, "one", metadataElement);
+        TestHelper.assertProductElementWithoutGraphtAt(1, "product_2", metadataElement);
+        TestHelper.assertProductElementWithGraphAt(2, "three", metadataElement);
     }
+
+    // @todo 3 tb/tb add tests for aggregation on metadataElement 2014-10-15
 }
