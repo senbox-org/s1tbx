@@ -53,11 +53,6 @@
             <artifactId>js</artifactId>
             <version>1.7R1</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math3</artifactId>
-            <version>3.2</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -68,7 +63,6 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>org.jdom2.*</publicPackage>
-                        <publicPackage>org.apache.commons.math3.*</publicPackage>
                         <publicPackage>javax.media.jai.*</publicPackage>
                         <publicPackage>com.sun.media.*</publicPackage>
                         <publicPackage>com.sun.medialib.codec.*</publicPackage>

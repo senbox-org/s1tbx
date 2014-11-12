@@ -67,6 +67,7 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
+                        <publicPackage>opendap.*</publicPackage>
                         <publicPackage>org.esa.beam.opendap.*</publicPackage>
                     </publicPackages>
                 </configuration>

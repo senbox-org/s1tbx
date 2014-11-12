@@ -123,14 +123,6 @@
             <artifactId>Jama</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jdom</groupId>
-            <artifactId>jdom2</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.bc.jnn</groupId>
             <artifactId>jnn</artifactId>
         </dependency>

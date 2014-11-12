@@ -60,15 +60,21 @@
             <groupId>edu.ucar</groupId>
             <artifactId>nujan</artifactId>
         </dependency>
-        <!-- used by edu.ucar:? -->
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
-        </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
+        </dependency>
+
+        <!--
+        This is needed because otherwise we get:
+        [ERROR] Failed to execute goal org.codehaus.mojo:nbm-maven-plugin:3.14:manifest (default-manifest) on project snap-netcdf:
+                Uncategorized problems with NetBeans dependency verification (maybe MNBMODULE-102 or wrong maven dependency metadata).
+                Supposedly external classes are used in the project's binaries but the classes are not found on classpath.
+                Class usages: [org.apache.commons.logging.LogFactory, org.apache.commons.logging.Log] -> [Help 1]
+        -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
         </dependency>
     </dependencies>
 
@@ -79,6 +85,7 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
+                        <publicPackage>org.apache.commons.logging</publicPackage>
                         <publicPackage>edu.ucar.ral.nujan.netcdf</publicPackage>
                         <publicPackage>ucar.ma2</publicPackage>
                         <publicPackage>ucar.nc2</publicPackage>
@@ -97,7 +104,6 @@
                         <publicPackage>ucar.unidata.util</publicPackage>
                         <publicPackage>thredds.catalog</publicPackage>
                         <publicPackage>org.slf4j</publicPackage>
-                        <publicPackage>org.apache.commons.logging</publicPackage>
                         <publicPackage>org.esa.beam.dataio.netcdf.*</publicPackage>
                     </publicPackages>
                 </configuration>

@@ -54,20 +54,12 @@
             <artifactId>jdom</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jdom</groupId>
-            <artifactId>jdom2</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.bc.jnn</groupId>
             <artifactId>jnn</artifactId>
         </dependency>
         <dependency>
             <groupId>Jama</groupId>
             <artifactId>Jama</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math3</artifactId>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
@@ -134,12 +126,10 @@
                         <publicPackage>javax.media.jai.*</publicPackage>
                         <publicPackage>javax.measure.*</publicPackage>
                         <publicPackage>org.jdom.*</publicPackage>
-                        <publicPackage>org.jdom2.*</publicPackage>
                         <publicPackage>org.geotools.*</publicPackage>
                         <publicPackage>org.opengis.*</publicPackage>
                         <publicPackage>com.vividsolutions.jts.*</publicPackage>
                         <publicPackage>Jama</publicPackage>
-                        <publicPackage>org.apache.commons.math3.*</publicPackage>
                         <publicPackage>com.bc.io</publicPackage>
                         <publicPackage>com.bc.jexp</publicPackage>
                         <publicPackage>com.bc.jexp.impl</publicPackage>
