@@ -46,8 +46,10 @@ public class QuickLookGenerator {
 
     private static final String QUICKLOOK_PREFIX = "QL_";
     private static final String QUICKLOOK_EXT = ".jpg";
-    private static final int MAX_WIDTH = 400;
-    private static final int MULTILOOK_FACTOR = 1;
+    private static final int MAX_WIDTH = 300;
+    private static final int MULTILOOK_FACTOR = 2;
+
+    private static final String[] defaultQuickLookBands = new String[] { "Intensity", "band", "T11", "T22", "T33", "C11", "C22", "C33"};
 
     private static final File dbStorageDir = new File(ResourceUtils.getApplicationUserDir(true),
             ProductDB.DEFAULT_PRODUCT_DATABASE_NAME + File.separator + "QuickLooks");
@@ -85,13 +87,13 @@ public class QuickLookGenerator {
     }
 
     public static BufferedImage createQuickLook(final Product product) {
-        // check if quicklook exist with product
-        File browseFile = findProductBrowseImage(product.getFileLocation());
+        // check if quicklook exists with the product
+        final File browseFile = findProductBrowseImage(product.getFileLocation());
         if (browseFile != null) {
             try {
                 final Product sourceProduct = ProductIO.readProduct(browseFile);
                 if (sourceProduct != null) {
-                    BufferedImage img = createQuickLookImage(product, true, false);
+                    BufferedImage img = createQuickLookImage(product, true, true);
                     sourceProduct.dispose();
                     return img;
                 }
@@ -100,24 +102,24 @@ public class QuickLookGenerator {
             }
         }
         try {
-            return createQuickLookImage(product, true, true);
+            return createQuickLookImage(product, true, false);
         } catch (IOException e) {
             return null;
         }
     }
 
     public static BufferedImage createQuickLook(final int id, final File productFile) throws IOException {
-        boolean preprocess = false;
+        boolean isBrowseFile = true;
         // check if quicklook exist with product
         File browseFile = findProductBrowseImage(productFile);
         if (browseFile == null) {
             browseFile = productFile;
-            preprocess = true;
+            isBrowseFile = false;
         }
 
         final Product sourceProduct = ProductIO.readProduct(browseFile);
         if (sourceProduct != null) {
-            BufferedImage img = createQuickLook(id, sourceProduct, preprocess);
+            BufferedImage img = createQuickLook(id, sourceProduct, isBrowseFile);
             return img;
         }
         return null;
@@ -137,68 +139,82 @@ public class QuickLookGenerator {
         return bufferedImage;
     }
 
-    private static String[] getQuicklookBand(final Product product) {
+    private static Band[] getQuicklookBand(final Product product) {
+
+        if(OperatorUtils.isQuadPol(product)) {
+            return pauliVirtualBands(product);
+        }
+
         final String[] bandNames = product.getBandNames();
-        final List<String> nameList = new ArrayList<>(3);
+        final List<Band> bandList = new ArrayList<>(3);
         for(String name : bandNames) {
-            if(name.toLowerCase().startsWith("intensity") || name.toLowerCase().startsWith("band")) {
-                nameList.add(name);
-                if(nameList.size() > 2)
+            for(String qlBand : defaultQuickLookBands) {
+                if (name.toLowerCase().startsWith(qlBand)) {
+                    bandList.add(product.getBand(name));
                     break;
+                }
+            }
+            if (bandList.size() > 2) {
+                break;
             }
         }
-        if(!nameList.isEmpty()) {
-            return nameList.toArray(new String[nameList.size()]);
+        if(!bandList.isEmpty()) {
+            return bandList.toArray(new Band[bandList.size()]);
         }
         String quicklookBandName = ProductUtils.findSuitableQuicklookBandName(product);
-
-        // db
-       // final String expression = quicklookBandName + "==0 ? 0 : 10 * log10(abs(" + quicklookBandName + "))";
-      //  final VirtualBand virtBand = new VirtualBand("QuickLook",
-      //          ProductData.TYPE_FLOAT32,
-      //          srcBand.getSceneRasterWidth(),
-      //          srcBand.getSceneRasterHeight(),
-      //          expression);
-      //  product.addBand(virtBand);
-      //  srcBandName = virtBand.getName();
-
-
-        return new String[] {quicklookBandName};
+        return new Band[] { product.getBand(quicklookBandName)};
     }
 
-    private static BufferedImage createQuickLookImage(final Product product, final boolean subsample, final boolean preprocess) throws IOException {
+    private static Band[] pauliVirtualBands(final Product product) {
 
-        final String[] quicklookBandNames = getQuicklookBand(product);
+        final VirtualBand r = new VirtualBand("pauli_r",
+                ProductData.TYPE_FLOAT32,
+                product.getSceneRasterWidth(),
+                product.getSceneRasterHeight(),
+                "((i_HH-i_VV)*(i_HH-i_VV)+(q_HH-q_VV)*(q_HH-q_VV))/2");
+
+        final VirtualBand g = new VirtualBand("pauli_g",
+                ProductData.TYPE_FLOAT32,
+                product.getSceneRasterWidth(),
+                product.getSceneRasterHeight(),
+                "((i_HV+i_VH)*(i_HV+i_VH)+(q_HV+q_VH)*(q_HV+q_VH))/2");
+
+        final VirtualBand b = new VirtualBand("pauli_b",
+                ProductData.TYPE_FLOAT32,
+                product.getSceneRasterWidth(),
+                product.getSceneRasterHeight(),
+                "((i_HH+i_VV)*(i_HH+i_VV)+(q_HH+q_VV)*(q_HH+q_VV))/2");
+
+        return new Band[] {r, g, b};
+    }
+
+    private static BufferedImage createQuickLookImage(final Product product, final boolean subsample, final boolean isBrowseFile) throws IOException {
+
         Product productSubset = product;
 
         if (subsample) {
-            final int maxWidth = preprocess ? MAX_WIDTH*(MULTILOOK_FACTOR*2) : MAX_WIDTH;
+            final int maxWidth = isBrowseFile ? MAX_WIDTH : MAX_WIDTH*(MULTILOOK_FACTOR*2);
             final ProductSubsetDef productSubsetDef = new ProductSubsetDef("subset");
-            int scaleFactor = Math.max(product.getSceneRasterWidth(), product.getSceneRasterHeight()) / maxWidth;
+            int scaleFactor = Math.round(Math.max(product.getSceneRasterWidth(), product.getSceneRasterHeight()) / (float)maxWidth);
             if (scaleFactor < 1) {
                 scaleFactor = 1;
             }
             productSubsetDef.setSubSampling(scaleFactor, scaleFactor);
 
-            if(quicklookBandNames.length == 1) {
-                final Band srcBand = product.getBand(quicklookBandNames[0]);
-                // if not virtual set as single band in subset
-                if (!(srcBand instanceof VirtualBand)) {
-                    productSubsetDef.setNodeNames(new String[]{srcBand.getName()});
-                }
-            }
             productSubset = product.createSubset(productSubsetDef, null, null);
         }
+        final Band[] quicklookBands = getQuicklookBand(productSubset);
 
         final BufferedImage image;
-        if(quicklookBandNames.length < 3) {
-            image = ProductUtils.createColorIndexedImage(productSubset.getBand(quicklookBandNames[0]), ProgressMonitor.NULL);
+        if(quicklookBands.length < 3) {
+
+            image = ProductUtils.createColorIndexedImage(average(productSubset, quicklookBands[0], isBrowseFile), ProgressMonitor.NULL);
             productSubset.dispose();
         } else {
             final List<Band> bandList = new ArrayList<>(3);
-            for(int i=0; i < Math.min(3,quicklookBandNames.length); ++i) {
-                final Band band = productSubset.getBand(quicklookBandNames[i]);
-                if(band.getStx().getMean() != 0) {
+            for(int i=0; i < Math.min(3,quicklookBands.length); ++i) {
+                final Band band = average(productSubset, quicklookBands[i], isBrowseFile);
+                if(!isBrowseFile || band.getStx().getMean() != 0) {
                     bandList.add(band);
                 }
             }
@@ -216,7 +232,11 @@ public class QuickLookGenerator {
         return image;
     }
 
-    private static BufferedImage average(final Product product, final BufferedImage image) {
+    private static Band average(final Product product, final Band srcBand, final boolean isBrowseFile) {
+
+        if(isBrowseFile) {
+            return srcBand;
+        }
 
         int rangeFactor = MULTILOOK_FACTOR;
         int azimuthFactor = MULTILOOK_FACTOR;
@@ -252,35 +272,55 @@ public class QuickLookGenerator {
         }
 
         final int rangeAzimuth = rangeFactor * azimuthFactor;
-        final Raster raster = image.getData();
 
-        final int w = image.getWidth() / rangeFactor;
-        final int h = image.getHeight() / azimuthFactor;
+        final int srcW = srcBand.getRasterWidth();
+        final int srcH = srcBand.getRasterHeight();
+        final int w = srcW / rangeFactor;
+        final int h = srcH / azimuthFactor;
         int index = 0;
-        final byte[] data = new byte[w * h];
+        final float[] data = new float[w * h];
 
-        for (int ty = 0; ty < h; ++ty) {
-            final int yStart = ty * azimuthFactor;
-            final int yEnd = yStart + azimuthFactor;
-
-            for (int tx = 0; tx < w; ++tx) {
-                final int xStart = tx * rangeFactor;
-                final int xEnd = xStart + rangeFactor;
-
-                double meanValue = 0.0;
-                for (int y = yStart; y < yEnd; ++y) {
-                    for (int x = xStart; x < xEnd; ++x) {
-
-                        meanValue += raster.getSample(x, y, 0);
-                    }
-                }
-                meanValue /= rangeAzimuth;
-
-                data[index++] = (byte) meanValue;
+        try {
+            boolean bandAddedToProduct = false;
+            if(product.getBand(srcBand.getName()) == null) {
+                product.addBand(srcBand);
+                bandAddedToProduct = true;
             }
+
+            final float[] floatValues = new float[srcW*srcH];
+            srcBand.readPixels(0, 0, srcW, srcH, floatValues, ProgressMonitor.NULL);
+
+            for (int ty = 0; ty < h; ++ty) {
+                final int yStart = ty * azimuthFactor;
+                final int yEnd = yStart + azimuthFactor;
+
+                for (int tx = 0; tx < w; ++tx) {
+                    final int xStart = tx * rangeFactor;
+                    final int xEnd = xStart + rangeFactor;
+
+                    double meanValue = 0.0;
+                    for (int y = yStart; y < yEnd; ++y) {
+                        for (int x = xStart; x < xEnd; ++x) {
+
+                            meanValue += floatValues[y * srcW + x];
+                        }
+                    }
+                    meanValue /= rangeAzimuth;
+
+                    data[index++] = (float) meanValue;
+                }
+            }
+
+            if(bandAddedToProduct) {
+                product.removeBand(srcBand);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        return createRenderedImage(data, w, h);
+        Band b = new Band("averaged", ProductData.TYPE_FLOAT32, w, h);
+        b.setData(ProductData.createInstance(data));
+        return b;
     }
 
     private static BufferedImage createRenderedImage(byte[] array, int w, int h) {
@@ -302,11 +342,11 @@ public class QuickLookGenerator {
                     VirtualDir zipDir = VirtualDir.create(productFile);
                     String rootFolder = ZipUtils.getRootFolder(productFile, "manifest.safe");
                     return zipDir.getFile(rootFolder + "preview/quick-look.png");
-                } else if (ZipUtils.findInZip(productFile, "rs2", "browseimage.tif")) {
-                    VirtualDir zipDir = VirtualDir.create(productFile);
-                    String rootFolder = ZipUtils.getRootFolder(productFile, "product.xml");
-                    return zipDir.getFile(rootFolder + "BrowseImage.tif");
-                }
+                } //else if (ZipUtils.findInZip(productFile, "rs2", "browseimage.tif")) {
+                  //  VirtualDir zipDir = VirtualDir.create(productFile);
+                  //  String rootFolder = ZipUtils.getRootFolder(productFile, "product.xml");
+                  //  return zipDir.getFile(rootFolder + "BrowseImage.tif");
+                //}
             } catch (Exception e) {
                 return null;
             }
@@ -322,26 +362,22 @@ public class QuickLookGenerator {
             if (browseFile.exists())
                 return browseFile;
             // try Radarsat-2
-            browseFile = new File(parentFolder, "BrowseImage.tif");
-            if (browseFile.exists())
-                return browseFile;
+            //browseFile = new File(parentFolder, "BrowseImage.tif");
+            //if (browseFile.exists())
+            //    return browseFile;
             return null;
         }
     }
 
-    private static BufferedImage createQuickLook(final int id, final Product product, final boolean preprocess) {
+    private static BufferedImage createQuickLook(final int id, final Product product, final boolean isBrowseFile) {
         final File quickLookFile = getQuickLookFile(dbStorageDir, id);
         try {
             if (!dbStorageDir.exists())
                 dbStorageDir.mkdirs();
             quickLookFile.createNewFile();
-            final BufferedImage bufferedImage = createQuickLookImage(product, true, preprocess);
+            final BufferedImage bufferedImage = createQuickLookImage(product, true, isBrowseFile);
 
-            if (preprocess) {
-                ImageIO.write(average(product, bufferedImage), "JPG", quickLookFile);
-            } else {
-                ImageIO.write(bufferedImage, "JPG", quickLookFile);
-            }
+            ImageIO.write(bufferedImage, "JPG", quickLookFile);
             return bufferedImage;
         } catch (Exception e) {
             System.out.println("Quicklook create data failed :" + product.getFileLocation() + "\n" + e.getMessage());
