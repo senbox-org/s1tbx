@@ -182,6 +182,8 @@ public class DecompositionBase {
         return 10.0 * Math.log10(p);
     }
 
+    //todo span min/max checks in Freeman-Durden, van Zyl and Yamaguchi decompositions have been removed (see Francois'
+    //todo email dated Nov. 13, 2014 for details). Therefore, setSpanMinMax is not needed anymore.
     /**
      * Compute min/max values of the Span image.
      *
