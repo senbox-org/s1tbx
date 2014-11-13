@@ -171,19 +171,14 @@ public class DecompositionBase {
      * Convert pixel value from linear scale to dB.
      *
      * @param p       The pixel value in linear scale.
-     * @param spanMin span min
-     * @param spanMax span max
      * @return The pixel value in dB.
      */
-    protected static double scaleDb(double p, final double spanMin, final double spanMax) {
+    protected static double scaleDb(double p) {
 
-        if (p < spanMin) {
-            p = spanMin;
+        if (p < PolOpUtils.EPS) {
+            p = PolOpUtils.EPS;
         }
 
-        if (p > spanMax) {
-            p = spanMax;
-        }
         return 10.0 * Math.log10(p);
     }
 
