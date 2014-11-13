@@ -97,10 +97,6 @@ public class vanZyl extends DecompositionBase implements Decomposition {
             final double[][] Tr = new double[3][3];
             final double[][] Ti = new double[3][3];
 
-            if (!bandList.spanMinMaxSet) {
-                setSpanMinMax(op, bandList);
-            }
-
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
@@ -152,9 +148,9 @@ public class vanZyl extends DecompositionBase implements Decomposition {
                     fd = lambda2 * tmp1 / tmp2;
                     fv = lambda3;
 
-                    fs = scaleDb(fs, bandList.spanMin, bandList.spanMax);
-                    fd = scaleDb(fd, bandList.spanMin, bandList.spanMax);
-                    fv = scaleDb(fv, bandList.spanMin, bandList.spanMax);
+                    fs = scaleDb(fs);
+                    fd = scaleDb(fd);
+                    fv = scaleDb(fv);
 
                     // save fd as red, fv as green and fs as blue
                     for (TargetInfo target : targetInfo) {
