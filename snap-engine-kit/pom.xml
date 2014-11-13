@@ -21,18 +21,27 @@
                 <artifactId>nbm-maven-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
             </plugin>
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
                 <configuration>
-                    <descriptors>
-                        <descriptor>src/main/assembly/nbm-zip.xml</descriptor>
-                    </descriptors>
+                    <target>
+                        <copy file="../readme.html" tofile="${project.build.directory}/nbm-suite/README.html"/>
+                        <copy file="../VERSION.txt" todir="${project.build.directory}/nbm-suite"/>
+                        <copy file="../LICENSE.html" todir="${project.build.directory}/nbm-suite"/>
+                        <copy todir="${project.build.directory}/nbm-suite" flatten="true">
+                            <fileset dir="../">
+                                <include name="**/target/*.nbm"/>
+                            </fileset>
+                        </copy>
+                        <zip destfile="${project.build.directory}/nbm-suite.zip"
+                             basedir="${project.build.directory}/nbm-suite"/>
+                    </target>
                 </configuration>
             </plugin>
         </plugins>
