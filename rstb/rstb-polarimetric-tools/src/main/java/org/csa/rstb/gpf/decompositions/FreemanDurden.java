@@ -95,10 +95,6 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
             final double[][] Cr = new double[3][3];
             final double[][] Ci = new double[3][3];
 
-            if (!bandList.spanMinMaxSet) {
-                setSpanMinMax(op, bandList);
-            }
-
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
@@ -117,9 +113,9 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
 
                     final FDD data = getFreemanDurdenDecomposition(Cr, Ci);
 
-                    ps = scaleDb(data.ps, bandList.spanMin, bandList.spanMax);
-                    pd = scaleDb(data.pd, bandList.spanMin, bandList.spanMax);
-                    pv = scaleDb(data.pv, bandList.spanMin, bandList.spanMax);
+                    ps = scaleDb(data.ps);
+                    pd = scaleDb(data.pd);
+                    pv = scaleDb(data.pv);
 
                     // save Pd as red, Pv as green and Ps as blue
                     for (TargetInfo target : targetInfo) {
@@ -178,7 +174,7 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
 
                 betaRe = 1.0;
                 betaIm = 0.0;
-                fs = (a1 - c13Re * c13Re - c13Im * c13Im) / (c11 + c33 - 2 * c13Re);
+                fs = Math.abs(a1 - c13Re * c13Re - c13Im * c13Im) / (c11 + c33 - 2 * c13Re);
                 fd = c33 - fs;
                 alphaRe = (c13Re - fs) / fd;
                 alphaIm = c13Im / fd;
@@ -187,7 +183,7 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
 
                 alphaRe = -1.0;
                 alphaIm = 0.0;
-                fd = (a1 - c13Re * c13Re - c13Im * c13Im) / (c11 + c33 + 2 * c13Re);
+                fd = Math.abs(a1 - c13Re * c13Re - c13Im * c13Im) / (c11 + c33 + 2 * c13Re);
                 fs = c33 - fd;
                 betaRe = (c13Re + fd) / fs;
                 betaIm = c13Im / fs;
