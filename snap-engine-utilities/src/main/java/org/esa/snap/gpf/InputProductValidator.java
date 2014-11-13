@@ -53,12 +53,11 @@ public class InputProductValidator {
 
     public void checkAcquisitionMode(final String[] validModes) throws OperatorException {
         final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
-
         for (String validMode : validModes) {
             if (acquisitionMode.equals(validMode))
                 return;
         }
-        throw new OperatorException(acquisitionMode + " is not a valid product type from: " + StringUtils.arrayToString(validModes, ","));
+        throw new OperatorException(acquisitionMode + " is not a valid acquisition mode from: " + StringUtils.arrayToString(validModes, ","));
     }
 
     public void checkIfTOPSARBurstProduct(final boolean shouldbe) throws OperatorException {
