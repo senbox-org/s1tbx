@@ -105,6 +105,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfSentinel1Product();
+            validator.checkAcquisitionMode(new String[] {"IW","EW","SM"});
             validator.checkProductType(new String[] {"SLC","GRD"});
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
