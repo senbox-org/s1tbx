@@ -118,10 +118,10 @@ public class PropertiesProvider implements DataProvider {
                     String polStr = "";
                     final MetadataElement absRoot = entry.getMetadata();
                     if (absRoot != null) {
-                        final String pol1 = entry.getMetadata().getAttributeString(AbstractMetadata.mds1_tx_rx_polar);
-                        final String pol2 = entry.getMetadata().getAttributeString(AbstractMetadata.mds2_tx_rx_polar);
-                        final String pol3 = entry.getMetadata().getAttributeString(AbstractMetadata.mds3_tx_rx_polar);
-                        final String pol4 = entry.getMetadata().getAttributeString(AbstractMetadata.mds4_tx_rx_polar);
+                        final String pol1 = absRoot.getAttributeString(AbstractMetadata.mds1_tx_rx_polar);
+                        final String pol2 = absRoot.getAttributeString(AbstractMetadata.mds2_tx_rx_polar);
+                        final String pol3 = absRoot.getAttributeString(AbstractMetadata.mds3_tx_rx_polar);
+                        final String pol4 = absRoot.getAttributeString(AbstractMetadata.mds4_tx_rx_polar);
                         polStr = pol1;
                         if(!pol2.equals(AbstractMetadata.NO_METADATA_STRING))
                             polStr += ' ' + pol2;
