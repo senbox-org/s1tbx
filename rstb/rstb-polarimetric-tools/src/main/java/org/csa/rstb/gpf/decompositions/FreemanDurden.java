@@ -152,7 +152,7 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
         c33 = Cr[2][2] - fv * 3.0 / 8.0;
         final double a1 = c11 * c33;
 
-        if (c11 <= Constants.EPS || c33 <= Constants.EPS) {
+        if (Math.abs(c11) <= Constants.EPS || Math.abs(c33) <= Constants.EPS) {
             fs = 0.0;
             fd = 0.0;
             alphaRe = 0.0;
@@ -174,8 +174,8 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
 
                 betaRe = 1.0;
                 betaIm = 0.0;
-                fs = Math.abs(a1 - c13Re * c13Re - c13Im * c13Im) / (c11 + c33 - 2 * c13Re);
-                fd = c33 - fs;
+                fs = Math.abs((a1 - c13Re * c13Re - c13Im * c13Im) / (c11 + c33 - 2 * c13Re));
+                fd = Math.abs(c33 - fs);
                 alphaRe = (c13Re - fs) / fd;
                 alphaIm = c13Im / fd;
 
@@ -183,8 +183,8 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
 
                 alphaRe = -1.0;
                 alphaIm = 0.0;
-                fd = Math.abs(a1 - c13Re * c13Re - c13Im * c13Im) / (c11 + c33 + 2 * c13Re);
-                fs = c33 - fd;
+                fd = Math.abs((a1 - c13Re * c13Re - c13Im * c13Im) / (c11 + c33 + 2 * c13Re));
+                fs = Math.abs(c33 - fd);
                 betaRe = (c13Re + fd) / fs;
                 betaIm = c13Im / fs;
             }
