@@ -200,7 +200,7 @@ public class RGBImageProfilePane extends JPanel {
         }
         setRgbaExpressionsFromSelectedProfile();
 
-        if(rgbaExprBoxes[0].getSelectedIndex() < 0) {
+        if(rgbaExprBoxes[0].getSelectedItem() == null || ((String)(rgbaExprBoxes[0].getSelectedItem())).isEmpty()) {
             // default
             if(defaultBandIndices != null && defaultBandIndices.length > 0) {
                 for(int i=0; i < defaultBandIndices.length; ++i) {
