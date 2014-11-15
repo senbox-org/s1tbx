@@ -93,10 +93,11 @@ public final class OperatorUtils {
         final String pol = getPolarizationFromBandName(bandName);
         if (pol != null) {
             return pol;
-        } else {
+        } else if(absRoot != null) {
             final String[] mdsPolar = getProductPolarization(absRoot);
             return mdsPolar[0];
         }
+        return "";
     }
 
     public static String getPolarizationFromBandName(final String bandName) {
@@ -207,18 +208,6 @@ public final class OperatorUtils {
         if (absRoot != null) {
             final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE, AbstractMetadata.NO_METADATA_STRING).trim();
             if (sampleType.equalsIgnoreCase("complex"))
-                return true;
-        }
-        return false;
-    }
-
-    public static boolean isQuadPol(final Product product) {
-        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        if (absRoot != null) {
-            if (!AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds1_tx_rx_polar) &&
-                    !AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds2_tx_rx_polar) &&
-                    !AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds2_tx_rx_polar) &&
-                    !AbstractMetadata.isNoData(absRoot, AbstractMetadata.mds4_tx_rx_polar))
                 return true;
         }
         return false;

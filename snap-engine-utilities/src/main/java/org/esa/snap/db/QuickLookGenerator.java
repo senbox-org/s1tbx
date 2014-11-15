@@ -23,6 +23,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.ZipUtils;
@@ -141,7 +142,8 @@ public class QuickLookGenerator {
 
     private static Band[] getQuicklookBand(final Product product) {
 
-        if(OperatorUtils.isQuadPol(product)) {
+        final InputProductValidator validator = new InputProductValidator(product);
+        if(validator.isFullPolSLC()) {
             return pauliVirtualBands(product);
         }
 

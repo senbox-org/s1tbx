@@ -1,10 +1,12 @@
 package org.esa.snap.gpf;
 
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.StringUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.Unit;
 
 /**
  * Validates input products using commonly used verifications
@@ -25,8 +27,20 @@ public class InputProductValidator {
         }
     }
 
-    public void checkIfSLC() throws OperatorException {
+    public boolean isComplex() {
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        if (absRoot != null) {
+            final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE, AbstractMetadata.NO_METADATA_STRING).trim();
+            if (sampleType.equalsIgnoreCase("complex"))
+                return true;
+        }
+        return false;
+    }
 
+    public void checkIfSLC() throws OperatorException {
+        if (!isComplex()) {
+            throw new OperatorException("Input should be a single look complex SLC product");
+        }
     }
 
     public boolean isMultiSwath() {
@@ -77,8 +91,30 @@ public class InputProductValidator {
         return false;
     }
 
-    public void checkIfQuadPol() throws OperatorException {
+    public boolean isFullPolSLC() {
 
+        int validBandCnt = 0;
+        for (final Band band : product.getBands()) {
+
+            final Unit.UnitType bandUnit = Unit.getUnitType(band);
+            if (!(bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY))
+                continue;
+            final String pol = OperatorUtils.getPolarizationFromBandName(band.getName());
+            if(pol == null)
+                continue;
+
+            if (pol.contains("hh") || pol.contains("hv") || pol.contains("vh") || pol.contains("vv")) {
+                ++validBandCnt;
+            }
+        }
+
+        return validBandCnt == 8;
+    }
+
+    public void checkIfQuadPolSLC() throws OperatorException {
+        if (!isFullPolSLC()) {
+            throw new OperatorException("Input should be a full pol SLC product");
+        }
     }
 
     public void checkIfMapProjected() throws OperatorException {
