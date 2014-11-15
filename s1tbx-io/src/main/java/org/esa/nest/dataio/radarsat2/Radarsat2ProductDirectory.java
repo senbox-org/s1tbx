@@ -43,6 +43,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     private String productName = "Radarsat2";
     private String productType = "Radarsat2";
     private final String productDescription = "";
+    private boolean compactPolMode = false;
 
     private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId() +
             ".flip.to.sar.geometry", "false").equals("true");
@@ -59,21 +60,45 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
 
     protected void addImageFile(final String imgPath) throws IOException {
         final String name = imgPath.substring(imgPath.lastIndexOf("/") + 1, imgPath.length()).toLowerCase();
-        if ((name.endsWith("tif") || name.endsWith("tiff")) && name.startsWith("image")) {
-            final InputStream inStream = getInputStream(imgPath);
-            final ImageInputStream imgStream = ImageIO.createImageInputStream(inStream);
-            if (imgStream == null)
-                throw new IOException("Unable to open " + imgPath);
-
-            final ImageIOFile img;
-            if(isSLC()) {
-                img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
-                        1, 2, ProductData.TYPE_INT32);
-            } else {
-                img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream));
+        if ((name.endsWith("tif") || name.endsWith("tiff"))) {
+            boolean valid = false;
+            int dataType = ProductData.TYPE_INT32;
+            if (name.startsWith("image")) {
+                valid = true;
+            } else if(name.startsWith("rh") || name.startsWith("rv")) {
+                valid = true;
+                dataType = ProductData.TYPE_FLOAT32;
             }
-            bandImageFileMap.put(img.getName(), img);
+            if(valid) {
+                final InputStream inStream = getInputStream(imgPath);
+                final ImageInputStream imgStream = ImageIO.createImageInputStream(inStream);
+                if (imgStream == null)
+                    throw new IOException("Unable to open " + imgPath);
+
+                final ImageIOFile img;
+                if (isSLC()) {
+                    img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream),
+                            1, 2, dataType);
+                } else {
+                    img = new ImageIOFile(name, imgStream, ImageIOFile.getTiffIIOReader(imgStream));
+                }
+                bandImageFileMap.put(img.getName(), img);
+            }
         }
+    }
+
+    private String getPol(final String imgName) {
+        String pol = polarizationMap.get(imgName);
+        if(pol == null) {
+            if(imgName.contains("rh")) {
+                compactPolMode = true;
+                return "RH";
+            } else if(imgName.contains("rv")) {
+                compactPolMode = true;
+                return "RV";
+            }
+        }
+        return pol;
     }
 
     @Override
@@ -98,10 +123,10 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                     for (int b = 0; b < img.getNumBands(); ++b) {
                         final String imgName = img.getName().toLowerCase();
                         if (real) {
-                            bandName = "i_" + polarizationMap.get(imgName);
+                            bandName = "i_" + getPol(imgName);
                             unit = Unit.REAL;
                         } else {
-                            bandName = "q_" + polarizationMap.get(imgName);
+                            bandName = "q_" + getPol(imgName);
                             unit = Unit.IMAGINARY;
                         }
 
@@ -114,25 +139,29 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                         if (real) {
                             lastRealBand = band;
                         } else {
-                            ReaderUtils.createVirtualIntensityBand(product, lastRealBand, band,
-                                    '_' + polarizationMap.get(imgName));
+                            ReaderUtils.createVirtualIntensityBand(product, lastRealBand, band, '_' + getPol(imgName));
                         }
                         real = !real;
                     }
                 } else {
                     for (int b = 0; b < img.getNumBands(); ++b) {
                         final String imgName = img.getName().toLowerCase();
-                        bandName = "Amplitude_" + polarizationMap.get(imgName);
+                        bandName = "Amplitude_" + getPol(imgName);
                         final Band band = new Band(bandName, ProductData.TYPE_UINT32, width, height);
                         band.setUnit(Unit.AMPLITUDE);
 
                         product.addBand(band);
                         bandMap.put(band, new ImageIOFile.BandInfo(band, img, i, b));
 
-                        SARReader.createVirtualIntensityBand(product, band, '_' + polarizationMap.get(imgName));
+                        SARReader.createVirtualIntensityBand(product, band, '_' + getPol(imgName));
                     }
                 }
             }
+        }
+
+        if(compactPolMode) {
+            absRoot.setAttributeInt(AbstractMetadata.polsarData, 1);
+            absRoot.setAttributeString(AbstractMetadata.compact_mode, "Right Circular Hybrid Mode");
         }
     }
 

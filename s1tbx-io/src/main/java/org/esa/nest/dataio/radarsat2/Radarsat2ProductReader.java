@@ -304,20 +304,38 @@ public class Radarsat2ProductReader extends SARReader {
         final SampleModel sampleModel = data.getSampleModel();
         final int sampleOffset = imageID + bandSampleOffset;
 
-        if (flipToSARGeometry && isAntennaPointingRight) { // flip the image left to right
-            final int[] dArray = new int[dataBuffer.getSize()];
-            sampleModel.getSamples(0, 0, w, h, sampleOffset, dArray, dataBuffer);
+        if(destBuffer.getType() == ProductData.TYPE_FLOAT32) {
+            if (flipToSARGeometry && isAntennaPointingRight) { // flip the image left to right
+                final float[] dArray = new float[dataBuffer.getSize()];
+                sampleModel.getSamples(0, 0, w, h, sampleOffset, dArray, dataBuffer);
 
-            int srcStride, destStride;
-            for (int r = 0; r < h; r++) {
-                srcStride = r * w;
-                destStride = r * w + w;
-                for (int c = 0; c < w; c++) {
-                    destBuffer.setElemIntAt(destStride - c - 1, dArray[srcStride + c]);
+                int srcStride, destStride;
+                for (int r = 0; r < h; r++) {
+                    srcStride = r * w;
+                    destStride = r * w + w;
+                    for (int c = 0; c < w; c++) {
+                        destBuffer.setElemFloatAt(destStride - c - 1, dArray[srcStride + c]);
+                    }
                 }
+            } else { // no flipping is needed
+                sampleModel.getSamples(0, 0, w, h, sampleOffset, (float[]) destBuffer.getElems(), dataBuffer);
             }
-        } else { // no flipping is needed
-            sampleModel.getSamples(0, 0, w, h, sampleOffset, (int[]) destBuffer.getElems(), dataBuffer);
+        } else {
+            if (flipToSARGeometry && isAntennaPointingRight) { // flip the image left to right
+                final int[] dArray = new int[dataBuffer.getSize()];
+                sampleModel.getSamples(0, 0, w, h, sampleOffset, dArray, dataBuffer);
+
+                int srcStride, destStride;
+                for (int r = 0; r < h; r++) {
+                    srcStride = r * w;
+                    destStride = r * w + w;
+                    for (int c = 0; c < w; c++) {
+                        destBuffer.setElemIntAt(destStride - c - 1, dArray[srcStride + c]);
+                    }
+                }
+            } else { // no flipping is needed
+                sampleModel.getSamples(0, 0, w, h, sampleOffset, (int[]) destBuffer.getElems(), dataBuffer);
+            }
         }
     } catch (Exception e) {
         e.printStackTrace();
