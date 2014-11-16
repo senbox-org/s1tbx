@@ -51,28 +51,28 @@ public class ProductLibraryActions {
         final JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        selectAllButton = DialogUtils.createButton("selectAllButton", "Select all", selectAllIcon, panel, false);
+        selectAllButton = DialogUtils.createButton("selectAllButton", "Select all", selectAllIcon, panel, DialogUtils.ButtonStyle.Icon);
         selectAllButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 performSelectAllAction();
             }
         });
 
-        openAllSelectedButton = DialogUtils.createButton("openAllSelectedButton", "Open selected", openIcon, panel, false);
+        openAllSelectedButton = DialogUtils.createButton("openAllSelectedButton", "Open selected", openIcon, panel, DialogUtils.ButtonStyle.Icon);
         openAllSelectedButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 performOpenAction();
             }
         });
 
-        copySelectedButton = DialogUtils.createButton("copySelectedButton", "Copy to clipboard", copyIcon, panel, false);
+        copySelectedButton = DialogUtils.createButton("copySelectedButton", "Copy to clipboard", copyIcon, panel, DialogUtils.ButtonStyle.Icon);
         copySelectedButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 performCopyAction();
             }
         });
 
-        batchProcessButton = DialogUtils.createButton("batchProcessButton", "Batch", batchIcon, panel, false);
+        batchProcessButton = DialogUtils.createButton("batchProcessButton", "Batch", batchIcon, panel, DialogUtils.ButtonStyle.Icon);
         batchProcessButton.setToolTipText("Right click to select a graph");
         batchProcessButton.setComponentPopupMenu(createGraphPopup());
         batchProcessButton.addActionListener(new ActionListener() {
@@ -81,7 +81,7 @@ public class ProductLibraryActions {
             }
         });
 
-        stackButton = DialogUtils.createButton("stackButton", "Stack overview", stackIcon, panel, false);
+        stackButton = DialogUtils.createButton("stackButton", "Stack overview", stackIcon, panel, DialogUtils.ButtonStyle.Icon);
         stackButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 performStackOverviewAction();
