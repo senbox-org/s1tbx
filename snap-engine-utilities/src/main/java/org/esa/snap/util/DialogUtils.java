@@ -32,6 +32,7 @@ import java.text.NumberFormat;
  */
 public final class DialogUtils {
 
+    public enum ButtonStyle { Text, Icon, TextAndIcon, FramedButton }
 
     public static void enableComponents(JComponent label, JComponent field, boolean flag) {
         label.setVisible(flag);
@@ -91,11 +92,13 @@ public final class DialogUtils {
     }
 
     public static JButton createButton(final String name, final String text, final ImageIcon icon, final JPanel panel,
-                                       final boolean showTextAndIcon) {
+                                       final ButtonStyle style) {
         final JButton button;
-        if(icon == null || showTextAndIcon) {
+        if(icon == null || style == ButtonStyle.TextAndIcon) {
             button = new JButton();
             button.setText(text);
+        } else if(style == ButtonStyle.FramedButton) {
+            button = new JButton();
         } else {
             button = (JButton) ToolButtonFactory.createButton(icon, false);
         }
