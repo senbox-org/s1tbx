@@ -50,7 +50,7 @@ public class QuickLookGenerator {
     private static final int MAX_WIDTH = 300;
     private static final int MULTILOOK_FACTOR = 2;
 
-    private static final String[] defaultQuickLookBands = new String[] { "Intensity", "band", "T11", "T22", "T33", "C11", "C22", "C33"};
+    private static final String[] defaultQuickLookBands = new String[] { "intensity", "band", "t11", "t22", "t33", "c11", "c22", "c33"};
 
     private static final File dbStorageDir = new File(ResourceUtils.getApplicationUserDir(true),
             ProductDB.DEFAULT_PRODUCT_DATABASE_NAME + File.separator + "QuickLooks");
