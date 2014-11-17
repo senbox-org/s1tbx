@@ -36,7 +36,6 @@ import org.esa.beam.glayer.MaskLayerType;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourceAssistantPage;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -56,10 +55,12 @@ class LayerManagerForm extends AbstractLayerForm {
     private final ProductSceneView view;
     private CheckBoxTree layerTree;
     private JSlider transparencySlider;
+    private JSlider swipeSlider;
     private JPanel control;
     private boolean adjusting;
     private LayerTreeModel layerTreeModel;
     private JLabel transparencyLabel;
+    private JLabel swipeLabel;
     private RemoveLayerAction removeLayerAction;
     private MoveLayerUpAction moveLayerUpAction;
     private MoveLayerDownAction moveLayerDownAction;
@@ -68,11 +69,13 @@ class LayerManagerForm extends AbstractLayerForm {
     private OpenLayerEditorAction openLayerEditorAction;
     private ZoomToLayerAction zoomToLayerAction;
     private LayerManagerForm.TransparencyChangeListener transparencyChangeListener;
+    private LayerManagerForm.SwipeChangeListener swipeChangeListener;
 
     LayerManagerForm(AppContext appContext, String helpId) {
         super(appContext);
         this.view = appContext.getSelectedProductSceneView();
         transparencyChangeListener = new TransparencyChangeListener();
+        swipeChangeListener = new SwipeChangeListener();
         initUI(helpId);
     }
 
@@ -82,7 +85,7 @@ class LayerManagerForm extends AbstractLayerForm {
         layerTree.setCellRenderer(new MyTreeCellRenderer());
         TreeCellExtender.equip(layerTree);
 
-        Hashtable<Integer, JLabel> transparencySliderLabelTable = new Hashtable<Integer, JLabel>();
+        Hashtable<Integer, JLabel> transparencySliderLabelTable = new Hashtable<>();
         transparencySliderLabelTable.put(0, createSliderLabel("0%"));
         transparencySliderLabelTable.put(127, createSliderLabel("50%"));
         transparencySliderLabelTable.put(255, createSliderLabel("100%"));
@@ -93,10 +96,33 @@ class LayerManagerForm extends AbstractLayerForm {
 
         transparencyLabel = new JLabel("Transparency:");
 
-        final JPanel sliderPanel = new JPanel(new BorderLayout(4, 4));
-        sliderPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
-        sliderPanel.add(transparencyLabel, BorderLayout.WEST);
-        sliderPanel.add(transparencySlider, BorderLayout.CENTER);
+        Hashtable<Integer, JLabel> swipeSliderLabelTable = new Hashtable<>();
+        swipeSliderLabelTable.put(0, createSliderLabel("0%"));
+        swipeSliderLabelTable.put(50, createSliderLabel("50%"));
+        swipeSliderLabelTable.put(100, createSliderLabel("100%"));
+        swipeSlider = new JSlider(0, 100, 0);
+        swipeSlider.setLabelTable(swipeSliderLabelTable);
+        swipeSlider.setPaintLabels(true);
+        swipeSlider.addChangeListener(new SwipeSliderListener());
+
+        swipeLabel = new JLabel("Swipe:");
+
+        final JPanel sliderPanel = GridBagUtils.createPanel();
+        final GridBagConstraints slidegbc = new GridBagConstraints();
+        slidegbc.anchor = GridBagConstraints.NORTHWEST;
+        slidegbc.fill = GridBagConstraints.HORIZONTAL;
+        slidegbc.gridy = 0;
+        slidegbc.gridx = 0;
+        sliderPanel.add(transparencyLabel, slidegbc);
+        slidegbc.gridx = 1;
+        slidegbc.weightx = 2;
+        sliderPanel.add(transparencySlider, slidegbc);
+        slidegbc.gridy++;
+        slidegbc.gridx = 0;
+        sliderPanel.add(swipeLabel, slidegbc);
+        slidegbc.gridx = 1;
+        slidegbc.weightx = 2;
+        sliderPanel.add(swipeSlider, slidegbc);
 
         getRootLayer().addListener(new RootLayerListener());
 
@@ -294,6 +320,14 @@ class LayerManagerForm extends AbstractLayerForm {
             final int n = (int) Math.round(255.0 * transparency);
             transparencySlider.setValue(n);
         }
+
+        swipeLabel.setEnabled(layer != null);
+        swipeSlider.setEnabled(layer != null);
+        if (layer != null) {
+            final double swipe = layer.getSwipePercent();
+            final int n = (int) Math.round(100.0 * swipe);
+            swipeSlider.setValue(n);
+        }
     }
 
     private CheckBoxTree createCheckBoxTree(LayerTreeModel treeModel) {
@@ -337,6 +371,14 @@ class LayerManagerForm extends AbstractLayerForm {
         selectedLayer.removeListener(transparencyChangeListener);
     }
 
+    private void installSwipeChangeListener(Layer selectedLayer) {
+        selectedLayer.addListener(swipeChangeListener);
+    }
+
+    private void removeSwipeChangeListener(Layer selectedLayer) {
+        selectedLayer.removeListener(swipeChangeListener);
+    }
+
     public static AbstractButton createToolButton(final String iconPath) {
         return ToolButtonFactory.createButton(UIUtils.loadImageIcon(iconPath), false);
     }
@@ -372,7 +414,21 @@ class LayerManagerForm extends AbstractLayerForm {
                 layer.setTransparency(transparencySlider.getValue() / 255.0);
                 adjusting = false;
             }
+        }
+    }
 
+    private class SwipeSliderListener implements ChangeListener {
+
+        @Override
+        public void stateChanged(ChangeEvent e) {
+
+            TreePath path = layerTree.getSelectionPath();
+            if (path != null) {
+                Layer layer = getLayer(path);
+                adjusting = true;
+                layer.setSwipePercent(swipeSlider.getValue() / 100.0);
+                adjusting = false;
+            }
         }
     }
 
@@ -421,6 +477,17 @@ class LayerManagerForm extends AbstractLayerForm {
         }
     }
 
+    private class SwipeChangeListener extends AbstractLayerListener {
+
+        @Override
+        public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
+            if("swipePercent".equals(event.getPropertyName())) {
+                updateLayerStyleUI(layer);
+            }
+
+        }
+    }
+
     private class LayerSelectionListener implements TreeSelectionListener {
 
         private Layer selectedLayer;
@@ -429,10 +496,12 @@ class LayerManagerForm extends AbstractLayerForm {
         public void valueChanged(TreeSelectionEvent event) {
             if (selectedLayer != null) {
                 removeTransparencyChangeListener(selectedLayer);
+                removeSwipeChangeListener(selectedLayer);
             }
             selectedLayer = getLayer(event.getNewLeadSelectionPath());
             if (selectedLayer != null) {
                 installTransparencyChangeListener(selectedLayer);
+                installSwipeChangeListener(selectedLayer);
             }
             getAppContext().getSelectedProductSceneView().setSelectedLayer(selectedLayer);
         }

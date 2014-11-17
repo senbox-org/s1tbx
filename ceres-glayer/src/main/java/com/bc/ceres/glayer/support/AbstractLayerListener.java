@@ -79,6 +79,7 @@ public abstract class AbstractLayerListener implements LayerListener {
     protected boolean isVisibleChangeEvent(PropertyChangeEvent propertyChangeEvent) {
         return propertyChangeEvent.getPropertyName().equals("visible")
                 || propertyChangeEvent.getPropertyName().equals("transparency")
+                || propertyChangeEvent.getPropertyName().equals("swipePercent")
                 || propertyChangeEvent.getPropertyName().equals("composite")
                 || propertyChangeEvent.getSource() instanceof PropertyContainer;
     }
