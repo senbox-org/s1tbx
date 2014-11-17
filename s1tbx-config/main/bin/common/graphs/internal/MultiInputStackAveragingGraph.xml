@@ -22,7 +22,7 @@
       <sourceProduct refid="Multi-Input-Stack-Averaging"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file>C:\output\target.dim</file>
+      <file></file>
       <formatName>BEAM-DIMAP</formatName>
     </parameters>
   </node>
