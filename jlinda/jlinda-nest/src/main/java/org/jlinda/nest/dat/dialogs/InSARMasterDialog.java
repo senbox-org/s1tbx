@@ -61,7 +61,7 @@ public class InSARMasterDialog extends ModelessDialog {
         final JPanel contentPane = new JPanel(new BorderLayout());
 
         final JPanel buttonPanel1 = new JPanel(new GridLayout(10, 1));
-        final JButton addAllBtn = DialogUtils.createButton("addAllBtn", "Add Opened", null, buttonPanel1, false);
+        final JButton addAllBtn = DialogUtils.createButton("addAllBtn", "Add Opened", null, buttonPanel1, DialogUtils.ButtonStyle.Text);
         addAllBtn.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -78,7 +78,7 @@ public class InSARMasterDialog extends ModelessDialog {
         });
         buttonPanel1.add(addAllBtn);
 
-        final JButton clearBtn = DialogUtils.createButton("clearBtn", "Clear", null, buttonPanel1, false);
+        final JButton clearBtn = DialogUtils.createButton("clearBtn", "Clear", null, buttonPanel1, DialogUtils.ButtonStyle.Text);
         clearBtn.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -101,7 +101,7 @@ public class InSARMasterDialog extends ModelessDialog {
         //contentPane.add(optionsPane, BorderLayout.CENTER);
 
         final JPanel buttonPanel2 = new JPanel(new GridLayout(10, 1));
-        openBtn = DialogUtils.createButton("openButton", "     Open     ", null, buttonPanel2, false);
+        openBtn = DialogUtils.createButton("openButton", "     Open     ", null, buttonPanel2, DialogUtils.ButtonStyle.Text);
         openBtn.setEnabled(false);
         openBtn.addActionListener(new ActionListener() {
 

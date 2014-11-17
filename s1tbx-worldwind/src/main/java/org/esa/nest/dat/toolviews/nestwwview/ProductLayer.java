@@ -486,7 +486,7 @@ public class ProductLayer extends RenderableLayer {
 
     private void addOutline(final Product product) {
         // ADDED
-        System.out.println("TESTING ADD OUTLINE");
+        //System.out.println("TESTING ADD OUTLINE");
         final int step = Math.max(16, (product.getSceneRasterWidth() + product.getSceneRasterHeight()) / 250);
         final GeneralPath[] boundaryPaths = ProductUtils.createGeoBoundaryPaths(product, null, step);
 

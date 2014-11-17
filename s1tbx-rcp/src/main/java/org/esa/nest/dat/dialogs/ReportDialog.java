@@ -17,7 +17,6 @@ package org.esa.nest.dat.dialogs;
 
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.DatApp;
 import org.esa.nest.dat.reports.Report;
 import org.esa.snap.util.DialogUtils;
 
@@ -59,14 +58,14 @@ public class ReportDialog extends ModalDialog {
     public static JPanel createButtonPanel() {
         final JPanel panel = new JPanel(new GridLayout(10, 1));
 
-        final JButton pdfButton = DialogUtils.createButton("Export PDF", "Export PDF", null, panel, false);
+        final JButton pdfButton = DialogUtils.createButton("Export PDF", "Export PDF", null, panel, DialogUtils.ButtonStyle.Text);
         panel.add(pdfButton);
         pdfButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
 
             }
         });
-        final JButton htmlButton = DialogUtils.createButton("Export HTML", "Export HTML", null, panel, false);
+        final JButton htmlButton = DialogUtils.createButton("Export HTML", "Export HTML", null, panel, DialogUtils.ButtonStyle.Text);
         panel.add(htmlButton);
         htmlButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {

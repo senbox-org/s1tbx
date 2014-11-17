@@ -142,7 +142,7 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.NORTHWEST;
 
-        updateButton = DialogUtils.createButton("updateButton", "Rescan folder", updateIcon, headerBar, false);
+        updateButton = DialogUtils.createButton("updateButton", "Rescan folder", updateIcon, headerBar, DialogUtils.ButtonStyle.Icon);
         updateButton.setActionCommand(LabelBarProgressMonitor.updateCommand);
         updateButton.addActionListener(new ActionListener() {
 
@@ -177,7 +177,7 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         headerBar.add(repositoryListCombo, gbc);
         gbc.weightx = 0;
 
-        addButton = DialogUtils.createButton("addButton", "Add folder", addButtonIcon, headerBar, false);
+        addButton = DialogUtils.createButton("addButton", "Add folder", addButtonIcon, headerBar, DialogUtils.ButtonStyle.Icon);
         addButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -186,7 +186,7 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         });
         headerBar.add(addButton, gbc);
 
-        removeButton = DialogUtils.createButton("removeButton", "Remove folder", removeButtonIcon, headerBar, false);
+        removeButton = DialogUtils.createButton("removeButton", "Remove folder", removeButtonIcon, headerBar, DialogUtils.ButtonStyle.Icon);
         removeButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -195,7 +195,7 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         });
         headerBar.add(removeButton, gbc);
 
-        final JButton helpButton = DialogUtils.createButton("helpButton", "Help", helpButtonIcon, headerBar, false);
+        final JButton helpButton = DialogUtils.createButton("helpButton", "Help", helpButtonIcon, headerBar, DialogUtils.ButtonStyle.Icon);
         HelpSys.enableHelpOnButton(helpButton, helpId);
         headerBar.add(helpButton, gbc);
 
