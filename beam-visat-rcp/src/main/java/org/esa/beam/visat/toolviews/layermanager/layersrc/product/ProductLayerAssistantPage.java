@@ -175,8 +175,9 @@ class ProductLayerAssistantPage extends AbstractLayerSourceAssistantPage {
             // For GeoTools, two CRS where unequal if the authorities of their CS only differ in version
             // This happened with the S-2 L1C CRS, namely an EPSG:32615. Here one authority's version was null,
             // the other "7.9". Extremely annoying to debug and find out :-(   (nf, Feb 2013)
-            if (CRS.equalsIgnoreMetadata(thisCrs, otherCrs)
-                    || haveCommonReferenceIdentifiers(thisCrs, otherCrs)) {
+            //if (CRS.equalsIgnoreMetadata(thisCrs, otherCrs)
+            //        || haveCommonReferenceIdentifiers(thisCrs, otherCrs)) {
+            if(thisCrs.getCoordinateSystem().equals(otherCrs.getCoordinateSystem())) {
                 rasterDataNodes.add(node);
             }
         }
