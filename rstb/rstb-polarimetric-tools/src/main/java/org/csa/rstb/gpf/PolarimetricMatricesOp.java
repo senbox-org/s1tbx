@@ -174,37 +174,37 @@ public final class PolarimetricMatricesOp extends Operator {
         for (Band band : bands) {
             final String targetBandName = band.getName();
 
-            if (targetBandName.contains("11")) {
+            if (PolBandUtils.isBandForMatrixElement(targetBandName, "11")) {
                 matrixBandMap.put(band, new MatrixElem(0, 0, false));
-            } else if (targetBandName.contains("12_real")) {
+            } else if (PolBandUtils.isBandForMatrixElement(targetBandName, "12_real")) {
                 matrixBandMap.put(band, new MatrixElem(0, 1, false));
-            } else if (targetBandName.contains("12_imag")) {
+            } else if (PolBandUtils.isBandForMatrixElement(targetBandName, "12_imag")) {
                 matrixBandMap.put(band, new MatrixElem(0, 1, true));
-            } else if (targetBandName.contains("13_real")) {
+            } else if (PolBandUtils.isBandForMatrixElement(targetBandName, "13_real")) {
                 matrixBandMap.put(band, new MatrixElem(0, 2, false));
-            } else if (targetBandName.contains("13_imag")) {
+            } else if (PolBandUtils.isBandForMatrixElement(targetBandName, "13_imag")) {
                 matrixBandMap.put(band, new MatrixElem(0, 2, true));
-            } else if (targetBandName.contains("14_real")) {
+            } else if (PolBandUtils.isBandForMatrixElement(targetBandName, "14_real")) {
                 matrixBandMap.put(band, new MatrixElem(0, 3, false));
-            } else if (targetBandName.contains("14_imag")) {
+            } else if (PolBandUtils.isBandForMatrixElement(targetBandName, "14_imag")) {
                 matrixBandMap.put(band, new MatrixElem(0, 3, true));
-            } else if (targetBandName.contains("22")) {
+            } else if (PolBandUtils.isBandForMatrixElement(targetBandName, "22")) {
                 matrixBandMap.put(band, new MatrixElem(1, 1, false));
-            } else if (targetBandName.contains("23_real")) {
+            } else if (PolBandUtils.isBandForMatrixElement(targetBandName, "23_real")) {
                 matrixBandMap.put(band, new MatrixElem(1, 2, false));
-            } else if (targetBandName.contains("23_imag")) {
+            } else if (PolBandUtils.isBandForMatrixElement(targetBandName, "23_imag")) {
                 matrixBandMap.put(band, new MatrixElem(1, 2, true));
-            } else if (targetBandName.contains("24_real")) {
+            } else if (PolBandUtils.isBandForMatrixElement(targetBandName, "24_real")) {
                 matrixBandMap.put(band, new MatrixElem(1, 3, false));
-            } else if (targetBandName.contains("24_imag")) {
+            } else if (PolBandUtils.isBandForMatrixElement(targetBandName, "24_imag")) {
                 matrixBandMap.put(band, new MatrixElem(1, 3, true));
-            } else if (targetBandName.contains("33")) {
+            } else if (PolBandUtils.isBandForMatrixElement(targetBandName, "33")) {
                 matrixBandMap.put(band, new MatrixElem(2, 2, false));
-            } else if (targetBandName.contains("34_real")) {
+            } else if (PolBandUtils.isBandForMatrixElement(targetBandName, "34_real")) {
                 matrixBandMap.put(band, new MatrixElem(2, 3, false));
-            } else if (targetBandName.contains("34_imag")) {
+            } else if (PolBandUtils.isBandForMatrixElement(targetBandName, "34_imag")) {
                 matrixBandMap.put(band, new MatrixElem(2, 3, true));
-            } else if (targetBandName.contains("44")) {
+            } else if (PolBandUtils.isBandForMatrixElement(targetBandName, "44")) {
                 matrixBandMap.put(band, new MatrixElem(3, 3, false));
             }
         }
