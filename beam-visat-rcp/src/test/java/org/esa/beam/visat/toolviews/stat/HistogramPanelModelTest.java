@@ -52,6 +52,6 @@ public class HistogramPanelModelTest {
     }
 
     private static Stx arbitraryStx() {
-        return new Stx(10, 20, 15, 2, true, true, new Histogram(10, 10, 20, 1), 12);
+        return new Stx(10, 20, 15, 2, 0, 0, true, true, new Histogram(10, 10, 20, 1), 12);
     }
 }

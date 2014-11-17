@@ -401,6 +401,8 @@ class StatisticsPanel extends PagePanel implements MultipleRoiComputePanel.Compu
                 new Object[]{"Mean:", stx.getMean()},
                 new Object[]{"Sigma:", stx.getStandardDeviation()},
                 new Object[]{"Median:", stx.getMedian()},
+                new Object[]{"Coef Variation:", stx.getCoefficientOfVariation()},
+                new Object[]{"ENL:", stx.getEquivalentNumberOfLooks()},
                 new Object[]{"P75 threshold:", histogram.getPTileThreshold(0.75)[0]},
                 new Object[]{"P80 threshold:", histogram.getPTileThreshold(0.80)[0]},
                 new Object[]{"P85 threshold:", histogram.getPTileThreshold(0.85)[0]},

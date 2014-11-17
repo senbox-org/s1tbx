@@ -54,6 +54,9 @@ public class Stx {
 
     private final Scaling histogramScaling;
 
+    private final double coefficientOfVariation;
+    private final double enl;
+
     /**
      * Constructor. Avoid using it directly. instead, use the {@link StxFactory} since the constructor may change in the future.
      *
@@ -61,12 +64,15 @@ public class Stx {
      * @param maximum           the maximum value, if it is {@link Double#NaN} the maximum is taken from the {@code histogram}
      * @param mean              the mean value, if it is {@link Double#NaN} the mean is taken from the {@code histogram}
      * @param standardDeviation the value of the standard deviation, if it is {@link Double#NaN} it is taken from the {@code histogram}
+     * @param coeffOfVariation  the Coefficient of Variation
+     * @param enl               Equivalent number of looks
      * @param logHistogram      {@code true} if the histogram has been computed on logarithms, see {@link #getHistogram()}
      * @param intHistogram      {@code true} if the histogram has been computed from integer samples, see {@link #getHistogram()}
      * @param histogram         the histogram
      * @param resolutionLevel   the resolution level this {@code Stx} is for
      */
     public Stx(double minimum, double maximum, double mean, double standardDeviation,
+               double coeffOfVariation, double enl,
                boolean logHistogram, boolean intHistogram, Histogram histogram, int resolutionLevel) {
 
         Assert.argument(!Double.isNaN(minimum), "minimum must not be NaN");
@@ -93,6 +99,8 @@ public class Stx {
         this.intHistogram = intHistogram;
         this.histogram = histogram;
         this.resolutionLevel = resolutionLevel;
+        this.coefficientOfVariation = coeffOfVariation;
+        this.enl = enl;
     }
 
     /**
@@ -128,6 +136,14 @@ public class Stx {
      */
     public double getStandardDeviation() {
         return standardDeviation;
+    }
+
+    public double getCoefficientOfVariation() {
+        return coefficientOfVariation;
+    }
+
+    public double getEquivalentNumberOfLooks() {
+        return enl;
     }
 
     /**

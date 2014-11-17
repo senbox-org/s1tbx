@@ -512,6 +512,8 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                                       sourceStx.getMaximum(),
                                       sourceStx.getMean(),
                                       sourceStx.getStandardDeviation(),
+                                      sourceStx.getCoefficientOfVariation(),
+                                      sourceStx.getEquivalentNumberOfLooks(),
                                       sourceStx.isLogHistogram(),
                                       sourceStx.isIntHistogram(),
                                       targetHistogram,
