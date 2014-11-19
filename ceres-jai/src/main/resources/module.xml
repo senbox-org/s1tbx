@@ -14,7 +14,9 @@
 
     <changelog>
         <![CDATA[
-                ]]>
+        Changes in version 2.0<br/>
+        [SNAP-41] Median filter gives wrong results<br/>
+        ]]>
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>
