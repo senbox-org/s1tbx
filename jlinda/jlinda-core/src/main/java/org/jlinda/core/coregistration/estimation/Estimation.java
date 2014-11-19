@@ -7,8 +7,6 @@ import org.jblas.Solve;
 import org.jlinda.core.coregistration.estimation.utils.SimpleAsciiFileParser;
 import org.jlinda.core.utils.LinearAlgebraUtils;
 import org.jlinda.core.utils.PolyUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -19,7 +17,7 @@ import static org.jblas.MatrixFunctions.abs;
  */
 public class Estimation {
 
-    static Logger logger = LoggerFactory.getLogger(Estimation.class.getName());
+    //static Logger logger = LoggerFactory.getLogger(Estimation.class.getName());
 
     private static final String FILE_NAME = "/d1/list.txt";
     private static double[][] data = null;

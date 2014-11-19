@@ -9,7 +9,6 @@ import org.jblas.Solve;
 import org.jlinda.core.coregistration.estimation.utils.SimpleAsciiFileParser;
 import org.jlinda.core.utils.PolyUtils;
 import org.perf4j.StopWatch;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 

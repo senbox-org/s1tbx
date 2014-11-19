@@ -1,7 +1,6 @@
 package org.jlinda.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.apache.commons.lang3.ArrayUtils;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
@@ -22,7 +21,6 @@ import org.jlinda.core.Point;
 import org.jlinda.core.coregistration.LUT;
 import org.jlinda.core.coregistration.SimpleLUT;
 import org.jlinda.core.coregistration.cross.CrossGeometry;
-import org.slf4j.LoggerFactory;
 
 import javax.media.jai.*;
 import java.awt.*;

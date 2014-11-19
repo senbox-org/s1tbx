@@ -1,12 +1,11 @@
 package org.jlinda.core.coregistration.cross;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.jlinda.core.utils.MathUtils;
 import org.jlinda.core.utils.PolyUtils;
-import org.slf4j.LoggerFactory;
+
 
 /**
  * User: pmar@ppolabs.com

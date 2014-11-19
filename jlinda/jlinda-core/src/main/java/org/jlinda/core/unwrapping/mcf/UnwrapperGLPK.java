@@ -8,7 +8,6 @@ import org.jlinda.core.unwrapping.mcf.utils.JblasUtils;
 import org.jlinda.core.unwrapping.mcf.utils.SimulateData;
 import org.jlinda.core.unwrapping.mcf.utils.UnwrapUtils;
 import org.perf4j.StopWatch;
-import org.slf4j.LoggerFactory;
 import scpsolver.constraints.LinearEqualsConstraint;
 import scpsolver.lpsolver.LinearProgramSolver;
 import scpsolver.lpsolver.SolverFactory;
