@@ -9,7 +9,7 @@
     </parent>
     <name>Ceres JAI Library</name>
     <artifactId>snap-jai</artifactId>
-    <packaging>nbm</packaging>
+    <packaging>jar</packaging>
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -51,25 +51,6 @@
         </dependency>
     </dependencies>
     <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-                <configuration>
-                    <publicPackages>
-                        <publicPackage>com.bc.ceres.*</publicPackage>
-                    </publicPackages>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <useDefaultManifestFile>true</useDefaultManifestFile>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+
 </project>
 

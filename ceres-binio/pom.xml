@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>snap-binio</artifactId>
-    <packaging>nbm</packaging>
+    <packaging>jar</packaging>
 
     <name>Ceres Binary I/O Library</name>
     <description>The Ceres Binary I/O Library provides a generic access to binary data structures.</description>
@@ -24,28 +24,6 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-                <configuration>
-                    <publicPackages>
-                        <publicPackage>com.bc.ceres.binio</publicPackage>
-                        <publicPackage>com.bc.ceres.binio.binx</publicPackage>
-                        <publicPackage>com.bc.ceres.binio.expr</publicPackage>
-                        <publicPackage>com.bc.ceres.binio.util</publicPackage>
-                    </publicPackages>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <useDefaultManifestFile>true</useDefaultManifestFile>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+
 </project>
 
