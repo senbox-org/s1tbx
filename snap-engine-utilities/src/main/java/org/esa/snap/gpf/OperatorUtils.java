@@ -213,6 +213,12 @@ public final class OperatorUtils {
         return false;
     }
 
+    public static boolean isCalibrated(final Product product) {
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        return (absRoot != null &&
+                absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().getElemBoolean());
+    }
+
     /**
      * Copy master GCPs to target product.
      *
