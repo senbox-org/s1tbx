@@ -122,4 +122,16 @@ public class InputProductValidator {
             throw new OperatorException("Source product should not be map projected");
         }
     }
+
+    public void checkIfCalibrated() throws OperatorException {
+        if (OperatorUtils.isCalibrated(product)) {
+            throw new OperatorException("Source product has already been calibrated");
+        }
+    }
+
+    public void checkIfNotCalibrated() throws OperatorException {
+        if (!OperatorUtils.isCalibrated(product)) {
+            throw new OperatorException("Source product should be calibrated");
+        }
+    }
 }
