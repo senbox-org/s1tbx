@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>snap-glayer</artifactId>
-    <packaging>nbm</packaging>
+    <packaging>jar</packaging>
 
     <name>Ceres GLayer Library</name>
     <description>The Ceres GLayer Library provides a framework for rendering of multiple graphical layers to some graphics context.</description>
@@ -45,27 +45,6 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-                <configuration>
-                    <publicPackages>
-                        <publicPackage>com.bc.ceres.glayer.*</publicPackage>
-                        <publicPackage>com.bc.ceres.glevel.*</publicPackage>
-                        <publicPackage>com.bc.ceres.grender.*</publicPackage>
-                    </publicPackages>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <useDefaultManifestFile>true</useDefaultManifestFile>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+
 </project>
 

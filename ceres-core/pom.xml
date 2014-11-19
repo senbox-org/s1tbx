@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>snap-ceres-core</artifactId>
-    <packaging>nbm</packaging>
+    <packaging>jar</packaging>
 
     <name>Ceres Runtime Library</name>
     <description>
@@ -31,28 +31,6 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-                <configuration>
-                    <publicPackages>
-                        <publicPackage>com.bc.ceres.launcher</publicPackage>
-                        <publicPackage>com.bc.ceres.core</publicPackage>
-                        <publicPackage>com.bc.ceres.core.runtime</publicPackage>
-                        <publicPackage>com.thoughtworks.xstream.*</publicPackage>
-                    </publicPackages>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <useDefaultManifestFile>true</useDefaultManifestFile>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+
 </project>
 
