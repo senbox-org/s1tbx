@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-AutoUpdate-Show-In-Client: true
-AutoUpdate-Essential-Module: true
-OpenIDE-Module-Java-Dependencies: Java > 1.8
-OpenIDE-Module-Display-Category: SNAP
-OpenIDE-Module-Long-Description: <p>Creates and copies template JSON c
- ode to the clipboard for further use in the SNAP reader acceptance te
- sts.</p>

@@ -9,7 +9,6 @@
     </parent>
 
     <artifactId>snap-reader-tests</artifactId>
-    <packaging>nbm</packaging>
 
     <name>SNAP Product Reader Integration Tests</name>
     <description>Creates and copies template JSON code to the clipboard for further use in the SNAP reader acceptance tests.</description>
