@@ -26,24 +26,6 @@
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
-                <configuration>
-                    <target>
-                        <copy file="../readme.html" tofile="${project.build.directory}/nbm-suite/README.html"/>
-                        <copy file="../VERSION.txt" todir="${project.build.directory}/nbm-suite"/>
-                        <copy file="../LICENSE.html" todir="${project.build.directory}/nbm-suite"/>
-                        <copy todir="${project.build.directory}/nbm-suite" flatten="true">
-                            <fileset dir="../">
-                                <include name="**/target/*.nbm"/>
-                            </fileset>
-                        </copy>
-                        <zip destfile="${project.build.directory}/nbm-suite.zip"
-                             basedir="${project.build.directory}/nbm-suite"/>
-                    </target>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
