@@ -16,8 +16,20 @@
 
 package com.bc.ceres.jai.operator;
 
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
+import java.awt.image.BandedSampleModel;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.ComponentSampleModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferFloat;
 import java.awt.image.DataBufferUShort;
+import java.awt.image.PixelInterleavedSampleModel;
+import java.awt.image.Raster;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 
 class SourceImageFactory {
     static BufferedImage createOneBandedUShortImage(int w, int h, short[] data) {
@@ -25,5 +37,14 @@ class SourceImageFactory {
         DataBufferUShort buffer = (DataBufferUShort) image.getRaster().getDataBuffer();
         System.arraycopy(data, 0, buffer.getData(), 0, w * h);
         return image;
+    }
+
+    static BufferedImage createOneBandedFloatImage(int w, int h, float[] data) {
+        SampleModel sampleModel = new BandedSampleModel(DataBuffer.TYPE_FLOAT, w, h, 1);
+        DataBufferFloat buffer = new DataBufferFloat(data, w * h);
+        WritableRaster raster = Raster.createWritableRaster(sampleModel, buffer, null);
+        ColorSpace colorSpace = ColorSpace.getInstance(ColorSpace.CS_GRAY);
+        ColorModel colorModel = new ComponentColorModel(colorSpace, false, false, Transparency.TRANSLUCENT, DataBuffer.TYPE_FLOAT);
+        return new BufferedImage(colorModel, raster, colorModel.isAlphaPremultiplied(), null);
     }
 }

@@ -1,0 +1,6 @@
+<parameters>
+    <postProcessor>
+        <type>Selection</type>
+        <varNames>tsm_mean, tsm_sigma, chl_min,cmax = chl_max</varNames>
+    </postProcessor>
+</parameters>

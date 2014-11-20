@@ -154,7 +154,7 @@ final public class SummaryStxOp extends StxOp {
             for (int x = 0; x < width; x++) {
                 if (mask == null || mask[maskPixelOffset] != 0) {
 
-                    value = values.getDouble(dataPixelOffset);			//NESTMOD
+                    value = values.getDouble(dataPixelOffset);
                     if(!Double.isInfinite(value) && !Double.isNaN(value)) {
 
                     tileSampleCount++;

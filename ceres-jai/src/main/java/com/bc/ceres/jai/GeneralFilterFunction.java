@@ -176,7 +176,6 @@ public abstract class GeneralFilterFunction {
                 float v = fdata[i];
                 if ((se == null || se[i]) && !Float.isNaN(v)) {
                     n++;
-                    break;
                 }
             }
             if (n == 0) {
@@ -186,7 +185,7 @@ public abstract class GeneralFilterFunction {
             } else if (n % 2 == 1) {
                 return fdata[n / 2];
             } else {
-                return 0.5F * (fdata[n / 2] + fdata[n / 2 + 1]);
+                return 0.5F * (fdata[n / 2 - 1] + fdata[n / 2]);
             }
         }
     }
