@@ -2,7 +2,7 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>E:\build\SNAP\package\s1tbx-0.2.0-SNAPSHOT-bin-win64\bin\snap-launcher.jar</jar>
+  <jar>E:\build\SNAP\package\s1tbx-bin-win64\bin\snap-launcher.jar</jar>
   <outfile>E:\build\SNAP\s1tbx\s1tbx-config\main\bin\win\s1tbx-dat.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
@@ -12,7 +12,7 @@
   <supportUrl></supportUrl>
   <stayAlive>false</stayAlive>
   <manifest>launch4j-nest.manifest</manifest>
-  <icon>E:\build\SNAP\s1tbx\s1tbx-config\main\assembly\dat.ico</icon>
+  <icon>E:\build\SNAP\s1tbx\s1tbx-config\main\bin\win\snap-s1.ico</icon>
   <jre>
     <path>jre</path>
     <bundledJre64Bit>false</bundledJre64Bit>
