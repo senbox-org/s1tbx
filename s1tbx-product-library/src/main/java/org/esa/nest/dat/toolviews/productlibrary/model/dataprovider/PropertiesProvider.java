@@ -37,6 +37,7 @@ import java.util.Comparator;
 public class PropertiesProvider implements DataProvider {
 
     private static final DecimalFormat df = new DecimalFormat("#.##");
+    private static final DateFormat dateFormat = ProductData.UTC.createDateFormat("dd-MMM-yyyy");
 
     private static final String[] propertyLables = new String[]{
             "Name:",
@@ -79,21 +80,14 @@ public class PropertiesProvider implements DataProvider {
 
         public ProductPropertiesRenderer() {
             final DefaultTableModel dataModel = new DefaultTableModel();
-            dataModel.setColumnCount(2);
+            dataModel.setColumnCount(1);
             setRowHeight(14);
             dataModel.setRowCount(propertyLables.length);
 
-            for (int i = 0; i < propertyLables.length; i++) {
-                dataModel.setValueAt(propertyLables[i], i, 0);
-                dataModel.setValueAt("", i, 1);
-            }
-
             setModel(dataModel);
-            valueFont = getFont().deriveFont(Font.PLAIN, 12); //getFont().deriveFont(Font.BOLD);
+            valueFont = getFont().deriveFont(Font.PLAIN, 12);
             boldFont = valueFont.deriveFont(Font.BOLD);
             getColumnModel().getColumn(0).setCellRenderer(new PropertyValueCellRenderer(valueFont, boldFont));
-            getColumnModel().getColumn(1).setCellRenderer(new PropertyValueCellRenderer(valueFont, boldFont));
-            getColumnModel().getColumn(0).setMaxWidth(80);
 
             //this.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
             getTableHeader().setVisible(false);
@@ -117,16 +111,15 @@ public class PropertiesProvider implements DataProvider {
                     final File file = entry.getFile();
                     final String fileSize = "(" + (entry.getFileSize() / (1024 * 1024)) + " MB)";
 
-                    final DateFormat dateFormat = ProductData.UTC.createDateFormat("dd-MMM-yyyy");
                     final String dateString = dateFormat.format(entry.getFirstLineTime().getAsDate());
 
                     String polStr = "";
                     final MetadataElement absRoot = entry.getMetadata();
                     if (absRoot != null) {
-                        final String pol1 = entry.getMetadata().getAttributeString(AbstractMetadata.mds1_tx_rx_polar);
-                        final String pol2 = entry.getMetadata().getAttributeString(AbstractMetadata.mds2_tx_rx_polar);
-                        final String pol3 = entry.getMetadata().getAttributeString(AbstractMetadata.mds3_tx_rx_polar);
-                        final String pol4 = entry.getMetadata().getAttributeString(AbstractMetadata.mds4_tx_rx_polar);
+                        final String pol1 = absRoot.getAttributeString(AbstractMetadata.mds1_tx_rx_polar);
+                        final String pol2 = absRoot.getAttributeString(AbstractMetadata.mds2_tx_rx_polar);
+                        final String pol3 = absRoot.getAttributeString(AbstractMetadata.mds3_tx_rx_polar);
+                        final String pol4 = absRoot.getAttributeString(AbstractMetadata.mds4_tx_rx_polar);
                         polStr = pol1;
                         if(!pol2.equals(AbstractMetadata.NO_METADATA_STRING))
                             polStr += ' ' + pol2;
@@ -139,16 +132,16 @@ public class PropertiesProvider implements DataProvider {
                     values = new String[]{
                             entry.getName(),
                             entry.getMission() + "   " + entry.getProductType() + "   " + entry.getPass() + "  " + polStr,
-                            dateString + "   Pixel Size: " + pixelSpacing,
+                            dateString + "   " + pixelSpacing,
                             entry.getFileFormat() + "   " + fileSize
                     };
                     for (int i = 0; i < values.length; i++) {
-                        setValueAt(values[i], i, 1);
+                        setValueAt(values[i], i, 0);
                     }
                     toolTip = file.getAbsolutePath();
                 } else if (value == null) {
                     for (int i = 0; i < propertyLables.length; i++) {
-                        setValueAt(null, i, 1);
+                        setValueAt(null, i, 0);
                     }
                 }
 
@@ -180,16 +173,11 @@ public class PropertiesProvider implements DataProvider {
             setRowHeight(table, row, ROW_HEIGHT);
 
             final int lablesLength = getMaxStringLength(propertyLables, getFontMetrics(getFont()));
-            int columnIndex = 0;
-            increasePreferredColumnWidth(getColumnModel().getColumn(columnIndex), lablesLength);
-
             int valuesLength = 50;
             if (values != null) {
                 valuesLength = Math.min(200, getMaxStringLength(values, getFontMetrics(valueFont)));
-                increasePreferredColumnWidth(getColumnModel().getColumn(1), valuesLength);
             }
             int preferredWidth = lablesLength + valuesLength;
-            //preferredWidth = (int) (preferredWidth + (preferredWidth * 0.01f));
             final TableColumn valueColumn = table.getColumnModel().getColumn(column);
             final int valueColWidth = Math.max(valueColumn.getWidth(), preferredWidth);
             increasePreferredColumnWidth(valueColumn, valueColWidth);
@@ -211,9 +199,8 @@ public class PropertiesProvider implements DataProvider {
         private int getMaxStringLength(final String[] strings, final FontMetrics fontMetrics) {
             int maxWidth = Integer.MIN_VALUE;
             for (String string : strings) {
-                if (string == null) {
-                    string = String.valueOf(string);
-                }
+                if (string == null)
+                    continue;
                 final int width = SwingUtilities.computeStringWidth(fontMetrics, string);
                 maxWidth = Math.max(width, maxWidth);
             }
@@ -238,7 +225,7 @@ public class PropertiesProvider implements DataProvider {
                             row, column);
                     if (jLabel != null) {
                         jLabel.setHorizontalAlignment(JLabel.LEFT);
-                        if (row == 0 && column == 1)
+                        if (row == 0 && column == 0)
                             jLabel.setFont(boldFont);
                         else
                             jLabel.setFont(font);

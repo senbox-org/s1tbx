@@ -348,6 +348,9 @@ public class WarpOp extends Operator {
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
         if(excludeMaster) {
+            final String[] slaveNames = StackUtils.getSlaveProductNames(sourceProduct);
+            absTgt.setAttributeString(AbstractMetadata.PRODUCT, slaveNames[0]);
+
             final ProductData.UTC[] times = StackUtils.getProductTimes(sourceProduct);
             targetProduct.setStartTime(times[1]);
 

@@ -296,12 +296,6 @@
 
     <extension point="snap-core:rgbProfiles">
         <rgbProfile>
-            <name>Quad Pol</name>
-            <red>Intensity_HH</red>
-            <green>Intensity_HV</green>
-            <blue>Intensity_VV</blue>
-        </rgbProfile>
-        <rgbProfile>
             <name>Pauli</name>
             <red>((i_HH-i_VV)*(i_HH-i_VV)+(q_HH-q_VV)*(q_HH-q_VV))/2</red>
             <green>((i_HV+i_VH)*(i_HV+i_VH)+(q_HV+q_VH)*(q_HV+q_VH))/2</green>

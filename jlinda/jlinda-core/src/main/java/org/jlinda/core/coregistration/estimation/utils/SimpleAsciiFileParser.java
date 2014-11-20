@@ -9,8 +9,6 @@ import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.lang3.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -28,7 +26,7 @@ public class SimpleAsciiFileParser {
     private final static String REGEX = "[,]|\\s+";
 
     private int numLines;
-    private static Logger logger = LoggerFactory.getLogger(SimpleAsciiFileParser.class.getName());
+    //private static Logger logger = LoggerFactory.getLogger(SimpleAsciiFileParser.class.getName());
 
     public SimpleAsciiFileParser(final String fileName, final int numLines) throws IOException {
 

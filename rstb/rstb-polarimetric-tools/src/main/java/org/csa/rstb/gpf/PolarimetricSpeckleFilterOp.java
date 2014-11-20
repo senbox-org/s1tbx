@@ -1009,13 +1009,13 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         for (final Band band : sourceBands) {
             final String bandName = band.getName();
-            if (bandName.contains("11")) {
+            if (PolBandUtils.isBandForMatrixElement(bandName, "11")) {
                 sourceTiles[0] = getSourceTile(band, sourceTileRectangle);
-            } else if (bandName.contains("22")) {
+            } else if (PolBandUtils.isBandForMatrixElement(bandName, "22")) {
                 sourceTiles[1] = getSourceTile(band, sourceTileRectangle);
-            } else if (bandName.contains("33")) {
+            } else if (PolBandUtils.isBandForMatrixElement(bandName, "33")) {
                 sourceTiles[2] = getSourceTile(band, sourceTileRectangle);
-            } else if (bandName.contains("44")) {
+            } else if (PolBandUtils.isBandForMatrixElement(bandName, "44")) {
                 sourceTiles[3] = getSourceTile(band, sourceTileRectangle);
             }
         }
@@ -1564,23 +1564,23 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             for (final Band targetBand : bandList.targetBands) {
                 final String targetBandName = targetBand.getName();
                 final ProductData dataBuffer = targetTiles.get(targetBand).getDataBuffer();
-                if (targetBandName.contains("11") || targetBandName.contains("11_"))
+                if (PolBandUtils.isBandForMatrixElement(targetBandName, "11"))
                     targetDataBuffers[0] = dataBuffer;
-                else if (targetBandName.contains("12_real"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "12_real"))
                     targetDataBuffers[1] = dataBuffer;
-                else if (targetBandName.contains("12_imag"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "12_imag"))
                     targetDataBuffers[2] = dataBuffer;
-                else if (targetBandName.contains("13_real"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "13_real"))
                     targetDataBuffers[3] = dataBuffer;
-                else if (targetBandName.contains("13_imag"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "13_imag"))
                     targetDataBuffers[4] = dataBuffer;
-                else if (targetBandName.contains("22") || targetBandName.contains("22_"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "22"))
                     targetDataBuffers[5] = dataBuffer;
-                else if (targetBandName.contains("23_real"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "23_real"))
                     targetDataBuffers[6] = dataBuffer;
-                else if (targetBandName.contains("23_imag"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "23_imag"))
                     targetDataBuffers[7] = dataBuffer;
-                else if (targetBandName.contains("33") || targetBandName.contains("33_"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "33"))
                     targetDataBuffers[8] = dataBuffer;
             }
 
@@ -1981,23 +1981,23 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             for (final Band targetBand : bandList.targetBands) {
                 final String targetBandName = targetBand.getName();
                 final ProductData dataBuffer = targetTiles.get(targetBand).getDataBuffer();
-                if (targetBandName.contains("11") || targetBandName.contains("11_"))
+                if (PolBandUtils.isBandForMatrixElement(targetBandName, "11"))
                     targetDataBuffers[0] = dataBuffer;
-                else if (targetBandName.contains("12_real"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "12_real"))
                     targetDataBuffers[1] = dataBuffer;
-                else if (targetBandName.contains("12_imag"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "12_imag"))
                     targetDataBuffers[2] = dataBuffer;
-                else if (targetBandName.contains("13_real"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "13_real"))
                     targetDataBuffers[3] = dataBuffer;
-                else if (targetBandName.contains("13_imag"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "13_imag"))
                     targetDataBuffers[4] = dataBuffer;
-                else if (targetBandName.contains("22") || targetBandName.contains("22_"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "22"))
                     targetDataBuffers[5] = dataBuffer;
-                else if (targetBandName.contains("23_real"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "23_real"))
                     targetDataBuffers[6] = dataBuffer;
-                else if (targetBandName.contains("23_imag"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "23_imag"))
                     targetDataBuffers[7] = dataBuffer;
-                else if (targetBandName.contains("33") || targetBandName.contains("33_"))
+                else if (PolBandUtils.isBandForMatrixElement(targetBandName, "33"))
                     targetDataBuffers[8] = dataBuffer;
             }
 

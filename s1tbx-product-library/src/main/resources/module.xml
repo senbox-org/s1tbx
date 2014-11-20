@@ -48,17 +48,7 @@
     </extension>
 
     <extension point="snap-ui:actions">
-        <action>
-            <id>showProductLibrary</id>
-            <class>org.esa.nest.dat.actions.ShowProductLibraryAction</class>
-            <parent>file</parent>
-            <text>Product Library</text>
-            <placeAfter>open</placeAfter>
-            <shortDescr>Show Product Library Metadata Database</shortDescr>
-            <description>Show Product Library Metadata Database</description>
-            <smallIcon>/org/esa/nest/icons/product_library16.png</smallIcon>
-            <largeIcon>/org/esa/nest/icons/product_library24.png</largeIcon>
-        </action>
+
     </extension>
 
     <!--extension point="snap-ui:helpSets">

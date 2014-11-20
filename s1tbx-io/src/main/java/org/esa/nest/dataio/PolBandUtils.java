@@ -392,4 +392,10 @@ public class PolBandUtils {
         }
         return "single";
     }
+
+    public static boolean isBandForMatrixElement(final String bandName, final String elemPrefix) {
+
+        return bandName.length() > elemPrefix.length() &&
+                bandName.substring(1, elemPrefix.length()+1).equals(elemPrefix);
+    }
 }

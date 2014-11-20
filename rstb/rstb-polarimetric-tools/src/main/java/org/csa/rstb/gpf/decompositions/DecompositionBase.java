@@ -171,22 +171,19 @@ public class DecompositionBase {
      * Convert pixel value from linear scale to dB.
      *
      * @param p       The pixel value in linear scale.
-     * @param spanMin span min
-     * @param spanMax span max
      * @return The pixel value in dB.
      */
-    protected static double scaleDb(double p, final double spanMin, final double spanMax) {
+    protected static double scaleDb(double p) {
 
-        if (p < spanMin) {
-            p = spanMin;
+        if (p < PolOpUtils.EPS) {
+            p = PolOpUtils.EPS;
         }
 
-        if (p > spanMax) {
-            p = spanMax;
-        }
         return 10.0 * Math.log10(p);
     }
 
+    //todo span min/max checks in Freeman-Durden, van Zyl and Yamaguchi decompositions have been removed (see Francois'
+    //todo email dated Nov. 13, 2014 for details). Therefore, setSpanMinMax is not needed anymore.
     /**
      * Compute min/max values of the Span image.
      *

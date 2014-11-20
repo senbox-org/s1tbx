@@ -6,11 +6,9 @@ import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.jlinda.core.coregistration.estimation.utils.JamaUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.jlinda.core.coregistration.estimation.utils.SimpleAsciiFileParser;
 import org.jlinda.core.utils.PolyUtils;
 import org.perf4j.StopWatch;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 

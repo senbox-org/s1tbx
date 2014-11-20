@@ -13,7 +13,6 @@ import org.jlinda.core.utils.SarUtils;
 import org.junit.*;
 import org.junit.runners.MethodSorters;
 import org.perf4j.StopWatch;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.ByteOrder;

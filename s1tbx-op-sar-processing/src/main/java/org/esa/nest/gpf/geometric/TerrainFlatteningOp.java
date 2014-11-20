@@ -146,6 +146,7 @@ public final class TerrainFlatteningOp extends Operator {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfMapProjected();
+            validator.checkIfNotCalibrated();
 
             getMetadata();
 
@@ -291,6 +292,10 @@ public final class TerrainFlatteningOp extends Operator {
         for (int i = 0; i < sourceBands.length; i++) {
             final Band srcBand = sourceBands[i];
             final String srcBandName = srcBand.getName();
+            if (!srcBandName.contains("Beta")) {
+                throw new OperatorException("Please select beta0 bands only");
+            }
+
             final String unit = srcBand.getUnit();
             if (unit == null) {
                 throw new OperatorException("band " + srcBandName + " requires a unit");

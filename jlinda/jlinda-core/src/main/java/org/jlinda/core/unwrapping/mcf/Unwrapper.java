@@ -21,7 +21,6 @@ import org.jlinda.core.unwrapping.mcf.utils.JblasUtils;
 import org.jlinda.core.unwrapping.mcf.utils.SimulateData;
 import org.jlinda.core.unwrapping.mcf.utils.UnwrapUtils;
 import org.perf4j.StopWatch;
-import org.slf4j.LoggerFactory;
 
 import static cern.jet.math.Functions.bindArg2;
 import static org.jblas.DoubleMatrix.concatHorizontally;

@@ -5,7 +5,6 @@ import org.jlinda.core.Window;
 import org.jlinda.core.utils.MathUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
 
 import javax.media.jai.WarpGeneralPolynomial;
 import javax.media.jai.WarpPolynomial;

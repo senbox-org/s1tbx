@@ -18,7 +18,7 @@ package org.csa.rstb.dat.wizards.TerrainFlattenedClassification;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.nest.dat.wizards.AbstractInputPanel;
 import org.esa.nest.dat.wizards.WizardPanel;
-import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.InputProductValidator;
 
 /**
  * Input Panel
@@ -36,13 +36,12 @@ public class TerrainFlattenedWizardInputPanel extends AbstractInputPanel {
     public boolean validateInput() {
         if (!super.validateInput()) return false;
 
-        final Product product = sourcePanel.getSelectedSourceProduct();
-        if (!OperatorUtils.isQuadPol(product)) {
-            showErrorMsg("The product is not fully polarimetric.\nPlease select a Quad Pol SLC product");
-            return false;
-        }
-        if (!OperatorUtils.isComplex(product)) {
-            showErrorMsg("The product is not complex.\nPlease select a Quad Pol SLC product");
+        try {
+            final Product product = sourcePanel.getSelectedSourceProduct();
+            final InputProductValidator validator = new InputProductValidator(product);
+            validator.checkIfQuadPolSLC();
+        } catch (Exception e){
+            showErrorMsg("Invalid input product: "+e.getMessage());
             return false;
         }
         return true;

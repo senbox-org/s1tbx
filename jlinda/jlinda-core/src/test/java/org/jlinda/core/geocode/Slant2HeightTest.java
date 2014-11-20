@@ -6,7 +6,6 @@ import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.junit.*;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
