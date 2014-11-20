@@ -50,6 +50,7 @@
             <outputDirectory></outputDirectory>
             <includes>
                 <include>**/*.jnilib</include>
+				<include>**/*.jar</include>
             </includes>
             <fileMode>0755</fileMode>
             <directoryMode>0755</directoryMode>
