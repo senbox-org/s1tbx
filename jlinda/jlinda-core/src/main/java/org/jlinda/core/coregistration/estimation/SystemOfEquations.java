@@ -7,7 +7,6 @@ import org.jblas.DoubleMatrix;
 import org.jblas.FloatMatrix;
 import org.jblas.MatrixFunctions;
 import org.jlinda.core.utils.PolyUtils;
-import org.slf4j.LoggerFactory;
 
 import static org.jblas.MatrixFunctions.pow;
 

@@ -26,6 +26,7 @@
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-visat-rcp</artifactId>
         </dependency>
+
         <dependency>
             <groupId>gov.nasa</groupId>
             <artifactId>worldwind</artifactId>
@@ -34,10 +35,10 @@
 			<groupId>gov.nasa</groupId>
 			<artifactId>worldwindx</artifactId>
 		</dependency>
-		<dependency>
+        <dependency>
 			 <groupId>org.jogamp.gluegen</groupId>
 			 <artifactId>gluegen-rt-main</artifactId>
-		</dependency>			 
+		</dependency>
 		<dependency>
 			 <groupId>org.jogamp.jogl</groupId>
 			 <artifactId>jogl-all-main</artifactId>

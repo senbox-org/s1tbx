@@ -48,6 +48,7 @@
             <includes>
                 <include>**/*.exe</include>
                 <include>**/*.dll</include>
+				<include>**/*.jar</include>
             </includes>
         </fileSet>
 
@@ -107,6 +108,7 @@
 							<exclude>org.esa.s2tbx:s2tbx-commons</exclude>
                             <exclude>org.esa.s3tbx:s3tbx-merisl3-reader</exclude>
                             <exclude>org.jlinda:jlinda-core</exclude>
+							<exclude>org.jlinda:jlinda-nest</exclude>
                             <exclude>org.esa.pfa:pfa-core</exclude>
                             <exclude>org.esa.pfa:pfa-database</exclude>
                             <exclude>org.csa.rstb:rstb-polarimetric-tools</exclude>

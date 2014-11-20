@@ -15,19 +15,19 @@ Building S1TBX from the source
 	
 	git clone https://github.com/arraydev/snap-engine.git
 	
-4. Check out the nestmod branch in the snap-engine repositories
+4. For the stable release branch of the software, check out the snap-1.0.x branch in the repositories
 
 	CD into MY_PROJECTS/snap-engine
 	
-	git checkout nestmod
+	git checkout snap-1.0.x
+	
+	CD into MY_PROJECTS/s1tbx
+	
+	git checkout snap-1.0.x
 	
 5. CD into MY_PROJECTS/s1tbx and build S1TBX from source: 
 
 	mvn compile -P withbeam
-	
-	or 
-	
-	mvn package -P withbeam
 	
 6. Open the pom.xml file from within IntelliJ IDEA to import.
 7. Activate the maven profile withbeam

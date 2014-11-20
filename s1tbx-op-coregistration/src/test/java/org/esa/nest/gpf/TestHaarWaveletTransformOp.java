@@ -16,19 +16,17 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.Arrays;
 import junit.framework.TestCase;
-import static junit.framework.TestCase.assertTrue;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
 import org.junit.Rule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.Arrays;
 
 /**
  * Unit test for GCPSelectionOp.
@@ -39,7 +37,7 @@ public class TestHaarWaveletTransformOp extends TestCase {
     public final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
 
     private OperatorSpi spi;
-    final Logger logger = LoggerFactory.getLogger(TestHaarWaveletTransformOp.class);
+    //final Logger logger = LoggerFactory.getLogger(TestHaarWaveletTransformOp.class);
 
     @Override
     protected void setUp() throws Exception {

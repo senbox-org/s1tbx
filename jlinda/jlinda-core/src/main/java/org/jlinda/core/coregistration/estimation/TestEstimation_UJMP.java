@@ -9,7 +9,6 @@ import org.ejml.data.RowD1Matrix64F;
 import org.jlinda.core.coregistration.estimation.utils.SimpleAsciiFileParser;
 import org.jlinda.core.utils.PolyUtils;
 import org.perf4j.StopWatch;
-import org.slf4j.LoggerFactory;
 import org.ujmp.core.Matrix;
 import org.ujmp.core.MatrixFactory;
 import org.ujmp.core.calculation.Calculation;
