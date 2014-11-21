@@ -95,6 +95,10 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
             final double[][] Cr = new double[3][3];
             final double[][] Ci = new double[3][3];
 
+            if (!bandList.spanMinMaxSet) {
+                setSpanMinMax(op, bandList);
+            }
+
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
@@ -112,10 +116,14 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
                             sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                     final FDD data = getFreemanDurdenDecomposition(Cr, Ci);
+                    if (data.ps < PolOpUtils.EPS ||
+                            data.pd < PolOpUtils.EPS || data.pv < PolOpUtils.EPS) {
+                        System.out.println();
+                    }
 
-                    ps = scaleDb(data.ps);
-                    pd = scaleDb(data.pd);
-                    pv = scaleDb(data.pv);
+                    ps = scaleDb(data.ps, bandList.spanMin, bandList.spanMax);
+                    pd = scaleDb(data.pd, bandList.spanMin, bandList.spanMax);
+                    pv = scaleDb(data.pv, bandList.spanMin, bandList.spanMax);
 
                     // save Pd as red, Pv as green and Ps as blue
                     for (TargetInfo target : targetInfo) {
