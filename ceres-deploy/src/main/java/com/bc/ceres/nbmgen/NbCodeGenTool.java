@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * Usage:
  * <pre>
- *    NbmGenMain &lt;project-dir&gt; &lt;dry-run&gt;
+ *    NbmGenMain &lt;project-dir&gt; &lt;dry-run&gt; [&lt;output-dir&gt;]
  * </pre>
  * <p>
  * For NbCodeGenMain:
@@ -38,15 +38,17 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
         void convert(CeresModuleProject project, String point, Element extensionElement) throws IOException;
     }
 
-    File projectDir;
-    boolean dryRun;
+    final File projectDir;
+    final boolean dryRun;
+    final File outputDir;
 
     VelocityEngine velocityEngine;
     HashMap<String, Converter> converters;
 
-    public NbCodeGenTool(File projectDir, boolean dryRun) {
+    public NbCodeGenTool(File projectDir, boolean dryRun, File outputDir) {
         this.projectDir = projectDir;
         this.dryRun = dryRun;
+        this.outputDir = outputDir;
         velocityEngine = createVelocityEngine();
         converters = new HashMap<>();
         initConverters();
@@ -93,8 +95,9 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
 
         File projectDir = new File(args[0]);
         boolean dryRun = args[1].equals("true");
+        File outputDir = args.length > 2 ? new File(args[2]) : projectDir;
 
-        NbCodeGenTool processor = new NbCodeGenTool(projectDir, dryRun);
+        NbCodeGenTool processor = new NbCodeGenTool(projectDir, dryRun, outputDir);
 
         CeresModuleProject.processParentDir(projectDir, processor);
 
@@ -229,7 +232,7 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
 
             String classNameBase = NbCodeGenTool.this.getActionBaseName(actionClassName);
             String path = parent != null ? parentToPath.get(parent) : "Menu/Extras";
-            String packageName = "generated.org.esa.snap.gui.action";
+            String packageName = "org.esa.snap.gui.action";
             String category = "SNAP"; // todo
             String baseClassName = "AbstractAction";
             int position = 0;
@@ -308,7 +311,8 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
             velocityContext.put("classNameBase", classNameBase);
             velocityContext.put("baseClassName", baseClassName);
 
-            File javaFile = CeresModuleProject.getFile(projectDir, "src", "main", "java", packageName.replace('.', File.separatorChar), classNameBase + "Action.java");
+
+            File javaFile = CeresModuleProject.getFile(outputDir, project.projectDir.getName(), "src", "main", "java", packageName.replace('.', File.separatorChar), classNameBase + "Action.java");
 
             if (!dryRun) {
                 javaFile.getParentFile().mkdirs();
