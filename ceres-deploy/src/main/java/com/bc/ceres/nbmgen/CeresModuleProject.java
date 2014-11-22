@@ -23,7 +23,7 @@ class CeresModuleProject {
     final File pomFile;
     final Document pomDocument;
 
-    final File moduleDir;
+    final File moduleFile;
     final Document moduleDocument;
 
     interface Processor {
@@ -40,11 +40,11 @@ class CeresModuleProject {
         }
     }
 
-    private CeresModuleProject(File projectDir, File pomFile, Document pomDocument, File moduleDir, Document moduleDocument) {
+    private CeresModuleProject(File projectDir, File pomFile, Document pomDocument, File moduleFile, Document moduleDocument) {
         this.projectDir = projectDir;
         this.pomFile = pomFile;
         this.pomDocument = pomDocument;
-        this.moduleDir = moduleDir;
+        this.moduleFile = moduleFile;
         this.moduleDocument = moduleDocument;
     }
 
