@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,9 +56,7 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
     }
 
     private void initConverters() {
-        Converter NULL = (project, point, extensionElement) -> {
-            warnNotImplemented(point);
-        };
+        Converter NULL = (project, point, extensionElement) -> warnNotImplemented(point);
 
         converters.put("snap-ui:actions", new ActionConverter());
         converters.put("snap-ceres-core:applications", NULL);
@@ -106,6 +105,7 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void process(CeresModuleProject project) throws JDOMException, IOException {
 
@@ -186,7 +186,7 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
             parentToPath.put("exportOther", "Menu/File/Other Exports");
             parentToPath.put("edit", "Menu/Edit");
             parentToPath.put("view", "Menu/View");
-            parentToPath.put("tools", "Menu/Tools");  // ???
+            parentToPath.put("tools", "Toolbars/Tools");  // ???
             parentToPath.put("layoutToolViews", "Menu/View/Tool Window Layout");  // ???
             parentToPath.put("toolBars", "Menu/Tools/Toolbars");  // ???
             parentToPath.put("Graphs", "Menu/Graphs");  // ???
@@ -205,12 +205,13 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
             String separatorAfter = extensionElement.getChildTextTrim("separatorAfter");
             String separatorBefore = extensionElement.getChildTextTrim("separatorBefore");
             String actionClassName = extensionElement.getChildTextTrim("class");
-            String interactorClassName = extensionElement.getChildTextTrim("interactor");
-            String interceptorClassName = extensionElement.getChildTextTrim("interactorListener");
+            String interactor = extensionElement.getChildTextTrim("interactor");
+            String interactorListener = extensionElement.getChildTextTrim("interactorListener");
             String text = extensionElement.getChildTextTrim("text");
             String shortDescr = extensionElement.getChildTextTrim("shortDescr");
             String longDescr = extensionElement.getChildTextTrim("longDescr");
             String helpId = extensionElement.getChildTextTrim("helpId");
+            String accelerator = extensionElement.getChildTextTrim("accelerator");
             String mnemonic = extensionElement.getChildTextTrim("mnemonic");
             String context = extensionElement.getChildTextTrim("context");
             String popuptext = extensionElement.getChildTextTrim("popuptext");
@@ -235,22 +236,22 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
             String packageName = "org.esa.snap.gui.action";
             String category = "SNAP"; // todo
             String baseClassName = "AbstractAction";
-            int position = 0;
+            int position = 100;
 
             switch (actionClassName) {
                 case "org.esa.beam.visat.actions.ProductImportAction":
                     packageName += ".file.pimp";
                     classNameBase = "Import_" + formatName.replace('-', '_').replace(' ', '_').replace('.', '_').replace('/', '_') + "_";
                     baseClassName = packageName + ".ProductImportAction";
-                    // todo - do something with formatName
-                    // todo - do something with useAllFileFilter
+                    // check - do something with formatName
+                    // check - do something with useAllFileFilter
                     break;
                 case "org.esa.beam.visat.actions.ProductExportAction":
                     packageName += ".file.pexp";
                     classNameBase = "Export_" + formatName.replace('-', '_').replace(' ', '_').replace('.', '_').replace('/', '_') + "_";
                     baseClassName = packageName + ".ProductExportAction";
-                    // todo - do something with formatName
-                    // todo - do something with useAllFileFilter
+                    // check - do something with formatName
+                    // check - do something with useAllFileFilter
                     break;
                 case "org.esa.beam.visat.actions.DefaultOperatorAction":
                     packageName += ".op";
@@ -303,24 +304,62 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
             }
 
             VelocityContext velocityContext = new VelocityContext();
-            velocityContext.put("package", packageName);
-            velocityContext.put("path", path);
-            velocityContext.put("position", position);
-            velocityContext.put("text", text);
-            velocityContext.put("category", category);
-            velocityContext.put("classNameBase", classNameBase);
-            velocityContext.put("baseClassName", baseClassName);
+            addProperty(velocityContext, "package", packageName);
+            addProperty(velocityContext, "path", path);
+            addProperty(velocityContext, "position", position);
+            addProperty(velocityContext, "displayName", text);
+            addProperty(velocityContext, "icon", smallIcon != null ? smallIcon : largeIcon);
+            addProperty(velocityContext, "smallIcon", smallIcon);
+            addProperty(velocityContext, "largeIcon", largeIcon);
+            addProperty(velocityContext, "popupText", popuptext != null ? popuptext : text);
+            addProperty(velocityContext, "category", category);
+            addProperty(velocityContext, "classNameBase", classNameBase);
+            addProperty(velocityContext, "baseClassName", baseClassName);
+            addProperty(velocityContext, "separatorBefore", "true".equals(separatorBefore) ? position - 10 : null);
+            addProperty(velocityContext, "separatorAfter", "true".equals(separatorAfter) ? position + 10 : null);
+            addProperty(velocityContext, "shortDescription", shortDescr);
+            addProperty(velocityContext, "longDescription", longDescr);
+            addProperty(velocityContext, "selected", selected);
+            addProperty(velocityContext, "mnemonic", mnemonic);
+            addProperty(velocityContext, "accelerator", accelerator);
 
+            // Collect unused action properties
+            Map<String, String> unusedProperties = new LinkedHashMap<>();
+            addProperty(unusedProperties, "placeBefore", placeBefore);
+            addProperty(unusedProperties, "placeAfter", placeAfter);
+            addProperty(unusedProperties, "interactor", interactor);
+            addProperty(unusedProperties, "interactorListener", interactorListener);
+            addProperty(unusedProperties, "helpId", helpId);
+            addProperty(unusedProperties, "context", context);
+            addProperty(unusedProperties, "toggle", toggle);
+            addProperty(unusedProperties, "useAllFileFilter", useAllFileFilter);
+            addProperty(unusedProperties, "sortChildren", sortChildren);
+            addProperty(unusedProperties, "dialogTitle", dialogTitle);
+            addProperty(unusedProperties, "targetProductNameSuffix", targetProductNameSuffix);
+            addProperty(velocityContext, "properties", unusedProperties);
 
             File javaFile = CeresModuleProject.getFile(outputDir, project.projectDir.getName(), "src", "main", "java", packageName.replace('.', File.separatorChar), classNameBase + "Action.java");
 
             if (!dryRun) {
+                //noinspection ResultOfMethodCallIgnored
                 javaFile.getParentFile().mkdirs();
                 try (FileWriter writer = new FileWriter(javaFile)) {
                     NbCodeGenTool.this.evaluate(velocityContext, "Action.vm", writer);
                 }
             }
             infoModuleDetail("Written Java source: " + javaFile);
+        }
+
+        private void addProperty(VelocityContext properties, String key, Object value) {
+            if (value != null) {
+                properties.put(key, value);
+            }
+        }
+
+        private void addProperty(Map<String, String> properties, String key, String value) {
+            if (value != null) {
+                properties.put(key, value);
+            }
         }
     }
 }

@@ -1,3 +1,5 @@
+#set ($TRUE = "true")
+#set ($FALSE = "false")
 /*
  * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
@@ -23,25 +25,65 @@ import java.awt.event.ActionListener;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
+import org.openide.util.ImageUtilities;
 import org.openide.util.NbBundle.Messages;
 
 @ActionID(
-        category = "${category}",
-        id = "${package}.${classNameBase}Action"
+    category = "${category}",
+    id = "${package}.${classNameBase}Action"
 )
 @ActionRegistration(
-        displayName = "#CTL_${classNameBase}Action"
+    displayName = "#CTL_${classNameBase}ActionText",
+    popupText = "#CTL_${classNameBase}ActionPopupText",
+    iconBase = "${icon}"
 )
-@ActionReference(path = "${path}", position = ${position})
-@Messages("CTL_${classNameBase}Action=${text}")
+@ActionReference(
+    path = "${path}",
+    position = ${position},
+#if ($separatorBefore)
+    separatorBefore = $separatorBefore,
+#end
+#if ($separatorAfter)
+    separatorAfter = $separatorAfter,
+#end
+)
+@Messages({
+    "CTL_${classNameBase}ActionText=${displayName}",
+    "CTL_${classNameBase}ActionPopupText=${popupText}"
+})
 public class ${classNameBase}Action extends ${baseClassName} {
 
     public ${classNameBase}Action() {
-        //putValue(Action., ${YYY});
+#if ($selected == $TRUE || $selected == $FALSE)
+        putValue(Action.SELECTED_KEY, $selected);
+#end
+#if ($shortDescription)
+        putValue(Action.SHORT_DESCRIPTION, "$shortDescription");
+#end
+#if ($longDescription)
+        putValue(Action.LONG_DESCRIPTION, "$longDescription");
+#end
+#if ($smallIcon)
+        putValue(Action.SMALL_ICON, ImageUtilities.loadImageIcon("$smallIcon", false));
+#end
+#if ($largeIcon)
+        putValue(Action.LARGE_ICON_KEY, ImageUtilities.loadImageIcon("$largeIcon", false));
+#end
+#if ($mnemonic)
+        putValue(Action.MNEMONIC_KEY, (int) '${mnemonic}');
+#end
+#if ($accellerator)
+        putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("$accellerator"));
+#end
+
+        // TODO process following action properties correctly
+#foreach($property in $properties.entrySet())
+        putValue("$property.key", "$property.value");
+#end
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent actionEvent) {
         // TODO implement action body
     }
 }
