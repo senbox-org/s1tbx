@@ -460,15 +460,13 @@ public class ProductSceneView extends BasicView
     public JPopupMenu createPopupMenu(MouseEvent event) {
         JPopupMenu popupMenu = new JPopupMenu();
         addCopyPixelInfoToClipboardMenuItem(popupMenu);
-        getCommandUIFactory().addContextDependentMenuItems("image", popupMenu);
         CommandUIFactory commandUIFactory = getCommandUIFactory();
-        Placemark[] selectedPins = getSelectedPins();
-        if (selectedPins.length > 0) {
-            if (commandUIFactory != null) {
+        if (commandUIFactory != null) {
+            commandUIFactory.addContextDependentMenuItems("image", popupMenu);
+            Placemark[] selectedPins = getSelectedPins();
+            if (selectedPins.length > 0) {
                 commandUIFactory.addContextDependentMenuItems("pin", popupMenu);
             }
-        }
-        if (commandUIFactory != null) {
             commandUIFactory.addContextDependentMenuItems("subsetFromView", popupMenu);
         }
         return popupMenu;
