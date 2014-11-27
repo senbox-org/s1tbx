@@ -111,47 +111,21 @@ import java.util.Vector;
 /**
  * The class <code>ProductSceneView</code> is a high-level image display component for color index/RGB images created
  * from one or more raster datasets of a data product.
- * <p/>
+ * <p>
  * <p>It is also capable of displaying a graticule (geographical grid) and a ROI associated with a displayed raster
  * dataset.
  *
  * @author Norman Fomferra
- * @version $ Revision: $ $ Date: $
  */
 public class ProductSceneView extends BasicView
-        implements FigureEditorAware, ProductNodeView, PropertyMapChangeListener, PixelInfoFactory, ProductLayerContext,
-                   ViewportAware {
+        implements FigureEditorAware, ProductNodeView, PropertyMapChangeListener, PixelInfoFactory,
+        ProductLayerContext, ViewportAware {
 
     public static final String BASE_IMAGE_LAYER_ID = "org.esa.beam.layers.baseImage";
     public static final String NO_DATA_LAYER_ID = "org.esa.beam.layers.noData";
     public static final String VECTOR_DATA_LAYER_ID = VectorDataCollectionLayer.ID;
     public static final String MASKS_LAYER_ID = MaskCollectionLayer.ID;
     public static final String GRATICULE_LAYER_ID = "org.esa.beam.layers.graticule";
-    /**
-     * @deprecated since BEAM 4.7
-     */
-    @Deprecated
-    public static final String BITMASK_LAYER_ID = "org.esa.beam.layers.bitmask";
-    /**
-     * @deprecated since BEAM 4.7
-     */
-    @Deprecated
-    public static final String ROI_LAYER_ID = "org.esa.beam.layers.roi";
-    /**
-     * @deprecated since BEAM 4.7
-     */
-    @Deprecated
-    public static final String GCP_LAYER_ID = "org.esa.beam.layers.gcp";
-    /**
-     * @deprecated since BEAM 4.7
-     */
-    @Deprecated
-    public static final String PIN_LAYER_ID = "org.esa.beam.layers.pin";
-    /**
-     * @deprecated since BEAM 4.7
-     */
-    @Deprecated
-    public static final String FIGURE_LAYER_ID = "org.esa.beam.layers.figure";
 
     /**
      * Property name for the pixel border
@@ -161,10 +135,6 @@ public class ProductSceneView extends BasicView
      * Property name for antialiased graphics drawing
      */
     public static final String PROPERTY_KEY_GRAPHICS_ANTIALIASING = "graphics.antialiasing";
-    /**
-     * Property name for antialiased graphics drawing
-     */
-    public static final String PROPERTY_KEY_IMAGE_INTERPOLATION = "image.interpolation";
     /**
      * Name of property which switches display of af a navigataion control in the image view.
      */
@@ -190,7 +160,6 @@ public class ProductSceneView extends BasicView
     public static final String PROPERTY_NAME_SELECTED_PIN = "selectedPin";
 
     public static final Color DEFAULT_IMAGE_BACKGROUND_COLOR = new Color(51, 51, 51);
-    public static final int DEFAULT_IMAGE_VIEW_BORDER_SIZE = 64;
 
 
     private ProductSceneImage sceneImage;
@@ -247,7 +216,7 @@ public class ProductSceneView extends BasicView
         this.sceneImage = sceneImage;
         this.baseImageLayer = sceneImage.getBaseImageLayer();
         this.pixelBorderViewScale = 2.0;
-        this.pixelPositionListeners = new Vector<PixelPositionListener>();
+        this.pixelPositionListeners = new Vector<>();
 
         undoContext = new DefaultUndoContext(this, undoManager);
 
@@ -272,12 +241,9 @@ public class ProductSceneView extends BasicView
         this.layerCanvas.setAntialiasing(
                 sceneImage.getConfiguration().getPropertyBool(PROPERTY_KEY_GRAPHICS_ANTIALIASING, true));
         this.layerCanvas.setPreferredSize(new Dimension(400, 400));
-        this.layerCanvas.addOverlay(new LayerCanvas.Overlay() {
-            @Override
-            public void paintOverlay(LayerCanvas canvas, Rendering rendering) {
-                figureEditor.drawFigureSelection(rendering);
-                figureEditor.drawSelectionRectangle(rendering);
-            }
+        this.layerCanvas.addOverlay((canvas, rendering) -> {
+            figureEditor.drawFigureSelection(rendering);
+            figureEditor.drawSelectionRectangle(rendering);
         });
 
         figureEditor = new VectorDataFigureEditor(this);
@@ -353,7 +319,6 @@ public class ProductSceneView extends BasicView
      * Gets the current selection context, if any.
      *
      * @return The current selection context, or {@code null} if none exists.
-     *
      * @since BEAM 4.7
      */
     @Override
@@ -410,7 +375,6 @@ public class ProductSceneView extends BasicView
      *
      * @param pixelX the pixel X co-ordinate
      * @param pixelY the pixel Y co-ordinate
-     *
      * @return the info string at the given position
      */
     @Override
@@ -434,7 +398,6 @@ public class ProductSceneView extends BasicView
      * otherwise defer to the component's layout manager.
      *
      * @return the value of the <code>preferredSize</code> property
-     *
      * @see #setPreferredSize
      * @see javax.swing.plaf.ComponentUI
      */
@@ -475,10 +438,10 @@ public class ProductSceneView extends BasicView
     /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
-     * <p/>
+     * <p>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-     * <p/>
+     * <p>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
     @Override
@@ -501,12 +464,7 @@ public class ProductSceneView extends BasicView
 
         if (getLayerCanvas() != null) {
             // ensure that imageDisplay.dispose() is run in the EDT
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    disposeImageDisplayComponent();
-                }
-            });
+            SwingUtilities.invokeLater(this::disposeImageDisplayComponent);
         }
 
         super.dispose();
@@ -539,7 +497,7 @@ public class ProductSceneView extends BasicView
      * Gets the number of raster datasets.
      *
      * @return the number of raster datasets, always <code>1</code> for single banded palette images or <code>3</code>
-     *         for RGB images
+     * for RGB images
      */
     public int getNumRasters() {
         return getSceneImage().getRasters().length;
@@ -549,7 +507,6 @@ public class ProductSceneView extends BasicView
      * Gets the product raster with the specified index.
      *
      * @param index the zero-based product raster index
-     *
      * @return the product raster with the given index
      */
     public RasterDataNode getRaster(int index) {
@@ -647,7 +604,6 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param vectorDataNodes The vector data nodes whose layer shall be made visible.
-     *
      * @since BEAM 4.10
      */
     public void setLayersVisible(VectorDataNode... vectorDataNodes) {
@@ -697,10 +653,6 @@ public class ProductSceneView extends BasicView
             }
         }
         return null;
-    }
-
-    public boolean areScrollBarsShown() {
-        return scrollBarsShown;
     }
 
     public void setScrollBarsShown(boolean scrollBarsShown) {
@@ -796,9 +748,7 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param vectorDataNode The vector data node, whose layer shall be selected.
-     *
      * @return The layer, or {@code null}.
-     *
      * @since BEAM 4.7
      */
     public VectorDataLayer selectVectorDataLayer(VectorDataNode vectorDataNode) {
@@ -814,9 +764,7 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param pin The pins to test.
-     *
      * @return {@code true}, if the pin is selected.
-     *
      * @since BEAM 4.7
      */
     public boolean isPinSelected(Placemark pin) {
@@ -825,9 +773,7 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param gcp The ground control point to test.
-     *
      * @return {@code true}, if the ground control point is selected.
-     *
      * @since BEAM 4.7
      */
     public boolean isGcpSelected(Placemark gcp) {
@@ -836,7 +782,6 @@ public class ProductSceneView extends BasicView
 
     /**
      * @return The (first) selected pin.
-     *
      * @since BEAM 4.7
      */
     public Placemark getSelectedPin() {
@@ -845,7 +790,6 @@ public class ProductSceneView extends BasicView
 
     /**
      * @return The selected pins.
-     *
      * @since BEAM 4.7
      */
     public Placemark[] getSelectedPins() {
@@ -854,7 +798,6 @@ public class ProductSceneView extends BasicView
 
     /**
      * @return The selected ground control points.
-     *
      * @since BEAM 4.7
      */
     public Placemark[] getSelectedGcps() {
@@ -863,7 +806,6 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param pins The selected pins.
-     *
      * @since BEAM 4.7
      */
     public void selectPins(Placemark[] pins) {
@@ -872,7 +814,6 @@ public class ProductSceneView extends BasicView
 
     /**
      * @param gpcs The selected ground control points.
-     *
      * @since BEAM 4.7
      */
     public void selectGcps(Placemark[] gpcs) {
@@ -881,7 +822,6 @@ public class ProductSceneView extends BasicView
 
     /**
      * @return The (first) selected feature figure.
-     *
      * @since BEAM 4.7
      */
     public SimpleFeatureFigure getSelectedFeatureFigure() {
@@ -896,12 +836,11 @@ public class ProductSceneView extends BasicView
 
     /**
      * @return The selected feature figures.
-     *
      * @since BEAM 4.7
      * @deprecated since BEAM 4.10, use {@link #getFeatureFigures(boolean)} instead
      */
     public SimpleFeatureFigure[] getSelectedFeatureFigures() {
-        ArrayList<SimpleFeatureFigure> selectedFigures = new ArrayList<SimpleFeatureFigure>();
+        ArrayList<SimpleFeatureFigure> selectedFigures = new ArrayList<>();
         collectFeatureFigures(figureEditor.getFigureSelection(), selectedFigures);
         return selectedFigures.toArray(new SimpleFeatureFigure[selectedFigures.size()]);
     }
@@ -910,13 +849,11 @@ public class ProductSceneView extends BasicView
      * Gets either the selected figures, or all the figures of the currently selected layer.
      *
      * @param selectedOnly If {@code true}, only selected figures are returned.
-     *
      * @return The feature figures or an empty array.
-     *
      * @since BEAM 4.10
      */
     public SimpleFeatureFigure[] getFeatureFigures(boolean selectedOnly) {
-        ArrayList<SimpleFeatureFigure> selectedFigures = new ArrayList<SimpleFeatureFigure>();
+        ArrayList<SimpleFeatureFigure> selectedFigures = new ArrayList<>();
         collectFeatureFigures(figureEditor.getFigureSelection(), selectedFigures);
         if (selectedFigures.isEmpty()
             && !selectedOnly
@@ -941,8 +878,8 @@ public class ProductSceneView extends BasicView
         if (layer != null) {
             FigureCollection figureCollection = layer.getFigureCollection();
             Figure[] figures = figureCollection.getFigures();
-            ArrayList<SimpleFeatureFigure> selectedFigures = new ArrayList<SimpleFeatureFigure>(figures.length);
-            HashSet<Placemark> placemarkSet = new HashSet<Placemark>(Arrays.asList(placemarks));
+            ArrayList<SimpleFeatureFigure> selectedFigures = new ArrayList<>(figures.length);
+            HashSet<Placemark> placemarkSet = new HashSet<>(Arrays.asList(placemarks));
             for (Figure figure : figures) {
                 if (figure instanceof SimpleFeatureFigure) {
                     SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) figure;
@@ -992,7 +929,7 @@ public class ProductSceneView extends BasicView
 
     private Placemark[] getSelectedPlacemarks(PlacemarkGroup placemarkGroup) {
         Figure[] figures = figureEditor.getFigureSelection().getFigures();
-        ArrayList<Placemark> selectedPlacemarks = new ArrayList<Placemark>(figures.length);
+        ArrayList<Placemark> selectedPlacemarks = new ArrayList<>(figures.length);
         for (Figure figure : figures) {
             if (figure instanceof SimpleFeatureFigure) {
                 SimpleFeatureFigure featureFigure = (SimpleFeatureFigure) figure;
@@ -1078,14 +1015,6 @@ public class ProductSceneView extends BasicView
         }
     }
 
-    /**
-     * @deprecated since BEAM 4.10
-     */
-    @Deprecated
-    public void synchronizeViewport(ProductSceneView otherView) {
-        synchronizeViewportIfPossible(otherView);
-    }
-
     public boolean synchronizeViewportIfPossible(ProductSceneView thatView) {
         final RasterDataNode thisRaster = getRaster();
         final RasterDataNode thatRaster = thatView.getRaster();
@@ -1145,7 +1074,7 @@ public class ProductSceneView extends BasicView
         final ImageLayer noDataLayer = (ImageLayer) getNoDataLayer(false);
         if (noDataLayer != null) {
             if (expression != null) {
-                final Color color = (Color) noDataLayer.getConfiguration().getValue(
+                final Color color = noDataLayer.getConfiguration().getValue(
                         NoDataLayerType.PROPERTY_NAME_COLOR);
                 final MultiLevelSource multiLevelSource = MaskImageMultiLevelSource.create(getRaster().getProduct(),
                                                                                            color, expression, true,
@@ -1160,13 +1089,7 @@ public class ProductSceneView extends BasicView
     private void addCopyPixelInfoToClipboardMenuItem(JPopupMenu popupMenu) {
         JMenuItem menuItem = new JMenuItem("Copy Pixel-Info to Clipboard");
         menuItem.setMnemonic('C');
-        menuItem.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                copyPixelInfoStringToClipboard();
-            }
-        });
+        menuItem.addActionListener(e -> copyPixelInfoStringToClipboard());
         popupMenu.add(menuItem);
         popupMenu.addSeparator();
     }
