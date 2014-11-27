@@ -91,8 +91,17 @@ public final class DialogUtils {
         panel.add(new JPanel(), gbc);
     }
 
+    public static JButton createIconButton(final String name, final String text, final ImageIcon icon, final boolean toggle) {
+        return createButton(name, text, icon, null, ButtonStyle.Icon, toggle);
+    }
+
     public static JButton createButton(final String name, final String text, final ImageIcon icon, final JPanel panel,
                                        final ButtonStyle style) {
+        return createButton(name, text, icon, panel, style, false);
+    }
+
+    public static JButton createButton(final String name, final String text, final ImageIcon icon, final JPanel panel,
+                                       final ButtonStyle style, final boolean toggle) {
         final JButton button;
         if(icon == null || style == ButtonStyle.TextAndIcon) {
             button = new JButton();
@@ -100,11 +109,13 @@ public final class DialogUtils {
         } else if(style == ButtonStyle.FramedButton) {
             button = new JButton();
         } else {
-            button = (JButton) ToolButtonFactory.createButton(icon, false);
+            button = (JButton) ToolButtonFactory.createButton(icon, toggle);
         }
         button.setName(name);
         button.setIcon(icon);
-        button.setBackground(panel.getBackground());
+        if(panel != null) {
+            button.setBackground(panel.getBackground());
+        }
         button.setToolTipText(text);
         button.setActionCommand(name);
         return button;
