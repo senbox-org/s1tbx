@@ -210,7 +210,7 @@ public class CalibrationOpUI extends BaseOperatorUI {
                 outputDNBandCheckBox.setVisible(false);
 
 //                if (mission.equals("RS2") || mission.contains("TSX") || mission.contains("ALOS")) {
-                if (mission.equals("RS2") && sampleType.equals("COMPLEX")) {
+                if ((mission.equals("RS2") || mission.contains("ALOS")) && sampleType.equals("COMPLEX")) {
 
                     saveInComplexCheckBox.setEnabled(true);
                     saveInComplexCheckBox.setSelected(false);
