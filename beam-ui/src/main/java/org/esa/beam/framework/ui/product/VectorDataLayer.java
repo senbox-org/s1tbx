@@ -43,6 +43,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A layer for vector data nodes.
+ *
+ * @author Norman Fomferra
+ */
 public class VectorDataLayer extends Layer {
 
     private static final VectorDataLayerType TYPE = LayerTypeRegistry.getLayerType(VectorDataLayerType.class);
@@ -168,7 +173,7 @@ public class VectorDataLayer extends Layer {
                 } else if (VectorDataNode.PROPERTY_NAME_FEATURE_COLLECTION.equals(event.getPropertyName())) {
                     if (!reactingAgainstFigureChange) {
                         updateFigureCollection();
-                        // todo - compute changed modelRegion instead of passing null (nf)
+                        // checkme - we could do better by computing changed modelRegion instead of passing null (nf)
                         fireLayerDataChanged(null);
                     }
                 }
@@ -199,7 +204,7 @@ public class VectorDataLayer extends Layer {
                                         ", featureType=" + simpleFeature.getFeatureType().getTypeName());
                     reactingAgainstFigureChange = true;
                     vectorDataNode.fireFeaturesChanged(simpleFeature);
-                    // todo - compute changed modelRegion instead of passing null (nf)
+                    // checkme - we could do better by computing changed modelRegion instead of passing null (nf)
                     fireLayerDataChanged(null);
                 } finally {
                     reactingAgainstFigureChange = false;
