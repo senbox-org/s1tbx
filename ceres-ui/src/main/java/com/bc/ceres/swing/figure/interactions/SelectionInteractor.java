@@ -32,8 +32,11 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
-// todo - this Interactor should not be restricted to figure contexts, is the inner Tool interface the solution?
-
+/**
+ * Interactor for selecting and moving figures and figure points.
+ *
+ * @author Norman Fomferra
+ */
 public class SelectionInteractor extends FigureEditorInteractor {
 
     private final Tool selectPointTool = createSelectPointTool();
@@ -191,7 +194,6 @@ public class SelectionInteractor extends FigureEditorInteractor {
         return false;
     }
 
-    // todo - Tool is a helper, it may later be replaced by an Interactor delegate
     protected interface Tool {
         void start(MouseEvent event);
 
@@ -255,7 +257,7 @@ public class SelectionInteractor extends FigureEditorInteractor {
             // Handle selection no longer required
             FigureEditor figureEditor = getFigureEditor(event);
             figureEditor.getFigureSelection().setSelectedHandle(null);
-            figureEditor.changeFigure(figureEditor.getFigureSelection(), figureMemento, "Change figure shape");
+            figureEditor.changeFigure(figureEditor.getFigureSelection(), figureMemento, "Change Figure Shape");
          }
 
         private void maybeAddSegment(MouseEvent event) {
