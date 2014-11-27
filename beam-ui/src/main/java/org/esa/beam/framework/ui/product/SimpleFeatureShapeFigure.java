@@ -31,6 +31,11 @@ import org.opengis.feature.simple.SimpleFeature;
 
 import java.awt.Shape;
 
+/**
+ * A figure representing shape features.
+ *
+ * @author Norman Fomferra
+ */
 public class SimpleFeatureShapeFigure extends AbstractShapeFigure implements SimpleFeatureFigure {
 
     private final SimpleFeature simpleFeature;
@@ -46,6 +51,18 @@ public class SimpleFeatureShapeFigure extends AbstractShapeFigure implements Sim
         this.simpleFeature = simpleFeature;
         this.geometryType = simpleFeature.getDefaultGeometry().getClass();
         this.geometryShape = null;
+    }
+
+    @Override
+    public Object createMemento() {
+        return getGeometry().clone();
+    }
+
+    @Override
+    public void setMemento(Object memento) {
+        simpleFeature.setDefaultGeometry(memento);
+        forceRegeneration();
+        fireFigureChanged();
     }
 
     @Override

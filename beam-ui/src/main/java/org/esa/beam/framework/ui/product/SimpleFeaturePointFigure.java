@@ -42,6 +42,11 @@ import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
 
 
+/**
+ * A figure representing point features.
+ *
+ * @author Norman Fomferra
+ */
 public class SimpleFeaturePointFigure extends AbstractPointFigure implements SimpleFeatureFigure {
 
     private static final Font labelFont = new Font("Helvetica", Font.BOLD, 14);
@@ -81,6 +86,20 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
         }
         geometry = (Point) o;
         setSelectable(true);
+    }
+
+    @Override
+    public Object createMemento() {
+        return getGeometry().clone();
+    }
+
+    @Override
+    public void setMemento(Object memento) {
+        Point point = (Point) memento;
+        simpleFeature.setDefaultGeometry(point);
+        geometry = point;
+        forceRegeneration();
+        fireFigureChanged();
     }
 
     @Override
