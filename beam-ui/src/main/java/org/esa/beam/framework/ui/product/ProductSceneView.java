@@ -80,6 +80,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputListener;
+import javax.swing.undo.UndoManager;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -230,6 +231,10 @@ public class ProductSceneView extends BasicView
     private VectorDataFigureEditor figureEditor;
 
     public ProductSceneView(ProductSceneImage sceneImage) {
+        this(sceneImage, new UndoManager());
+    }
+
+    public ProductSceneView(ProductSceneImage sceneImage, UndoManager undoManager) {
         Assert.notNull(sceneImage, "sceneImage");
 
         setOpaque(true);
@@ -244,8 +249,7 @@ public class ProductSceneView extends BasicView
         this.pixelBorderViewScale = 2.0;
         this.pixelPositionListeners = new Vector<PixelPositionListener>();
 
-        // todo - use global application undo context
-        undoContext = new DefaultUndoContext(this);
+        undoContext = new DefaultUndoContext(this, undoManager);
 
         DefaultViewport viewport = new DefaultViewport(isModelYAxisDown(baseImageLayer));
 
