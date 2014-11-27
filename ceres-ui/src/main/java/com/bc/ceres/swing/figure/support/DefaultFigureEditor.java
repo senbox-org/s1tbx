@@ -50,6 +50,12 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
+/**
+ * A default implementation of a figure editor.
+ *
+ * @author Norman Fomferra
+ * @since Ceres 0.10
+ */
 public class DefaultFigureEditor extends ExtensibleObject implements FigureEditor {
 
     private final UndoContext undoContext;
@@ -107,23 +113,28 @@ public class DefaultFigureEditor extends ExtensibleObject implements FigureEdito
     }
 
     @Override
+    public UndoContext getUndoContext() {
+        return undoContext;
+    }
+
+    @Override
     public JComponent getEditorComponent() {
         return editorComponent;
     }
 
     @Override
     public void insertFigures(boolean performInsert, Figure... figures) {
-        undoContext.postEdit(new FigureInsertEdit(this, performInsert, figures));
+        getUndoContext().postEdit(new FigureInsertEdit(this, performInsert, figures));
     }
 
     @Override
     public void deleteFigures(boolean performDelete, Figure... figures) {
-        undoContext.postEdit(new FigureDeleteEdit(this, performDelete, figures));
+        getUndoContext().postEdit(new FigureDeleteEdit(this, performDelete, figures));
     }
 
     @Override
     public void changeFigure(Figure figure, Object figureMemento, String presentationName) {
-        undoContext.postEdit(new RestorableEdit(figure, figureMemento, presentationName));
+        getUndoContext().postEdit(new RestorableEdit(figure, figureMemento, presentationName));
     }
 
     @Override

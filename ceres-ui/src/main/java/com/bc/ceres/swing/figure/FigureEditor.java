@@ -18,6 +18,7 @@ package com.bc.ceres.swing.figure;
 
 import com.bc.ceres.grender.ViewportAware;
 import com.bc.ceres.swing.selection.SelectionContext;
+import com.bc.ceres.swing.undo.UndoContext;
 
 import javax.swing.JComponent;
 import java.awt.Rectangle;
@@ -30,6 +31,9 @@ import java.awt.Rectangle;
  * @since Ceres 0.10
  */
 public interface FigureEditor extends InteractorAware, ViewportAware, SelectionContext {
+
+    UndoContext getUndoContext();
+
     FigureFactory getFigureFactory();
 
     JComponent getEditorComponent();
