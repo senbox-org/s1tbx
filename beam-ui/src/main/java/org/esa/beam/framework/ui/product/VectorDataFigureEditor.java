@@ -19,14 +19,23 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.support.DefaultFigureEditor;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
+import com.bc.ceres.swing.figure.support.FigureDeleteEdit;
+import com.bc.ceres.swing.figure.support.FigureInsertEdit;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.Debug;
 import org.opengis.feature.simple.SimpleFeature;
 
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
 import java.util.Arrays;
 import java.util.List;
 
 
+/**
+ * A figure editor for vector data nodes.
+ *
+ * @author Norman Fomferra
+ */
 public class VectorDataFigureEditor extends DefaultFigureEditor {
 
     private final ProductSceneView productSceneView;
@@ -66,22 +75,50 @@ public class VectorDataFigureEditor extends DefaultFigureEditor {
     @Override
     public void insertFigures(boolean performInsert, Figure... figures) {
         Debug.trace("VectorDataFigureEditor.insertFigures " + performInsert + ", " + figures.length);
-        super.insertFigures(performInsert, figures);
         if (vectorDataNode != null) {
-            vectorDataNode.getFeatureCollection().addAll(toSimpleFeatureList(figures));
+            List<SimpleFeature> simpleFeatures = toSimpleFeatureList(figures);
+            vectorDataNode.getFeatureCollection().addAll(simpleFeatures);
+            getUndoContext().postEdit(new FigureInsertEdit(this, performInsert, figures) {
+                @Override
+                public void undo() throws CannotUndoException {
+                    super.undo();
+                    vectorDataNode.getFeatureCollection().removeAll(simpleFeatures);
+                }
+
+                @Override
+                public void redo() throws CannotRedoException {
+                    super.redo();
+                    vectorDataNode.getFeatureCollection().addAll(simpleFeatures);
+                }
+            });
         } else {
             // warn
+            super.insertFigures(performInsert, figures);
         }
     }
 
     @Override
     public void deleteFigures(boolean performDelete, Figure... figures) {
         Debug.trace("VectorDataFigureEditor.deleteFigures " + performDelete + ", " + figures.length);
-        super.deleteFigures(performDelete, figures);
         if (vectorDataNode != null) {
-            vectorDataNode.getFeatureCollection().removeAll(toSimpleFeatureList(figures));
+            List<SimpleFeature> simpleFeatures = toSimpleFeatureList(figures);
+            vectorDataNode.getFeatureCollection().removeAll(simpleFeatures);
+            getUndoContext().postEdit(new FigureDeleteEdit(this, performDelete, figures) {
+                @Override
+                public void undo() throws CannotUndoException {
+                    super.undo();
+                    vectorDataNode.getFeatureCollection().addAll(simpleFeatures);
+                }
+
+                @Override
+                public void redo() throws CannotRedoException {
+                    super.redo();
+                    vectorDataNode.getFeatureCollection().removeAll(simpleFeatures);
+                }
+            });
         } else {
             // warn
+            super.deleteFigures(performDelete, figures);
         }
     }
 
