@@ -869,6 +869,9 @@
                         <cluster>snap</cluster>
                         <defaultCluster>snap</defaultCluster>
                         <requiresRestart>true</requiresRestart>
+                        <keystore>..\snap-desktop\snap-gui\src\main\resources\keystore\snap.ks</keystore>
+                        <keystorealias>snap</keystorealias>
+                        <keystorepassword>snap-123</keystorepassword>
                     </configuration>
                 </plugin>
 
