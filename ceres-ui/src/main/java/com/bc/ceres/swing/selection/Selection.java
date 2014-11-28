@@ -44,6 +44,11 @@ public interface Selection extends ClipboardOwner, Cloneable, Extensible {
         public String toString() {
             return "Selection.EMPTY";
         }
+
+        @Override
+        public AbstractSelection clone() {
+            return (AbstractSelection) EMPTY;
+        }
     };
 
     /**
@@ -75,8 +80,6 @@ public interface Selection extends ClipboardOwner, Cloneable, Extensible {
      */
     Object[] getSelectedValues();
 
-    // todo - it may turn out that a Selection IS-A Transferable, and that consequently ...
-    // todo - ... Selections are cloned before transferred, e.g. to the Clipboard
     /**
      * Creates a transferable representation of this selection.
      *
