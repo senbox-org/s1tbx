@@ -46,6 +46,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -207,18 +208,18 @@ public class DefaultFigureEditor extends ExtensibleObject implements FigureEdito
 
     @Override
     public void setSelection(Selection selection) {
-        HashSet<Object> set = new HashSet<>(Arrays.asList(selection.getSelectedValues()));
-        Figure[] figures = figureSelection.getFigures();
-        for (Figure figure : figures) {
-            if (!set.contains(figure)) {
-                figureSelection.removeFigure(figure);
+        Object[] selectedValues = selection.getSelectedValues();
+        ArrayList<Figure> selectedFigures = new ArrayList<>();
+        for (Object selectedValue : selectedValues) {
+            if (selectedValue instanceof Figure) {
+                Figure selectedFigure = (Figure) selectedValue;
+                if (figureCollection.contains(selectedFigure)) {
+                    selectedFigures.add(selectedFigure);
+                }
             }
         }
-        set.stream().filter(o -> o instanceof Figure).forEach(o -> {
-            Figure figure = (Figure) o;
-            figureSelection.addFigure(figure);
-        });
-        figureSelection.setSelectionStage(0);
+        figureSelection.removeAllFigures();
+        figureSelection.addFigures(selectedFigures.toArray(new Figure[selectedFigures.size()]));
     }
 
     @Override
