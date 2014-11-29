@@ -41,10 +41,7 @@ import com.bc.ceres.swing.undo.UndoContext;
 import com.bc.ceres.swing.undo.support.DefaultUndoContext;
 
 import javax.swing.JComponent;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.geom.Rectangle2D;
@@ -160,7 +157,7 @@ public class DefaultFigureEditor extends ExtensibleObject implements FigureEdito
             selectionRectangle = newRect;
             repaintRect = newRect;
         } else if (newRect == null) {
-            selectionRectangle = newRect;
+            selectionRectangle = null;
             getEditorComponent().repaint(oldRect);
             repaintRect = oldRect;
         } else if (!oldRect.equals(newRect)) {
@@ -291,8 +288,10 @@ public class DefaultFigureEditor extends ExtensibleObject implements FigureEdito
             this.interactor = interactor;
             if (this.interactor != null) {
                 this.interactor.activate();
+                getEditorComponent().setCursor(interactor.getCursor());
+            } else {
+                getEditorComponent().setCursor(Cursor.getDefaultCursor());
             }
-            getEditorComponent().setCursor(interactor.getCursor());
         }
     }
 
