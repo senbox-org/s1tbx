@@ -49,6 +49,8 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * A default implementation of a figure editor.
@@ -208,7 +210,18 @@ public class DefaultFigureEditor extends ExtensibleObject implements FigureEdito
 
     @Override
     public void setSelection(Selection selection) {
-        // todo - implement (select all figures that are equal to the ones in selection)
+        HashSet<Object> set = new HashSet<>(Arrays.asList(selection.getSelectedValues()));
+        Figure[] figures = figureSelection.getFigures();
+        for (Figure figure : figures) {
+            if (!set.contains(figure)) {
+                figureSelection.removeFigure(figure);
+            }
+        }
+        set.stream().filter(o -> o instanceof Figure).forEach(o -> {
+            Figure figure = (Figure) o;
+            figureSelection.addFigure(figure);
+        });
+        figureSelection.setSelectionStage(0);
     }
 
     @Override
