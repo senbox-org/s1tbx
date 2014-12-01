@@ -29,6 +29,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import org.esa.beam.framework.datamodel.Placemark;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 
 import java.awt.BasicStroke;
@@ -60,7 +61,7 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
             "Label",
     };
 
-    private final SimpleFeature simpleFeature;
+    private SimpleFeature simpleFeature;
     private Point geometry;
 
     static {
@@ -143,6 +144,17 @@ public class SimpleFeaturePointFigure extends AbstractPointFigure implements Sim
     @Override
     public double getRadius() {
         return 1E-10; // = any small, non-zero value will be ok
+    }
+
+    @Override
+    public Object clone() {
+        SimpleFeaturePointFigure clone = (SimpleFeaturePointFigure) super.clone();
+        SimpleFeatureBuilder builder = new SimpleFeatureBuilder(simpleFeature.getFeatureType());
+        builder.init(simpleFeature);
+        clone.simpleFeature = builder.buildFeature(null);
+        clone.simpleFeature.setDefaultGeometry(getGeometry().clone());
+        clone.geometry = (Point) clone.simpleFeature.getDefaultGeometry();
+        return clone;
     }
 
     @Override

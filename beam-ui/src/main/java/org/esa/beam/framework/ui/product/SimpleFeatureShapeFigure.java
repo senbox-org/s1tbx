@@ -26,6 +26,7 @@ import com.vividsolutions.jts.geom.Polygonal;
 import com.vividsolutions.jts.geom.Puntal;
 import org.esa.beam.util.AwtGeomToJtsGeomConverter;
 import org.esa.beam.util.Debug;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.LiteShape2;
 import org.opengis.feature.simple.SimpleFeature;
 
@@ -38,7 +39,7 @@ import java.awt.Shape;
  */
 public class SimpleFeatureShapeFigure extends AbstractShapeFigure implements SimpleFeatureFigure {
 
-    private final SimpleFeature simpleFeature;
+    private SimpleFeature simpleFeature;
     private Shape geometryShape;
     private final Class<?> geometryType;
 
@@ -115,6 +116,17 @@ public class SimpleFeatureShapeFigure extends AbstractShapeFigure implements Sim
             geometry = converter.createMultiLineString(shape);
         }
         setGeometry(geometry);
+    }
+
+    @Override
+    public Object clone() {
+        SimpleFeatureShapeFigure clone = (SimpleFeatureShapeFigure) super.clone();
+        SimpleFeatureBuilder builder = new SimpleFeatureBuilder(simpleFeature.getFeatureType());
+        builder.init(simpleFeature);
+        clone.simpleFeature = builder.buildFeature(null);
+        clone.simpleFeature.setDefaultGeometry(getGeometry().clone());
+        clone.geometryShape = null;
+        return clone;
     }
 
     static Rank getRank(SimpleFeature simpleFeature) {
