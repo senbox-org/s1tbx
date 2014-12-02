@@ -160,6 +160,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
             final double[][] T4r = new double[4][4];
             final double[][] T4i = new double[4][4];
 
+            final TileIndex tgtIndex = new TileIndex(targetTiles.get(getTargetProduct().getBandAt(0)));
             for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
 
                 final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
@@ -168,32 +169,66 @@ public final class OrientationAngleCorrectionOp extends Operator {
                     sourceTiles[i] = getSourceTile(bandList.srcBands[i], targetRectangle);
                     dataBuffers[i] = sourceTiles[i].getDataBuffer();
                 }
-                final TileIndex trgIndex = new TileIndex(sourceTiles[0]);
+                final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
 
-                double theta, t11, t12Re, t12Im, t13Re, t13Im, t22, t23Re, t23Im, t33, c, s, c2, s2, s4, cs;
+                final ProductData[] targetDataBuffers = new ProductData[9];
+                for (final Band targetBand : bandList.targetBands) {
+                    final String targetBandName = targetBand.getName();
+                    final ProductData dataBuffer = targetTiles.get(targetBand).getDataBuffer();
+                    if (PolBandUtils.isBandForMatrixElement(targetBandName, "11"))
+                        targetDataBuffers[0] = dataBuffer;
+                    else if (PolBandUtils.isBandForMatrixElement(targetBandName, "12_real"))
+                        targetDataBuffers[1] = dataBuffer;
+                    else if (PolBandUtils.isBandForMatrixElement(targetBandName, "12_imag"))
+                        targetDataBuffers[2] = dataBuffer;
+                    else if (PolBandUtils.isBandForMatrixElement(targetBandName, "13_real"))
+                        targetDataBuffers[3] = dataBuffer;
+                    else if (PolBandUtils.isBandForMatrixElement(targetBandName, "13_imag"))
+                        targetDataBuffers[4] = dataBuffer;
+                    else if (PolBandUtils.isBandForMatrixElement(targetBandName, "22"))
+                        targetDataBuffers[5] = dataBuffer;
+                    else if (PolBandUtils.isBandForMatrixElement(targetBandName, "23_real"))
+                        targetDataBuffers[6] = dataBuffer;
+                    else if (PolBandUtils.isBandForMatrixElement(targetBandName, "23_imag"))
+                        targetDataBuffers[7] = dataBuffer;
+                    else if (PolBandUtils.isBandForMatrixElement(targetBandName, "33"))
+                        targetDataBuffers[8] = dataBuffer;
+                }
+
+                final double[][] Tr = new double[3][3];
+                final double[][] Ti = new double[3][3];
+
+                int srcIdx, tgtIdx;
+                double theta, c, s, c2, s2, cs;
                 for (int y = y0; y < maxY; ++y) {
-                    trgIndex.calculateStride(y);
+                    srcIndex.calculateStride(y);
+                    tgtIndex.calculateStride(y);
+
                     for (int x = x0; x < maxX; ++x) {
+                        srcIdx = srcIndex.getIndex(x);
+                        tgtIdx = tgtIndex.getIndex(x);
 
-                        final int idx = trgIndex.getIndex(x);
+                        if (sourceProductType == PolBandUtils.MATRIX.FULL) {
 
-                        if (sourceProductType == PolBandUtils.MATRIX.T3) {
+                            PolOpUtils.getT3(srcIdx, sourceProductType, dataBuffers, T3r, T3i);
 
-                            PolOpUtils.getCoherencyMatrixT3(idx, dataBuffers, T3r, T3i);
+                        } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
+
+                            PolOpUtils.getCoherencyMatrixT3(srcIdx, dataBuffers, T3r, T3i);
 
                         } else if (sourceProductType == PolBandUtils.MATRIX.T4) {
 
-                            PolOpUtils.getCoherencyMatrixT4(idx, dataBuffers, T4r, T4i);
+                            PolOpUtils.getCoherencyMatrixT4(srcIdx, dataBuffers, T4r, T4i);
                             PolOpUtils.t4ToT3(T4r, T4i, T3r, T3i);
 
                         } else if (sourceProductType == PolBandUtils.MATRIX.C3) {
 
-                            PolOpUtils.getCovarianceMatrixC3(idx, dataBuffers, C3r, C3i);
+                            PolOpUtils.getCovarianceMatrixC3(srcIdx, dataBuffers, C3r, C3i);
                             PolOpUtils.c3ToT3(C3r, C3i, T3r, T3i);
 
                         } else if (sourceProductType == PolBandUtils.MATRIX.C4) {
 
-                            PolOpUtils.getCovarianceMatrixC4(idx, dataBuffers, C4r, C4i);
+                            PolOpUtils.getCovarianceMatrixC4(srcIdx, dataBuffers, C4r, C4i);
                             PolOpUtils.c4ToT4(C4r, C4i, T4r, T4i);
                             PolOpUtils.t4ToT3(T4r, T4i, T3r, T3i);
                         }
@@ -205,45 +240,17 @@ public final class OrientationAngleCorrectionOp extends Operator {
                         s2 = s * s;
                         cs = c * s;
 
-                        t11 = T3r[0][0];
-                        t12Re = T3r[0][1] * c - T3r[0][2] * s;
-                        t12Im = T3i[0][1] * c - T3i[0][2] * s;
-                        t13Re = T3r[0][1] * s + T3r[0][2] * c;
-                        t13Im = T3i[0][1] * s + T3i[0][2] * c;
-                        t22 = T3r[1][1] * c2 + T3r[2][2] * s2 - 2 * T3r[1][2] * cs;
-                        t23Re = T3r[1][2] * (c2 - s2) + (T3r[1][1] - T3r[2][2]) * cs;
-                        t23Im = T3i[1][2];
-                        t33 = T3r[1][1] * s2 + T3r[2][2] * c2 + 2 * T3r[1][2] * cs;
+                        Tr[0][0] = T3r[0][0];
+                        Tr[0][1] = T3r[0][1] * c - T3r[0][2] * s;
+                        Ti[0][1] = T3i[0][1] * c - T3i[0][2] * s;
+                        Tr[0][2] = T3r[0][1] * s + T3r[0][2] * c;
+                        Ti[0][2] = T3i[0][1] * s + T3i[0][2] * c;
+                        Tr[1][1] = T3r[1][1] * c2 + T3r[2][2] * s2 - 2 * T3r[1][2] * cs;
+                        Tr[1][2] = T3r[1][2] * (c2 - s2) + (T3r[1][1] - T3r[2][2]) * cs;
+                        Ti[1][2] = T3i[1][2];
+                        Tr[2][2] = T3r[1][1] * s2 + T3r[2][2] * c2 + 2 * T3r[1][2] * cs;
 
-                        for (Band targetBand : bandList.targetBands) {
-                            final String targetBandName = targetBand.getName();
-                            final Tile targetTile = targetTiles.get(targetBand);
-
-                            if (targetBandName.contains("T11")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t11);
-                            } else if (targetBandName.contains("T12_real")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t12Re);
-                            } else if (targetBandName.contains("T12_imag")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t12Im);
-                            } else if (targetBandName.contains("T13_real")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t13Re);
-                            } else if (targetBandName.contains("T13_imag")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t13Im);
-                            } else if (targetBandName.contains("T22")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t22);
-                            } else if (targetBandName.contains("T23_real")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t23Re);
-                            } else if (targetBandName.contains("T23_imag")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t23Im);
-                            } else if (targetBandName.contains("T33")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float) t33);
-                            }
-                            /*
-                            else if (targetBandName.equals("Ori_Ang")) {
-                                targetTile.getDataBuffer().setElemFloatAt(idx, (float)(theta*180/Math.PI));
-                            }
-                            */
-                        }
+                        saveT3(Tr, Ti, tgtIdx, targetDataBuffers);
                     }
                 }
             }
@@ -272,6 +279,20 @@ public final class OrientationAngleCorrectionOp extends Operator {
             theta -= PI2;
         }
         return theta;
+    }
+
+    private static void saveT3(final double[][] Tr, final double[][] Ti,
+                               final int idx, final ProductData[] targetDataBuffers) {
+
+        targetDataBuffers[0].setElemFloatAt(idx, (float) Tr[0][0]); // T11
+        targetDataBuffers[1].setElemFloatAt(idx, (float) Tr[0][1]); // T12_real
+        targetDataBuffers[2].setElemFloatAt(idx, (float) Ti[0][1]); // T12_imag
+        targetDataBuffers[3].setElemFloatAt(idx, (float) Tr[0][2]); // T13_real
+        targetDataBuffers[4].setElemFloatAt(idx, (float) Ti[0][2]); // T13_imag
+        targetDataBuffers[5].setElemFloatAt(idx, (float) Tr[1][1]); // T22
+        targetDataBuffers[6].setElemFloatAt(idx, (float) Tr[1][2]); // T23_real
+        targetDataBuffers[7].setElemFloatAt(idx, (float) Ti[1][2]); // T23_imag
+        targetDataBuffers[8].setElemFloatAt(idx, (float) Tr[2][2]); // T33
     }
 
     /**

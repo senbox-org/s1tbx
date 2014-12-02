@@ -28,23 +28,35 @@ import java.util.Map;
  * Generic Check List Dialog
  */
 public class CheckListDialog extends ModalDialog {
-    private final List<JCheckBox> checkBoxList = new ArrayList<JCheckBox>(3);
+    private final List<JToggleButton> toggleList = new ArrayList<>(3);
     private final Map<String, Boolean> items;
     private boolean ok = false;
 
     public CheckListDialog(final String title, final Map<String, Boolean> items) {
+        this(title, items, false);
+    }
+
+    public CheckListDialog(final String title, final Map<String, Boolean> items, final boolean singleSelection) {
         super(VisatApp.getApp().getMainFrame(), title, ModalDialog.ID_OK, null);
         this.items = items;
 
         final JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
-        for (String name : items.keySet()) {
-            final JCheckBox checkBox = new JCheckBox(name);
-            checkBoxList.add(checkBox);
-            content.add(checkBox);
+        final ButtonGroup group = new ButtonGroup();
 
-            checkBox.setSelected(items.get(name));
+        for (String name : items.keySet()) {
+            final JToggleButton btn;
+            if(singleSelection) {
+                btn = new JRadioButton(name);
+                group.add(btn);
+            } else {
+                btn = new JCheckBox(name);
+            }
+            toggleList.add(btn);
+            content.add(btn);
+
+            btn.setSelected(items.get(name));
         }
 
         getJDialog().setMinimumSize(new Dimension(200, 100));
@@ -53,8 +65,8 @@ public class CheckListDialog extends ModalDialog {
     }
 
     protected void onOK() {
-        for (JCheckBox checkBox : checkBoxList) {
-            items.put(checkBox.getText(), checkBox.isSelected());
+        for (JToggleButton btn : toggleList) {
+            items.put(btn.getText(), btn.isSelected());
         }
 
         ok = true;

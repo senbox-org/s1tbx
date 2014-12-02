@@ -37,7 +37,6 @@ import java.io.File;
 
 public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
 
-    private String sampleType = null;
     private double calibrationFactor = 0;
     private TiePointGrid incidenceAngle = null;
 
@@ -87,7 +86,7 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
                 throw new OperatorException("Absolute radiometric calibration has already been applied to the product");
             }
 
-            sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
+            getSampleType();
 
             getCalibrationFactor();
 
@@ -109,7 +108,7 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
 
         calibrationFactor = absRoot.getAttributeDouble(AbstractMetadata.calibration_factor);
 
-        if (sampleType.contains("COMPLEX")) {
+        if (isComplex) {
             calibrationFactor -= 32.0; // calibration factor offset is 32 dB
         }
 
@@ -188,7 +187,7 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
-        double sigma, dn, i, q;
+        double dn = 0, dn2 = 0, sigma, i, q;
         int srcIdx, tgtIdx;
 
         for (int y = y0; y < maxY; ++y) {
@@ -201,18 +200,26 @@ public class ALOSCalibrator extends BaseCalibrator implements Calibrator {
 
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
                     dn = srcData1.getElemDoubleAt(srcIdx);
-                    sigma = dn * dn;
+                    dn2 = dn * dn;
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
-                    sigma = srcData1.getElemDoubleAt(srcIdx);
+                    dn2 = srcData1.getElemDoubleAt(srcIdx);
                 } else if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
-                    i = srcData1.getElemDoubleAt(srcIdx);
-                    q = srcData2.getElemDoubleAt(srcIdx);
-                    sigma = i * i + q * q;
+                    if (outputImageInComplex) {
+                        dn = srcData1.getElemDoubleAt(srcIdx);
+                    } else {
+                        i = srcData1.getElemDoubleAt(srcIdx);
+                        q = srcData2.getElemDoubleAt(srcIdx);
+                        dn2 = i * i + q * q;
+                    }
                 } else {
                     throw new OperatorException("ALOS Calibration: unhandled unit");
                 }
 
-                sigma *= calibrationFactor;
+                if (isComplex && outputImageInComplex) {
+                    sigma = dn * Math.sqrt(calibrationFactor);
+                } else {
+                    sigma = dn2 * calibrationFactor;
+                }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB
                     if (sigma < underFlowFloat) {

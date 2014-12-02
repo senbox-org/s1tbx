@@ -98,6 +98,10 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
             final double[][] Tr = new double[3][3];
             final double[][] Ti = new double[3][3];
 
+            if (!bandList.spanMinMaxSet) {
+                setSpanMinMax(op, bandList);
+            }
+
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
@@ -180,10 +184,10 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
                         }
                     }
 
-                    ps = scaleDb(ps);
-                    pd = scaleDb(pd);
-                    pv = scaleDb(pv);
-                    pc = scaleDb(pc);
+                    ps = scaleDb(ps, bandList.spanMin, bandList.spanMax);
+                    pd = scaleDb(pd, bandList.spanMin, bandList.spanMax);
+                    pv = scaleDb(pv, bandList.spanMin, bandList.spanMax);
+                    pc = scaleDb(pc, bandList.spanMin, bandList.spanMax);
 
                     // save Pd as red, Pv as green and Ps as blue
                     for (TargetInfo target : targetInfo) {

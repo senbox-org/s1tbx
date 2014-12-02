@@ -174,21 +174,17 @@ public class VersionCheckerVPI extends AbstractVisatPlugIn {
         String command;
         File autoUpdateExe;
         if (platform.getId() == Platform.ID.win) {
-            autoUpdateExe = new File(homeFolder, "autoupdate-windows.exe");
+            autoUpdateExe = new File(homeFolder, "bin" + File.separator + "updater.exe");
 
             final File program = new File(homeFolder, "bin" + File.separator + "exec1.bat");
 
             final String arg = '\"' + autoUpdateExe.getParent() + "\" " + autoUpdateExe.getName();
             command = '\"' + program.getAbsolutePath() + "\" " + arg;
         } else if (platform.getId() == Platform.ID.macosx) {
-            autoUpdateExe = new File(homeFolder, "autoupdate-osx.app");
+            autoUpdateExe = new File(homeFolder, "bin" + File.separator + "updater.app");
             command = autoUpdateExe.getAbsolutePath();
         } else {
-            if (platform.getBitCount() == 64) {
-                autoUpdateExe = new File(homeFolder, "autoupdate-linux-x64.run");
-            } else {
-                autoUpdateExe = new File(homeFolder, "autoupdate-linux.run");
-            }
+            autoUpdateExe = new File(homeFolder, "bin" + File.separator + "updater.sh");
             command = autoUpdateExe.getAbsolutePath();
         }
         if (autoUpdateExe.exists()) {
