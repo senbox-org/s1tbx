@@ -76,6 +76,11 @@ public final class StackUtils {
         elem.setAttributeString(AbstractMetadata.SLAVE_BANDS, value.toString().trim());
     }
 
+    /**
+     * Returns only i and q master band names
+     * @param sourceProduct coregistered product
+     * @return master band names
+     */
     public static String[] getMasterBandNames(final Product sourceProduct) {
         final MetadataElement slaveMetadataRoot = sourceProduct.getMetadataRoot().getElement(
                 AbstractMetadata.SLAVE_METADATA_ROOT);
@@ -85,6 +90,32 @@ public final class StackUtils {
 
         }
         return new String[]{};
+    }
+
+    /**
+     * Returns all master band names including virtual intensity bands
+     * @param sourceProduct coregistered product
+     * @return master band names
+     */
+    public static String[] getAllMasterBandNames(final Product sourceProduct) {
+
+        String suffix = null;
+        final String[] srcBandNames = sourceProduct.getBandNames();
+        for(String bandName : srcBandNames) {
+            if (bandName.contains("_mst")) {
+                suffix = bandName.substring(bandName.lastIndexOf("_mst")+4);
+                break;
+            }
+        }
+        final List<String> names = new ArrayList<>();
+        if(suffix != null) {
+            for (String bandName : srcBandNames) {
+                if (bandName.endsWith(suffix)) {
+                    names.add(bandName);
+                }
+            }
+        }
+        return names.toArray(new String[names.size()]);
     }
 
     public static String[] getSlaveBandNames(final Product sourceProduct, final String slvProductName) {
