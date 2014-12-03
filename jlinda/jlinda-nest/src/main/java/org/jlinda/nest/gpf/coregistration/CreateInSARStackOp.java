@@ -488,12 +488,12 @@ public class CreateInSARStackOp extends Operator {
                 final Geometry intersect = tgtGeometry.intersection(slvGeometry);
 
                 for(Coordinate c : intersect.getCoordinates()) {
-                    getPixelPos((float)c.y, (float)c.x, slvGeoCoding, slvPixelPos);
+                    getPixelPos(c.y, c.x, slvGeoCoding, slvPixelPos);
 
                     if (slvPixelPos.isValid() && slvPixelPos.x >= 0 && slvPixelPos.x < slvImageWidth &&
                             slvPixelPos.y >= 0 && slvPixelPos.y < slvImageHeight) {
 
-                        getPixelPos((float)c.y, (float)c.x, targGeoCoding, tgtPixelPos);
+                        getPixelPos(c.y, c.x, targGeoCoding, tgtPixelPos);
                         if (tgtPixelPos.isValid() && tgtPixelPos.x >= 0 && tgtPixelPos.x < targImageWidth &&
                                 tgtPixelPos.y >= 0 && tgtPixelPos.y < targImageHeight) {
 
@@ -568,7 +568,7 @@ public class CreateInSARStackOp extends Operator {
                 pixelPos.y >= 0 && pixelPos.y < height);
     }
 
-    private static void getPixelPos(final float lat, final float lon, final GeoCoding srcGeoCoding, final PixelPos pixelPos) {
+    private static void getPixelPos(final double lat, final double lon, final GeoCoding srcGeoCoding, final PixelPos pixelPos) {
         srcGeoCoding.getPixelPos(new GeoPos(lat, lon), pixelPos);
     }
 

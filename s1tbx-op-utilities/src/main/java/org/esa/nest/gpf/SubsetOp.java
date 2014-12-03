@@ -230,7 +230,7 @@ public class SubsetOp extends Operator {
 
         @Override
         public void filter(Coordinate coordinate) {
-            final GeoPos geoPos = new GeoPos((float) coordinate.y, (float) coordinate.x);
+            final GeoPos geoPos = new GeoPos(coordinate.y, coordinate.x);
             final PixelPos pixelPos = geoCoding.getPixelPos(geoPos, null);
             if (pixelPos.isValid()) {
                 x1 = min(x1, (int) floor(pixelPos.x));

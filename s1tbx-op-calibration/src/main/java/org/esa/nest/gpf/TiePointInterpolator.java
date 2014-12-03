@@ -10,7 +10,7 @@ import org.esa.beam.framework.datamodel.TiePointGrid;
 public class TiePointInterpolator {
 
     private final TiePointGrid tpg;
-    private final float[] tiePoints;
+    private final double[] tiePoints;
     private final int rasterWidth;
 
     private double[][] quadraticInterpCoeffs = null; // 2 order quadratic polynomial coefficients
@@ -94,12 +94,10 @@ public class TiePointInterpolator {
         final Matrix A = new Matrix(sampleIndexArray);
 
         // prepare matrix b
-        final float[] tiePoints = tpg.getTiePoints();
+        final double[] tiePoints = tpg.getTiePoints();
 
         final double[] tiePointArray = new double[n];
-        for (int i = 0; i < n; i++) {
-            tiePointArray[i] = (double) (tiePoints[i]);
-        }
+        System.arraycopy(tiePoints, 0, tiePointArray, 0, n);
         final Matrix b = new Matrix(tiePointArray, n);
 
         // compute coefficients
@@ -121,11 +119,11 @@ public class TiePointInterpolator {
      * @return The interpolated sample value.
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      */
-    public float getPixelFloat(float x, float y, InterpMode interpMethod) {
+    public double getPixelDouble(double x, double y, InterpMode interpMethod) {
 
         if (interpMethod == InterpMode.BILINEAR) {
 
-            return tpg.getPixelFloat(x, y);
+            return tpg.getPixelDouble(x, y);
 
         } else if (interpMethod == InterpMode.QUADRATIC) {
 
@@ -136,15 +134,15 @@ public class TiePointInterpolator {
             if (r >= quadraticInterpCoeffs.length) {
                 r = quadraticInterpCoeffs.length - 1;
             }
-            return (float) (quadraticInterpCoeffs[r][0] + quadraticInterpCoeffs[r][1] * x + quadraticInterpCoeffs[r][2] * x * x);
+            return quadraticInterpCoeffs[r][0] + quadraticInterpCoeffs[r][1] * x + quadraticInterpCoeffs[r][2] * x * x;
 
         } else if (interpMethod == InterpMode.BIQUADRATIC) {
 
             if (biquadraticInterpCoeffs == null) {
                 computeBiquadraticInterpCoeffs();
             }
-            return (float) (biquadraticInterpCoeffs[0] + biquadraticInterpCoeffs[1] * x + biquadraticInterpCoeffs[2] * y
-                    + biquadraticInterpCoeffs[3] * x * x + biquadraticInterpCoeffs[4] * x * y + biquadraticInterpCoeffs[5] * y * y);
+            return biquadraticInterpCoeffs[0] + biquadraticInterpCoeffs[1] * x + biquadraticInterpCoeffs[2] * y
+                    + biquadraticInterpCoeffs[3] * x * x + biquadraticInterpCoeffs[4] * x * y + biquadraticInterpCoeffs[5] * y * y;
 
         } else {
             throw new IllegalArgumentException("unsupported interpolation method");
@@ -165,7 +163,7 @@ public class TiePointInterpolator {
      * @return Array of interpolated sample values.
      * @throws IllegalArgumentException if the length of the given array is less than <code>w*h</code>.
      */
-    public float[] getPixels(int x0, int y0, int w, int h, float[] pixels, ProgressMonitor pm, InterpMode interpMethod) {
+    public double[] getPixels(int x0, int y0, int w, int h, double[] pixels, ProgressMonitor pm, InterpMode interpMethod) {
 
         pixels = ensureMinLengthArray(pixels, w * h);
         if (interpMethod == InterpMode.BILINEAR) {
@@ -179,7 +177,7 @@ public class TiePointInterpolator {
             final int maxX = x0 + w;
             for (int y = y0; y < maxY; y++) {
                 for (int x = x0; x < maxX; x++) {
-                    pixels[k++] = getPixelFloat(x, y, interpMethod);
+                    pixels[k++] = getPixelDouble(x, y, interpMethod);
                 }
             }
             return pixels;
@@ -189,9 +187,9 @@ public class TiePointInterpolator {
         }
     }
 
-    protected static float[] ensureMinLengthArray(float[] array, int length) {
+    protected static double[] ensureMinLengthArray(double[] array, int length) {
         if (array == null) {
-            return new float[length];
+            return new double[length];
         }
         if (array.length < length) {
             throw new IllegalArgumentException("The length of the given array is less than " + length);

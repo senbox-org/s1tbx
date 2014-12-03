@@ -11,6 +11,7 @@
 	           -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>				
 		<context>s1tbx</context>
+		<user.language>en</user.language>
 		
 		<skipTests>false</skipTests>
         <test.jvm.maxheapsize>5024m</test.jvm.maxheapsize>

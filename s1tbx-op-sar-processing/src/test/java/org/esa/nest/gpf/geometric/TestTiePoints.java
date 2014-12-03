@@ -51,7 +51,7 @@ public class TestTiePoints {
     }
 
     @Test
-    public void testGetPixelFloat() throws Exception {
+    public void testGetPixelDouble() throws Exception {
         if (product1 == null) {
             TestUtils.skipTest(this, product1 +" not found");
             return;
@@ -60,18 +60,17 @@ public class TestTiePoints {
         int w = product1.getSceneRasterWidth();
         int h = product1.getSceneRasterHeight();
 
-        float[] floats1 = new float[w * h];
+        double[] floats1 = new double[w * h];
         int i = 0;
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
-                floats1[i++] = tpg.getPixelFloat(x, y);
+                floats1[i++] = tpg.getPixelDouble(x, y);
             }
         }
-
     }
 
     @Test
-    public void testGetPixelFloats() throws Exception {
+    public void testGetPixels() throws Exception {
         if (product2 == null) {
             TestUtils.skipTest(this, product2 +" not found");
             return;
@@ -80,7 +79,7 @@ public class TestTiePoints {
         int w = product2.getSceneRasterWidth();
         int h = product2.getSceneRasterHeight();
 
-        float[] floats = new float[w * h];
+        double[] floats = new double[w * h];
         tpg.getPixels(0, 0, w, h, floats, ProgressMonitor.NULL);
     }
 
@@ -95,12 +94,12 @@ public class TestTiePoints {
         int w = product1.getSceneRasterWidth();
         int h = product1.getSceneRasterHeight();
 
-        final float[] floats = new float[w * h];
+        final double[] floats = new double[w * h];
         tpg.getPixels(0, 0, w, h, floats, ProgressMonitor.NULL);
 
         for (int y = 0; y < h; ++y) {
             for (int x = 0; x < w; ++x) {
-                final float f = tpg.getPixelFloat(x, y);
+                final double f = tpg.getPixelDouble(x, y);
                 assertTrue(f == floats[y * w + x]);
             }
         }

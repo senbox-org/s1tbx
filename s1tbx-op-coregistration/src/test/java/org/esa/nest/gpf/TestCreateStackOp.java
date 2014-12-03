@@ -67,8 +67,8 @@ public class TestCreateStackOp {
     }
 
     private static Product createTestProduct(final int w, final int h,
-                                             final float latTop, final float lonLeft,
-                                             final float latBottom, final float lonRight) {
+                                             final double latTop, final double lonLeft,
+                                             final double latBottom, final double lonRight) {
 
         final Product product = new Product("p", "ASA_IMP_1P", w, h);
 
@@ -84,8 +84,8 @@ public class TestCreateStackOp {
         }
         band.setData(ProductData.createInstance(floatValues));
 
-        final float[] latCorners = new float[]{latTop, latTop, latBottom, latBottom};
-        final float[] lonCorners = new float[]{lonLeft, lonRight, lonLeft, lonRight};
+        final double[] latCorners = new double[]{latTop, latTop, latBottom, latBottom};
+        final double[] lonCorners = new double[]{lonLeft, lonRight, lonLeft, lonRight};
 
         ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
 

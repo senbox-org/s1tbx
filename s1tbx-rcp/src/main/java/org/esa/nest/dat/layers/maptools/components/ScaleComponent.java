@@ -60,23 +60,23 @@ public class ScaleComponent implements MapToolsComponent {
                 endGeo.getLon(), endGeo.getLat());
         // get position for 1000m at that heading
         GeoUtils.LatLonHeading LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 1000, heading.heading1);
-        final PixelPos pix1K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
+        final PixelPos pix1K = geoCoding.getPixelPos(new GeoPos(LatLon.lat, LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 2000, heading.heading1);
-        final PixelPos pix2K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
+        final PixelPos pix2K = geoCoding.getPixelPos(new GeoPos(LatLon.lat, LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 3000, heading.heading1);
-        final PixelPos pix3K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
+        final PixelPos pix3K = geoCoding.getPixelPos(new GeoPos(LatLon.lat, LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 4000, heading.heading1);
-        final PixelPos pix4K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
+        final PixelPos pix4K = geoCoding.getPixelPos(new GeoPos(LatLon.lat, LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 5000, heading.heading1);
-        final PixelPos pix5K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
+        final PixelPos pix5K = geoCoding.getPixelPos(new GeoPos(LatLon.lat, LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 10000, heading.heading1);
-        final PixelPos pix10K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
+        final PixelPos pix10K = geoCoding.getPixelPos(new GeoPos(LatLon.lat, LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 50000, heading.heading1);
-        final PixelPos pix50K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
+        final PixelPos pix50K = geoCoding.getPixelPos(new GeoPos(LatLon.lat, LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 100000, heading.heading1);
-        final PixelPos pix100K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
+        final PixelPos pix100K = geoCoding.getPixelPos(new GeoPos(LatLon.lat, LatLon.lon), null);
         LatLon = GeoUtils.vincenty_direct(startGeo.getLon(), startGeo.getLat(), 200000, heading.heading1);
-        final PixelPos pix500K = geoCoding.getPixelPos(new GeoPos((float) LatLon.lat, (float) LatLon.lon), null);
+        final PixelPos pix500K = geoCoding.getPixelPos(new GeoPos(LatLon.lat, LatLon.lon), null);
 
         use500k = (pix500K.getX() < thirdWidth);
         use100k = (pix100K.getX() < thirdWidth);

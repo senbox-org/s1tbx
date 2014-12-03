@@ -42,7 +42,7 @@ public final class S1TBXApp extends DatApp {
         return (S1TBXApp) VisatApp.getApp();
     }
 
-    @Override
+   /* @Override
     protected boolean initLookAndFeel() {
 
         try {
@@ -97,7 +97,7 @@ public final class S1TBXApp extends DatApp {
 
         // Uncomment this, if we want icons to be displayed on title pane of a DockableFrame
         //UIManager.getDefaults().put("JideTabbedPane.showIconOnTab", Boolean.TRUE);
-    }
+    } */
 
     @Override
     protected ModalDialog createAboutBox() {

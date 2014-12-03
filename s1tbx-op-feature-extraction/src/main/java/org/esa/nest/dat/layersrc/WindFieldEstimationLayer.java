@@ -154,7 +154,7 @@ public class WindFieldEstimationLayer extends Layer {
         final DecimalFormat frmt = new DecimalFormat("0.00");
         for (WindFieldEstimationOp.WindFieldRecord target : targetList) {
 
-            geo.setLocation((float) target.lat, (float) target.lon);
+            geo.setLocation(target.lat, target.lon);
             geoCoding.getPixelPos(geo, pix);
             final double dx = target.dx;
             final double dy = target.dy;

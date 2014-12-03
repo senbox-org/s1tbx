@@ -53,7 +53,7 @@ public final class AsterElevationModel extends BaseElevationModel {
     public GeoPos getGeoPos(final PixelPos pixelPos) {
         final double pixelLat = (RASTER_HEIGHT - pixelPos.y) * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 83.0;
         final double pixelLon = pixelPos.x * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 180.0;
-        return new GeoPos((float) pixelLat, (float) pixelLon);
+        return new GeoPos(pixelLat, pixelLon);
     }
 
     @Override

@@ -244,12 +244,12 @@ public class NestWorldMapPane extends JPanel {
         final GeoCoding geoCoding = product.getGeoCoding();
         PixelPos centerPos = null;
         if (geoCoding != null) {
-            final float pixelX = (float) Math.floor(0.5f * product.getSceneRasterWidth()) + 0.5f;
-            final float pixelY = (float) Math.floor(0.5f * product.getSceneRasterHeight()) + 0.5f;
+            final double pixelX = Math.floor(0.5f * product.getSceneRasterWidth()) + 0.5f;
+            final double pixelY = Math.floor(0.5f * product.getSceneRasterHeight()) + 0.5f;
             final GeoPos geoPos = geoCoding.getGeoPos(new PixelPos(pixelX, pixelY), null);
             final AffineTransform transform = layerCanvas.getViewport().getModelToViewTransform();
             final Point2D point2D = transform.transform(new Point2D.Double(geoPos.getLon(), geoPos.getLat()), null);
-            centerPos = new PixelPos((float) point2D.getX(), (float) point2D.getY());
+            centerPos = new PixelPos(point2D.getX(), point2D.getY());
         }
         return centerPos;
     }
@@ -466,8 +466,8 @@ public class NestWorldMapPane extends JPanel {
             g2d.setColor(Color.black);
 
             g2d.drawString(text,
-                    textCenter.x - fontMetrics.stringWidth(text) / 2.0f,
-                    textCenter.y + fontMetrics.getAscent() / 2.0f);
+                           (float)textCenter.x - fontMetrics.stringWidth(text) / 2.0f,
+                           (float)textCenter.y + fontMetrics.getAscent() / 2.0f);
             g2d.setColor(color);
         }
 

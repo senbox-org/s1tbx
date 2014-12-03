@@ -459,7 +459,7 @@ public class ResampleOp extends Operator {
                     final PixelPos mGCPPos = mPin.getPixelPos();
 
                     double[] phiLamPoint = masterOrbit.lph2ell(mGCPPos.y, mGCPPos.x, 0, masterMeta);
-                    PixelPos demIndexPoint = dem.getIndex(new GeoPos((float) (phiLamPoint[0] * Constants.RTOD), (float) (phiLamPoint[1] * Constants.RTOD)));
+                    PixelPos demIndexPoint = dem.getIndex(new GeoPos((phiLamPoint[0] * Constants.RTOD), (phiLamPoint[1] * Constants.RTOD)));
                     
                     float height = dem.getSample(demIndexPoint.x, demIndexPoint.y);
 

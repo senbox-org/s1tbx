@@ -54,24 +54,7 @@
             </aboutImage>
 
             <excludedActions>
-                <id>showDataSources</id>
-                <id>createAsarNrcsBands</id>
-                <id>showHomePage</id>
-                <id>about</id>
-                <id>productGrabber</id>
-                <id>selectTool</id>
-                <id>createDemRelatedBands</id>
-                <id>showImageView</id>
-                <id>processing.preProcessing</id>
-                <id>processing.thematicWater</id>
-                <id>processing.thematicLand</id>
-                <id>processing.imageAnalysis</id>
-                <id>processing.geomOperations</id>
-                <id>orthorectificationAction</id>
-                <id>mosaicAction</id>
-                <id>reprojectionAction</id>
-                <id>flipping</id>
-                <id>createSubsetFromView</id>
+
             </excludedActions>
             <excludedToolViews>
                 <!--id>org.esa.beam.visat.toolviews.worldmap.WorldMapToolView</id-->

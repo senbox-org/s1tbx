@@ -79,7 +79,7 @@ public class TestAmplitudeToIntensity {
         }
         band1.setData(ProductData.createInstance(intValues));
 
-        final float[] incidence_angle = new float[64];
+        final double[] incidence_angle = new double[64];
         Arrays.fill(incidence_angle, 30.0f);
         testProduct.addTiePointGrid(new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, 16, 4, 0, 0, 1, 1, incidence_angle));
 

@@ -125,16 +125,16 @@ public class DatApp extends VisatApp {
             //disable JAI media library
             System.setProperty("com.sun.media.jai.disableMediaLib", "true");
 
-            disableOperatorPlugins();
-            disableIOPlugins();
+            //disableOperatorPlugins();
+            //disableIOPlugins();
 
             validateAuxDataFolder();
 
-            UIManager.put("List.lockToPositionOnScroll", Boolean.FALSE);
+            //UIManager.put("List.lockToPositionOnScroll", Boolean.FALSE);
 
             installDefaultColorPalettes();
 
-            backgroundInitTasks();
+            //backgroundInitTasks();
         } catch (Throwable t) {
             VisatApp.getApp().showErrorDialog("PostInit failed. " + t.toString());
         }
@@ -305,10 +305,10 @@ public class DatApp extends VisatApp {
     protected HashSet<String> getExcludedToolbars() {
         final HashSet<String> excludedIds = super.getExcludedToolbars();
 
-        excludedIds.add("org.esa.beam.visat.toolviews.spectrum.SpectrumToolView");
-        excludedIds.add("org.esa.beam.visat.toolviews.placemark.pin.PinManagerToolView");
-        excludedIds.add("org.esa.beam.visat.toolviews.placemark.gcp.GcpManagerToolView");
-        excludedIds.add("org.esa.nest.dat.toolviews.worldmap.NestWorldMapToolView");
+        //excludedIds.add("org.esa.beam.visat.toolviews.spectrum.SpectrumToolView");
+        //excludedIds.add("org.esa.beam.visat.toolviews.placemark.pin.PinManagerToolView");
+        //excludedIds.add("org.esa.beam.visat.toolviews.placemark.gcp.GcpManagerToolView");
+        //excludedIds.add("org.esa.nest.dat.toolviews.worldmap.NestWorldMapToolView");
         excludedIds.add("org.csa.rstb.dat.toolviews.HaAlphaPlotToolView");
 
         return excludedIds;
@@ -372,7 +372,7 @@ public class DatApp extends VisatApp {
         menuBar.add(createJMenu("view", "View", 'V'));
         menuBar.add(createAnalysisMenu());
         menuBar.add(createJMenu("tools", "Utilities", 'U'));
-        //menuBar.add(createJMenu("processing", "Optical Processing", 'O'));
+        menuBar.add(createJMenu("processing", "Optical Processing", 'O'));
         menuBar.add(createJMenu("Sar Processing", "SAR Processing", 'S'));
         if (incImageProcessing)
             menuBar.add(createJMenu("image-processing", "Image Processing", 'M'));

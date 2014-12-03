@@ -29,8 +29,8 @@ import org.esa.snap.util.Maths;
  */
 class QuadInterpolator {
 
-    private final float subSamplinX;
-    private final float subSamplinY;
+    private final double subSamplinX;
+    private final double subSamplinY;
     private final double[][] warpPolynomialCoef;
     private static final int warpPolynomialOrder = 2;
 
@@ -41,7 +41,7 @@ class QuadInterpolator {
         subSamplinY = tpg.getSubSamplingY();
         final int width = tpg.getRasterWidth();
         final int height = tpg.getRasterHeight();
-        final float[] tiePoints = tpg.getTiePoints();
+        final double[] tiePoints = tpg.getTiePoints();
 
         final String tiePointGridName = tpg.getName();
         boolean imageFlipped = false;
@@ -84,7 +84,7 @@ class QuadInterpolator {
      * @param pixels The pixel array.
      * @return The pixel array.
      */
-    public float[] getPixelFloats(int x0, int y0, int w, int h, float[] pixels) {
+    public double[] getPixelDouble(int x0, int y0, int w, int h, double[] pixels) {
 
         int k = 0;
         for (int y = y0; y < y0 + h; y++) {
@@ -93,7 +93,7 @@ class QuadInterpolator {
             final double a1 = warpPolynomialCoef[r][1];
             final double a2 = warpPolynomialCoef[r][2];
             for (int x = x0; x < x0 + w; x++) {
-                pixels[k++] = (float) (a0 + a1 * x + a2 * x * x);
+                pixels[k++] = a0 + a1 * x + a2 * x * x;
             }
         }
         return pixels;

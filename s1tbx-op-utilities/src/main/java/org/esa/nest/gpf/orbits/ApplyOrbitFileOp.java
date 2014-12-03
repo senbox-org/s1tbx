@@ -251,10 +251,10 @@ public final class ApplyOrbitFileOp extends Operator {
      */
     private void updateTargetProductGEOCoding() throws Exception {
 
-        final float[] targetLatTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
-        final float[] targetLonTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
-        final float[] targetIncidenceAngleTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
-        final float[] targetSlantRangeTimeTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
+        final double[] targetLatTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
+        final double[] targetLonTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
+        final double[] targetIncidenceAngleTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
+        final double[] targetSlantRangeTimeTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
 
         final int subSamplingX = sourceImageWidth / (targetTiePointGridWidth - 1);
         final int subSamplingY = sourceImageHeight / (targetTiePointGridHeight - 1);
@@ -280,8 +280,8 @@ public final class ApplyOrbitFileOp extends Operator {
             for (int c = 0; c < targetTiePointGridWidth; c++) {
 
                 final int x = getSampleIndex(c, subSamplingX);
-                targetIncidenceAngleTiePoints[k] = incidenceAngle.getPixelFloat((float) x, (float) y);
-                targetSlantRangeTimeTiePoints[k] = slantRangeTime.getPixelFloat((float) x, (float) y);
+                targetIncidenceAngleTiePoints[k] = incidenceAngle.getPixelDouble((float) x, (float) y);
+                targetSlantRangeTimeTiePoints[k] = slantRangeTime.getPixelDouble((float) x, (float) y);
 
                 final double slrgTime = targetSlantRangeTimeTiePoints[k] / Constants.oneBillion; // ns to s;
                 final GeoPos geoPos = computeLatLon(x, y, slrgTime, data);
@@ -292,19 +292,19 @@ public final class ApplyOrbitFileOp extends Operator {
         }
 
         final TiePointGrid angleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetIncidenceAngleTiePoints);
+                0.0f, 0.0f, subSamplingX, subSamplingY, targetIncidenceAngleTiePoints);
         angleGrid.setUnit(Unit.DEGREES);
 
         final TiePointGrid slrgtGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetSlantRangeTimeTiePoints);
+                0.0f, 0.0f, subSamplingX, subSamplingY, targetSlantRangeTimeTiePoints);
         slrgtGrid.setUnit(Unit.NANOSECONDS);
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetLatTiePoints);
+                0.0f, 0.0f, subSamplingX, subSamplingY, targetLatTiePoints);
         latGrid.setUnit(Unit.DEGREES);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
+                0.0f, 0.0f, subSamplingX, subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
@@ -358,8 +358,8 @@ public final class ApplyOrbitFileOp extends Operator {
     private GeoPos computeLatLon(final int x, final int y, final double slrgTime, final Orbits.OrbitData data) {
 
         final double[] xyz = new double[3];
-        final float lat = latitude.getPixelFloat((float) x, (float) y);
-        final float lon = longitude.getPixelFloat((float) x, (float) y);
+        final double lat = latitude.getPixelDouble((float)x, (float)y);
+        final double lon = longitude.getPixelDouble((float)x, (float)y);
         final GeoPos geoPos = new GeoPos(lat, lon);
 
         // compute initial (x,y,z) coordinate from lat/lon
@@ -420,10 +420,10 @@ public final class ApplyOrbitFileOp extends Operator {
      */
     private void updateTargetProductGEOCodingJLinda() throws Exception {
 
-        final float[] targetLatTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
-        final float[] targetLonTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
-        final float[] targetIncidenceAngleTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
-        final float[] targetSlantRangeTimeTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
+        final double[] targetLatTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
+        final double[] targetLonTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
+        final double[] targetIncidenceAngleTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
+        final double[] targetSlantRangeTimeTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
 
         final int subSamplingX = sourceImageWidth / (targetTiePointGridWidth - 1);
         final int subSamplingY = sourceImageHeight / (targetTiePointGridHeight - 1);
@@ -451,8 +451,8 @@ public final class ApplyOrbitFileOp extends Operator {
                 final int x = getSampleIndex(c, subSamplingX);
 
                 // get reference point - works with geo annotations
-                final float refLat = latitude.getPixelFloat((float) x, (float) y);
-                final float refLon = longitude.getPixelFloat((float) x, (float) y);
+                final double refLat = latitude.getPixelDouble((float) x, (float) y);
+                final double refLon = longitude.getPixelDouble((float) x, (float) y);
 
                 final Point refSarPoint = oldOrbit.ell2lp(new double[]{refLat * org.jlinda.core.Constants.DTOR, refLon * org.jlinda.core.Constants.DTOR, 0}, metaData);
                 final double[] refGeoPoint = orbit.lp2ell(refSarPoint, metaData);
@@ -471,29 +471,29 @@ public final class ApplyOrbitFileOp extends Operator {
                 final double lat = refGeoPoint[0] * org.jlinda.core.Constants.RTOD;
                 final double lon = refGeoPoint[1] * org.jlinda.core.Constants.RTOD;
 
-                targetIncidenceAngleTiePoints[k] = (float) (incAngle * org.jlinda.core.Constants.RTOD);
-                targetSlantRangeTimeTiePoints[k] = (float) slantRangeTime;
-                targetLatTiePoints[k] = (float) (lat);
-                targetLonTiePoints[k] = (float) (lon);
+                targetIncidenceAngleTiePoints[k] = incAngle * org.jlinda.core.Constants.RTOD;
+                targetSlantRangeTimeTiePoints[k] = slantRangeTime;
+                targetLatTiePoints[k] = lat;
+                targetLonTiePoints[k] = lon;
                 k++;
 
             }
         }
 
         final TiePointGrid angleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetIncidenceAngleTiePoints);
+                0.0f, 0.0f, subSamplingX, subSamplingY, targetIncidenceAngleTiePoints);
         angleGrid.setUnit(Unit.DEGREES);
 
         final TiePointGrid slrgtGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetSlantRangeTimeTiePoints);
+                0.0f, 0.0f, subSamplingX, subSamplingY, targetSlantRangeTimeTiePoints);
         slrgtGrid.setUnit(Unit.NANOSECONDS);
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetLatTiePoints);
+                0.0f, 0.0f, subSamplingX, subSamplingY, targetLatTiePoints);
         latGrid.setUnit(Unit.DEGREES);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
+                0.0f, 0.0f, subSamplingX, subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);

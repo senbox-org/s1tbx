@@ -52,10 +52,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     private String productType = "TerraSar-X";
     private String productDescription = "";
 
-    private final float[] latCorners = new float[4];
-    private final float[] lonCorners = new float[4];
-    private final float[] slantRangeCorners = new float[4];
-    private final float[] incidenceCorners = new float[4];
+    private final double[] latCorners = new double[4];
+    private final double[] lonCorners = new double[4];
+    private final double[] slantRangeCorners = new double[4];
+    private final double[] incidenceCorners = new double[4];
 
     private final List<File> cosarFileList = new ArrayList<>(1);
     private final Map<String, ImageInputStream> cosarBandMap = new HashMap<>(1);
@@ -452,8 +452,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         } else {
 
             final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
-            final float[] flippedLatCorners = new float[4];
-            final float[] flippedLonCorners = new float[4];
+            final double[] flippedLatCorners = new double[4];
+            final double[] flippedLonCorners = new double[4];
             if (isAscending) { // flip up and down
                 flippedLatCorners[0] = latCorners[2];
                 flippedLatCorners[1] = latCorners[3];
@@ -551,9 +551,9 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final int gridHeight = numAz;
         final int newGridWidth = gridWidth;
         final int newGridHeight = gridHeight;
-        float[] newLatList = new float[newGridWidth * newGridHeight];
-        float[] newLonList = new float[newGridWidth * newGridHeight];
-        float[] newIncList = new float[newGridWidth * newGridHeight];
+        double[] newLatList = new double[newGridWidth * newGridHeight];
+        double[] newLonList = new double[newGridWidth * newGridHeight];
+        double[] newIncList = new double[newGridWidth * newGridHeight];
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
         final double subSamplingX = sceneRasterWidth / (double) (newGridWidth - 1);
@@ -577,17 +577,17 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, (float) subSamplingX, (float) subSamplingY, newLatList);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLatList);
         latGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(latGrid);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, (float) subSamplingX, (float) subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(lonGrid);
 
         final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
-                newGridWidth, newGridHeight, 0.5f, 0.5f, (float) subSamplingX, (float) subSamplingY, newIncList);
+                newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newIncList);
         incidentAngleGrid.setUnit(Unit.DEGREES);
         product.addTiePointGrid(incidentAngleGrid);
 
@@ -604,7 +604,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             final int sceneRasterWidth, final int sceneRasterHeight, final int sourceGridWidth,
             final int sourceGridHeight, final int[] x, final int[] y, final double[] sourcePointList,
             final int targetGridWidth, final int targetGridHeight, final double subSamplingX, final double subSamplingY,
-            final float[] targetPointList) {
+            final double[] targetPointList) {
 
         if (sourcePointList.length != sourceGridWidth * sourceGridHeight) {
             throw new IllegalArgumentException(
@@ -670,17 +670,17 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         final int gridWidth = 4;
         final int gridHeight = 4;
-        final float subSamplingX = (float) product.getSceneRasterWidth() / (float) (gridWidth - 1);
-        final float subSamplingY = (float) product.getSceneRasterHeight() / (float) (gridHeight - 1);
+        final double subSamplingX = (double) product.getSceneRasterWidth() / (gridWidth - 1);
+        final double subSamplingY = (double) product.getSceneRasterHeight() / (gridHeight - 1);
         if (subSamplingX == 0 || subSamplingY == 0)
             return;
 
-        final float[] flippedSlantRangeCorners = new float[4];
-        final float[] flippedIncidenceCorners = new float[4];
+        final double[] flippedSlantRangeCorners = new double[4];
+        final double[] flippedIncidenceCorners = new double[4];
         getFlippedCorners(product, flippedSlantRangeCorners, flippedIncidenceCorners);
 
         if (product.getTiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE) == null) {
-            final float[] fineAngles = new float[gridWidth * gridHeight];
+            final double[] fineAngles = new double[gridWidth * gridHeight];
             ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, flippedIncidenceCorners, fineAngles);
 
             final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
@@ -689,7 +689,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             product.addTiePointGrid(incidentAngleGrid);
         }
 
-        final float[] fineSlantRange = new float[gridWidth * gridHeight];
+        final double[] fineSlantRange = new double[gridWidth * gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, flippedSlantRangeCorners, fineSlantRange);
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, gridWidth, gridHeight, 0, 0,
@@ -699,7 +699,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     }
 
     private void getFlippedCorners(Product product,
-                                   final float[] flippedSlantRangeCorners, final float[] flippedIncidenceCorners) {
+                                   final double[] flippedSlantRangeCorners, final double[] flippedIncidenceCorners) {
 
         MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);

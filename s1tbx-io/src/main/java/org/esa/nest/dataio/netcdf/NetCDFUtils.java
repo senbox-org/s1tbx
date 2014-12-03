@@ -59,11 +59,11 @@ public class NetCDFUtils {
                                                   final int sceneWidth, final int sceneHeight) throws IOException {
         final NcAttributeMap attMap = NcAttributeMap.create(variable);
 
-        final float subSamplingX = (float) sceneWidth / (float) (gridWidth - 1);
-        final float subSamplingY = (float) sceneHeight / (float) (gridHeight - 1);
+        final double subSamplingX = (double) sceneWidth / (double) (gridWidth - 1);
+        final double subSamplingY = (double) sceneHeight / (double) (gridHeight - 1);
 
         final Array data = variable.read();
-        final float[] dataArray = new float[(int) data.getSize()]; //(float[])data.copyTo1DJavaArray();
+        final double[] dataArray = new double[(int) data.getSize()]; //(float[])data.copyTo1DJavaArray();
         for (int i = 0; i < data.getSize(); ++i) {
             dataArray[i] = data.getFloat(i);
         }

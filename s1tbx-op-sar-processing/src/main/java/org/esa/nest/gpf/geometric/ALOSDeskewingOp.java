@@ -384,7 +384,7 @@ public class ALOSDeskewingOp extends Operator {
                 lon -= 360.0;
             }
 
-            final double alt = dem.getElevation(new GeoPos((float) lat, (float) lon));
+            final double alt = dem.getElevation(new GeoPos(lat, lon));
             if (alt == demNoDataValue) {
                 continue;
             }

@@ -900,8 +900,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
-        final float[] incidenceAnglesArray = new float[w];
-        final float[] slantRangeTimeArray = new float[w];
+        final double[] incidenceAnglesArray = new double[w];
+        final double[] slantRangeTimeArray = new double[w];
 
         double[][] targetTileOldAntPat = null; // old antenna pattern gains for row pixels in a tile, in linear scale
         double[][] targetTileNewAntPat = null; // new antenna pattern gains for row pixels in a tile, in linear scale
@@ -1026,7 +1026,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                 final double theta = computeElevationAngle(
                         targetTileSlantRange[yy][xx], satelliteHeight, avgSceneHeight + localEarthRadius); // in degree
                 /*
-                double alpha = incidenceAngle.getPixelFloat(x, y); // in degree
+                double alpha = incidenceAngle.getPixelDouble(x, y); // in degree
                 double gamma = Math.asin(targetTileSlantRange[yy][xx]*Math.sin(alpha*MathUtils.DTOR)/satelitteHeight)*MathUtils.RTOD; // in degree
                 double theta = alpha - gamma; // in degree
                 */
@@ -1104,7 +1104,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
     private double getEarthRadius(final int x, final int y) {
         // use linear rather than quadratic interpolation for subset because quadratic interpolation
         // does not give accurate result in this case
-        int i = (int) ((latMax - latitude.getPixelFloat((float) x, (float) y)) / delLat + 0.5);
+        int i = (int) ((latMax - latitude.getPixelDouble(x, y)) / delLat + 0.5);
 
         if (i < 0) {
             i = 0;
@@ -1218,7 +1218,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
         } else { // for slant range product, compute slant range from slant range time
 
-            final double time = slantRangeTPGInterp.getPixelFloat((float) x, (float) y, TiePointInterpolator.InterpMode.QUADRATIC) /
+            final double time = slantRangeTPGInterp.getPixelDouble(x, y, TiePointInterpolator.InterpMode.QUADRATIC) /
                     Constants.oneBillion; //convert ns to s
             return time * Constants.halfLightSpeed; // in m
         }

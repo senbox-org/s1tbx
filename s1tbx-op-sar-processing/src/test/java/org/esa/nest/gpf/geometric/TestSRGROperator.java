@@ -127,13 +127,13 @@ public class TestSRGROperator {
                 ProductData.createInstance(new float[]{800000.0F}), false));
 
         // create incidence angle tie point grid
-        float[] incidence_angle = new float[w * h];
+        double[] incidence_angle = new double[w * h];
         Arrays.fill(incidence_angle, 30.0f);
         testProduct.addTiePointGrid(new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, w, h, 0, 0, 1, 1, incidence_angle));
 
         // create lat/lon tie point grids
-        float[] lat = new float[w * h];
-        float[] lon = new float[w * h];
+        double[] lat = new double[w * h];
+        double[] lon = new double[w * h];
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 int i = y * w + x;

@@ -570,8 +570,8 @@ public class DEMBasedCoregistrationOp extends Operator {
             final double lonMax = latLonMinMax[3] + extralon;
 
             // Compute lat/lon indices in DEM for the boundaries;
-            final PixelPos upperLeft = dem.getIndex(new GeoPos((float)latMax, (float)lonMin));
-            final PixelPos lowerRight = dem.getIndex(new GeoPos((float)latMin, (float)lonMax));
+            final PixelPos upperLeft = dem.getIndex(new GeoPos(latMax, lonMin));
+            final PixelPos lowerRight = dem.getIndex(new GeoPos(latMin, lonMax));
             final int latMaxIdx = (int)Math.floor(upperLeft.getY());
             final int latMinIdx = (int)Math.ceil(lowerRight.getY());
             final int lonMinIdx = (int)Math.floor(upperLeft.getX());
@@ -647,7 +647,7 @@ public class DEMBasedCoregistrationOp extends Operator {
                 } else {
                     final double azShift = firstTermInAzShift[yy][xx] + azBias;
                     final double rgShift = firstTermInRgShift[yy][xx] + rgBias;
-                    slavePixPos[index++] = new PixelPos((float)(x + rgShift), (float)(y + azShift));
+                    slavePixPos[index++] = new PixelPos(x + rgShift, y + azShift);
                 }
             }
         }

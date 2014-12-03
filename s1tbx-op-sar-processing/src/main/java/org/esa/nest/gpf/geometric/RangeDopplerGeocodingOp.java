@@ -981,7 +981,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                         if (saveIncidenceAngleFromEllipsoid && incidenceAngle != null) {
                             incidenceAngleFromEllipsoidBuffer.setElemDoubleAt(
-                                    index, incidenceAngle.getPixelFloat((float) rangeIndex, (float) azimuthIndex));
+                                    index, incidenceAngle.getPixelDouble(rangeIndex, azimuthIndex));
                         }
 
                         double satelliteHeight = 0;

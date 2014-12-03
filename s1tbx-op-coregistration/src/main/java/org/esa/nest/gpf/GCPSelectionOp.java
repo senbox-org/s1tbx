@@ -540,7 +540,7 @@ public class GCPSelectionOp extends Operator {
             if (!srgrFlag) {
                 final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
                 final double incidenceAngleAtCentreRangePixel =
-                        incidenceAngle.getPixelFloat((float) sourceImageWidth / 2f, (float) sourceImageHeight / 2f);
+                        incidenceAngle.getPixelDouble(sourceImageWidth / 2f, sourceImageHeight / 2f);
                 groundRangeSpacing /= Math.sin(incidenceAngleAtCentreRangePixel * MathUtils.DTOR);
             }
             final int nRgLooks = Math.max(1, sourceImageWidth / 2048);

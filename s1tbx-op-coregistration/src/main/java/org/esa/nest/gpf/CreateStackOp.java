@@ -501,15 +501,15 @@ public class CreateStackOp extends Operator {
         final GeoCoding mstGeoCoding = masterProduct.getGeoCoding();
         final PixelPos pixPos = new PixelPos();
         final GeoPos geoPos = new GeoPos();
-        final float mstWidth = masterProduct.getSceneRasterWidth();
-        final float mstHeight = masterProduct.getSceneRasterHeight();
+        final double mstWidth = masterProduct.getSceneRasterWidth();
+        final double mstHeight = masterProduct.getSceneRasterHeight();
 
-        float maxX = 0, maxY = 0;
-        float minX = mstWidth;
-        float minY = mstHeight;
+        double maxX = 0, maxY = 0;
+        double minX = mstWidth;
+        double minY = mstHeight;
         for (Coordinate c : tgtGeometry.getCoordinates()) {
             //System.out.println("geo "+c.x +", "+ c.y);
-            geoPos.setLocation((float) c.y, (float) c.x);
+            geoPos.setLocation(c.y, c.x);
             mstGeoCoding.getPixelPos(geoPos, pixPos);
             //System.out.println("pix "+pixPos.x +", "+ pixPos.y);
             if (pixPos.isValid() && pixPos.x != -1 && pixPos.y != -1) {
@@ -584,10 +584,10 @@ public class CreateStackOp extends Operator {
         try {
             final GeoCoding masterGeoCoding = masterProduct.getGeoCoding();
 
-            float xMin = 0;
-            float xMax = masterProduct.getSceneRasterWidth();
-            float yMin = 0;
-            float yMax = masterProduct.getSceneRasterHeight();
+            double xMin = 0;
+            double xMax = masterProduct.getSceneRasterWidth();
+            double yMin = 0;
+            double yMax = masterProduct.getSceneRasterHeight();
 
             PixelPos pixelPosUL = new PixelPos();
             PixelPos pixelPosUR = new PixelPos();
@@ -618,8 +618,8 @@ public class CreateStackOp extends Operator {
                     masterGeoCoding.getPixelPos(geoPosLastNear, pixelPosLL);
                     masterGeoCoding.getPixelPos(geoPosLastFar, pixelPosLR);
 
-                    final float[] xArray = {pixelPosUL.x, pixelPosUR.x, pixelPosLL.x, pixelPosLR.x};
-                    final float[] yArray = {pixelPosUL.y, pixelPosUR.y, pixelPosLL.y, pixelPosLR.y};
+                    final double[] xArray = {pixelPosUL.x, pixelPosUR.x, pixelPosLL.x, pixelPosLR.x};
+                    final double[] yArray = {pixelPosUL.y, pixelPosUR.y, pixelPosLL.y, pixelPosLR.y};
 
                     for (int i = 0; i < 4; i++) {
                         xMin = Math.min(xMin, xArray[i]);
@@ -640,8 +640,8 @@ public class CreateStackOp extends Operator {
             masterGeoCoding.getGeoPos(new PixelPos(xMin, yMax), geoPosLL);
             masterGeoCoding.getGeoPos(new PixelPos(xMax, yMax), geoPosLR);
 
-            final float[] latTiePoints = {geoPosUL.lat, geoPosUR.lat, geoPosLL.lat, geoPosLR.lat};
-            final float[] lonTiePoints = {geoPosUL.lon, geoPosUR.lon, geoPosLL.lon, geoPosLR.lon};
+            final double[] latTiePoints = {geoPosUL.lat, geoPosUR.lat, geoPosLL.lat, geoPosLR.lat};
+            final double[] lonTiePoints = {geoPosUL.lon, geoPosUR.lon, geoPosLL.lon, geoPosLR.lon};
 
             final TiePointGrid latGrid = new TiePointGrid("latitude", 2, 2, 0.5f, 0.5f,
                     sceneWidth - 1, sceneHeight - 1, latTiePoints);
@@ -704,12 +704,12 @@ public class CreateStackOp extends Operator {
                 final Geometry intersect = tgtGeometry.intersection(slvGeometry);
 
                 for (Coordinate c : intersect.getCoordinates()) {
-                    getPixelPos((float) c.y, (float) c.x, slvGeoCoding, slvPixelPos);
+                    getPixelPos(c.y, c.x, slvGeoCoding, slvPixelPos);
 
                     if (slvPixelPos.isValid() && slvPixelPos.x >= 0 && slvPixelPos.x < slvImageWidth &&
                             slvPixelPos.y >= 0 && slvPixelPos.y < slvImageHeight) {
 
-                        getPixelPos((float) c.y, (float) c.x, targGeoCoding, tgtPixelPos);
+                        getPixelPos(c.y, c.x, targGeoCoding, tgtPixelPos);
                         if (tgtPixelPos.isValid() && tgtPixelPos.x >= 0 && tgtPixelPos.x < targImageWidth &&
                                 tgtPixelPos.y >= 0 && tgtPixelPos.y < targImageHeight) {
 
@@ -739,7 +739,7 @@ public class CreateStackOp extends Operator {
                 pixelPos.y >= 0 && pixelPos.y < height);
     }
 
-    private static void getPixelPos(final float lat, final float lon, final GeoCoding srcGeoCoding, final PixelPos pixelPos) {
+    private static void getPixelPos(final double lat, final double lon, final GeoCoding srcGeoCoding, final PixelPos pixelPos) {
         srcGeoCoding.getPixelPos(new GeoPos(lat, lon), pixelPos);
     }
 

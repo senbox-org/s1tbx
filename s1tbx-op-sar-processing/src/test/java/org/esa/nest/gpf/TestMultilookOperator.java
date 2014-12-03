@@ -154,7 +154,7 @@ public class TestMultilookOperator {
         AbstractMetadata.setAttribute(abs, AbstractMetadata.first_line_time,
                 AbstractMetadata.parseUTC("10-MAY-2008 20:32:46.885684"));
 
-        final float[] incidence_angle = new float[64];
+        final double[] incidence_angle = new double[64];
         Arrays.fill(incidence_angle, 30.0f);
         testProduct.addTiePointGrid(new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, 16, 4, 0, 0, 1, 1, incidence_angle));
 
