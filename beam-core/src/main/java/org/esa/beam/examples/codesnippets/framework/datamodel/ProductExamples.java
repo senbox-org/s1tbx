@@ -115,7 +115,7 @@ public class ProductExamples {
     public Product addTiePointGeoCoding(Product product) {
         // define the geolocation as two array containing latitude and longitude of the product for
         // a subsampled range of the pixels.
-        float[] latitudes = {
+        double[] latitudes = {
                 64.508275f,
                 64.673630f,
                 64.836693f,
@@ -126,7 +126,7 @@ public class ProductExamples {
                 64.101139f,
                 64.260961f
         };
-        float[] longitudes = {
+        double[] longitudes = {
                 39.620031f,
                 39.041526f,
                 38.455981f,

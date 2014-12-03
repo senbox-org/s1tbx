@@ -65,9 +65,9 @@ public class GETASSE30ElevationModel implements ElevationModel, Resampling.Raste
     }
 
     @Override
-    public float getElevation(GeoPos geoPos) throws Exception {
-        float pixelX = (geoPos.lon + 180.0f) / DEGREE_RES * NUM_PIXELS_PER_TILE; // todo (nf) - consider 0.5
-        float pixelY = RASTER_HEIGHT - (geoPos.lat + 90.0f) / DEGREE_RES * NUM_PIXELS_PER_TILE; // todo (nf) - consider 0.5, y = (90 - lon) / DEGREE_RES * NUM_PIXELS_PER_TILE;
+    public double getElevation(GeoPos geoPos) throws Exception {
+        double pixelX = (geoPos.lon + 180.0f) / DEGREE_RES * NUM_PIXELS_PER_TILE; // todo (nf) - consider 0.5
+        double pixelY = RASTER_HEIGHT - (geoPos.lat + 90.0f) / DEGREE_RES * NUM_PIXELS_PER_TILE; // todo (nf) - consider 0.5, y = (90 - lon) / DEGREE_RES * NUM_PIXELS_PER_TILE;
         final double elevation;
         synchronized (resampling) {
             resampling.computeIndex(pixelX, pixelY,
@@ -79,7 +79,7 @@ public class GETASSE30ElevationModel implements ElevationModel, Resampling.Raste
         if (Double.isNaN(elevation)) {
             return descriptor.getNoDataValue();
         }
-        return (float)elevation;
+        return elevation;
     }
 
     @Override

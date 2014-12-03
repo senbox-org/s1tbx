@@ -285,39 +285,39 @@ public abstract class AbstractBowtieGeoCoding extends AbstractGeoCoding {
 
     protected static class PolyLine {
 
-        private float _x1;
-        private float _y1;
+        private double _x1;
+        private double _y1;
         private boolean _started;
-        private ArrayList<Line2D.Float> _lines;
+        private ArrayList<Line2D.Double> _lines;
 
         public PolyLine() {
             _started = false;
         }
 
-        public void lineTo(final float x, final float y) {
-            _lines.add(new Line2D.Float(_x1, _y1, x, y));
+        public void lineTo(final double x, final double y) {
+            _lines.add(new Line2D.Double(_x1, _y1, x, y));
             setXY1(x, y);
         }
 
-        public void moveTo(final float x, final float y) {
+        public void moveTo(final double x, final double y) {
             if (_started) {
                 throw new IllegalStateException("Polyline already started");
             }
             setXY1(x, y);
-            _lines = new ArrayList<Line2D.Float>();
+            _lines = new ArrayList<>();
             _started = true;
         }
 
-        private void setXY1(final float x, final float y) {
+        private void setXY1(final double x, final double y) {
             _x1 = x;
             _y1 = y;
         }
 
-        public double getDistance(final float x, final float y) {
+        public double getDistance(final double x, final double y) {
             double smallestDistPoints = Double.MAX_VALUE;
             double pointsDist = smallestDistPoints;
             if (_lines != null && _lines.size() > 0) {
-                for (final Line2D.Float line : _lines) {
+                for (final Line2D.Double line : _lines) {
                     final double distPoints = line.ptSegDistSq(x, y);
                     if (distPoints < smallestDistPoints) {
                         smallestDistPoints = distPoints;
@@ -337,11 +337,11 @@ public abstract class AbstractBowtieGeoCoding extends AbstractGeoCoding {
 
     protected class ModisTiePointGrid extends TiePointGrid {
 
-        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, float offsetX, float offsetY, float subSamplingX, float subSamplingY, float[] tiePoints) {
+        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, double offsetX, double offsetY, double subSamplingX, double subSamplingY, double[] tiePoints) {
             super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints);
         }
 
-        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, float offsetX, float offsetY, float subSamplingX, float subSamplingY, float[] tiePoints, boolean containsAngles) {
+        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, double offsetX, double offsetY, double subSamplingX, double subSamplingY, double[] tiePoints, boolean containsAngles) {
             super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints, containsAngles);
         }
 

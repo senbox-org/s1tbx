@@ -115,13 +115,13 @@ public class BowtieTiePointGeoCoding extends AbstractBowtieGeoCoding {
     private void init() {
         _gcList = new ArrayList<GeoCoding>();
         _centerLineList = new ArrayList<PolyLine>();
-        final float osX = _lonGrid.getOffsetX();
-        final float osY = _lonGrid.getOffsetY();
-        final float ssX = _lonGrid.getSubSamplingX();
-        final float ssY = _lonGrid.getSubSamplingY();
+        final double osX = _lonGrid.getOffsetX();
+        final double osY = _lonGrid.getOffsetY();
+        final double ssX = _lonGrid.getSubSamplingX();
+        final double ssY = _lonGrid.getSubSamplingY();
 
-        final float[] latFloats = (float[]) _latGrid.getDataElems();
-        final float[] lonFloats = (float[]) _lonGrid.getDataElems();
+        final double[] latFloats = (double[]) _latGrid.getDataElems();
+        final double[] lonFloats = (double[]) _lonGrid.getDataElems();
 
         final int stripeW = _lonGrid.getRasterWidth();
         final int gcStripeSceneWidth = _lonGrid.getSceneRasterWidth();
@@ -130,12 +130,12 @@ public class BowtieTiePointGeoCoding extends AbstractBowtieGeoCoding {
 
         final int gcRawWidth = stripeW * stripeH;
         for (int y = 0; y < tpRasterHeight; y += stripeH) {
-            final float[] lats = new float[gcRawWidth];
-            final float[] lons = new float[gcRawWidth];
+            final double[] lats = new double[gcRawWidth];
+            final double[] lons = new double[gcRawWidth];
             System.arraycopy(lonFloats, y * stripeW, lons, 0, gcRawWidth);
             System.arraycopy(latFloats, y * stripeW, lats, 0, gcRawWidth);
 
-            final Range range = Range.computeRangeFloat(lats, IndexValidator.TRUE, null, ProgressMonitor.NULL);
+            final Range range = Range.computeRangeDouble(lats, IndexValidator.TRUE, null, ProgressMonitor.NULL);
             if (range.getMin() < -90) {
                 _gcList.add(null);
                 _centerLineList.add(null);
@@ -181,10 +181,10 @@ public class BowtieTiePointGeoCoding extends AbstractBowtieGeoCoding {
         // first step - remove location TP grids that have already been transferred. Their size is
         // calculated wrong in most cases
         final TiePointGrid falseTiePointGrid = destScene.getProduct().getTiePointGrid(latGridName);
-        final float rightOffsetX = falseTiePointGrid.getOffsetX();
-        final float falseOffsetY = falseTiePointGrid.getOffsetY();
-        final float rightSubsamplingX = falseTiePointGrid.getSubSamplingX();
-        final float rightSubsamplingY = falseTiePointGrid.getSubSamplingY();
+        final double rightOffsetX = falseTiePointGrid.getOffsetX();
+        final double falseOffsetY = falseTiePointGrid.getOffsetY();
+        final double rightSubsamplingX = falseTiePointGrid.getSubSamplingX();
+        final double rightSubsamplingY = falseTiePointGrid.getSubSamplingY();
 
         removeTiePointGrid(destScene, latGridName);
         removeTiePointGrid(destScene, lonGridName);
@@ -198,10 +198,10 @@ public class BowtieTiePointGeoCoding extends AbstractBowtieGeoCoding {
         final int stopY = calculateStopLine(getScanlineHeight(), region);
         final int extendedHeight = stopY - startY;
 
-        float[] recalculatedLatFloats = new float[region.width * extendedHeight];
+        double[] recalculatedLatFloats = new double[region.width * extendedHeight];
         recalculatedLatFloats = srcProduct.getTiePointGrid(latGridName).getPixels(region.x, startY, region.width, extendedHeight, recalculatedLatFloats);
 
-        float[] recalculatedLonFloats = new float[region.width * extendedHeight];
+        double[] recalculatedLonFloats = new double[region.width * extendedHeight];
         recalculatedLonFloats = srcProduct.getTiePointGrid(lonGridName).getPixels(region.x, startY, region.width, extendedHeight, recalculatedLonFloats);
 
 

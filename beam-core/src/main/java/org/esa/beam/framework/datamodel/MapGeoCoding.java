@@ -215,7 +215,7 @@ public class MapGeoCoding extends AbstractGeoCoding {
             return pixelPos;
         } else {
             Point2D point2D = mapToImageTransform.transform(mapPos, pixelPos);
-            return new PixelPos((float) point2D.getX(), (float) point2D.getY());
+            return new PixelPos(point2D.getX(), point2D.getY());
         }
     }
 

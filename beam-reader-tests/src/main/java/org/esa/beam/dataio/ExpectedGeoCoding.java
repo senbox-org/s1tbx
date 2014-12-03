@@ -18,11 +18,11 @@ class ExpectedGeoCoding {
     @JsonProperty()
     private ExpectedGeoCoordinate[] coordinates;
     @JsonProperty()
-    private Float reverseAccuracy;
+    private Double reverseAccuracy;
 
 
     ExpectedGeoCoding() {
-        reverseAccuracy = -1.0F;
+        reverseAccuracy = -1.0;
     }
 
     ExpectedGeoCoding(Product product, Random random) {
@@ -36,9 +36,9 @@ class ExpectedGeoCoding {
             final float y = (float) point.getY();
             final GeoPos geoPos = geoCoding.getGeoPos(new PixelPos(x, y), null);
             final PixelPos pixelPos = geoCoding.getPixelPos(geoPos, null);
-            float xAccuracy = Math.abs(x - pixelPos.x);
-            float yAccuracy = Math.abs(y - pixelPos.y);
-            float accuracy = Math.max(xAccuracy, yAccuracy);
+            double xAccuracy = Math.abs(x - pixelPos.x);
+            double yAccuracy = Math.abs(y - pixelPos.y);
+            double accuracy = Math.max(xAccuracy, yAccuracy);
             reverseAccuracy = Math.max(reverseAccuracy, accuracy);
             coordinates[i] = new ExpectedGeoCoordinate(x, y, geoPos.getLat(), geoPos.getLon());
         }
@@ -48,7 +48,7 @@ class ExpectedGeoCoding {
         return coordinates;
     }
 
-    Float getReverseAccuracy() {
+    Double getReverseAccuracy() {
         return reverseAccuracy;
     }
 

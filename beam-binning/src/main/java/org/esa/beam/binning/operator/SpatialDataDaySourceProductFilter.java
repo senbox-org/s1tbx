@@ -39,8 +39,8 @@ class SpatialDataDaySourceProductFilter extends BinningProductFilter {
 
     @Override
     protected boolean acceptForBinning(Product product) {
-        float firstLon = product.getGeoCoding().getGeoPos(new PixelPos(0, 0), null).lon;
-        float lastLon = product.getGeoCoding().getGeoPos(new PixelPos(0, product.getSceneRasterHeight() - 1), null).lon;
+        double firstLon = product.getGeoCoding().getGeoPos(new PixelPos(0, 0), null).lon;
+        double lastLon = product.getGeoCoding().getGeoPos(new PixelPos(0, product.getSceneRasterHeight() - 1), null).lon;
         ProductData.UTC firstScanLineTime = ProductUtils.getScanLineTime(product, 0);
         ProductData.UTC lastScanLineTime = ProductUtils.getScanLineTime(product, product.getSceneRasterHeight() - 1);
         DataPeriod.Membership firstLineMembership = dataPeriod.getObservationMembership(firstLon, firstScanLineTime.getMJD());

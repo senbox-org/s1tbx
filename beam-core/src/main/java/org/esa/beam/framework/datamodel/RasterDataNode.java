@@ -1815,7 +1815,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (hasRasterData()) {
             if (isPixelValid(x, y)) {
                 if (isFloatingPointType()) {
-                    return String.valueOf(getPixelFloat(x, y));
+                    return String.valueOf(getPixelDouble(x, y));
                 } else {
                     return String.valueOf(getPixelInt(x, y));
                 }

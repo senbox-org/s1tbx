@@ -71,15 +71,15 @@ public class L1AOctsFileReader extends SeadasFileReader {
 
         int[] dims = lats.getShape();
 
-        float[] latTiePoints;
-        float[] lonTiePoints;
+        double[] latTiePoints;
+        double[] lonTiePoints;
 
         try {
             Array latarr = lats.read();
             Array lonarr = lons.read();
 
-            latTiePoints = (float[]) latarr.getStorage();
-            lonTiePoints = (float[]) lonarr.getStorage();
+            latTiePoints = (double[]) latarr.getStorage();
+            lonTiePoints = (double[]) lonarr.getStorage();
 
             final TiePointGrid latGrid = new TiePointGrid("latitude", dims[1], dims[0], 0, 0,
                     susampX, subsampY, latTiePoints);

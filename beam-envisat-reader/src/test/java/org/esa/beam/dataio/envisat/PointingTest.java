@@ -54,19 +54,19 @@ public class PointingTest extends TestCase {
     private Product createMerisLikeProduct() {
         Product product = new Product("Tatutata", EnvisatConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME, 16, 16);
         final TiePointGrid latGrid = new TiePointGrid(EnvisatConstants.LAT_DS_NAME, 2, 2, 0, 0, 16, 16,
-                                                      new float[]{1, 2, 3, 4});
+                                                      new double[]{1, 2, 3, 4});
         final TiePointGrid lonGrid = new TiePointGrid(EnvisatConstants.LON_DS_NAME, 2, 2, 0, 0, 16, 16,
-                                                      new float[]{1, 2, 3, 4});
+                                                      new double[]{1, 2, 3, 4});
         final TiePointGrid saGrid = new TiePointGrid(EnvisatConstants.MERIS_SUN_AZIMUTH_DS_NAME, 2, 2, 0, 0, 16, 16,
-                                                     new float[]{2, 3, 4, 5});
+                                                     new double[]{2, 3, 4, 5});
         final TiePointGrid szGrid = new TiePointGrid(EnvisatConstants.MERIS_SUN_ZENITH_DS_NAME, 2, 2, 0, 0, 16, 16,
-                                                     new float[]{1, 2, 3, 4});
+                                                     new double[]{1, 2, 3, 4});
         final TiePointGrid vaGrid = new TiePointGrid(EnvisatConstants.MERIS_VIEW_AZIMUTH_DS_NAME, 2, 2, 0, 0, 16, 16,
-                                                     new float[]{10, 20, 30, 40});
+                                                     new double[]{10, 20, 30, 40});
         final TiePointGrid vzGrid = new TiePointGrid(EnvisatConstants.MERIS_VIEW_ZENITH_DS_NAME, 2, 2, 0, 0, 16, 16,
-                                                     new float[]{0, 1, 2, 3});
+                                                     new double[]{0, 1, 2, 3});
         final TiePointGrid elGrid = new TiePointGrid(EnvisatConstants.MERIS_DEM_ALTITUDE_DS_NAME, 2, 2, 0, 0, 16, 16,
-                                                     new float[]{20, 30, 40, 50});
+                                                     new double[]{20, 30, 40, 50});
         final Band band7 = new Band(EnvisatConstants.MERIS_L1B_RADIANCE_7_BAND_NAME, ProductData.TYPE_UINT16, 16, 16);
         final Band band13 = new Band(EnvisatConstants.MERIS_L1B_RADIANCE_13_BAND_NAME, ProductData.TYPE_UINT16, 16, 16);
         final Band flags = new Band(EnvisatConstants.MERIS_L1B_FLAGS_DS_NAME, ProductData.TYPE_UINT8, 16, 16);
@@ -99,33 +99,33 @@ public class PointingTest extends TestCase {
     private Product createAatsrLikeProduct() {
         Product product = new Product("FischersFritz", EnvisatConstants.AATSR_L1B_TOA_PRODUCT_TYPE_NAME, 16, 16);
         final TiePointGrid latGrid = new TiePointGrid(EnvisatConstants.LAT_DS_NAME, 2, 2, 0, 0, 16, 16,
-                                                      new float[]{1, 2, 3, 4});
+                                                      new double[]{1, 2, 3, 4});
         final TiePointGrid lonGrid = new TiePointGrid(EnvisatConstants.LON_DS_NAME, 2, 2, 0, 0, 16, 16,
-                                                      new float[]{1, 2, 3, 4});
+                                                      new double[]{1, 2, 3, 4});
         final TiePointGrid saGridF = new TiePointGrid(EnvisatConstants.AATSR_SUN_AZIMUTH_FWARD_DS_NAME, 2, 2, 0, 0, 16,
                                                       16,
-                                                      new float[]{22, 32, 42, 52});
+                                                      new double[]{22, 32, 42, 52});
         final TiePointGrid seGridF = new TiePointGrid(EnvisatConstants.AATSR_SUN_ELEV_FWARD_DS_NAME, 2, 2, 0, 0, 16, 16,
-                                                      new float[]{15, 25, 35, 45});
+                                                      new double[]{15, 25, 35, 45});
         final TiePointGrid vaGridF = new TiePointGrid(EnvisatConstants.AATSR_VIEW_AZIMUTH_FWARD_DS_NAME, 2, 2, 0, 0, 16,
                                                       16,
-                                                      new float[]{72, 73, 74, 75});
+                                                      new double[]{72, 73, 74, 75});
         final TiePointGrid veGridF = new TiePointGrid(EnvisatConstants.AATSR_VIEW_ELEV_FWARD_DS_NAME, 2, 2, 0, 0, 16,
                                                       16,
-                                                      new float[]{61, 62, 63, 64});
+                                                      new double[]{61, 62, 63, 64});
         final TiePointGrid saGridN = new TiePointGrid(EnvisatConstants.AATSR_SUN_AZIMUTH_NADIR_DS_NAME, 2, 2, 0, 0, 16,
                                                       16,
-                                                      new float[]{10, 20, 30, 40});
+                                                      new double[]{10, 20, 30, 40});
         final TiePointGrid seGridN = new TiePointGrid(EnvisatConstants.AATSR_SUN_ELEV_NADIR_DS_NAME, 2, 2, 0, 0, 16, 16,
-                                                      new float[]{0, 1, 2, 3});
+                                                      new double[]{0, 1, 2, 3});
         final TiePointGrid vaGridN = new TiePointGrid(EnvisatConstants.AATSR_VIEW_AZIMUTH_NADIR_DS_NAME, 2, 2, 0, 0, 16,
                                                       16,
-                                                      new float[]{-2, -3, -4, -5});
+                                                      new double[]{-2, -3, -4, -5});
         final TiePointGrid veGridN = new TiePointGrid(EnvisatConstants.AATSR_VIEW_ELEV_NADIR_DS_NAME, 2, 2, 0, 0, 16,
                                                       16,
-                                                      new float[]{17, 27, 37, 47});
+                                                      new double[]{17, 27, 37, 47});
         final TiePointGrid elGrid = new TiePointGrid(EnvisatConstants.AATSR_ALTITUDE_DS_NAME, 2, 2, 0, 0, 16, 16,
-                                                     new float[]{207, 307, 407, 507});
+                                                     new double[]{207, 307, 407, 507});
         final Band band670F = new Band(EnvisatConstants.AATSR_L1B_REFLEC_FWARD_0670_BAND_NAME, ProductData.TYPE_UINT16,
                                        16, 16);
         final Band band670N = new Band(EnvisatConstants.AATSR_L1B_REFLEC_NADIR_0670_BAND_NAME, ProductData.TYPE_UINT16,

@@ -398,11 +398,11 @@ public class PixelGeoCodingTest {
         return product;
     }
 
-    private float[] createLatGridData() {
+    private double[] createLatGridData() {
         return createGridData(LAT_1, LAT_2);
     }
 
-    private float[] createLonGridData() {
+    private double[] createLonGridData() {
         return createGridData(LON_1, LON_2);
     }
 
@@ -416,8 +416,8 @@ public class PixelGeoCodingTest {
         return floats;
     }
 
-    private static float[] createGridData(float lon0, float lon1) {
-        float[] floats = new float[GW * GH];
+    private static double[] createGridData(float lon0, float lon1) {
+        double[] floats = new double[GW * GH];
 
         for (int j = 0; j < GH; j++) {
             for (int i = 0; i < GW; i++) {
@@ -474,7 +474,7 @@ public class PixelGeoCodingTest {
         float lon1 = 150.0f;
         float lon2 = -169.0f;
         float lon3 = 165.0f;
-        float result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
+        double result = PixelGeoCoding.getPositiveLonMin(lon0, lon1, lon2, lon3);
         assertEquals(150.0f, result, 0.0f);
 
         lon0 = -175.0f;
@@ -561,7 +561,7 @@ public class PixelGeoCodingTest {
         float lon1 = 150.0f;
         float lon2 = -169.0f;
         float lon3 = 165.0f;
-        float result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
+        double result = PixelGeoCoding.getNegativeLonMax(lon0, lon1, lon2, lon3);
         assertEquals(-169.0f, result, 0.0f);
 
         lon0 = -175.0f;

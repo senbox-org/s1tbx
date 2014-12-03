@@ -136,8 +136,8 @@ public class CreateGeoCodingDisplacementBandsAction extends ExecCommand {
                                                "phase(gc_displ_x, gc_displ_y)");
         configureBand(bandPhase, phaseGrad.clone(), "radians", "Geo-coding displacement phase");
 
-        final float[] dataX = new float[width * height];
-        final float[] dataY = new float[width * height];
+        final double[] dataX = new double[width * height];
+        final double[] dataY = new double[width * height];
 
         bandX.setRasterData(ProductData.createInstance(dataX));
         bandY.setRasterData(ProductData.createInstance(dataY));
@@ -149,16 +149,16 @@ public class CreateGeoCodingDisplacementBandsAction extends ExecCommand {
             final PixelPos pixelPos2 = new PixelPos();
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
-                    float maxX = 0;
-                    float maxY = 0;
-                    float valueX = 0;
-                    float valueY = 0;
+                    double maxX = 0;
+                    double maxY = 0;
+                    double valueX = 0;
+                    double valueY = 0;
                     for (float[] offset : OFFSETS) {
                         pixelPos1.setLocation(x + offset[0], y + offset[1]);
                         product.getGeoCoding().getGeoPos(pixelPos1, geoPos);
                         product.getGeoCoding().getPixelPos(geoPos, pixelPos2);
-                        float dx = pixelPos2.x - pixelPos1.x;
-                        float dy = pixelPos2.y - pixelPos1.y;
+                        double dx = pixelPos2.x - pixelPos1.x;
+                        double dy = pixelPos2.y - pixelPos1.y;
                         if (Math.abs(dx) > maxX) {
                             maxX = Math.abs(dx);
                             valueX = dx;

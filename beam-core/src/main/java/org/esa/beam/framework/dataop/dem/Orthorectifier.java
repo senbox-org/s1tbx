@@ -283,9 +283,9 @@ public class Orthorectifier implements GeoCoding {
                                       final PixelPos correctedPixelPos) {
         final PixelPos pp = new PixelPos();
         final GeoPos gp = new GeoPos();
-        float dx;
-        float dy;
-        float r;
+        double dx;
+        double dy;
+        double r;
         correctedPixelPos.setLocation(pixelPos);
         for (int i = 0; i < maxIterationCount; i++) {
             performDirectLocationModel(correctedPixelPos, factor, gp);
@@ -322,7 +322,7 @@ public class Orthorectifier implements GeoCoding {
      */
     private GeoPos performDirectLocationModel(PixelPos pixelPos, double factor, GeoPos geoPos) {
         geoPos = geoCoding.getGeoPos(pixelPos, geoPos);
-        final float h = getElevation(geoPos, pixelPos);
+        final double h = getElevation(geoPos, pixelPos);
         final AngularDirection vg = pointing.getViewDir(pixelPos, null);
         RsMathUtils.applyGeodeticCorrection(geoPos, factor * h, vg.zenith, vg.azimuth);
         return geoPos;
@@ -333,8 +333,8 @@ public class Orthorectifier implements GeoCoding {
                pixelPos.y >= 0 && pixelPos.y <= sceneRasterHeight;
     }
 
-    protected final float getElevation(GeoPos geoPos, PixelPos pixelPos) {
-        float h = 0.0f;
+    protected final double getElevation(GeoPos geoPos, PixelPos pixelPos) {
+        double h = 0.0f;
         if (elevationModel != null) {
             try {
                 h = elevationModel.getElevation(geoPos);

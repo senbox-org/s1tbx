@@ -853,11 +853,11 @@ public class BinningOpTest {
 
     static Product createSourceProduct(int sourceProductCounter, float value) {
         final Product p = new Product("P" + sourceProductCounter, "T", 2, 2);
-        final TiePointGrid latitude = new TiePointGrid("latitude", 2, 2, 0.5F, 0.5F, 1.0F, 1.0F, new float[]{
+        final TiePointGrid latitude = new TiePointGrid("latitude", 2, 2, 0.5F, 0.5F, 1.0F, 1.0F, new double[]{
                 1.0F, 1.0F,
                 0.0F, 0.0F,
         });
-        final TiePointGrid longitude = new TiePointGrid("longitude", 2, 2, 0.5F, 0.5F, 1.0F, 1.0F, new float[]{
+        final TiePointGrid longitude = new TiePointGrid("longitude", 2, 2, 0.5F, 0.5F, 1.0F, 1.0F, new double[]{
                 0.0F, 1.0F,
                 0.0F, 1.0F,
         });

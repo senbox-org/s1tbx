@@ -203,18 +203,18 @@ public class L2FileReader extends SeadasFileReader {
                 if (lats != null && lons != null && cntlPointVar != null) {
 
                     int[] dims = lats.getShape();
-                    float[] latTiePoints;
-                    float[] lonTiePoints;
+                    double[] latTiePoints;
+                    double[] lonTiePoints;
                     Array latarr = lats.read();
                     Array lonarr = lons.read();
 
 
                     if (mustFlipX && mustFlipY) {
-                        latTiePoints = (float[]) latarr.flip(0).flip(1).copyTo1DJavaArray();
-                        lonTiePoints = (float[]) lonarr.flip(0).flip(1).copyTo1DJavaArray();
+                        latTiePoints = (double[]) latarr.flip(0).flip(1).copyTo1DJavaArray();
+                        lonTiePoints = (double[]) lonarr.flip(0).flip(1).copyTo1DJavaArray();
                     } else {
-                        latTiePoints = (float[]) latarr.getStorage();
-                        lonTiePoints = (float[]) lonarr.getStorage();
+                        latTiePoints = (double[]) latarr.getStorage();
+                        lonTiePoints = (double[]) lonarr.getStorage();
                     }
 
                     final TiePointGrid latGrid = new TiePointGrid("latitude", dims[1], dims[0], 0, offsetY,

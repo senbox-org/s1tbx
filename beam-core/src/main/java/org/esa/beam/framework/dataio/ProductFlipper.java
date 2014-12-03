@@ -362,10 +362,10 @@ public class ProductFlipper extends AbstractProductBuilder {
             final TiePointGrid sourceTiePointGrid = getSourceProduct().getTiePointGridAt(i);
             if (isNodeAccepted(sourceTiePointGrid.getName())) {
 
-                float sourceOffsetX = sourceTiePointGrid.getOffsetX();
-                float sourceOffsetY = sourceTiePointGrid.getOffsetY();
-                float sourceStepX = sourceTiePointGrid.getSubSamplingX();
-                float sourceStepY = sourceTiePointGrid.getSubSamplingY();
+                double sourceOffsetX = sourceTiePointGrid.getOffsetX();
+                double sourceOffsetY = sourceTiePointGrid.getOffsetY();
+                double sourceStepX = sourceTiePointGrid.getSubSamplingX();
+                double sourceStepY = sourceTiePointGrid.getSubSamplingY();
                 if (getSubsetDef() != null) {
                     sourceStepX /= getSubsetDef().getSubSamplingX();
                     sourceStepY /= getSubsetDef().getSubSamplingY();
@@ -375,8 +375,8 @@ public class ProductFlipper extends AbstractProductBuilder {
                     }
                 }
 
-                final float[] sourcePoints = sourceTiePointGrid.getTiePoints();
-                final float[] targetPoints = new float[sourcePoints.length];
+                final double[] sourcePoints = sourceTiePointGrid.getTiePoints();
+                final double[] targetPoints = new double[sourcePoints.length];
                 final int width = sourceTiePointGrid.getRasterWidth();
                 final int height = sourceTiePointGrid.getRasterHeight();
 

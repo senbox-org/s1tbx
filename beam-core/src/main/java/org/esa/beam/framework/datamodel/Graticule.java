@@ -190,7 +190,7 @@ public class Graticule {
         int step = 16;
         if (geoCoding instanceof TiePointGeoCoding) {
             final TiePointGeoCoding tiePointGeoCoding = (TiePointGeoCoding) geoCoding;
-            step = Math.round(Math.min(tiePointGeoCoding.getLonGrid().getSubSamplingX(), tiePointGeoCoding.getLonGrid().getSubSamplingY()));
+            step = (int)Math.round(Math.min(tiePointGeoCoding.getLonGrid().getSubSamplingX(), tiePointGeoCoding.getLonGrid().getSubSamplingY()));
         }
         return step;
     }
@@ -206,7 +206,7 @@ public class Graticule {
         ArrayList<GeoPos> intersectionList = new ArrayList<GeoPos>();
         GeoPos geoPos, int1, int2;
         PixelPos pixelPos;
-        float lat, lon;
+        double lat, lon;
         double my = latMajorStep * Math.floor(yMin / latMajorStep);
         for (; my <= yMax; my += latMajorStep) {
             intersectionList.clear();
@@ -249,7 +249,7 @@ public class Graticule {
         List<GeoPos> intersectionList = new ArrayList<GeoPos>();
         GeoPos geoPos, int1, int2;
         PixelPos pixelPos;
-        float lat, lon;
+        double lat, lon;
         double mx = lonMajorStep * Math.floor(xMin / lonMajorStep);
         for (; mx <= xMax; mx += lonMajorStep) {
             intersectionList.clear();
@@ -298,7 +298,7 @@ public class Graticule {
                     pa = (my - p0y) / (p1y - p0y);
                     if (pa >= 0.0 && pa < 1.0) {
                         mx = p0x + pa * (p1x - p0x);
-                        intersectionList.add(new GeoPos((float) my, (float) mx));
+                        intersectionList.add(new GeoPos(my, mx));
                     }
                 }
             }
@@ -324,7 +324,7 @@ public class Graticule {
                     pa = (mx - p0x) / (p1x - p0x);
                     if (pa >= 0.0 && pa < 1.0) {
                         my = p0y + pa * (p1y - p0y);
-                        intersectionList.add(new GeoPos((float) my, (float) mx));
+                        intersectionList.add(new GeoPos(my, mx));
                     }
                 }
             }
@@ -426,12 +426,12 @@ public class Graticule {
     }
 
     private static TextGlyph createTextGlyph(String text, Coord coord1, Coord coord2) {
-        final float angle = (float) Math.atan2(coord2.pixelPos.y - coord1.pixelPos.y,
+        final double angle = Math.atan2(coord2.pixelPos.y - coord1.pixelPos.y,
                                                coord2.pixelPos.x - coord1.pixelPos.x);
         return new TextGlyph(text, coord1.pixelPos.x, coord1.pixelPos.y, angle);
     }
 
-    private static float limitLon(float lon) {
+    private static double limitLon(double lon) {
         while (lon < -180f) {
             lon += 360f;
         }
@@ -501,11 +501,11 @@ public class Graticule {
     public static class TextGlyph {
 
         private final String text;
-        private final float x;
-        private final float y;
-        private final float angle;
+        private final double x;
+        private final double y;
+        private final double angle;
 
-        public TextGlyph(String text, float x, float y, float angle) {
+        public TextGlyph(String text, double x, double y, double angle) {
             this.text = text;
             this.x = x;
             this.y = y;
@@ -516,15 +516,15 @@ public class Graticule {
             return text;
         }
 
-        public float getX() {
+        public double getX() {
             return x;
         }
 
-        public float getY() {
+        public double getY() {
             return y;
         }
 
-        public float getAngle() {
+        public double getAngle() {
             return angle;
         }
     }
@@ -542,7 +542,7 @@ public class Graticule {
     private static class GeoPosLatComparator implements Comparator<GeoPos> {
         @Override
         public int compare(GeoPos geoPos1, GeoPos geoPos2) {
-            final float delta = geoPos1.lat - geoPos2.lat;
+            final double delta = geoPos1.lat - geoPos2.lat;
             if (delta < 0f) {
                 return -1;
             } else if (delta > 0f) {
@@ -556,7 +556,7 @@ public class Graticule {
     private static class GeoPosLonComparator implements Comparator<GeoPos> {
         @Override
         public int compare(GeoPos geoPos1, GeoPos geoPos2) {
-            final float delta = geoPos1.lon - geoPos2.lon;
+            final double delta = geoPos1.lon - geoPos2.lon;
             if (delta < 0f) {
                 return -1;
             } else if (delta > 0f) {

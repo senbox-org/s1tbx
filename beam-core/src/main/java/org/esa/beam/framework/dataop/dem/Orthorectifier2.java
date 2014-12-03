@@ -109,16 +109,16 @@ public class Orthorectifier2 extends Orthorectifier {
             gp.lon = (float) (MathUtils.RTOD * lam);
 
             // Compute new pixel coordinates of intersection point
-            float iOld = pixelPos.x;
-            float jOld = pixelPos.y;
+            double iOld = pixelPos.x;
+            double jOld = pixelPos.y;
             getGeoCoding().getPixelPos(gp, pixelPos);
-            float iNew = pixelPos.x;
-            float jNew = pixelPos.y;
+            double iNew = pixelPos.x;
+            double jNew = pixelPos.y;
 
             // Compute distance between last and current pixel position
-            float deltaI = (iNew - iOld);
-            float deltaJ = (jNew - jOld);
-            float d = deltaI * deltaI + deltaJ * deltaJ;
+            double deltaI = (iNew - iOld);
+            double deltaJ = (jNew - jOld);
+            double d = deltaI * deltaI + deltaJ * deltaJ;
             if (d < PIXEL_EPS_SQR) {
                 return true;
             }

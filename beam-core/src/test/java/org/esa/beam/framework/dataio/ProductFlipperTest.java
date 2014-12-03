@@ -39,14 +39,14 @@ public class ProductFlipperTest {
     @BeforeClass
     public static void setup() {
         product = new Product("p", "t", 14, 16);
-        TiePointGrid t1 = new TiePointGrid("t1", 3, 3, 0, 0, 5, 5, new float[]{
+        TiePointGrid t1 = new TiePointGrid("t1", 3, 3, 0, 0, 5, 5, new double[]{
                 0.6f, 0.3f, 0.4f,
                 0.8f, 0.9f, 0.4f,
                 0.3f, 0.2f, 0.4f
         });
         product.addTiePointGrid(t1);
 
-        TiePointGrid t2 = new TiePointGrid("t2", 3, 3, 0, 0, 5, 5, new float[]{
+        TiePointGrid t2 = new TiePointGrid("t2", 3, 3, 0, 0, 5, 5, new double[]{
                 0.9f, 0.2f, 0.3f,
                 0.6f, 0.1f, 0.4f,
                 0.2f, 0.9f, 0.5f
@@ -54,7 +54,7 @@ public class ProductFlipperTest {
         product.addTiePointGrid(t2);
         product.setGeoCoding(new TiePointGeoCoding(t1, t2, Datum.WGS_84));
 
-        TiePointGrid t3 = new TiePointGrid("t3", 3, 3, 1, 1, 3, 3, new float[]{
+        TiePointGrid t3 = new TiePointGrid("t3", 3, 3, 1, 1, 3, 3, new double[]{
                 1, 2, 3,
                 4, 5, 6,
                 7, 8, 9

@@ -156,7 +156,7 @@ public class FXYGeoCoding extends AbstractGeoCoding {
         final double y = _pixelOffsetY + _pixelSizeY * pixelPos.y;
         final double lat = _latFunction.computeZ(x, y);
         final double lon = _lonFunction.computeZ(x, y);
-        geoPos.setLocation((float) lat, (float) lon);
+        geoPos.setLocation(lat, lon);
         return geoPos;
 
     }

@@ -25,8 +25,8 @@ import org.esa.beam.framework.dataop.maptransf.Datum;
 public class TiePointGridPointingTest extends TestCase {
 
     public void testRequiresGeoCoding() {
-        final TiePointGrid latGrid = new TiePointGrid("lat", 2, 2, 0, 0, 1, 1, new float[]{1, 2, 3, 4});
-        final TiePointGrid lonGrid = new TiePointGrid("lon", 2, 2, 0, 0, 1, 1, new float[]{1, 2, 3, 4});
+        final TiePointGrid latGrid = new TiePointGrid("lat", 2, 2, 0, 0, 1, 1, new double[]{1, 2, 3, 4});
+        final TiePointGrid lonGrid = new TiePointGrid("lon", 2, 2, 0, 0, 1, 1, new double[]{1, 2, 3, 4});
         final TiePointGeoCoding geoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
         try {
             new TiePointGridPointing(geoCoding,
@@ -46,9 +46,9 @@ public class TiePointGridPointingTest extends TestCase {
     }
 
     public void testEqualsAndHashcode() {
-        final TiePointGrid latGrid = new TiePointGrid("lat", 2, 2, 0, 0, 1, 1, new float[]{1, 2, 3, 4});
-        final TiePointGrid lonGrid = new TiePointGrid("lon", 2, 2, 0, 0, 1, 1, new float[]{1, 2, 3, 4});
-        final TiePointGrid lonGrid2 = new TiePointGrid("lon", 2, 2, 0, 0, 1, 1, new float[]{2, 3, 4, 5});
+        final TiePointGrid latGrid = new TiePointGrid("lat", 2, 2, 0, 0, 1, 1, new double[]{1, 2, 3, 4});
+        final TiePointGrid lonGrid = new TiePointGrid("lon", 2, 2, 0, 0, 1, 1, new double[]{1, 2, 3, 4});
+        final TiePointGrid lonGrid2 = new TiePointGrid("lon", 2, 2, 0, 0, 1, 1, new double[]{2, 3, 4, 5});
 
         final TiePointGeoCoding geoCoding1 = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
         final TiePointGeoCoding geoCoding2 = new TiePointGeoCoding(latGrid, lonGrid2, Datum.WGS_84);

@@ -89,18 +89,18 @@ public final class ReaderUtils {
         return null;
     }
 
-    public static void addGeoCoding(final Product product, final float[] latCorners, final float[] lonCorners) {
+    public static void addGeoCoding(final Product product, final double[] latCorners, final double[] lonCorners) {
 
         if (latCorners == null || lonCorners == null) return;
 
         final int gridWidth = 10;
         final int gridHeight = 10;
 
-        final float[] fineLatTiePoints = new float[gridWidth * gridHeight];
+        final double[] fineLatTiePoints = new double[gridWidth * gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, latCorners, fineLatTiePoints);
 
-        float subSamplingX = (float) product.getSceneRasterWidth() / (gridWidth - 1);
-        float subSamplingY = (float) product.getSceneRasterHeight() / (gridHeight - 1);
+        double subSamplingX = product.getSceneRasterWidth() / (gridWidth - 1);
+        double subSamplingY = product.getSceneRasterHeight() / (gridHeight - 1);
         if (subSamplingX == 0 || subSamplingY == 0)
             return;
 
@@ -108,7 +108,7 @@ public final class ReaderUtils {
                 subSamplingX, subSamplingY, fineLatTiePoints);
         latGrid.setUnit(Unit.DEGREES);
 
-        final float[] fineLonTiePoints = new float[gridWidth * gridHeight];
+        final double[] fineLonTiePoints = new double[gridWidth * gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, lonCorners, fineLonTiePoints);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
@@ -126,8 +126,8 @@ public final class ReaderUtils {
                                               final int coarseGridHeight,
                                               final int fineGridWidth,
                                               final int fineGridHeight,
-                                              final float[] coarseTiePoints,
-                                              final float[] fineTiePoints) {
+                                              final double[] coarseTiePoints,
+                                              final double[] fineTiePoints) {
 
         if (coarseTiePoints == null || coarseTiePoints.length != coarseGridWidth * coarseGridHeight) {
             throw new IllegalArgumentException(
@@ -142,19 +142,19 @@ public final class ReaderUtils {
         int k = 0;
         for (int r = 0; r < fineGridHeight; r++) {
 
-            final float lambdaR = (float) (r) / (float) (fineGridHeight - 1);
-            final float betaR = lambdaR * (coarseGridHeight - 1);
+            final double lambdaR = r / (double) (fineGridHeight - 1);
+            final double betaR = lambdaR * (coarseGridHeight - 1);
             final int j0 = (int) (betaR);
             final int j1 = Math.min(j0 + 1, coarseGridHeight - 1);
-            final float wj = betaR - j0;
+            final double wj = betaR - j0;
 
             for (int c = 0; c < fineGridWidth; c++) {
 
-                final float lambdaC = (float) (c) / (float) (fineGridWidth - 1);
-                final float betaC = lambdaC * (coarseGridWidth - 1);
+                final double lambdaC = c / (double) (fineGridWidth - 1);
+                final double betaC = lambdaC * (coarseGridWidth - 1);
                 final int i0 = (int) (betaC);
                 final int i1 = Math.min(i0 + 1, coarseGridWidth - 1);
-                final float wi = betaC - i0;
+                final double wi = betaC - i0;
 
                 fineTiePoints[k++] = MathUtils.interpolate2D(wi, wj,
                         coarseTiePoints[i0 + j0 * coarseGridWidth],
@@ -190,12 +190,12 @@ public final class ReaderUtils {
             return;
 
         final int midAz = product.getSceneRasterHeight() / 2;
-        final float inc1 = tpg.getPixelFloat(0, midAz);
-        final float inc2 = tpg.getPixelFloat(product.getSceneRasterWidth(), midAz);
+        final double inc1 = tpg.getPixelDouble(0, midAz);
+        final double inc2 = tpg.getPixelDouble(product.getSceneRasterWidth(), midAz);
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_near, (double) Math.min(inc1, inc2));
-        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_far, (double) Math.max(inc1, inc2));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_near, Math.min(inc1, inc2));
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.incidence_far, Math.max(inc1, inc2));
     }
 
     public static ProductData.UTC getTime(final MetadataElement elem, final String tag, final DateFormat timeFormat) {

@@ -384,7 +384,7 @@ public abstract class AbstractProductReader implements ProductReader {
     }
 
     /**
-     * Used by the {@link #createTiePointGrid(String, int, int, float, float, float, float, float[]) createTiePointGrid} method in order to determine
+     * Used by the {@link #createTiePointGrid(String, int, int, double, double, double, double, double[]) createTiePointGrid} method in order to determine
      * the discontinuity mode for angle tie-point grids.
      * <p>The default implementation returns {@link TiePointGrid#DISCONT_AT_180} for
      * the names "lon", "long" or "longitude" ignoring letter case,
@@ -418,11 +418,11 @@ public abstract class AbstractProductReader implements ProductReader {
     protected TiePointGrid createTiePointGrid(String gridName,
                                               int gridWidth,
                                               int gridHeight,
-                                              float offsetX,
-                                              float offsetY,
-                                              float subSamplingX,
-                                              float subSamplingY,
-                                              float[] tiePoints) {
+                                              double offsetX,
+                                              double offsetY,
+                                              double subSamplingX,
+                                              double subSamplingY,
+                                              double[] tiePoints) {
         final int gridDiscontinutity = getGridDiscontinutity(gridName);
         if (gridDiscontinutity != 0) {
             Debug.trace("creating tie-point grid '" + gridName +

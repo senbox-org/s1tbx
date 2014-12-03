@@ -50,8 +50,8 @@ public class GcpTableModel extends AbstractPlacemarkTableModel {
         Assert.notNull(getProduct());
         final Placemark placemark = getPlacemarkDescriptor().getPlacemarkGroup(getProduct()).get(rowIndex);
 
-        float x = Float.NaN;
-        float y = Float.NaN;
+        double x = Double.NaN;
+        double y = Double.NaN;
 
         final PixelPos pixelPos = placemark.getPixelPos();
         if (pixelPos != null) {
@@ -59,8 +59,8 @@ public class GcpTableModel extends AbstractPlacemarkTableModel {
             y = pixelPos.y;
         }
 
-        float lon = Float.NaN;
-        float lat = Float.NaN;
+        double lon = Double.NaN;
+        double lat = Double.NaN;
 
         final GeoPos geoPos = placemark.getGeoPos();
         if (geoPos != null) {
@@ -68,8 +68,8 @@ public class GcpTableModel extends AbstractPlacemarkTableModel {
             lat = geoPos.lat;
         }
 
-        float dLon = Float.NaN;
-        float dLat = Float.NaN;
+        double dLon = Double.NaN;
+        double dLat = Double.NaN;
 
         final GeoCoding geoCoding = getProduct().getGeoCoding();
 

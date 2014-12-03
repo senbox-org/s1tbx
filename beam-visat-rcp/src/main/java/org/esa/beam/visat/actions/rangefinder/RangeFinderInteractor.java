@@ -340,26 +340,26 @@ public class RangeFinderInteractor extends ViewportInteractor {
 
     private static class DistanceData {
 
-        final static float MIN_EARTH_RADIUS = (float) Ellipsoid.WGS_84.getSemiMinor();
-        final static float MAX_EARTH_RADIUS = (float) Ellipsoid.WGS_84.getSemiMajor();
-        final static float MEAN_EARTH_RADIUS_M = 6371000;
-        final static float MEAN_EARTH_RADIUS_KM = MEAN_EARTH_RADIUS_M * 0.001f;
-        final static float MEAN_ERROR_FACTOR = MIN_EARTH_RADIUS / MAX_EARTH_RADIUS;
+        final static double MIN_EARTH_RADIUS = (float) Ellipsoid.WGS_84.getSemiMinor();
+        final static double MAX_EARTH_RADIUS = (float) Ellipsoid.WGS_84.getSemiMajor();
+        final static double MEAN_EARTH_RADIUS_M = 6371000;
+        final static double MEAN_EARTH_RADIUS_KM = MEAN_EARTH_RADIUS_M * 0.001f;
+        final static double MEAN_ERROR_FACTOR = MIN_EARTH_RADIUS / MAX_EARTH_RADIUS;
 
         final int xH;
         final int yH;
         final int xN;
         final int yN;
-        final float lonH;
-        final float latH;
-        final float lonN;
-        final float latN;
-        final float lamH;
-        final float phiH;
-        final float lamN;
-        final float phiN;
-        final float distance;
-        final float distanceError;
+        final double lonH;
+        final double latH;
+        final double lonN;
+        final double latN;
+        final double lamH;
+        final double phiH;
+        final double lamN;
+        final double phiN;
+        final double distance;
+        final double distanceError;
 
         public DistanceData(GeoCoding geoCoding, final Point pH, final Point pN) {
             this.xH = pH.x;

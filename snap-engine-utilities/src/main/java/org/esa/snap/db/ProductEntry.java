@@ -128,14 +128,14 @@ public class ProductEntry {
         this.lastModified = (long) results.getDouble(LAST_MODIFIED);
         this.fileFormat = results.getString(FILE_FORMAT);
 
-        this.firstNear.setLocation((float) results.getDouble(AbstractMetadata.first_near_lat),
-                (float) results.getDouble(AbstractMetadata.first_near_long));
-        this.firstFar.setLocation((float) results.getDouble(AbstractMetadata.first_far_lat),
-                (float) results.getDouble(AbstractMetadata.first_far_long));
-        this.lastNear.setLocation((float) results.getDouble(AbstractMetadata.last_near_lat),
-                (float) results.getDouble(AbstractMetadata.last_near_long));
-        this.lastFar.setLocation((float) results.getDouble(AbstractMetadata.last_far_lat),
-                (float) results.getDouble(AbstractMetadata.last_far_long));
+        this.firstNear.setLocation(results.getDouble(AbstractMetadata.first_near_lat),
+                results.getDouble(AbstractMetadata.first_near_long));
+        this.firstFar.setLocation(results.getDouble(AbstractMetadata.first_far_lat),
+                results.getDouble(AbstractMetadata.first_far_long));
+        this.lastNear.setLocation(results.getDouble(AbstractMetadata.last_near_lat),
+                results.getDouble(AbstractMetadata.last_near_long));
+        this.lastFar.setLocation(results.getDouble(AbstractMetadata.last_far_lat),
+                results.getDouble(AbstractMetadata.last_far_long));
         this.geoboundary = parseGeoBoundaryStr(results.getString(GEO_BOUNDARY));
     }
 

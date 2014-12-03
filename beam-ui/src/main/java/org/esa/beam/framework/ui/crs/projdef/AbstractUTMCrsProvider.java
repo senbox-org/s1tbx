@@ -55,9 +55,9 @@ abstract class AbstractUTMCrsProvider extends AbstractCrsProvider {
         return "UTM Zone " + zoneIndex + (south ? ", South" : "");
     }
 
-    static int getZoneIndex(float longitude) {
-        final float zoneIndex = ((longitude + 180.0f) / 6.0f - 0.5f) + 1;
-        return MathUtils.roundAndCrop(zoneIndex, MIN_UTM_ZONE, MAX_UTM_ZONE);
+    static int getZoneIndex(double longitude) {
+        final double zoneIndex = ((longitude + 180.0f) / 6.0f - 0.5f) + 1;
+        return (int)MathUtils.roundAndCrop(zoneIndex, MIN_UTM_ZONE, MAX_UTM_ZONE);
     }
 
     private static void setValue(ParameterValueGroup values, ParameterDescriptor<Double> descriptor, double value) {

@@ -63,8 +63,8 @@ public class PinTableModel extends AbstractPlacemarkTableModel {
     protected Object getStandardColumnValueAt(int rowIndex, int columnIndex) {
         Assert.notNull(getProduct());
         final Placemark placemark = getPlacemarkDescriptor().getPlacemarkGroup(getProduct()).get(rowIndex);
-        float x = Float.NaN;
-        float y = Float.NaN;
+        double x = Double.NaN;
+        double y = Double.NaN;
 
         final PixelPos pixelPos = placemark.getPixelPos();
         if (pixelPos != null) {
@@ -72,8 +72,8 @@ public class PinTableModel extends AbstractPlacemarkTableModel {
             y = pixelPos.y;
         }
 
-        float lon = Float.NaN;
-        float lat = Float.NaN;
+        double lon = Double.NaN;
+        double lat = Double.NaN;
 
         final GeoPos geoPos = placemark.getGeoPos();
         if (geoPos != null) {

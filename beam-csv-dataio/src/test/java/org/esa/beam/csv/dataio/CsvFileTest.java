@@ -109,9 +109,9 @@ public class CsvFileTest {
         assertEquals("AMRU1", features[1].getAttribute(0));
         assertEquals("AMRU2", features[2].getAttribute(0));
 
-        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float)features[0].getAttribute(1), (Float)features[0].getAttribute(2)));
-        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float)features[1].getAttribute(1), (Float)features[1].getAttribute(2)));
-        assertEquals(new GeoPos(40.0f, 120.0f), new GeoPos((Float)features[2].getAttribute(1), (Float)features[2].getAttribute(2)));
+        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Double)features[0].getAttribute(1), (Double)features[0].getAttribute(2)));
+        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Double)features[1].getAttribute(1), (Double)features[1].getAttribute(2)));
+        assertEquals(new GeoPos(40.0f, 120.0f), new GeoPos((Double)features[2].getAttribute(1), (Double)features[2].getAttribute(2)));
 
         assertEquals(ProductData.UTC.parse("2010-06-01 12:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC)features[0].getAttribute(3)).getAsDate().getTime());
         assertEquals(ProductData.UTC.parse("2010-06-01 12:48:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC)features[1].getAttribute(3)).getAsDate().getTime());
@@ -181,9 +181,9 @@ public class CsvFileTest {
         assertEquals("AMRU1", features[1].getAttribute(0));
         assertEquals("AMRU2", features[2].getAttribute(0));
 
-        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float)features[0].getAttribute(1), (Float)features[0].getAttribute(2)));
-        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float)features[1].getAttribute(1), (Float)features[1].getAttribute(2)));
-        assertEquals(new GeoPos(40.0f, 120.0f), new GeoPos((Float)features[2].getAttribute(1), (Float)features[2].getAttribute(2)));
+        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Double)features[0].getAttribute(1), (Double)features[0].getAttribute(2)));
+        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Double)features[1].getAttribute(1), (Double)features[1].getAttribute(2)));
+        assertEquals(new GeoPos(40.0f, 120.0f), new GeoPos((Double)features[2].getAttribute(1), (Double)features[2].getAttribute(2)));
 
         assertEquals(ProductData.UTC.parse("2010-06-01 12:45:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC)features[0].getAttribute(3)).getAsDate().getTime());
         assertEquals(ProductData.UTC.parse("2010-06-01 12:48:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC)features[1].getAttribute(3)).getAsDate().getTime());
@@ -238,8 +238,8 @@ public class CsvFileTest {
         assertEquals("AMRU1", features[0].getAttribute(0));
         assertEquals("AMRU2", features[1].getAttribute(0));
 
-        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Float)features[0].getAttribute(1), (Float)features[0].getAttribute(2)));
-        assertEquals(new GeoPos(40.0f, 120.0f), new GeoPos((Float)features[1].getAttribute(1), (Float)features[1].getAttribute(2)));
+        assertEquals(new GeoPos(30.0f, 50.0f), new GeoPos((Double)features[0].getAttribute(1), (Double)features[0].getAttribute(2)));
+        assertEquals(new GeoPos(40.0f, 120.0f), new GeoPos((Double)features[1].getAttribute(1), (Double)features[1].getAttribute(2)));
 
         assertEquals(ProductData.UTC.parse("2010-06-01 12:48:00", "yyyy-MM-dd HH:mm:ss").getAsDate().getTime(), ((ProductData.UTC)features[0].getAttribute(3)).getAsDate().getTime());
         assertEquals(null, features[1].getAttribute(3));

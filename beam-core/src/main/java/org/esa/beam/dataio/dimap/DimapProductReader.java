@@ -223,7 +223,7 @@ public class DimapProductReader extends AbstractProductReader {
             FileImageInputStream inputStream = null;
             try {
                 inputStream = new FileImageInputStream(new File(inputDir, dataFile));
-                final float[] floats = ((float[]) tiePointGrid.getData().getElems());
+                final double[] floats = ((double[]) tiePointGrid.getData().getElems());
                 inputStream.seek(0);
                 inputStream.readFully(floats, 0, floats.length);
                 inputStream.close();

@@ -379,7 +379,7 @@ public class DimapDocumentTest extends TestCase {
                                             float stepY, boolean cyclic) {
         int gridWidth = Math.round((sceneW - 1) / stepX + 1);
         int gridHeight = Math.round((sceneH - 1) / stepY + 1);
-        float[] floats = new float[gridWidth * gridHeight];
+        double[] floats = new double[gridWidth * gridHeight];
         for (int i = 0; i < floats.length; i++) {
             floats[i] = (float) (20.0 + 10.0 * Math.random());
         }

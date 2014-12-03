@@ -222,7 +222,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         try {
             DirectPosition directPixelPos = new DirectPosition2D(pixelPos);
             DirectPosition directGeoPos = imageToGeo.transform(directPixelPos, null);
-            geoPos.setLocation((float) directGeoPos.getOrdinate(1), (float) directGeoPos.getOrdinate(0));
+            geoPos.setLocation(directGeoPos.getOrdinate(1), directGeoPos.getOrdinate(0));
         } catch (Exception ignored) {
             geoPos.setInvalid();
         }
@@ -237,7 +237,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
         try {
             DirectPosition directGeoPos = new DirectPosition2D(geoPos.getLon(), geoPos.getLat());
             DirectPosition directPixelPos = geoToImage.transform(directGeoPos, null);
-            pixelPos.setLocation((float) directPixelPos.getOrdinate(0), (float) directPixelPos.getOrdinate(1));
+            pixelPos.setLocation(directPixelPos.getOrdinate(0), directPixelPos.getOrdinate(1));
         } catch (Exception ignored) {
             pixelPos.setInvalid();
         }
@@ -245,7 +245,7 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     }
 
     public final void getPixels(final int x1, final int y1, final int w, final int h,
-                                final float[] latPixels, final float[] lonPixels) {
+                                final double[] latPixels, final double[] lonPixels) {
         final DirectPosition2D directPixPos = new DirectPosition2D();
         final DirectPosition directGeoPos = new GeneralDirectPosition(0,0);
         final int x2 = x1 + w;
@@ -257,11 +257,11 @@ public class CrsGeoCoding extends AbstractGeoCoding {
                 try {
                     directPixPos.setLocation(x + 0.5, yp);
                     imageToGeo.transform(directPixPos, directGeoPos);
-                    latPixels[pos] = (float) directGeoPos.getOrdinate(1);
-                    lonPixels[pos] = (float) directGeoPos.getOrdinate(0);
+                    latPixels[pos] = directGeoPos.getOrdinate(1);
+                    lonPixels[pos] = directGeoPos.getOrdinate(0);
                 } catch (Exception ignored) {
-                    latPixels[pos] = Float.NaN;
-                    lonPixels[pos] = Float.NaN;
+                    latPixels[pos] = Double.NaN;
+                    lonPixels[pos] = Double.NaN;
                 }
                 ++pos;
             }

@@ -30,7 +30,7 @@ public abstract class CartographicMapTransform implements MapTransform {
     /**
      * The central meridian value in degree.
      */
-    protected final float _centralMeridian;
+    protected final double _centralMeridian;
     /**
      * Semi-major parameter of ellipsoid (map scaling factor) in meter.
      */
@@ -60,7 +60,7 @@ public abstract class CartographicMapTransform implements MapTransform {
                                        double falseEasting,
                                        double falseNorthing,
                                        double semiMajor) {
-        _centralMeridian = (float) centralMeridian;
+        _centralMeridian = centralMeridian;
         _x0 = falseEasting;
         _y0 = falseNorthing;
         _a = semiMajor;
@@ -124,7 +124,7 @@ public abstract class CartographicMapTransform implements MapTransform {
             mapPoint = new Point2D.Double();
         }
 
-        float lon0 = geoPoint.getLon() - _centralMeridian;
+        double lon0 = geoPoint.getLon() - _centralMeridian;
         if (lon0 < -180.0) {
             lon0 = (float) (360.0 + lon0);
         }
@@ -174,24 +174,7 @@ public abstract class CartographicMapTransform implements MapTransform {
      *
      * @return the map coordinate
      */
-    abstract protected Point2D forward_impl(float lat, float lon, Point2D mapPoint);
-
-    /**
-     * Worker method to be overridden by derived class. Performs the pure transformation. Prescaling, northing, easting
-     * etc is calculated in this class.
-     * <p/>
-     * <p>Should be overridden in order to delegate to <code>{@link #inverse_impl(double, double,
-     * org.esa.beam.framework.datamodel.GeoPos)}</code> if transformation is performed is in 64-bit accuracy. Override
-     * <code>{@link #inverse_impl(double, double, org.esa.beam.framework.datamodel.GeoPos)}</code> instead in order to
-     * perform the actual transformation.
-     *
-     * @param geoPoint point on the earth's surface
-     * @param x        map x coordinate
-     * @param y        map y coordinate
-     *
-     * @return the geodetic co-ordinate
-     */
-    abstract protected GeoPos inverse_impl(float x, float y, GeoPos geoPoint);
+    abstract protected Point2D forward_impl(double lat, double lon, Point2D mapPoint);
 
     /**
      * Worker method to be overridden by derived class. Performs the pure transformation. Prescaling, northing, easting
@@ -207,7 +190,5 @@ public abstract class CartographicMapTransform implements MapTransform {
      *
      * @return the geodetic co-ordinate
      */
-    protected GeoPos inverse_impl(double x, double y, GeoPos geoPoint) {
-        return inverse_impl((float) x, (float) y, geoPoint);
-    }
+    abstract protected GeoPos inverse_impl(double x, double y, GeoPos geoPoint);
 }

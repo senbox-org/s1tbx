@@ -634,9 +634,9 @@ class AtsrHeader implements AtsrConstants {
     /**
      * Parses <code>numElems * size</code> bytes from the stream and creates a float array of numElems elements of it.
      */
-    private float[] parseFloatArray(int size, int numElems) throws IOException {
+    private double[] parseFloatArray(int size, int numElems) throws IOException {
         char[] array = new char[size];
-        float[] fRet = new float[numElems];
+        double[] fRet = new double[numElems];
 
         for (int n = 0; n < numElems; n++) {
             _reader.read(array, 0, size);
@@ -785,7 +785,7 @@ class AtsrHeader implements AtsrConstants {
         TiePointGrid grid = null;
         int arraySize = ATSR_TIE_PT_GRID_WIDTH * ATSR_TIE_PT_GRID_HEIGHT;
 
-        float[] fData = parseFloatArray(ANGLE_PARAMETER_SIZE, arraySize);
+        double[] fData = parseFloatArray(ANGLE_PARAMETER_SIZE, arraySize);
 
         grid = new TiePointGrid(tiePtName, ATSR_TIE_PT_GRID_WIDTH, ATSR_TIE_PT_GRID_HEIGHT,
                                 ATSR_TIE_PT_OFFS_X, 0, ATSR_TIE_PT_SUBS_X, ATSR_TIE_PT_SUBS_Y, fData);

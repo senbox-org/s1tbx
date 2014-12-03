@@ -57,21 +57,21 @@ public class GcpExportMain {
             final int resolution = Integer.parseInt(args[2]);
             final int gcpWidth = Math.max(width / resolution + 1, 2); //2 minimum
             final int gcpHeight = Math.max(height / resolution + 1, 2);//2 minimum
-            final float xMultiplier = 1f * (width - 1) / (gcpWidth - 1);
-            final float yMultiplier = 1f * (height - 1) / (gcpHeight - 1);
+            final double xMultiplier = 1f * (width - 1) / (gcpWidth - 1);
+            final double yMultiplier = 1f * (height - 1) / (gcpHeight - 1);
             final PixelPos pixelPos = new PixelPos();
             final GeoPos geoPos = new GeoPos();
 
             writer.write(createLineString("; ENVI Registration GCP File"));
             for (int y = 0; y < gcpHeight; y++) {
                 for (int x = 0; x < gcpWidth; x++) {
-                    final float imageX = xMultiplier * x;
-                    final float imageY = yMultiplier * y;
+                    final double imageX = xMultiplier * x;
+                    final double imageY = yMultiplier * y;
                     pixelPos.x = imageX + 0.5f;
                     pixelPos.y = imageY + 0.5f;
                     geoCoding.getGeoPos(pixelPos, geoPos);
-                    final float mapX = geoPos.lon; //longitude
-                    final float mapY = geoPos.lat; //latitude
+                    final double mapX = geoPos.lon; //longitude
+                    final double mapY = geoPos.lat; //latitude
                     writer.write(createLineString(mapX, mapY,
                             pixelPos.x + 1, // + 1 because ENVI uses a one-based pixel co-ordinate system
                             pixelPos.y + 1));
@@ -88,7 +88,7 @@ public class GcpExportMain {
         return str.concat(_GCP_LINE_SEPARATOR);
     }
 
-    private static String createLineString(final float mapX, final float mapY, final float imageX, final float imageY) {
+    private static String createLineString(final double mapX, final double mapY, final double imageX, final double imageY) {
         return "" + mapX + "\t" + mapY + "\t" + imageX + "\t" + imageY + _GCP_LINE_SEPARATOR;
     }
 }

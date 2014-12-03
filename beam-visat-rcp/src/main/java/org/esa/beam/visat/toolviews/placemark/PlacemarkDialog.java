@@ -184,35 +184,35 @@ public class PlacemarkDialog extends ModalDialog {
         bindingContext.getPropertySet().setValue(PROPERTY_NAME_STYLE_CSS, styleCss);
     }
 
-    public float getPixelX() {
-        return (Float) bindingContext.getPropertySet().getValue(PROPERTY_NAME_PIXEL_X);
+    public double getPixelX() {
+        return (Double) bindingContext.getPropertySet().getValue(PROPERTY_NAME_PIXEL_X);
     }
 
-    public void setPixelX(float pixelX) {
+    public void setPixelX(double pixelX) {
         bindingContext.getPropertySet().setValue(PROPERTY_NAME_PIXEL_X, pixelX);
     }
 
-    public float getPixelY() {
-        return (Float) bindingContext.getPropertySet().getValue(PROPERTY_NAME_PIXEL_Y);
+    public double getPixelY() {
+        return (Double) bindingContext.getPropertySet().getValue(PROPERTY_NAME_PIXEL_Y);
     }
 
-    public void setPixelY(float pixelY) {
+    public void setPixelY(double pixelY) {
         bindingContext.getPropertySet().setValue(PROPERTY_NAME_PIXEL_Y, pixelY);
     }
 
-    public float getLat() {
-        return (Float) bindingContext.getPropertySet().getValue(PROPERTY_NAME_LAT);
+    public double getLat() {
+        return (Double) bindingContext.getPropertySet().getValue(PROPERTY_NAME_LAT);
     }
 
-    public void setLat(float lat) {
+    public void setLat(double lat) {
         bindingContext.getPropertySet().setValue(PROPERTY_NAME_LAT, lat);
     }
 
-    public float getLon() {
-        return (Float) bindingContext.getPropertySet().getValue(PROPERTY_NAME_LON);
+    public double getLon() {
+        return (Double) bindingContext.getPropertySet().getValue(PROPERTY_NAME_LON);
     }
 
-    public void setLon(float lon) {
+    public void setLon(double lon) {
         bindingContext.getPropertySet().setValue(PROPERTY_NAME_LON, lon);
     }
 

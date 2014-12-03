@@ -219,7 +219,7 @@ public class ProductUtilsTest {
     public void testCopyTiePointGrids() {
         final Product sourceProduct = new Product("p1n", "p1t", 20, 20);
 
-        final float[] tpg1tp = new float[]{
+        final double[] tpg1tp = new double[]{
                 1, 2, 3, 4, 5,
                 6, 7, 8, 9, 10,
                 11, 12, 13, 14, 15,
@@ -230,7 +230,7 @@ public class ProductUtilsTest {
         tiePointGrid1.setUnit("tpg1u");
         sourceProduct.addTiePointGrid(tiePointGrid1);
 
-        final float[] tpg2tp = new float[]{
+        final double[] tpg2tp = new double[]{
                 1, 2, 3, 4,
                 5, 6, 7, 8,
                 9, 10, 11, 12,
@@ -271,7 +271,7 @@ public class ProductUtilsTest {
         assertEquals(3.0f, targetProduct.getTiePointGridAt(0).getOffsetY(), 1.0e-5);
         assertEquals(4.0f, targetProduct.getTiePointGridAt(0).getSubSamplingX(), 1.0e-5);
         assertEquals(5.0f, targetProduct.getTiePointGridAt(0).getSubSamplingY(), 1.0e-5);
-        assertTrue(Arrays.equals(tpg1tp, (float[]) targetProduct.getTiePointGridAt(0).getDataElems()));
+        assertTrue(Arrays.equals(tpg1tp, (double[]) targetProduct.getTiePointGridAt(0).getDataElems()));
         assertEquals("tpg2n", targetProduct.getTiePointGridAt(1).getName());
         assertEquals(4, targetProduct.getTiePointGridAt(1).getRasterWidth());
         assertEquals(5, targetProduct.getTiePointGridAt(1).getRasterHeight());
@@ -279,7 +279,7 @@ public class ProductUtilsTest {
         assertEquals(1.4f, targetProduct.getTiePointGridAt(1).getOffsetY(), 1.0e-5);
         assertEquals(5.0f, targetProduct.getTiePointGridAt(1).getSubSamplingX(), 1.0e-5);
         assertEquals(4.0f, targetProduct.getTiePointGridAt(1).getSubSamplingY(), 1.0e-5);
-        assertTrue(Arrays.equals(tpg2tp, (float[]) targetProduct.getTiePointGridAt(1).getDataElems()));
+        assertTrue(Arrays.equals(tpg2tp, (double[]) targetProduct.getTiePointGridAt(1).getDataElems()));
     }
 
     @Test
@@ -325,8 +325,8 @@ public class ProductUtilsTest {
         final int sourceWidth = 100;
         final int sourceHeight = 200;
         final Product source = new Product("source", "test", sourceWidth, sourceHeight);
-        final TiePointGrid t1 = new TiePointGrid("t1", 10, 20, 0, 0, 10, 10, new float[10 * 20]);
-        final TiePointGrid t2 = new TiePointGrid("t2", 10, 20, 0, 0, 10, 10, new float[10 * 20]);
+        final TiePointGrid t1 = new TiePointGrid("t1", 10, 20, 0, 0, 10, 10, new double[10 * 20]);
+        final TiePointGrid t2 = new TiePointGrid("t2", 10, 20, 0, 0, 10, 10, new double[10 * 20]);
         final Band b1 = new Band("b1", ProductData.TYPE_INT8, sourceWidth, sourceHeight);
         final Band b2 = new Band("b2", ProductData.TYPE_UINT16, sourceWidth, sourceHeight);
         final Band b3 = new Band("b3", ProductData.TYPE_FLOAT32, sourceWidth, sourceHeight);
@@ -412,7 +412,7 @@ public class ProductUtilsTest {
 
         // call with pixel positions array width one element
         pixelPositions[0] = new PixelPos(2.23f, 3.87f);
-        float[] minMaxEqual = ProductUtils.computeMinMaxY(pixelPositions);
+        double[] minMaxEqual = ProductUtils.computeMinMaxY(pixelPositions);
 
         assertEquals(2, minMaxEqual.length);
         assertEquals(minMaxEqual[0], minMaxEqual[1], 1.0e-5f);
@@ -423,7 +423,7 @@ public class ProductUtilsTest {
         pixelPositions[3] = null;
         pixelPositions[4] = new PixelPos(6, 6.36f);
 
-        float[] minMax = ProductUtils.computeMinMaxY(pixelPositions);
+        double[] minMax = ProductUtils.computeMinMaxY(pixelPositions);
 
         assertEquals(2, minMax.length);
         assertEquals(3.34f, minMax[0], 1.0e-5f);
@@ -814,7 +814,7 @@ public class ProductUtilsTest {
     }
 
     private static Product createTestProduct() {
-        final float[] longitudes = new float[]{
+        final double[] longitudes = new double[]{
                 9.512839f, 9.690325f, 9.867694f, 10.044944f, 10.2220745f, 10.399086f, 9.475174f, 9.65231f, 9.829329f,
                 10.006232f, 10.183016f, 10.359681f, 9.437564f, 9.614353f, 9.791027f, 9.967584f, 10.144024f, 10.320345f,
                 9.40001f, 9.576455f, 9.752785f, 9.929f, 10.105098f, 10.281079f, 9.362511f, 9.538614f, 9.714604f,
@@ -823,7 +823,7 @@ public class ProductUtilsTest {
                 9.775286f, 9.950046f, 10.124692f, 9.213048f, 9.387812f, 9.562466f, 9.737009f, 9.911441f, 10.08576f
         };
 
-        final float[] latitudes = new float[]{
+        final double[] latitudes = new double[]{
                 34.254475f, 34.22662f, 34.198513f, 34.170143f, 34.14152f, 34.11264f, 34.088284f, 34.060417f,
                 34.032295f, 34.00392f, 33.975292f, 33.946407f, 33.922085f, 33.894207f, 33.866077f, 33.837692f,
                 33.809055f, 33.780163f, 33.755875f, 33.72799f, 33.69985f, 33.67145f, 33.642807f,

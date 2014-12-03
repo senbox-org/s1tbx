@@ -234,8 +234,8 @@ public class PlacemarkIOTest {
                                              Rectangle data_bounds) {
         ArrayList<Placemark> placemarkList = new ArrayList<Placemark>();
         for (int i = 0; i < NUM_PLACEMARKS; i++) {
-            PixelPos pixelPos = new PixelPos((float) Math.random() * data_bounds.width,
-                                             (float) Math.random() * data_bounds.height);
+            PixelPos pixelPos = new PixelPos(Math.random() * data_bounds.width,
+                                             Math.random() * data_bounds.height);
             GeoPos geoPos = geoCoding.getGeoPos(pixelPos, null);
             Placemark placemark = Placemark.createPointPlacemark(descriptor, "name_" + i, "label_" + i, "description_" + i,
                                                                  pixelPos, geoPos, geoCoding);

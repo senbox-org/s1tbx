@@ -136,7 +136,7 @@ class PixelExtractionParametersForm {
             final Coordinate.OriginalValue[] originalValues = PixExOp.getOriginalValues(feature);
             if (placemark.getGeoPos() == null) {
                 final Point point = (Point) feature.getDefaultGeometry();
-                coordinates[i] = new Coordinate(placemark.getName(), (float) point.getY(), (float) point.getX(),
+                coordinates[i] = new Coordinate(placemark.getName(), point.getY(), point.getX(),
                                                 dateTime, originalValues);
             } else {
                 coordinates[i] = new Coordinate(placemark.getName(), placemark.getGeoPos().getLat(),

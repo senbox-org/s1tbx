@@ -585,7 +585,7 @@ public class HdfEosStructMetadata {
                 }
 
                 @Override
-                protected Point2D forward_impl(float lat, float lon, Point2D mapPoint) {
+                protected Point2D forward_impl(double lat, double lon, Point2D mapPoint) {
                     final double phi = Math.toRadians(lat);
                     final double lam = Math.toRadians(lon);
                     final double cosphi = Math.cos(phi);
@@ -601,15 +601,15 @@ public class HdfEosStructMetadata {
                 }
 
                 @Override
-                protected GeoPos inverse_impl(float x, float y, GeoPos geoPoint) {
-                    final float cm = _centralMeridian;
+                protected GeoPos inverse_impl(double x, double y, GeoPos geoPoint) {
+                    final double cm = _centralMeridian;
                     final double phi = y;
                     final double lam = cm + x / Math.cos(phi);
 
                     if (geoPoint == null) {
                         geoPoint = new GeoPos();
                     }
-                    geoPoint.setLocation((float) Math.toDegrees(phi), (float) Math.toDegrees(lam));
+                    geoPoint.setLocation(Math.toDegrees(phi), Math.toDegrees(lam));
 
                     return geoPoint;
                 }

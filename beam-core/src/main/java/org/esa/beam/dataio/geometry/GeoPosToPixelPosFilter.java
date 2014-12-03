@@ -42,7 +42,7 @@ class GeoPosToPixelPosFilter implements CoordinateSequenceFilter {
     @Override
     public void filter(CoordinateSequence seq, int i) {
         Coordinate coord = seq.getCoordinate(i);
-        PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos((float) coord.y, (float) coord.x), null);
+        PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos(coord.y, coord.x), null);
         // rounding needed because closed geometries yield errors if their first and last coordinate
         // do not exactly match
         double x = Math.round(pixelPos.x * 10000) / 10000;

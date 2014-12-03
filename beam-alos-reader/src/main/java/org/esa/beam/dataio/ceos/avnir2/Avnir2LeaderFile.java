@@ -253,14 +253,14 @@ class Avnir2LeaderFile {
                                                  IllegalCeosFormatException {
         final double lat = _ancillary1Record.getMapProjOriginLat();
         final double lon = _ancillary1Record.getMapProjOriginLon();
-        return new GeoPos((float) lat, (float) lon);
+        return new GeoPos(lat, lon);
     }
 
     public GeoPos getPSReferencePoint() throws IOException,
                                                IllegalCeosFormatException {
         final double lat = _ancillary1Record.getPSReferenceLat();
         final double lon = _ancillary1Record.getPSReferenceLon();
-        return new GeoPos((float) lat, (float) lon);
+        return new GeoPos(lat, lon);
 
     }
 

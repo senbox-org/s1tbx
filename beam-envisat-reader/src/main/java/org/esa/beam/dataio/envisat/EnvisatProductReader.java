@@ -499,9 +499,9 @@ public class EnvisatProductReader extends AbstractProductReader {
         int gridHeight = bandLineReader.getRasterHeight();
         int pixelDataType = bandLineReader.getPixelDataField().getDataType();
         int tiePointIndex = 0;
-        float scalingOffset = bandInfo.getScalingOffset();
-        float scalingFactor = bandInfo.getScalingFactor();
-        float[] tiePoints = new float[gridWidth * gridHeight];
+        double scalingOffset = bandInfo.getScalingOffset();
+        double scalingFactor = bandInfo.getScalingFactor();
+        double[] tiePoints = new double[gridWidth * gridHeight];
         for (int y = 0; y < gridHeight; y++) {
             bandLineReader.readLineRecord(y);
             if (pixelDataType == ProductData.TYPE_INT8) {
@@ -571,10 +571,10 @@ public class EnvisatProductReader extends AbstractProductReader {
                 throw new IllegalFileFormatException("unhandled tie-point data type"); /*I18N*/
             }
         }
-        float offsetX = getProductFile().getTiePointGridOffsetX(gridWidth);
-        float offsetY = getProductFile().getTiePointGridOffsetY(gridWidth);
-        float subSamplingX = getProductFile().getTiePointSubSamplingX(gridWidth);
-        float subSamplingY = getProductFile().getTiePointSubSamplingY(gridWidth);
+        double offsetX = getProductFile().getTiePointGridOffsetX(gridWidth);
+        double offsetY = getProductFile().getTiePointGridOffsetY(gridWidth);
+        double subSamplingX = getProductFile().getTiePointSubSamplingX(gridWidth);
+        double subSamplingY = getProductFile().getTiePointSubSamplingY(gridWidth);
 
         final TiePointGrid tiePointGrid = createTiePointGrid(bandName,
                                                        gridWidth,
@@ -652,7 +652,7 @@ public class EnvisatProductReader extends AbstractProductReader {
     }
 
     /**
-     * Used by the {@link #createTiePointGrid(String, int, int, float, float, float, float, float[]) createTiePointGrid} method in order to determine
+     * Used by the {@link #createTiePointGrid(String, int, int, double, double, double, double, double[]) createTiePointGrid} method in order to determine
      * the discontinuity mode for angle tie-point grids.
      * <p>The default implementation returns {@link org.esa.beam.framework.datamodel.TiePointGrid#DISCONT_AT_180} for
      * the names "lon", "long" or "longitude" ignoring letter case,

@@ -258,7 +258,7 @@ public class QuickLookGenerator {
                 if (incidenceAngle != null) {
                     final float x = product.getSceneRasterWidth() / 2f;
                     final float y = product.getSceneRasterHeight() / 2f;
-                    final double incidenceAngleAtCentreRangePixel = incidenceAngle.getPixelFloat(x, y);
+                    final double incidenceAngleAtCentreRangePixel = incidenceAngle.getPixelDouble(x, y);
 
                     groundRangeSpacing /= Math.sin(incidenceAngleAtCentreRangePixel * MathUtils.DTOR);
                 }

@@ -913,10 +913,10 @@ public class ProductSubsetDialog extends ModalDialog {
                     if (event != null && canUseGeoCoordinates(product)) {
                         final String parmName = event.getParameter().getName();
                         if (parmName.startsWith("geo_")) {
-                            final GeoPos geoPos1 = new GeoPos((Float) paramNorthLat1.getValue(),
-                                                              (Float) paramWestLon1.getValue());
-                            final GeoPos geoPos2 = new GeoPos((Float) paramSouthLat2.getValue(),
-                                                              (Float) paramEastLon2.getValue());
+                            final GeoPos geoPos1 = new GeoPos((Double) paramNorthLat1.getValue(),
+                                                              (Double) paramWestLon1.getValue());
+                            final GeoPos geoPos2 = new GeoPos((Double) paramSouthLat2.getValue(),
+                                                              (Double) paramEastLon2.getValue());
                             updateXYParams(geoPos1, geoPos2);
                         } else if (parmName.startsWith("source_x") || parmName.startsWith("source_y")) {
                             syncLatLonWithXYParams();

@@ -275,7 +275,7 @@ public final class OperatorUtils {
     public static void createNewTiePointGridsAndGeoCoding(
             final Product sourceProduct, final Product targetProduct,
             final int gridWidth, final int gridHeight,
-            final float subSamplingX, final float subSamplingY,
+            final double subSamplingX, final double subSamplingY,
             final PixelPos[] newTiePointPos) {
 
         TiePointGrid latGrid = null;
@@ -283,9 +283,9 @@ public final class OperatorUtils {
 
         for (TiePointGrid srcTPG : sourceProduct.getTiePointGrids()) {
 
-            final float[] tiePoints = new float[gridWidth * gridHeight];
+            final double[] tiePoints = new double[gridWidth * gridHeight];
             for (int k = 0; k < newTiePointPos.length; k++) {
-                tiePoints[k] = srcTPG.getPixelFloat(newTiePointPos[k].x, newTiePointPos[k].y);
+                tiePoints[k] = srcTPG.getPixelDouble(newTiePointPos[k].x, newTiePointPos[k].y);
             }
 
             int discontinuity = TiePointGrid.DISCONT_NONE;
@@ -525,25 +525,23 @@ public final class OperatorUtils {
      */
     public static void addGeoCoding(final Product targetProduct, final SceneProperties scnProp) {
 
-        final float[] latTiePoints = {(float) scnProp.latMax, (float) scnProp.latMax,
-                (float) scnProp.latMin, (float) scnProp.latMin};
-        final float[] lonTiePoints = {(float) scnProp.lonMin, (float) scnProp.lonMax,
-                (float) scnProp.lonMin, (float) scnProp.lonMax};
+        final double[] latTiePoints = {scnProp.latMax, scnProp.latMax, scnProp.latMin, scnProp.latMin};
+        final double[] lonTiePoints = {scnProp.lonMin, scnProp.lonMax, scnProp.lonMin, scnProp.lonMax};
 
         final int gridWidth = 10;
         final int gridHeight = 10;
 
-        final float[] fineLatTiePoints = new float[gridWidth * gridHeight];
+        final double[] fineLatTiePoints = new double[gridWidth * gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, latTiePoints, fineLatTiePoints);
 
-        final float subSamplingX = (float) targetProduct.getSceneRasterWidth() / (gridWidth - 1);
-        final float subSamplingY = (float) targetProduct.getSceneRasterHeight() / (gridHeight - 1);
+        final double subSamplingX = targetProduct.getSceneRasterWidth() / (gridWidth - 1);
+        final double subSamplingY = targetProduct.getSceneRasterHeight() / (gridHeight - 1);
 
         final TiePointGrid latGrid = new TiePointGrid(TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
                 subSamplingX, subSamplingY, fineLatTiePoints);
         latGrid.setUnit(Unit.DEGREES);
 
-        final float[] fineLonTiePoints = new float[gridWidth * gridHeight];
+        final double[] fineLonTiePoints = new double[gridWidth * gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, lonTiePoints, fineLonTiePoints);
 
         final TiePointGrid lonGrid = new TiePointGrid(TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
