@@ -79,7 +79,7 @@ public class DimapProductWriterTest_WriteTiePointGrids extends TestCase {
             fail("IOException not expected");
         }
 
-        float[] currentArray = getCurrentByteArray(tiePointGrid);
+        double[] currentArray = getCurrentByteArray(tiePointGrid);
         assertEquals(expectedArray.length, currentArray.length);
 
         for (int i = 0; i < expectedArray.length; i++) {
@@ -99,11 +99,11 @@ public class DimapProductWriterTest_WriteTiePointGrids extends TestCase {
         return tiePoints;
     }
 
-    private float[] getCurrentByteArray(TiePointGrid grid) {
+    private double[] getCurrentByteArray(TiePointGrid grid) {
         FileImageInputStream inputStream = createInputStream(grid);
         int fileLength = new Long(inputStream.length()).intValue();
-        int arrayLength = fileLength / ProductData.getElemSize(ProductData.TYPE_FLOAT32);
-        float[] currentFloats = new float[arrayLength];
+        int arrayLength = fileLength / ProductData.getElemSize(ProductData.TYPE_FLOAT64);
+        double[] currentFloats = new double[arrayLength];
         try {
             inputStream.readFully(currentFloats, 0, arrayLength);
             inputStream.close();

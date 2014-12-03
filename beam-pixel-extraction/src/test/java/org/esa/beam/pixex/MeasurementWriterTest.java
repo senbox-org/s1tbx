@@ -277,10 +277,10 @@ public class MeasurementWriterTest {
         assertEquals(measurement.getProductId(), scanner.nextInt());
         assertEquals(measurement.getCoordinateID(), scanner.nextInt());
         assertEquals(measurement.getCoordinateName(), scanner.next());
-        assertEquals(measurement.getLat(), scanner.nextFloat());
-        assertEquals(measurement.getLon(), scanner.nextFloat());
-        assertEquals(measurement.getPixelX(), scanner.nextFloat());
-        assertEquals(measurement.getPixelY(), scanner.nextFloat());
+        assertEquals(measurement.getLat(), scanner.nextDouble());
+        assertEquals(measurement.getLon(), scanner.nextDouble());
+        assertEquals(measurement.getPixelX(), scanner.nextDouble());
+        assertEquals(measurement.getPixelY(), scanner.nextDouble());
         final String date = scanner.next().trim();
         final String time = scanner.next().trim();
         if (!date.isEmpty() && !time.isEmpty()) {

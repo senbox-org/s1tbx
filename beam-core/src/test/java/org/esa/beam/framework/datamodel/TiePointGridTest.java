@@ -568,9 +568,9 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
 
     public void testClone() {
         TiePointGrid grid = new TiePointGrid("abc", 2, 2,
-                                             0.1f, 0.2f,
-                                             0.3f, 0.4f,
-                                             new double[]{1.2f, 2.3f, 3.4f, 4.5f});
+                                             0.1, 0.2,
+                                             0.3, 0.4,
+                                             new double[]{1.2, 2.3, 3.4, 4.5});
         grid.setDescription("Aha!");
         grid.setDiscontinuity(TiePointGrid.DISCONT_AT_180);
 
@@ -580,18 +580,18 @@ public class TiePointGridTest extends AbstractRasterDataNodeTest {
         assertEquals(TiePointGrid.DISCONT_AT_180, gridClone.getDiscontinuity());
         assertEquals(2, gridClone.getRasterWidth());
         assertEquals(2, gridClone.getRasterHeight());
-        assertEquals(0.1f, gridClone.getOffsetX());
-        assertEquals(0.2f, gridClone.getOffsetY());
-        assertEquals(0.3f, gridClone.getSubSamplingX());
-        assertEquals(0.4f, gridClone.getSubSamplingY());
+        assertEquals(0.1, gridClone.getOffsetX());
+        assertEquals(0.2, gridClone.getOffsetY());
+        assertEquals(0.3, gridClone.getSubSamplingX());
+        assertEquals(0.4, gridClone.getSubSamplingY());
         assertNotNull(gridClone.getData());
-        assertEquals(true, gridClone.getData().getElems() instanceof float[]);
-        float[] dataClone = (float[]) gridClone.getData().getElems();
+        assertEquals(true, gridClone.getData().getElems() instanceof double[]);
+        double[] dataClone = (double[]) gridClone.getData().getElems();
         assertEquals(4, dataClone.length);
-        assertEquals(1.2f, dataClone[0]);
-        assertEquals(2.3f, dataClone[1]);
-        assertEquals(3.4f, dataClone[2]);
-        assertEquals(4.5f, dataClone[3]);
+        assertEquals(1.2, dataClone[0]);
+        assertEquals(2.3, dataClone[1]);
+        assertEquals(3.4, dataClone[2]);
+        assertEquals(4.5, dataClone[3]);
         assertNotSame(grid.getData().getElems(), dataClone);
     }
 }

@@ -154,16 +154,16 @@ public class PlacemarkIO {
                     row++;
                     if (strings.length > biggestIndex) {
                         String name = strings[stdColIndexes.get(INDEX_FOR_NAME)];
-                        float lon;
+                        double lon;
                         try {
-                            lon = Float.parseFloat(strings[stdColIndexes.get(INDEX_FOR_LON)]);
+                            lon = Double.parseDouble(strings[stdColIndexes.get(INDEX_FOR_LON)]);
                         } catch (NumberFormatException ignored) {
                             throw new IOException("Invalid placemark file format:\n" +
                                                   "data row " + row + ": value for 'Lon' is invalid");      /*I18N*/
                         }
-                        float lat;
+                        double lat;
                         try {
-                            lat = Float.parseFloat(strings[stdColIndexes.get(INDEX_FOR_LAT)]);
+                            lat = Double.parseDouble(strings[stdColIndexes.get(INDEX_FOR_LAT)]);
                         } catch (NumberFormatException ignored) {
                             throw new IOException("Invalid placemark file format:\n" +
                                                   "data row " + row + ": value for 'Lat' is invalid");      /*I18N*/
@@ -404,8 +404,8 @@ public class PlacemarkIO {
         GeoPos geoPos = null;
         if (latText != null && lonText != null) {
             try {
-                float lat = Float.parseFloat(latText);
-                float lon = Float.parseFloat(lonText);
+                double lat = Double.parseDouble(latText);
+                double lon = Double.parseDouble(lonText);
                 geoPos = new GeoPos(lat, lon);
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("Invalid geo-position.", e);
@@ -414,8 +414,8 @@ public class PlacemarkIO {
         PixelPos pixelPos = null;
         if (posXText != null && posYText != null) {
             try {
-                float pixelX = Float.parseFloat(posXText);
-                float pixelY = Float.parseFloat(posYText);
+                double pixelX = Double.parseDouble(posXText);
+                double pixelY = Double.parseDouble(posYText);
                 pixelPos = new PixelPos(pixelX, pixelY);
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("Invalid pixel-position.", e);

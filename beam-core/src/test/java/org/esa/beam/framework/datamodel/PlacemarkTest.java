@@ -200,8 +200,8 @@ public class PlacemarkTest extends TestCase {
     public void testCreatePin_FromJDOMElement() {
         final String pinName = "pin14";
         final String pinDesc = "descr";
-        final float pinLat = 5.7f;
-        final float pinLon = 23.4f;
+        final double pinLat = 5.7;
+        final double pinLon = 23.4;
 
         try {
             PlacemarkIO.createPlacemark(null, null, null);

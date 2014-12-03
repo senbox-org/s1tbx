@@ -73,10 +73,10 @@ public class PlacemarkDialog extends ModalDialog {
                                   Property.create(PROPERTY_NAME_LABEL, ""),
                                   Property.create(PROPERTY_NAME_DESCRIPTION, ""),
                                   Property.create(PROPERTY_NAME_STYLE_CSS, ""),
-                                  Property.create(PROPERTY_NAME_LAT, 0.0F),
-                                  Property.create(PROPERTY_NAME_LON, 0.0F),
-                                  Property.create(PROPERTY_NAME_PIXEL_X, 0.0F),
-                                  Property.create(PROPERTY_NAME_PIXEL_Y, 0.0F),
+                                  Property.create(PROPERTY_NAME_LAT, 0.0),
+                                  Property.create(PROPERTY_NAME_LON, 0.0),
+                                  Property.create(PROPERTY_NAME_PIXEL_X, 0.0),
+                                  Property.create(PROPERTY_NAME_PIXEL_Y, 0.0),
                                   Property.create(PROPERTY_NAME_USE_PIXEL_POS, usePixelPos)
         );
         propertySet.getProperty(PROPERTY_NAME_USE_PIXEL_POS).getDescriptor().setAttribute("enabled", hasGeoCoding && switchGeoAndPixelPositionsEditable);
