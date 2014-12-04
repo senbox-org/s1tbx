@@ -64,6 +64,11 @@
             <class>org.esa.snap.gpf.ProductSetReaderOpUI</class>
             <operatorName>ProductSet-Reader</operatorName>
         </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.snap.gpf.ui.SubsetUI</id>
+            <class>org.esa.snap.gpf.ui.SubsetUI</class>
+            <operatorName>Subset</operatorName>
+        </OperatorUI>
     </extension>
 
     <extension point="snap-ui:actions">

@@ -547,7 +547,11 @@ public class GraphBuilderDialog extends ModelessDialog implements Observer {
                 tabbedPanel.setSelectedIndex(index);
             }
         } catch (Exception e) {
-            statusLabel.setText(e.getMessage());
+            String msg = e.getMessage();
+            if(msg == null || msg.isEmpty()) {
+                msg = e.toString();
+            }
+            statusLabel.setText(msg);
         }
     }
 
