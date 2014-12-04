@@ -62,14 +62,6 @@
                 <id>selectTool</id>
                 <id>createDemRelatedBands</id>
                 <id>showImageView</id>
-                <id>processing.preProcessing</id>
-                <id>processing.thematicWater</id>
-                <id>processing.thematicLand</id>
-                <id>processing.imageAnalysis</id>
-                <id>processing.geomOperations</id>
-                <id>orthorectificationAction</id>
-                <id>mosaicAction</id>
-                <id>reprojectionAction</id>
                 <id>flipping</id>
                 <id>createSubsetFromView</id>
             </excludedActions>
@@ -535,16 +527,6 @@
             <text>Reprojection...</text>
             <shortDescr>Apply a reprojection.</shortDescr>
             <helpId>reprojectionAction</helpId>
-        </action>
-
-        <action>
-            <parent>geometry</parent>
-            <id>mosaic2</id>
-            <placeAfter>orthorectificationAction</placeAfter>
-            <text>Mosaicing...</text>
-            <class>org.esa.beam.gpf.operators.mosaic.MosaicAction</class>
-            <shortDescr>Create a mosaic of multiple products.</shortDescr>
-            <helpId>mosaicAction</helpId>
         </action>
 
         <action>
