@@ -104,7 +104,7 @@ public class EnviProductWriter extends AbstractProductWriter {
         checkSourceRegionInsideBandRegion(sourceWidth, sourceBandWidth, sourceHeight, sourceBandHeight, sourceOffsetX,
                                           sourceOffsetY);
         final ImageOutputStream outputStream = getOrCreateImageOutputStream(sourceBand);
-        long outputPos = sourceOffsetY * sourceBandWidth + sourceOffsetX;
+        long outputPos = (long) sourceOffsetY * (long) sourceBandWidth + sourceOffsetX;
         pm.beginTask("Writing band '" + sourceBand.getName() + "'...", 1);//sourceHeight);
         try {
             final long max = sourceHeight * sourceWidth;
