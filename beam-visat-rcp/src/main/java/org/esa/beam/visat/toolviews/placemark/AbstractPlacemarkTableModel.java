@@ -277,50 +277,50 @@ public abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     }
 
     protected void setGeoPosLat(Object lat, Placemark placemark) {
-        if (lat instanceof Float) {
-            float lon;
+        if (lat instanceof Double) {
+            double lon;
             if (placemark.getGeoPos() == null) {
-                lon = Float.NaN;
+                lon = Double.NaN;
             } else {
                 lon = placemark.getGeoPos().lon;
             }
-            placemark.setGeoPos(new GeoPos((Float) lat, lon));
+            placemark.setGeoPos(new GeoPos((Double)lat, lon));
         }
     }
 
     protected void setGeoPosLon(Object lon, Placemark placemark) {
-        if (lon instanceof Float) {
-            float lat;
+        if (lon instanceof Double) {
+            double lat;
             if (placemark.getGeoPos() == null) {
                 lat = Float.NaN;
             } else {
                 lat = placemark.getGeoPos().lat;
             }
-            placemark.setGeoPos(new GeoPos(lat, (Float) lon));
+            placemark.setGeoPos(new GeoPos(lat, (Double) lon));
         }
     }
 
     protected void setPixelPosY(Object value, Placemark placemark) {
-        if (value instanceof Float) {
-            float pixelX;
+        if (value instanceof Double) {
+            double pixelX;
             if (placemark.getPixelPos() == null) {
                 pixelX = -1;
             } else {
                 pixelX = placemark.getPixelPos().x;
             }
-            placemark.setPixelPos(new PixelPos(pixelX, (Float) value));
+            placemark.setPixelPos(new PixelPos(pixelX, (Double) value));
         }
     }
 
     protected void setPixelPosX(Object value, Placemark placemark) {
-        if (value instanceof Float) {
-            float pixelY;
+        if (value instanceof Double) {
+            double pixelY;
             if (placemark.getPixelPos() == null) {
                 pixelY = -1;
             } else {
                 pixelY = placemark.getPixelPos().y;
             }
-            placemark.setPixelPos(new PixelPos((Float) value, pixelY));
+            placemark.setPixelPos(new PixelPos((Double) value, pixelY));
         }
     }
 

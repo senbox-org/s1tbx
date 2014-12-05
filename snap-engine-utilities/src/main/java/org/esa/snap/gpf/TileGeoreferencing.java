@@ -32,8 +32,8 @@ public final class TileGeoreferencing {
     final int size;
 
     boolean isCached;
-    float[] latPixels = null;
-    float[] lonPixels = null;
+    double[] latPixels = null;
+    double[] lonPixels = null;
     final boolean isCrossingMeridian;
 
     public TileGeoreferencing(final Product product, final int x1, final int y1, final int w, final int h) {
@@ -51,17 +51,17 @@ public final class TileGeoreferencing {
 
         try {
             if (isCrsGeoCoding) {
-                latPixels = new float[size];
-                lonPixels = new float[size];
+                latPixels = new double[size];
+                lonPixels = new double[size];
                 ((CrsGeoCoding) geocoding).getPixels(x1, y1, w, h, latPixels, lonPixels);
             } else {
                 if (latTPG != null) {
-                    latPixels = new float[size];
+                    latPixels = new double[size];
                     latTPG.getPixels(x1, y1, w, h, latPixels, ProgressMonitor.NULL);
                 }
 
                 if (lonTPG != null) {
-                    lonPixels = new float[size];
+                    lonPixels = new double[size];
                     lonTPG.getPixels(x1, y1, w, h, lonPixels, ProgressMonitor.NULL);
                 }
             }

@@ -259,7 +259,7 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
          * Forward project geographical co-ordinates into map co-ordinates.
          */
         @Override
-        public Point2D forward_impl(float lat, float lon, Point2D mapPoint) {
+        public Point2D forward_impl(double lat, double lon, Point2D mapPoint) {
             double phi = MathUtils.DTOR * lat;
             double lam = MathUtils.DTOR * lon;
             double sinPhi = Math.sin(phi);
@@ -290,14 +290,6 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
 
             mapPoint.setLocation(tempX, tempY);
             return mapPoint;
-        }
-
-        /**
-         * Inverse project map co-ordinates into geographical co-ordinates.
-         */
-        @Override
-        public GeoPos inverse_impl(float x, float y, GeoPos geoPoint) {
-            return inverse_impl((double) x, (double) y, geoPoint);
         }
 
         /**
@@ -342,8 +334,7 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
                                                                                                                          (61.0 + t * (662.0 + t * (1320.0 + 720 * t))))));
                 _tempY /= cosPhi;
             }
-            geoPoint.setLocation((float) (MathUtils.RTOD * _tempX),
-                                 (float) (MathUtils.RTOD * _tempY));
+            geoPoint.setLocation(MathUtils.RTOD * _tempX, MathUtils.RTOD * _tempY);
             return geoPoint;
         }
 

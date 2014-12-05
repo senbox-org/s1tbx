@@ -237,7 +237,7 @@ public class Placemark extends ProductNode {
             if (getProduct() != null) {
                 final GeoCoding geoCoding = getProduct().getGeoCoding();
                 final AffineTransform i2m = ImageManager.getImageToModelTransform(geoCoding);
-                PixelPos pixelPos = new PixelPos((float) point.getX(), (float) point.getY());
+                PixelPos pixelPos = new PixelPos(point.getX(), point.getY());
                 try {
                     i2m.inverseTransform(pixelPos, pixelPos);
                 } catch (NoninvertibleTransformException ignored) {
@@ -317,7 +317,7 @@ public class Placemark extends ProductNode {
 
     private void updateDefaultGeometryAttribute(PixelPos pixelPos) {
         final Product product = getProduct();
-        final Point2D.Float geometryPoint = new Point2D.Float(pixelPos.x, pixelPos.y);
+        final Point2D.Double geometryPoint = new Point2D.Double(pixelPos.x, pixelPos.y);
         if (product != null) {
             final AffineTransform i2m = ImageManager.getImageToModelTransform(product.getGeoCoding());
             i2m.transform(pixelPos, geometryPoint);
@@ -396,14 +396,14 @@ public class Placemark extends ProductNode {
 
     private static GeoPos toGeoPos(Coordinate coordinate) {
         if (coordinate != null) {
-            return new GeoPos((float) coordinate.y, (float) coordinate.x);
+            return new GeoPos(coordinate.y, coordinate.x);
         }
         return null;
     }
 
     private static PixelPos toPixelPos(Coordinate coordinate) {
         if (coordinate != null) {
-            return new PixelPos((float) coordinate.x, (float) coordinate.y);
+            return new PixelPos(coordinate.x, coordinate.y);
         }
         return null;
     }

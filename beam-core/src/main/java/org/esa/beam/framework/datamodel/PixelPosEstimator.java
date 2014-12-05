@@ -106,7 +106,7 @@ public class PixelPosEstimator {
                     final double lon = q.getX();
                     final double lat = q.getY();
                     if (lon >= -180.0 && lon <= 180.0 && lat >= -90.0 && lat <= 90.0) {
-                        g.setLocation((float) lat, (float) lon);
+                        g.setLocation(lat, lon);
                     } else {
                         g.setInvalid();
                     }

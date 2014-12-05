@@ -253,13 +253,13 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         cross180 = false;
         gcList = new ArrayList<GeoCoding>();
         centerLineList = new ArrayList<PolyLine>();
-        final float osX = lonGrid.getOffsetX();
-        final float osY = lonGrid.getOffsetY();
-        final float ssX = lonGrid.getSubSamplingX();
-        final float ssY = lonGrid.getSubSamplingY();
+        final double osX = lonGrid.getOffsetX();
+        final double osY = lonGrid.getOffsetY();
+        final double ssX = lonGrid.getSubSamplingX();
+        final double ssY = lonGrid.getSubSamplingY();
 
-        final float[] latFloats = (float[]) latgrid.getDataElems();
-        final float[] lonFloats = (float[]) lonGrid.getDataElems();
+        final double[] latFloats = (double[]) latgrid.getDataElems();
+        final double[] lonFloats = (double[]) lonGrid.getDataElems();
 
         final int stripeW = lonGrid.getRasterWidth();
         final int gcStripeSceneWidth = lonGrid.getSceneRasterWidth();
@@ -276,12 +276,12 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
 
         final int gcRawWidth = stripeW * stripeH;
         for (int y = 0; y < tpRasterHeight; y += stripeH) {
-            final float[] lats = new float[gcRawWidth];
-            final float[] lons = new float[gcRawWidth];
+            final double[] lats = new double[gcRawWidth];
+            final double[] lons = new double[gcRawWidth];
             System.arraycopy(lonFloats, y * stripeW, lons, 0, stripeW * stripeH);
             System.arraycopy(latFloats, y * stripeW, lats, 0, stripeW * stripeH);
 
-            final Range range = Range.computeRangeFloat(lats, IndexValidator.TRUE, null, ProgressMonitor.NULL);
+            final Range range = Range.computeRangeDouble(lats, IndexValidator.TRUE, null, ProgressMonitor.NULL);
             if (range.getMin() < -90) {
                 gcList.add(null);
                 centerLineList.add(null);
@@ -435,10 +435,10 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         // first step - remove location TP grids that have already been transferred. Their size is
         // calculated wrong in most cases
         final TiePointGrid falseTiePointGrid = destScene.getProduct().getTiePointGrid(latGridName);
-        final float rightOffsetX = falseTiePointGrid.getOffsetX();
-        final float falseOffsetY = falseTiePointGrid.getOffsetY();
-        final float rightSubsamplingX = falseTiePointGrid.getSubSamplingX();
-        final float rightSubsamplingY = falseTiePointGrid.getSubSamplingY();
+        final double rightOffsetX = falseTiePointGrid.getOffsetX();
+        final double falseOffsetY = falseTiePointGrid.getOffsetY();
+        final double rightSubsamplingX = falseTiePointGrid.getSubSamplingX();
+        final double rightSubsamplingY = falseTiePointGrid.getSubSamplingY();
 
         removeTiePointGrid(destScene, latGridName);
         removeTiePointGrid(destScene, lonGridName);
@@ -458,10 +458,10 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         final int stopY = calculateStopLine(scanlineHeight, region);
         final int extendedHeight = stopY - startY;
 
-        float[] recalculatedLatFloats = new float[region.width * extendedHeight];
+        double[] recalculatedLatFloats = new double[region.width * extendedHeight];
         recalculatedLatFloats = srcProduct.getTiePointGrid(latGridName).getPixels(region.x, startY, region.width, extendedHeight, recalculatedLatFloats);
 
-        float[] recalculatedLonFloats = new float[region.width * extendedHeight];
+        double[] recalculatedLonFloats = new double[region.width * extendedHeight];
         recalculatedLonFloats = srcProduct.getTiePointGrid(lonGridName).getPixels(region.x, startY, region.width, extendedHeight, recalculatedLonFloats);
 
 
@@ -530,39 +530,39 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
 
     private static class PolyLine {
 
-        private float _x1;
-        private float _y1;
+        private double _x1;
+        private double _y1;
         private boolean _started;
-        private ArrayList<Line2D.Float> _lines;
+        private ArrayList<Line2D.Double> _lines;
 
         public PolyLine() {
             _started = false;
         }
 
-        public void lineTo(final float x, final float y) {
-            _lines.add(new Line2D.Float(_x1, _y1, x, y));
+        public void lineTo(final double x, final double y) {
+            _lines.add(new Line2D.Double(_x1, _y1, x, y));
             setXY1(x, y);
         }
 
-        public void moveTo(final float x, final float y) {
+        public void moveTo(final double x, final double y) {
             if (_started) {
                 throw new IllegalStateException("Polyline alredy started");
             }
             setXY1(x, y);
-            _lines = new ArrayList<Line2D.Float>();
+            _lines = new ArrayList<>();
             _started = true;
         }
 
-        private void setXY1(final float x, final float y) {
+        private void setXY1(final double x, final double y) {
             _x1 = x;
             _y1 = y;
         }
 
-        public double getDistance(final float x, final float y) {
+        public double getDistance(final double x, final double y) {
             double smallestDistPoints = Double.MAX_VALUE;
             double pointsDist = smallestDistPoints;
             if (_lines != null && _lines.size() > 0) {
-                for (final Line2D.Float line : _lines) {
+                for (final Line2D.Double line : _lines) {
                     final double distPoints = line.ptSegDistSq(x, y);
                     if (distPoints < smallestDistPoints) {
                         smallestDistPoints = distPoints;
@@ -578,11 +578,11 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
 
     private class ModisTiePointGrid extends TiePointGrid {
 
-        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, float offsetX, float offsetY, float subSamplingX, float subSamplingY, float[] tiePoints) {
+        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, double offsetX, double offsetY, double subSamplingX, double subSamplingY, double[] tiePoints) {
             super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints);
         }
 
-        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, float offsetX, float offsetY, float subSamplingX, float subSamplingY, float[] tiePoints, boolean containsAngles) {
+        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, double offsetX, double offsetY, double subSamplingX, double subSamplingY, double[] tiePoints, boolean containsAngles) {
             super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints, containsAngles);
         }
 

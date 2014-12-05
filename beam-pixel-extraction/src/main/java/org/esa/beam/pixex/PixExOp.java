@@ -728,7 +728,7 @@ public class PixExOp extends Operator {
                     for (Coordinate matchedCoordinate : matchedCoordinates) {
                         final String coordinateName = matchedCoordinate.getName();
                         if (!knownKmzPlacemarks.contains(coordinateName)) {
-                            final Point2D.Float position = new Point2D.Float(matchedCoordinate.getLon(),
+                            final Point2D.Double position = new Point2D.Double(matchedCoordinate.getLon(),
                                                                              matchedCoordinate.getLat());
                             kmlDocument.addChild(new KmlPlacemark(coordinateName, null, position));
                             knownKmzPlacemarks.add(coordinateName);

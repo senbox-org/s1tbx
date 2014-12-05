@@ -75,7 +75,7 @@ public class ISINGeoCoding extends AbstractGeoCoding {
         int rowIndex = (int) pixelPos.y;
         if (rowIndex >= 0 && rowIndex < _grid.getRowCount()) {
             int rowLength = _grid.getRowLength(rowIndex);
-            float colIndex = pixelPos.x - _grid.getRowCount() + (rowLength / 2);
+            double colIndex = pixelPos.x - _grid.getRowCount() + (rowLength / 2);
             if (colIndex >= 0 && colIndex < rowLength) {
                 geoPos.lat = 90.0f - 180.0f * (pixelPos.y) / _grid.getRowCount();
                 geoPos.lon = (float) (colIndex * _grid.getDeltaLon(rowIndex) - 180f);

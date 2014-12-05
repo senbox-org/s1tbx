@@ -363,8 +363,8 @@ public class DimapDocumentTest extends TestCase {
     private void addTiePointGrids(Product product) {
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
-        final TiePointGrid tiePointGrid = createTiePointGrid("tpg1", sceneRasterWidth, sceneRasterHeight, 21.1f, 14.2f,
-                                                             16.3f, 32.004f,
+        final TiePointGrid tiePointGrid = createTiePointGrid("tpg1", sceneRasterWidth, sceneRasterHeight, 21.1, 14.2,
+                                                             16.3, 32.004,
                                                              false);
         product.addTiePointGrid(tiePointGrid);
 
@@ -372,16 +372,16 @@ public class DimapDocumentTest extends TestCase {
         tiePointGrid.getOverlayMaskGroup().add(product.getMaskGroup().get("name3"));
 
         product.addTiePointGrid(
-                createTiePointGrid("tpg2", sceneRasterWidth, sceneRasterHeight, 21.1f, 14.2f, 16.3f, 32.004f, true));
+                createTiePointGrid("tpg2", sceneRasterWidth, sceneRasterHeight, 21.1, 14.2, 16.3, 32.004, true));
     }
 
-    private TiePointGrid createTiePointGrid(String name, int sceneW, int sceneH, float offX, float offY, float stepX,
-                                            float stepY, boolean cyclic) {
-        int gridWidth = Math.round((sceneW - 1) / stepX + 1);
-        int gridHeight = Math.round((sceneH - 1) / stepY + 1);
-        float[] floats = new float[gridWidth * gridHeight];
+    private TiePointGrid createTiePointGrid(String name, int sceneW, int sceneH, double offX, double offY, double stepX,
+                                            double stepY, boolean cyclic) {
+        int gridWidth = (int)Math.round((sceneW - 1) / stepX + 1);
+        int gridHeight = (int)Math.round((sceneH - 1) / stepY + 1);
+        double[] floats = new double[gridWidth * gridHeight];
         for (int i = 0; i < floats.length; i++) {
-            floats[i] = (float) (20.0 + 10.0 * Math.random());
+            floats[i] = (20.0 + 10.0 * Math.random());
         }
         TiePointGrid tpg = null;
         if (!cyclic) {
@@ -814,13 +814,13 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <TIE_POINT_DESCRIPTION>tpg1-Description</TIE_POINT_DESCRIPTION>");
         pw.println("            <PHYSICAL_UNIT>tpg1-unit</PHYSICAL_UNIT>");
         pw.println("            <TIE_POINT_GRID_NAME>tpg1</TIE_POINT_GRID_NAME>");
-        pw.println("            <DATA_TYPE>float32</DATA_TYPE>");
+        pw.println("            <DATA_TYPE>float64</DATA_TYPE>");
         pw.println("            <NCOLS>70</NCOLS>");
         pw.println("            <NROWS>71</NROWS>");
-        pw.println("            <OFFSET_X>" + 21.1f + "</OFFSET_X>");
-        pw.println("            <OFFSET_Y>" + 14.2f + "</OFFSET_Y>");
-        pw.println("            <STEP_X>" + 16.3f + "</STEP_X>");
-        pw.println("            <STEP_Y>" + 32.004f + "</STEP_Y>");
+        pw.println("            <OFFSET_X>" + 21.1 + "</OFFSET_X>");
+        pw.println("            <OFFSET_Y>" + 14.2 + "</OFFSET_Y>");
+        pw.println("            <STEP_X>" + 16.3 + "</STEP_X>");
+        pw.println("            <STEP_Y>" + 32.004 + "</STEP_Y>");
         pw.println("            <CYCLIC>false</CYCLIC>");
         pw.println("        </Tie_Point_Grid_Info>");
         pw.println("        <Tie_Point_Grid_Info>");
@@ -828,13 +828,13 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <TIE_POINT_DESCRIPTION>tpg2-Description</TIE_POINT_DESCRIPTION>");
         pw.println("            <PHYSICAL_UNIT>tpg2-unit</PHYSICAL_UNIT>");
         pw.println("            <TIE_POINT_GRID_NAME>tpg2</TIE_POINT_GRID_NAME>");
-        pw.println("            <DATA_TYPE>float32</DATA_TYPE>");
+        pw.println("            <DATA_TYPE>float64</DATA_TYPE>");
         pw.println("            <NCOLS>70</NCOLS>");
         pw.println("            <NROWS>71</NROWS>");
-        pw.println("            <OFFSET_X>" + 21.1f + "</OFFSET_X>");
-        pw.println("            <OFFSET_Y>" + 14.2f + "</OFFSET_Y>");
-        pw.println("            <STEP_X>" + 16.3f + "</STEP_X>");
-        pw.println("            <STEP_Y>" + 32.004f + "</STEP_Y>");
+        pw.println("            <OFFSET_X>" + 21.1 + "</OFFSET_X>");
+        pw.println("            <OFFSET_Y>" + 14.2 + "</OFFSET_Y>");
+        pw.println("            <STEP_X>" + 16.3 + "</STEP_X>");
+        pw.println("            <STEP_Y>" + 32.004 + "</STEP_Y>");
         pw.println("            <CYCLIC>true</CYCLIC>");
         pw.println("        </Tie_Point_Grid_Info>");
         pw.println("    </Tie_Point_Grids>");

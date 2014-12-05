@@ -337,7 +337,7 @@ public class AlbersEqualAreaConicDescriptor implements MapTransformDescriptor {
          * @return the map co-ordinate
          */
         @Override
-        protected Point2D forward_impl(float phi, float lam, Point2D mapPoint) {
+        protected Point2D forward_impl(double phi, double lam, Point2D mapPoint) {
             final double _phi = Math.toRadians(phi);
             final double _lam = Math.toRadians(lam);
             double rho = 0;
@@ -354,8 +354,8 @@ public class AlbersEqualAreaConicDescriptor implements MapTransformDescriptor {
             }
 
             double theta = _n * (_lam - _lam0);
-            double x = (float) (rho * Math.sin(theta));
-            double y = (float) _rho0 - (rho * Math.cos(theta));
+            double x = rho * Math.sin(theta);
+            double y = _rho0 - (rho * Math.cos(theta));
 
             mapPoint.setLocation(x, y);
             return mapPoint;
@@ -377,7 +377,7 @@ public class AlbersEqualAreaConicDescriptor implements MapTransformDescriptor {
          * @return the geodetic co-ordinate
          */
         @Override
-        protected GeoPos inverse_impl(float x, float y, GeoPos geoPoint) {
+        protected GeoPos inverse_impl(double x, double y, GeoPos geoPoint) {
             double rho;
             double beta;
             double theta;
@@ -414,8 +414,8 @@ public class AlbersEqualAreaConicDescriptor implements MapTransformDescriptor {
                 _lam = 0.;
             }
 
-            geoPoint.lat = (float) Math.toDegrees(_phi);
-            geoPoint.lon = (float) Math.toDegrees(_lam);
+            geoPoint.lat = Math.toDegrees(_phi);
+            geoPoint.lon = Math.toDegrees(_lam);
             return geoPoint;
         }
 

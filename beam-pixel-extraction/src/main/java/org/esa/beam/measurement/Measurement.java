@@ -32,18 +32,18 @@ public class Measurement {
     private final Object[] values;
     private final int coordinateID;
     private final long productId;
-    private final float pixelX;
-    private final float pixelY;
+    private final double pixelX;
+    private final double pixelY;
     private final String coordinateName;
     private final boolean isValid;
     private final String[] originalAttributeNames;
 
-    public Measurement(int coordinateID, String name, long productId, float pixelX, float pixelY, ProductData.UTC time,
+    public Measurement(int coordinateID, String name, long productId, double pixelX, double pixelY, ProductData.UTC time,
                        GeoPos geoPos, Object[] values, boolean isValid) {
         this(coordinateID, name, productId, pixelX, pixelY, time, geoPos, values, null, isValid);
     }
 
-    public Measurement(int coordinateID, String name, long productId, float pixelX, float pixelY, ProductData.UTC time,
+    public Measurement(int coordinateID, String name, long productId, double pixelX, double pixelY, ProductData.UTC time,
                        GeoPos geoPos, Object[] values, String[] originalAttributeNames, boolean isValid) {
         this.coordinateID = coordinateID;
         this.productId = productId;
@@ -66,11 +66,11 @@ public class Measurement {
         return values;
     }
 
-    public float getLat() {
+    public double getLat() {
         return geoPos.lat;
     }
 
-    public float getLon() {
+    public double getLon() {
         return geoPos.lon;
     }
 
@@ -86,11 +86,11 @@ public class Measurement {
         return isValid;
     }
 
-    public float getPixelX() {
+    public double getPixelX() {
         return pixelX;
     }
 
-    public float getPixelY() {
+    public double getPixelY() {
         return pixelY;
     }
 
@@ -115,10 +115,10 @@ public class Measurement {
         if (isValid != that.isValid) {
             return false;
         }
-        if (Float.compare(that.pixelX, pixelX) != 0) {
+        if (Double.compare(that.pixelX, pixelX) != 0) {
             return false;
         }
-        if (Float.compare(that.pixelY, pixelY) != 0) {
+        if (Double.compare(that.pixelY, pixelY) != 0) {
             return false;
         }
         if (productId != that.productId) {
@@ -152,8 +152,8 @@ public class Measurement {
         result = 31 * result + Arrays.hashCode(values);
         result = 31 * result + coordinateID;
         result = 31 * result + (int) productId;
-        result = 31 * result + (pixelX == +0.0f ? 0 : Float.floatToIntBits(pixelX));
-        result = 31 * result + (pixelY == +0.0f ? 0 : Float.floatToIntBits(pixelY));
+        result = 31 * result + (pixelX == +0.0f ? 0 : (int)Double.doubleToLongBits(pixelX));
+        result = 31 * result + (pixelY == +0.0f ? 0 : (int)Double.doubleToLongBits(pixelY));
         result = 31 * result + coordinateName.hashCode();
         result = 31 * result + (isValid ? 1 : 0);
         return result;

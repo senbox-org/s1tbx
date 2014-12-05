@@ -177,10 +177,10 @@ public class TestUtils {
 
         final TiePointGrid latGrid = new TiePointGrid("lat", 2, 2, 0.5f, 0.5f,
                 product.getSceneRasterWidth(), product.getSceneRasterHeight(),
-                new float[]{10.0f, 10.0f, 5.0f, 5.0f});
+                new double[]{10.0f, 10.0f, 5.0f, 5.0f});
         final TiePointGrid lonGrid = new TiePointGrid("lon", 2, 2, 0.5f, 0.5f,
                 product.getSceneRasterWidth(), product.getSceneRasterHeight(),
-                new float[]{10.0f, 10.0f, 5.0f, 5.0f},
+                new double[]{10.0f, 10.0f, 5.0f, 5.0f},
                 TiePointGrid.DISCONT_AT_360);
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
 
@@ -313,8 +313,8 @@ public class TestUtils {
             if (trgTPG == null)
                 throwErr("TPG " + expectedTPG.getName() + " not found");
 
-            final float[] expectedTiePoints = expectedTPG.getTiePoints();
-            final float[] trgTiePoints = trgTPG.getTiePoints();
+            final double[] expectedTiePoints = expectedTPG.getTiePoints();
+            final double[] trgTiePoints = trgTPG.getTiePoints();
 
             if (!Arrays.equals(trgTiePoints, expectedTiePoints)) {
                 throwErr("TPGs are different in file " + expectedProduct.getFileLocation().getAbsolutePath());

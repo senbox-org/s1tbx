@@ -38,7 +38,7 @@ public class PixExOpUtils {
             throw new IOException("Could not read geometry of feature '" + feature.getID() + "'.");
         }
         final Point centroid = defaultGeometry.getCentroid();
-        return new GeoPos((float) centroid.getY(), (float) centroid.getX());
+        return new GeoPos(centroid.getY(), centroid.getX());
     }
 
     public static SimpleFeatureType getExtendedFeatureType(SimpleFeatureType featureType) {

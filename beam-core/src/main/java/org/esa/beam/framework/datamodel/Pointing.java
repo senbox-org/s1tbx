@@ -73,7 +73,7 @@ public interface Pointing {
      *
      * @see #canGetElevation
      */
-    float getElevation(PixelPos pixelPos);
+    double getElevation(PixelPos pixelPos);
 
     /**
      * Returns whether or not the sun direction is available.

@@ -57,8 +57,8 @@ public class PixExOpTest {
         String parentDir = new File(getClass().getResource("dummyProduct1.dim").getFile()).getParent();
         int windowSize = 11;
         Coordinate[] coordinates = new Coordinate[]{
-                new Coordinate("carlCoordinate", 60.1f, 3.0f, null),
-                new Coordinate("cassandraCoordinate", 59.1f, 0.5f, null)
+                new Coordinate("carlCoordinate", 60.1, 3.0, null),
+                new Coordinate("cassandraCoordinate", 59.1, 0.5, null)
         };
         final File outputDir = getOutputDir("testUsingGraph", getClass());
         String graphOpXml =
@@ -140,8 +140,8 @@ public class PixExOpTest {
     public void testSingleProduct() throws Exception {
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", 10.0f, 10.0f, null),
-                new Coordinate("coord2", 20.0f, 20.0f, null)
+                new Coordinate("coord1", 10.0, 10.0, null),
+                new Coordinate("coord2", 20.0, 20.0, null)
         };
         int windowSize = 3;
 
@@ -173,7 +173,7 @@ public class PixExOpTest {
     @Test
     public void testTimeExtractionFromFilename() throws Exception {
 
-        Coordinate[] coordinates = {new Coordinate("coord", 20.0f, 20.0f, null)};
+        Coordinate[] coordinates = {new Coordinate("coord", 20.0, 20.0, null)};
         int windowSize = 1;
 
         HashMap<String, Object> parameterMap = new HashMap<>();
@@ -217,9 +217,9 @@ public class PixExOpTest {
     public void testTwoProductsSameType() throws Exception {
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", 10.0f, 10.0f, null),
-                new Coordinate("coord2", 20.0f, 20.0f, null),
-                new Coordinate("coord3", 0.5f, 0.5f, null)
+                new Coordinate("coord1", 10.0, 10.0, null),
+                new Coordinate("coord2", 20.0, 20.0, null),
+                new Coordinate("coord3", 0.5, 0.5, null)
         };
         int windowSize = 5;
 
@@ -251,8 +251,8 @@ public class PixExOpTest {
     public void testTwentyProductsSameType() throws Exception {
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", 10.0f, 10.0f, null),
-                new Coordinate("coord3", 0.5f, 0.5f, null)
+                new Coordinate("coord1", 10.0, 10.0, null),
+                new Coordinate("coord3", 0.5, 0.5, null)
         };
         int windowSize = 1;
 
@@ -286,9 +286,9 @@ public class PixExOpTest {
         HashMap<String, Object> parameterMap = new HashMap<>();
 
         Coordinate[] coordinates = {
-                new Coordinate("coord1", 10.0f, 10.0f, null),
-                new Coordinate("coord2", 20.0f, 20.0f, null),
-                new Coordinate("coord3", 0.5f, 0.5f, null)
+                new Coordinate("coord1", 10.0, 10.0, null),
+                new Coordinate("coord2", 20.0, 20.0, null),
+                new Coordinate("coord3", 0.5, 0.5, null)
         };
         int windowSize = 5;
 
@@ -338,9 +338,9 @@ public class PixExOpTest {
         final Calendar calOutsideBoth = Calendar.getInstance();
         calOutsideBoth.set(2010, Calendar.JANUARY, 1, 0, 0, 0);
         Coordinate[] coordinates = {
-                new Coordinate("coord1", 10.0f, 10.0f, calInP1.getTime()),
-                new Coordinate("coord2", 20.0f, 20.0f, calInP2.getTime()),
-                new Coordinate("coord3", 0.5f, 0.5f, calOutsideBoth.getTime())
+                new Coordinate("coord1", 10.0, 10.0, calInP1.getTime()),
+                new Coordinate("coord2", 20.0, 20.0, calInP2.getTime()),
+                new Coordinate("coord3", 0.5, 0.5, calOutsideBoth.getTime())
         };
 
 
@@ -369,8 +369,8 @@ public class PixExOpTest {
     public void testTwentyProductsWithDifferentTypes() throws Exception {
 
         Coordinate[] coordinates = {
-                new Coordinate("coord3", 2.5f, 1.0f, null),
-                new Coordinate("coord4", 0.5f, 0.5f, null)
+                new Coordinate("coord3", 2.5, 1.0, null),
+                new Coordinate("coord4", 0.5, 0.5, null)
         };
         int windowSize = 1;
 
@@ -401,7 +401,7 @@ public class PixExOpTest {
     @Test(expected = OperatorException.class)
     public void testFailForEvenWindowSize() throws Exception {
         HashMap<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("coordinates", new Coordinate[]{new Coordinate("coord1", 10.0f, 10.0f, null)});
+        parameterMap.put("coordinates", new Coordinate[]{new Coordinate("coord1", 10.0, 10.0, null)});
         parameterMap.put("windowSize", 2); // not allowed !!
 
         Product[] sourceProduct = {createTestProduct("werner", "type1", new String[]{"rad_1", "rad_2"})};
@@ -452,8 +452,8 @@ public class PixExOpTest {
                                             float lat, float lon, float x, float y) {
         for (Measurement measurement : measurementList) {
             if (measurement.getCoordinateName().equals(coordinateName) && id == measurement.getCoordinateID() &&
-                    Float.compare(lat, measurement.getLat()) == 0 && Float.compare(lon, measurement.getLon()) == 0 &&
-                    Float.compare(x, measurement.getPixelX()) == 0 && Float.compare(y, measurement.getPixelY()) == 0) {
+                    Double.compare(lat, measurement.getLat()) == 0 && Double.compare(lon, measurement.getLon()) == 0 &&
+                    Double.compare(x, measurement.getPixelX()) == 0 && Double.compare(y, measurement.getPixelY()) == 0) {
                 return;
             }
         }

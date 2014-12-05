@@ -9,18 +9,18 @@ import org.esa.beam.framework.datamodel.PixelPos;
  */
 class ExpectedGeoCoordinate {
     @JsonProperty(required = true)
-    private Float x;
+    private Double x;
     @JsonProperty(required = true)
-    private Float y;
+    private Double y;
     @JsonProperty(required = true)
-    private Float lat;
+    private Double lat;
     @JsonProperty(required = true)
-    private Float lon;
+    private Double lon;
 
     ExpectedGeoCoordinate() {
     }
 
-    public ExpectedGeoCoordinate(float x, float y, float lat, float lon) {
+    public ExpectedGeoCoordinate(double x, double y, double lat, double lon) {
         this();
         this.x = x;
         this.y = y;
@@ -28,11 +28,11 @@ class ExpectedGeoCoordinate {
         this.lon = lon;
     }
 
-    float getX() {
+    double getX() {
         return x;
     }
 
-    float getY() {
+    double getY() {
         return y;
     }
 
@@ -40,11 +40,11 @@ class ExpectedGeoCoordinate {
         return new PixelPos(getX(), getY());
     }
 
-    float getLat() {
+    double getLat() {
         return lat;
     }
 
-    float getLon() {
+    double getLon() {
         return lon;
     }
 

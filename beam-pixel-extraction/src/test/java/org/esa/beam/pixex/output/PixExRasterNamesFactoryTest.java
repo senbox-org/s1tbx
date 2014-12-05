@@ -144,7 +144,7 @@ public class PixExRasterNamesFactoryTest {
     ///////////////////////////////
 
     private TiePointGrid newTiePointGrid(String name) {
-        return new TiePointGrid(name, 10, 10, 0, 0, 1, 1, new float[10 * 10]);
+        return new TiePointGrid(name, 10, 10, 0, 0, 1, 1, new double[10 * 10]);
     }
 
     private Mask newMask(String name) {

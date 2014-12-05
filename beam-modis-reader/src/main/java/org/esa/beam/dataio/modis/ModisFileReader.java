@@ -364,7 +364,7 @@ class ModisFileReader {
         final int height = dimensions.get(0).getLength();
         final int width = dimensions.get(1).getLength();
 
-        float[] floatBuffer = new float[width * height];
+        double[] floatBuffer = new double[width * height];
         final Array array = variable.read();
         for (int i = 0; i < floatBuffer.length; i++) {
             floatBuffer[i] = array.getFloat(i);
@@ -413,7 +413,7 @@ class ModisFileReader {
         return gridRet;
     }
 
-    private static float[] scaleArray(int dataType, float[] buffer, float scale, float offset) {
+    private static double[] scaleArray(int dataType, double[] buffer, float scale, float offset) {
 
         if (dataType == ProductData.TYPE_FLOAT32) {
             for (int n = 0; n < buffer.length; n++) {

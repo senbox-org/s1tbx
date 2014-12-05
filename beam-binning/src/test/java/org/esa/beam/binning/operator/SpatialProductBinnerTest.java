@@ -183,9 +183,9 @@ public class SpatialProductBinnerTest {
     private static Product createProduct() throws Exception {
         Product product = new Product("p", "t", 32, 256);
         final TiePointGrid lat = new TiePointGrid("lat", 2, 2, 0f, 0f, 32f, 256f,
-                                                  new float[]{+40f, +40f, -40f, -40f});
+                                                  new double[]{+40f, +40f, -40f, -40f});
         final TiePointGrid lon = new TiePointGrid("lon", 2, 2, 0f, 0f, 32f, 256f,
-                                                  new float[]{-80f, +80f, -80f, +80f});
+                                                  new double[]{-80f, +80f, -80f, +80f});
         product.addTiePointGrid(lat);
         product.addTiePointGrid(lon);
         product.setGeoCoding(new TiePointGeoCoding(lat, lon));

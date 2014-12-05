@@ -68,7 +68,7 @@ class ContentAssert {
             final GeoCoding geoCoding = product.getGeoCoding();
             assertNotNull(productId + " has no GeoCoding", geoCoding);
 
-            final Float reverseAccuracy = expectedGeoCoding.getReverseAccuracy();
+            final Double reverseAccuracy = expectedGeoCoding.getReverseAccuracy();
             final ExpectedGeoCoordinate[] coordinates = expectedGeoCoding.getCoordinates();
             if (coordinates == null) {
                 return;

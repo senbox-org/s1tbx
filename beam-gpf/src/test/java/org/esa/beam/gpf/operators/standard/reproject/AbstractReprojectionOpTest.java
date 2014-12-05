@@ -63,11 +63,11 @@ public abstract class AbstractReprojectionOpTest {
                                                "AUTHORITY[\"EPSG\",\"32633\"]]";
     protected static File wktFile;
 
-    private static final float[] LATS = new float[]{
+    private static final double[] LATS = new double[]{
             50.0f, 50.0f,
             30.0f, 30.0f
     };
-    private static final float[] LONS = new float[]{
+    private static final double[] LONS = new double[]{
             6.0f, 26.0f,
             6.0f, 26.0f
     };
@@ -129,7 +129,7 @@ public abstract class AbstractReprojectionOpTest {
         return GPF.createProduct(operatorName, parameterMap, sourceProduct);
     }
 
-    protected void assertPixelValidState(Band targetBand, float sourceX, float sourceY,
+    protected void assertPixelValidState(Band targetBand, double sourceX, double sourceY,
                                          boolean expectedValid) throws IOException {
         final Band sourceBand = sourceProduct.getBand(targetBand.getName());
         final PixelPos sourcePP = new PixelPos(sourceX, sourceY);
@@ -139,7 +139,7 @@ public abstract class AbstractReprojectionOpTest {
         assertEquals(expectedValid, pixelValid);
     }
 
-    protected void assertPixelValue(Band targetBand, float sourceX, float sourceY,
+    protected void assertPixelValue(Band targetBand, double sourceX, double sourceY,
                                   double expectedPixelValue, double delta) throws IOException {
         final Band sourceBand = sourceProduct.getBand(targetBand.getName());
         final PixelPos sourcePP = new PixelPos(sourceX, sourceY);

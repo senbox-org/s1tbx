@@ -39,7 +39,7 @@ public interface ElevationModel {
      * @return  an elevation in meters, or the special value returned by {@link ElevationModelDescriptor#getNoDataValue()} if an elevation is not available
      * @exception Exception if a non-runtime error occurs, e.g I/O error
      */
-    float getElevation(GeoPos geoPos) throws Exception;
+    double getElevation(GeoPos geoPos) throws Exception;
 
     /**
      * @return The resampling method used.

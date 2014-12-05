@@ -72,6 +72,6 @@ public class DatumTransform {
         //double dh = (dx * clat * clon) + (dy * clat * slon) + (dz * slat)
         //     - (da * (from_a / rn)) + ((df * rn * ssqlat) / adb);
         // to_h = from_h + dh;
-        return new GeoPos((float) (from.lat + dlat), (float) (from.lon + dlon));
+        return new GeoPos(from.lat + dlat, from.lon + dlon);
     }
 }

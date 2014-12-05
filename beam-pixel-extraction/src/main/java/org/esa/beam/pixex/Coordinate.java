@@ -31,9 +31,9 @@ public class Coordinate {
     @Parameter(pattern = "[a-zA-Z_0-9]*")
     private String name;
     @Parameter(alias = "latitude")
-    private Float lat;
+    private Double lat;
     @Parameter(alias = "longitude")
-    private Float lon;
+    private Double lon;
     @Parameter(alias = "dateTime",
                description = "The date time of the coordinate in ISO 8601 format.\n The format pattern is 'yyyy-MM-dd'T'HH:mm:ssZ'",
                converter = ISO8601Converter.class)
@@ -48,11 +48,11 @@ public class Coordinate {
         // needed for serialize/de-serialize
     }
 
-    public Coordinate(String name, Float lat, Float lon, Date dateTime) {
+    public Coordinate(String name, Double lat, Double lon, Date dateTime) {
         this(name, lat, lon, dateTime, new OriginalValue[0]);
     }
 
-    public Coordinate(String name, Float lat, Float lon, Date dateTime, OriginalValue[] originalValues) {
+    public Coordinate(String name, Double lat, Double lon, Date dateTime, OriginalValue[] originalValues) {
         this.name = name;
         this.lat = lat;
         this.lon = lon;
@@ -65,11 +65,11 @@ public class Coordinate {
         return name;
     }
 
-    public Float getLat() {
+    public Double getLat() {
         return lat;
     }
 
-    public Float getLon() {
+    public Double getLon() {
         return lon;
     }
 

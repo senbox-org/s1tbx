@@ -177,7 +177,7 @@ class BinningFormModel {
             }
         }
         for (TiePointGrid grid : srcProduct.getTiePointGrids()) {
-            contextProduct.addTiePointGrid(new TiePointGrid(grid.getName(), 10, 10, 0, 0, 1, 1, new float[100]));
+            contextProduct.addTiePointGrid(new TiePointGrid(grid.getName(), 10, 10, 0, 0, 1, 1, new double[100]));
         }
         for (String vectorDataName : srcProduct.getVectorDataGroup().getNodeNames()) {
             VectorDataNode vectorData = srcProduct.getVectorDataGroup().get(vectorDataName);

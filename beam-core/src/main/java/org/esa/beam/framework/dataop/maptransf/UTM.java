@@ -165,8 +165,8 @@ public class UTM {
      *
      * @return the zone index in the range 0 to {@link #MAX_UTM_ZONE} - 1.
      */
-    public static int getZoneIndex(float longitude) {
-        int zoneIndex = Math.round((longitude + 180f) / 6f - 0.5f);
+    public static int getZoneIndex(double longitude) {
+        int zoneIndex = (int)Math.round((longitude + 180f) / 6f - 0.5f);
         if (zoneIndex < 0) {
             zoneIndex = 0;
         }

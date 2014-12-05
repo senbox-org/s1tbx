@@ -183,11 +183,11 @@ public class TiePointGeoCodingTest extends TestCase {
         return product;
     }
 
-    private float[] createLatGridData() {
+    private double[] createLatGridData() {
         return createGridData(LAT_1, LAT_2);
     }
 
-    private float[] createLonGridData() {
+    private double[] createLonGridData() {
         return createGridData(LON_1, LON_2);
     }
 
@@ -201,13 +201,13 @@ public class TiePointGeoCodingTest extends TestCase {
         return floats;
     }
 
-    private static float[] createGridData(float lon0, float lon1) {
-        float[] floats = new float[GW * GH];
+    private static double[] createGridData(float lon0, float lon1) {
+        double[] floats = new double[GW * GH];
 
         for (int j = 0; j < GH; j++) {
             for (int i = 0; i < GW; i++) {
-                float x = i / (GW - 1f);
-                float y = j / (GH - 1f);
+                double x = i / (GW - 1f);
+                double y = j / (GH - 1f);
                 floats[j * GW + i] = lon0 + (lon1 - lon0) * x * x + 0.1f * (lon1 - lon0) * y * y;
             }
         }
@@ -269,21 +269,21 @@ public class TiePointGeoCodingTest extends TestCase {
         float delta = 0.1f;
 
         // Test latitude out of bounds
-        assertTrue(Float.isNaN(ts.gc.normalizeLat(-90 - delta)));
-        assertTrue(Float.isNaN(ts.gc.normalizeLat(+90 + delta)));
+        assertTrue(Double.isNaN(ts.gc.normalizeLat(-90 - delta)));
+        assertTrue(Double.isNaN(ts.gc.normalizeLat(+90 + delta)));
         // Test latitude within bounds
-        assertFalse(Float.isNaN(ts.gc.normalizeLat(-90)));
-        assertFalse(Float.isNaN(ts.gc.normalizeLat(+90)));
+        assertFalse(Double.isNaN(ts.gc.normalizeLat(-90)));
+        assertFalse(Double.isNaN(ts.gc.normalizeLat(+90)));
 
         // Test longitude out of bounds
-        assertTrue(Float.isNaN(ts.gc.normalizeLon(-180 - delta)));
-        assertTrue(Float.isNaN(ts.gc.normalizeLon(+180 + delta)));
+        assertTrue(Double.isNaN(ts.gc.normalizeLon(-180 - delta)));
+        assertTrue(Double.isNaN(ts.gc.normalizeLon(+180 + delta)));
 
         // Test around lonMin. Care here! lonMin can be > +180
-        float lonMin = Math.max(-180, ts.gc.getNormalizedLonMin());
-        assertTrue(Float.isNaN(ts.gc.normalizeLon(lonMin - delta)));
-        assertFalse(Float.isNaN(ts.gc.normalizeLon(lonMin)));
-        assertFalse(Float.isNaN(ts.gc.normalizeLon(lonMin + delta)));
+        double lonMin = Math.max(-180, ts.gc.getNormalizedLonMin());
+        assertTrue(Double.isNaN(ts.gc.normalizeLon(lonMin - delta)));
+        assertFalse(Double.isNaN(ts.gc.normalizeLon(lonMin)));
+        assertFalse(Double.isNaN(ts.gc.normalizeLon(lonMin + delta)));
     }
 
 
@@ -349,8 +349,8 @@ public class TiePointGeoCodingTest extends TestCase {
             GeoPos[] targetCoords = createCoords();
 
             int numCoords = targetCoords.length;
-            float[] lats = new float[numCoords];
-            float[] lons = new float[numCoords];
+            double[] lats = new double[numCoords];
+            double[] lons = new double[numCoords];
             for (int i = 0; i < numCoords; i++) {
                 lats[i] = targetCoords[i].lat;
                 lons[i] = targetCoords[i].lon;
@@ -380,7 +380,7 @@ public class TiePointGeoCodingTest extends TestCase {
 
         private GeoPos[] transformGeoPositions(GeoPos[] sourceGpArray) {
             int numCoords = sourceGpArray.length;
-            float[] sourceCoords = new float[2 * numCoords];
+            double[] sourceCoords = new double[2 * numCoords];
             for (int i = 0; i < numCoords; i++) {
                 GeoPos geoPos = sourceGpArray[i];
                 sourceCoords[2 * i] = geoPos.lon;

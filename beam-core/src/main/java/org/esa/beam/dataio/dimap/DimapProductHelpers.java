@@ -796,6 +796,22 @@ public class DimapProductHelpers {
         return null;
     }
 
+    public static int getTiePointDataType(Element rootElement, String tiePointGridName) {
+        Element tiePointGrids = rootElement.getChild(DimapProductConstants.TAG_TIE_POINT_GRIDS);
+        if (tiePointGrids != null) {
+            final List tiePointGridInfos = tiePointGrids.getChildren(DimapProductConstants.TAG_TIE_POINT_GRID_INFO);
+            for (Object child : tiePointGridInfos) {
+                final Element tiePointGridInfo = (Element) child;
+                final String actualTiePointGridName = tiePointGridInfo.getChildTextTrim(
+                        DimapProductConstants.TAG_TIE_POINT_GRID_NAME);
+                if (tiePointGridName.equals(actualTiePointGridName)) {
+                    return ProductData.getType(tiePointGridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_DATA_TYPE));
+                }
+            }
+        }
+        return ProductData.TYPE_UNDEFINED;
+    }
+
     private static String getBandName(Element rootElement, String index) {
         Element imageInterpretation = rootElement.getChild(DimapProductConstants.TAG_IMAGE_INTERPRETATION);
         if (imageInterpretation != null) {
@@ -1343,7 +1359,7 @@ public class DimapProductHelpers {
                             gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_STEP_X));
                     final float subsY = Float.parseFloat(
                             gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_STEP_Y));
-                    final float[] floats = new float[width * height];
+                    final double[] floats = new double[width * height];
                     boolean cyclic = false;
                     final String cyclicText = gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_CYCLIC);
                     if (cyclicText != null) {

@@ -310,7 +310,7 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
         final int gridHeight = avhrrFile.getProductHeight() / tpSubsampling + 1;
 
         String[] tiePointNames = avhrrFile.getTiePointNames();
-        float[][] tiePointData = avhrrFile.getTiePointData();
+        double[][] tiePointData = avhrrFile.getTiePointData();
 
         final int numGrids = tiePointNames.length;
         TiePointGrid grid[] = new TiePointGrid[numGrids];

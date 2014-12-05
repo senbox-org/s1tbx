@@ -199,8 +199,8 @@ abstract class AtsrFile {
         int width = AtsrConstants.ATSR_SCENE_RASTER_WIDTH / AtsrConstants.LAT_LON_SUBS_X;
         int widthInBytes = AtsrConstants.ATSR_SCENE_RASTER_WIDTH * AtsrConstants.LATLON_PIXEL_SIZE;
         int height = AtsrConstants.ATSR_SCENE_RASTER_HEIGHT / AtsrConstants.LAT_LON_SUBS_Y;
-        float[] latTiePoints = new float[width * height];
-        float[] lonTiePoints = new float[width * height];
+        double[] latTiePoints = new double[width * height];
+        double[] lonTiePoints = new double[width * height];
         int[] line = new int[AtsrConstants.ATSR_SCENE_RASTER_WIDTH];
         int writeOffset = 0;
 
@@ -209,7 +209,7 @@ abstract class AtsrFile {
             _stream.seek(latOffset + n * AtsrConstants.LAT_LON_SUBS_Y * widthInBytes);
             _stream.readFully(line, 0, line.length);
             for (int m = 0; m < width; m++) {
-                latTiePoints[writeOffset] = ((float) line[m * AtsrConstants.LAT_LON_SUBS_X]) * AtsrConstants.LAT_LON_CONVERSION;
+                latTiePoints[writeOffset] = line[m * AtsrConstants.LAT_LON_SUBS_X] * AtsrConstants.LAT_LON_CONVERSION;
                 ++writeOffset;
             }
         }
@@ -227,7 +227,7 @@ abstract class AtsrFile {
             _stream.seek(lonOffset + n * AtsrConstants.LAT_LON_SUBS_Y * widthInBytes);
             _stream.readFully(line, 0, line.length);
             for (int m = 0; m < width; m++) {
-                lonTiePoints[writeOffset] = ((float) line[m * AtsrConstants.LAT_LON_SUBS_X]) * AtsrConstants.LAT_LON_CONVERSION;
+                lonTiePoints[writeOffset] = line[m * AtsrConstants.LAT_LON_SUBS_X] * AtsrConstants.LAT_LON_CONVERSION;
                 ++writeOffset;
             }
         }

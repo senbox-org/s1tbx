@@ -70,8 +70,8 @@ class GeoCodingMock implements GeoCoding {
         if (geoPos == null) {
             geoPos = new GeoPos();
         }
-        final float lat = 10.0f * (1 - pixelPos.y / OrthorectifierTest.SCENE_HEIGHT);
-        final float lon = 10.0f * (pixelPos.x / OrthorectifierTest.SCENE_WIDTH);
+        final double lat = 10.0f * (1 - pixelPos.y / OrthorectifierTest.SCENE_HEIGHT);
+        final double lon = 10.0f * (pixelPos.x / OrthorectifierTest.SCENE_WIDTH);
         geoPos.setLocation(lat, lon);
         return geoPos;
     }
@@ -81,8 +81,8 @@ class GeoCodingMock implements GeoCoding {
         if (pixelPos == null) {
             pixelPos = new PixelPos();
         }
-        final float x = OrthorectifierTest.SCENE_WIDTH * (geoPos.lon / 10.0f);
-        final float y = OrthorectifierTest.SCENE_HEIGHT * (1.0f - geoPos.lat / 10.0f);
+        final double x = OrthorectifierTest.SCENE_WIDTH * (geoPos.lon / 10.0f);
+        final double y = OrthorectifierTest.SCENE_HEIGHT * (1.0f - geoPos.lat / 10.0f);
         pixelPos.setLocation(x, y);
         return pixelPos;
     }

@@ -43,7 +43,7 @@ public class TiePointGridOpImage extends RasterDataNodeOpImage {
         if (getLevel() == 0) {
             getTiePointGrid().readPixels(destRect.x, destRect.y,
                                          destRect.width, destRect.height,
-                                         (float[]) productData.getElems(),
+                                         (double[]) productData.getElems(),
                                          ProgressMonitor.NULL);
         } else {
             final int sourceWidth = getSourceWidth(destRect.width);
@@ -54,7 +54,7 @@ public class TiePointGridOpImage extends RasterDataNodeOpImage {
                 getTiePointGrid().readPixels(srcX,
                                              getSourceY(destRect.y + y),
                                              sourceWidth, 1,
-                                             (float[]) lineData.getElems(),
+                                             (double[]) lineData.getElems(),
                                              ProgressMonitor.NULL);
                 copyLine(y, destRect.width, lineData, productData, sourceCoords);
             }

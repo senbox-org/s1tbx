@@ -219,20 +219,30 @@ public class DimapProductReader extends AbstractProductReader {
         for (String tiePointGridName : tiePointGridNames) {
             final TiePointGrid tiePointGrid = product.getTiePointGrid(tiePointGridName);
             String dataFile = DimapProductHelpers.getTiePointDataFile(jDomDocument, tiePointGrid.getName());
+            final int dataType = DimapProductHelpers.getTiePointDataType(jDomDocument.getRootElement(), tiePointGrid.getName());
             dataFile = FileUtils.exchangeExtension(dataFile, DimapProductConstants.IMAGE_FILE_EXTENSION);
             FileImageInputStream inputStream = null;
             try {
                 inputStream = new FileImageInputStream(new File(inputDir, dataFile));
-                final float[] floats = ((float[]) tiePointGrid.getData().getElems());
+                final double[] data = ((double[]) tiePointGrid.getData().getElems());
                 inputStream.seek(0);
-                inputStream.readFully(floats, 0, floats.length);
+                if(dataType == ProductData.TYPE_FLOAT64) {
+                    inputStream.readFully(data, 0, data.length);
+                } else {
+                    final float[] floats = new float[data.length];
+                    inputStream.readFully(floats, 0, floats.length);
+                    int i = 0;
+                    for(float f : floats) {
+                        data[i++] = f;
+                    }
+                }
                 inputStream.close();
                 inputStream = null;
                 // See if we have a -180...+180 or a 0...360 degree discontinuity
                 if (tiePointGrid.getDiscontinuity() != TiePointGrid.DISCONT_NONE) {
-                    tiePointGrid.setDiscontinuity(TiePointGrid.getDiscontinuity(floats));
+                    tiePointGrid.setDiscontinuity(TiePointGrid.getDiscontinuity(data));
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new IOException(
                         MessageFormat.format("I/O error while reading tie-point grid ''{0}''.", tiePointGridName), e);
             } finally {
