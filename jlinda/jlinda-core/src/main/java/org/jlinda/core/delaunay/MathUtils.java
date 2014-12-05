@@ -1,5 +1,7 @@
 package org.jlinda.core.delaunay;
 
+import com.vividsolutions.jts.geom.Coordinate;
+
 /**
  * Math functions for computational geometry.
  * 
@@ -43,27 +45,24 @@ public final class MathUtils {
     * The points pa, pb, and pc must be in counterclockwise
     * order, or the sign of the result will be reversed.
     */
-    public static final double fastInCircle(double p1x, double p1y,
-                                            double p2x, double p2y,
-                                            double p3x, double p3y,
-                                            double p4x, double p4y) {
-        double adx, ady, bdx, bdy, cdx, cdy;
-        double abdet, bcdet, cadet;
-        double alift, blift, clift;
+    public static double fastInCircle(final Coordinate p1,
+                                      final Coordinate p2,
+                                      final Coordinate p3,
+                                      final Coordinate p4) {
 
-        adx = p1x-p4x;
-        ady = p1y-p4y;
-        bdx = p2x-p4x;
-        bdy = p2y-p4y;
-        cdx = p3x-p4x;
-        cdy = p3y-p4y;
+        final double adx = p1.x-p4.x;
+        final double ady = p1.y-p4.y;
+        final double bdx = p2.x-p4.x;
+        final double bdy = p2.y-p4.y;
+        final double cdx = p3.x-p4.x;
+        final double cdy = p3.y-p4.y;
 
-        abdet = adx * bdy - bdx * ady;
-        bcdet = bdx * cdy - cdx * bdy;
-        cadet = cdx * ady - adx * cdy;
-        alift = adx * adx + ady * ady;
-        blift = bdx * bdx + bdy * bdy;
-        clift = cdx * cdx + cdy * cdy;
+        final double abdet = adx * bdy - bdx * ady;
+        final double bcdet = bdx * cdy - cdx * bdy;
+        final double cadet = cdx * ady - adx * cdy;
+        final double alift = adx * adx + ady * ady;
+        final double blift = bdx * bdx + bdy * bdy;
+        final double clift = cdx * cdx + cdy * cdy;
 
         return alift * bcdet + blift * cadet + clift * abdet;
     }

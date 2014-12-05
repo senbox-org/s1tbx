@@ -33,7 +33,7 @@ public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
 
     /**
      * Triangulate geometries.
-     * @param geometries to be triangulated
+     * @param geometryIterator to be triangulated
      */
     public void triangulate(Iterator<Geometry> geometryIterator) throws TriangulationException {
         Collection<Coordinate> vertices = extractUniqueVertices(geometryIterator);
@@ -57,9 +57,7 @@ public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
     private Collection<Coordinate> extractUniqueVertices(final Iterator<Geometry> geometryIterator) {
         Set<Coordinate> vertices = new HashSet<Coordinate>();
         for (Iterator<Geometry> it = geometryIterator ; it.hasNext() ; ) {
-            for (Coordinate c : it.next().getCoordinates()) {
-                vertices.add(c);
-            }
+            Collections.addAll(vertices, it.next().getCoordinates());
         }
         return vertices;
     }
@@ -85,8 +83,7 @@ public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
 
     protected void addExternalVertex(Coordinate vertex) throws TriangulationException {
         List<Triangle> newTriangles = buildTrianglesBetweenNewVertexAndConvexHull(vertex);
-        for (int i = 0, max = newTriangles.size() ; i < max ; i++) {
-            Triangle t = newTriangles.get(i);
+        for (Triangle t : newTriangles) {
             //if (debugLevel>=NORMAL) debug(2,"new triangle before delaunay " + t);
             if (t.getC() != HORIZON) delaunay(t, 0);
         }
@@ -187,20 +184,17 @@ public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
     * <li>10% of time is spent in getOpposite() method</li>
     * </ul>
     * @param t triangle to check and to modify (if needed)
-    * @return true if a flip occured during the delaunay property check
     */
-    private void delaunay (Triangle t, int side) {
+    private static void delaunay (final Triangle t, final int side) {
 
         if (t.getEdgeType(side)==Triangle.EdgeType.HARDBREAK) return;
 
-        Triangle opp = t.getNeighbour(side);
+        final Triangle opp = t.getNeighbour(side);
         if (opp.getC()==HORIZON) return;
-        int i = t.getOpposite(side);
+        final int i = t.getOpposite(side);
 
-        Coordinate p = opp.getVertex(i);
-        if (fastInCircle(t.getA().x, t.getA().y,
-                         t.getB().x, t.getB().y,
-                         t.getC().x, t.getC().y, p.x, p.y) > 0) {
+        final Coordinate p = opp.getVertex(i);
+        if (fastInCircle(t.getA(), t.getB(), t.getC(), p) > 0) {
             // Flip triangles without creating new Triangle objects
             flip(t, side, opp, (i+1)%3, false);
             delaunay(t,1);
@@ -231,7 +225,7 @@ public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
      * A check may be performed to ensure these conditions are verified.
      * TODO : change the breaklines edges
      */
-    public void flip(Triangle t0, int side0, Triangle t1, int side1, boolean check) throws IllegalArgumentException {
+    public static void flip(Triangle t0, int side0, Triangle t1, int side1, boolean check) throws IllegalArgumentException {
         int side0_1 = (side0+1)%3;
         int side0_2 = (side0+2)%3;
         int side1_1 = (side1+1)%3;

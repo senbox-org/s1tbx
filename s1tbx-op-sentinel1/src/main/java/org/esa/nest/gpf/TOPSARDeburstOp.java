@@ -211,7 +211,7 @@ public final class TOPSARDeburstOp extends Operator {
                     targetLastLineTime = subSwath[i].lastLineTime;
                 }
             }
-            targetLineTimeInterval = subSwath[0].azimuthTimeInterval; // days
+            targetLineTimeInterval = subSwath[0].azimuthTimeInterval;
     }
 
     /**
@@ -325,8 +325,8 @@ public final class TOPSARDeburstOp extends Operator {
 
         copyMetaData(sourceProduct.getMetadataRoot(), targetProduct.getMetadataRoot());
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
-        targetProduct.setStartTime(new ProductData.UTC(targetFirstLineTime));
-        targetProduct.setEndTime(new ProductData.UTC(targetLastLineTime));
+        targetProduct.setStartTime(new ProductData.UTC(targetFirstLineTime/Constants.secondsInDay));
+        targetProduct.setEndTime(new ProductData.UTC(targetLastLineTime/Constants.secondsInDay));
         targetProduct.setDescription(sourceProduct.getDescription());
 
         createTiePointGrids();
@@ -422,22 +422,24 @@ public final class TOPSARDeburstOp extends Operator {
         final MetadataElement absTgt = AbstractMetadata.getAbstractedMetadata(targetProduct);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, targetHeight);
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, targetWidth);
-        absTgt.setAttributeUTC(AbstractMetadata.first_line_time, new ProductData.UTC(targetFirstLineTime));
-        absTgt.setAttributeUTC(AbstractMetadata.last_line_time, new ProductData.UTC(targetLastLineTime));
-        absTgt.setAttributeDouble(AbstractMetadata.line_time_interval, targetLineTimeInterval * Constants.secondsInDay); // days to s
+        absTgt.setAttributeUTC(
+                AbstractMetadata.first_line_time, new ProductData.UTC(targetFirstLineTime/Constants.secondsInDay));
+        absTgt.setAttributeUTC(
+                AbstractMetadata.last_line_time, new ProductData.UTC(targetLastLineTime/Constants.secondsInDay));
+        absTgt.setAttributeDouble(AbstractMetadata.line_time_interval, targetLineTimeInterval);
 
         TiePointGrid latGrid = targetProduct.getTiePointGrid(OperatorUtils.TPG_LATITUDE);
         TiePointGrid lonGrid = targetProduct.getTiePointGrid(OperatorUtils.TPG_LONGITUDE);
 
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_lat, latGrid.getPixelDouble(0, 0));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_long, lonGrid.getPixelDouble(0, 0));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_lat, latGrid.getPixelDouble(targetWidth, 0));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_long, lonGrid.getPixelDouble(targetWidth, 0));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_lat, latGrid.getPixelFloat(0, 0));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_long, lonGrid.getPixelFloat(0, 0));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_lat, latGrid.getPixelFloat(targetWidth, 0));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_long, lonGrid.getPixelFloat(targetWidth, 0));
 
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_lat, latGrid.getPixelDouble(0, targetHeight));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_long, lonGrid.getPixelDouble(0, targetHeight));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_lat, latGrid.getPixelDouble(targetWidth, targetHeight));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_long, lonGrid.getPixelDouble(targetWidth, targetHeight));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_lat, latGrid.getPixelFloat(0, targetHeight));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_long, lonGrid.getPixelFloat(0, targetHeight));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_lat, latGrid.getPixelFloat(targetWidth, targetHeight));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_long, lonGrid.getPixelFloat(targetWidth, targetHeight));
     }
 
     private void updateOriginalMetadata() {
@@ -1102,7 +1104,7 @@ public final class TOPSARDeburstOp extends Operator {
         final Sentinel1Utils.NoiseVector[] vectorList = sw.noise.get(pol);
 
         final int sx = getSampleIndexInSourceProduct(tx, sw);
-        final int sy = (int) ((targetLineTime - vectorList[0].timeMJD) / targetLineTimeInterval);
+        final int sy = (int) ((targetLineTime - vectorList[0].timeMJD*Constants.secondsInDay) / targetLineTimeInterval);
 
         int l0 = -1, l1 = -1;
         int vectorIdx0 = -1, vectorIdxInc = 0;

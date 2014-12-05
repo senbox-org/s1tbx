@@ -90,7 +90,7 @@ public class CoarseRegistration {
         this.maxIteration = maxIteration;
         this.gcpTolerance = gcpTolerance;
 
-        final double achievableAccuracy = 1.0 / (double) Math.max(rowUpSamplingFactor, colUpSamplingFactor);
+        final double achievableAccuracy = 1.0 / (double) Math.min(rowUpSamplingFactor, colUpSamplingFactor);
         if (gcpTolerance < achievableAccuracy) {
             throw new OperatorException("The achievable accuracy with current interpolation factors is " +
                     achievableAccuracy + ", GCP Tolerance is below it.");
@@ -146,6 +146,9 @@ public class CoarseRegistration {
                 return false;
             }
 
+            if (Math.abs(shift[0]) > 10 || Math.abs(shift[1]) > 10) {
+                return false;
+            }
             rowShift = shift[0];
             colShift = shift[1];
             sGCPPixelPos.x += (float) colShift;

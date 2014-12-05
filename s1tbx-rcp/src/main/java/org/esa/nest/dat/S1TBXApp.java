@@ -15,23 +15,9 @@
  */
 package org.esa.nest.dat;
 
-import com.alee.laf.WebLookAndFeel;
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.swing.desktop.TabbedDesktopPane;
-import com.jidesoft.plaf.LookAndFeelFactory;
-import com.jidesoft.swing.JideTabbedPane;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.visat.VisatApp;
-import org.esa.snap.util.ResourceUtils;
-
-import javax.swing.*;
-import java.awt.*;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
 
 public final class S1TBXApp extends DatApp {
     public S1TBXApp(ApplicationDescriptor applicationDescriptor) {
@@ -42,6 +28,7 @@ public final class S1TBXApp extends DatApp {
         return (S1TBXApp) VisatApp.getApp();
     }
 
+    /*
     @Override
     protected boolean initLookAndFeel() {
 
@@ -97,7 +84,7 @@ public final class S1TBXApp extends DatApp {
 
         // Uncomment this, if we want icons to be displayed on title pane of a DockableFrame
         //UIManager.getDefaults().put("JideTabbedPane.showIconOnTab", Boolean.TRUE);
-    }
+    }*/
 
     @Override
     protected ModalDialog createAboutBox() {

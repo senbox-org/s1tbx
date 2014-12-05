@@ -168,13 +168,13 @@ public final class TOPSARSplitOp extends Operator {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
         absRoot.setAttributeUTC(AbstractMetadata.first_line_time,
-                new ProductData.UTC(subSwathInfo[subSwathIndex - 1].firstLineTime));
+                new ProductData.UTC(subSwathInfo[subSwathIndex - 1].firstLineTime / Constants.secondsInDay));
 
         absRoot.setAttributeUTC(AbstractMetadata.last_line_time,
-                new ProductData.UTC(subSwathInfo[subSwathIndex - 1].lastLineTime));
+                new ProductData.UTC(subSwathInfo[subSwathIndex - 1].lastLineTime / Constants.secondsInDay));
 
         absRoot.setAttributeDouble(AbstractMetadata.line_time_interval,
-                subSwathInfo[subSwathIndex - 1].azimuthTimeInterval * Constants.secondsInDay);// day to s
+                subSwathInfo[subSwathIndex - 1].azimuthTimeInterval);
 
         absRoot.setAttributeDouble(AbstractMetadata.slant_range_to_first_pixel,
                 subSwathInfo[subSwathIndex - 1].slrTimeToFirstPixel * Constants.lightSpeed);

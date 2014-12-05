@@ -323,8 +323,8 @@ public class InterferogramOp extends Operator {
         DoubleMatrix y = new DoubleMatrix(srpNumberPoints);
         DoubleMatrix A = new DoubleMatrix(srpNumberPoints, numberOfCoefficients);
 
-        double masterMinPi4divLam = (-4 * Math.PI * org.jlinda.core.Constants.SOL) / masterMetadata.getRadarWavelength();
-        double slaveMinPi4divLam = (-4 * Math.PI * org.jlinda.core.Constants.SOL) / slaveMetadata.getRadarWavelength();
+        double masterMinPi4divLam = (4 * Math.PI * org.jlinda.core.Constants.SOL) / masterMetadata.getRadarWavelength();
+        double slaveMinPi4divLam = (4 * Math.PI * org.jlinda.core.Constants.SOL) / slaveMetadata.getRadarWavelength();
 
         // Loop through vector or distributedPoints()
         for (int i = 0; i < srpNumberPoints; ++i) {
@@ -333,10 +333,10 @@ public class InterferogramOp extends Operator {
             double pixel = position[i][1];
 
             // compute azimuth/range time for this pixel
-            final double masterTimeRange = masterMetadata.pix2tr(pixel);
+            final double masterTimeRange = masterMetadata.pix2tr(pixel + 1);
 
             // compute xyz of this point : sourceMaster
-            org.jlinda.core.Point xyzMaster = masterOrbit.lp2xyz(line, pixel, masterMetadata);
+            org.jlinda.core.Point xyzMaster = masterOrbit.lp2xyz(line + 1, pixel + 1, masterMetadata);
             org.jlinda.core.Point slaveTimeVector = slaveOrbit.xyz2t(xyzMaster, slaveMetadata);
 
             final double slaveTimeRange = slaveTimeVector.x;
@@ -456,7 +456,7 @@ public class InterferogramOp extends Operator {
     }
 
     private DoubleMatrix normalizeDoubleMatrix(DoubleMatrix matrix, int factor) {
-        matrix.subi(0.5 * (1 + factor));
+        matrix.subi(0.5 * (factor - 1));
         matrix.divi(0.25 * (factor - 1));
         return matrix;
     }
