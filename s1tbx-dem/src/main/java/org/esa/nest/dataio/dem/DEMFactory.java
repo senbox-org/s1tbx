@@ -120,7 +120,7 @@ public class DEMFactory {
         }
     }
 
-    public static void fillDEM(final double[][] localDEM, final float alt) {
+    public static void fillDEM(final double[][] localDEM, final double alt) {
         for (double[] row : localDEM) {
             Arrays.fill(row, alt);
         }
@@ -147,7 +147,7 @@ public class DEMFactory {
      * @return true if all dem values are valid
      * @throws Exception from DEM
      */
-    public static boolean getLocalDEM(final ElevationModel dem, final float demNoDataValue,
+    public static boolean getLocalDEM(final ElevationModel dem, final double demNoDataValue,
                                       final String demResamplingMethod,
                                       final TileGeoreferencing tileGeoRef,
                                       final int x0, final int y0,
@@ -202,7 +202,7 @@ public class DEMFactory {
     }
 
     public synchronized static boolean getLocalDEMUsingDelaunayInterpolation(
-            final ElevationModel dem, final float demNoDataValue, final TileGeoreferencing tileGeoRef, final int x0,
+            final ElevationModel dem, final double demNoDataValue, final TileGeoreferencing tileGeoRef, final int x0,
             final int y0, final int tileWidth, final int tileHeight, final Product sourceProduct,
             final double[][] localDEM) throws Exception {
 
@@ -229,11 +229,11 @@ public class DEMFactory {
         final double lonMin = Math.min(Math.min(Math.min(tgtUL.lon, tgtUR.lon), tgtLL.lon), tgtLR.lon);
         final double lonMax = Math.max(Math.max(Math.max(tgtUL.lon, tgtUR.lon), tgtLL.lon), tgtLR.lon);
 
-        final GeoPos upperLeftCorner = new GeoPos((float) latMax, (float) lonMin);
-        final GeoPos lowerRightCorner = new GeoPos((float) latMin, (float) lonMax);
+        final GeoPos upperLeftCorner = new GeoPos(latMax, lonMin);
+        final GeoPos lowerRightCorner = new GeoPos(latMin, lonMax);
 
         GeoPos[] geoCorners = {upperLeftCorner, lowerRightCorner};
-        final GeoPos geoExtent = new GeoPos((float) (0.25 * (latMax - latMin)), (float) (0.25 * (lonMax - lonMin)));
+        final GeoPos geoExtent = new GeoPos(0.25 * (latMax - latMin), 0.25 * (lonMax - lonMin));
 
         /* inline of extendCorners call: avoiding ambiguous dependencies GeoPos vs GeoPoint */
         // geoCorners = extendCorners(geoExtent, geoCorners);
@@ -259,8 +259,8 @@ public class DEMFactory {
         PixelPos upperLeftCornerPos = dem.getIndex(geoCorners[0]);
         PixelPos lowerRightCornerPos = dem.getIndex(geoCorners[1]);
 
-        upperLeftCornerPos = new PixelPos((float) Math.floor(upperLeftCornerPos.x), (float) Math.floor(upperLeftCornerPos.y));
-        lowerRightCornerPos = new PixelPos((float) Math.ceil(lowerRightCornerPos.x), (float) Math.ceil(lowerRightCornerPos.y));
+        upperLeftCornerPos = new PixelPos(Math.floor(upperLeftCornerPos.x), Math.floor(upperLeftCornerPos.y));
+        lowerRightCornerPos = new PixelPos(Math.ceil(lowerRightCornerPos.x), Math.ceil(lowerRightCornerPos.y));
 
         double[][] x_in = null;
         double[][] y_in = null;
@@ -284,8 +284,8 @@ public class DEMFactory {
                     x_in[i][j] = pixelPos.x; // x coordinate in SAR image tile of given point pos
                     y_in[i][j] = pixelPos.y; // y coordinate in SAR image tile of given point pos
                     try {
-                        float elev = dem.getSample(x, y);
-                        if (Float.isNaN(elev))
+                        double elev = dem.getSample(x, y);
+                        if (Double.isNaN(elev))
                             elev = demNoDataValue;
                         z_in[i][j] = elev;
                     } catch (Exception e) {
@@ -312,8 +312,8 @@ public class DEMFactory {
                     x_in[i][j] = pixelPos.x; // x coordinate in SAR image tile of given point pos
                     y_in[i][j] = pixelPos.y; // y coordinate in SAR image tile of given point pos
                     try {
-                        float elev = dem.getSample(x, y);
-                        if (Float.isNaN(elev))
+                        double elev = dem.getSample(x, y);
+                        if (Double.isNaN(elev))
                             elev = demNoDataValue;
                         z_in[i][j] = elev;
                     } catch (Exception e) {
@@ -329,8 +329,8 @@ public class DEMFactory {
                     x_in[i][j] = pixelPos.x; // x coordinate in SAR image tile of given point pos
                     y_in[i][j] = pixelPos.y; // y coordinate in SAR image tile of given point pos
                     try {
-                        float elev = dem.getSample(x, y);
-                        if (Float.isNaN(elev))
+                        double elev = dem.getSample(x, y);
+                        if (Double.isNaN(elev))
                             elev = demNoDataValue;
                         z_in[i][j] = elev;
                     } catch (Exception e) {
@@ -360,12 +360,12 @@ public class DEMFactory {
         final double[][] elevation = org.jlinda.core.utils.TriangleUtils.gridDataLinear(
                 y_in, x_in, z_in, tileWindow, rngAzRatio, 1, 1, demNoDataValue, 0);
 
-        float alt;
+        double alt;
         boolean valid = false;
         for (int y = y0 - 1; y < maxY; y++) {
             final int yy = y - y0 + 1;
             for (int x = x0 - 1; x < maxX; x++) {
-                alt = (float) elevation[yy][x - x0 + 1];
+                alt = elevation[yy][x - x0 + 1];
                 if (!valid && alt != demNoDataValue)
                     valid = true;
                 localDEM[yy][x - x0 + 1] = alt;

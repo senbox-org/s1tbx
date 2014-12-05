@@ -444,7 +444,7 @@ public final class UpdateGeoRefOp extends Operator {
                         if (lon >= 180.0) {
                             lon -= 360.0;
                         }
-                        geoPos.setLocation((float) lat, (float) lon);
+                        geoPos.setLocation(lat, lon);
                         alt = dem.getElevation(geoPos);
                         if (alt == demNoDataValue) {
                             continue;
@@ -505,7 +505,7 @@ public final class UpdateGeoRefOp extends Operator {
                             double[] latlon = jOrbit.lp2ell(new Point(x + 0.5, y + 0.5), meta);
                             lat = latlon[0] * MathUtils.RTOD;
                             lon = latlon[1] * MathUtils.RTOD;
-                            alt = dem.getElevation(new GeoPos((float) lat, (float) lon));
+                            alt = dem.getElevation(new GeoPos(lat, lon));
                         }
 
                         if (!getPosition(lat, lon, alt, x0, y0, w, h, posData)) {

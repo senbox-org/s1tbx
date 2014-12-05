@@ -163,7 +163,7 @@ public class ObjectDetectionLayer extends Layer {
 
         final DecimalFormat frmt = new DecimalFormat("0.00");
         for (ObjectDiscriminationOp.ShipRecord target : targetList) {
-            geo.setLocation((float) target.lat, (float) target.lon);
+            geo.setLocation(target.lat, target.lon);
             geoCoding.getPixelPos(geo, pix);
             final double halfWidth = target.width / 2.0;
             final double halfHeight = target.length / 2.0;

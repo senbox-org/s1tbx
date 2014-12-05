@@ -154,13 +154,13 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         final TiePointGrid slantRangeTimeTPG = product.getTiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME);
         if (slantRangeTimeTPG != null) {
             final int numOutputLines = absRoot.getAttributeInt(AbstractMetadata.num_output_lines);
-            final double slantRangeTime = slantRangeTimeTPG.getPixelFloat(numOutputLines / 2, 0) / Constants.oneBillion; //s
+            final double slantRangeTime = slantRangeTimeTPG.getPixelDouble(numOutputLines / 2, 0) / Constants.oneBillion; //s
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
                     slantRangeTime * Constants.halfLightSpeed);
         }
 
-        float[] latCorners = leaderFile.getLatCorners(leaderFile.getMapProjRecord());
-        float[] lonCorners = leaderFile.getLonCorners(leaderFile.getMapProjRecord());
+        double[] latCorners = leaderFile.getLatCorners(leaderFile.getMapProjRecord());
+        double[] lonCorners = leaderFile.getLonCorners(leaderFile.getMapProjRecord());
         if (latCorners == null || lonCorners == null) {
             latCorners = imageFiles[0].getLatCorners();
             lonCorners = imageFiles[0].getLonCorners();
@@ -453,17 +453,17 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
                 final String llLatLon = sceneLabelElem.getAttributeString("LL_CORNER_LAT_LON");
                 final String lrLatLon = sceneLabelElem.getAttributeString("LR_CORNER_LAT_LON");
 
-                final float latUL = Float.parseFloat(ulLatLon.substring(0, ulLatLon.indexOf(',')));
-                final float latUR = Float.parseFloat(urLatLon.substring(0, urLatLon.indexOf(',')));
-                final float latLL = Float.parseFloat(llLatLon.substring(0, llLatLon.indexOf(',')));
-                final float latLR = Float.parseFloat(lrLatLon.substring(0, lrLatLon.indexOf(',')));
-                final float[] latCorners = new float[]{latUL, latUR, latLL, latLR};
+                final double latUL = Float.parseFloat(ulLatLon.substring(0, ulLatLon.indexOf(',')));
+                final double latUR = Float.parseFloat(urLatLon.substring(0, urLatLon.indexOf(',')));
+                final double latLL = Float.parseFloat(llLatLon.substring(0, llLatLon.indexOf(',')));
+                final double latLR = Float.parseFloat(lrLatLon.substring(0, lrLatLon.indexOf(',')));
+                final double[] latCorners = new double[]{latUL, latUR, latLL, latLR};
 
-                final float lonUL = Float.parseFloat(ulLatLon.substring(ulLatLon.indexOf(',') + 1, ulLatLon.length() - 1));
-                final float lonUR = Float.parseFloat(urLatLon.substring(urLatLon.indexOf(',') + 1, urLatLon.length() - 1));
-                final float lonLL = Float.parseFloat(llLatLon.substring(llLatLon.indexOf(',') + 1, llLatLon.length() - 1));
-                final float lonLR = Float.parseFloat(lrLatLon.substring(lrLatLon.indexOf(',') + 1, lrLatLon.length() - 1));
-                final float[] lonCorners = new float[]{lonUL, lonUR, lonLL, lonLR};
+                final double lonUL = Float.parseFloat(ulLatLon.substring(ulLatLon.indexOf(',') + 1, ulLatLon.length() - 1));
+                final double lonUR = Float.parseFloat(urLatLon.substring(urLatLon.indexOf(',') + 1, urLatLon.length() - 1));
+                final double lonLL = Float.parseFloat(llLatLon.substring(llLatLon.indexOf(',') + 1, llLatLon.length() - 1));
+                final double lonLR = Float.parseFloat(lrLatLon.substring(lrLatLon.indexOf(',') + 1, lrLatLon.length() - 1));
+                final double[] lonCorners = new double[]{lonUL, lonUR, lonLL, lonLR};
 
                 ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
             } catch (Exception e) {
@@ -592,8 +592,8 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         final int sceneHeight = product.getSceneRasterHeight();
         final int subSamplingX = sceneWidth / (gridWidth - 1);
         final int subSamplingY = sceneHeight / (gridHeight - 1);
-        final float[] rangeDist = new float[gridWidth * gridHeight];
-        final float[] rangeTime = new float[gridWidth * gridHeight];
+        final double[] rangeDist = new double[gridWidth * gridHeight];
+        final double[] rangeTime = new double[gridWidth * gridHeight];
 
         int k = 0;
         for (int j = 0; j < gridHeight; j++) {
@@ -608,13 +608,13 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
             for (int i = 0; i < gridWidth; i++) {
                 final int x = i * subSamplingX;
-                rangeDist[k++] = (float) (polyCoef[0] + polyCoef[1] * x + polyCoef[2] * x * x);
+                rangeDist[k++] = polyCoef[0] + polyCoef[1] * x + polyCoef[2] * x * x;
             }
         }
 
         // get slant range time in nanoseconds from range distance in meters
         for (k = 0; k < rangeDist.length; k++) {
-            rangeTime[k] = (float) ((rangeDist[k] / Constants.halfLightSpeed) * Constants.oneBillion);// in ns
+            rangeTime[k] = (rangeDist[k] / Constants.halfLightSpeed) * Constants.oneBillion;// in ns
         }
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
@@ -631,14 +631,14 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
         final double h = eph_orb_data - r;                  // orbital altitude
 
         // incidence angle
-        final float[] angles = new float[gridWidth * gridHeight];
+        final double[] angles = new double[gridWidth * gridHeight];
 
         k = 0;
         for (int j = 0; j < gridHeight; j++) {
             for (int i = 0; i < gridWidth; i++) {
                 final double RS = rangeDist[k];
                 final double a = ((h * h) - (RS * RS) + (2.0 * r * h)) / (2.0 * RS * r);
-                angles[k] = (float) (Math.acos(a) * MathUtils.RTOD);
+                angles[k] = Math.acos(a) * MathUtils.RTOD;
                 k++;
             }
         }
@@ -688,13 +688,13 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
 
         final int gridWidth = 11;
         final int gridHeight = 11;
-        final float[] targetLatTiePoints = new float[gridWidth * gridHeight];
-        final float[] targetLonTiePoints = new float[gridWidth * gridHeight];
+        final double[] targetLatTiePoints = new double[gridWidth * gridHeight];
+        final double[] targetLonTiePoints = new double[gridWidth * gridHeight];
         final int sourceImageWidth = product.getSceneRasterWidth();
         final int sourceImageHeight = product.getSceneRasterHeight();
 
-        final float subSamplingX = sourceImageWidth / (float) (gridWidth - 1);
-        final float subSamplingY = sourceImageHeight / (float) (gridHeight - 1);
+        final double subSamplingX = sourceImageWidth / (double) (gridWidth - 1);
+        final double subSamplingY = sourceImageHeight / (double) (gridHeight - 1);
 
         final TiePointGrid slantRangeTime = product.getTiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME);
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
@@ -780,7 +780,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
                     x = (int) (c * subSamplingX);
                 }
 
-                final double slrgTime = slantRangeTime.getPixelFloat((float) x, (float) y) / Constants.oneBillion; // ns to s;
+                final double slrgTime = slantRangeTime.getPixelDouble(x, y) / Constants.oneBillion; // ns to s;
                 final GeoPos geoPos = computeLatLon(latMid, lonMid, slrgTime, data);
                 targetLatTiePoints[k] = geoPos.lat;
                 targetLonTiePoints[k] = geoPos.lon;
@@ -853,7 +853,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
     private static GeoPos computeLatLon(final double latMid, final double lonMid, double slrgTime, Orbits.OrbitData data) {
 
         final double[] xyz = new double[3];
-        final GeoPos geoPos = new GeoPos((float) latMid, (float) lonMid);
+        final GeoPos geoPos = new GeoPos(latMid, lonMid);
 
         // compute initial (x,y,z) coordinate from lat/lon
         GeoUtils.geo2xyz(geoPos, xyz);

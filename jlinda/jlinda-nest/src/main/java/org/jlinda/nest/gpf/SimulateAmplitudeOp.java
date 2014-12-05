@@ -338,8 +338,8 @@ public final class SimulateAmplitudeOp extends Operator {
 
                 // get corners as DEM indices
                 PixelPos[] pixelCorners = new PixelPos[2];
-                pixelCorners[0] = dem.getIndex(new GeoPos((float) geoCorners[0].lat, (float) geoCorners[0].lon));
-                pixelCorners[1] = dem.getIndex(new GeoPos((float) geoCorners[1].lat, (float) geoCorners[1].lon));
+                pixelCorners[0] = dem.getIndex(new GeoPos(geoCorners[0].lat, geoCorners[0].lon));
+                pixelCorners[1] = dem.getIndex(new GeoPos(geoCorners[1].lat, geoCorners[1].lon));
 
                 // get max/min height of tile ~ uses 'fast' GCP based interpolation technique
                 double[] tileHeights = computeMaxHeight(pixelCorners, targetRectangle);
@@ -352,11 +352,11 @@ public final class SimulateAmplitudeOp extends Operator {
                 geoCorners = GeoUtils.extendCorners(geoExtent, geoCorners);
 
                 // update corners
-                pixelCorners[0] = dem.getIndex(new GeoPos((float) geoCorners[0].lat, (float) geoCorners[0].lon));
-                pixelCorners[1] = dem.getIndex(new GeoPos((float) geoCorners[1].lat, (float) geoCorners[1].lon));
+                pixelCorners[0] = dem.getIndex(new GeoPos(geoCorners[0].lat, geoCorners[0].lon));
+                pixelCorners[1] = dem.getIndex(new GeoPos(geoCorners[1].lat, geoCorners[1].lon));
 
-                pixelCorners[0] = new PixelPos((float) Math.ceil(pixelCorners[0].x), (float) Math.floor(pixelCorners[0].y));
-                pixelCorners[1] = new PixelPos((float) Math.floor(pixelCorners[1].x), (float) Math.ceil(pixelCorners[1].y));
+                pixelCorners[0] = new PixelPos(Math.ceil(pixelCorners[0].x), Math.floor(pixelCorners[0].y));
+                pixelCorners[1] = new PixelPos(Math.floor(pixelCorners[1].x), Math.ceil(pixelCorners[1].y));
 
                 GeoPos upperLeftGeo = dem.getGeoPos(pixelCorners[0]);
 

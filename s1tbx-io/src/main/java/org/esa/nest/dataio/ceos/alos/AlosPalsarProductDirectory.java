@@ -208,8 +208,8 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
         // create geocoding grid
         final int gridWidth = 11;
         final int gridHeight = 11;
-        final float[] targetLatTiePoints = new float[gridWidth * gridHeight];
-        final float[] targetLonTiePoints = new float[gridWidth * gridHeight];
+        final double[] targetLatTiePoints = new double[gridWidth * gridHeight];
+        final double[] targetLonTiePoints = new double[gridWidth * gridHeight];
         final int sourceImageWidth = product.getSceneRasterWidth();
         final int sourceImageHeight = product.getSceneRasterHeight();
 
@@ -297,8 +297,8 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
         final int sceneHeight = product.getSceneRasterHeight();
         final int subSamplingX = sceneWidth / (gridWidth - 1);
         final int subSamplingY = sceneHeight / (gridHeight - 1);
-        final float[] rangeDist = new float[gridWidth * gridHeight];
-        final float[] rangeTime = new float[gridWidth * gridHeight];
+        final double[] rangeDist = new double[gridWidth * gridHeight];
+        final double[] rangeTime = new double[gridWidth * gridHeight];
 
         final BinaryRecord sceneRec = leaderFile.getSceneRecord();
 
@@ -331,14 +331,14 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
                 for (int i = 0; i < gridWidth; i++) {
                     final int x = i * subSamplingX;
-                    rangeDist[k++] = (float) (polyCoef[0] + polyCoef[1] * x + polyCoef[2] * x * x);
+                    rangeDist[k++] = polyCoef[0] + polyCoef[1] * x + polyCoef[2] * x * x;
                 }
             }
         }
 
         // get slant range time in nanoseconds from range distance in meters
         for (int k = 0; k < rangeDist.length; k++) {
-            rangeTime[k] = (float) (rangeDist[k] / Constants.halfLightSpeed * Constants.oneBillion); // in ns
+            rangeTime[k] = rangeDist[k] / Constants.halfLightSpeed * Constants.oneBillion; // in ns
         }
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
@@ -355,15 +355,15 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
             final double a4 = sceneRec.getAttributeDouble("Incidence angle fourth term");
             final double a5 = sceneRec.getAttributeDouble("Incidence angle fifth term");
 
-            final float[] angles = new float[gridWidth * gridHeight];
+            final double[] angles = new double[gridWidth * gridHeight];
             int k = 0;
             for (int j = 0; j < gridHeight; j++) {
                 for (int i = 0; i < gridWidth; i++) {
-                    angles[k] = (float) ((a0 + a1 * rangeDist[k] / 1000.0 +
+                    angles[k] = (a0 + a1 * rangeDist[k] / 1000.0 +
                             a2 * Math.pow(rangeDist[k] / 1000.0, 2.0) +
                             a3 * Math.pow(rangeDist[k] / 1000.0, 3.0) +
                             a4 * Math.pow(rangeDist[k] / 1000.0, 4.0) +
-                            a5 * Math.pow(rangeDist[k] / 1000.0, 5.0)) * MathUtils.RTOD);
+                            a5 * Math.pow(rangeDist[k] / 1000.0, 5.0)) * MathUtils.RTOD;
                     k++;
                 }
             }
@@ -397,15 +397,15 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
         if (workReportElem != null) {
 
             try {
-                float latUL = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneLeftTopLatitude", "0"));
-                float latUR = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneRightTopLatitude", "0"));
-                float latLL = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneLeftBottomLatitude", "0"));
-                float latLR = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneRightBottomLatitude", "0"));
+                double latUL = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneLeftTopLatitude", "0"));
+                double latUR = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneRightTopLatitude", "0"));
+                double latLL = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneLeftBottomLatitude", "0"));
+                double latLR = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneRightBottomLatitude", "0"));
 
-                float lonUL = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneLeftTopLongitude", "0"));
-                float lonUR = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneRightTopLongitude", "0"));
-                float lonLL = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneLeftBottomLongitude", "0"));
-                float lonLR = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneRightBottomLongitude", "0"));
+                double lonUL = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneLeftTopLongitude", "0"));
+                double lonUR = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneRightTopLongitude", "0"));
+                double lonLL = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneLeftBottomLongitude", "0"));
+                double lonLR = Float.parseFloat(workReportElem.getAttributeString("Brs_ImageSceneRightBottomLongitude", "0"));
 
                 // The corner point geo positions above are given with respect to the scene, not the SAR image.
                 // Therefore, they should first be mapped to the corner points of the SAR image before being used
@@ -415,7 +415,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 String pass = absRoot.getAttributeString("PASS");
                 String prodType = absRoot.getAttributeString("PRODUCT_TYPE");
                 if (prodType.contains("1.1")) {
-                    float temp;
+                    double temp;
                     if (pass.equals("ASCENDING")) {
                         temp = latUL;
                         latUL = latLL;
@@ -445,8 +445,8 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
                     }
                 }
 
-                final float[] latCorners = new float[]{latUL, latUR, latLL, latLR};
-                final float[] lonCorners = new float[]{lonUL, lonUR, lonLL, lonLR};
+                final double[] latCorners = new double[]{latUL, latUR, latLL, latLR};
+                final double[] lonCorners = new double[]{lonUL, lonUR, lonLL, lonLR};
 
                 absRoot.setAttributeDouble(AbstractMetadata.first_near_lat, latUL);
                 absRoot.setAttributeDouble(AbstractMetadata.first_near_long, lonUL);
@@ -843,13 +843,13 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
         final int gridWidth = 11;
         final int gridHeight = 11;
-        final float[] targetLatTiePoints = new float[gridWidth * gridHeight];
-        final float[] targetLonTiePoints = new float[gridWidth * gridHeight];
+        final double[] targetLatTiePoints = new double[gridWidth * gridHeight];
+        final double[] targetLonTiePoints = new double[gridWidth * gridHeight];
         final int sourceImageWidth = product.getSceneRasterWidth();
         final int sourceImageHeight = product.getSceneRasterHeight();
 
-        final float subSamplingX = sourceImageWidth / (float) (gridWidth - 1);
-        final float subSamplingY = sourceImageHeight / (float) (gridHeight - 1);
+        final double subSamplingX = sourceImageWidth / (double) (gridWidth - 1);
+        final double subSamplingY = sourceImageHeight / (double) (gridHeight - 1);
 
         final TiePointGrid slantRangeTime = product.getTiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME);
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
@@ -933,7 +933,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
                     x = (int) (c * subSamplingX);
                 }
 
-                final double slrgTime = slantRangeTime.getPixelFloat((float) x, (float) y) / Constants.oneBillion; // ns to s;
+                final double slrgTime = slantRangeTime.getPixelDouble(x, y) / Constants.oneBillion; // ns to s;
                 final GeoPos geoPos = computeLatLon(refLat, refLon, slrgTime, data);
                 targetLatTiePoints[k] = geoPos.lat;
                 targetLonTiePoints[k] = geoPos.lon;
@@ -966,7 +966,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
     private static GeoPos computeLatLon(final double refLat, final double refLon, double slrgTime, Orbits.OrbitData data) {
 
         final double[] xyz = new double[3];
-        final GeoPos geoPos = new GeoPos((float) refLat, (float) refLon);
+        final GeoPos geoPos = new GeoPos(refLat, refLon);
 
         // compute initial (x,y,z) coordinate from lat/lon
         GeoUtils.geo2xyz(geoPos, xyz);

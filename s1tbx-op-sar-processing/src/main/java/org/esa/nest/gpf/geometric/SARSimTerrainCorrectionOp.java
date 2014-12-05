@@ -1001,7 +1001,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
                         if (saveIncidenceAngleFromEllipsoid) {
                             incidenceAngleFromEllipsoidBuffer.setElemDoubleAt(
-                                    index, incidenceAngle.getPixelFloat((float) rangeIndex, (float) azimuthIndex));
+                                    index, incidenceAngle.getPixelDouble(rangeIndex, azimuthIndex));
                         }
 
                         for (RangeDopplerGeocodingOp.TileData tileData : trgTiles) {

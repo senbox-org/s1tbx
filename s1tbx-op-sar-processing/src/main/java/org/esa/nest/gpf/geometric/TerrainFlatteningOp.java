@@ -629,7 +629,7 @@ public final class TerrainFlatteningOp extends Operator {
         int y;
         double alt = 0.0;
         for (y = tileSize - 1; y < sourceImageHeight; y++) {
-            geoPos.setLocation((float) latitudeTPG.getPixelDouble(x, y), (float) longitudeTPG.getPixelDouble(x, y));
+            geoPos.setLocation(latitudeTPG.getPixelDouble(x, y), longitudeTPG.getPixelDouble(x, y));
 
             if (externalDEMFile == null) {
                 alt = dem.getElevation(geoPos);
@@ -688,9 +688,9 @@ public final class TerrainFlatteningOp extends Operator {
             for (int x = x0 - 1; x < maxX; x++) {
                 final int xx = x - x0 + 1;
 
-                final double lat = latitudeTPG.getPixelFloat(x + 0.5f, y + 0.5f);
-                final double lon = longitudeTPG.getPixelFloat(x + 0.5f, y + 0.5f);
-                geoPos.setLocation((float) lat, (float) lon);
+                final double lat = latitudeTPG.getPixelDouble(x + 0.5f, y + 0.5f);
+                final double lon = longitudeTPG.getPixelDouble(x + 0.5f, y + 0.5f);
+                geoPos.setLocation(lat, lon);
 
                 if (externalDEMFile == null) {
                     alt = dem.getElevation(geoPos);

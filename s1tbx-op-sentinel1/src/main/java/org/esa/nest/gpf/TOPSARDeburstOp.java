@@ -362,10 +362,10 @@ public final class TOPSARDeburstOp extends Operator {
         final int subSamplingX = targetWidth / gridWidth;
         final int subSamplingY = targetHeight / gridHeight;
 
-        final float[] latList = new float[gridWidth * gridHeight];
-        final float[] lonList = new float[gridWidth * gridHeight];
-        final float[] slrtList = new float[gridWidth * gridHeight];
-        final float[] incList = new float[gridWidth * gridHeight];
+        final double[] latList = new double[gridWidth * gridHeight];
+        final double[] lonList = new double[gridWidth * gridHeight];
+        final double[] slrtList = new double[gridWidth * gridHeight];
+        final double[] incList = new double[gridWidth * gridHeight];
 
         int k = 0;
         for (int i = 0; i < gridHeight; i++) {
@@ -374,10 +374,10 @@ public final class TOPSARDeburstOp extends Operator {
             for (int j = 0; j < gridWidth; j++) {
                 final int x = j * subSamplingX;
                 final double slrTime = targetSlantRangeTimeToFirstPixel + x * targetDeltaSlantRangeTime;
-                latList[k] = (float) su.getLatitude(azTime, slrTime);
-                lonList[k] = (float) su.getLongitude(azTime, slrTime);
-                slrtList[k] = (float) (su.getSlantRangeTime(azTime, slrTime) * 2 * Constants.oneBillion); // 2-way ns
-                incList[k] = (float) su.getIncidenceAngle(azTime, slrTime);
+                latList[k] = su.getLatitude(azTime, slrTime);
+                lonList[k] = su.getLongitude(azTime, slrTime);
+                slrtList[k] = su.getSlantRangeTime(azTime, slrTime) * 2 * Constants.oneBillion; // 2-way ns
+                incList[k] = su.getIncidenceAngle(azTime, slrTime);
                 k++;
             }
         }
@@ -429,15 +429,15 @@ public final class TOPSARDeburstOp extends Operator {
         TiePointGrid latGrid = targetProduct.getTiePointGrid(OperatorUtils.TPG_LATITUDE);
         TiePointGrid lonGrid = targetProduct.getTiePointGrid(OperatorUtils.TPG_LONGITUDE);
 
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_lat, latGrid.getPixelFloat(0, 0));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_long, lonGrid.getPixelFloat(0, 0));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_lat, latGrid.getPixelFloat(targetWidth, 0));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_long, lonGrid.getPixelFloat(targetWidth, 0));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_lat, latGrid.getPixelDouble(0, 0));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_near_long, lonGrid.getPixelDouble(0, 0));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_lat, latGrid.getPixelDouble(targetWidth, 0));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_far_long, lonGrid.getPixelDouble(targetWidth, 0));
 
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_lat, latGrid.getPixelFloat(0, targetHeight));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_long, lonGrid.getPixelFloat(0, targetHeight));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_lat, latGrid.getPixelFloat(targetWidth, targetHeight));
-        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_long, lonGrid.getPixelFloat(targetWidth, targetHeight));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_lat, latGrid.getPixelDouble(0, targetHeight));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_long, lonGrid.getPixelDouble(0, targetHeight));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_lat, latGrid.getPixelDouble(targetWidth, targetHeight));
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_long, lonGrid.getPixelDouble(targetWidth, targetHeight));
     }
 
     private void updateOriginalMetadata() {

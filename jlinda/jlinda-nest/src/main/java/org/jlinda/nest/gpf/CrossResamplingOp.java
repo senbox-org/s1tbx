@@ -354,10 +354,10 @@ public class CrossResamplingOp extends Operator {
         targetTPGWidth = latitudeTPG.getRasterWidth();
         targetTPGHeight = latitudeTPG.getRasterHeight();
 
-        final float[] targetLatTiePoints = new float[targetTPGHeight * targetTPGWidth];
-        final float[] targetLonTiePoints = new float[targetTPGHeight * targetTPGWidth];
-        final float[] targetIncidenceAngleTiePoints = new float[targetTPGHeight * targetTPGWidth];
-        final float[] targetSlantRangeTimeTiePoints = new float[targetTPGHeight * targetTPGWidth];
+        final double[] targetLatTiePoints = new double[targetTPGHeight * targetTPGWidth];
+        final double[] targetLonTiePoints = new double[targetTPGHeight * targetTPGWidth];
+        final double[] targetIncidenceAngleTiePoints = new double[targetTPGHeight * targetTPGWidth];
+        final double[] targetSlantRangeTimeTiePoints = new double[targetTPGHeight * targetTPGWidth];
 
         final int subSamplingX = sourceImageWidth / (targetTPGWidth - 1);
         final int subSamplingY = sourceImageHeight / (targetTPGHeight - 1);
@@ -377,8 +377,8 @@ public class CrossResamplingOp extends Operator {
             for (int c = 0; c < targetTPGWidth; c++) {
 
                 final int x = getSampleIndex(c, subSamplingX);
-                targetIncidenceAngleTiePoints[k] = incidenceAngleTPG.getPixelFloat((float) x, (float) y);
-                targetSlantRangeTimeTiePoints[k] = slantRangeTimeTPG.getPixelFloat((float) x, (float) y);
+                targetIncidenceAngleTiePoints[k] = incidenceAngleTPG.getPixelDouble(x, y);
+                targetSlantRangeTimeTiePoints[k] = slantRangeTimeTPG.getPixelDouble(x, y);
 
                 final GeoPoint geoPos = computeLatLon(x, y);
                 targetLatTiePoints[k] = (float) geoPos.lat;
@@ -388,19 +388,19 @@ public class CrossResamplingOp extends Operator {
         }
 
         final TiePointGrid angleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, targetTPGWidth, targetTPGHeight,
-                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetIncidenceAngleTiePoints);
+                0.0f, 0.0f, subSamplingX, subSamplingY, targetIncidenceAngleTiePoints);
         angleGrid.setUnit(Unit.DEGREES);
 
         final TiePointGrid slrgtGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, targetTPGWidth, targetTPGHeight,
-                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetSlantRangeTimeTiePoints);
+                0.0f, 0.0f, subSamplingX, subSamplingY, targetSlantRangeTimeTiePoints);
         slrgtGrid.setUnit(Unit.NANOSECONDS);
 
         final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, targetTPGWidth, targetTPGHeight,
-                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetLatTiePoints);
+                0.0f, 0.0f, subSamplingX, subSamplingY, targetLatTiePoints);
         latGrid.setUnit(Unit.DEGREES);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, targetTPGWidth, targetTPGHeight,
-                0.0f, 0.0f, (float) subSamplingX, (float) subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
+                0.0f, 0.0f, subSamplingX, subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
 
         final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
@@ -430,8 +430,8 @@ public class CrossResamplingOp extends Operator {
 
         final double[] ell = new double[3];
 
-        ell[0] = latitudeTPG.getPixelFloat((float)x, (float)y) * Constants.DTOR;
-        ell[1] = longitudeTPG.getPixelFloat((float)x, (float)y)  * Constants.DTOR;
+        ell[0] = latitudeTPG.getPixelDouble(x, y) * Constants.DTOR;
+        ell[1] = longitudeTPG.getPixelDouble(x, y)  * Constants.DTOR;
         ell[2] = 0;
 
         Point posPixSrc = targetOrbit.ell2lp(ell, sourceMeta);
@@ -440,9 +440,7 @@ public class CrossResamplingOp extends Operator {
         double[] posGeoTgt = targetOrbit.lp2ell(posPixTgt, targetMeta);
 
         return new GeoPoint(posGeoTgt[0] * Constants.RTOD, posGeoTgt[1] * Constants.RTOD);
-        
     }
-    
     
     /**
      * Called by the framework in order to compute a tile for the given target band.

@@ -676,7 +676,7 @@ public class SARGeocoding {
         if (incidenceAngle == null) {
             throw new OperatorException("incidence_angle tie point grid not found in product");
         }
-        return incidenceAngle.getPixelFloat((float) x, (float) y) * org.esa.beam.util.math.MathUtils.DTOR;
+        return incidenceAngle.getPixelDouble(x, y) * org.esa.beam.util.math.MathUtils.DTOR;
     }
 
     /**
@@ -723,7 +723,7 @@ public class SARGeocoding {
         }
 
         final GeoPos geoPos = new GeoPos();
-        tileGeoRef.getGeoPos(new PixelPos((float) rangeIndex, (float) azimuthIndex), geoPos);
+        tileGeoRef.getGeoPos(new PixelPos(rangeIndex, azimuthIndex), geoPos);
         final double delLat = Math.abs(lat - geoPos.getLat());
         final double srcLon = geoPos.getLon();
 

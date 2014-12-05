@@ -107,7 +107,7 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
     public abstract GeoPos getGeoPos(final PixelPos pixelPos);
 
     public PixelPos getIndex(final GeoPos geoPos) {
-        return new PixelPos((float) getIndexX(geoPos), (float) getIndexY(geoPos));
+        return new PixelPos(getIndexX(geoPos), getIndexY(geoPos));
     }
 
     public void dispose() {

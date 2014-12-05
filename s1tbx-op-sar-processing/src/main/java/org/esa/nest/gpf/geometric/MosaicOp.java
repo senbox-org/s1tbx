@@ -324,13 +324,13 @@ public class MosaicOp extends Operator {
 
         final GeoPos geoPos = new GeoPos();
         final PixelPos[] pixelPos = new PixelPos[4];
-        geoPos.setLocation((float) srcLatMin, (float) srcLonMin);
+        geoPos.setLocation(srcLatMin, srcLonMin);
         pixelPos[0] = destGeoCoding.getPixelPos(geoPos, null);
-        geoPos.setLocation((float) srcLatMin, (float) srcLonMax);
+        geoPos.setLocation(srcLatMin, srcLonMax);
         pixelPos[1] = destGeoCoding.getPixelPos(geoPos, null);
-        geoPos.setLocation((float) srcLatMax, (float) srcLonMax);
+        geoPos.setLocation(srcLatMax, srcLonMax);
         pixelPos[2] = destGeoCoding.getPixelPos(geoPos, null);
-        geoPos.setLocation((float) srcLatMax, (float) srcLonMin);
+        geoPos.setLocation(srcLatMax, srcLonMin);
         pixelPos[3] = destGeoCoding.getPixelPos(geoPos, null);
 
         return getBoundingBox(pixelPos, 0, 0, Integer.MAX_VALUE, Integer.MAX_VALUE, 4);

@@ -455,8 +455,8 @@ public final class BackGeocodingOp extends Operator {
             final double lonMax = latLonMinMax[3] + extralon;
 
             // Compute lat/lon indices in DEM for the boundaries;
-            final PixelPos upperLeft = dem.getIndex(new GeoPos((float)latMax, (float)lonMin));
-            final PixelPos lowerRight = dem.getIndex(new GeoPos((float)latMin, (float)lonMax));
+            final PixelPos upperLeft = dem.getIndex(new GeoPos(latMax, lonMin));
+            final PixelPos lowerRight = dem.getIndex(new GeoPos(latMin, lonMax));
             final int latMaxIdx = (int)Math.floor(upperLeft.getY());
             final int latMinIdx = (int)Math.ceil(lowerRight.getY());
             final int lonMinIdx = (int)Math.floor(upperLeft.getX());
@@ -513,7 +513,7 @@ public final class BackGeocodingOp extends Operator {
                     if (rgArray[l][p] == noDataValue || azArray[l][p] == noDataValue) {
                         slavePixelPos[l][p] = null;
                     } else {
-                        slavePixelPos[l][p] = new PixelPos((float)rgArray[l][p], (float)azArray[l][p]);
+                        slavePixelPos[l][p] = new PixelPos(rgArray[l][p], azArray[l][p]);
                     }
                 }
             }
