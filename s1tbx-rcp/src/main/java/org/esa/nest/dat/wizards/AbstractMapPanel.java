@@ -15,8 +15,8 @@
  */
 package org.esa.nest.dat.wizards;
 
-import org.esa.nest.dat.worldmap.WorldMapUI;
 import org.esa.snap.db.ProductEntry;
+import org.esa.snap.gpf.ui.worldmap.WorldMapUI;
 
 import javax.swing.*;
 import java.awt.*;

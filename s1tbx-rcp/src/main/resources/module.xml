@@ -521,16 +521,6 @@
         </action>
 
         <action>
-            <parent>geometry</parent>
-            <id>mosaic2</id>
-            <placeAfter>orthorectificationAction</placeAfter>
-            <text>Mosaicing...</text>
-            <class>org.esa.beam.gpf.operators.mosaic.MosaicAction</class>
-            <shortDescr>Create a mosaic of multiple products.</shortDescr>
-            <helpId>mosaicAction</helpId>
-        </action>
-
-        <action>
             <parent>tools</parent>
             <id>createSubsetFromView2</id>
             <placeAfter>mosaicAction</placeAfter>

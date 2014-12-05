@@ -17,8 +17,8 @@ package org.esa.nest.dat.toolviews.productlibrary;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
-import org.esa.nest.dat.worldmap.NestWorldMapPane;
-import org.esa.nest.dat.worldmap.NestWorldMapPaneDataModel;
+import org.esa.snap.gpf.ui.worldmap.NestWorldMapPane;
+import org.esa.snap.gpf.ui.worldmap.NestWorldMapPaneDataModel;
 import org.esa.snap.db.GeoPosList;
 import org.esa.snap.db.ProductEntry;
 
