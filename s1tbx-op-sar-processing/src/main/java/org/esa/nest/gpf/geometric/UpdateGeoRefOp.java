@@ -111,7 +111,7 @@ public final class UpdateGeoRefOp extends Operator {
     private boolean isElevationModelAvailable = false;
     private boolean nearRangeOnLeft = true;
 
-    private float demNoDataValue = 0; // no data value for DEM
+    private double demNoDataValue = 0; // no data value for DEM
     private double rangeSpacing = 0.0;
     private double firstLineUTC = 0.0; // in days
     private double lastLineUTC = 0.0; // in days
@@ -234,8 +234,8 @@ public final class UpdateGeoRefOp extends Operator {
         if (isElevationModelAvailable) return;
         try {
             if (externalDEMFile != null) { // if external DEM file is specified by user
-                dem = new FileElevationModel(externalDEMFile, demResamplingMethod, (float) externalDEMNoDataValue);
-                demNoDataValue = (float) externalDEMNoDataValue;
+                dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
+                demNoDataValue = externalDEMNoDataValue;
                 demName = externalDEMFile.getPath();
             } else {
                 dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
@@ -285,7 +285,7 @@ public final class UpdateGeoRefOp extends Operator {
         // add selected source bands
         if (sourceBandNames == null || sourceBandNames.length == 0) {
             final Band[] bands = sourceProduct.getBands();
-            final List<String> bandNameList = new ArrayList<String>(sourceProduct.getNumBands());
+            final List<String> bandNameList = new ArrayList<>(sourceProduct.getNumBands());
             for (Band band : bands) {
                 String unit = band.getUnit();
                 if (unit == null || unit.contains(Unit.INTENSITY)) {
@@ -311,8 +311,8 @@ public final class UpdateGeoRefOp extends Operator {
         }
 
         // add latitude and longitude bands
-        Band latBand = new Band(LATITUDE_BAND_NAME, ProductData.TYPE_FLOAT32, sourceImageWidth, sourceImageHeight);
-        Band lonBand = new Band(LONGITUDE_BAND_NAME, ProductData.TYPE_FLOAT32, sourceImageWidth, sourceImageHeight);
+        Band latBand = new Band(LATITUDE_BAND_NAME, ProductData.TYPE_FLOAT64, sourceImageWidth, sourceImageHeight);
+        Band lonBand = new Band(LONGITUDE_BAND_NAME, ProductData.TYPE_FLOAT64, sourceImageWidth, sourceImageHeight);
         targetProduct.addBand(latBand);
         targetProduct.addBand(lonBand);
 
@@ -348,7 +348,7 @@ public final class UpdateGeoRefOp extends Operator {
 
                 final int azimuthIndex = (int) ((zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval + 0.5);
 
-                double tileOverlapPercentage = (float) (azimuthIndex - y) / (float) tileSize;
+                double tileOverlapPercentage = (double) (azimuthIndex - y) / (double) tileSize;
 
                 if (tileOverlapPercentage > tileOverlapPercentageMax) {
                     tileOverlapPercentageMax = tileOverlapPercentage;
@@ -534,15 +534,15 @@ public final class UpdateGeoRefOp extends Operator {
                     final int index = trgIndex.getIndex(x);
 
                     if (latArray[yy][xx] == noDataValue) {
-                        latData.setElemFloatAt(index, (float) fillHole(xx, yy, latArray));
+                        latData.setElemDoubleAt(index, fillHole(xx, yy, latArray));
                     } else {
-                        latData.setElemFloatAt(index, (float) latArray[yy][xx]);
+                        latData.setElemDoubleAt(index, latArray[yy][xx]);
                     }
 
                     if (lonArray[yy][xx] == noDataValue) {
-                        lonData.setElemFloatAt(index, (float) fillHole(xx, yy, lonArray));
+                        lonData.setElemDoubleAt(index, fillHole(xx, yy, lonArray));
                     } else {
-                        lonData.setElemFloatAt(index, (float) lonArray[yy][xx]);
+                        lonData.setElemDoubleAt(index, lonArray[yy][xx]);
                     }
                 }
             }

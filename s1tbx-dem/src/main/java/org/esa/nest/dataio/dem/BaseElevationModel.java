@@ -32,7 +32,7 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
     protected final int NUM_Y_TILES;
     protected final int NUM_PIXELS_PER_TILE;
     private final double NUM_PIXELS_PER_TILEinv;
-    private final float NO_DATA_VALUE;
+    private final double NO_DATA_VALUE;
     protected final int DEGREE_RES;
     private final int RASTER_WIDTH;
     protected final int RASTER_HEIGHT;
@@ -132,17 +132,17 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
         return RASTER_HEIGHT;
     }
 
-    public final float getSample(final double pixelX, final double pixelY) throws Exception {
+    public final double getSample(final double pixelX, final double pixelY) throws Exception {
         final int tileXIndex = (int) (pixelX * NUM_PIXELS_PER_TILEinv);
         final int tileYIndex = (int) (pixelY * NUM_PIXELS_PER_TILEinv);
         final ElevationTile tile = elevationFiles[tileXIndex][tileYIndex].getTile();
         if (tile == null) {
-            return Float.NaN;
+            return Double.NaN;
         }
-        final float sample = tile.getSample((int) (pixelX - tileXIndex * NUM_PIXELS_PER_TILE),
+        final double sample = tile.getSample((int) (pixelX - tileXIndex * NUM_PIXELS_PER_TILE),
                 (int) (pixelY - tileYIndex * NUM_PIXELS_PER_TILE));
 
-        return sample == NO_DATA_VALUE ? Float.NaN : sample;
+        return sample == NO_DATA_VALUE ? Double.NaN : sample;
     }
 
     private ElevationFile[][] createElevationFiles() {

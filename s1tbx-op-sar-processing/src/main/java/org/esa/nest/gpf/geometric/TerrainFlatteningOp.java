@@ -112,7 +112,7 @@ public final class TerrainFlatteningOp extends Operator {
     private double lineTimeInterval = 0.0; // in days
     private double nearEdgeSlantRange = 0.0; // in m
     private double wavelength = 0.0; // in m
-    private float demNoDataValue = 0; // no data value for DEM
+    private double demNoDataValue = 0; // no data value for DEM
     private SARGeocoding.Orbit orbit = null;
     private int polyDegree = 2; // degree of fitting polynomial
 
@@ -120,7 +120,7 @@ public final class TerrainFlatteningOp extends Operator {
     private double beta0 = 0;
 
     private int tileSize = 100;
-    private float tileOverlapPercentage = 0.0f;
+    private double tileOverlapPercentage = 0.0f;
 
     private OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
@@ -588,10 +588,9 @@ public final class TerrainFlatteningOp extends Operator {
         if (externalDEMFile != null && fileElevationModel == null) { // if external DEM file is specified by user
 
             fileElevationModel = new FileElevationModel(externalDEMFile,
-                    ResamplingFactory.createResampling(demResamplingMethod),
-                    (float) externalDEMNoDataValue);
+                    ResamplingFactory.createResampling(demResamplingMethod), externalDEMNoDataValue);
 
-            demNoDataValue = (float) externalDEMNoDataValue;
+            demNoDataValue = externalDEMNoDataValue;
             demName = externalDEMFile.getPath();
 
         } else {
@@ -653,7 +652,7 @@ public final class TerrainFlatteningOp extends Operator {
 
         final int azimuthIndex = (int) ((zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval + 0.5);
 
-        tileOverlapPercentage = (float) (azimuthIndex - y) / (float) tileSize;
+        tileOverlapPercentage = (azimuthIndex - y) / (double) tileSize;
         if (tileOverlapPercentage >= 0.0) {
             tileOverlapPercentage += 0.05;
         } else {

@@ -115,7 +115,7 @@ public final class BackGeocodingOp extends Operator {
     private String acquisitionMode = null;
     private ElevationModel dem = null;
     private boolean isElevationModelAvailable = false;
-    private float demNoDataValue = 0; // no data value for DEM
+    private double demNoDataValue = 0; // no data value for DEM
 
     private double noDataValue = 0.0;
     
@@ -449,8 +449,8 @@ public final class BackGeocodingOp extends Operator {
         if (isElevationModelAvailable) return;
         try {
             if (externalDEMFile != null) { // if external DEM file is specified by user
-                dem = new FileElevationModel(externalDEMFile, demResamplingMethod, (float) externalDEMNoDataValue);
-                demNoDataValue = (float) externalDEMNoDataValue;
+                dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
+                demNoDataValue = externalDEMNoDataValue;
                 demName = externalDEMFile.getPath();
             } else {
                 dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
@@ -502,7 +502,7 @@ public final class BackGeocodingOp extends Operator {
                         (zeroDopplerTime - mSubSwath[subSwathIndex - 1].burstFirstLineTime[burstIndex]) /
                                 mSubSwath[subSwathIndex - 1].azimuthTimeInterval;
 
-                double tileOverlapPercentage = (float) (azimuthIndex - y) / (float) tileSize;
+                double tileOverlapPercentage = (azimuthIndex - y) / (double) tileSize;
 
                 if (tileOverlapPercentage > tileOverlapPercentageMax) {
                     tileOverlapPercentageMax = tileOverlapPercentage;
@@ -601,8 +601,8 @@ public final class BackGeocodingOp extends Operator {
             final double lonMax = latLonMinMax[3] + extralon;
 
             // Compute lat/lon indices in DEM for the boundaries;
-            final PixelPos upperLeft = dem.getIndex(new GeoPos((float)latMax, (float)lonMin));
-            final PixelPos lowerRight = dem.getIndex(new GeoPos((float)latMin, (float)lonMax));
+            final PixelPos upperLeft = dem.getIndex(new GeoPos(latMax, lonMin));
+            final PixelPos lowerRight = dem.getIndex(new GeoPos(latMin, lonMax));
             final int latMaxIdx = (int)Math.floor(upperLeft.getY());
             final int latMinIdx = (int)Math.ceil(lowerRight.getY());
             final int lonMinIdx = (int)Math.floor(upperLeft.getX());
@@ -670,7 +670,7 @@ public final class BackGeocodingOp extends Operator {
                     if (rgArray[yy][xx] == invalidIndex || azArray[yy][xx] == invalidIndex) {
                         slavePixelPos[yy][xx] = null;
                     } else {
-                        slavePixelPos[yy][xx] = new PixelPos((float)rgArray[yy][xx], (float)azArray[yy][xx]);
+                        slavePixelPos[yy][xx] = new PixelPos(rgArray[yy][xx], azArray[yy][xx]);
                     }
                 }
             }

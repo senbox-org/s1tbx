@@ -179,7 +179,7 @@ public class RangeDopplerGeocodingOp extends Operator {
     private MetadataElement absRoot = null;
     private ElevationModel dem = null;
     private Band elevationBand = null;
-    private float demNoDataValue = 0.0f; // no data value for DEM
+    private double demNoDataValue = 0.0f; // no data value for DEM
     private GeoCoding targetGeoCoding = null;
 
     private boolean srgrFlag = false;
@@ -469,9 +469,8 @@ public class RangeDopplerGeocodingOp extends Operator {
         if (isElevationModelAvailable) return;
         if (externalDEMFile != null) { // if external DEM file is specified by user
 
-            dem = new FileElevationModel(externalDEMFile, demResamplingMethod, (float) externalDEMNoDataValue);
-
-            demNoDataValue = (float) externalDEMNoDataValue;
+            dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
+            demNoDataValue = externalDEMNoDataValue;
             demName = externalDEMFile.getName();
 
         } else {
@@ -814,7 +813,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
             double[][] localDEM = new double[h + 2][w + 2];
             if (useAvgSceneHeight) {
-                DEMFactory.fillDEM(localDEM, (float) avgSceneHeight);
+                DEMFactory.fillDEM(localDEM, avgSceneHeight);
             } else {
                 final boolean valid = DEMFactory.getLocalDEM(
                         dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w, h, sourceProduct,

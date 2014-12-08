@@ -196,7 +196,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
     private double lastLineUTC = 0.0; // in days
     private double lineTimeInterval = 0.0; // in days
     private double nearEdgeSlantRange = 0.0; // in m
-    private float demNoDataValue = 0; // no data value for DEM
+    private double demNoDataValue = 0; // no data value for DEM
     private double delLat = 0.0;
     private double delLon = 0.0;
     private SARGeocoding.Orbit orbit = null;
@@ -421,7 +421,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
             final File externalDemFile = new File(demName);
             dem = new FileElevationModel(externalDemFile, demResamplingMethod, demNoDataValue);
             demName = externalDemFile.getName();
-            demNoDataValue = (float) absRoot.getAttributeDouble("external DEM no data value");
+            demNoDataValue = absRoot.getAttributeDouble("external DEM no data value");
         } else {
             dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
             demNoDataValue = dem.getDescriptor().getNoDataValue();
@@ -897,7 +897,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
         try {
             final double[][] localDEM = new double[h + 2][w + 2];
             if (useAvgSceneHeight) {
-                DEMFactory.fillDEM(localDEM, (float) avgSceneHeight);
+                DEMFactory.fillDEM(localDEM, avgSceneHeight);
             } else {
                 final boolean valid = DEMFactory.getLocalDEM(
                         dem, demNoDataValue, demResamplingMethod, tileGeoRef, x0, y0, w, h, sourceProduct, true, localDEM);

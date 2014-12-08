@@ -165,7 +165,7 @@ public final class SARSimulationOp extends Operator {
     private double lineTimeInterval = 0.0; // in days
     private double nearEdgeSlantRange = 0.0; // in m
     private double wavelength = 0.0; // in m
-    private float demNoDataValue = 0; // no data value for DEM
+    private double demNoDataValue = 0; // no data value for DEM
     private SARGeocoding.Orbit orbit = null;
     private int polyDegree = 2; // degree of fitting polynomial
 
@@ -293,9 +293,8 @@ public final class SARSimulationOp extends Operator {
         try {
             if (externalDEMFile != null) { // if external DEM file is specified by user
 
-                dem = new FileElevationModel(externalDEMFile, demResamplingMethod, (float) externalDEMNoDataValue);
-
-                demNoDataValue = (float) externalDEMNoDataValue;
+                dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
+                demNoDataValue = externalDEMNoDataValue;
                 demName = externalDEMFile.getPath();
 
             } else {
@@ -453,7 +452,7 @@ public final class SARSimulationOp extends Operator {
 
                 final int azimuthIndex = (int) ((zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval + 0.5);
 
-                double tileOverlapPercentage = (float) (azimuthIndex - y) / (float) tileSize;
+                double tileOverlapPercentage = (azimuthIndex - y) / (double) tileSize;
 
                 if (tileOverlapPercentage > tileOverlapPercentageMax) {
                     tileOverlapPercentageMax = tileOverlapPercentage;
@@ -589,7 +588,7 @@ public final class SARSimulationOp extends Operator {
                         for (int ii = Math.max(0, i - 1); ii <= i + 1; ++ii) {
                             ii = Math.min(nLat, ii);
                             int c = 0;
-                            float neighbourLat = (float) (latMin + ii * delLat);
+                            double neighbourLat = latMin + ii * delLat;
                             for (int jj = Math.max(0, j - 1); jj <= j + 1; ++jj) {
                                 jj = Math.min(nLon, jj);
                                 neighbourDEM[r][c] = tileDEM[ii][jj];
@@ -597,7 +596,7 @@ public final class SARSimulationOp extends Operator {
                                     if (saveZeroHeightSimulation) {
                                         neighbourDEM[r][c] = 1;
                                     } else {
-                                        geoPos.setLocation(neighbourLat, (float) (lonMin + jj * delLon));
+                                        geoPos.setLocation(neighbourLat, lonMin + jj * delLon);
                                         neighbourDEM[r][c] = dem.getElevation(geoPos);
                                     }
                                     tileDEM[ii][jj] = neighbourDEM[r][c];

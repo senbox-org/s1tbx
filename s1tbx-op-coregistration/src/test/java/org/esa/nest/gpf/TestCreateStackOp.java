@@ -43,8 +43,8 @@ public class TestCreateStackOp {
         final CreateStackOp op = (CreateStackOp) spi.createOperator();
         assertNotNull(op);
 
-        final Product mstProduct = createTestProduct(40, 40, 30, 10, 10, 20);
-        final Product slvProduct1 = createTestProduct(40, 40, 35, 15, 15, 25);
+        final Product mstProduct = createTestProduct(40, 40, 30, 10, 35, 15);
+        final Product slvProduct1 = createTestProduct(40, 40, 31, 12, 36, 16);
 
         //ProductIO.writeProduct(mstProduct, "c:\\data\\out\\mstProduct", "BEAM-DIMAP");
         //ProductIO.writeProduct(slvProduct1, "c:\\data\\out\\slvProduct1", "BEAM-DIMAP");

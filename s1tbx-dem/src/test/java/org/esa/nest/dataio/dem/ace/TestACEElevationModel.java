@@ -37,7 +37,7 @@ public class TestACEElevationModel {
     private final ACEElevationModelDescriptor demDescriptor = new ACEElevationModelDescriptor();
 
     private static double[] expectedValues = {
-            1117.27197265625, 1164.29296875, 1092.7359619140625, 1047.0989990234375
+            1116.7764282226562, 1162.7941589355469, 1091.9768981933594, 1046.3471984863281
     };
 
     @Test

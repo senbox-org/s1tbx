@@ -387,7 +387,7 @@ public class SARGeocoding {
      * @param localIncidenceAngles             The local incidence angle and projected local incidence angle.
      */
     public static void computeLocalIncidenceAngle(
-            final LocalGeometry lg, final float demNoDataValue, final boolean saveLocalIncidenceAngle,
+            final LocalGeometry lg, final double demNoDataValue, final boolean saveLocalIncidenceAngle,
             final boolean saveProjectedLocalIncidenceAngle, final boolean saveSigmaNought, final int x0,
             final int y0, final int x, final int y, final double[][] localDEM, final double[] localIncidenceAngles) {
 
@@ -470,7 +470,7 @@ public class SARGeocoding {
     }
 
     public static void computeLocalIncidenceAngle(
-            final LocalGeometry lg, final float demNoDataValue, final boolean saveLocalIncidenceAngle,
+            final LocalGeometry lg, final double demNoDataValue, final boolean saveLocalIncidenceAngle,
             final boolean saveProjectedLocalIncidenceAngle, final boolean saveSigmaNought, final int x0,
             final int y0, final int x, final int y, final double[][] localDEM, final double[] localIncidenceAngles,
             final TileGeoreferencing tileGeoRef, ElevationModel dem) throws Exception {

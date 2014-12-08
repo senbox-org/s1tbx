@@ -82,7 +82,7 @@ public class TestRangeDopplerOp {
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
-        final float[] expected = new float[] { 0.5932531952857971f,0.8568953275680542f,0.5849599242210388f };
+        final float[] expected = new float[] { 0.20821853f, 0.20650494f, 0.24206257f };
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), 500, 500, expected);
     }
 
@@ -142,7 +142,7 @@ public class TestRangeDopplerOp {
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
-        final float[] expected = new float[] { 0.04975456744432449f,0.13621896505355835f,0.07706855237483978f};
+        final float[] expected = new float[] { 0.010062427f, 0.13139872f, 0.125968f};
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), expected);
     }
 
@@ -171,7 +171,7 @@ public class TestRangeDopplerOp {
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true);
 
-        final float[] expected = new float[] { 0.08639660477638245f,0.08651735633611679f,0.10073450207710266f };
+        final float[] expected = new float[] { 0.08069037f, 0.076275185f, 0.08034709f };
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), 500, 500, expected);
     }
 
