@@ -1176,7 +1176,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         private final RasterFormatTag targetRasterFormatTag;
 
         private static ImageLayout layout(RenderedImage source) {
-            final SampleModel sampleModel = RasterFactory.createBandedSampleModel(DataBuffer.TYPE_FLOAT,
+            final SampleModel sampleModel = RasterFactory.createBandedSampleModel(DataBuffer.TYPE_DOUBLE,
                                                                                   source.getTileWidth(),
                                                                                   source.getTileHeight(),
                                                                                   2);
@@ -1193,7 +1193,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         }
 
         private static Vector<RenderedImage> vector(RenderedImage image1, RenderedImage image2, RenderedImage image3) {
-            Vector<RenderedImage> v = new Vector<RenderedImage>(3);
+            Vector<RenderedImage> v = new Vector<>(3);
             v.addElement(image1);
             v.addElement(image2);
             if (image3 != null) {
@@ -1335,12 +1335,12 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             int latLineStride = latAcc.getScanlineStride();
             int latPixelStride = latAcc.getPixelStride();
             int[] sLatBandOffsets = latAcc.getBandOffsets();
-            double[][] latData = latAcc.getDoubleDataArrays();
+            float[][] latData = latAcc.getFloatDataArrays();
 
             int lonLineStride = lonAcc.getScanlineStride();
             int lonPixelStride = lonAcc.getPixelStride();
             int[] sLonBandOffsets = lonAcc.getBandOffsets();
-            double[][] lonData = lonAcc.getDoubleDataArrays();
+            float[][] lonData = lonAcc.getFloatDataArrays();
 
             int mLineOffset = 0;
             int mLineStride = 0;
@@ -1359,14 +1359,14 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             int dLineStride = destAcc.getScanlineStride();
             int dPixelStride = destAcc.getPixelStride();
             int[] dBandOffsets = destAcc.getBandOffsets();
-            double[][] dData = destAcc.getDoubleDataArrays();
+            float[][] dData = destAcc.getFloatDataArrays();
 
-            double[] lat = latData[0];
-            double[] lon = lonData[0];
+            float[] lat = latData[0];
+            float[] lon = lonData[0];
             @SuppressWarnings({"MismatchedReadAndWriteOfArray"})
-            double[] dLat = dData[0];
+            float[] dLat = dData[0];
             @SuppressWarnings({"MismatchedReadAndWriteOfArray"})
-            double[] dLon = dData[1];
+            float[] dLon = dData[1];
 
             int sLatLineOffset = sLatBandOffsets[0];
             int sLonLineOffset = sLonBandOffsets[0];
@@ -1396,8 +1396,8 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
                         int y0 = y + destRect.y;
                         pixelPos.setLocation(x0, y0);
                         estimator.getGeoPos(pixelPos, geoPos);
-                        dLat[dLatPixelOffset] = geoPos.lat;
-                        dLon[dLonPixelOffset] = geoPos.lon;
+                        dLat[dLatPixelOffset] = (float)geoPos.lat;
+                        dLon[dLonPixelOffset] = (float)geoPos.lon;
                     } else {
                         dLat[dLatPixelOffset] = lat[sLatPixelOffset];
                         dLon[dLonPixelOffset] = lon[sLonPixelOffset];
