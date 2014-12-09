@@ -340,12 +340,12 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
                 p2 = normalizedLongitudes[index]; // the current, un-normalised point
                 lonDelta = p2 - p1;  // difference = current point minus base point
 
-                if (lonDelta > 180.0f) {
-                    p2 -= 360.0f;  // place new point in the west (with a lon. < -180)
+                if (lonDelta > 180.0) {
+                    p2 -= 360.0;  // place new point in the west (with a lon. < -180)
                     westNormalized = true; // mark what we've done
                     normalizedLongitudes[index] = p2;
-                } else if (lonDelta < -180.0f) {
-                    p2 += 360.0f;  // place new point in the east (with a lon. > +180)
+                } else if (lonDelta < -180.0) {
+                    p2 += 360.0;  // place new point in the east (with a lon. > +180)
                     eastNormalized = true;  // mark what we've done
                     normalizedLongitudes[index] = p2;
                 } else {
