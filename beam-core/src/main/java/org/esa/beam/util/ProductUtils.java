@@ -947,7 +947,7 @@ public class ProductUtils {
      * @return the rectangular boundary
      */
     public static PixelPos[] createRectBoundary(final Rectangle rect, int step, final boolean usePixelCenter) {
-        final float insetDistance = usePixelCenter ? 0.5f : 0.0f;
+        final double insetDistance = usePixelCenter ? 0.5 : 0.0;
         final int x1 = rect.x;
         final int y1 = rect.y;
         final int w = usePixelCenter ? rect.width - 1 : rect.width;
