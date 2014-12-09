@@ -128,8 +128,8 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
                 for (int i = 0; i < numPts; i++) {
                     final int firstIndex = (DIMS * i);
                     final int secondIndex = firstIndex + 1;
-                    pixelPos.x = (float) srcPts[srcOff + firstIndex];
-                    pixelPos.y = (float) srcPts[srcOff + secondIndex];
+                    pixelPos.x = srcPts[srcOff + firstIndex];
+                    pixelPos.y = srcPts[srcOff + secondIndex];
 
                     geoCoding.getGeoPos(pixelPos, geoPos);
 
@@ -157,8 +157,8 @@ public class GeoCodingMathTransform extends AbstractMathTransform implements Mat
                 for (int i = 0; i < numPts; i++) {
                     final int firstIndex = (DIMS * i);
                     final int secondIndex = firstIndex + 1;
-                    geoPos.lon = (float) srcPts[srcOff + firstIndex];
-                    geoPos.lat = (float) srcPts[srcOff + secondIndex];
+                    geoPos.lon = srcPts[srcOff + firstIndex];
+                    geoPos.lat = srcPts[srcOff + secondIndex];
 
                     geoCoding.getPixelPos(geoPos, pixelPos);
 
