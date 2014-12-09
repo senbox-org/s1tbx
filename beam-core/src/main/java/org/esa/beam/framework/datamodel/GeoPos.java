@@ -25,8 +25,8 @@ import org.esa.beam.util.math.MathUtils;
  */
 public class GeoPos {
 
-    private static final float _MIN_PER_DEG = 60.0F;
-    private static final float _SEC_PER_DEG = _MIN_PER_DEG * 60.0F;
+    private static final float MIN_PER_DEG = 60.0F;
+    private static final float SEC_PER_DEG = MIN_PER_DEG * 60.0F;
 
     /**
      * The geographical latitude in decimal degree, valid range is -90 to +90.
@@ -120,8 +120,8 @@ public class GeoPos {
      * Sets the lat/lon fields so that {@link #isValid()} will return false.
      */
     public final void setInvalid() {
-        lat = Float.NaN;
-        lon = Float.NaN;
+        lat = Double.NaN;
+        lon = Double.NaN;
     }
 
 
@@ -251,10 +251,10 @@ public class GeoPos {
         double rest = Math.abs(value);
         int degree = MathUtils.floorInt(rest);
         rest -= degree;
-        int minutes = MathUtils.floorInt(_MIN_PER_DEG * rest);
-        rest -= minutes / _MIN_PER_DEG;
-        int seconds = (int)Math.round(_SEC_PER_DEG * rest);
-        rest -= seconds / _SEC_PER_DEG;
+        int minutes = MathUtils.floorInt(MIN_PER_DEG * rest);
+        rest -= minutes / MIN_PER_DEG;
+        int seconds = (int)Math.round(SEC_PER_DEG * rest);
+        rest -= seconds / SEC_PER_DEG;
         if (seconds == 60) {
             seconds = 0;
             minutes++;
