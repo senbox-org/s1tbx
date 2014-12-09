@@ -32,9 +32,9 @@ import java.util.Map;
  */
 public class Sinclair extends DecompositionBase implements Decomposition {
 
-    public Sinclair(final PolBandUtils.QuadSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
+    public Sinclair(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
                     final int windowSize, final int srcImageWidth, final int srcImageHeight) {
-        super(srcBandList, sourceProductType, windowSize, srcImageWidth, srcImageHeight);
+        super(srcBandList, sourceProductType, windowSize, windowSize, srcImageWidth, srcImageHeight);
     }
 
     /**
@@ -74,7 +74,7 @@ public class Sinclair extends DecompositionBase implements Decomposition {
         final int maxX = x0 + w;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
 
             final TargetInfo[] targetInfo = new TargetInfo[bandList.targetBands.length];
             int j = 0;

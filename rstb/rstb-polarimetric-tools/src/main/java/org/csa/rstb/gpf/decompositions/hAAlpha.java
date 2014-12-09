@@ -45,13 +45,13 @@ public class hAAlpha extends DecompositionBase implements Decomposition {
 
     private static final double LOG_3 = Math.log(3);
 
-    public hAAlpha(final PolBandUtils.QuadSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
+    public hAAlpha(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
                    final int windowSize, final int srcImageWidth, final int srcImageHeight,
                    final boolean outputHAAlpha,
                    final boolean outputBetaDeltaGammaLambda,
                    final boolean outputAlpha123,
                    final boolean outputLambda123) {
-        super(srcBandList, sourceProductType, windowSize, srcImageWidth, srcImageHeight);
+        super(srcBandList, sourceProductType, windowSize, windowSize, srcImageWidth, srcImageHeight);
 
         this.outputHAAlpha = outputHAAlpha;
         this.outputBetaDeltaGammaLambda = outputBetaDeltaGammaLambda;
@@ -154,11 +154,12 @@ public class hAAlpha extends DecompositionBase implements Decomposition {
 
         final double[][] Tr = new double[3][3];
         final double[][] Ti = new double[3][3];
+        final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
 
-        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
-            final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
+
             for (int i = 0; i < bandList.srcBands.length; ++i) {
                 sourceTiles[i] = op.getSourceTile(bandList.srcBands[i], sourceRectangle);
                 dataBuffers[i] = sourceTiles[i].getDataBuffer();
@@ -170,7 +171,7 @@ public class hAAlpha extends DecompositionBase implements Decomposition {
                 for (int x = x0; x < maxX; ++x) {
                     final int idx = trgIndex.getIndex(x);
 
-                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, sourceImageWidth, sourceImageHeight,
+                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth, sourceImageHeight,
                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                     final HAAlpha data = computeHAAlpha(Tr, Ti);

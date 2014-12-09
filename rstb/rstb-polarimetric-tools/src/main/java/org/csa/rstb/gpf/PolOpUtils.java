@@ -76,46 +76,6 @@ public final class PolOpUtils {
         }
     }
 
-    // This is taken from CPAlgorithms
-    //
-    // For dual pol product:
-    //
-    // Case 1) k_DP1 = [S_HH
-    //                  S_HV]
-    //         kr[0] = i_hh, ki[0] = q_hh, kr[1] = i_hv, ki[1] = q_hv
-    //
-    // Case 2) k_DP2 = [S_VH
-    //                  S_VV]
-    //         kr[0] = i_vh, ki[0] = q_vh, kr[1] = i_vv, ki[1] = q_vv
-    //
-    // Case 3) k_DP3 = [S_HH
-    //                  S_VV]
-    //         kr[0] = i_hh, ki[0] = q_hh, kr[1] = i_vv, ki[1] = q_vv
-    //
-    /**
-     * Compute covariance matrix c2 for given dual pol or complex compact pol 2x1 scatter vector.
-     *
-     * @param kr Real part of the scatter vector
-     * @param ki Imaginary part of the scatter vector
-     * @param Cr Real part of the covariance matrix
-     * @param Ci Imaginary part of the covariance matrix
-     */
-    public static void computeCovarianceMatrixC2(final double[] kr, final double[] ki,
-                                                 final double[][] Cr, final double[][] Ci) {
-
-        Cr[0][0] = kr[0] * kr[0] + ki[0] * ki[0];
-        Ci[0][0] = 0.0;
-
-        Cr[0][1] = kr[0] * kr[1] + ki[0] * ki[1];
-        Ci[0][1] = ki[0] * kr[1] - kr[0] * ki[1];
-
-        Cr[1][1] = kr[1] * kr[1] + ki[1] * ki[1];
-        Ci[1][1] = 0.0;
-
-        Cr[1][0] = Cr[0][1];
-        Ci[1][0] = -Ci[0][1];
-    }
-
     /**
      * Get covariance matrix C3 for given pixel.
      *
@@ -845,7 +805,8 @@ public final class PolOpUtils {
      *
      * @param x                 X coordinate of the given pixel.
      * @param y                 Y coordinate of the given pixel.
-     * @param halfWindowSize    The sliding window size / 2.
+     * @param halfWindowSizeX   The sliding window size / 2.
+     * @param halfWindowSizeY   The sliding window size / 2.
      * @param sourceProductType The source product type.
      * @param sourceImageWidth  The source image width.
      * @param sourceImageHeight The source image height.
@@ -855,7 +816,8 @@ public final class PolOpUtils {
      * @param Ti                The imaginary part of the mean coherency matrix.
      */
     public static void getMeanCoherencyMatrix(
-            final int x, final int y, final int halfWindowSize, final int sourceImageWidth, final int sourceImageHeight,
+            final int x, final int y, final int halfWindowSizeX, final int halfWindowSizeY,
+            final int sourceImageWidth, final int sourceImageHeight,
             final PolBandUtils.MATRIX sourceProductType, final TileIndex srcIndex, final ProductData[] dataBuffers,
             final double[][] Tr, final double[][] Ti) {
 
@@ -866,10 +828,10 @@ public final class PolOpUtils {
         final double[][] tempTr = new double[3][3];
         final double[][] tempTi = new double[3][3];
 
-        final int xSt = FastMath.max(x - halfWindowSize, 0);
-        final int xEd = FastMath.min(x + halfWindowSize, sourceImageWidth - 1);
-        final int ySt = FastMath.max(y - halfWindowSize, 0);
-        final int yEd = FastMath.min(y + halfWindowSize, sourceImageHeight - 1);
+        final int xSt = FastMath.max(x - halfWindowSizeX, 0);
+        final int xEd = FastMath.min(x + halfWindowSizeX, sourceImageWidth - 1);
+        final int ySt = FastMath.max(y - halfWindowSizeY, 0);
+        final int yEd = FastMath.min(y + halfWindowSizeY, sourceImageHeight - 1);
         final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
 
         final Matrix TrMat = new Matrix(3, 3);
@@ -926,17 +888,16 @@ public final class PolOpUtils {
      *
      * @param x                 X coordinate of the given pixel.
      * @param y                 Y coordinate of the given pixel.
-     * @param halfWindowSize    The sliding window size / 2
+     * @param halfWindowSizeX    The sliding window size / 2
+     * @param halfWindowSizeY    The sliding window size / 2
      * @param sourceProductType The source product type.
-     * @param sourceImageWidth  The source image width.
-     * @param sourceImageHeight The source image height.
      * @param sourceTiles       The source tiles for all bands.
      * @param dataBuffers       Source tile data buffers.
      * @param Cr                The real part of the mean covariance matrix.
      * @param Ci                The imaginary part of the mean covariance matrix.
      */
     public static void getMeanCovarianceMatrix(
-            final int x, final int y, final int halfWindowSize, final int sourceImageWidth, final int sourceImageHeight,
+            final int x, final int y, final int halfWindowSizeX, final int halfWindowSizeY,
             final PolBandUtils.MATRIX sourceProductType, final Tile[] sourceTiles, final ProductData[] dataBuffers,
             final double[][] Cr, final double[][] Ci) {
 
@@ -947,10 +908,10 @@ public final class PolOpUtils {
         final double[][] tempTr = new double[3][3];
         final double[][] tempTi = new double[3][3];
 
-        final int xSt = FastMath.max(x - halfWindowSize, sourceTiles[0].getMinX());
-        final int xEd = FastMath.min(x + halfWindowSize, sourceTiles[0].getMaxX() - 1);
-        final int ySt = FastMath.max(y - halfWindowSize, sourceTiles[0].getMinY());
-        final int yEd = FastMath.min(y + halfWindowSize, sourceTiles[0].getMaxY() - 1);
+        final int xSt = FastMath.max(x - halfWindowSizeX, sourceTiles[0].getMinX());
+        final int xEd = FastMath.min(x + halfWindowSizeX, sourceTiles[0].getMaxX() - 1);
+        final int ySt = FastMath.max(y - halfWindowSizeY, sourceTiles[0].getMinY());
+        final int yEd = FastMath.min(y + halfWindowSizeY, sourceTiles[0].getMaxY() - 1);
         final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
 
         final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
@@ -1215,6 +1176,7 @@ public final class PolOpUtils {
         }
 
     }
+
     /*
     // Eigenvalue decomposition using JAMA svd function
     public static void eigenDecomposition(int n, double[][] HMr, double[][] HMi,

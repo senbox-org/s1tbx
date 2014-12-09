@@ -34,11 +34,11 @@ public abstract class PolClassifierBase {
     protected final int srcHeight;
     protected final int windowSize;
     protected final int halfWindowSize;
-    protected final Map<Band, PolBandUtils.QuadSourceBand> bandMap;
+    protected final Map<Band, PolBandUtils.PolSourceBand> bandMap;
 
     protected PolClassifierBase(final PolBandUtils.MATRIX srcProductType,
                                 final int srcWidth, final int srcHeight, final int windowSize,
-                                final Map<Band, PolBandUtils.QuadSourceBand> bandMap) {
+                                final Map<Band, PolBandUtils.PolSourceBand> bandMap) {
         this.sourceProductType = srcProductType;
         this.srcWidth = srcWidth;
         this.srcHeight = srcHeight;

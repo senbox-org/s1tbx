@@ -15,35 +15,41 @@
  */
 package org.csa.rstb.gpf.decompositions;
 
+import org.csa.rstb.gpf.DualPolOpUtils;
 import org.csa.rstb.gpf.PolOpUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.PolBandUtils;
-import org.esa.nest.dataio.PolBandUtils.MATRIX;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
 import java.util.Map;
 
 /**
- * Perform van Zyl decomposition for given tile.
+ * Perform H-Alpha decomposition for given tile.
+ * <p>
+ * [1]	S. R. Cloude, D. G. Goodenough, H. Chen, "Compact Decomposition Theory",
+ * IEEE Geoscience and Remote Sensing Letters, Vol. 9, No. 1, Jan. 2012.
  */
-public class vanZyl extends DecompositionBase implements Decomposition {
+public class HAlphaC2 extends DecompositionBase implements Decomposition {
 
-    public vanZyl(final PolBandUtils.PolSourceBand[] srcBandList, final MATRIX sourceProductType,
-                  final int windowSize, final int srcImageWidth, final int srcImageHeight) {
+    public HAlphaC2(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
+                    final int windowSize, final int srcImageWidth, final int srcImageHeight) {
         super(srcBandList, sourceProductType, windowSize, windowSize, srcImageWidth, srcImageHeight);
     }
 
     /**
      * Return the list of band names for the target product
+     *
+     * @return list of band names
      */
     public String[] getTargetBandNames() {
-        return new String[]{"vanZyl_dbl_r", "vanZyl_vol_g", "vanZyl_surf_b"};
+        return new String[]{"Entropy", "Anisotropy", "Alpha"};
     }
 
     /**
@@ -53,7 +59,13 @@ public class vanZyl extends DecompositionBase implements Decomposition {
      * @param targetBand     the new target band
      */
     public void setBandUnit(final String targetBandName, final Band targetBand) {
-        targetBand.setUnit(Unit.INTENSITY_DB);
+        if (targetBandName.contains("Entropy")) {
+            targetBand.setUnit("entropy");
+        } else if (targetBandName.contains("Anisotropy")) {
+            targetBand.setUnit("anisotropy");
+        } else if (targetBandName.equals("Alpha")) {
+            targetBand.setUnit(Unit.DEGREES);
+        }
     }
 
     /**
@@ -64,8 +76,7 @@ public class vanZyl extends DecompositionBase implements Decomposition {
      * @param op              the polarimetric decomposition operator
      * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
-    public void computeTile(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
-                            final Operator op) throws OperatorException {
+    public void computeTile(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle, final Operator op) {
 
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
@@ -73,7 +84,11 @@ public class vanZyl extends DecompositionBase implements Decomposition {
         final int h = targetRectangle.height;
         final int maxY = y0 + h;
         final int maxX = x0 + w;
-        //System.out.println("freeman x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
+        //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
+
+        final double[][] Cr = new double[2][2]; // real part of covariance matrix
+        final double[][] Ci = new double[2][2]; // imaginary part of covariance matrix
+        final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
 
         for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
 
@@ -81,94 +96,80 @@ public class vanZyl extends DecompositionBase implements Decomposition {
             int j = 0;
             for (Band targetBand : bandList.targetBands) {
                 final String targetBandName = targetBand.getName();
-                if (targetBandName.contains("vanZyl_dbl_r")) {
+                if (targetBandName.contains("Entropy")) {
                     targetInfo[j] = new TargetInfo(targetTiles.get(targetBand), TargetBandColour.R);
-                } else if (targetBandName.contains("vanZyl_vol_g")) {
+                } else if (targetBandName.contains("Anisotropy")) {
                     targetInfo[j] = new TargetInfo(targetTiles.get(targetBand), TargetBandColour.G);
-                } else if (targetBandName.contains("vanZyl_surf_b")) {
+                } else if (targetBandName.contains("Alpha")) {
                     targetInfo[j] = new TargetInfo(targetTiles.get(targetBand), TargetBandColour.B);
                 }
                 ++j;
             }
             final TileIndex trgIndex = new TileIndex(targetInfo[0].tile);
 
-            final double[][] Cr = new double[3][3];
-            final double[][] Ci = new double[3][3];
-            final double[][] Tr = new double[3][3];
-            final double[][] Ti = new double[3][3];
-
-            if (!bandList.spanMinMaxSet) {
-                setSpanMinMax(op, bandList);
-            }
-
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
-            final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
-            for (int i = 0; i < bandList.srcBands.length; ++i) {
+            for (int i = 0; i < bandList.srcBands.length; i++) {
                 sourceTiles[i] = op.getSourceTile(bandList.srcBands[i], sourceRectangle);
                 dataBuffers[i] = sourceTiles[i].getDataBuffer();
             }
-            final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
+            double v = 0.0;
 
-            double alpha, mu, rhoRe, rhoIm, rho2, eta, delta, lambda1, lambda2, lambda3, fs, fd, fv, tmp1, tmp2;
             for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
+                    final int index = trgIndex.getIndex(x);
 
-                    if (sourceProductType == MATRIX.FULL ||
-                            sourceProductType == MATRIX.C3) {
+                    DualPolOpUtils.getMeanCovarianceMatrixC2(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth,
+                                                             sourceImageHeight, sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
-                        PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
-                                sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
+                    HAAlpha data = computeHAAlphaByC2(Cr, Ci);
 
-                        PolOpUtils.c3ToT3(Cr, Ci, Tr, Ti);
-
-                    } else if (sourceProductType == MATRIX.T3) {
-
-                        PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
-                              sourceImageWidth, sourceImageHeight, sourceProductType, srcIndex, dataBuffers, Tr, Ti);
-
-                        PolOpUtils.t3ToC3(Tr, Ti, Cr, Ci);
-                    }
-
-                    alpha = Cr[0][0];
-                    mu = Cr[2][2] / Cr[0][0];
-                    eta = Cr[1][1] / Cr[0][0];
-                    rhoRe = Cr[0][2] / Cr[0][0];
-                    rhoIm = Ci[0][2] / Cr[0][0];
-                    rho2 = rhoRe * rhoRe + rhoIm * rhoIm;
-
-                    delta = Math.sqrt((1 - mu) * (1 - mu) + 4 * rho2);
-                    lambda1 = 0.5 * alpha * (1 + mu + delta);
-                    lambda2 = 0.5 * alpha * (1 + mu - delta);
-                    lambda3 = alpha * eta;
-
-                    tmp1 = (mu - 1 + delta) * (mu - 1 + delta);
-                    tmp2 = tmp1 + 4 * rho2;
-                    fs = lambda1 * tmp1 / tmp2;
-
-                    tmp1 = (mu - 1 - delta) * (mu - 1 - delta);
-                    tmp2 = tmp1 + 4 * rho2;
-                    fd = lambda2 * tmp1 / tmp2;
-                    fv = lambda3;
-
-                    fs = scaleDb(fs, bandList.spanMin, bandList.spanMax);
-                    fd = scaleDb(fd, bandList.spanMin, bandList.spanMax);
-                    fv = scaleDb(fv, bandList.spanMin, bandList.spanMax);
-
-                    // save fd as red, fv as green and fs as blue
                     for (TargetInfo target : targetInfo) {
 
                         if (target.colour == TargetBandColour.R) {
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) fd);
+                            v = data.entropy;
                         } else if (target.colour == TargetBandColour.G) {
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) fv);
+                            v = data.anisotropy;
                         } else if (target.colour == TargetBandColour.B) {
-                            target.dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) fs);
+                            v = data.alpha;
                         }
+
+                        target.dataBuffer.setElemFloatAt(index, (float) v);
                     }
                 }
             }
         }
+    }
+
+    public static HAAlpha computeHAAlphaByC2(double[][] Cr, double[][] Ci) {
+
+        final HAAlpha data = new HAAlpha();
+        final double[][] EigenVectRe = new double[2][2];
+        final double[][] EigenVectIm = new double[2][2];
+        final double[] EigenVal = new double[2];
+
+        PolOpUtils.eigenDecomposition(2, Cr, Ci, EigenVectRe, EigenVectIm, EigenVal);
+
+        final double sum = EigenVal[0] + EigenVal[1];
+        final double[] p = {EigenVal[0] / sum, EigenVal[1] / sum};
+        data.entropy = -(p[0] * Math.log(p[0] + Constants.EPS) + p[1] * Math.log(p[1] + Constants.EPS)) / Math.log(2);
+        data.anisotropy = (p[0] - p[1]) / (p[0] + p[1] + Constants.EPS);
+
+        final double alpha = Math.acos(norm(EigenVectRe[0][0], EigenVectIm[0][0])) * MathUtils.RTOD;
+        //final double alpha2 = Math.acos(norm(EigenVectRe[0][1], EigenVectIm[0][1]))*MathUtils.RTOD;
+        data.alpha = p[0] * alpha + p[1] * (Math.PI / 2.0 - alpha);
+
+        return data;
+    }
+
+    private static double norm(final double real, final double imag) {
+        return Math.sqrt(real * real + imag * imag);
+    }
+
+    public static class HAAlpha {
+        public double entropy;
+        public double anisotropy;
+        public double alpha;
     }
 }

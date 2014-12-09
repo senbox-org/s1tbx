@@ -83,7 +83,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             defaultValue = SIGMA_90_PERCENT, label = "Point target window Size")
     private String sigmaStr = SIGMA_90_PERCENT; // sigma value in Lee sigma
 
-    private PolBandUtils.QuadSourceBand[] srcBandList;
+    private PolBandUtils.PolSourceBand[] srcBandList;
     private int halfFilterSize = 0;
     private int convSize;
     private int numLooks;
@@ -258,7 +258,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     private void setIDANParameters() {
 
         setNumLooks();
-        // fileterSize in this case is used only in generating source rectangle
+        // filterSize in this case is used only in generating source rectangle
         filterSize = anSize * 2;
         halfFilterSize = filterSize / 2;
         sigmaV = 1.0 / Math.sqrt(numLooks);
@@ -457,7 +457,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             copyInputBands = true;
         }
 
-        for (PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (PolBandUtils.PolSourceBand bandList : srcBandList) {
             String suffix = bandList.suffix;
             if (copyInputBands) {
                 bandNames = new String[bandList.srcBands.length];
@@ -560,7 +560,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         final TileIndex trgIndex = new TileIndex(targetTiles.get(getTargetProduct().getBandAt(0)));
 
-        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             final Rectangle sourceRectangle = getSourceTileRectangle(x0, y0, w, h);
@@ -579,7 +579,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
                     final int idx = trgIndex.getIndex(x);
 
                     // todo: Here for every pixel T3 is computed 5 times if the filter size is 5, should save some result
-                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfFilterSize, sourceImageWidth, sourceImageHeight,
+                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfFilterSize, halfFilterSize, sourceImageWidth, sourceImageHeight,
                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                     for (Band targetBand : bandList.targetBands) {
@@ -636,7 +636,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         final double[] neighborValues = new double[filterSize * filterSize];
         Tile targetTile, sourceTile;
 
-        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
             for (final Band targetBand : bandList.targetBands) {
                 targetTile = targetTiles.get(targetBand);
                 final ProductData dataBuffer = targetTile.getDataBuffer();
@@ -690,7 +690,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         final TileIndex trgIndex = new TileIndex(targetTiles.get(getTargetProduct().getBandAt(0)));
         final int filterSize2 = filterSize * filterSize;
 
-        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             for (int i = 0; i < bandList.srcBands.length; ++i) {
@@ -829,7 +829,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         final int syMax = sy0 + sh;
         final int sxMax = sx0 + sw;
 
-        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
 
             final double[][] span = new double[sh][sw];
             createSpanImage(bandList.srcBands, sourceTileRectangle, span);
@@ -1547,7 +1547,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         final TileIndex trgIndex = new TileIndex(targetTiles.get(getTargetProduct().getBandAt(0)));
 
-        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
             for (int i = 0; i < bandList.srcBands.length; ++i) {
@@ -1556,8 +1556,8 @@ public class PolarimetricSpeckleFilterOp extends Operator {
             }
 
             createT3SpanImage(bandList.srcBands[0], sourceRectangle, dataBuffers,
-                    data11Real, data12Real, data12Imag, data13Real, data13Imag,
-                    data22Real, data23Real, data23Imag, data33Real, span);
+                              data11Real, data12Real, data12Imag, data13Real, data13Imag,
+                              data22Real, data23Real, data23Imag, data33Real, span);
 
             final ProductData[] targetDataBuffers = new ProductData[9];
 
@@ -1966,7 +1966,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         final int sh = sourceRectangle.height;
 
         final TileIndex trgIndex = new TileIndex(targetTiles.get(getTargetProduct().getBandAt(0)));
-        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
 
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] sourceDataBuffers = new ProductData[bandList.srcBands.length];

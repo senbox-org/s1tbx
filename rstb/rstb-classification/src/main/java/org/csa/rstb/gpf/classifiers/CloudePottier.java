@@ -39,7 +39,7 @@ public class CloudePottier extends PolClassifierBase implements PolClassifier {
 
     public CloudePottier(final PolBandUtils.MATRIX sourceProductType,
                          final int sourceWidth, final int sourceHeight, final int winSize,
-                         final Map<Band, PolBandUtils.QuadSourceBand> srcbandMap) {
+                         final Map<Band, PolBandUtils.PolSourceBand> srcbandMap) {
         super(sourceProductType, sourceWidth, sourceHeight, winSize, srcbandMap);
 
         useLeeHAlphaPlaneDefinition = Boolean.getBoolean(SystemUtils.getApplicationContextId() +
@@ -84,7 +84,7 @@ public class CloudePottier extends PolClassifierBase implements PolClassifier {
         final TileIndex trgIndex = new TileIndex(targetTile);
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-        final PolBandUtils.QuadSourceBand srcBandList = bandMap.get(targetBand);
+        final PolBandUtils.PolSourceBand srcBandList = bandMap.get(targetBand);
 
         final Rectangle sourceRectangle = getSourceRectangle(x0, y0, w, h);
         final Tile[] sourceTiles = new Tile[srcBandList.srcBands.length];
@@ -102,7 +102,7 @@ public class CloudePottier extends PolClassifierBase implements PolClassifier {
             trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
 
-                PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, srcWidth, srcHeight,
+                PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, halfWindowSize, srcWidth, srcHeight,
                         sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                 final hAAlpha.HAAlpha data = hAAlpha.computeHAAlpha(Tr, Ti);
