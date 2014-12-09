@@ -52,7 +52,7 @@ public class PixelPos extends Point2D.Double {
      * Sets this pixel position so that is becomes invalid.
      */
     public void setInvalid() {
-        x = java.lang.Float.NaN;
-        y = java.lang.Float.NaN;
+        x = java.lang.Double.NaN;
+        y = java.lang.Double.NaN;
     }
 }
