@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class PolBandUtils {
 
-    public static enum MATRIX {FULL, C3, T3, C4, T4, C2, LCHCP, RCHCP}
+    public static enum MATRIX {DUAL_HH_HV, DUAL_VH_VV, DUAL_HH_VV, FULL, C3, T3, C4, T4, C2, LCHCP, RCHCP}
 
     public static class QuadSourceBand {
         public final String productName;
@@ -65,6 +65,7 @@ public class PolBandUtils {
 
         final String[] bandNames = sourceProduct.getBandNames();
         boolean isC3 = false, isT3 = false, isC2 = false, isLCHS2 = false, isRCHS2 = false;
+        boolean isHH = false, isHV = false, isVV = false, isVH = false;
         for (String name : bandNames) {
             if (name.contains("C44")) {
                 return MATRIX.C4;
@@ -80,6 +81,14 @@ public class PolBandUtils {
                 isLCHS2 = true;
             } else if (name.contains("RH")) {
                 isRCHS2 = true;
+            } else if (name.contains("_HH")) {
+                isHH = true;
+            } else if (name.contains("_HV")) {
+                isHV = true;
+            } else if (name.contains("_VV")) {
+                isVV = true;
+            } else if (name.contains("_VH")) {
+                isVH = true;
             }
         }
 
@@ -93,6 +102,12 @@ public class PolBandUtils {
             return MATRIX.LCHCP;
         else if (isRCHS2)
             return MATRIX.RCHCP;
+        else if (isHH && isHV && !isVH && !isVV)
+            return MATRIX.DUAL_HH_HV;
+        else if (!isHH && !isHV && isVH && isVV)
+            return MATRIX.DUAL_VH_VV;
+        else if (isHH && !isHV && !isVH && isVV)
+            return MATRIX.DUAL_HH_VV;
 
         return MATRIX.FULL;
     }
@@ -111,7 +126,7 @@ public class PolBandUtils {
         final boolean isCoregistered = StackUtils.isCoregisteredStack(srcProduct);
         final List<QuadSourceBand> quadSrcBandList = new ArrayList<QuadSourceBand>(10);
 
-        if (isCoregistered) {
+        if (isCoregistered && !sourceProductType.equals(PolBandUtils.MATRIX.C2)) {
             final String[] mstBandNames = StackUtils.getMasterBandNames(srcProduct);
             final Band[] mstBands = getBands(srcProduct, sourceProductType, mstBandNames);
             final String suffix = mstBandNames[0].substring(mstBandNames[0].lastIndexOf('_'), mstBandNames[0].length());
@@ -142,7 +157,13 @@ public class PolBandUtils {
      */
     private static Band[] getBands(final Product srcProduct, final MATRIX sourceProductType, final String[] bandNames) throws Exception {
 
-        if (sourceProductType == MATRIX.FULL) { // full pol
+        if (sourceProductType == MATRIX.DUAL_HH_HV) { // dual pol HH HV
+            return getDualPolSrcBands(srcProduct, getDualPolHHHVBandNames());
+        } else if (sourceProductType == MATRIX.DUAL_VH_VV) { // dual VH VV
+            return getDualPolSrcBands(srcProduct, getDualPolVHVVBandNames());
+        } else if (sourceProductType == MATRIX.DUAL_HH_VV) { // dual HH VV
+            return getDualPolSrcBands(srcProduct, getDualPolHHVVBandNames());
+        }else if (sourceProductType == MATRIX.FULL) { // full pol
             return getQuadPolSrcBands(srcProduct, bandNames);
         } else if (sourceProductType == MATRIX.C3) { // C3
             return getProductBands(srcProduct, bandNames, getC3BandNames());
@@ -160,6 +181,16 @@ public class PolBandUtils {
             return getProductBands(srcProduct, bandNames, getRCHModeS2BandNames());
         }
         return null;
+    }
+
+    private static Band[] getDualPolSrcBands(final Product srcProduct, final String[] srcBandNames) {
+
+        Band[] bands = new Band[srcBandNames.length];
+        int idx = 0;
+        for (String s : srcBandNames) {
+            bands[idx++] = srcProduct.getBand(s);
+        }
+        return bands;
     }
 
     private static Band[] getQuadPolSrcBands(final Product srcProduct, final String[] srcBandNames)
@@ -250,6 +281,34 @@ public class PolBandUtils {
                 }
             }
         }
+    }
+
+
+    public static String[] getDualPolHHHVBandNames() {
+        return new String[]{
+                "i_HH",
+                "q_HH",
+                "i_HV",
+                "q_HV"
+        };
+    }
+
+    public static String[] getDualPolVHVVBandNames() {
+        return new String[]{
+                "i_VH",
+                "q_VH",
+                "i_VV",
+                "q_VV"
+        };
+    }
+
+    public static String[] getDualPolHHVVBandNames() {
+        return new String[]{
+                "i_HH",
+                "q_HH",
+                "i_VV",
+                "q_VV"
+        };
     }
 
     /**

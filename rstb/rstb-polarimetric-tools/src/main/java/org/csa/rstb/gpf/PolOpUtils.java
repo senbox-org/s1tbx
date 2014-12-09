@@ -45,24 +45,75 @@ public final class PolOpUtils {
      * Get scatter matrix for given pixel.
      *
      * @param index           X,Y coordinate of the given pixel
-     * @param dataBuffers     Source tiles dataBuffers for all 8 source bands
+     * @param dataBuffers     Source tiles dataBuffers for all 4 (dual pol) or 8 (full pol) source bands
      * @param scatterMatrix_i Real part of the scatter matrix
      * @param scatterMatrix_q Imaginary part of the scatter matrix
      */
     public static void getComplexScatterMatrix(final int index, final ProductData[] dataBuffers,
                                                final double[][] scatterMatrix_i, final double[][] scatterMatrix_q) {
 
-        scatterMatrix_i[0][0] = dataBuffers[0].getElemDoubleAt(index); // HH - real
-        scatterMatrix_q[0][0] = dataBuffers[1].getElemDoubleAt(index); // HH - imag
+        // Dual pol: Case 1 is HH HV
+        //           Case 2 is VH VV
+        //           Case 3 is HH VV
 
-        scatterMatrix_i[0][1] = dataBuffers[2].getElemDoubleAt(index); // HV - real
-        scatterMatrix_q[0][1] = dataBuffers[3].getElemDoubleAt(index); // HV - imag
+        // If quad pol or dual pol Cases 1 or 3 then this is HH; else it is dual pol Case 2 then this is VH
+        scatterMatrix_i[0][0] = dataBuffers[0].getElemDoubleAt(index); // real
+        scatterMatrix_q[0][0] = dataBuffers[1].getElemDoubleAt(index); // imag
 
-        scatterMatrix_i[1][0] = dataBuffers[4].getElemDoubleAt(index); // VH - real
-        scatterMatrix_q[1][0] = dataBuffers[5].getElemDoubleAt(index); // VH - imag
+        // If quad pol or dual pol Case 1 then this is HV; else it is dual pol Cases 2 or 3 then this is VV
+        scatterMatrix_i[0][1] = dataBuffers[2].getElemDoubleAt(index); // real
+        scatterMatrix_q[0][1] = dataBuffers[3].getElemDoubleAt(index); // imag
 
-        scatterMatrix_i[1][1] = dataBuffers[6].getElemDoubleAt(index); // VV - real
-        scatterMatrix_q[1][1] = dataBuffers[7].getElemDoubleAt(index); // VV - imag
+        if (dataBuffers.length > 4) {
+
+            // Must be quad pol
+
+            scatterMatrix_i[1][0] = dataBuffers[4].getElemDoubleAt(index); // VH - real
+            scatterMatrix_q[1][0] = dataBuffers[5].getElemDoubleAt(index); // VH - imag
+
+            scatterMatrix_i[1][1] = dataBuffers[6].getElemDoubleAt(index); // VV - real
+            scatterMatrix_q[1][1] = dataBuffers[7].getElemDoubleAt(index); // VV - imag
+        }
+    }
+
+    // This is taken from CPAlgorithms
+    //
+    // For dual pol product:
+    //
+    // Case 1) k_DP1 = [S_HH
+    //                  S_HV]
+    //         kr[0] = i_hh, ki[0] = q_hh, kr[1] = i_hv, ki[1] = q_hv
+    //
+    // Case 2) k_DP2 = [S_VH
+    //                  S_VV]
+    //         kr[0] = i_vh, ki[0] = q_vh, kr[1] = i_vv, ki[1] = q_vv
+    //
+    // Case 3) k_DP3 = [S_HH
+    //                  S_VV]
+    //         kr[0] = i_hh, ki[0] = q_hh, kr[1] = i_vv, ki[1] = q_vv
+    //
+    /**
+     * Compute covariance matrix c2 for given dual pol or complex compact pol 2x1 scatter vector.
+     *
+     * @param kr Real part of the scatter vector
+     * @param ki Imaginary part of the scatter vector
+     * @param Cr Real part of the covariance matrix
+     * @param Ci Imaginary part of the covariance matrix
+     */
+    public static void computeCovarianceMatrixC2(final double[] kr, final double[] ki,
+                                                 final double[][] Cr, final double[][] Ci) {
+
+        Cr[0][0] = kr[0] * kr[0] + ki[0] * ki[0];
+        Ci[0][0] = 0.0;
+
+        Cr[0][1] = kr[0] * kr[1] + ki[0] * ki[1];
+        Ci[0][1] = ki[0] * kr[1] - kr[0] * ki[1];
+
+        Cr[1][1] = kr[1] * kr[1] + ki[1] * ki[1];
+        Ci[1][1] = 0.0;
+
+        Cr[1][0] = Cr[0][1];
+        Ci[1][0] = -Ci[0][1];
     }
 
     /**
