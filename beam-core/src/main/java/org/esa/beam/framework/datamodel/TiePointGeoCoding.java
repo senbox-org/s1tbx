@@ -211,11 +211,10 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
                     if (approximation != null) {
                         squareDistance = approximation.getSquareDistance(lat, lon);
                     } else {
-                        squareDistance = Float.MAX_VALUE;
+                        squareDistance = Double.MAX_VALUE;
                     }
                     double tempLon = lon + 360;
-                    final Approximation renormalizedApproximation = findRenormalizedApproximation(lat, tempLon,
-                                                                                                  squareDistance);
+                    final Approximation renormalizedApproximation = findRenormalizedApproximation(lat, tempLon, squareDistance);
                     if (renormalizedApproximation != null) {
                         approximation = renormalizedApproximation;
                         lon = tempLon;
@@ -242,11 +241,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
 
     /**
      * Gets the normalized latitude value.
-     * The method returns <code>Float.NaN</code> if the given latitude value is out of bounds.
+     * The method returns <code>Double.NaN</code> if the given latitude value is out of bounds.
      *
      * @param lat the raw latitude value in the range -90 to +90 degrees
      *
-     * @return the normalized latitude value, <code>Float.NaN</code> else
+     * @return the normalized latitude value, <code>Double.NaN</code> else
      */
     public static double normalizeLat(double lat) {
         if (lat < -90 || lat > 90) {
@@ -257,12 +256,12 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
 
     /**
      * Gets the normalized longitude value.
-     * The method returns <code>Float.NaN</code> if the given longitude value is out of bounds
+     * The method returns <code>Double.NaN</code> if the given longitude value is out of bounds
      * or if it's normalized value is not in the value range of this geo-coding's normalized longitude grid..
      *
      * @param lon the raw longitude value in the range -180 to +180 degrees
      *
-     * @return the normalized longitude value, <code>Float.NaN</code> else
+     * @return the normalized longitude value, <code>Double.NaN</code> else
      */
     public final double normalizeLon(double lon) {
         if (lon < -180 || lon > 180) {
@@ -588,8 +587,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
                 if (i > i2) {
                     i = i2;
                 }
-                lat = latGrid.getRasterData().getElemFloatAt(j * w + i);
-                lon = lonGrid.getRasterData().getElemFloatAt(j * w + i);
+                lat = latGrid.getRasterData().getElemDoubleAt(j * w + i);
+                lon = lonGrid.getRasterData().getElemDoubleAt(j * w + i);
                 x = latGrid.getOffsetX() + i * latGrid.getSubSamplingX();
                 y = latGrid.getOffsetY() + j * latGrid.getSubSamplingY();
                 data[k][0] = lat;
@@ -655,8 +654,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
     private static double getMaxSquareDistance(final double[][] data, double centerLat, double centerLon) {
         double maxSquareDistance = 0.0f;
         for (final double[] point : data) {
-            final double dLat = (float) point[0] - centerLat;
-            final double dLon = (float) point[1] - centerLon;
+            final double dLat = point[0] - centerLat;
+            final double dLon = point[1] - centerLon;
             final double squareDistance = dLat * dLat + dLon * dLon;
             if (squareDistance > maxSquareDistance) {
                 maxSquareDistance = squareDistance;
