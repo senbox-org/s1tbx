@@ -222,8 +222,10 @@ public class PlacemarkIOTest {
             assertNotSame(expectedPlacemark, actualPlacemark);
             assertEquals(expectedPlacemark.getName(), actualPlacemark.getName());
             assertEquals(expectedPlacemark.getLabel(), actualPlacemark.getLabel());
-            assertEquals(expectedPlacemark.getPixelPos(), actualPlacemark.getPixelPos());
-            assertEquals(expectedPlacemark.getGeoPos(), actualPlacemark.getGeoPos());
+            assertEquals(expectedPlacemark.getPixelPos().getX(), actualPlacemark.getPixelPos().getX(), 1.0e-8);
+            assertEquals(expectedPlacemark.getPixelPos().getY(), actualPlacemark.getPixelPos().getY(), 1.0e-8);
+            assertEquals(expectedPlacemark.getGeoPos().getLat(), actualPlacemark.getGeoPos().getLat(), 1.0e-8);
+            assertEquals(expectedPlacemark.getGeoPos().getLon(), actualPlacemark.getGeoPos().getLon(), 1.0e-8);
             assertEquals(expectedPlacemark.getDescription(), actualPlacemark.getDescription());
             PlacemarkDescriptor descriptor = expectedPlacemark.getDescriptor();
             assertEquals(descriptor.getRoleLabel(), descriptorInstance.getRoleLabel());
