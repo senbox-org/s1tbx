@@ -22,9 +22,9 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.util.ImageUtils;
 
 import javax.media.jai.PlanarImage;
-
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 
@@ -32,6 +32,11 @@ import java.io.IOException;
 /**
  * A base class for {@code OpImage}s acting as source image for
  * a {@link org.esa.beam.framework.datamodel.RasterDataNode}.
+ *
+ * @author Norman Fomferra
+ * @see RasterDataNode#getSourceImage()
+ * @see RasterDataNode#getGeophysicalImage()
+ * @see RasterDataNode#setSourceImage(com.bc.ceres.glevel.MultiLevelImage)
  */
 public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
     private final RasterDataNode rasterDataNode;
@@ -43,7 +48,14 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
         }
         return null;
     }
-    
+
+    /**
+     * Constructor.
+     *
+     * @param rasterDataNode The target raster data node.
+     * @param level The resolution level.
+     * @see org.esa.beam.jai.ResolutionLevel#create(com.bc.ceres.glevel.MultiLevelModel, int)
+     */
     protected RasterDataNodeOpImage(RasterDataNode rasterDataNode, ResolutionLevel level) {
         super(ImageManager.getDataBufferType(rasterDataNode.getDataType()),
               rasterDataNode.getSceneRasterWidth(),
@@ -53,8 +65,49 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
         this.rasterDataNode = rasterDataNode;
     }
 
+    /**
+     * @return The target raster data node.
+     */
     public RasterDataNode getRasterDataNode() {
         return rasterDataNode;
+    }
+
+    /**
+     * Utility method that allows to retrieve data from a raster data node whose geophysical image shares the same
+     * multi-level model (aka image pyramid model).
+     *
+     * @param band   A raster data node whose geophysical image shares the same multi-level model.
+     * @param region The region in pixel coordinates of the given resolution level (see {@link #getLevel()}).
+     * @return The retrieved pixel data in geophysical units.
+     * @see #getRawProductData(org.esa.beam.framework.datamodel.RasterDataNode, java.awt.Rectangle)
+     */
+    protected ProductData getGeophysicalProductData(RasterDataNode band, Rectangle region) {
+        return getProductData(band.getGeophysicalImage().getImage(getLevel()), band.getGeophysicalDataType(), region);
+    }
+
+    /**
+     * Utility method that allows to retrieve data from a raster data node whose source image shares the same
+     * multi-level model (aka image pyramid model).
+     *
+     * @param band   A raster data node whose source image shares the same multi-level model.
+     * @param region The region in pixel coordinates of the given resolution level (see {@link #getLevel()}).
+     * @return The retrieved, raw and unscaled source pixel data.
+     * @see #getGeophysicalProductData(org.esa.beam.framework.datamodel.RasterDataNode, java.awt.Rectangle)
+     */
+    protected ProductData getRawProductData(RasterDataNode band, Rectangle region) {
+        return getProductData(band.getSourceImage().getImage(getLevel()), band.getDataType(), region);
+    }
+
+    private ProductData getProductData(RenderedImage image, int productDataType, Rectangle region) {
+        Raster raster = image.getData(region);
+        boolean directMode = raster.getDataBuffer().getSize() == region.width * region.height;
+        if (directMode) {
+            return ProductData.createInstance(productDataType, ImageUtils.getPrimitiveArray(raster.getDataBuffer()));
+        } else {
+            final ProductData instance = ProductData.createInstance(productDataType, region.width * region.height);
+            raster.getDataElements(region.x, region.y, region.width, region.height, instance.getElems());
+            return instance;
+        }
     }
 
     @Override
@@ -80,7 +133,15 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
         }
     }
 
-    protected abstract void computeProductData(ProductData productData, Rectangle destRect) throws IOException;
+    /**
+     * Computes the target pixel data for this level image.
+     *
+     * @param productData The target pixel buffer to write to. The number of elements in this buffer will always be
+     *                    {@code region.width * region.height}.
+     * @param region      The target region in pixel coordinates valid for this image level.
+     * @throws IOException May be thrown if an I/O error occurs during the computation.
+     */
+    protected abstract void computeProductData(ProductData productData, Rectangle region) throws IOException;
 
     @Override
     public String toString() {
@@ -92,7 +153,14 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
         String bandName = "." + rasterDataNode.getName();
         return className + productName + bandName;
     }
-    
+
+    /**
+     * Utility method which computes source (offset) coordinates for a given source and target lengths.
+     *
+     * @param sourceLength The source length in source pixel units.
+     * @param targetLength The target length in target pixel units.
+     * @return An array of size {@code targetLength} containing source (offset) coordinates.
+     */
     protected int[] getSourceCoords(final int sourceLength, final int targetLength) {
         final int[] sourceCoords = new int[targetLength];
         for (int i = 0; i < targetLength; i++) {
@@ -100,54 +168,52 @@ public abstract class RasterDataNodeOpImage extends SingleBandedOpImage {
         }
         return sourceCoords;
     }
-    
-    protected static void copyLine(final  int y, final int destWidth, ProductData src, ProductData dest, int[] sourceCoords) {
-        int destOffset = y * destWidth;
-        final int type = src.getType();
 
-        switch (type) {
+    protected static void copyLine(final int y, final int destWidth, ProductData src, ProductData dest, int[] sourceCoords) {
+        int destOffset = y * destWidth;
+        switch (src.getType()) {
             case ProductData.TYPE_INT8:
             case ProductData.TYPE_UINT8:
                 byte[] srcArrayB = (byte[]) src.getElems();
                 byte[] destArrayB = (byte[]) dest.getElems();
-                for(int coord : sourceCoords) {
-                    destArrayB[destOffset++] =  srcArrayB[coord];
+                for (int coord : sourceCoords) {
+                    destArrayB[destOffset++] = srcArrayB[coord];
                 }
                 return;
             case ProductData.TYPE_INT16:
             case ProductData.TYPE_UINT16:
                 short[] srcArrayS = (short[]) src.getElems();
                 short[] destArrayS = (short[]) dest.getElems();
-                for(int coord : sourceCoords) {
-                    destArrayS[destOffset++] =  srcArrayS[coord];
+                for (int coord : sourceCoords) {
+                    destArrayS[destOffset++] = srcArrayS[coord];
                 }
                 return;
             case ProductData.TYPE_INT32:
             case ProductData.TYPE_UINT32:
                 int[] srcArrayI = (int[]) src.getElems();
                 int[] destArrayI = (int[]) dest.getElems();
-                for(int coord : sourceCoords) {
-                    destArrayI[destOffset++] =  srcArrayI[coord];
+                for (int coord : sourceCoords) {
+                    destArrayI[destOffset++] = srcArrayI[coord];
                 }
                 return;
             case ProductData.TYPE_FLOAT32:
                 float[] srcArrayF = (float[]) src.getElems();
                 float[] destArrayF = (float[]) dest.getElems();
-                for(int coord : sourceCoords) {
-                    destArrayF[destOffset++] =  srcArrayF[coord];
+                for (int coord : sourceCoords) {
+                    destArrayF[destOffset++] = srcArrayF[coord];
                 }
                 return;
             case ProductData.TYPE_FLOAT64:
                 double[] srcArrayD = (double[]) src.getElems();
                 double[] destArrayD = (double[]) dest.getElems();
-                for(int coord : sourceCoords) {
-                    destArrayD[destOffset++] =  srcArrayD[coord];
+                for (int coord : sourceCoords) {
+                    destArrayD[destOffset++] = srcArrayD[coord];
                 }
                 return;
             case ProductData.TYPE_ASCII:
             case ProductData.TYPE_UTC:
             default:
-                throw new IllegalArgumentException("wrong product data type: "+type);
+                throw new IllegalArgumentException("wrong product data type: " + src.getType());
         }
     }
 
