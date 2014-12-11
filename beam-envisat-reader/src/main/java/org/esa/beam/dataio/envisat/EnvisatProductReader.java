@@ -501,7 +501,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         int tiePointIndex = 0;
         double scalingOffset = bandInfo.getScalingOffset();
         double scalingFactor = bandInfo.getScalingFactor();
-        double[] tiePoints = new double[gridWidth * gridHeight];
+        float[] tiePoints = new float[gridWidth * gridHeight];
         for (int y = 0; y < gridHeight; y++) {
             bandLineReader.readLineRecord(y);
             if (pixelDataType == ProductData.TYPE_INT8) {
@@ -510,7 +510,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     ArrayUtils.swapArray(pixelData);
                 }
                 for (int x = 0; x < gridWidth; x++) {
-                    tiePoints[tiePointIndex] = scalingOffset + scalingFactor * pixelData[x];
+                    tiePoints[tiePointIndex] = (float)(scalingOffset + scalingFactor * pixelData[x]);
                     tiePointIndex++;
                 }
             } else if (pixelDataType == ProductData.TYPE_UINT8) {
@@ -519,7 +519,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     ArrayUtils.swapArray(pixelData);
                 }
                 for (int x = 0; x < gridWidth; x++) {
-                    tiePoints[tiePointIndex] = scalingOffset + scalingFactor * (pixelData[x] & 0xff);
+                    tiePoints[tiePointIndex] = (float)(scalingOffset + scalingFactor * (pixelData[x] & 0xff));
                     tiePointIndex++;
                 }
             } else if (pixelDataType == ProductData.TYPE_INT16) {
@@ -528,7 +528,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     ArrayUtils.swapArray(pixelData);
                 }
                 for (int x = 0; x < gridWidth; x++) {
-                    tiePoints[tiePointIndex] = scalingOffset + scalingFactor * pixelData[x];
+                    tiePoints[tiePointIndex] = (float)(scalingOffset + scalingFactor * pixelData[x]);
                     tiePointIndex++;
                 }
             } else if (pixelDataType == ProductData.TYPE_UINT16) {
@@ -537,7 +537,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     ArrayUtils.swapArray(pixelData);
                 }
                 for (int x = 0; x < gridWidth; x++) {
-                    tiePoints[tiePointIndex] = scalingOffset + scalingFactor * (pixelData[x] & 0xffff);
+                    tiePoints[tiePointIndex] = (float)(scalingOffset + scalingFactor * (pixelData[x] & 0xffff));
                     tiePointIndex++;
                 }
             } else if (pixelDataType == ProductData.TYPE_INT32) {
@@ -546,7 +546,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     ArrayUtils.swapArray(pixelData);
                 }
                 for (int x = 0; x < gridWidth; x++) {
-                    tiePoints[tiePointIndex] = scalingOffset + scalingFactor * pixelData[x];
+                    tiePoints[tiePointIndex] = (float)(scalingOffset + scalingFactor * pixelData[x]);
                     tiePointIndex++;
                 }
             } else if (pixelDataType == ProductData.TYPE_UINT32) {
@@ -555,7 +555,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     ArrayUtils.swapArray(pixelData);
                 }
                 for (int x = 0; x < gridWidth; x++) {
-                    tiePoints[tiePointIndex] = scalingOffset + scalingFactor * (pixelData[x] & 0xffffffffL);
+                    tiePoints[tiePointIndex] = (float)(scalingOffset + scalingFactor * (pixelData[x] & 0xffffffffL));
                     tiePointIndex++;
                 }
             } else if (pixelDataType == ProductData.TYPE_FLOAT32) {
@@ -564,7 +564,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                     ArrayUtils.swapArray(pixelData);
                 }
                 for (int x = 0; x < gridWidth; x++) {
-                    tiePoints[tiePointIndex] = scalingOffset + scalingFactor * pixelData[x];
+                    tiePoints[tiePointIndex] = (float)(scalingOffset + scalingFactor * pixelData[x]);
                     tiePointIndex++;
                 }
             } else {
@@ -652,7 +652,7 @@ public class EnvisatProductReader extends AbstractProductReader {
     }
 
     /**
-     * Used by the {@link #createTiePointGrid(String, int, int, double, double, double, double, double[]) createTiePointGrid} method in order to determine
+     * Used by the {@link #createTiePointGrid(String, int, int, double, double, double, double, float[]) createTiePointGrid} method in order to determine
      * the discontinuity mode for angle tie-point grids.
      * <p>The default implementation returns {@link org.esa.beam.framework.datamodel.TiePointGrid#DISCONT_AT_180} for
      * the names "lon", "long" or "longitude" ignoring letter case,

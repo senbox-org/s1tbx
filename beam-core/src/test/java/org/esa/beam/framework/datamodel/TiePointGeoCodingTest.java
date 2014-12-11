@@ -183,11 +183,11 @@ public class TiePointGeoCodingTest extends TestCase {
         return product;
     }
 
-    private double[] createLatGridData() {
+    private float[] createLatGridData() {
         return createGridData(LAT_1, LAT_2);
     }
 
-    private double[] createLonGridData() {
+    private float[] createLonGridData() {
         return createGridData(LON_1, LON_2);
     }
 
@@ -201,14 +201,14 @@ public class TiePointGeoCodingTest extends TestCase {
         return floats;
     }
 
-    private static double[] createGridData(float lon0, float lon1) {
-        double[] floats = new double[GW * GH];
+    private static float[] createGridData(float lon0, float lon1) {
+        float[] floats = new float[GW * GH];
 
         for (int j = 0; j < GH; j++) {
             for (int i = 0; i < GW; i++) {
                 double x = i / (GW - 1f);
                 double y = j / (GH - 1f);
-                floats[j * GW + i] = lon0 + (lon1 - lon0) * x * x + 0.1f * (lon1 - lon0) * y * y;
+                floats[j * GW + i] = (float)(lon0 + (lon1 - lon0) * x * x + 0.1f * (lon1 - lon0) * y * y);
             }
         }
 
@@ -349,11 +349,11 @@ public class TiePointGeoCodingTest extends TestCase {
             GeoPos[] targetCoords = createCoords();
 
             int numCoords = targetCoords.length;
-            double[] lats = new double[numCoords];
-            double[] lons = new double[numCoords];
+            float[] lats = new float[numCoords];
+            float[] lons = new float[numCoords];
             for (int i = 0; i < numCoords; i++) {
-                lats[i] = targetCoords[i].lat;
-                lons[i] = targetCoords[i].lon;
+                lats[i] = (float)targetCoords[i].lat;
+                lons[i] = (float)targetCoords[i].lon;
             }
 
             TiePointGrid latGrid = new TiePointGrid("lat", gridW, gridH, 0.0f, 0.0f, stepX, stepY, lats);

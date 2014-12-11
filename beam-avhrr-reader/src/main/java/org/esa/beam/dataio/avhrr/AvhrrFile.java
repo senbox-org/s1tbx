@@ -68,7 +68,7 @@ public abstract class AvhrrFile {
 
 	abstract public String[] getTiePointNames();
 	
-	abstract public double[][] getTiePointData() throws IOException;
+	abstract public float[][] getTiePointData() throws IOException;
 	
 	abstract public int getScanLineOffset(int rawY);
 

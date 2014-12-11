@@ -379,9 +379,9 @@ public class DimapDocumentTest extends TestCase {
                                             double stepY, boolean cyclic) {
         int gridWidth = (int)Math.round((sceneW - 1) / stepX + 1);
         int gridHeight = (int)Math.round((sceneH - 1) / stepY + 1);
-        double[] floats = new double[gridWidth * gridHeight];
+        float[] floats = new float[gridWidth * gridHeight];
         for (int i = 0; i < floats.length; i++) {
-            floats[i] = (20.0 + 10.0 * Math.random());
+            floats[i] = (float)(20.0 + 10.0 * Math.random());
         }
         TiePointGrid tpg = null;
         if (!cyclic) {
@@ -814,7 +814,7 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <TIE_POINT_DESCRIPTION>tpg1-Description</TIE_POINT_DESCRIPTION>");
         pw.println("            <PHYSICAL_UNIT>tpg1-unit</PHYSICAL_UNIT>");
         pw.println("            <TIE_POINT_GRID_NAME>tpg1</TIE_POINT_GRID_NAME>");
-        pw.println("            <DATA_TYPE>float64</DATA_TYPE>");
+        pw.println("            <DATA_TYPE>float32</DATA_TYPE>");
         pw.println("            <NCOLS>70</NCOLS>");
         pw.println("            <NROWS>71</NROWS>");
         pw.println("            <OFFSET_X>" + 21.1 + "</OFFSET_X>");
@@ -828,7 +828,7 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <TIE_POINT_DESCRIPTION>tpg2-Description</TIE_POINT_DESCRIPTION>");
         pw.println("            <PHYSICAL_UNIT>tpg2-unit</PHYSICAL_UNIT>");
         pw.println("            <TIE_POINT_GRID_NAME>tpg2</TIE_POINT_GRID_NAME>");
-        pw.println("            <DATA_TYPE>float64</DATA_TYPE>");
+        pw.println("            <DATA_TYPE>float32</DATA_TYPE>");
         pw.println("            <NCOLS>70</NCOLS>");
         pw.println("            <NROWS>71</NROWS>");
         pw.println("            <OFFSET_X>" + 21.1 + "</OFFSET_X>");

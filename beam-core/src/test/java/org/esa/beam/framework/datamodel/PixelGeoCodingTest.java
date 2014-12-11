@@ -398,11 +398,11 @@ public class PixelGeoCodingTest {
         return product;
     }
 
-    private double[] createLatGridData() {
+    private float[] createLatGridData() {
         return createGridData(LAT_1, LAT_2);
     }
 
-    private double[] createLonGridData() {
+    private float[] createLonGridData() {
         return createGridData(LON_1, LON_2);
     }
 
@@ -416,8 +416,8 @@ public class PixelGeoCodingTest {
         return floats;
     }
 
-    private static double[] createGridData(float lon0, float lon1) {
-        double[] floats = new double[GW * GH];
+    private static float[] createGridData(float lon0, float lon1) {
+        float[] floats = new float[GW * GH];
 
         for (int j = 0; j < GH; j++) {
             for (int i = 0; i < GW; i++) {

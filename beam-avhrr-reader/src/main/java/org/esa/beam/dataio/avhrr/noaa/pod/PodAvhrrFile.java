@@ -170,7 +170,7 @@ final class PodAvhrrFile implements VideoDataProvider, CalibrationCoefficientsPr
     private void addTiePointGridsAndGeoCoding(Product product) throws IOException {
         final int tiePointGridHeight = product.getSceneRasterHeight();
         final int tiePointCount = TIE_POINT_GRID_WIDTH * tiePointGridHeight;
-        final double[][] gridData = new double[3][tiePointCount];
+        final float[][] gridData = new float[3][tiePointCount];
 
         for (int tiePointIndex = 0, y = 0; y < tiePointGridHeight; y++) {
             final int[] rawAngles = new int[TIE_POINT_GRID_WIDTH];
@@ -191,9 +191,9 @@ final class PodAvhrrFile implements VideoDataProvider, CalibrationCoefficientsPr
             final double lonScaleFactor = PodTypes.getLonMetadata().getScalingFactor();
 
             for (int pointIndex = 0; pointIndex < TIE_POINT_GRID_WIDTH; pointIndex++) {
-                gridData[0][tiePointIndex] = (rawAngles[pointIndex] * solarZenithAnglesScaleFactor);
-                gridData[1][tiePointIndex] = (rawLat[pointIndex] * latScaleFactor);
-                gridData[2][tiePointIndex] = (rawLon[pointIndex] * lonScaleFactor);
+                gridData[0][tiePointIndex] = (float)(rawAngles[pointIndex] * solarZenithAnglesScaleFactor);
+                gridData[1][tiePointIndex] = (float)(rawLat[pointIndex] * latScaleFactor);
+                gridData[2][tiePointIndex] = (float)(rawLon[pointIndex] * lonScaleFactor);
                 tiePointIndex += 1;
             }
         }
@@ -210,7 +210,7 @@ final class PodAvhrrFile implements VideoDataProvider, CalibrationCoefficientsPr
         product.setGeoCoding(new PodGeoCoding(latGrid, lonGrid));
     }
 
-    private TiePointGrid addTiePointGrid(Product product, String name, String units, int height, double[] data) {
+    private TiePointGrid addTiePointGrid(Product product, String name, String units, int height, float[] data) {
         final TiePointGrid grid = new TiePointGrid(name,
                                                    TIE_POINT_GRID_WIDTH, height,
                                                    TIE_POINT_OFFSET_X + 0.5f, 0.5f,

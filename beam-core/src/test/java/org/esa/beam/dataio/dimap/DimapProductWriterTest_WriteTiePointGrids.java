@@ -68,7 +68,7 @@ public class DimapProductWriterTest_WriteTiePointGrids extends TestCase {
     public void testWriteProductNodes_TiePointGrid() {
         Product product = new Product("name", BeamConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME,
                                       50, 25);
-        double[] expectedArray = getTiePointData(10, 5);
+        float[] expectedArray = getTiePointData(10, 5);
         TiePointGrid tiePointGrid = new TiePointGrid("name", 10, 5, 0, 0, 5, 5, expectedArray);
         product.addTiePointGrid(tiePointGrid);
 
@@ -79,7 +79,7 @@ public class DimapProductWriterTest_WriteTiePointGrids extends TestCase {
             fail("IOException not expected");
         }
 
-        double[] currentArray = getCurrentByteArray(tiePointGrid);
+        float[] currentArray = getCurrentByteArray(tiePointGrid);
         assertEquals(expectedArray.length, currentArray.length);
 
         for (int i = 0; i < expectedArray.length; i++) {
@@ -91,19 +91,19 @@ public class DimapProductWriterTest_WriteTiePointGrids extends TestCase {
     ///   End Of Public
     ///////////////////////////////////////////////////////////////////////////
 
-    private double[] getTiePointData(int width, int height) {
-        double[] tiePoints = new double[width * height];
+    private float[] getTiePointData(int width, int height) {
+        float[] tiePoints = new float[width * height];
         for (int x = 0; x < tiePoints.length; x++) {
             tiePoints[x] = x * 1000;
         }
         return tiePoints;
     }
 
-    private double[] getCurrentByteArray(TiePointGrid grid) {
+    private float[] getCurrentByteArray(TiePointGrid grid) {
         FileImageInputStream inputStream = createInputStream(grid);
         int fileLength = new Long(inputStream.length()).intValue();
-        int arrayLength = fileLength / ProductData.getElemSize(ProductData.TYPE_FLOAT64);
-        double[] currentFloats = new double[arrayLength];
+        int arrayLength = fileLength / ProductData.getElemSize(ProductData.TYPE_FLOAT32);
+        float[] currentFloats = new float[arrayLength];
         try {
             inputStream.readFully(currentFloats, 0, arrayLength);
             inputStream.close();

@@ -322,9 +322,9 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         boolean westNormalized = false;
         boolean eastNormalized = false;
 
-        final double[] longitudes = lonGrid.getTiePoints();
+        final float[] longitudes = lonGrid.getTiePoints();
         final int numValues = longitudes.length;
-        final double[] normalizedLongitudes = new double[numValues];
+        final float[] normalizedLongitudes = new float[numValues];
         System.arraycopy(longitudes, 0, normalizedLongitudes, 0, numValues);
         double lonDeltaMax = 0;
         for (int y = 0; y < h; y++) {
@@ -343,11 +343,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
                 if (lonDelta > 180.0) {
                     p2 -= 360.0;  // place new point in the west (with a lon. < -180)
                     westNormalized = true; // mark what we've done
-                    normalizedLongitudes[index] = p2;
+                    normalizedLongitudes[index] = (float)p2;
                 } else if (lonDelta < -180.0) {
                     p2 += 360.0;  // place new point in the east (with a lon. > +180)
                     eastNormalized = true;  // mark what we've done
-                    normalizedLongitudes[index] = p2;
+                    normalizedLongitudes[index] = (float)p2;
                 } else {
                     lonDeltaMax = Math.max(lonDeltaMax, Math.abs(lonDelta));
                 }
@@ -388,8 +388,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
     }
 
     private void initLatLonMinMax(TiePointGrid normalizedLonGrid) {
-        final double[] latPoints = getLatGrid().getTiePoints();
-        final double[] lonPoints = normalizedLonGrid.getTiePoints();
+        final float[] latPoints = getLatGrid().getTiePoints();
+        final float[] lonPoints = normalizedLonGrid.getTiePoints();
         normalizedLonMin = +Double.MAX_VALUE;
         normalizedLonMax = -Double.MAX_VALUE;
         latMin = +Double.MAX_VALUE;

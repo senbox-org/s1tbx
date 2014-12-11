@@ -128,8 +128,8 @@ public class PointOperatorTest {
         rad10.setSourceImage(ConstantDescriptor.create(1.0f * w, 1.0f * h, new Short[]{3000}, null));
         rad08.setScalingFactor(0.01);
         rad10.setScalingFactor(0.01);
-        TiePointGrid lat = new TiePointGrid("latitude", w, h, 0, 0, 1, 1, new double[w * h]);
-        TiePointGrid lon = new TiePointGrid("longitude", w, h, 0, 0, 1, 1, new double[w * h]);
+        TiePointGrid lat = new TiePointGrid("latitude", w, h, 0, 0, 1, 1, new float[w * h]);
+        TiePointGrid lon = new TiePointGrid("longitude", w, h, 0, 0, 1, 1, new float[w * h]);
         sourceProduct.addTiePointGrid(lat);
         sourceProduct.addTiePointGrid(lon);
         sourceProduct.setGeoCoding(new TiePointGeoCoding(lat, lon));

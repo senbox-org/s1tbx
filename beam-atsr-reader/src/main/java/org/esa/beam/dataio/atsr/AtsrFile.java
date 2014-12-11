@@ -199,8 +199,8 @@ abstract class AtsrFile {
         int width = AtsrConstants.ATSR_SCENE_RASTER_WIDTH / AtsrConstants.LAT_LON_SUBS_X;
         int widthInBytes = AtsrConstants.ATSR_SCENE_RASTER_WIDTH * AtsrConstants.LATLON_PIXEL_SIZE;
         int height = AtsrConstants.ATSR_SCENE_RASTER_HEIGHT / AtsrConstants.LAT_LON_SUBS_Y;
-        double[] latTiePoints = new double[width * height];
-        double[] lonTiePoints = new double[width * height];
+        float[] latTiePoints = new float[width * height];
+        float[] lonTiePoints = new float[width * height];
         int[] line = new int[AtsrConstants.ATSR_SCENE_RASTER_WIDTH];
         int writeOffset = 0;
 

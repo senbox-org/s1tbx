@@ -1359,7 +1359,7 @@ public class DimapProductHelpers {
                             gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_STEP_X));
                     final float subsY = Float.parseFloat(
                             gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_STEP_Y));
-                    final double[] floats = new double[width * height];
+                    final float[] floats = new float[width * height];
                     boolean cyclic = false;
                     final String cyclicText = gridInfo.getChildTextTrim(DimapProductConstants.TAG_TIE_POINT_CYCLIC);
                     if (cyclicText != null) {

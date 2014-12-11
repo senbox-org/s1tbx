@@ -598,15 +598,15 @@ public class GeoTiffProductReader extends AbstractProductReader {
             idx++;
         }
 
-        final double[] lats = new double[width * height];
-        final double[] lons = new double[width * height];
+        final float[] lats = new float[width * height];
+        final float[] lons = new float[width * height];
 
         for (int i = 0; i < tiePoints.length; i += 6) {
             final int idxX = xIdx.get(tiePoints[i + 0]);
             final int idxY = yIdx.get(tiePoints[i + 1]);
             final int arrayIdx = idxY * width + idxX;
-            lons[arrayIdx] = tiePoints[i + 3];
-            lats[arrayIdx] = tiePoints[i + 4];
+            lons[arrayIdx] = (float)tiePoints[i + 3];
+            lats[arrayIdx] = (float)tiePoints[i + 4];
         }
 
         String[] names = Utils.findSuitableLatLonNames(product);

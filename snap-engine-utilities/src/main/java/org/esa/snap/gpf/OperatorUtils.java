@@ -283,9 +283,9 @@ public final class OperatorUtils {
 
         for (TiePointGrid srcTPG : sourceProduct.getTiePointGrids()) {
 
-            final double[] tiePoints = new double[gridWidth * gridHeight];
+            final float[] tiePoints = new float[gridWidth * gridHeight];
             for (int k = 0; k < newTiePointPos.length; k++) {
-                tiePoints[k] = srcTPG.getPixelDouble(newTiePointPos[k].x, newTiePointPos[k].y);
+                tiePoints[k] = (float)srcTPG.getPixelDouble(newTiePointPos[k].x, newTiePointPos[k].y);
             }
 
             int discontinuity = TiePointGrid.DISCONT_NONE;
@@ -399,10 +399,10 @@ public final class OperatorUtils {
      */
     public static void computeImageGeoBoundary(final Product[] sourceProducts, final SceneProperties scnProp) {
 
-        scnProp.latMin = 90.0;
-        scnProp.latMax = -90.0;
-        scnProp.lonMin = 180.0;
-        scnProp.lonMax = -180.0;
+        scnProp.latMin = 90.0f;
+        scnProp.latMax = -90.0f;
+        scnProp.lonMin = 180.0f;
+        scnProp.lonMax = -180.0f;
 
         for (final Product srcProd : sourceProducts) {
             final GeoCoding geoCoding = srcProd.getGeoCoding();
@@ -419,19 +419,19 @@ public final class OperatorUtils {
 
             for (double lat : lats) {
                 if (lat < scnProp.latMin) {
-                    scnProp.latMin = lat;
+                    scnProp.latMin = (float)lat;
                 }
                 if (lat > scnProp.latMax) {
-                    scnProp.latMax = lat;
+                    scnProp.latMax = (float)lat;
                 }
             }
 
             for (double lon : lons) {
                 if (lon < scnProp.lonMin) {
-                    scnProp.lonMin = lon;
+                    scnProp.lonMin = (float)lon;
                 }
                 if (lon > scnProp.lonMax) {
-                    scnProp.lonMax = lon;
+                    scnProp.lonMax = (float)lon;
                 }
             }
         }
@@ -525,13 +525,13 @@ public final class OperatorUtils {
      */
     public static void addGeoCoding(final Product targetProduct, final SceneProperties scnProp) {
 
-        final double[] latTiePoints = {scnProp.latMax, scnProp.latMax, scnProp.latMin, scnProp.latMin};
-        final double[] lonTiePoints = {scnProp.lonMin, scnProp.lonMax, scnProp.lonMin, scnProp.lonMax};
+        final float[] latTiePoints = {scnProp.latMax, scnProp.latMax, scnProp.latMin, scnProp.latMin};
+        final float[] lonTiePoints = {scnProp.lonMin, scnProp.lonMax, scnProp.lonMin, scnProp.lonMax};
 
         final int gridWidth = 10;
         final int gridHeight = 10;
 
-        final double[] fineLatTiePoints = new double[gridWidth * gridHeight];
+        final float[] fineLatTiePoints = new float[gridWidth * gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, latTiePoints, fineLatTiePoints);
 
         final double subSamplingX = targetProduct.getSceneRasterWidth() / (gridWidth - 1);
@@ -541,7 +541,7 @@ public final class OperatorUtils {
                 subSamplingX, subSamplingY, fineLatTiePoints);
         latGrid.setUnit(Unit.DEGREES);
 
-        final double[] fineLonTiePoints = new double[gridWidth * gridHeight];
+        final float[] fineLonTiePoints = new float[gridWidth * gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, lonTiePoints, fineLonTiePoints);
 
         final TiePointGrid lonGrid = new TiePointGrid(TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
@@ -562,7 +562,7 @@ public final class OperatorUtils {
 
     public static class SceneProperties {
         public int sceneWidth, sceneHeight;
-        public double latMin, lonMin, latMax, lonMax;
+        public float latMin, lonMin, latMax, lonMax;
 
         public final Map<Product, double[]> srcCornerLatitudeMap = new HashMap<>(10);
         public final Map<Product, double[]> srcCornerLongitudeMap = new HashMap<>(10);

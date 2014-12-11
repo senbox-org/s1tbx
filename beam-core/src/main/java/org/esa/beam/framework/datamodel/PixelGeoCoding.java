@@ -209,12 +209,12 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             int numTiePoints = tpGridWidth * tpGridHeight;
             final boolean containsAngles = true;
 
-            final double[] latTiePoints = tempLatImg.getAsBufferedImage().getRaster().getPixels(minX, minY, tpGridWidth,
+            final float[] latTiePoints = tempLatImg.getAsBufferedImage().getRaster().getPixels(minX, minY, tpGridWidth,
                                                                                                tpGridHeight,
-                                                                                               new double[numTiePoints]);
-            final double[] lonTiePoints = tempLonImg.getAsBufferedImage().getRaster().getPixels(minX, minY, tpGridWidth,
+                                                                                               new float[numTiePoints]);
+            final float[] lonTiePoints = tempLonImg.getAsBufferedImage().getRaster().getPixels(minX, minY, tpGridWidth,
                                                                                                tpGridHeight,
-                                                                                               new double[numTiePoints]);
+                                                                                               new float[numTiePoints]);
 
             final TiePointGrid tpLatGrid = new TiePointGrid("lat", tpGridWidth, tpGridHeight, tpOffsetX, tpOffsetY,
                                                             subSampling, subSampling, latTiePoints, containsAngles);
@@ -287,8 +287,8 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
                     final BitRaster validMask = latBand.getProduct().createValidMask(validMaskExpr,
                                                                                      SubProgressMonitor.create(pm, 1));
                     fillInvalidGaps(new RasterDataNode.ValidMaskValidator(rasterHeight, 0, validMask),
-                                    (double[]) latGrid.getDataElems(),
-                                    (double[]) lonGrid.getDataElems(), SubProgressMonitor.create(pm, 1));
+                                    (float[]) latGrid.getDataElems(),
+                                    (float[]) lonGrid.getDataElems(), SubProgressMonitor.create(pm, 1));
                 }
             } finally {
                 pm.done();
@@ -310,8 +310,8 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
      * @param pm        a monitor to inform the user about progress
      */
     protected void fillInvalidGaps(final IndexValidator validator,
-                                   final double[] latElems,
-                                   final double[] lonElems, ProgressMonitor pm) {
+                                   final float[] latElems,
+                                   final float[] lonElems, ProgressMonitor pm) {
         if (pixelPosEstimator != null) {
             try {
                 pm.beginTask("Filling invalid pixel gaps", rasterHeight);
@@ -324,8 +324,8 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
                             pixelPos.x = x;
                             pixelPos.y = y;
                             geoPos = pixelPosEstimator.getGeoPos(pixelPos, geoPos);
-                            latElems[i] = geoPos.lat;
-                            lonElems[i] = geoPos.lon;
+                            latElems[i] = (float)geoPos.lat;
+                            lonElems[i] = (float)geoPos.lon;
                         }
                     }
                     pm.worked(1);
@@ -347,17 +347,17 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         if (geoCoding == null) {
             return 0;
         }
-        final long sizeofDouble = 8;
+        final long sizeofFloat = 4;
         final long pixelCount = product.getSceneRasterWidth() * product.getSceneRasterHeight();
-        // lat + lon band converted to 64-bit float tie-point data
-        long size = 2 * sizeofDouble * pixelCount;
+        // lat + lon band converted to 32-bit float tie-point data
+        long size = 2 * sizeofFloat * pixelCount;
         if (geoCoding.isCrossingMeridianAt180()) {
-            // additional 64-bit float sine and cosine grids for to lon grid
-            size += 2 * sizeofDouble * pixelCount;
+            // additional 32-bit float sine and cosine grids for to lon grid
+            size += 2 * sizeofFloat * pixelCount;
         }
         if (usesValidMask) {
             // additional 1-bit data mask
-            size += pixelCount / 8;
+            size += pixelCount / 4;
         }
         return size;
     }
@@ -411,9 +411,9 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
             crossingMeridianAt180 = false;
             final PixelPos[] pixelPoses = ProductUtils.createPixelBoundary(lonBand, null, 1);
             try {
-                double[] firstLonValue = new double[1];
+                float[] firstLonValue = new float[1];
                 lonBand.readPixels(0, 0, 1, 1, firstLonValue);
-                double[] secondLonValue = new double[1];
+                float[] secondLonValue = new float[1];
                 for (int i = 1; i < pixelPoses.length; i++) {
                     final PixelPos pixelPos = pixelPoses[i];
                     lonBand.readPixels((int) pixelPos.x, (int) pixelPos.y, 1, 1, secondLonValue);
@@ -1109,7 +1109,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
                           final int gridWidth, final int gridHeight,
                           final double offsetX, final double offsetY,
                           final double subSamplingX, final double subSamplingY,
-                          final double[] tiePoints) {
+                          final float[] tiePoints) {
             super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints, false);
             // make this grid a component of the product without actually adding it to the product
             setOwner(p);
@@ -1118,7 +1118,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         private static PixelGrid create(final Band b, ProgressMonitor pm) throws IOException {
             final int w = b.getRasterWidth();
             final int h = b.getRasterHeight();
-            final double[] pixels = new double[w * h];
+            final float[] pixels = new float[w * h];
             b.readPixels(0, 0, w, h, pixels, pm);
             return new PixelGrid(b.getProduct(), b.getName(), w, h, 0.5f, 0.5f, 1.0f, 1.0f, pixels);
         }
@@ -1176,7 +1176,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         private final RasterFormatTag targetRasterFormatTag;
 
         private static ImageLayout layout(RenderedImage source) {
-            final SampleModel sampleModel = RasterFactory.createBandedSampleModel(DataBuffer.TYPE_DOUBLE,
+            final SampleModel sampleModel = RasterFactory.createBandedSampleModel(DataBuffer.TYPE_FLOAT,
                                                                                   source.getTileWidth(),
                                                                                   source.getTileHeight(),
                                                                                   2);

@@ -138,11 +138,11 @@ class HicoProductReader extends AbstractProductReader {
 
                 // convert bands into tie-points
                 // to create a tie-point geo-coding, because it is much faster than a pixel-geo-coding
-                double[] latData = latitudeBand.readPixels(0, 0, rasterWidth, rasterHeight, (double[]) null);
+                float[] latData = latitudeBand.readPixels(0, 0, rasterWidth, rasterHeight, (float[]) null);
                 TiePointGrid tpLat = new TiePointGrid("latitude", rasterWidth, rasterHeight, 0.5f, 0.5f, 1f, 1f, latData);
                 product.addTiePointGrid(tpLat);
 
-                double[] lonData = longitudeBand.readPixels(0, 0, rasterWidth, rasterHeight, (double[]) null);
+                float[] lonData = longitudeBand.readPixels(0, 0, rasterWidth, rasterHeight, (float[]) null);
                 TiePointGrid tpLon = new TiePointGrid("longitude", rasterWidth, rasterHeight, 0.5f, 0.5f, 1f, 1f, lonData);
                 product.addTiePointGrid(tpLon);
 

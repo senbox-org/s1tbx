@@ -47,17 +47,17 @@ public class ProductSubsetBuilderTest {
 
         product = new Product("p", "t", PRODUCT_WIDTH, PRODUCT_HEIGHT);
         TiePointGrid lat = new TiePointGrid("t1", 3, 3, 0, 0, 5, 5,
-                                            new double[]{
-                                                    2.0, 2.0, 2.0,
-                                                    1.0, 1.0, 1.0,
-                                                    0.0, 0.0, 0.0
+                                            new float[]{
+                                                    2.0f, 2.0f, 2.0f,
+                                                    1.0f, 1.0f, 1.0f,
+                                                    0.0f, 0.0f, 0.0f
                                             });
         product.addTiePointGrid(lat);
         TiePointGrid lon = new TiePointGrid("t2", 3, 3, 0, 0, 5, 5,
-                                            new double[]{
-                                                    0.0, 1.0, 2.0,
-                                                    0.0, 1.0, 2.0,
-                                                    0.0, 1.0, 2.0
+                                            new float[]{
+                                                    0.0f, 1.0f, 2.0f,
+                                                    0.0f, 1.0f, 2.0f,
+                                                    0.0f, 1.0f, 2.0f
                                             });
         product.addTiePointGrid(lon);
         product.setGeoCoding(new TiePointGeoCoding(lat, lon, Datum.WGS_84));

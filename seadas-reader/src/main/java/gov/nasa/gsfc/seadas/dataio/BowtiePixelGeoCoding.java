@@ -141,8 +141,8 @@ public class BowtiePixelGeoCoding extends AbstractBowtieGeoCoding {
         }
 
         for (int y = firstY; y + stripeH <= rasterHeight; y += stripeH) {
-            final double[] lats = new double[gcRawWidth];
-            final double[] lons = new double[gcRawWidth];
+            final float[] lats = new float[gcRawWidth];
+            final float[] lons = new float[gcRawWidth];
             System.arraycopy(lonFloats, y * stripeW, lons, 0, gcRawWidth);
             System.arraycopy(latFloats, y * stripeW, lats, 0, gcRawWidth);
             addStripeGeocode(lats, lons, y, stripeW, stripeH);
@@ -153,8 +153,8 @@ public class BowtiePixelGeoCoding extends AbstractBowtieGeoCoding {
         if (getScanlineOffsetY() != 0) {
 
             // create first stripe
-            final double[] lats = new double[gcRawWidth];
-            final double[] lons = new double[gcRawWidth];
+            final float[] lats = new float[gcRawWidth];
+            final float[] lons = new float[gcRawWidth];
             System.arraycopy(lonFloats, 0, lons, getScanlineOffsetY() * stripeW, (stripeH - getScanlineOffsetY()) * stripeW);
             System.arraycopy(latFloats, 0, lats, getScanlineOffsetY() * stripeW, (stripeH - getScanlineOffsetY()) * stripeW);
             for (int x = 0; x < stripeW; x++) {
@@ -168,8 +168,8 @@ public class BowtiePixelGeoCoding extends AbstractBowtieGeoCoding {
                 double refLon = lonFloats[x];
 
                 for (int y = 0; y < getScanlineOffsetY(); y++) {
-                    lons[y * stripeW + x] = refLon - (deltaLon * (getScanlineOffsetY() - y));
-                    lats[y * stripeW + x] = refLat - (deltaLat * (getScanlineOffsetY() - y));
+                    lons[y * stripeW + x] = (float)(refLon - (deltaLon * (getScanlineOffsetY() - y)));
+                    lats[y * stripeW + x] = (float)(refLat - (deltaLat * (getScanlineOffsetY() - y)));
                 }
             }
             GeoCoding gc = createStripeGeocode(lats, lons, 0, stripeW, stripeH);
@@ -184,8 +184,8 @@ public class BowtiePixelGeoCoding extends AbstractBowtieGeoCoding {
         if (lastStripeH != 0) {
 
             int lastStripeY = rasterHeight - lastStripeH - 1; // y coord of first y of last stripe
-            final double[] lats = new double[gcRawWidth];
-            final double[] lons = new double[gcRawWidth];
+            final float[] lats = new float[gcRawWidth];
+            final float[] lons = new float[gcRawWidth];
             System.arraycopy(lonFloats, lastStripeY * stripeW, lons, 0, lastStripeH * stripeW);
             System.arraycopy(latFloats, lastStripeY * stripeW, lats, 0, lastStripeH * stripeW);
             for (int x = 0; x < stripeW; x++) {
@@ -210,7 +210,7 @@ public class BowtiePixelGeoCoding extends AbstractBowtieGeoCoding {
         initSmallestAndLargestValidGeocodingIndices();
     }
 
-    private void addStripeGeocode(double[] lats, double[] lons, int y, int stripeW, int stripeH) throws IOException {
+    private void addStripeGeocode(float[] lats, float[] lons, int y, int stripeW, int stripeH) throws IOException {
         GeoCoding gc = createStripeGeocode(lats, lons, y, stripeW, stripeH);
         if (gc != null) {
             _gcList.add(gc);
@@ -221,8 +221,8 @@ public class BowtiePixelGeoCoding extends AbstractBowtieGeoCoding {
         }
     }
 
-    private GeoCoding createStripeGeocode(double[] lats, double[] lons, int y, int stripeW, int stripeH) throws IOException {
-        final Range range = Range.computeRangeDouble(lats, IndexValidator.TRUE, null, ProgressMonitor.NULL);
+    private GeoCoding createStripeGeocode(float[] lats, float[] lons, int y, int stripeW, int stripeH) throws IOException {
+        final Range range = Range.computeRangeFloat(lats, IndexValidator.TRUE, null, ProgressMonitor.NULL);
         if (range.getMin() < -90) {
             return null;
         } else {
