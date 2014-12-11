@@ -55,12 +55,12 @@ public class BandInfo extends DataItemInfo {
     /**
      * The scaling offset
      */
-    private float _scalingOffset;
+    private double _scalingOffset;
 
     /**
      * The scaling factor
      */
-    private float _scalingFactor;
+    private double _scalingFactor;
 
     /**
      * Optional bit-mask expression
@@ -90,8 +90,8 @@ public class BandInfo extends DataItemInfo {
                     int spectralBandIndex,
                     int sampleModel,
                     int scalingMethod,
-                    float scalingOffset,
-                    float scalingFactor,
+                    double scalingOffset,
+                    double scalingFactor,
                     String validExpression,
                     FlagCoding flagCoding,
                     String physicalUnit,
@@ -140,14 +140,14 @@ public class BandInfo extends DataItemInfo {
     /**
      * Returns the scaling offset (or interception).
      */
-    public final float getScalingOffset() {
+    public final double getScalingOffset() {
         return _scalingOffset;
     }
 
     /**
      * Returns the scaling factor.
      */
-    public final float getScalingFactor() {
+    public final double getScalingFactor() {
         return _scalingFactor;
     }
 

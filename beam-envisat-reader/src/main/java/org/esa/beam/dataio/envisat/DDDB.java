@@ -461,8 +461,8 @@ public class DDDB {
                         }
                     }
 
-                    float scalingOffset = 0.0F;
-                    float scalingFactor = 1.0F;
+                    double scalingOffset = 0.0;
+                    double scalingFactor = 1.0;
                     int scalingMethod = BandInfo.SCALE_NONE;
                     if (scalingMethodName != null) {
                         if (scalingOffsetStr == null || scalingFactorStr == null) {
@@ -472,8 +472,8 @@ public class DDDB {
                         if (scalingMethod == -1) {
                             throw new DDDBException("invalid scaling method name: " + scalingMethodName); /*I18N*/
                         }
-                        scalingOffset = resolveGadsValueFloat(scalingOffsetStr, gadsName, gadsRecord);
-                        scalingFactor = resolveGadsValueFloat(scalingFactorStr, gadsName, gadsRecord);
+                        scalingOffset = resolveGadsValueDouble(scalingOffsetStr, gadsName, gadsRecord);
+                        scalingFactor = resolveGadsValueDouble(scalingFactorStr, gadsName, gadsRecord);
                     }
 
                     FlagCoding flagsCoding = null;
@@ -555,16 +555,16 @@ public class DDDB {
         return token;
     }
 
-    private static float resolveGadsValueFloat(String gadsRef, String gadsName, Record gadsRecord)
+    private static double resolveGadsValueDouble(String gadsRef, String gadsName, Record gadsRecord)
             throws DDDBException {
         Debug.assertNotNullOrEmpty(gadsRef);
         try {
             if (gadsName != null && gadsRef.startsWith(gadsName + ".")) {
                 Debug.assertNotNull(gadsRecord);
                 FieldRef fieldRef = FieldRef.parse(gadsRef);
-                return gadsRecord.getFieldAt(fieldRef.getFieldIndex()).getElemFloat(fieldRef.getElemIndex());
+                return gadsRecord.getFieldAt(fieldRef.getFieldIndex()).getElemDouble(fieldRef.getElemIndex());
             } else {
-                return Float.parseFloat(gadsRef);
+                return Double.parseDouble(gadsRef);
             }
         } catch (Exception e) {
             throw new DDDBException("failed to resolve GADS reference '" + gadsRef + "': " + e.getMessage()); /*I18N*/

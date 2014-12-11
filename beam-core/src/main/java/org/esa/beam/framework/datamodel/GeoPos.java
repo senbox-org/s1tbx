@@ -25,8 +25,8 @@ import org.esa.beam.util.math.MathUtils;
  */
 public class GeoPos {
 
-    private static final float MIN_PER_DEG = 60.0F;
-    private static final float SEC_PER_DEG = MIN_PER_DEG * 60.0F;
+    private static final double MIN_PER_DEG = 60.0;
+    private static final double SEC_PER_DEG = MIN_PER_DEG * 60.0;
 
     /**
      * The geographical latitude in decimal degree, valid range is -90 to +90.
@@ -302,7 +302,7 @@ public class GeoPos {
 
 
     private static boolean isLatValid(double lat) {
-        return lat >= -90f && lat <= 90f;
+        return lat >= -90.0 && lat <= 90.0;
     }
 
     private static boolean isLonValid(double lon) {

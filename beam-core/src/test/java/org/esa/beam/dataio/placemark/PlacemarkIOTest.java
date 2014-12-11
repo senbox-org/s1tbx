@@ -257,10 +257,10 @@ public class PlacemarkIOTest {
                                                                       descriptor);
         assertEquals(2, actualPlacemarks.size());
         assertEquals(actualPlacemarks.get(0).getName(), "name_1");
-        assertEquals(actualPlacemarks.get(0).getGeoPos().lat, 10.2f, 1.0e-4);
-        assertEquals(actualPlacemarks.get(0).getGeoPos().lon, 12.4f, 1.0e-4);
+        assertEquals(actualPlacemarks.get(0).getGeoPos().lat, 10.2, 1.0e-4);
+        assertEquals(actualPlacemarks.get(0).getGeoPos().lon, 12.4, 1.0e-4);
         assertEquals(actualPlacemarks.get(1).getName(), "name_2");
-        assertEquals(actualPlacemarks.get(1).getGeoPos().lat, 40.0f, 1.0e-4);
-        assertEquals(actualPlacemarks.get(1).getGeoPos().lon, -2.9f, 1.0e-4);
+        assertEquals(actualPlacemarks.get(1).getGeoPos().lat, 40.0, 1.0e-4);
+        assertEquals(actualPlacemarks.get(1).getGeoPos().lon, -2.9, 1.0e-4);
     }
 }

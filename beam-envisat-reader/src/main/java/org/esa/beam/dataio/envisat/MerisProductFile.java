@@ -458,7 +458,7 @@ public class MerisProductFile extends ProductFile {
 
     /**
      * * This method just delegates to
-     * {@link BandInfo#BandInfo(String, int, int, int, int, float, float, String, FlagCoding, String, String, int, int)} to
+     * {@link BandInfo#BandInfo(String, int, int, int, int, double, double, String, FlagCoding, String, String, int, int)} to
      * create a new <code>BandInfo</code>.
      *
      * @param bandName          the name of the band.
@@ -482,8 +482,8 @@ public class MerisProductFile extends ProductFile {
                                    int spectralBandIndex,
                                    int sampleModel,
                                    int scalingMethod,
-                                   float scalingOffset,
-                                   float scalingFactor,
+                                   double scalingOffset,
+                                   double scalingFactor,
                                    String validExpression,
                                    FlagCoding flagCoding,
                                    String physicalUnit,
@@ -927,11 +927,12 @@ public class MerisProductFile extends ProductFile {
         return null;
     }
 
-    private static boolean isOldLinearYellowSubstanceScaling(String bandName, float scalingOffset,
-                                                             float scalingFactor) {
-        final float value = scalingOffset + 1 * scalingFactor;
-        return bandName.equals(EnvisatConstants.MERIS_L2_YELLOW_SUBST_BAND_NAME) &&
-               value >= 0.0f;
+    private static boolean isOldLinearYellowSubstanceScaling(String bandName,
+                                                             double scalingOffset,
+                                                             double scalingFactor) {
+        int rawValue = 1;
+        double scaledValue = scalingOffset + rawValue * scalingFactor;
+        return bandName.equals(EnvisatConstants.MERIS_L2_YELLOW_SUBST_BAND_NAME) && scaledValue >= 0.0;
     }
 
 }

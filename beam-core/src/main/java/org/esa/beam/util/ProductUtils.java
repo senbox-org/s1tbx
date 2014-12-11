@@ -1654,8 +1654,8 @@ public class ProductUtils {
     public static GeoPos getCenterGeoPos(final Product product) {
         final GeoCoding geoCoding = product.getGeoCoding();
         if (geoCoding != null) {
-            final PixelPos centerPixelPos = new PixelPos(0.5f * product.getSceneRasterWidth() + 0.5f,
-                                                         0.5f * product.getSceneRasterHeight() + 0.5f);
+            final PixelPos centerPixelPos = new PixelPos(0.5 * product.getSceneRasterWidth() + 0.5,
+                                                         0.5 * product.getSceneRasterHeight() + 0.5);
             return geoCoding.getGeoPos(centerPixelPos, null);
         }
         return null;
@@ -1686,9 +1686,9 @@ public class ProductUtils {
             final GeoPos geoPos = polygon[i];
             lonDiff = originalLon[i] - originalLon[i - 1];
             if (lonDiff > 180.0F) {
-                increment -= 360.0F;
-            } else if (lonDiff < -180.0F) {
-                increment += 360.0F;
+                increment -= 360.0;
+            } else if (lonDiff < -180.0) {
+                increment += 360.0;
             }
 
             geoPos.lon += increment;
@@ -1704,10 +1704,10 @@ public class ProductUtils {
         boolean negNormalized = false;
         boolean posNormalized = false;
 
-        if (minLon < -180.0F) {
+        if (minLon < -180.0) {
             posNormalized = true;
         }
-        if (maxLon > 180.0F) {
+        if (maxLon > 180.0) {
             negNormalized = true;
         }
 
@@ -1716,7 +1716,7 @@ public class ProductUtils {
         } else if (!negNormalized && posNormalized) {
             normalized = -1;
             for (GeoPos aPolygon : polygon) {
-                aPolygon.lon += 360.0F;
+                aPolygon.lon += 360.0;
             }
         } else if (negNormalized && posNormalized) {
             normalized = 2;
@@ -1739,11 +1739,11 @@ public class ProductUtils {
             GeoPos p2 = polygon[(i + 1) % numValues];
             lonDiff = p2.lon - p1.lon;
 
-            if (lonDiff >= 180.0f) {
-                p2.lon -= 360.0f;
+            if (lonDiff >= 180.0) {
+                p2.lon -= 360.0;
                 negNormalized = true;
-            } else if (lonDiff <= -180.0f) {
-                p2.lon += 360.0f;
+            } else if (lonDiff <= -180.0) {
+                p2.lon += 360.0;
                 posNormalized = true;
             }
         }
@@ -1751,7 +1751,7 @@ public class ProductUtils {
         int normalized = 0;
         if (negNormalized && !posNormalized) {
             for (GeoPos aPolygon : polygon) {
-                aPolygon.lon += 360.0f;
+                aPolygon.lon += 360.0;
             }
             normalized = -1;
         } else if (!negNormalized && posNormalized) {
@@ -1779,12 +1779,12 @@ public class ProductUtils {
 
     public static void denormalizeGeoPos(GeoPos geoPos) {
         int factor;
-        if (geoPos.lon >= 0.f) {
-            factor = (int) ((geoPos.lon + 180.f) / 360.f);
+        if (geoPos.lon >= 0.0) {
+            factor = (int) ((geoPos.lon + 180.0) / 360.0);
         } else {
-            factor = (int) ((geoPos.lon - 180.f) / 360.f);
+            factor = (int) ((geoPos.lon - 180.0) / 360.0);
         }
-        geoPos.lon -= factor * 360.f;
+        geoPos.lon -= factor * 360.0;
     }
 
     /**
@@ -1792,10 +1792,10 @@ public class ProductUtils {
      */
     @Deprecated
     public static void denormalizeGeoPos_old(GeoPos geoPos) {
-        if (geoPos.lon > 180.0f) {
-            geoPos.lon -= 360.0f;
-        } else if (geoPos.lon < -180.0f) {
-            geoPos.lon += 360.0f;
+        if (geoPos.lon > 180.0) {
+            geoPos.lon -= 360.0;
+        } else if (geoPos.lon < -180.0) {
+            geoPos.lon += 360.0;
         }
     }
 
@@ -2219,12 +2219,12 @@ public class ProductUtils {
         int coordIndex = 0;
         for (int y = minY; y <= maxY; y++) {
             for (int x = minX; x <= maxX; x++) {
-                pixelPos.x = x + 0.5f;
-                pixelPos.y = y + 0.5f;
+                pixelPos.x = x + 0.5;
+                pixelPos.y = y + 0.5;
                 destGeoCoding.getGeoPos(pixelPos, geoPos);
                 sourceGeoCoding.getPixelPos(geoPos, pixelPos);
-                if (pixelPos.x >= 0.0f && pixelPos.x < sourceWidth
-                    && pixelPos.y >= 0.0f && pixelPos.y < sourceHeight) {
+                if (pixelPos.x >= 0.0 && pixelPos.x < sourceWidth
+                    && pixelPos.y >= 0.0 && pixelPos.y < sourceHeight) {
                     pixelCoords[coordIndex] = new PixelPos(pixelPos.x, pixelPos.y);
                 } else {
                     pixelCoords[coordIndex] = null;
@@ -2465,7 +2465,7 @@ public class ProductUtils {
 
             final Area pathArea = new Area(path);
             for (int k = runIndexMin; k <= runIndexMax; k++) {
-                final Area currentArea = new Area(new Rectangle2D.Float(k * 360.0f - 180.0f, -90.0f, 360.0f, 180.0f));
+                final Area currentArea = new Area(new Rectangle2D.Double(k * 360.0 - 180.0, -90.0, 360.0, 180.0));
                 currentArea.intersect(pathArea);
                 if (!currentArea.isEmpty()) {
                     pathList.add(areaToPath(currentArea, -k * 360.0));

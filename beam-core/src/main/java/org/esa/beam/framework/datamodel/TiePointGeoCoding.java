@@ -432,7 +432,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
             final double lonSpan = normalizedLonMax - normalizedLonMin;
             final double latSpan = latMax - latMin;
             final double angleSpan = Math.max(lonSpan, latSpan);
-            numTiles = (int)Math.round(angleSpan / 10.0f);
+            numTiles = (int)Math.round(angleSpan / 10.0);
             if (numTiles < 1) {
                 numTiles = 1;
             }
@@ -609,8 +609,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
     private Approximation createApproximation(TiePointGrid normalizedLonGrid, Rectangle subsetRect) {
         final double[][] data = createWarpPoints(normalizedLonGrid, subsetRect);
 
-        double sumLat = 0.0f;
-        double sumLon = 0.0f;
+        double sumLat = 0.0;
+        double sumLon = 0.0;
         for (final double[] point : data) {
             sumLat += point[0];
             sumLon += point[1];
@@ -648,11 +648,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         Debug.trace(
                 "TiePointGeoCoding: Max.error Y = " + maxErrorY + ", " + (maxErrorY < ABS_ERROR_LIMIT ? "OK" : "too large"));
 
-        return new Approximation(fX, fY, centerLat, centerLon, maxSquareDistance * 1.1f);
+        return new Approximation(fX, fY, centerLat, centerLon, maxSquareDistance * 1.1);
     }
 
     private static double getMaxSquareDistance(final double[][] data, double centerLat, double centerLon) {
-        double maxSquareDistance = 0.0f;
+        double maxSquareDistance = 0.0;
         for (final double[] point : data) {
             final double dLat = point[0] - centerLat;
             final double dLon = point[1] - centerLon;

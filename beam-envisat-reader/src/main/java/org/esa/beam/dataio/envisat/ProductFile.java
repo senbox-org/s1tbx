@@ -942,21 +942,21 @@ public abstract class ProductFile {
 
     /**
      * This method just delegates to
-     * {@link BandInfo#BandInfo(String, int, int, int, int, float, float, String, FlagCoding, String, String, int, int)} to
+     * {@link BandInfo#BandInfo(String, int, int, int, int, double, double, String, FlagCoding, String, String, int, int)} to
      * create a new <code>BandInfo</code>.
      *
      * @param bandName          the name of the band.
      * @param dataType          the type of the data.
      * @param spectralBandIndex the spectral band index.
      * @param sampleModel       the sample model.
-     * @param scalingMethod     the scaling mehtod.
+     * @param scalingMethod     the scaling method.
      * @param scalingOffset     the scaling offset.
      * @param scalingFactor     the scaling factor.
      * @param validExpression   the valid expression.
-     * @param flagCoding        the flag codeing.
+     * @param flagCoding        the flag coding.
      * @param physicalUnit      the physical unit.
      * @param description       the description.
-     * @param dataSetName       the name of the dataset
+     * @param dataSetName       the name of the dataset.
      *
      * @return a newly created <code>BandInfo</code> object.
      */
@@ -965,8 +965,8 @@ public abstract class ProductFile {
                                    int spectralBandIndex,
                                    int sampleModel,
                                    int scalingMethod,
-                                   float scalingOffset,
-                                   float scalingFactor,
+                                   double scalingOffset,
+                                   double scalingFactor,
                                    String validExpression,
                                    FlagCoding flagCoding,
                                    String physicalUnit,

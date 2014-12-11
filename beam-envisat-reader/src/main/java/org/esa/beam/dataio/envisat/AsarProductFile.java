@@ -635,7 +635,7 @@ public final class AsarProductFile extends ProductFile {
 
                 final String iBandName = "i_" + (i + 1);
                 final BandInfo bandInfoI = createBandInfo(iBandName, bandDataType, -1,
-                        BandInfo.SMODEL_1OF2, BandInfo.SCALE_LINEAR, 0, 1,
+                        BandInfo.SMODEL_1OF2, BandInfo.SCALE_LINEAR, 0.0, 1.0,
                         null, null, "real", "", dataSetName);
 
                 final RecordReader pixelDataReaderI = getRecordReader(dataSetName);
@@ -645,7 +645,7 @@ public final class AsarProductFile extends ProductFile {
 
                 final String qBandName = "q_" + (i + 1);
                 final BandInfo bandInfoQ = createBandInfo(qBandName, bandDataType, -1,
-                        BandInfo.SMODEL_2OF2, BandInfo.SCALE_LINEAR, 0, 1,
+                        BandInfo.SMODEL_2OF2, BandInfo.SCALE_LINEAR, 0.0, 1.0,
                         null, null, "imaginary", "", dataSetName);
 
                 final RecordReader pixelDataReaderQ = getRecordReader(dataSetName);
@@ -654,7 +654,7 @@ public final class AsarProductFile extends ProductFile {
                 readerList.add(bandLineReaderQ);
 
                 final BandInfo bandInfoIntensity = createBandInfo("Intensity_" + (i + 1), bandDataType, -1,
-                        BandInfo.SMODEL_1OF1, BandInfo.SCALE_LINEAR, 0, 1,
+                        BandInfo.SMODEL_1OF1, BandInfo.SCALE_LINEAR, 0.0, 1.0,
                         null, null, "intensity", "", dataSetName);
 
                 final String expression = iBandName + '*' + iBandName + '+' + qBandName + '*' + qBandName;
@@ -663,7 +663,7 @@ public final class AsarProductFile extends ProductFile {
                 readerList.add(bandLineReaderIntensity);
 
                 final BandInfo bandInfoPhase = createBandInfo("Phase_" + (i + 1), bandDataType, -1,
-                        BandInfo.SMODEL_1OF1, BandInfo.SCALE_LINEAR, 0, 1,
+                        BandInfo.SMODEL_1OF1, BandInfo.SCALE_LINEAR, 0.0, 1.0,
                         null, null, "phase", "", dataSetName);
 
                 final String expressionPhase = "atan2(" + qBandName + "," + iBandName + ")";
@@ -680,7 +680,7 @@ public final class AsarProductFile extends ProductFile {
 
     /**
      * This method just delegates to
-     * {@link BandInfo#BandInfo(String, int, int, int, int, float, float, String, FlagCoding, String, String, int, int)} to
+     * {@link BandInfo#BandInfo(String, int, int, int, int, double, double, String, FlagCoding, String, String, int, int)} to
      * create a new <code>BandInfo</code>.
      *
      * @param bandName          the name of the band.
@@ -703,8 +703,8 @@ public final class AsarProductFile extends ProductFile {
                                    int spectralBandIndex,
                                    int sampleModel,
                                    int scalingMethod,
-                                   float scalingOffset,
-                                   float scalingFactor,
+                                   double scalingOffset,
+                                   double scalingFactor,
                                    String validExpression,
                                    FlagCoding flagCoding,
                                    String physicalUnit,
