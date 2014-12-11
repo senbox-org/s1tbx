@@ -324,13 +324,13 @@ public final class DeburstWSSOp extends Operator {
         final int subSamplingY = (int) ((time.get(1) - time.get(0)) / lineTimeInterval + 0.5);
 
         final int length = lats.size();
-        final double[] latList = new double[length];
-        final double[] lonList = new double[length];
-        final double[] slantList = new double[length];
-        final double[] incList = new double[length];
+        final float[] latList = new float[length];
+        final float[] lonList = new float[length];
+        final float[] slantList = new float[length];
+        final float[] incList = new float[length];
         for (int i = 0; i < length; ++i) {
-            latList[i] = lats.get(i) / Constants.oneMillion;
-            lonList[i] = lons.get(i) / Constants.oneMillion;
+            latList[i] = (float)(lats.get(i) / Constants.oneMillion);
+            lonList[i] = (float)(lons.get(i) / Constants.oneMillion);
             slantList[i] = slant.get(i);
             incList[i] = incidence.get(i);
         }

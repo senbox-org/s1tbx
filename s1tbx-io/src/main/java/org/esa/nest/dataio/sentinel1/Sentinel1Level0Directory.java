@@ -384,11 +384,11 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
 
         final int newGridWidth = gridWidth;
         final int newGridHeight = gridHeight;
-        final double[] newLatList = new double[newGridWidth * newGridHeight];
-        final double[] newLonList = new double[newGridWidth * newGridHeight];
-        final double[] newIncList = new double[newGridWidth * newGridHeight];
-        final double[] newElevList = new double[newGridWidth * newGridHeight];
-        final double[] newslrtList = new double[newGridWidth * newGridHeight];
+        final float[] newLatList = new float[newGridWidth * newGridHeight];
+        final float[] newLonList = new float[newGridWidth * newGridHeight];
+        final float[] newIncList = new float[newGridWidth * newGridHeight];
+        final float[] newElevList = new float[newGridWidth * newGridHeight];
+        final float[] newslrtList = new float[newGridWidth * newGridHeight];
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
         final float subSamplingX = sceneRasterWidth / (newGridWidth - 1);
@@ -489,7 +489,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
             final int sceneRasterWidth, final int sceneRasterHeight, final int sourceGridWidth,
             final int sourceGridHeight, final int[] x, final int[] y, final double[] sourcePointList,
             final int targetGridWidth, final int targetGridHeight, final double subSamplingX, final double subSamplingY,
-            final double[] targetPointList) {
+            final float[] targetPointList) {
 
         if (sourcePointList.length != sourceGridWidth * sourceGridHeight) {
             throw new IllegalArgumentException(
@@ -544,11 +544,11 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                 }
                 final double wi = (newX - oldX0) / (oldX1 - oldX0);
 
-                targetPointList[k++] = MathUtils.interpolate2D(wi, wj,
+                targetPointList[k++] = (float)(MathUtils.interpolate2D(wi, wj,
                         sourcePointList[i0 + j0 * sourceGridWidth],
                         sourcePointList[i1 + j0 * sourceGridWidth],
                         sourcePointList[i0 + j1 * sourceGridWidth],
-                        sourcePointList[i1 + j1 * sourceGridWidth]);
+                        sourcePointList[i1 + j1 * sourceGridWidth]));
             }
         }
     }
@@ -586,8 +586,8 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
 
     private void addGeoCodingForLevel0Products(final Product product) {
 
-        final double[] latCorners = new double[4];
-        final double[] lonCorners = new double[latCorners.length];
+        final float[] latCorners = new float[4];
+        final float[] lonCorners = new float[latCorners.length];
 
         final MetadataElement elem = getMetadataObject(AbstractMetadata.getOriginalProductMetadata(product), "measurementFrameSet");
 
@@ -605,7 +605,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
 
             final int numLatLonPairs = latLonPairsStr.length;
 
-            final ArrayList<double[]> latLonList = new ArrayList<>();
+            final ArrayList<float[]> latLonList = new ArrayList<>();
 
             for (String s : latLonPairsStr) {
 
@@ -618,7 +618,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                     continue;
                 }
 
-                double[] latLon = new double[2];
+                float[] latLon = new float[2];
                 latLon[0] = Float.parseFloat(latStrLonStr[0]);
                 latLon[1] = Float.parseFloat(latStrLonStr[1]);
                 latLonList.add(latLon);
@@ -630,8 +630,8 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                 */
             // The footprint coordinates are counter clockwise with the last coordinates being a repeat of the first.
             // So we remove the last pair of lat/lon if it is the same as the first pair.
-            final double[] latLonFirst = latLonList.get(0);
-            final double[] latLonLast = latLonList.get(numLatLonPairs - 1);
+            final float[] latLonFirst = latLonList.get(0);
+            final float[] latLonLast = latLonList.get(numLatLonPairs - 1);
             if (latLonFirst[0] == latLonLast[0] && latLonFirst[1] == latLonLast[1]) {
                 latLonList.remove(numLatLonPairs - 1);
             }
@@ -652,7 +652,7 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
 
             // The lat/lon from the product are counter clockwise
             // Swap the first two pairs of lat/lon
-            double tmp = latCorners[0];
+            float tmp = latCorners[0];
             latCorners[0] = latCorners[1];
             latCorners[1] = tmp;
             tmp = lonCorners[0];
