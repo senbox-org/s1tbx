@@ -640,8 +640,8 @@ public class CreateStackOp extends Operator {
             masterGeoCoding.getGeoPos(new PixelPos(xMin, yMax), geoPosLL);
             masterGeoCoding.getGeoPos(new PixelPos(xMax, yMax), geoPosLR);
 
-            final double[] latTiePoints = {geoPosUL.lat, geoPosUR.lat, geoPosLL.lat, geoPosLR.lat};
-            final double[] lonTiePoints = {geoPosUL.lon, geoPosUR.lon, geoPosLL.lon, geoPosLR.lon};
+            final float[] latTiePoints = {(float)geoPosUL.lat, (float)geoPosUR.lat, (float)geoPosLL.lat, (float)geoPosLR.lat};
+            final float[] lonTiePoints = {(float)geoPosUL.lon, (float)geoPosUR.lon, (float)geoPosLL.lon, (float)geoPosLR.lon};
 
             final TiePointGrid latGrid = new TiePointGrid("latitude", 2, 2, 0.5f, 0.5f,
                     sceneWidth - 1, sceneHeight - 1, latTiePoints);

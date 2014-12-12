@@ -251,10 +251,10 @@ public final class ApplyOrbitFileOp extends Operator {
      */
     private void updateTargetProductGEOCoding() throws Exception {
 
-        final double[] targetLatTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
-        final double[] targetLonTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
-        final double[] targetIncidenceAngleTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
-        final double[] targetSlantRangeTimeTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
+        final float[] targetLatTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
+        final float[] targetLonTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
+        final float[] targetIncidenceAngleTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
+        final float[] targetSlantRangeTimeTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
 
         final int subSamplingX = sourceImageWidth / (targetTiePointGridWidth - 1);
         final int subSamplingY = sourceImageHeight / (targetTiePointGridHeight - 1);
@@ -280,13 +280,13 @@ public final class ApplyOrbitFileOp extends Operator {
             for (int c = 0; c < targetTiePointGridWidth; c++) {
 
                 final int x = getSampleIndex(c, subSamplingX);
-                targetIncidenceAngleTiePoints[k] = incidenceAngle.getPixelDouble((float) x, (float) y);
-                targetSlantRangeTimeTiePoints[k] = slantRangeTime.getPixelDouble((float) x, (float) y);
+                targetIncidenceAngleTiePoints[k] = (float)incidenceAngle.getPixelDouble((float) x, (float) y);
+                targetSlantRangeTimeTiePoints[k] = (float)slantRangeTime.getPixelDouble((float) x, (float) y);
 
                 final double slrgTime = targetSlantRangeTimeTiePoints[k] / Constants.oneBillion; // ns to s;
                 final GeoPos geoPos = computeLatLon(x, y, slrgTime, data);
-                targetLatTiePoints[k] = geoPos.lat;
-                targetLonTiePoints[k] = geoPos.lon;
+                targetLatTiePoints[k] = (float)geoPos.lat;
+                targetLonTiePoints[k] = (float)geoPos.lon;
                 k++;
             }
         }
@@ -420,10 +420,10 @@ public final class ApplyOrbitFileOp extends Operator {
      */
     private void updateTargetProductGEOCodingJLinda() throws Exception {
 
-        final double[] targetLatTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
-        final double[] targetLonTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
-        final double[] targetIncidenceAngleTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
-        final double[] targetSlantRangeTimeTiePoints = new double[targetTiePointGridHeight * targetTiePointGridWidth];
+        final float[] targetLatTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
+        final float[] targetLonTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
+        final float[] targetIncidenceAngleTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
+        final float[] targetSlantRangeTimeTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
 
         final int subSamplingX = sourceImageWidth / (targetTiePointGridWidth - 1);
         final int subSamplingY = sourceImageHeight / (targetTiePointGridHeight - 1);
@@ -471,10 +471,10 @@ public final class ApplyOrbitFileOp extends Operator {
                 final double lat = refGeoPoint[0] * org.jlinda.core.Constants.RTOD;
                 final double lon = refGeoPoint[1] * org.jlinda.core.Constants.RTOD;
 
-                targetIncidenceAngleTiePoints[k] = incAngle * org.jlinda.core.Constants.RTOD;
-                targetSlantRangeTimeTiePoints[k] = slantRangeTime;
-                targetLatTiePoints[k] = lat;
-                targetLonTiePoints[k] = lon;
+                targetIncidenceAngleTiePoints[k] = (float)(incAngle * org.jlinda.core.Constants.RTOD);
+                targetSlantRangeTimeTiePoints[k] = (float)slantRangeTime;
+                targetLatTiePoints[k] = (float)lat;
+                targetLonTiePoints[k] = (float)lon;
                 k++;
 
             }

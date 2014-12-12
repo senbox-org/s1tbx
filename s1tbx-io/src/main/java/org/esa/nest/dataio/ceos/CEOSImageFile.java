@@ -104,31 +104,31 @@ public abstract class CEOSImageFile {
         }
     }
 
-    public double[] getLatCorners() {
+    public float[] getLatCorners() {
         try {
             final BinaryRecord imgRec0 = getImageRecord(0);
             final BinaryRecord imgRecN = getImageRecord(_imageRecords.length - 1);
 
-            final double latUL = imgRec0.getAttributeInt("First pixel latitude") / (float) Constants.oneMillion;
-            final double latUR = imgRec0.getAttributeInt("Last pixel latitude") / (float) Constants.oneMillion;
-            final double latLL = imgRecN.getAttributeInt("First pixel latitude") / (float) Constants.oneMillion;
-            final double latLR = imgRecN.getAttributeInt("Last pixel latitude") / (float) Constants.oneMillion;
-            return new double[]{latUL, latUR, latLL, latLR};
+            final float latUL = imgRec0.getAttributeInt("First pixel latitude") / (float) Constants.oneMillion;
+            final float latUR = imgRec0.getAttributeInt("Last pixel latitude") / (float) Constants.oneMillion;
+            final float latLL = imgRecN.getAttributeInt("First pixel latitude") / (float) Constants.oneMillion;
+            final float latLR = imgRecN.getAttributeInt("Last pixel latitude") / (float) Constants.oneMillion;
+            return new float[]{latUL, latUR, latLL, latLR};
         } catch (Throwable e) {
             return null;
         }
     }
 
-    public double[] getLonCorners() {
+    public float[] getLonCorners() {
         try {
             final BinaryRecord imgRec0 = getImageRecord(0);
             final BinaryRecord imgRecN = getImageRecord(_imageRecords.length - 1);
 
-            final double lonUL = imgRec0.getAttributeInt("First pixel longitude") / (float) Constants.oneMillion;
-            final double lonUR = imgRec0.getAttributeInt("Last pixel longitude") / (float) Constants.oneMillion;
-            final double lonLL = imgRecN.getAttributeInt("First pixel longitude") / (float) Constants.oneMillion;
-            final double lonLR = imgRecN.getAttributeInt("Last pixel longitude") / (float) Constants.oneMillion;
-            return new double[]{lonUL, lonUR, lonLL, lonLR};
+            final float lonUL = imgRec0.getAttributeInt("First pixel longitude") / (float) Constants.oneMillion;
+            final float lonUR = imgRec0.getAttributeInt("Last pixel longitude") / (float) Constants.oneMillion;
+            final float lonLL = imgRecN.getAttributeInt("First pixel longitude") / (float) Constants.oneMillion;
+            final float lonLR = imgRecN.getAttributeInt("Last pixel longitude") / (float) Constants.oneMillion;
+            return new float[]{lonUL, lonUR, lonLL, lonLR};
         } catch (Throwable e) {
             return null;
         }

@@ -278,13 +278,13 @@ public final class SliceAssemblyOp extends Operator {
 
         final TiePointGrid[] tpgList = firstSliceProduct.getTiePointGrids();
         for(TiePointGrid tpg : tpgList) {
-            final List<Double> newPoints = new ArrayList<>();
+            final List<Float> newPoints = new ArrayList<>();
 
             final int gridWidth = tpg.getRasterWidth();
             final int gridHeight = tpg.getRasterHeight();
-            final double[] points = tpg.getTiePoints();
+            final float[] points = tpg.getTiePoints();
 
-            for(double f : points) {
+            for(float f : points) {
                 newPoints.add(f);
             }
             int newGridHeight = gridHeight;
@@ -294,7 +294,7 @@ public final class SliceAssemblyOp extends Operator {
                     continue;
 
                 final TiePointGrid tpg2 = srcProduct.getTiePointGrid(tpg.getName());
-                final double[] points2 = tpg2.getTiePoints();
+                final float[] points2 = tpg2.getTiePoints();
 
                 for(int i=gridWidth; i < points2.length; ++i) {
                     newPoints.add(points2[i]);
@@ -305,9 +305,9 @@ public final class SliceAssemblyOp extends Operator {
             final int subSamplingX = targetWidth / (gridWidth-1);
             final int subSamplingY = targetHeight / (newGridHeight-1);
 
-            final double[] pointArray = new double[newPoints.size()];
+            final float[] pointArray = new float[newPoints.size()];
             int i=0;
-            for(Double f : newPoints) {
+            for(Float f : newPoints) {
                 pointArray[i++] = f;
             }
 

@@ -41,7 +41,7 @@ class QuadInterpolator {
         subSamplinY = tpg.getSubSamplingY();
         final int width = tpg.getRasterWidth();
         final int height = tpg.getRasterHeight();
-        final double[] tiePoints = tpg.getTiePoints();
+        final float[] tiePoints = tpg.getTiePoints();
 
         final String tiePointGridName = tpg.getName();
         boolean imageFlipped = false;
