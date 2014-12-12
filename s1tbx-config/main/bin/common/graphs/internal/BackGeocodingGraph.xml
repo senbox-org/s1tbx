@@ -1,9 +1,16 @@
 <graph id="Graph">
   <version>1.0</version>
-  <node id="2-Back-Geocoding">
+  <node id="ProductSet-Reader">
+    <operator>ProductSet-Reader</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <fileList></fileList>
+    </parameters>
+  </node>
+  <node id="Back-Geocoding">
     <operator>Back-Geocoding</operator>
     <sources>
-      <sourceProduct refid="1-ProductSet-Reader"/>
+      <sourceProduct refid="ProductSet-Reader"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <demName>SRTM 3Sec</demName>
@@ -13,33 +20,26 @@
       <resamplingType>BILINEAR_INTERPOLATION</resamplingType>
     </parameters>
   </node>
-  <node id="3-Write">
+  <node id="Write">
     <operator>Write</operator>
     <sources>
-      <sourceProduct refid="2-Back-Geocoding"/>
+      <sourceProduct refid="Back-Geocoding"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file>C:\output\coregistered_stack.dim</file>
+      <file></file>
       <formatName>BEAM-DIMAP</formatName>
-    </parameters>
-  </node>
-  <node id="1-ProductSet-Reader">
-    <operator>ProductSet-Reader</operator>
-    <sources/>
-    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <fileList>P:\s1tbx\s1tbx\Data\RTOPS_Products\InSARPairs\saltFlats1\RS2_IW_SLC__1SDH_20130401T231005_20130401T231050_001771_000001_D14F.SAFE\manifest.safe,P:\s1tbx\s1tbx\Data\RTOPS_Products\InSARPairs\saltFlats2\RS2_IW_SLC__1SDH_20130425T231005_20130425T231050_001771_000001_8600.SAFE\manifest.safe</fileList>
     </parameters>
   </node>
   <applicationData id="Presentation">
     <Description/>
-    <node id="2-Back-Geocoding">
+    <node id="ProductSet-Reader">
+      <displayPosition x="72.0" y="102.0"/>
+    </node>
+	<node id="Back-Geocoding">
       <displayPosition x="257.0" y="102.0"/>
     </node>
-    <node id="3-Write">
+	<node id="Write">
       <displayPosition x="418.0" y="102.0"/>
-    </node>
-    <node id="1-ProductSet-Reader">
-      <displayPosition x="72.0" y="102.0"/>
     </node>
   </applicationData>
 </graph>

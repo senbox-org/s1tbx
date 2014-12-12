@@ -32,41 +32,44 @@ import java.awt.*;
  */
 public class DecompositionBase {
 
-    protected PolBandUtils.QuadSourceBand[] srcBandList;
+    protected PolBandUtils.PolSourceBand[] srcBandList;
     protected final PolBandUtils.MATRIX sourceProductType;
 
-    protected final int windowSize;
-    protected final int halfWindowSize;
     protected final int sourceImageWidth;
     protected final int sourceImageHeight;
+    protected final int windowSizeX;
+    protected final int windowSizeY;
+    protected final int halfWindowSizeX;
+    protected final int halfWindowSizeY;
 
     public static enum TargetBandColour {R, G, B}
 
-    public DecompositionBase(final PolBandUtils.QuadSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
-                             final int windowSize, final int srcImageWidth, final int srcImageHeight) {
+    public DecompositionBase(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
+                             final int windowSizeX, final int windowSizeY, final int srcImageWidth, final int srcImageHeight) {
         this.srcBandList = srcBandList;
         this.sourceProductType = sourceProductType;
-        this.windowSize = windowSize;
+        this.windowSizeX = windowSizeX;
+        this.windowSizeY = windowSizeY;
         this.sourceImageWidth = srcImageWidth;
         this.sourceImageHeight = srcImageHeight;
-        halfWindowSize = windowSize / 2;
+        this.halfWindowSizeX = windowSizeX / 2;
+        this.halfWindowSizeY = windowSizeY / 2;
     }
 
     /**
      * Get source tile rectangle.
      *
-     * @param tx0 X coordinate for the upper left corner pixel in the target tile.
-     * @param ty0 Y coordinate for the upper left corner pixel in the target tile.
-     * @param tw  The target tile width.
-     * @param th  The target tile height.
+     * @param tx0         X coordinate for the upper left corner pixel in the target tile.
+     * @param ty0         Y coordinate for the upper left corner pixel in the target tile.
+     * @param tw          The target tile width.
+     * @param th          The target tile height.
      * @return The source tile rectangle.
      */
     protected Rectangle getSourceRectangle(final int tx0, final int ty0, final int tw, final int th) {
-
-        final int x0 = Math.max(0, tx0 - halfWindowSize);
-        final int y0 = Math.max(0, ty0 - halfWindowSize);
-        final int xMax = Math.min(tx0 + tw - 1 + halfWindowSize, sourceImageWidth - 1);
-        final int yMax = Math.min(ty0 + th - 1 + halfWindowSize, sourceImageHeight - 1);
+        final int x0 = Math.max(0, tx0 - halfWindowSizeX);
+        final int y0 = Math.max(0, ty0 - halfWindowSizeY);
+        final int xMax = Math.min(tx0 + tw - 1 + halfWindowSizeX, sourceImageWidth - 1);
+        final int yMax = Math.min(ty0 + th - 1 + halfWindowSizeY, sourceImageHeight - 1);
         final int w = xMax - x0 + 1;
         final int h = yMax - y0 + 1;
         return new Rectangle(x0, y0, w, h);
@@ -80,7 +83,7 @@ public class DecompositionBase {
      * @return min max values
      * @throws org.esa.beam.framework.gpf.OperatorException when thread fails
      */
-    public MinMax computeSpanMinMax(final Operator op, final PolBandUtils.QuadSourceBand bandList)
+    public MinMax computeSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
             throws OperatorException {
         final MinMax minMaxValue = new MinMax();
         final Dimension tileSize = new Dimension(256, 256);
@@ -124,8 +127,7 @@ public class DecompositionBase {
 
                                 for (int x = rectangle.x; x < xMax; ++x) {
 
-                                    PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSize,
-                                            sourceImageWidth, sourceImageHeight,
+                                    PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeX,
                                             sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                                     span = Cr[0][0] + Cr[1][1] + Cr[2][2];
@@ -188,7 +190,7 @@ public class DecompositionBase {
      * @param bandList the src band list
      * @throws org.esa.beam.framework.gpf.OperatorException when thread fails
      */
-    protected synchronized void setSpanMinMax(final Operator op, final PolBandUtils.QuadSourceBand bandList)
+    protected synchronized void setSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
             throws OperatorException {
 
         if (bandList.spanMinMaxSet) {

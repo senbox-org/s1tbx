@@ -292,7 +292,7 @@ public final class SLCImage {
 
     // Convert pixel number to range time (1 is first pixel)
     public double pix2tr(double pixel) {
-        return tRange1 + ((pixel - 1.0) / rsr2x);
+        return tRange1 + ((pixel - 1.0) / (rsr2x*0.5));
     }
 
     // Convert pixel number to range (1 is first pixel)
@@ -302,7 +302,7 @@ public final class SLCImage {
 
     // Convert range time to pixel number (1 is first pixel)
     public double tr2pix(double rangeTime) {
-        return 1.0 + (rsr2x * (rangeTime - tRange1));
+        return 1.0 + (0.5 * rsr2x * (rangeTime - tRange1));
     }
 
     /*---  AZIMUTH CONVERSIONS ---*/

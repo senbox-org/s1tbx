@@ -47,7 +47,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
 
     public Wishart(final PolBandUtils.MATRIX srcProductType,
                    final int srcWidth, final int srcHeight, final int windowSize,
-                   final Map<Band, PolBandUtils.QuadSourceBand> bandMap,
+                   final Map<Band, PolBandUtils.PolSourceBand> bandMap,
                    final int maxIterations) {
         super(srcProductType, srcWidth, srcHeight, windowSize, bandMap);
         this.maxIterations = maxIterations;
@@ -84,7 +84,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
      */
     public void computeTile(final Band targetBand, final Tile targetTile, final PolarimetricClassificationOp op) {
 
-        PolBandUtils.QuadSourceBand srcBandList = bandMap.get(targetBand);
+        PolBandUtils.PolSourceBand srcBandList = bandMap.get(targetBand);
         final int numTargetBands = targetBand.getProduct().getNumBands();
         final int targetBandIndex = targetBand.getProduct().getBandIndex(targetBand.getName());
 
@@ -125,7 +125,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
                 if (dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue) {
                     targetData.setElemIntAt(index, NODATACLASS);
                 } else {
-                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, srcWidth, srcHeight,
+                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, halfWindowSize, srcWidth, srcHeight,
                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                     targetData.setElemIntAt(index, findZoneIndex(Tr, Ti, clusterCenters[targetBandIndex]));
@@ -142,7 +142,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
      */
     private synchronized void computeClusterCenters(final int numTargetBands,
                                                     final int targetBandIndex,
-                                                    final PolBandUtils.QuadSourceBand srcBandList,
+                                                    final PolBandUtils.PolSourceBand srcBandList,
                                                     final PolarimetricClassificationOp op) {
 
         if (clusterCentersComputed != null && clusterCentersComputed[targetBandIndex]) {
@@ -173,7 +173,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
      * @param tileRectangles Array of rectangles for all source tiles of the image
      */
     private void computeInitialClusterCenters(final int targetBandIndex,
-                                              final PolBandUtils.QuadSourceBand srcBandList,
+                                              final PolBandUtils.PolSourceBand srcBandList,
                                               final Rectangle[] tileRectangles, final PolarimetricClassificationOp op) {
 
         final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length,
@@ -224,7 +224,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
                                 if (dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue)
                                     continue;
 
-                                PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, srcWidth, srcHeight,
+                                PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, halfWindowSize, srcWidth, srcHeight,
                                         sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                                 final hAAlpha.HAAlpha data = hAAlpha.computeHAAlpha(Tr, Ti);
@@ -277,7 +277,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
      * @param tileRectangles Array of rectangles for all source tiles of the image
      */
     private void computeFinalClusterCenters(final int targetBandIndex,
-                                            final PolBandUtils.QuadSourceBand srcBandList,
+                                            final PolBandUtils.PolSourceBand srcBandList,
                                             final Rectangle[] tileRectangles,
                                             final PolarimetricClassificationOp op) {
 
@@ -334,7 +334,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
                                     if (dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue)
                                         continue;
 
-                                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, srcWidth, srcHeight,
+                                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, halfWindowSize, srcWidth, srcHeight,
                                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                                     synchronized (counter) {

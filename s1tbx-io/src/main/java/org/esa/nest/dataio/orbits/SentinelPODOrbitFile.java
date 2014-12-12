@@ -15,8 +15,10 @@
  */
 package org.esa.nest.dataio.orbits;
 
+import Jama.Matrix;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.snap.datamodel.Orbits;
+import org.esa.snap.util.Maths;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
@@ -208,6 +210,75 @@ public class SentinelPODOrbitFile implements OrbitFile {
         return orbitData;
     }
 
+    /**
+     * Get orbit state vector for given time using polynomial fitting.
+     *
+     * @param utc The UTC in days.
+     * @param polyDegree Polynomial degree.
+     * @return The orbit state vector.
+     * @throws Exception The exceptions.
+     */
+    public Orbits.OrbitData getOrbitData(final double utc, final int polyDegree) throws Exception {
+
+        final int numVectors = osvList.size();
+        final double t0 = osvList.get(0).utcMJD;
+        final double tN = osvList.get(numVectors - 1).utcMJD;
+
+        final int numVecPolyFit = 4;
+        final int[] vectorIndices = new int[numVecPolyFit];
+
+        final int vecIdx = (int)((utc - t0) / (tN - t0) * (numVectors - 1));
+        if (vecIdx <= 0) {
+            for (int i = 0; i < numVecPolyFit; i++) {
+                vectorIndices[i] = i;
+            }
+        } else if (vecIdx >= numVectors - 2) {
+            for (int i = 0; i < numVecPolyFit; i++) {
+                vectorIndices[i] = numVectors - 4 + i;
+            }
+        } else {
+            for (int i = 0; i < numVecPolyFit; i++) {
+                vectorIndices[i] = vecIdx - 1 + i;
+            }
+        }
+
+        double[] timeArray = new double[numVecPolyFit];
+        double[] xPosArray = new double[numVecPolyFit];
+        double[] yPosArray = new double[numVecPolyFit];
+        double[] zPosArray = new double[numVecPolyFit];
+        double[] xVelArray = new double[numVecPolyFit];
+        double[] yVelArray = new double[numVecPolyFit];
+        double[] zVelArray = new double[numVecPolyFit];
+
+        for (int i = 0; i < numVecPolyFit; i++) {
+            timeArray[i] = osvList.get(vectorIndices[i]).utcMJD - t0;
+            xPosArray[i] = osvList.get(vectorIndices[i]).x;
+            yPosArray[i] = osvList.get(vectorIndices[i]).y;
+            zPosArray[i] = osvList.get(vectorIndices[i]).z;
+            xVelArray[i] = osvList.get(vectorIndices[i]).vx;
+            yVelArray[i] = osvList.get(vectorIndices[i]).vy;
+            zVelArray[i] = osvList.get(vectorIndices[i]).vz;
+        }
+
+        final Matrix A = Maths.createVandermondeMatrix(timeArray, polyDegree);
+        final double[] xPosCoeff = Maths.polyFit(A, xPosArray);
+        final double[] yPosCoeff = Maths.polyFit(A, yPosArray);
+        final double[] zPosCoeff = Maths.polyFit(A, zPosArray);
+        final double[] xVelCoeff = Maths.polyFit(A, xVelArray);
+        final double[] yVelCoeff = Maths.polyFit(A, yVelArray);
+        final double[] zVelCoeff = Maths.polyFit(A, zVelArray);
+
+        final Orbits.OrbitData orbitData = new Orbits.OrbitData();
+        final double normalizedTime = utc - t0;
+        orbitData.xPos = Maths.polyVal(normalizedTime, xPosCoeff);
+        orbitData.yPos = Maths.polyVal(normalizedTime, yPosCoeff);
+        orbitData.zPos = Maths.polyVal(normalizedTime, zPosCoeff);
+        orbitData.xVel = Maths.polyVal(normalizedTime, xVelCoeff);
+        orbitData.yVel = Maths.polyVal(normalizedTime, yVelCoeff);
+        orbitData.zVel = Maths.polyVal(normalizedTime, zVelCoeff);
+
+        return orbitData;
+    }
 
 
     /**

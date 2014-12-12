@@ -387,7 +387,7 @@ public class SARGeocoding {
      * @param localIncidenceAngles             The local incidence angle and projected local incidence angle.
      */
     public static void computeLocalIncidenceAngle(
-            final LocalGeometry lg, final float demNoDataValue, final boolean saveLocalIncidenceAngle,
+            final LocalGeometry lg, final double demNoDataValue, final boolean saveLocalIncidenceAngle,
             final boolean saveProjectedLocalIncidenceAngle, final boolean saveSigmaNought, final int x0,
             final int y0, final int x, final int y, final double[][] localDEM, final double[] localIncidenceAngles) {
 
@@ -470,7 +470,7 @@ public class SARGeocoding {
     }
 
     public static void computeLocalIncidenceAngle(
-            final LocalGeometry lg, final float demNoDataValue, final boolean saveLocalIncidenceAngle,
+            final LocalGeometry lg, final double demNoDataValue, final boolean saveLocalIncidenceAngle,
             final boolean saveProjectedLocalIncidenceAngle, final boolean saveSigmaNought, final int x0,
             final int y0, final int x, final int y, final double[][] localDEM, final double[] localIncidenceAngles,
             final TileGeoreferencing tileGeoRef, ElevationModel dem) throws Exception {
@@ -782,13 +782,7 @@ public class SARGeocoding {
         public double[][] sensorPosition = null; // sensor position for all range lines
         public double[][] sensorVelocity = null; // sensor velocity for all range lines
 
-        private int[] adjVecIndices = null;
-        private double[] xPosCoeff = null;
-        private double[] yPosCoeff = null;
-        private double[] zPosCoeff = null;
-        private double[] xVelCoeff = null;
-        private double[] yVelCoeff = null;
-        private double[] zVelCoeff = null;
+        private PolyCoeff[] polyCoeffArray = null;
 
         public Orbit(OrbitStateVector[] orbitStateVectors,
                      final int polyDegree, double firstLineUTC, double lineTimeInterval, int sourceImageHeight) {
@@ -802,9 +796,12 @@ public class SARGeocoding {
 
             this.orbitStateVectors = new OrbitStateVector[orbitStateVectors.length];
             System.arraycopy(orbitStateVectors, 0, this.orbitStateVectors, 0, orbitStateVectors.length);
-            //for (int i = 0; i < orbitStateVectors.length; i++) {
-            //    this.orbitStateVectors[i] = orbitStateVectors[i];
-            //}
+
+            polyCoeffArray = new PolyCoeff[orbitStateVectors.length - 1];
+            for (int i = 0; i < orbitStateVectors.length - 1; i++) {
+                int[] adjVecIndices = findAdjacentVectors(i);
+                polyCoeffArray[i] = computePolyFitCoeff(adjVecIndices);
+            }
 
             this.sensorPosition = new double[sourceImageHeight][3];
             this.sensorVelocity = new double[sourceImageHeight][3];
@@ -825,30 +822,34 @@ public class SARGeocoding {
 
             this.orbitStateVectors = new OrbitStateVector[orbitStateVectors.length];
             System.arraycopy(orbitStateVectors, 0, this.orbitStateVectors, 0, orbitStateVectors.length);
+
+            polyCoeffArray = new PolyCoeff[orbitStateVectors.length - 1];
+            for (int i = 0; i < orbitStateVectors.length - 1; i++) {
+                int[] adjVecIndices = findAdjacentVectors(i);
+                polyCoeffArray[i] = computePolyFitCoeff(adjVecIndices);
+            }
         }
 
         public void getPositionVelocity(final double time, double[] position, double[] velocity) {
 
             try {
-                final int[] adjVecIndices = findAdjacentVectors(time);
-
-                if (this.adjVecIndices == null || this.adjVecIndices[0] != adjVecIndices[0]) {
-                    computePolyFitCoeff(adjVecIndices);
-                    this.adjVecIndices = new int[adjVecIndices.length];
-                    System.arraycopy(adjVecIndices, 0, this.adjVecIndices, 0, adjVecIndices.length);
-                }
-
+                final int polyCoeffIndex = getPolyCoeffIndex(time);
                 final double normalizedTime = time - firstLineUTC;
-                position[0] = Maths.polyVal(normalizedTime, xPosCoeff);
-                position[1] = Maths.polyVal(normalizedTime, yPosCoeff);
-                position[2] = Maths.polyVal(normalizedTime, zPosCoeff);
 
-                velocity[0] = Maths.polyVal(normalizedTime, xVelCoeff);
-                velocity[1] = Maths.polyVal(normalizedTime, yVelCoeff);
-                velocity[2] = Maths.polyVal(normalizedTime, zVelCoeff);
+                position[0] = polyVal(normalizedTime, polyCoeffArray[polyCoeffIndex].xPosCoeff);
+                position[1] = polyVal(normalizedTime, polyCoeffArray[polyCoeffIndex].yPosCoeff);
+                position[2] = polyVal(normalizedTime, polyCoeffArray[polyCoeffIndex].zPosCoeff);
+
+                velocity[0] = polyVal(normalizedTime, polyCoeffArray[polyCoeffIndex].xVelCoeff);
+                velocity[1] = polyVal(normalizedTime, polyCoeffArray[polyCoeffIndex].yVelCoeff);
+                velocity[2] = polyVal(normalizedTime, polyCoeffArray[polyCoeffIndex].zVelCoeff);
             } catch (Exception e) {
                 throw e;
             }
+        }
+
+        private static double polyVal(final double t, final double[] coeff) {
+            return (coeff[2]*t + coeff[1])*t + coeff[0];
         }
 
         public double getVelocity(final double time) {
@@ -859,7 +860,7 @@ public class SARGeocoding {
             return Math.sqrt(velocity[0]*velocity[0] + velocity[1]*velocity[1] + velocity[2]*velocity[2]);
         }
 
-        private int[] findAdjacentVectors(final double time) {
+        private int[] findAdjacentVectors(final int midVecIdx) {
 
             final int nv = orbitStateVectors.length;
             final int[] vectorIndices = new int[4];
@@ -869,28 +870,6 @@ public class SARGeocoding {
                     vectorIndices[i] = i;
                 }
                 return vectorIndices;
-            }
-
-            if (time < orbitStateVectors[0].time_mjd) {
-                for (int i = 0; i < 4; i++) {
-                    vectorIndices[i] = i;
-                }
-                return vectorIndices;
-            }
-
-            if (time > orbitStateVectors[nv - 1].time_mjd) {
-                for (int i = 0; i < 4; i++) {
-                    vectorIndices[i] = nv - 4 + i;
-                }
-                return vectorIndices;
-            }
-
-            int midVecIdx = 0;
-            for (int i = 0; i < nv - 1; i++) {
-                if (time >= orbitStateVectors[i].time_mjd && time < orbitStateVectors[i+1].time_mjd) {
-                    midVecIdx = i;
-                    break;
-                }
             }
 
             if (midVecIdx == 0) {
@@ -913,7 +892,7 @@ public class SARGeocoding {
             return vectorIndices;
         }
 
-        private void computePolyFitCoeff(final int[] adjVecIndices) {
+        private PolyCoeff computePolyFitCoeff(final int[] adjVecIndices) {
 
             final double[] timeArray = new double[adjVecIndices.length];
             final double[] xPosArray = new double[adjVecIndices.length];
@@ -935,12 +914,21 @@ public class SARGeocoding {
             }
 
             final Matrix A = Maths.createVandermondeMatrix(timeArray, polyDegree);
-            xPosCoeff = Maths.polyFit(A, xPosArray);
-            yPosCoeff = Maths.polyFit(A, yPosArray);
-            zPosCoeff = Maths.polyFit(A, zPosArray);
-            xVelCoeff = Maths.polyFit(A, xVelArray);
-            yVelCoeff = Maths.polyFit(A, yVelArray);
-            zVelCoeff = Maths.polyFit(A, zVelArray);
+
+            final double[] xPosCoeff = Maths.polyFit(A, xPosArray);
+            final double[] yPosCoeff = Maths.polyFit(A, yPosArray);
+            final double[] zPosCoeff = Maths.polyFit(A, zPosArray);
+            final double[] xVelCoeff = Maths.polyFit(A, xVelArray);
+            final double[] yVelCoeff = Maths.polyFit(A, yVelArray);
+            final double[] zVelCoeff = Maths.polyFit(A, zVelArray);
+
+            PolyCoeff polyCoeff = new PolyCoeff(polyDegree);
+            System.arraycopy(xPosCoeff, 0, polyCoeff.xPosCoeff, 0, xPosCoeff.length);
+            System.arraycopy(yPosCoeff, 0, polyCoeff.yPosCoeff, 0, yPosCoeff.length);
+            System.arraycopy(zPosCoeff, 0, polyCoeff.zPosCoeff, 0, zPosCoeff.length);
+            System.arraycopy(xVelCoeff, 0, polyCoeff.xVelCoeff, 0, xVelCoeff.length);
+            System.arraycopy(yVelCoeff, 0, polyCoeff.yVelCoeff, 0, yVelCoeff.length);
+            System.arraycopy(zVelCoeff, 0, polyCoeff.zVelCoeff, 0, zVelCoeff.length);
 
             /*
             double[] tmp = new double[timeArray.length];
@@ -950,7 +938,49 @@ public class SARGeocoding {
             }
             System.out.println();
             */
+            return polyCoeff;
         }
+
+        private int getPolyCoeffIndex(final double time) {
+
+            final int nv = orbitStateVectors.length;
+
+            if (time < orbitStateVectors[0].time_mjd) {
+                return 0;
+            }
+
+            if (time > orbitStateVectors[nv - 1].time_mjd) {
+                return nv - 2;
+            }
+
+            for (int i = 0; i < nv - 1; i++) {
+                if (time >= orbitStateVectors[i].time_mjd && time < orbitStateVectors[i+1].time_mjd) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private static class PolyCoeff {
+
+            public double[] xPosCoeff = null;
+            public double[] yPosCoeff = null;
+            public double[] zPosCoeff = null;
+            public double[] xVelCoeff = null;
+            public double[] yVelCoeff = null;
+            public double[] zVelCoeff = null;
+
+            public PolyCoeff(final int polyDegree) {
+                xPosCoeff = new double[polyDegree + 1];
+                yPosCoeff = new double[polyDegree + 1];
+                zPosCoeff = new double[polyDegree + 1];
+                xVelCoeff = new double[polyDegree + 1];
+                yVelCoeff = new double[polyDegree + 1];
+                zVelCoeff = new double[polyDegree + 1];
+            }
+        }
+
     }
 
 }

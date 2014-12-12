@@ -34,9 +34,9 @@ import java.util.Map;
  */
 public class vanZyl extends DecompositionBase implements Decomposition {
 
-    public vanZyl(final PolBandUtils.QuadSourceBand[] srcBandList, final MATRIX sourceProductType,
+    public vanZyl(final PolBandUtils.PolSourceBand[] srcBandList, final MATRIX sourceProductType,
                   final int windowSize, final int srcImageWidth, final int srcImageHeight) {
-        super(srcBandList, sourceProductType, windowSize, srcImageWidth, srcImageHeight);
+        super(srcBandList, sourceProductType, windowSize, windowSize, srcImageWidth, srcImageHeight);
     }
 
     /**
@@ -75,7 +75,7 @@ public class vanZyl extends DecompositionBase implements Decomposition {
         final int maxX = x0 + w;
         //System.out.println("freeman x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
 
             final TargetInfo[] targetInfo = new TargetInfo[bandList.targetBands.length];
             int j = 0;
@@ -118,15 +118,15 @@ public class vanZyl extends DecompositionBase implements Decomposition {
                     if (sourceProductType == MATRIX.FULL ||
                             sourceProductType == MATRIX.C3) {
 
-                        PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSize, sourceImageWidth, sourceImageHeight,
+                        PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                                 sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                         PolOpUtils.c3ToT3(Cr, Ci, Tr, Ti);
 
                     } else if (sourceProductType == MATRIX.T3) {
 
-                        PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, sourceImageWidth, sourceImageHeight,
-                                sourceProductType, srcIndex, dataBuffers, Tr, Ti);
+                        PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
+                              sourceImageWidth, sourceImageHeight, sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                         PolOpUtils.t3ToC3(Tr, Ti, Cr, Ci);
                     }

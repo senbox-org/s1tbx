@@ -36,6 +36,7 @@ public class PolarimetricDecompositionOpUI extends BaseOperatorUI {
             PolarimetricDecompositionOp.VANZYL_DECOMPOSITION,
             PolarimetricDecompositionOp.CLOUDE_DECOMPOSITION,
             PolarimetricDecompositionOp.H_A_ALPHA_DECOMPOSITION,
+            PolarimetricDecompositionOp.H_ALPHA_DECOMPOSITION,
             PolarimetricDecompositionOp.TOUZI_DECOMPOSITION
     });
 

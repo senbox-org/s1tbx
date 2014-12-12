@@ -45,24 +45,35 @@ public final class PolOpUtils {
      * Get scatter matrix for given pixel.
      *
      * @param index           X,Y coordinate of the given pixel
-     * @param dataBuffers     Source tiles dataBuffers for all 8 source bands
+     * @param dataBuffers     Source tiles dataBuffers for all 4 (dual pol) or 8 (full pol) source bands
      * @param scatterMatrix_i Real part of the scatter matrix
      * @param scatterMatrix_q Imaginary part of the scatter matrix
      */
     public static void getComplexScatterMatrix(final int index, final ProductData[] dataBuffers,
                                                final double[][] scatterMatrix_i, final double[][] scatterMatrix_q) {
 
-        scatterMatrix_i[0][0] = dataBuffers[0].getElemDoubleAt(index); // HH - real
-        scatterMatrix_q[0][0] = dataBuffers[1].getElemDoubleAt(index); // HH - imag
+        // Dual pol: Case 1 is HH HV
+        //           Case 2 is VH VV
+        //           Case 3 is HH VV
 
-        scatterMatrix_i[0][1] = dataBuffers[2].getElemDoubleAt(index); // HV - real
-        scatterMatrix_q[0][1] = dataBuffers[3].getElemDoubleAt(index); // HV - imag
+        // If quad pol or dual pol Cases 1 or 3 then this is HH; else it is dual pol Case 2 then this is VH
+        scatterMatrix_i[0][0] = dataBuffers[0].getElemDoubleAt(index); // real
+        scatterMatrix_q[0][0] = dataBuffers[1].getElemDoubleAt(index); // imag
 
-        scatterMatrix_i[1][0] = dataBuffers[4].getElemDoubleAt(index); // VH - real
-        scatterMatrix_q[1][0] = dataBuffers[5].getElemDoubleAt(index); // VH - imag
+        // If quad pol or dual pol Case 1 then this is HV; else it is dual pol Cases 2 or 3 then this is VV
+        scatterMatrix_i[0][1] = dataBuffers[2].getElemDoubleAt(index); // real
+        scatterMatrix_q[0][1] = dataBuffers[3].getElemDoubleAt(index); // imag
 
-        scatterMatrix_i[1][1] = dataBuffers[6].getElemDoubleAt(index); // VV - real
-        scatterMatrix_q[1][1] = dataBuffers[7].getElemDoubleAt(index); // VV - imag
+        if (dataBuffers.length > 4) {
+
+            // Must be quad pol
+
+            scatterMatrix_i[1][0] = dataBuffers[4].getElemDoubleAt(index); // VH - real
+            scatterMatrix_q[1][0] = dataBuffers[5].getElemDoubleAt(index); // VH - imag
+
+            scatterMatrix_i[1][1] = dataBuffers[6].getElemDoubleAt(index); // VV - real
+            scatterMatrix_q[1][1] = dataBuffers[7].getElemDoubleAt(index); // VV - imag
+        }
     }
 
     /**
@@ -794,7 +805,8 @@ public final class PolOpUtils {
      *
      * @param x                 X coordinate of the given pixel.
      * @param y                 Y coordinate of the given pixel.
-     * @param halfWindowSize    The sliding window size / 2.
+     * @param halfWindowSizeX   The sliding window size / 2.
+     * @param halfWindowSizeY   The sliding window size / 2.
      * @param sourceProductType The source product type.
      * @param sourceImageWidth  The source image width.
      * @param sourceImageHeight The source image height.
@@ -804,7 +816,8 @@ public final class PolOpUtils {
      * @param Ti                The imaginary part of the mean coherency matrix.
      */
     public static void getMeanCoherencyMatrix(
-            final int x, final int y, final int halfWindowSize, final int sourceImageWidth, final int sourceImageHeight,
+            final int x, final int y, final int halfWindowSizeX, final int halfWindowSizeY,
+            final int sourceImageWidth, final int sourceImageHeight,
             final PolBandUtils.MATRIX sourceProductType, final TileIndex srcIndex, final ProductData[] dataBuffers,
             final double[][] Tr, final double[][] Ti) {
 
@@ -815,10 +828,10 @@ public final class PolOpUtils {
         final double[][] tempTr = new double[3][3];
         final double[][] tempTi = new double[3][3];
 
-        final int xSt = FastMath.max(x - halfWindowSize, 0);
-        final int xEd = FastMath.min(x + halfWindowSize, sourceImageWidth - 1);
-        final int ySt = FastMath.max(y - halfWindowSize, 0);
-        final int yEd = FastMath.min(y + halfWindowSize, sourceImageHeight - 1);
+        final int xSt = FastMath.max(x - halfWindowSizeX, 0);
+        final int xEd = FastMath.min(x + halfWindowSizeX, sourceImageWidth - 1);
+        final int ySt = FastMath.max(y - halfWindowSizeY, 0);
+        final int yEd = FastMath.min(y + halfWindowSizeY, sourceImageHeight - 1);
         final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
 
         final Matrix TrMat = new Matrix(3, 3);
@@ -875,17 +888,16 @@ public final class PolOpUtils {
      *
      * @param x                 X coordinate of the given pixel.
      * @param y                 Y coordinate of the given pixel.
-     * @param halfWindowSize    The sliding window size / 2
+     * @param halfWindowSizeX    The sliding window size / 2
+     * @param halfWindowSizeY    The sliding window size / 2
      * @param sourceProductType The source product type.
-     * @param sourceImageWidth  The source image width.
-     * @param sourceImageHeight The source image height.
      * @param sourceTiles       The source tiles for all bands.
      * @param dataBuffers       Source tile data buffers.
      * @param Cr                The real part of the mean covariance matrix.
      * @param Ci                The imaginary part of the mean covariance matrix.
      */
     public static void getMeanCovarianceMatrix(
-            final int x, final int y, final int halfWindowSize, final int sourceImageWidth, final int sourceImageHeight,
+            final int x, final int y, final int halfWindowSizeX, final int halfWindowSizeY,
             final PolBandUtils.MATRIX sourceProductType, final Tile[] sourceTiles, final ProductData[] dataBuffers,
             final double[][] Cr, final double[][] Ci) {
 
@@ -896,10 +908,10 @@ public final class PolOpUtils {
         final double[][] tempTr = new double[3][3];
         final double[][] tempTi = new double[3][3];
 
-        final int xSt = FastMath.max(x - halfWindowSize, sourceTiles[0].getMinX());
-        final int xEd = FastMath.min(x + halfWindowSize, sourceTiles[0].getMaxX() - 1);
-        final int ySt = FastMath.max(y - halfWindowSize, sourceTiles[0].getMinY());
-        final int yEd = FastMath.min(y + halfWindowSize, sourceTiles[0].getMaxY() - 1);
+        final int xSt = FastMath.max(x - halfWindowSizeX, sourceTiles[0].getMinX());
+        final int xEd = FastMath.min(x + halfWindowSizeX, sourceTiles[0].getMaxX() - 1);
+        final int ySt = FastMath.max(y - halfWindowSizeY, sourceTiles[0].getMinY());
+        final int yEd = FastMath.min(y + halfWindowSizeY, sourceTiles[0].getMaxY() - 1);
         final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
 
         final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
@@ -1164,6 +1176,7 @@ public final class PolOpUtils {
         }
 
     }
+
     /*
     // Eigenvalue decomposition using JAMA svd function
     public static void eigenDecomposition(int n, double[][] HMr, double[][] HMi,

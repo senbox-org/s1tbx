@@ -79,8 +79,8 @@ public final class PolarimetricClassificationOp extends Operator {
 
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
-    private PolBandUtils.QuadSourceBand[] srcBandList;
-    private final Map<Band, PolBandUtils.QuadSourceBand> bandMap = new HashMap<>();
+    private PolBandUtils.PolSourceBand[] srcBandList;
+    private final Map<Band, PolBandUtils.PolSourceBand> bandMap = new HashMap<>();
 
     static final String UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION = "Unsupervised Cloude-Pottier Classification";
     static final String UNSUPERVISED_WISHART_CLASSIFICATION = "Unsupervised H Alpha Wishart Classification";
@@ -179,7 +179,7 @@ public final class PolarimetricClassificationOp extends Operator {
         targetProduct.getIndexCodingGroup().add(indexCoding);
 
         // add a target product per source product
-        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
             final Band targetBand = new Band(targetBandName + bandList.suffix,
                     ProductData.TYPE_UINT8,
                     targetProduct.getSceneRasterWidth(),

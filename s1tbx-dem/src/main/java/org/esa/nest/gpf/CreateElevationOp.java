@@ -78,7 +78,7 @@ public final class CreateElevationOp extends Operator {
     private FileElevationModel fileElevationModel = null;
     private ElevationModel dem = null;
     private Band elevationBand = null;
-    private float noDataValue = 0;
+    private double noDataValue = 0;
 
     private final Map<Band, Band> sourceRasterMap = new HashMap<Band, Band>(10);
 
@@ -176,7 +176,7 @@ public final class CreateElevationOp extends Operator {
 
                 final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0, y0, w, h);
 
-                final float demNoDataValue = dem.getDescriptor().getNoDataValue();
+                final double demNoDataValue = dem.getDescriptor().getNoDataValue();
                 final double[][] localDEM = new double[h + 2][w + 2];
                 DEMFactory.getLocalDEM(
                         dem, demNoDataValue, resamplingMethod, tileGeoRef, x0, y0, w, h, sourceProduct, true, localDEM);

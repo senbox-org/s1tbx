@@ -87,7 +87,7 @@ public final class TerrainMaskOp extends Operator {
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
     private boolean isElevationModelAvailable = false;
-    private float demNoDataValue = 0; // no data value for DEM
+    private double demNoDataValue = 0; // no data value for DEM
 
     public static String TERRAIN_MASK_NAME = "Terrain_Mask";
     private static final String WINDOW_SIZE_5x5 = "5x5";
@@ -181,8 +181,8 @@ public final class TerrainMaskOp extends Operator {
         if (isElevationModelAvailable) return;
         try {
             if (externalDEMFile != null) { // if external DEM file is specified by user
-                dem = new FileElevationModel(externalDEMFile, demResamplingMethod, (float) externalDEMNoDataValue);
-                demNoDataValue = (float) externalDEMNoDataValue;
+                dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
+                demNoDataValue = externalDEMNoDataValue;
                 demName = externalDEMFile.getPath();
 
             } else {

@@ -50,6 +50,11 @@
             <class>org.esa.nest.gpf.BackGeocodingOpUI</class>
             <operatorName>Back-Geocoding</operatorName>
         </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.ConstantOffsetEstimationOpUI</id>
+            <class>org.esa.nest.gpf.ConstantOffsetEstimationOpUI</class>
+            <operatorName>Constant-Offset-Estimation</operatorName>
+        </OperatorUI>
 
     </extension>
 
@@ -113,7 +118,7 @@
             <graphFile>Sentinel1SliceAssemblyGraph.xml</graphFile>
         </action>
 
-        <!--action>
+        <action>
             <id>BackGeocodingOp</id>
             <helpId>BackGeocodingOp</helpId>
             <class>org.esa.snap.dat.actions.GraphAction</class>
@@ -123,7 +128,72 @@
             <dialogTitle>Back Geocoding</dialogTitle>
             <shortDescr>Back Geocoding</shortDescr>
             <graphFile>BackGeocodingGraph.xml</graphFile>
-        </action-->
+        </action>
+
+        <action>
+            <id>ApplyS1OrbitFileOp</id>
+            <helpId>ApplyS1OrbitFileOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>Apply S1 Orbit File</text>
+            <operatorName>Apply-S1-Orbit-File</operatorName>
+            <dialogTitle>Apply S1 Orbit File</dialogTitle>
+            <shortDescr>Apply S1 Orbit File</shortDescr>
+            <targetProductNameSuffix>_orb</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>ConstantOffsetEstimationOp</id>
+            <helpId>ConstantOffsetEstimationOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>Constant Offset Estimation</text>
+            <operatorName>Constant-Offset-Estimation</operatorName>
+            <dialogTitle>Constant Offset Estimation</dialogTitle>
+            <shortDescr>Constant Offset Estimation</shortDescr>
+            <targetProductNameSuffix>_of</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>ComputeDerampDemodPhaseOp</id>
+            <helpId>ComputeDerampDemodPhaseOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>Compute Deramp Demodulation Phase</text>
+            <operatorName>Compute-Deramp-Demod-Phase</operatorName>
+            <dialogTitle>Compute Deramp Demodulation Phase</dialogTitle>
+            <shortDescr>Compute Deramp Demodulation Phase</shortDescr>
+            <targetProductNameSuffix>_ddp</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>ReadRatFileOp</id>
+            <helpId>ReadRatFileOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>Read Rat File</text>
+            <operatorName>Read-Rat-File</operatorName>
+            <dialogTitle>Read Rat File</dialogTitle>
+            <shortDescr>Read Rat File</shortDescr>
+            <targetProductNameSuffix>_rat</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>CreateCoherenceImageOp</id>
+            <helpId>CreateCoherenceImageOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>Create Coherence Image</text>
+            <operatorName>Create-Coherence-Image</operatorName>
+            <dialogTitle>Create Coherence Image</dialogTitle>
+            <shortDescr>Create Coherence Image</shortDescr>
+            <targetProductNameSuffix>_coh</targetProductNameSuffix>
+        </action>
 
     </extension>
 

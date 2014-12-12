@@ -32,7 +32,7 @@ public abstract class AbstractTriangulator implements Triangulator {
 
     /**
      * Triangulate geometries.
-     * @param geometries to be triangulated
+     * @param geometryIterator to be triangulated
      */
     abstract public void triangulate(Iterator<Geometry> geometryIterator) throws TriangulationException;
 
@@ -48,16 +48,17 @@ public abstract class AbstractTriangulator implements Triangulator {
         t2.setNeighbour(side2, t1);
     }
 
-    protected void link (Triangle t1, int side1, Triangle t2) {
-        if (t1.getVertex(side1) == t2.getVertex(side1)) {
+    protected static void link (final Triangle t1, final int side1, final Triangle t2) {
+        final Coordinate p1 = t1.getVertex(side1);
+        if (p1 == t2.getVertex(side1)) {
             t1.setNeighbour(side1, t2);
             t2.setNeighbour((side1+2)%3, t1);
         }
-        else if (t1.getVertex(side1) == t2.getVertex((side1+1)%3)) {
+        else if (p1 == t2.getVertex((side1+1)%3)) {
             t1.setNeighbour(side1, t2);
             t2.setNeighbour(side1, t1);
         }
-        else if (t1.getVertex(side1) == t2.getVertex((side1+2)%3)) {
+        else if (p1 == t2.getVertex((side1+2)%3)) {
             t1.setNeighbour(side1, t2);
             t2.setNeighbour((side1+1)%3, t1);
         }

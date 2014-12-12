@@ -89,7 +89,7 @@ public final class SubtRefDemOp extends Operator {
     private String topoPhaseBandName = "topo_phase";
 
     private ElevationModel dem = null;
-    private float demNoDataValue = 0;
+    private double demNoDataValue = 0;
     private double demSamplingLat;
     private double demSamplingLon;
 
@@ -170,10 +170,9 @@ public final class SubtRefDemOp extends Operator {
 
 
         if (externalDEMFile != null) { // if external DEM file is specified by user
-            dem = new FileElevationModel(externalDEMFile, resampling, (float) externalDEMNoDataValue);
-
+            dem = new FileElevationModel(externalDEMFile, resampling, externalDEMNoDataValue);
             demName = externalDEMFile.getPath();
-            demNoDataValue = (float) externalDEMNoDataValue;
+            demNoDataValue = externalDEMNoDataValue;
 
             // assume the same sampling in X and Y direction?
             try {
@@ -404,8 +403,8 @@ public final class SubtRefDemOp extends Operator {
                 for (int y = startY, i = 0; y < endY; y++, i++) {
                     for (int x = startX, j = 0; x < endX; x++, j++) {
                         try {
-                            float elev = dem.getSample(x, y);
-                            if (Float.isNaN(elev))
+                            double elev = dem.getSample(x, y);
+                            if (Double.isNaN(elev))
                                 elev = demNoDataValue;
                             elevation[i][j] = elev;
                         } catch (Exception e) {
@@ -488,12 +487,12 @@ public final class SubtRefDemOp extends Operator {
 
         // distribute points
         final int[][] points = MathUtils.distributePoints(numberOfPoints, window);
-        final ArrayList<Float> heights = new ArrayList();
+        final ArrayList<Double> heights = new ArrayList();
 
         // then for number of extra points
         for (int[] point : points) {
-            float height = dem.getSample(point[1], point[0]);
-            if (!Float.isNaN(height) && height != demNoDataValue) {
+            double height = dem.getSample(point[1], point[0]);
+            if (!Double.isNaN(height) && height != demNoDataValue) {
                 heights.add(height);
             }
         }

@@ -27,9 +27,10 @@ public class TileUtilsDoris {
         ProductData samples2 = tile2.getRawSamples();
 
         for (int y = 0; y < height; y++) {
-            for (int x = 0; x < tile1.getWidth(); x++) {
-                result.put(y, x, new ComplexDouble(samples1.getElemDoubleAt(y * width + x),
-                        samples2.getElemDoubleAt(y * width + x)));
+            final int stride = y * width;
+            for (int x = 0; x < width; x++) {
+                result.put(y, x, new ComplexDouble(samples1.getElemDoubleAt(stride + x),
+                        samples2.getElemDoubleAt(stride + x)));
             }
         }
 
@@ -48,8 +49,9 @@ public class TileUtilsDoris {
         ProductData samples = tile.getRawSamples();
 
         for (int y = 0; y < height; y++) {
+            final int stride = y * width;
             for (int x = 0; x < width; x++) {
-                result.put(y, x, samples.getElemDoubleAt(y * width + x));
+                result.put(y, x, samples.getElemDoubleAt(stride + x));
             }
         }
 
@@ -60,10 +62,11 @@ public class TileUtilsDoris {
 
     public static void pushFloatMatrix(FloatMatrix data, Tile tile, Rectangle rect) {
         ProductData samples = tile.getRawSamples(); // checkout
-        final int tileWidth = tile.getWidth();
+        final int width = tile.getWidth();
         for (int y = 0, rowIdx = 0; y < rect.getHeight(); y++, rowIdx++) {
+            final int stride = y * width;
             for (int x = 0, columnIdx = 0; x < rect.getWidth(); x++, columnIdx++) {
-                samples.setElemFloatAt(y * tileWidth + x, data.get(rowIdx, columnIdx));
+                samples.setElemFloatAt(stride + x, data.get(rowIdx, columnIdx));
             }
         }
         tile.setRawSamples(samples); // commit
@@ -76,8 +79,9 @@ public class TileUtilsDoris {
         final int width = (int) rect.getWidth();
 
         for (int y = 0, rowIdx = 0; y < rect.getHeight(); y++, rowIdx++) {
+            final int stride = y * width;
             for (int x = 0, columnIdx = 0; x < rect.getWidth(); x++, columnIdx++) {
-                samples.setElemFloatAt(y * width + x, (float) data.get(rowIdx, columnIdx));
+                samples.setElemFloatAt(stride + x, (float) data.get(rowIdx, columnIdx));
             }
         }
         tile.setRawSamples(samples); // commit
@@ -90,8 +94,9 @@ public class TileUtilsDoris {
         final int width = (int) rect.getWidth();
 
         for (int y = 0, rowIdx = 0; y < rect.getHeight(); y++, rowIdx++) {
+            final int stride = y * width;
             for (int x = 0, columnIdx = 0; x < rect.getWidth(); x++, columnIdx++) {
-                samples.setElemDoubleAt(y * width + x, data.get(rowIdx, columnIdx));
+                samples.setElemDoubleAt(stride + x, data.get(rowIdx, columnIdx));
             }
         }
         tile.setRawSamples(samples); // commit
@@ -104,8 +109,9 @@ public class TileUtilsDoris {
         final int width = (int) rect.getWidth();
 
         for (int y = 0, rowIdx = y0; y < rect.getHeight(); y++, rowIdx++) {
+            final int stride = y * width;
             for (int x = 0, columnIdx = x0; x < rect.getWidth(); x++, columnIdx++) {
-                samples.setElemDoubleAt(y * width + x, data.get(rowIdx, columnIdx));
+                samples.setElemDoubleAt(stride + x, data.get(rowIdx, columnIdx));
             }
         }
         tile.setRawSamples(samples); // commit
@@ -118,8 +124,9 @@ public class TileUtilsDoris {
         final int width = (int) rect.getWidth();
 
         for (int y = 0, rowIdx = 0; y < rect.getHeight(); y++, rowIdx++) {
+            final int stride = y * width;
             for (int x = 0, columnIdx = 0; x < rect.getWidth(); x++, columnIdx++) {
-                samples.setElemDoubleAt(y * width + x, data[rowIdx][columnIdx]);
+                samples.setElemDoubleAt(stride + x, data[rowIdx][columnIdx]);
             }
         }
         tile.setRawSamples(samples); // commit
@@ -132,8 +139,9 @@ public class TileUtilsDoris {
         final int width = (int) rect.getWidth();
 
         for (int y = 0, rowIdx = 0; y < rect.getHeight(); y++, rowIdx++) {
+            final int stride = y * width;
             for (int x = 0, columnIdx = 0; x < rect.getWidth(); x++, columnIdx++) {
-                samples.setElemDoubleAt(y * width + x, (double) data.get(rowIdx, columnIdx));
+                samples.setElemDoubleAt(stride + x, (double) data.get(rowIdx, columnIdx));
             }
         }
         tile.setRawSamples(samples); // commit

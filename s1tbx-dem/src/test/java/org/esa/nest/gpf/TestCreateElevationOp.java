@@ -26,9 +26,11 @@ import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for MultilookOperator.
@@ -40,6 +42,11 @@ public class TestCreateElevationOp {
     }
 
     private final static OperatorSpi spi = new CreateElevationOp.Spi();
+
+    private static double[] expectedValues = {
+            1526.91650390625, 1527.80908203125, 1536.530029296875, 1548.84130859375,
+            1525.94140625, 1520.9620361328125, 1530.3487548828125, 1552.3184814453125
+    };
 
     /**
      * Processes a product and compares it to processed product known to be correct
@@ -66,13 +73,10 @@ public class TestCreateElevationOp {
         final Band elevBand = targetProduct.getBand("elevation");
         assertNotNull(elevBand);
 
-        final float[] floatValues = new float[8];
-        elevBand.readPixels(0, 0, 4, 2, floatValues, ProgressMonitor.NULL);
+        final double[] demValues = new double[8];
+        elevBand.readPixels(0, 0, 4, 2, demValues, ProgressMonitor.NULL);
 
-        assertEquals(1527.0, floatValues[0], 0.01);
-        assertEquals(1535.2983, floatValues[1], 0.01);
-        assertEquals(1544.4254, floatValues[2], 0.01);
-        assertEquals(1555.0344, floatValues[3], 0.01);
+        assertTrue(Arrays.equals(expectedValues, demValues));
 
         final MetadataElement abs = AbstractMetadata.getAbstractedMetadata(targetProduct);
         //TestUtils.attributeEquals(abs, AbstractMetadata.DEM, "SRTM");

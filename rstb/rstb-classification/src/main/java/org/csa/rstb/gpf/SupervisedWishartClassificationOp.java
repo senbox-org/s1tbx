@@ -67,7 +67,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
 
     private int sourceImageWidth = 0;
     private int sourceImageHeight = 0;
-    private PolBandUtils.QuadSourceBand[] srcBandList;
+    private PolBandUtils.PolSourceBand[] srcBandList;
 
     private PolBandUtils.MATRIX sourceProductType;
 
@@ -211,7 +211,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
             final TileIndex trgIndex = new TileIndex(targetTile);
             //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-            for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+            for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
 
                 final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
                 final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
@@ -229,7 +229,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
                     trgIndex.calculateStride(y);
                     for (int x = x0; x < maxX; ++x) {
 
-                        PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, sourceImageWidth, sourceImageHeight,
+                        PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, halfWindowSize, sourceImageWidth, sourceImageHeight,
                                 sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                         targetData.setElemIntAt(

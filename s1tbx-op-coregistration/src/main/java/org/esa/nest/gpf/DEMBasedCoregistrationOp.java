@@ -116,7 +116,7 @@ public class DEMBasedCoregistrationOp extends Operator {
     private ImageInfo slaveInfo = null;
     private ElevationModel dem = null;
     private boolean isElevationModelAvailable = false;
-    private float demNoDataValue = 0; // no data value for DEM
+    private double demNoDataValue = 0; // no data value for DEM
     private int polyDegree = 2; // degree of fitting polynomial
     private int numGCPs = 20;
     private int rowUpSamplingFactor = 4; // cross correlation interpolation factor in row direction, must be power of 2
@@ -336,8 +336,8 @@ public class DEMBasedCoregistrationOp extends Operator {
         if (isElevationModelAvailable) return;
         try {
             if (externalDEMFile != null) { // if external DEM file is specified by user
-                dem = new FileElevationModel(externalDEMFile, demResamplingMethod, (float) externalDEMNoDataValue);
-                demNoDataValue = (float) externalDEMNoDataValue;
+                dem = new FileElevationModel(externalDEMFile, demResamplingMethod, externalDEMNoDataValue);
+                demNoDataValue = externalDEMNoDataValue;
                 demName = externalDEMFile.getPath();
             } else {
                 dem = DEMFactory.createElevationModel(demName, demResamplingMethod);
@@ -810,7 +810,7 @@ public class DEMBasedCoregistrationOp extends Operator {
         final Rectangle targetRectangle = targetTile.getRectangle();
         final ProductData trgBuffer = targetTile.getDataBuffer();
 
-        final float noDataValue = (float) targetBand.getGeophysicalNoDataValue();
+        final double noDataValue = targetBand.getGeophysicalNoDataValue();
         final int tx0 = targetRectangle.x;
         final int ty0 = targetRectangle.y;
         final int txMax = tx0 + targetRectangle.width;

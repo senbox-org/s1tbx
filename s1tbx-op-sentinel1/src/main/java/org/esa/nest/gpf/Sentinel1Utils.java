@@ -34,13 +34,14 @@ public final class Sentinel1Utils {
     private MetadataElement absRoot = null;
     private MetadataElement origProdRoot = null;
     private int numOfSubSwath = 0;
-    private int polyDegree = 0;
+    private int polyDegree = 2;
     private String acquisitionMode = null;
     private SubSwathInfo[] subSwath = null;
     private SARGeocoding.Orbit orbit = null;
     private String[] polarizations = null;
     private String[] subSwathNames = null;
     private boolean isDopplerCentroidAvailable = false;
+    private boolean isRangeDependDopplerRateAvailable = false;
 
     public double firstLineUTC = 0.0; // in days
     public double lastLineUTC = 0.0; // in days
@@ -73,12 +74,6 @@ public final class Sentinel1Utils {
         getProductSubSwathNames();
 
         getSubSwathParameters();
-
-        computeRangeDependentDopplerRate(); // todo: should compute on request
-
-        computeDopplerRate(); // todo: should compute on request
-
-        computeReferenceTime(); // todo: should compute on request
     }
 
     private void getMetadataRoot() {
@@ -234,12 +229,11 @@ public final class Sentinel1Utils {
         final MetadataElement generalAnnotation = product.getElement("generalAnnotation");
         final MetadataElement productInformation = generalAnnotation.getElement("productInformation");
 
-        subSwath.firstLineTime = getTime(imageInformation, "productFirstLineUtcTime").getMJD();
-        subSwath.lastLineTime = getTime(imageInformation, "productLastLineUtcTime").getMJD();
+        subSwath.firstLineTime = getTime(imageInformation, "productFirstLineUtcTime").getMJD()*Constants.secondsInDay;
+        subSwath.lastLineTime = getTime(imageInformation, "productLastLineUtcTime").getMJD()*Constants.secondsInDay;
         subSwath.numOfSamples = Integer.parseInt(imageInformation.getAttributeString("numberOfSamples"));
         subSwath.numOfLines = Integer.parseInt(imageInformation.getAttributeString("numberOfLines"));
-        subSwath.azimuthTimeInterval = Double.parseDouble(imageInformation.getAttributeString("azimuthTimeInterval")) /
-                Constants.secondsInDay; // s to day
+        subSwath.azimuthTimeInterval = Double.parseDouble(imageInformation.getAttributeString("azimuthTimeInterval"));
         subSwath.rangePixelSpacing = Double.parseDouble(imageInformation.getAttributeString("rangePixelSpacing"));
         subSwath.azimuthPixelSpacing = Double.parseDouble(imageInformation.getAttributeString("azimuthPixelSpacing"));
         subSwath.slrTimeToFirstPixel = Double.parseDouble(imageInformation.getAttributeString("slantRangeTime")) / 2.0; // 2-way to 1-way
@@ -257,19 +251,42 @@ public final class Sentinel1Utils {
         subSwath.firstValidSample = new int[subSwath.numOfBursts][];
         subSwath.lastValidSample = new int[subSwath.numOfBursts][];
 
+        subSwath.firstValidPixel = 0;
+        subSwath.lastValidPixel = subSwath.numOfSamples;
+
         int k = 0;
         if (subSwath.numOfBursts > 0) {
+            int firstValidPixel = subSwath.numOfSamples;
+            int lastValidPixel = 0;
             final MetadataElement[] burstListElem = burstList.getElements();
             for (MetadataElement listElem : burstListElem) {
-                subSwath.burstFirstLineTime[k] = Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD();
+                subSwath.burstFirstLineTime[k] =
+                        Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD()*Constants.secondsInDay;
                 subSwath.burstLastLineTime[k] = subSwath.burstFirstLineTime[k] +
                         (subSwath.linesPerBurst - 1) * subSwath.azimuthTimeInterval;
                 final MetadataElement firstValidSampleElem = listElem.getElement("firstValidSample");
                 final MetadataElement lastValidSampleElem = listElem.getElement("lastValidSample");
                 subSwath.firstValidSample[k] = Sentinel1Utils.getIntArray(firstValidSampleElem, "firstValidSample");
                 subSwath.lastValidSample[k] = Sentinel1Utils.getIntArray(lastValidSampleElem, "lastValidSample");
+
+                for (int lineIdx = 0; lineIdx < subSwath.firstValidSample[k].length; lineIdx++) {
+                    if (subSwath.firstValidSample[k][lineIdx] != -1 &&
+                            subSwath.firstValidSample[k][lineIdx] < firstValidPixel) {
+                        firstValidPixel = subSwath.firstValidSample[k][lineIdx];
+                    }
+                }
+
+                for (int lineIdx = 0; lineIdx < subSwath.lastValidSample[k].length; lineIdx++) {
+                    if (subSwath.lastValidSample[k][lineIdx] != -1 &&
+                            subSwath.lastValidSample[k][lineIdx] > lastValidPixel) {
+                        lastValidPixel = subSwath.lastValidSample[k][lineIdx];
+                    }
+                }
+
                 k++;
             }
+            subSwath.firstValidPixel = firstValidPixel;
+            subSwath.lastValidPixel = lastValidPixel;
         }
 
         // get geolocation grid points
@@ -302,7 +319,7 @@ public final class Sentinel1Utils {
         for (MetadataElement listElem : geolocationGridPointListElem) {
             final int i = k / numOfGeoPointsPerLine;
             final int j = k - i * numOfGeoPointsPerLine;
-            subSwath.azimuthTime[i][j] = Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD();
+            subSwath.azimuthTime[i][j] = Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD()*Constants.secondsInDay;
             subSwath.slantRangeTime[i][j] = Double.parseDouble(listElem.getAttributeString("slantRangeTime")) / 2.0;
             subSwath.latitude[i][j] = Double.parseDouble(listElem.getAttributeString("latitude"));
             subSwath.longitude[i][j] = Double.parseDouble(listElem.getAttributeString("longitude"));
@@ -481,6 +498,7 @@ public final class Sentinel1Utils {
                 }
             }
         }
+        isRangeDependDopplerRateAvailable = true;
     }
 
     private AzimuthFmRate[] getAzimuthFmRateList(final String subSwathName) {
@@ -497,7 +515,8 @@ public final class Sentinel1Utils {
             final MetadataElement[] azFmRateListElem = azimuthFmRateList.getElements();
             for (MetadataElement listElem : azFmRateListElem) {
                 azFmRateList[k] = new AzimuthFmRate();
-                azFmRateList[k].timeMJD = Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD();
+                azFmRateList[k].time = Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD()*Constants.secondsInDay;
+                azFmRateList[k].t0 = Double.parseDouble(listElem.getAttributeString("t0"));
                 azFmRateList[k].c0 = Double.parseDouble(listElem.getAttributeString("c0"));
                 azFmRateList[k].c1 = Double.parseDouble(listElem.getAttributeString("c1"));
                 azFmRateList[k].c2 = Double.parseDouble(listElem.getAttributeString("c2"));
@@ -510,10 +529,14 @@ public final class Sentinel1Utils {
     /**
      * Compute Doppler rate Kt(r) for each burst.
      */
-    private void computeDopplerRate() {
+    public void computeDopplerRate() {
 
         if (orbit == null) {
-            getProductOrbit(2);
+            getProductOrbit(polyDegree);
+        }
+
+        if (!isRangeDependDopplerRateAvailable) {
+            computeRangeDependentDopplerRate();
         }
 
         final double waveLength = Constants.lightSpeed / subSwath[0].radarFrequency;
@@ -521,12 +544,13 @@ public final class Sentinel1Utils {
             subSwath[s].dopplerRate = new double[subSwath[s].numOfBursts][subSwath[s].samplesPerBurst];
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
                 final double azTime = (subSwath[s].burstFirstLineTime[b] + subSwath[s].burstLastLineTime[b])/2.0;
-                final double v = orbit.getVelocity(azTime);
+                final double v = orbit.getVelocity(azTime/Constants.secondsInDay);
+                //final double v = orbit.getVelocity(azTime); //use this line when orbit uses second for time
                 final double steeringRate = subSwath[s].azimuthSteeringRate * org.esa.beam.util.math.MathUtils.DTOR;
                 final double krot = 2*v*steeringRate/waveLength; // doppler rate by antenna steering
                 for (int x = 0; x < subSwath[s].samplesPerBurst; x++) {
                     subSwath[s].dopplerRate[b][x] = subSwath[s].rangeDependDopplerRate[b][x] * krot
-                            / (subSwath[s].rangeDependDopplerRate[b][x] + krot);
+                            / (subSwath[s].rangeDependDopplerRate[b][x] - krot);
                 }
             }
         }
@@ -535,10 +559,14 @@ public final class Sentinel1Utils {
     /**
      * Compute range-dependent reference time t_ref for each burst.
      */
-    private void computeReferenceTime() {
+    public void computeReferenceTime() {
 
         if (!isDopplerCentroidAvailable) {
             computeDopplerCentroid();
+        }
+
+        if (!isRangeDependDopplerRateAvailable) {
+            computeRangeDependentDopplerRate();
         }
 
         for (int s = 0; s < numOfSubSwath; s++) {
@@ -560,15 +588,16 @@ public final class Sentinel1Utils {
     private void computeDopplerCentroid() {
 
         for (int s = 0; s < numOfSubSwath; s++) {
-            final DCEstimate[] dcEstimateList = getDCEstimateList(subSwath[s].subSwathName);
+            final DCPolynomial[] dcEstimateList = getDCEstimateList(subSwath[s].subSwathName);
+            final DCPolynomial[] dcBurstList = computeDCForBurstCenters(dcEstimateList, s+1);
             subSwath[s].dopplerCentroid = new double[subSwath[s].numOfBursts][subSwath[s].samplesPerBurst];
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
                 for (int x = 0; x < subSwath[s].samplesPerBurst; x++) {
                     final double slrt = getSlantRangeTime(x, s+1)*2; // 1-way to 2-way
-                    final double dt = slrt - dcEstimateList[b].t0;
+                    final double dt = slrt - dcBurstList[b].t0;
                     double dcValue = 0.0;
-                    for (int i = dcEstimateList[b].dataDcPolynomial.length - 1; i >=0; i--) {
-                        dcValue = dcValue*dt + dcEstimateList[b].dataDcPolynomial[i];
+                    for (int i = 0; i < dcBurstList[b].dataDcPolynomial.length; i++) {
+                        dcValue += dcBurstList[b].dataDcPolynomial[i] * Math.pow(dt, i);
                     }
                     subSwath[s].dopplerCentroid[b][x] = dcValue;
                 }
@@ -578,28 +607,87 @@ public final class Sentinel1Utils {
         isDopplerCentroidAvailable = true;
     }
 
-    private DCEstimate[] getDCEstimateList(final String subSwathName) {
+    private DCPolynomial[] getDCEstimateList(final String subSwathName) {
 
         final MetadataElement subSwathMetadata = getSubSwathMetadata(subSwathName);
         final MetadataElement product = subSwathMetadata.getElement("product");
+        final MetadataElement imageAnnotation = product.getElement("imageAnnotation");
+        final MetadataElement processingInformation = imageAnnotation.getElement("processingInformation");
+        final String dcMethod = processingInformation.getAttributeString("dcMethod");
         final MetadataElement dopplerCentroid = product.getElement("dopplerCentroid");
         final MetadataElement dcEstimateList = dopplerCentroid.getElement("dcEstimateList");
         final int count = Integer.parseInt(dcEstimateList.getAttributeString("count"));
-        DCEstimate[] dcEstimate = null;
+        DCPolynomial[] dcPolynomial = null;
         int k = 0;
         if (count > 0) {
-            dcEstimate = new DCEstimate[count];
+            dcPolynomial = new DCPolynomial[count];
             final MetadataElement[] dcEstimateListElem = dcEstimateList.getElements();
             for (MetadataElement listElem : dcEstimateListElem) {
-                dcEstimate[k] = new DCEstimate();
-                dcEstimate[k].timeMJD = Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD();
-                final MetadataElement dataDcPolynomialElem = listElem.getElement("dataDcPolynomial");
-                dcEstimate[k].dataDcPolynomial = Sentinel1Utils.getDoubleArray(dataDcPolynomialElem, "dataDcPolynomial");
+                dcPolynomial[k] = new DCPolynomial();
+                dcPolynomial[k].time = Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD()*Constants.secondsInDay;
+                dcPolynomial[k].t0 = listElem.getAttributeDouble("t0");
+
+                if (dcMethod.contains("Data Analysis")) {
+                    final MetadataElement dataDcPolynomialElem = listElem.getElement("dataDcPolynomial");
+                    dcPolynomial[k].dataDcPolynomial =
+                            Sentinel1Utils.getDoubleArray(dataDcPolynomialElem, "dataDcPolynomial");
+                } else {
+                    final MetadataElement geometryDcPolynomialElem = listElem.getElement("geometryDcPolynomial");
+                    dcPolynomial[k].dataDcPolynomial =
+                            Sentinel1Utils.getDoubleArray(geometryDcPolynomialElem, "geometryDcPolynomial");
+                }
+
                 k++;
             }
         }
-        return dcEstimate;
+        return dcPolynomial;
     }
+
+    private DCPolynomial[] computeDCForBurstCenters(final DCPolynomial[] dcEstimateList, final int subSwathIndex) {
+
+        DCPolynomial[] dcBurstList = new DCPolynomial[subSwath[subSwathIndex - 1].numOfBursts];
+        for (int b = 0; b < subSwath[subSwathIndex - 1].numOfBursts; b++) {
+            final double centerTime = 0.5*(subSwath[subSwathIndex - 1].burstFirstLineTime[b] +
+                    subSwath[subSwathIndex - 1].burstLastLineTime[b]);
+
+            dcBurstList[b] = computeDC(centerTime, dcEstimateList);
+        }
+
+        return dcBurstList;
+    }
+
+    private DCPolynomial computeDC(final double centerTime, final DCPolynomial[] dcEstimateList) {
+
+        int i0 = 0, i1 = 0;
+        if (centerTime < dcEstimateList[0].time) {
+            i0 = 0;
+            i1 = 1;
+        } else if (centerTime > dcEstimateList[dcEstimateList.length - 1].time) {
+            i0 = dcEstimateList.length - 2;
+            i1 = dcEstimateList.length - 1;
+        } else {
+            for (int i = 0; i < dcEstimateList.length - 1; i++) {
+                if (centerTime >= dcEstimateList[i].time && centerTime < dcEstimateList[i+1].time) {
+                    i0 = i;
+                    i1 = i + 1;
+                    break;
+                }
+            }
+        }
+
+        DCPolynomial dcPolynomial = new DCPolynomial();
+        dcPolynomial.time = centerTime;
+        dcPolynomial.t0 = dcEstimateList[i0].t0;
+        dcPolynomial.dataDcPolynomial = new double[dcEstimateList[i0].dataDcPolynomial.length];
+        final double mu = (centerTime - dcEstimateList[i0].time) / (dcEstimateList[i1].time - dcEstimateList[i0].time);
+        for (int j = 0; j < dcEstimateList[i0].dataDcPolynomial.length; j++) {
+            dcPolynomial.dataDcPolynomial[j] = (1 - mu)*dcEstimateList[i0].dataDcPolynomial[j] +
+                    mu*dcEstimateList[i1].dataDcPolynomial[j];
+        }
+
+        return dcPolynomial;
+    }
+
 
     // =================================================================================
     private MetadataElement getCalibrationVectorList(final int subSwathIndex, final String polarization) {
@@ -779,6 +867,20 @@ public final class Sentinel1Utils {
         return numOfSubSwath;
     }
 
+    public static boolean checkIfWideSwathProduct(final Product product) {
+        final String[] bandNames = product.getBandNames();
+        return (contains(bandNames, "IW1") && contains(bandNames, "IW2") ||
+                contains(bandNames, "EW1") && contains(bandNames, "EW2"));
+    }
+
+    private static boolean contains(final String[] list, final String tag) {
+        for(String s : list) {
+            if(s.contains(tag))
+                return true;
+        }
+        return false;
+    }
+
     /**
      * Get azimuth time for given line index in given sub-swath.
      * @param y Line index in given sub-swath.
@@ -844,7 +946,8 @@ public final class Sentinel1Utils {
                 j0 = j;
                 j1 = j + 1;
                 muX = (slrTime - subSwath[subSwathIndex - 1].slantRangeTime[0][j]) /
-                        (subSwath[subSwathIndex - 1].slantRangeTime[0][j + 1] - subSwath[subSwathIndex - 1].slantRangeTime[0][j]);
+                        (subSwath[subSwathIndex - 1].slantRangeTime[0][j + 1] -
+                                subSwath[subSwathIndex - 1].slantRangeTime[0][j]);
             }
         }
 
@@ -1056,6 +1159,8 @@ public final class Sentinel1Utils {
         public double azimuthPixelSpacing;
         public double radarFrequency;
         public double azimuthSteeringRate;
+        public int firstValidPixel;
+        public int lastValidPixel;
 
         // bursts info
         public int numOfBursts;
@@ -1088,15 +1193,15 @@ public final class Sentinel1Utils {
     }
 
     public static class AzimuthFmRate {
-        public double timeMJD;
+        public double time;
         public double t0;
         public double c0;
         public double c1;
         public double c2;
     }
 
-    public static class DCEstimate {
-        public double timeMJD;
+    public static class DCPolynomial {
+        public double time;
         public double t0;
         public double[] dataDcPolynomial;
     }

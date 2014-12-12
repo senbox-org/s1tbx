@@ -33,9 +33,9 @@ import java.util.Map;
  */
 public class Yamaguchi extends DecompositionBase implements Decomposition {
 
-    public Yamaguchi(final PolBandUtils.QuadSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
+    public Yamaguchi(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
                      final int windowSize, final int srcImageWidth, final int srcImageHeight) {
-        super(srcBandList, sourceProductType, windowSize, srcImageWidth, srcImageHeight);
+        super(srcBandList, sourceProductType, windowSize, windowSize, srcImageWidth, srcImageHeight);
     }
 
     /**
@@ -74,7 +74,7 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
         final int maxX = x0 + w;
         //System.out.println("freeman x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
 
             final TargetInfo[] targetInfo = new TargetInfo[bandList.targetBands.length];
             int j = 0;
@@ -115,7 +115,7 @@ public class Yamaguchi extends DecompositionBase implements Decomposition {
                 trgIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
 
-                    PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSize, sourceImageWidth, sourceImageHeight,
+                    PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                             sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                     PolOpUtils.c3ToT3(Cr, Ci, Tr, Ti);

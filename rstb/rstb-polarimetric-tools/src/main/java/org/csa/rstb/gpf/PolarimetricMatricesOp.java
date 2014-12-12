@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Generate polarimetric covariance or coherency matrix for a given full pol product
+ * Generate polarimetric covariance or coherency matrix for a given dual or full pol product
  */
 
 @OperatorMetadata(alias = "Polarimetric-Matrices",
@@ -54,15 +54,16 @@ public final class PolarimetricMatricesOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(valueSet = {C3, C4, T3, T4}, description = "The covariance or coherency matrix",
+    @Parameter(valueSet = {C2, C3, C4, T3, T4}, description = "The covariance or coherency matrix",
             defaultValue = T3, label = "Polarimetric Matrix")
     private String matrix = T3;
 
-    private PolBandUtils.QuadSourceBand[] srcBandList;
+    private PolBandUtils.PolSourceBand[] srcBandList;
     private final Map<Band, MatrixElem> matrixBandMap = new HashMap<>(8);
 
     private PolBandUtils.MATRIX matrixType = PolBandUtils.MATRIX.C3;
 
+    public static final String C2 = "C2";
     public static final String C3 = "C3"; // set to public because unit tests need to use it
     public static final String C4 = "C4";
     public static final String T3 = "T3";
@@ -75,7 +76,7 @@ public final class PolarimetricMatricesOp extends Operator {
      */
     public void SetMatrixType(final String s) {
 
-        if (s.equals(C3) || s.equals(C4) || s.equals(T3) || s.equals(T4)) {
+        if (s.equals(C2)|| s.equals(C3) || s.equals(C4) || s.equals(T3) || s.equals(T4)) {
             matrix = s;
         } else {
             throw new OperatorException(s + " is an invalid filter name.");
@@ -98,8 +99,16 @@ public final class PolarimetricMatricesOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+
             srcBandList = PolBandUtils.getSourceBands(sourceProduct,
                     PolBandUtils.getSourceProductType(sourceProduct));
+
+            /*
+            System.out.println("srcBandList.length = " + srcBandList.length);
+            for (Band b : srcBandList[0].srcBands) {
+                System.out.println("src band = " + b.getName());
+            }
+            */
 
             createTargetProduct();
 
@@ -133,6 +142,12 @@ public final class PolarimetricMatricesOp extends Operator {
 
         String[] bandNames;
         switch (matrix) {
+            case C2:
+
+                bandNames = PolBandUtils.getC2BandNames();
+                matrixType = PolBandUtils.MATRIX.C2;
+
+                break;
             case C3:
 
                 bandNames = PolBandUtils.getC3BandNames();
@@ -161,7 +176,7 @@ public final class PolarimetricMatricesOp extends Operator {
                 throw new OperatorException("Unknown matrix type: " + matrix);
         }
 
-        for (PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (PolBandUtils.PolSourceBand bandList : srcBandList) {
             final Band[] targetBands = OperatorUtils.addBands(targetProduct, bandNames, bandList.suffix);
             bandList.addTargetBands(targetBands);
         }
@@ -241,20 +256,29 @@ public final class PolarimetricMatricesOp extends Operator {
         final int maxY = y0 + h;
         final int maxX = x0 + w;
 
-        final double[][] Sr = new double[2][2];
-        final double[][] Si = new double[2][2];
+        final double[][] Sr;
+        final double[][] Si;
         final double[][] tempRe;
         final double[][] tempIm;
 
-        if (matrixType.equals(PolBandUtils.MATRIX.C3) || matrixType.equals(PolBandUtils.MATRIX.T3)) {
+        if (matrixType.equals(PolBandUtils.MATRIX.C2)) {
+            Sr = new double[1][2];
+            Si = new double[1][2];
+            tempRe = new double[2][2];
+            tempIm = new double[2][2];
+        } else if (matrixType.equals(PolBandUtils.MATRIX.C3) || matrixType.equals(PolBandUtils.MATRIX.T3)) {
+            Sr = new double[2][2];
+            Si = new double[2][2];
             tempRe = new double[3][3];
             tempIm = new double[3][3];
         } else { // matrixType.equals(MATRIX.C4) || matrixType.equals(MATRIX.T4)
+            Sr = new double[2][2];
+            Si = new double[2][2];
             tempRe = new double[4][4];
             tempIm = new double[4][4];
         }
 
-        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
             try {
                 // save tile data for quicker access
                 final TileData[] tileDataList = new TileData[bandList.targetBands.length];
@@ -285,7 +309,9 @@ public final class PolarimetricMatricesOp extends Operator {
 
                         PolOpUtils.getComplexScatterMatrix(srcIdx, dataBuffers, Sr, Si);
 
-                        if (matrixType.equals(PolBandUtils.MATRIX.C3)) {
+                        if (matrixType.equals(PolBandUtils.MATRIX.C2)) {
+                            DualPolOpUtils.computeCovarianceMatrixC2(Sr[0], Si[0], tempRe, tempIm);
+                        } else if (matrixType.equals(PolBandUtils.MATRIX.C3)) {
                             PolOpUtils.computeCovarianceMatrixC3(Sr, Si, tempRe, tempIm);
                         } else if (matrixType.equals(PolBandUtils.MATRIX.C4)) {
                             PolOpUtils.computeCovarianceMatrixC4(Sr, Si, tempRe, tempIm);
@@ -305,31 +331,6 @@ public final class PolarimetricMatricesOp extends Operator {
                         }
                     }
                 }
-                /*
-                final int numElems = tileDataList[0].dataBuffer.getNumElems();
-                for(int idx=0; idx<numElems; ++idx) {
-
-                    PolOpUtils.getComplexScatterMatrix(idx, dataBuffers, Sr, Si);
-
-                    if (matrixType.equals(PolBandUtils.MATRIX.C3)) {
-                        PolOpUtils.computeCovarianceMatrixC3(Sr, Si, tempRe, tempIm);
-                    } else if (matrixType.equals(PolBandUtils.MATRIX.C4)) {
-                        PolOpUtils.computeCovarianceMatrixC4(Sr, Si, tempRe, tempIm);
-                    } else if (matrixType.equals(PolBandUtils.MATRIX.T3)) {
-                        PolOpUtils.computeCoherencyMatrixT3(Sr, Si, tempRe, tempIm);
-                    } else if (matrixType.equals(PolBandUtils.MATRIX.T4)) {
-                        PolOpUtils.computeCoherencyMatrixT4(Sr, Si, tempRe, tempIm);
-                    }
-
-                    for (final TileData tileData : tileDataList){
-
-                        if(tileData.elem.isImaginary) {
-                            tileData.dataBuffer.setElemFloatAt(idx, (float)tempIm[tileData.elem.i][tileData.elem.j]);
-                        } else {
-                            tileData.dataBuffer.setElemFloatAt(idx, (float)tempRe[tileData.elem.i][tileData.elem.j]);
-                        }
-                    }
-                }*/
 
             } catch (Throwable e) {
                 OperatorUtils.catchOperatorException(getId(), e);

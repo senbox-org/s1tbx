@@ -1,16 +1,11 @@
 package org.jlinda.core.delaunay;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
-import static org.jlinda.core.delaunay.MathUtils.*;
+import java.util.*;
+
+import static org.jlinda.core.delaunay.MathUtils.ccw;
 
 /**
  * Fast Delaunay Triangulator.
@@ -33,7 +28,7 @@ public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
 
     /**
      * Triangulate geometries.
-     * @param geometries to be triangulated
+     * @param geometryIterator to be triangulated
      */
     public void triangulate(Iterator<Geometry> geometryIterator) throws TriangulationException {
         Collection<Coordinate> vertices = extractUniqueVertices(geometryIterator);
@@ -57,9 +52,7 @@ public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
     private Collection<Coordinate> extractUniqueVertices(final Iterator<Geometry> geometryIterator) {
         Set<Coordinate> vertices = new HashSet<Coordinate>();
         for (Iterator<Geometry> it = geometryIterator ; it.hasNext() ; ) {
-            for (Coordinate c : it.next().getCoordinates()) {
-                vertices.add(c);
-            }
+            Collections.addAll(vertices, it.next().getCoordinates());
         }
         return vertices;
     }
@@ -85,8 +78,7 @@ public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
 
     protected void addExternalVertex(Coordinate vertex) throws TriangulationException {
         List<Triangle> newTriangles = buildTrianglesBetweenNewVertexAndConvexHull(vertex);
-        for (int i = 0, max = newTriangles.size() ; i < max ; i++) {
-            Triangle t = newTriangles.get(i);
+        for (Triangle t : newTriangles) {
             //if (debugLevel>=NORMAL) debug(2,"new triangle before delaunay " + t);
             if (t.getC() != HORIZON) delaunay(t, 0);
         }
@@ -187,22 +179,18 @@ public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
     * <li>10% of time is spent in getOpposite() method</li>
     * </ul>
     * @param t triangle to check and to modify (if needed)
-    * @return true if a flip occured during the delaunay property check
     */
-    private void delaunay (Triangle t, int side) {
+    private static void delaunay (final Triangle t, final int side) {
 
         if (t.getEdgeType(side)==Triangle.EdgeType.HARDBREAK) return;
 
-        Triangle opp = t.getNeighbour(side);
+        final Triangle opp = t.getNeighbour(side);
         if (opp.getC()==HORIZON) return;
-        int i = t.getOpposite(side);
+        final int i = t.getOpposite(side);
 
-        Coordinate p = opp.getVertex(i);
-        if (fastInCircle(t.getA().x, t.getA().y,
-                         t.getB().x, t.getB().y,
-                         t.getC().x, t.getC().y, p.x, p.y) > 0) {
+        if (t.inCircle(opp.getVertex(i)) > 0) {
             // Flip triangles without creating new Triangle objects
-            flip(t, side, opp, (i+1)%3, false);
+            flip(t, side, opp, (i+1)%3);
             delaunay(t,1);
             delaunay(t,2);
             delaunay(opp,0);
@@ -231,46 +219,28 @@ public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
      * A check may be performed to ensure these conditions are verified.
      * TODO : change the breaklines edges
      */
-    public void flip(Triangle t0, int side0, Triangle t1, int side1, boolean check) throws IllegalArgumentException {
+    public static void flip(Triangle t0, int side0, Triangle t1, int side1) {
         int side0_1 = (side0+1)%3;
         int side0_2 = (side0+2)%3;
         int side1_1 = (side1+1)%3;
         int side1_2 = (side1+2)%3;
-        if (check) {
-            if (t0.getVertex(side0) != t1.getVertex(side1_1) ||
-                t1.getVertex(side1) != t0.getVertex(side0_1)) {
-                throw new IllegalArgumentException("flip method can only flip triangles sharing a common edge");
-            }
-        }
+
         Coordinate t0A = t1.getVertex(side1_2);
         Coordinate t0B = t0.getVertex(side0_2);
-        Coordinate t0C = t0.getVertex(side0);
-        Coordinate t1A = t0A;
+        //Coordinate t0C = t0.getVertex(side0);
+        //Coordinate t1A = t0A;
         Coordinate t1B = t0.getVertex(side0_1);
-        Coordinate t1C = t0B;
+        //Coordinate t1C = t0B;
         // New neighbours
         Triangle newt0N1 = t0.getNeighbour(side0_2);
-        //Triangle.EdgeType t0e1 = t0.getEdgeType(side0_2);
         Triangle newt0N2 = t1.getNeighbour(side1_1);
-        //Triangle.EdgeType t0e2 = t0.getEdgeType(side1_1);
-        //int property1 = (t.getConstraint((cote+2)%3)?2:0) + (opp.getConstraint((i+2)%3)?4:0);
         Triangle newt1N0 = t1.getNeighbour(side1_2);
-        //Triangle.EdgeType t1e0 = t1.getEdgeType(side1_2);
         Triangle newt1N1 = t0.getNeighbour(side0_1);
-        //Triangle.EdgeType t1e1 = t0.getEdgeType(side0_1);
-        //int property2 = (opp.getConstraint(i)?1:0) + (t.getConstraint((cote+1)%3)?2:0);
-        t0.setABC(t0A, t0B, t0C);
-        //t0.setAB(Triangle.EdgeType.VIRTUAL);
-        //t0.setBC(t0e1);
-        //t0.setCA(t0e2);
+        t0.setABC(t0A, t0B, t0.getVertex(side0));
         t0.setBAO(t1);
         link(t0,1,newt0N1);
         link(t0,2,newt0N2);
-        //t.property = property1;
-        t1.setABC(t1A, t1B, t1C);
-        //t1.setAB(t1e0);
-        //t1.setBC(t1e1);
-        //t1.setCA(Triangle.EdgeType.VIRTUAL);
+        t1.setABC(t0A, t1B, t0B);
         link(t1,0,newt1N0);
         link(t1,1,newt1N1);
         t1.setACO(t0);

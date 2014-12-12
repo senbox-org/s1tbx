@@ -44,8 +44,8 @@ public class ACE2_5MinElevationModel extends BaseElevationModel {
 
     @Override
     public GeoPos getGeoPos(final PixelPos pixelPos) {
-        final float pixelLat = (float) (90.0 - pixelPos.y * DEGREE_RES_BY_NUM_PIXELS_PER_TILE);
-        final float pixelLon = (float) (pixelPos.x * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 180.0);
+        final double pixelLat = 90.0 - pixelPos.y * DEGREE_RES_BY_NUM_PIXELS_PER_TILE;
+        final double pixelLon = pixelPos.x * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 180.0;
         return new GeoPos(pixelLat, pixelLon);
     }
 

@@ -39,14 +39,14 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
 
     private int RASTER_WIDTH;
     private int RASTER_HEIGHT;
-    private float noDataValue = 0;
+    private double noDataValue = 0;
 
     public FileElevationModel(final File file, final String resamplingMethodName) throws IOException {
 
         this(file, resamplingMethodName, null);
     }
 
-    public FileElevationModel(final File file, final String resamplingMethodName, final Float demNoDataValue) throws IOException {
+    public FileElevationModel(final File file, final String resamplingMethodName, final Double demNoDataValue) throws IOException {
 
         if (resamplingMethodName.equals(DEMFactory.DELAUNAY_INTERPOLATION))
             throw new OperatorException("Delaunay interpolation for an external DEM file is currently not supported");
@@ -54,12 +54,12 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
         init(file, ResamplingFactory.createResampling(resamplingMethodName), demNoDataValue);
     }
 
-    public FileElevationModel(final File file, final Resampling resamplingMethod, final Float demNoDataValue) throws IOException {
+    public FileElevationModel(final File file, final Resampling resamplingMethod, final Double demNoDataValue) throws IOException {
 
         init(file, resamplingMethod, demNoDataValue);
     }
 
-    private void init(final File file, final Resampling resamplingMethod, Float demNoDataValue) throws IOException {
+    private void init(final File file, final Resampling resamplingMethod, Double demNoDataValue) throws IOException {
         final ProductReader productReader = ProductIO.getProductReaderForInput(file);
         final Product product = productReader.readProductNodes(file, null);
         RASTER_WIDTH = product.getBandAt(0).getSceneRasterWidth();
@@ -67,7 +67,7 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
         fileElevationTile = new FileElevationTile(product);
         tileGeocoding = product.getGeoCoding();
         if (demNoDataValue == null)
-            noDataValue = (float) product.getBandAt(0).getNoDataValue();
+            noDataValue = product.getBandAt(0).getNoDataValue();
         else
             noDataValue = demNoDataValue;
 
@@ -84,7 +84,7 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
         return null;
     }
 
-    public float getNoDataValue() {
+    public double getNoDataValue() {
         return noDataValue;
     }
 
@@ -118,11 +118,11 @@ public class FileElevationModel implements ElevationModel, Resampling.Raster {
         return tileGeocoding.getGeoPos(pixelPos, null);
     }
 
-    public float getSample(double pixelX, double pixelY) throws IOException {
+    public double getSample(double pixelX, double pixelY) throws IOException {
 
-        final float sample = fileElevationTile.getSample((int) pixelX, (int) pixelY);
+        final double sample = fileElevationTile.getSample((int) pixelX, (int) pixelY);
         if (sample == noDataValue) {
-            return Float.NaN;
+            return Double.NaN;
         }
         return sample;
     }

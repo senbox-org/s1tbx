@@ -461,9 +461,9 @@ public class ResampleOp extends Operator {
                     double[] phiLamPoint = masterOrbit.lph2ell(mGCPPos.y, mGCPPos.x, 0, masterMeta);
                     PixelPos demIndexPoint = dem.getIndex(new GeoPos((phiLamPoint[0] * Constants.RTOD), (phiLamPoint[1] * Constants.RTOD)));
                     
-                    float height = dem.getSample(demIndexPoint.x, demIndexPoint.y);
+                    double height = dem.getSample(demIndexPoint.x, demIndexPoint.y);
 
-                    if (Float.isNaN(height) || height == demNoDataValue) {
+                    if (Double.isNaN(height) || height == demNoDataValue) {
                         height = demNoDataValue;
                     }
 
