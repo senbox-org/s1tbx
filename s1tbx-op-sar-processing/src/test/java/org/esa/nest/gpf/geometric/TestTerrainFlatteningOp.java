@@ -111,39 +111,26 @@ public class TestTerrainFlatteningOp {
         TestUtils.verifyProduct(targetProduct, false, false);
     }
 
+    /**
+     * Processes a APM product and compares it to processed product known to be correct
+     *
+     * @throws Exception general exception
+     */
     @Test
-    public void testProcessAllASAR() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsASAR, productTypeExemptions, exceptionExemptions);
-    }
+    public void testProcessCalibratedAPM() throws Exception {
+        final File inputFile = TestData.inputASAR_APM;
+        if (!inputFile.exists()) {
+            TestUtils.skipTest(this, inputFile + " not found");
+            return;
+        }
+        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
 
-    @Test
-    public void testProcessAllERS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsERS, productTypeExemptions, exceptionExemptions);
-    }
+        final TerrainFlatteningOp op = (TerrainFlatteningOp) spi.createOperator();
+        assertNotNull(op);
+        op.setSourceProduct(sourceProduct);
 
-    @Test
-    public void testProcessAllALOS() throws Exception
-    {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsALOS, "ALOS PALSAR CEOS", null, exceptionExemptions);
-    }
-
-    @Test
-    public void testProcessAllRadarsat2() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsRadarsat2, null, exceptionExemptions);
-    }
-
-    @Test
-    public void testProcessAllTerraSARX() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsTerraSarX, null, exceptionExemptions);
-    }
-
-    @Test
-    public void testProcessAllCosmo() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsCosmoSkymed, null, exceptionExemptions);
-    }
-
-    @Test
-    public void testProcessAllSentinel1() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsSentinel1, null, exceptionExemptions);
+        // get targetProduct: execute initialize()
+        final Product targetProduct = op.getTargetProduct();
+        TestUtils.verifyProduct(targetProduct, false, false);
     }
 }
