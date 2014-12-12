@@ -362,10 +362,10 @@ public final class TOPSARDeburstOp extends Operator {
         final int subSamplingX = targetWidth / gridWidth;
         final int subSamplingY = targetHeight / gridHeight;
 
-        final double[] latList = new double[gridWidth * gridHeight];
-        final double[] lonList = new double[gridWidth * gridHeight];
-        final double[] slrtList = new double[gridWidth * gridHeight];
-        final double[] incList = new double[gridWidth * gridHeight];
+        final float[] latList = new float[gridWidth * gridHeight];
+        final float[] lonList = new float[gridWidth * gridHeight];
+        final float[] slrtList = new float[gridWidth * gridHeight];
+        final float[] incList = new float[gridWidth * gridHeight];
 
         int k = 0;
         for (int i = 0; i < gridHeight; i++) {
@@ -374,10 +374,10 @@ public final class TOPSARDeburstOp extends Operator {
             for (int j = 0; j < gridWidth; j++) {
                 final int x = j * subSamplingX;
                 final double slrTime = targetSlantRangeTimeToFirstPixel + x * targetDeltaSlantRangeTime;
-                latList[k] = su.getLatitude(azTime, slrTime);
-                lonList[k] = su.getLongitude(azTime, slrTime);
-                slrtList[k] = su.getSlantRangeTime(azTime, slrTime) * 2 * Constants.oneBillion; // 2-way ns
-                incList[k] = su.getIncidenceAngle(azTime, slrTime);
+                latList[k] = (float)su.getLatitude(azTime, slrTime);
+                lonList[k] = (float)su.getLongitude(azTime, slrTime);
+                slrtList[k] = (float)(su.getSlantRangeTime(azTime, slrTime) * 2 * Constants.oneBillion); // 2-way ns
+                incList[k] = (float)su.getIncidenceAngle(azTime, slrTime);
                 k++;
             }
         }

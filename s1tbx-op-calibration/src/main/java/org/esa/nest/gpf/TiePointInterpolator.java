@@ -10,7 +10,7 @@ import org.esa.beam.framework.datamodel.TiePointGrid;
 public class TiePointInterpolator {
 
     private final TiePointGrid tpg;
-    private final double[] tiePoints;
+    private final float[] tiePoints;
     private final int rasterWidth;
 
     private double[][] quadraticInterpCoeffs = null; // 2 order quadratic polynomial coefficients
@@ -94,7 +94,7 @@ public class TiePointInterpolator {
         final Matrix A = new Matrix(sampleIndexArray);
 
         // prepare matrix b
-        final double[] tiePoints = tpg.getTiePoints();
+        final float[] tiePoints = tpg.getTiePoints();
 
         final double[] tiePointArray = new double[n];
         System.arraycopy(tiePoints, 0, tiePointArray, 0, n);

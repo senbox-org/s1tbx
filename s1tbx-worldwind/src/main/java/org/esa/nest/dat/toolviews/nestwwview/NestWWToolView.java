@@ -182,6 +182,9 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         productLayer.setName("Opened Products");
 
         // ADDED
+        // testLayer will react to selectListener which is added later
+        // anything added to product layer doesn't seem to react to select listener
+        /*
         RenderableLayer testLayer = new RenderableLayer();
 
 
@@ -204,9 +207,6 @@ public class NestWWToolView extends AbstractToolView implements WWView {
 
 
         testLayer.addRenderable(pLine);
-
-        //System.out.println("POLYLINE WAS ADDED:");
-
 
         AnnotationAttributes controlPointsAttributes = new AnnotationAttributes();
         // Define an 8x8 square centered on the screen point
@@ -231,12 +231,9 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         testLayer.addRenderable(currControlPoint);
 
         getWwd().getModel().getLayers().add(testLayer);
-        //insertTiledLayer(getWwd(), testLayer);
+        */
         // ADDED: end
 
-
-
-        //this.wwjPanel.getWwd().getModel().getLayers().add(testLayer);
         insertTiledLayer(getWwd(), productLayer);
 
         // Add an internal frame listener to VISAT so that we can update our

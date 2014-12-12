@@ -84,8 +84,8 @@ public class TestCreateStackOp {
         }
         band.setData(ProductData.createInstance(floatValues));
 
-        final double[] latCorners = new double[]{latTop, latTop, latBottom, latBottom};
-        final double[] lonCorners = new double[]{lonLeft, lonRight, lonLeft, lonRight};
+        final float[] latCorners = new float[]{(float)latTop, (float)latTop, (float)latBottom, (float)latBottom};
+        final float[] lonCorners = new float[]{(float)lonLeft, (float)lonRight, (float)lonLeft, (float)lonRight};
 
         ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
 

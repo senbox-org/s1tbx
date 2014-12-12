@@ -317,11 +317,11 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
 
         final int newGridWidth = gridWidth;
         final int newGridHeight = gridHeight;
-        final double[] newLatList = new double[newGridWidth * newGridHeight];
-        final double[] newLonList = new double[newGridWidth * newGridHeight];
-        final double[] newIncList = new double[newGridWidth * newGridHeight];
-        final double[] newElevList = new double[newGridWidth * newGridHeight];
-        final double[] newslrtList = new double[newGridWidth * newGridHeight];
+        final float[] newLatList = new float[newGridWidth * newGridHeight];
+        final float[] newLonList = new float[newGridWidth * newGridHeight];
+        final float[] newIncList = new float[newGridWidth * newGridHeight];
+        final float[] newElevList = new float[newGridWidth * newGridHeight];
+        final float[] newslrtList = new float[newGridWidth * newGridHeight];
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
         final float subSamplingX = (float) sceneRasterWidth / (newGridWidth - 1);
@@ -428,7 +428,7 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
             final int sceneRasterWidth, final int sceneRasterHeight, final int sourceGridWidth,
             final int sourceGridHeight, final int[] x, final int[] y, final double[] sourcePointList,
             final int targetGridWidth, final int targetGridHeight, final double subSamplingX, final double subSamplingY,
-            final double[] targetPointList) {
+            final float[] targetPointList) {
 
         if (sourcePointList.length != sourceGridWidth * sourceGridHeight) {
             throw new IllegalArgumentException(
@@ -480,11 +480,11 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
                 }
                 final double wi = (newX - oldX0) / (oldX1 - oldX0);
 
-                targetPointList[k++] = MathUtils.interpolate2D(wi, wj,
+                targetPointList[k++] = (float)(MathUtils.interpolate2D(wi, wj,
                         sourcePointList[i0 + j0 * sourceGridWidth],
                         sourcePointList[i1 + j0 * sourceGridWidth],
                         sourcePointList[i0 + j1 * sourceGridWidth],
-                        sourcePointList[i1 + j1 * sourceGridWidth]);
+                        sourcePointList[i1 + j1 * sourceGridWidth]));
             }
         }
     }
@@ -554,10 +554,10 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
 
     private void addGeoCodingForLevel2Products(final Product product) {
 
-        double minLat = 999F;
-        double maxLat = -999F;
-        double minLon = 999F;
-        double maxLon = -999F;
+        float minLat = 999F;
+        float maxLat = -999F;
+        float minLon = 999F;
+        float maxLon = -999F;
 
         final MetadataElement elem = getMetadataObject(AbstractMetadata.getOriginalProductMetadata(product), "measurementFrameSet");
 
@@ -579,8 +579,8 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
 
                     final String[] latStrLonStr = s.split(",");
 
-                    final double lat = Float.parseFloat(latStrLonStr[0]);
-                    final double lon = Float.parseFloat(latStrLonStr[1]);
+                    final float lat = Float.parseFloat(latStrLonStr[0]);
+                    final float lon = Float.parseFloat(latStrLonStr[1]);
 
                     if (lat < minLat) {
                         minLat = lat;
@@ -605,8 +605,8 @@ public class Sentinel1Level2Directory extends XMLProductDirectory implements Sen
             return;
         }
 
-        final double[] latCorners = new double[4];
-        final double[] lonCorners = new double[latCorners.length];
+        final float[] latCorners = new float[4];
+        final float[] lonCorners = new float[latCorners.length];
 
         // The footprint
         // index 0                                          index 1

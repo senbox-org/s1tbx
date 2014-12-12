@@ -354,10 +354,10 @@ public class CrossResamplingOp extends Operator {
         targetTPGWidth = latitudeTPG.getRasterWidth();
         targetTPGHeight = latitudeTPG.getRasterHeight();
 
-        final double[] targetLatTiePoints = new double[targetTPGHeight * targetTPGWidth];
-        final double[] targetLonTiePoints = new double[targetTPGHeight * targetTPGWidth];
-        final double[] targetIncidenceAngleTiePoints = new double[targetTPGHeight * targetTPGWidth];
-        final double[] targetSlantRangeTimeTiePoints = new double[targetTPGHeight * targetTPGWidth];
+        final float[] targetLatTiePoints = new float[targetTPGHeight * targetTPGWidth];
+        final float[] targetLonTiePoints = new float[targetTPGHeight * targetTPGWidth];
+        final float[] targetIncidenceAngleTiePoints = new float[targetTPGHeight * targetTPGWidth];
+        final float[] targetSlantRangeTimeTiePoints = new float[targetTPGHeight * targetTPGWidth];
 
         final int subSamplingX = sourceImageWidth / (targetTPGWidth - 1);
         final int subSamplingY = sourceImageHeight / (targetTPGHeight - 1);
@@ -377,8 +377,8 @@ public class CrossResamplingOp extends Operator {
             for (int c = 0; c < targetTPGWidth; c++) {
 
                 final int x = getSampleIndex(c, subSamplingX);
-                targetIncidenceAngleTiePoints[k] = incidenceAngleTPG.getPixelDouble(x, y);
-                targetSlantRangeTimeTiePoints[k] = slantRangeTimeTPG.getPixelDouble(x, y);
+                targetIncidenceAngleTiePoints[k] = (float)incidenceAngleTPG.getPixelDouble(x, y);
+                targetSlantRangeTimeTiePoints[k] = (float)slantRangeTimeTPG.getPixelDouble(x, y);
 
                 final GeoPoint geoPos = computeLatLon(x, y);
                 targetLatTiePoints[k] = (float) geoPos.lat;

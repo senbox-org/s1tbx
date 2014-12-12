@@ -666,8 +666,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         lastSWBandGeoCoding.getGeoPos(urPix, urGeo);
         lastSWBandGeoCoding.getGeoPos(lrPix, lrGeo);
 
-        final double[] latCorners = {ulGeo.getLat(), urGeo.getLat(), llGeo.getLat(), lrGeo.getLat()};
-        final double[] lonCorners = {ulGeo.getLon(), urGeo.getLon(), llGeo.getLon(), lrGeo.getLon()};
+        final float[] latCorners = {(float)ulGeo.getLat(), (float)urGeo.getLat(), (float)llGeo.getLat(), (float)lrGeo.getLat()};
+        final float[] lonCorners = {(float)ulGeo.getLon(), (float)urGeo.getLon(), (float)llGeo.getLon(), (float)lrGeo.getLon()};
 
         ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
 
@@ -748,11 +748,11 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
         final int newGridWidth = gridWidth;
         final int newGridHeight = gridHeight;
-        final double[] newLatList = new double[newGridWidth * newGridHeight];
-        final double[] newLonList = new double[newGridWidth * newGridHeight];
-        final double[] newIncList = new double[newGridWidth * newGridHeight];
-        final double[] newElevList = new double[newGridWidth * newGridHeight];
-        final double[] newslrtList = new double[newGridWidth * newGridHeight];
+        final float[] newLatList = new float[newGridWidth * newGridHeight];
+        final float[] newLonList = new float[newGridWidth * newGridHeight];
+        final float[] newIncList = new float[newGridWidth * newGridHeight];
+        final float[] newElevList = new float[newGridWidth * newGridHeight];
+        final float[] newslrtList = new float[newGridWidth * newGridHeight];
         final int sceneRasterWidth = band.getSceneRasterWidth();
         final int sceneRasterHeight = band.getSceneRasterHeight();
         final double subSamplingX = (double) sceneRasterWidth / (newGridWidth - 1);
@@ -853,7 +853,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             final int sceneRasterWidth, final int sceneRasterHeight, final int sourceGridWidth,
             final int sourceGridHeight, final int[] x, final int[] y, final double[] sourcePointList,
             final int targetGridWidth, final int targetGridHeight, final double subSamplingX, final double subSamplingY,
-            final double[] targetPointList) {
+            final float[] targetPointList) {
 
         if (sourcePointList.length != sourceGridWidth * sourceGridHeight) {
             throw new IllegalArgumentException(
@@ -905,11 +905,11 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 }
                 final double wi = (newX - oldX0) / (oldX1 - oldX0);
 
-                targetPointList[k++] = MathUtils.interpolate2D(wi, wj,
+                targetPointList[k++] = (float)(MathUtils.interpolate2D(wi, wj,
                         sourcePointList[i0 + j0 * sourceGridWidth],
                         sourcePointList[i1 + j0 * sourceGridWidth],
                         sourcePointList[i0 + j1 * sourceGridWidth],
-                        sourcePointList[i1 + j1 * sourceGridWidth]);
+                        sourcePointList[i1 + j1 * sourceGridWidth]));
             }
         }
     }

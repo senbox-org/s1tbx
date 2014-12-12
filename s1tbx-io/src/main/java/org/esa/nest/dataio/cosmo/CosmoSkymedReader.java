@@ -664,11 +664,11 @@ public class CosmoSkymedReader extends SARReader {
         final double firstRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_First_Time", 0) * 1000000000.0f;
         final double lastRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_Last_Time", 0) * 1000000000.0f;
 
-        final double[] incidenceCorners = new double[]{nearRangeAngle, farRangeAngle, nearRangeAngle, farRangeAngle};
-        final double[] slantRange = new double[]{firstRangeTime, lastRangeTime, firstRangeTime, lastRangeTime};
+        final float[] incidenceCorners = new float[]{(float)nearRangeAngle, (float)farRangeAngle, (float)nearRangeAngle, (float)farRangeAngle};
+        final float[] slantRange = new float[]{(float)firstRangeTime, (float)lastRangeTime, (float)firstRangeTime, (float)lastRangeTime};
 
-        final double[] fineAngles = new double[gridWidth * gridHeight];
-        final double[] fineTimes = new double[gridWidth * gridHeight];
+        final float[] fineAngles = new float[gridWidth * gridHeight];
+        final float[] fineTimes = new float[gridWidth * gridHeight];
 
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, incidenceCorners, fineAngles);
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, slantRange, fineTimes);
@@ -731,8 +731,8 @@ public class CosmoSkymedReader extends SARReader {
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
                     bandElem.getAttributeDouble("Line_Spacing", AbstractMetadata.NO_METADATA));
 
-            final double[] latCorners = new double[]{latUL, latUR, latLL, latLR};
-            final double[] lonCorners = new double[]{lonUL, lonUR, lonLL, lonLR};
+            final float[] latCorners = new float[]{latUL, latUR, latLL, latLR};
+            final float[] lonCorners = new float[]{lonUL, lonUR, lonLL, lonLR};
 
             ReaderUtils.addGeoCoding(product, latCorners, lonCorners);
         } catch (Exception e) {

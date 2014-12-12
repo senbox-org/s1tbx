@@ -117,8 +117,8 @@ public class TestHaarWaveletTransformOp extends TestCase {
         product.addBand(slvBand);
 
         // create lat/lon tie point grids
-        final double[] lat = new double[w * h];
-        final double[] lon = new double[w * h];
+        final float[] lat = new float[w * h];
+        final float[] lon = new float[w * h];
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 i = y * w + x;

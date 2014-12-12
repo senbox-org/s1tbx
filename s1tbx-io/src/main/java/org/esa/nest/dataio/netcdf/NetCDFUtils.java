@@ -63,7 +63,7 @@ public class NetCDFUtils {
         final double subSamplingY = (double) sceneHeight / (double) (gridHeight - 1);
 
         final Array data = variable.read();
-        final double[] dataArray = new double[(int) data.getSize()]; //(float[])data.copyTo1DJavaArray();
+        final float[] dataArray = new float[(int) data.getSize()]; //(float[])data.copyTo1DJavaArray();
         for (int i = 0; i < data.getSize(); ++i) {
             dataArray[i] = data.getFloat(i);
         }

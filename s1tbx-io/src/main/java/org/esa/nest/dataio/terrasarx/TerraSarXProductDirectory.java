@@ -329,7 +329,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 coordList.add(new CornerCoord(refRow, refCol,
                          child.getAttributeDouble("lat", 0),
                          child.getAttributeDouble("lon", 0),
-                         child.getAttributeDouble("rangeTime", 0) * 1000000000f,
+                         child.getAttributeDouble("rangeTime", 0) * 1000000000,
                          child.getAttributeDouble("incidenceAngle", 0)));
 
                 if (refRow > maxRow) maxRow = refRow;
@@ -339,7 +339,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             }
         }
 
-        int[] indexArray = {0, 1, 2, 3};
+        final int[] indexArray = {0, 1, 2, 3};
         if (minRow == maxRow && minCol == maxCol && geocodedImageInfo != null) {
             final MetadataElement geoParameter = geocodedImageInfo.getElement("geoParameter");
             final MetadataElement sceneCoordsGeographic = geoParameter.getElement("sceneCoordsGeographic");
@@ -377,10 +377,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         int index = 0;
         for (CornerCoord coord : coordList) {
             if (minRow == maxRow && minCol == maxCol) {
-                latCorners[indexArray[index]] = (float)coord.lat;
-                lonCorners[indexArray[index]] = (float)coord.lon;
-                slantRangeCorners[indexArray[index]] = (float)coord.rangeTime;
-                incidenceCorners[indexArray[index]] = (float)coord.incidenceAngle;
+                latCorners[indexArray[index]] = coord.lat;
+                lonCorners[indexArray[index]] = coord.lon;
+                slantRangeCorners[indexArray[index]] = coord.rangeTime;
+                incidenceCorners[indexArray[index]] = coord.incidenceAngle;
                 ++index;
             } else {
                 index = -1;
@@ -398,10 +398,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     }
                 }
                 if (index >= 0) {
-                    latCorners[index] = (float)coord.lat;
-                    lonCorners[index] = (float)coord.lon;
-                    slantRangeCorners[index] = (float)coord.rangeTime;
-                    incidenceCorners[index] = (float)coord.incidenceAngle;
+                    latCorners[index] = coord.lat;
+                    lonCorners[index] = coord.lon;
+                    slantRangeCorners[index] = coord.rangeTime;
+                    incidenceCorners[index] = coord.incidenceAngle;
                 }
             }
         }
@@ -551,9 +551,9 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final int gridHeight = numAz;
         final int newGridWidth = gridWidth;
         final int newGridHeight = gridHeight;
-        double[] newLatList = new double[newGridWidth * newGridHeight];
-        double[] newLonList = new double[newGridWidth * newGridHeight];
-        double[] newIncList = new double[newGridWidth * newGridHeight];
+        float[] newLatList = new float[newGridWidth * newGridHeight];
+        float[] newLonList = new float[newGridWidth * newGridHeight];
+        float[] newIncList = new float[newGridWidth * newGridHeight];
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
         final double subSamplingX = sceneRasterWidth / (double) (newGridWidth - 1);
@@ -604,7 +604,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             final int sceneRasterWidth, final int sceneRasterHeight, final int sourceGridWidth,
             final int sourceGridHeight, final int[] x, final int[] y, final double[] sourcePointList,
             final int targetGridWidth, final int targetGridHeight, final double subSamplingX, final double subSamplingY,
-            final double[] targetPointList) {
+            final float[] targetPointList) {
 
         if (sourcePointList.length != sourceGridWidth * sourceGridHeight) {
             throw new IllegalArgumentException(
@@ -675,12 +675,12 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         if (subSamplingX == 0 || subSamplingY == 0)
             return;
 
-        final double[] flippedSlantRangeCorners = new double[4];
-        final double[] flippedIncidenceCorners = new double[4];
+        final float[] flippedSlantRangeCorners = new float[4];
+        final float[] flippedIncidenceCorners = new float[4];
         getFlippedCorners(product, flippedSlantRangeCorners, flippedIncidenceCorners);
 
         if (product.getTiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE) == null) {
-            final double[] fineAngles = new double[gridWidth * gridHeight];
+            final float[] fineAngles = new float[gridWidth * gridHeight];
             ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, flippedIncidenceCorners, fineAngles);
 
             final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0,
@@ -689,7 +689,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             product.addTiePointGrid(incidentAngleGrid);
         }
 
-        final double[] fineSlantRange = new double[gridWidth * gridHeight];
+        final float[] fineSlantRange = new float[gridWidth * gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, flippedSlantRangeCorners, fineSlantRange);
 
         final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, gridWidth, gridHeight, 0, 0,
@@ -699,48 +699,48 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     }
 
     private void getFlippedCorners(Product product,
-                                   final double[] flippedSlantRangeCorners, final double[] flippedIncidenceCorners) {
+                                   final float[] flippedSlantRangeCorners, final float[] flippedIncidenceCorners) {
 
         MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         final String sampleType = absRoot.getAttributeString(AbstractMetadata.SAMPLE_TYPE);
 
         if (OperatorUtils.isMapProjected(product) || sampleType.contains("COMPLEX")) {
 
-            flippedSlantRangeCorners[0] = slantRangeCorners[0];
-            flippedSlantRangeCorners[1] = slantRangeCorners[1];
-            flippedSlantRangeCorners[2] = slantRangeCorners[2];
-            flippedSlantRangeCorners[3] = slantRangeCorners[3];
+            flippedSlantRangeCorners[0] = (float)slantRangeCorners[0];
+            flippedSlantRangeCorners[1] = (float)slantRangeCorners[1];
+            flippedSlantRangeCorners[2] = (float)slantRangeCorners[2];
+            flippedSlantRangeCorners[3] = (float)slantRangeCorners[3];
 
-            flippedIncidenceCorners[0] = incidenceCorners[0];
-            flippedIncidenceCorners[1] = incidenceCorners[1];
-            flippedIncidenceCorners[2] = incidenceCorners[2];
-            flippedIncidenceCorners[3] = incidenceCorners[3];
+            flippedIncidenceCorners[0] = (float)incidenceCorners[0];
+            flippedIncidenceCorners[1] = (float)incidenceCorners[1];
+            flippedIncidenceCorners[2] = (float)incidenceCorners[2];
+            flippedIncidenceCorners[3] = (float)incidenceCorners[3];
 
         } else {
 
             final boolean isAscending = absRoot.getAttributeString(AbstractMetadata.PASS).equals("ASCENDING");
             if (isAscending) { // flip up and down
-                flippedSlantRangeCorners[0] = slantRangeCorners[2];
-                flippedSlantRangeCorners[1] = slantRangeCorners[3];
-                flippedSlantRangeCorners[2] = slantRangeCorners[0];
-                flippedSlantRangeCorners[3] = slantRangeCorners[1];
+                flippedSlantRangeCorners[0] = (float)slantRangeCorners[2];
+                flippedSlantRangeCorners[1] = (float)slantRangeCorners[3];
+                flippedSlantRangeCorners[2] = (float)slantRangeCorners[0];
+                flippedSlantRangeCorners[3] = (float)slantRangeCorners[1];
 
-                flippedIncidenceCorners[0] = incidenceCorners[2];
-                flippedIncidenceCorners[1] = incidenceCorners[3];
-                flippedIncidenceCorners[2] = incidenceCorners[0];
-                flippedIncidenceCorners[3] = incidenceCorners[1];
+                flippedIncidenceCorners[0] = (float)incidenceCorners[2];
+                flippedIncidenceCorners[1] = (float)incidenceCorners[3];
+                flippedIncidenceCorners[2] = (float)incidenceCorners[0];
+                flippedIncidenceCorners[3] = (float)incidenceCorners[1];
 
             } else { // flip left and right
 
-                flippedSlantRangeCorners[0] = slantRangeCorners[1];
-                flippedSlantRangeCorners[1] = slantRangeCorners[0];
-                flippedSlantRangeCorners[2] = slantRangeCorners[3];
-                flippedSlantRangeCorners[3] = slantRangeCorners[2];
+                flippedSlantRangeCorners[0] = (float)slantRangeCorners[1];
+                flippedSlantRangeCorners[1] = (float)slantRangeCorners[0];
+                flippedSlantRangeCorners[2] = (float)slantRangeCorners[3];
+                flippedSlantRangeCorners[3] = (float)slantRangeCorners[2];
 
-                flippedIncidenceCorners[0] = incidenceCorners[1];
-                flippedIncidenceCorners[1] = incidenceCorners[0];
-                flippedIncidenceCorners[2] = incidenceCorners[3];
-                flippedIncidenceCorners[3] = incidenceCorners[2];
+                flippedIncidenceCorners[0] = (float)incidenceCorners[1];
+                flippedIncidenceCorners[1] = (float)incidenceCorners[0];
+                flippedIncidenceCorners[2] = (float)incidenceCorners[3];
+                flippedIncidenceCorners[3] = (float)incidenceCorners[2];
             }
         }
     }
