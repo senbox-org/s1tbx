@@ -15,10 +15,12 @@
  */
 package org.esa.nest.gpf;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
@@ -28,9 +30,12 @@ import org.esa.nest.dataio.orbits.*;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.Orbits;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.text.ParseException;
 
 /**
  * Apply Sentinel-1 orbit file to given Sentinel-1 product.
@@ -49,18 +54,32 @@ public final class ApplyS1OrbitFileOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(label = "Sentinel-1 Orbit File")
+    @Parameter(label = "Sentinel-1 Orbit File", defaultValue = "E:\\data\\S-1\\Sentinel-1_Orbits\\")
+    private File orbitFileFolder;
+
+    @Parameter(label = "Orbit Type", valueSet = {RESTITUTED, PRECISE}, defaultValue = PRECISE)
+    private String orbitType = PRECISE;
+
+    @Parameter(label = "Polynomial Degree", defaultValue = "3")
+    private int polyDegree = 3;
+
     private File orbitFile = null;
 
     private MetadataElement absRoot = null;
     private SentinelPODOrbitFile podOrbitFile = null;
-    private static int polyDegree = 2;
+
+    private final static String RESTITUTED = "Restituded";
+    private final static String PRECISE = "Precise";
 
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
     public ApplyS1OrbitFileOp() {
+    }
+
+    void setOrbitFileFolder(final File orbitFileFolder) {
+        this.orbitFileFolder = orbitFileFolder;
     }
 
     /**
@@ -79,11 +98,18 @@ public final class ApplyS1OrbitFileOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSentinel1Product();
+
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
-            getMission();
+            orbitFile = findOrbitFile();
+            if(orbitFile == null) {
+                String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
+                throw new OperatorException("No valid orbit file found for "+timeStr);
+            }
 
-            podOrbitFile = new SentinelPODOrbitFile(orbitFile.getPath());
+            podOrbitFile = new SentinelPODOrbitFile(orbitFile);
 
             checkOrbitFileValidity();
 
@@ -96,14 +122,39 @@ public final class ApplyS1OrbitFileOp extends Operator {
         }
     }
 
-    /**
-     * Get source product mission.
-     */
-    private void getMission() {
-        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.startsWith("SENTINEL-1")) {
-            throw new OperatorException("Sentinel1 product is expected");
+    private File findOrbitFile() {
+        final String prefix;
+        if(orbitType.endsWith(RESTITUTED)) {
+            prefix = "S1A_OPER_AUX_RESORB";
+        } else {
+            prefix = "S1A_OPER_AUX_POEORB";
         }
+
+        final File[] files = orbitFileFolder.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                name = name.toUpperCase();
+                return name.endsWith(".EOF") && name.startsWith(prefix);
+            }
+        });
+        if(files == null || files.length == 0)
+            return null;
+
+        final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
+        for(File file : files) {
+            try {
+                final String filename = file.getName();
+                final ProductData.UTC utcStart = SentinelPODOrbitFile.getValidityStartFromFilenameUTC(filename);
+                final ProductData.UTC utcEnd = SentinelPODOrbitFile.getValidityStopFromFilenameUTC(filename);
+                if(utcStart != null && utcEnd != null) {
+                    if(stateVectorTime >= utcStart.getMJD() && stateVectorTime < utcEnd.getMJD()) {
+                        return file;
+                    }
+                }
+            } catch (ParseException ignored) {
+            }
+        }
+        return null;
     }
 
     /**
@@ -115,10 +166,8 @@ public final class ApplyS1OrbitFileOp extends Operator {
         final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
         final String validityStartTimeStr = podOrbitFile.getValidityStartFromHeader();
         final String validityStopTimeStr = podOrbitFile.getValidityStopFromHeader();
-        final double validityStartTimeMJD =
-                ProductData.UTC.parse(SentinelPODOrbitFile.convertUTC(validityStartTimeStr)).getMJD();
-        final double validityStopTimeMJD =
-                ProductData.UTC.parse(SentinelPODOrbitFile.convertUTC(validityStopTimeStr)).getMJD();
+        final double validityStartTimeMJD = SentinelPODOrbitFile.toUTC(validityStartTimeStr).getMJD();
+        final double validityStopTimeMJD = SentinelPODOrbitFile.toUTC(validityStopTimeStr).getMJD();
 
         if (stateVectorTime < validityStartTimeMJD || stateVectorTime > validityStopTimeMJD) {
             throw new OperatorException("Product acquisition time is not within the validity period of the orbit");
@@ -141,8 +190,7 @@ public final class ApplyS1OrbitFileOp extends Operator {
             if (srcBand instanceof VirtualBand) {
                 OperatorUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
             } else {
-                final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
-                targetBand.setSourceImage(srcBand.getSourceImage());
+                ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
             }
         }
     }
@@ -171,6 +219,21 @@ public final class ApplyS1OrbitFileOp extends Operator {
         AbstractMetadata.setOrbitStateVectors(tgtAbsRoot, orbitStateVectors);
         tgtAbsRoot.setAttributeString(AbstractMetadata.orbit_state_vector_file, orbitFile.getName());
     }
+
+    /**
+     * Called by the framework in order to compute a tile for the given target band.
+     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
+     *
+     * @param targetBand The target band.
+     * @param targetTile The current tile associated with the target band to be computed.
+     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
+     */
+   /* @Override
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        final Tile srcTile = getSourceTile(targetBand, targetTile.getRectangle());
+        targetTile.setRawSamples(srcTile.getRawSamples());
+    }*/
 
     /**
      * The SPI is used to register this operator in the graph processing framework
