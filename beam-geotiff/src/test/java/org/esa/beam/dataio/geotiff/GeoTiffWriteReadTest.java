@@ -486,12 +486,12 @@ public class GeoTiffWriteReadTest {
     }
 
     private static void setTiePointGeoCoding(final Product product) {
-        final TiePointGrid latGrid = new TiePointGrid("lat", 3, 3, 0.5f, 0.5f, 5, 5, new double[]{
+        final TiePointGrid latGrid = new TiePointGrid("lat", 3, 3, 0.5f, 0.5f, 5, 5, new float[]{
                     85, 84, 83,
                     75, 74, 73,
                     65, 64, 63
         });
-        final TiePointGrid lonGrid = new TiePointGrid("lon", 3, 3, 0.5f, 0.5f, 5, 5, new double[]{
+        final TiePointGrid lonGrid = new TiePointGrid("lon", 3, 3, 0.5f, 0.5f, 5, 5, new float[]{
                     -15, -5, 5,
                     -16, -6, 4,
                     -17, -7, 3

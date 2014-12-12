@@ -90,7 +90,7 @@ public class TiePointGrid extends RasterDataNode {
                         double offsetY,
                         double subSamplingX,
                         double subSamplingY,
-                        double[] tiePoints) {
+                        float[] tiePoints) {
         this(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints, DISCONT_NONE);
     }
 
@@ -117,9 +117,9 @@ public class TiePointGrid extends RasterDataNode {
                         double offsetY,
                         double subSamplingX,
                         double subSamplingY,
-                        double[] tiePoints,
+                        float[] tiePoints,
                         int discontinuity) {
-        super(name, ProductData.TYPE_FLOAT64, gridWidth, gridHeight);
+        super(name, ProductData.TYPE_FLOAT32, gridWidth, gridHeight);
         Guardian.assertNotNull("tiePoints", tiePoints);
 
         if (discontinuity != DISCONT_NONE && discontinuity != DISCONT_AT_180 && discontinuity != DISCONT_AT_360) {
@@ -166,7 +166,7 @@ public class TiePointGrid extends RasterDataNode {
                         double offsetY,
                         double subSamplingX,
                         double subSamplingY,
-                        double[] tiePoints,
+                        float[] tiePoints,
                         boolean containsAngles) {
         this(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints,
              containsAngles ? getDiscontinuity(tiePoints) : DISCONT_NONE);
@@ -178,8 +178,8 @@ public class TiePointGrid extends RasterDataNode {
      * @return the angular discontinuity, will always be either {@link #DISCONT_AT_180} or
      *         {@link #DISCONT_AT_360}
      */
-    public static int getDiscontinuity(double[] tiePoints) {
-        final Range range = Range.computeRangeDouble(tiePoints, IndexValidator.TRUE, null, ProgressMonitor.NULL);
+    public static int getDiscontinuity(float[] tiePoints) {
+        final Range range = Range.computeRangeFloat(tiePoints, IndexValidator.TRUE, null, ProgressMonitor.NULL);
         if (range.getMax() > 180.0) {
             return DISCONT_AT_360;
         } else {
@@ -230,7 +230,7 @@ public class TiePointGrid extends RasterDataNode {
      */
     @Override
     public int getGeophysicalDataType() {
-        return ProductData.TYPE_FLOAT64;
+        return ProductData.TYPE_FLOAT32;
     }
 
     /**
@@ -253,7 +253,7 @@ public class TiePointGrid extends RasterDataNode {
         int width = getSceneRasterWidth();
         int height = getSceneRasterHeight();
         ProductData data = createCompatibleRasterData(width, height);
-        final double[] elems = (double[]) data.getElems();
+        final float[] elems = (float[]) data.getElems();
         // getPixels will interpolate between tie points
         getPixels(0, 0, width, height, elems, ProgressMonitor.NULL);
         return data;
@@ -330,8 +330,8 @@ public class TiePointGrid extends RasterDataNode {
      *
      * @see ProductData#getElems
      */
-    public double[] getTiePoints() {
-        return (double[]) getRasterData().getElems();
+    public float[] getTiePoints() {
+        return (float[]) getRasterData().getElems();
     }
 
     /**
@@ -767,8 +767,8 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     public TiePointGrid cloneTiePointGrid() {
-        final double[] srcTiePoints = this.getTiePoints();
-        final double[] destTiePoints = new double[srcTiePoints.length];
+        final float[] srcTiePoints = this.getTiePoints();
+        final float[] destTiePoints = new float[srcTiePoints.length];
         System.arraycopy(srcTiePoints, 0, destTiePoints, 0, srcTiePoints.length);
         TiePointGrid clone = new TiePointGrid(this.getName(),
                                               this.getRasterWidth(),
@@ -788,8 +788,8 @@ public class TiePointGrid extends RasterDataNode {
     // Public static helpers
 
     public static TiePointGrid createZenithFromElevationAngleTiePointGrid(TiePointGrid elevationAngleGrid) {
-        final double[] elevationAngles = elevationAngleGrid.getTiePoints();
-        final double[] zenithAngles = new double[elevationAngles.length];
+        final float[] elevationAngles = elevationAngleGrid.getTiePoints();
+        final float[] zenithAngles = new float[elevationAngles.length];
         for (int i = 0; i < zenithAngles.length; i++) {
             zenithAngles[i] = 90.0f - elevationAngles[i];
         }
@@ -811,7 +811,7 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     private double interpolate(double wi, double wj, int i0, int j0) {
-        final double[] tiePoints = getTiePoints();
+        final float[] tiePoints = getTiePoints();
         final int w = getRasterWidth();
         final int i1 = i0 + 1;
         final int j1 = j0 + 1;
@@ -830,13 +830,13 @@ public class TiePointGrid extends RasterDataNode {
 
     private void initDiscont() {
         TiePointGrid base = this;
-        final double[] tiePoints = base.getTiePoints();
-        final double[] sinTiePoints = new double[tiePoints.length];
-        final double[] cosTiePoints = new double[tiePoints.length];
+        final float[] tiePoints = base.getTiePoints();
+        final float[] sinTiePoints = new float[tiePoints.length];
+        final float[] cosTiePoints = new float[tiePoints.length];
         for (int i = 0; i < tiePoints.length; i++) {
             double tiePoint = tiePoints[i];
-            sinTiePoints[i] = Math.sin(MathUtils.DTOR * tiePoint);
-            cosTiePoints[i] = Math.cos(MathUtils.DTOR * tiePoint);
+            sinTiePoints[i] = (float)Math.sin(MathUtils.DTOR * tiePoint);
+            cosTiePoints[i] = (float)Math.cos(MathUtils.DTOR * tiePoint);
         }
         sinGrid = new TiePointGrid(base.getName(),
                                     base.getRasterWidth(),
@@ -942,8 +942,8 @@ public class TiePointGrid extends RasterDataNode {
             newTPGHeight = srcTPGRasterHeight - dataOffsetY;
         }
 
-        final double[] oldTiePoints = sourceTiePointGrid.getTiePoints();
-        final double[] tiePoints = new double[newTPGWidth * newTPGHeight];
+        final float[] oldTiePoints = sourceTiePointGrid.getTiePoints();
+        final float[] tiePoints = new float[newTPGWidth * newTPGHeight];
         for (int y = 0; y < newTPGHeight; y++) {
             final int srcPos = srcTPGRasterWidth * (dataOffsetY + y) + dataOffsetX;
             System.arraycopy(oldTiePoints, srcPos, tiePoints, y * newTPGWidth, newTPGWidth);

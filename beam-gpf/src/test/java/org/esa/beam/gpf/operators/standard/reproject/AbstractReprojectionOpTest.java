@@ -63,11 +63,11 @@ public abstract class AbstractReprojectionOpTest {
                                                "AUTHORITY[\"EPSG\",\"32633\"]]";
     protected static File wktFile;
 
-    private static final double[] LATS = new double[]{
+    private static final float[] LATS = new float[]{
             50.0f, 50.0f,
             30.0f, 30.0f
     };
-    private static final double[] LONS = new double[]{
+    private static final float[] LONS = new float[]{
             6.0f, 26.0f,
             6.0f, 26.0f
     };

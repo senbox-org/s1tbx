@@ -89,6 +89,39 @@ public final class ReaderUtils {
         return null;
     }
 
+    public static void addGeoCoding(final Product product, final float[] latCorners, final float[] lonCorners) {
+
+        if (latCorners == null || lonCorners == null) return;
+
+        final int gridWidth = 10;
+        final int gridHeight = 10;
+
+        final float[] fineLatTiePoints = new float[gridWidth * gridHeight];
+        ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, latCorners, fineLatTiePoints);
+
+        double subSamplingX = product.getSceneRasterWidth() / (gridWidth - 1);
+        double subSamplingY = product.getSceneRasterHeight() / (gridHeight - 1);
+        if (subSamplingX == 0 || subSamplingY == 0)
+            return;
+
+        final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
+                                                      subSamplingX, subSamplingY, fineLatTiePoints);
+        latGrid.setUnit(Unit.DEGREES);
+
+        final float[] fineLonTiePoints = new float[gridWidth * gridHeight];
+        ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, lonCorners, fineLonTiePoints);
+
+        final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
+                                                      subSamplingX, subSamplingY, fineLonTiePoints, TiePointGrid.DISCONT_AT_180);
+        lonGrid.setUnit(Unit.DEGREES);
+
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+
+        product.addTiePointGrid(latGrid);
+        product.addTiePointGrid(lonGrid);
+        product.setGeoCoding(tpGeoCoding);
+    }
+
     public static void addGeoCoding(final Product product, final double[] latCorners, final double[] lonCorners) {
 
         if (latCorners == null || lonCorners == null) return;
@@ -96,7 +129,7 @@ public final class ReaderUtils {
         final int gridWidth = 10;
         final int gridHeight = 10;
 
-        final double[] fineLatTiePoints = new double[gridWidth * gridHeight];
+        final float[] fineLatTiePoints = new float[gridWidth * gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, latCorners, fineLatTiePoints);
 
         double subSamplingX = product.getSceneRasterWidth() / (gridWidth - 1);
@@ -108,7 +141,7 @@ public final class ReaderUtils {
                 subSamplingX, subSamplingY, fineLatTiePoints);
         latGrid.setUnit(Unit.DEGREES);
 
-        final double[] fineLonTiePoints = new double[gridWidth * gridHeight];
+        final float[] fineLonTiePoints = new float[gridWidth * gridHeight];
         ReaderUtils.createFineTiePointGrid(2, 2, gridWidth, gridHeight, lonCorners, fineLonTiePoints);
 
         final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0.5f, 0.5f,
@@ -126,8 +159,8 @@ public final class ReaderUtils {
                                               final int coarseGridHeight,
                                               final int fineGridWidth,
                                               final int fineGridHeight,
-                                              final double[] coarseTiePoints,
-                                              final double[] fineTiePoints) {
+                                              final float[] coarseTiePoints,
+                                              final float[] fineTiePoints) {
 
         if (coarseTiePoints == null || coarseTiePoints.length != coarseGridWidth * coarseGridHeight) {
             throw new IllegalArgumentException(
@@ -156,7 +189,50 @@ public final class ReaderUtils {
                 final int i1 = Math.min(i0 + 1, coarseGridWidth - 1);
                 final double wi = betaC - i0;
 
-                fineTiePoints[k++] = MathUtils.interpolate2D(wi, wj,
+                fineTiePoints[k++] = (float)MathUtils.interpolate2D(wi, wj,
+                                                                    coarseTiePoints[i0 + j0 * coarseGridWidth],
+                                                                    coarseTiePoints[i1 + j0 * coarseGridWidth],
+                                                                    coarseTiePoints[i0 + j1 * coarseGridWidth],
+                                                                    coarseTiePoints[i1 + j1 * coarseGridWidth]);
+            }
+        }
+    }
+
+    public static void createFineTiePointGrid(final int coarseGridWidth,
+                                              final int coarseGridHeight,
+                                              final int fineGridWidth,
+                                              final int fineGridHeight,
+                                              final double[] coarseTiePoints,
+                                              final float[] fineTiePoints) {
+
+        if (coarseTiePoints == null || coarseTiePoints.length != coarseGridWidth * coarseGridHeight) {
+            throw new IllegalArgumentException(
+                    "coarse tie point array size does not match 'coarseGridWidth' x 'coarseGridHeight'");
+        }
+
+        if (fineTiePoints == null || fineTiePoints.length != fineGridWidth * fineGridHeight) {
+            throw new IllegalArgumentException(
+                    "fine tie point array size does not match 'fineGridWidth' x 'fineGridHeight'");
+        }
+
+        int k = 0;
+        for (int r = 0; r < fineGridHeight; r++) {
+
+            final double lambdaR = r / (double) (fineGridHeight - 1);
+            final double betaR = lambdaR * (coarseGridHeight - 1);
+            final int j0 = (int) (betaR);
+            final int j1 = Math.min(j0 + 1, coarseGridHeight - 1);
+            final double wj = betaR - j0;
+
+            for (int c = 0; c < fineGridWidth; c++) {
+
+                final double lambdaC = c / (double) (fineGridWidth - 1);
+                final double betaC = lambdaC * (coarseGridWidth - 1);
+                final int i0 = (int) (betaC);
+                final int i1 = Math.min(i0 + 1, coarseGridWidth - 1);
+                final double wi = betaC - i0;
+
+                fineTiePoints[k++] = (float)MathUtils.interpolate2D(wi, wj,
                         coarseTiePoints[i0 + j0 * coarseGridWidth],
                         coarseTiePoints[i1 + j0 * coarseGridWidth],
                         coarseTiePoints[i0 + j1 * coarseGridWidth],

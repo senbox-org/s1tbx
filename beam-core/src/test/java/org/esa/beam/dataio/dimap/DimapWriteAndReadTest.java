@@ -246,7 +246,7 @@ public class DimapWriteAndReadTest extends TestCase {
                                                    int offY) {
         final int gridWidth = sceneW / stepX + 1;
         final int gridHeight = sceneH / stepY + 1;
-        final double[] floats = new double[gridWidth * gridHeight];
+        final float[] floats = new float[gridWidth * gridHeight];
         for (int i = 0; i < floats.length; i++) {
             floats[i] = i * 3.54f;
         }

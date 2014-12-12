@@ -150,6 +150,6 @@ public class CollocateOpTest {
     }
 
     private static TiePointGrid createTPG(String name) {
-        return new TiePointGrid(name, 5, 5, 0.5f, 0.5f, 4f, 4f, new double[5 * 5]);
+        return new TiePointGrid(name, 5, 5, 0.5f, 0.5f, 4f, 4f, new float[5 * 5]);
     }
 }

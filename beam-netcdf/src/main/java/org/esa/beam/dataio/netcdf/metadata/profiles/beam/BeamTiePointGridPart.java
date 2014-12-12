@@ -63,7 +63,7 @@ public class BeamTiePointGridPart extends ProfilePartIO {
                 if (offsetX != null && offsetY != null &&
                         subSamplingX != null && subSamplingY != null) {
                     final Array array = variable.read();
-                    final double[] data = new double[(int) array.getSize()];
+                    final float[] data = new float[(int) array.getSize()];
                     for (int i = 0; i < data.length; i++) {
                         data[i] = array.getFloat(i);
                     }

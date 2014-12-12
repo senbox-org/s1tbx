@@ -174,7 +174,7 @@ public class JaiOpTest extends TestCase {
     private Product createSourceProduct() {
         final Product sourceProduct = new Product("sp", "spt", 4, 4);
         sourceProduct.addBand("b1", ProductData.TYPE_INT32);
-        sourceProduct.addTiePointGrid(new TiePointGrid("tpg1", 3, 3, 0, 0, 2, 2, new double[]{
+        sourceProduct.addTiePointGrid(new TiePointGrid("tpg1", 3, 3, 0, 0, 2, 2, new float[]{
                 0.1f, 0.2f, 0.3f,
                 0.2f, 0.3f, 0.4f,
                 0.3f, 0.4f, 0.5f,

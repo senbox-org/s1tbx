@@ -375,8 +375,8 @@ public class ProductFlipper extends AbstractProductBuilder {
                     }
                 }
 
-                final double[] sourcePoints = sourceTiePointGrid.getTiePoints();
-                final double[] targetPoints = new double[sourcePoints.length];
+                final float[] sourcePoints = sourceTiePointGrid.getTiePoints();
+                final float[] targetPoints = new float[sourcePoints.length];
                 final int width = sourceTiePointGrid.getRasterWidth();
                 final int height = sourceTiePointGrid.getRasterHeight();
 

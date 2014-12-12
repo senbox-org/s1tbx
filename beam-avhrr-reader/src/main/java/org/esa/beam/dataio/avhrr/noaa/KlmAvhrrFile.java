@@ -228,12 +228,12 @@ public class KlmAvhrrFile extends AvhrrFile implements AvhrrConstants {
     }
 
     @Override
-    public double[][] getTiePointData() throws IOException {
+    public float[][] getTiePointData() throws IOException {
         final int tiePointSubsampling = getTiePointSubsampling();
         final int gridHeight = getProductHeight() / tiePointSubsampling + 1;
         final int numTiePoints = TP_GRID_WIDTH * gridHeight;
 
-        double[][] tiePointData = new double[5][numTiePoints];
+        float[][] tiePointData = new float[5][numTiePoints];
         final int numRawAngles = TP_GRID_WIDTH * 3;
         final int numRawLatLon = TP_GRID_WIDTH * 2;
 

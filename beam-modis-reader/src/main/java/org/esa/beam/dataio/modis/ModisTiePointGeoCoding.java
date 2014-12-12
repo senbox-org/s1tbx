@@ -258,8 +258,8 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         final double ssX = lonGrid.getSubSamplingX();
         final double ssY = lonGrid.getSubSamplingY();
 
-        final double[] latFloats = (double[]) latgrid.getDataElems();
-        final double[] lonFloats = (double[]) lonGrid.getDataElems();
+        final float[] latFloats = (float[]) latgrid.getDataElems();
+        final float[] lonFloats = (float[]) lonGrid.getDataElems();
 
         final int stripeW = lonGrid.getRasterWidth();
         final int gcStripeSceneWidth = lonGrid.getSceneRasterWidth();
@@ -276,12 +276,12 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
 
         final int gcRawWidth = stripeW * stripeH;
         for (int y = 0; y < tpRasterHeight; y += stripeH) {
-            final double[] lats = new double[gcRawWidth];
-            final double[] lons = new double[gcRawWidth];
+            final float[] lats = new float[gcRawWidth];
+            final float[] lons = new float[gcRawWidth];
             System.arraycopy(lonFloats, y * stripeW, lons, 0, stripeW * stripeH);
             System.arraycopy(latFloats, y * stripeW, lats, 0, stripeW * stripeH);
 
-            final Range range = Range.computeRangeDouble(lats, IndexValidator.TRUE, null, ProgressMonitor.NULL);
+            final Range range = Range.computeRangeFloat(lats, IndexValidator.TRUE, null, ProgressMonitor.NULL);
             if (range.getMin() < -90) {
                 gcList.add(null);
                 centerLineList.add(null);
@@ -458,10 +458,10 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
         final int stopY = calculateStopLine(scanlineHeight, region);
         final int extendedHeight = stopY - startY;
 
-        double[] recalculatedLatFloats = new double[region.width * extendedHeight];
+        float[] recalculatedLatFloats = new float[region.width * extendedHeight];
         recalculatedLatFloats = srcProduct.getTiePointGrid(latGridName).getPixels(region.x, startY, region.width, extendedHeight, recalculatedLatFloats);
 
-        double[] recalculatedLonFloats = new double[region.width * extendedHeight];
+        float[] recalculatedLonFloats = new float[region.width * extendedHeight];
         recalculatedLonFloats = srcProduct.getTiePointGrid(lonGridName).getPixels(region.x, startY, region.width, extendedHeight, recalculatedLonFloats);
 
 
@@ -578,11 +578,11 @@ public class ModisTiePointGeoCoding extends AbstractGeoCoding {
 
     private class ModisTiePointGrid extends TiePointGrid {
 
-        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, double offsetX, double offsetY, double subSamplingX, double subSamplingY, double[] tiePoints) {
+        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, double offsetX, double offsetY, double subSamplingX, double subSamplingY, float[] tiePoints) {
             super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints);
         }
 
-        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, double offsetX, double offsetY, double subSamplingX, double subSamplingY, double[] tiePoints, boolean containsAngles) {
+        public ModisTiePointGrid(String name, int gridWidth, int gridHeight, double offsetX, double offsetY, double subSamplingX, double subSamplingY, float[] tiePoints, boolean containsAngles) {
             super(name, gridWidth, gridHeight, offsetX, offsetY, subSamplingX, subSamplingY, tiePoints, containsAngles);
         }
 

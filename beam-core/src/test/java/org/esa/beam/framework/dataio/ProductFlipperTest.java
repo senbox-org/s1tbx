@@ -39,14 +39,14 @@ public class ProductFlipperTest {
     @BeforeClass
     public static void setup() {
         product = new Product("p", "t", 14, 16);
-        TiePointGrid t1 = new TiePointGrid("t1", 3, 3, 0, 0, 5, 5, new double[]{
+        TiePointGrid t1 = new TiePointGrid("t1", 3, 3, 0, 0, 5, 5, new float[]{
                 0.6f, 0.3f, 0.4f,
                 0.8f, 0.9f, 0.4f,
                 0.3f, 0.2f, 0.4f
         });
         product.addTiePointGrid(t1);
 
-        TiePointGrid t2 = new TiePointGrid("t2", 3, 3, 0, 0, 5, 5, new double[]{
+        TiePointGrid t2 = new TiePointGrid("t2", 3, 3, 0, 0, 5, 5, new float[]{
                 0.9f, 0.2f, 0.3f,
                 0.6f, 0.1f, 0.4f,
                 0.2f, 0.9f, 0.5f
@@ -54,7 +54,7 @@ public class ProductFlipperTest {
         product.addTiePointGrid(t2);
         product.setGeoCoding(new TiePointGeoCoding(t1, t2, Datum.WGS_84));
 
-        TiePointGrid t3 = new TiePointGrid("t3", 3, 3, 1, 1, 3, 3, new double[]{
+        TiePointGrid t3 = new TiePointGrid("t3", 3, 3, 1, 1, 3, 3, new float[]{
                 1, 2, 3,
                 4, 5, 6,
                 7, 8, 9
@@ -67,12 +67,12 @@ public class ProductFlipperTest {
     public void testTiePointFlipping_Horizontal() throws IOException {
         final Product flipped = ProductFlipper.createFlippedProduct(product, ProductFlipper.FLIP_HORIZONTAL, "h", "h");
         final TiePointGrid flippedT1 = flipped.getTiePointGrid("t1");
-        final double[] expectedT1 = {
+        final float[] expectedT1 = {
                 0.4f, 0.3f, 0.6f,
                 0.4f, 0.9f, 0.8f,
                 0.4f, 0.2f, 0.3f
         };
-        assertTrue(Arrays.equals(expectedT1, (double[]) flippedT1.getDataElems()));
+        assertTrue(Arrays.equals(expectedT1, (float[]) flippedT1.getDataElems()));
 
         assertEquals(4, flippedT1.getOffsetX(), 1.0e-6);
         assertEquals(0, flippedT1.getOffsetY(), 1.0e-6);
@@ -99,12 +99,12 @@ public class ProductFlipperTest {
     public void testTiePointFlipping_Vertical() throws IOException {
         final Product flipped = ProductFlipper.createFlippedProduct(product, ProductFlipper.FLIP_VERTICAL, "v", "v");
         final TiePointGrid flippedT1 = flipped.getTiePointGrid("t1");
-        final double[] expectedT1 = {
+        final float[] expectedT1 = {
                 0.3f, 0.2f, 0.4f,
                 0.8f, 0.9f, 0.4f,
                 0.6f, 0.3f, 0.4f
         };
-        assertTrue(Arrays.equals(expectedT1, (double[]) flippedT1.getDataElems()));
+        assertTrue(Arrays.equals(expectedT1, (float[]) flippedT1.getDataElems()));
 
         assertEquals(0, flippedT1.getOffsetX(), 1.0e-6);
         assertEquals(6, flippedT1.getOffsetY(), 1.0e-6);
@@ -131,12 +131,12 @@ public class ProductFlipperTest {
     public void testTiePointFlipping_Both() throws IOException {
         final Product flipped = ProductFlipper.createFlippedProduct(product, ProductFlipper.FLIP_BOTH, "b", "b");
         final TiePointGrid flippedT1 = flipped.getTiePointGrid("t1");
-        final double[] expectedT1 = {
+        final float[] expectedT1 = {
                 0.4f, 0.2f, 0.3f,
                 0.4f, 0.9f, 0.8f,
                 0.4f, 0.3f, 0.6f
         };
-        assertTrue(Arrays.equals(expectedT1, (double[]) flippedT1.getDataElems()));
+        assertTrue(Arrays.equals(expectedT1, (float[]) flippedT1.getDataElems()));
 
         assertEquals(4, flippedT1.getOffsetX(), 1.0e-6);
         assertEquals(6, flippedT1.getOffsetY(), 1.0e-6);

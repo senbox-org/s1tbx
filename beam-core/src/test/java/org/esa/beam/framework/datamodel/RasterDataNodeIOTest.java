@@ -174,7 +174,7 @@ public class RasterDataNodeIOTest extends TestCase {
     private Product createTestProduct() {
         Product p = new Product("p", "t", SW, SH, TPRPI.createReaderInstance());
 
-        final double[] tiePoints = new double[GW * GH];
+        final float[] tiePoints = new float[GW * GH];
         for (int j = 0; j < GH; j++) {
             for (int i = 0; i < GW; i++) {
                 tiePoints[j * GW + i] = getTiePointValue(i, j);
