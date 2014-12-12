@@ -265,23 +265,24 @@ public class Triangle {
     public int getOpposite(int side) {
         //switch(side) {
         if (side==0) {
-            if (BAO.getA()==A) return 1;
-            if (BAO.getB()==A) return 2;
-            if (BAO.getC()==A) return 0;
+            return BAO.getOppSide(A);
         }
         if (side==1) {
-            if (CBO.getA()==B) return 1;
-            if (CBO.getB()==B) return 2;
-            if (CBO.getC()==B) return 0;
+            return CBO.getOppSide(B);
         }
         if (side==2) {
-            if (ACO.getA()==C) return 1;
-            if (ACO.getB()==C) return 2;
-            if (ACO.getC()==C) return 0;
+            return ACO.getOppSide(C);
         }
         return -1;
     }
-    
+
+    public int getOppSide(Coordinate p) {
+        if (A==p) return 1;
+        if (B==p) return 2;
+        if (C==p) return 0;
+        return -1;
+    }
+
     /**
      * Position of p relative to this triangle.
      * returns an integer where
@@ -344,4 +345,29 @@ public class Triangle {
         return sb.toString();
     }
 
+    /**
+     * Return a positive value if the point p4 lies inside the
+     * circle passing through pa, pb, and pc; a negative value if
+     * it lies outside; and zero if the four points are cocircular.
+     * The points pa, pb, and pc must be in counterclockwise
+     * order, or the sign of the result will be reversed.
+     */
+    public double inCircle(final Coordinate p4) {
+
+        final double adx = A.x-p4.x;
+        final double ady = A.y-p4.y;
+        final double bdx = B.x-p4.x;
+        final double bdy = B.y-p4.y;
+        final double cdx = C.x-p4.x;
+        final double cdy = C.y-p4.y;
+
+        final double abdet = adx * bdy - bdx * ady;
+        final double bcdet = bdx * cdy - cdx * bdy;
+        final double cadet = cdx * ady - adx * cdy;
+        final double alift = adx * adx + ady * ady;
+        final double blift = bdx * bdx + bdy * bdy;
+        final double clift = cdx * cdx + cdy * cdy;
+
+        return alift * bcdet + blift * cadet + clift * abdet;
+    }
 }
