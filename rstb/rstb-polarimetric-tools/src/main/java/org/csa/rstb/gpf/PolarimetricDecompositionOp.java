@@ -32,7 +32,6 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 
 import java.awt.*;
@@ -164,7 +163,8 @@ public final class PolarimetricDecompositionOp extends Operator {
             }
             if(polDecomp instanceof HAlphaC2 && !PolBandUtils.isDualPol(sourceProductType)) {
                 throw new OperatorException("Input should be a dual polarimetric product");
-            } else if(!(polDecomp instanceof HAlphaC2) && !PolBandUtils.isQuadPol(sourceProductType)) {
+            } else if(!(polDecomp instanceof HAlphaC2) && !PolBandUtils.isQuadPol(sourceProductType) &&
+                    !PolBandUtils.isFullPol(sourceProductType)) {
                 throw new OperatorException("Input should be a full polarimetric product");
             }
 

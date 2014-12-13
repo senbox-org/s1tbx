@@ -15,6 +15,7 @@
  */
 package org.csa.rstb.gpf.specklefilters;
 
+import org.csa.rstb.gpf.DualPolOpUtils;
 import org.csa.rstb.gpf.PolOpUtils;
 import org.csa.rstb.gpf.PolarimetricSpeckleFilterOp;
 import org.esa.beam.framework.datamodel.Band;
@@ -52,13 +53,71 @@ public class BoxCar implements SpeckleFilter {
     }
 
     public void computeTiles(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle, final Rectangle sourceRectangle) {
-        if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+        if (PolBandUtils.isFullPol(sourceProductType)) {
             boxcarFilterFullPol(targetTiles, targetRectangle, sourceRectangle);
-        } else if (sourceProductType == PolBandUtils.MATRIX.C3 || sourceProductType == PolBandUtils.MATRIX.T3 ||
-                sourceProductType == PolBandUtils.MATRIX.C4 || sourceProductType == PolBandUtils.MATRIX.T4) {
+        } else if (PolBandUtils.isQuadPol(sourceProductType)) {
             boxcarFilterC3T3C4T4(targetTiles, targetRectangle, sourceRectangle);
+        } else if (PolBandUtils.isDualPol(sourceProductType)) {
+            boxcarFilterC2(targetTiles, targetRectangle, sourceRectangle);
         } else {
-            throw new OperatorException("For Boxcar filter, only C3, T3, C4 and T4 are supported currently");
+            throw new OperatorException("For Boxcar filtering, only C2, C3, T3, C4 and T4 are supported");
+        }
+    }
+
+    /**
+     * Filter compact polarimetric data with Box Car filter for given tile.
+     *
+     * @param targetTiles     The current tiles to be computed for each target band.
+     * @param targetRectangle The area in pixel coordinates to be computed.
+     * @param sourceRectangle The area in the source product
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     */
+    private void boxcarFilterC2(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
+                                final Rectangle sourceRectangle) {
+
+        final int x0 = targetRectangle.x, y0 = targetRectangle.y;
+        final int w = targetRectangle.width,  h = targetRectangle.height;
+        final int maxY = y0 + h, maxX = x0 + w;
+        final int sourceImageWidth = sourceProduct.getSceneRasterWidth();
+        final int sourceImageHeight = sourceProduct.getSceneRasterHeight();
+        //System.out.println("boxcar x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
+
+        final TileIndex trgIndex = new TileIndex(targetTiles.get(targetProduct.getBandAt(0)));
+
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
+            final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
+            final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
+            for (int i = 0; i < bandList.srcBands.length; ++i) {
+                sourceTiles[i] = operator.getSourceTile(bandList.srcBands[i], sourceRectangle);
+                dataBuffers[i] = sourceTiles[i].getDataBuffer();
+            }
+
+            final double[][] Cr = new double[2][2];
+            final double[][] Ci = new double[2][2];
+
+            for (int y = y0; y < maxY; ++y) {
+                trgIndex.calculateStride(y);
+                for (int x = x0; x < maxX; ++x) {
+                    final int idx = trgIndex.getIndex(x);
+
+                    DualPolOpUtils.getMeanCovarianceMatrixC2(x, y, halfFilterSize, halfFilterSize, sourceImageWidth,
+                            sourceImageHeight, sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
+
+                    for (Band targetBand : bandList.targetBands) {
+                        final String targetBandName = targetBand.getName();
+                        final ProductData dataBuffer = targetTiles.get(targetBand).getDataBuffer();
+                        if (targetBandName.equals("C11")) {
+                            dataBuffer.setElemFloatAt(idx, (float) Cr[0][0]);
+                        } else if (targetBandName.contains("C12_real")) {
+                            dataBuffer.setElemFloatAt(idx, (float) Cr[0][1]);
+                        } else if (targetBandName.contains("C12_imag")) {
+                            dataBuffer.setElemFloatAt(idx, (float) Ci[0][1]);
+                        } else if (targetBandName.equals("C22")) {
+                            dataBuffer.setElemFloatAt(idx, (float) Cr[1][1]);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -73,12 +132,9 @@ public class BoxCar implements SpeckleFilter {
     private void boxcarFilterFullPol(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
                                      final Rectangle sourceRectangle) {
 
-        final int x0 = targetRectangle.x;
-        final int y0 = targetRectangle.y;
-        final int w = targetRectangle.width;
-        final int h = targetRectangle.height;
-        final int maxY = y0 + h;
-        final int maxX = x0 + w;
+        final int x0 = targetRectangle.x, y0 = targetRectangle.y;
+        final int w = targetRectangle.width,  h = targetRectangle.height;
+        final int maxY = y0 + h, maxX = x0 + w;
         final int sourceImageWidth = sourceProduct.getSceneRasterWidth();
         final int sourceImageHeight = sourceProduct.getSceneRasterHeight();
         //System.out.println("boxcar x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
@@ -145,12 +201,9 @@ public class BoxCar implements SpeckleFilter {
     private void boxcarFilterC3T3C4T4(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
                                       final Rectangle sourceRectangle) {
 
-        final int x0 = targetRectangle.x;
-        final int y0 = targetRectangle.y;
-        final int w = targetRectangle.width;
-        final int h = targetRectangle.height;
-        final int maxY = y0 + h;
-        final int maxX = x0 + w;
+        final int x0 = targetRectangle.x, y0 = targetRectangle.y;
+        final int w = targetRectangle.width,  h = targetRectangle.height;
+        final int maxY = y0 + h, maxX = x0 + w;
         //System.out.println("boxcar x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
         final int sx0 = sourceRectangle.x;
