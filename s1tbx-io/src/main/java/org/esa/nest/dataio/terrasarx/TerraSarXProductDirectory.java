@@ -26,6 +26,7 @@ import org.esa.nest.dataio.XMLProductDirectory;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
@@ -47,9 +48,12 @@ import java.util.*;
  */
 public class TerraSarXProductDirectory extends XMLProductDirectory {
 
+    private static String TERRA_SAR_X = "TerraSar-X";
+    private static String TAN_DEM_X = "TanDem-X";
+
     private final File headerFile;
-    private String productName = "TerraSar-X";
-    private String productType = "TerraSar-X";
+    private String productName = null;
+    private String productType = null;
     private String productDescription = "";
 
     private final double[] latCorners = new double[4];
@@ -59,6 +63,10 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
     private final List<File> cosarFileList = new ArrayList<>(1);
     private final Map<String, ImageInputStream> cosarBandMap = new HashMap<>(1);
+
+    // For TDM CoSSC products only
+    private String masterProductName = null;
+    private String slaveProductName = null;
 
     public TerraSarXProductDirectory(final File inputFile) {
         super(inputFile);
@@ -75,6 +83,106 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
     protected String getRelativePathToImageFolder() {
         return getRootFolder()+"IMAGEDATA" + '/';
+    }
+
+    private void replaceAbstractedMetadataField(final MetadataElement abstractedMetadata, final String attrName, final String newValue) {
+
+        final ProductData productData = abstractedMetadata.getAttribute(attrName).getData();
+        productData.setElems(newValue);
+    }
+
+    private MetadataElement addMetaDataForTanDemX() throws IOException {
+
+        // xmlDoc is the "main" annotation (i.e., the file with name "TDM... .xml")
+        final Element rootElement = xmlDoc.getRootElement();
+
+        // Look for the product components that are the "primary" and "secondary" annotations inside the TDM xml file.
+        // Assume that the "primary" is the master in the co-registration and the "secondary" is the slave.
+        final List<Element> componentList = rootElement.getChild("productComponents").getChildren("component");
+        Element masterAnnotationComponent = null;
+        Element slaveAnnotationComponent = null;
+        for (Element component : componentList) {
+            if (component.getChild("name").getText().equals("cossc_annotation_primary")) {
+                masterAnnotationComponent = component;
+            }
+            if (component.getChild("name").getText().equals("cossc_annotation_secondary")) {
+                slaveAnnotationComponent = component;
+            }
+            if (masterAnnotationComponent != null && slaveAnnotationComponent != null) {
+                break;
+
+            }
+        }
+        if (masterAnnotationComponent == null) {
+            throw new IOException("Cannot locate primary annotation component (master product) in main annotation of TDM product");
+        }
+        if (slaveAnnotationComponent == null) {
+            throw new IOException("Cannot locate secondary annotation component (slave product) in main annotation of TDM product");
+        }
+
+        // Use the master's annotation to build the Abstracted_Metadata and Original_Product_Metadata.
+
+        final String masterHeader = masterAnnotationComponent.getChild("file").getChild("location").getChildText("name");
+        final Document masterDoc = XMLSupport.LoadXML(getInputStream(masterHeader));
+
+        final MetadataElement root = new MetadataElement(Product.METADATA_ROOT_NAME);
+        final Element masterRootElement = masterDoc.getRootElement();
+        AbstractMetadataIO.AddXMLMetadata(masterRootElement, AbstractMetadata.addOriginalProductMetadata(root));
+
+        addAbstractedMetadataHeader(root);
+
+        // Replace the product name (which right now is the master product) with the TDM product.
+        // Replace data in Abstracted_Metadata with TDM values.
+
+        MetadataElement abstractedMetadata = root.getElement("Abstracted_Metadata");
+
+        // Replace PRODUCT
+        productName = getHeaderFileName().substring(0, getHeaderFileName().length()-4);
+        replaceAbstractedMetadataField(abstractedMetadata, "PRODUCT", productName);
+
+        // Replace PRODUCT_TYPE
+        productType = rootElement.getChild("productInfo").getChildText("productType");
+        replaceAbstractedMetadataField(abstractedMetadata, "PRODUCT_TYPE", productType);
+
+        // Replace SPH_DESCRIPTOR
+        replaceAbstractedMetadataField(abstractedMetadata, "SPH_DESCRIPTOR", rootElement.getChild("generalHeader").getChildText("itemName"));
+
+        // Replace mission
+        replaceAbstractedMetadataField(abstractedMetadata, "MISSION", "TDM");
+
+        // Add the CoSSC metadata, i.e., the "main" annotation from the file with name "TDM... .xml"
+        final MetadataElement cosscMetadataElem = new MetadataElement("CoSSC_Metadata");
+        AbstractMetadataIO.AddXMLMetadata(rootElement, cosscMetadataElem);
+        root.addElement(cosscMetadataElem);
+
+        // Add the slave metadata
+        final String slaveHeader = slaveAnnotationComponent.getChild("file").getChild("location").getChildText("name");
+        final Document slaveDoc = XMLSupport.LoadXML(getInputStream(slaveHeader));
+        final Element slaveElement = slaveDoc.getRootElement();
+        final MetadataElement slaveMetadataElem = new MetadataElement("Slave_Metadata");
+        AbstractMetadataIO.AddXMLMetadata(slaveElement, slaveMetadataElem);
+        root.addElement(slaveMetadataElem);
+
+        masterProductName = masterHeader.substring(0, masterHeader.indexOf("/"));
+        slaveProductName = slaveHeader.substring(0, masterHeader.indexOf("/"));
+
+        return root;
+    }
+
+    @Override
+    protected MetadataElement addMetaData() throws IOException {
+
+        if (getHeaderFileName().startsWith("TSX") || getHeaderFileName().startsWith("TDX")) {
+            productName = TERRA_SAR_X;
+            productType = TERRA_SAR_X;
+            return super.addMetaData();
+        } else if (getHeaderFileName().startsWith("TDM")) {
+            productName = TAN_DEM_X;
+            productType = TAN_DEM_X;
+            return addMetaDataForTanDemX();
+        } else {
+            throw new IOException("Invalid header file: " + getHeaderFileName());
+        }
     }
 
     @Override
@@ -283,6 +391,27 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
             // modify abstracted metadata
 
+        }
+    }
+
+    private void findImagedForTanDemX() throws IOException {
+
+        String parentPath = masterProductName + "/" + getRelativePathToImageFolder();
+        findImages(parentPath);
+
+        parentPath = slaveProductName + "/" + getRelativePathToImageFolder();
+        findImages(parentPath);
+    }
+
+    @Override
+    protected void findImages() throws IOException {
+
+        if (getHeaderFileName().startsWith("TSX") || getHeaderFileName().startsWith("TDX")) {
+            super.findImages();
+        } else if (getHeaderFileName().startsWith("TDM")) {
+            findImagedForTanDemX();
+        } else {
+            throw new IOException("Invalid header file: " + getHeaderFileName());
         }
     }
 
@@ -785,11 +914,14 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                     extraInfo = fileName.substring(polIndex + 2, fileName.indexOf(".", polIndex + 3));
                 }
 
-                final Band realBand = new Band("i_" + pol + extraInfo, ProductData.TYPE_INT16, width, height);
+                final String mission = absRoot.getAttributeString("MISSION");
+                final int bandDataType = mission.contains("TDM") ? ProductData.TYPE_FLOAT32 : ProductData.TYPE_INT16;
+
+                final Band realBand = new Band("i_" + pol + extraInfo, bandDataType, width, height);
                 realBand.setUnit(Unit.REAL);
                 product.addBand(realBand);
 
-                final Band imaginaryBand = new Band("q_" + pol + extraInfo, ProductData.TYPE_INT16, width, height);
+                final Band imaginaryBand = new Band("q_" + pol + extraInfo, bandDataType, width, height);
                 imaginaryBand.setUnit(Unit.IMAGINARY);
                 product.addBand(imaginaryBand);
 
