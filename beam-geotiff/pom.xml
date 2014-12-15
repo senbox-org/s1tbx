@@ -49,20 +49,6 @@
         <dependency>
             <groupId>it.geosolutions.imageio-ext</groupId>
             <artifactId>imageio-ext-tiff</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.media</groupId>
-                    <artifactId>jai_core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.media</groupId>
-                    <artifactId>jai_codec</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.media</groupId>
-                    <artifactId>jai_imageio</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 
