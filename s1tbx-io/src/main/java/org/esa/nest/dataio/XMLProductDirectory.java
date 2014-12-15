@@ -45,7 +45,7 @@ public abstract class XMLProductDirectory {
     private final String baseName;
     private File baseDir;
     private String rootFolder = null;
-    private Document xmlDoc = null;
+    protected Document xmlDoc = null;
 
     private boolean isSLC = false;
 
@@ -105,8 +105,7 @@ public abstract class XMLProductDirectory {
         return productDir.isCompressed();
     }
 
-    protected void findImages() throws IOException {
-        final String parentPath = getRelativePathToImageFolder();
+    protected void findImages(final String parentPath) throws IOException {
         String[] listing;
         try {
             listing = productDir.list(parentPath);
@@ -118,6 +117,11 @@ public abstract class XMLProductDirectory {
                 addImageFile(parentPath + imgPath);
             }
         }
+    }
+
+    protected void findImages() throws IOException {
+        final String parentPath = getRelativePathToImageFolder();
+        findImages(parentPath);
     }
 
     public ImageIOFile.BandInfo getBandInfo(final Band destBand) {
