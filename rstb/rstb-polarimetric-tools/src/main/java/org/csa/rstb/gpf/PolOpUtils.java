@@ -888,17 +888,13 @@ public final class PolOpUtils {
             final PolBandUtils.MATRIX sourceProductType, final Tile[] sourceTiles, final ProductData[] dataBuffers,
             final double[][] Cr, final double[][] Ci) {
 
-        final double[][] tempSr = new double[2][2];
-        final double[][] tempSi = new double[2][2];
         final double[][] tempCr = new double[3][3];
         final double[][] tempCi = new double[3][3];
-        final double[][] tempTr = new double[3][3];
-        final double[][] tempTi = new double[3][3];
 
-        final int xSt = FastMath.max(x - halfWindowSizeX, sourceTiles[0].getMinX());
-        final int xEd = FastMath.min(x + halfWindowSizeX, sourceTiles[0].getMaxX() - 1);
-        final int ySt = FastMath.max(y - halfWindowSizeY, sourceTiles[0].getMinY());
-        final int yEd = FastMath.min(y + halfWindowSizeY, sourceTiles[0].getMaxY() - 1);
+        final int xSt = Math.max(x - halfWindowSizeX, sourceTiles[0].getMinX());
+        final int xEd = Math.min(x + halfWindowSizeX, sourceTiles[0].getMaxX() - 1);
+        final int ySt = Math.max(y - halfWindowSizeY, sourceTiles[0].getMinY());
+        final int yEd = Math.min(y + halfWindowSizeY, sourceTiles[0].getMaxY() - 1);
         final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
 
         final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
@@ -918,6 +914,8 @@ public final class PolOpUtils {
             }
 
         } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
+            final double[][] tempTr = new double[3][3];
+            final double[][] tempTi = new double[3][3];
 
             for (int yy = ySt; yy <= yEd; ++yy) {
                 srcIndex.calculateStride(yy);
@@ -930,6 +928,8 @@ public final class PolOpUtils {
             }
 
         } else if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+            final double[][] tempSr = new double[2][2];
+            final double[][] tempSi = new double[2][2];
 
             for (int yy = ySt; yy <= yEd; ++yy) {
                 srcIndex.calculateStride(yy);
@@ -945,10 +945,14 @@ public final class PolOpUtils {
         CrMat.timesEquals(1.0 / num);
         CiMat.timesEquals(1.0 / num);
         for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                Cr[i][j] = CrMat.get(i, j);
-                Ci[i][j] = CiMat.get(i, j);
-            }
+            Cr[i][0] = CrMat.get(i, 0);
+            Ci[i][0] = CiMat.get(i, 0);
+
+            Cr[i][1] = CrMat.get(i, 1);
+            Ci[i][1] = CiMat.get(i, 1);
+
+            Cr[i][2] = CrMat.get(i, 2);
+            Ci[i][2] = CiMat.get(i, 2);
         }
     }
 

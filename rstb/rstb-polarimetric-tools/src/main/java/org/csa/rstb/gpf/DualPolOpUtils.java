@@ -130,10 +130,11 @@ public final class DualPolOpUtils {
         CrMat.timesEquals(1.0 / num);
         CiMat.timesEquals(1.0 / num);
         for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 2; j++) {
-                Cr[i][j] = CrMat.get(i, j);
-                Ci[i][j] = CiMat.get(i, j);
-            }
+            Cr[i][0] = CrMat.get(i, 0);
+            Ci[i][0] = CiMat.get(i, 0);
+
+            Cr[i][1] = CrMat.get(i, 1);
+            Ci[i][1] = CiMat.get(i, 1);
         }
     }
 
