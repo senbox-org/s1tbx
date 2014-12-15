@@ -152,7 +152,7 @@ public class TerraSarXProductReader extends SARReader {
 
                 final ImageInputStream iiStream = dataDir.getCosarImageInputStream(destBand);
                 final boolean isImaginary = destBand.getUnit() != null && destBand.getUnit().equals(Unit.IMAGINARY);
-                readBandRasterDataSLCShort(sourceOffsetX, sourceOffsetY,
+                readBandRasterDataSLC16Bit(sourceOffsetX, sourceOffsetY,
                         sourceWidth, sourceHeight,
                         sourceStepX, sourceStepY,
                         destWidth, destBuffer,
@@ -287,10 +287,8 @@ public class TerraSarXProductReader extends SARReader {
                                          final int currentLineIndex, final int destWidth) {
 
         if (isSSC) {
+            // The data type of ProductData is INT16 which is short
             System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
-            /*for (int i = 0; i < destWidth; i++) {
-                destBuffer.setElemFloatAt(i+currentLineIndex, (float)(short)destLine[i]);
-            }*/
         } else {
             for (int i = 0; i < destWidth; i++) {
                 destBuffer.setElemFloatAt(i+currentLineIndex, convert16BitsTo32BitFloat(destLine[i]));
@@ -298,7 +296,7 @@ public class TerraSarXProductReader extends SARReader {
         }
     }
 
-    private static synchronized void readBandRasterDataSLCShort(final int sourceOffsetX, final int sourceOffsetY,
+    private static synchronized void readBandRasterDataSLC16Bit(final int sourceOffsetX, final int sourceOffsetY,
                                                                 final int sourceWidth, final int sourceHeight,
                                                                 final int sourceStepX, final int sourceStepY,
                                                                 final int destWidth, final ProductData destBuffer, boolean oneOf2,
