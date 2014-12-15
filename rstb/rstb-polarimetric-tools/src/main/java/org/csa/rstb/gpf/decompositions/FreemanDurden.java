@@ -116,10 +116,6 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
                             sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                     final FDD data = getFreemanDurdenDecomposition(Cr, Ci);
-                    if (data.ps < PolOpUtils.EPS ||
-                            data.pd < PolOpUtils.EPS || data.pv < PolOpUtils.EPS) {
-                        System.out.println();
-                    }
 
                     ps = scaleDb(data.ps, bandList.spanMin, bandList.spanMax);
                     pd = scaleDb(data.pd, bandList.spanMin, bandList.spanMax);

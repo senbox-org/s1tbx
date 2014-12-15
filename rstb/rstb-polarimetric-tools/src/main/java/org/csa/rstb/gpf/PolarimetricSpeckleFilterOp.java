@@ -228,6 +228,8 @@ public class PolarimetricSpeckleFilterOp extends Operator {
         boolean copyInputBands = false;
         if (sourceProductType == PolBandUtils.MATRIX.FULL) {
             bandNames = PolBandUtils.getT3BandNames();
+        } else if (PolBandUtils.isDualPol(sourceProductType)) {
+            bandNames = PolBandUtils.getC2BandNames();
         } else {
             copyInputBands = true;
         }

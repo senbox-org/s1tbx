@@ -15,6 +15,7 @@
  */
 package org.csa.rstb.gpf.specklefilters;
 
+import org.csa.rstb.gpf.DualPolOpUtils;
 import org.csa.rstb.gpf.PolOpUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -92,6 +93,77 @@ public interface SpeckleFilter {
             varX = 0.0;
         }
         return varX / varY;
+    }
+
+    /**
+     * Create Span image.
+     *
+     * @param sourceRectangle The source tile rectangle.
+     * @param span            The span image.
+     */
+    default void createC2SpanImage(final Tile srcTile, final PolBandUtils.MATRIX sourceProductType,
+                                   final Rectangle sourceRectangle, final ProductData[] dataBuffers,
+                                   final double[][] data11Real, final double[][] data12Real, final double[][] data12Imag,
+                                   final double[][] data22Real, final double[][] span) {
+
+        // The pixel value of the span image is given by the trace of the covariance or coherence matrix for the pixel.
+        final int sx0 = sourceRectangle.x;
+        final int sy0 = sourceRectangle.y;
+        final int sw = sourceRectangle.width;
+        final int sh = sourceRectangle.height;
+        final int maxY = sy0 + sh;
+        final int maxX = sx0 + sw;
+
+        final TileIndex srcIndex = new TileIndex(srcTile);
+
+        final double[][] Cr = new double[2][2];
+        final double[][] Ci = new double[2][2];
+
+        if (sourceProductType == PolBandUtils.MATRIX.LCHCP || sourceProductType == PolBandUtils.MATRIX.RCHCP) {
+
+            final double[] Kr = new double[2];
+            final double[] Ki = new double[2];
+
+            for (int y = sy0; y < maxY; ++y) {
+                final int j = y - sy0;
+                srcIndex.calculateStride(y);
+                for (int x = sx0; x < maxX; ++x) {
+                    final int i = x - sx0;
+                    final int index = srcIndex.getIndex(x);
+
+                    DualPolOpUtils.getCompactPolScatterVector(index, dataBuffers, Kr, Ki);
+                    DualPolOpUtils.computeCovarianceMatrixC2(Kr, Ki, Cr, Ci);
+
+                    data11Real[j][i] = Cr[0][0];
+                    data12Real[j][i] = Cr[0][1];
+                    data12Imag[j][i] = Ci[0][1];
+                    data22Real[j][i] = Cr[1][1];
+                    span[j][i] = (Cr[0][0] + Cr[1][1]) / 2.0;
+                }
+            }
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.C2) {
+
+            for (int y = sy0; y < maxY; ++y) {
+                final int j = y - sy0;
+                srcIndex.calculateStride(y);
+                for (int x = sx0; x < maxX; ++x) {
+                    final int i = x - sx0;
+                    final int index = srcIndex.getIndex(x);
+
+                    DualPolOpUtils.getCovarianceMatrixC2(index, dataBuffers, Cr, Ci);
+
+                    data11Real[j][i] = Cr[0][0];
+                    data12Real[j][i] = Cr[0][1];
+                    data12Imag[j][i] = Ci[0][1];
+                    data22Real[j][i] = Cr[1][1];
+                    span[j][i] = (Cr[0][0] + Cr[1][1]) / 2.0;
+                }
+            }
+
+        } else {
+            throw new OperatorException("Cp or dual pol product is expected.");
+        }
     }
 
     /**

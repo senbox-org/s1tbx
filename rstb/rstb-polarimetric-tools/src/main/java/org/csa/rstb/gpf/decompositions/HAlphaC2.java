@@ -142,7 +142,7 @@ public class HAlphaC2 extends DecompositionBase implements Decomposition {
         }
     }
 
-    public static HAAlpha computeHAAlphaByC2(double[][] Cr, double[][] Ci) {
+    public static HAAlpha computeHAAlphaByC2(final double[][] Cr, final double[][] Ci) {
 
         final HAAlpha data = new HAAlpha();
         final double[][] EigenVectRe = new double[2][2];

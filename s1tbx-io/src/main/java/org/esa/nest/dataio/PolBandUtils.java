@@ -291,7 +291,11 @@ public class PolBandUtils {
     }
 
     public static boolean isQuadPol(final MATRIX m) {
-        return m == MATRIX.C3 || m == MATRIX.T3 || m == MATRIX.C4 || m == MATRIX.T4 || m == MATRIX.FULL;
+        return m == MATRIX.C3 || m == MATRIX.T3 || m == MATRIX.C4 || m == MATRIX.T4;
+    }
+
+    public static boolean isFullPol(final MATRIX m) {
+        return m == MATRIX.FULL;
     }
 
     public static String[] getDualPolHHHVBandNames() {

@@ -15,7 +15,6 @@
  */
 package org.csa.rstb.gpf.specklefilters;
 
-import org.csa.rstb.gpf.PolOpUtils;
 import org.csa.rstb.gpf.PolarimetricSpeckleFilterOp;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -87,13 +86,97 @@ public class RefinedLee implements SpeckleFilter {
     }
 
     public void computeTiles(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle, final Rectangle sourceRectangle) {
-        if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+        if (PolBandUtils.isFullPol(sourceProductType)) {
             refinedLeeFilterFullPol(targetTiles, targetRectangle, sourceRectangle);
-        } else if (sourceProductType == PolBandUtils.MATRIX.C3 || sourceProductType == PolBandUtils.MATRIX.T3 ||
-                sourceProductType == PolBandUtils.MATRIX.C4 || sourceProductType == PolBandUtils.MATRIX.T4) {
+        } else if (PolBandUtils.isQuadPol(sourceProductType)) {
             refinedLeeFilterC3T3C4T4(targetTiles, targetRectangle, sourceRectangle);
+        } else if (PolBandUtils.isDualPol(sourceProductType)) {
+            refinedLeeFilterC2(targetTiles, targetRectangle, sourceRectangle);
         } else {
-            throw new OperatorException("For Refined Lee filter, only C3, T3, C4 and T4 are supported currently");
+            throw new OperatorException("For Refined Lee filtering, only C2, C3, T3, C4 and T4 are supported");
+        }
+    }
+
+    /**
+     * Filter compact data for the given tile with refined Lee filter.
+     *
+     * @param targetTiles     The current tiles to be computed for each target band.
+     * @param targetRectangle The area in pixel coordinates to be computed.
+     * @param sourceRectangle The area in the source product
+     */
+    private void refinedLeeFilterC2(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
+                                    final Rectangle sourceRectangle) {
+
+        final int x0 = targetRectangle.x, y0 = targetRectangle.y;
+        final int w = targetRectangle.width,  h = targetRectangle.height;
+        final int maxY = y0 + h, maxX = x0 + w;
+        //System.out.println("refinedLee x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
+
+        final int sw = sourceRectangle.width;
+        final int sh = sourceRectangle.height;
+
+        final double[][] data11Real = new double[sh][sw];
+        final double[][] data12Real = new double[sh][sw];
+        final double[][] data12Imag = new double[sh][sw];
+        final double[][] data22Real = new double[sh][sw];
+        final double[][] span = new double[sh][sw];
+
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
+
+            final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
+            final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
+            for (int i = 0; i < bandList.srcBands.length; ++i) {
+                sourceTiles[i] = operator.getSourceTile(bandList.srcBands[i], sourceRectangle);
+                dataBuffers[i] = sourceTiles[i].getDataBuffer();
+            }
+
+            final Tile srcTile = operator.getSourceTile(bandList.srcBands[0], sourceRectangle);
+            createC2SpanImage(srcTile, sourceProductType, sourceRectangle, dataBuffers,
+                    data11Real, data12Real, data12Imag, data22Real, span);
+
+            for (Band targetBand : bandList.targetBands) {
+
+                final Tile targetTile = targetTiles.get(targetBand);
+                final TileIndex trgIndex = new TileIndex(targetTile);
+                final String trgBandName = targetBand.getName();
+                final ProductData dataBuffer = targetTiles.get(targetBand).getDataBuffer();
+
+                if (trgBandName.equals("C11")) {
+                    computeFilteredTile(x0, y0, maxX, maxY, sourceRectangle, data11Real, span, trgIndex, dataBuffer);
+                } else if (trgBandName.contains("C12_real")) {
+                    computeFilteredTile(x0, y0, maxX, maxY, sourceRectangle, data12Real, span, trgIndex, dataBuffer);
+                } else if (trgBandName.contains("C12_imag")) {
+                    computeFilteredTile(x0, y0, maxX, maxY, sourceRectangle, data12Imag, span, trgIndex, dataBuffer);
+                } else if (trgBandName.equals("C22")) {
+                    computeFilteredTile(x0, y0, maxX, maxY, sourceRectangle, data22Real, span, trgIndex, dataBuffer);
+                }
+            }
+        }
+    }
+
+    private void computeFilteredTile(final int x0, final int y0, final int maxX, final int maxY,
+                                     final Rectangle sourceRectangle, final double[][] data, final double[][] span,
+                                     final TileIndex trgIndex, final ProductData dataBuffer) {
+
+        final int filterSize2 = filterSize * filterSize;
+        final double[][] neighborSpanValues = new double[filterSize][filterSize];
+        final double[][] neighborPixelValues = new double[filterSize][filterSize];
+
+        for (int y = y0; y < maxY; ++y) {
+            trgIndex.calculateStride(y);
+            for (int x = x0; x < maxX; ++x) {
+
+                final int n = getLocalData(x, y, sourceRectangle, data, span, neighborPixelValues, neighborSpanValues);
+
+                double v;
+                if (n < filterSize2) {
+                    v = computePixelValueUsingLocalStatistics(neighborPixelValues);
+                } else {
+                    v = computePixelValueUsingEdgeDetection(neighborPixelValues, neighborSpanValues);
+                }
+
+                dataBuffer.setElemFloatAt(trgIndex.getIndex(x), (float) v);
+            }
         }
     }
 

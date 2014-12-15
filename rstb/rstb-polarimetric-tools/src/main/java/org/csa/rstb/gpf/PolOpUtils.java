@@ -271,24 +271,20 @@ public final class PolOpUtils {
     public static void computeCovarianceMatrixC3(final double[][] scatterRe, final double[][] scatterIm,
                                                  final double[][] Cr, final double[][] Ci) {
 
-        final double sHHr = scatterRe[0][0];
-        final double sHHi = scatterIm[0][0];
+        final double k1r = scatterRe[0][0];
+        final double k1i = scatterIm[0][0];
         final double sHVr = scatterRe[0][1];
         final double sHVi = scatterIm[0][1];
         final double sVHr = scatterRe[1][0];
         final double sVHi = scatterIm[1][0];
-        final double sVVr = scatterRe[1][1];
-        final double sVVi = scatterIm[1][1];
+        final double k3r = scatterRe[1][1];
+        final double k3i = scatterIm[1][1];
 
-        final double k1r = sHHr;
-        final double k1i = sHHi;
         final double k2r = (sHVr + sVHr) / sqrt2;
         final double k2i = (sHVi + sVHi) / sqrt2;
-        final double k3r = sVVr;
-        final double k3i = sVVi;
 
         Cr[0][0] = k1r * k1r + k1i * k1i;
-        Ci[0][0] = 0.0;
+        //Ci[0][0] = 0.0;
 
         Cr[0][1] = k1r * k2r + k1i * k2i;
         Ci[0][1] = k1i * k2r - k1r * k2i;
@@ -297,13 +293,13 @@ public final class PolOpUtils {
         Ci[0][2] = k1i * k3r - k1r * k3i;
 
         Cr[1][1] = k2r * k2r + k2i * k2i;
-        Ci[1][1] = 0.0;
+        //Ci[1][1] = 0.0;
 
         Cr[1][2] = k2r * k3r + k2i * k3i;
         Ci[1][2] = k2i * k3r - k2r * k3i;
 
         Cr[2][2] = k3r * k3r + k3i * k3i;
-        Ci[2][2] = 0.0;
+        //Ci[2][2] = 0.0;
 
         Cr[1][0] = Cr[0][1];
         Ci[1][0] = -Ci[0][1];
@@ -324,23 +320,14 @@ public final class PolOpUtils {
     public static void computeCovarianceMatrixC4(final double[][] scatterRe, final double[][] scatterIm,
                                                  final double[][] Cr, final double[][] Ci) {
 
-        final double sHHr = scatterRe[0][0];
-        final double sHHi = scatterIm[0][0];
-        final double sHVr = scatterRe[0][1];
-        final double sHVi = scatterIm[0][1];
-        final double sVHr = scatterRe[1][0];
-        final double sVHi = scatterIm[1][0];
-        final double sVVr = scatterRe[1][1];
-        final double sVVi = scatterIm[1][1];
-
-        final double k1r = sHHr;
-        final double k1i = sHHi;
-        final double k2r = sHVr;
-        final double k2i = sHVi;
-        final double k3r = sVHr;
-        final double k3i = sVHi;
-        final double k4r = sVVr;
-        final double k4i = sVVi;
+        final double k1r = scatterRe[0][0];
+        final double k1i = scatterIm[0][0];
+        final double k2r = scatterRe[0][1];
+        final double k2i = scatterIm[0][1];
+        final double k3r = scatterRe[1][0];
+        final double k3i = scatterIm[1][0];
+        final double k4r = scatterRe[1][1];
+        final double k4i = scatterIm[1][1];
 
         Cr[0][0] = k1r * k1r + k1i * k1i;
         Ci[0][0] = 0.0;
@@ -901,17 +888,13 @@ public final class PolOpUtils {
             final PolBandUtils.MATRIX sourceProductType, final Tile[] sourceTiles, final ProductData[] dataBuffers,
             final double[][] Cr, final double[][] Ci) {
 
-        final double[][] tempSr = new double[2][2];
-        final double[][] tempSi = new double[2][2];
         final double[][] tempCr = new double[3][3];
         final double[][] tempCi = new double[3][3];
-        final double[][] tempTr = new double[3][3];
-        final double[][] tempTi = new double[3][3];
 
-        final int xSt = FastMath.max(x - halfWindowSizeX, sourceTiles[0].getMinX());
-        final int xEd = FastMath.min(x + halfWindowSizeX, sourceTiles[0].getMaxX() - 1);
-        final int ySt = FastMath.max(y - halfWindowSizeY, sourceTiles[0].getMinY());
-        final int yEd = FastMath.min(y + halfWindowSizeY, sourceTiles[0].getMaxY() - 1);
+        final int xSt = Math.max(x - halfWindowSizeX, sourceTiles[0].getMinX());
+        final int xEd = Math.min(x + halfWindowSizeX, sourceTiles[0].getMaxX() - 1);
+        final int ySt = Math.max(y - halfWindowSizeY, sourceTiles[0].getMinY());
+        final int yEd = Math.min(y + halfWindowSizeY, sourceTiles[0].getMaxY() - 1);
         final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
 
         final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
@@ -931,6 +914,8 @@ public final class PolOpUtils {
             }
 
         } else if (sourceProductType == PolBandUtils.MATRIX.T3) {
+            final double[][] tempTr = new double[3][3];
+            final double[][] tempTi = new double[3][3];
 
             for (int yy = ySt; yy <= yEd; ++yy) {
                 srcIndex.calculateStride(yy);
@@ -943,6 +928,8 @@ public final class PolOpUtils {
             }
 
         } else if (sourceProductType == PolBandUtils.MATRIX.FULL) {
+            final double[][] tempSr = new double[2][2];
+            final double[][] tempSi = new double[2][2];
 
             for (int yy = ySt; yy <= yEd; ++yy) {
                 srcIndex.calculateStride(yy);
@@ -958,10 +945,14 @@ public final class PolOpUtils {
         CrMat.timesEquals(1.0 / num);
         CiMat.timesEquals(1.0 / num);
         for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                Cr[i][j] = CrMat.get(i, j);
-                Ci[i][j] = CiMat.get(i, j);
-            }
+            Cr[i][0] = CrMat.get(i, 0);
+            Ci[i][0] = CiMat.get(i, 0);
+
+            Cr[i][1] = CrMat.get(i, 1);
+            Ci[i][1] = CiMat.get(i, 1);
+
+            Cr[i][2] = CrMat.get(i, 2);
+            Ci[i][2] = CiMat.get(i, 2);
         }
     }
 

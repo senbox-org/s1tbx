@@ -16,10 +16,7 @@
 package org.csa.rstb.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.csa.rstb.gpf.classifiers.CloudePottier;
-import org.csa.rstb.gpf.classifiers.FreemanDurdenWishart;
-import org.csa.rstb.gpf.classifiers.PolClassifier;
-import org.csa.rstb.gpf.classifiers.Wishart;
+import org.csa.rstb.gpf.classifiers.*;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -46,24 +43,24 @@ import java.util.Map;
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Perform Polarimetric classification of a given product")
-public final class PolarimetricClassificationOp extends Operator {
+public class PolarimetricClassificationOp extends Operator {
 
     @SourceProduct(alias = "source")
-    private Product sourceProduct;
+    protected Product sourceProduct;
     @TargetProduct
-    private Product targetProduct;
+    protected Product targetProduct;
 
-    @Parameter(valueSet = {UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, UNSUPERVISED_WISHART_CLASSIFICATION,
-            UNSUPERVISED_TERRAIN_CLASSIFICATION},
-            defaultValue = UNSUPERVISED_WISHART_CLASSIFICATION, label = "Classification")
-    private String classification = UNSUPERVISED_WISHART_CLASSIFICATION;
+    @Parameter(valueSet = {UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION, UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION,
+            UNSUPERVISED_HALPHA_WISHART_DUAL_POL_CLASSIFICATION, UNSUPERVISED_FREEMAN_DURDEN_CLASSIFICATION},
+            defaultValue = UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION, label = "Classification")
+    protected String classification = UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION;
 
     @Parameter(description = "The sliding window size", interval = "(1, 100]", defaultValue = "5", label = "Window Size")
     private int windowSize = 5;
 
     @Parameter(description = "The maximum number of iterations", interval = "[1, 100]", defaultValue = "3",
             label = "Maximum Number of Iterations")
-    private int maxIterations = 3;
+    protected int maxIterations = 3;
 
     @Parameter(description = "The initial number of classes", interval = "[9, 1000]", defaultValue = "90",
             label = "The Initial Number of Classes")
@@ -77,18 +74,18 @@ public final class PolarimetricClassificationOp extends Operator {
             defaultValue = "0.5", label = "Threshold for Mixed Category")
     private double mixedCategoryThreshold = 0.5;
 
-    private int sourceImageWidth = 0;
-    private int sourceImageHeight = 0;
-    private PolBandUtils.PolSourceBand[] srcBandList;
-    private final Map<Band, PolBandUtils.PolSourceBand> bandMap = new HashMap<>();
+    protected int sourceImageWidth = 0;
+    protected int sourceImageHeight = 0;
+    protected PolBandUtils.PolSourceBand[] srcBandList;
+    protected final Map<Band, PolBandUtils.PolSourceBand> bandMap = new HashMap<>();
 
-    static final String UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION = "Unsupervised Cloude-Pottier Classification";
-    static final String UNSUPERVISED_WISHART_CLASSIFICATION = "Unsupervised H Alpha Wishart Classification";
-    static final String UNSUPERVISED_TERRAIN_CLASSIFICATION = "Unsupervised Freeman-Durden Wishart Classification";
+    public static final String UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION = "Cloude-Pottier";
+    public static final String UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION = "H Alpha Wishart";
+    public static final String UNSUPERVISED_HALPHA_WISHART_DUAL_POL_CLASSIFICATION = "H Alpha Wishart Dual Pol";
+    public static final String UNSUPERVISED_FREEMAN_DURDEN_CLASSIFICATION = "Freeman-Durden Wishart";
 
-    private PolBandUtils.MATRIX sourceProductType;
-
-    private PolClassifier classifier;
+    protected PolBandUtils.MATRIX sourceProductType;
+    protected PolClassifier classifier;
 
     /**
      * Set classification. This function is used by unit test only.
@@ -98,8 +95,9 @@ public final class PolarimetricClassificationOp extends Operator {
     public void SetClassification(String s) {
 
         if (s.equals(UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION) ||
-                s.equals(UNSUPERVISED_WISHART_CLASSIFICATION) ||
-                s.equals(UNSUPERVISED_TERRAIN_CLASSIFICATION)) {
+                s.equals(UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION) ||
+                s.equals(UNSUPERVISED_HALPHA_WISHART_DUAL_POL_CLASSIFICATION) ||
+                s.equals(UNSUPERVISED_FREEMAN_DURDEN_CLASSIFICATION)) {
             classification = s;
         } else {
             throw new OperatorException(s + " is an invalid classification name.");
@@ -146,17 +144,22 @@ public final class PolarimetricClassificationOp extends Operator {
         switch (classification) {
             case UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION:
 
-                return new CloudePottier(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap);
+                return new CloudePottier(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap, this);
 
-            case UNSUPERVISED_WISHART_CLASSIFICATION:
+            case UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION:
 
-                return new Wishart(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap,
-                        maxIterations);
+                return new HAlphaWishart(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap,
+                        maxIterations, this);
 
-            case UNSUPERVISED_TERRAIN_CLASSIFICATION:
+            case UNSUPERVISED_HALPHA_WISHART_DUAL_POL_CLASSIFICATION:
+
+                return new HAlphaWishartC2(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, windowSize,
+                        bandMap, maxIterations, this);
+
+            case UNSUPERVISED_FREEMAN_DURDEN_CLASSIFICATION:
 
                 return new FreemanDurdenWishart(sourceProductType, sourceImageWidth, sourceImageHeight, windowSize, bandMap,
-                        maxIterations, numInitialClasses, numFinalClasses, mixedCategoryThreshold);
+                        maxIterations, numInitialClasses, numFinalClasses, mixedCategoryThreshold, this);
         }
         throw new OperatorException(classification + " is an invalid classification name.");
     }
@@ -186,7 +189,7 @@ public final class PolarimetricClassificationOp extends Operator {
                     targetProduct.getSceneRasterHeight());
 
             targetBand.setUnit("zone_index");
-            targetBand.setNoDataValue(Wishart.NODATACLASS);
+            targetBand.setNoDataValue(HAlphaWishart.NODATACLASS);
             targetBand.setNoDataValueUsed(true);
             targetProduct.addBand(targetBand);
 
@@ -221,7 +224,7 @@ public final class PolarimetricClassificationOp extends Operator {
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
-            classifier.computeTile(targetBand, targetTile, this);
+            classifier.computeTile(targetBand, targetTile);
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);

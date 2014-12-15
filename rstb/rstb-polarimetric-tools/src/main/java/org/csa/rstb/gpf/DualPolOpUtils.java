@@ -16,11 +16,9 @@
 package org.csa.rstb.gpf;
 
 import Jama.Matrix;
-import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.visat.actions.imgfilter.model.Filter;
 import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.TileIndex;
@@ -87,15 +85,13 @@ public final class DualPolOpUtils {
             final int sourceImageHeight, final PolBandUtils.MATRIX sourceProductType,
             final Tile[] sourceTiles, final ProductData[] dataBuffers, final double[][] Cr, final double[][] Ci) {
 
-        final double[] tempKr = new double[2];
-        final double[] tempKi = new double[2];
         final double[][] tempCr = new double[2][2];
         final double[][] tempCi = new double[2][2];
 
-        final int xSt = FastMath.max(x - halfWindowSizeX, 0);
-        final int xEd = FastMath.min(x + halfWindowSizeX, sourceImageWidth - 1);
-        final int ySt = FastMath.max(y - halfWindowSizeY, 0);
-        final int yEd = FastMath.min(y + halfWindowSizeY, sourceImageHeight - 1);
+        final int xSt = Math.max(x - halfWindowSizeX, 0);
+        final int xEd = Math.min(x + halfWindowSizeX, sourceImageWidth - 1);
+        final int ySt = Math.max(y - halfWindowSizeY, 0);
+        final int yEd = Math.min(y + halfWindowSizeY, sourceImageHeight - 1);
         final int num = (yEd - ySt + 1) * (xEd - xSt + 1);
 
         final TileIndex srcIndex = new TileIndex(sourceTiles[0]);
@@ -115,6 +111,8 @@ public final class DualPolOpUtils {
             }
 
         } else if (sourceProductType == PolBandUtils.MATRIX.LCHCP || sourceProductType == PolBandUtils.MATRIX.RCHCP) {
+            final double[] tempKr = new double[2];
+            final double[] tempKi = new double[2];
 
             for (int yy = ySt; yy <= yEd; ++yy) {
                 srcIndex.calculateStride(yy);
@@ -132,10 +130,11 @@ public final class DualPolOpUtils {
         CrMat.timesEquals(1.0 / num);
         CiMat.timesEquals(1.0 / num);
         for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 2; j++) {
-                Cr[i][j] = CrMat.get(i, j);
-                Ci[i][j] = CiMat.get(i, j);
-            }
+            Cr[i][0] = CrMat.get(i, 0);
+            Ci[i][0] = CiMat.get(i, 0);
+
+            Cr[i][1] = CrMat.get(i, 1);
+            Ci[i][1] = CiMat.get(i, 1);
         }
     }
 

@@ -370,9 +370,14 @@ public final class DatabasePane extends JPanel {
         final String name = (String) metadataNameCombo.getSelectedItem();
         final String value = metdataValueField.getText();
         if (!name.isEmpty() && !value.isEmpty()) {
-            if (metadataArea.getText().length() > 0)
+            if (metadataArea.getText().length() > 0) {
                 metadataArea.append(" AND ");
-            metadataArea.append(name + "='" + value + "' ");
+            }
+            if(value.matches("-?\\d+(\\.\\d+)?")) {     // isNumeric
+                metadataArea.append(name + "=" + value + " ");
+            } else {
+                metadataArea.append(name + "='" + value + "' ");
+            }
         }
     }
 
