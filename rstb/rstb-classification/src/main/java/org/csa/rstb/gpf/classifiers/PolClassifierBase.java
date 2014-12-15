@@ -16,6 +16,7 @@
 package org.csa.rstb.gpf.classifiers;
 
 import org.csa.rstb.gpf.PolOpUtils;
+import org.csa.rstb.gpf.PolarimetricClassificationOp;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.nest.dataio.PolBandUtils;
@@ -32,20 +33,26 @@ public abstract class PolClassifierBase {
     protected final PolBandUtils.MATRIX sourceProductType;
     protected final int srcWidth;
     protected final int srcHeight;
-    protected final int windowSize;
-    protected final int halfWindowSize;
-    protected final Map<Band, PolBandUtils.QuadSourceBand> bandMap;
+    protected final int windowSizeX;
+    protected final int windowSizeY;
+    protected final int halfWindowSizeX;
+    protected final int halfWindowSizeY;
+    protected final Map<Band, PolBandUtils.PolSourceBand> bandMap;
+    protected final PolarimetricClassificationOp op;
 
     protected PolClassifierBase(final PolBandUtils.MATRIX srcProductType,
-                                final int srcWidth, final int srcHeight, final int windowSize,
-                                final Map<Band, PolBandUtils.QuadSourceBand> bandMap) {
+                                final int srcWidth, final int srcHeight, final int windowSizeX, final int windowSizeY,
+                                final Map<Band, PolBandUtils.PolSourceBand> bandMap,
+                                final PolarimetricClassificationOp op) {
         this.sourceProductType = srcProductType;
         this.srcWidth = srcWidth;
         this.srcHeight = srcHeight;
-        this.windowSize = windowSize;
-        this.halfWindowSize = windowSize / 2;
-
+        this.windowSizeX = windowSizeX;
+        this.windowSizeY = windowSizeY;
+        this.halfWindowSizeX = windowSizeX / 2;
+        this.halfWindowSizeY = windowSizeY / 2;
         this.bandMap = bandMap;
+        this.op = op;
     }
 
     public boolean canProcessStacks() {
@@ -70,16 +77,42 @@ public abstract class PolClassifierBase {
      */
     protected Rectangle getSourceRectangle(final int tx0, final int ty0, final int tw, final int th) {
 
-        final int x0 = Math.max(0, tx0 - halfWindowSize);
-        final int y0 = Math.max(0, ty0 - halfWindowSize);
-        final int xMax = Math.min(tx0 + tw - 1 + halfWindowSize, srcWidth);
-        final int yMax = Math.min(ty0 + th - 1 + halfWindowSize, srcHeight);
+        final int x0 = Math.max(0, tx0 - halfWindowSizeX);
+        final int y0 = Math.max(0, ty0 - halfWindowSizeY);
+        final int xMax = Math.min(tx0 + tw - 1 + halfWindowSizeX, srcWidth);
+        final int yMax = Math.min(ty0 + th - 1 + halfWindowSizeY, srcHeight);
         final int w = xMax - x0 + 1;
         final int h = yMax - y0 + 1;
         return new Rectangle(x0, y0, w, h);
     }
 
-    protected static void computeSummationOfT3(final int zoneIdx, final double[][] Tr, final double[][] Ti,
+    public static Rectangle getSourceRectangle(final int tx0, final int ty0, final int tw, final int th,
+                                               final int windowSizeX, final int windowSizeY,
+                                               final int srcWidth, final int srcHeight) {
+
+        final int halfWindowSizeX = windowSizeX / 2;
+        final int halfWindowSizeY = windowSizeY / 2;
+        final int x0 = Math.max(0, tx0 - halfWindowSizeX);
+        final int y0 = Math.max(0, ty0 - halfWindowSizeY);
+        final int xMax = Math.min(tx0 + tw - 1 + halfWindowSizeX, srcWidth - 1);
+        final int yMax = Math.min(ty0 + th - 1 + halfWindowSizeY, srcHeight - 1);
+        final int w = xMax - x0 + 1;
+        final int h = yMax - y0 + 1;
+        return new Rectangle(x0, y0, w, h);
+    }
+
+    protected static void computeSummationOfC2(final int zoneIdx, final double[][] Cr, final double[][] Ci,
+                                               double[][][] sumRe, double[][][] sumIm) {
+
+        for (int i = 0; i < 2; ++i) {
+            for (int j = 0; j < 2; ++j) {
+                sumRe[zoneIdx - 1][i][j] += Cr[i][j];
+                sumIm[zoneIdx - 1][i][j] += Ci[i][j];
+            }
+        }
+    }
+
+	protected static void computeSummationOfT3(final int zoneIdx, final double[][] Tr, final double[][] Ti,
                                                double[][][] sumRe, double[][][] sumIm) {
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
@@ -90,6 +123,23 @@ public abstract class PolClassifierBase {
     }
 
     /**
+     * Compute determinant of a 2x2 Hermitian matrix
+     *
+     * @param Cr Real part of the 2x2 Hermitian matrix
+     * @param Ci Imaginary part of the 2x2 Hermitian matrix
+     * @return The determinant
+     */
+    private static double determinantCmplxMatrix2(final double[][] Cr, final double[][] Ci) {
+
+        double detR = Cr[0][0] * Cr[1][1] - Cr[0][1] * Cr[0][1] - Ci[0][1] * Ci[0][1];
+
+        if (detR < PolOpUtils.EPS) {
+            detR = PolOpUtils.EPS;
+        }
+        return detR;
+    }
+
+	/**
      * Compute determinant of a 3x3 Hermitian matrix
      *
      * @param Tr Real part of the 3x3 Hermitian matrix
@@ -121,6 +171,38 @@ public abstract class PolClassifierBase {
     }
 
     /**
+     * Compute inverse of a 2x2 Hermitian matrix
+     *
+     * @param Cr  Real part of the 2x2 Hermitian matrix
+     * @param Ci  Imaginary part of the 2x2 Hermitian matrix
+     * @param iCr Real part of the inversed 2x2 Hermitian matrix
+     * @param iCi Imaginary part of the inversed 2x2 Hermitian matrix
+     */
+    private static void inverseCmplxMatrix2(final double[][] Cr, final double[][] Ci, double[][] iCr, double[][] iCi) {
+
+        iCr[0][0] = Cr[1][1];
+        iCi[0][0] = 0.0;
+
+        iCr[0][1] = -Cr[0][1];
+        iCi[0][1] = -Ci[0][1];
+
+        iCr[1][0] = -Cr[0][1];
+        iCi[1][0] = Ci[0][1];
+
+        iCr[1][1] = Cr[0][0];
+        iCi[1][1] = 0.0;
+
+        final double det = determinantCmplxMatrix2(Cr, Ci);
+
+        for (int i = 0; i < 2; ++i) {
+            for (int j = 0; j < 2; ++j) {
+                iCr[i][j] /= det;
+                iCi[i][j] /= det;
+            }
+        }
+    }
+
+	/**
      * Compute inverse of a 3x3 Hermitian matrix
      *
      * @param Tr  Real part of the 3x3 Hermitian matrix
@@ -175,7 +257,7 @@ public abstract class PolClassifierBase {
 
     public IndexCoding createIndexCoding() {
         final IndexCoding indexCoding = new IndexCoding("Cluster_classes");
-        indexCoding.addIndex("no data", Wishart.NODATACLASS, "no data");
+        indexCoding.addIndex("no data", HAlphaWishart.NODATACLASS, "no data");
         for (int i = 1; i <= getNumClasses(); i++) {
             indexCoding.addIndex("class_" + i, i, "Cluster " + i);
         }

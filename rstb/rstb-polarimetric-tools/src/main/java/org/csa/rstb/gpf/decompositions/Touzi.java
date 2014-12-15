@@ -41,13 +41,13 @@ public class Touzi extends DecompositionBase implements Decomposition {
     private final boolean outputTouziParamSet2;
     private final boolean outputTouziParamSet3;
 
-    public Touzi(final PolBandUtils.QuadSourceBand[] srcBandList, final MATRIX sourceProductType,
+    public Touzi(final PolBandUtils.PolSourceBand[] srcBandList, final MATRIX sourceProductType,
                  final int windowSize, final int srcImageWidth, final int srcImageHeight,
                  final boolean outputTouziParamSet0,
                  final boolean outputTouziParamSet1,
                  final boolean outputTouziParamSet2,
                  final boolean outputTouziParamSet3) {
-        super(srcBandList, sourceProductType, windowSize, srcImageWidth, srcImageHeight);
+        super(srcBandList, sourceProductType, windowSize, windowSize, srcImageWidth, srcImageHeight);
 
         this.outputTouziParamSet0 = outputTouziParamSet0;
         this.outputTouziParamSet1 = outputTouziParamSet1;
@@ -141,7 +141,7 @@ public class Touzi extends DecompositionBase implements Decomposition {
         double p1, p2, p3, psiMean, tauMean, alphaMean, phiMean;
         double phase, c, s, tmp1r, tmp1i, tmp2r, tmp2i;
 
-        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
 
             final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
             final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
@@ -157,7 +157,7 @@ public class Touzi extends DecompositionBase implements Decomposition {
                 for (int x = x0; x < maxX; ++x) {
                     final int idx = trgIndex.getIndex(x);
 
-                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, sourceImageWidth, sourceImageHeight,
+                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, sourceImageWidth, sourceImageHeight,
                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                     PolOpUtils.eigenDecomposition(3, Tr, Ti, EigenVectRe, EigenVectIm, EigenVal);

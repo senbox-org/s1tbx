@@ -54,7 +54,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    private PolBandUtils.QuadSourceBand[] srcBandList;
+    private PolBandUtils.PolSourceBand[] srcBandList;
     private PolBandUtils.MATRIX sourceProductType;
 
     private final static double PI4 = Math.PI / 4.0;
@@ -124,7 +124,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
         //targetBandNameList.add("Ori_Ang");
 
         final String[] bandNames = targetBandNameList.toArray(new String[targetBandNameList.size()]);
-        for (PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (PolBandUtils.PolSourceBand bandList : srcBandList) {
             final Band[] targetBands = OperatorUtils.addBands(targetProduct, bandNames, bandList.suffix);
             bandList.addTargetBands(targetBands);
         }
@@ -161,7 +161,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
             final double[][] T4i = new double[4][4];
 
             final TileIndex tgtIndex = new TileIndex(targetTiles.get(getTargetProduct().getBandAt(0)));
-            for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+            for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
 
                 final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
                 final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];

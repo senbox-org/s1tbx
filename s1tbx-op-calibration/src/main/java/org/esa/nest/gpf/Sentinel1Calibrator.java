@@ -650,12 +650,14 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
         public int getPixelIndex(final int x, final int calVecIdx) {
 
-            for (int i = 0; i < calibrationVectorList[calVecIdx].pixels.length; i++) {
-                if (x < calibrationVectorList[calVecIdx].pixels[i]) {
+            final Sentinel1Utils.CalibrationVector calVec = calibrationVectorList[calVecIdx];
+            final int length = calVec.pixels.length;
+            for (int i = 0; i < length; i++) {
+                if (x < calVec.pixels[i]) {
                     return i - 1;
                 }
             }
-            return calibrationVectorList[calVecIdx].pixels.length - 2;
+            return length - 2;
         }
     }
 }

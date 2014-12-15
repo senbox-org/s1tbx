@@ -54,8 +54,8 @@ public final class PolarimetricDecompositionOp extends Operator {
     private Product targetProduct;
 
     @Parameter(valueSet = {SINCLAIR_DECOMPOSITION, PAULI_DECOMPOSITION, FREEMAN_DURDEN_DECOMPOSITION,
-            YAMAGUCHI_DECOMPOSITION, VANZYL_DECOMPOSITION, H_A_ALPHA_DECOMPOSITION, CLOUDE_DECOMPOSITION,
-            TOUZI_DECOMPOSITION}, defaultValue = SINCLAIR_DECOMPOSITION, label = "Decomposition")
+            YAMAGUCHI_DECOMPOSITION, VANZYL_DECOMPOSITION, H_A_ALPHA_DECOMPOSITION, H_ALPHA_DECOMPOSITION,
+            CLOUDE_DECOMPOSITION, TOUZI_DECOMPOSITION}, defaultValue = SINCLAIR_DECOMPOSITION, label = "Decomposition")
     private String decomposition = SINCLAIR_DECOMPOSITION;
 
     @Parameter(description = "The sliding window size", interval = "[1, 100]", defaultValue = "5", label = "Window Size")
@@ -94,11 +94,12 @@ public final class PolarimetricDecompositionOp extends Operator {
     static final String FREEMAN_DURDEN_DECOMPOSITION = "Freeman-Durden Decomposition";
     static final String YAMAGUCHI_DECOMPOSITION = "Yamaguchi Decomposition";
     static final String VANZYL_DECOMPOSITION = "van Zyl Decomposition";
-    static final String H_A_ALPHA_DECOMPOSITION = "H-A-Alpha Decomposition";
+    static final String H_A_ALPHA_DECOMPOSITION = "H-A-Alpha Quad Pol Decomposition";
+    static final String H_ALPHA_DECOMPOSITION = "H-Alpha Dual Pol Decomposition";
     static final String CLOUDE_DECOMPOSITION = "Cloude Decomposition";
     static final String TOUZI_DECOMPOSITION = "Touzi Decomposition";
 
-    private PolBandUtils.QuadSourceBand[] srcBandList;
+    private PolBandUtils.PolSourceBand[] srcBandList;
     private PolBandUtils.MATRIX sourceProductType = null;
     private Decomposition polDecomp;
 
@@ -111,7 +112,7 @@ public final class PolarimetricDecompositionOp extends Operator {
 
         if (s.equals(SINCLAIR_DECOMPOSITION) || s.equals(PAULI_DECOMPOSITION) ||
                 s.equals(FREEMAN_DURDEN_DECOMPOSITION) || s.equals(YAMAGUCHI_DECOMPOSITION) ||
-                s.equals(VANZYL_DECOMPOSITION) || s.equals(H_A_ALPHA_DECOMPOSITION) ||
+                s.equals(VANZYL_DECOMPOSITION) || s.equals(H_A_ALPHA_DECOMPOSITION) || s.equals(H_ALPHA_DECOMPOSITION) ||
                 s.equals(CLOUDE_DECOMPOSITION) || s.equals(TOUZI_DECOMPOSITION)) {
             decomposition = s;
         } else {
@@ -156,6 +157,16 @@ public final class PolarimetricDecompositionOp extends Operator {
             srcBandList = PolBandUtils.getSourceBands(sourceProduct, sourceProductType);
 
             polDecomp = createDecomposition();
+
+            if(sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
+                throw new OperatorException("Input should be a polarimetric product");
+            }
+            if(polDecomp instanceof HAlphaC2 && !PolBandUtils.isDualPol(sourceProductType)) {
+                throw new OperatorException("Input should be a dual polarimetric product");
+            } else if(!(polDecomp instanceof HAlphaC2) && !PolBandUtils.isQuadPol(sourceProductType) &&
+                    !PolBandUtils.isFullPol(sourceProductType)) {
+                throw new OperatorException("Input should be a full polarimetric product");
+            }
 
             createTargetProduct();
 
@@ -202,6 +213,9 @@ public final class PolarimetricDecompositionOp extends Operator {
                         outputBetaDeltaGammaLambda,
                         outputAlpha123,
                         outputLambda123);
+            case H_ALPHA_DECOMPOSITION:
+                return new HAlphaC2(srcBandList, sourceProductType,
+                                   windowSize, sourceImageWidth, sourceImageHeight);
             case TOUZI_DECOMPOSITION:
                 return new Touzi(srcBandList, sourceProductType,
                         windowSize, sourceImageWidth, sourceImageHeight,
@@ -249,7 +263,7 @@ public final class PolarimetricDecompositionOp extends Operator {
 
         final String[] targetBandNames = polDecomp.getTargetBandNames();
 
-        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
             final Band[] targetBands = new Band[targetBandNames.length];
             int i = 0;
             for (String targetBandName : targetBandNames) {

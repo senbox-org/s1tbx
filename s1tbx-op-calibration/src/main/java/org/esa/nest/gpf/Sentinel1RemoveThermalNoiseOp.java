@@ -610,7 +610,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                                                   final double azT0, final double azT1,
                                                   final float[] vec0LUT, final float[] vec1LUT,
                                                   final int[] vec0Pixels, int pixelIdx0,
-                                                  double[] lut) {
+                                                  final double[] lut) {
         final double azTime = calInfo.firstLineTime + y * calInfo.lineTimeInterval;
         double muX, muY = (azTime - azT0) / (azT1 - azT0);
 
@@ -639,32 +639,33 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
      */
     private static void computeTileNoiseLUT(final int y, final int x0, final int y0, final int w,
                                      final ThermalNoiseInfo noiseInfo, final double[] lut) {
-
         try {
             double v00, v01, v10, v11, muX, muY;
-            int noiseVecIdx = getNoiseVectorIndex(y0, noiseInfo);
+            final int noiseVecIdx = getNoiseVectorIndex(y0, noiseInfo);
             int pixelIdx = getPixelIndex(x0, noiseVecIdx, noiseInfo);
 
+            final Sentinel1Utils.NoiseVector noiseVector = noiseInfo.noiseVectorList[noiseVecIdx];
+            final Sentinel1Utils.NoiseVector noiseVector1 = noiseInfo.noiseVectorList[noiseVecIdx + 1];
+
             final double azTime = noiseInfo.firstLineTime + y * noiseInfo.lineTimeInterval;
-            final double azT0 = noiseInfo.noiseVectorList[noiseVecIdx].timeMJD;
-            final double azT1 = noiseInfo.noiseVectorList[noiseVecIdx + 1].timeMJD;
+            final double azT0 = noiseVector.timeMJD;
+            final double azT1 = noiseVector1.timeMJD;
             muY = (azTime - azT0) / (azT1 - azT0);
 
             for (int x = x0; x < x0 + w; x++) {
 
-                if (x > noiseInfo.noiseVectorList[noiseVecIdx].pixels[pixelIdx + 1] &&
-                        pixelIdx < noiseInfo.noiseVectorList[noiseVecIdx].pixels.length - 2) {
+                if (x > noiseVector.pixels[pixelIdx + 1] && pixelIdx < noiseVector.pixels.length - 2) {
                     pixelIdx++;
                 }
 
-                final int xx0 = noiseInfo.noiseVectorList[noiseVecIdx].pixels[pixelIdx];
-                final int xx1 = noiseInfo.noiseVectorList[noiseVecIdx].pixels[pixelIdx + 1];
+                final int xx0 = noiseVector.pixels[pixelIdx];
+                final int xx1 = noiseVector.pixels[pixelIdx + 1];
                 muX = (double) (x - xx0) / (double) (xx1 - xx0);
 
-                v00 = noiseInfo.noiseVectorList[noiseVecIdx].noiseLUT[pixelIdx];
-                v01 = noiseInfo.noiseVectorList[noiseVecIdx].noiseLUT[pixelIdx + 1];
-                v10 = noiseInfo.noiseVectorList[noiseVecIdx + 1].noiseLUT[pixelIdx];
-                v11 = noiseInfo.noiseVectorList[noiseVecIdx + 1].noiseLUT[pixelIdx + 1];
+                v00 = noiseVector.noiseLUT[pixelIdx];
+                v01 = noiseVector.noiseLUT[pixelIdx + 1];
+                v10 = noiseVector1.noiseLUT[pixelIdx];
+                v11 = noiseVector1.noiseLUT[pixelIdx + 1];
 
                 lut[x - x0] = Maths.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
             }

@@ -59,10 +59,11 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
     public FreemanDurdenWishart(final PolBandUtils.MATRIX srcProductType,
                                 final int srcWidth, final int srcHeight, final int windowSize,
-                                final Map<Band, PolBandUtils.QuadSourceBand> bandMap,
+                                final Map<Band, PolBandUtils.PolSourceBand> bandMap,
                                 final int maxIterations, final int numInitialClasses, final int numClasses,
-                                final double mixedCategoryThreshold) {
-        super(srcProductType, srcWidth, srcHeight, windowSize, bandMap);
+                                final double mixedCategoryThreshold,
+                                final PolarimetricClassificationOp op) {
+        super(srcProductType, srcWidth, srcHeight, windowSize, windowSize, bandMap, op);
         this.maxIterations = maxIterations;
         this.numFinalClasses = numClasses;
         this.numInitialClusters = numInitialClasses / 3;
@@ -94,7 +95,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
     public IndexCoding createIndexCoding() {
         final IndexCoding indexCoding = new IndexCoding("Cluster_classes");
-        indexCoding.addIndex("no data", Wishart.NODATACLASS, "no data");
+        indexCoding.addIndex("no data", HAlphaWishart.NODATACLASS, "no data");
 
         // ps [1,30], pv [31, 60] and pd [61,90]
         for (int i = 1; i <= numInitialClusters; i++) {
@@ -114,11 +115,10 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @param op         the polarimetric decomposition operator
      * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
-    public void computeTile(final Band targetBand, final Tile targetTile, final PolarimetricClassificationOp op) {
-        PolBandUtils.QuadSourceBand srcBandList = bandMap.get(targetBand);
+    public void computeTile(final Band targetBand, final Tile targetTile) {
+        PolBandUtils.PolSourceBand srcBandList = bandMap.get(targetBand);
 
         if (!clusterCentersComputed) {
             computeTerrainClusterCenters(srcBandList, op);
@@ -149,7 +149,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
      * @param srcBandList the input bands
      * @param op          the operator
      */
-    private synchronized void computeTerrainClusterCenters(final PolBandUtils.QuadSourceBand srcBandList,
+    private synchronized void computeTerrainClusterCenters(final PolBandUtils.PolSourceBand srcBandList,
                                                            final PolarimetricClassificationOp op) {
 
         if (clusterCentersComputed) {
@@ -187,7 +187,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                                                      final java.util.List<ClusterInfo> pvCenterList,
                                                      final java.util.List<ClusterInfo> pdCenterList,
                                                      final java.util.List<ClusterInfo> psCenterList,
-                                                     final PolBandUtils.QuadSourceBand srcBandList,
+                                                     final PolBandUtils.PolSourceBand srcBandList,
                                                      final Rectangle[] tileRectangles,
                                                      final PolarimetricClassificationOp op) {
 
@@ -220,7 +220,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
      * @param op             the operator
      */
     private void createInitialClusters(final double[][] fdd,
-                                       final PolBandUtils.QuadSourceBand srcBandList,
+                                       final PolBandUtils.PolSourceBand srcBandList,
                                        final Rectangle[] tileRectangles,
                                        final PolarimetricClassificationOp op) {
 
@@ -275,7 +275,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                         for (int y = y0; y < yMax; ++y) {
                             for (int x = x0; x < xMax; ++x) {
 
-                                PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSize, srcWidth, srcHeight,
+                                PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                                         sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                                 final FreemanDurden.FDD data = FreemanDurden.getFreemanDurdenDecomposition(Cr, Ci);
@@ -375,7 +375,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
     private void getClusterCenters(final java.util.List<ClusterInfo> pvCenterList,
                                    final java.util.List<ClusterInfo> pdCenterList,
                                    final java.util.List<ClusterInfo> psCenterList,
-                                   final PolBandUtils.QuadSourceBand srcBandList,
+                                   final PolBandUtils.PolSourceBand srcBandList,
                                    final Rectangle[] tileRectangles,
                                    final PolarimetricClassificationOp op) {
 
@@ -692,7 +692,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                     continue;
                 }
 
-                d = Wishart.computeWishartDistance(clusterCenterList.get(i).centerRe, clusterCenterList.get(i).centerIm,
+                d = HAlphaWishart.computeWishartDistance(clusterCenterList.get(i).centerRe, clusterCenterList.get(i).centerIm,
                         clusterCenterList.get(j));
 
                 if (d < shortestDistance) {
@@ -755,7 +755,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                                                    final java.util.List<ClusterInfo> pvCenterList,
                                                    final java.util.List<ClusterInfo> pdCenterList,
                                                    final java.util.List<ClusterInfo> psCenterList,
-                                                   final PolBandUtils.QuadSourceBand srcBandList,
+                                                   final PolBandUtils.PolSourceBand srcBandList,
                                                    final Rectangle[] tileRectangles,
                                                    final PolarimetricClassificationOp op) {
 
@@ -823,7 +823,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                                 for (int x = x0; x < xMax; ++x) {
 
                                     PolOpUtils.getMeanCoherencyMatrix(
-                                            x, y, halfWindowSize, srcWidth, srcHeight,
+                                            x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
                                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                                     int clusterIdx;
@@ -998,7 +998,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
         double minDistance = Double.MAX_VALUE;
         int clusterIndex = -1;
         for (int c = 0; c < clusterCenters.size(); ++c) {
-            final double d = Wishart.computeWishartDistance(Tr, Ti, clusterCenters.get(c));
+            final double d = HAlphaWishart.computeWishartDistance(Tr, Ti, clusterCenters.get(c));
             if (minDistance > d) {
                 minDistance = d;
                 clusterIndex = c;

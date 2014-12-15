@@ -32,9 +32,9 @@ import java.util.List;
  */
 public class PolBandUtils {
 
-    public static enum MATRIX {DUAL_HH_HV, DUAL_VH_VV, DUAL_HH_VV, FULL, C3, T3, C4, T4, C2, LCHCP, RCHCP}
+    public static enum MATRIX {DUAL_HH_HV, DUAL_VH_VV, DUAL_HH_VV, C2, LCHCP, RCHCP, C3, T3, C4, T4, FULL, UNKNOWN}
 
-    public static class QuadSourceBand {
+    public static class PolSourceBand {
         public final String productName;
         public final Band[] srcBands;
         public final String suffix;
@@ -44,7 +44,7 @@ public class PolBandUtils {
         public double spanMax = -1e+30;
         public boolean spanMinMaxSet = false;
 
-        public QuadSourceBand(final String productName, final Band[] bands, final String suffix) {
+        public PolSourceBand(final String productName, final Band[] bands, final String suffix) {
             this.productName = productName;
             this.srcBands = bands;
             this.suffix = suffix;
@@ -108,8 +108,10 @@ public class PolBandUtils {
             return MATRIX.DUAL_VH_VV;
         else if (isHH && !isHV && !isVH && isVV)
             return MATRIX.DUAL_HH_VV;
+        else if (isHH && isHV && isVH && isVV)
+            return MATRIX.FULL;
 
-        return MATRIX.FULL;
+        return MATRIX.UNKNOWN;
     }
 
     /**
@@ -120,31 +122,31 @@ public class PolBandUtils {
      * @return QuadSourceBand[]
      * @throws org.esa.beam.framework.gpf.OperatorException if sourceProduct is not quad-pol
      */
-    public static QuadSourceBand[] getSourceBands(final Product srcProduct,
+    public static PolSourceBand[] getSourceBands(final Product srcProduct,
                                                   final MATRIX sourceProductType) throws Exception {
 
         final boolean isCoregistered = StackUtils.isCoregisteredStack(srcProduct);
-        final List<QuadSourceBand> quadSrcBandList = new ArrayList<QuadSourceBand>(10);
+        final List<PolSourceBand> quadSrcBandList = new ArrayList<PolSourceBand>(10);
 
         if (isCoregistered && !sourceProductType.equals(PolBandUtils.MATRIX.C2)) {
             final String[] mstBandNames = StackUtils.getMasterBandNames(srcProduct);
             final Band[] mstBands = getBands(srcProduct, sourceProductType, mstBandNames);
             final String suffix = mstBandNames[0].substring(mstBandNames[0].lastIndexOf('_'), mstBandNames[0].length());
-            quadSrcBandList.add(new QuadSourceBand(srcProduct.getName(), mstBands, suffix));
+            quadSrcBandList.add(new PolSourceBand(srcProduct.getName(), mstBands, suffix));
 
             final String[] slvProductNames = StackUtils.getSlaveProductNames(srcProduct);
             for (String slvProd : slvProductNames) {
                 final String[] slvBandNames = StackUtils.getSlaveBandNames(srcProduct, slvProd);
                 final Band[] slvBands = getBands(srcProduct, sourceProductType, slvBandNames);
                 final String suf = slvBandNames[0].substring(slvBandNames[0].lastIndexOf('_'), slvBandNames[0].length());
-                quadSrcBandList.add(new QuadSourceBand(slvProd, slvBands, suf));
+                quadSrcBandList.add(new PolSourceBand(slvProd, slvBands, suf));
             }
         } else {
             final String[] bandNames = srcProduct.getBandNames();
             final Band[] mstBands = getBands(srcProduct, sourceProductType, bandNames);
-            quadSrcBandList.add(new QuadSourceBand(srcProduct.getName(), mstBands, ""));
+            quadSrcBandList.add(new PolSourceBand(srcProduct.getName(), mstBands, ""));
         }
-        return quadSrcBandList.toArray(new QuadSourceBand[quadSrcBandList.size()]);
+        return quadSrcBandList.toArray(new PolSourceBand[quadSrcBandList.size()]);
     }
 
     /**
@@ -267,10 +269,10 @@ public class PolBandUtils {
         return sourceBands;
     }
 
-    public static void saveNewBandNames(final Product targetProduct, final QuadSourceBand[] srcBandList) {
+    public static void saveNewBandNames(final Product targetProduct, final PolSourceBand[] srcBandList) {
         if (StackUtils.isCoregisteredStack(targetProduct)) {
             boolean masterProduct = true;
-            for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+            for (final PolSourceBand bandList : srcBandList) {
                 if (masterProduct) {
                     final String[] bandNames = StackUtils.bandsToStringArray(bandList.targetBands);
                     StackUtils.saveMasterProductBandNames(targetProduct, bandNames);
@@ -283,6 +285,18 @@ public class PolBandUtils {
         }
     }
 
+    public static boolean isDualPol(final MATRIX m) {
+        return m == MATRIX.DUAL_HH_HV || m == MATRIX.DUAL_VH_VV || m == MATRIX.DUAL_HH_VV ||
+                m == MATRIX.C2 || m == MATRIX.LCHCP || m == MATRIX.RCHCP;
+    }
+
+    public static boolean isQuadPol(final MATRIX m) {
+        return m == MATRIX.C3 || m == MATRIX.T3 || m == MATRIX.C4 || m == MATRIX.T4;
+    }
+
+    public static boolean isFullPol(final MATRIX m) {
+        return m == MATRIX.FULL;
+    }
 
     public static String[] getDualPolHHHVBandNames() {
         return new String[]{

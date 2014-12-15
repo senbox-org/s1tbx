@@ -242,7 +242,7 @@ public class Sentinel1OCNReader {
 
     public void addGeoCodingToBands(final Product product) {
 
-        final Band[] bands = product.getBands();
+    /*    final Band[] bands = product.getBands();
 
         for (Band band : bands) {
 
@@ -264,7 +264,7 @@ public class Sentinel1OCNReader {
                 band.setGeoCoding(pixGeoCoding);
             }
         }
-
+*/
     }
 
     private void addBand(final Product product, String bandName, final Variable variable, final int width, final int height) {

@@ -34,9 +34,9 @@ import java.util.Map;
  */
 public class FreemanDurden extends DecompositionBase implements Decomposition {
 
-    public FreemanDurden(final PolBandUtils.QuadSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
+    public FreemanDurden(final PolBandUtils.PolSourceBand[] srcBandList, final PolBandUtils.MATRIX sourceProductType,
                          final int windowSize, final int srcImageWidth, final int srcImageHeight) {
-        super(srcBandList, sourceProductType, windowSize, srcImageWidth, srcImageHeight);
+        super(srcBandList, sourceProductType, windowSize, windowSize, srcImageWidth, srcImageHeight);
     }
 
     /**
@@ -75,7 +75,7 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
         final int maxX = x0 + w;
         //System.out.println("freeman x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
-        for (final PolBandUtils.QuadSourceBand bandList : srcBandList) {
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
 
             final TargetInfo[] targetInfo = new TargetInfo[bandList.targetBands.length];
             int j = 0;
@@ -112,14 +112,10 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
                 trgIndex.calculateStride(y);
                 for (int x = x0; x < maxX; ++x) {
 
-                    PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSize, sourceImageWidth, sourceImageHeight,
+                    PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                             sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
 
                     final FDD data = getFreemanDurdenDecomposition(Cr, Ci);
-                    if (data.ps < PolOpUtils.EPS ||
-                            data.pd < PolOpUtils.EPS || data.pv < PolOpUtils.EPS) {
-                        System.out.println();
-                    }
 
                     ps = scaleDb(data.ps, bandList.spanMin, bandList.spanMax);
                     pd = scaleDb(data.pd, bandList.spanMin, bandList.spanMax);

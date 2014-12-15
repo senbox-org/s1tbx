@@ -77,7 +77,7 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
                     return;
                 }
 
-                PolBandUtils.QuadSourceBand[] srcBandList =
+                PolBandUtils.PolSourceBand[] srcBandList =
                         PolBandUtils.getSourceBands(quadPolProduct, sourceProductType);
 
                 final ProgressMonitorSwingWorker worker = new TrainingSwingWorker(quadPolProduct,
