@@ -15,7 +15,6 @@
  */
 package org.csa.rstb.gpf.classifiers;
 
-import org.csa.rstb.gpf.PolarimetricClassificationOp;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.gpf.Tile;
@@ -48,8 +47,7 @@ public interface PolClassifier {
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @param op         the polarimetric decomposition operator
      * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
-    public void computeTile(final Band targetBand, final Tile targetTile, final PolarimetricClassificationOp op);
+    public void computeTile(final Band targetBand, final Tile targetTile);
 }

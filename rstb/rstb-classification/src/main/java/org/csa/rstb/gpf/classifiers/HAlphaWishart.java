@@ -36,7 +36,7 @@ import java.util.Map;
 /**
 
  */
-public class Wishart extends PolClassifierBase implements PolClassifier {
+public class HAlphaWishart extends PolClassifierBase implements PolClassifier {
 
     private static final String UNSUPERVISED_WISHART_CLASS = "H_alpha_wishart_class";
 
@@ -45,11 +45,11 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
     private final int maxIterations;
     private final boolean useLeeHAlphaPlaneDefinition;
 
-    public Wishart(final PolBandUtils.MATRIX srcProductType,
-                   final int srcWidth, final int srcHeight, final int windowSize,
-                   final Map<Band, PolBandUtils.PolSourceBand> bandMap,
-                   final int maxIterations) {
-        super(srcProductType, srcWidth, srcHeight, windowSize, bandMap);
+    public HAlphaWishart(final PolBandUtils.MATRIX srcProductType,
+                         final int srcWidth, final int srcHeight, final int winSize,
+                         final Map<Band, PolBandUtils.PolSourceBand> bandMap,
+                         final int maxIterations, final PolarimetricClassificationOp op) {
+        super(srcProductType, srcWidth, srcHeight, winSize, winSize, bandMap, op);
         this.maxIterations = maxIterations;
 
         useLeeHAlphaPlaneDefinition = Boolean.getBoolean(SystemUtils.getApplicationContextId() +
@@ -79,10 +79,9 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @param op         the polarimetric decomposition operator
      * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
-    public void computeTile(final Band targetBand, final Tile targetTile, final PolarimetricClassificationOp op) {
+    public void computeTile(final Band targetBand, final Tile targetTile) {
 
         PolBandUtils.PolSourceBand srcBandList = bandMap.get(targetBand);
         final int numTargetBands = targetBand.getProduct().getNumBands();
@@ -125,7 +124,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
                 if (dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue) {
                     targetData.setElemIntAt(index, NODATACLASS);
                 } else {
-                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, halfWindowSize, srcWidth, srcHeight,
+                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                     targetData.setElemIntAt(index, findZoneIndex(Tr, Ti, clusterCenters[targetBandIndex]));
@@ -224,7 +223,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
                                 if (dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue)
                                     continue;
 
-                                PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, halfWindowSize, srcWidth, srcHeight,
+                                PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
                                         sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                                 final hAAlpha.HAAlpha data = hAAlpha.computeHAAlpha(Tr, Ti);
@@ -334,7 +333,7 @@ public class Wishart extends PolClassifierBase implements PolClassifier {
                                     if (dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue)
                                         continue;
 
-                                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, halfWindowSize, srcWidth, srcHeight,
+                                    PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
                                             sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                                     synchronized (counter) {

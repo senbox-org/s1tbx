@@ -16,8 +16,8 @@
 package org.csa.rstb.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.csa.rstb.gpf.classifiers.HAlphaWishart;
 import org.csa.rstb.gpf.classifiers.PolClassifierBase;
-import org.csa.rstb.gpf.classifiers.Wishart;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -234,7 +234,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
 
                         targetData.setElemIntAt(
                                 trgIndex.getIndex(x),
-                                clusterToClassMap[Wishart.findZoneIndex(Tr, Ti, clusterCenters) - 1]);
+                                clusterToClassMap[HAlphaWishart.findZoneIndex(Tr, Ti, clusterCenters) - 1]);
                     }
                 }
             }
