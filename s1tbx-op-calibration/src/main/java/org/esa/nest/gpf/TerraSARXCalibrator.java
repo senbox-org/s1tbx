@@ -16,12 +16,12 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.datamodel.BaseCalibrator;
 import org.esa.nest.datamodel.Calibrator;
 import org.esa.snap.datamodel.AbstractMetadata;
@@ -423,15 +423,15 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
                 double inciAng;
                 if (useIncidenceAngleFromGIM) {
                     final int gim = srcGIMData.getElemIntAt(srcIdx);
-                    inciAng = (gim - (gim % 10)) / 100.0 * MathUtils.DTOR;
+                    inciAng = (gim - (gim % 10)) / 100.0 * Constants.DTOR;
                 } else {
-                    inciAng = incidenceAngle.getPixelDouble(x, y) * MathUtils.DTOR;
+                    inciAng = incidenceAngle.getPixelDouble(x, y) * Constants.DTOR;
                 }
 
                 if (noiseCorrectedFlag) {
-                    sigma = Ks * sigma * Math.sin(inciAng);
+                    sigma = Ks * sigma * FastMath.sin(inciAng);
                 } else {
-                    sigma = Ks * (sigma - tileNoise[y - y0][x - x0]) * Math.sin(inciAng);
+                    sigma = Ks * (sigma - tileNoise[y - y0][x - x0]) * FastMath.sin(inciAng);
                 }
 
                 if (outputImageScaleInDb) { // convert calibration result to dB
@@ -508,13 +508,13 @@ public class TerraSARXCalibrator extends BaseCalibrator implements Calibrator {
         } else if (bandUnit == Unit.UnitType.INTENSITY || bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
             sigma = v;
         } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-            sigma = Math.pow(10, v / 10.0); // convert dB to linear scale
+            sigma = FastMath.pow(10, v / 10.0); // convert dB to linear scale
         } else {
             throw new OperatorException("TerraSARXCalibrator: Unknown band unit");
         }
 
         final double Ks = calibrationFactor.get(bandPolar.toUpperCase());
-        sigma *= Ks * Math.sin(localIncidenceAngle * MathUtils.DTOR);
+        sigma *= Ks * FastMath.sin(localIncidenceAngle * Constants.DTOR);
         return sigma;
     }
 

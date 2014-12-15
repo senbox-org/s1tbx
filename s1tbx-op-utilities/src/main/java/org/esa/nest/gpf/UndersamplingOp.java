@@ -16,6 +16,7 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
@@ -688,7 +689,7 @@ public class UndersamplingOp extends Operator {
                 if (bandUnitType == Unit.UnitType.INTENSITY_DB || bandUnitType == Unit.UnitType.AMPLITUDE_DB) {
 
                     final double dn = srcData1.getElemDoubleAt(index);
-                    filteredValue += Math.pow(10, dn / 10.0) * weight; // dB to linear
+                    filteredValue += FastMath.pow(10, dn / 10.0) * weight; // dB to linear
 
                 } else if (sourceRaster2 == null) {
 

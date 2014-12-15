@@ -4,6 +4,7 @@ import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import org.apache.commons.math3.util.FastMath;
 import org.ejml.data.DenseMatrix64F;
 import org.ejml.data.RowD1Matrix64F;
 import org.jlinda.core.coregistration.estimation.utils.SimpleAsciiFileParser;
@@ -240,15 +241,15 @@ public class TestEstimation_UJMP {
             double overAllModelTest_P = 0;
 
             for (int i = 0; i < numObs; i++) {
-                overAllModelTest_L += Math.pow(eL_hat.getAsDouble(i, 0), 2) * Qy_1.getAsDouble(i, 0);
-                overAllModelTest_P += Math.pow(eP_hat.getAsDouble(i, 0), 2) * Qy_1.getAsDouble(i, 0);
+                overAllModelTest_L += FastMath.pow(eL_hat.getAsDouble(i, 0), 2) * Qy_1.getAsDouble(i, 0);
+                overAllModelTest_P += FastMath.pow(eP_hat.getAsDouble(i, 0), 2) * Qy_1.getAsDouble(i, 0);
             }
             /** WHAT IS THE REFERENCE FOR THESE CONSTANT VALUES???? */
             final double SIGMA_L = 0.15;
             final double SIGMA_P = 0.10;
 //
-            overAllModelTest_L = (overAllModelTest_L / Math.pow(SIGMA_L, 2)) / (numObs - numUnk);
-            overAllModelTest_P = (overAllModelTest_P / Math.pow(SIGMA_P, 2)) / (numObs - numUnk);
+            overAllModelTest_L = (overAllModelTest_L / FastMath.pow(SIGMA_L, 2)) / (numObs - numUnk);
+            overAllModelTest_P = (overAllModelTest_P / FastMath.pow(SIGMA_P, 2)) / (numObs - numUnk);
 
             //Logger.debug("Overall Model Test Lines: {}", overAllModelTest_L);
             //Logger.debug("Overall Model Test Pixels: {}", overAllModelTest_P);
@@ -281,7 +282,7 @@ public class TestEstimation_UJMP {
             /** use summed wTest in Azimuth and Range direction for outlier detection */
             Matrix wTestSum = DenseMatrix.factory.zeros(numObs, 1);
             for (int i = 0; i < numObs; i++) {
-                wTestSum.setAsDouble(Math.pow(wTest_L.getAsDouble(i, 0), 2) + Math.pow(wTest_P.getAsDouble(i, 0), 2), i, 0);
+                wTestSum.setAsDouble(FastMath.pow(wTest_L.getAsDouble(i, 0), 2) + FastMath.pow(wTest_P.getAsDouble(i, 0), 2), i, 0);
             }
 
             maxWSum_idx = (int) wTestSum.indexOfMax(Calculation.Ret.LINK, 1).getAsDouble(1);

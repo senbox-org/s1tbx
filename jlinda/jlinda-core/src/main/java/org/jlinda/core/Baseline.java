@@ -1,6 +1,6 @@
 package org.jlinda.core;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.Decompose;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
@@ -8,7 +8,6 @@ import org.jlinda.core.utils.LinearAlgebraUtils;
 
 import static org.jblas.MatrixFunctions.abs;
 import static org.jlinda.core.utils.LinearAlgebraUtils.matTxmat;
-import static org.jlinda.core.utils.MathUtils.rad2deg;
 import static org.jlinda.core.utils.MathUtils.sqr;
 import static org.jlinda.core.utils.PolyUtils.normalize2;
 
@@ -292,12 +291,12 @@ public class Baseline {
                     final double alpha = (bPar == 0 && bPerp == 0) ? Double.NaN : theta - Math.atan2(bPar, bPerp);            // sign ok atan2
 
                     // horizontal/vertical representation of baseline
-                    final double bH = b * Math.cos(alpha); // sign ok
-                    final double bV = b * Math.sin(alpha); // sign ok
+                    final double bH = b * FastMath.cos(alpha); // sign ok
+                    final double bV = b * FastMath.sin(alpha); // sign ok
 
                     // TODO: check sign of infinity!!!
                     // Height ambiguity: [h] = -lambda/4pi * (r1sin(theta)/bPerp) * phi==2pi
-                    final double hAmbiguity = (bPerp == 0) ? Double.POSITIVE_INFINITY : -master.getRadarWavelength() * (pointOnMasterOrb.min(pointOnEllips)).norm() * Math.sin(theta) / (2.0 * bPerp);
+                    final double hAmbiguity = (bPerp == 0) ? Double.POSITIVE_INFINITY : -master.getRadarWavelength() * (pointOnMasterOrb.min(pointOnEllips)).norm() * FastMath.sin(theta) / (2.0 * bPerp);
 
                     // Some extra info if in DEBUG unwrapMode
                     //Logger.debug("The baseline parameters for (l,p,h) = " + line + ", " + pixel + ", " + height);
@@ -517,14 +516,14 @@ public class Baseline {
     public double getBhor(final double line, final double pixel, final double height) throws Exception {
         final double B = getB(line, pixel, height);
         final double alpha = getAlpha(line, pixel, height);
-        return B * Math.cos(alpha);// sign ok
+        return B * FastMath.cos(alpha);// sign ok
     }
 
     // Return Bv
     public double getBvert(final double line, final double pixel, final double height) throws Exception {
         final double B = getB(line, pixel, height);
         final double alpha = getAlpha(line, pixel, height);
-        return B * Math.sin(alpha);// sign ok
+        return B * FastMath.sin(alpha);// sign ok
     }
 
     // Return Height ambiguity
@@ -535,7 +534,7 @@ public class Baseline {
         final double range_MP = getRange(pixel);// >
 
         final double h_amb = (Bperp == 0) ? Double.POSITIVE_INFINITY : // inf
-                -masterWavelength * range_MP * Math.sin(theta_inc) / (2.0 * Bperp);// this is wrt local
+                -masterWavelength * range_MP * FastMath.sin(theta_inc) / (2.0 * Bperp);// this is wrt local
         //-masterWavelength*range_MP*sin(theta)/(2.0*Bperp);// this is wrt
         return h_amb;
     }

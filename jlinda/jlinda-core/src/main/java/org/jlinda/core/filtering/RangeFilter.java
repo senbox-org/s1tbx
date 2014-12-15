@@ -1,5 +1,6 @@
 package org.jlinda.core.filtering;
 
+import org.apache.commons.math3.util.FastMath;
 import org.apache.log4j.Logger;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
@@ -302,7 +303,7 @@ public class RangeFilter extends ProductDataFilter {
         for (j = 0; j < fftLength; ++j) {
 
             long nPnts = Math.abs(numPixels - j);
-            double weight = (nPnts < indexNoPeak) ? Math.pow(numPixels, 2) : Math.pow(nPnts, 2); // ==zero
+            double weight = (nPnts < indexNoPeak) ? FastMath.pow(numPixels, 2) : FastMath.pow(nPnts, 2); // ==zero
 
             for (i = 0; i < numLines; ++i) {
                 data.put(i, j, data.get(i, j) / weight);
@@ -321,7 +322,7 @@ public class RangeFilter extends ProductDataFilter {
         for (j = 0; j < fftLength; ++j) {
 
             long nPnts = Math.abs(numPixels - j);
-            double weight = (nPnts < indexNoPeak) ? Math.pow(numPixels, 2) : Math.pow(nPnts, 2); // ==zero
+            double weight = (nPnts < indexNoPeak) ? FastMath.pow(numPixels, 2) : FastMath.pow(nPnts, 2); // ==zero
 
             for (i = 0; i < numLines; ++i) {
                 data.put(i, j, data.get(i, j) / weight);

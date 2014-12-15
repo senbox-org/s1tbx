@@ -15,8 +15,9 @@
  */
 package org.esa.nest.dat.views.polarview;
 
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.util.Debug;
-import org.esa.beam.util.math.MathUtils;
+import org.esa.snap.eo.Constants;
 
 import java.awt.*;
 
@@ -225,7 +226,7 @@ class PolarCanvas extends Container {
         } else {
             final int r = (int) Math.sqrt(p.x * p.x + p.y * p.y);
             final double rV = data.valueFromScreenPoint(r);
-            return new double[]{rV, (360D - (Math.atan2(p.x, p.y) * 180D) / Math.PI) % 360D};
+            return new double[]{rV, (360D - (Math.atan2(p.x, p.y) * 180D) / Constants.PI) % 360D};
         }
     }
 
@@ -294,11 +295,11 @@ class PolarCanvas extends Container {
     }
 
     private static void drawWindDirection(Graphics graphics, double radius, double theta) {
-        final double a = theta * MathUtils.DTOR;
-        final int x1 = (int) (radius * Math.cos(a));
-        final int y1 = (int) (radius * Math.sin(a));
-        final int x2 = (int) ((radius + 50) * Math.cos(a));
-        final int y2 = (int) ((radius + 50) * Math.sin(a));
+        final double a = theta * Constants.DTOR;
+        final int x1 = (int) (radius * FastMath.cos(a));
+        final int y1 = (int) (radius * FastMath.sin(a));
+        final int x2 = (int) ((radius + 50) * FastMath.cos(a));
+        final int y2 = (int) ((radius + 50) * FastMath.sin(a));
 
         graphics.setColor(Color.black);
         graphics.drawLine(x1, y1, x2, y2);
@@ -327,14 +328,14 @@ class PolarCanvas extends Container {
     }
 
     private static void drawArrowHead(Graphics graphics, int x, int y, double theta, double length) {
-        final double b = (theta + 1) * MathUtils.DTOR;
-        final int x3 = (int) (length * Math.cos(b));
-        final int y3 = (int) (length * Math.sin(b));
+        final double b = (theta + 1) * Constants.DTOR;
+        final int x3 = (int) (length * FastMath.cos(b));
+        final int y3 = (int) (length * FastMath.sin(b));
         graphics.drawLine(x, y, x3, y3);
 
-        final double c = (theta - 1) * MathUtils.DTOR;
-        final int x4 = (int) (length * Math.cos(c));
-        final int y4 = (int) (length * Math.sin(c));
+        final double c = (theta - 1) * Constants.DTOR;
+        final int x4 = (int) (length * FastMath.cos(c));
+        final int y4 = (int) (length * FastMath.sin(c));
         graphics.drawLine(x, y, x4, y4);
     }
 

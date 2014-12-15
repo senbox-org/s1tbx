@@ -16,6 +16,7 @@
 package org.esa.nest.dataio.cosmo;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.*;
@@ -23,8 +24,8 @@ import org.esa.beam.util.Guardian;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.netcdf.*;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
@@ -540,7 +541,7 @@ public class CosmoSkymedReader extends SARReader {
             if (i == 0) {
                 srgrCoeff += referenceRange;
             } else {
-                srgrCoeff /= Math.pow(rangeSpacing, i);
+                srgrCoeff /= FastMath.pow(rangeSpacing, i);
             }
 
             final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i + 1));
@@ -661,8 +662,8 @@ public class CosmoSkymedReader extends SARReader {
         final double nearRangeAngle = bandElem.getAttributeDouble("Near_Incidence_Angle", 0);
         final double farRangeAngle = bandElem.getAttributeDouble("Far_Incidence_Angle", 0);
 
-        final double firstRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_First_Time", 0) * 1000000000.0f;
-        final double lastRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_Last_Time", 0) * 1000000000.0f;
+        final double firstRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_First_Time", 0) * Constants.oneBillion;
+        final double lastRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_Last_Time", 0) * Constants.oneBillion;
 
         final float[] incidenceCorners = new float[]{(float)nearRangeAngle, (float)farRangeAngle, (float)nearRangeAngle, (float)farRangeAngle};
         final float[] slantRange = new float[]{(float)firstRangeTime, (float)lastRangeTime, (float)firstRangeTime, (float)lastRangeTime};

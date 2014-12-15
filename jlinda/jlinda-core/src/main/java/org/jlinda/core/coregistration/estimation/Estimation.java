@@ -1,5 +1,6 @@
 package org.jlinda.core.coregistration.estimation;
 
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.Decompose;
 import org.jblas.DoubleMatrix;
 import org.jblas.MatrixFunctions;
@@ -148,7 +149,7 @@ public class Estimation {
                 index = 0;
                 for (j = 0; j <= DEGREE; j++) {
                     for (k = 0; k <= j; k++) {
-                        A.put(i, index, Math.pow(posL, j - k) * Math.pow(posP, k));
+                        A.put(i, index, FastMath.pow(posL, j - k) * FastMath.pow(posP, k));
                         index++;
                     }
                 }

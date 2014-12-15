@@ -16,6 +16,7 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -588,7 +589,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                 bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
             sigma = v;
         } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-            sigma = Math.pow(10, v / 10.0); // convert dB to linear scale
+            sigma = FastMath.pow(10, v / 10.0); // convert dB to linear scale
         } else {
             throw new OperatorException("Unknown band unit");
         }

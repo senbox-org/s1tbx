@@ -1,6 +1,7 @@
 package org.jlinda.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -276,7 +277,7 @@ public class CoherenceOp extends Operator {
     }
 
     private double norm(ComplexDouble number) {
-        return Math.pow(number.real(), 2) + Math.pow(number.imag(), 2);
+        return FastMath.pow(number.real(), 2) + FastMath.pow(number.imag(), 2);
     }
 
     /**

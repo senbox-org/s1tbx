@@ -15,6 +15,7 @@
  */
 package org.esa.nest.dataio.radarsat2;
 
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.SystemUtils;
@@ -644,10 +645,10 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final MetadataElement incidenceAngleNearRangeElem = sarProcessingInformation.getElement("incidenceAngleNearRange");
         final double nearRangeIncidenceAngle = (float) incidenceAngleNearRangeElem.getAttributeDouble("incidenceAngleNearRange", 0);
 
-        final double alpha1 = nearRangeIncidenceAngle * org.esa.beam.util.math.MathUtils.DTOR;
-        final double lambda = sceneCenterLatitude * org.esa.beam.util.math.MathUtils.DTOR;
-        final double cos2 = Math.cos(lambda) * Math.cos(lambda);
-        final double sin2 = Math.sin(lambda) * Math.sin(lambda);
+        final double alpha1 = nearRangeIncidenceAngle * Constants.DTOR;
+        final double lambda = sceneCenterLatitude * Constants.DTOR;
+        final double cos2 = FastMath.cos(lambda) * FastMath.cos(lambda);
+        final double sin2 = FastMath.sin(lambda) * FastMath.sin(lambda);
         final double e2 = (b * b) / (a * a);
         final double rt = a * Math.sqrt((cos2 + e2 * e2 * sin2) / (cos2 + e2 * sin2));
         final double rt2 = rt * rt;
@@ -656,22 +657,22 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         if (srgrFlag) { // detected
             groundRangeSpacing = rangeSpacing;
         } else {
-            groundRangeSpacing = rangeSpacing / Math.sin(alpha1);
+            groundRangeSpacing = rangeSpacing / FastMath.sin(alpha1);
         }
 
         double deltaPsi = groundRangeSpacing / rt; // in radian
         final double r1 = slantRangeToFirstPixel;
-        final double rtPlusH = Math.sqrt(rt2 + r1 * r1 + 2.0 * rt * r1 * Math.cos(alpha1));
+        final double rtPlusH = Math.sqrt(rt2 + r1 * r1 + 2.0 * rt * r1 * FastMath.cos(alpha1));
         final double rtPlusH2 = rtPlusH * rtPlusH;
-        final double theta1 = Math.acos((r1 + rt * Math.cos(alpha1)) / rtPlusH);
+        final double theta1 = FastMath.acos((r1 + rt * FastMath.cos(alpha1)) / rtPlusH);
         final double psi1 = alpha1 - theta1;
         double psi = psi1;
         float[] incidenceAngles = new float[gridWidth];
         final int n = gridWidth * subSamplingX;
         int k = 0;
         for (int i = 0; i < n; i++) {
-            final double ri = Math.sqrt(rt2 + rtPlusH2 - 2.0 * rt * rtPlusH * Math.cos(psi));
-            final double alpha = Math.acos((rtPlusH2 - ri * ri - rt2) / (2.0 * ri * rt));
+            final double ri = Math.sqrt(rt2 + rtPlusH2 - 2.0 * rt * rtPlusH * FastMath.cos(psi));
+            final double alpha = FastMath.acos((rtPlusH2 - ri * ri - rt2) / (2.0 * ri * rt));
             if (i % subSamplingX == 0) {
                 int index = k++;
 
@@ -679,11 +680,11 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                     index = gridWidth - 1 - index;
                 }
 
-                incidenceAngles[index] = (float) (alpha * org.esa.beam.util.math.MathUtils.RTOD);
+                incidenceAngles[index] = (float) (alpha * Constants.RTOD);
             }
 
             if (!srgrFlag) { // complex
-                groundRangeSpacing = rangeSpacing / Math.sin(alpha);
+                groundRangeSpacing = rangeSpacing / FastMath.sin(alpha);
                 deltaPsi = groundRangeSpacing / rt;
             }
             psi = psi + deltaPsi;

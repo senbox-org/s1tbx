@@ -17,10 +17,8 @@ package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.nest.dataio.dem.ElevationModel;
-import org.esa.nest.dataio.dem.ElevationModelDescriptor;
-import org.esa.nest.dataio.dem.ElevationModelRegistry;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -34,8 +32,12 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.toolviews.placemark.PlacemarkNameFactory;
+import org.esa.nest.dataio.dem.ElevationModel;
+import org.esa.nest.dataio.dem.ElevationModelDescriptor;
+import org.esa.nest.dataio.dem.ElevationModelRegistry;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.*;
 import org.esa.snap.util.MemUtils;
 
@@ -541,14 +543,14 @@ public class GCPSelectionOp extends Operator {
                 final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
                 final double incidenceAngleAtCentreRangePixel =
                         incidenceAngle.getPixelDouble(sourceImageWidth / 2f, sourceImageHeight / 2f);
-                groundRangeSpacing /= Math.sin(incidenceAngleAtCentreRangePixel * MathUtils.DTOR);
+                groundRangeSpacing /= FastMath.sin(incidenceAngleAtCentreRangePixel * Constants.DTOR);
             }
             final int nRgLooks = Math.max(1, sourceImageWidth / 2048);
             final int nAzLooks = Math.max(1, (int) ((double) nRgLooks * groundRangeSpacing / azimuthSpacing + 0.5));
             final int targetImageWidth = sourceImageWidth / nRgLooks;
             final int targetImageHeight = sourceImageHeight / nAzLooks;
-            final int windowWidth = (int) Math.pow(2, (int) (Math.log10(targetImageWidth) / Math.log10(2)));
-            final int windowHeight = (int) Math.pow(2, (int) (Math.log10(targetImageHeight) / Math.log10(2)));
+            final int windowWidth = (int) FastMath.pow(2, (int) (Math.log10(targetImageWidth) / Math.log10(2)));
+            final int windowHeight = (int) FastMath.pow(2, (int) (Math.log10(targetImageHeight) / Math.log10(2)));
             final double[] mI = new double[windowWidth * windowHeight];
             final double[] sI = new double[windowWidth * windowHeight];
 
@@ -1512,7 +1514,7 @@ public class GCPSelectionOp extends Operator {
 
         int k2;
         double phaseK;
-        final double phase = -2.0 * Math.PI * shift / signalLength;
+        final double phase = -2.0 * Constants.PI * shift / signalLength;
         final int halfSignalLength = (int) (signalLength * 0.5 + 0.5);
 
         for (int k = 0; k < signalLength; ++k) {
@@ -1522,8 +1524,8 @@ public class GCPSelectionOp extends Operator {
                 phaseK = phase * (k - signalLength);
             }
             k2 = k * 2;
-            phaseArray[k2] = Math.cos(phaseK);
-            phaseArray[k2 + 1] = Math.sin(phaseK);
+            phaseArray[k2] = FastMath.cos(phaseK);
+            phaseArray[k2 + 1] = FastMath.sin(phaseK);
         }
     }
 

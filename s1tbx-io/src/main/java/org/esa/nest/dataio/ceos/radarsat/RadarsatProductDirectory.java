@@ -16,11 +16,11 @@
 package org.esa.nest.dataio.ceos.radarsat;
 
 import Jama.Matrix;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.binary.BinaryRecord;
 import org.esa.nest.dataio.binary.IllegalBinaryFormatException;
@@ -520,9 +520,9 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
         final double yVelECI = platformPosRec.getAttributeDouble("Velocity vector Y' " + num) / 1000.0;
         final double zVelECI = platformPosRec.getAttributeDouble("Velocity vector Z' " + num) / 1000.0;
 
-        final double thetaInRd = theta * MathUtils.DTOR;
-        final double cosTheta = Math.cos(thetaInRd);
-        final double sinTheta = Math.sin(thetaInRd);
+        final double thetaInRd = theta * Constants.DTOR;
+        final double cosTheta = FastMath.cos(thetaInRd);
+        final double sinTheta = FastMath.sin(thetaInRd);
 
         final double xPosECEF = cosTheta * xPosECI + sinTheta * yPosECI;
         final double yPosECEF = -sinTheta * xPosECI + cosTheta * yPosECI;
@@ -631,7 +631,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
             for (int i = 0; i < gridWidth; i++) {
                 final double RS = rangeDist[k];
                 final double a = ((h * h) - (RS * RS) + (2.0 * r * h)) / (2.0 * RS * r);
-                angles[k] = (float)(Math.acos(a) * MathUtils.RTOD);
+                angles[k] = (float)(FastMath.acos(a) * Constants.RTOD);
                 k++;
             }
         }
@@ -660,7 +660,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
     private static double calculateEarthRadius(BinaryRecord sceneRec) {
 
         final double platLat = sceneRec.getAttributeDouble("Sensor platform geodetic latitude at nadir");
-        final double a = Math.tan(platLat * MathUtils.DTOR);
+        final double a = FastMath.tan(platLat * Constants.DTOR);
         final double a2 = a * a;
         final double ellipmin = Constants.semiMinorAxis;
         final double ellipmin2 = ellipmin * ellipmin;

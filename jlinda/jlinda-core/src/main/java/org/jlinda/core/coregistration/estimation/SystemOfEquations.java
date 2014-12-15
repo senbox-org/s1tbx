@@ -3,6 +3,7 @@ package org.jlinda.core.coregistration.estimation;
 import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.DoubleMatrix;
 import org.jblas.FloatMatrix;
 import org.jblas.MatrixFunctions;
@@ -51,7 +52,7 @@ public class SystemOfEquations {
             int index = 0;
             for (int j = 0; j <= degree; j++) {
                 for (int k = 0; k <= j; k++) {
-                    A.put(i, index, Math.pow(posL, j - k) * Math.pow(posP, k));
+                    A.put(i, index, FastMath.pow(posL, j - k) * FastMath.pow(posP, k));
                     index++;
                 }
             }
@@ -130,7 +131,7 @@ public class SystemOfEquations {
             int index = 0;
             for (int p = 0; p <= degree; p++) {
                 for (int q = 0; q <= p; q++) {
-                    mul[index++] = (float) (Math.pow(line[i], p - q) * Math.pow(pixel[i], q));
+                    mul[index++] = (float) (FastMath.pow(line[i], p - q) * FastMath.pow(pixel[i], q));
                 }
             }
             list.put(i, mul);
@@ -159,7 +160,7 @@ public class SystemOfEquations {
             int index = 0;
             for (int p = 0; p <= degree; p++) {
                 for (int q = 0; q <= p; q++) {
-                    mul[index++] = (float) (Math.pow(line.getQuick(i), p - q) * Math.pow(pixel.getQuick(i), q));
+                    mul[index++] = (float) (FastMath.pow(line.getQuick(i), p - q) * FastMath.pow(pixel.getQuick(i), q));
                 }
             }
             list.put(i, mul);
@@ -191,7 +192,7 @@ public class SystemOfEquations {
             final double[] mul = new double[nUnkn];
             for (int p = 0; p <= degree; p++) {
                 for (int q = 0; q <= p; q++) {
-                    mul[index++] = (Math.pow(line[i], p - q) * Math.pow(pixel[i], q));
+                    mul[index++] = (FastMath.pow(line[i], p - q) * FastMath.pow(pixel[i], q));
                 }
             }
             list.put(i, mul);
@@ -222,7 +223,7 @@ public class SystemOfEquations {
             int index = 0;
             for (int p = 0; p <= degree; p++) {
                 for (int q = 0; q <= p; q++) {
-                    A[i][index] = Math.pow(line[i], p - q) * Math.pow(pixel[i], q);
+                    A[i][index] = FastMath.pow(line[i], p - q) * FastMath.pow(pixel[i], q);
                     index++;
                 }
             }
@@ -251,7 +252,7 @@ public class SystemOfEquations {
             int index = 0;
             for (int p = 0; p <= degree; p++) {
                 for (int q = 0; q <= p; q++) {
-                    A[i][index] = (float) (Math.pow(line[i], p - q) * Math.pow(pixel[i], q));
+                    A[i][index] = (float) (FastMath.pow(line[i], p - q) * FastMath.pow(pixel[i], q));
                     index++;
                 }
             }

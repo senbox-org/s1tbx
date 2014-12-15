@@ -16,15 +16,16 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.datamodel.BaseCalibrator;
 import org.esa.nest.datamodel.Calibrator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 
@@ -284,7 +285,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
         } else if (bandUnit == Unit.UnitType.INTENSITY || bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
             sigma = v;
         } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-            sigma = Math.pow(10, v / 10.0); // convert dB to linear scale
+            sigma = FastMath.pow(10, v / 10.0); // convert dB to linear scale
         } else {
             throw new OperatorException("Unknown band unit");
         }
@@ -301,7 +302,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
         }
 
         if (incidenceAngleSelection.contains(USE_INCIDENCE_ANGLE_FROM_DEM)) {
-            return sigma * Math.sin(localIncidenceAngle * MathUtils.DTOR);
+            return sigma * FastMath.sin(localIncidenceAngle * Constants.DTOR);
         } else { // USE_INCIDENCE_ANGLE_FROM_ELLIPSOID
             return sigma;
         }
@@ -309,7 +310,7 @@ public class Radarsat2Calibrator extends BaseCalibrator implements Calibrator {
 
     public double applyRetroCalibration(int x, int y, double v, String bandPolar, final Unit.UnitType bandUnit, int[] subSwathIndex) {
         if (incidenceAngleSelection.contains(USE_INCIDENCE_ANGLE_FROM_DEM)) {
-            return v / Math.sin(incidenceAngle.getPixelDouble(x, y) * MathUtils.DTOR);
+            return v / FastMath.sin(incidenceAngle.getPixelDouble(x, y) * Constants.DTOR);
         } else { // USE_INCIDENCE_ANGLE_FROM_ELLIPSOID
             return v;
         }

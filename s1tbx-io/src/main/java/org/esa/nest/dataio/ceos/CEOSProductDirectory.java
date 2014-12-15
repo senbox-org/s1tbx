@@ -146,9 +146,9 @@ public abstract class CEOSProductDirectory {
             // add slant range time tie point grid
             if (scene != null) {
 
-                final double time1 = scene.getAttributeDouble("Zero-doppler range time of first range pixel") * 1000000; // ms to ns
-                final double time2 = scene.getAttributeDouble("Zero-doppler range time of centre range pixel") * 1000000; // ms to ns
-                final double time3 = scene.getAttributeDouble("Zero-doppler range time of last range pixel") * 1000000; // ms to ns
+                final double time1 = scene.getAttributeDouble("Zero-doppler range time of first range pixel") * Constants.oneMillion; // ms to ns
+                final double time2 = scene.getAttributeDouble("Zero-doppler range time of centre range pixel") * Constants.oneMillion; // ms to ns
+                final double time3 = scene.getAttributeDouble("Zero-doppler range time of last range pixel") * Constants.oneMillion; // ms to ns
 
                 final float[] times = new float[]{(float)time1, (float)time2, (float)time3};
                 final float[] fineTimes = new float[gridWidth * gridHeight];

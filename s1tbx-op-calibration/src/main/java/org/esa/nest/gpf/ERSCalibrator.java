@@ -22,7 +22,6 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.datamodel.BaseCalibrator;
 import org.esa.nest.datamodel.Calibrator;
 import org.esa.snap.datamodel.AbstractMetadata;
@@ -136,7 +135,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
     // parameters used for PGS-ENVISAT calibration
     private int numMPPRecords;
 
-    private static final double referenceIncidenceAngle = 23.0 * MathUtils.DTOR; //  radian
+    private static final double referenceIncidenceAngle = 23.0 * Constants.DTOR; //  radian
     private static final double relativeLookAngle = 20.355; //  degree
     private static final double aGEM6 = 6378144; // GEM6: equatorial Earth radius in m (for VMP CEOS)
     private static final double bGEM6 = 6356759; // GEM6: polar Earth radius in m (for VMP CEOS)
@@ -1087,11 +1086,11 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
             a = aWGS84;
             b = bWGS84;
         }
-        final double lambda = sceneCentreLatitude * MathUtils.DTOR;
-        final double alpha1 = getIncidenceAngleAtFirstRangePixel() * MathUtils.DTOR;
-        final double cos2 = Math.pow(FastMath.cos(lambda), 2.0);
-        final double sin2 = Math.pow(FastMath.sin(lambda), 2.0);
-        final double e2 = Math.pow(b / a, 2.0);
+        final double lambda = sceneCentreLatitude * Constants.DTOR;
+        final double alpha1 = getIncidenceAngleAtFirstRangePixel() * Constants.DTOR;
+        final double cos2 = FastMath.pow(FastMath.cos(lambda), 2.0);
+        final double sin2 = FastMath.pow(FastMath.sin(lambda), 2.0);
+        final double e2 = FastMath.pow(b / a, 2.0);
         final double rt = a * Math.sqrt((cos2 + e2 * e2 * sin2) / (cos2 + e2 * sin2));
         final double rt2 = rt * rt;
         final double deltaPsi = rangeSpacing / rt; // in radian
@@ -1117,7 +1116,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                 alpha = FastMath.acos((rtPlusH2 - ri * ri - rt2) / (2.0 * ri * rt));
                 incidenceAngles[i] = alpha;
                 lookAngles[i] = FastMath.acos((ri + rt * FastMath.cos(alpha)) / rtPlusH);
-                rangeSpreadingLoss[i] = Math.pow(ri / referenceSlantRange, 3.0);
+                rangeSpreadingLoss[i] = FastMath.pow(ri / referenceSlantRange, 3.0);
             }
 
         } else { // For UK-PAF products processed prior to 8th April 1993
@@ -1146,7 +1145,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                 alpha = FastMath.acos((rtPlusH2 - ri * ri - rt2) / (2.0 * ri * rt));
                 incidenceAngles[i] = alpha;
                 lookAngles[i] = FastMath.asin(FastMath.sin(alpha) * rt / rtPlusH);
-                rangeSpreadingLoss[i] = Math.pow(ri / referenceSlantRange, 3.0);
+                rangeSpreadingLoss[i] = FastMath.pow(ri / referenceSlantRange, 3.0);
             }
         }
         /*
@@ -1398,14 +1397,14 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                 if (processingTime.compareTo(time19910801) >= 0 && processingTime.compareTo(time19920901) < 0) {
 
                     for (int x = x0; x < x0 + w; x++) {
-                        theta = lookAngles[x] * MathUtils.RTOD; // in degree
+                        theta = lookAngles[x] * Constants.RTOD; // in degree
                         antennaPatternCorrFactor[x - x0] = 1.0 / g2Im(theta);
                     }
 
                 } else if (processingTime.compareTo(time19920901) >= 0 && processingTime.compareTo(time19950716) < 0) {
 
                     for (int x = x0; x < x0 + w; x++) {
-                        theta = lookAngles[x] * MathUtils.RTOD; // in degree
+                        theta = lookAngles[x] * Constants.RTOD; // in degree
                         antennaPatternCorrFactor[x - x0] = g2Init(theta) / g2Im(theta);
                     }
 
@@ -1424,21 +1423,21 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                 if (processingTime.compareTo(time19910801) >= 0 && processingTime.compareTo(time19920901) < 0) {
 
                     for (int x = x0; x < x0 + w; x++) {
-                        theta = lookAngles[x] * MathUtils.RTOD; // in degree
+                        theta = lookAngles[x] * Constants.RTOD; // in degree
                         antennaPatternCorrFactor[x - x0] = 1.0 / g2Im(theta);
                     }
 
                 } else if (processingTime.compareTo(time19920901) >= 0 && processingTime.compareTo(time19930408) < 0) {
 
                     for (int x = x0; x < x0 + w; x++) {
-                        theta = lookAngles[x] * MathUtils.RTOD; // in degree
+                        theta = lookAngles[x] * Constants.RTOD; // in degree
                         antennaPatternCorrFactor[x - x0] = ec(theta) * g2Init(theta) / g2Im(theta);
                     }
 
                 } else if (processingTime.compareTo(time19930408) >= 0 && processingTime.compareTo(time19950716) < 0) {
 
                     for (int x = x0; x < x0 + w; x++) {
-                        theta = lookAngles[x] * MathUtils.RTOD; // in degree
+                        theta = lookAngles[x] * Constants.RTOD; // in degree
                         antennaPatternCorrFactor[x - x0] = g2Init(theta) / g2Im(theta);
                     }
 
@@ -1481,12 +1480,12 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
 
         for (int x = x0; x < x0 + w; x++) {
 
-            final double theta = lookAngles[x] * MathUtils.RTOD; // in degree
+            final double theta = lookAngles[x] * Constants.RTOD; // in degree
             final int k = (int) ((theta - elevationAngle + 5.0) / delta);
             final double theta1 = elevationAngle - 5.0 + k * delta;
             final double theta2 = theta1 + delta;
-            final double gain1 = Math.pow(10.0, (double) antPatForPGS[k] / 10.0); // convert dB to linear scale
-            final double gain2 = Math.pow(10.0, (double) antPatForPGS[k + 1] / 10.0);
+            final double gain1 = FastMath.pow(10.0, (double) antPatForPGS[k] / 10.0); // convert dB to linear scale
+            final double gain2 = FastMath.pow(10.0, (double) antPatForPGS[k + 1] / 10.0);
             array[x - x0] = ((theta2 - theta) * gain1 + (theta - theta1) * gain2) / (theta2 - theta1);
 
             /*
@@ -1574,7 +1573,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         final double gain2 = array[row2][1];
         final double lambda = (boreSightAngle - delTheta1) / (delTheta2 - delTheta1);
         double gain = ((1 - lambda) * gain1 + lambda * gain2);
-        gain = Math.pow(10, gain / 10.0); // dB to linear scale
+        gain = FastMath.pow(10, gain / 10.0); // dB to linear scale
 
         return gain;
     }
@@ -1647,7 +1646,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         final double lambda2 = (boreSightAngle - delTheta1) / (delTheta2 - delTheta1);
         double gain = (1 - lambda2) * ((1 - lambda1) * gain11 + lambda1 * gain21) +
                 lambda2 * ((1 - lambda1) * gain12 + lambda1 * gain22);
-        gain = Math.pow(10, gain / 10); // dB to linear scale
+        gain = FastMath.pow(10, gain / 10); // dB to linear scale
 
         return gain;
     }
@@ -1766,7 +1765,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
 
             if (processingTime.compareTo(time19950716) >= 0) {
                 for (int x = x0; x < x0 + w; x++) {
-                    theta = lookAngles[x] * MathUtils.RTOD; // in degree
+                    theta = lookAngles[x] * Constants.RTOD; // in degree
                     antennaPatternGain[x - x0] = g2Im(theta);
                 }
                 return;
@@ -1783,7 +1782,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                 } else if (processingTime.compareTo(time19920901) >= 0 && processingTime.compareTo(time19950716) < 0) {
 
                     for (int x = x0; x < x0 + w; x++) {
-                        theta = lookAngles[x] * MathUtils.RTOD; // in degree
+                        theta = lookAngles[x] * Constants.RTOD; // in degree
                         antennaPatternGain[x - x0] = g2Init(theta);
                     }
 
@@ -1800,14 +1799,14 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                 } else if (processingTime.compareTo(time19920901) >= 0 && processingTime.compareTo(time19930408) < 0) {
 
                     for (int x = x0; x < x0 + w; x++) {
-                        theta = lookAngles[x] * MathUtils.RTOD; // in degree
+                        theta = lookAngles[x] * Constants.RTOD; // in degree
                         antennaPatternGain[x - x0] = ec(theta) * g2Init(theta);
                     }
 
                 } else if (processingTime.compareTo(time19930408) >= 0 && processingTime.compareTo(time19950716) < 0) {
 
                     for (int x = x0; x < x0 + w; x++) {
-                        theta = lookAngles[x] * MathUtils.RTOD; // in degree
+                        theta = lookAngles[x] * Constants.RTOD; // in degree
                         antennaPatternGain[x - x0] = g2Init(theta);
                     }
 
@@ -1817,7 +1816,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         } else { // ERS-2
 
             for (int x = x0; x < x0 + w; x++) {
-                theta = lookAngles[x] * MathUtils.RTOD; // in degree
+                theta = lookAngles[x] * Constants.RTOD; // in degree
                 antennaPatternGain[x - x0] = g2ERS2(theta);
             }
         }
@@ -2155,7 +2154,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         final double loss2 = array[row2][1];
         final double lambda = (dnInDb - intensityK1) / (intensityK2 - intensityK1);
         double loss = (1 - lambda) * loss1 + lambda * loss2;
-        loss = Math.pow(10.0, loss / 10.0); // dB to linear scale
+        loss = FastMath.pow(10.0, loss / 10.0); // dB to linear scale
 
         return loss;
     }
@@ -2278,14 +2277,14 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         final int y = sourceImageHeight / 2;
         for (int x = 0; x < sourceImageWidth; x++) {
 
-            final double alpha = incidenceAngleTiePointGrid.getPixelDouble(x + 0.5, y + 0.5) * MathUtils.DTOR; // in radian
-            final double time = slantRangeTimeTiePointGrid.getPixelDouble(x + 0.5, y + 0.5) / 1000000000.0; //convert ns to s
+            final double alpha = incidenceAngleTiePointGrid.getPixelDouble(x + 0.5, y + 0.5) * Constants.DTOR; // in radian
+            final double time = slantRangeTimeTiePointGrid.getPixelDouble(x + 0.5, y + 0.5) / Constants.oneBillion; //convert ns to s
             final double r = time * Constants.halfLightSpeed; // in m
             final double theta = alpha - FastMath.asin(FastMath.sin(alpha) * r / rSat); // in radian
 
             incidenceAngles[x] = alpha;
             lookAngles[x] = theta;
-            rangeSpreadingLoss[x] = Math.pow(r / referenceSlantRange, 3.0);
+            rangeSpreadingLoss[x] = FastMath.pow(r / referenceSlantRange, 3.0);
         }
         /*
         for (int i = 0; i < sourceImageWidth; i=i+20) {
@@ -2369,7 +2368,7 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         }
 
         double replicaPulsePower = attr.getData().getElemFloat(); // in dB
-        replicaPulsePower = Math.pow(10.0, replicaPulsePower / 10.0); // convert to linear scale
+        replicaPulsePower = FastMath.pow(10.0, replicaPulsePower / 10.0); // convert to linear scale
         //System.out.println("Replica pulse power is " + replicaPulsePower);
 
         return replicaPulsePower;
@@ -2443,21 +2442,21 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
         if (bandUnit == Unit.UnitType.AMPLITUDE) {
             sigma = v * v;
         } else if (bandUnit == Unit.UnitType.AMPLITUDE_DB) {
-            sigma = Math.pow(10, v / 5.0); // convert dB to linear scale, then square
+            sigma = FastMath.pow(10, v / 5.0); // convert dB to linear scale, then square
         } else if (bandUnit == Unit.UnitType.INTENSITY || bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
             sigma = v;
         } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-            sigma = Math.pow(10, v / 10.0); // convert dB to linear scale
+            sigma = FastMath.pow(10, v / 10.0); // convert dB to linear scale
         } else {
             throw new OperatorException("Unknown band unit");
         }
 
         if (multilookFlag && antennaPatternCorrectionFlag) { // calibration constant and incidence angle corrections only
-            return FastMath.sin(Math.abs(localIncidenceAngle) * org.esa.beam.util.math.MathUtils.DTOR) /
+            return FastMath.sin(Math.abs(localIncidenceAngle) * Constants.DTOR) /
                     FastMath.sin(referenceIncidenceAngle) / calibrationConstant;
         }
 
-        sigma *= FastMath.sin(Math.abs(localIncidenceAngle) * org.esa.beam.util.math.MathUtils.DTOR) /
+        sigma *= FastMath.sin(Math.abs(localIncidenceAngle) * Constants.DTOR) /
                 FastMath.sin(referenceIncidenceAngle);
 
         sigma /= getNewAntennaPatternGainSquare((int) rangeIndex);
@@ -2494,20 +2493,20 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      */
     private double getNewAntennaPatternGainSquareForVMPProduct(final int rangeIndex) {
         if (isERS1Mission) { // ERS-1
-            return g2Im(lookAngles[rangeIndex] * MathUtils.RTOD);
+            return g2Im(lookAngles[rangeIndex] * Constants.RTOD);
         } else {
-            return g2ERS2(lookAngles[rangeIndex] * MathUtils.RTOD);
+            return g2ERS2(lookAngles[rangeIndex] * Constants.RTOD);
         }
     }
 
     private double getNewAntennaPatternGainSquareForPGSProduct(final int rangeIndex) {
         final double delta = 0.05;
-        final double theta = lookAngles[rangeIndex] * MathUtils.RTOD; // in degree
+        final double theta = lookAngles[rangeIndex] * Constants.RTOD; // in degree
         final int k = (int) ((theta - elevationAngle + 5.0) / delta);
         final double theta1 = elevationAngle - 5.0 + k * delta;
         final double theta2 = theta1 + delta;
-        final double gain1 = Math.pow(10.0, (double) antPatForPGS[k] / 10.0); // convert dB to linear scale
-        final double gain2 = Math.pow(10.0, (double) antPatForPGS[k + 1] / 10.0);
+        final double gain1 = FastMath.pow(10.0, (double) antPatForPGS[k] / 10.0); // convert dB to linear scale
+        final double gain2 = FastMath.pow(10.0, (double) antPatForPGS[k + 1] / 10.0);
         final double gain = ((theta2 - theta) * gain1 + (theta - theta1) * gain2) / (theta2 - theta1);
         return gain; // see Andrea's email dated Nov. 11, 2008
     }
@@ -2582,11 +2581,11 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
                     final double dn = srcData.getElemDoubleAt(srcIndex);
                     sigma = dn * dn;
                 } else if (bandUnit == Unit.UnitType.AMPLITUDE_DB) {
-                    sigma = Math.pow(10, srcData.getElemDoubleAt(srcIndex) / 5.0);
+                    sigma = FastMath.pow(10, srcData.getElemDoubleAt(srcIndex) / 5.0);
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
                     sigma = srcData.getElemDoubleAt(srcIndex);
                 } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-                    sigma = Math.pow(10, srcData.getElemDoubleAt(srcIndex) / 10.0);
+                    sigma = FastMath.pow(10, srcData.getElemDoubleAt(srcIndex) / 10.0);
                 } else {
                     throw new OperatorException("ERSCalibrator: Unknown band unit");
                 }

@@ -1,5 +1,6 @@
 package org.jlinda.core.coregistration.legacy;
 
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.*;
 import org.jlinda.core.Constants;
 import org.jlinda.core.SLCImage;
@@ -10,7 +11,10 @@ import org.jlinda.core.utils.LinearAlgebraUtils;
 import org.jlinda.core.utils.MathUtils;
 import org.jlinda.core.utils.PolyUtils;
 import org.jlinda.core.utils.SarUtils;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.perf4j.StopWatch;
 
@@ -276,7 +280,7 @@ public class CoregistrationTest {
         double coherence;
 
         for (int i = 0; i < 8; i++) {
-            ovsfactor = (int) Math.pow(2, i);
+            ovsfactor = (int) FastMath.pow(2, i);
             clock.start();
             coherence = coreg.crosscorrelate(masterCplx, slaveCplx, ovsfactor, MasksizeL / 2, MasksizeP / 2, 0, 0);
             clock.stop();
@@ -428,7 +432,7 @@ public class CoregistrationTest {
         int offsetP = 0;
 
         for (int i = 1; i < 8; i++) {
-            ovsFactorCorrelate = (int) Math.pow(2, i);
+            ovsFactorCorrelate = (int) FastMath.pow(2, i);
             clock.start();
             coherence = coreg.crosscorrelate(masterCplx, slaveCplx, ovsFactorCorrelate / ovsFactor, 2 * AccL, 2 * AccP, offsetL, offsetP);
             clock.stop();
@@ -761,7 +765,7 @@ public class CoregistrationTest {
 
                         // Modify kernel, shift spectrum to fDC
                         double t = pntAxisRow.get(i) * tmp;
-                        kernelL.put(i, kernelL.get(i).mul(new ComplexDouble(Math.cos(t), (-1) * Math.sin(t)))); // note '-' (see manual)
+                        kernelL.put(i, kernelL.get(i).mul(new ComplexDouble(FastMath.cos(t), (-1) * FastMath.sin(t)))); // note '-' (see manual)
                     }
                 }
 
@@ -928,7 +932,7 @@ public class CoregistrationTest {
         Mask.subi(Mask.mean());
 
         for (int ii = 0; ii < Mask.length; ii++) {
-            varM += Math.pow(Mask.get(ii), 2); // 1/N later
+            varM += FastMath.pow(Mask.get(ii), 2); // 1/N later
         }
 
         // Compute correlation at these points
@@ -955,7 +959,7 @@ public class CoregistrationTest {
 
                 for (int l = 0; l < Mask.length; l++) {
                     covAM += (Mask.get(l) * Am.get(l));
-                    varA += Math.pow(Am.get(l), 2);
+                    varA += FastMath.pow(Am.get(l), 2);
                 }
 
                 Result.put(i, j, (float) (covAM / Math.sqrt(varM * varA)));

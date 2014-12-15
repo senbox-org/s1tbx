@@ -30,6 +30,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 
@@ -57,8 +58,8 @@ public final class OrientationAngleCorrectionOp extends Operator {
     private PolBandUtils.PolSourceBand[] srcBandList;
     private PolBandUtils.MATRIX sourceProductType;
 
-    private final static double PI4 = Math.PI / 4.0;
-    private final static double PI2 = Math.PI / 2.0;
+    private final static double PI4 = Constants.PI / 4.0;
+    private final static double PI2 = Constants.PI / 2.0;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -274,7 +275,7 @@ public final class OrientationAngleCorrectionOp extends Operator {
             return 0.0;
         }
 
-        double theta = 0.25 * (Math.atan2(2 * t23Re, t33 - t22) + Math.PI);
+        double theta = 0.25 * (Math.atan2(2 * t23Re, t33 - t22) + Constants.PI);
         if (theta > PI4) {
             theta -= PI2;
         }

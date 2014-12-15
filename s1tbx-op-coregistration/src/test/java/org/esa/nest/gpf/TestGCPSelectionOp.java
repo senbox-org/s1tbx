@@ -16,9 +16,11 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
@@ -142,7 +144,7 @@ public class TestGCPSelectionOp {
         if (Float.compare(x, 0.0f) == 0) {
             return 0.0f;
         } else {
-            return (float) (Math.sin(x * Math.PI) / (x * Math.PI));
+            return (float) (FastMath.sin(x * Constants.PI) / (x * Constants.PI));
         }
     }
 }

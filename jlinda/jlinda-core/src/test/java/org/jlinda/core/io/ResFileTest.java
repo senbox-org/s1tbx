@@ -1,5 +1,6 @@
 package org.jlinda.core.io;
 
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.junit.*;
 
@@ -19,7 +20,7 @@ public class ResFileTest {
     private static String processControlBlock;
     private static String readFilesBlock;
 
-    private static double delta = Math.pow(10, -6);
+    private static double delta = FastMath.pow(10, -6);
 
     @BeforeClass
     public static void setupTestData() throws Exception {

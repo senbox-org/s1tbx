@@ -2,6 +2,7 @@ package org.jlinda.core.coregistration;
 
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
+import org.apache.commons.math3.util.FastMath;
 import org.ejml.alg.dense.linsol.LinearSolver;
 import org.ejml.alg.dense.linsol.LinearSolverFactory;
 import org.ejml.data.DenseMatrix64F;
@@ -507,12 +508,12 @@ public class CPM {
             double overAllModelTest_P = 0;
 
             for (int i = 0; i < numObservations; i++) {
-                overAllModelTest_L += Math.pow(eL_hat.get(i), 2) * Qy_1.get(i);
-                overAllModelTest_P += Math.pow(eP_hat.get(i), 2) * Qy_1.get(i);
+                overAllModelTest_L += FastMath.pow(eL_hat.get(i), 2) * Qy_1.get(i);
+                overAllModelTest_P += FastMath.pow(eP_hat.get(i), 2) * Qy_1.get(i);
             }
 
-            overAllModelTest_L = (overAllModelTest_L / Math.pow(SIGMA_L, 2)) / (numObservations - numUnknowns);
-            overAllModelTest_P = (overAllModelTest_P / Math.pow(SIGMA_P, 2)) / (numObservations - numUnknowns);
+            overAllModelTest_L = (overAllModelTest_L / FastMath.pow(SIGMA_L, 2)) / (numObservations - numUnknowns);
+            overAllModelTest_P = (overAllModelTest_P / FastMath.pow(SIGMA_P, 2)) / (numObservations - numUnknowns);
 
             //Logger.debug("Overall Model Test Lines: {}", overAllModelTest_L);
             //Logger.debug("Overall Model Test Pixels: {}", overAllModelTest_P);
@@ -545,7 +546,7 @@ public class CPM {
             /** use summed wTest in Azimuth and Range direction for outlier detection */
             DenseMatrix64F wTestSum = new DenseMatrix64F(numObservations);
             for (int i = 0; i < numObservations; i++) {
-                wTestSum.set(i, Math.pow(wTest_L.get(i), 2) + Math.pow(wTest_P.get(i), 2));
+                wTestSum.set(i, FastMath.pow(wTest_L.get(i), 2) + FastMath.pow(wTest_P.get(i), 2));
             }
 
             maxWSum_idx = absArgmax(wTest_P);

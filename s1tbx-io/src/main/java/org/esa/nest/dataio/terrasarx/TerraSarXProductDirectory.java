@@ -329,7 +329,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 coordList.add(new CornerCoord(refRow, refCol,
                          child.getAttributeDouble("lat", 0),
                          child.getAttributeDouble("lon", 0),
-                         child.getAttributeDouble("rangeTime", 0) * 1000000000,
+                         child.getAttributeDouble("rangeTime", 0) * Constants.oneBillion,
                          child.getAttributeDouble("incidenceAngle", 0)));
 
                 if (refRow > maxRow) maxRow = refRow;

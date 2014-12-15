@@ -1,5 +1,6 @@
 package org.jlinda.core.utils;
 
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.DoubleMatrix;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,7 +21,7 @@ public class PolyUtilsTest {
         double t = 1.0 / (1.0 + 0.5 * Math.abs(z));
 
         // use Horner's method
-        double ans = 1 - t * Math.exp(-z * z - 1.26551223 +
+        double ans = 1 - t * FastMath.exp(-z * z - 1.26551223 +
                 t * (1.00002368 +
                         t * (0.37409196 +
                                 t * (0.09678418 +

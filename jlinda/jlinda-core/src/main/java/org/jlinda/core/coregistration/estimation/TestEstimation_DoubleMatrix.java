@@ -4,6 +4,7 @@ import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 import org.jlinda.core.coregistration.estimation.utils.SimpleAsciiFileParser;
@@ -240,8 +241,8 @@ public class TestEstimation_DoubleMatrix {
             final double SIGMA_L = 0.15;
             final double SIGMA_P = 0.10;
 
-            overAllModelTest_L = (overAllModelTest_L / Math.pow(SIGMA_L, 2)) / (numObs - numUnk);
-            overAllModelTest_P = (overAllModelTest_P / Math.pow(SIGMA_P, 2)) / (numObs - numUnk);
+            overAllModelTest_L = (overAllModelTest_L / FastMath.pow(SIGMA_L, 2)) / (numObs - numUnk);
+            overAllModelTest_P = (overAllModelTest_P / FastMath.pow(SIGMA_P, 2)) / (numObs - numUnk);
 
             //Logger.debug("Overall Model Test Lines: {}", overAllModelTest_L);
             //Logger.debug("Overall Model Test Pixels: {}", overAllModelTest_P);

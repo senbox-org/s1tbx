@@ -1,6 +1,7 @@
 package org.jlinda.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -14,9 +15,9 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
@@ -333,7 +334,7 @@ public class RangeFilterOp extends Operator {
             if (!MathUtils.isPower2(w)) {
 
                 double nextPow2 = Math.ceil(Math.log(w) / Math.log(2));
-                int value = (int) Math.pow(2, nextPow2);
+                int value = (int) FastMath.pow(2, nextPow2);
                 extraRange = value - w;
 //                targetRectangle.width = value;
             }

@@ -1,5 +1,6 @@
 package org.jlinda.core.geom;
 
+import org.apache.commons.math3.util.FastMath;
 import org.jlinda.core.Constants;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
@@ -65,7 +66,7 @@ public class SimAmpTile {
 
                 if (j < nCols - 1) {
                     double theta = thetaArray[i][j];           // incidence angle
-                    double ground_range = slantRange / Math.sin(theta);
+                    double ground_range = slantRange / FastMath.sin(theta);
                     double grad = demArray[i][j + 1] - demArray[i][j];   // height gradient
                     double alpha = Math.atan(grad / ground_range);                    // slope
                     double localIncAngle = theta - alpha;
@@ -81,7 +82,7 @@ public class SimAmpTile {
                     if (demArray[i][j] == 0) {
                         simAmpArray[i][j] = 0;
                     } else {
-                        simAmpArray[i][j] = Math.sin(-localIncAngle) + 1;   // used, +1 shift to positive range of values.
+                        simAmpArray[i][j] = FastMath.sin(-localIncAngle) + 1;   // used, +1 shift to positive range of values.
                         // intensity
                         //simAmpArray[i][j] = Math.pow((Math.sin(-localIncAngle)+1),2);
                     }

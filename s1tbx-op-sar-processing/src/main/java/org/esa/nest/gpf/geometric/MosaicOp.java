@@ -204,7 +204,7 @@ public class MosaicOp extends Operator {
     private CrsGeoCoding createCRSGeoCoding(GeoCoding srcGeocoding) throws Exception {
         final CoordinateReferenceSystem srcCRS = srcGeocoding.getMapCRS();
         final CoordinateReferenceSystem targetCRS = MapProjectionHandler.getCRS(srcCRS.toWKT());
-        final double pixelSpacingInDegree = pixelSize / Constants.semiMajorAxis * MathUtils.RTOD;
+        final double pixelSpacingInDegree = pixelSize / Constants.semiMajorAxis * Constants.RTOD;
 
         double pixelSizeX = pixelSize;
         double pixelSizeY = pixelSize;

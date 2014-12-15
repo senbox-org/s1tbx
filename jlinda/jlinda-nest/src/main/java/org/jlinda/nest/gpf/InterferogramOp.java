@@ -1,6 +1,7 @@
 package org.jlinda.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -14,10 +15,10 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jblas.MatrixFunctions;
@@ -353,7 +354,7 @@ public class InterferogramOp extends Operator {
 
             for (int j = 0; j <= srpPolynomialDegree; j++) {
                 for (int k = 0; k <= j; k++) {
-                    A.put(i, index, (Math.pow(posL, (double) (j - k)) * Math.pow(posP, (double) k)));
+                    A.put(i, index, (FastMath.pow(posL, (double) (j - k)) * FastMath.pow(posP, (double) k)));
                     index++;
                 }
             }

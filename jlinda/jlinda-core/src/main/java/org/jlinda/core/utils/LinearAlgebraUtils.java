@@ -1,5 +1,6 @@
 package org.jlinda.core.utils;
 
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Window;
@@ -106,7 +107,7 @@ public class LinearAlgebraUtils {
     public static double[][] matrixPower(double[][] inMatrix, double scalar) {
         for (int i = 0; i < inMatrix.length; ++i) {
             for (int j = 0; j < inMatrix[0].length; ++j) {
-                inMatrix[i][j] = Math.pow(inMatrix[i][j], scalar);
+                inMatrix[i][j] = FastMath.pow(inMatrix[i][j], scalar);
             }
         }
         return inMatrix;

@@ -1,6 +1,6 @@
 package org.jlinda.core;
 
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.snap.datamodel.AbstractMetadata;
@@ -12,7 +12,6 @@ import org.jlinda.core.utils.LinearAlgebraUtils;
 import org.jlinda.core.utils.PolyUtils;
 
 import java.io.File;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class Orbit {
@@ -36,8 +35,8 @@ public final class Orbit {
     private int poly_degree;
 
     private static final int MAXITER = 10;
-    private final static double CRITERPOS = Math.pow(10, -6);
-    private final static double CRITERTIM = Math.pow(10, -10);
+    private final static double CRITERPOS = FastMath.pow(10, -6);
+    private final static double CRITERTIM = FastMath.pow(10, -10);
     private final static int refHeight = 0;
 
 //    // for SPLINE interpolator
@@ -188,9 +187,9 @@ public final class Orbit {
             partialsXYZ[1][0] = 2 * dsat_P.x;
             partialsXYZ[1][1] = 2 * dsat_P.y;
             partialsXYZ[1][2] = 2 * dsat_P.z;
-            partialsXYZ[2][0] = (2 * ellipsoidPosition.x) / (Math.pow(ell_a + height, 2));
-            partialsXYZ[2][1] = (2 * ellipsoidPosition.y) / (Math.pow(ell_a + height, 2));
-            partialsXYZ[2][2] = (2 * ellipsoidPosition.z) / (Math.pow(ell_b + height, 2));
+            partialsXYZ[2][0] = (2 * ellipsoidPosition.x) / (FastMath.pow(ell_a + height, 2));
+            partialsXYZ[2][1] = (2 * ellipsoidPosition.y) / (FastMath.pow(ell_a + height, 2));
+            partialsXYZ[2][2] = (2 * ellipsoidPosition.z) / (FastMath.pow(ell_b + height, 2));
 
             // solve system [NOTE!] orbit has to be normalized, otherwise close to singular
             // DoubleMatrix ellipsoidPositionSolution = Solve.solve(partialsXYZ, equationSet);
@@ -374,7 +373,7 @@ public final class Orbit {
         satelliteVelocity.z = coeff_Z[1];
 
         for (int i = 2; i <= DEGREE; ++i) {
-            double powT = (double) i * Math.pow(azTime, (double) (i - 1));
+            double powT = (double) i * FastMath.pow(azTime, (double) (i - 1));
             satelliteVelocity.x += coeff_X[i] * powT;
             satelliteVelocity.y += coeff_Y[i] * powT;
             satelliteVelocity.z += coeff_Z[i] * powT;
@@ -396,7 +395,7 @@ public final class Orbit {
         // 2a_2 + 2*3a_3*t^1 + 3*4a_4*t^2...
 
         for (int i = 2; i <= poly_degree; ++i) {
-            double powT = (double) ((i - 1) * i) * Math.pow(azTimeNormal, (double) (i - 2));
+            double powT = (double) ((i - 1) * i) * FastMath.pow(azTimeNormal, (double) (i - 2));
             satelliteAcceleration.x += coeff_X[i] * powT;
             satelliteAcceleration.y += coeff_Y[i] * powT;
             satelliteAcceleration.z += coeff_Z[i] * powT;
@@ -411,16 +410,16 @@ public final class Orbit {
     }
 
     private double eq1_Doppler_dt(final Point pointEllipsSat, final Point satVelocity, final Point satAcceleration) {
-        return satAcceleration.in(pointEllipsSat) - Math.pow(satVelocity.x, 2) - Math.pow(satVelocity.y, 2) - Math.pow(satVelocity.z, 2);
+        return satAcceleration.in(pointEllipsSat) - FastMath.pow(satVelocity.x, 2) - FastMath.pow(satVelocity.y, 2) - FastMath.pow(satVelocity.z, 2);
     }
 
     public double eq2_Range(final Point pointEllipsSat, final double rgTime) {
-        return pointEllipsSat.in(pointEllipsSat) - Math.pow(SOL * rgTime, 2);
+        return pointEllipsSat.in(pointEllipsSat) - FastMath.pow(SOL * rgTime, 2);
     }
 
     public double eq3_Ellipsoid(final Point pointOnEllips, final double height) {
-        return ((Math.pow(pointOnEllips.x, 2) + Math.pow(pointOnEllips.y, 2)) / Math.pow(ell_a + height, 2)) +
-                Math.pow(pointOnEllips.z / (ell_b + height), 2) - 1.0;
+        return ((FastMath.pow(pointOnEllips.x, 2) + FastMath.pow(pointOnEllips.y, 2)) / FastMath.pow(ell_a + height, 2)) +
+                FastMath.pow(pointOnEllips.z / (ell_b + height), 2) - 1.0;
     }
 
     public double eq3_Ellipsoid(final Point pointOnEllips) {
@@ -428,8 +427,8 @@ public final class Orbit {
     }
 
     public double eq3_Ellipsoid(final Point pointOnEllips, final double semiMajorA, final double semiMinorB, final double height) {
-        return ((Math.pow(pointOnEllips.x, 2) + Math.pow(pointOnEllips.y, 2)) / Math.pow(semiMajorA + height, 2)) +
-                Math.pow(pointOnEllips.z / (semiMinorB + height), 2) - 1.0;
+        return ((FastMath.pow(pointOnEllips.x, 2) + FastMath.pow(pointOnEllips.y, 2)) / FastMath.pow(semiMajorA + height, 2)) +
+                FastMath.pow(pointOnEllips.z / (semiMinorB + height), 2) - 1.0;
     }
 
     // TODO: sanity checks

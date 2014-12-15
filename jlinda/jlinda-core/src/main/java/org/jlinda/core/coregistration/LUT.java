@@ -1,5 +1,6 @@
 package org.jlinda.core.coregistration;
 
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
@@ -135,7 +136,7 @@ public class LUT {
 
             // Modify kernel, shift spectrum to fDC
             double t = pntAxisRow.get(i) * trend;
-            complexKernelLine.put(i, complexKernelLine.get(i).mul(new ComplexDouble(Math.cos(t), (-1) * Math.sin(t)))); // note '-' (see manual)
+            complexKernelLine.put(i, complexKernelLine.get(i).mul(new ComplexDouble(FastMath.cos(t), (-1) * FastMath.sin(t)))); // note '-' (see manual)
         }
 
         return complexKernelLine;
@@ -278,7 +279,7 @@ public class LUT {
         final double[] y = new double[x.length];
 
         for (int i = 0; i < y.length; i++) {
-            final double xx2 = Math.pow(x[i], 2);
+            final double xx2 = FastMath.pow(x[i], 2);
             final double xx = Math.sqrt(xx2);
             if (xx < 1)
                 y[i] = (alpha - beta + 2) * xx2 * xx - (alpha - beta + 3) * xx2 + 1;
@@ -394,7 +395,7 @@ public class LUT {
         final double coshvv = Math.cosh(vv);
 
         for (int i = 0; i < y.length; i++) {
-            y[i] = sinc(x[i]) * Math.cosh(vv * Math.sqrt(1.0 - Math.pow(2.0 * x[i] / (double) N, 2))) / coshvv;
+            y[i] = sinc(x[i]) * Math.cosh(vv * Math.sqrt(1.0 - FastMath.pow(2.0 * x[i] / (double) N, 2))) / coshvv;
         }
         return y;
 
@@ -425,13 +426,13 @@ public class LUT {
 
         for (int i = 0; i < y.length; i++) {
             y[i] = sinc(x[i]) * rect(x[i] / N) *
-                    Math.cos(vPI * x[i]) / (1.0 - Math.pow(v2 * x[i], 2));
+                    FastMath.cos(vPI * x[i]) / (1.0 - FastMath.pow(v2 * x[i], 2));
         }
         return y;
     } // END rc_kernel
 
     private double sinc(final double x) {
-        return ((x == 0) ? 1 : Math.sin(Math.PI * x) / (Math.PI * x));
+        return ((x == 0) ? 1 : FastMath.sin(Math.PI * x) / (Math.PI * x));
     }
 
     private double rect(final double x) {

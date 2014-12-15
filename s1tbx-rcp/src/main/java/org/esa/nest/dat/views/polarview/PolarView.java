@@ -15,6 +15,7 @@
  */
 package org.esa.nest.dat.views.polarview;
 
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
@@ -292,7 +293,7 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
         final int nWl = spectrum[0].length;
         final float radii[] = new float[nWl + 1];
         for (int j = 0; j <= nWl; j++) {
-            radii[j] = (float) (10000.0 / Math.exp(logr));
+            radii[j] = (float) (10000.0 / FastMath.exp(logr));
             logr += rStep;
         }
 
@@ -591,7 +592,7 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
             final float rStep = (float) (Math.log(lastWLBin) - Math.log(firstWLBin)) / (float) (numWLBins - 1);
             int wvBin = (int) (((rStep / 2.0 + Math.log(10000.0 / rTh[0])) - Math.log(firstWLBin)) / rStep);
             wvBin = Math.min(wvBin, spectrum[0].length - 1);
-            final int wl = (int) Math.round(Math.exp((double) wvBin * rStep + Math.log(firstWLBin)));
+            final int wl = (int) Math.round(FastMath.exp((double) wvBin * rStep + Math.log(firstWLBin)));
 
             if (waveProductType == WaveProductType.CROSS_SPECTRA) {
                 thFirst = firstDirBins - 5f;

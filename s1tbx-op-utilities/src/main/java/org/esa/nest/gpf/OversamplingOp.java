@@ -17,6 +17,7 @@ package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -286,7 +287,7 @@ public class OversamplingOp extends Operator {
         for (int c = 0; c < sourceImageWidth; c++) {
             final double tSR = slantRangeTime.getPixelDouble(c, 0) * nsTOs;
             final double dt = tSR - t0;
-            dopplerCentroidFreq[c] = d0 + d1 * dt + d2 * Math.pow(dt, 2.0) + d3 * Math.pow(dt, 3.0) + d4 * Math.pow(dt, 4.0);
+            dopplerCentroidFreq[c] = d0 + d1 * dt + d2 * FastMath.pow(dt, 2.0) + d3 * FastMath.pow(dt, 3.0) + d4 * FastMath.pow(dt, 4.0);
         }
         /*
         for (double v:dopplerCentroidFreq) {

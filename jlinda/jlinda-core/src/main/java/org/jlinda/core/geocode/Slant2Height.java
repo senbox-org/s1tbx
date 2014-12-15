@@ -1,5 +1,6 @@
 package org.jlinda.core.geocode;
 
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
@@ -11,7 +12,6 @@ import org.jlinda.core.utils.MathUtils;
 import org.jlinda.core.utils.PolyUtils;
 
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 import static org.jlinda.core.Constants.PI;
 import static org.jlinda.core.Constants.SOL;
@@ -236,7 +236,7 @@ public class Slant2Height {
             int index = 0;
             for (int j = 0; j <= degree2D; j++) {
                 for (int k = 0; k <= j; k++) {
-                    A.put(i, index, Math.pow(posL, j - k) * Math.pow(posP, k));
+                    A.put(i, index, FastMath.pow(posL, j - k) * FastMath.pow(posP, k));
                     index++;
                 }
             }
@@ -450,7 +450,7 @@ public class Slant2Height {
             int index = 0;
             for (int j = 0; j <= degree2D; j++) {
                 for (int k = 0; k <= j; k++) {
-                    A.put(i, index, Math.pow(posL, j - k) * Math.pow(posP, k));
+                    A.put(i, index, FastMath.pow(posL, j - k) * FastMath.pow(posP, k));
                     index++;
                 }
             }

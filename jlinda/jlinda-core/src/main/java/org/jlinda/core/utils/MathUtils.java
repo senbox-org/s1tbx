@@ -1,5 +1,6 @@
 package org.jlinda.core.utils;
 
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.Window;
@@ -131,7 +132,7 @@ public class MathUtils {
 
     @Deprecated
     public static double sqr(double value) {
-        return Math.pow(value, 2);
+        return FastMath.pow(value, 2);
     }
 
 }

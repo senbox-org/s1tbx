@@ -1,6 +1,6 @@
 package org.jlinda.core.coregistration.legacy;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.*;
 import org.jlinda.core.*;
 import org.jlinda.core.coregistration.LUT;
@@ -606,7 +606,7 @@ public class Coregistration implements ICoregistration {
         for (int i = 0; i < nW; i++) { //MA fix to ignore -999 values from statistics
             if (sortResult.get(i, 0) == -999)
                 continue;
-            var_coh += Math.pow(sortResult.get(i, 0), 2 - mean_coh);
+            var_coh += FastMath.pow(sortResult.get(i, 0), 2 - mean_coh);
         }
         //var_coh /= real4(nW-1);
         var_coh /= (float) (nWNANrm - 1);
@@ -645,9 +645,9 @@ public class Coregistration implements ICoregistration {
             double var_L = 0.0d;
             double var_P = 0.0d;
             for (int i = 0; i < cnt; i++)
-                var_L += Math.pow(sortResult.get(i, 1) - meanL, 2);
+                var_L += FastMath.pow(sortResult.get(i, 1) - meanL, 2);
             for (int i = 0; i < cnt; i++)
-                var_P += Math.pow(sortResult.get(i, 2) - meanP, 2);
+                var_P += FastMath.pow(sortResult.get(i, 2) - meanP, 2);
             var_L /= (double) (cnt - 1);
             var_P /= (double) (cnt - 1);
             //Logger.info("Standard deviation offset L = " + Math.pow(var_L, 2));
@@ -1170,7 +1170,7 @@ public class Coregistration implements ICoregistration {
             for (p = P; p < twoP; ++p) {
                 double realPart = magMaster.get(twoL - 1 - l, twoP - 1 - p);
                 double imagPart = magMask.get(l - L, p - P);
-                ComplexDouble value = new ComplexDouble(Math.pow(realPart, 2), Math.pow(imagPart, 2));
+                ComplexDouble value = new ComplexDouble(FastMath.pow(realPart, 2), FastMath.pow(imagPart, 2));
                 Master2.put(l, p, value);
             }
         }
@@ -1310,7 +1310,7 @@ public class Coregistration implements ICoregistration {
         magMask.subi(magMask.mean()); // subtract mean
         DoubleMatrix Mask2 = new DoubleMatrix((int) winmask.lines(), (int) winmask.pixels());
         LinearAlgebraUtils.setdata(Mask2, magMask, winmask); // construct as part
-        double normmask = Math.pow(Mask2.norm2(), 2);
+        double normmask = FastMath.pow(Mask2.norm2(), 2);
         DoubleMatrix Master2 = new DoubleMatrix(MasksizeL, MasksizeP);
         DoubleMatrix magMaster = SarUtils.magnitude(Master);
         Geometry.center(magMaster); // magMaster.subi(magMaster.mean());
@@ -1328,7 +1328,7 @@ public class Coregistration implements ICoregistration {
                 for (int k = 0; k < MasksizeL; k++) {
                     for (int l = 0; l < MasksizeP; l++) {
                         cohs1s2 += (Master2.get(k, l) * Mask2.get(k, l));
-                        cohs1s1 += Math.pow(Master2.get(k, l), 2);
+                        cohs1s1 += FastMath.pow(Master2.get(k, l), 2);
                     }
                 }
                 coher.put(i, j, cohs1s2 / Math.sqrt(cohs1s1 * normmask)); // [-1 1]
@@ -1606,7 +1606,7 @@ public class Coregistration implements ICoregistration {
 
                         double t = pntAxis.get(i) * tmp;
                         //kernelL(i,0)  *= complr4(cos(t),-sin(t));// note '-' (see manual)
-                        kernelL.put(i, 0, new ComplexDouble(Math.cos(t), Math.sin(t)));// note '-' (see manual)
+                        kernelL.put(i, 0, new ComplexDouble(FastMath.cos(t), FastMath.sin(t)));// note '-' (see manual)
                     }
                 }
 
@@ -1861,7 +1861,7 @@ public class Coregistration implements ICoregistration {
         Mask.subi(Mask.mean());
 
         for (int ii = 0; ii < Mask.length; ii++) {
-            varM += Math.pow(Mask.get(ii), 2); // 1/N later
+            varM += FastMath.pow(Mask.get(ii), 2); // 1/N later
         }
 
         // ______Compute correlation at these points______
@@ -1898,7 +1898,7 @@ public class Coregistration implements ICoregistration {
 
                 for (int l = 0; l < Mask.length; l++) {
                     covAM += (Mask.get(l) * Am.get(l));
-                    varA += Math.pow(Am.get(l), 2);
+                    varA += FastMath.pow(Am.get(l), 2);
                 }
 
                 Result.put(i, j, covAM / Math.sqrt(varM * varA)); // [BO]

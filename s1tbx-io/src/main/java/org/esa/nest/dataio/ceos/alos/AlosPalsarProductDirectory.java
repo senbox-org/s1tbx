@@ -16,11 +16,11 @@
 package org.esa.nest.dataio.ceos.alos;
 
 import Jama.Matrix;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.binary.BinaryRecord;
 import org.esa.nest.dataio.binary.IllegalBinaryFormatException;
@@ -360,10 +360,10 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
             for (int j = 0; j < gridHeight; j++) {
                 for (int i = 0; i < gridWidth; i++) {
                     angles[k] = (float)((a0 + a1 * rangeDist[k] / 1000.0 +
-                            a2 * Math.pow(rangeDist[k] / 1000.0, 2.0) +
-                            a3 * Math.pow(rangeDist[k] / 1000.0, 3.0) +
-                            a4 * Math.pow(rangeDist[k] / 1000.0, 4.0) +
-                            a5 * Math.pow(rangeDist[k] / 1000.0, 5.0)) * MathUtils.RTOD);
+                            a2 * FastMath.pow(rangeDist[k] / 1000.0, 2.0) +
+                            a3 * FastMath.pow(rangeDist[k] / 1000.0, 3.0) +
+                            a4 * FastMath.pow(rangeDist[k] / 1000.0, 4.0) +
+                            a5 * FastMath.pow(rangeDist[k] / 1000.0, 5.0)) * Constants.RTOD);
                     k++;
                 }
             }

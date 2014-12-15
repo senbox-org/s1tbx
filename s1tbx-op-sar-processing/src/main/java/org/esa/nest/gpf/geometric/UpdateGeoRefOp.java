@@ -16,8 +16,8 @@
 package org.esa.nest.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -28,8 +28,8 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
+import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
@@ -503,8 +503,8 @@ public final class UpdateGeoRefOp extends Operator {
 
                         if (orbitMethod) {
                             double[] latlon = jOrbit.lp2ell(new Point(x + 0.5, y + 0.5), meta);
-                            lat = latlon[0] * MathUtils.RTOD;
-                            lon = latlon[1] * MathUtils.RTOD;
+                            lat = latlon[0] * Constants.RTOD;
+                            lon = latlon[1] * Constants.RTOD;
                             alt = dem.getElevation(new GeoPos(lat, lon));
                         }
 
@@ -751,12 +751,12 @@ public final class UpdateGeoRefOp extends Operator {
         final double latMax = latLonMinMax[1];
         double minAbsLat;
         if (latMin * latMax > 0) {
-            minAbsLat = Math.min(Math.abs(latMin), Math.abs(latMax)) * org.esa.beam.util.math.MathUtils.DTOR;
+            minAbsLat = Math.min(Math.abs(latMin), Math.abs(latMax)) * Constants.DTOR;
         } else {
             minAbsLat = 0.0;
         }
-        delLat = spacing / Constants.MeanEarthRadius * org.esa.beam.util.math.MathUtils.RTOD;
-        delLon = spacing / (Constants.MeanEarthRadius * Math.cos(minAbsLat)) * org.esa.beam.util.math.MathUtils.RTOD;
+        delLat = spacing / Constants.MeanEarthRadius * Constants.RTOD;
+        delLon = spacing / (Constants.MeanEarthRadius * FastMath.cos(minAbsLat)) * Constants.RTOD;
         delLat = Math.min(delLat, delLon); // (delLat + delLon)/2.0;
         delLon = delLat;
     }

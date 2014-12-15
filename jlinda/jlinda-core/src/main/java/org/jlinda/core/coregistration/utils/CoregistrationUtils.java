@@ -1,5 +1,6 @@
 package org.jlinda.core.coregistration.utils;
 
+import org.apache.commons.math3.util.FastMath;
 import org.apache.log4j.Logger;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
@@ -98,7 +99,7 @@ public class CoregistrationUtils {
             for (p = P; p < twoP; ++p) {
                 double realPart = magMaster.get(twoL - 1 - l, twoP - 1 - p);
                 double imagPart = magMask.get(l - L, p - P);
-                ComplexDouble value = new ComplexDouble(Math.pow(realPart, 2), Math.pow(imagPart, 2));
+                ComplexDouble value = new ComplexDouble(FastMath.pow(realPart, 2), FastMath.pow(imagPart, 2));
                 master2.put(l, p, value);
             }
         }
@@ -247,7 +248,7 @@ public class CoregistrationUtils {
         magMask.subi(magMask.mean()); // subtract mean
         DoubleMatrix Mask2 = new DoubleMatrix((int) winmask.lines(), (int) winmask.pixels());
         LinearAlgebraUtils.setdata(Mask2, magMask, winmask); // construct as part
-        double normmask = Math.pow(Mask2.norm2(), 2);
+        double normmask = FastMath.pow(Mask2.norm2(), 2);
         DoubleMatrix Master2 = new DoubleMatrix(MasksizeL, MasksizeP);
         DoubleMatrix magMaster = SarUtils.magnitude(master);
         Geometry.center(magMaster); // magMaster.subi(magMaster.mean());
@@ -265,7 +266,7 @@ public class CoregistrationUtils {
                 for (int k = 0; k < MasksizeL; k++) {
                     for (int l = 0; l < MasksizeP; l++) {
                         cohs1s2 += (Master2.get(k, l) * Mask2.get(k, l));
-                        cohs1s1 += Math.pow(Master2.get(k, l), 2);
+                        cohs1s1 += FastMath.pow(Master2.get(k, l), 2);
                     }
                 }
                 coher.put(i, j, cohs1s2 / Math.sqrt(cohs1s1 * normmask)); // [-1 1]

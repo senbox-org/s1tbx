@@ -456,7 +456,7 @@ public class SARGeocoding {
 
         if (saveLocalIncidenceAngle) { // local incidence angle
             final double nsInnerProduct = Maths.innerProduct(n, s);
-            localIncidenceAngles[0] = FastMath.acos(nsInnerProduct) * org.esa.beam.util.math.MathUtils.RTOD;
+            localIncidenceAngles[0] = FastMath.acos(nsInnerProduct) * Constants.RTOD;
         }
 
         if (saveProjectedLocalIncidenceAngle || saveSigmaNought) { // projected local incidence angle
@@ -465,7 +465,7 @@ public class SARGeocoding {
             final double mnInnerProduct = Maths.innerProduct(m, n);
             final double[] n1 = {n[0] - m[0] * mnInnerProduct, n[1] - m[1] * mnInnerProduct, n[2] - m[2] * mnInnerProduct};
             Maths.normalizeVector(n1);
-            localIncidenceAngles[1] = FastMath.acos(Maths.innerProduct(n1, s)) * org.esa.beam.util.math.MathUtils.RTOD;
+            localIncidenceAngles[1] = FastMath.acos(Maths.innerProduct(n1, s)) * Constants.RTOD;
         }
     }
 
@@ -594,7 +594,7 @@ public class SARGeocoding {
 
             if (saveLocalIncidenceAngle) { // local incidence angle
                 final double nsInnerProduct = Maths.innerProduct(n, s);
-                localIncidenceAngles[0] = FastMath.acos(nsInnerProduct) * org.esa.beam.util.math.MathUtils.RTOD;
+                localIncidenceAngles[0] = FastMath.acos(nsInnerProduct) * Constants.RTOD;
             }
 
             if (saveProjectedLocalIncidenceAngle || saveSigmaNought) { // projected local incidence angle
@@ -603,7 +603,7 @@ public class SARGeocoding {
                 final double mnInnerProduct = Maths.innerProduct(m, n);
                 final double[] n1 = {n[0] - m[0] * mnInnerProduct, n[1] - m[1] * mnInnerProduct, n[2] - m[2] * mnInnerProduct};
                 Maths.normalizeVector(n1);
-                localIncidenceAngles[1] = FastMath.acos(Maths.innerProduct(n1, s)) * org.esa.beam.util.math.MathUtils.RTOD;
+                localIncidenceAngles[1] = FastMath.acos(Maths.innerProduct(n1, s)) * Constants.RTOD;
             }
         } catch (Exception e) {
             throw e;
@@ -676,7 +676,7 @@ public class SARGeocoding {
         if (incidenceAngle == null) {
             throw new OperatorException("incidence_angle tie point grid not found in product");
         }
-        return incidenceAngle.getPixelDouble(x, y) * org.esa.beam.util.math.MathUtils.DTOR;
+        return incidenceAngle.getPixelDouble(x, y) * Constants.DTOR;
     }
 
     /**
@@ -686,8 +686,8 @@ public class SARGeocoding {
      * @return The pixel spacing in degrees.
      */
     public static double getPixelSpacingInDegree(final double pixelSpacingInMeter) {
-        return pixelSpacingInMeter / Constants.semiMajorAxis * org.esa.beam.util.math.MathUtils.RTOD;
-//        return pixelSpacingInMeter / Constants.MeanEarthRadius * org.esa.beam.util.math.MathUtils.RTOD;
+        return pixelSpacingInMeter / Constants.semiMajorAxis * Constants.RTOD;
+//        return pixelSpacingInMeter / Constants.MeanEarthRadius * Constants.RTOD;
     }
 
     /**
@@ -697,8 +697,8 @@ public class SARGeocoding {
      * @return The pixel spacing in meters.
      */
     public static double getPixelSpacingInMeter(final double pixelSpacingInDegree) {
-        return pixelSpacingInDegree * Constants.semiMinorAxis * org.esa.beam.util.math.MathUtils.DTOR;
-//        return pixelSpacingInDegree * Constants.MeanEarthRadius * org.esa.beam.util.math.MathUtils.DTOR;
+        return pixelSpacingInDegree * Constants.semiMinorAxis * Constants.DTOR;
+//        return pixelSpacingInDegree * Constants.MeanEarthRadius * Constants.DTOR;
     }
 
     public static boolean isValidCell(final double rangeIndex, final double azimuthIndex,

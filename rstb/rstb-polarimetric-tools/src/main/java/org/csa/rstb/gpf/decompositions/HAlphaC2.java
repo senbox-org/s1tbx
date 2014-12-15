@@ -15,13 +15,13 @@
  */
 package org.csa.rstb.gpf.decompositions;
 
+import org.apache.commons.math3.util.FastMath;
 import org.csa.rstb.gpf.DualPolOpUtils;
 import org.csa.rstb.gpf.PolOpUtils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
@@ -156,9 +156,9 @@ public class HAlphaC2 extends DecompositionBase implements Decomposition {
         data.entropy = -(p[0] * Math.log(p[0] + Constants.EPS) + p[1] * Math.log(p[1] + Constants.EPS)) / Math.log(2);
         data.anisotropy = (p[0] - p[1]) / (p[0] + p[1] + Constants.EPS);
 
-        final double alpha = Math.acos(norm(EigenVectRe[0][0], EigenVectIm[0][0])) * MathUtils.RTOD;
-        //final double alpha2 = Math.acos(norm(EigenVectRe[0][1], EigenVectIm[0][1]))*MathUtils.RTOD;
-        data.alpha = p[0] * alpha + p[1] * (Math.PI / 2.0 - alpha);
+        final double alpha = FastMath.acos(norm(EigenVectRe[0][0], EigenVectIm[0][0])) * Constants.RTOD;
+        //final double alpha2 = FastMath.acos(norm(EigenVectRe[0][1], EigenVectIm[0][1]))*Constants.RTOD;
+        data.alpha = p[0] * alpha + p[1] * (Constants.HALF_PI - alpha);
 
         return data;
     }
