@@ -169,6 +169,9 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         MetadataElement abstractedMetadata = metadataRoot.getElement("Abstracted_Metadata");
 
+        // Turn on the coregistration flag
+        abstractedMetadata.setAttributeInt("coregistered_stack", 1);
+
         // Replace PRODUCT
         productName = getHeaderFileName().substring(0, getHeaderFileName().length()-4);
         replaceAbstractedMetadataField(abstractedMetadata, "PRODUCT", productName);
@@ -916,6 +919,13 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         return false;
     }
 
+    private String appendIfMatch(final Band band, final String key, String bands) {
+        if (band.getName().contains(key)) {
+            bands = bands + band.getName() + " ";
+        }
+        return bands;
+    }
+
     @Override
     protected void addBands(final Product product) {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
@@ -943,15 +953,18 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         if (!cosarFileList.isEmpty()) {
 
+            String masterBands = "";
+            String slaveBands = "";
+
             final boolean polsUnique = arePolarizationsUnique();
             String extraInfo = "";         // if pols not unique add the extra info
+            final String mission = absRoot.getAttributeString("MISSION");
 
             for (int i = 0; i < cosarFileList.size(); i++) {
 
                 final File file = cosarFileList.get(i);
                 final String fileName = file.getName().toUpperCase();
                 final String pol = SARReader.findPolarizationInBandName(fileName);
-                final String mission = absRoot.getAttributeString("MISSION");
 
                 if (mission.contains("TDM")) {
                     extraInfo = ((i < numMasterBands) ? "_mst" : "_slv1") + StackUtils.getBandTimeStamp(product);
@@ -968,9 +981,15 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 realBand.setUnit(Unit.REAL);
                 product.addBand(realBand);
 
+                masterBands = appendIfMatch(realBand, "mst", masterBands);
+                slaveBands = appendIfMatch(realBand, "slv", slaveBands);
+
                 final Band imaginaryBand = new Band("q_" + pol + extraInfo, bandDataType, width, height);
                 imaginaryBand.setUnit(Unit.IMAGINARY);
                 product.addBand(imaginaryBand);
+
+                masterBands = appendIfMatch(imaginaryBand, "mst", masterBands);
+                slaveBands = appendIfMatch(imaginaryBand, "slv", slaveBands);
 
                 ReaderUtils.createVirtualIntensityBand(product, realBand, imaginaryBand, '_' + pol + extraInfo);
 
@@ -980,6 +999,17 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 } catch (Exception e) {
                     //
                 }
+            }
+
+            if (mission.contains("TDM")) {
+                final MetadataElement slaveMetadata = absRoot.getParentElement().getElement("Slave_Metadata");
+
+                slaveMetadata.setAttributeString("Master_bands", masterBands);
+
+                final MetadataElement slaveProduct = slaveMetadata.getElement(slaveProductName);
+                final MetadataAttribute slaveBandsAttr = new MetadataAttribute("Slave_bands", ProductData.TYPE_ASCII);
+                slaveProduct.addAttribute(slaveBandsAttr);
+                slaveProduct.setAttributeString(slaveBandsAttr.getName(), slaveBands);
             }
         }
 
