@@ -30,6 +30,7 @@ import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.gpf.StackUtils;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.XMLSupport;
 import org.esa.snap.util.ZipUtils;
@@ -67,6 +68,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     // For TDM CoSSC products only
     private String masterProductName = null;
     private String slaveProductName = null;
+    int numMasterBands = 0;
 
     public TerraSarXProductDirectory(final File inputFile) {
         super(inputFile);
@@ -398,6 +400,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         String parentPath = masterProductName + "/" + getRelativePathToImageFolder();
         findImages(parentPath);
+
+        numMasterBands = cosarFileList.size();
 
         parentPath = slaveProductName + "/" + getRelativePathToImageFolder();
         findImages(parentPath);
@@ -918,16 +922,20 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             final boolean polsUnique = arePolarizationsUnique();
             String extraInfo = "";         // if pols not unique add the extra info
 
-            for (final File file : cosarFileList) {
+            for (int i = 0; i < cosarFileList.size(); i++) {
 
+                final File file = cosarFileList.get(i);
                 final String fileName = file.getName().toUpperCase();
                 final String pol = SARReader.findPolarizationInBandName(fileName);
-                if (!polsUnique) {
+                final String mission = absRoot.getAttributeString("MISSION");
+
+                if (mission.contains("TDM")) {
+                    extraInfo = ((i < numMasterBands) ? "_mst" : "_slv1") + StackUtils.getBandTimeStamp(product);
+                } else if (!polsUnique) {
                     final int polIndex = fileName.indexOf(pol);
                     extraInfo = fileName.substring(polIndex + 2, fileName.indexOf(".", polIndex + 3));
                 }
 
-                final String mission = absRoot.getAttributeString("MISSION");
                 final int bandDataType = (mission.contains("TDM") || isBelongToCoSSC()) ?
                                             ProductData.TYPE_FLOAT32 : ProductData.TYPE_INT16;
                 //System.out.println("TerraSarXProductDirectory.addBands: band data type = " + ProductData.getTypeString(bandDataType));
