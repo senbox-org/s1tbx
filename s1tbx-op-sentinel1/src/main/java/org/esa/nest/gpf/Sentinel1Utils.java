@@ -589,15 +589,15 @@ public final class Sentinel1Utils {
 
         for (int s = 0; s < numOfSubSwath; s++) {
             final DCPolynomial[] dcEstimateList = getDCEstimateList(subSwath[s].subSwathName);
-            final DCPolynomial[] dcBurstList = computeDCForBurstCenters(dcEstimateList, s+1);
+            //final DCPolynomial[] dcBurstList = computeDCForBurstCenters(dcEstimateList, s+1);
             subSwath[s].dopplerCentroid = new double[subSwath[s].numOfBursts][subSwath[s].samplesPerBurst];
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
                 for (int x = 0; x < subSwath[s].samplesPerBurst; x++) {
                     final double slrt = getSlantRangeTime(x, s+1)*2; // 1-way to 2-way
-                    final double dt = slrt - dcBurstList[b].t0;
+                    final double dt = slrt - dcEstimateList[b].t0;
                     double dcValue = 0.0;
-                    for (int i = 0; i < dcBurstList[b].dataDcPolynomial.length; i++) {
-                        dcValue += dcBurstList[b].dataDcPolynomial[i] * Math.pow(dt, i);
+                    for (int i = 0; i < dcEstimateList[b].dataDcPolynomial.length; i++) {
+                        dcValue += dcEstimateList[b].dataDcPolynomial[i] * Math.pow(dt, i);
                     }
                     subSwath[s].dopplerCentroid[b][x] = dcValue;
                 }

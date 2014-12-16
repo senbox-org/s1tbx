@@ -130,7 +130,7 @@ public final class BackGeocodingOp extends Operator {
 
     private final int polyDegree = 2; // degree of polynomial for orbit fitting
     private final double invalidIndex = -9999.0;
-    private final int tileSize = 100;
+    private int tileSize = 100;
 
     /**
      * Default constructor. The graph processing framework
@@ -310,6 +310,13 @@ public final class BackGeocodingOp extends Operator {
         ProductUtils.copyProductNodes(masterProduct, targetProduct);
         copySlaveMetadata();
 
+        int nt = mSubSwath[subSwathIndex - 1].linesPerBurst / tileSize;
+        int rsd = mSubSwath[subSwathIndex - 1].linesPerBurst - nt*tileSize;
+        while (rsd > 0 && rsd < 50 && tileSize >= rsd + 1) {
+            tileSize--;
+            nt = mSubSwath[subSwathIndex - 1].linesPerBurst / tileSize;
+            rsd = mSubSwath[subSwathIndex - 1].linesPerBurst - nt*tileSize;
+        }
         targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(), tileSize);
         //todo change this line, looking at all swath
         //targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(),
