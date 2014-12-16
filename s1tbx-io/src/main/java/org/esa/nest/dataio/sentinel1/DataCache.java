@@ -12,7 +12,7 @@ import java.awt.*;
  */
 public class DataCache {
 
-    private static final long MAX_SIZE = 2000;
+    private static final long MAX_SIZE = 4000;
 
     private final LoadingCache<DataKey, Data> cache;
 
@@ -30,7 +30,7 @@ public class DataCache {
         return cache.getUnchecked(key);
     }
 
-    public void put(DataKey key, Data value) {
+    public synchronized void put(DataKey key, Data value) {
         cache.put(key, value);
     }
 
