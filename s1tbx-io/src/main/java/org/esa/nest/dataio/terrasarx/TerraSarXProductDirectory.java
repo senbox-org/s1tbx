@@ -96,11 +96,11 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     private MetadataElement addMetaDataForTanDemX() throws IOException {
 
         // xmlDoc is the "main" annotation (i.e., the file with name "TDM... .xml")
-        final Element rootElement = xmlDoc.getRootElement();
+        final Element mainRootElement = xmlDoc.getRootElement();
 
         // Look for the product components that are the "primary" and "secondary" annotations inside the TDM xml file.
         // Assume that the "primary" is the master in the co-registration and the "secondary" is the slave.
-        final List<Element> componentList = rootElement.getChild("productComponents").getChildren("component");
+        final List<Element> componentList = mainRootElement.getChild("productComponents").getChildren("component");
         Element masterAnnotationComponent = null;
         Element slaveAnnotationComponent = null;
         for (Element component : componentList) {
@@ -122,53 +122,77 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             throw new IOException("Cannot locate secondary annotation component (slave product) in main annotation of TDM product");
         }
 
+        final String masterHeader = masterAnnotationComponent.getChild("file").getChild("location").getChildText("name");
+        masterProductName = masterHeader.substring(0, masterHeader.indexOf("/"));
+
+
+        // Build the slave metadata
+
+        final String slaveHeader = slaveAnnotationComponent.getChild("file").getChild("location").getChildText("name");
+
+        slaveProductName = slaveHeader.substring(0, masterHeader.indexOf("/"));
+
+        final Document slaveDoc = XMLSupport.LoadXML(getInputStream(slaveHeader));
+        final Element slaveRootElement = slaveDoc.getRootElement();
+
+        final MetadataElement slaveRoot = new MetadataElement("Slave_Metadata");
+        AbstractMetadataIO.AddXMLMetadata(slaveRootElement, AbstractMetadata.addOriginalProductMetadata(slaveRoot));
+        addAbstractedMetadataHeader(slaveRoot);
+
+        final MetadataElement slaveAbstractedMetadataElem = slaveRoot.getElement("Abstracted_Metadata");
+
+        // Add Product_Information to slave Abstracted_Metadata
+        final MetadataElement productInfo = new MetadataElement("Product_Information");
+        final MetadataElement inputProd = new MetadataElement("InputProducts");
+        productInfo.addElement(inputProd);
+        inputProd.setAttributeString("InputProduct", slaveProductName);
+        slaveAbstractedMetadataElem.addElement(productInfo);
+
+        // Change the name from Abstracted_Metadata to the slave product name
+        slaveAbstractedMetadataElem.setName(slaveProductName);
+
+        // Remove Original_Product_Data from Slave_Metadata
+        slaveRoot.removeElement(slaveRoot.getElement("Original_Product_Metadata"));
+
+
         // Use the master's annotation to build the Abstracted_Metadata and Original_Product_Metadata.
 
-        final String masterHeader = masterAnnotationComponent.getChild("file").getChild("location").getChildText("name");
+        final MetadataElement metadataRoot = new MetadataElement(Product.METADATA_ROOT_NAME);
         final Document masterDoc = XMLSupport.LoadXML(getInputStream(masterHeader));
-
-        final MetadataElement root = new MetadataElement(Product.METADATA_ROOT_NAME);
         final Element masterRootElement = masterDoc.getRootElement();
-        AbstractMetadataIO.AddXMLMetadata(masterRootElement, AbstractMetadata.addOriginalProductMetadata(root));
+        AbstractMetadataIO.AddXMLMetadata(masterRootElement, AbstractMetadata.addOriginalProductMetadata(metadataRoot));
 
-        addAbstractedMetadataHeader(root);
+        addAbstractedMetadataHeader(metadataRoot);
 
         // Replace the product name (which right now is the master product) with the TDM product.
         // Replace data in Abstracted_Metadata with TDM values.
 
-        MetadataElement abstractedMetadata = root.getElement("Abstracted_Metadata");
+        MetadataElement abstractedMetadata = metadataRoot.getElement("Abstracted_Metadata");
 
         // Replace PRODUCT
         productName = getHeaderFileName().substring(0, getHeaderFileName().length()-4);
         replaceAbstractedMetadataField(abstractedMetadata, "PRODUCT", productName);
 
         // Replace PRODUCT_TYPE
-        productType = rootElement.getChild("productInfo").getChildText("productType");
+        productType = mainRootElement.getChild("productInfo").getChildText("productType");
         replaceAbstractedMetadataField(abstractedMetadata, "PRODUCT_TYPE", productType);
 
         // Replace SPH_DESCRIPTOR
-        replaceAbstractedMetadataField(abstractedMetadata, "SPH_DESCRIPTOR", rootElement.getChild("generalHeader").getChildText("itemName"));
+        replaceAbstractedMetadataField(abstractedMetadata, "SPH_DESCRIPTOR", mainRootElement.getChild("generalHeader").getChildText("itemName"));
 
         // Replace mission
         replaceAbstractedMetadataField(abstractedMetadata, "MISSION", "TDM");
 
         // Add the CoSSC metadata, i.e., the "main" annotation from the file with name "TDM... .xml"
         final MetadataElement cosscMetadataElem = new MetadataElement("CoSSC_Metadata");
-        AbstractMetadataIO.AddXMLMetadata(rootElement, cosscMetadataElem);
-        root.addElement(cosscMetadataElem);
+        AbstractMetadataIO.AddXMLMetadata(mainRootElement, cosscMetadataElem);
+        metadataRoot.addElement(cosscMetadataElem);
+
 
         // Add the slave metadata
-        final String slaveHeader = slaveAnnotationComponent.getChild("file").getChild("location").getChildText("name");
-        final Document slaveDoc = XMLSupport.LoadXML(getInputStream(slaveHeader));
-        final Element slaveElement = slaveDoc.getRootElement();
-        final MetadataElement slaveMetadataElem = new MetadataElement("Slave_Metadata");
-        AbstractMetadataIO.AddXMLMetadata(slaveElement, slaveMetadataElem);
-        root.addElement(slaveMetadataElem);
+        metadataRoot.addElement(slaveRoot);
 
-        masterProductName = masterHeader.substring(0, masterHeader.indexOf("/"));
-        slaveProductName = slaveHeader.substring(0, masterHeader.indexOf("/"));
-
-        return root;
+        return metadataRoot;
     }
 
     @Override
