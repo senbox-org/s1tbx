@@ -874,19 +874,6 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
-    private boolean isBelongToCoSSC() {
-        // This checks if the product is in fact part of a CoSSC product by checking if the parent
-        // directory contains a file that starts with "TDM" and ends in "xml".
-        // This handles the case where the user just opens one of the two SSC products inside a CoSSC
-        // product.
-        final String[] fileList = getBaseDir().getParentFile().list();
-        for (String s : fileList) {
-            if (s.startsWith("TDM") && s.endsWith("xml")) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     protected void addBands(final Product product) {
@@ -928,9 +915,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 }
 
                 final String mission = absRoot.getAttributeString("MISSION");
-                final int bandDataType = (mission.contains("TDM") || isBelongToCoSSC()) ?
-                                            ProductData.TYPE_FLOAT32 : ProductData.TYPE_INT16;
-                //System.out.println("TerraSarXProductDirectory.addBands: band data type = " + ProductData.getTypeString(bandDataType));
+                final int bandDataType = mission.contains("TDM") ? ProductData.TYPE_FLOAT32 : ProductData.TYPE_INT16;
 
                 final Band realBand = new Band("i_" + pol + extraInfo, bandDataType, width, height);
                 realBand.setUnit(Unit.REAL);
