@@ -107,6 +107,9 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
                 dataBuffers[i] = sourceTiles[i].getDataBuffer();
             }
 
+            //final MeanCovariance covariance = new MeanCovariance(sourceProductType, sourceTiles,
+            //    dataBuffers, halfWindowSizeX, halfWindowSizeY);
+
             double pd, pv, ps;
             for (int y = y0; y < maxY; ++y) {
                 trgIndex.calculateStride(y);
@@ -114,6 +117,7 @@ public class FreemanDurden extends DecompositionBase implements Decomposition {
 
                     PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeY,
                             sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
+                    //covariance.getMeanCovarianceMatrix(x, y, Cr, Ci);
 
                     final FDD data = getFreemanDurdenDecomposition(Cr, Ci);
 
