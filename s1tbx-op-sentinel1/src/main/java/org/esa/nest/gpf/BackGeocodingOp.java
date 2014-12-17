@@ -19,6 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.beam.framework.dataop.resamp.Resampling;
@@ -130,7 +131,7 @@ public final class BackGeocodingOp extends Operator {
 
     private final int polyDegree = 2; // degree of polynomial for orbit fitting
     private final double invalidIndex = -9999.0;
-    private final int tileSize = 100;
+    private int tileSize = 100;
 
     /**
      * Default constructor. The graph processing framework
@@ -310,6 +311,13 @@ public final class BackGeocodingOp extends Operator {
         ProductUtils.copyProductNodes(masterProduct, targetProduct);
         copySlaveMetadata();
 
+        int nt = mSubSwath[subSwathIndex - 1].linesPerBurst / tileSize;
+        int rsd = mSubSwath[subSwathIndex - 1].linesPerBurst - nt*tileSize;
+        while (rsd > 0 && rsd < 50 && tileSize >= rsd + 1) {
+            tileSize--;
+            nt = mSubSwath[subSwathIndex - 1].linesPerBurst / tileSize;
+            rsd = mSubSwath[subSwathIndex - 1].linesPerBurst - nt*tileSize;
+        }
         targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(), tileSize);
         //todo change this line, looking at all swath
         //targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(),
@@ -840,8 +848,8 @@ public final class BackGeocodingOp extends Operator {
                 for (int x = x0; x < xMax; x++) {
                     final int xx = x - x0;
                     final double kt = sSubSwath[s].dopplerRate[burstIndex][x];
-                    final double deramp = -Math.PI * kt * Math.pow(ta - sSubSwath[s].referenceTime[burstIndex][x], 2);
-                    final double demod = -2 * Math.PI * sSubSwath[s].dopplerCentroid[burstIndex][x] * ta;
+                    final double deramp = -Constants.PI * kt * FastMath.pow(ta - sSubSwath[s].referenceTime[burstIndex][x], 2);
+                    final double demod = -Constants.TWO_PI * sSubSwath[s].dopplerCentroid[burstIndex][x] * ta;
                     phase[yy][xx] = deramp + demod;
                 }
             }
@@ -876,8 +884,8 @@ public final class BackGeocodingOp extends Operator {
                     final int xx = x - x0;
                     final double valueI = slaveDataI.getElemDoubleAt(idx);
                     final double valueQ = slaveDataQ.getElemDoubleAt(idx);
-                    final double cosPhase = Math.cos(derampDemodPhase[yy][xx]);
-                    final double sinPhase = Math.sin(derampDemodPhase[yy][xx]);
+                    final double cosPhase = FastMath.cos(derampDemodPhase[yy][xx]);
+                    final double sinPhase = FastMath.sin(derampDemodPhase[yy][xx]);
                     derampDemodI[yy][xx] = valueI*cosPhase - valueQ*sinPhase;
                     derampDemodQ[yy][xx] = valueI*sinPhase + valueQ*cosPhase;
                 }
@@ -957,8 +965,8 @@ public final class BackGeocodingOp extends Operator {
                         final double samplePhase = selectedResampling.resample(resamplingRasterPhase, resamplingIndex);
                         final double sampleI = selectedResampling.resample(resamplingRasterI, resamplingIndex);
                         final double sampleQ = selectedResampling.resample(resamplingRasterQ, resamplingIndex);
-                        final double cosPhase = Math.cos(samplePhase);
-                        final double sinPhase = Math.sin(samplePhase);
+                        final double cosPhase = FastMath.cos(samplePhase);
+                        final double sinPhase = FastMath.sin(samplePhase);
                         double rerampRemodI = sampleI * cosPhase + sampleQ * sinPhase;
                         double rerampRemodQ = -sampleI * sinPhase + sampleQ * cosPhase;
 
@@ -988,20 +996,6 @@ public final class BackGeocodingOp extends Operator {
             }
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("performInterpolation", e);
-        }
-    }
-
-    private String getPolarization(final String bandName) {
-        if (bandName.contains("HH")) {
-            return "HH";
-        } else if (bandName.contains("HV")) {
-            return "HV";
-        } else if (bandName.contains("VV")) {
-            return "VV";
-        } else if (bandName.contains("VH")) {
-            return "VH";
-        } else {
-            throw new OperatorException("Unknown polarization in target band " + bandName);
         }
     }
 
@@ -1122,13 +1116,17 @@ public final class BackGeocodingOp extends Operator {
                 final int yy = y[i] - y0;
                 for (int j = 0; j < x.length; j++) {
 
-                    samples[i][j] = data[yy][x[j] - x0];
+                    try {
+                        samples[i][j] = data[yy][x[j] - x0];
 
-                    if (usesNoData) {
-                        if (scalingApplied && geophysicalNoDataValue == samples[i][j] || noDataValue == samples[i][j]) {
-                            samples[i][j] = Double.NaN;
-                            allValid = false;
+                        if (usesNoData) {
+                            if (scalingApplied && geophysicalNoDataValue == samples[i][j] || noDataValue == samples[i][j]) {
+                                samples[i][j] = Double.NaN;
+                                allValid = false;
+                            }
                         }
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
                     }
                 }
             }
