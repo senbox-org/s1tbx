@@ -195,6 +195,20 @@
             <targetProductNameSuffix>_coh</targetProductNameSuffix>
         </action>
 
+        <action>
+            <id>CreateInterferogramOp</id>
+            <helpId>CreateCoherenceImageOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>Create Interferogram</text>
+            <operatorName>Create-Interferogram</operatorName>
+            <dialogTitle>Create Interferogram</dialogTitle>
+            <shortDescr>Create Interferogram</shortDescr>
+            <targetProductNameSuffix>_coh</targetProductNameSuffix>
+        </action>
+
+
     </extension>
 
 	<extension point="snap-ui:helpSets">

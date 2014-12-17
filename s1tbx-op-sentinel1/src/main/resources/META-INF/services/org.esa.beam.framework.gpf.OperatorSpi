@@ -9,3 +9,4 @@ org.esa.nest.gpf.ComputeDerampedAzimuthSpectrumOp$Spi
 org.esa.nest.gpf.ComputeDerampDemodPhaseOp$Spi
 org.esa.nest.gpf.ReadRatFileOp$Spi
 org.esa.nest.gpf.CreateCoherenceImageOp$Spi
+org.esa.nest.gpf.CreateInterferogramOp$Spi
