@@ -81,6 +81,31 @@ public final class ComputeDerampDemodPhaseOp extends Operator {
     }
 
     /**
+     * Compute range dependent Doppler rate Kt(r) for given burst.
+     * @return The Doppler rate array.
+     */
+    public float[] computeDopplerRate(final int burstIndex) throws Exception {
+        float[] kt = new float[sourceImageWidth];
+        for (int x = 0; x < sourceImageWidth; x++) {
+            kt[x] = (float)subSwath[0].dopplerRate[burstIndex][x];
+        }
+        return kt;
+    }
+
+    /**
+     * Compute range dependent Doppler centroid fDC(r) for given burst.
+     * @return The Doppler centroid array.
+     */
+    public float[] computeDopplerCentroid(final int burstIndex) throws Exception {
+        float[] fdc = new float[sourceImageWidth];
+        for (int x = 0; x < sourceImageWidth; x++) {
+            fdc[x] = (float)subSwath[0].dopplerCentroid[burstIndex][x];
+        }
+        return fdc;
+    }
+
+
+    /**
      * Initializes this operator and sets the one and only target product.
      * <p>The target product can be either defined by a field of type {@link org.esa.beam.framework.datamodel.Product} annotated with the
      * {@link org.esa.beam.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
