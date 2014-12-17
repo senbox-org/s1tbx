@@ -28,7 +28,7 @@
       <sourceProduct refid="Back-Geocoding"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file>C:\output\target.dim</file>
+      <file>backgeocoded.dim</file>
       <formatName>BEAM-DIMAP</formatName>
     </parameters>
   </node>
