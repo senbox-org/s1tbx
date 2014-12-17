@@ -5,8 +5,6 @@ import com.vividsolutions.jts.geom.Geometry;
 
 import java.util.*;
 
-import static org.jlinda.core.delaunay.MathUtils.ccw;
-
 /**
  * Fast Delaunay Triangulator.
  */
@@ -95,22 +93,19 @@ public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
         //Triangle currentT = beforeMaxT;
         Triangle currentT = currentExternalTriangle;
         Triangle nextExternalTriangle = currentExternalTriangle.getNeighbour(2);
-        //int lastCCW = abcOrientation(currentT, c);
-        int lastCCW = ccw(currentT.getA().x, currentT.getA().y,
-                          currentT.getB().x, currentT.getB().y, c.x, c.y);
+
+        int lastCCW = currentT.ccw(c);
         int currentCCW = lastCCW;
         Triangle beforeFirstVisibleT = currentExternalTriangle;
         Triangle firstVisibleT = null;
         Triangle lastVisibleT = null;
         Triangle afterLastVisibleT = nextExternalTriangle;
-        List<Triangle> newT = new ArrayList<Triangle>();
+        List<Triangle> newT = new ArrayList<>();
         boolean oneCycleCompleted = false;
         //if (debug) System.out.println("   searching visible sides of convex hull");
         while (true) {
             currentT = currentT.getACO();
-            //currentCCW = abcOrientation(currentT, c);
-            currentCCW = ccw(currentT.getA().x, currentT.getA().y,
-                             currentT.getB().x, currentT.getB().y, c.x, c.y);
+            currentCCW = currentT.ccw(c);
             if (currentCCW > 0) {
                 if (lastCCW <= 0) {
                     firstVisibleT = currentT;
