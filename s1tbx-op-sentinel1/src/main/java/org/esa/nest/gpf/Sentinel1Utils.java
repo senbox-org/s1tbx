@@ -589,6 +589,10 @@ public final class Sentinel1Utils {
 
         for (int s = 0; s < numOfSubSwath; s++) {
             final DCPolynomial[] dcEstimateList = getDCEstimateList(subSwath[s].subSwathName);
+            if (dcEstimateList.length != subSwath[s].numOfBursts) {
+                throw new OperatorException("Subswath " + (s+1) + ": The number of dataDCPolynomials in " +
+                        "dcEstimateList is different from the number of bursts");
+            }
             //final DCPolynomial[] dcBurstList = computeDCForBurstCenters(dcEstimateList, s+1);
             subSwath[s].dopplerCentroid = new double[subSwath[s].numOfBursts][subSwath[s].samplesPerBurst];
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
