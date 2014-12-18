@@ -541,11 +541,10 @@ public final class Sentinel1Utils {
 
         final double waveLength = Constants.lightSpeed / subSwath[0].radarFrequency;
         for (int s = 0; s < numOfSubSwath; s++) {
+            final double azTime = (subSwath[s].firstLineTime + subSwath[s].lastLineTime)/2.0;
             subSwath[s].dopplerRate = new double[subSwath[s].numOfBursts][subSwath[s].samplesPerBurst];
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
-                final double azTime = (subSwath[s].burstFirstLineTime[b] + subSwath[s].burstLastLineTime[b])/2.0;
-                final double v = orbit.getVelocity(azTime/Constants.secondsInDay);
-                //final double v = orbit.getVelocity(azTime); //use this line when orbit uses second for time
+                final double v = orbit.getVelocity(azTime/Constants.secondsInDay); // DLR: 7594.0232
                 final double steeringRate = subSwath[s].azimuthSteeringRate * org.esa.beam.util.math.MathUtils.DTOR;
                 final double krot = 2*v*steeringRate/waveLength; // doppler rate by antenna steering
                 for (int x = 0; x < subSwath[s].samplesPerBurst; x++) {
