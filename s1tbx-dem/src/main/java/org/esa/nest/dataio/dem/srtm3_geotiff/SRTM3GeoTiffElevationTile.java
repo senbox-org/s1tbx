@@ -23,8 +23,11 @@ import org.esa.snap.gpf.TileGeoreferencing;
 
 public final class SRTM3GeoTiffElevationTile extends BaseElevationTile {
 
+    private final EarthGravitationalModel96 egm;
+
     public SRTM3GeoTiffElevationTile(final SRTM3GeoTiffElevationModel dem, final Product product) {
         super(dem, product);
+        egm = EarthGravitationalModel96.instance();
     }
 
     protected void addGravitationalModel(final int index, final float[] line) {
@@ -33,7 +36,7 @@ public final class SRTM3GeoTiffElevationTile extends BaseElevationTile {
         for (int i = 0; i < line.length; i++) {
             if (line[i] != noDataValue) {
                 tileGeoRef.getGeoPos(i, index, geoPos);
-                line[i] += EarthGravitationalModel96.instance().getEGM(geoPos.lat, geoPos.lon);
+                line[i] += egm.getEGM(geoPos.lat, geoPos.lon);
             }
         }
     }
