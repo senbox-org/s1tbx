@@ -59,8 +59,8 @@ public class TestComputeDerampDemodPhaseOp {
         final int width = 20564;
         for (int burstIndex = 0; burstIndex < 9; burstIndex++) {
             final float[] kt = op.computeDopplerRate(burstIndex);
-            //String ftFileName = "kt" + burstIndex + ".txt";
-            //outputToFile(kt, ftFileName);
+            //String ktFileName = "kt" + burstIndex + ".txt";
+            //outputToFile(kt, ktFileName);
             final float[] trimmedKt = new float[width];
             final float[] expectedKt = new float[width];
             final int actOffset = 71;
@@ -112,5 +112,6 @@ public class TestComputeDerampDemodPhaseOp {
             p.format("%9.4f ", data);
         }
         p.println();
+        p.close();
     }
 }
