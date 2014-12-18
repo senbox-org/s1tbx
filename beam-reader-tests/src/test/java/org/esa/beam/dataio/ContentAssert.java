@@ -177,12 +177,7 @@ class ContentAssert {
             if (!tiePointGrid.isPixelValid(pixel.getX(), pixel.getY())) {
                 bandValue = Float.NaN;
             }
-            if(Math.abs(pixel.getValue() - bandValue) > 1e-6) {
-                System.out.println(assertMessagePrefix + " Pixel(" + pixel.getX() + "," + pixel.getY() + ")");
-                System.out.println("Expected : " + (double) pixel.getValue());
-                System.out.println("Actual   : " + (double) bandValue);
-            }
-//            Assert.assertEquals(assertMessagePrefix + " Pixel(" + pixel.getX() + "," + pixel.getY() + ")", pixel.getValue(), bandValue, 1e-6);
+            Assert.assertEquals(assertMessagePrefix + " Pixel(" + pixel.getX() + "," + pixel.getY() + ")", pixel.getValue(), bandValue, 1e-6);
         }
     }
 
@@ -226,12 +221,7 @@ class ContentAssert {
             if (!band.isPixelValid(pixel.getX(), pixel.getY())) {
                 bandValue = Float.NaN;
             }
-            if(Math.abs(pixel.getValue() - bandValue) > 1e-6) {
-                System.out.println(assertMessagePrefix + " Pixel(" + pixel.getX() + "," + pixel.getY() + ")");
-                System.out.println("Expected : " + (double)pixel.getValue());
-                System.out.println("Actual   : " + (double)bandValue);
-            }
-//            Assert.assertEquals(assertMessagePrefix + " Pixel(" + pixel.getX() + "," + pixel.getY() + ")", pixel.getValue(), bandValue, 1e-6);
+            Assert.assertEquals(assertMessagePrefix + " Pixel(" + pixel.getX() + "," + pixel.getY() + ")", pixel.getValue(), bandValue, 1e-6);
         }
     }
 
