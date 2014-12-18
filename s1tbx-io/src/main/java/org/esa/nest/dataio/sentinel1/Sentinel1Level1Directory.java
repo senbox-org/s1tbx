@@ -377,7 +377,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
                         productInformation.getAttributeDouble("rangeSamplingRate")/ Constants.oneMillion);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
-                        productInformation.getAttributeDouble("radarFrequency"));
+                        productInformation.getAttributeDouble("radarFrequency")/Constants.oneMillion);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
                         imageInformation.getAttributeDouble("azimuthTimeInterval"));
 
