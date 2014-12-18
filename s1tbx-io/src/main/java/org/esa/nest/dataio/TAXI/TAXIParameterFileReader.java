@@ -1,7 +1,5 @@
 package org.esa.nest.dataio.TAXI;
 
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.StringUtils;
 import org.esa.snap.util.XMLSupport;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
@@ -22,7 +20,7 @@ public class TAXIParameterFileReader {
     public String timeutc;
     public int naz, nrg, naz_ml, nrg_ml;
     public double azml, rgml, ps_rg, ps_az, tcycle;
-    public double sensorVelocity, radaFrequency, waveLength;
+    public double sensorVelocity, radarFrequency, waveLength;
     public double[] slantRange, kt, v, DopplerCentroid;
 
     public TAXIParameterFileReader(final File file) {
@@ -102,7 +100,7 @@ public class TAXIParameterFileReader {
                             }
                             break;
                             case "f0": {
-                                radaFrequency = getElementDouble(elem);
+                                radarFrequency = getElementDouble(elem);
                             }
                             break;
                             case "lambda": {
