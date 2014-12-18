@@ -362,7 +362,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.sample_type,
                     imageInformation.getAttributeString("pixelValue").toUpperCase());
 
-            if (swath.contains("1")) {
+            if (swath.contains("1")) { //todo what about the other swaths??
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
                         imageInformation.getAttributeDouble("slantRangeTime") * Constants.halfLightSpeed);
             }
@@ -374,6 +374,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 final MetadataElement generalAnnotation = prodElem.getElement("generalAnnotation");
                 final MetadataElement productInformation = generalAnnotation.getElement("productInformation");
 
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
+                        productInformation.getAttributeDouble("rangeSamplingRate")/ Constants.oneMillion);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
                         productInformation.getAttributeDouble("radarFrequency"));
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
