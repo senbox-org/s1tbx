@@ -64,8 +64,8 @@ class ExpectedTiePointGrid {
         this.offsetX = offsetX;
     }
 
-    float getOffsetX() {
-        return Float.parseFloat(offsetX);
+    double getOffsetX() {
+        return Double.parseDouble(offsetX);
     }
 
     public boolean isOffsetYSet() {
@@ -76,8 +76,8 @@ class ExpectedTiePointGrid {
         this.offsetY = offsetY;
     }
 
-    float getOffsetY() {
-        return Float.parseFloat(offsetY);
+    double getOffsetY() {
+        return Double.parseDouble(offsetY);
     }
 
     public boolean isSubSamplingXSet() {
@@ -88,8 +88,8 @@ class ExpectedTiePointGrid {
         this.subSamplingX = subSamplingX;
     }
 
-    float getSubSamplingX() {
-        return Float.parseFloat(subSamplingX);
+    double getSubSamplingX() {
+        return Double.parseDouble(subSamplingX);
     }
 
     public boolean isSubSamplingYSet() {
@@ -100,8 +100,8 @@ class ExpectedTiePointGrid {
         this.subSamplingY = subSamplingY;
     }
 
-    float getSubSamplingY() {
-        return Float.parseFloat(subSamplingY);
+    double getSubSamplingY() {
+        return Double.parseDouble(subSamplingY);
     }
 
     ExpectedPixel[] getExpectedPixels() {

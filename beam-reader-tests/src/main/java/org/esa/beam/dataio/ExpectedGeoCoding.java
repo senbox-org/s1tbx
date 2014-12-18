@@ -32,15 +32,13 @@ class ExpectedGeoCoding {
         coordinates = new ExpectedGeoCoordinate[pointList.size()];
         for (int i = 0; i < pointList.size(); i++) {
             Point2D point = pointList.get(i);
-            final float x = (float) point.getX();
-            final float y = (float) point.getY();
-            final GeoPos geoPos = geoCoding.getGeoPos(new PixelPos(x, y), null);
+            final GeoPos geoPos = geoCoding.getGeoPos(new PixelPos(point.getX(), point.getY()), null);
             final PixelPos pixelPos = geoCoding.getPixelPos(geoPos, null);
-            double xAccuracy = Math.abs(x - pixelPos.x);
-            double yAccuracy = Math.abs(y - pixelPos.y);
+            double xAccuracy = Math.abs(point.getX() - pixelPos.x);
+            double yAccuracy = Math.abs(point.getY() - pixelPos.y);
             double accuracy = Math.max(xAccuracy, yAccuracy);
             reverseAccuracy = Math.max(reverseAccuracy, accuracy);
-            coordinates[i] = new ExpectedGeoCoordinate(x, y, geoPos.getLat(), geoPos.getLon());
+            coordinates[i] = new ExpectedGeoCoordinate(point.getX(), point.getY(), geoPos.getLat(), geoPos.getLon());
         }
     }
 
