@@ -11,14 +11,14 @@
                 {
                     "x": 1061.0,
                     "y": 759.0,
-                    "lat": -7.1919646,
-                    "lon": 145.64732
+                    "lat": -7.1919644068999995,
+                    "lon": 145.6473209697
                 },
                 {
                     "x": 1826.0,
                     "y": 916.0,
-                    "lat": -8.59375,
-                    "lon": 152.47768
+                    "lat": -8.593750116699999,
+                    "lon": 152.4776780907
                 }
             ],
             "reverseAccuracy": 0.01
@@ -59,19 +59,22 @@
                     },
                     {
                         "name": "CLOUD_2",
-                        "value": 2
+                        "value": 2,
+                        "description": ""
                     },
                     {
                         "name": "CLOUD_1",
-                        "value": 1
+                        "value": 1,
+                        "description": ""
                     }
                 ]
             }
         ],
         "bands": [
             {
-                "name": "SM",
-                "description": "Status Map",
+                "name": "AG",
+                "description": "Troposheric Aerosol",
+                "geophysicalUnit": "1",
                 "noDataValue": "0.0",
                 "noDataValueUsed": "false",
                 "spectralWavelength": "0.0",
@@ -80,12 +83,32 @@
                     {
                         "x": 128,
                         "y": 251,
-                        "value": 0.0
+                        "value": 0.2
                     },
                     {
                         "x": 1685,
                         "y": 1201,
-                        "value": 240.0
+                        "value": 0.188
+                    }
+                ]
+            },
+            {
+                "name": "B0",
+                "description": "B0 spectral band",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "450.0",
+                "spectralBandwidth": "40.0",
+                "expectedPixels": [
+                    {
+                        "x": 715,
+                        "y": 362,
+                        "value": 0.395
+                    },
+                    {
+                        "x": 1501,
+                        "y": 515,
+                        "value": "NaN"
                     }
                 ]
             },
@@ -98,56 +121,14 @@
                 "spectralBandwidth": "70.0",
                 "expectedPixels": [
                     {
-                        "x": 715,
-                        "y": 362,
-                        "value": 0.341
-                    },
-                    {
-                        "x": 1501,
-                        "y": 515,
-                        "value": "NaN"
-                    }
-                ]
-            },
-            {
-                "name": "SAA",
-                "description": "Solar Azimuth Angle",
-                "geophysicalUnit": "Degrees",
-                "noDataValue": "0.0",
-                "noDataValueUsed": "false",
-                "spectralWavelength": "0.0",
-                "spectralBandwidth": "0.0",
-                "expectedPixels": [
-                    {
                         "x": 1353,
                         "y": 1052,
-                        "value": 124.5
+                        "value": 0.289
                     },
                     {
                         "x": 1496,
                         "y": 1310,
-                        "value": 0.0
-                    }
-                ]
-            },
-            {
-                "name": "WVG",
-                "description": "Water Vapor",
-                "geophysicalUnit": "g/cm^2",
-                "noDataValue": "0.0",
-                "noDataValueUsed": "false",
-                "spectralWavelength": "0.0",
-                "spectralBandwidth": "0.0",
-                "expectedPixels": [
-                    {
-                        "x": 389,
-                        "y": 940,
-                        "value": 5.8
-                    },
-                    {
-                        "x": 1277,
-                        "y": 1289,
-                        "value": 1.16
+                        "value": "NaN"
                     }
                 ]
             },
@@ -160,56 +141,34 @@
                 "spectralBandwidth": "110.0",
                 "expectedPixels": [
                     {
+                        "x": 389,
+                        "y": 940,
+                        "value": 0.473
+                    },
+                    {
+                        "x": 1277,
+                        "y": 1289,
+                        "value": "NaN"
+                    }
+                ]
+            },
+            {
+                "name": "MIR",
+                "description": "MIR spectral band",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "1665.0",
+                "spectralBandwidth": "170.0",
+                "expectedPixels": [
+                    {
                         "x": 1860,
                         "y": 684,
-                        "value": "NaN"
+                        "value": 0.207
                     },
                     {
                         "x": 2338,
                         "y": 686,
-                        "value": 0.5625
-                    }
-                ]
-            },
-            {
-                "name": "VZA",
-                "description": "Viewing Zenith Angle",
-                "geophysicalUnit": "Degrees",
-                "noDataValue": "0.0",
-                "noDataValueUsed": "false",
-                "spectralWavelength": "0.0",
-                "spectralBandwidth": "0.0",
-                "expectedPixels": [
-                    {
-                        "x": 837,
-                        "y": 1269,
-                        "value": 0.0
-                    },
-                    {
-                        "x": 24,
-                        "y": 664,
-                        "value": 60.5
-                    }
-                ]
-            },
-            {
-                "name": "AG",
-                "description": "Troposheric Aerosol",
-                "geophysicalUnit": "1",
-                "noDataValue": "0.0",
-                "noDataValueUsed": "false",
-                "spectralWavelength": "0.0",
-                "spectralBandwidth": "0.0",
-                "expectedPixels": [
-                    {
-                        "x": 805,
-                        "y": 278,
-                        "value": 0.2
-                    },
-                    {
-                        "x": 672,
-                        "y": 60,
-                        "value": 0.2
+                        "value": 0.2545
                     }
                 ]
             },
@@ -223,34 +182,76 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 2389,
-                        "y": 853,
-                        "value": 0.256
+                        "x": 837,
+                        "y": 1269,
+                        "value": 0.084
                     },
                     {
-                        "x": 1407,
-                        "y": 1012,
-                        "value": 0.26
+                        "x": 24,
+                        "y": 664,
+                        "value": 0.256
                     }
                 ]
             },
             {
-                "name": "MIR",
-                "description": "MIR spectral band",
+                "name": "SAA",
+                "description": "Solar Azimuth Angle",
+                "geophysicalUnit": "Degrees",
                 "noDataValue": "0.0",
                 "noDataValueUsed": "false",
-                "spectralWavelength": "1665.0",
-                "spectralBandwidth": "170.0",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 805,
+                        "y": 278,
+                        "value": 129.0
+                    },
+                    {
+                        "x": 672,
+                        "y": 60,
+                        "value": 6.0
+                    }
+                ]
+            },
+            {
+                "name": "SM",
+                "description": "Status Map",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 2389,
+                        "y": 853,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 1407,
+                        "y": 1012,
+                        "value": 250.0
+                    }
+                ]
+            },
+            {
+                "name": "SZA",
+                "description": "Solar Zenith Angle",
+                "geophysicalUnit": "Degrees",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
                         "x": 570,
                         "y": 702,
-                        "value": 0.1645
+                        "value": 33.5
                     },
                     {
                         "x": 789,
                         "y": 1020,
-                        "value": 0.208
+                        "value": 30.0
                     }
                 ]
             },
@@ -276,29 +277,30 @@
                 ]
             },
             {
-                "name": "B0",
-                "description": "B0 spectral band",
+                "name": "VZA",
+                "description": "Viewing Zenith Angle",
+                "geophysicalUnit": "Degrees",
                 "noDataValue": "0.0",
                 "noDataValueUsed": "false",
-                "spectralWavelength": "450.0",
-                "spectralBandwidth": "40.0",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
                         "x": 1413,
                         "y": 129,
-                        "value": "NaN"
+                        "value": 0.0
                     },
                     {
                         "x": 1587,
                         "y": 22,
-                        "value": "NaN"
+                        "value": 0.0
                     }
                 ]
             },
             {
-                "name": "SZA",
-                "description": "Solar Zenith Angle",
-                "geophysicalUnit": "Degrees",
+                "name": "WVG",
+                "description": "Water Vapor",
+                "geophysicalUnit": "g/cm^2",
                 "noDataValue": "0.0",
                 "noDataValueUsed": "false",
                 "spectralWavelength": "0.0",
@@ -307,12 +309,12 @@
                     {
                         "x": 2399,
                         "y": 518,
-                        "value": 22.5
+                        "value": 6.36
                     },
                     {
                         "x": 2337,
                         "y": 1336,
-                        "value": 17.5
+                        "value": 0.0
                     }
                 ]
             }

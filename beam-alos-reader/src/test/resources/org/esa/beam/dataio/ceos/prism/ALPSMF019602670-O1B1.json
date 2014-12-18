@@ -1,6 +1,6 @@
 {
     "id": "ALPSMF019602670-O1B1",
-    "decodeQualification": "intended",
+    "decodeQualification": "INTENDED",
     "expectedContent": {
         "sceneWidth": 19584,
         "sceneHeight": 16000,
@@ -9,10 +9,16 @@
         "geoCoding": {
             "coordinates": [
                 {
-                    "x": 9845.5,
-                    "y": 10412.5,
-                    "lat": 43.32283,
-                    "lon": 0.96880555
+                    "x": 8446.0,
+                    "y": 8601.0,
+                    "lat": 43.37090985070818,
+                    "lon": 0.9355506588758629
+                },
+                {
+                    "x": 14540.0,
+                    "y": 10382.0,
+                    "lat": 43.29629282474322,
+                    "lon": 1.1262355774350188
                 }
             ],
             "reverseAccuracy": 0.08
@@ -27,21 +33,26 @@
                 "spectralBandwidth": "250.0",
                 "expectedPixels": [
                     {
-                        "x": 9845,
-                        "y": 10412,
-                        "value": 34.624
+                        "x": 1021,
+                        "y": 2850,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 13416,
+                        "y": 13609,
+                        "value": 35.706
                     }
                 ]
             }
         ],
         "metadata": [
             {
-                "path": "SPH/Radiometric Calibration/ABSOLUTE_GAIN_BAND",
-                "value": "0.541"
+                "path": "SPH/Map Projection/CCD[3]_COEFFICIENTS_LONGITUDE.6",
+                "value": "7.423945665071264E-18"
             },
             {
-                "path": "VOLUME_DESCRIPTOR/FilePointerRecord 1/Second record subtype",
-                "value": "18"
+                "path": "SPH/Radiometric Calibration/ABSOLUTE_GAIN_BAND",
+                "value": "0.541"
             }
         ]
     }

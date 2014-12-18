@@ -11,14 +11,14 @@
                 {
                     "x": 220.0,
                     "y": 22018.0,
-                    "lat": -16.985096,
-                    "lon": -57.18436
+                    "lat": -16.985093727111813,
+                    "lon": -57.184362080111605
                 },
                 {
                     "x": 380.0,
                     "y": 26579.0,
-                    "lat": -57.389347,
-                    "lon": -68.464134
+                    "lat": -57.389347839355466,
+                    "lon": -68.46413650908887
                 }
             ],
             "reverseAccuracy": 0.15
@@ -132,7 +132,7 @@
                     {
                         "x": 148,
                         "y": 10520,
-                        "value": 14.087739
+                        "value": 14.08774
                     },
                     {
                         "x": 312,
@@ -252,12 +252,12 @@
                     {
                         "x": 497,
                         "y": 24769,
-                        "value": 20.105215
+                        "value": 20.105213
                     },
                     {
                         "x": 293,
                         "y": 29359,
-                        "value": -19.336533
+                        "value": -19.33653
                     }
                 ]
             },
@@ -277,7 +277,7 @@
                     {
                         "x": 164,
                         "y": 29595,
-                        "value": 82.71961
+                        "value": 82.719604
                     }
                 ]
             },
@@ -292,7 +292,7 @@
                     {
                         "x": 183,
                         "y": 20407,
-                        "value": 40.349392
+                        "value": 40.349396
                     },
                     {
                         "x": 206,
@@ -312,7 +312,7 @@
                     {
                         "x": 294,
                         "y": 3761,
-                        "value": 61.260937
+                        "value": 61.26094
                     },
                     {
                         "x": 330,
@@ -337,7 +337,7 @@
                     {
                         "x": 486,
                         "y": 38764,
-                        "value": -66.074715
+                        "value": -66.07471
                     }
                 ]
             },
@@ -352,7 +352,7 @@
                     {
                         "x": 56,
                         "y": 18508,
-                        "value": 35.982323
+                        "value": 35.98232
                     },
                     {
                         "x": 292,
@@ -377,7 +377,7 @@
                     {
                         "x": 230,
                         "y": 23797,
-                        "value": 30.076025
+                        "value": 30.076027
                     }
                 ]
             },
@@ -392,7 +392,7 @@
                     {
                         "x": 7,
                         "y": 17392,
-                        "value": 28.50697
+                        "value": 28.506968
                     },
                     {
                         "x": 35,
@@ -407,7 +407,7 @@
                 "name": "sst_nadir",
                 "description": "Sea surface temperature nadir view",
                 "geophysicalUnit": "K",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
                 "spectralBandwidth": "0.0",
@@ -428,7 +428,7 @@
                 "name": "sst_comb",
                 "description": "Sea surface temperature combined views",
                 "geophysicalUnit": "K",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
                 "spectralBandwidth": "0.0",
@@ -449,7 +449,7 @@
                 "name": "cloud_top_temp",
                 "description": "Cloud top temperature",
                 "geophysicalUnit": "K",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
                 "spectralBandwidth": "0.0",
@@ -470,7 +470,7 @@
                 "name": "cloud_top_height",
                 "description": "Cloud top height",
                 "geophysicalUnit": "m",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
                 "spectralBandwidth": "0.0",
@@ -491,7 +491,7 @@
                 "name": "lst",
                 "description": "Land surface temperature",
                 "geophysicalUnit": "K",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
                 "spectralBandwidth": "0.0",
@@ -511,7 +511,7 @@
             {
                 "name": "ndvi",
                 "description": "Normalized difference vegetation index",
-                "noDataValue": "-1.9999999494757503E-4",
+                "noDataValue": "-2.0E-4",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "0.0",
                 "spectralBandwidth": "0.0",

@@ -11,17 +11,17 @@
                 {
                     "x": 2336.0,
                     "y": 1091.0,
-                    "lat": -63.907322,
-                    "lon": 152.9049
+                    "lat": -63.90731954574585,
+                    "lon": 152.90491170710825
                 },
                 {
                     "x": 4021.0,
                     "y": 1317.0,
-                    "lat": -64.70184,
-                    "lon": 143.3258
+                    "lat": -64.70184421539307,
+                    "lon": 143.32581044118464
                 }
             ],
-            "reverseAccuracy": 2.0092773
+            "reverseAccuracy": 2.01
         },
         "tiePointGrids": [
             {
@@ -58,7 +58,7 @@
                     {
                         "x": 3306,
                         "y": 741,
-                        "value": 148.14369
+                        "value": 148.1437
                     }
                 ]
             }
@@ -151,12 +151,12 @@
         ],
         "metadata": [
             {
-                "path": "GLOBAL_METADATA/featureType",
-                "value": "SWATH"
+                "path": "GLOBAL_METADATA/Focal_Plane_Set_Point_State",
+                "value": "1"
             },
             {
-                "path": "GLOBAL_METADATA/Noise_in_Cavity_Temperature",
-                "value": "0"
+                "path": "GLOBAL_METADATA/Max_Earth_View_Frames",
+                "value": "1354"
             }
         ]
     }

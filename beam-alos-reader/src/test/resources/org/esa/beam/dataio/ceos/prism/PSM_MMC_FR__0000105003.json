@@ -1,6 +1,6 @@
 {
     "id": "PSM_MMC_FR__0000105003",
-    "decodeQualification": "intended",
+    "decodeQualification": "INTENDED",
     "expectedContent": {
         "sceneWidth": 19583,
         "sceneHeight": 18020,
@@ -9,10 +9,16 @@
         "geoCoding": {
             "coordinates": [
                 {
-                    "x": 11972.5,
-                    "y": 7814.5,
-                    "lat": 54.234413,
-                    "lon": 9.099673
+                    "x": 8446.0,
+                    "y": 9686.0,
+                    "lat": 54.19239892401709,
+                    "lon": 8.964451484475969
+                },
+                {
+                    "x": 14539.0,
+                    "y": 11693.0,
+                    "lat": 54.14714682750031,
+                    "lon": 9.197695365694432
                 }
             ],
             "reverseAccuracy": 0.06
@@ -27,21 +33,26 @@
                 "spectralBandwidth": "250.0",
                 "expectedPixels": [
                     {
-                        "x": 11972,
-                        "y": 7814,
-                        "value": 114.151
+                        "x": 1021,
+                        "y": 3210,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 13416,
+                        "y": 15327,
+                        "value": 97.921
                     }
                 ]
             }
         ],
         "metadata": [
             {
-                "path": "SPH/Radiometric Calibration/ABSOLUTE_GAIN_BAND",
-                "value": "0.541"
+                "path": "SPH/Map Projection/PIXELS_PER_LINE",
+                "value": "19583.0"
             },
             {
-                "path": "VOLUME_DESCRIPTOR/FilePointerRecord 1/Second record subtype",
-                "value": "18"
+                "path": "SPH/Radiometric Calibration/ABSOLUTE_GAIN_BAND",
+                "value": "0.541"
             }
         ]
     }

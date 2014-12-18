@@ -11,14 +11,14 @@
                 {
                     "x": 517.0,
                     "y": 645.0,
-                    "lat": 24.629168,
-                    "lon": -105.273155
+                    "lat": 24.62916616752809,
+                    "lon": -105.2731529648385
                 },
                 {
                     "x": 890.0,
                     "y": 778.0,
-                    "lat": 23.520832,
-                    "lon": -100.97718
+                    "lat": 23.520832841242964,
+                    "lon": -100.9771848516347
                 }
             ],
             "reverseAccuracy": 0.01
@@ -153,12 +153,12 @@
         ],
         "metadata": [
             {
-                "path": "GLOBAL_METADATA/MOD15A2_FparLai_QC_DOC",
-                "value": "\nFparLai_QC 5 BITFIELDS IN 8 BITWORD\nMODLAND_QC START 0 END 0 VALIDS 2\nMODLAND_QC   0 = Good Quality (main algorithm with or without saturation)\nMODLAND_QC   1 = Other Quality (back-up algorithm or fill value)\nSENSOR START 1 END 1 VALIDS 2\nSENSOR       0  = Terra\nSENSOR       1  = Aqua\nDEADDETECTOR START 2 END 2 VALIDS 2\nDEADDETECTOR 0 = Detectors apparently fine for up to 50% of channels 1,2\nDEADDETECTOR 1 = Dead detectors caused >50% adjacent detector retrieval\nCLOUDSTATE START 3 END 4 VALIDS 4 (this inherited from Aggregate_QC bits {0,1} cloud state)\nCLOUDSTATE   00 = 0 Significant clouds NOT present (clear)\nCLOUDSTATE   01 = 1 Significant clouds WERE present\nCLOUDSTATE   10 = 2 Mixed cloud present on pixel\nCLOUDSTATE   11 = 3 Cloud state not defined,assumed clear\nSCF_QC START 5 END 7 VALIDS 5\nSCF_QC       000=0 Main (RT) algorithm used, best result possible (no saturation)\nSCF_QC       001=1 Main (RT) algorithm used, saturation occured. Good, very usable.\nSCF_QC       010=2 Main algorithm failed due to bad geometry, empirical algorithm used\nSCF_QC       011=3 Main algorithm faild due to problems other than geometry, empirical algorithm used\nSCF_QC       100=4 Pixel not produced at all, value coudn't be retrieved (possible reasons: bad L1B data, unusable MODAGAGG data)\n"
+                "path": "GLOBAL_METADATA/MOD15A2_FparExtra_QC_DOC",
+                "value": "\nFparExtra_QC 6 BITFIELDS IN 8 BITWORD\nLANDSEA PASS-THROUGH START 0 END 1 VALIDS 4\nLANDSEA   00 = 0 LAND       AggrQC(3,5)values{001}\nLANDSEA   01 = 1 SHORE      AggrQC(3,5)values{000,010,100}\nLANDSEA   10 = 2 FRESHWATER AggrQC(3,5)values{011,101}\nLANDSEA   11 = 3 OCEAN      AggrQC(3,5)values{110,111}\nSNOW_ICE (from Aggregate_QC bits) START 2 END 2 VALIDS 2\nSNOW_ICE  0 = No snow/ice detected\nSNOW_ICE  1 = Snow/ice were detected\nAEROSOL START 3 END 3 VALIDS 2\nAEROSOL   0 = No or low atmospheric aerosol levels detected\nAEROSOL   1 = Average or high aerosol levels detected\nCIRRUS (from Aggregate_QC bits {8,9} ) START 4 END 4 VALIDS 2\nCIRRUS    0 = No cirrus detected\nCIRRUS    1 = Cirrus was detected\nINTERNAL_CLOUD_MASK START 5 END 5 VALIDS 2\nINTERNAL_CLOUD_MASK 0 = No clouds\nINTERNAL_CLOUD_MASK 1 = Clouds were detected\nCLOUD_SHADOW START 6 END 6 VALIDS 2\nCLOUD_SHADOW        0 = No cloud shadow detected\nCLOUD_SHADOW        1 = Cloud shadow detected\nSCF_BIOME_MASK START 7 END 7 VALIDS 2\nSCF_BIOME_MASK  0 = Biome outside interval <1,4>\nSCF_BIOME_MASK  1 = Biome in interval <1,4>\n"
             },
             {
-                "path": "GLOBAL_METADATA/HDF4_Version",
-                "value": "4.1.5 (NCSA HDF Version 4.1 Release 5, November 5, 2001)"
+                "path": "GLOBAL_METADATA/MOD15A1_ANC_BUILD_CERT",
+                "value": "mtAncUtil v. 1.8 Rel. 09.11.2000 17:36 API v. 2.5.6 release 09.14.2000 16:33 Rev.Index 102 (J.Glassy)\n"
             }
         ]
     }

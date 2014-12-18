@@ -9,13 +9,19 @@
         "geoCoding": {
             "coordinates": [
                 {
-                    "x": 7214.5,
-                    "y": 10768.5,
-                    "lat": 38.204063,
-                    "lon": 23.333107
+                    "x": 8557.0,
+                    "y": 8601.0,
+                    "lat": 38.245129310956,
+                    "lon": 23.38524890421352
+                },
+                {
+                    "x": 14730.0,
+                    "y": 10382.0,
+                    "lat": 38.17298510943064,
+                    "lon": 23.546700138801217
                 }
             ],
-            "reverseAccuracy": 0.05
+            "reverseAccuracy": 0.06
         },
         "bands": [
             {
@@ -27,21 +33,26 @@
                 "spectralBandwidth": "250.0",
                 "expectedPixels": [
                     {
-                        "x": 7214,
-                        "y": 10768,
-                        "value": 55.11
+                        "x": 1035,
+                        "y": 2850,
+                        "value": "NaN"
+                    },
+                    {
+                        "x": 13592,
+                        "y": 13609,
+                        "value": 61.623
                     }
                 ]
             }
         ],
         "metadata": [
             {
-                "path": "SPH/Radiometric Calibration/ABSOLUTE_GAIN_BAND",
-                "value": "0.501"
+                "path": "SPH/Map Projection/CCD[3]_COEFFICIENTS_LONGITUDE.6",
+                "value": "2.7694879578615074E-18"
             },
             {
-                "path": "VOLUME_DESCRIPTOR/FilePointerRecord 1/Second record subtype",
-                "value": "18"
+                "path": "SPH/Radiometric Calibration/ABSOLUTE_GAIN_BAND",
+                "value": "0.501"
             }
         ]
     }

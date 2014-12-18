@@ -11,14 +11,14 @@
                 {
                     "x": 257.0,
                     "y": 253.0,
-                    "lat": 36.722916,
-                    "lon": -97.331276
+                    "lat": 36.722915878195515,
+                    "lon": -97.33128148436742
                 },
                 {
                     "x": 442.0,
                     "y": 306.0,
-                    "lat": 36.502083,
-                    "lon": -96.09401
+                    "lat": 36.50208254626652,
+                    "lon": -96.09400401542311
                 }
             ],
             "reverseAccuracy": 0.01
@@ -276,12 +276,12 @@
         ],
         "metadata": [
             {
-                "path": "GLOBAL_METADATA/_History",
-                "value": "Direct read of HDF4 file through CDM library; HDF-EOS StructMetadata information was read"
+                "path": "GLOBAL_METADATA/total_additional_observations_500m",
+                "value": "305404"
             },
             {
-                "path": "GLOBAL_METADATA/l2g_storage_format_500m",
-                "value": "compact"
+                "path": "GLOBAL_METADATA/maximum_observations_1km",
+                "value": "6"
             }
         ]
     }

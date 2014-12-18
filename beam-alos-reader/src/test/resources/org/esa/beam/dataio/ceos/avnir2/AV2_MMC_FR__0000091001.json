@@ -1,6 +1,6 @@
 {
-    "id": "AV2_MMC_FR__0000091001",
-    "decodeQualification": "intended",
+    "id": "ALAV2A038712630-O1B2G_U",
+    "decodeQualification": "UNABLE",
     "expectedContent": {
         "sceneWidth": 8178,
         "sceneHeight": 5912,
@@ -11,14 +11,14 @@
                 {
                     "x": 3527.0,
                     "y": 3178.0,
-                    "lat": 46.422344,
-                    "lon": 8.357774
+                    "lat": 46.42234581684299,
+                    "lon": 8.357773733470406
                 },
                 {
-                    "x": 2099.5,
-                    "y": 1468.5,
-                    "lat": 46.728928,
-                    "lon": 7.9833107
+                    "x": 6071.0,
+                    "y": 3836.0,
+                    "lat": 46.3028395264524,
+                    "lon": 9.018791674554397
                 }
             ],
             "reverseAccuracy": 0.01
@@ -34,9 +34,14 @@
                 "spectralBandwidth": "80.0",
                 "expectedPixels": [
                     {
-                        "x": 2099,
-                        "y": 1468,
-                        "value": 58.8
+                        "x": 426,
+                        "y": 1053,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 5602,
+                        "y": 5028,
+                        "value": 38.22
                     }
                 ]
             },
@@ -50,9 +55,14 @@
                 "spectralBandwidth": "80.0",
                 "expectedPixels": [
                     {
-                        "x": 2099,
-                        "y": 1468,
-                        "value": 40.683
+                        "x": 2378,
+                        "y": 1518,
+                        "value": 18.909
+                    },
+                    {
+                        "x": 4992,
+                        "y": 2159,
+                        "value": 20.628
                     }
                 ]
             },
@@ -66,9 +76,14 @@
                 "spectralBandwidth": "80.0",
                 "expectedPixels": [
                     {
-                        "x": 2099,
-                        "y": 1468,
-                        "value": 15.562
+                        "x": 4498,
+                        "y": 4406,
+                        "value": 9.036
+                    },
+                    {
+                        "x": 4974,
+                        "y": 5489,
+                        "value": 0.0
                     }
                 ]
             },
@@ -82,21 +97,26 @@
                 "spectralBandwidth": "130.0",
                 "expectedPixels": [
                     {
-                        "x": 2099,
-                        "y": 1468,
-                        "value": 5.013
+                        "x": 1294,
+                        "y": 3937,
+                        "value": 20.052
+                    },
+                    {
+                        "x": 4245,
+                        "y": 5400,
+                        "value": 0.0
                     }
                 ]
             }
         ],
         "metadata": [
             {
-                "path": "SPH/Radiometric Calibration/DETECTOR_ASSEMBLY_TEMPERATURE_BAND",
-                "value": "17.375,17.643,17.747,17.168"
+                "path": "VOLUME_DESCRIPTOR/Logical volume ID",
+                "value": "AL1AV220070129  "
             },
             {
-                "path": "VOLUME_DESCRIPTOR/First record subtype",
-                "value": "192"
+                "path": "VOLUME_DESCRIPTOR/Logical volume ID",
+                "value": "AL1AV220070129  "
             }
         ]
     }

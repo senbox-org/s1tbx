@@ -11,14 +11,14 @@
                 {
                     "x": 220.0,
                     "y": 22018.0,
-                    "lat": -17.004467,
-                    "lon": 122.45453
+                    "lat": -17.004466857910156,
+                    "lon": 122.45452888566281
                 },
                 {
                     "x": 380.0,
                     "y": 26579.0,
-                    "lat": -57.41015,
-                    "lon": 111.17149
+                    "lat": -57.41014985561371,
+                    "lon": 111.17148775261053
                 }
             ],
             "reverseAccuracy": 0.15
@@ -287,7 +287,7 @@
                     {
                         "x": 26,
                         "y": 7297,
-                        "value": 64.76424
+                        "value": 64.764244
                     },
                     {
                         "x": 350,
@@ -427,7 +427,7 @@
                     {
                         "x": 497,
                         "y": 24769,
-                        "value": 59.013103
+                        "value": 59.013096
                     },
                     {
                         "x": 293,
@@ -452,7 +452,7 @@
                     {
                         "x": 164,
                         "y": 29595,
-                        "value": 82.696365
+                        "value": 82.69636
                     }
                 ]
             },
@@ -467,7 +467,7 @@
                     {
                         "x": 183,
                         "y": 20407,
-                        "value": 131.12233
+                        "value": 131.12231
                     },
                     {
                         "x": 206,
@@ -487,7 +487,7 @@
                     {
                         "x": 294,
                         "y": 3761,
-                        "value": 102.11595
+                        "value": 102.115944
                     },
                     {
                         "x": 330,
@@ -567,12 +567,12 @@
                     {
                         "x": 7,
                         "y": 17392,
-                        "value": 28.525528
+                        "value": 28.525524
                     },
                     {
                         "x": 35,
                         "y": 40666,
-                        "value": -177.63846
+                        "value": -177.63844
                     }
                 ]
             }
@@ -582,7 +582,7 @@
                 "name": "btemp_nadir_1200",
                 "description": "Brightness temperature, nadir view (11500-12500 nm)",
                 "geophysicalUnit": "K",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "12000.0",
                 "spectralBandwidth": "1000.0",
@@ -590,7 +590,7 @@
                     {
                         "x": 151,
                         "y": 30519,
-                        "value": 241.59999
+                        "value": 241.6
                     },
                     {
                         "x": 411,
@@ -603,7 +603,7 @@
                 "name": "btemp_nadir_1100",
                 "description": "Brightness temperature, nadir view (10400-11300 nm)",
                 "geophysicalUnit": "K",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "10850.0",
                 "spectralBandwidth": "900.0",
@@ -624,7 +624,7 @@
                 "name": "btemp_nadir_0370",
                 "description": "Brightness temperature, nadir view (3505-3895 nm)",
                 "geophysicalUnit": "K",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "3700.0",
                 "spectralBandwidth": "390.0",
@@ -632,7 +632,7 @@
                     {
                         "x": 312,
                         "y": 10653,
-                        "value": 237.45999
+                        "value": 237.46
                     },
                     {
                         "x": 283,
@@ -645,7 +645,7 @@
                 "name": "reflec_nadir_1600",
                 "description": "Refectance, nadir view (1580-1640 nm)",
                 "geophysicalUnit": "%",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "1610.0",
                 "spectralBandwidth": "60.0",
@@ -653,7 +653,7 @@
                     {
                         "x": 243,
                         "y": 22902,
-                        "value": 22.439999
+                        "value": 22.44
                     },
                     {
                         "x": 48,
@@ -666,7 +666,7 @@
                 "name": "reflec_nadir_0870",
                 "description": "Refectance, nadir view (855-875 nm)",
                 "geophysicalUnit": "%",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "865.0",
                 "spectralBandwidth": "20.0",
@@ -679,7 +679,7 @@
                     {
                         "x": 232,
                         "y": 27702,
-                        "value": 32.649998
+                        "value": 32.65
                     }
                 ]
             },
@@ -687,7 +687,7 @@
                 "name": "reflec_nadir_0670",
                 "description": "Refectance, nadir view (649-669 nm)",
                 "geophysicalUnit": "%",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "659.0",
                 "spectralBandwidth": "20.0",
@@ -708,7 +708,7 @@
                 "name": "reflec_nadir_0550",
                 "description": "Refectance, nadir view (545-565 nm)",
                 "geophysicalUnit": "%",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "555.0",
                 "spectralBandwidth": "20.0",
@@ -729,7 +729,7 @@
                 "name": "btemp_fward_1200",
                 "description": "Brightness temperature, forward view (11500-12500 nm)",
                 "geophysicalUnit": "K",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "12000.0",
                 "spectralBandwidth": "1000.0",
@@ -742,7 +742,7 @@
                     {
                         "x": 499,
                         "y": 7619,
-                        "value": 238.48999
+                        "value": 238.49
                     }
                 ]
             },
@@ -750,7 +750,7 @@
                 "name": "btemp_fward_1100",
                 "description": "Brightness temperature, forward view (10400-11300 nm)",
                 "geophysicalUnit": "K",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "10850.0",
                 "spectralBandwidth": "900.0",
@@ -771,7 +771,7 @@
                 "name": "btemp_fward_0370",
                 "description": "Brightness temperature, forward view (3505-3895 nm)",
                 "geophysicalUnit": "K",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "3700.0",
                 "spectralBandwidth": "390.0",
@@ -792,7 +792,7 @@
                 "name": "reflec_fward_1600",
                 "description": "Refectance, forward view (1580-1640 nm)",
                 "geophysicalUnit": "%",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "1610.0",
                 "spectralBandwidth": "60.0",
@@ -813,7 +813,7 @@
                 "name": "reflec_fward_0870",
                 "description": "Refectance, forward view (855-875 nm)",
                 "geophysicalUnit": "%",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "865.0",
                 "spectralBandwidth": "20.0",
@@ -826,7 +826,7 @@
                     {
                         "x": 388,
                         "y": 13441,
-                        "value": 12.5199995
+                        "value": 12.52
                     }
                 ]
             },
@@ -834,7 +834,7 @@
                 "name": "reflec_fward_0670",
                 "description": "Refectance, forward view (649-669 nm)",
                 "geophysicalUnit": "%",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "659.0",
                 "spectralBandwidth": "20.0",
@@ -855,7 +855,7 @@
                 "name": "reflec_fward_0550",
                 "description": "Refectance, forward view (545-565 nm)",
                 "geophysicalUnit": "%",
-                "noDataValue": "-0.019999999552965164",
+                "noDataValue": "-0.02",
                 "noDataValueUsed": "true",
                 "spectralWavelength": "555.0",
                 "spectralBandwidth": "20.0",

@@ -9,13 +9,19 @@
         "geoCoding": {
             "coordinates": [
                 {
-                    "x": 2365.5,
-                    "y": 5654.5,
-                    "lat": 43.30777,
-                    "lon": 4.8346753
+                    "x": 3062.0,
+                    "y": 4300.0,
+                    "lat": 43.38218046588046,
+                    "lon": 5.055047043051238
+                },
+                {
+                    "x": 5271.0,
+                    "y": 5191.0,
+                    "lat": 43.16250627244628,
+                    "lon": 5.559824259684731
                 }
             ],
-            "reverseAccuracy": 0.03
+            "reverseAccuracy": 0.06
         },
         "bands": [
             {
@@ -28,9 +34,14 @@
                 "spectralBandwidth": "80.0",
                 "expectedPixels": [
                     {
-                        "x": 2365,
-                        "y": 5654,
-                        "value": 67.032
+                        "x": 370,
+                        "y": 1425,
+                        "value": 65.856
+                    },
+                    {
+                        "x": 4864,
+                        "y": 6804,
+                        "value": 65.856
                     }
                 ]
             },
@@ -44,9 +55,14 @@
                 "spectralBandwidth": "80.0",
                 "expectedPixels": [
                     {
-                        "x": 2365,
-                        "y": 5654,
-                        "value": 48.132
+                        "x": 2065,
+                        "y": 2054,
+                        "value": 74.49
+                    },
+                    {
+                        "x": 4334,
+                        "y": 2922,
+                        "value": 62.457
                     }
                 ]
             },
@@ -60,9 +76,14 @@
                 "spectralBandwidth": "80.0",
                 "expectedPixels": [
                     {
-                        "x": 2365,
-                        "y": 5654,
-                        "value": 24.096
+                        "x": 3905,
+                        "y": 5962,
+                        "value": 20.08
+                    },
+                    {
+                        "x": 4319,
+                        "y": 7427,
+                        "value": 21.084
                     }
                 ]
             },
@@ -76,8 +97,13 @@
                 "spectralBandwidth": "130.0",
                 "expectedPixels": [
                     {
-                        "x": 2365,
-                        "y": 5654,
+                        "x": 1123,
+                        "y": 5328,
+                        "value": 8.35
+                    },
+                    {
+                        "x": 3685,
+                        "y": 7308,
                         "value": 8.35
                     }
                 ]
@@ -85,12 +111,12 @@
         ],
         "metadata": [
             {
-                "path": "SPH/Platform Position Data/DATA_POINT_21_POSITIONAL_VECTOR_Y",
-                "value": "-1088953.26759334"
+                "path": "VOLUME_DESCRIPTOR/Logical volume ID",
+                "value": "AL1AV220060915  "
             },
             {
-                "path": "VOLUME_DESCRIPTOR/First record subtype",
-                "value": "192"
+                "path": "VOLUME_DESCRIPTOR/Logical volume ID",
+                "value": "AL1AV220060915  "
             }
         ]
     }
