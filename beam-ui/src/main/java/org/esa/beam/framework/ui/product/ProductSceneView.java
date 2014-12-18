@@ -75,20 +75,10 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
 import org.esa.beam.util.SystemUtils;
 
-import javax.swing.AbstractButton;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import javax.swing.undo.UndoManager;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -856,8 +846,8 @@ public class ProductSceneView extends BasicView
         ArrayList<SimpleFeatureFigure> selectedFigures = new ArrayList<>();
         collectFeatureFigures(figureEditor.getFigureSelection(), selectedFigures);
         if (selectedFigures.isEmpty()
-            && !selectedOnly
-            && getSelectedLayer() instanceof VectorDataLayer) {
+                && !selectedOnly
+                && getSelectedLayer() instanceof VectorDataLayer) {
             VectorDataLayer vectorDataLayer = (VectorDataLayer) getSelectedLayer();
             collectFeatureFigures(vectorDataLayer.getFigureCollection(), selectedFigures);
         }
@@ -1203,7 +1193,7 @@ public class ProductSceneView extends BasicView
     private boolean isPixelPosValid(int currentPixelX, int currentPixelY, int currentLevel) {
         return currentPixelX >= 0 && currentPixelX < baseImageLayer.getImage(
                 currentLevel).getWidth() && currentPixelY >= 0
-               && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
+                && currentPixelY < baseImageLayer.getImage(currentLevel).getHeight();
     }
 
     private void firePixelPosChanged(MouseEvent e, int currentPixelX, int currentPixelY, int currentLevel) {
@@ -1254,7 +1244,7 @@ public class ProductSceneView extends BasicView
 
     private boolean isPixelBorderDisplayEnabled() {
         return pixelBorderShown &&
-               getLayerCanvas().getViewport().getZoomFactor() >= pixelBorderViewScale;
+                getLayerCanvas().getViewport().getZoomFactor() >= pixelBorderViewScale;
     }
 
     private void drawPixelBorder(int currentPixelX, int currentPixelY, int currentLevel, boolean showBorder) {
