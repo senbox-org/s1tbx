@@ -7,22 +7,16 @@
         "geoCoding": {
             "coordinates": [
                 {
-                    "x": 613.49994,
-                    "y": 293.50018,
-                    "lat": 63.364365,
-                    "lon": 19.85895
+                    "x": 536.0,
+                    "y": 778.0,
+                    "lat": 59.01355600917265,
+                    "lon": 18.487200246340986
                 },
                 {
-                    "x": 636.5,
-                    "y": 338.5,
-                    "lat": 62.960266,
-                    "lon": 20.26605
-                },
-                {
-                    "x": 697.5,
-                    "y": 219.5,
-                    "lat": 64.028885,
-                    "lon": 21.34575
+                    "x": 922.0,
+                    "y": 939.0,
+                    "lat": 57.56777595172031,
+                    "lon": 25.319400353516166
                 }
             ],
             "reverseAccuracy": 0.01
@@ -38,27 +32,22 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 613,
-                        "y": 293,
-                        "value": 2.317911
+                        "x": 64,
+                        "y": 257,
+                        "value": "NaN"
                     },
                     {
-                        "x": 636,
-                        "y": 338,
-                        "value": 11.096581
-                    },
-                    {
-                        "x": 697,
-                        "y": 219,
-                        "value": 30.22143
+                        "x": 851,
+                        "y": 1231,
+                        "value": "NaN"
                     }
                 ]
             }
         ],
         "metadata": [
             {
-                "path": "Global_Attributes/comment",
-                "value": "date=2006-02-13"
+                "path": "Global_Attributes/history",
+                "value": "Created by ACRI-ST"
             },
             {
                 "path": "Variable_Attributes/latitude/Values/data",

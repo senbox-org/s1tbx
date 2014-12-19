@@ -7,19 +7,19 @@
         "geoCoding": {
             "coordinates": [
                 {
-                    "x": 766.5,
-                    "y": 1021.4998,
-                    "lat": 53.82693,
-                    "lon": 7.1566906
+                    "x": 489.0,
+                    "y": 898.0,
+                    "lat": 54.935959507605276,
+                    "lon": 2.7555402052675815
                 },
                 {
-                    "x": 965.5,
-                    "y": 467.5,
-                    "lat": 58.80185,
-                    "lon": 10.312831
+                    "x": 842.0,
+                    "y": 1084.0,
+                    "lat": 53.26567938456279,
+                    "lon": 8.354120496719602
                 }
             ],
-            "reverseAccuracy": 6.1035156E-5
+            "reverseAccuracy": 0.01
         },
         "bands": [
             {
@@ -32,22 +32,22 @@
                 "spectralBandwidth": "0.0",
                 "expectedPixels": [
                     {
-                        "x": 766,
-                        "y": 1021,
-                        "value": 1.3954363
+                        "x": 59,
+                        "y": 297,
+                        "value": "NaN"
                     },
                     {
-                        "x": 965,
-                        "y": 467,
-                        "value": 5.9426813
+                        "x": 777,
+                        "y": 1421,
+                        "value": "NaN"
                     }
                 ]
             }
         ],
         "metadata": [
             {
-                "path": "Global_Attributes/comment",
-                "value": "date=2006-02-13"
+                "path": "Global_Attributes/history",
+                "value": "Created by ACRI-ST"
             },
             {
                 "path": "Variable_Attributes/latitude/Values/data",
