@@ -571,8 +571,11 @@ public final class Sentinel1Utils {
         for (int s = 0; s < numOfSubSwath; s++) {
             subSwath[s].referenceTime = new double[subSwath[s].numOfBursts][subSwath[s].samplesPerBurst];
             final double tmp1 = subSwath[s].linesPerBurst * subSwath[s].azimuthTimeInterval / 2.0;
+
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
-                final double tmp2 = tmp1 + subSwath[s].dopplerCentroid[b][0] / subSwath[s].rangeDependDopplerRate[b][0];
+                final double tmp2 = tmp1 + subSwath[s].dopplerCentroid[b][subSwath[s].firstValidPixel] /
+                        subSwath[s].rangeDependDopplerRate[b][subSwath[s].firstValidPixel];
+
                 for (int x = 0; x < subSwath[s].samplesPerBurst; x++) {
                     subSwath[s].referenceTime[b][x] = tmp2 -
                             subSwath[s].dopplerCentroid[b][x] / subSwath[s].rangeDependDopplerRate[b][x];
