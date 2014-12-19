@@ -170,19 +170,6 @@
         </action>
 
         <action>
-            <id>ReadRatFileOp</id>
-            <helpId>ReadRatFileOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
-            <icon>esaIcon</icon>
-            <parent>Sentinel1</parent>
-            <text>Read Rat File</text>
-            <operatorName>Read-Rat-File</operatorName>
-            <dialogTitle>Read Rat File</dialogTitle>
-            <shortDescr>Read Rat File</shortDescr>
-            <targetProductNameSuffix>_rat</targetProductNameSuffix>
-        </action>
-
-        <action>
             <id>CreateCoherenceImageOp</id>
             <helpId>CreateCoherenceImageOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>

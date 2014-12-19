@@ -274,7 +274,7 @@ public class Sentinel1OCNReader {
         product.addBand(band);
     }
 
-    public void readData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+    public synchronized void readData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
                          int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                          int destOffsetY, int destWidth, int destHeight, ProductData destBuffer) {
 
