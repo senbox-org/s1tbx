@@ -62,6 +62,29 @@ public class TestComputeDerampDemodPhaseOp {
     }
 
     @Test
+    public void testReferenceTime() throws Exception {
+
+        final double dt = 2.055556280538440e-03;    // azimuthTimeInterval
+        final int Nburst = 1629;                    // number of lines per burst
+        final double vs = reader.sensorVelocity;    // sensor velocity
+        final double lambda = reader.waveLength;    // wave length
+        final double omegaDeg = 1.590368784000000;  // azimuthSteeringRate
+        final double omegaRad = omegaDeg/180*Math.PI;
+
+        final float[] tref = op.computeReferenceTime(0);
+        final float[] trimmedTref = new float[width];
+        final float[] expectedTref = new float[width];
+        for (int i = 0; i < width; i++) {
+            trimmedTref[i] = tref[i + actOffset];
+            final double Krot = 2*vs*omegaRad/lambda;
+            final double Ka = reader.kt[i]*Krot/(reader.kt[i] - Krot);
+            final double tc = -reader.DopplerCentroid[i]/Ka;
+            expectedTref[i] = (float)(0.5*Nburst*dt + tc + reader.DopplerCentroid[0]/Ka);
+        }
+        TestUtils.compareArrays(trimmedTref, expectedTref, 1e-2f);
+    }
+
+    @Test
     public void testSlantRange() throws Exception {
 
         final float[] slr = op.computeSlantRange();
