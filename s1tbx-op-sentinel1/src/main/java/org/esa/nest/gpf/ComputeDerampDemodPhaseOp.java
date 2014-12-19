@@ -104,6 +104,20 @@ public final class ComputeDerampDemodPhaseOp extends Operator {
         return fdc;
     }
 
+    /**
+     * Compute slant range.
+     * @return The slant range array.
+     */
+    public float[] computeSlantRange() throws Exception {
+        float[] slr = new float[sourceImageWidth];
+        for (int x = 0; x < sourceImageWidth; x++) {
+            slr[x] = (float)(subSwath[0].slrTimeToFirstPixel * Constants.lightSpeed +
+                    x * subSwath[subSwathIndex - 1].rangePixelSpacing);
+
+        }
+        return slr;
+    }
+
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -268,7 +282,7 @@ public final class ComputeDerampDemodPhaseOp extends Operator {
                 final double ta = (y - firstLineInBurst)*subSwath[s].azimuthTimeInterval;
                 for (int x = x0; x < xMax; x++) {
                     final int idx = tgtIndex.getIndex(x);
-                    final double kt = subSwath[s].dopplerRate[burstIndex][x];
+                    final double kt = subSwath[s].dopplerRate[burstIndex][x]; // DLR: 1780.8765
                     final double deramp = -Math.PI * kt * Math.pow(ta - subSwath[s].referenceTime[burstIndex][x], 2);
                     final double demod = -2 * Math.PI * subSwath[s].dopplerCentroid[burstIndex][x] * ta;
                     tgtBufferDerampPhase.setElemFloatAt(idx, (float)deramp);
