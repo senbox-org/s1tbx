@@ -118,6 +118,18 @@ public final class ComputeDerampDemodPhaseOp extends Operator {
         return slr;
     }
 
+    /**
+     * Compute reference time.
+     * @return The reference time array.
+     */
+    public float[] computeReferenceTime(final int burstIndex) throws Exception {
+        float[] tref = new float[sourceImageWidth];
+        for (int x = 0; x < sourceImageWidth; x++) {
+            tref[x] = (float)subSwath[0].referenceTime[burstIndex][x];
+        }
+        return tref;
+    }
+
 
     /**
      * Initializes this operator and sets the one and only target product.
