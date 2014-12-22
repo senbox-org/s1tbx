@@ -318,7 +318,6 @@ public final class SubtRefDemOp extends Operator {
             if (targetMap.get(key).subProductsFlag) {
                 String topoBandName = targetMap.get(key).masterSubProduct.targetBandName_I;
                 targetProduct.addBand(topoBandName, ProductData.TYPE_FLOAT32);
-                targetProduct.getBand(topoBandName).setSynthetic(true);
                 targetProduct.getBand(topoBandName).setNoDataValue(demNoDataValue);
                 targetProduct.getBand(topoBandName).setUnit(Unit.PHASE);
                 targetProduct.getBand(topoBandName).setDescription("topographic_phase");
