@@ -201,6 +201,16 @@ public final class DualPolOpUtils {
 
         } else if (sourceProductType == PolBandUtils.MATRIX.C2) {
             getCovarianceMatrixC2(index, dataBuffers, Cr, Ci);
+
+        } else if (sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
+
+            final double[][] Sr = new double[1][2];
+            final double[][] Si = new double[1][2];
+
+            PolOpUtils.getComplexScatterMatrix(index, dataBuffers, Sr, Si);
+            computeCovarianceMatrixC2(Sr[0], Si[0], Cr, Ci);
         }
     }
 
