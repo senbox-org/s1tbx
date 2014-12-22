@@ -1,5 +1,7 @@
 package org.jlinda.core.coregistration.cross;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Window;
 import org.jlinda.core.utils.MathUtils;
@@ -9,6 +11,8 @@ import org.junit.Test;
 import javax.media.jai.WarpGeneralPolynomial;
 import javax.media.jai.WarpPolynomial;
 import java.awt.geom.Point2D;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.jlinda.core.utils.PolyUtils.*;
 
@@ -21,7 +25,7 @@ import static org.jlinda.core.utils.PolyUtils.*;
 public class CrossGeometryTest {
 
     // logger
-    //private static final Logger logger = (Logger) LoggerFactory.getLogger(CrossGeometryTest.class);
+    private static final Logger logger = BeamLogManager.getSystemLogger();
 
     // data extent
     private static long lineLo = 1;
@@ -45,7 +49,7 @@ public class CrossGeometryTest {
     public static void setUp() throws Exception {
 
         // define logger level
-        //Logger.setLevel(Level.TRACE);
+        logger.setLevel(Level.INFO);
 
     }
 
@@ -74,9 +78,9 @@ public class CrossGeometryTest {
         double[] coeffsRg = crossGeometry.getCoeffsRg();
 
         // show polynomials
-        //Logger.debug("coeffsAZ (from offsets): estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsAz));
-        //Logger.debug("coeffsRg (from offsets): estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsRg));
-        //Logger.debug("-----");
+        logger.info("coeffsAZ (from offsets): estimated with PolyUtils.polyFit2D : {}"+ ArrayUtils.toString(coeffsAz));
+        logger.info("coeffsRg (from offsets): estimated with PolyUtils.polyFit2D : {}"+ ArrayUtils.toString(coeffsRg));
+        logger.info("-----");
 
     }
 
@@ -104,9 +108,9 @@ public class CrossGeometryTest {
         double[] coeffsRg = crossGeometry.getCoeffsRg();
 
         // show polynomials
-        //Logger.debug("coeffsAZ (from coeffs): estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsAz));
-        //Logger.debug("coeffsRg (from coeffs): estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsRg));
-        //Logger.debug("-----");
+        logger.info("coeffsAZ (from coeffs): estimated with PolyUtils.polyFit2D : {}"+ ArrayUtils.toString(coeffsAz));
+        logger.info("coeffsRg (from coeffs): estimated with PolyUtils.polyFit2D : {}"+ ArrayUtils.toString(coeffsRg));
+        logger.info("-----");
 
     }
 
@@ -125,9 +129,9 @@ public class CrossGeometryTest {
     @Test
     public void computeAndEvaluateCrossPoly() {
 
-        //Logger.trace("================================");
-        //Logger.trace(" Cross InSAR Geometry prototype ");
-        //Logger.trace("================================");
+        logger.info("================================");
+        logger.info(" Cross InSAR Geometry prototype ");
+        logger.info("================================");
 
         long yMin = lineLo; // = 0;
         long xMin = pixelLo; // = 0;
@@ -215,14 +219,14 @@ public class CrossGeometryTest {
         double[] coeffsYTemp = polyFit2D(srcY, srcX, txtY, polyDegree);
 
         // show polynomials depending on logger level <- not in production
-        //Logger.debug("coeffsXNorm : estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsXNorm));
-        //Logger.debug("coeffsYNorm : estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsYNorm));
-        //Logger.debug("-----");
+        logger.info("coeffsXNorm : estimated with PolyUtils.polyFit2D : {}"+ ArrayUtils.toString(coeffsXNorm));
+        logger.info("coeffsYNorm : estimated with PolyUtils.polyFit2D : {}"+ ArrayUtils.toString(coeffsYNorm));
+        logger.info("-----");
 
         // show polynomials depending on logger level <- not in production
-        //Logger.debug("coeffsX : estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsX));
-        //Logger.debug("coeffsY : estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsY));
-        //Logger.debug("-----");
+        logger.info("coeffsX : estimated with PolyUtils.polyFit2D : {}"+ ArrayUtils.toString(coeffsX));
+        logger.info("coeffsY : estimated with PolyUtils.polyFit2D : {}"+ ArrayUtils.toString(coeffsY));
+        logger.info("-----");
 
         /* JAI Example */
 
@@ -251,14 +255,14 @@ public class CrossGeometryTest {
         WarpPolynomial warpTotal = WarpPolynomial.createWarp(tgt1DArray, 0, src1DArray, 0, 2 * numberOfObservations, preScaleX, preScaleY, postScaleX, postScaleY, polyDegree);
 
         // show polynomials depending on logger level <- not in production
-        //Logger.debug("coeffsX : estimated with JAI.WarpPolynomial.createWarp : {}", ArrayUtils.toString(warpTotal.getXCoeffs()));
-        //Logger.debug("coeffsY : estimated with JAI.WarpPolynomial.createWarp : {}", ArrayUtils.toString(warpTotal.getYCoeffs()));
-        //Logger.debug("-----");
+        logger.info("coeffsX : estimated with JAI.WarpPolynomial.createWarp : {}"+ ArrayUtils.toString(warpTotal.getXCoeffs()));
+        logger.info("coeffsY : estimated with JAI.WarpPolynomial.createWarp : {}"+ ArrayUtils.toString(warpTotal.getYCoeffs()));
+        logger.info("-----");
 
         // show polynomials depending on logger level <- not in production
-        //Logger.debug("coeffsX : estimated with PolyFIt for JAI : {}", ArrayUtils.toString(coeffsXTemp));
-        //Logger.debug("coeffsY : estimated with PolyFit for JAI : {}", ArrayUtils.toString(coeffsYTemp));
-        //Logger.debug("-----");
+        logger.info("coeffsX : estimated with PolyFIt for JAI : {}"+ ArrayUtils.toString(coeffsXTemp));
+        logger.info("coeffsY : estimated with PolyFit for JAI : {}"+ ArrayUtils.toString(coeffsYTemp));
+        logger.info("-----");
 
         float[] xCoeffs = new float[coeffsXTemp.length];
         float[] yCoeffs = new float[coeffsYTemp.length];
@@ -286,23 +290,23 @@ public class CrossGeometryTest {
         double tgtX_polyfit_norm = srcPoint.getX() + polyval(srcPointNorm.getY(), srcPointNorm.getX(), coeffsXNorm);
         double tgtY_polyfit_norm = srcPoint.getY() + polyval(srcPointNorm.getY(), srcPointNorm.getX(), coeffsYNorm);
 
-        //Logger.debug("============ ");
-        //Logger.debug("Input Test Point (x,y): {}, {}", srcPoint.getX(), srcPoint.getY());
-        //Logger.debug("============ ");
-        //Logger.debug("Target Expected: {}, {}", tgtPointExp.getX(), tgtPointExp.getY());
-        //Logger.debug("Offset Expected: {}, {}", tgtPointExp.getX() - srcPoint.getX(), tgtPointExp.getY() - srcPoint.getY());
-        //Logger.debug("============ ");
-        //Logger.debug("Target - JAI-Impl-1: {}, {}", tgtPoint_JAI_1.getX(), tgtPoint_JAI_1.getY());
-        //Logger.debug("Target - JAI-Impl-2: {}, {}", tgtPoint_JAI_2.getX(), tgtPoint_JAI_2.getY());
-        //Logger.debug(" ---- ");
-        //Logger.debug("Target - polyFit     : {}, {}", tgtX_polyfit, tgtY_polyfit);
-        //Logger.debug("Target - polyFit-Norm: {}, {}", tgtX_polyfit_norm, tgtY_polyfit_norm);
-        //Logger.debug("============ ");
-        //Logger.debug("Error - JAI-Impl-1: {}, {}", tgtPoint_JAI_1.getX() - tgtPointExp.getX(), tgtPoint_JAI_1.getY() - tgtPointExp.getY());
-        //Logger.debug("Error - JAI-Impl-2: {}, {}", tgtPoint_JAI_2.getX() - tgtPointExp.getX(), tgtPoint_JAI_2.getY() - tgtPointExp.getY());
-        //Logger.debug(" ---- ");
-        //Logger.debug("Error - polyFit     : {}, {}", tgtX_polyfit - tgtPointExp.getX(), tgtY_polyfit - tgtPointExp.getY());
-        //Logger.debug("Error - polyFit-Norm: {}, {}", tgtX_polyfit_norm - tgtPointExp.getX(), tgtY_polyfit_norm - tgtPointExp.getY());
+        logger.info("============ ");
+        logger.info("Input Test Point (x,y): {}, {}"+ srcPoint.getX()+ srcPoint.getY());
+        logger.info("============ ");
+        logger.info("Target Expected: {}, {}"+ tgtPointExp.getX()+ tgtPointExp.getY());
+        logger.info("Offset Expected: {}, {}"+ (tgtPointExp.getX() - srcPoint.getX())+ (tgtPointExp.getY() - srcPoint.getY()));
+        logger.info("============ ");
+        logger.info("Target - JAI-Impl-1: {}, {}"+ tgtPoint_JAI_1.getX()+ tgtPoint_JAI_1.getY());
+        logger.info("Target - JAI-Impl-2: {}, {}"+ tgtPoint_JAI_2.getX()+ tgtPoint_JAI_2.getY());
+        logger.info(" ---- ");
+        logger.info("Target - polyFit     : {}, {}"+ tgtX_polyfit+ tgtY_polyfit);
+        logger.info("Target - polyFit-Norm: {}, {}"+ tgtX_polyfit_norm+ tgtY_polyfit_norm);
+        logger.info("============ ");
+        logger.info("Error - JAI-Impl-1: {}, {}"+ (tgtPoint_JAI_1.getX() - tgtPointExp.getX())+ (tgtPoint_JAI_1.getY() - tgtPointExp.getY()));
+        logger.info("Error - JAI-Impl-2: {}, {}"+ (tgtPoint_JAI_2.getX() - tgtPointExp.getX())+ (tgtPoint_JAI_2.getY() - tgtPointExp.getY()));
+        logger.info(" ---- ");
+        logger.info("Error - polyFit     : {}, {}"+ (tgtX_polyfit - tgtPointExp.getX())+ (tgtY_polyfit - tgtPointExp.getY()));
+        logger.info("Error - polyFit-Norm: {}, {}"+ (tgtX_polyfit_norm - tgtPointExp.getX())+ (tgtY_polyfit_norm - tgtPointExp.getY()));
 
     }
 

@@ -1,6 +1,6 @@
 package org.jlinda.core.coregistration.legacy;
 
-import org.apache.log4j.Logger;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jblas.*;
 import org.jlinda.core.*;
 import org.jlinda.core.coregistration.LUT;
@@ -10,6 +10,7 @@ import org.jlinda.core.utils.*;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.logging.Logger;
 
 import static java.lang.Math.*;
 import static org.jlinda.core.utils.PolyUtils.normalize2;
@@ -17,12 +18,12 @@ import static org.jlinda.core.utils.PolyUtils.polyval;
 
 public class Coregistration implements ICoregistration {
 
-    //static Logger logger = Logger.getLogger(Coregistration.class.getName());
+    static Logger logger = BeamLogManager.getSystemLogger();
 
     @Override
     public void coarseporbit(Ellipsoid ell, SLCImage master, SLCImage slave, Orbit masterorbit, Orbit slaveorbit, Baseline baseline) throws Exception {
 
-        //Logger.trace("coarseporbit (PM 01-Apr-2012)");
+        logger.info("coarseporbit (PM 01-Apr-2012)");
         final int MAXITER = 10; // maximum number of iterations
         final double CRITERPOS = 1e-6; // 1micrometer
         final double CRITERTIM = 1e-10; // seconds (~10-6 m)
@@ -42,31 +43,31 @@ public class Coregistration implements ICoregistration {
         Point lpP = slaveorbit.xyz2lp(xyzP, slave);
 
         // ______ offset = P_slave - P_master = lin - cen_lin ______
-        //Logger.info("Estimated translation (l,p): " + Math.floor(lpP.y - cen_lin + .5)
-        //        + ", " + Math.floor(lpP.x - cen_pix + .5));
+        logger.info("Estimated translation (l,p): " + Math.floor(lpP.y - cen_lin + .5)
+                + ", " + Math.floor(lpP.x - cen_pix + .5));
 
-        //Logger.debug("\n\n*******************************************************************");
-        //Logger.debug("\n* COARSE_COREGISTRATION Orbits");
-        //Logger.debug("\n*******************************************************************");
-        //Logger.debug("\n(Approximate) center master (line,pixel,hei): " + cen_lin + ", " + cen_pix + ", " + HEI);
-        //Logger.debug("\nEllipsoid WGS84 coordinates of this pixel (x,y,z): (" + xyzP.x + ", " + xyzP.y + ", " + xyzP.z + ")");
-        //Logger.debug("\n(line,pixel) of these coordinates in slave: " + lpP.y + ", " + lpP.x);
-        //Logger.debug("\nEstimated translation slave w.r.t. master (l,p):" + Math.round(lpP.y - cen_lin) + ", " + Math.round(lpP.x - cen_pix));
-        //        //Logger.debug("\nMaximum number of iterations: " + MAXITER)
-        //        //Logger.debug("\nCriterium for position (m): " + CRITERPOS)
-        //        //Logger.debug("\nCriterium for azimuth time (s): " + CRITERTIM + " (=~ ")
-        //        //Logger.debug(CRITERTIM * 7.e3 + "m)")
-        //        //Logger.debug("\nNumber of iterations conversion line,pixel to xyz: ")
-        //        //Logger.debug(xyzP)
-        //        //Logger.debug("\nNumber of iterations conversion xyz to line,pixel: ")
-        //        //Logger.debug(lpP)
-        //Logger.debug("\n*******************************************************************\n");
+        logger.info("\n\n*******************************************************************");
+        logger.info("\n* COARSE_COREGISTRATION Orbits");
+        logger.info("\n*******************************************************************");
+        logger.info("\n(Approximate) center master (line,pixel,hei): " + cen_lin + ", " + cen_pix + ", " + HEI);
+        logger.info("\nEllipsoid WGS84 coordinates of this pixel (x,y,z): (" + xyzP.x + ", " + xyzP.y + ", " + xyzP.z + ")");
+        logger.info("\n(line,pixel) of these coordinates in slave: " + lpP.y + ", " + lpP.x);
+        logger.info("\nEstimated translation slave w.r.t. master (l,p):" + Math.round(lpP.y - cen_lin) + ", " + Math.round(lpP.x - cen_pix));
+        //        logger.info("\nMaximum number of iterations: " + MAXITER)
+        //        logger.info("\nCriterium for position (m): " + CRITERPOS)
+        //        logger.info("\nCriterium for azimuth time (s): " + CRITERTIM + " (=~ ")
+        //        logger.info(CRITERTIM * 7.e3 + "m)")
+        //        logger.info("\nNumber of iterations conversion line,pixel to xyz: ")
+        //        logger.info(xyzP)
+        //        logger.info("\nNumber of iterations conversion xyz to line,pixel: ")
+        //        logger.info(lpP)
+        logger.info("\n*******************************************************************\n");
     }
 
     @Override
     public void coarsecorrel(Input.CoarseCorr input, SLCImage minfo, SLCImage sinfo) {
 
-        //Logger.trace("coarsecorrel (PM 01-Apr-2012)");
+        logger.info("coarsecorrel (PM 01-Apr-2012)");
 
         String dummyline; // for errormessages
         final int Nwin = input.Nwin; // number of windows
@@ -140,7 +141,7 @@ public class Coregistration implements ICoregistration {
                                 && Centers(Nwin - 1, 1) == Centers(Nwin - 2, 1)) {
                             Centers(Nwin - 1, 0) =int(.5 * (lN + l0) + 27); // random
                             Centers(Nwin - 1, 1) =int(.5 * (pN + p0) + 37); // random
-                            //Logger.warn("CC: there should be no EOL after last point in file: "
+                            logger.warning("CC: there should be no EOL after last point in file: "
                                     + coarsecorrinput.ifpositions;
                             WARNING.print();
                         }
@@ -151,38 +152,38 @@ public class Coregistration implements ICoregistration {
                         for (int i = 0; i < Nwin; ++i) {
                             if (Centers(i, 0) < l0) {
                                 troubleoverlap = true;
-                                //Logger.warn("COARSE_CORR: point from file: " + i + 1 + " "
+                                logger.warning("COARSE_CORR: point from file: " + i + 1 + " "
                                         + Centers(i, 0) + " " + Centers(i, 1)
                                         + " outside overlap master, slave. New position: ";
                                 Centers(i, 0) = l0 + l0 - Centers(i, 0);
-                                //Logger.warn(Centers(i, 0) + " " + Centers(i, 1);
+                                logger.warning(Centers(i, 0) + " " + Centers(i, 1);
                                 WARNING.print();
                             }
                             if (Centers(i, 0) > lN) {
                                 troubleoverlap = true;
-                                //Logger.warn("COARSE_CORR: point from file: " + i + 1 + " "
+                                logger.warning("COARSE_CORR: point from file: " + i + 1 + " "
                                         + Centers(i, 0) + " " + Centers(i, 1)
                                         + " outside overlap master, slave. New position: ";
                                 Centers(i, 0) = lN + lN - Centers(i, 0);
-                                //Logger.warn(Centers(i, 0) + " " + Centers(i, 1);
+                                logger.warning(Centers(i, 0) + " " + Centers(i, 1);
                                 WARNING.print();
                             }
                             if (Centers(i, 1) < p0) {
                                 troubleoverlap = true;
-                                //Logger.warn("COARSE_CORR: point from file: " + i + 1 + " "
+                                logger.warning("COARSE_CORR: point from file: " + i + 1 + " "
                                         + Centers(i, 0) + " " + Centers(i, 1)
                                         + " outside overlap master, slave. New position: ";
                                 Centers(i, 1) = p0 + p0 - Centers(i, 1);
-                                //Logger.warn(Centers(i, 0) + " " + Centers(i, 1);
+                                logger.warning(Centers(i, 0) + " " + Centers(i, 1);
                                 WARNING.print();
                             }
                             if (Centers(i, 1) > pN) {
                                 troubleoverlap = true;
-                                //Logger.warn("COARSE_CORR: point from file: " + i + 1 + " "
+                                logger.warning("COARSE_CORR: point from file: " + i + 1 + " "
                                         + Centers(i, 0) + " " + Centers(i, 1)
                                         + " outside overlap master, slave. New position: ";
                                 Centers(i, 1) = pN + pN - Centers(i, 1);
-                                //Logger.warn(Centers(i, 0) + " " + Centers(i, 1);
+                                logger.warning(Centers(i, 0) + " " + Centers(i, 1);
                                 WARNING.print();
                             }
                         }
@@ -263,52 +264,52 @@ public class Coregistration implements ICoregistration {
         long offsetPixels = -999;
         getoffset(Result, offsetLines, offsetPixels);
 
-        //Logger.debug("*******************************************************************"
-        //        + "\n* COARSE_COREGISTRATION: Correlation"
-        //        + "\n*******************************************************************");
-        //Logger.debug("Number of correlation windows: \t" + Nwin
-        //        + "\nCorrelation Window size (l,p): \t" + MasksizeL + ", " + MasksizeP);
+        logger.info("*******************************************************************"
+                + "\n* COARSE_COREGISTRATION: Correlation"
+                + "\n*******************************************************************");
+        logger.info("Number of correlation windows: \t" + Nwin
+                + "\nCorrelation Window size (l,p): \t" + MasksizeL + ", " + MasksizeP);
 
         if (forceoddl)
-            //Logger.debug("(l forced odd) ");
+            logger.info("(l forced odd) ");
         if (forceoddp)
-            //Logger.debug("(p forced odd)");
+            logger.info("(p forced odd)");
 
-        //Logger.debug("\nSearchwindow size (l,p): \t\t" + MasksizeL + 2 * AccL + ", " + MasksizeP + 2 * AccP);
+        logger.info("\nSearchwindow size (l,p): \t\t" + MasksizeL + 2 * AccL + ", " + MasksizeP + 2 * AccP);
 
-        //Logger.debug("\nNumber \tposl \tposp \toffsetl offsetp \tcorrelation\n");
+        logger.info("\nNumber \tposl \tposp \toffsetl offsetp \tcorrelation\n");
         for (int k = 0; k < Nwin; k++) {
 
             if (Result.get(k, 0) == -999)
                 NwinNANrm = NwinNANrm - 1;
 
-            //Logger.debug(k + "\t" + Centers[k][0] + "\t" + Centers[k][1]
-            //        + "\t" + Result.get(k, 1) + "\t" + Result.get(k, 2) + "\t"
-            //        + Result.get(k, 0));
+            logger.info(k + "\t" + Centers[k][0] + "\t" + Centers[k][1]
+                    + "\t" + Result.get(k, 1) + "\t" + Result.get(k, 2) + "\t"
+                    + Result.get(k, 0));
         }
 
-        //Logger.debug("Estimated total offset (l,p): \t" + offsetLines + ", " + offsetPixels);
-        //Logger.debug("*******************************************************************");
+        logger.info("Estimated total offset (l,p): \t" + offsetLines + ", " + offsetPixels);
+        logger.info("*******************************************************************");
 
-        //Logger.info("\n*******************************************************************");
-        //Logger.info("\n*_Start_process: " + "Coarse Coregistration");
-        //Logger.info("\n*******************************************************************");
-        //Logger.info("\nEstimated translation slave w.r.t. master:");
-        //Logger.info("\nCoarse_correlation_translation_lines: \t" + offsetLines);
-        //Logger.info("\nCoarse_correlation_translation_pixels: \t" + offsetPixels);
-        //Logger.info("\nNumber of correlation windows: \t\t" + NwinNANrm + " of " + Nwin);
-        //Logger.info("\n\n#     center(l,p)   coherence   offsetL   offsetP\n");
+        logger.info("\n*******************************************************************");
+        logger.info("\n*_Start_process: " + "Coarse Coregistration");
+        logger.info("\n*******************************************************************");
+        logger.info("\nEstimated translation slave w.r.t. master:");
+        logger.info("\nCoarse_correlation_translation_lines: \t" + offsetLines);
+        logger.info("\nCoarse_correlation_translation_pixels: \t" + offsetPixels);
+        logger.info("\nNumber of correlation windows: \t\t" + NwinNANrm + " of " + Nwin);
+        logger.info("\n\n#     center(l,p)   coherence   offsetL   offsetP\n");
         for (int k = 0; k < Nwin; k++) {
             if (Result.get(k, 0) == -999)
                 continue;
-            //Logger.info(k + " \t" + Centers[k][0] + " \t" + Centers[k][1]
-            //        + " \t" + Result.get(k, 0) + " \t" + Result.get(k, 1) + " \t"
-            //        + Result.get(k, 2) + "\n");
+            logger.info(k + " \t" + Centers[k][0] + " \t" + Centers[k][1]
+                    + " \t" + Result.get(k, 0) + " \t" + Result.get(k, 1) + " \t"
+                    + Result.get(k, 2) + "\n");
         }
 
-        //Logger.info("\n*******************************************************************");
-        //Logger.info("\n*_End_process: " + "Coarse Coregistration");
-        //Logger.info("\n*******************************************************************");
+        logger.info("\n*******************************************************************");
+        logger.info("\n*_End_process: " + "Coarse Coregistration");
+        logger.info("\n*******************************************************************");
 
     }
 
@@ -320,9 +321,9 @@ public class Coregistration implements ICoregistration {
     @Override
     public void coarsecorrelfft(Input.CoarseCorr coarsecorrinput, SLCImage minfo, SLCImage sinfo) {
 
-        //Logger.trace("coarsecorrelfft (PM 28-Feb-2012)");
+        logger.info("coarsecorrelfft (PM 28-Feb-2012)");
         if (!coarsecorrinput.method.equals("cc_magfft")) {
-            //Logger.error("unknown method, This routine is only for cc_magfft method.");
+            logger.severe("unknown method, This routine is only for cc_magfft method.");
             throw new IllegalArgumentException("unknown method, This routine is only for cc_magfft method.");
         }
 
@@ -342,11 +343,11 @@ public class Coregistration implements ICoregistration {
 
         // ______Only pow2 Masksize possible_____
         if (!MathUtils.isPower2(MasksizeL)) {
-            //Logger.error("coarse correl fft: MasksizeL should be 2^n");
+            logger.severe("coarse correl fft: MasksizeL should be 2^n");
             throw new IllegalArgumentException("coarse correl fft: MasksizeL should be 2^n");
         }
         if (!MathUtils.isPower2(MasksizeP)) {
-            //Logger.error("coarse correl fft: MasksizeP should be 2^n");
+            logger.severe("coarse correl fft: MasksizeP should be 2^n");
             throw new IllegalArgumentException("coarse correl fft: MasksizeP should be 2^n");
         }
 
@@ -400,42 +401,42 @@ public class Coregistration implements ICoregistration {
                             for (int i = 0; i < Nwin; ++i) {
                                 if (Minlminp(i, 0) < l0) {
                                     troubleoverlap = true;
-                                    //Logger.warn("COARSECORR: point from file: " << i + 1 << " "
+                                    logger.warning("COARSECORR: point from file: " << i + 1 << " "
                                             << Minlminp(i, 0) + .5 * MasksizeL << " " << Minlminp(
                                             i, 1) + .5 * MasksizeP
                                             << " outside overlap master, slave. New position: ";
                                     Minlminp(i, 0) = l0 + l0 - Minlminp(i, 0);
-                                    //Logger.warn(Minlminp(i, 0) << " " << Minlminp(i, 1);
+                                    logger.warning(Minlminp(i, 0) << " " << Minlminp(i, 1);
                                     WARNING.print();
                                 }
                                 if (Minlminp(i, 0) > lN) {
                                     troubleoverlap = true;
-                                    //Logger.warn("COARSECORR: point from file: " << i + 1 << " "
+                                    logger.warning("COARSECORR: point from file: " << i + 1 << " "
                                             << Minlminp(i, 0) + .5 * MasksizeL << " " << Minlminp(
                                             i, 1) + .5 * MasksizeP
                                             << " outside overlap master, slave. New position: ";
                                     Minlminp(i, 0) = lN + lN - Minlminp(i, 0);
-                                    //Logger.warn(Minlminp(i, 0) << " " << Minlminp(i, 1);
+                                    logger.warning(Minlminp(i, 0) << " " << Minlminp(i, 1);
                                     WARNING.print();
                                 }
                                 if (Minlminp(i, 1) < p0) {
                                     troubleoverlap = true;
-                                    //Logger.warn("COARSECORR: point from file: " << i + 1 << " "
+                                    logger.warning("COARSECORR: point from file: " << i + 1 << " "
                                             << Minlminp(i, 0) + .5 * MasksizeL << " " << Minlminp(
                                             i, 1) + .5 * MasksizeP
                                             << " outside overlap master, slave. New position: ";
                                     Minlminp(i, 1) = p0 + p0 - Minlminp(i, 1);
-                                    //Logger.warn(Minlminp(i, 0) << " " << Minlminp(i, 1);
+                                    logger.warning(Minlminp(i, 0) << " " << Minlminp(i, 1);
                                     WARNING.print();
                                 }
                                 if (Minlminp(i, 1) > pN) {
                                     troubleoverlap = true;
-                                    //Logger.warn("COARSECORR: point from file: " << i + 1 << " "
+                                    logger.warning("COARSECORR: point from file: " << i + 1 << " "
                                             << Minlminp(i, 0) + 0.5 * MasksizeL << " " << Minlminp(
                                             i, 1) + 0.5 * MasksizeP
                                             << " outside overlap master, slave. New position: ";
                                     Minlminp(i, 1) = pN + pN - Minlminp(i, 1);
-                                    //Logger.warn(Minlminp(i, 0) << " " << Minlminp(i, 1);
+                                    logger.warning(Minlminp(i, 0) << " " << Minlminp(i, 1);
                                     WARNING.print();
                                 }
                             }
@@ -459,7 +460,7 @@ public class Coregistration implements ICoregistration {
             // ______Minlminp (lower left corners) of Window in master system______
             final int minMwinL = Minlminp[i][0];
             final int minMwinP = Minlminp[i][1];
-            //Logger.debug("Window: " + i + " [" + minMwinL + ", " + minMwinP + "]");
+            logger.info("Window: " + i + " [" + minMwinL + ", " + minMwinP + "]");
 
             Window master = new Window(minMwinL, minMwinL + MasksizeL - 1, minMwinP, minMwinP + MasksizeP - 1);// size=masksize
 
@@ -480,13 +481,13 @@ public class Coregistration implements ICoregistration {
 
             //do not ovs, search full matrix for max
             final double coheren = crosscorrelate(Master, Mask, 1, MasksizeL / 2, MasksizeP / 2, offsetL, offsetP);// returned
-            //Logger.debug("Offset between chips (l,p)    = " + offsetL + ", " + offsetP);
+            logger.info("Offset between chips (l,p)    = " + offsetL + ", " + offsetP);
 
             // ______ Store result of this patch ______
             Result.put(i, 0, coheren);
             Result.put(i, 1, initoffsetL + offsetL);// total estimated offset
             Result.put(i, 2, initoffsetP + offsetP);// total estimated offset
-            //Logger.debug("Offset between images on disk = " + Result.get(i, 1) + ", " + Result.get(i, 2) + " (corr=" + coheren + ")");
+            logger.info("Offset between images on disk = " + Result.get(i, 1) + ", " + Result.get(i, 2) + " (corr=" + coheren + ")");
         } // for nwin
 
         // ______ Position approx. with respect to center of Window ______
@@ -501,45 +502,45 @@ public class Coregistration implements ICoregistration {
         int offsetPixels = -999;
         getoffset(Result, offsetLines, offsetPixels);
 
-        //Logger.debug("*******************************************************************"
-        //        + "\n* COARSE_COREGISTRATION: Correlation"
-        //        + "\n*******************************************************************");
-        //Logger.debug("Number of correlation windows: \t" + Nwin
-        //        + "\nCorrelation Window size (l,p): \t" + MasksizeL + ", " + MasksizeP);
+        logger.info("*******************************************************************"
+                + "\n* COARSE_COREGISTRATION: Correlation"
+                + "\n*******************************************************************");
+        logger.info("Number of correlation windows: \t" + Nwin
+                + "\nCorrelation Window size (l,p): \t" + MasksizeL + ", " + MasksizeP);
 
-        //Logger.debug("\nNumber \tposl \tposp \toffsetl offsetp \tcorrelation\n");
+        logger.info("\nNumber \tposl \tposp \toffsetl offsetp \tcorrelation\n");
         for (int k = 0; k < Nwin; k++) {
 
             if (Result.get(k, 0) == -999)
                 NwinNANrm = NwinNANrm - 1;
 
-            //Logger.debug(k + "\t" + Minlminp[k][0] + "\t" + Minlminp[k][1]
-            //        + "\t" + Result.get(k, 1) + "\t" + Result.get(k, 2) + "\t"
-            //        + Result.get(k, 0));
+            logger.info(k + "\t" + Minlminp[k][0] + "\t" + Minlminp[k][1]
+                    + "\t" + Result.get(k, 1) + "\t" + Result.get(k, 2) + "\t"
+                    + Result.get(k, 0));
         }
 
-        //Logger.debug("Estimated total offset (l,p): \t" + offsetLines + ", " + offsetPixels);
-        //Logger.debug("*******************************************************************");
+        logger.info("Estimated total offset (l,p): \t" + offsetLines + ", " + offsetPixels);
+        logger.info("*******************************************************************");
 
-        //Logger.info("\n*******************************************************************");
-        //Logger.info("\n*_Start_process: " + "Coarse Coregistration");
-        //Logger.info("\n*******************************************************************");
-        //Logger.info("\nEstimated translation slave w.r.t. master:");
-        //Logger.info("\nCoarse_correlation_translation_lines: \t" + offsetLines);
-        //Logger.info("\nCoarse_correlation_translation_pixels: \t" + offsetPixels);
-        //Logger.info("\nNumber of correlation windows: \t\t" + NwinNANrm + " of " + Nwin);
-        //Logger.info("\n\n#     center(l,p)   coherence   offsetL   offsetP\n");
+        logger.info("\n*******************************************************************");
+        logger.info("\n*_Start_process: " + "Coarse Coregistration");
+        logger.info("\n*******************************************************************");
+        logger.info("\nEstimated translation slave w.r.t. master:");
+        logger.info("\nCoarse_correlation_translation_lines: \t" + offsetLines);
+        logger.info("\nCoarse_correlation_translation_pixels: \t" + offsetPixels);
+        logger.info("\nNumber of correlation windows: \t\t" + NwinNANrm + " of " + Nwin);
+        logger.info("\n\n#     center(l,p)   coherence   offsetL   offsetP\n");
         for (int k = 0; k < Nwin; k++) {
             if (Result.get(k, 0) == -999)
                 continue;
-            //Logger.info(k + " \t" + Minlminp[k][0] + " \t" + Minlminp[k][1]
-            //        + " \t" + Result.get(k, 0) + " \t" + Result.get(k, 1) + " \t"
-            //        + Result.get(k, 2) + "\n");
+            logger.info(k + " \t" + Minlminp[k][0] + " \t" + Minlminp[k][1]
+                    + " \t" + Result.get(k, 0) + " \t" + Result.get(k, 1) + " \t"
+                    + Result.get(k, 2) + "\n");
         }
 
-        //Logger.info("\n*******************************************************************");
-        //Logger.info("\n*_End_process: " + "Coarse Coregistration");
-        //Logger.info("\n*******************************************************************");
+        logger.info("\n*******************************************************************");
+        logger.info("\n*_End_process: " + "Coarse Coregistration");
+        logger.info("\n*******************************************************************");
 
     } // END coarsecorrelfft
 
@@ -561,13 +562,13 @@ public class Coregistration implements ICoregistration {
     @Override
     public void getoffset(DoubleMatrix Result, long offsetLines, long offsetPixels) {
 
-        //Logger.trace("getoffset (PM 01-Mar-2012)");
+        logger.info("getoffset (PM 01-Mar-2012)");
         if (Result.columns != 3) {
-            //Logger.error("code 901: input not 3 width");
+            logger.severe("code 901: input not 3 width");
         }
 
         // First sort estimated offsets on coherence ascending!
-        //Logger.debug("sorting on coherence.");
+        logger.info("sorting on coherence.");
 
         // sort matrix on first column (coh)
         double[][] coherenceArray = Result.toArray2();
@@ -610,20 +611,20 @@ public class Coregistration implements ICoregistration {
         }
         //var_coh /= real4(nW-1);
         var_coh /= (float) (nWNANrm - 1);
-        //Logger.info("Mean coherence at estimated positions: " + mean_coh);
+        logger.info("Mean coherence at estimated positions: " + mean_coh);
 
         final double std_coh = Math.sqrt(var_coh);
-        //Logger.info("Standard deviation coherence:          " + std_coh);
+        logger.info("Standard deviation coherence:          " + std_coh);
 
         final double thresh_coh = mean_coh;
-        //Logger.info("Using as threshold:                    " + thresh_coh);
+        logger.info("Using as threshold:                    " + thresh_coh);
 
         int cnt = 1;                        // estimates above threshold
         mean_coh = sortResult.get(0, 0);        // mean above threshold
-        //Logger.info("Using following data to determine coarse image offset:");
-        //Logger.info("coherence    offset_L    offset_P");
-        //Logger.info("------------------------------------------------------");
-        //Logger.info(sortResult.get(0, 0) + "      " + sortResult.get(0, 1) + "        " + sortResult.get(0, 2));
+        logger.info("Using following data to determine coarse image offset:");
+        logger.info("coherence    offset_L    offset_P");
+        logger.info("------------------------------------------------------");
+        logger.info(sortResult.get(0, 0) + "      " + sortResult.get(0, 1) + "        " + sortResult.get(0, 2));
 
         for (int i = 1; i < nW; i++) {
             if (sortResult.get(i, 0) >= thresh_coh) {
@@ -631,7 +632,7 @@ public class Coregistration implements ICoregistration {
                 mean_coh += sortResult.get(i, 0);
                 offsetLines += (int) (Math.round(sortResult.get(i, 1)));// round
                 offsetPixels += (int) (Math.round(sortResult.get(i, 2)));// round
-                //Logger.info(sortResult.get(i, 0) + "      " + sortResult.get(i, 1) + "        " + sortResult.get(i, 2));
+                logger.info(sortResult.get(i, 0) + "      " + sortResult.get(i, 1) + "        " + sortResult.get(i, 2));
             }
         }
 
@@ -650,21 +651,21 @@ public class Coregistration implements ICoregistration {
                 var_P += Math.pow(sortResult.get(i, 2) - meanP, 2);
             var_L /= (double) (cnt - 1);
             var_P /= (double) (cnt - 1);
-            //Logger.info("Standard deviation offset L = " + Math.pow(var_L, 2));
-            //Logger.info("Standard deviation offset P = " + Math.pow(var_P, 2));
+            logger.info("Standard deviation offset L = " + Math.pow(var_L, 2));
+            logger.info("Standard deviation offset P = " + Math.pow(var_P, 2));
             //if (Math.sqrt(var_L) > 6.0 || Math.sqrt(var_P) > 6.0)
-                //Logger.warn("Check estimated offset coarse corr: it seems unreliable.");
+                logger.warning("Check estimated offset coarse corr: it seems unreliable.");
 
         }
 
         // ___ Warn if appropriate ___
         if (mean_coh < 0.2) {
-            //Logger.warn("getoffset: mean coherence of estimates used < 0.2");
-            //Logger.warn("(please check bottom of LOGFILE to see if offset is OK)");
+            logger.warning("getoffset: mean coherence of estimates used < 0.2");
+            logger.warning("(please check bottom of LOGFILE to see if offset is OK)");
         }
         if (nW < 6) {
-            //Logger.info("getoffset: number of windows to estimate offset < 6");
-            //Logger.info("(please check bottom of LOGFILE to see if offset is OK)");
+            logger.info("getoffset: number of windows to estimate offset < 6");
+            logger.info("(please check bottom of LOGFILE to see if offset is OK)");
         }
 
     } // END getoffset
@@ -676,7 +677,7 @@ public class Coregistration implements ICoregistration {
 
     @Override
     public void finecoreg(Input.FineCorr fineinput, SLCImage minfo, SLCImage sinfo) {
-        //Logger.trace("finecoreg (PM 18-Oct-2011)");
+        logger.info("finecoreg (PM 18-Oct-2011)");
 
         //final  int Mfilelines   = minfo.getCurrentWindow().lines();
         //final  int Sfilelines   = sinfo.getCurrentWindow().lines();
@@ -696,7 +697,7 @@ public class Coregistration implements ICoregistration {
 
         // ______Correct sizes if in space domain______
         if (fineinput.method.equals("fc_magspace") || fineinput.method.equals("fc_cmplxspace")) {
-            //Logger.info("Adapting size of Window for space method");
+            logger.info("Adapting size of Window for space method");
             MasksizeL += 2 * fineinput.AccL;
             MasksizeP += 2 * fineinput.AccP;
         }
@@ -750,42 +751,42 @@ public class Coregistration implements ICoregistration {
                     for (int i = 0; i < Nwin; ++i) {
                         if (Minlminp(i, 0) < l0) {
                             troubleoverlap = true;
-                            //Logger.warn("FINE: point from file: " << i + 1 << " "
+                            logger.warning("FINE: point from file: " << i + 1 << " "
                                     << Minlminp(i, 0) + 0.5 * MasksizeL << " " << Minlminp(
                                     i, 1) + 0.5 * MasksizeP
                                     << " outside overlap master, slave. New position: ";
                             Minlminp(i, 0) = l0 + l0 - Minlminp(i, 0);
-                            //Logger.warn(Minlminp(i, 0) << " " << Minlminp(i, 1);
+                            logger.warning(Minlminp(i, 0) << " " << Minlminp(i, 1);
                             WARNING.print();
                         }
                         if (Minlminp(i, 0) > lN) {
                             troubleoverlap = true;
-                            //Logger.warn("FINE: point from file: " << i + 1 << " "
+                            logger.warning("FINE: point from file: " << i + 1 << " "
                                     << Minlminp(i, 0) + 0.5 * MasksizeL << " " << Minlminp(
                                     i, 1) + 0.5 * MasksizeP
                                     << " outside overlap master, slave. New position: ";
                             Minlminp(i, 0) = lN + lN - Minlminp(i, 0);
-                            //Logger.warn(Minlminp(i, 0) << " " << Minlminp(i, 1);
+                            logger.warning(Minlminp(i, 0) << " " << Minlminp(i, 1);
                             WARNING.print();
                         }
                         if (Minlminp(i, 1) < p0) {
                             troubleoverlap = true;
-                            //Logger.warn("FINE: point from file: " << i + 1 << " "
+                            logger.warning("FINE: point from file: " << i + 1 << " "
                                     << Minlminp(i, 0) + 0.5 * MasksizeL << " " << Minlminp(
                                     i, 1) + 0.5 * MasksizeP
                                     << " outside overlap master, slave. New position: ";
                             Minlminp(i, 1) = p0 + p0 - Minlminp(i, 1);
-                            //Logger.warn(Minlminp(i, 0) << " " << Minlminp(i, 1);
+                            logger.warning(Minlminp(i, 0) << " " << Minlminp(i, 1);
                             WARNING.print();
                         }
                         if (Minlminp(i, 1) > pN) {
                             troubleoverlap = true;
-                            //Logger.warn("FINE: point from file: " << i + 1 << " "
+                            logger.warning("FINE: point from file: " << i + 1 << " "
                                     << Minlminp(i, 0) + 0.5 * MasksizeL << " " << Minlminp(
                                     i, 1) + 0.5 * MasksizeP
                                     << " outside overlap master, slave. New position: ";
                             Minlminp(i, 1) = pN + pN - Minlminp(i, 1);
-                            //Logger.warn(Minlminp(i, 0) << " " << Minlminp(i, 1);
+                            logger.warning(Minlminp(i, 0) << " " << Minlminp(i, 1);
                             WARNING.print();
                         }
                     }
@@ -810,7 +811,7 @@ public class Coregistration implements ICoregistration {
             // ______Minlminp (lower left corners) of Window in master system______
             final int minMwinL = Minlminp[i][0];
             final int minMwinP = Minlminp[i][1];
-            //Logger.debug("Window: " + i + " [" + minMwinL + ", " + minMwinP + "]");
+            logger.info("Window: " + i + " [" + minMwinL + ", " + minMwinP + "]");
             Window master = new Window(minMwinL, minMwinL + MasksizeL - 1, minMwinP, minMwinP + MasksizeP - 1);// size=masksize
             // ______Same points in slave system (disk)______
             Window mask = new Window(minMwinL + initoffsetL, minMwinL + initoffsetL + MasksizeL - 1, minMwinP + initoffsetP, minMwinP + initoffsetP + MasksizeP - 1);// size=masksize
@@ -829,25 +830,25 @@ public class Coregistration implements ICoregistration {
             if (fineinput.method.equals("fc_magfft")) {
                 if (AccL > MasksizeL / 2) {
                     AccL = MasksizeL / 2;
-                    //Logger.warn("FINE: AccL for magfft can be half of the Window size at max, changing to " + AccL);
+                    logger.warning("FINE: AccL for magfft can be half of the Window size at max, changing to " + AccL);
                 } else if (AccP > MasksizeP / 2) {
                     AccP = MasksizeP / 2;
-                    //Logger.warn("FINE: AccP for magfft can be half of the Window size at max, changing to " + AccP);
+                    logger.warning("FINE: AccP for magfft can be half of the Window size at max, changing to " + AccP);
                 }
                 coheren = crosscorrelate(Master, Mask, OVS, AccL, AccP, offsetL, offsetP);// returned
                 break;
             } else if (fineinput.method.equals("fc_oversample")) {
                 if (AccL > MasksizeL / 2) {
                     AccL = MasksizeL / 2;
-                    //Logger.warn("FINE: AccL for magfft can be half of the Window size at max, changing to " + AccL);
+                    logger.warning("FINE: AccL for magfft can be half of the Window size at max, changing to " + AccL);
                 } else if (AccP > MasksizeP / 2) {
                     AccP = MasksizeP / 2;
-                    //Logger.warn("FINE: AccP for magfft can be half of the Window size at max, changing to " + AccP);
+                    logger.warning("FINE: AccP for magfft can be half of the Window size at max, changing to " + AccP);
                 }
 
                 // Oversample complex chips by factor two
                 // neg.shift input shifts to -> 0
-                //Logger.debug("Centering azimuth spectrum patches around 0");
+                logger.info("Centering azimuth spectrum patches around 0");
                 final double m_pixlo = (double) (master.pixlo);// neg.shift -> 0
                 final double s_pixlo = (double) (mask.pixlo);// neg.shift -> 0
                 double mPrf = minfo.getPRF();
@@ -867,12 +868,12 @@ public class Coregistration implements ICoregistration {
 
                 shiftazispectrum(Master, mPrf, mRsr2x, mFdc, -m_pixlo);// shift from fDC to zero
                 shiftazispectrum(Mask, sPrf, sRsr2x, sFdc, -s_pixlo);// shift from fDC to zero
-                //Logger.info("Oversampling patches with factor two using zero padding");
+                logger.info("Oversampling patches with factor two using zero padding");
                 final ComplexDoubleMatrix m_ovs_chip = SarUtils.oversample(Master, 2, 2);
                 final ComplexDoubleMatrix s_ovs_chip = SarUtils.oversample(Mask, 2, 2);
                 // ______ Peak in cross-corr of magnitude of ovs data ______
-                //Logger.debug("Cross-correlating magnitude of ovs patches");
-                //Logger.debug("(no need to shift spectrum back)");// (else account for ovs..)
+                logger.info("Cross-correlating magnitude of ovs patches");
+                logger.info("(no need to shift spectrum back)");// (else account for ovs..)
                 //coheren = coherencefft(m_ovs_chip, s_ovs_chip,
                 //                       OVS/2, 2*AccL, 2*AccP,
                 //                       offsetL,offsetP);
@@ -892,7 +893,7 @@ public class Coregistration implements ICoregistration {
 
 
             } else {
-                //Logger.error("unknown method for fine coregistration.");
+                logger.severe("unknown method for fine coregistration.");
                 throw new IllegalArgumentException("unknown method for fine coregistration.");
             }
 
@@ -900,8 +901,8 @@ public class Coregistration implements ICoregistration {
             Result.put(i, 1, initoffsetP + offsetP);
             Result.put(i, 2, coheren);
 
-            //Logger.info("Fine offset between small patches:   " + Result.get(i, 0) + ", "
-            //        + Result.get(i, 1) + " (coh=" + coheren + ")");
+            logger.info("Fine offset between small patches:   " + Result.get(i, 0) + ", "
+                    + Result.get(i, 1) + " (coh=" + coheren + ")");
 
 
         } // for nwin
@@ -913,23 +914,23 @@ public class Coregistration implements ICoregistration {
             Minlminp[i][1] += (int) (0.5 * MasksizeP);
         }
 
-        //Logger.info("\n\n*******************************************************************");
-        //Logger.info("\n* FINE_COREGISTRATION");
-        //Logger.info("\n*******************************************************************");
-        //Logger.info("\nNumber of correlation windows: \t" + Nwin);
-        //Logger.info("\nWindow size (l,p):             \t" + MasksizeL + ", " + MasksizeP);
-        //Logger.info("\nInitial offsets:               \t" + initoffsetL + ", " + initoffsetP);
-        //Logger.info("\nOversampling factor:           \t" + OVS);
-        //Logger.info("\n\nNumber \tposl \tposp \toffsetl offsetp\tcorrelation\n");
+        logger.info("\n\n*******************************************************************");
+        logger.info("\n* FINE_COREGISTRATION");
+        logger.info("\n*******************************************************************");
+        logger.info("\nNumber of correlation windows: \t" + Nwin);
+        logger.info("\nWindow size (l,p):             \t" + MasksizeL + ", " + MasksizeP);
+        logger.info("\nInitial offsets:               \t" + initoffsetL + ", " + initoffsetP);
+        logger.info("\nOversampling factor:           \t" + OVS);
+        logger.info("\n\nNumber \tposl \tposp \toffsetl offsetp\tcorrelation\n");
         for (int i = 0; i < Nwin; i++) {
             if (Result.get(i, 2) == Double.NaN) {
-                //Logger.warn("NaN value!!!");
+                logger.warning("NaN value!!!");
             }
-            //Logger.info(i + " " + Minlminp[i][0] + " " + Minlminp[i][1] + " " + Result.get(i, 0) + " " + Result.get(i, 1) + " " + Result.get(i, 2));
+            logger.info(i + " " + Minlminp[i][0] + " " + Minlminp[i][1] + " " + Result.get(i, 0) + " " + Result.get(i, 1) + " " + Result.get(i, 2));
         }
-        //Logger.info("\n*******************************************************************\n");
-        //Logger.info("\n* End_FINE_COREGISTRATION_NORMAL");
-        //Logger.info("\n*******************************************************************\n");
+        logger.info("\n*******************************************************************\n");
+        logger.info("\n* End_FINE_COREGISTRATION_NORMAL");
+        logger.info("\n*******************************************************************\n");
     } // END finecoreg
 
 
@@ -960,7 +961,7 @@ public class Coregistration implements ICoregistration {
     public double coherencefft(ComplexDoubleMatrix Master, ComplexDoubleMatrix Mask, int ovsfactor, int AccL,
                                int AccP, double offsetL, double offsetP) {
 
-        //Logger.trace("coherencefft (PM 02-Mar-2012)");
+        logger.info("coherencefft (PM 02-Mar-2012)");
         // ______ Internal variables ______
         final int L = Master.rows;
         final int P = Master.columns;
@@ -971,20 +972,20 @@ public class Coregistration implements ICoregistration {
 
         // Check input
         if (!MathUtils.isPower2(ovsfactor)) {
-            //Logger.error("coherencefft factor not power of 2");
+            logger.severe("coherencefft factor not power of 2");
             throw new IllegalArgumentException("coherencefft factor not power of 2");
         }
         if (Master.rows != Mask.rows || Master.columns != Mask.columns) {
-            //Logger.error("Mask, Master not same size.");
+            logger.severe("Mask, Master not same size.");
             throw new IllegalArgumentException("Mask, Master not same size.");
         }
         if (!(MathUtils.isPower2(L) || MathUtils.isPower2(P))) {
-            //Logger.error("Mask, Master size not power of 2.");
+            logger.severe("Mask, Master size not power of 2.");
             throw new IllegalArgumentException("Mask, Master size not power of 2.");
         }
 
         // Zero mean magnitude images ______
-        //Logger.debug("Using de-meaned magnitude patches for incoherent cross-correlation");
+        logger.info("Using de-meaned magnitude patches for incoherent cross-correlation");
         DoubleMatrix magMaster = SarUtils.magnitude(Master);
         DoubleMatrix magMask = SarUtils.magnitude(Mask);
         magMaster.subi(magMaster.mean());
@@ -1097,7 +1098,7 @@ public class Coregistration implements ICoregistration {
                                  int AccL, int AccP,
                                  double offsetL, double offsetP) {
 
-        //Logger.trace("crosscorrelate (PM 15-Apr-2012)");
+        logger.info("crosscorrelate (PM 15-Apr-2012)");
 
         // ______ Internal variables ______
         final int L = Master.rows;
@@ -1109,22 +1110,22 @@ public class Coregistration implements ICoregistration {
 
         // ______ Check input ______
         if (Master.rows != Mask.rows || Master.columns != Mask.columns) {
-            //Logger.error("Mask, Master not same size.");
+            logger.severe("Mask, Master not same size.");
             throw new IllegalArgumentException("Mask, Master not same size.");
         }
 
         if (!(MathUtils.isPower2(L) || MathUtils.isPower2(P))) {
-            //Logger.error("Mask, Master size not power of 2.");
+            logger.severe("Mask, Master size not power of 2.");
             throw new IllegalArgumentException("Mask, Master size not power of 2.");
         }
 
         if (!MathUtils.isPower2(ovsfactor)) {
-            //Logger.error("coherencefft factor not power of 2");
+            logger.severe("coherencefft factor not power of 2");
             throw new IllegalArgumentException("coherencefft factor not power of 2");
         }
 
         // ______ Zero mean magnitude images ______
-        //Logger.debug("Using de-meaned magnitude patches for incoherent cross-correlation");
+        logger.info("Using de-meaned magnitude patches for incoherent cross-correlation");
         DoubleMatrix magMaster = SarUtils.magnitude(Master);
         DoubleMatrix magMask = SarUtils.magnitude(Mask);
         magMaster.subi(magMaster.mean());
@@ -1178,7 +1179,7 @@ public class Coregistration implements ICoregistration {
         // allocate block for reuse
         ComplexDoubleMatrix BLOCK = new ComplexDoubleMatrix(0, 0);
         if (BLOCK.rows != twoL || BLOCK.columns != twoP) {
-            //Logger.debug("crosscorrelate:changing static block to size [" + twoL + ", " + twoP + "]");
+            logger.info("crosscorrelate:changing static block to size [" + twoL + ", " + twoP + "]");
             BLOCK.resize(twoL, twoP);
             for (l = halfL; l < halfL + L; ++l)
                 for (p = halfP; p < halfP + P; ++p)
@@ -1221,7 +1222,7 @@ public class Coregistration implements ICoregistration {
 
         offsetL = -halfL + maxcorrL; // update by reference
         offsetP = -halfP + maxcorrP; // update by reference
-        //Logger.debug("Pixel level offset:     " + offsetL + ", " + offsetP + " (corr=" + maxcorr + ")");
+        logger.info("Pixel level offset:     " + offsetL + ", " + offsetP + " (corr=" + maxcorr + ")");
 
         // ====== (4) oversample to find peak sub-pixel ======
         // ====== Estimate shift by oversampling estimated correlation ======
@@ -1229,19 +1230,19 @@ public class Coregistration implements ICoregistration {
             // --- (4a) get little chip around max. corr, if possible ---
             // --- make sure that we can copy the data ---
             if (maxcorrL < AccL) {
-                //Logger.debug("Careful, decrease AccL or increase winsizeL");
+                logger.info("Careful, decrease AccL or increase winsizeL");
                 maxcorrL = AccL;
             }
             if (maxcorrP < AccP) {
-                //Logger.debug("Careful, decrease AccP or increase winsizeP");
+                logger.info("Careful, decrease AccP or increase winsizeP");
                 maxcorrP = AccP;
             }
             if (maxcorrL > (L - AccL)) {
-                //Logger.debug("Careful, decrease AccL or increase winsizeL");
+                logger.info("Careful, decrease AccL or increase winsizeL");
                 maxcorrL = L - AccL;
             }
             if (maxcorrP > (P - AccP)) {
-                //Logger.debug("Careful, decrease AccP or increase winsizeP");
+                logger.info("Careful, decrease AccP or increase winsizeP");
                 maxcorrP = P - AccP;
             }
 
@@ -1266,7 +1267,7 @@ public class Coregistration implements ICoregistration {
             System.out.println("Oversampling factor: " + ovsfactor);
             System.out.println("Sub-pixel level offset: " + offsetL + ", " + offsetP + " (corr=" + maxcorr + ")");
 
-            //Logger.debug("Sub-pixel level offset: " + offsetL + ", " + offsetP + " (corr=" + maxcorr + ")");
+            logger.info("Sub-pixel level offset: " + offsetL + ", " + offsetP + " (corr=" + maxcorr + ")");
         }
         return maxcorr;
     }
@@ -1276,7 +1277,7 @@ public class Coregistration implements ICoregistration {
                                  ComplexDoubleMatrix Master, ComplexDoubleMatrix Mask,
                                  double offsetL, double offsetP) {
 
-        //Logger.trace("coherencespace (PM 14-Feb-2012)");
+        logger.info("coherencespace (PM 14-Feb-2012)");
 
         // Internal variables
         final int L = Master.rows;
@@ -1291,11 +1292,11 @@ public class Coregistration implements ICoregistration {
 
         // ______ Check input ______
         if (!MathUtils.isPower2(AccL) || !MathUtils.isPower2(AccP)) {
-            //Logger.error("AccL should be power of 2 for oversampling.");
+            logger.severe("AccL should be power of 2 for oversampling.");
             throw new IllegalArgumentException("AccL should be power of 2 for oversampling.");
         }
         if (MasksizeL < 4 || MasksizeP < 4) {
-            //Logger.error("Correlationwindow size too small (<4; size= FC_winsize-2*FC_Acc).");
+            logger.severe("Correlationwindow size too small (<4; size= FC_winsize-2*FC_Acc).");
             throw new IllegalArgumentException("Correlationwindow size too small (<4; size= FC_winsize-2*FC_Acc).");
         }
 
@@ -1380,15 +1381,15 @@ public class Coregistration implements ICoregistration {
                          double[] cpmL, double[] cpmP,
                          int demassist) {
 
-        //Logger.trace("resample (BK 16-Mar-1999; BK 09-Nov-2000)");
+        logger.info("resample (BK 16-Mar-1999; BK 09-Nov-2000)");
         //if (resampleinput.shiftAziSpectra == true)
-            //Logger.debug("shifting kernelL to data fDC BK 26-Oct-2002");
+            logger.info("shifting kernelL to data fDC BK 26-Oct-2002");
 
         // ___ Handle input ___
 //     	    const uint BUFFERMEMSIZE = generalinput.memory; // Bytes  500MB --> 500 000 000 bytes
         int Npoints = 16; //resampleinput.method % 100; // #pnts interpolator
         if (MathUtils.isOdd(Npoints)) {
-            //Logger.error("resample only even point interpolators.");
+            logger.severe("resample only even point interpolators.");
             throw new IllegalArgumentException("resmple only even point interpolators");
         }
         final int Npointsd2 = Npoints / 2;
@@ -1403,7 +1404,7 @@ public class Coregistration implements ICoregistration {
         final double maxL = master.getCurrentWindow().linehi;
         final double minP = master.getCurrentWindow().pixlo;
         final double maxP = master.getCurrentWindow().pixhi;
-        //Logger.info("resample: polynomial normalized by factors: " + minL + " " + maxL + " " + minP + " " + maxP + " to [-2,2]");
+        logger.info("resample: polynomial normalized by factors: " + minL + " " + maxL + " " + minP + " " + maxP + " to [-2,2]");
 
         /** Create lookup table */
         // ........ e.g. four point interpolator
@@ -1416,7 +1417,7 @@ public class Coregistration implements ICoregistration {
         final int INTERVAL = 127; // precision: 1./interval [pixel]
         final int Ninterval = INTERVAL + 1; // size of lookup table
         final double dx = 1.0d / INTERVAL; // interval look up table
-        //Logger.info("resample: lookup table size: " + Ninterval);
+        logger.info("resample: lookup table size: " + Ninterval);
 
         /** Notes:
          *  ...Lookup table complex because of multiplication with complex
@@ -1451,17 +1452,17 @@ public class Coregistration implements ICoregistration {
                     && resampleinput.dbow.pixhi == 0)) {
                 // ______ Check if overlap is large enough to contain DBOW ______
                 if (resampleinput.dbow.linelo > overlap.linehi) {
-                    //Logger.error("RS_DBOW: specified min. line larger than max. line of overlap.");
+                    logger.severe("RS_DBOW: specified min. line larger than max. line of overlap.");
                 }
 
                 if (resampleinput.dbow.linehi < overlap.linelo) {
-                    //Logger.error("RS_DBOW: specified max. line smaller than min. line of overlap.");
+                    logger.severe("RS_DBOW: specified max. line smaller than min. line of overlap.");
                 }
                 if (resampleinput.dbow.pixlo > overlap.pixhi) {
-                    //Logger.error("RS_DBOW: specified min. pixel larger than max. pixel of overlap.");
+                    logger.severe("RS_DBOW: specified min. pixel larger than max. pixel of overlap.");
                 }
                 if (resampleinput.dbow.pixhi < overlap.pixlo) {
-                    //Logger.error("RS_DBOW: specified max. pixel smaller than min. pixel of overlap.")
+                    logger.severe("RS_DBOW: specified max. pixel smaller than min. pixel of overlap.")
                 }
 
                 write0lines1 = (int) (overlap.linelo - resampleinput.dbow.linelo);
@@ -1482,21 +1483,21 @@ public class Coregistration implements ICoregistration {
                     write0pixelsN = 0; // smaller window selected
 
                 if (resampleinput.dbow.linelo < overlap.linelo) {
-                    //Logger.warn("RS_DBOW: min. line < overlap (writing: " + write0lines1 + " lines with zeros before first resampled line).");
+                    logger.warning("RS_DBOW: min. line < overlap (writing: " + write0lines1 + " lines with zeros before first resampled line).");
                 } else
                     overlap.linelo = resampleinput.dbow.linelo; // correct it
                 if (resampleinput.dbow.linehi > overlap.linehi) {
-                    //Logger.warn("RS_DBOW: max. line > overlap (writing: " + write0linesN + " lines with zeros after last resampled line).");
+                    logger.warning("RS_DBOW: max. line > overlap (writing: " + write0linesN + " lines with zeros after last resampled line).");
                 } else
                     overlap.linehi = resampleinput.dbow.linehi; // correct it
 
                 if (resampleinput.dbow.pixlo < overlap.pixlo) {
-                    //Logger.warn("RS_DBOW: min. pixel < overlap (writing: " + write0pixels1 + " columns with zeros before first resampled column).");
+                    logger.warning("RS_DBOW: min. pixel < overlap (writing: " + write0pixels1 + " columns with zeros before first resampled column).");
                 } else
                     overlap.pixlo = resampleinput.dbow.pixlo; // correct it
 
                 if (resampleinput.dbow.pixhi > overlap.pixhi) {
-                    //Logger.warn("RS_DBOW: max. pixel > overlap (writing: " + write0pixelsN + " columns with zeros after last resampled column).");
+                    logger.warning("RS_DBOW: max. pixel > overlap (writing: " + write0pixelsN + " columns with zeros after last resampled column).");
                 } else
                     overlap.pixhi = resampleinput.dbow.pixhi; // correct it
 
@@ -1517,7 +1518,7 @@ public class Coregistration implements ICoregistration {
         ComplexDoubleMatrix RESULT = ComplexDoubleMatrix.zeros(bufferLines, (int) (overlap.pixhi - overlap.pixlo + 1)); // set to ZERO
         ComplexDoubleMatrix PART = new ComplexDoubleMatrix(Npoints, Npoints);
 
-        //Logger.info("Overlap window: " + overlap.linelo + ":" + overlap.linehi + ", " + overlap.pixlo + ":" + overlap.pixhi);
+        logger.info("Overlap window: " + overlap.linelo + ":" + overlap.linehi + ", " + overlap.pixlo + ":" + overlap.pixhi);
 
         /** Resample all lines that are requested */
         boolean newbufferrequired = true; // read initial slave buffer
@@ -1557,9 +1558,9 @@ public class Coregistration implements ICoregistration {
                     slave.getCurrentWindow().pixlo, // from file in BUFFER.
                     slave.getCurrentWindow().pixhi);
 
-            //Logger.debug("Reading slave: [" + winSlaveFile.linelo + ":"
-            //        + winSlaveFile.linehi + ", " + winSlaveFile.pixlo + ":"
-            //        + winSlaveFile.pixhi + "]");
+            logger.info("Reading slave: [" + winSlaveFile.linelo + ":"
+                    + winSlaveFile.linehi + ", " + winSlaveFile.pixlo + ":"
+                    + winSlaveFile.pixhi + "]");
 
             /** Evaluate coregistration polynomial */
             double interpL = 0;
@@ -1965,11 +1966,11 @@ public class Coregistration implements ICoregistration {
             FDC.addi(MatrixFunctions.pow(xaxis, 2).mul(doppler[2])); // cubic term
         }
 
-        //Logger.debug("fDC of first pixel: " + FDC.get(0, 0));
+        logger.info("fDC of first pixel: " + FDC.get(0, 0));
         //if (SIGN == 1)
-            //Logger.debug("Shifting from zero to fDC.");
+            logger.info("Shifting from zero to fDC.");
         //else
-            //Logger.debug("Shifting from fDC to zero.");
+            logger.info("Shifting from fDC to zero.");
 
         // Actually shift the azimuth spectrum
         // TODO: check indexing for yAxis vector : this doesn't look righ, however, it is consistent with DORIS.core
@@ -2025,7 +2026,7 @@ public class Coregistration implements ICoregistration {
         double minP = master.getOriginalWindow().pixlo;
         double maxP = master.getOriginalWindow().pixhi;
 
-        //Logger.info("getoverlap: polynomial normalized by factors: " + minL + " " + maxL + " " + minP + " " + maxP + " to [-2,2]");
+        logger.info("getoverlap: polynomial normalized by factors: " + minL + " " + maxL + " " + minP + " " + maxP + " to [-2,2]");
 
         // offset = A(slave system) - A(master system)
         // ....corners of slave in master system

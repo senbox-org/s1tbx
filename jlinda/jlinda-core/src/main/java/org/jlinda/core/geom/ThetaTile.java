@@ -1,13 +1,15 @@
 package org.jlinda.core.geom;
 
-import org.apache.log4j.Logger;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jlinda.core.*;
 import org.jlinda.core.utils.TriangleUtils;
+
+import java.util.logging.Logger;
 
 public class ThetaTile {
 
     //// logger
-    static Logger logger = Logger.getLogger(ThetaTile.class.getName());
+    static Logger logger = BeamLogManager.getSystemLogger();
 
     private Orbit masterOrbit;   // master
     private SLCImage masterMeta; // master
@@ -100,7 +102,7 @@ public class ThetaTile {
 
     public synchronized void radarCode() throws Exception {
 
-        //Logger.trace("Converting DEM to radar system for this tile.");
+        logger.info("Converting DEM to radar system for this tile.");
 
         demRadarCode_x = new double[nRows][nCols];
         demRadarCode_y = new double[nRows][nCols];
@@ -109,7 +111,7 @@ public class ThetaTile {
         final int nPoints = nRows * nCols;
 //        final boolean onlyTopoRefPhase = true;
 
-        //Logger.info("Number of points in DEM: " + nPoints);
+        logger.info("Number of points in DEM: " + nPoints);
 
         double phi, lambda, height, line, pix, theta;
 
@@ -176,9 +178,9 @@ public class ThetaTile {
                 / (lastLine - firstLine);
         rngAzRatio = rangeSpacing / aziSpacing;
 
-        //Logger.debug("Interferogram azimuth spacing: " + aziSpacing);
-        //Logger.debug("Interferogram range spacing: " + rangeSpacing);
-        //Logger.debug("Range-azimuth spacing ratio: " + rngAzRatio);
+        logger.info("Interferogram azimuth spacing: " + aziSpacing);
+        logger.info("Interferogram range spacing: " + rangeSpacing);
+        logger.info("Range-azimuth spacing ratio: " + rngAzRatio);
 
     }
 

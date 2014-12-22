@@ -84,7 +84,7 @@ public class OrbitTest {
     @BeforeClass
     public static void setUpTestData() throws Exception {
 
-        //Logger.setLevel(Level.FINE);
+        logger.setLevel(Level.FINE);
 
         slcimage.parseResFile(resFile);
 

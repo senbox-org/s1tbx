@@ -3,16 +3,20 @@ package org.jlinda.core.coregistration.estimation;
 import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.lang3.ArrayUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jblas.DoubleMatrix;
 import org.jblas.FloatMatrix;
 import org.jblas.MatrixFunctions;
 import org.jlinda.core.utils.PolyUtils;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import static org.jblas.MatrixFunctions.pow;
 
 public class SystemOfEquations {
 
-    //private static final ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(SystemOfEquations.class);
+    private static final Logger logger = BeamLogManager.getSystemLogger();
 
     private int nObs;
     private DoubleMatrix data;
@@ -34,7 +38,7 @@ public class SystemOfEquations {
      */
     public void fillDesignMatrix() {
 
-        //Logger.debug("Setting up design matrix for LS adjustment");
+        logger.info("Setting up design matrix for LS adjustment");
         for (int i = 0; i < nObs; i++) {
 
             /** azimuth direction */
@@ -45,7 +49,7 @@ public class SystemOfEquations {
             yP.put(i, 0, data.get(i, 4));
             double posP = PolyUtils.normalize2(data.get(i, 2), minP, maxP);
 
-//                //Logger.debug("coregpm: ({}, {}): yL = {} , yP = {} .", posL, posP, yL.get(i, 0), yP.get(i, 0));
+//                logger.info("coregpm: ({}, {}): yL = {} , yP = {} .", posL, posP, yL.get(i, 0), yP.get(i, 0));
 
             /** Set up designmatrix */
             int index = 0;
@@ -123,7 +127,7 @@ public class SystemOfEquations {
         final int nUnkn = PolyUtils.numberOfCoefficients(degree);
         final TIntObjectHashMap<float[]> list = new TIntObjectHashMap<>();
 
-        //Logger.debug("Setting up design matrix for LS adjustment");
+        logger.info("Setting up design matrix for LS adjustment");
         /** Set up designmatrix */
         for (int i = 0; i < nObs; i++) {
             final float[] mul = new float[nUnkn];
@@ -152,7 +156,7 @@ public class SystemOfEquations {
         final int nUnkn = PolyUtils.numberOfCoefficients(degree);
         final TIntObjectHashMap<float[]> list = new TIntObjectHashMap<>();
 
-        //Logger.debug("Setting up design matrix for LS adjustment");
+        logger.info("Setting up design matrix for LS adjustment");
         /** Set up designmatrix */
         for (int i = 0; i < nObs; i++) {
             final float[] mul = new float[nUnkn];
@@ -183,7 +187,7 @@ public class SystemOfEquations {
         final int nUnkn = PolyUtils.numberOfCoefficients(degree);
         final TIntObjectHashMap<double[]> list = new TIntObjectHashMap<>();
 
-        //Logger.debug("Setting up design matrix for LS adjustment");
+        logger.info("Setting up design matrix for LS adjustment");
 
         /** Set up designmatrix */
         for (int i = 0; i < nObs; i++) {
@@ -210,13 +214,13 @@ public class SystemOfEquations {
      */
     public static double[][] constructDesignMatrix_loop(final double[] line, final double[] pixel, final int degree) {
 
-        //Logger.setLevel(Level.WARN);
+        logger.setLevel(Level.WARNING);
 
         final int nObs = line.length;
         final int nUnkn = PolyUtils.numberOfCoefficients(degree);
         final double[][] A = new double[nObs][nUnkn];
 
-        //Logger.debug("Setting up design matrix for LS adjustment");
+        logger.info("Setting up design matrix for LS adjustment");
         /** Set up designmatrix */
         for (int i = 0; i < nObs; i++) {
             int index = 0;
@@ -245,7 +249,7 @@ public class SystemOfEquations {
         final int nUnkn = PolyUtils.numberOfCoefficients(degree);
         final float[][] A = new float[nObs][nUnkn];
 
-        //Logger.debug("Setting up design matrix for LS adjustment");
+        logger.info("Setting up design matrix for LS adjustment");
         /** Set up designmatrix */
         for (int i = 0; i < nObs; i++) {
             int index = 0;
@@ -273,15 +277,15 @@ public class SystemOfEquations {
         System.out.println("ArrayUtils = " + ArrayUtils.toString(arrayA));
         System.out.println("difference = " + matrixA_64F.sub(new DoubleMatrix(arrayA)).toString());
 
-        //Logger.info("Testing Double Map");
+        logger.info("Testing Double Map");
         TIntObjectHashMap<double[]> mapA_64F = constructDesignMatrix_DoubleMAP(array1D_64F, array1D_64F, 2);
         System.out.println("Map = " + ArrayUtils.toString(mapA_64F.values()));
 
-        //Logger.info("Testing Float Map");
+        logger.info("Testing Float Map");
         TIntObjectHashMap<float[]> mapA_32F = constructDesignMatrix_FloatMAP(array1D_32F, array1D_32F, 2);
         System.out.println("Map = " + ArrayUtils.toString(mapA_32F.values()));
 
-        //Logger.info("Testing Trove Float Map");
+        logger.info("Testing Trove Float Map");
         TIntObjectHashMap<float[]> mapA_32F_Trove = constructDesignMatrix_Trove(new TFloatArrayList(array1D_32F), new TFloatArrayList(array1D_32F), 2);
         System.out.println("Map = " + ArrayUtils.toString(mapA_32F_Trove.values()));
 
@@ -292,7 +296,7 @@ public class SystemOfEquations {
     public void constructWeightMatrix() {
 
         // ______Weight matrix data______
-        //Logger.debug("Setting up (inverse of) covariance matrix for LS adjustment");
+        logger.info("Setting up (inverse of) covariance matrix for LS adjustment");
         switch (weightflag) {
             case 0:
 //                    for (i = 0; i < Nobs; i++)
@@ -300,24 +304,24 @@ public class SystemOfEquations {
                 Qy_1 = DoubleMatrix.ones(nObs, 1);
                 break;
             case 1:
-                //Logger.debug("Using sqrt(coherence) as weights.");
+                logger.info("Using sqrt(coherence) as weights.");
 
                 Qy_1 = data.getColumn(5);
 //                    for (i = 0; i < Nobs; i++)
 //                        Qy_1(i, 0) = real8(Data(i, 5));// more weight to higher correlation
                 // ______ Normalize weights to avoid influence on estimated var.factor ______
-                //Logger.info("Normalizing covariance matrix for LS estimation.");
+                logger.info("Normalizing covariance matrix for LS estimation.");
 //                    Qy_1 = Qy_1 / mean(Qy_1);// normalize weights (for tests!)
                 Qy_1.divi(Qy_1.mean());
                 break;
             case 2:
-                //Logger.debug("Using coherence as weights.");
+                logger.info("Using coherence as weights.");
 
                 Qy_1 = MatrixFunctions.pow(data.getColumn(5), 2);
 //                    for (i = 0; i < Nobs; i++)
 //                        Qy_1(i, 0) = real8(Data(i, 5)) * real8(Data(i, 5));// more weight to higher correlation
                 // ______ Normalize weights to avoid influence on estimated var.factor ______
-                //Logger.info("Normalizing covariance matrix for LS estimation.");
+                logger.info("Normalizing covariance matrix for LS estimation.");
 //                    Qy_1 = Qy_1 / mean(Qy_1);// normalize weights (for tests!)
                 Qy_1.divi(Qy_1.mean());
                 break;
@@ -331,7 +335,7 @@ public class SystemOfEquations {
 //                    // it seems for large N this is to optimistic, maybe because of a bias
 //                    // in the coherence estimator, or some other reason;  in any case,
 //                    // the result is a large number of warnings.
-//                    //Logger.debug("Using expression Bamler04 as weights.");
+//                    logger.info("Using expression Bamler04 as weights.");
 //                    for (i = 0; i < Nobs; i++) {
 //                        // N_corr: number of samples for cross-corr; approx. FC_WINSIZE
 //                        // number of effictive samples depends on data ovs factor
@@ -340,16 +344,16 @@ public class SystemOfEquations {
 //                        double coh = Data.get(i, 5);// estimated correlation; assume unbiased?
 //                        double sigma_cc = Math.sqrt(3.0 / (2.0 * N_corr)) * Math.sqrt(1.0 - Math.pow(coh, 2)) / (Constants.PI * coh);
 //                        double sigma_ic = Math.sqrt(2.0 / coh) * sigma_cc;
-//                        //Logger.debug("Window " + i + ": estimated coherence   = " + coh);
-//                        //Logger.debug("Window " + i + ": sigma(estimated shift) for coherent cross-correlation = " + sigma_cc + " [pixel]");
-//                        //Logger.debug("Window " + i + ": sigma(estimated shift) = " + sigma_ic + " [pixel]");
+//                        logger.info("Window " + i + ": estimated coherence   = " + coh);
+//                        logger.info("Window " + i + ": sigma(estimated shift) for coherent cross-correlation = " + sigma_cc + " [pixel]");
+//                        logger.info("Window " + i + ": sigma(estimated shift) = " + sigma_ic + " [pixel]");
 //                        Qy_1.put(i, 0, 1.0 / Math.sqrt(sigma_ic));// Qy_1=diag(inverse(Qy));
 //                        SIGMAL = 1.0;// remove this factor effectively
 //                        SIGMAP = 1.0;// remove this factor effectively
 //                    }
 //                    break;
             default:
-                //Logger.error("Panic, CPM not possible with checked input.");
+                logger.severe("Panic, CPM not possible with checked input.");
                 throw new IllegalArgumentException("Panic, CPM not possible with checked input.");
         }
 

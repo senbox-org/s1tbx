@@ -1,13 +1,15 @@
 package org.jlinda.core.geom;
 
-import org.apache.log4j.Logger;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jlinda.core.*;
 import org.jlinda.core.utils.TriangleUtils;
+
+import java.util.logging.Logger;
 
 public class TopoPhase {
 
     //// logger
-    static Logger logger = Logger.getLogger(TopoPhase.class.getName());
+    static Logger logger = BeamLogManager.getSystemLogger();
 
     private Orbit masterOrbit;   // master
     private SLCImage masterMeta; // master
@@ -90,7 +92,7 @@ public class TopoPhase {
 
     public synchronized void radarCode() throws Exception {
 
-        //Logger.trace("Converting DEM to radar system for this tile.");
+        logger.info("Converting DEM to radar system for this tile.");
 
         demRadarCode_x = new double[nRows][nCols];
         demRadarCode_y = new double[nRows][nCols];
@@ -99,7 +101,7 @@ public class TopoPhase {
         final int nPoints = nRows * nCols;
         final boolean onlyTopoRefPhase = true;
 
-        //Logger.info("Number of points in DEM: " + nPoints);
+        logger.info("Number of points in DEM: " + nPoints);
 
 //        double[][] demRadarCode_x = new double[nRows][nCols];
 //        double[][] demRadarCode_y = new double[nRows][nCols];
@@ -122,7 +124,7 @@ public class TopoPhase {
         for (int i = 0; i < nRows; i++) {
 
 //            if ((i % 100) == 0) {
-//                //Logger.info("Radarcoding DEM line: " + i + " (" + Math.floor(.5 + (100. * (double) i / (double) (nRows))) + "%");
+//                logger.info("Radarcoding DEM line: " + i + " (" + Math.floor(.5 + (100. * (double) i / (double) (nRows))) + "%");
 //            }
 
             lambda = upperLeftLambda;
@@ -257,9 +259,9 @@ public class TopoPhase {
                 / (lastLine - firstLine);
         rngAzRatio = rangeSpacing / aziSpacing;
 
-        //Logger.debug("Interferogram azimuth spacing: " + aziSpacing);
-        //Logger.debug("Interferogram range spacing: " + rangeSpacing);
-        //Logger.debug("Range-azimuth spacing ratio: " + rngAzRatio);
+        logger.fine("Interferogram azimuth spacing: " + aziSpacing);
+        logger.fine("Interferogram range spacing: " + rangeSpacing);
+        logger.fine("Range-azimuth spacing ratio: " + rngAzRatio);
 
     }
 

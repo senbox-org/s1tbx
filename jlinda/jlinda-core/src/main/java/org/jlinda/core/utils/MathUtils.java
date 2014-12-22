@@ -1,14 +1,16 @@
 package org.jlinda.core.utils;
 
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.Window;
 
 import java.util.Random;
+import java.util.logging.Logger;
 
 public class MathUtils {
 
-    //    static Logger logger = //Logger.getLogger(MathUtils.class.getName());
+    static Logger logger = BeamLogManager.getSystemLogger();
     public static boolean isEven(long value) {
         return value % 2 == 0;
     }

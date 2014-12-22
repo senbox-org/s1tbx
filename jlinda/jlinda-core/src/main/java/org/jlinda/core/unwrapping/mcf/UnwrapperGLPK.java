@@ -2,6 +2,7 @@ package org.jlinda.core.unwrapping.mcf;
 
 import com.winvector.lp.LPException;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.unwrapping.mcf.utils.JblasUtils;
@@ -13,6 +14,9 @@ import scpsolver.lpsolver.LinearProgramSolver;
 import scpsolver.lpsolver.SolverFactory;
 import scpsolver.problems.LinearProgram;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import static org.jblas.DoubleMatrix.concatHorizontally;
 import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.grid2D;
 import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.intRangeDoubleMatrix;
@@ -23,7 +27,7 @@ import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.intRangeDoubleMatr
  */
 public class UnwrapperGLPK {
 
-    //private static final Logger logger = (Logger) LoggerFactory.getLogger(UnwrapperGLPK.class);
+    private static final Logger logger = BeamLogManager.getSystemLogger();
 
     private DoubleMatrix wrappedPhase;
     private DoubleMatrix unwrappedPhase;
@@ -39,7 +43,7 @@ public class UnwrapperGLPK {
     }
 
     public UnwrapperGLPK(DoubleMatrix wrappedPhase) {
-        //Logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.INFO);
         this.wrappedPhase = wrappedPhase;
     }
 
@@ -109,7 +113,7 @@ public class UnwrapperGLPK {
         }
         beq.reshape(beq.length, 1);
 
-        //Logger.debug("Constraint matrix");
+        logger.info("Constraint matrix");
         i = intRangeDoubleMatrix(0, ny - 1);
         j = intRangeDoubleMatrix(0, nx - 1);
         ROWS = grid2D(i, j);
@@ -166,7 +170,7 @@ public class UnwrapperGLPK {
 
         DoubleMatrix cost = DoubleMatrix.concatVertically(DoubleMatrix.concatVertically(c1, c1), DoubleMatrix.concatVertically(c2, c2));
 
-        //Logger.debug("Minimum network flow resolution");
+        logger.info("Minimum network flow resolution");
 
         StopWatch clockLP = new StopWatch();
         LinearProgram lp = new LinearProgram(cost.data);
@@ -197,7 +201,7 @@ public class UnwrapperGLPK {
         DoubleMatrix solution = new DoubleMatrix(solver.solve(lp));
 
         clockLP.stop();
-        //Logger.debug("Total GLPK time: {} [sec]", (double) (clockLP.getElapsedTime()) / 1000);
+        logger.info("Total GLPK time: {} [sec]"+ (double) (clockLP.getElapsedTime()) / 1000);
 
         // Displatch the LP solution
         int offset;
@@ -258,8 +262,8 @@ public class UnwrapperGLPK {
         final int rows = 40;
         final int cols = rows;
 
-        //Logger.trace("Start Unwrapping");
-        //Logger.info("Simulate Data");
+        logger.info("Start Unwrapping");
+        logger.info("Simulate Data");
         SimulateData simulateData = new SimulateData(rows, cols);
         simulateData.peaks();
 
@@ -273,7 +277,7 @@ public class UnwrapperGLPK {
         unwrapper.unwrap();
 
         clockFull.stop();
-        //Logger.info("Total processing time {} [sec]", (double) (clockFull.getElapsedTime()) / 1000);
+        logger.info("Total processing time {} [sec]"+ (double) (clockFull.getElapsedTime()) / 1000);
     }
 
 }

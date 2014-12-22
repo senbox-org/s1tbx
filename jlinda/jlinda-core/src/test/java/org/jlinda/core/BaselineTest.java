@@ -1,7 +1,5 @@
 package org.jlinda.core;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -62,7 +60,7 @@ public class BaselineTest {
 
     //private static Logger initLog() {
     //    String filePathToLog4JProperties = "/d3/checkouts/jlinda/log4j.properties";
-    //    Logger logger = //Logger.getLogger(Baseline.class);
+    //    Logger logger = logger.getLogger(Baseline.class);
     //    PropertyConfigurator.configure(filePathToLog4JProperties);
     //    return logger;
     //}
