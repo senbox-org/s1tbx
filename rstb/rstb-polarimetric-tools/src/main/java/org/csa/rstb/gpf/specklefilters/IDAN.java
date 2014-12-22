@@ -65,10 +65,13 @@ public class IDAN implements SpeckleFilter {
         if (sourceProductType == PolBandUtils.MATRIX.FULL ||
                 sourceProductType == PolBandUtils.MATRIX.C3 ||
                 sourceProductType == PolBandUtils.MATRIX.T3) {
-        } else if(sourceProductType == PolBandUtils.MATRIX.C2) {
+        } else if(sourceProductType == PolBandUtils.MATRIX.C2 ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
             idanFilterC2(targetTiles, targetRectangle, sourceRectangle);
         } else {
-            throw new OperatorException("For IDAN filtering, only C3 and T3 are currently supported");
+            throw new OperatorException("For IDAN filtering, only C2, C3 and T3 are currently supported");
         }
     }
 
