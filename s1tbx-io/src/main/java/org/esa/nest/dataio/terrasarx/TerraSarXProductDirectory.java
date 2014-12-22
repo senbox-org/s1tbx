@@ -30,6 +30,7 @@ import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.gpf.StackUtils;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.XMLSupport;
 import org.esa.snap.util.ZipUtils;
@@ -67,6 +68,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     // For TDM CoSSC products only
     private String masterProductName = null;
     private String slaveProductName = null;
+    int numMasterBands = 0;
 
     public TerraSarXProductDirectory(final File inputFile) {
         super(inputFile);
@@ -94,11 +96,11 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     private MetadataElement addMetaDataForTanDemX() throws IOException {
 
         // xmlDoc is the "main" annotation (i.e., the file with name "TDM... .xml")
-        final Element rootElement = xmlDoc.getRootElement();
+        final Element mainRootElement = xmlDoc.getRootElement();
 
         // Look for the product components that are the "primary" and "secondary" annotations inside the TDM xml file.
         // Assume that the "primary" is the master in the co-registration and the "secondary" is the slave.
-        final List<Element> componentList = rootElement.getChild("productComponents").getChildren("component");
+        final List<Element> componentList = mainRootElement.getChild("productComponents").getChildren("component");
         Element masterAnnotationComponent = null;
         Element slaveAnnotationComponent = null;
         for (Element component : componentList) {
@@ -120,53 +122,80 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
             throw new IOException("Cannot locate secondary annotation component (slave product) in main annotation of TDM product");
         }
 
+        final String masterHeader = masterAnnotationComponent.getChild("file").getChild("location").getChildText("name");
+        masterProductName = masterHeader.substring(0, masterHeader.indexOf("/"));
+
+
+        // Build the slave metadata
+
+        final String slaveHeader = slaveAnnotationComponent.getChild("file").getChild("location").getChildText("name");
+
+        slaveProductName = slaveHeader.substring(0, masterHeader.indexOf("/"));
+
+        final Document slaveDoc = XMLSupport.LoadXML(getInputStream(slaveHeader));
+        final Element slaveRootElement = slaveDoc.getRootElement();
+
+        final MetadataElement slaveRoot = new MetadataElement("Slave_Metadata");
+        AbstractMetadataIO.AddXMLMetadata(slaveRootElement, AbstractMetadata.addOriginalProductMetadata(slaveRoot));
+        addAbstractedMetadataHeader(slaveRoot);
+
+        final MetadataElement slaveAbstractedMetadataElem = slaveRoot.getElement("Abstracted_Metadata");
+
+        // Add Product_Information to slave Abstracted_Metadata
+        final MetadataElement productInfo = new MetadataElement("Product_Information");
+        final MetadataElement inputProd = new MetadataElement("InputProducts");
+        productInfo.addElement(inputProd);
+        inputProd.setAttributeString("InputProduct", slaveProductName);
+        slaveAbstractedMetadataElem.addElement(productInfo);
+
+        // Change the name from Abstracted_Metadata to the slave product name
+        slaveAbstractedMetadataElem.setName(slaveProductName);
+
+        // Remove Original_Product_Data from Slave_Metadata
+        slaveRoot.removeElement(slaveRoot.getElement("Original_Product_Metadata"));
+
+
         // Use the master's annotation to build the Abstracted_Metadata and Original_Product_Metadata.
 
-        final String masterHeader = masterAnnotationComponent.getChild("file").getChild("location").getChildText("name");
+        final MetadataElement metadataRoot = new MetadataElement(Product.METADATA_ROOT_NAME);
         final Document masterDoc = XMLSupport.LoadXML(getInputStream(masterHeader));
-
-        final MetadataElement root = new MetadataElement(Product.METADATA_ROOT_NAME);
         final Element masterRootElement = masterDoc.getRootElement();
-        AbstractMetadataIO.AddXMLMetadata(masterRootElement, AbstractMetadata.addOriginalProductMetadata(root));
+        AbstractMetadataIO.AddXMLMetadata(masterRootElement, AbstractMetadata.addOriginalProductMetadata(metadataRoot));
 
-        addAbstractedMetadataHeader(root);
+        addAbstractedMetadataHeader(metadataRoot);
 
         // Replace the product name (which right now is the master product) with the TDM product.
         // Replace data in Abstracted_Metadata with TDM values.
 
-        MetadataElement abstractedMetadata = root.getElement("Abstracted_Metadata");
+        MetadataElement abstractedMetadata = metadataRoot.getElement("Abstracted_Metadata");
+
+        // Turn on the coregistration flag
+        abstractedMetadata.setAttributeInt("coregistered_stack", 1);
 
         // Replace PRODUCT
         productName = getHeaderFileName().substring(0, getHeaderFileName().length()-4);
         replaceAbstractedMetadataField(abstractedMetadata, "PRODUCT", productName);
 
         // Replace PRODUCT_TYPE
-        productType = rootElement.getChild("productInfo").getChildText("productType");
+        productType = mainRootElement.getChild("productInfo").getChildText("productType");
         replaceAbstractedMetadataField(abstractedMetadata, "PRODUCT_TYPE", productType);
 
         // Replace SPH_DESCRIPTOR
-        replaceAbstractedMetadataField(abstractedMetadata, "SPH_DESCRIPTOR", rootElement.getChild("generalHeader").getChildText("itemName"));
+        replaceAbstractedMetadataField(abstractedMetadata, "SPH_DESCRIPTOR", mainRootElement.getChild("generalHeader").getChildText("itemName"));
 
         // Replace mission
         replaceAbstractedMetadataField(abstractedMetadata, "MISSION", "TDM");
 
         // Add the CoSSC metadata, i.e., the "main" annotation from the file with name "TDM... .xml"
         final MetadataElement cosscMetadataElem = new MetadataElement("CoSSC_Metadata");
-        AbstractMetadataIO.AddXMLMetadata(rootElement, cosscMetadataElem);
-        root.addElement(cosscMetadataElem);
+        AbstractMetadataIO.AddXMLMetadata(mainRootElement, cosscMetadataElem);
+        metadataRoot.addElement(cosscMetadataElem);
+
 
         // Add the slave metadata
-        final String slaveHeader = slaveAnnotationComponent.getChild("file").getChild("location").getChildText("name");
-        final Document slaveDoc = XMLSupport.LoadXML(getInputStream(slaveHeader));
-        final Element slaveElement = slaveDoc.getRootElement();
-        final MetadataElement slaveMetadataElem = new MetadataElement("Slave_Metadata");
-        AbstractMetadataIO.AddXMLMetadata(slaveElement, slaveMetadataElem);
-        root.addElement(slaveMetadataElem);
+        metadataRoot.addElement(slaveRoot);
 
-        masterProductName = masterHeader.substring(0, masterHeader.indexOf("/"));
-        slaveProductName = slaveHeader.substring(0, masterHeader.indexOf("/"));
-
-        return root;
+        return metadataRoot;
     }
 
     @Override
@@ -398,6 +427,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         String parentPath = masterProductName + "/" + getRelativePathToImageFolder();
         findImages(parentPath);
+
+        numMasterBands = cosarFileList.size();
 
         parentPath = slaveProductName + "/" + getRelativePathToImageFolder();
         findImages(parentPath);
@@ -874,6 +905,26 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         }
     }
 
+    private boolean isBelongToCoSSC() {
+        // This checks if the product is in fact part of a CoSSC product by checking if the parent
+        // directory contains a file that starts with "TDM" and ends in "xml".
+        // This handles the case where the user just opens one of the two SSC products inside a CoSSC
+        // product.
+        final String[] fileList = getBaseDir().getParentFile().list();
+        for (String s : fileList) {
+            if (s.startsWith("TDM") && s.endsWith("xml")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String appendIfMatch(final Band band, final String key, String bands) {
+        if (band.getName().contains(key)) {
+            bands = bands + band.getName() + " ";
+        }
+        return bands;
+    }
 
     @Override
     protected void addBands(final Product product) {
@@ -902,28 +953,43 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         if (!cosarFileList.isEmpty()) {
 
+            String masterBands = "";
+            String slaveBands = "";
+
             final boolean polsUnique = arePolarizationsUnique();
             String extraInfo = "";         // if pols not unique add the extra info
+            final String mission = absRoot.getAttributeString("MISSION");
 
-            for (final File file : cosarFileList) {
+            for (int i = 0; i < cosarFileList.size(); i++) {
 
+                final File file = cosarFileList.get(i);
                 final String fileName = file.getName().toUpperCase();
                 final String pol = SARReader.findPolarizationInBandName(fileName);
-                if (!polsUnique) {
+
+                if (mission.contains("TDM")) {
+                    extraInfo = ((i < numMasterBands) ? "_mst" : "_slv1") + StackUtils.getBandTimeStamp(product);
+                } else if (!polsUnique) {
                     final int polIndex = fileName.indexOf(pol);
                     extraInfo = fileName.substring(polIndex + 2, fileName.indexOf(".", polIndex + 3));
                 }
 
-                final String mission = absRoot.getAttributeString("MISSION");
-                final int bandDataType = mission.contains("TDM") ? ProductData.TYPE_FLOAT32 : ProductData.TYPE_INT16;
+                final int bandDataType = (mission.contains("TDM") || isBelongToCoSSC()) ?
+                                            ProductData.TYPE_FLOAT32 : ProductData.TYPE_INT16;
+                //System.out.println("TerraSarXProductDirectory.addBands: band data type = " + ProductData.getTypeString(bandDataType));
 
                 final Band realBand = new Band("i_" + pol + extraInfo, bandDataType, width, height);
                 realBand.setUnit(Unit.REAL);
                 product.addBand(realBand);
 
+                masterBands = appendIfMatch(realBand, "mst", masterBands);
+                slaveBands = appendIfMatch(realBand, "slv", slaveBands);
+
                 final Band imaginaryBand = new Band("q_" + pol + extraInfo, bandDataType, width, height);
                 imaginaryBand.setUnit(Unit.IMAGINARY);
                 product.addBand(imaginaryBand);
+
+                masterBands = appendIfMatch(imaginaryBand, "mst", masterBands);
+                slaveBands = appendIfMatch(imaginaryBand, "slv", slaveBands);
 
                 ReaderUtils.createVirtualIntensityBand(product, realBand, imaginaryBand, '_' + pol + extraInfo);
 
@@ -933,6 +999,17 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 } catch (Exception e) {
                     //
                 }
+            }
+
+            if (mission.contains("TDM")) {
+                final MetadataElement slaveMetadata = absRoot.getParentElement().getElement("Slave_Metadata");
+
+                slaveMetadata.setAttributeString("Master_bands", masterBands);
+
+                final MetadataElement slaveProduct = slaveMetadata.getElement(slaveProductName);
+                final MetadataAttribute slaveBandsAttr = new MetadataAttribute("Slave_bands", ProductData.TYPE_ASCII);
+                slaveProduct.addAttribute(slaveBandsAttr);
+                slaveProduct.setAttributeString(slaveBandsAttr.getName(), slaveBands);
             }
         }
 

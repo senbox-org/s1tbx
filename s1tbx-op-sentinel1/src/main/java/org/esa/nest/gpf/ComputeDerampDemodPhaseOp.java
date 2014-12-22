@@ -81,6 +81,57 @@ public final class ComputeDerampDemodPhaseOp extends Operator {
     }
 
     /**
+     * Compute range dependent Doppler rate Kt(r) for given burst.
+     * @return The Doppler rate array.
+     */
+    public float[] computeDopplerRate(final int burstIndex) throws Exception {
+        float[] kt = new float[sourceImageWidth];
+        for (int x = 0; x < sourceImageWidth; x++) {
+            kt[x] = (float)subSwath[0].dopplerRate[burstIndex][x];
+        }
+        return kt;
+    }
+
+    /**
+     * Compute range dependent Doppler centroid fDC(r) for given burst.
+     * @return The Doppler centroid array.
+     */
+    public float[] computeDopplerCentroid(final int burstIndex) throws Exception {
+        float[] fdc = new float[sourceImageWidth];
+        for (int x = 0; x < sourceImageWidth; x++) {
+            fdc[x] = (float)subSwath[0].dopplerCentroid[burstIndex][x];
+        }
+        return fdc;
+    }
+
+    /**
+     * Compute slant range.
+     * @return The slant range array.
+     */
+    public float[] computeSlantRange() throws Exception {
+        float[] slr = new float[sourceImageWidth];
+        for (int x = 0; x < sourceImageWidth; x++) {
+            slr[x] = (float)(subSwath[0].slrTimeToFirstPixel * Constants.lightSpeed +
+                    x * subSwath[subSwathIndex - 1].rangePixelSpacing);
+
+        }
+        return slr;
+    }
+
+    /**
+     * Compute reference time.
+     * @return The reference time array.
+     */
+    public float[] computeReferenceTime(final int burstIndex) throws Exception {
+        float[] tref = new float[sourceImageWidth];
+        for (int x = 0; x < sourceImageWidth; x++) {
+            tref[x] = (float)subSwath[0].referenceTime[burstIndex][x];
+        }
+        return tref;
+    }
+
+
+    /**
      * Initializes this operator and sets the one and only target product.
      * <p>The target product can be either defined by a field of type {@link org.esa.beam.framework.datamodel.Product} annotated with the
      * {@link org.esa.beam.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
@@ -243,7 +294,7 @@ public final class ComputeDerampDemodPhaseOp extends Operator {
                 final double ta = (y - firstLineInBurst)*subSwath[s].azimuthTimeInterval;
                 for (int x = x0; x < xMax; x++) {
                     final int idx = tgtIndex.getIndex(x);
-                    final double kt = subSwath[s].dopplerRate[burstIndex][x];
+                    final double kt = subSwath[s].dopplerRate[burstIndex][x]; // DLR: 1780.8765
                     final double deramp = -Math.PI * kt * Math.pow(ta - subSwath[s].referenceTime[burstIndex][x], 2);
                     final double demod = -2 * Math.PI * subSwath[s].dopplerCentroid[burstIndex][x] * ta;
                     tgtBufferDerampPhase.setElemFloatAt(idx, (float)deramp);

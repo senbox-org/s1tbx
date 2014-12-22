@@ -20,7 +20,6 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.Debug;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.snap.gpf.ReaderUtils;
@@ -87,12 +86,12 @@ public class Sentinel1ProductReader extends SARReader {
             final File fileFromInput = ReaderUtils.getFileFromInput(getInput());
             if (Sentinel1ProductReaderPlugIn.isLevel1(fileFromInput)) {
                 dataDir = new Sentinel1Level1Directory(fileFromInput);
-            } else if(Sentinel1ProductReaderPlugIn.isLevel2(fileFromInput)) {
+            } else if (Sentinel1ProductReaderPlugIn.isLevel2(fileFromInput)) {
                 dataDir = new Sentinel1Level2Directory(fileFromInput);
             } else if (Sentinel1ProductReaderPlugIn.isLevel0(fileFromInput)) {
                 dataDir = new Sentinel1Level0Directory(fileFromInput);
             }
-            if(dataDir == null) {
+            if (dataDir == null) {
                 Sentinel1ProductReaderPlugIn.validateInput(fileFromInput);
             }
             dataDir.readProductDirectory();
@@ -128,21 +127,22 @@ public class Sentinel1ProductReader extends SARReader {
             if (dataDir.isSLC()) {
 
                 readSLCRasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight, bandInfo);
+                                  destBuffer, destOffsetX, destOffsetY, destWidth, destHeight, bandInfo);
             } else {
                 bandInfo.img.readImageIORasterBand(sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                        destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
-                        bandInfo.imageID, bandInfo.bandSampleOffset);
+                                                   destBuffer, destOffsetX, destOffsetY, destWidth, destHeight,
+                                                   bandInfo.imageID, bandInfo.bandSampleOffset);
             }
         } else if (dataDir instanceof Sentinel1Level2Directory) {
 
             final Sentinel1Level2Directory s1L1Dir = (Sentinel1Level2Directory) dataDir;
-            synchronized (s1L1Dir) {
-                readLevel2OCNBand(s1L1Dir.getOCNReader(),
-                        sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
-                        sourceStepX, sourceStepY, destBand, destOffsetX,
-                        destOffsetY, destWidth, destHeight, destBuffer);
+            if (s1L1Dir.getOCNReader() == null) {
+                throw new IOException("Sentinel1OCNReader not found");
             }
+
+            s1L1Dir.getOCNReader().readData(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
+                                            sourceStepX, sourceStepY, destBand, destOffsetX,
+                                            destOffsetY, destWidth, destHeight, destBuffer);
         }
     }
 
@@ -163,24 +163,19 @@ public class Sentinel1ProductReader extends SARReader {
             srcArray = cachedData.intArray;
             length = srcArray.length;
         } else {
-            synchronized (dataDir) {
-                final ImageReader reader = bandInfo.img.getReader();
-                final ImageReadParam param = reader.getDefaultReadParam();
-                param.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
+            final Raster data = readRect(bandInfo.img.getReader(),
+                                         sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
+                                         destOffsetX, destOffsetY, destWidth, destHeight);
 
-                final RenderedImage image = reader.readAsRenderedImage(0, param);
-                final Raster data = image.getData(rect);
+            final SampleModel sampleModel = data.getSampleModel();
+            destWidth = Math.min(destWidth, sampleModel.getWidth());
+            destHeight = Math.min(destHeight, sampleModel.getHeight());
 
-                final SampleModel sampleModel = data.getSampleModel();
-                destWidth = Math.min(destWidth, sampleModel.getWidth());
-                destHeight = Math.min(destHeight, sampleModel.getHeight());
+            length = destWidth * destHeight;
+            srcArray = new int[length];
+            sampleModel.getSamples(0, 0, destWidth, destHeight, bandInfo.bandSampleOffset, srcArray, data.getDataBuffer());
 
-                length = destWidth * destHeight;
-                srcArray = new int[length];
-                sampleModel.getSamples(0, 0, destWidth, destHeight, bandInfo.bandSampleOffset, srcArray, data.getDataBuffer());
-
-                cache.put(datakey, new DataCache.Data(srcArray));
-            }
+            cache.put(datakey, new DataCache.Data(srcArray));
         }
 
         final short[] destArray = (short[]) destBuffer.getElems();
@@ -210,18 +205,13 @@ public class Sentinel1ProductReader extends SARReader {
         }
     }
 
-    public void readLevel2OCNBand(Sentinel1OCNReader OCNReader,
-                                  int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
-                                  int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
-                                  int destOffsetY, int destWidth, int destHeight, ProductData destBuffer) throws IOException {
+    private synchronized Raster readRect(final ImageReader imageReader,
+                                         int sourceOffsetX, int sourceOffsetY, int sourceStepX, int sourceStepY,
+                                         int destOffsetX, int destOffsetY, int destWidth, int destHeight) throws IOException {
+        final ImageReadParam readParam = imageReader.getDefaultReadParam();
+        readParam.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
+        final RenderedImage subsampledImage = imageReader.readAsRenderedImage(0, readParam);
 
-        if (OCNReader == null) {
-
-            throw new IOException("Sentinel1OCNReader not found");
-        }
-
-        OCNReader.readData(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
-                sourceStepX, sourceStepY, destBand, destOffsetX,
-                destOffsetY, destWidth, destHeight, destBuffer);
+        return subsampledImage.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
     }
 }

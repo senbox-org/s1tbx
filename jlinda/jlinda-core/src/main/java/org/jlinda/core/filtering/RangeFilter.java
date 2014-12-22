@@ -1,8 +1,7 @@
 package org.jlinda.core.filtering;
 
-import org.apache.commons.math3.util.FastMath;
-import org.apache.log4j.Logger;
-import org.jblas.ComplexDoubleMatrix;
+import org.esa.beam.util.logging.BeamLogManager;
+import org.apache.commons.math3.util.FastMath;import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.SLCImage;
@@ -10,11 +9,13 @@ import org.jlinda.core.Window;
 import org.jlinda.core.todo_classes.todo_classes;
 import org.jlinda.core.utils.*;
 
+import java.util.logging.Logger;
+
 import static org.jlinda.core.utils.LinearAlgebraUtils.*;
 
 public class RangeFilter extends ProductDataFilter {
 
-    static Logger logger = Logger.getLogger(RangeFilter.class.getName());
+    static Logger logger = BeamLogManager.getSystemLogger();
 
     //TODO: make template classes for generalInput, operatorInput, and ProductMetadata class
     todo_classes.inputgeneral generalInput;
@@ -157,7 +158,7 @@ public class RangeFilter extends ProductDataFilter {
             if (SNR < SNRthreshold) {
                 notFiltered++; // update notFiltered counter
                 shift = lastShift;
-                //Logger.warn("using last shift for filter");
+                logger.warning("using last shift for filter");
             }
 
             meanShift += shift;
@@ -203,7 +204,7 @@ public class RangeFilter extends ProductDataFilter {
     public void applyFilter() {
 
         /// Average power to reduce noise : fft.ing in-place over data rows ///
-        //Logger.trace("Took FFT over rows of master, slave.");
+        logger.info("Took FFT over rows of master, slave.");
         SpectralUtils.fft_inplace(data, 2);
         SpectralUtils.fft_inplace(data1, 2);
 
@@ -219,7 +220,7 @@ public class RangeFilter extends ProductDataFilter {
 
     public void applyFilterMaster() {
         /// Average power to reduce noise : fft.ing in-place over data rows ///
-        //Logger.trace("Took FFT over rows of master, slave.");
+        logger.info("Took FFT over rows of master, slave.");
         SpectralUtils.fft_inplace(data, 2);
         LinearAlgebraUtils.dotmult_inplace(data, new ComplexDoubleMatrix(this.filter));
         // IFFT of spectrally filtered data, and return these
@@ -228,7 +229,7 @@ public class RangeFilter extends ProductDataFilter {
 
     public void applyFilterSlave() {
 
-        //Logger.trace("Took FFT over rows of master, slave.");
+        logger.info("Took FFT over rows of master, slave.");
         SpectralUtils.fft_inplace(data1, 2);
         LinearAlgebraUtils.fliplr_inplace(filter);
         LinearAlgebraUtils.dotmult_inplace(data1, new ComplexDoubleMatrix(this.filter));
@@ -242,27 +243,27 @@ public class RangeFilter extends ProductDataFilter {
     private void sanityChecks() {
         /// sanity check on input paramaters ///
         if (!MathUtils.isOdd(nlMean)) {
-            //Logger.error("nlMean has to be odd.");
+            logger.severe("nlMean has to be odd.");
             throw new IllegalArgumentException("nlMean has to be odd.");
         }
         if (!MathUtils.isPower2(nCols)) {
-            //Logger.error("numPixels (FFT) has to be power of 2.");
+            logger.severe("numPixels (FFT) has to be power of 2.");
             throw new IllegalArgumentException("numPixels (FFT) has to be power of 2.");
         }
         if (!MathUtils.isPower2(ovsFactor)) {
-            //Logger.error("oversample factor (FFT) has to be power of 2.");
+            logger.severe("oversample factor (FFT) has to be power of 2.");
             throw new IllegalArgumentException("oversample factor (FFT) has to be power of 2.");
         }
         if (data1.rows != nRows) {
-            //Logger.error("slave not same size as master.");
+            logger.severe("slave not same size as master.");
             throw new IllegalArgumentException("slave not same size as master.");
         }
         if (data1.columns != nCols) {
-            //Logger.error("slave not same size as master.");
+            logger.severe("slave not same size as master.");
             throw new IllegalArgumentException("slave not same size as master.");
         }
 //        if (outputLines < 1) {
-//            //Logger.warn("no outputLines, continuing....");
+//            logger.warning("no outputLines, continuing....");
 //        }
     }
 
@@ -374,7 +375,7 @@ public class RangeFilter extends ProductDataFilter {
         /// Average power to reduce noise : fft.ing in-place over data rows ///
         SpectralUtils.fft_inplace(data, 2);
         SpectralUtils.fft_inplace(data1, 2);
-        //Logger.trace("Took FFT over rows of master, slave.");
+        logger.info("Took FFT over rows of master, slave.");
 
         DoubleMatrix nlMeanPower = computeNlMeanPower(nlMean, fftLength, power);
 
@@ -404,7 +405,7 @@ public class RangeFilter extends ProductDataFilter {
             if (SNR < SNRthreshold) {
                 notFiltered++; // update notFiltered counter
                 shift = lastShift;
-                //Logger.warn("using last shift for filter");
+                logger.warning("using last shift for filter");
             }
 
             // interim variables
@@ -460,16 +461,16 @@ public class RangeFilter extends ProductDataFilter {
 
         // Some info for this data block
         final double meanFrFreq = meanShift * deltaF;    // Hz?
-        //Logger.debug("mean SHIFT for block"
-        //        + ": " + meanShift
-        //        + " = " + meanFrFreq / 1e6 + " MHz (fringe freq.).");
+        logger.info("mean SHIFT for block"
+                + ": " + meanShift
+                + " = " + meanFrFreq / 1e6 + " MHz (fringe freq.).");
 
-        //Logger.debug("mean SNR for block: " + meanSNR);
-        //Logger.debug("filtered for block"
-        //        + ": " + (100.00 - percentNotFiltered) + "%");
+        logger.info("mean SNR for block: " + meanSNR);
+        logger.info("filtered for block"
+                + ": " + (100.00 - percentNotFiltered) + "%");
 
         if (percentNotFiltered > 60.0) {
-            //Logger.warn("more then 60% of signal filtered?!?");
+            logger.warning("more then 60% of signal filtered?!?");
         }
 
     }
@@ -529,27 +530,27 @@ public class RangeFilter extends ProductDataFilter {
 
         /// sanity check on input paramaters ///
         if (!MathUtils.isOdd(nlMean)) {
-            //Logger.error("nlMean has to be odd.");
+            logger.severe("nlMean has to be odd.");
             throw new IllegalArgumentException("nlMean has to be odd.");
         }
         if (!MathUtils.isPower2(numPixs)) {
-            //Logger.error("numPixels (FFT) has to be power of 2.");
+            logger.severe("numPixels (FFT) has to be power of 2.");
             throw new IllegalArgumentException("numPixels (FFT) has to be power of 2.");
         }
         if (!MathUtils.isPower2(ovsFactor)) {
-            //Logger.error("oversample factor (FFT) has to be power of 2.");
+            logger.severe("oversample factor (FFT) has to be power of 2.");
             throw new IllegalArgumentException("oversample factor (FFT) has to be power of 2.");
         }
         if (slaveDataBlock.rows != numLines) {
-            //Logger.error("slave not same size as master.");
+            logger.severe("slave not same size as master.");
             throw new IllegalArgumentException("slave not same size as master.");
         }
         if (slaveDataBlock.columns != numPixs) {
-            //Logger.error("slave not same size as master.");
+            logger.severe("slave not same size as master.");
             throw new IllegalArgumentException("slave not same size as master.");
         }
         if (outputLines < 1) {
-            //Logger.warn("no outputLines, continuing....");
+            logger.warning("no outputLines, continuing....");
         }
 
         /// local variables ///
@@ -575,7 +576,7 @@ public class RangeFilter extends ProductDataFilter {
 
         long fftLength = cplxIfg.columns;
 
-        //Logger.debug("is real4 accurate enough? it seems so!");
+        logger.info("is real4 accurate enough? it seems so!");
 
         SpectralUtils.fft_inplace(cplxIfg, 2);             // cplxIfg = fft over rows
         DoubleMatrix power = SarUtils.intensity(cplxIfg);  // power   = cplxIfg.*conj(cplxIfg);
@@ -590,7 +591,7 @@ public class RangeFilter extends ProductDataFilter {
         /// Average power to reduce noise : fft.ing in-place over data rows ///
         SpectralUtils.fft_inplace(masterDataBlock, 2);
         SpectralUtils.fft_inplace(slaveDataBlock, 2);
-        //Logger.trace("Took FFT over rows of master, slave.");
+        logger.info("Took FFT over rows of master, slave.");
 
         DoubleMatrix nlMeanPower = computeNlMeanPower(nlMean, fftLength, power);
 
@@ -620,7 +621,7 @@ public class RangeFilter extends ProductDataFilter {
             if (SNR < SNRthreshold) {
                 notFiltered++; // update notFiltered counter
                 shift = lastShift;
-                //Logger.warn("using last shift for filter");
+                logger.warning("using last shift for filter");
             }
 
             // interim variables
@@ -677,16 +678,16 @@ public class RangeFilter extends ProductDataFilter {
 
         // Some info for this data block
         final double meanFrFreq = meanShift * deltaF;    // Hz?
-        //Logger.debug("mean SHIFT for block"
-        //        + ": " + meanShift
-        //       + " = " + meanFrFreq / 1e6 + " MHz (fringe freq.).");
+        logger.info("mean SHIFT for block"
+                + ": " + meanShift
+               + " = " + meanFrFreq / 1e6 + " MHz (fringe freq.).");
 
-        //Logger.debug("mean SNR for block: " + meanSNR);
-        //Logger.debug("filtered for block"
-        //        + ": " + (100.00 - percentNotFiltered) + "%");
+        logger.info("mean SNR for block: " + meanSNR);
+        logger.info("filtered for block"
+                + ": " + (100.00 - percentNotFiltered) + "%");
 
         if (percentNotFiltered > 60.0) {
-            //Logger.warn("more then 60% of signal filtered?!?");
+            logger.warning("more then 60% of signal filtered?!?");
         }
 
     }

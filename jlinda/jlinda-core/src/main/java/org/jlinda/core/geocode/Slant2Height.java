@@ -11,6 +11,7 @@ import org.jlinda.core.Window;
 import org.jlinda.core.utils.MathUtils;
 import org.jlinda.core.utils.PolyUtils;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.jlinda.core.Constants.PI;
@@ -62,7 +63,7 @@ public class Slant2Height {
     public Slant2Height(int nPoints, int nHeights, int degree1d, int degree2d,
                         SLCImage master, Orbit masterOrbit, SLCImage slave, Orbit slaveOrbit) {
 
-        //Logger.setLevel(Level.FINE);
+        logger.setLevel(Level.FINE);
 
         this.nPoints = nPoints;
         this.nHeights = nHeights;
@@ -75,7 +76,7 @@ public class Slant2Height {
         this.slaveOrbit = slaveOrbit;
 
         if (degree1D - 1 > TEN) {
-            //Logger.severe("Internal ERROR: panic, programmers problem -> increase TEN.");
+            logger.severe("Internal ERROR: panic, programmers problem -> increase TEN.");
             throw new IllegalArgumentException();
         }
 
@@ -125,7 +126,7 @@ public class Slant2Height {
      */
     public void schwabisch() throws Exception {
 
-        //Logger.fine("slant2h Schwabisch (PM 01-Apr-2011)");
+        logger.fine("slant2h Schwabisch (PM 01-Apr-2011)");
 
         final int heightStep = MAXHEIGHT / (nHeights - 1); // heights to eval ref.refPhase
 
@@ -152,7 +153,7 @@ public class Slant2Height {
         /** ----------------------------------------------------------------------------*/
 
         // Compute reference refPhase in N points for height (numheight)
-        //Logger.fine("S2H: schwabisch: STEP1: compute reference refPhase for nHeights.");
+        logger.fine("S2H: schwabisch: STEP1: compute reference refPhase for nHeights.");
         DoubleMatrix refPhaseZero = new DoubleMatrix(nPoints);
         for (int heightIdx = 0; heightIdx < nHeights; heightIdx++) {
 
@@ -180,7 +181,7 @@ public class Slant2Height {
         /** -- STEP 2 : compute alpha coefficients of polynomials for these points -----*/
         /** ----------------------------------------------------------------------------*/
 
-        //Logger.fine("S2H: schwabisch: STEP2: estimate coefficients 1d polynomial.");
+        logger.fine("S2H: schwabisch: STEP2: estimate coefficients 1d polynomial.");
 
 //        DoubleMatrix design = new DoubleMatrix(nHeights, degree1D + 1); // design matrix
         DoubleMatrix alphas = new DoubleMatrix(nPoints, degree1D + 1); // pseudo-observation
@@ -202,7 +203,7 @@ public class Slant2Height {
         /** -- STEP 3 : Compute alpha_i coefficients of polynomials as function of (l,p) --*/
         /** -------------------------------------------------------------------------------*/
 
-        //Logger.fine("S2H: schwabisch: STEP3: estimate coefficients for 2d polynomial.");
+        logger.fine("S2H: schwabisch: STEP3: estimate coefficients for 2d polynomial.");
         // Compute alpha_i coefficients of polynomials as function of (l,p)
         // ... alpha_i = sum(k,l) beta_kl l^k p^l;
         // ... Solve simultaneous for all betas
@@ -211,7 +212,7 @@ public class Slant2Height {
 
         // ______ Check redundancy is done before? ______
         if (nPoints < Nunk) {
-            //Logger.severe("slant2hschwabisch: N_observations<N_unknowns (increase S2H_NPOINTS or decrease S2H_DEGREE2D.");
+            logger.severe("slant2hschwabisch: N_observations<N_unknowns (increase S2H_NPOINTS or decrease S2H_DEGREE2D.");
             throw new IllegalArgumentException();
         }
 
@@ -257,9 +258,9 @@ public class Slant2Height {
         // Test solution by inverse
         Qx_hat = Solve.solveSymmetric(Qx_hat, DoubleMatrix.eye(Qx_hat.getRows()));
         double maxdev = (N.mmul(Qx_hat).sub(DoubleMatrix.eye(Qx_hat.getRows()))).normmax();
-        //Logger.fine("s2h schwaebisch: max(abs(N*inv(N)-I)) = {"+maxdev+"}");
+        logger.fine("s2h schwaebisch: max(abs(N*inv(N)-I)) = {"+maxdev+"}");
         if (maxdev > 0.01) {
-            //Logger.warning("slant2h: possibly wrong solution. deviation from unity AtA*inv(AtA) = {"+maxdev+"} > 0.01");
+            logger.warning("slant2h: possibly wrong solution. deviation from unity AtA*inv(AtA) = {"+maxdev+"} > 0.01");
         }
 
 
@@ -277,7 +278,7 @@ public class Slant2Height {
         double minL = dataWindow.linelo;
         double maxL = dataWindow.linehi;
 
-        //Logger.fine("S2H: schwabisch: STEP4: compute height for all pixels.");
+        logger.fine("S2H: schwabisch: STEP4: compute height for all pixels.");
         // Evaluate for all points interferogram h=f(l,p,refPhase)
         //  .....recon with multilook, degree1D, degree2D free
         //  .....Multilook factors
@@ -341,7 +342,7 @@ public class Slant2Height {
     @Deprecated
     public void schwabischTotal() throws Exception {
 
-        //Logger.fine("slant2h Schwabisch (PM 01-Apr-2011)");
+        logger.fine("slant2h Schwabisch (PM 01-Apr-2011)");
 
         final int heightStep = MAXHEIGHT / (nHeights - 1); // heights to eval ref.refPhase
 
@@ -368,7 +369,7 @@ public class Slant2Height {
         /** ----------------------------------------------------------------------------*/
 
         // Compute reference refPhase in N points for height (numheight)
-        //Logger.fine("S2H: schwabisch: STEP1: compute reference refPhase for nHeights.");
+        logger.fine("S2H: schwabisch: STEP1: compute reference refPhase for nHeights.");
         DoubleMatrix refPhaseZero = new DoubleMatrix(nPoints);
         for (int heightIdx = 0; heightIdx < nHeights; heightIdx++) {
 
@@ -396,7 +397,7 @@ public class Slant2Height {
         /** -- STEP 2 : compute alpha coefficients of polynomials for these points -----*/
         /** ----------------------------------------------------------------------------*/
 
-        //Logger.fine("S2H: schwabisch: STEP2: estimate coefficients 1d polynomial.");
+        logger.fine("S2H: schwabisch: STEP2: estimate coefficients 1d polynomial.");
         DoubleMatrix alphas = new DoubleMatrix(nPoints, degree1D + 1); // pseudo-observation
         DoubleMatrix hei = new DoubleMatrix(nHeights, 1);
         for (int i = 0; i < nHeights; i++) {
@@ -416,7 +417,7 @@ public class Slant2Height {
         /** -- STEP 3 : Compute alpha_i coefficients of polynomials as function of (l,p) --*/
         /** -------------------------------------------------------------------------------*/
 
-        //Logger.fine("S2H: schwabisch: STEP3: estimate coefficients for 2d polynomial.");
+        logger.fine("S2H: schwabisch: STEP3: estimate coefficients for 2d polynomial.");
         // Compute alpha_i coefficients of polynomials as function of (l,p)
         // ... alpha_i = sum(k,l) beta_kl l^k p^l;
         // ... Solve simultaneous for all betas
@@ -425,7 +426,7 @@ public class Slant2Height {
 
         // ______ Check redundancy is done before? ______
         if (nPoints < Nunk) {
-            //Logger.severe("slant2hschwabisch: N_observations<N_unknowns (increase S2H_NPOINTS or decrease S2H_DEGREE2D.");
+            logger.severe("slant2hschwabisch: N_observations<N_unknowns (increase S2H_NPOINTS or decrease S2H_DEGREE2D.");
             throw new IllegalArgumentException();
         }
 
@@ -471,16 +472,16 @@ public class Slant2Height {
         // Test solution by inverse
         Qx_hat = Solve.solveSymmetric(Qx_hat, DoubleMatrix.eye(Qx_hat.getRows()));
         double maxdev = (N.mmul(Qx_hat).sub(DoubleMatrix.eye(Qx_hat.getRows()))).normmax();
-        //Logger.fine("s2h schwaebisch: max(abs(N*inv(N)-I)) = {"+maxdev+"}");
+        logger.fine("s2h schwaebisch: max(abs(N*inv(N)-I)) = {"+maxdev+"}");
         if (maxdev > 0.01) {
-            //Logger.warning("slant2h: possibly wrong solution. deviation from unity AtA*inv(AtA) = {"+maxdev+"} > 0.01");
+            logger.warning("slant2h: possibly wrong solution. deviation from unity AtA*inv(AtA) = {"+maxdev+"} > 0.01");
         }
 
         /** ----------------------------------------------------------------------------*/
         /** -- STEP 4 : compute height for all pixels in N points for nHeights ---------*/
         /** ----------------------------------------------------------------------------*/
 
-        //Logger.fine("S2H: schwabisch: STEP4: compute height for all pixels.");
+        logger.fine("S2H: schwabisch: STEP4: compute height for all pixels.");
         // Evaluate for all points interferogram h=f(l,p,refPhase)
         //  .....recon with multilook, degree1D, degree2D free
         //  .....Multilook factors

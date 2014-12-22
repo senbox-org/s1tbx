@@ -4,7 +4,7 @@
     <operator>ProductSet-Reader</operator>
     <sources/>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <fileList></fileList>
+      <fileList/>
     </parameters>
   </node>
   <node id="Back-Geocoding">
@@ -14,10 +14,12 @@
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <demName>SRTM 3Sec</demName>
-      <demResamplingMethod>BICUBIC_INTERPOLATION</demResamplingMethod>
+      <demResamplingMethod>BILINEAR_INTERPOLATION</demResamplingMethod>
       <externalDEMFile/>
       <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
-      <resamplingType>BILINEAR_INTERPOLATION</resamplingType>
+      <resamplingType>BISINC_21_POINT_INTERPOLATION</resamplingType>
+      <outputRangeAzimuthOffset>false</outputRangeAzimuthOffset>
+      <outputDerampPhase>false</outputDerampPhase>
     </parameters>
   </node>
   <node id="Write">
@@ -26,7 +28,7 @@
       <sourceProduct refid="Back-Geocoding"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file></file>
+      <file>backgeocoded.dim</file>
       <formatName>BEAM-DIMAP</formatName>
     </parameters>
   </node>
@@ -35,10 +37,10 @@
     <node id="ProductSet-Reader">
       <displayPosition x="72.0" y="102.0"/>
     </node>
-	<node id="Back-Geocoding">
+    <node id="Back-Geocoding">
       <displayPosition x="257.0" y="102.0"/>
     </node>
-	<node id="Write">
+    <node id="Write">
       <displayPosition x="418.0" y="102.0"/>
     </node>
   </applicationData>

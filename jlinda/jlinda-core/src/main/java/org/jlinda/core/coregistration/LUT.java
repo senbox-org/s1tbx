@@ -1,5 +1,6 @@
 package org.jlinda.core.coregistration;
 
+import org.esa.beam.util.logging.BeamLogManager;
 import org.apache.commons.math3.util.FastMath;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
@@ -7,13 +8,14 @@ import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.SLCImage;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LUT {
 
-   // private static final Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(LUT.class);
-    //private static Level loggerLevel = Level.TRACE;
+    private static final Logger logger = BeamLogManager.getSystemLogger();
 
 /*
     public static final String NEAREST_NEIGHBOR = "Nearest-neighbor interpolation";
@@ -69,8 +71,7 @@ public class LUT {
 
     private void setUpLogger() {
 
-        //Logger.setLevel(loggerLevel);
-        //Logger.trace("Start LUT [development code]");
+        logger.info("Start LUT [development code]");
     }
 
     public static int getInterval() {
@@ -207,8 +208,8 @@ public class LUT {
      */
     public void overviewLUT() {
 
-        //Logger.debug("Overview of LUT for interpolation");
-        //Logger.debug("---------------------------------");
+        logger.info("Overview of LUT for interpolation");
+        logger.info("---------------------------------");
 
         for (int i = 0; i < nInterval; ++i) {
 
@@ -217,12 +218,12 @@ public class LUT {
             double sum = row.sum();
 
             // logger
-            //Logger.debug(axis.getRow(i).toString());
-            //Logger.debug("Normalized kernel by dividing LUT elements by sum:");
-            //Logger.debug("{} ( {} : sum )", row.toString(), sum);
+            logger.info(axis.getRow(i).toString());
+            logger.info("Normalized kernel by dividing LUT elements by sum:");
+            logger.info("{} ( {} : sum )"+ row.toString()+ sum);
 
         }
-        //Logger.debug("Look-Up Table (normalized) constructed, both kernel and axis.");
+        logger.info("Look-Up Table (normalized) constructed, both kernel and axis.");
     }
 
 

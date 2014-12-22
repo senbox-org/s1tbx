@@ -541,11 +541,10 @@ public final class Sentinel1Utils {
 
         final double waveLength = Constants.lightSpeed / subSwath[0].radarFrequency;
         for (int s = 0; s < numOfSubSwath; s++) {
+            final double azTime = (subSwath[s].firstLineTime + subSwath[s].lastLineTime)/2.0;
             subSwath[s].dopplerRate = new double[subSwath[s].numOfBursts][subSwath[s].samplesPerBurst];
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
-                final double azTime = (subSwath[s].burstFirstLineTime[b] + subSwath[s].burstLastLineTime[b])/2.0;
-                final double v = orbit.getVelocity(azTime/Constants.secondsInDay);
-                //final double v = orbit.getVelocity(azTime); //use this line when orbit uses second for time
+                final double v = orbit.getVelocity(azTime/Constants.secondsInDay); // DLR: 7594.0232
                 final double steeringRate = subSwath[s].azimuthSteeringRate * Constants.DTOR;
                 final double krot = 2*v*steeringRate/waveLength; // doppler rate by antenna steering
                 for (int x = 0; x < subSwath[s].samplesPerBurst; x++) {
@@ -572,8 +571,11 @@ public final class Sentinel1Utils {
         for (int s = 0; s < numOfSubSwath; s++) {
             subSwath[s].referenceTime = new double[subSwath[s].numOfBursts][subSwath[s].samplesPerBurst];
             final double tmp1 = subSwath[s].linesPerBurst * subSwath[s].azimuthTimeInterval / 2.0;
+
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
-                final double tmp2 = tmp1 + subSwath[s].dopplerCentroid[b][0] / subSwath[s].rangeDependDopplerRate[b][0];
+                final double tmp2 = tmp1 + subSwath[s].dopplerCentroid[b][subSwath[s].firstValidPixel] /
+                        subSwath[s].rangeDependDopplerRate[b][subSwath[s].firstValidPixel];
+
                 for (int x = 0; x < subSwath[s].samplesPerBurst; x++) {
                     subSwath[s].referenceTime[b][x] = tmp2 -
                             subSwath[s].dopplerCentroid[b][x] / subSwath[s].rangeDependDopplerRate[b][x];
@@ -589,15 +591,19 @@ public final class Sentinel1Utils {
 
         for (int s = 0; s < numOfSubSwath; s++) {
             final DCPolynomial[] dcEstimateList = getDCEstimateList(subSwath[s].subSwathName);
-            final DCPolynomial[] dcBurstList = computeDCForBurstCenters(dcEstimateList, s+1);
+            if (dcEstimateList.length != subSwath[s].numOfBursts) {
+                throw new OperatorException("Subswath " + (s+1) + ": The number of dataDCPolynomials in " +
+                        "dcEstimateList is different from the number of bursts");
+            }
+            //final DCPolynomial[] dcBurstList = computeDCForBurstCenters(dcEstimateList, s+1);
             subSwath[s].dopplerCentroid = new double[subSwath[s].numOfBursts][subSwath[s].samplesPerBurst];
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
                 for (int x = 0; x < subSwath[s].samplesPerBurst; x++) {
                     final double slrt = getSlantRangeTime(x, s+1)*2; // 1-way to 2-way
-                    final double dt = slrt - dcBurstList[b].t0;
+                    final double dt = slrt - dcEstimateList[b].t0;
                     double dcValue = 0.0;
-                    for (int i = 0; i < dcBurstList[b].dataDcPolynomial.length; i++) {
-                        dcValue += dcBurstList[b].dataDcPolynomial[i] * FastMath.pow(dt, i);
+                    for (int i = 0; i < dcEstimateList[b].dataDcPolynomial.length; i++) {
+                        dcValue += dcEstimateList[b].dataDcPolynomial[i] * FastMath.pow(dt, i);
                     }
                     subSwath[s].dopplerCentroid[b][x] = dcValue;
                 }

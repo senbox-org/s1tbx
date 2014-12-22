@@ -161,6 +161,31 @@ public interface SpeckleFilter {
                 }
             }
 
+        } else if (sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
+
+            final double[][] Sr = new double[1][2];
+            final double[][] Si = new double[1][2];
+
+            for (int y = sy0; y < maxY; ++y) {
+                final int j = y - sy0;
+                srcIndex.calculateStride(y);
+                for (int x = sx0; x < maxX; ++x) {
+                    final int i = x - sx0;
+                    final int index = srcIndex.getIndex(x);
+
+                    PolOpUtils.getComplexScatterMatrix(index, dataBuffers, Sr, Si);
+                    DualPolOpUtils.computeCovarianceMatrixC2(Sr[0], Si[0], Cr, Ci);
+
+                    data11Real[j][i] = Cr[0][0];
+                    data12Real[j][i] = Cr[0][1];
+                    data12Imag[j][i] = Ci[0][1];
+                    data22Real[j][i] = Cr[1][1];
+                    span[j][i] = (Cr[0][0] + Cr[1][1]) / 2.0;
+                }
+            }
+
         } else {
             throw new OperatorException("Cp or dual pol product is expected.");
         }

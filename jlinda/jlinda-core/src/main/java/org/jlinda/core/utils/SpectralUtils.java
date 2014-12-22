@@ -2,13 +2,15 @@ package org.jlinda.core.utils;
 
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_2D;
-import org.apache.log4j.Logger;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 
+import java.util.logging.Logger;
+
 public class SpectralUtils {
 
-    static Logger logger = Logger.getLogger(SpectralUtils.class.getName());
+    static Logger logger = BeamLogManager.getSystemLogger();
 
     private static void fftTransform1D_inplace(ComplexDoubleMatrix vector, int fftLength, int direction) {
         switch (direction) {
@@ -58,7 +60,7 @@ public class SpectralUtils {
 
         switch (dimension) {
             case 1: {
-                //Logger.debug("1d ifft over columns");
+                logger.info("1d ifft over columns");
                 for (i = 0; i < columns; ++i) {
                     ComplexDoubleMatrix VECTOR = cplxData.getColumn(i);
                     fftTransform1D_inplace(VECTOR, rows, flag);
@@ -67,7 +69,7 @@ public class SpectralUtils {
                 break;
             }
             case 2: {
-                //Logger.debug("1d ifft over rows");
+                logger.info("1d ifft over rows");
                 for (i = 0; i < rows; ++i) {
                     ComplexDoubleMatrix VECTOR = cplxData.getRow(i);
                     fftTransform1D_inplace(VECTOR, columns, flag);
@@ -76,7 +78,7 @@ public class SpectralUtils {
                 break;
             }
             default:
-                //Logger.error("ifft: dimension != {1,2}");
+                logger.severe("ifft: dimension != {1,2}");
                 throw new IllegalArgumentException("ifft: dimension != {1,2}");
         }
     }
@@ -132,7 +134,7 @@ public class SpectralUtils {
 
     public static ComplexDoubleMatrix fftshift(ComplexDoubleMatrix inMatrix) {
         if (!inMatrix.isVector()) {
-            //Logger.error("ifftshift: only vectors");
+            logger.severe("ifftshift: only vectors");
             throw new IllegalArgumentException("ifftshift: works only for vectors!");
         }
 
@@ -149,7 +151,7 @@ public class SpectralUtils {
 
     public static DoubleMatrix fftshift(DoubleMatrix inMatrix) {
         if (!inMatrix.isVector()) {
-            //Logger.error("ifftshift: only vectors");
+            logger.severe("ifftshift: only vectors");
             throw new IllegalArgumentException("ifftshift: works only for vectors!");
         }
 
@@ -180,7 +182,7 @@ public class SpectralUtils {
     public static ComplexDoubleMatrix ifftshift(ComplexDoubleMatrix inMatrix) throws IllegalArgumentException {
 
         if (!inMatrix.isVector()) {
-            //Logger.error("ifftshift: only vectors");
+            logger.severe("ifftshift: only vectors");
             throw new IllegalArgumentException("ifftshift: works only for vectors!");
         }
 
@@ -198,7 +200,7 @@ public class SpectralUtils {
     public static DoubleMatrix ifftshift(DoubleMatrix inMatrix) throws IllegalArgumentException {
 
         if (!inMatrix.isVector()) {
-            //Logger.error("ifftshift: only vectors");
+            logger.severe("ifftshift: only vectors");
             throw new IllegalArgumentException("ifftshift: works only for vectors!");
         }
 

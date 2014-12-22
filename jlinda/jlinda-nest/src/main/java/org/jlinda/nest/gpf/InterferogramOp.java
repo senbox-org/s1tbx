@@ -206,7 +206,11 @@ public class InterferogramOp extends Operator {
         metaMapPut(masterTag, masterMeta, sourceProduct, masterMap);
 
         // pug sourceSlave metadata into slaveMap
-        MetadataElement[] slaveRoot = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot).getElements();
+        MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot);
+        if(slaveElem == null) {
+            slaveElem = sourceProduct.getMetadataRoot().getElement("Slave Metadata");
+        }
+        MetadataElement[] slaveRoot = slaveElem.getElements();
         for (MetadataElement meta : slaveRoot) {
             metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
         }
@@ -324,8 +328,8 @@ public class InterferogramOp extends Operator {
         DoubleMatrix y = new DoubleMatrix(srpNumberPoints);
         DoubleMatrix A = new DoubleMatrix(srpNumberPoints, numberOfCoefficients);
 
-        double masterMinPi4divLam = (4 * Math.PI * org.jlinda.core.Constants.SOL) / masterMetadata.getRadarWavelength();
-        double slaveMinPi4divLam = (4 * Math.PI * org.jlinda.core.Constants.SOL) / slaveMetadata.getRadarWavelength();
+        double masterMinPi4divLam = (-4 * Math.PI * org.jlinda.core.Constants.SOL) / masterMetadata.getRadarWavelength();
+        double slaveMinPi4divLam = (-4 * Math.PI * org.jlinda.core.Constants.SOL) / slaveMetadata.getRadarWavelength();
 
         // Loop through vector or distributedPoints()
         for (int i = 0; i < srpNumberPoints; ++i) {

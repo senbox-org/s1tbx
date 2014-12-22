@@ -1,7 +1,5 @@
 package org.jlinda.core.filtering;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
@@ -37,7 +35,7 @@ public class PhaseFilterTest {
 
     //private static Logger initLog() {
     //    String filePathToLog4JProperties = "log4j.properties";
-    //    Logger logger = //Logger.getLogger(PhaseFilterUtils.class);
+    //    Logger logger = logger.getLogger(PhaseFilterUtils.class);
     //    PropertyConfigurator.configure(filePathToLog4JProperties);
     //    return logger;
     //}

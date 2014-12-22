@@ -1,6 +1,7 @@
 package org.jlinda.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.lang.ArrayUtils;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
@@ -12,6 +13,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
@@ -30,6 +32,8 @@ import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Image resampling for Cross Interferometry
@@ -41,7 +45,7 @@ import java.util.Map;
         description = "Estimate Resampling Polynomial using SAR Image Geometry, and Resample Input Images")
 public class CrossResamplingOp extends Operator {
 
-    //private static final Logger logger = (Logger) LoggerFactory.getLogger(CrossResamplingOp.class);
+    private static final Logger logger = BeamLogManager.getSystemLogger();
 
     @SourceProduct
     private Product sourceProduct;
@@ -113,7 +117,7 @@ public class CrossResamplingOp extends Operator {
      * requires that an operator has a default constructor.
      */
     public CrossResamplingOp() {
-        //logger.setLevel(Level.TRACE);
+        logger.setLevel(Level.INFO);
     }
 
     /**
@@ -202,8 +206,8 @@ public class CrossResamplingOp extends Operator {
             xCoeffsFloat[i] = (float) xCoeffsDouble[i];
         }
         // show polynomials
-        //logger.debug("coeffsY : {}", ArrayUtils.toString(yCoeffsDouble));
-        //logger.debug("coeffsX : {}", ArrayUtils.toString(xCoeffsDouble));
+        logger.info("coeffsY : {}"+ ArrayUtils.toString(yCoeffsDouble));
+        logger.info("coeffsX : {}"+ ArrayUtils.toString(xCoeffsDouble));
 
         // construct polynomial <- this is strange! Some inconsistency!!!
         warpPolynomial = new WarpGeneralPolynomial(yCoeffsFloat, xCoeffsFloat);
@@ -237,8 +241,8 @@ public class CrossResamplingOp extends Operator {
             xCoeffsFloat[i] = (float) xCoeffsDouble[i];
         }
         // show polynomials
-        //logger.debug("coeffsY : {}", ArrayUtils.toString(yCoeffsDouble));
-        //logger.debug("coeffsX : {}", ArrayUtils.toString(xCoeffsDouble));
+        logger.info("coeffsY : {}"+ ArrayUtils.toString(yCoeffsDouble));
+        logger.info("coeffsX : {}"+ ArrayUtils.toString(xCoeffsDouble));
 
         // construct polynomial
         reverseWarpPolynomial = new WarpGeneralPolynomial(yCoeffsFloat, xCoeffsFloat);

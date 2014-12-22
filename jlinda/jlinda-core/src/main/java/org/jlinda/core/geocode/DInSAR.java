@@ -35,7 +35,6 @@ import org.jlinda.core.utils.PolyUtils;
  * Output:
  * -complex float file with differential phase.
  * (set to (0,0) for not ok unwrapped parts)
-<<<<<<< HEAD
  *
  * Known issues:
  *  - polyfit will trigger warnings on maxerror deviating more then expected, it's because of scaling of error is
@@ -50,22 +49,6 @@ import org.jlinda.core.utils.PolyUtils;
  * Performance issues & TODO: input of TOPO (unwrapped phase coming from SNAPHU) has to be looped
  *    for a NaN values check. Perhaps it is more efficient to do this check while parsing the dat
  *    into NEST.
-=======
- * <p/>
- * Known issues:
- * - polyfit will trigger warnings on maxerror deviating more then expected, it's because of scaling of error is
- * not being performed. See code example how to resolve for this.
- * <p/>
- * - potential issues with threading safety, volatile on 'data' fields not being properly tested.
- * <p/>
- * Note: optimization was done in how the unwrapped_phase is subtracted from DEFO pair. I am working
- * with tiles now, and not removing TOPO phase line by line as initally implemented. This resulted
- * ~10x improvement. See unit tests for some rough benchmarks.
- * <p/>
- * Performance issues & TODO: input of TOPO (unwrapped phase coming from SNAPHU) has to be looped
- * for a NaN values check. Perhaps it is more efficient to do this check while parsing the dat
- * into NEST.
->>>>>>> dinsar_operator
  */
 
 public class DInSAR {
@@ -173,15 +156,15 @@ public class DInSAR {
         double maxErrorRatio = e_hat.normmax() // max error
         int maxErrorRatioIdx = e_hat.abs().argmax() // index of maximum error
         double maxRelativeErrorRatio = 100.0 * maxErrorRatio / ratio.get(maxErrorRatioIdx)
-        //Logger.INFO("maximum error for l,p : {}, {}", x.get(maxErrorRatioIdx), y.get(maxErrorRatioIdx));
-        //Logger.INFO("Ratio = {}; estimate = {}; rel.error = ", ratio(maxErrorRatioIdx), y_hat(maxErrorRatioIdx), maxRelativeErrorRatio);
+        logger.INFO("maximum error for l,p : {}, {}", x.get(maxErrorRatioIdx), y.get(maxErrorRatioIdx));
+        logger.INFO("Ratio = {}; estimate = {}; rel.error = ", ratio(maxErrorRatioIdx), y_hat(maxErrorRatioIdx), maxRelativeErrorRatio);
 
 
         if (maxRelativeErrorRatio < 5.0) {
-            //Logger.INFO("max (relative) error: OK!");
+            logger.INFO("max (relative) error: OK!");
         } else {
-            //Logger.WARN("max error quite large");
-            //Logger.WARN("Error in deformation vector larger than 5% due to mismodeling baseline!");
+            logger.warning("max error quite large");
+            logger.warning("Error in deformation vector larger than 5% due to mismodeling baseline!");
         }
 */
 
@@ -256,15 +239,15 @@ public class DInSAR {
         double maxErrorRatio = e_hat.normmax() // max error
         int maxErrorRatioIdx = e_hat.abs().argmax() // index of maximum error
         double maxRelativeErrorRatio = 100.0 * maxErrorRatio / ratio.get(maxErrorRatioIdx)
-        //Logger.INFO("maximum error for l,p : {}, {}", x.get(maxErrorRatioIdx), y.get(maxErrorRatioIdx));
-        //Logger.INFO("Ratio = {}; estimate = {}; rel.error = ", ratio(maxErrorRatioIdx), y_hat(maxErrorRatioIdx), maxRelativeErrorRatio);
+        logger.INFO("maximum error for l,p : {}, {}", x.get(maxErrorRatioIdx), y.get(maxErrorRatioIdx));
+        logger.INFO("Ratio = {}; estimate = {}; rel.error = ", ratio(maxErrorRatioIdx), y_hat(maxErrorRatioIdx), maxRelativeErrorRatio);
 
 
         if (maxRelativeErrorRatio < 5.0) {
-            //Logger.INFO("max (relative) error: OK!");
+            logger.INFO("max (relative) error: OK!");
         } else {
-            //Logger.WARN("max error quite large");
-            //Logger.WARN("Error in deformation vector larger than 5% due to mismodeling baseline!");
+            logger.warning("max error quite large");
+            logger.warning("Error in deformation vector larger than 5% due to mismodeling baseline!");
         }
 */
 

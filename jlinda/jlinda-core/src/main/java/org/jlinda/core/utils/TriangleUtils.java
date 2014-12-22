@@ -3,7 +3,7 @@ package org.jlinda.core.utils;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import org.apache.log4j.Logger;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jlinda.core.Window;
 import org.jlinda.core.delaunay.FastDelaunayTriangulator;
 import org.jlinda.core.delaunay.Triangle;
@@ -11,10 +11,11 @@ import org.jlinda.core.delaunay.TriangulationException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class TriangleUtils {
 
-    static Logger logger = Logger.getLogger(TriangleUtils.class.getName());
+    static Logger logger = BeamLogManager.getSystemLogger();
 
     public static double[][] gridDataLinear(final double[][] x_in, final double[][] y_in, final double[][] z_in,
                                             final Window window, final double xyRatio, final int xScale,
@@ -28,13 +29,13 @@ public class TriangleUtils {
         //// How many groups of z value should be interpolated
         // TODO: work out "multiple levels" for interpolation
         if ((z_in_dim % x_in_dim) != 0) {
-            //Logger.warn("The input of the DEM buffer and z is not the same...");
+            logger.warning("The input of the DEM buffer and z is not the same...");
             throw new IllegalArgumentException();
         } else {
             int zLoops = z_in.length / x_in.length;
         }
 
-        //Logger.trace("DelaunayTriangulator with " + x_in_dim + " points");
+        logger.info("DelaunayTriangulator with " + x_in_dim + " points");
 */
 
         final FastDelaunayTriangulator FDT = triangulate(x_in, y_in, z_in, xyRatio);
@@ -55,7 +56,7 @@ public class TriangleUtils {
             }
         }
         long t1 = System.currentTimeMillis();
-        //Logger.info("Input set constructed in " + (0.001 * (t1 - t0)) + " sec");
+        logger.info("Input set constructed in " + (0.001 * (t1 - t0)) + " sec");
 
         //// triangulate input data
         long t2 = System.currentTimeMillis();
@@ -66,7 +67,7 @@ public class TriangleUtils {
             te.printStackTrace();
         }
         long t3 = System.currentTimeMillis();
-        //Logger.info("Data set triangulated in " + (0.001 * (t3 - t2)) + " sec");
+        logger.info("Data set triangulated in " + (0.001 * (t3 - t2)) + " sec");
         return FDT;
     }
 
@@ -197,7 +198,7 @@ public class TriangleUtils {
             }
         }
         long t5 = System.currentTimeMillis();
-        //Logger.info("Data set interpolated in " + (0.001 * (t5 - t4)) + " sec");
+        logger.info("Data set interpolated in " + (0.001 * (t5 - t4)) + " sec");
 
         return griddedData;
     }
