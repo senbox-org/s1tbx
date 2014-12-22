@@ -1,12 +1,14 @@
 package org.jlinda.core;
 
-import org.apache.log4j.Logger;
+import org.esa.beam.util.logging.BeamLogManager;
+
+import java.util.logging.Logger;
 
 import static org.jlinda.core.Constants.DTOR;
 
 public class Ellipsoid {
 
-    Logger logger = Logger.getLogger(Ellipsoid.class.getName());
+    Logger logger = BeamLogManager.getSystemLogger();
 
     private static double e2 = 0.00669438003551279091;  // squared first  eccentricity (derived)
     private static double e2b = 0.00673949678826153145; // squared second eccentricity (derived)
@@ -43,11 +45,11 @@ public class Ellipsoid {
     }
 
     public void showdata() {
-        //Logger.info("ELLIPSOID: \tEllipsoid used (orbit, output): " + name + ".");
-        //Logger.info("ELLIPSOID: a   = " + a);
-        //Logger.info("ELLIPSOID: b   = " + b);
-        //Logger.info("ELLIPSOID: e2  = " + e2);
-        //Logger.info("ELLIPSOID: e2' = " + e2b);
+        logger.info("ELLIPSOID: \tEllipsoid used (orbit, output): " + name + ".");
+        logger.info("ELLIPSOID: a   = " + a);
+        logger.info("ELLIPSOID: b   = " + b);
+        logger.info("ELLIPSOID: e2  = " + e2);
+        logger.info("ELLIPSOID: e2' = " + e2b);
     }
 
     /**

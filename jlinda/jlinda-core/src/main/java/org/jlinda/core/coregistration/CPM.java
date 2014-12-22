@@ -11,6 +11,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
@@ -22,12 +23,14 @@ import org.perf4j.StopWatch;
 import javax.media.jai.WarpPolynomial;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.jlinda.core.coregistration.utils.CPMUtils.*;
 
 public class CPM {
 
-    //private static final Logger logger = (Logger) LoggerFactory.getLogger(CPM.class);
+    private static final Logger logger = BeamLogManager.getSystemLogger();
 
     final public List<Placemark> slaveGCPList = new ArrayList<>();
 
@@ -100,7 +103,7 @@ public class CPM {
     public CPM(final int cpmDegree, final int maxIterations, final float criticalValue, final Window normalWindow,
                final ProductNodeGroup<Placemark> masterGCPGroup, ProductNodeGroup<Placemark> slaveGCPGroup) {
 
-        //Logger.setLevel(Level.WARN);
+        logger.setLevel(Level.WARNING);
 
         this.numObservations = slaveGCPGroup.getNodeCount();
         this.cpmDegree = cpmDegree;
@@ -108,7 +111,7 @@ public class CPM {
 
         if (numObservations < numUnknowns) {
             this.noRedundancy = true;
-            //Logger.error("Number of windows > threshold is smaller than parameters solved for.");
+            logger.severe("Number of windows > threshold is smaller than parameters solved for.");
         }
 
         if (!noRedundancy) {
@@ -308,7 +311,7 @@ public class CPM {
 
     private void estimateCPM() {
 
-        //Logger.trace("Start EJML Estimation");
+        logger.info("Start EJML Estimation");
 
         numIterations = 0;
         boolean estimationDone = false;
@@ -341,11 +344,11 @@ public class CPM {
             stopWatch.setTag(codeBlockMessage);
             stopWatch.start();
 
-            //Logger.debug("Start iteration: {}", numIterations);
+            logger.info("Start iteration: {}"+ numIterations);
 
             /** Remove identified outlier from previous estimation */
             if (numIterations != 0) {
-                //Logger.debug("Removing observation {}, idxList {},  from observation vector.", index.getQuick(maxWSum_idx), maxWSum_idx);
+                logger.info("Removing observation {}, idxList {},  from observation vector."+ index.getQuick(maxWSum_idx)+ maxWSum_idx);
                 index.removeAt(maxWSum_idx);
                 yMasterNorm.removeAt(maxWSum_idx);
                 xMasterNorm.removeAt(maxWSum_idx);
@@ -372,42 +375,42 @@ public class CPM {
             /** Check redundancy */
             numObservations = index.size(); // Number of points > threshold
             if (numObservations < numUnknowns) {
-                //Logger.error("coregpm: Number of windows > threshold is smaller than parameters solved for.");
+                logger.severe("coregpm: Number of windows > threshold is smaller than parameters solved for.");
                 throw new ArithmeticException("coregpm: Number of windows > threshold is smaller than parameters solved for.");
             }
 
             // work with normalized values
             DenseMatrix64F A = new DenseMatrix64F(SystemOfEquations.constructDesignMatrix_loop(yMasterNorm.toArray(), xMasterNorm.toArray(), cpmDegree));
 
-            //Logger.debug("TIME FOR SETUP of SYSTEM : {}", stopWatch.lap("setup"));
+            logger.info("TIME FOR SETUP of SYSTEM : {}"+ stopWatch.lap("setup"));
 
             RowD1Matrix64F Qy_1; // vector
             double meanValue;
             switch (cpmWeight) {
                 case "linear":
-                    //Logger.debug("Using sqrt(coherence) as weights");
+                    logger.info("Using sqrt(coherence) as weights");
                     Qy_1 = DenseMatrix64F.wrap(numObservations, 1, coherence.toArray());
                     // Normalize weights to avoid influence on estimated var.factor
-                    //Logger.debug("Normalizing covariance matrix for LS estimation");
+                    logger.info("Normalizing covariance matrix for LS estimation");
                     meanValue = CommonOps.elementSum(Qy_1) / numObservations;
                     CommonOps.divide(meanValue, Qy_1); // normalize vector
                     break;
                 case "quadratic":
-                    //Logger.debug("Using coherence as weights.");
+                    logger.info("Using coherence as weights.");
                     Qy_1 = DenseMatrix64F.wrap(numObservations, 1, coherence.toArray());
                     CommonOps.elementMult(Qy_1, Qy_1);
                     // Normalize weights to avoid influence on estimated var.factor
                     meanValue = CommonOps.elementSum(Qy_1) / numObservations;
-                    //Logger.debug("Normalizing covariance matrix for LS estimation.");
+                    logger.info("Normalizing covariance matrix for LS estimation.");
                     CommonOps.divide(meanValue, Qy_1); // normalize vector
                     break;
                 case "bamler":
                     // TODO: see Bamler papers IGARSS 2000 and 2004
-                    //Logger.warn("Bamler weighting method NOT IMPLEMENTED, falling back to None.");
+                    logger.warning("Bamler weighting method NOT IMPLEMENTED, falling back to None.");
                     Qy_1 = onesEJML(numObservations);
                     break;
                 case "none":
-                    //Logger.debug("No weighting.");
+                    logger.info("No weighting.");
                     Qy_1 = onesEJML(numObservations);
                     break;
                 default:
@@ -415,12 +418,12 @@ public class CPM {
                     break;
             }
 
-            //Logger.debug("TIME FOR SETUP of VC diag matrix: {}", stopWatch.lap("diag VC matrix"));
+            logger.info("TIME FOR SETUP of VC diag matrix: {}"+ stopWatch.lap("diag VC matrix"));
 
             /** tempMatrix_1 matrices */
             final DenseMatrix64F yL_matrix = DenseMatrix64F.wrap(numObservations, 1, yOffset.toArray());
             final DenseMatrix64F yP_matrix = DenseMatrix64F.wrap(numObservations, 1, xOffset.toArray());
-            //Logger.debug("TIME FOR SETUP of TEMP MATRICES: {}", stopWatch.lap("Temp matrices"));
+            logger.info("TIME FOR SETUP of TEMP MATRICES: {}"+ stopWatch.lap("Temp matrices"));
 
             /** normal matrix */
             final DenseMatrix64F N = new DenseMatrix64F(numUnknowns, numUnknowns); // = A_transpose.mmul(Qy_1_diag.mmul(A));
@@ -437,7 +440,7 @@ public class CPM {
             CommonOps.multAddTransA(A, diagxmat(Qy_1, A), N);
             DenseMatrix64F Qx_hat = N.copy();
 
-            //Logger.debug("TIME FOR SETUP of NORMAL MATRIX: {}", stopWatch.lap("Normal matrix"));
+            logger.info("TIME FOR SETUP of NORMAL MATRIX: {}"+ stopWatch.lap("Normal matrix"));
 
             /** right hand sides */
             // azimuth
@@ -446,7 +449,7 @@ public class CPM {
             // range
             rhsP = new DenseMatrix64F(numUnknowns, 1); // A_transpose.mmul(Qy_1_diag.mmul(yP_matrix));
             CommonOps.multAddTransA(1d, A, diagxmat(Qy_1, yP_matrix), rhsP);
-            //Logger.debug("TIME FOR SETUP of RightHand Side: {}", stopWatch.lap("Right-hand-side"));
+            logger.info("TIME FOR SETUP of RightHand Side: {}"+ stopWatch.lap("Right-hand-side"));
 
             LinearSolver<DenseMatrix64F> solver = LinearSolverFactory.leastSquares(100, 100);
             /** compute solution */
@@ -455,12 +458,12 @@ public class CPM {
             }
             solver.solve(rhsL, rhsL);
             solver.solve(rhsP, rhsP);
-            //Logger.debug("TIME FOR SOLVING of System: {}", stopWatch.lap("Solving System"));
+            logger.info("TIME FOR SOLVING of System: {}"+ stopWatch.lap("Solving System"));
 
             /** inverting of Qx_hat for stability check */
             solver.invert(Qx_hat);
 
-            //Logger.debug("TIME FOR INVERSION OF N: {}", stopWatch.lap("Inversion of N"));
+            logger.info("TIME FOR INVERSION OF N: {}"+ stopWatch.lap("Inversion of N"));
 
             /** test inversion and check stability: max(abs([N*inv(N) - E)) ?= 0 */
             DenseMatrix64F tempMatrix_1 = new DenseMatrix64F(N.numRows, N.numCols);
@@ -468,17 +471,17 @@ public class CPM {
             CommonOps.subEquals(tempMatrix_1, CommonOps.identity(tempMatrix_1.numRows, tempMatrix_1.numCols));
             double maxDeviation = CommonOps.elementMaxAbs(tempMatrix_1);
             if (maxDeviation > .01) {
-                //Logger.error("COREGPM: maximum deviation N*inv(N) from unity = {}. This is larger than 0.01", maxDeviation);
+                logger.severe("COREGPM: maximum deviation N*inv(N) from unity = {}. This is larger than 0.01"+ maxDeviation);
                 throw new IllegalStateException("COREGPM: maximum deviation N*inv(N) from unity)");
             } else if (maxDeviation > .001) {
-                //Logger.warn("COREGPM: maximum deviation N*inv(N) from unity = {}. This is between 0.01 and 0.001", maxDeviation);
+                logger.warning("COREGPM: maximum deviation N*inv(N) from unity = {}. This is between 0.01 and 0.001"+ maxDeviation);
             }
-            //Logger.debug("TIME FOR STABILITY CHECK: {}", stopWatch.lap("Stability Check"));
+            logger.info("TIME FOR STABILITY CHECK: {}"+ stopWatch.lap("Stability Check"));
 
-            //Logger.debug("Coeffs in Azimuth direction: {}", rhsL.toString());
-            //Logger.debug("Coeffs in Range direction: {}", rhsP.toString());
-            //Logger.debug("Max Deviation: {}", maxDeviation);
-            //Logger.debug("System Quality: {}", solver.quality());
+            logger.info("Coeffs in Azimuth direction: {}"+ rhsL.toString());
+            logger.info("Coeffs in Range direction: {}"+ rhsP.toString());
+            logger.info("Max Deviation: {}"+ maxDeviation);
+            logger.info("System Quality: {}"+ solver.quality());
 
             /** some other stuff if the scale is okay */
             DenseMatrix64F Qe_hat = new DenseMatrix64F(numObservations, numObservations);
@@ -500,7 +503,7 @@ public class CPM {
             CommonOps.mult(A, rhsP, yP_hat);
             CommonOps.sub(yP_matrix, yP_hat, eP_hat);
 
-            //Logger.debug("TIME FOR DATA preparation for TESTING: {}", stopWatch.lap("Testing Setup"));
+            logger.info("TIME FOR DATA preparation for TESTING: {}"+ stopWatch.lap("Testing Setup"));
 
             /** overal model test (variance factor) */
             double overAllModelTest_L = 0;
@@ -514,10 +517,10 @@ public class CPM {
             overAllModelTest_L = (overAllModelTest_L / Math.pow(SIGMA_L, 2)) / (numObservations - numUnknowns);
             overAllModelTest_P = (overAllModelTest_P / Math.pow(SIGMA_P, 2)) / (numObservations - numUnknowns);
 
-            //Logger.debug("Overall Model Test Lines: {}", overAllModelTest_L);
-            //Logger.debug("Overall Model Test Pixels: {}", overAllModelTest_P);
+            logger.info("Overall Model Test Lines: {}"+ overAllModelTest_L);
+            logger.info("Overall Model Test Pixels: {}"+ overAllModelTest_P);
 
-            //Logger.debug("TIME FOR OMT: {}", stopWatch.lap("OMT"));
+            logger.info("TIME FOR OMT: {}"+ stopWatch.lap("OMT"));
 
             /** ---------------------- DATASNOPING ----------------------------------- **/
             /** Assumed Qy diag */
@@ -535,12 +538,12 @@ public class CPM {
             // azimuth
             winL = absArgmax(wTest_L);
             double maxWinL = Math.abs(wTest_L.get(winL));
-            //Logger.debug("maximum wtest statistic azimuth = {} for window number: {} ", maxWinL, index.getQuick(winL));
+            logger.info("maximum wtest statistic azimuth = {} for window number: {} "+ maxWinL+ index.getQuick(winL));
 
             // range
             winP = absArgmax(wTest_P);
             double maxWinP = Math.abs(wTest_P.get(winP));
-            //Logger.debug("maximum wtest statistic range = {} for window number: {} ", maxWinP, index.getQuick(winP));
+            logger.info("maximum wtest statistic range = {} for window number: {} "+ maxWinP+ index.getQuick(winP));
 
             /** use summed wTest in Azimuth and Range direction for outlier detection */
             DenseMatrix64F wTestSum = new DenseMatrix64F(numObservations);
@@ -550,24 +553,24 @@ public class CPM {
 
             maxWSum_idx = absArgmax(wTest_P);
             double maxWSum = wTest_P.get(winP);
-            //Logger.debug("Detected outlier: summed sqr.wtest = {}; observation: {}", maxWSum, index.getQuick(maxWSum_idx));
+            logger.info("Detected outlier: summed sqr.wtest = {}; observation: {}"+ maxWSum+ index.getQuick(maxWSum_idx));
 
             /** Test if we are estimationDone yet */
             // check on number of observations
             if (numObservations <= numUnknowns) {
-                //Logger.warn("NO redundancy!  Exiting iterations.");
+                logger.warning("NO redundancy!  Exiting iterations.");
                 estimationDone = true;// cannot remove more than this
             }
 
             // check on test k_alpha
             if (Math.max(maxWinL, maxWinP) <= criticalValue) {
                 // all tests accepted?
-                //Logger.debug("All outlier tests accepted! (final solution computed)");
+                logger.info("All outlier tests accepted! (final solution computed)");
                 estimationDone = true;
             }
 
             if (numIterations >= maxIterations) {
-                //Logger.debug("max. number of iterations reached (exiting loop).");
+                logger.info("max. number of iterations reached (exiting loop).");
                 estimationDone = true; // we reached max. (or no max_iter specified)
 
             }
@@ -575,21 +578,21 @@ public class CPM {
             /** Only warn if last iteration has been estimationDone */
             if (estimationDone) {
                 if (overAllModelTest_L > 10) {
-                    //Logger.warn("COREGPM: Overall Model Test, Lines = {} is larger than 10. (Suggest model or a priori sigma not correct.)", overAllModelTest_L);
+                    logger.warning("COREGPM: Overall Model Test, Lines = {} is larger than 10. (Suggest model or a priori sigma not correct.)"+ overAllModelTest_L);
                 }
                 if (overAllModelTest_P > 10) {
-                    //Logger.warn("COREGPM: Overall Model Test, Pixels = {} is larger than 10. (Suggest model or a priori sigma not correct.)", overAllModelTest_P);
+                    logger.warning("COREGPM: Overall Model Test, Pixels = {} is larger than 10. (Suggest model or a priori sigma not correct.)"+ overAllModelTest_P);
                 }
 
                 /** if a priori sigma is correct, max wtest should be something like 1.96 */
                 if (Math.max(maxWinL, maxWinP) > 200.0) {
-                    //Logger.warn("Recommendation: remove window number: {} and re-run step COREGPM.  max. wtest is: {}.", index.get(winL), Math.max(maxWinL, maxWinP));
+                    logger.warning("Recommendation: remove window number: {} and re-run step COREGPM.  max. wtest is: {}."+ index.get(winL)+ Math.max(maxWinL, maxWinP));
                 }
 
             }
 
-            //Logger.debug("TIME FOR wTestStatistics: {}", stopWatch.lap("WTEST"));
-            //Logger.debug("Total Estimation TIME: {}", clock.getElapsedTime());
+            logger.info("TIME FOR wTestStatistics: {}"+ stopWatch.lap("WTEST"));
+            logger.info("Total Estimation TIME: {}"+ clock.getElapsedTime());
 
             numIterations++;// update counter here!
 
@@ -605,7 +608,7 @@ public class CPM {
 
     public void wrapJaiWarpPolynomial() {
 
-        //Logger.trace("Start JAI wrapper");
+        logger.info("Start JAI wrapper");
 
         float[] xyMaster = new float[2 * numObservations];
         float[] xySlave = new float[2 * numObservations];

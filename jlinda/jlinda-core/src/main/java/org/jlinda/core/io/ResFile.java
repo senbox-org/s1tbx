@@ -1,26 +1,27 @@
 package org.jlinda.core.io;
 
-import org.apache.log4j.Logger;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jlinda.core.utils.DateUtils;
 
 import java.io.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class ResFile {
 
-    private static Logger logger = Logger.getLogger(ResFile.class.getName());
+    private static Logger logger = BeamLogManager.getSystemLogger();
 
     /*
         public static void initializeLogger() {
             BasicConfigurator.configure();
-            //Logger.getRootLogger().setLevel(Level.ALL);
+            logger.getRootLogger().setLevel(Level.ALL);
             Layout layout = new PatternLayout("%d [%t] %-5p %c %x - %m%n");
-            //Logger.getRootLogger().addAppender(new ConsoleAppender(layout));
+            logger.getRootLogger().addAppender(new ConsoleAppender(layout));
         }
     */
 
@@ -81,10 +82,10 @@ public final class ResFile {
             out.write(buffer.toString());
             out.close();
         } catch (FileNotFoundException ex) {
-            //Logger.error(" dumpBuffer() exception " + ex.getMessage());
+            logger.severe(" dumpBuffer() exception " + ex.getMessage());
             ex.printStackTrace();
         } catch (IOException ex) {
-            //Logger.error(" dumpBuffer() exception " + ex.getMessage());
+            logger.severe(" dumpBuffer() exception " + ex.getMessage());
             ex.printStackTrace();
         }
 
@@ -97,10 +98,10 @@ public final class ResFile {
             out.write(buffer.toString());
             out.close();
         } catch (FileNotFoundException ex) {
-            //Logger.error(" dumpBuffer() exception " + ex.getMessage());
+            logger.severe(" dumpBuffer() exception " + ex.getMessage());
             ex.printStackTrace();
         } catch (IOException ex) {
-            //Logger.error(" dumpBuffer() exception " + ex.getMessage());
+            logger.severe(" dumpBuffer() exception " + ex.getMessage());
             ex.printStackTrace();
         }
 
@@ -192,7 +193,7 @@ public final class ResFile {
             try {
                 valuesList.add(match.group(groupToReturn));
             } catch (IndexOutOfBoundsException e) {
-                //Logger.error("queryKey(key,group) : Exception handling regex : " + e.getLocalizedMessage());
+                logger.severe("queryKey(key,group) : Exception handling regex : " + e.getLocalizedMessage());
             }
         }
         return valuesList;
@@ -248,12 +249,12 @@ public final class ResFile {
                 i++;
 
             } catch (IndexOutOfBoundsException e) {
-                //Logger.error("parseOrbit() : Exception handling regex : " + e.getLocalizedMessage());
+                logger.severe("parseOrbit() : Exception handling regex : " + e.getLocalizedMessage());
             }
         }
 
         if (i != numberOfStateVectors) {
-            //Logger.error("parseOrbit() : inconsistency in number of defined and parsed state vectors");
+            logger.severe("parseOrbit() : inconsistency in number of defined and parsed state vectors");
             throw new IllegalArgumentException("Cannot parse orbit : number of defined and parsed state vectors not the same");
         }
 

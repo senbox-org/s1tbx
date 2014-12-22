@@ -1,10 +1,13 @@
 package org.jlinda.core.coregistration;
 
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jblas.DoubleMatrix;
+
+import java.util.logging.Logger;
 
 public class SimpleLUT extends LUT {
 
-    //private static final Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(SimpleLUT.class);
+    private static final Logger logger = BeamLogManager.getSystemLogger();
 
     public SimpleLUT(String method) {
         super(method);
@@ -62,13 +65,13 @@ public class SimpleLUT extends LUT {
     @Override
     public void overviewLUT() {
 
-        //Logger.debug("Overview of Simplified LUT for interpolation");
-        //Logger.debug("--------------------------------------------");
+        logger.info("Overview of Simplified LUT for interpolation");
+        logger.info("--------------------------------------------");
 
         for (int i = 0; i < nInterval; ++i) {
 
             // logger
-            //Logger.debug("Kernel row [{}]: {} :", i, kernel.getRow(i).toString());
+            logger.info("Kernel row [{}]: {} :"+ i+ kernel.getRow(i).toString());
 
         }
 

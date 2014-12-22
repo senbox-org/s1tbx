@@ -1,16 +1,18 @@
 package org.jlinda.core.io;
 
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.junit.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 public class ResFileTest {
 
-    //static Logger logger = Logger.getLogger(ResFileTest.class.getName());
+    static Logger logger = BeamLogManager.getSystemLogger();
 
     private static File testFile;
     private static String resFileString;
@@ -78,8 +80,8 @@ public class ResFileTest {
             resFileOut.write(resFileString);
             resFileOut.close();
         } catch (IOException e) {
-            //Logger.error("IO Exception: test file cannot be created.");
-            //Logger.error(e.getMessage());
+            logger.severe("IO Exception: test file cannot be created.");
+            logger.severe(e.getMessage());
         }
 
     }

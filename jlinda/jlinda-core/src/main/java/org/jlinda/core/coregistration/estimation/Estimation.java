@@ -1,5 +1,6 @@
 package org.jlinda.core.coregistration.estimation;
 
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jblas.Decompose;
 import org.jblas.DoubleMatrix;
 import org.jblas.MatrixFunctions;
@@ -9,6 +10,7 @@ import org.jlinda.core.utils.LinearAlgebraUtils;
 import org.jlinda.core.utils.PolyUtils;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import static org.jblas.MatrixFunctions.abs;
 
@@ -17,7 +19,7 @@ import static org.jblas.MatrixFunctions.abs;
  */
 public class Estimation {
 
-    //static Logger logger = LoggerFactory.getLogger(Estimation.class.getName());
+    static Logger logger = BeamLogManager.getSystemLogger();
 
     private static final String FILE_NAME = "/d1/list.txt";
     private static double[][] data = null;
@@ -79,7 +81,7 @@ public class Estimation {
         int DONE = 0;
         // sqr: level significance: alpha=0.001; power of test: gamma=0.80
         //real4 CRIT_VALUE = sqrt(3.29);
-        //Logger.info("Critical value for outlier test: {}", CRIT_VALUE);
+        logger.info("Critical value for outlier test: {}"+ CRIT_VALUE);
         int winL = 0;// window number to be removed
         int winP = 0;// window number of largest w -test in range
         DoubleMatrix eL_hat;
@@ -99,7 +101,7 @@ public class Estimation {
 
         while (DONE != 1) {
 
-            //Logger.info("Start iteration: {} ", ITERATION);
+            logger.info("Start iteration: {} "+ ITERATION);
 
             // ______ Remove identified outlier from previous estimation ______
             if (ITERATION != 0) {
@@ -111,7 +113,7 @@ public class Estimation {
                         Data.putRow(j, tmp_DATA.getRow(i));// copy back without removed obs.
                         j++;// fill next row of Data
                     } else {
-                        //Logger.info("Removing observation " + i + " from observation vector.");
+                        logger.info("Removing observation " + i + " from observation vector.");
                     }
                 }
             }
@@ -119,7 +121,7 @@ public class Estimation {
             // ______Check redundancy______
             int Nobs = Data.rows; // Number of points > threshold
             if (Nobs < Nunk) {
-                //Logger.error("coregpm: Number of windows > threshold is smaller than parameters solved for.");
+                logger.severe("coregpm: Number of windows > threshold is smaller than parameters solved for.");
                 throw new ArithmeticException("coregpm: Number of windows > threshold is smaller than parameters solved for.");
             }
 
@@ -131,18 +133,18 @@ public class Estimation {
             DoubleMatrix Qy_1 = new DoubleMatrix(Nobs, 1); // a priori covariance matrix (diag)
 
             // ______ Normalize data for polynomial ______
-            //Logger.info("coregpm: polynomial normalized by factors: " + minL + " " + maxL + " " + minP + " " + maxP + " to [-2,2]");
+            logger.info("coregpm: polynomial normalized by factors: " + minL + " " + maxL + " " + minP + " " + maxP + " to [-2,2]");
 
 
             // ______Fill matrices______
-            //Logger.debug("Setting up design matrix for LS adjustment");
+            logger.info("Setting up design matrix for LS adjustment");
             for (i = 0; i < Nobs; i++) {
                 double posL = PolyUtils.normalize2(Data.get(i, 1), minL, maxL);
                 double posP = PolyUtils.normalize2(Data.get(i, 2), minP, maxP);
                 yL.put(i, 0, Data.get(i, 3));
                 yP.put(i, 0, Data.get(i, 4));
 
-                //Logger.debug("coregpm: (" + posL + ", " + posP + "): yL=" + yL.get(i, 0) + " yP=" + yP.get(i, 0));
+                logger.info("coregpm: (" + posL + ", " + posP + "): yL=" + yL.get(i, 0) + " yP=" + yP.get(i, 0));
 
                 // ______Set up designmatrix______
                 index = 0;
@@ -155,7 +157,7 @@ public class Estimation {
             }
 
             // ______Weight matrix data______
-            //Logger.debug("Setting up (inverse of) covariance matrix for LS adjustment");
+            logger.info("Setting up (inverse of) covariance matrix for LS adjustment");
             switch (weightflag) {
                 case 0:
 //                    for (i = 0; i < Nobs; i++)
@@ -163,24 +165,24 @@ public class Estimation {
                     Qy_1 = DoubleMatrix.ones(Nobs, 1);
                     break;
                 case 1:
-                    //Logger.debug("Using sqrt(coherence) as weights.");
+                    logger.info("Using sqrt(coherence) as weights.");
 
                     Qy_1 = Data.getColumn(5);
 //                    for (i = 0; i < Nobs; i++)
 //                        Qy_1(i, 0) = real8(Data(i, 5));// more weight to higher correlation
                     // ______ Normalize weights to avoid influence on estimated var.factor ______
-                    //Logger.info("Normalizing covariance matrix for LS estimation.");
+                    logger.info("Normalizing covariance matrix for LS estimation.");
 //                    Qy_1 = Qy_1 / mean(Qy_1);// normalize weights (for tests!)
                     Qy_1.divi(Qy_1.mean());
                     break;
                 case 2:
-                    //Logger.debug("Using coherence as weights.");
+                    logger.info("Using coherence as weights.");
 
                     Qy_1 = MatrixFunctions.pow(Data.getColumn(5), 2);
 //                    for (i = 0; i < Nobs; i++)
 //                        Qy_1(i, 0) = real8(Data(i, 5)) * real8(Data(i, 5));// more weight to higher correlation
                     // ______ Normalize weights to avoid influence on estimated var.factor ______
-                    //Logger.info("Normalizing covariance matrix for LS estimation.");
+                    logger.info("Normalizing covariance matrix for LS estimation.");
 //                    Qy_1 = Qy_1 / mean(Qy_1);// normalize weights (for tests!)
                     Qy_1.divi(Qy_1.mean());
                     break;
@@ -194,7 +196,7 @@ public class Estimation {
 //                    // it seems for large N this is to optimistic, maybe because of a bias
 //                    // in the coherence estimator, or some other reason;  in any case,
 //                    // the result is a large number of warnings.
-//                    //Logger.debug("Using expression Bamler04 as weights.");
+//                    logger.info("Using expression Bamler04 as weights.");
 //                    for (i = 0; i < Nobs; i++) {
 //                        // N_corr: number of samples for cross-corr; approx. FC_WINSIZE
 //                        // number of effictive samples depends on data ovs factor
@@ -203,16 +205,16 @@ public class Estimation {
 //                        double coh = Data.get(i, 5);// estimated correlation; assume unbiased?
 //                        double sigma_cc = Math.sqrt(3.0 / (2.0 * N_corr)) * Math.sqrt(1.0 - Math.pow(coh, 2)) / (Constants.PI * coh);
 //                        double sigma_ic = Math.sqrt(2.0 / coh) * sigma_cc;
-//                        //Logger.debug("Window " + i + ": estimated coherence   = " + coh);
-//                        //Logger.debug("Window " + i + ": sigma(estimated shift) for coherent cross-correlation = " + sigma_cc + " [pixel]");
-//                        //Logger.debug("Window " + i + ": sigma(estimated shift) = " + sigma_ic + " [pixel]");
+//                        logger.info("Window " + i + ": estimated coherence   = " + coh);
+//                        logger.info("Window " + i + ": sigma(estimated shift) for coherent cross-correlation = " + sigma_cc + " [pixel]");
+//                        logger.info("Window " + i + ": sigma(estimated shift) = " + sigma_ic + " [pixel]");
 //                        Qy_1.put(i, 0, 1.0 / Math.sqrt(sigma_ic));// Qy_1=diag(inverse(Qy));
 //                        SIGMAL = 1.0;// remove this factor effectively
 //                        SIGMAP = 1.0;// remove this factor effectively
 //                    }
 //                    break;
                 default:
-                    //Logger.error("Panic, CPM not possible with checked input.");
+                    logger.severe("Panic, CPM not possible with checked input.");
                     throw new IllegalArgumentException("Panic, CPM not possible with checked input.");
             }
 
@@ -238,13 +240,13 @@ public class Estimation {
 //            maxdev = max(abs(N * Qx_hat - eye(real8(Qx_hat.lines()))));
 
             maxdev = abs(N.mmul(Qx_hat).sub(DoubleMatrix.eye(Qx_hat.rows))).max();
-            //Logger.info("coregpm: max(abs(N*inv(N)-I)) = {}", maxdev);
+            logger.info("coregpm: max(abs(N*inv(N)-I)) = {}"+ maxdev);
 
             if (maxdev > .01) {
-                //Logger.error("coregpm: maximum deviation N*inv(N) from unity = {}. This is larger than 0.01", maxdev);
+                logger.severe("coregpm: maximum deviation N*inv(N) from unity = {}. This is larger than 0.01"+ maxdev);
                 throw new IllegalStateException("coregpm: maximum deviation N*inv(N) from unity)");
             } else if (maxdev > .001) {
-                //Logger.warn("coregpm: maximum deviation N*inv(N) from unity = {}. This is between 0.01 and 0.001", maxdev);
+                logger.warning("coregpm: maximum deviation N*inv(N) from unity = {}. This is between 0.01 and 0.001"+ maxdev);
             }
 
 
