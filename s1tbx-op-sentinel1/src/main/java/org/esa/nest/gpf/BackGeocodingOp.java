@@ -552,7 +552,7 @@ public final class BackGeocodingOp extends Operator {
         }
 
         if (outputRangeAzimuthOffset) {
-            outputRangeAzimuthOffsets(x0, y0, w, h, targetTileMap, slavePixPos);
+            outputRangeAzimuthOffsets(x0, y0, w, h, targetTileMap, slavePixPos, subSwathIndex, burstIndex);
         }
 
         final int margin = selectedResampling.getKernelSize();
@@ -1037,7 +1037,8 @@ public final class BackGeocodingOp extends Operator {
     }
 
     private void outputRangeAzimuthOffsets(final int x0, final int y0, final int w, final int h,
-                                           final Map<Band, Tile> targetTileMap, final PixelPos[][] slavePixPos) {
+                                           final Map<Band, Tile> targetTileMap, final PixelPos[][] slavePixPos,
+                                           final int subSwathIndex, final int burstIndex) {
 
         try {
             final Band azOffsetBand = targetProduct.getBand("azOffset");
@@ -1046,6 +1047,9 @@ public final class BackGeocodingOp extends Operator {
             if (azOffsetBand == null || rgOffsetBand == null) {
                 return;
             }
+
+            Sentinel1Utils.SubSwathInfo mSubSwath = mSU.getSubSwath()[subSwathIndex - 1];
+            Sentinel1Utils.SubSwathInfo sSubSwath = sSU.getSubSwath()[subSwathIndex - 1];
 
             final Tile tgtTileAzOffset = targetTileMap.get(azOffsetBand);
             final Tile tgtTileRgOffset = targetTileMap.get(rgOffsetBand);
@@ -1064,8 +1068,24 @@ public final class BackGeocodingOp extends Operator {
                         tgtBufferAzOffset.setElemFloatAt(tgtIdx, (float) noDataValue);
                         tgtBufferRgOffset.setElemFloatAt(tgtIdx, (float) noDataValue);
                     } else {
-                        tgtBufferAzOffset.setElemFloatAt(tgtIdx, (float)(y - slavePixPos[yy][xx].y));
+
+                        final double mta = mSubSwath.burstFirstLineTime[burstIndex] +
+                                (y - burstIndex*mSubSwath.linesPerBurst)*mSubSwath.azimuthTimeInterval;
+
+                        final double mY = (mta - mSubSwath.burstFirstLineTime[0]) / mSubSwath.azimuthTimeInterval;
+
+                        final double sta = sSubSwath.burstFirstLineTime[burstIndex] +
+                                (slavePixPos[yy][xx].y - burstIndex*sSubSwath.linesPerBurst)*sSubSwath.azimuthTimeInterval;
+
+                        final double sY = (sta - sSubSwath.burstFirstLineTime[0]) / sSubSwath.azimuthTimeInterval;
+
+                        final float yOffset = (float)(mY - sY);
+
+                        tgtBufferAzOffset.setElemFloatAt(tgtIdx, yOffset);
                         tgtBufferRgOffset.setElemFloatAt(tgtIdx, (float)(x - slavePixPos[yy][xx].x));
+
+                        //tgtBufferAzOffset.setElemFloatAt(tgtIdx, (float)(y - slavePixPos[yy][xx].y));
+                        //tgtBufferRgOffset.setElemFloatAt(tgtIdx, (float)(x - slavePixPos[yy][xx].x));
                     }
                 }
             }
