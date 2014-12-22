@@ -91,11 +91,13 @@ abstract class AbstractGaussianGrid implements PlanetaryGrid {
     }
 
     private int getColIndex(int rowIndex, double lon) {
-        final double delta = 360.0 / getNumColsUnchecked(rowIndex);
+        int numColsInRow = getNumColsUnchecked(rowIndex);
+        final double delta = 360.0 / numColsInRow;
         if (lon < 0.0) {
             lon += 360.0;
         }
-        return (int) (lon / delta + 0.5);
+        int index = (int) (lon / delta + 0.5);
+        return index == numColsInRow ? 0 : index;
     }
 
     private int getColIndex(long binIndex, int rowIndex) {
