@@ -97,6 +97,8 @@ public class LeeSigma implements SpeckleFilter {
                 sourceProductType == PolBandUtils.MATRIX.C3 ||
                 sourceProductType == PolBandUtils.MATRIX.T3) {
             leeSigmaFilter(targetTiles, targetRectangle, sourceRectangle);
+        } else if(sourceProductType == PolBandUtils.MATRIX.C2) {
+            leeSigmaFilterC2(targetTiles, targetRectangle, sourceRectangle);
         } else {
             throw new OperatorException("For Lee Sigma filter, only C3 and T3 are supported currently");
         }

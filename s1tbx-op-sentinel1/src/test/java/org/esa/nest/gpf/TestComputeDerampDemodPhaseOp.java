@@ -29,9 +29,14 @@ public class TestComputeDerampDemodPhaseOp {
     public final static File inputParameterFile = new File(TestData.inputSAR+"InSAR"+File.separator+"pp_m20140809_s20140821_s1a-slc-vv_SS1_with_comments.xml");
 
     private final static OperatorSpi spi = new ComputeDerampDemodPhaseOp.Spi();
+    private TAXIParameterFileReader reader = null;
+    private ComputeDerampDemodPhaseOp op = null;
+    private Product targetProduct = null;
+    private final int width = 20564;
+    private final int actOffset = 71;
 
-    @Test
-    public void testSentinelPODOrbitFileOperations() throws Exception {
+    public TestComputeDerampDemodPhaseOp() throws Exception {
+
         final File inputFile = new File(inputPath);
         if (!inputFile.exists()) {
             TestUtils.skipTest(this, inputFile + " not found");
@@ -44,52 +49,95 @@ public class TestComputeDerampDemodPhaseOp {
         }
 
         final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
-
-        final ComputeDerampDemodPhaseOp op = (ComputeDerampDemodPhaseOp) spi.createOperator();
+        op = (ComputeDerampDemodPhaseOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
 
         // get targetProduct: execute initialize()
-        final Product targetProduct = op.getTargetProduct();
+        targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, false, false, false);
 
-        final TAXIParameterFileReader reader = new TAXIParameterFileReader(inputParameterFile);
+        reader = new TAXIParameterFileReader(inputParameterFile);
         reader.readParameterFile();
+    }
 
-        final int width = 20564;
+    @Test
+    public void testReferenceTime() throws Exception {
+
+        final double dt = 2.055556280538440e-03;    // azimuthTimeInterval
+        final int Nburst = 1629;                    // number of lines per burst
+        final double vs = reader.sensorVelocity;    // sensor velocity
+        final double lambda = reader.waveLength;    // wave length
+        final double omegaDeg = 1.590368784000000;  // azimuthSteeringRate
+        final double omegaRad = omegaDeg/180*Math.PI;
+
+        final float[] tref = op.computeReferenceTime(0);
+        final float[] trimmedTref = new float[width];
+        final float[] expectedTref = new float[width];
+        for (int i = 0; i < width; i++) {
+            trimmedTref[i] = tref[i + actOffset];
+            final double Krot = 2*vs*omegaRad/lambda;
+            final double Ka = reader.kt[i]*Krot/(reader.kt[i] - Krot);
+            final double tc = -reader.DopplerCentroid[i]/Ka;
+            expectedTref[i] = (float)(0.5*Nburst*dt + tc + reader.DopplerCentroid[0]/Ka);
+        }
+        TestUtils.compareArrays(trimmedTref, expectedTref, 1e-2f);
+    }
+
+    @Test
+    public void testSlantRange() throws Exception {
+
+        final float[] slr = op.computeSlantRange();
+        final float[] trimmedSlr = new float[width];
+        final float[] expectedSlr = new float[width];
+        for (int i = 0; i < width; i++) {
+            trimmedSlr[i] = slr[i + actOffset];
+            expectedSlr[i] = (float) reader.slantRange[i];
+        }
+        TestUtils.compareArrays(trimmedSlr, expectedSlr, 0.2f);
+    }
+
+    @Test
+    public void testKt() throws Exception {
+
         for (int burstIndex = 0; burstIndex < 9; burstIndex++) {
             final float[] kt = op.computeDopplerRate(burstIndex);
-            //String ktFileName = "kt" + burstIndex + ".txt";
+            //String ktFileName = "kt_s1_" + burstIndex + ".txt";
             //outputToFile(kt, ktFileName);
             final float[] trimmedKt = new float[width];
             final float[] expectedKt = new float[width];
-            final int actOffset = 71;
-            final int expOffset = burstIndex*20564;
+            final int expOffset = burstIndex * 20564;
             for (int i = 0; i < width; i++) {
                 trimmedKt[i] = kt[i + actOffset];
-                expectedKt[i] = (float)reader.kt[i + expOffset];
+                expectedKt[i] = (float) reader.kt[i + expOffset];
             }
             TestUtils.compareArrays(trimmedKt, expectedKt, 1e-3f);
         }
+    }
 
+    @Test
+    public void testFdc() throws Exception {
 
         for (int burstIndex = 0; burstIndex < 9; burstIndex++) {
             final float[] fdc = op.computeDopplerCentroid(burstIndex);
-            //String fdcFileName = "fdc" + burstIndex + ".txt";
+            //String fdcFileName = "fdc_s1_" + burstIndex + ".txt";
             //outputToFile(fdc, fdcFileName);
             final float[] trimmedFdc = new float[width];
             final float[] expectedFdc = new float[width];
-            final int actOffset = 71;
-            final int expOffset = burstIndex*20564;
+            final int expOffset = burstIndex * 20564;
             for (int i = 0; i < width; i++) {
                 trimmedFdc[i] = fdc[i + actOffset];
-                expectedFdc[i] = (float)reader.DopplerCentroid[i + expOffset];
+                expectedFdc[i] = (float) reader.DopplerCentroid[i + expOffset];
             }
             TestUtils.compareArrays(trimmedFdc, expectedFdc, 1e-3f);
         }
+    }
 
-        final Band band = targetProduct.getBandAt(0);
-        assertNotNull(band);
+    @Test
+    public void testDerampPhase() throws Exception {
+
+        //final Band band = targetProduct.getBandAt(0);
+        //assertNotNull(band);
 
         // readPixels: execute computeTiles()
         //final float[] floatValues = new float[8];
@@ -101,6 +149,7 @@ public class TestComputeDerampDemodPhaseOp {
     }
 
     private void outputToFile(final float[] dataArray, final String fileName) throws Exception {
+
         final File appUserDir = new File(ResourceUtils.getApplicationUserDir(true).getAbsolutePath() + File.separator + "log");
         if (!appUserDir.exists()) {
             appUserDir.mkdirs();
