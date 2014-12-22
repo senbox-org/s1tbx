@@ -93,14 +93,18 @@ public class LeeSigma implements SpeckleFilter {
     }
 
     public void computeTiles(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle, final Rectangle sourceRectangle) {
+        //System.out.println("LeeSigma.computeTile: sourceProductType = " + sourceProductType);
         if (sourceProductType == PolBandUtils.MATRIX.FULL ||
                 sourceProductType == PolBandUtils.MATRIX.C3 ||
                 sourceProductType == PolBandUtils.MATRIX.T3) {
             leeSigmaFilter(targetTiles, targetRectangle, sourceRectangle);
-        } else if(sourceProductType == PolBandUtils.MATRIX.C2) {
+        } else if (sourceProductType == PolBandUtils.MATRIX.C2 ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
             leeSigmaFilterC2(targetTiles, targetRectangle, sourceRectangle);
         } else {
-            throw new OperatorException("For Lee Sigma filter, only C3 and T3 are supported currently");
+            throw new OperatorException("For Lee Sigma filter, only C2, C3 and T3 are supported currently");
         }
     }
 
