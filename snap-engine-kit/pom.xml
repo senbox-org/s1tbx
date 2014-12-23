@@ -300,7 +300,7 @@
             <version>2.7</version>
         </dependency>
         <dependency>
-            <groupId>gov.nasa.gsfc.seadas</groupId>
+            <groupId>org.esa.snap.seadas</groupId>
             <artifactId>seadas-reader</artifactId>
             <version>1.5.6</version>
         </dependency>
