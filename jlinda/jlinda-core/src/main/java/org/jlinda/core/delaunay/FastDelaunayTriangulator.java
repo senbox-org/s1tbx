@@ -222,15 +222,22 @@ public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
 
         Coordinate t0A = t1.getVertex(side1_2);
         Coordinate t0B = t0.getVertex(side0_2);
+        //Coordinate t0C = t0.getVertex(side0);
+        //Coordinate t1A = t0A;
         Coordinate t1B = t0.getVertex(side0_1);
-
+        //Coordinate t1C = t0B;
+        // New neighbours
+        Triangle newt0N1 = t0.getNeighbour(side0_2);
+        Triangle newt0N2 = t1.getNeighbour(side1_1);
+        Triangle newt1N0 = t1.getNeighbour(side1_2);
+        Triangle newt1N1 = t0.getNeighbour(side0_1);
         t0.setABC(t0A, t0B, t0.getVertex(side0));
         t0.setBAO(t1);
-        link(t0,1,t0.getNeighbour(side0_2));
-        link(t0,2,t1.getNeighbour(side1_1));
+        link(t0,1,newt0N1);
+        link(t0,2,newt0N2);
         t1.setABC(t0A, t1B, t0B);
-        link(t1,0,t1.getNeighbour(side1_2));
-        link(t1,1,t0.getNeighbour(side0_1));
+        link(t1,0,newt1N0);
+        link(t1,1,newt1N1);
         t1.setACO(t0);
     }
 
