@@ -42,6 +42,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.util.*;
 
 /**
@@ -64,6 +65,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
     private final List<File> cosarFileList = new ArrayList<>(1);
     private final Map<String, ImageInputStream> cosarBandMap = new HashMap<>(1);
+
+    private static final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     // For TDM CoSSC products only
     private String masterProductName = null;
@@ -252,7 +255,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "TSX");
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
-                ReaderUtils.getTime(generalHeader, "generationTime", AbstractMetadata.dateFormat));
+                ReaderUtils.getTime(generalHeader, "generationTime", standardDateFormat));
 
         MetadataElement elem = generalHeader.getElement("generationSystem");
         if (elem != null) {
@@ -447,8 +450,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     }
 
     private static void setStartStopTime(final MetadataElement absRoot, final MetadataElement elem, final int height) {
-        final ProductData.UTC startTime = ReaderUtils.getTime(elem.getElement("start"), "timeUTC", AbstractMetadata.dateFormat);
-        final ProductData.UTC stopTime = ReaderUtils.getTime(elem.getElement("stop"), "timeUTC", AbstractMetadata.dateFormat);
+        final ProductData.UTC startTime = ReaderUtils.getTime(elem.getElement("start"), "timeUTC", standardDateFormat);
+        final ProductData.UTC stopTime = ReaderUtils.getTime(elem.getElement("stop"), "timeUTC", standardDateFormat);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_line_time, startTime);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_line_time, stopTime);
 
@@ -1045,7 +1048,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                    ReaderUtils.getTime(stateVectorElems[1], "timeUTC", AbstractMetadata.dateFormat));
+                    ReaderUtils.getTime(stateVectorElems[1], "timeUTC", standardDateFormat));
         }
     }
 
@@ -1054,7 +1057,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         final MetadataElement orbitVectorElem = new MetadataElement(name + num);
 
         orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
-                ReaderUtils.getTime(srcElem, "timeUTC", AbstractMetadata.dateFormat));
+                ReaderUtils.getTime(srcElem, "timeUTC", standardDateFormat));
 
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_pos,
                 srcElem.getAttributeDouble("posX", 0));
@@ -1173,7 +1176,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
                 dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
                 ++listCnt;
 
-                final ProductData.UTC utcTime = ReaderUtils.getTime(dopplerEstimate, "timeUTC", AbstractMetadata.dateFormat);
+                final ProductData.UTC utcTime = ReaderUtils.getTime(dopplerEstimate, "timeUTC", standardDateFormat);
                 dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
 
                 final MetadataElement combinedDoppler = dopplerEstimate.getElement("combinedDoppler");

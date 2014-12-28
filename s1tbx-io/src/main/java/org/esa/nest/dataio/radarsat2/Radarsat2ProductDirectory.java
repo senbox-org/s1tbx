@@ -45,6 +45,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     private final String productDescription = "";
     private boolean compactPolMode = false;
 
+    private static final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+
     private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId() +
             ".flip.to.sar.geometry", "false").equals("true");
 
@@ -223,14 +225,14 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         ProductData.UTC stopTime = null;
         if (flipToSARGeometry && pass.equals("ASCENDING")) {
             stopTime = ReaderUtils.getTime(sarProcessingInformation,
-                    "zeroDopplerTimeFirstLine", AbstractMetadata.dateFormat);
+                    "zeroDopplerTimeFirstLine", standardDateFormat);
             startTime = ReaderUtils.getTime(sarProcessingInformation,
-                    "zeroDopplerTimeLastLine", AbstractMetadata.dateFormat);
+                    "zeroDopplerTimeLastLine", standardDateFormat);
         } else {
             startTime = ReaderUtils.getTime(sarProcessingInformation,
-                    "zeroDopplerTimeFirstLine", AbstractMetadata.dateFormat);
+                    "zeroDopplerTimeFirstLine", standardDateFormat);
             stopTime = ReaderUtils.getTime(sarProcessingInformation,
-                    "zeroDopplerTimeLastLine", AbstractMetadata.dateFormat);
+                    "zeroDopplerTimeLastLine", standardDateFormat);
         }
 
         final DateFormat dateFormat = ProductData.UTC.createDateFormat("dd-MMM-yyyy_HH.mm");
@@ -248,7 +250,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         );
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
-                ReaderUtils.getTime(generalProcessingInformation, "processingTime", AbstractMetadata.dateFormat));
+                ReaderUtils.getTime(generalProcessingInformation, "processingTime", standardDateFormat));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag,
                 getFlag(sarProcessingInformation, "elevationPatternCorrection"));
@@ -379,7 +381,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                 equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                    ReaderUtils.getTime(stateVectorElems[0], "timeStamp", AbstractMetadata.dateFormat));
+                    ReaderUtils.getTime(stateVectorElems[0], "timeStamp", standardDateFormat));
         }
     }
 
@@ -388,7 +390,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final MetadataElement orbitVectorElem = new MetadataElement(name + num);
 
         orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
-                ReaderUtils.getTime(srcElem, "timeStamp", AbstractMetadata.dateFormat));
+                ReaderUtils.getTime(srcElem, "timeStamp", standardDateFormat));
 
         final MetadataElement xpos = srcElem.getElement("xPosition");
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_pos,
@@ -422,7 +424,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                 srgrCoefficientsElem.addElement(srgrListElem);
                 ++listCnt;
 
-                final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "zeroDopplerAzimuthTime", AbstractMetadata.dateFormat);
+                final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "zeroDopplerAzimuthTime", standardDateFormat);
                 srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
 
                 final double grOrigin = elem.getElement("groundRangeOrigin").getAttributeDouble("groundRangeOrigin", 0);
@@ -461,7 +463,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                 dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
                 ++listCnt;
 
-                final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "timeOfDopplerCentroidEstimate", AbstractMetadata.dateFormat);
+                final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "timeOfDopplerCentroidEstimate", standardDateFormat);
                 dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
 
                 final double refTime = elem.getElement("dopplerCentroidReferenceTime").
@@ -719,7 +721,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
             if (elem.getName().equalsIgnoreCase("slantRangeToGroundRange")) {
                 final coefList coef = new coefList();
                 segmentsArray.add(coef);
-                coef.utcSeconds = ReaderUtils.getTime(elem, "zeroDopplerAzimuthTime", AbstractMetadata.dateFormat).getMJD() * 24 * 3600;
+                coef.utcSeconds = ReaderUtils.getTime(elem, "zeroDopplerAzimuthTime", standardDateFormat).getMJD() * 24 * 3600;
                 coef.grOrigin = elem.getElement("groundRangeOrigin").getAttributeDouble("groundRangeOrigin", 0);
 
                 final String coeffStr = elem.getAttributeString("groundToSlantRangeCoefficients", "");

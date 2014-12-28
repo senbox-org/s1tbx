@@ -50,6 +50,7 @@ public abstract class CEOSProductDirectory {
     protected int sceneHeight = 0;
 
     public static final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-DDD-HH:mm:ss");
+    private static final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     protected abstract void readProductDirectory() throws IOException, IllegalBinaryFormatException;
 
@@ -365,7 +366,7 @@ public abstract class CEOSProductDirectory {
         second += interval * (num - 1);
 
         return AbstractMetadata.parseUTC(String.valueOf(year) + '-' + month + '-' + day + ' ' +
-                hour + ':' + minute + ':' + second, AbstractMetadata.dateFormat);
+                hour + ':' + minute + ':' + second, standardDateFormat);
     }
 
     protected static void addSRGRCoefficients(final MetadataElement absRoot, final BinaryRecord facilityRec) {
