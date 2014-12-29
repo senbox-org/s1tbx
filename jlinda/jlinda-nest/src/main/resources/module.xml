@@ -281,32 +281,4 @@
         </helpSet>
     </extension>
 
-    <!-- LEFTOVERS -->
-
-    <!--<action>-->
-        <!--<id>snaphu</id>-->
-        <!--<class>org.esa.nest.dat.actions.ComingSoonAction</class>-->
-        <!--<text>Unwrapping (coming soon)</text>-->
-        <!--<placeAfter>filtering</placeAfter>-->
-        <!--<separatorAfter>true</separatorAfter>-->
-        <!--<parent>insar</parent>-->
-    <!--</action>-->
-
-    <!--<action>-->
-        <!--<id>sarTools</id>-->
-        <!--<class>org.esa.nest.dat.actions.ComingSoonAction</class>-->
-        <!--<text>SAR Tools</text>-->
-        <!--<placeAfter>snaphu</placeAfter>-->
-        <!--<parent>insar</parent>-->
-    <!--</action>-->
-
-    <!--<action>-->
-        <!--<id>geoTools</id>-->
-        <!--<class>org.esa.nest.dat.actions.ComingSoonAction</class>-->
-        <!--<text>GEO Tools</text>-->
-        <!--<placeAfter>sarTools</placeAfter>-->
-        <!--<separatorAfter>true</separatorAfter>-->
-        <!--<parent>insar</parent>-->
-    <!--</action>-->
-
 </module>
