@@ -144,7 +144,7 @@ public class Unwrapper {
         }
         beq.reshape(beq.length, 1);
 
-        logger.info("Constraint matrix");
+        //logger.info("Constraint matrix");
         i = intRangeDoubleMatrix(0, ny - 1);
         j = intRangeDoubleMatrix(0, nx - 1);
         ROWS = grid2D(i, j);
@@ -224,27 +224,33 @@ public class Unwrapper {
 
         DoubleMatrix cost = DoubleMatrix.concatVertically(DoubleMatrix.concatVertically(c1, c1), DoubleMatrix.concatVertically(c2, c2));
 
-        logger.info("Minimum network flow resolution");
+        //logger.info("Minimum network flow resolution");
 
         StopWatch clockProb = new StopWatch();
         final Matrix<?> m = factory.newMatrix(nUnkn, nObs, true);
 
         // repackage matrix from Jblas to Colt Sparse
-        for (int k = 0; k < nUnkn; k++) {
-            for (int l = 0; l < nObs; l++) {
-                if (sparseFlag) {
-                    if (Aeq_Sparse.getQuick(k, l) != 0) m.set(k, l, Aeq_Sparse.getQuick(k, l));
-                } else {
-                    if (Aeq.get(k, l) != 0) m.set(k, l, Aeq.get(k, l));
+        double v;
+        if (sparseFlag) {
+            for (int k = 0; k < nUnkn; k++) {
+                for (int l = 0; l < nObs; l++) {
+                    v = Aeq_Sparse.getQuick(k, l);
+                    if (v != 0) m.set(k, l, v);
+                }
+            }
+        } else {
+            for (int k = 0; k < nUnkn; k++) {
+                for (int l = 0; l < nObs; l++) {
+                    v = Aeq.get(k, l);
+                    if (v != 0) m.set(k, l, v);
                 }
             }
         }
 
-
         final LPEQProb prob = new LPEQProb(m.columnMatrix(), beq.data, new DenseVec(cost.data));
 //        prob.printCPLEX(System.out);
         clockProb.stop();
-        logger.info("Total setup time: {} [sec]"+ (double) (clockProb.getElapsedTime()) / 1000);
+        //logger.info("Total setup time: {} [sec]"+ (double) (clockProb.getElapsedTime()) / 1000);
 
         final long solnStart = System.currentTimeMillis();
         final RevisedSimplexSolver solver = new RevisedSimplexSolver();
@@ -295,7 +301,7 @@ public class Unwrapper {
             solution.put(index, soln.primalSolution.get(index));
         }
 
-        logger.info("Total unwrapping time: {} [sec]"+ (double) (soln.reportedRunTimeMS) / 1000);
+        //logger.info("Total unwrapping time: {} [sec]"+ (double) (soln.reportedRunTimeMS) / 1000);
 
         // Displatch the LP solution
         int offset;
