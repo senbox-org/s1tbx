@@ -591,7 +591,7 @@ public class SentinelPODOrbitFile implements OrbitFile {
 
     public static String getValidityStopFromFilename(String filename) {
 
-        if (filename.substring(58,59).equals("V")) {
+        if (filename.substring(41,42).equals("V")) {
 
             return extractUTCTimeFromFilename(filename, 58);
         }

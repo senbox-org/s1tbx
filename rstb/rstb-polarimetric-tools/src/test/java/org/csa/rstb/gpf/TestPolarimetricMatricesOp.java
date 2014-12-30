@@ -17,6 +17,7 @@ package org.csa.rstb.gpf;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -35,8 +36,8 @@ public class TestPolarimetricMatricesOp {
 
     private final static OperatorSpi spi = new PolarimetricMatricesOp.Spi();
 
-    private final static String quadInputPath = TestUtils.rootPathTestProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
-    private final static String inputQuadFullStack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
+    private final static String quadInputPath = TestData.inputSAR + "\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
+    private final static String inputQuadFullStack = TestData.inputSAR + "\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
 
     private final static String expectedPathC3 = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_C3.dim";
     private final static String expectedPathT3 = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_T3.dim";
