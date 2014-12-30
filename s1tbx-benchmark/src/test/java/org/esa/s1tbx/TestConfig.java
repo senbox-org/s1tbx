@@ -15,9 +15,9 @@
  */
 package org.esa.s1tbx;
 
-import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.snap.util.Config;
+import org.esa.snap.util.PropertiesMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,23 +29,22 @@ import java.util.Properties;
 public class TestConfig {
 
     private final String name;
-    private final Properties prop;
+    private final PropertiesMap propMap;
     private final List<TestInfo> testList = new ArrayList<>(20);
     private int maxProductsPerInputFolder = -1;
 
     private static final String contextID = SystemUtils.getApplicationContextId();
-    private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap(contextID + ".tests");
+    private static final PropertiesMap testPreferences = Config.getAutomatedTestConfigPropertyMap(contextID + ".tests");
 
     private static final String autoTests = testPreferences.getPropertyString(contextID + ".test.RunAutoTests");
     public static final boolean runAutomatedTests = autoTests != null && autoTests.equalsIgnoreCase("true");
 
     public TestConfig(final String name) throws Exception {
         this.name = name;
-        final PropertyMap propMap = Config.getAutomatedTestConfigPropertyMap(name);
+        propMap = Config.getAutomatedTestConfigPropertyMap(name);
         if (propMap == null)
             throw new Exception("Test config " + name + " not found");
 
-        prop = propMap.getProperties();
         importTests();
     }
 
@@ -65,11 +64,11 @@ public class TestConfig {
             maxProductsPerInputFolder = Integer.parseInt(maxIn);
         }
 
-        final int numProperties = prop.size() / 4;
+        final int numProperties = propMap.getProperties().size() / 4;
         for (int i = 0; i <= numProperties; ++i) {
             final String key = prefix + i;
             final String graph = readProp(key + ".graph");
-            if (graph != null) {
+            if (graph != null && !graph.isEmpty()) {
                 final String skip = readProp(key + ".skip");
                 if (skip != null && skip.equalsIgnoreCase("true")) {
                     System.out.println(name + ": " + key + " skipped");
@@ -95,29 +94,7 @@ public class TestConfig {
         }
     }
 
-    private String readProp(final String tag) {
-        String val = prop.getProperty(tag);
-        if (val != null && val.contains("${")) {
-            val = resolve(val);
-        }
-
-        return val;
-    }
-
-    private String resolve(String value) {
-        final int idx1 = value.indexOf("${");
-        final int idx2 = value.indexOf('}') + 1;
-        final String keyWord = value.substring(idx1 + 2, idx2 - 1);
-        final String fullKey = value.substring(idx1, idx2);
-
-        final String property = prop.getProperty(keyWord);
-        if (property != null && property.length() > 0) {
-            value = value.replace(fullKey, property);
-        }
-
-        if (value.contains("${"))
-            value = resolve(value);
-
-        return value;
+    private String readProp(final String tag) throws Exception {
+        return propMap.getPropertyString(tag);
     }
 }

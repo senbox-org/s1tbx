@@ -65,6 +65,8 @@ public abstract class TestAutomatedGraphProcessing {
             return;
         }
 
+        TestUtils.log.info("Running AutoTest "+getTestFileName());
+
         final ProcessTimeMonitor timeMonitor = new ProcessTimeMonitor();
         long totalTime = 0;
 
