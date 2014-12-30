@@ -16,6 +16,7 @@
 package org.esa.s1tbx;
 
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.SystemUtils;
 import org.esa.snap.util.Config;
 
 import java.util.ArrayList;
@@ -29,8 +30,14 @@ public class TestConfig {
 
     private final String name;
     private final Properties prop;
-    private final List<TestInfo> testList = new ArrayList<TestInfo>(20);
+    private final List<TestInfo> testList = new ArrayList<>(20);
     private int maxProductsPerInputFolder = -1;
+
+    private static final String contextID = SystemUtils.getApplicationContextId();
+    private static final PropertyMap testPreferences = Config.getAutomatedTestConfigPropertyMap(contextID + ".tests");
+
+    private static final String autoTests = testPreferences.getPropertyString(contextID + ".test.RunAutoTests");
+    public static final boolean runAutomatedTests = autoTests != null && autoTests.equalsIgnoreCase("true");
 
     public TestConfig(final String name) throws Exception {
         this.name = name;
