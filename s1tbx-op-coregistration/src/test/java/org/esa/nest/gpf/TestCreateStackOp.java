@@ -44,7 +44,7 @@ public class TestCreateStackOp {
         assertNotNull(op);
 
         final Product mstProduct = createTestProduct(40, 40, 30, 10, 35, 15);
-        final Product slvProduct1 = createTestProduct(40, 40, 31, 12, 36, 16);
+        final Product slvProduct1 = createTestProduct(40, 40, 31, 11, 36, 16);
 
         //ProductIO.writeProduct(mstProduct, "c:\\data\\out\\mstProduct", "BEAM-DIMAP");
         //ProductIO.writeProduct(slvProduct1, "c:\\data\\out\\slvProduct1", "BEAM-DIMAP");
