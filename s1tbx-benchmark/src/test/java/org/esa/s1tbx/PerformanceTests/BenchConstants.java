@@ -13,21 +13,22 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.gpf;
+package org.esa.s1tbx.PerformanceTests;
 
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.gpf.CreateElevationOp;
-import org.esa.s1tbx.SingleOperatorBenchmark;
-import org.junit.Ignore;
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.SystemUtils;
+import org.esa.snap.util.Config;
 
 /**
- * Test operator performance
+ * Constants for benchmarking
  */
-@Ignore
-public class TestPerfElevation extends SingleOperatorBenchmark {
+public class BenchConstants {
+    public static int numIterations = 1;
+    public static int maxDimensions = 3000;
 
-    protected OperatorSpi CreateOperatorSpi() {
-        return new CreateElevationOp.Spi();
-    }
+    private static final PropertyMap testPreferences = Config.getAppConfigPropertyMap();
+    private final static String contextID = SystemUtils.getApplicationContextId();
 
+    private static final String testBenchmarks = testPreferences.getPropertyString(contextID + ".test.RunBenchmarks");
+    public static final boolean runBenchmarks = testBenchmarks != null && testBenchmarks.equalsIgnoreCase("true");
 }

@@ -13,21 +13,24 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.gpf;
+package org.esa.s1tbx.PerformanceTests.gpf;
 
+import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.nest.gpf.MultilookOp;
-import org.esa.s1tbx.SingleOperatorBenchmark;
-import org.junit.Ignore;
+import org.esa.s1tbx.PerformanceTests.SingleOperatorBenchmark;
+import org.esa.nest.gpf.filtering.SpeckleFilterOp;
 
 /**
  * Test operator performance
  */
-@Ignore
-public class TestPerfMultilook extends SingleOperatorBenchmark {
+
+public class TestPerfGammaMapSpeckleFilter extends SingleOperatorBenchmark {
 
     protected OperatorSpi CreateOperatorSpi() {
-        return new MultilookOp.Spi();
+        return new SpeckleFilterOp.Spi();
     }
 
+    protected void setOperatorParameters(final Operator op) {
+        ((SpeckleFilterOp) op).SetFilter("Gamma Map");
+    }
 }

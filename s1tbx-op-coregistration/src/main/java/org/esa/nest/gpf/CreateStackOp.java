@@ -33,6 +33,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.FeatureCollectionClipper;
+import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.ProductInformation;
@@ -489,12 +490,12 @@ public class CreateStackOp extends Operator {
      */
     private void determinMinExtents() {
 
-        Geometry tgtGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(masterProduct);
+        Geometry tgtGeometry = FeatureUtils.createGeoBoundaryPolygon(masterProduct);
 
         for (final Product slvProd : sourceProduct) {
             if (slvProd == masterProduct) continue;
 
-            final Geometry slvGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(slvProd);
+            final Geometry slvGeometry = FeatureUtils.createGeoBoundaryPolygon(slvProd);
             tgtGeometry = tgtGeometry.intersection(slvGeometry);
         }
 
@@ -665,7 +666,7 @@ public class CreateStackOp extends Operator {
         final int targImageWidth = targetProduct.getSceneRasterWidth();
         final int targImageHeight = targetProduct.getSceneRasterHeight();
 
-        final Geometry tgtGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(targetProduct);
+        final Geometry tgtGeometry = FeatureUtils.createGeoBoundaryPolygon(targetProduct);
 
         final PixelPos slvPixelPos = new PixelPos();
         final PixelPos tgtPixelPos = new PixelPos();
@@ -700,7 +701,7 @@ public class CreateStackOp extends Operator {
             }
 
             if (!foundOverlapPoint) {
-                final Geometry slvGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(slvProd);
+                final Geometry slvGeometry = FeatureUtils.createGeoBoundaryPolygon(slvProd);
                 final Geometry intersect = tgtGeometry.intersection(slvGeometry);
 
                 for (Coordinate c : intersect.getCoordinates()) {

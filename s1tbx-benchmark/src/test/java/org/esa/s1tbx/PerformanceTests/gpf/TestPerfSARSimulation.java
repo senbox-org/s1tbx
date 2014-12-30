@@ -13,22 +13,21 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx;
+package org.esa.s1tbx.PerformanceTests.gpf;
 
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.SystemUtils;
-import org.esa.snap.util.Config;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.s1tbx.PerformanceTests.SingleOperatorBenchmark;
+import org.esa.nest.gpf.geometric.SARSimulationOp;
+import org.junit.Ignore;
 
 /**
- * Constants for benchmarking
+ * Test operator performance
  */
-public class BenchConstants {
-    public static int numIterations = 1;
-    public static int maxDimensions = 3000;
+@Ignore
+public class TestPerfSARSimulation extends SingleOperatorBenchmark {
 
-    private static final PropertyMap testPreferences = Config.getAppConfigPropertyMap();
-    private final static String contextID = SystemUtils.getApplicationContextId();
+    protected OperatorSpi CreateOperatorSpi() {
+        return new SARSimulationOp.Spi();
+    }
 
-    private static final String testBenchmarks = testPreferences.getPropertyString(contextID + ".test.RunBenchmarks");
-    public static final boolean runBenchmarks = testBenchmarks != null && testBenchmarks.equalsIgnoreCase("true");
 }

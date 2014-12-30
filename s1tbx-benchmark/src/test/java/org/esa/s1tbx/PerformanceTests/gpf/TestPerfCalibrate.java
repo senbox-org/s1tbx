@@ -13,21 +13,25 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.gpf;
+package org.esa.s1tbx.PerformanceTests.gpf;
 
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.s1tbx.SingleOperatorBenchmark;
-import org.esa.nest.gpf.geometric.GeolocationGridGeocodingOp;
+import org.esa.nest.gpf.CalibrationOp;
+import org.esa.s1tbx.PerformanceTests.SingleOperatorBenchmark;
 import org.junit.Ignore;
 
 /**
  * Test operator performance
  */
 @Ignore
-public class TestPerfGeolocationGridEC extends SingleOperatorBenchmark {
+public class TestPerfCalibrate extends SingleOperatorBenchmark {
+
+    public TestPerfCalibrate() {
+        skipS1 = true;
+    }
 
     protected OperatorSpi CreateOperatorSpi() {
-        return new GeolocationGridGeocodingOp.Spi();
+        return new CalibrationOp.Spi();
     }
 
 }
