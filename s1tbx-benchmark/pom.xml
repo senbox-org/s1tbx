@@ -18,11 +18,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-bootstrap</artifactId>
-            <version>${s1tbx.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-gpf</artifactId>
         </dependency>

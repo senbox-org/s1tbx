@@ -1,4 +1,4 @@
-package org.esa.s1tbx;
+package org.esa.s1tbx.PerformanceTests;
 
 /**
  * Benchmark code

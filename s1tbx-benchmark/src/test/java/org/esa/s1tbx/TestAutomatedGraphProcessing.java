@@ -71,6 +71,9 @@ public abstract class TestAutomatedGraphProcessing {
                 TestUtils.recurseFindReadableProducts(test.inputFolder, productList, config.getMaxProductsPerInputFolder());
                 int c;
                 int numFiles = productList.size();
+                if(numFiles == 0) {
+                    throw new Exception("No products found in "+test.inputFolder.toString());
+                }
 
                 TestUtils.log.info(test.num + " " + test.graphFile.getAbsolutePath() + " on " + test.inputFolder);
 

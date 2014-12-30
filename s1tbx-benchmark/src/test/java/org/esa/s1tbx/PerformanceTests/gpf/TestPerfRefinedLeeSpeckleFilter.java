@@ -13,21 +13,25 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.gpf;
+package org.esa.s1tbx.PerformanceTests.gpf;
 
+import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.s1tbx.SingleOperatorBenchmark;
-import org.esa.nest.gpf.geometric.RangeDopplerGeocodingOp;
+import org.esa.s1tbx.PerformanceTests.SingleOperatorBenchmark;
+import org.esa.nest.gpf.filtering.SpeckleFilterOp;
 import org.junit.Ignore;
 
 /**
  * Test operator performance
  */
 @Ignore
-public class TestPerfRangeDopplerTC extends SingleOperatorBenchmark {
+public class TestPerfRefinedLeeSpeckleFilter extends SingleOperatorBenchmark {
 
     protected OperatorSpi CreateOperatorSpi() {
-        return new RangeDopplerGeocodingOp.Spi();
+        return new SpeckleFilterOp.Spi();
     }
 
+    protected void setOperatorParameters(final Operator op) {
+        ((SpeckleFilterOp) op).SetFilter("Refined Lee");
+    }
 }
