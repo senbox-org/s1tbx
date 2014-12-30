@@ -60,6 +60,12 @@ public abstract class TestAutomatedGraphProcessing {
     public void testAutomatedGraphProcessing() throws Throwable {
         if (config == null)
             throw new Exception("Config not initialized in test");
+        if(!TestConfig.runAutomatedTests) {
+            TestUtils.skipTest(this, "");
+            return;
+        }
+
+        TestUtils.log.info("Running AutoTest "+getTestFileName());
 
         final ProcessTimeMonitor timeMonitor = new ProcessTimeMonitor();
         long totalTime = 0;

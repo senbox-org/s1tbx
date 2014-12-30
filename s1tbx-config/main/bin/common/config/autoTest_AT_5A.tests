@@ -18,36 +18,37 @@
 #If expected_results is not included, only output will be processed without comparison
 ####################################################################################
 
-testRoot = C:\\Build\\nest-test
+graphRoot = ${SNAP_HOME}\\..\\testdata\\graphs\\
+testRoot =  ${SNAP_HOME}\\..\\testdata\\
 dataRoot = P:\\nest\\nest\\ESA Data\\test\\AT_release5A\\Dataset
 maxProductsPerInputFolder = -1
 
 #test.1.skip = true
-test.1.graph = ${testRoot}\\graphs\\AT_5A\\Chain_GTCsigma0.xml
+test.1.graph = ${graphRoot}\\AT_5A\\Chain_GTCsigma0.xml
 test.1.input_products = 	${dataRoot}\\ASAR\\North_Italy
 test.1.expected_results = 	${testRoot}\\expected
 test.1.output_products = 	${testRoot}\\output
 
 #test.2.skip = true
-test.2.graph = ${testRoot}\\graphs\\AT_5A\\ASAR_Amazonia_xml\\Graph_ASAR_IMS_DORIS.xml
+test.2.graph = ${graphRoot}\\AT_5A\\ASAR_Amazonia_xml\\Graph_ASAR_IMS_DORIS.xml
 test.2.input_products = 	${dataRoot}\\ASAR\\Amazonia\\IMS
 test.2.expected_results = 	${testRoot}\\expected
 test.2.output_products = 	${testRoot}\\output
 
 #test.3.skip = true
-test.3.graph = ${testRoot}\\graphs\\AT_5A\\ASAR_Amazonia_xml\\Graph_ASAR_IMP_DORIS.xml
+test.3.graph = ${graphRoot}\\AT_5A\\ASAR_Amazonia_xml\\Graph_ASAR_IMP_DORIS.xml
 test.3.input_products = 	${dataRoot}\\ASAR\\Amazonia\\IMP
 test.3.expected_results = 	${testRoot}\\expected
 test.3.output_products = 	${testRoot}\\output
 
 #test.4.skip = true
-test.4.graph = ${testRoot}\\graphs\\AT_5A\\ASAR_Amazonia_xml\\Graph_ASAR_IMM_DORIS.xml
+test.4.graph = ${graphRoot}\\AT_5A\\ASAR_Amazonia_xml\\Graph_ASAR_IMM_DORIS.xml
 test.4.input_products = 	${dataRoot}\\ASAR\\Amazonia\\IMM
 test.4.expected_results = 	${testRoot}\\expected
 test.4.output_products = 	${testRoot}\\output
 
 #test.5.skip = true
-test.5.graph = ${testRoot}\\graphs\\AT_5A\\ASAR_Amazonia_xml\\Graph_ASAR_IMP_DELFT.xml
+test.5.graph = ${graphRoot}\\AT_5A\\ASAR_Amazonia_xml\\Graph_ASAR_IMP_DELFT.xml
 test.5.input_products = 	${dataRoot}\\ASAR\\Amazonia\\IMP
 test.5.expected_results = 	${testRoot}\\expected
 test.5.output_products = 	${testRoot}\\output
