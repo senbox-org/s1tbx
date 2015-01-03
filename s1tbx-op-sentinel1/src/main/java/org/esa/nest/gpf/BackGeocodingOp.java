@@ -935,12 +935,14 @@ public final class BackGeocodingOp extends Operator {
             final ProductData tgtBufferQ = tgtTileQ.getDataBuffer();
             final TileIndex tgtIndex = new TileIndex(tgtTileI);
 
-            Tile tgtTilePhase = null;
+            Tile tgtTilePhase;
             ProductData tgtBufferPhase = null;
             if (outputDerampPhase) {
                 tgtTilePhase = targetTileMap.get(phaseBand);
                 tgtBufferPhase = tgtTilePhase.getDataBuffer();
             }
+
+            final Resampling.Index resamplingIndex = selectedResampling.createIndex();
 
             for (int y = y0; y < y0 + h; y++) {
                 tgtIndex.calculateStride(y);
@@ -960,7 +962,6 @@ public final class BackGeocodingOp extends Operator {
                     }
 
                     if (isSlavePixPosValid(slavePixelPos, subswathIndex, burstIndex)) {
-                        final Resampling.Index resamplingIndex = selectedResampling.createIndex();
 
                         selectedResampling.computeIndex(slavePixelPos.x, slavePixelPos.y,
                                 sSubSwath[subswathIndex - 1].numOfSamples, sSubSwath[subswathIndex - 1].numOfLines,
@@ -1136,23 +1137,29 @@ public final class BackGeocodingOp extends Operator {
         public boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception {
             boolean allValid = true;
 
-            for (int i = 0; i < y.length; i++) {
-                final int yy = y[i] - y0;
-                for (int j = 0; j < x.length; j++) {
+            try {
+                double val;
+                int i = 0;
+                while (i < y.length) {
+                    final int yy = y[i] - y0;
+                    int j = 0;
+                    while (j < x.length) {
 
-                    try {
-                        samples[i][j] = data[yy][x[j] - x0];
+                        val = data[yy][x[j] - x0];
 
                         if (usesNoData) {
-                            if (scalingApplied && geophysicalNoDataValue == samples[i][j] || noDataValue == samples[i][j]) {
-                                samples[i][j] = Double.NaN;
+                            if (scalingApplied && geophysicalNoDataValue == val || noDataValue == val) {
+                                val = Double.NaN;
                                 allValid = false;
                             }
                         }
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
+                        samples[i][j] = val;
+                        ++j;
                     }
+                    ++i;
                 }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
 
             return allValid;
