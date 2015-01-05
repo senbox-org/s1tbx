@@ -510,11 +510,6 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                 lutVal = (1 - muY) * ((1 - muX) * vec0LUT[pixelIdx] + muX * vec0LUT[pixelIdx + 1]) +
                         muY * ((1 - muX) * vec1LUT[pixelIdx] + muX * vec1LUT[pixelIdx + 1]);
 
-                if (dataType != null) {
-                    retroLutVal = (1 - muY) * ((1 - muX) * retroVec0LUT[pixelIdx] + muX * retroVec0LUT[pixelIdx + 1]) +
-                            muY * ((1 - muX) * retroVec1LUT[pixelIdx] + muX * retroVec1LUT[pixelIdx + 1]);
-                }
-
                 if (complexData) {
                     i = srcData1.getElemDoubleAt(srcIdx);
                     q = srcData2.getElemDoubleAt(srcIdx);
@@ -523,6 +518,10 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
                     dn = srcData1.getElemDoubleAt(srcIdx);
                     trgData.setElemDoubleAt(trgIdx, (dn * dn) / (lutVal*lutVal));
                 } else { // intensity
+                    if (dataType != null) {
+                        retroLutVal = (1 - muY) * ((1 - muX) * retroVec0LUT[pixelIdx] + muX * retroVec0LUT[pixelIdx + 1]) +
+                                muY * ((1 - muX) * retroVec1LUT[pixelIdx] + muX * retroVec1LUT[pixelIdx + 1]);
+                    }
                     dn2 = srcData1.getElemDoubleAt(srcIdx);
                     trgData.setElemDoubleAt(trgIdx, dn2 * retroLutVal / (lutVal*lutVal));
                 }
