@@ -19,6 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.beam.framework.dataop.resamp.Resampling;
@@ -294,9 +295,9 @@ public final class ComputeDerampDemodPhaseOp extends Operator {
                 final double ta = (y - firstLineInBurst)*subSwath[s].azimuthTimeInterval;
                 for (int x = x0; x < xMax; x++) {
                     final int idx = tgtIndex.getIndex(x);
-                    final double kt = subSwath[s].dopplerRate[burstIndex][x]; // DLR: 1780.8765
-                    final double deramp = -Math.PI * kt * Math.pow(ta - subSwath[s].referenceTime[burstIndex][x], 2);
-                    final double demod = -2 * Math.PI * subSwath[s].dopplerCentroid[burstIndex][x] * ta;
+                    final double kt = subSwath[s].dopplerRate[burstIndex][x];
+                    final double deramp = -Constants.PI * kt * FastMath.pow(ta - subSwath[s].referenceTime[burstIndex][x], 2);
+                    final double demod = -Constants.TWO_PI * subSwath[s].dopplerCentroid[burstIndex][x] * ta;
                     tgtBufferDerampPhase.setElemFloatAt(idx, (float)deramp);
                     tgtBufferDemodPhase.setElemFloatAt(idx, (float)demod);
                 }
