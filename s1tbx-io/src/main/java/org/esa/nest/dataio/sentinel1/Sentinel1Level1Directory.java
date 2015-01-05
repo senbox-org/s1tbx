@@ -394,7 +394,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                         downlinkInformation.getAttributeDouble("prf"));
 
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_bandwidth,
-                        rangeProcessing.getAttributeDouble("processingBandwidth"));
+                        rangeProcessing.getAttributeDouble("processingBandwidth")/Constants.oneMillion);
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_bandwidth,
                         azimuthProcessing.getAttributeDouble("processingBandwidth"));
 
