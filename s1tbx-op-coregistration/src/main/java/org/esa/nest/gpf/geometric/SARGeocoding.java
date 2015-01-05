@@ -849,7 +849,13 @@ public class SARGeocoding {
         }
 
         private static double polyVal(final double t, final double[] coeff) {
-            return (coeff[2]*t + coeff[1])*t + coeff[0];
+
+            final int polyDegree = coeff.length - 1;
+            double value = 0.0;
+            for (int i = 0; i <= polyDegree; i++) {
+                value += coeff[i]*Math.pow(t, i);
+            }
+            return value;
         }
 
         public double getVelocity(final double time) {
