@@ -146,7 +146,10 @@ public final class TerrainFlatteningOp extends Operator {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfMapProjected();
-            validator.checkIfNotCalibrated();
+
+            if (!OperatorUtils.isCalibrated(sourceProduct)) {
+                throw new OperatorException("Source product should be calibrated to beta0");
+            }
 
             getMetadata();
 
