@@ -557,8 +557,7 @@ public final class BackGeocodingOp extends Operator {
         }
 
         final int margin = selectedResampling.getKernelSize();
-        final Rectangle sourceRectangle = getBoundingBox(
-                slavePixPos, margin, sSubSwath[subSwathIndex - 1].numOfSamples, sSubSwath[subSwathIndex - 1].numOfLines);
+        final Rectangle sourceRectangle = getBoundingBox(slavePixPos, margin, subSwathIndex, burstIndex);
 
         if (sourceRectangle == null) {
             return;
@@ -783,8 +782,13 @@ public final class BackGeocodingOp extends Operator {
         return false;
     }
 
-    private static Rectangle getBoundingBox(
-            final PixelPos[][] slavePixPos, final int margin, final int maxWidth, final int maxHeight) {
+    private Rectangle getBoundingBox(
+            final PixelPos[][] slavePixPos, final int margin, final int subSwathIndex, final int burstIndex) {
+
+        final int firstLineIndex = burstIndex*sSubSwath[subSwathIndex - 1].linesPerBurst;
+        final int lastLineIndex = firstLineIndex + sSubSwath[subSwathIndex - 1].linesPerBurst - 1;
+        final int firstPixelIndex = 0;
+        final int lastPixelIndex = sSubSwath[subSwathIndex - 1].samplesPerBurst - 1;
 
         int minX = Integer.MAX_VALUE;
         int maxX = -Integer.MAX_VALUE;
@@ -817,10 +821,10 @@ public final class BackGeocodingOp extends Operator {
             return null;
         }
 
-        minX = Math.max(minX - margin, 0);
-        maxX = Math.min(maxX + margin, maxWidth - 1);
-        minY = Math.max(minY - margin, 0);
-        maxY = Math.min(maxY + margin, maxHeight - 1);
+        minX = Math.max(minX - margin, firstPixelIndex);
+        maxX = Math.min(maxX + margin, lastPixelIndex);
+        minY = Math.max(minY - margin, firstLineIndex);
+        maxY = Math.min(maxY + margin, lastLineIndex);
 
         return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
