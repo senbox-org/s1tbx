@@ -258,8 +258,7 @@ public class CfGeocodingPart extends ProfilePartIO {
             // if this is true, subtract 180 from all longitudes and
             // add a global attribute which will be analyzed when setting up the image(s)
             final List<Variable> variables = ctx.getNetcdfFile().getVariables();
-            for (Iterator<Variable> iterator = variables.iterator(); iterator.hasNext(); ) {
-                Variable next = iterator.next();
+            for (Variable next : variables) {
                 next.getAttributes().add(new Attribute("LONGITUDE_SHIFTED_180", 1));
             }
             for (int i = 0; i < lonData.getSize(); i++) {
@@ -268,16 +267,19 @@ public class CfGeocodingPart extends ProfilePartIO {
                 lonData.setDouble(ii, theLon);
             }
         }
-        final Array latData = lat.read();
 
+        double sum = 0;
+        for (int i = 0; i < lonData.getSize() - 1; i++) {
+            double delta = (lonData.getDouble(i + 1) - lonData.getDouble(i) + 360) % 360;
+            sum += delta;
+        }
+        pixelSizeX = sum / (sceneRasterWidth - 1);
 
-        final int lonSize = lon.getShape(0);
         final Index i0 = lonData.getIndex().set(0);
-        final Index i1 = lonData.getIndex().set(lonSize - 1);
-        pixelSizeX = (lonData.getDouble(i1) - lonData.getDouble(i0)) / (sceneRasterWidth - 1);
         easting = lonData.getDouble(i0);
 
         final int latSize = lat.getShape(0);
+        final Array latData = lat.read();
         final Index j0 = latData.getIndex().set(0);
         final Index j1 = latData.getIndex().set(latSize - 1);
         pixelSizeY = (latData.getDouble(j1) - latData.getDouble(j0)) / (sceneRasterHeight - 1);
