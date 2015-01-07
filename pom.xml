@@ -4,11 +4,6 @@
     <modelVersion>4.0.0</modelVersion>
 	
 	<properties>
-        <!--
-	           In version 3.0 of Maven the sourceEncoding property will be embedded in the
-	           build tag. For now the convention is to that it as property.
-	           TODO: Move the sourceEncoding property to the build tag if version 3.0 is released
-	           -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>				
 		<context>s1tbx</context>
 		
@@ -19,7 +14,7 @@
 
 		<jlinda.version>0.8.1</jlinda.version>
 		<rstb.version>6.3.0</rstb.version>
-		<s1tbx.version>1.0.4</s1tbx.version>
+		<s1tbx.version>1.1.0</s1tbx.version>
 		<snap.version>1.0.1</snap.version>
 		
 		<geotools.version>2.7.4</geotools.version>
@@ -39,7 +34,7 @@
     <url>https://earth.esa.int/web/sentinel-tbx/home</url>
     <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx</artifactId>
-    <version>1.0.4</version>
+    <version>1.1.0</version>
 
 	<issueManagement>
         <system>JIRA</system>
