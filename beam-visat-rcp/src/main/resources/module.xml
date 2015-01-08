@@ -1295,7 +1295,6 @@
                 geo-coding&lt;br/&gt;
                 and adds displacements as new bands (test for geo-coding accuracy).
             </shortDescr>
-            <context>createXYDisplacementBandsAction</context>
             <helpId>createXYDisplacementBandsAction</helpId>
         </action>
 
@@ -1321,7 +1320,6 @@
             <text>Attach Pixel Geo-Coding...</text>
             <class>org.esa.beam.visat.actions.AttachPixelGeoCodingAction</class>
             <shortDescr>Attach a pixel based geo-coding to the selected product</shortDescr>
-            <context>attachPixelGeoCoding</context>
             <helpId>attachPixelGeoCoding</helpId>
         </action>
 
@@ -1333,7 +1331,6 @@
             <text>Detach Pixel Geo-Coding...</text>
             <class>org.esa.beam.visat.actions.DetachPixelGeoCodingAction</class>
             <shortDescr>Detach a pixel based geo-coding from the selected product</shortDescr>
-            <context>detachPixelGeoCoding</context>
             <helpId>detachPixelGeoCoding</helpId>
         </action>
 
