@@ -46,7 +46,7 @@ public class RangeFilterOp extends Operator {
 
     @Parameter(valueSet = {"8", "16", "32", "64", "128", "256", "512", "1024"},
             description = "Length of filtering window",
-            defaultValue = "5",
+            defaultValue = "8",
             label = "FFT Window Length")
     private int fftLength = 64;
 
