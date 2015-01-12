@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="5.1.12" transformSequenceNumber="4">
-  <directoryPresets config="../main/bin/common/VERSION.txt" />
-  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="S1TBX" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="1.0.3" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" installerName="" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
+<install4j version="6.0" transformSequenceNumber="5">
+  <directoryPresets config="../../../package/s1tbx-bin-mac" />
+  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="S1TBX" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="1.0.4" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" macVolumeId="9979cf145cd6c9cb" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -32,6 +32,7 @@
     </roots>
     <mountPoints>
       <mountPoint id="17" root="" location="" mode="755" />
+      <mountPoint id="6049" root="" location="bin" mode="755" />
       <mountPoint id="5133" root="5132" location="" mode="755" />
       <mountPoint id="5265" root="5259" location="" mode="755" />
       <mountPoint id="5269" root="5261" location="" mode="755" />
@@ -40,9 +41,6 @@
     </mountPoints>
     <entries>
       <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/auxdata" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="auxdata" excludeSuffixes="" dirMode="755" overrideDirMode="true">
-        <exclude />
-      </dirEntry>
-      <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="true">
         <exclude />
       </dirEntry>
       <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/commandline" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="commandline" excludeSuffixes="" dirMode="755" overrideDirMode="true">
@@ -55,9 +53,6 @@
         <exclude />
       </dirEntry>
       <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/images" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="images" excludeSuffixes="" dirMode="755" overrideDirMode="true">
-        <exclude />
-      </dirEntry>
-      <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="true">
         <exclude />
       </dirEntry>
       <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/licenses" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="licenses" excludeSuffixes="" dirMode="755" overrideDirMode="false">
@@ -74,6 +69,7 @@
       </dirEntry>
       <fileEntry mountPoint="17" file="../../what's new.txt" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="17" file="../main/bin/common/VERSION.txt" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <fileEntry mountPoint="6049" file="../../../package/s1tbx-bin-win64/bin/snap-launcher.jar" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/CYGGCC_S-1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/CYGWIN1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/IESHIMS.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
@@ -84,90 +80,109 @@
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/clib_jiio_sse2.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/clib_jiio_util.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/dat.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/gluegen-rt.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/gpt.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/jhdf.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/jhdf5.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/jogl.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/jogl_awt.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/jogl_cg.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <dirEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
+      <dirEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
       <fileEntry mountPoint="5265" file="../main/bin/win/cli.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/clib_jiio.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/clib_jiio_sse2.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/clib_jiio_util.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/dat.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5265" file="../main/bin/win/gluegen-rt.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/gpt.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/jhdf.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/jhdf5.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5265" file="../main/bin/win/jogl.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5265" file="../main/bin/win/jogl_awt.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5265" file="../main/bin/win/jogl_cg.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <dirEntry mountPoint="5265" file="../../../package/s1tbx-bin-win/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
+      <dirEntry mountPoint="5265" file="../../../package/s1tbx-bin-win/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
       <fileEntry mountPoint="5269" file="../main/bin/linux64/dat.sh" overwriteMode="4" shared="false" fileMode="755" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5269" file="../main/bin/linux64/gpt.sh" overwriteMode="4" shared="false" fileMode="755" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5269" file="../main/bin/linux64/libclib_jiio.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5269" file="../main/bin/linux64/libgluegen-rt.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5269" file="../main/bin/linux64/libjhdf.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5269" file="../main/bin/linux64/libjhdf5.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5269" file="../main/bin/linux64/libjogl.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5269" file="../main/bin/linux64/libjogl_awt.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5269" file="../main/bin/linux64/libjogl_cg.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <dirEntry mountPoint="5269" file="../../../package/s1tbx-bin-linux64/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
+      <dirEntry mountPoint="5269" file="../../../package/s1tbx-bin-linux64/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
       <fileEntry mountPoint="5270" file="../main/bin/linux/dat.sh" overwriteMode="4" shared="false" fileMode="755" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5270" file="../main/bin/linux/gpt.sh" overwriteMode="4" shared="false" fileMode="755" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5270" file="../main/bin/linux/libclib_jiio.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5270" file="../main/bin/linux/libgluegen-rt.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5270" file="../main/bin/linux/libjhdf.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5270" file="../main/bin/linux/libjhdf5.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5270" file="../main/bin/linux/libjogl.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5270" file="../main/bin/linux/libjogl_awt.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5270" file="../main/bin/linux/libjogl_cg.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <dirEntry mountPoint="5270" file="../../../package/s1tbx-bin-linux/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
+      <dirEntry mountPoint="5270" file="../../../package/s1tbx-bin-linux/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
       <fileEntry mountPoint="5498" file="../main/bin/macosx/dat.command" overwriteMode="4" shared="false" fileMode="755" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5498" file="../main/bin/macosx/gpt.command" overwriteMode="4" shared="false" fileMode="755" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5498" file="../main/bin/macosx/libgluegen-rt.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5498" file="../main/bin/macosx/libjblas.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5498" file="../main/bin/macosx/libjblas_arch_flavor.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5498" file="../main/bin/macosx/libjhdf.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5498" file="../main/bin/macosx/libjhdf5.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5498" file="../main/bin/macosx/libjogl.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5498" file="../main/bin/macosx/libjogl_awt.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="5498" file="../main/bin/macosx/libjogl_cg.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <dirEntry mountPoint="5498" file="../../../package/s1tbx-bin-mac/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
+      <dirEntry mountPoint="5498" file="../../../package/s1tbx-bin-mac/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
     </entries>
     <components>
       <component name="Sentinels Application Platform" id="5274" customizedId="" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
         <description />
         <include all="false">
-          <entry location="modules/blue-marble-worldmap-1.0.0" fileType="regular" />
+          <entry location="auxdata" fileType="regular" />
+          <entry location="commandline" fileType="regular" />
+          <entry location="config" fileType="regular" />
+          <entry location="graphs" fileType="regular" />
+          <entry location="images" fileType="regular" />
+          <entry location="licenses" fileType="regular" />
+          <entry location="resource" fileType="regular" />
+          <entry location="modules/blue-marble-worldmap-1.0.1" fileType="regular" />
           <entry location="modules/lib-hdf-2.7" fileType="regular" />
-          <entry location="modules/snap-arcbingrid-reader-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-binding-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-binio-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-ceres-core-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-ceres-ui-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-cluster-analysis-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-core-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-csv-dataio-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-engine-utilities-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-envi-reader-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-envisat-reader-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-geotiff-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-glayer-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-gpf-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-graph-builder-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-hdf5-writer-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-jai-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-launcher-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-metadata-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-netcdf-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-opendap-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-pgx-reader-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-pixel-extraction-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-python-1.0.0" fileType="regular" />
-          <entry location="modules/snap-scripting-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-statistics-op-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-temporal-percentile-op-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-time-series-tool-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-ui-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-visat-rcp-1.0.0.jar" fileType="regular" />
+          <entry location="modules/snap-arcbingrid-reader-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-binding-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-binio-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-binning-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-ceres-core-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-ceres-ui-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-cluster-analysis-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-collocation-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-core-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-csv-dataio-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-engine-utilities-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-envi-reader-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-envisat-reader-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-geotiff-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-glayer-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-gpf-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-graph-builder-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-hdf5-writer-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-jai-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-launcher-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-metadata-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-netcdf-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-opendap-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-pconvert-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-pixel-extraction-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-python-1.0.1" fileType="regular" />
+          <entry location="modules/snap-scripting-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-statistics-op-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-temporal-percentile-op-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-time-series-tool-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-ui-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-visat-rcp-1.0.1.jar" fileType="regular" />
         </include>
         <dependencies />
       </component>
@@ -175,29 +190,29 @@
         <description>Synthetic Aperture Radar Tools</description>
         <include all="false">
           <entry location="auxdata" fileType="regular" />
-          <entry location="bin" fileType="regular" />
           <entry location="commandline" fileType="regular" />
           <entry location="config" fileType="regular" />
           <entry location="graphs" fileType="regular" />
           <entry location="images" fileType="regular" />
-          <entry location="lib" fileType="regular" />
           <entry location="licenses" fileType="regular" />
           <entry location="resource" fileType="regular" />
           <entry location="modules/jlinda-core-0.8.1.jar" fileType="regular" />
           <entry location="modules/jlinda-nest-0.8.1.jar" fileType="regular" />
-          <entry location="modules/s1tbx-dem-1.0.3.jar" fileType="regular" />
-          <entry location="modules/s1tbx-help-1.0.3" fileType="regular" />
-          <entry location="modules/s1tbx-io-1.0.3.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-calibration-1.0.3.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-coregistration-1.0.3.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-feature-extraction-1.0.3.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-sar-processing-1.0.3.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-sentinel1-1.0.3.jar" fileType="regular" />
-          <entry location="modules/s1tbx-op-utilities-1.0.3.jar" fileType="regular" />
-          <entry location="modules/s1tbx-rcp-1.0.3.jar" fileType="regular" />
-          <entry location="modules/s1tbx-worldwind-1.0.3.jar" fileType="regular" />
+          <entry location="modules/s1tbx-dem-1.1.0.jar" fileType="regular" />
+          <entry location="modules/s1tbx-help-1.1.0" fileType="regular" />
+          <entry location="modules/s1tbx-io-1.1.0.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-calibration-1.1.0.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-coregistration-1.1.0.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-feature-extraction-1.1.0.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-sar-processing-1.1.0.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-sentinel1-1.1.0.jar" fileType="regular" />
+          <entry location="modules/s1tbx-op-utilities-1.1.0.jar" fileType="regular" />
+          <entry location="modules/s1tbx-product-library-1.1.0.jar" fileType="regular" />
+          <entry location="modules/s1tbx-rcp-1.1.0.jar" fileType="regular" />
+          <entry location="modules/s1tbx-worldwind-1.1.0.jar" fileType="regular" />
           <entry location="what's new.txt" fileType="regular" />
           <entry location="VERSION.txt" fileType="regular" />
+          <entry location="bin" fileType="regular" />
           <entry location="s1tbx" fileType="launcher" />
         </include>
         <dependencies>
@@ -207,8 +222,8 @@
       <component name="Radarsat-2 Toolbox Modules" id="5014" customizedId="" displayDescription="true" hideHelpButton="true" selected="true" changeable="true" downloadable="false" hidden="false">
         <description>Polarimetric Tools</description>
         <include all="false">
-          <entry location="modules/rstb-classification-6.2.jar" fileType="regular" />
-          <entry location="modules/rstb-polarimetric-tools-6.2.jar" fileType="regular" />
+          <entry location="modules/rstb-classification-6.3.0.jar" fileType="regular" />
+          <entry location="modules/rstb-polarimetric-tools-6.3.0.jar" fileType="regular" />
         </include>
         <dependencies>
           <component id="5274" />
@@ -231,13 +246,23 @@
       <component name="Sentinel-3 Toolbox Modules" id="5140" customizedId="" displayDescription="true" hideHelpButton="true" selected="false" changeable="false" downloadable="false" hidden="false">
         <description>Medium Resolution Optical Tools</description>
         <include all="false">
-          <entry location="modules/s3tbx-alos-reader-1.0.0.jar" fileType="regular" />
-          <entry location="modules/s3tbx-atsr-reader-1.0.0.jar" fileType="regular" />
-          <entry location="modules/s3tbx-avhrr-reader-1.0.0.jar" fileType="regular" />
-          <entry location="modules/s3tbx-chris-reader-1.0.0.jar" fileType="regular" />
-          <entry location="modules/s3tbx-landsat-reader-1.0.0.jar" fileType="regular" />
-          <entry location="modules/s3tbx-spot-vgt-reader-1.0.0.jar" fileType="regular" />
-          <entry location="modules/snap-modis-reader-1.0.0.jar" fileType="regular" />
+          <entry location="modules/s3tbx-alos-reader-1.0.1.jar" fileType="regular" />
+          <entry location="modules/s3tbx-atsr-reader-1.0.1.jar" fileType="regular" />
+          <entry location="modules/s3tbx-avhrr-reader-1.0.1.jar" fileType="regular" />
+          <entry location="modules/s3tbx-chris-reader-1.0.1.jar" fileType="regular" />
+          <entry location="modules/s3tbx-landsat-reader-1.0.1.jar" fileType="regular" />
+          <entry location="modules/s3tbx-meris-cloud-1.0.1.jar" fileType="regular" />
+          <entry location="modules/s3tbx-meris-radiometry-1.0.1.jar" fileType="regular" />
+          <entry location="modules/s3tbx-meris-smac-1.0.1.jar" fileType="regular" />
+          <entry location="modules/s3tbx-merisl3-reader-1.0.1.jar" fileType="regular" />
+          <entry location="modules/s3tbx-spot-vgt-reader-1.0.1.jar" fileType="regular" />
+          <entry location="modules/seadas-reader-1.5.6.jar" fileType="regular" />
+          <entry location="modules/snap-aatsr-sst-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-flhmci-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-modis-reader-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-ndvi-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-pgx-reader-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-unmix-1.0.1.jar" fileType="regular" />
         </include>
         <dependencies>
           <component id="5274" />
@@ -246,7 +271,7 @@
       <component name="Globcover World Map" id="5755" customizedId="" displayDescription="false" hideHelpButton="false" selected="false" changeable="true" downloadable="true" hidden="false">
         <description />
         <include all="false">
-          <entry location="modules/globcover-worldmap-1.0.0" fileType="regular" />
+          <entry location="modules/globcover-worldmap-1.0.1" fileType="regular" />
         </include>
         <dependencies>
           <component id="5274" />
@@ -305,14 +330,14 @@
     </components>
   </files>
   <launchers>
-    <launcher name="s1tbx" id="19" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="S1 Toolbox" icnsFile="" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="">
-      <executable name="s1tbx" type="1" iconSet="true" iconFile="" executableDir="" redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="true" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="false" workingDirectory=".." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false">
+    <launcher name="s1tbx" id="19" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="S1 Toolbox" icnsFile="" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="" useCustomMacosExecutableName="false" customMacosExecutableName="">
+      <executable name="s1tbx" type="1" iconSet="true" iconFile="" executableDir="" redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="true" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="false" workingDirectory=".." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false" singleInstanceActivate="true" dpiAware="false">
         <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" productName="" />
       </executable>
-      <splashScreen show="false" autoOff="true" alwaysOnTop="true" width="653" height="195" bitmapFile="../../../beam/target/beam-installer-files/bin/splash.png" java6SplashScreen="false">
+      <splashScreen show="false" width="653" height="195" bitmapFile="../../../beam/target/beam-installer-files/bin/splash.png" windowsNative="false" textOverlay="false">
         <text>
-          <statusLine x="20" y="20" text="" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
-          <versionLine x="20" y="40" text="version ${compiler:sys.version}" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
+          <statusLine x="20" y="20" text="" fontSize="8" fontColor="0,0,0" bold="false" />
+          <versionLine x="20" y="40" text="version ${compiler:sys.version}" fontSize="8" fontColor="0,0,0" bold="false" />
         </text>
       </splashScreen>
       <java mainClass="com.bc.ceres.launcher.Launcher" vmParameters="-Dceres.context=s1tbx" arguments="" allowVMPassthroughParameters="true" preferredVM="server" bundleRuntime="true">
@@ -342,14 +367,14 @@
         <file path="../main/bin/common/resource/images/s1_64x.png" />
       </iconImageFiles>
     </launcher>
-    <launcher name="s1tbx_mac" id="5638" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="S1 Toolbox" icnsFile="../main/bin/macosx/snap-s1.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="5496" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="">
-      <executable name="s1tbx" type="1" iconSet="true" iconFile="" executableDir="" redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="true" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory="/Applications/S1TBX.app/Contents/java/app" singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false">
+    <launcher name="s1tbx_mac" id="5638" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="S1 Toolbox" icnsFile="../main/bin/macosx/snap-s1.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="5496" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="" useCustomMacosExecutableName="false" customMacosExecutableName="">
+      <executable name="s1tbx" type="1" iconSet="true" iconFile="" executableDir="" redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="true" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory="/Applications/S1TBX.app/Contents/java/app" singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false" singleInstanceActivate="true" dpiAware="false">
         <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" productName="" />
       </executable>
-      <splashScreen show="false" autoOff="true" alwaysOnTop="true" width="653" height="195" bitmapFile="../../../beam/target/beam-installer-files/bin/splash.png" java6SplashScreen="false">
+      <splashScreen show="false" width="653" height="195" bitmapFile="../../../beam/target/beam-installer-files/bin/splash.png" windowsNative="false" textOverlay="false">
         <text>
-          <statusLine x="20" y="20" text="" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
-          <versionLine x="20" y="40" text="version ${compiler:sys.version}" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
+          <statusLine x="20" y="20" text="" fontSize="8" fontColor="0,0,0" bold="false" />
+          <versionLine x="20" y="40" text="version ${compiler:sys.version}" fontSize="8" fontColor="0,0,0" bold="false" />
         </text>
       </splashScreen>
       <java mainClass="com.bc.ceres.launcher.Launcher" vmParameters="-Dceres.context=s1tbx" arguments="" allowVMPassthroughParameters="true" preferredVM="server" bundleRuntime="true">
@@ -381,6 +406,7 @@
     </launcher>
   </launchers>
   <installerGui installerType="1" addOnAppId="" suggestPreviousLocations="true" autoUpdateDescriptorUrl="http://sentinel1.s3.amazonaws.com/updates.xml" useAutoUpdateBaseUrl="true" autoUpdateBaseUrl="http://sentinel1.s3.amazonaws.com/1.0/">
+    <staticMembers script="" />
     <customCode />
     <autoUpdate useMinUpdatableVersion="false" minUpdatableVersion="" useMaxUpdatableVersion="false" maxUpdatableVersion="">
       <commentFiles />
@@ -390,7 +416,7 @@
       <application name="" id="installer" customizedId="" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" enabled="true" commentSet="false" comment="" actionElevationType="none" fileset="" customIcnsFile="" customIcoFile="" macEntitlementsFile="" automaticLauncherIntegration="false" launchMode="startupFirstWindow" launchInNewProcess="false" launchSchedule="updateSchedule" allLaunchers="true">
         <serializedBean>
           <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.applications.InstallerApplication">
+            <object class="com.install4j.runtime.beans.applications.InstallerApplication" id="InstallerApplication0">
               <void property="customHeaderImage">
                 <object class="com.install4j.api.beans.ExternalFile">
                   <string>../main/bin/common/resource/images/s1_64x.png</string>
@@ -445,11 +471,11 @@
           <screen name="" id="1342" customizedId="" beanClass="com.install4j.runtime.beans.screens.LicenseScreen" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.screens.LicenseScreen">
+                <object class="com.install4j.runtime.beans.screens.LicenseScreen" id="LicenseScreen0">
                   <void property="acceptInitiallySelected">
                     <boolean>true</boolean>
                   </void>
-                  <void property="displayedTextFile">
+                  <void id="LocalizedExternalFile0" property="displayedTextFile">
                     <void property="languageIdToExternalFile">
                       <void method="put">
                         <string>en</string>
@@ -482,7 +508,7 @@
             <actions />
             <formComponents />
           </screen>
-          <screen name="" id="2" customizedId="" beanClass="com.install4j.runtime.beans.screens.InstallationDirectoryScreen" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" backButton="1" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
+          <screen name="" id="2" customizedId="" beanClass="com.install4j.runtime.beans.screens.InstallationDirectoryScreen" enabled="true" commentSet="false" comment="" actionElevationType="elevated" rollbackBarrier="false" backButton="1" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
                 <object class="com.install4j.runtime.beans.screens.InstallationDirectoryScreen">
@@ -676,7 +702,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
               <action name="" id="7" customizedId="" beanClass="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction" enabled="true" commentSet="false" comment="" actionElevationType="elevated" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
-                    <object class="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction">
+                    <object class="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction" id="CreateProgramGroupAction0">
                       <void property="programGroupEntryConfigs">
                         <void method="add">
                           <object class="com.install4j.runtime.beans.screens.components.ProgramGroupFileConfig">
@@ -1106,8 +1132,8 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
           <screen name="" id="5964" customizedId="" beanClass="com.install4j.runtime.beans.screens.CustomizableInfoScreen" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" backButton="2" finishScreen="false" wizardIndexChangeType="unchanged" wizardIndexKey="">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.screens.CustomizableInfoScreen">
-                  <void property="displayedTextFile">
+                <object class="com.install4j.runtime.beans.screens.CustomizableInfoScreen" id="CustomizableInfoScreen0">
+                  <void id="LocalizedExternalFile0" property="displayedTextFile">
                     <void property="languageIdToExternalFile">
                       <void method="put">
                         <string>en</string>
@@ -1207,6 +1233,9 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                   <string>../main/bin/common/resource/images/s1_64x.png</string>
                 </object>
               </void>
+              <void property="customMacosExecutableName">
+                <string>${i18n:UninstallerMenuEntry(${compiler:sys.fullName})}</string>
+              </void>
               <void property="customWatermarkText">
                 <string>ESA S1TBX</string>
               </void>
@@ -1217,6 +1246,9 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
               </void>
               <void property="frameSizeClientArea">
                 <boolean>false</boolean>
+              </void>
+              <void property="useCustomMacosExecutableName">
+                <boolean>true</boolean>
               </void>
             </object>
           </java>
@@ -1419,7 +1451,7 @@ This directory will be entirely removed if you select this option.</string>
       <application name="Standalone updater" id="4405" customizedId="" beanClass="com.install4j.runtime.beans.applications.CustomApplication" enabled="true" commentSet="false" comment="" actionElevationType="none" fileset="" customIcnsFile="${compiler:sys.install4jHome}/resource/macos/updater.icns" customIcoFile="${compiler:sys.install4jHome}/resource/updater.ico" macEntitlementsFile="" automaticLauncherIntegration="false" launchMode="startupFirstWindow" launchInNewProcess="false" launchSchedule="updateSchedule" allLaunchers="true">
         <serializedBean>
           <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.applications.CustomApplication">
+            <object class="com.install4j.runtime.beans.applications.CustomApplication" id="CustomApplication0">
               <void property="customIconImageFiles">
                 <void method="add">
                   <object class="com.install4j.api.beans.ExternalFile">
@@ -1447,7 +1479,10 @@ This directory will be entirely removed if you select this option.</string>
                 <boolean>true</boolean>
               </void>
               <void property="vistaExecutionLevel">
-                <object class="com.install4j.runtime.beans.applications.VistaExecutionLevel" field="REQUIRE_ADMINISTRATOR" />
+                <object class="java.lang.Enum" method="valueOf">
+                  <class>com.install4j.runtime.beans.applications.VistaExecutionLevel</class>
+                  <string>REQUIRE_ADMINISTRATOR</string>
+                </object>
               </void>
               <void property="windowTitle">
                 <string>${i18n:updater.WindowTitle("${compiler:sys.fullName}")}</string>
@@ -1519,7 +1554,10 @@ This directory will be entirely removed if you select this option.</string>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.control.SetProgressAction">
                       <void property="progressChangeType">
-                        <object class="com.install4j.runtime.beans.actions.control.ProgressChangeType" field="SET_INDETERMINATE" />
+                        <object class="java.lang.Enum" method="valueOf">
+                          <class>com.install4j.runtime.beans.actions.control.ProgressChangeType</class>
+                          <string>SET_INDETERMINATE</string>
+                        </object>
                       </void>
                     </object>
                   </java>
@@ -1530,7 +1568,7 @@ This directory will be entirely removed if you select this option.</string>
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.update.CheckForUpdateAction">
-                      <void property="updateDescriptorUrl">
+                      <void property="url">
                         <string>http://sentinel1.s3.amazonaws.com/updates.xml</string>
                       </void>
                       <void property="variable">
@@ -1932,7 +1970,10 @@ component.setVisible(hasComment);</initScript>
                         <string>${i18n:updater.CommentsSubTitle}</string>
                       </void>
                       <void property="textSource">
-                        <object class="com.install4j.runtime.beans.screens.components.TextSource" field="DIRECT" />
+                        <object class="java.lang.Enum" method="valueOf">
+                          <class>com.install4j.runtime.beans.screens.components.TextSource</class>
+                          <string>DIRECT</string>
+                        </object>
                       </void>
                       <void property="title">
                         <string>${i18n:updater.CommentsTitle}</string>
@@ -1992,12 +2033,14 @@ if (wizardContext != null) {
                     </serializedBean>
                     <condition />
                   </action>
-                  <action name="" id="4434" customizedId="" beanClass="com.install4j.runtime.beans.actions.update.DownloadFileAction" enabled="true" commentSet="false" comment="" actionElevationType="elevated" rollbackBarrier="false" multiExec="false" failureStrategy="2" errorMessage="">
+                  <action name="" id="4434" customizedId="" beanClass="com.install4j.runtime.beans.actions.net.DownloadFileAction" enabled="true" commentSet="false" comment="" actionElevationType="elevated" rollbackBarrier="false" multiExec="false" failureStrategy="2" errorMessage="">
                     <serializedBean>
                       <java class="java.beans.XMLDecoder">
-                        <object class="com.install4j.runtime.beans.actions.update.DownloadFileAction">
+                        <object class="com.install4j.runtime.beans.actions.net.DownloadFileAction">
                           <void property="targetFile">
-                            <string>${installer:updaterDownloadFile}</string>
+                            <object class="java.io.File">
+                              <string>${installer:updaterDownloadFile}</string>
+                            </object>
                           </void>
                           <void property="url">
                             <string>${installer:updaterDownloadUrl}</string>
@@ -2227,7 +2270,7 @@ if (wizardContext != null) {
       </excludedComponents>
       <includedDownloadableComponents />
     </windows>
-    <macos name="Mac OS X Single Bundle" id="5501" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_macOSX_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="macosx-amd64-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" appleJre="false" requiredVmIdPrefix="" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/1.0/" signLaunchers="false" launcherId="5638">
+    <macos name="Mac OS X Single Bundle" id="5501" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_macOSX_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="macosx-amd64-1.8.0_20" manualJREEntry="false" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" appleJre="false" requiredVmIdPrefix="" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/1.0/" installerName="${i18n:InstallerName(${compiler:sys.fullName})}" volumeName="${compiler:sys.shortName}" compressDmg="false" launcherId="5638">
       <excludedBeans>
         <bean refId="3743" />
         <bean refId="9" />
@@ -2246,6 +2289,7 @@ if (wizardContext != null) {
         <component id="5272" />
       </excludedComponents>
       <includedDownloadableComponents />
+      <topLevelFiles />
     </macos>
     <unixInstaller name="Linux64" id="4500" customizedId="" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_Linux64_installer" installDir="S1TBX" overridePrincipalLanguage="false" jreBitType="all" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" useLegacyMediaFileIds="false" legacyMediaFileIds="" includedJRE="jre-1.8.0_20_linux64.tar.gz" manualJREEntry="true" bundleType="1" jreURL="" jreShared="false" directDownload="false" installOnlyIfNecessary="false" customInstallBaseDir="" contentFilesType="3" downloadURL="http://sentinel1.s3.amazonaws.com/1.0/">
       <excludedLaunchers />
@@ -2290,9 +2334,8 @@ if (wizardContext != null) {
       </installerScript>
     </unixInstaller>
   </mediaSets>
-  <buildIds buildAll="true">
-    <mediaSet refId="5501" />
+  <buildIds buildAll="false">
+    <mediaSet refId="4707" />
   </buildIds>
-  <buildOptions verbose="false" faster="false" disableSigning="false" debug="false" />
+  <buildOptions verbose="false" faster="true" disableSigning="false" disableJreBundling="false" debug="false" />
 </install4j>
-
