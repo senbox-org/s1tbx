@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="6.0" transformSequenceNumber="5">
   <directoryPresets config="../../../package/s1tbx-bin-mac" />
-  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="S1TBX" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="1.0.4" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" macVolumeId="9979cf145cd6c9cb" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
+  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="s1tbx" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="1.0.4" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" macVolumeId="9979cf145cd6c9cb" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -31,8 +31,8 @@
       <root id="5497" fileset="5496" location="" />
     </roots>
     <mountPoints>
-      <mountPoint id="17" root="" location="" mode="755" />
       <mountPoint id="6049" root="" location="bin" mode="755" />
+      <mountPoint id="17" root="" location="" mode="755" />
       <mountPoint id="5133" root="5132" location="" mode="755" />
       <mountPoint id="5265" root="5259" location="" mode="755" />
       <mountPoint id="5269" root="5261" location="" mode="755" />
@@ -40,6 +40,7 @@
       <mountPoint id="5498" root="5497" location="" mode="755" />
     </mountPoints>
     <entries>
+      <fileEntry mountPoint="6049" file="../../../package/s1tbx-bin-win64/bin/snap-launcher.jar" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/auxdata" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="auxdata" excludeSuffixes="" dirMode="755" overrideDirMode="true">
         <exclude />
       </dirEntry>
@@ -69,7 +70,6 @@
       </dirEntry>
       <fileEntry mountPoint="17" file="../../what's new.txt" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="17" file="../main/bin/common/VERSION.txt" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <fileEntry mountPoint="6049" file="../../../package/s1tbx-bin-win64/bin/snap-launcher.jar" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/CYGGCC_S-1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/CYGWIN1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/IESHIMS.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
