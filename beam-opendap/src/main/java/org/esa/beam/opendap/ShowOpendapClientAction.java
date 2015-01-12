@@ -23,15 +23,4 @@ public class ShowOpendapClientAction extends AbstractVisatAction {
         jDialog.setPreferredSize(size);
         jDialog.setVisible(true);
     }
-
-    void static create(Map<String, ?> params) {
-        final OpendapAccessPanel opendapAccessPanel = new OpendapAccessPanel(????, params.get("helpId"));
-        final JDialog jDialog = new JDialog(getAppContext().getApplicationWindow(), "OPeNDAP Access");
-        jDialog.setContentPane(opendapAccessPanel);
-        jDialog.pack();
-        final Dimension size = jDialog.getSize();
-        jDialog.setPreferredSize(size);
-        jDialog.setVisible(true);
-
-    }
 }
