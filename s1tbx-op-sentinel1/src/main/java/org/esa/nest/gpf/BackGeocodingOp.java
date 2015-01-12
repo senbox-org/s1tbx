@@ -910,9 +910,9 @@ public final class BackGeocodingOp extends Operator {
                                       final PixelPos[][] slavePixPos, final int subswathIndex, final int burstIndex) {
 
         try {
-            final ResamplingRaster resamplingRasterI = new ResamplingRaster(slaveTileI, sourceRectangle, derampDemodI);
-            final ResamplingRaster resamplingRasterQ = new ResamplingRaster(slaveTileQ, sourceRectangle, derampDemodQ);
-            final ResamplingRaster resamplingRasterPhase = new ResamplingRaster(slaveTileI, sourceRectangle, derampDemodPhase);
+            final ResamplingRaster resamplingRasterI = new ResamplingRaster(slaveTileI, derampDemodI);
+            final ResamplingRaster resamplingRasterQ = new ResamplingRaster(slaveTileQ, derampDemodQ);
+            final ResamplingRaster resamplingRasterPhase = new ResamplingRaster(slaveTileI, derampDemodPhase);
 
             final Band[] targetBands = targetProduct.getBands();
             Band iBand = null;
@@ -967,9 +967,9 @@ public final class BackGeocodingOp extends Operator {
 
                     if (isSlavePixPosValid(slavePixelPos, subswathIndex, burstIndex)) {
 
-                        selectedResampling.computeIndex(slavePixelPos.x, slavePixelPos.y,
-                                sSubSwath[subswathIndex - 1].numOfSamples, sSubSwath[subswathIndex - 1].numOfLines,
-                                resamplingIndex);
+                        selectedResampling.computeIndex(
+                                slavePixelPos.x - sourceRectangle.x, slavePixelPos.y - sourceRectangle.y,
+                                sourceRectangle.width, sourceRectangle.height, resamplingIndex);
 
                         final double samplePhase = selectedResampling.resample(resamplingRasterPhase, resamplingIndex);
                         final double sampleI = selectedResampling.resample(resamplingRasterI, resamplingIndex);
@@ -1109,8 +1109,6 @@ public final class BackGeocodingOp extends Operator {
 
     private static class ResamplingRaster implements Resampling.Raster {
 
-        private final int x0;
-        private final int y0;
         private final Tile tile;
         private final double[][] data;
         private final boolean usesNoData;
@@ -1118,9 +1116,7 @@ public final class BackGeocodingOp extends Operator {
         private final double noDataValue;
         private final double geophysicalNoDataValue;
 
-        public ResamplingRaster(final Tile tile, final Rectangle rectangle, final double[][] data) {
-            this.x0 = rectangle.x;
-            this.y0 = rectangle.y;
+        public ResamplingRaster(final Tile tile, final double[][] data) {
             this.tile = tile;
             this.data = data;
             final RasterDataNode rasterDataNode = tile.getRasterDataNode();
@@ -1145,11 +1141,9 @@ public final class BackGeocodingOp extends Operator {
                 double val;
                 int i = 0;
                 while (i < y.length) {
-                    final int yy = y[i] - y0;
                     int j = 0;
                     while (j < x.length) {
-
-                        val = data[yy][x[j] - x0];
+                        val = data[y[i]][x[j]];
 
                         if (usesNoData) {
                             if (scalingApplied && geophysicalNoDataValue == val || noDataValue == val) {
@@ -1164,6 +1158,7 @@ public final class BackGeocodingOp extends Operator {
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
+                allValid = false;
             }
 
             return allValid;
