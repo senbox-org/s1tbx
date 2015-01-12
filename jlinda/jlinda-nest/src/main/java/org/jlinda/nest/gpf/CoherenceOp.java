@@ -115,12 +115,15 @@ public class CoherenceOp extends Operator {
         // put sourceMaster metadata into the masterMap
         metaMapPut(masterTag, masterMeta, sourceProduct, masterMap);
 
-        // pug sourceSlave metadata into slaveMap
-        MetadataElement[] slaveRoot = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot).getElements();
+        // plug sourceSlave metadata into slaveMap
+        MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot);
+        if(slaveElem == null) {
+            slaveElem = sourceProduct.getMetadataRoot().getElement("Slave Metadata");
+        }
+        MetadataElement[] slaveRoot = slaveElem.getElements();
         for (MetadataElement meta : slaveRoot) {
             metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
         }
-
     }
 
     private void metaMapPut(final String tag,

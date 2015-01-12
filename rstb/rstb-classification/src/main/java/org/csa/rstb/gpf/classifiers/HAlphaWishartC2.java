@@ -79,6 +79,17 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
         return 9;
     }
 
+    private boolean noData(final double noDataValue, final ProductData[] dataBuffers, final int index) {
+        // It is assumed that all the data buffers have the same no data value.
+        int numNoDataBuf = 0;
+        for (ProductData buf : dataBuffers) {
+            if (buf.getElemDoubleAt(index) == noDataValue) {
+                numNoDataBuf++;
+            }
+        }
+        return (numNoDataBuf == dataBuffers.length);
+    }
+
     /**
      * Perform decomposition for given tile.
      *
@@ -126,7 +137,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
             srcIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
                 final int index = trgIndex.getIndex(x);
-                if (dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue) {
+                if (noData(noDataValue, dataBuffers, srcIndex.getIndex(x))) {
                     targetData.setElemIntAt(index, NODATACLASS);
                 } else {
                     DualPolOpUtils.getMeanCovarianceMatrixC2(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
@@ -229,7 +240,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
                         for (int y = y0; y < yMax; ++y) {
                             srcIndex.calculateStride(y);
                             for (int x = x0; x < xMax; ++x) {
-                                if (dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue)
+                                if (noData(noDataValue, dataBuffers, srcIndex.getIndex(x)))
                                     continue;
 
                                 DualPolOpUtils.getMeanCovarianceMatrixC2(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth,
@@ -342,7 +353,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
                             for (int y = y0; y < yMax; ++y) {
                                 srcIndex.calculateStride(y);
                                 for (int x = x0; x < xMax; ++x) {
-                                    if (dataBuffers[0].getElemDoubleAt(srcIndex.getIndex(x)) == noDataValue)
+                                    if (noData(noDataValue, dataBuffers, srcIndex.getIndex(x)))
                                         continue;
 
                                     DualPolOpUtils.getMeanCovarianceMatrixC2(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth,

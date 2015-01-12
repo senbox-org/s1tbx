@@ -205,7 +205,7 @@ public class InterferogramOp extends Operator {
         // put sourceMaster metadata into the masterMap
         metaMapPut(masterTag, masterMeta, sourceProduct, masterMap);
 
-        // pug sourceSlave metadata into slaveMap
+        // plug sourceSlave metadata into slaveMap
         MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot);
         if(slaveElem == null) {
             slaveElem = sourceProduct.getMetadataRoot().getElement("Slave Metadata");

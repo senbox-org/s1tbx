@@ -37,6 +37,40 @@
         <module>jlinda-core</module>
     </dependency>
 
+     <extension point="snap-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.jlinda.nest.dat.coregistration.CreateInSARStackOpUI</id>
+            <class>org.jlinda.nest.dat.coregistration.CreateInSARStackOpUI</class>
+            <operatorName>CreateInSARStack</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.jlinda.nest.dat.coregistration.CoarseFineCoregOpUI</id>
+            <class>org.jlinda.nest.dat.coregistration.CoarseFineCoregOpUI</class>
+            <operatorName>CoarseFine-Coregistration2</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.jlinda.nest.dat.coregistration.ResampleOpUI</id>
+            <class>org.jlinda.nest.dat.coregistration.ResampleOpUI</class>
+            <operatorName>Resample2</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.jlinda.nest.gpf.CrossResamplingOpUI</id>
+            <class>org.jlinda.nest.gpf.CrossResamplingOpUI</class>
+            <operatorName>CrossResampling</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.jlinda.nest.gpf.SimulateAmplitudeOpUI</id>
+            <class>org.jlinda.nest.gpf.SimulateAmplitudeOpUI</class>
+            <operatorName>SimulateAmplitude</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.jlinda.nest.gpf.SubtRefDemOpUI</id>
+            <class>org.jlinda.nest.gpf.SubtRefDemOpUI</class>
+            <operatorName>SubtRefDem</operatorName>
+        </OperatorUI>
+    </extension>
+    
     <extension point="snap-ui:actions">
 
         <action>
