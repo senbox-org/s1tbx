@@ -2336,6 +2336,9 @@ if (wizardContext != null) {
   </mediaSets>
   <buildIds buildAll="false">
     <mediaSet refId="4707" />
+    <mediaSet refId="20" />
+    <mediaSet refId="4500" />
+    <mediaSet refId="5413" />
   </buildIds>
-  <buildOptions verbose="false" faster="true" disableSigning="false" disableJreBundling="false" debug="false" />
+  <buildOptions verbose="false" faster="false" disableSigning="false" disableJreBundling="false" debug="false" />
 </install4j>
