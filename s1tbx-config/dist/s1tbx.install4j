@@ -31,7 +31,6 @@
       <root id="5497" fileset="5496" location="" />
     </roots>
     <mountPoints>
-      <mountPoint id="6049" root="" location="bin" mode="755" />
       <mountPoint id="17" root="" location="" mode="755" />
       <mountPoint id="5133" root="5132" location="" mode="755" />
       <mountPoint id="5265" root="5259" location="" mode="755" />
@@ -40,7 +39,6 @@
       <mountPoint id="5498" root="5497" location="" mode="755" />
     </mountPoints>
     <entries>
-      <fileEntry mountPoint="6049" file="../../../package/s1tbx-bin-win64/bin/snap-launcher.jar" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <dirEntry mountPoint="17" file="../../../package/s1tbx-bin-win64/auxdata" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="auxdata" excludeSuffixes="" dirMode="755" overrideDirMode="true">
         <exclude />
       </dirEntry>
@@ -70,6 +68,12 @@
       </dirEntry>
       <fileEntry mountPoint="17" file="../../what's new.txt" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="17" file="../main/bin/common/VERSION.txt" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
+      <dirEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
+      <dirEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+        <exclude />
+      </dirEntry>
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/CYGGCC_S-1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/CYGWIN1.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/IESHIMS.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
@@ -83,10 +87,10 @@
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/gpt.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/jhdf.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/jhdf5.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <dirEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+      <dirEntry mountPoint="5265" file="../../../package/s1tbx-bin-win/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="5133" file="../../../package/s1tbx-bin-win64/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+      <dirEntry mountPoint="5265" file="../../../package/s1tbx-bin-win/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
       <fileEntry mountPoint="5265" file="../main/bin/win/cli.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
@@ -97,10 +101,10 @@
       <fileEntry mountPoint="5265" file="../main/bin/win/gpt.bat" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/jhdf.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5265" file="../main/bin/win/jhdf5.dll" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <dirEntry mountPoint="5265" file="../../../package/s1tbx-bin-win/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+      <dirEntry mountPoint="5269" file="../../../package/s1tbx-bin-linux64/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="5265" file="../../../package/s1tbx-bin-win/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+      <dirEntry mountPoint="5269" file="../../../package/s1tbx-bin-linux64/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
       <fileEntry mountPoint="5269" file="../main/bin/linux64/dat.sh" overwriteMode="4" shared="false" fileMode="755" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
@@ -108,10 +112,10 @@
       <fileEntry mountPoint="5269" file="../main/bin/linux64/libclib_jiio.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5269" file="../main/bin/linux64/libjhdf.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5269" file="../main/bin/linux64/libjhdf5.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <dirEntry mountPoint="5269" file="../../../package/s1tbx-bin-linux64/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+      <dirEntry mountPoint="5270" file="../../../package/s1tbx-bin-linux/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="5269" file="../../../package/s1tbx-bin-linux64/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+      <dirEntry mountPoint="5270" file="../../../package/s1tbx-bin-linux/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
       <fileEntry mountPoint="5270" file="../main/bin/linux/dat.sh" overwriteMode="4" shared="false" fileMode="755" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
@@ -119,10 +123,10 @@
       <fileEntry mountPoint="5270" file="../main/bin/linux/libclib_jiio.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5270" file="../main/bin/linux/libjhdf.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5270" file="../main/bin/linux/libjhdf5.so" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <dirEntry mountPoint="5270" file="../../../package/s1tbx-bin-linux/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+      <dirEntry mountPoint="5498" file="../../../package/s1tbx-bin-mac/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
-      <dirEntry mountPoint="5270" file="../../../package/s1tbx-bin-linux/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="false">
+      <dirEntry mountPoint="5498" file="../../../package/s1tbx-bin-mac/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="false">
         <exclude />
       </dirEntry>
       <fileEntry mountPoint="5498" file="../main/bin/macosx/dat.command" overwriteMode="4" shared="false" fileMode="755" uninstallMode="0" overrideFileMode="true" overrideOverwriteMode="false" overrideUninstallMode="false" />
@@ -131,12 +135,6 @@
       <fileEntry mountPoint="5498" file="../main/bin/macosx/libjblas_arch_flavor.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5498" file="../main/bin/macosx/libjhdf.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
       <fileEntry mountPoint="5498" file="../main/bin/macosx/libjhdf5.jnilib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" />
-      <dirEntry mountPoint="5498" file="../../../package/s1tbx-bin-mac/bin" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="bin" excludeSuffixes="" dirMode="755" overrideDirMode="false">
-        <exclude />
-      </dirEntry>
-      <dirEntry mountPoint="5498" file="../../../package/s1tbx-bin-mac/lib" overwriteMode="4" shared="false" fileMode="644" uninstallMode="0" overrideFileMode="false" overrideOverwriteMode="false" overrideUninstallMode="false" entryMode="subdir" subDirectory="lib" excludeSuffixes="" dirMode="755" overrideDirMode="false">
-        <exclude />
-      </dirEntry>
     </entries>
     <components>
       <component name="Sentinels Application Platform" id="5274" customizedId="" displayDescription="false" hideHelpButton="false" selected="true" changeable="true" downloadable="false" hidden="false">
@@ -650,6 +648,25 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                 </serializedBean>
                 <condition />
               </action>
+              <action name="" id="6186" customizedId="" beanClass="com.install4j.runtime.beans.actions.control.SetVariableAction" enabled="true" commentSet="false" comment="" actionElevationType="inherit" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.control.SetVariableAction">
+                      <void property="script">
+                        <object class="com.install4j.api.beans.ScriptProperty">
+                          <void property="value">
+                            <string>"s1tbx"</string>
+                          </void>
+                        </object>
+                      </void>
+                      <void property="variableName">
+                        <string>context</string>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
               <action name="" id="238" customizedId="" beanClass="com.install4j.runtime.beans.actions.misc.AddVmOptionsAction" enabled="true" commentSet="false" comment="" actionElevationType="elevated" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
                 <serializedBean>
                   <java class="java.beans.XMLDecoder">
@@ -849,6 +866,33 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                         <string>775</string>
                       </void>
                       <void property="recursive">
+                        <boolean>true</boolean>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="6185" customizedId="" beanClass="com.install4j.runtime.beans.actions.files.AddWindowsFileRightsAction" enabled="true" commentSet="false" comment="" actionElevationType="elevated" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.files.AddWindowsFileRightsAction">
+                      <void property="execute">
+                        <boolean>true</boolean>
+                      </void>
+                      <void property="files">
+                        <array class="java.io.File" length="1">
+                          <void index="0">
+                            <object class="java.io.File">
+                              <string>${installer:sys.installationDir}</string>
+                            </object>
+                          </void>
+                        </array>
+                      </void>
+                      <void property="read">
+                        <boolean>true</boolean>
+                      </void>
+                      <void property="write">
                         <boolean>true</boolean>
                       </void>
                     </object>
