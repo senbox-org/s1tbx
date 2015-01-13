@@ -32,22 +32,6 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.snap.gpf.StatusProgressMonitor;
-import org.esa.snap.gpf.ThreadManager;
-import org.esa.snap.gpf.TileIndex;
-import org.esa.snap.util.ResourceUtils;
-
-import java.awt.*;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.esa.nest.math.Transform;
 import org.esa.nest.math.exceptions.JWaveException;
 import org.esa.nest.math.exceptions.JWaveFailure;
@@ -64,13 +48,28 @@ import org.esa.nest.math.transforms.wavelets.daubechies.Daubechies4;
 import org.esa.nest.math.transforms.wavelets.legendre.Legendre1;
 import org.esa.nest.math.transforms.wavelets.legendre.Legendre2;
 import org.esa.nest.math.transforms.wavelets.legendre.Legendre3;
-import org.esa.nest.dataio.PolBandUtils;
+import org.esa.snap.gpf.StatusProgressMonitor;
+import org.esa.snap.gpf.ThreadManager;
+import org.esa.snap.gpf.TileIndex;
+import org.esa.snap.util.ResourceUtils;
+
+import java.awt.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The operator performs principle component analysis for user selected
  * master/slave pairs.
  */
-@OperatorMetadata(alias = "Principle-Components", description = "Principle Component Analysis",
+@OperatorMetadata(alias = "HaarWavelet", description = "Haar Wavelet Transform",
         category = "Classification/Primitive Features")
 public class HaarWaveletTransformOp extends Operator {
 
@@ -86,10 +85,10 @@ public class HaarWaveletTransformOp extends Operator {
 
     @Parameter(valueSet = {DFT, FWT, WPT, DWT},
             defaultValue = DFT, label = "Transform Type:")
-    private final String transformType = DFT;
+    private String transformType = DFT;
     @Parameter(valueSet = {"Haar1", "Daubechies2", "Daubechies4", "Legendre1"},
             defaultValue = "Haar1", label = "Wavelet Type:")
-    private final String waveletType = "haar02";
+    private String waveletType = "haar02";
 
 //    @Parameter(description = "The threshold for selecting eigenvalues", interval = "(0, 100]", defaultValue = "100",
 //            label = "Eigenvalue Threshold (%)")
@@ -300,7 +299,7 @@ public class HaarWaveletTransformOp extends Operator {
         numOfSourceBands = sourceBandNames.length;
 
         if (numOfSourceBands <= 1) {
-            throw new OperatorException("For PCA, more than one band should be selected");
+            throw new OperatorException("More than one band should be selected");
         }
 
         // add PCA bands in target product
