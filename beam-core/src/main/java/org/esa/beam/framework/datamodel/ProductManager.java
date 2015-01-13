@@ -26,7 +26,6 @@ import java.util.Vector;
  * <code>Product</code> was added or removed.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
  */
 public class ProductManager {
 
@@ -43,7 +42,7 @@ public class ProductManager {
      * Constructs an product manager with an empty list of products.
      */
     public ProductManager() {
-        productList = new ProductNodeList<Product>();
+        productList = new ProductNodeList<>();
         productNodeNameChangeListener = new ProductNodeNameChangeListener();
     }
 
@@ -260,7 +259,7 @@ public class ProductManager {
             return false;
         }
         if (listeners == null) {
-            listeners = new Vector<Listener>(8);
+            listeners = new Vector<>(8);
         }
         for (Listener l : listeners) {
             if (listener == l) {
