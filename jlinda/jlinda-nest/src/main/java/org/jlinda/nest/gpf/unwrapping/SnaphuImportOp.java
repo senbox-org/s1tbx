@@ -47,10 +47,10 @@ public class SnaphuImportOp extends Operator {
 
             // check which one is the reference product:
             // ....check on geocodings, and pick 1st one that has them as 'master'...
-            if (sourceProducts[0].getGeoCoding().canGetGeoPos()) {
+            if (sourceProducts[0].getGeoCoding() != null && sourceProducts[0].getGeoCoding().canGetGeoPos()) {
                 masterProduct = sourceProducts[0];
                 slaveProduct = sourceProducts[1];
-            } else if (sourceProducts[1].getGeoCoding().canGetGeoPos()) {
+            } else if (sourceProducts[1].getGeoCoding() != null && sourceProducts[1].getGeoCoding().canGetGeoPos()) {
                 masterProduct = sourceProducts[1];
                 slaveProduct = sourceProducts[0];
             } else {
