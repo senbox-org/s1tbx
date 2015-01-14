@@ -100,59 +100,6 @@ public abstract class ExtensionManager {
         return findExtensionDeep(extensibleObject, extensibleObject.getClass(), extensionType);
     }
 
-    /**
-     * Finds the extension factory for the given types of the extensible object and the extension.
-     *
-     * @param extensibleType The type of the extensible object.
-     * @param extensionType  The type of the extension.
-     * @return The factory, or {@code null} if no such can be found.
-     * @deprecated since Ceres 0.13, because the ExtensionManager shall not only try a single factory
-     *             that might fail (e.g. return {@code null}).
-     */
-    @Deprecated
-    public <E> ExtensionFactory findFactory(Class<?> extensibleType, Class<E> extensionType) {
-        Assert.notNull(extensibleType, "extensibleType");
-        Assert.notNull(extensionType, "extensionType");
-
-        ExtensionFactory factory = findFactoryFlat(extensibleType, extensionType, IS_EQUAL_TO);
-
-        if (factory == null) {
-            factory = findFactoryFlat(extensibleType, extensionType, IS_SUBTYPE_OF);
-        }
-
-        if (factory == null) {
-            final Class<?> cls = extensibleType.getSuperclass();
-            if (cls != null) {
-                factory = findFactory(cls, extensionType);
-            }
-        }
-
-        if (factory == null) {
-            final Class<?>[] interfaces = extensibleType.getInterfaces();
-            for (Class<?> ifc : interfaces) {
-                factory = findFactory(ifc, extensionType);
-                if (factory != null) {
-                    break;
-                }
-            }
-        }
-
-        return factory;
-    }
-
-    private <E> ExtensionFactory findFactoryFlat(Class<?> extensibleType,
-                                                 Class<E> extensionType,
-                                                 TypeCondition condition) {
-        for (ExtensionFactory factory : getExtensionFactories(extensibleType)) {
-            for (Class<?> cls : factory.getExtensionTypes()) {
-                if (condition.fulfilled(cls, extensionType)) {
-                    return factory;
-                }
-            }
-        }
-        return null;
-    }
-
     private <E> E findExtensionDeep(Object extensibleObject,
                                     Class<?> extensibleType,
                                     Class<E> extensionType) {
@@ -212,6 +159,7 @@ public abstract class ExtensionManager {
                                    Object extensibleObject,
                                    Class<E> extensionType) {
         try {
+            //noinspection unchecked
             return (E) factory.getExtension(extensibleObject, extensionType);
         } catch (Throwable thrown) {
             handleExtensionFactoryFailure(extensibleObject, extensionType, thrown);
@@ -237,7 +185,7 @@ public abstract class ExtensionManager {
     }
 
     private static class Impl extends ExtensionManager {
-        private HashMap<Class, List<ExtensionFactory>> extensionFactoryListMap = new HashMap<Class, List<ExtensionFactory>>();
+        private HashMap<Class, List<ExtensionFactory>> extensionFactoryListMap = new HashMap<>();
         private static final ExtensionFactory[] NO_EXTENSION_FACTORIES = new ExtensionFactory[0];
 
         @Override
@@ -246,7 +194,7 @@ public abstract class ExtensionManager {
             Assert.notNull(factory, "factory");
             List<ExtensionFactory> extensionFactoryList = extensionFactoryListMap.get(extensibleType);
             if (extensionFactoryList == null) {
-                extensionFactoryList = new ArrayList<ExtensionFactory>();
+                extensionFactoryList = new ArrayList<>();
                 extensionFactoryListMap.put(extensibleType, extensionFactoryList);
             }
             if (!extensionFactoryList.contains(factory)) {
