@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><title>Help - Goldstein Phase Filtering</title>
+
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tbody>
+    <tr class="header">
+        <td class="header">&nbsp; Goldstein Phase Filtering<br>
+        </td>
+        <td class="header" align="right"><a href="../general/Overview.html"><img src="../images/HeaderLogo.jpg"
+                                                                                 border="0"></a></td>
+    </tr>
+    </tbody>
+</table>
+<h3>Goldstein Phase Filtering Operator</h3>Phase filtering is a
+preprocessing technique that greatly reduces the residues in the later
+on&nbsp; phase unwrapping step and enhances the phase unwrapping
+accuracy. The method implemented in this operator is a nonlinear
+adaptive algorithm proposed by Goldstein and Werner [1] in 1998.<br>
+<h4>Input and Output</h4>
+<ul>
+    <li>The
+        input to this operator is the output of Interferogram Formation operator.
+    </li>
+    <li>The output of this operator is a stack of filtered I/Q bands.</li>
+</ul>
+<ol>
+</ol>
+<h4>Parameters Used</h4>&nbsp;&nbsp; The following processing parameter is required for this operator (see Figure
+1):<br>
+<ul>
+    <li>Adaptive Filter Exponent: A value lies in range (0,1]. The larger the value the stronger the filtering.<br>
+    </li>
+</ul>
+<img style="width: 450px; height: 450px;" alt="" src="images/goldstein_phase_filtering_ui.jpg"><br>
+<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Figure 1. Goldstein Phase Filtering operator
+UI<br>
+<br>
+
+<p> Reference:&nbsp;</p>
+
+<p>[1] R.M. Goldstein and C.L. Werner, "Radar
+    Interferogram Phase Filtering for Geophysical Applications,"
+    Geophysical Research Letters, 25, 4035-4038, 1998<br>
+</p>
+
+
+<hr>
+</body>
+</html>

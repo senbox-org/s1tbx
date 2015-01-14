@@ -72,6 +72,11 @@
             <class>org.esa.nest.gpf.MultiInputStackAveragingOpUI</class>
             <operatorName>Multi-Input-Stack-Averaging</operatorName>
         </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.insar.DEMGenerationOpUI</id>
+            <class>org.esa.nest.gpf.insar.DEMGenerationOpUI</class>
+            <operatorName>DEMGeneration</operatorName>
+        </OperatorUI>
     </extension>
 
     <extension point="snap-ui:layerSources">
@@ -178,6 +183,30 @@
             <dialogTitle>Multi Input Stack Averaging</dialogTitle>
             <shortDescr>Multi Input Stack Averaging</shortDescr>
             <graphFile>MultiInputStackAveragingGraph.xml</graphFile>
+        </action>
+
+        <action>
+            <id>GoldsteinPhaseFiltering</id>
+            <helpId>GoldsteinFilterOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <parent>insar_tools</parent>
+            <text>Goldstein Phase Filtering</text>
+            <operatorName>GoldsteinPhaseFiltering</operatorName>
+            <dialogTitle>Goldstein Phase Filtering</dialogTitle>
+            <targetProductNameSuffix>_flt</targetProductNameSuffix>
+            <placeAfter>spectral_filtering</placeAfter>
+        </action>
+
+        <action>
+            <id>DEMGeneration</id>
+            <helpId>DEMGenerationOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <parent>products</parent>
+            <text>DEM Generation</text>
+            <operatorName>DEMGeneration</operatorName>
+            <dialogTitle>DEM Generation</dialogTitle>
+            <placeAfter>SubtRefDemOp</placeAfter>
+            <targetProductNameSuffix>_elev</targetProductNameSuffix>
         </action>
 
     </extension>

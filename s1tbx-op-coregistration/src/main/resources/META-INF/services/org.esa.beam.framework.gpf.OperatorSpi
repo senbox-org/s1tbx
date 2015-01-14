@@ -6,3 +6,5 @@ org.esa.nest.gpf.StackAveragingOp$Spi
 org.esa.nest.gpf.DEMBasedCoregistrationOp$Spi
 org.esa.nest.gpf.StackSplitWriter$Spi
 org.esa.nest.gpf.MultiInputStackAveragingOp$Spi
+org.esa.nest.gpf.insar.GoldsteinFilterOp$Spi
+org.esa.nest.gpf.insar.DEMGenerationOp$Spi
