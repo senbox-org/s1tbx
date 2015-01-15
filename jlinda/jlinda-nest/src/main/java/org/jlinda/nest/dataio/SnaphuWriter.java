@@ -39,7 +39,11 @@ public class SnaphuWriter extends AbstractProductWriter {
     private Map _bandOutputStreams;
     private boolean _incremental = true;
 
+    public static final String SNAPHU_HEADER_EXTENSION = ".snaphu"+EnviHeader.FILE_EXTENSION;
+    public static final String SNAPHU_IMAGE_EXTENSION = ".snaphu"+DimapProductConstants.IMAGE_FILE_EXTENSION;
     private static final String SNAPHU_CONFIG_FILE = "snaphu.conf";
+    private static final String UNWRAPPED_PREFIX = "Unw";
+
     private SnaphuConfigFile snaphuConfigFile = new SnaphuConfigFile();
     private final ByteOrder byteOrder = ByteOrder.nativeOrder();
 
@@ -75,6 +79,8 @@ public class SnaphuWriter extends AbstractProductWriter {
         ensureNamingConvention();
         Product sourceProduct = getSourceProduct();
 
+        writeUnwrappedBandHeader(sourceProduct);
+
         // set up product writer
         sourceProduct.setProductWriter(this);
         deleteRemovedNodes();
@@ -82,6 +88,32 @@ public class SnaphuWriter extends AbstractProductWriter {
         // dump snaphu config file
 	    createSnaphuConfFile();
 
+    }
+
+    private void writeUnwrappedBandHeader(final Product sourceProduct) throws IOException {
+        Band phaseBand = null;
+        for (Band band : sourceProduct.getBands()) {
+            if (band.getUnit()!= null && band.getUnit().contains(Unit.PHASE)) {
+                phaseBand = band;
+                break;
+            }
+        }
+        if(phaseBand == null) {
+            return;
+        }
+
+        String bandName = UNWRAPPED_PREFIX + phaseBand.getName() + SNAPHU_HEADER_EXTENSION;
+        File unwrappedHeaderFile = new File(_outputDir, bandName);
+
+        Band newBand = new Band(UNWRAPPED_PREFIX+phaseBand.getName(), phaseBand.getDataType(),
+                phaseBand.getRasterWidth(), phaseBand.getRasterHeight());
+        newBand.setDescription("Unwrapped "+phaseBand.getDescription());
+
+        EnviHeader.createPhysicalFile(unwrappedHeaderFile,
+                newBand,
+                newBand.getRasterWidth(),
+                newBand.getRasterHeight(),
+                0);
     }
 
     /**
@@ -271,7 +303,7 @@ public class SnaphuWriter extends AbstractProductWriter {
     }
 
     private static String createEnviHeaderFilename(Band band) {
-        return band.getName() + EnviHeader.FILE_EXTENSION;
+        return band.getName() + SNAPHU_HEADER_EXTENSION;
     }
 
     private File getImageFile(Band band) {
@@ -279,7 +311,7 @@ public class SnaphuWriter extends AbstractProductWriter {
     }
 
     protected String createImageFilename(Band band) {
-        return band.getName() + DimapProductConstants.IMAGE_FILE_EXTENSION;
+        return band.getName() + SNAPHU_IMAGE_EXTENSION;
     }
 
     private static void createPhysicalFile(File file, long fileSize) throws IOException {
@@ -414,11 +446,11 @@ public class SnaphuWriter extends AbstractProductWriter {
         parameters.setSnaphuInit(temp);
 
         parameters.setLogFileName("snaphu.log");
-        parameters.setPhaseFileName(phaseName + ".img");
-        parameters.setCoherenceFileName(cohName + ".img");
+        parameters.setPhaseFileName(phaseName + SNAPHU_IMAGE_EXTENSION);
+        parameters.setCoherenceFileName(cohName + SNAPHU_IMAGE_EXTENSION);
         parameters.setVerbosityFlag("true");
 
-        parameters.setOutFileName("Unw_" + phaseName + ".img");
+        parameters.setOutFileName(UNWRAPPED_PREFIX + phaseName + SNAPHU_IMAGE_EXTENSION);
 
         Window dataWindow = new Window(masterMetadata.getCurrentWindow());
 
