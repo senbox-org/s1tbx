@@ -90,7 +90,8 @@ public abstract class AbstractDialog {
         this.parent = (Window) dialog.getParent();
         this.dialog = dialog;
         this.buttonMask = buttonMask;
-        this.buttonMap = new HashMap<Integer, AbstractButton>(5);
+        this.buttonMap = new HashMap<>(5);
+        setComponentName(dialog);
         setButtonID(0);
         initUI(otherButtons);
         setHelpID(helpID);
@@ -174,6 +175,9 @@ public abstract class AbstractDialog {
         updateHelpID();
     }
 
+    public JPanel getButtonPanel() {
+        return buttonRow;
+    }
 
     /**
      * Gets the dialog's content component.
@@ -646,8 +650,10 @@ public abstract class AbstractDialog {
         JOptionPane.showMessageDialog(getJDialog(), message, getJDialog().getTitle(), messageType);
     }
 
-    public JPanel getButtonPanel() {
-        return buttonRow;
+    private void setComponentName(JDialog dialog) {
+        if(this.dialog.getName() == null && dialog.getTitle() != null) {
+            dialog.setName(dialog.getTitle().toLowerCase().replaceAll(" ", "_"));
+        }
     }
 
 }
