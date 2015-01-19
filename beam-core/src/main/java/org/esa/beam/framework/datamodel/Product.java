@@ -1359,6 +1359,28 @@ public class Product extends ProductNode {
         return parser.parse(expression);
     }
 
+    /**
+     * Gets all raster data nodes referenced by the given band maths expression.
+     *
+     * @param expression The expression.
+     * @return all raster data nodes referenced by the given band maths expression.
+     * @throws ParseException If the expression contains errors.
+     * @since SNAP 2
+     */
+    public RasterDataNode[] getRefRasterDataNodes(String expression) throws ParseException {
+        RasterDataNode[] nodes;
+        final ProductManager productManager = getProductManager();
+        if (productManager != null) {
+            nodes = BandArithmetic.getRefRasters(expression,
+                                                 productManager.getProducts(),
+                                                 productManager.getProductIndex(this));
+        } else {
+            nodes = BandArithmetic.getRefRasters(expression, this);
+        }
+        return nodes;
+    }
+
+
     //////////////////////////////////////////////////////////////////////////
     // Visitor-Pattern support
 

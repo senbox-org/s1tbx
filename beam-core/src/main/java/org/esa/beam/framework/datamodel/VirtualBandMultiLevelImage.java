@@ -22,7 +22,6 @@ import com.bc.ceres.glevel.MultiLevelSource;
 import com.bc.ceres.glevel.support.AbstractMultiLevelSource;
 import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
 import com.bc.jexp.ParseException;
-import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.ResolutionLevel;
 import org.esa.beam.jai.VirtualBandOpImage;
@@ -44,7 +43,7 @@ import java.util.WeakHashMap;
  */
 class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements ProductNodeListener {
 
-    private final Map<Product, Set<ProductNode>> nodeMap = new WeakHashMap<Product, Set<ProductNode>>();
+    private final Map<Product, Set<ProductNode>> nodeMap = new WeakHashMap<>();
 
     /**
      * Creates a new {@link MultiLevelImage} computed from raster data arithmetics. The image
@@ -90,19 +89,11 @@ class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements Produ
     VirtualBandMultiLevelImage(MultiLevelSource multiLevelSource, String expression, Product product) {
         super(multiLevelSource);
         try {
-            final RasterDataNode[] nodes;
-            final ProductManager productManager = product.getProductManager();
-            if (productManager != null) {
-                nodes = BandArithmetic.getRefRasters(expression,
-                                                     productManager.getProducts(),
-                                                     productManager.getProductIndex(product));
-            } else {
-                nodes = BandArithmetic.getRefRasters(expression, product);
-            }
+            final RasterDataNode[] nodes = product.getRefRasterDataNodes(expression);
             if (nodes.length > 0) {
                 for (final RasterDataNode node : nodes) {
                     if (!nodeMap.containsKey(node.getProduct())) {
-                        nodeMap.put(node.getProduct(), new WeakHashSet<ProductNode>());
+                        nodeMap.put(node.getProduct(), new WeakHashSet<>());
                     }
                     nodeMap.get(node.getProduct()).add(node);
                 }
@@ -158,7 +149,7 @@ class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements Produ
         private final WeakHashMap<E, Object> map;
 
         private WeakHashSet() {
-            map = new WeakHashMap<E, Object>();
+            map = new WeakHashMap<>();
         }
 
         @Override
