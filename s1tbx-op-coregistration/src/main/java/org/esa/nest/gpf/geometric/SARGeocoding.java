@@ -955,7 +955,7 @@ public class SARGeocoding {
                 return 0;
             }
 
-            if (time > orbitStateVectors[nv - 1].time_mjd) {
+            if (time >= orbitStateVectors[nv - 1].time_mjd) {
                 return nv - 2;
             }
 
