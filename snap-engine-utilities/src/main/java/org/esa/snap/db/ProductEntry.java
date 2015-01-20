@@ -43,6 +43,7 @@ public class ProductEntry {
     public final static String FILE_FORMAT = "file_format";
     public final static String GEO_BOUNDARY = "geo_boundary";
     public final static DateFormat yyyMMdd_Format = ProductData.UTC.createDateFormat("yyy-MM-dd");
+    private final static DecimalFormat decimalFormat = new DecimalFormat("0.0000");
 
     private int id;
     private File file;
@@ -227,7 +228,7 @@ public class ProductEntry {
         final GeoCoding gc = product.getGeoCoding();
         if (gc == null)
             return new GeoPos[0];
-        final int step = Math.max(30, (product.getSceneRasterWidth() + product.getSceneRasterHeight()) / 20);
+        final int step = Math.max(30, (product.getSceneRasterWidth() + product.getSceneRasterHeight()) / 10);
         final GeoPos[] geoPoints = ProductUtils.createGeoBoundary(product, null, step, true);
         ProductUtils.normalizeGeoPolygon(geoPoints);
         return geoPoints;
@@ -235,21 +236,11 @@ public class ProductEntry {
 
     public String formatGeoBoundayString() {
         final StringBuilder str = new StringBuilder(geoboundary.length * 20);
-        if (geoboundary.length > 50) {
-            final DecimalFormat df = new DecimalFormat("0.000");
-            for (GeoPos geo : geoboundary) {
-                str.append(df.format(geo.getLat()));
-                str.append(',');
-                str.append(df.format(geo.getLon()));
-                str.append(',');
-            }
-        } else {
-            for (GeoPos geo : geoboundary) {
-                str.append(geo.getLat());
-                str.append(',');
-                str.append(geo.getLon());
-                str.append(',');
-            }
+        for (GeoPos geo : geoboundary) {
+            str.append(decimalFormat.format(geo.getLat()));
+            str.append(',');
+            str.append(decimalFormat.format(geo.getLon()));
+            str.append(',');
         }
         return str.toString();
     }

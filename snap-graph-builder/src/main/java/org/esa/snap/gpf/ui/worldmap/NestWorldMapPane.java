@@ -21,6 +21,7 @@ import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.bc.ceres.glayer.swing.WakefulComponent;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
@@ -37,10 +38,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -141,7 +139,7 @@ public class NestWorldMapPane extends JPanel {
         if (product != null && product.getGeoCoding() != null) {
             generalPaths = getGeoBoundaryPaths(product);
         } else {
-            final ArrayList<GeneralPath> pathList = ProductUtils.assemblePathList(selGeoBoundaries[0]);
+            final ArrayList<GeneralPath> pathList = assemblePathList(selGeoBoundaries[0]);
             generalPaths = pathList.toArray(new GeneralPath[pathList.size()]);
         }
 
@@ -332,7 +330,7 @@ public class NestWorldMapPane extends JPanel {
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
             final int wheelRotation = e.getWheelRotation();
-            final double newZoomFactor = layerCanvas.getViewport().getZoomFactor() * Math.pow(1.1, wheelRotation);
+            final double newZoomFactor = layerCanvas.getViewport().getZoomFactor() * FastMath.pow(1.1, wheelRotation);
             layerCanvas.getViewport().setZoomFactor(newZoomFactor);
         }
     }
@@ -419,7 +417,7 @@ public class NestWorldMapPane extends JPanel {
                                      final String text, final PixelPos textCenter,
                                      final Color fillColor, final Color borderColor) {
             ProductUtils.normalizeGeoPolygon(geoBoundary);
-            final List<GeneralPath> boundaryPaths = ProductUtils.assemblePathList(geoBoundary);
+            final List<GeneralPath> boundaryPaths = assemblePathList(geoBoundary);
             final AffineTransform transform = layerCanvas.getViewport().getModelToViewTransform();
             for (GeneralPath boundaryPath : boundaryPaths) {
                 boundaryPath.transform(transform);
@@ -519,5 +517,76 @@ public class NestWorldMapPane extends JPanel {
         public void actionPerformed(ActionEvent e) {
             zoomToProduct(getSelectedProduct());
         }
+    }
+
+    public static ArrayList<GeneralPath> assemblePathList(GeoPos[] geoPoints) {
+        final GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO, geoPoints.length + 8);
+        final ArrayList<GeneralPath> pathList = new ArrayList<>(16);
+
+        if (geoPoints.length > 1) {
+            double lon, lat;
+            double minLon=0, maxLon=0;
+
+            boolean first = true;
+            for(GeoPos gp : geoPoints) {
+                lon = gp.getLon();
+                lat = gp.getLat();
+                if(first) {
+                    minLon = lon;
+                    maxLon = lon;
+                    path.moveTo(lon, lat);
+                    first = false;
+                }
+                if (lon < minLon) {
+                    minLon = lon;
+                }
+                if (lon > maxLon) {
+                    maxLon = lon;
+                }
+                path.lineTo(lon, lat);
+            }
+            path.closePath();
+
+            int runIndexMin = (int) Math.floor((minLon + 180) / 360);
+            int runIndexMax = (int) Math.floor((maxLon + 180) / 360);
+
+            if (runIndexMin == 0 && runIndexMax == 0) {
+                // the path is completely within [-180, 180] longitude
+                pathList.add(path);
+                return pathList;
+            }
+
+            final Area pathArea = new Area(path);
+            final GeneralPath pixelPath = new GeneralPath(GeneralPath.WIND_NON_ZERO);
+            for (int k = runIndexMin; k <= runIndexMax; k++) {
+                final Area currentArea = new Area(new Rectangle2D.Float(k * 360.0f - 180.0f, -90.0f, 360.0f, 180.0f));
+                currentArea.intersect(pathArea);
+                if (!currentArea.isEmpty()) {
+                    pathList.add(areaToPath(currentArea, -k * 360.0, pixelPath));
+                }
+            }
+        }
+        return pathList;
+    }
+
+    public static GeneralPath areaToPath(final Area negativeArea, final double deltaX, final GeneralPath pixelPath) {
+
+        final float[] floats = new float[6];
+        // move to correct rectangle
+        final AffineTransform transform = AffineTransform.getTranslateInstance(deltaX, 0.0);
+        final PathIterator iterator = negativeArea.getPathIterator(transform);
+
+        while (!iterator.isDone()) {
+            final int segmentType = iterator.currentSegment(floats);
+            if (segmentType == PathIterator.SEG_LINETO) {
+                pixelPath.lineTo(floats[0], floats[1]);
+            } else if (segmentType == PathIterator.SEG_MOVETO) {
+                pixelPath.moveTo(floats[0], floats[1]);
+            } else if (segmentType == PathIterator.SEG_CLOSE) {
+                pixelPath.closePath();
+            }
+            iterator.next();
+        }
+        return pixelPath;
     }
 }
