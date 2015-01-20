@@ -18,6 +18,7 @@ package org.esa.snap.dat.dialogs;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.visat.VisatApp;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.db.ProductEntry;
 import org.esa.snap.gpf.OperatorUtils;
@@ -59,9 +60,12 @@ public class FileModel extends BaseFileModel implements FileTableModel {
             super(entry);
         }
 
-        protected void updateData(final File file) throws IOException {
+        protected synchronized void updateData(final File file) throws IOException {
             data[0] = file.getName();
-            final Product product = ProductIO.readProduct(file);
+            Product product = getProductFromProductManager(file);
+            if(product == null) {
+                product = ProductIO.readProduct(file);
+            }
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 
             data[0] = product.getName();
@@ -81,6 +85,19 @@ public class FileModel extends BaseFileModel implements FileTableModel {
                 data[3] = String.valueOf(meta.getAttributeInt(AbstractMetadata.REL_ORBIT, 0));
                 data[4] = String.valueOf(meta.getAttributeInt(AbstractMetadata.ABS_ORBIT, 0));
             }
+        }
+
+        private Product getProductFromProductManager(final File file) {
+            final VisatApp app = VisatApp.getApp();
+            if(app != null) {
+                final Product[] products = app.getProductManager().getProducts();
+                for(Product p : products) {
+                    if(file.equals(p.getFileLocation())) {
+                        return p;
+                    }
+                }
+            }
+            return null;
         }
     }
 }
