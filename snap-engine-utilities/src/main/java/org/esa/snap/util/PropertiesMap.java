@@ -13,11 +13,31 @@ public class PropertiesMap extends PropertyMap {
 
     public String getPropertyPath(final String key) {
         String val = getPropertyString(key);
+        if (val != null) {
+            if (val.contains("${")) {
+                val = resolve(val);
+            }
+
+            val = val.replaceAll(Matcher.quoteReplacement("/"), Matcher.quoteReplacement(File.separator));
+            val = val.replaceAll(Matcher.quoteReplacement("\\"), Matcher.quoteReplacement(File.separator));
+        }
+        return val;
+    }
+
+    /**
+     * Gets a value of type <code>String</code>.
+     *
+     * @param key the key
+     *
+     * @return the value for the given key, or <code>""</code> (empty string) if the key is not contained in this
+     *         property set, never <code>null</code>.
+     */
+    @Override
+    public String getPropertyString(String key) {
+        String val = getPropertyString(key, "");
         if (val != null && val.contains("${")) {
             val = resolve(val);
         }
-        val = val.replaceAll(Matcher.quoteReplacement("/"), Matcher.quoteReplacement(File.separator));
-        val = val.replaceAll(Matcher.quoteReplacement("\\"), Matcher.quoteReplacement(File.separator));
         return val;
     }
 
