@@ -148,6 +148,72 @@ public class SARGeocoding {
         return firstLineUTC + y0 * lineTimeInterval;
     }
 
+    public static double getEarthPointZeroDopplerTimeNewton(
+            final double firstLineUTC, final double lineTimeInterval, final double wavelength,
+            final double[] earthPoint, final SARGeocoding.Orbit orbit) throws OperatorException {
+
+        final int numOrbitVec = orbit.orbitStateVectors.length;
+        double[] sensorPosition = new double[3];
+        double[] sensorVelocity = new double[3];
+
+        sensorPosition[0] = orbit.orbitStateVectors[0].x_pos;
+        sensorPosition[1] = orbit.orbitStateVectors[0].y_pos;
+        sensorPosition[2] = orbit.orbitStateVectors[0].z_pos;
+        sensorVelocity[0] = orbit.orbitStateVectors[0].x_vel;
+        sensorVelocity[1] = orbit.orbitStateVectors[0].y_vel;
+        sensorVelocity[2] = orbit.orbitStateVectors[0].z_vel;
+        final double firstVecFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+        final double firstVecTime = orbit.orbitStateVectors[0].time_mjd;
+
+        sensorPosition[0] = orbit.orbitStateVectors[numOrbitVec - 1].x_pos;
+        sensorPosition[1] = orbit.orbitStateVectors[numOrbitVec - 1].y_pos;
+        sensorPosition[2] = orbit.orbitStateVectors[numOrbitVec - 1].z_pos;
+        sensorVelocity[0] = orbit.orbitStateVectors[numOrbitVec - 1].x_vel;
+        sensorVelocity[1] = orbit.orbitStateVectors[numOrbitVec - 1].y_vel;
+        sensorVelocity[2] = orbit.orbitStateVectors[numOrbitVec - 1].z_vel;
+        final double lastVecFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+        final double lastVecTime = orbit.orbitStateVectors[numOrbitVec - 1].time_mjd;
+
+        if (firstVecFreq == 0.0) {
+            return firstVecTime;
+        } else if (lastVecFreq == 0.0) {
+            return lastVecTime;
+        } else if (firstVecFreq * lastVecFreq > 0.0) {
+            return NonValidZeroDopplerTime;
+        }
+
+        double oldTime = firstVecTime, oldTimeDel;
+        double oldFreq = firstVecFreq;
+        double newTime = (firstVecTime + lastVecTime) / 2.0, oldFreqDel = 0.0;
+        orbit.getPositionVelocity(newTime, sensorPosition, sensorVelocity);
+        double newFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+
+        double d;
+        int numIter = 0;
+        while (Math.abs(newFreq) > 0.001 && numIter <= 10) {
+            oldTime = newTime;
+            oldFreq = newFreq;
+
+            orbit.getPositionVelocity(oldTime + lineTimeInterval, sensorPosition, sensorVelocity);
+            oldFreqDel = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+
+            d = (oldFreqDel - oldFreq) / lineTimeInterval;
+
+            newTime = oldTime - oldFreq / d;
+            if (newTime < 0.0) {
+                newTime = 0.0;
+            } else if (newTime > lastVecTime) {
+                newTime = lastVecTime;
+            }
+
+            orbit.getPositionVelocity(newTime, sensorPosition, sensorVelocity);
+            newFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+            numIter++;
+        }
+
+        return newTime;
+    }
+
     /**
      * Compute zero Doppler time for given point with the product orbit state vectors using bisection method.
      *
