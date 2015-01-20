@@ -51,7 +51,7 @@ public class TestInputProductValidator {
         try {
             validator.checkAcquisitionMode(new String[]{"IW", "EW"});
         } catch (OperatorException e) {
-            assertTrue(e.getMessage().contains("is not a valid product type"));
+            assertTrue(e.getMessage().contains("is not a valid acquisition mode"));
         }
     }
 
