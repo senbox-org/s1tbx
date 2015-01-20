@@ -40,9 +40,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
  * Utilities for Operator unit tests
  * In order to test the datasets at Array, set the following to true in the nest.config
@@ -141,11 +138,11 @@ public class TestUtils {
         if (!inputFile.exists()) {
             throw new IOException(inputFile.getAbsolutePath() + " not found");
         }
-
-        final ProductReader reader = ProductIO.getProductReaderForInput(inputFile);
-        if (reader == null)
-            throw new IOException("No reader found for " + inputFile);
-        return reader.readProductNodes(inputFile, null);
+        final Product product = ProductIO.readProduct(inputFile);
+        if(product == null) {
+            throw new IOException("Unable to read "+inputFile.toString());
+        }
+        return product;
     }
 
     public static Product createProduct(final String type, final int w, final int h) {
@@ -346,13 +343,27 @@ public class TestUtils {
     public static void comparePixels(final Product targetProduct, final String bandName,
                                      final int x, final int y, final float[] expected) throws IOException {
         final Band band = targetProduct.getBand(bandName);
-        assertNotNull(band);
+        if(band == null) {
+            throw new IOException(bandName+" not found");
+        }
 
-        final float[] floatValues = new float[expected.length];
-        band.readPixels(x, y, expected.length, 1, floatValues, ProgressMonitor.NULL);
+        final float[] actual = new float[expected.length];
+        band.readPixels(x, y, expected.length, 1, actual, ProgressMonitor.NULL);
 
         for (int i = 0; i < expected.length; ++i) {
-            assertEquals(expected[i], floatValues[i], 0.0001);
+            if((Math.abs(expected[i] - actual[i]) > 0.0001)) {
+                String msg = "actual:";
+                for (float anActual : actual) {
+                    msg += anActual + ", ";
+                }
+                TestUtils.log.info(msg);
+                msg = "expected:";
+                for (float anExpected : expected) {
+                    msg += anExpected + ", ";
+                }
+                TestUtils.log.info(msg);
+                throw new IOException("Mismatch ["+i+"] "+actual[i] +" is not "+ expected[i]);
+            }
         }
     }
 
@@ -386,6 +397,30 @@ public class TestUtils {
 
         // compare updated metadata
         compareMetadata(targetProduct, expectedProduct, exemptionList);
+    }
+
+    public static void compareArrays(final float[] actual, final float[] expected, final float threshold)
+            throws IOException {
+
+        if (actual.length != expected.length) {
+            throw new IOException("The actual array and expected array have different lengths");
+        }
+
+        for (int i = 0; i < actual.length; ++i) {
+            if((Math.abs(expected[i] - actual[i]) > threshold)) {
+                String msg = "actual:";
+                for (float anActual : actual) {
+                    msg += anActual + ", ";
+                }
+                TestUtils.log.info(msg);
+                msg = "expected:";
+                for (float anExpected : expected) {
+                    msg += anExpected + ", ";
+                }
+                TestUtils.log.info(msg);
+                throw new IOException("Mismatch [" + i + "] " + actual[i] + " is not " + expected[i]);
+            }
+        }
     }
 
     public static void executeOperator(final Operator op) throws Exception {
@@ -519,7 +554,9 @@ public class TestUtils {
                         continue;
                     }
                 } else {
-                    reader = ProductIO.getProductReaderForInput(file);
+                    //reader = CommonReaders.findCommonProductReader(file);     //todo add CommonReaders
+                    //if(reader == null)
+                        reader = ProductIO.getProductReaderForInput(file);
                 }
                 if (reader != null) {
                     final Product sourceProduct = reader.readProductNodes(file, null);
@@ -546,7 +583,7 @@ public class TestUtils {
                 boolean ok = false;
                 if (exceptionExemptions != null) {
                     for (String exemption : exceptionExemptions) {
-                        if (e.getMessage().contains(exemption)) {
+                        if (e.getMessage() != null && e.getMessage().contains(exemption)) {
                             ok = true;
                             TestUtils.log.info("Exemption for " + e.getMessage());
                             break;
