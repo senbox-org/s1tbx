@@ -1,21 +1,15 @@
 package org.esa.beam.framework.ui.product;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.AbstractButton;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.SystemUtils;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LoadSaveRasterDataNodesConfigurationsProvider {
 
@@ -51,7 +45,7 @@ public class LoadSaveRasterDataNodesConfigurationsProvider {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private static File getSystemAuxDataDir() {
-        File file = new File(SystemUtils.getApplicationDataDir(), "beam-ui" + File.separator + "auxdata" +
+        File file = new File(SystemUtils.getApplicationDataDir(), "snap-ui" + File.separator + "auxdata" +
                 File.separator + "band-sets");
         if (!file.exists()) {
             file.mkdir();
