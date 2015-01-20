@@ -21,8 +21,6 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.snap.datamodel.Orbits;
 
-import static org.esa.beam.util.math.MathUtils.DTOR;
-
 public final class GeoUtils {
     private static final double EPS5 = 1e-5;
     private static final double EPS = 1e-10;
@@ -71,8 +69,8 @@ public final class GeoUtils {
             throw new OperatorException("Incorrect geodetic system");
         }
 
-        final double lat = latitude * org.esa.beam.util.math.MathUtils.DTOR;
-        final double lon = longitude * org.esa.beam.util.math.MathUtils.DTOR;
+        final double lat = latitude * Constants.DTOR;
+        final double lon = longitude * Constants.DTOR;
 
         final double sinLat = FastMath.sin(lat);
         final double cosLat = FastMath.cos(lat);
@@ -94,8 +92,8 @@ public final class GeoUtils {
     public static void geo2xyzWGS84(final double latitude, final double longitude, final double altitude,
                                     final double xyz[]) {
 
-        final double lat = latitude * org.esa.beam.util.math.MathUtils.DTOR;
-        final double lon = longitude * org.esa.beam.util.math.MathUtils.DTOR;
+        final double lat = latitude * Constants.DTOR;
+        final double lon = longitude * Constants.DTOR;
 
         final double sinLat = FastMath.sin(lat);
         final double N = (WGS84.a / Math.sqrt(1.0 - WGS84.e2 * sinLat * sinLat));
@@ -155,7 +153,7 @@ public final class GeoUtils {
         final double s = Math.sqrt(x * x + y * y);
         final double theta = FastMath.atan(z * a / (s * b));
 
-        geoPos.lon = (float) (FastMath.atan(y / x) * org.esa.beam.util.math.MathUtils.RTOD);
+        geoPos.lon = (float) (FastMath.atan(y / x) * Constants.RTOD);
 
         if (geoPos.lon < 0.0 && y >= 0.0) {
             geoPos.lon += 180.0;
@@ -164,8 +162,7 @@ public final class GeoUtils {
         }
 
         geoPos.lat = (float) (FastMath.atan((z + ep2 * b * FastMath.pow(FastMath.sin(theta), 3)) /
-                (s - e2 * a * FastMath.pow(FastMath.cos(theta), 3))) *
-                org.esa.beam.util.math.MathUtils.RTOD);
+                (s - e2 * a * FastMath.pow(FastMath.cos(theta), 3))) * Constants.RTOD);
     }
 
     /**
@@ -182,7 +179,7 @@ public final class GeoUtils {
         final double s = Math.sqrt(x * x + y * y);
         final double theta = FastMath.atan(z * WGS84.a / (s * WGS84.b));
 
-        geoPos.lon = (float) (FastMath.atan(y / x) * org.esa.beam.util.math.MathUtils.RTOD);
+        geoPos.lon = (float) (FastMath.atan(y / x) * Constants.RTOD);
 
         if (geoPos.lon < 0.0 && y >= 0.0) {
             geoPos.lon += 180.0;
@@ -191,8 +188,7 @@ public final class GeoUtils {
         }
 
         geoPos.lat = (float) (FastMath.atan((z + WGS84.ep2 * WGS84.b * FastMath.pow(FastMath.sin(theta), 3)) /
-                (s - WGS84.e2 * WGS84.a * FastMath.pow(FastMath.cos(theta), 3))) *
-                org.esa.beam.util.math.MathUtils.RTOD);
+                (s - WGS84.e2 * WGS84.a * FastMath.pow(FastMath.cos(theta), 3))) * Constants.RTOD);
     }
 
     /**
@@ -214,8 +210,8 @@ public final class GeoUtils {
      */
     public static void polar2cartesian(final double latitude, final double longitude, final double radius, final double xyz[]) {
 
-        final double latRad = latitude * DTOR;
-        final double lonRad = longitude * DTOR;
+        final double latRad = latitude * Constants.DTOR;
+        final double lonRad = longitude * Constants.DTOR;
 
         final double sinLat = FastMath.sin(latRad);
         final double cosLat = FastMath.cos(latRad);
@@ -249,7 +245,7 @@ public final class GeoUtils {
 
         phiLamHeight[2] = Math.sqrt(xyz[0] * xyz[0] + xyz[1] * xyz[1] + xyz[2] * xyz[2]);
         phiLamHeight[1] = Math.atan2(xyz[1], xyz[0]);
-        phiLamHeight[0] = Math.asin(xyz[2] / phiLamHeight[2]);
+        phiLamHeight[0] = FastMath.asin(xyz[2] / phiLamHeight[2]);
 
     }
 
@@ -343,9 +339,9 @@ public final class GeoUtils {
 
         final LatLonHeading pos = new LatLonHeading();
 
-        lat1 *= org.esa.beam.util.math.MathUtils.DTOR;
-        lon1 *= org.esa.beam.util.math.MathUtils.DTOR;
-        final double FAZ = head1 * org.esa.beam.util.math.MathUtils.DTOR;
+        lat1 *= Constants.DTOR;
+        lon1 *= Constants.DTOR;
+        final double FAZ = head1 * Constants.DTOR;
 
         // Model WGS84:
         //    F=1/298.25722210;	// flatteing
@@ -353,8 +349,8 @@ public final class GeoUtils {
 
         // equatorial radius
         final double R = 1.0 - F;
-        double TU = R * Math.tan(lat1);
-        final double SF = Math.sin(FAZ);
+        double TU = R * FastMath.tan(lat1);
+        final double SF = FastMath.sin(FAZ);
         final double CF = Math.cos(FAZ);
         double BAZ = 0.0;
         if (CF != 0.0)
@@ -373,9 +369,9 @@ public final class GeoUtils {
 
         double SY, CY, CZ, E;
         do {
-            SY = Math.sin(Y);
-            CY = Math.cos(Y);
-            CZ = Math.cos(BAZ + Y);
+            SY = FastMath.sin(Y);
+            CY = FastMath.cos(Y);
+            CZ = FastMath.cos(BAZ + Y);
             E = CZ * CZ * 2.0 - 1.0;
             C = Y;
             X = E * CY;
@@ -392,11 +388,11 @@ public final class GeoUtils {
         C = ((-3.0 * C2A + 4.0) * F + 4.0) * C2A * F / 16.0;
         D = ((E * CY * C + CZ) * SY * C + Y) * SA;
         pos.lon = lon1 + X - (1.0 - C) * D * F;
-        BAZ = Math.atan2(SA, BAZ) + Math.PI;
+        BAZ = Math.atan2(SA, BAZ) + Constants.PI;
 
-        pos.lon *= org.esa.beam.util.math.MathUtils.RTOD;
-        pos.lat *= org.esa.beam.util.math.MathUtils.RTOD;
-        pos.heading = BAZ * org.esa.beam.util.math.MathUtils.RTOD;
+        pos.lon *= Constants.RTOD;
+        pos.lat *= Constants.RTOD;
+        pos.heading = BAZ * Constants.RTOD;
 
         while (pos.heading < 0)
             pos.heading += 360;
@@ -440,18 +436,18 @@ public final class GeoUtils {
             return output;
         }
 
-        lat1 *= org.esa.beam.util.math.MathUtils.DTOR;
-        lat2 *= org.esa.beam.util.math.MathUtils.DTOR;
-        lon1 *= org.esa.beam.util.math.MathUtils.DTOR;
-        lon2 *= org.esa.beam.util.math.MathUtils.DTOR;
+        lat1 *= Constants.DTOR;
+        lat2 *= Constants.DTOR;
+        lon1 *= Constants.DTOR;
+        lon2 *= Constants.DTOR;
 
         // Model WGS84:
         //    F=1/298.25722210;	// flattening
         final double F = 0.0; //defF;
 
         final double R = 1 - F;
-        double TU1 = R * Math.tan(lat1);
-        double TU2 = R * Math.tan(lat2);
+        double TU1 = R * FastMath.tan(lat1);
+        double TU2 = R * FastMath.tan(lat2);
         final double CU1 = 1.0 / Math.sqrt(TU1 * TU1 + 1.0);
         final double SU1 = CU1 * TU1;
         final double CU2 = 1.0 / Math.sqrt(TU2 * TU2 + 1.0);
@@ -462,8 +458,8 @@ public final class GeoUtils {
 
         double SX, CX, SY, CY, Y, SA, C2A, CZ, E, C, D;
         do {
-            SX = Math.sin(X);
-            CX = Math.cos(X);
+            SX = FastMath.sin(X);
+            CX = FastMath.cos(X);
             TU1 = CU2 * SX;
             TU2 = BAZ - SU1 * CU2 * CX;
             SY = Math.sqrt(TU1 * TU1 + TU2 * TU2);
@@ -482,7 +478,7 @@ public final class GeoUtils {
         } while (Math.abs(D - X) > (0.01));
 
         FAZ = Math.atan2(TU1, TU2);
-        BAZ = Math.atan2(CU1 * SX, BAZ * CX - SU1 * CU2) + Math.PI;
+        BAZ = Math.atan2(CU1 * SX, BAZ * CX - SU1 * CU2) + Constants.PI;
         X = Math.sqrt((1. / R / R - 1.) * C2A + 1.) + 1.;
         X = (X - 2.) / X;
         C = 1. - X;
@@ -493,8 +489,8 @@ public final class GeoUtils {
         S = ((((SY * SY * 4. - 3.) * S * CZ * D / 6. - X) * D / 4. + CZ) * SY * D + Y) * C * WGS84.a * R;
 
         output.distance = S;
-        output.heading1 = FAZ * org.esa.beam.util.math.MathUtils.RTOD;
-        output.heading2 = BAZ * org.esa.beam.util.math.MathUtils.RTOD;
+        output.heading1 = FAZ * Constants.RTOD;
+        output.heading2 = BAZ * Constants.RTOD;
 
         while (output.heading1 < 0)
             output.heading1 += 360;

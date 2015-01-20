@@ -19,6 +19,7 @@ import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
 import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -472,8 +473,8 @@ public class GraphNode {
                 theta = -(Math.PI + theta);
         } else if (headX < tailX && headY > tailY)
             theta = 2 * Math.PI - theta;
-        final double cosTheta = Math.cos(theta);
-        final double sinTheta = Math.sin(theta);
+        final double cosTheta = FastMath.cos(theta);
+        final double sinTheta = FastMath.sin(theta);
 
         final Point p2 = new Point(-8, -3);
         final Point p3 = new Point(-8, +3);

@@ -15,6 +15,7 @@
  */
 package org.esa.snap.dat.graphbuilder;
 
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.gpf.graph.NodeSource;
 import org.esa.beam.util.StringUtils;
 import org.esa.snap.util.ResourceUtils;
@@ -484,8 +485,8 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
             double x2 = o2.getPos().getX();
             double y2 = o2.getPos().getY();
 
-            double h1 = Math.hypot(x1, y1);
-            double h2 = Math.hypot(x2, y2);
+            double h1 = FastMath.hypot(x1, y1);
+            double h2 = FastMath.hypot(x2, y2);
 
             if (h1 > h2)
                 return -1;

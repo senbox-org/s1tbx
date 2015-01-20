@@ -17,12 +17,13 @@ package org.esa.snap.db;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.VirtualDir;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.ResourceUtils;
@@ -260,7 +261,7 @@ public class QuickLookGenerator {
                     final float y = product.getSceneRasterHeight() / 2f;
                     final double incidenceAngleAtCentreRangePixel = incidenceAngle.getPixelDouble(x, y);
 
-                    groundRangeSpacing /= Math.sin(incidenceAngleAtCentreRangePixel * MathUtils.DTOR);
+                    groundRangeSpacing /= FastMath.sin(incidenceAngleAtCentreRangePixel * Constants.DTOR);
                 }
             }
 

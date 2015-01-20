@@ -33,6 +33,15 @@ public final class Constants {
 
     public static final double PI = 3.14159265358979323846264338327950288;
     public static final double TWO_PI = 2.0 * PI;
+    public static final double HALF_PI = PI * 0.5;
+    public static final double _PI = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348;
+    public static final double _TWO_PI = 2.0 * _PI;
+
+    public static final double DTOR = PI / 180.0;
+    public static final double RTOD = 180.0 / PI;
+
+    public static final double _DTOR = _PI / 180.0;
+    public static final double _RTOD = 180.0 / _PI;
 
     public static final double EPS = 1e-15;
 

@@ -51,12 +51,7 @@ public final class Maths {
     public static double interpolationCubic(
             final double y0, final double y1, final double y2, final double y3, final double mu) {
 
-        final double mu2 = mu * mu;
-        final double a0 = -0.5 * y0 + 1.5 * y1 - 1.5 * y2 + 0.5 * y3;
-        final double a1 = y0 - 2.5 * y1 + 2 * y2 - 0.5 * y3;
-        final double a2 = -0.5 * y0 + 0.5 * y2;
-
-        return (a0 * mu * mu2 + a1 * mu2 + a2 * mu + y1);
+        return ((-0.5 * y0 + 1.5 * y1 - 1.5 * y2 + 0.5 * y3) * mu * (mu * mu) + (y0 - 2.5 * y1 + 2 * y2 - 0.5 * y3) * (mu * mu) + (-0.5 * y0 + 0.5 * y2) * mu + y1);
     }
 
     /**
@@ -336,11 +331,7 @@ public final class Maths {
      */
     private static double sinc(final double x) {
 
-        if (Double.compare(x, 0.0) == 0) {
-            return 1.0;
-        } else {
-            return FastMath.sin(x * Math.PI) / (x * Math.PI);
-        }
+        return (Double.compare(x, 0.0) == 0) ? 1.0 : FastMath.sin(x * Math.PI) / (x * Math.PI);
     }
 
     /**
@@ -352,11 +343,8 @@ public final class Maths {
      */
     public static double hanning(final double x, final int windowLength) {
 
-        if (x >= -0.5 * windowLength && x <= 0.5 * windowLength) {
-            return 0.5 * (1.0 + FastMath.cos(Constants.TWO_PI * x / (windowLength + 1)));
-        } else {
-            return 0.0;
-        }
+        return (x >= -0.5 * windowLength && x <= 0.5 * windowLength) ?
+            0.5 * (1.0 + FastMath.cos(Constants.TWO_PI * x / (windowLength + 1))) : 0.0;
     }
 
     /**
@@ -369,8 +357,9 @@ public final class Maths {
      */
     public static double computePolynomialValue(final double x, final double[] coeff) {
         double v = 0.0;
-        for (int i = coeff.length - 1; i > 0; i--) {
-            v = (v + coeff[i]) * x;
+        int i = coeff.length - 1;
+        while ( i > 0) {
+            v = (v + coeff[i--]) * x;
         }
         return v + coeff[0];
     }
@@ -394,8 +383,9 @@ public final class Maths {
     public static double polyVal(final double t, final double[] coeff) {
 
         double val = 0.0;
-        for (int i = coeff.length - 1; i >= 0; i--) {
-            val = val * t + coeff[i];
+        int i = coeff.length - 1;
+        while ( i >= 0) {
+            val = val * t + coeff[i--];
         }
         return val;
     }
