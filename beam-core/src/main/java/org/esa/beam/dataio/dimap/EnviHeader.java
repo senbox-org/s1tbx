@@ -22,6 +22,7 @@ import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.framework.dataop.maptransf.TransverseMercatorDescriptor;
 import org.esa.beam.framework.dataop.maptransf.UTMProjection;
+import org.geotools.referencing.wkt.UnformattableObjectException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.File;
@@ -457,7 +458,12 @@ public class EnviHeader {
         GeoCoding geoCoding = product.getGeoCoding();
         CoordinateReferenceSystem crs = geoCoding.getMapCRS();
         if (crs != null) {
-            String wkt = crs.toWKT();
+            String wkt;
+            try {
+                wkt = crs.toWKT();
+            } catch (UnformattableObjectException e) {        // if too complex to convert using strict
+                wkt = crs.toString();
+            }
             // remove all line breaks and replace several white spaces by one
             wkt = wkt.replace("\r","").replace("\n","");
             wkt = wkt.trim().replaceAll(" +", " ");
