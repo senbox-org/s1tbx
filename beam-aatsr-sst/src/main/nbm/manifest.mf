@@ -12,3 +12,5 @@ OpenIDE-Module-Long-Description: <p>The AATSR SST Processor is aimed t
  Consult GmbH</p><p><b>Vendor:</b> Brockmann Consult GmbH</p><p><b>Lic
  ense:</b> http://www.gnu.org/licenses/gpl.html</p><p><b>Changelog:</b
  > </p>
+OpenIDE-Module-Layer: org/esa/snap/aatsr/sst/layer.xml
+OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help
