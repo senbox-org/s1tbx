@@ -97,6 +97,7 @@
         <dependency>
             <groupId>javax.help</groupId>
             <artifactId>javahelp</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>javax.media.jai</groupId>
