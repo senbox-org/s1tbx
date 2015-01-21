@@ -15,6 +15,7 @@
  */
 package org.esa.beam.framework.ui;
 
+import com.bc.ceres.swing.TableLayout;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RGBImageProfile;
 import org.esa.beam.framework.datamodel.RGBImageProfileManager;
@@ -76,7 +77,6 @@ public class RGBImageProfilePane extends JPanel {
     private PropertyMap preferences;
     private Product product;
     private final Product[] openedProducts;
-    private final int[] defaultBandIndices;
     private JComboBox<ProfileItem> profileBox;
 
     private JComboBox[] rgbaExprBoxes;
@@ -96,7 +96,6 @@ public class RGBImageProfilePane extends JPanel {
         this.preferences = preferences;
         this.product = product;
         this.openedProducts = openedProducts;
-        this.defaultBandIndices = defaultBandIndices;
 
         AbstractAction openAction = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
@@ -133,7 +132,7 @@ public class RGBImageProfilePane extends JPanel {
         profileBox.addItemListener(new ProfileSelectionHandler());
         profileBox.setEditable(false);
         profileBox.setName("profileBox");
-        setPrefferedWidth(profileBox, 200);
+        setPreferredWidth(profileBox, 200);
 
         storeInProductCheck = new JCheckBox();
         storeInProductCheck.setText("Store RGB channels as virtual bands in current product");
@@ -169,10 +168,16 @@ public class RGBImageProfilePane extends JPanel {
             addColorComponentRow(p3, c3, i);
         }
 
-        setLayout(new BorderLayout(10, 10));
-        add(p1, BorderLayout.NORTH);
-        add(p3, BorderLayout.CENTER);
-        add(storeInProductCheck, BorderLayout.SOUTH);
+        TableLayout layout = new TableLayout(1);
+        layout.setTableFill(TableLayout.Fill.BOTH);
+        layout.setTableWeightX(1.0);
+        layout.setRowWeightY(3, 1.0);
+        layout.setTablePadding(10, 10);
+        setLayout(layout);
+        add(p1);
+        add(p3);
+        add(storeInProductCheck);
+        add(layout.createVerticalSpacer());
 
         final RGBImageProfile[] registeredProfiles = RGBImageProfileManager.getInstance().getAllProfiles();
         addProfiles(registeredProfiles);
@@ -551,7 +556,7 @@ public class RGBImageProfilePane extends JPanel {
 
     private JComboBox createRgbaBox(String[] suggestions) {
         final JComboBox<String> comboBox = new JComboBox<>(suggestions);
-        setPrefferedWidth(comboBox, 320);
+        setPreferredWidth(comboBox, 320);
         comboBox.setEditable(true);
         final ComboBoxEditor editor = comboBox.getEditor();
         final JTextField textField = (JTextField) editor.getEditorComponent();
@@ -623,7 +628,7 @@ public class RGBImageProfilePane extends JPanel {
         return false;
     }
 
-    private void setPrefferedWidth(final JComboBox comboBox, final int width) {
+    private void setPreferredWidth(final JComboBox comboBox, final int width) {
         final Dimension preferredSize = comboBox.getPreferredSize();
         comboBox.setPreferredSize(new Dimension(width, preferredSize.height));
     }

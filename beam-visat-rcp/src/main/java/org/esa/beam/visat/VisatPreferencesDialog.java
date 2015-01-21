@@ -71,39 +71,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.bc.ceres.swing.TableLayout.cell;
-import static org.esa.beam.visat.VisatApp.DEFAULT_VALUE_SAVE_INCREMENTAL;
-import static org.esa.beam.visat.VisatApp.DEFAULT_VALUE_SAVE_PRODUCT_ANNOTATIONS;
-import static org.esa.beam.visat.VisatApp.DEFAULT_VALUE_SAVE_PRODUCT_HEADERS;
-import static org.esa.beam.visat.VisatApp.DEFAULT_VALUE_SAVE_PRODUCT_HISTORY;
-import static org.esa.beam.visat.VisatApp.PROPERTY_DEFAULT_DISPLAY_GEOLOCATION_AS_DECIMAL;
-import static org.esa.beam.visat.VisatApp.PROPERTY_DEFAULT_GEOLOCATION_EPS;
-import static org.esa.beam.visat.VisatApp.PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY;
-import static org.esa.beam.visat.VisatApp.PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_DEBUG_ENABLED;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_LOG_ECHO;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_LOG_ENABLED;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_LOG_LEVEL;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_LOG_PREFIX;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_UI_FONT_NAME;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_UI_FONT_SIZE;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_UI_LAF;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_APP_UI_USE_SYSTEM_FONT_SETTINGS;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_AUTO_SHOW_NAVIGATION;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_AUTO_SHOW_NEW_BANDS;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_DISPLAY_GEOLOCATION_AS_DECIMAL;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_GEOLOCATION_EPS;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_LOW_MEMORY_LIMIT;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_X;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_Y;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_SAVE_INCREMENTAL;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_SAVE_PRODUCT_ANNOTATIONS;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_SAVE_PRODUCT_HEADERS;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_SAVE_PRODUCT_HISTORY;
-import static org.esa.beam.visat.VisatApp.PROPERTY_KEY_VERSION_CHECK_ENABLED;
-import static org.esa.beam.visat.VisatApp.getApp;
+import static com.bc.ceres.swing.TableLayout.*;
+import static org.esa.beam.visat.VisatApp.*;
 
 public class VisatPreferencesDialog extends ConfigDialog {
 
@@ -718,7 +687,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
         protected void initConfigParams(ParamGroup configParams) {
             Parameter param;
 
-            param = new Parameter(ProductSceneView.PROPERTY_KEY_GRAPHICS_ANTIALIASING, Boolean.TRUE);
+            param = new Parameter("graphics.antialiasing", Boolean.TRUE);
             param.getProperties().setLabel("Use anti-aliasing for rendering text and vector graphics"); /*I18N*/
             configParams.addParameter(param);
 
@@ -748,7 +717,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             gbc.gridy = 0;
             gbc.insets.bottom = 8;
 
-            param = getConfigParam(ProductSceneView.PROPERTY_KEY_GRAPHICS_ANTIALIASING);
+            param = getConfigParam("graphics.antialiasing");
             pageUI.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
