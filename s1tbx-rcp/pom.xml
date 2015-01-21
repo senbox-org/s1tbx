@@ -37,6 +37,10 @@
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-graph-builder</artifactId>
         </dependency>
+		<dependency>
+            <groupId>javax.help</groupId>
+            <artifactId>javahelp</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.alee</groupId>
             <artifactId>weblaf</artifactId>

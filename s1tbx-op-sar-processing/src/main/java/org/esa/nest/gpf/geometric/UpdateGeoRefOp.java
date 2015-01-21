@@ -360,13 +360,13 @@ public final class UpdateGeoRefOp extends Operator {
         }
 
         if (tileOverlapPercentageMin != Double.MAX_VALUE && tileOverlapPercentageMin < 0.0) {
-            overlapPercentages[0] = tileOverlapPercentageMin - 1.0;
+            overlapPercentages[0] = tileOverlapPercentageMin - 0.5;
         } else {
             overlapPercentages[0] = 0.0;
         }
 
         if (tileOverlapPercentageMax != -Double.MAX_VALUE && tileOverlapPercentageMax > 0.0) {
-            overlapPercentages[1] = tileOverlapPercentageMax + 1.0;
+            overlapPercentages[1] = tileOverlapPercentageMax + 0.5;
         } else {
             overlapPercentages[1] = 0.0;
         }
@@ -624,7 +624,7 @@ public final class UpdateGeoRefOp extends Operator {
             OperatorUtils.catchOperatorException(getId(), e);
         }
 
-        return 0.0;
+        return noDataValue;
     }
 
     private static class PositionData {
@@ -641,9 +641,12 @@ public final class UpdateGeoRefOp extends Operator {
 
         GeoUtils.geo2xyzWGS84(lat, lon, alt, data.earthPoint);
 
+            /*final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTimeNewton(
+                    firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
+                    orbit.sensorPosition, orbit.sensorVelocity);*/
+
         final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTimeNewton(
-                firstLineUTC, lineTimeInterval, wavelength, data.earthPoint,
-                orbit.sensorPosition, orbit.sensorVelocity);
+                firstLineUTC, lineTimeInterval, wavelength, data.earthPoint, orbit);
 
         if (zeroDopplerTime == SARGeocoding.NonValidZeroDopplerTime) {
             return false;
