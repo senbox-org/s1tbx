@@ -1,5 +1,6 @@
 package org.esa.beam.visat.actions.imgfilter;
 
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.actions.imgfilter.model.Filter;
 import org.esa.beam.visat.actions.imgfilter.model.FilterSet;
 
@@ -60,8 +61,7 @@ public class FilterSetsDialog implements FilterSetForm.Listener {
     }
 
     private File getFiltersDir() {
-        String userHome = System.getProperty("user.home");
-        return new File(userHome, ".beam/beam-ui/auxdata/image-filters");
+        return new File(SystemUtils.getApplicationDataDir(), "snap-ui/auxdata/image-filters");
     }
 
 
