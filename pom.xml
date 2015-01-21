@@ -881,6 +881,13 @@
                     <artifactId>nbm-maven-plugin</artifactId>
                     <version>3.14</version>
                     <extensions>true</extensions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>javax.help</groupId>
+                            <artifactId>javahelp</artifactId>
+                            <version>2.0.05</version>
+                        </dependency>
+                    </dependencies>
                     <configuration>
                         <moduleType>normal</moduleType>
                         <licenseName>GPL 3</licenseName>
