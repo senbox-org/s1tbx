@@ -21,6 +21,8 @@ import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.snap.gpf.OperatorUIUtils;
 import org.esa.snap.util.DialogUtils;
+import org.geotools.referencing.wkt.UnformattableObjectException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.*;
 import java.awt.*;
@@ -78,7 +80,12 @@ public class GeolocationGridGeocodingOpUI extends BaseOperatorUI {
         OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
         paramMap.put("imgResamplingMethod", imgResamplingMethod.getSelectedItem());
         if (mapProjHandler.getCRS() != null) {
-            paramMap.put("mapProjection", mapProjHandler.getCRS().toWKT());
+            final CoordinateReferenceSystem crs = mapProjHandler.getCRS();
+            try {
+                paramMap.put("mapProjection", crs.toWKT());
+            } catch (UnformattableObjectException e) {        // if too complex to convert using strict
+                paramMap.put("mapProjection", crs.toString());
+            }
         }
     }
 
