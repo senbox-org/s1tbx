@@ -655,20 +655,20 @@ public class ProductSubsetDialog extends ModalDialog {
                     "insets.left=3,anchor=WEST,fill=HORIZONTAL, weightx=1.0");
             GridBagUtils.setAttributes(gbc, "insets.top=4");
             GridBagUtils.addToPanel(geoCoordinatesPane, new JLabel("North latitude bound:"), gbc, "gridx=0,gridy=0");
-            GridBagUtils.addToPanel(geoCoordinatesPane, UIUtils.createSpinner(paramNorthLat1, (double) 1, "#0.00#"),
+            GridBagUtils.addToPanel(geoCoordinatesPane, UIUtils.createSpinner(paramNorthLat1, 1.0, "#0.00#"),
                                     gbc, "gridx=1,gridy=0");
             GridBagUtils.setAttributes(gbc, "insets.top=1");
             GridBagUtils.addToPanel(geoCoordinatesPane, new JLabel("West longitude bound:"), gbc, "gridx=0,gridy=1");
-            GridBagUtils.addToPanel(geoCoordinatesPane, UIUtils.createSpinner(paramWestLon1, (double) 1, "#0.00#"),
+            GridBagUtils.addToPanel(geoCoordinatesPane, UIUtils.createSpinner(paramWestLon1, 1.0, "#0.00#"),
                                     gbc, "gridx=1,gridy=1");
 
             GridBagUtils.setAttributes(gbc, "insets.top=4");
             GridBagUtils.addToPanel(geoCoordinatesPane, new JLabel("South latitude bound:"), gbc, "gridx=0,gridy=2");
-            GridBagUtils.addToPanel(geoCoordinatesPane, UIUtils.createSpinner(paramSouthLat2, (double) 1, "#0.00#"),
+            GridBagUtils.addToPanel(geoCoordinatesPane, UIUtils.createSpinner(paramSouthLat2, 1.0, "#0.00#"),
                                     gbc, "gridx=1,gridy=2");
             GridBagUtils.setAttributes(gbc, "insets.top=1");
             GridBagUtils.addToPanel(geoCoordinatesPane, new JLabel("East longitude bound:"), gbc, "gridx=0,gridy=3");
-            GridBagUtils.addToPanel(geoCoordinatesPane, UIUtils.createSpinner(paramEastLon2, (double) 1, "#0.00#"),
+            GridBagUtils.addToPanel(geoCoordinatesPane, UIUtils.createSpinner(paramEastLon2, 1.0, "#0.00#"),
                                     gbc, "gridx=1,gridy=3");
             return geoCoordinatesPane;
         }
@@ -803,32 +803,32 @@ public class ProductSubsetDialog extends ModalDialog {
 
         private void addGeoParameter(ParamGroup pg) {
 
-            paramNorthLat1 = new Parameter("geo_lat1", 90.0f);
+            paramNorthLat1 = new Parameter("geo_lat1", 90.0);
             paramNorthLat1.getProperties().setDescription("North bound latitude");
             paramNorthLat1.getProperties().setPhysicalUnit("°");
-            paramNorthLat1.getProperties().setMinValue(-90.0f);
-            paramNorthLat1.getProperties().setMaxValue(90.0f);
+            paramNorthLat1.getProperties().setMinValue(-90.0);
+            paramNorthLat1.getProperties().setMaxValue(90.0);
             pg.addParameter(paramNorthLat1);
 
-            paramWestLon1 = new Parameter("geo_lon1", -180.0f);
+            paramWestLon1 = new Parameter("geo_lon1", -180.0);
             paramWestLon1.getProperties().setDescription("West bound longitude");
             paramWestLon1.getProperties().setPhysicalUnit("°");
-            paramWestLon1.getProperties().setMinValue(-180.0f);
-            paramWestLon1.getProperties().setMaxValue(180.0f);
+            paramWestLon1.getProperties().setMinValue(-180.0);
+            paramWestLon1.getProperties().setMaxValue(180.0);
             pg.addParameter(paramWestLon1);
 
-            paramSouthLat2 = new Parameter("geo_lat2", -90.0f);
+            paramSouthLat2 = new Parameter("geo_lat2", -90.0);
             paramSouthLat2.getProperties().setDescription("South bound latitude");
             paramSouthLat2.getProperties().setPhysicalUnit("°");
-            paramSouthLat2.getProperties().setMinValue(-90.0f);
-            paramSouthLat2.getProperties().setMaxValue(90.0f);
+            paramSouthLat2.getProperties().setMinValue(-90.0);
+            paramSouthLat2.getProperties().setMaxValue(90.0);
             pg.addParameter(paramSouthLat2);
 
-            paramEastLon2 = new Parameter("geo_lon2", 180.0f);
+            paramEastLon2 = new Parameter("geo_lon2", 180.0);
             paramEastLon2.getProperties().setDescription("East bound longitude");
             paramEastLon2.getProperties().setPhysicalUnit("°");
-            paramEastLon2.getProperties().setMinValue(-180.0f);
-            paramEastLon2.getProperties().setMaxValue(180.0f);
+            paramEastLon2.getProperties().setMinValue(-180.0);
+            paramEastLon2.getProperties().setMaxValue(180.0);
             pg.addParameter(paramEastLon2);
 
             if (canUseGeoCoordinates(product)) {
