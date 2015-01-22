@@ -430,6 +430,7 @@ public class ProductIO {
                     if (pm.isCanceled()) {
                         break;
                     }
+                    pm.setSubTaskName("Writing band '" + band.getName() + "'");
                     band.writeRasterDataFully(SubProgressMonitor.create(pm, 1));
                 }
             } finally {
