@@ -398,6 +398,7 @@ class ColorManipulationForm {
         }
     }
 
+    // todo - never used in BEAM code, guess it can be removed
     public void showMessageDialog(String propertyName, String message, String title) {
         suppressibleOptionPane.showMessageDialog(propertyName,
                                                  getToolViewPaneControl(),
