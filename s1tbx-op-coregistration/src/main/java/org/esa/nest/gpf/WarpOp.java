@@ -162,11 +162,7 @@ public class WarpOp extends Operator {
                 residualsFile.delete();
             }
 
-            masterBand = sourceProduct.getBandAt(0);
-            if (masterBand.getUnit() != null && masterBand.getUnit().equals(Unit.REAL) && sourceProduct.getNumBands() > 1) {
-                complexCoregistration = true;
-                masterBand2 = sourceProduct.getBandAt(1);
-            }
+            getMasterBands();
 
             // The following code is temporary
             if (complexCoregistration) {
@@ -217,6 +213,28 @@ public class WarpOp extends Operator {
         } catch (Throwable e) {
             openResidualsFile = true;
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private void getMasterBands() {
+        String mstBandName = sourceProduct.getBandAt(0).getName();
+
+        // find co-pol bands
+        final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
+        for(String bandName : masterBandNames) {
+            final String mstPol = OperatorUtils.getPolarizationFromBandName(bandName);
+            if(mstPol != null && (mstPol.equals("hh") || mstPol.equals("vv"))) {
+                mstBandName = bandName;
+                break;
+            }
+        }
+        masterBand = sourceProduct.getBand(mstBandName);
+        if (masterBand.getUnit() != null && masterBand.getUnit().equals(Unit.REAL)) {
+            int mstIdx = sourceProduct.getBandIndex(mstBandName);
+            if(sourceProduct.getNumBands() > mstIdx + 1) {
+                masterBand2 = sourceProduct.getBandAt(mstIdx + 1);
+                complexCoregistration = true;
+            }
         }
     }
 
