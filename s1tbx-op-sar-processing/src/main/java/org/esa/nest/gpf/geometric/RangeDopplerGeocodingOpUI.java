@@ -29,6 +29,7 @@ import org.esa.snap.eo.Constants;
 import org.esa.nest.gpf.CalibrationOp;
 import org.esa.snap.gpf.OperatorUIUtils;
 import org.esa.snap.util.DialogUtils;
+import org.geotools.referencing.wkt.UnformattableObjectException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.*;
@@ -525,8 +526,12 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         }
 
         if (mapProjHandler.getCRS() != null) {
-            CoordinateReferenceSystem crs = mapProjHandler.getCRS();
-            paramMap.put("mapProjection", crs.toWKT());
+            final CoordinateReferenceSystem crs = mapProjHandler.getCRS();
+            try {
+                paramMap.put("mapProjection", crs.toWKT());
+            } catch (UnformattableObjectException e) {        // if too complex to convert using strict
+                paramMap.put("mapProjection", crs.toString());
+            }
         }
 
         paramMap.put("nodataValueAtSea", nodataValueAtSea);

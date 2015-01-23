@@ -268,18 +268,6 @@
         <!--/// COREGISTRATION ///-->
 
         <action>
-            <id>CreateInSARStackOp</id>
-            <helpId>CreateInSARStack</helpId>
-            <class>org.esa.snap.dat.actions.GraphAction</class>
-            <icon>esaIcon</icon>
-            <parent>insar_coregistration</parent>
-            <text>Create InSAR Stack</text>
-            <dialogTitle>Create InSAR Stack</dialogTitle>
-            <shortDescr>Stacks together several products on their metadata.</shortDescr>
-            <graphFile>CreateInSARStackGraph.xml</graphFile>
-        </action>
-
-        <action>
 	        <id>InSARCoregistrationGraph</id>
 	        <helpId>InSARCoregistration</helpId>
 	        <class>org.esa.snap.dat.actions.GraphAction</class>
