@@ -440,7 +440,11 @@ public class Product extends ProductNode {
      * @param fileLocation the file location, may be <code>null</code>
      */
     public void setFileLocation(final File fileLocation) {
-        this.fileLocation = fileLocation;
+        if (!ObjectUtils.equalObjects(this.fileLocation, fileLocation)) {
+            File oldValue = this.fileLocation;
+            this.fileLocation = fileLocation;
+            fireNodeChanged(this, "fileLocation", oldValue, fileLocation);
+        }
     }
 
 

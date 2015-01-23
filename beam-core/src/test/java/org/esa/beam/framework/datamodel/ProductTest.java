@@ -374,6 +374,35 @@ public class ProductTest {
     }
 
     @Test
+    public void testGetAndSetFileLocationProperty() {
+        final Product product = new Product("A", "B", 10, 10);
+        final TracingProductNodeListener listener = new TracingProductNodeListener();
+        product.addProductNodeListener(listener);
+
+        assertEquals(null, product.getFileLocation());
+
+        product.setFileLocation(new File("test1.nc"));
+        assertEquals(new File("test1.nc"), product.getFileLocation());
+        assertEquals("fileLocation", listener.events.get(0).getPropertyName());
+        assertEquals(null, listener.events.get(0).getOldValue());
+        assertEquals(new File("test1.nc"), listener.events.get(0).getNewValue());
+
+        product.setFileLocation(new File("test2.nc"));
+        assertEquals(new File("test2.nc"), product.getFileLocation());
+        assertEquals(2, listener.events.size());
+        assertEquals("fileLocation", listener.events.get(1).getPropertyName());
+        assertEquals(new File("test1.nc"), listener.events.get(1).getOldValue());
+        assertEquals(new File("test2.nc"), listener.events.get(1).getNewValue());
+
+        product.setFileLocation(null);
+        assertEquals(null, product.getFileLocation());
+        assertEquals(3, listener.events.size());
+        assertEquals("fileLocation", listener.events.get(2).getPropertyName());
+        assertEquals(new File("test2.nc"), listener.events.get(2).getOldValue());
+        assertEquals(null, listener.events.get(2).getNewValue());
+    }
+
+    @Test
     public void testGetAndSetBandAutoGroupingProperty() {
         final Product product = new Product("A", "B", 10, 10);
         final MyProductNodeListener listener = new MyProductNodeListener();
