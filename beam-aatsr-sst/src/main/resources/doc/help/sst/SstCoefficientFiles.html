@@ -1,0 +1,160 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>SNAP Data Processors - Creating new SST coefficient files</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Creating new coefficient files
+        </td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/snap_header.jpg"
+                                                                                     border=0></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+    The SNAP SST Tool uses coefficient files during the SST processing to read its coefficient sets.<br>
+    These files are located in:</p>
+<blockquote>
+    <code>&lt;S3TBX-HOME&gt;/auxdata/sst/dual_view</code>
+</blockquote>
+
+<p>or</p>
+<blockquote>
+    <code>&lt;S3TBX-HOME&gt;/auxdata/sst/nadir_view</code>
+</blockquote>
+
+<p>each for the specified view.</p>
+
+<p>
+    A coefficient file is a standard java properties file consisting of key/value
+    pairs and comments. When the SST processor starts up, it scans the SST auxiliary data
+    directory for coefficient files and shows these in the GUI as entries in the
+    coefficient file list for both nadir and dual views. It is possible to add any
+    number of customized coefficient files to these folders when following the simple syntax:
+</p>
+
+<p>
+    A comment line begins with a "#" and is ignored during the parsing operation.
+</p>
+
+<p>
+    Each coefficient file should contain a short description, denoted as:
+</p>
+
+<pre><code> description = my coefficient description</code></pre>
+
+<p>
+    The description string is shown in the user interface coefficient selection box.
+</p>
+
+<p>
+    The coefficient file can contain any number of so called map keys. These keys define
+    a pixel range across the scanline where a specific set of coefficients shall be used.
+    Map keys contain successive numbers to allow the coefficient to be associated to a
+    specific range. Each map value consists of two integer values defining the lower and
+    higher bound of the range (borders are included).
+</p>
+
+<p style="margin-bottom:3;">Example:</p>
+<ul style="margin-top:3;">
+    map.0=0,123<br>
+    map.1=124,325<br>
+    map.2=326,511
+</ul>
+
+<p>
+    devides each scanline into three non-overlapping pixel ranges.
+    The coefficient file parser checks the map ranges for overlaps or gaps and
+    notifies the user on this.
+</p>
+
+<p>
+    For every map range there must be a corresponding set of coefficients.
+    Coefficient keys follow the same rules as map keys, they contain consecutive numbers
+    to be associated with map ranges. Valid coefficient names are – following the standard
+    sst algorithm conventions – a.x through d.x. All coefficient files stored in the
+    nadir view directory are expected to have just a and b coefficient sets and files in
+    the dual view directory just c and d coefficients.
+</p>
+
+<p>
+    For each map range with index x there must be a set of coefficients (a.x and b.x or
+    c.x and d.x) available. Coefficient values consist of a number of comma separated
+    floating point values.
+</p>
+
+<p style="margin-bottom:3;">Example:</p>
+<ul style="margin-top:3;">
+    <pre style="margin-top:3;">a.1=1.0, 2.0, 3.0
+        c.6=1.0, 2.0, 3.0, 4.0, 5.0</pre>
+</ul>
+
+<p style="margin-bottom:3;">
+    The number of coefficient values is defined by the sst algorithm as follows:
+</p>
+
+<ul style="margin-top:3;">
+    <pre style="margin-top:3;">a.x coefficients contain three values
+        b.x coefficients contain four values
+        c.x coefficients contain five values
+        d.x coefficients contain seven values</pre>
+</ul>
+
+<p>
+    The coefficient file parser checks the number of coefficients and the
+    associations and notifies the user on such errors.
+</p>
+
+<p style="margin-bottom:3;">Here is a valid coefficent file as example:</p>
+<ul style="margin-top:3;">
+    <pre style="margin-top:3;">
+        # Source file: ATS_SST_AXVIEC20051205_102103_20020101_000000_20200101_000000.htm
+        # Coefficients taken from record #77 of dataset AVERAGE_LUT which corresponds to
+        # - latitude zone POLAR_INDEX
+        # - across track band index 0 (center pixel)
+        # For more information see http://envisat.esa.int/dataproducts/aatsr/CNTR2-7-1.htm
+        #
+        # This file uses Java property file syntax. It is
+        # composed of lines which are key-value pairs in the form
+        # &lt;key&gt; = &ltvalue&gt;
+        # The supported keys are:
+        # description - a short description of the coefficient set
+        # map.&lt;x&gt; - definition of the coefficient map &ltx&gt; as a
+        # range of zero-based, scanline column indices
+        # &lt;set&gt;.&ltx&gt; - coefficient set corresponding to map.&ltx&gt;
+        # where &ltset&gt; is one of c (day) or d (night).
+
+
+        description = Average Polar Dual View
+
+        # Map 0
+        map.0 = 0, 511
+        c.0 = 4.55397, 5.59769, -3.26962, -3.30387, 1.95733
+        d.0 = 0.952765, 0.437266, -0.653424, 2.61203, -0.229391, 0.357714, -1.5279
+    </pre>
+</ul>
+<hr>
+</body>
+</html>

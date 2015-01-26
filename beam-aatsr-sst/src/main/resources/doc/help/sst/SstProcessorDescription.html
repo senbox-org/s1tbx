@@ -1,0 +1,149 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>SNAP Data Processors - (A)ATSR SST</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            (A)ATSR SST - Processor Description
+        </td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/snap_header.jpg"
+                                                                                     border=0></a>
+        </td>
+    </tr>
+</table>
+
+<h3>User Interface</h3>
+
+<p>
+    The SST processor can be invoked in the Sentinel Toolbox from the tool menu by selecting
+    <b>Processing->Thematic Water Processing->(A)ATSR SST Processing...</b>.
+    On the command line the SST processor is available by means of the Graph Processing Tool <code>gpt</code>
+    which is located in the Sentinel Toolbox <code>bin</code> directory.
+    Typing <code>gpt Aatsr.SST -h</code> displays further information.
+</p>
+
+<p>
+    Selecting the <b>SST Processor</b> from the Sentinel Toolbox tool menu pops up the following dialog:
+</p>
+
+<p align="center"><img src="images/SstPaths.png"></p>
+
+<h5>Source Product Group</h5>
+
+<p class="i1">
+    <b>(A)ATSR source product:</b>
+    Here the user specifies the source product. The combo box presents
+    a list of all products open in the Sentinel Toolbox. The user may select one of these
+    or, by clicking on the button next to the combo box, choose a product
+    from the file system.
+</p>
+
+<h5>Target Product Group</h5>
+
+<p class="i1">
+    <b>Name:</b>
+    Used to specify the name of the target product.
+</p>
+
+<p class="i1">
+    <b>Save as:</b>
+    Used to specify whether the target product should be saved to the file system. The
+    combo box presents a list of available file formats.
+    The text field or the button next to it allow to specify a target directory.
+</p>
+
+<p class="i1">
+    <b>Open in ESA S-3 Toolbox:</b>
+    Used to specify whether the target product should be opened in the Sentinel Toolbox.
+    When the target product is not saved, it is opened in the Sentinel Toolbox automatically.
+</p>
+
+<p align="center"><img src="images/SstParams.png"></p>
+
+<h5>Processing Parameters Panel</h5>
+
+<p class="i1">
+    <b>Generate dual-view SST:</b> Here the processing of dual-view SST can be activated or deactivated.
+</p>
+
+<p class="i1">
+    <b>Dual-view coefficient file:</b>
+    Here one of the available coefficient sets for dual-view processing can be selected.
+</p>
+
+<p class="i1">
+    <b>Dual-view mask:</b> Here a ROI-mask expression can be defined that will be evaluated
+    during dual-view processing.
+</p>
+
+<p class="i1">
+    <b>Generate nadir-view SST:</b> Here the processing of nadir-view SST can be activated or deactivated.
+</p>
+
+<p class="i1">
+    <b>Nadir-view coefficient file:</b>
+    Here one of the available coefficient sets for nadir-view processing can be selected.
+</p>
+
+<p class="i1">
+    <b>Nadir-view mask:</b> Here a ROI-mask expression can be defined that will be evaluated
+    during nadir-view processing.
+</p>
+
+<p class="i1">
+    <b>Invalid SST value:</b>
+    The value written to a target pixel when the pixel is excluded from the ROI or the SST calculation yields
+    an invalid result.
+</p>
+
+<h5>Button Group</h5>
+
+<p class="i1">
+    <b>Run</b>
+    Creates the target product. The SST processing is actually deferred until its band data are accessed, either by
+    writing the product to a file or by viewing its band data. When the <b>Save as</b> option is checked, the SST
+    processing is triggered automatically.
+</p>
+
+<p class="i1">
+    <b>Close</b>
+    Closes the dialog.
+</p>
+
+<h5>Menu Group</h5>
+
+<p class="i1">
+    <b>File</b>
+    The entries found in this menu allow to save the current processing parameters to disk and to open a saved parameter
+    set from disk.
+</p>
+
+<p class="i1">
+    <b>Help</b>
+    Displays this help page.
+</p>
+
+<hr>
+</body>
+</html>

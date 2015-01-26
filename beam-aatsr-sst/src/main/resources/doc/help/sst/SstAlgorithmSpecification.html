@@ -1,0 +1,103 @@
+<!--
+  ~ Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>SNAP Data Processors - SST-NC Algorithm Specification </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            SST-NC - Algorithm Specification</td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/snap_header.jpg" border=0></a>
+        </td>
+    </tr>
+</table>
+
+<p>Algorithm Specification of the science processors of the MERIS/(A)ATSR Toolbox</p>
+
+<h3>SST-NC</h3>
+
+<p>
+    The calculation of the sea surface temperature from (A)ATSR brightness temperatures is based
+    on the established split-window/dual-view algorithms. These algorithms use
+    a linear combination of the brightness temperatures measured in two or three
+    spectral bands. The differences between the measurements in the bands can
+    be attributed to the absorbing and emitting effects of the atmosphere and
+    used for correction. During night-time, the radiance emitted by the earth
+    is measured in three bands, at 3.7, 11.5 and 12.5 µm. By day, the band at
+    3.7 µm measures both the radiances emitted by the earth and reflected sun
+    light, so that it cannot be used to retrieve the sea surface temperature.
+</p>
+
+<p>
+    The (A)ATSR views a given location on the earth twice, once in nadir view and once under
+    a certain angle. The differences in the measurements are due to the different
+    path-lengths through the atmosphere. Also these differences are used to correct
+    for atmospheric effects.
+</p>
+
+<p>Basically, the fundamental form of the SST algorithm is:</p>
+
+<p>By day</p>
+
+<blockquote>
+    nadir view:
+    SST = a<font size="-2">0</font> + a<font size="-2">1</font> * T<font size="-2">11</font>
+    + a<font size="-2">2</font> * T<font size="-2">12</font><br>
+    dual view:
+    SST = c<font size="-2">0</font> + c<font size="-2">1</font> * T<font size="-2">11</font>,
+    nadir + c<font size="-2">2</font> * T<font size="-2">12</font>, nadir
+    + c<font size="-2">3</font> * T<font size="-2">11</font>,fwrd + c<font size="-2">4</font>
+    * T<font size="-2">12</font>, fwrd
+</blockquote>
+
+<p>By night</p>
+<blockquote>
+    nadir view:
+    SST = b<font size="-2">0</font> + b<font size="-2">1</font> * T<font size="-2">11</font>
+    + b<font size="-2">2</font> * T<font size="-2">12</font> + b<font size="-2">3</font>
+    * T<font size="-2">37</font><br>
+    dual view:
+    SST = d<font size="-2">0</font> + d<font size="-2">1</font> * T<font size="-2">11</font>,
+    nadir + d<font size="-2">2</font> * T<font size="-2">12</font>, nadir
+    + d<font size="-2">3</font> * T<font size="-2">37</font>, nadir + d<font size="-2">4</font>
+    * T<font size="-2">11</font>, fwrd + d<font size="-2">5</font> * T<font size="-2">12</font>,
+    fwrd + d<font size="-2">6</font> * T<font size="-2">37</font>, fwrd
+</blockquote>
+
+<p>
+    Where a&#8230;&#8230;..d are coefficients, given in look-up tables, which
+    depend upon latitude and on viewing angle and T(i) the specific channel number.
+</p>
+
+<p>
+    In the SNAP implementation a dependency on the viewing angle is foreseen, but
+    not a dependency on the latitude. The idea of this implementation is to provide
+    a tool for users who have their own sets of coefficients available, which is
+    typically the case for regional applications. For example, a dedicated data set
+    for the North Sea may be used. In such a case, the latitude dependency is not
+    meaningful.
+</p>
+
+<hr>
+
+</body>
+</html>
