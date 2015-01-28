@@ -283,27 +283,12 @@ public class TerraSarXProductReader extends SARReader {
         return Float.intBitsToFloat(((s << 31) | (e << 23) | f));
     }
 
-    private static void copyToDataBuffer(final boolean isSSC, final char[] destLine, final ProductData destBuffer,
-                                         final int currentLineIndex, final int destWidth) {
-
-        if (isSSC) {
-            // The data type of ProductData is INT16 which is short
-            System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
-        } else {
-            for (int i = 0; i < destWidth; i++) {
-                destBuffer.setElemFloatAt(i+currentLineIndex, convert16BitsTo32BitFloat(destLine[i]));
-            }
-        }
-    }
-
     private static synchronized void readBandRasterDataSLC16Bit(final int sourceOffsetX, final int sourceOffsetY,
                                                                 final int sourceWidth, final int sourceHeight,
                                                                 final int sourceStepX, final int sourceStepY,
                                                                 final int destWidth, final ProductData destBuffer, boolean oneOf2,
                                                                 final ImageInputStream iiStream, final ProgressMonitor pm)
             throws IOException {
-
-        //System.out.println("product type = " + destBuffer.getTypeString());
 
         iiStream.seek(0);
         final int bib = iiStream.readInt();
@@ -340,39 +325,80 @@ public class TerraSarXProductReader extends SARReader {
         iiStream.setByteOrder(ByteOrder.BIG_ENDIAN);
 
         pm.beginTask("Reading band...", sourceMaxY - sourceOffsetY);
-        final char[] destLine = new char[destWidth];
         int y = 0;
-        try {
-            final char[] srcLine = new char[sourceWidth * 2];
-            for (y = sourceOffsetY; y <= sourceMaxY; y += sourceStepY) {
-                if (pm.isCanceled()) {
-                    break;
+
+        if(isSSC) {
+            final short[] destLine = new short[destWidth];
+            try {
+                final short[] srcLine = new short[sourceWidth * 2];
+                for (y = sourceOffsetY; y <= sourceMaxY; y += sourceStepY) {
+                    if (pm.isCanceled()) {
+                        break;
+                    }
+
+                    // Read source line
+                    //synchronized (iiStream) {
+                    iiStream.seek(imageRecordLength * y + xpos);
+                    iiStream.readFully(srcLine, 0, srcLine.length);
+                    //}
+
+                    // Copy source line into destination buffer
+                    final int currentLineIndex = (y - sourceOffsetY) * destWidth;
+                    if (oneOf2)
+                        GenericReader.copyLine1Of2(srcLine, destLine, sourceStepX);
+                    else
+                        GenericReader.copyLine2Of2(srcLine, destLine, sourceStepX);
+
+                    System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
+
+                    pm.worked(1);
                 }
-
-                // Read source line
-                //synchronized (iiStream) {
-                iiStream.seek(imageRecordLength * y + xpos);
-                iiStream.readFully(srcLine, 0, srcLine.length);
-                //}
-
-                // Copy source line into destination buffer
+            } catch (Exception e) {
+                //System.out.println(e.toString());
                 final int currentLineIndex = (y - sourceOffsetY) * destWidth;
-                if (oneOf2)
-                    GenericReader.copyLine1Of2(srcLine, destLine, sourceStepX);
-                else
-                    GenericReader.copyLine2Of2(srcLine, destLine, sourceStepX);
-
-                copyToDataBuffer(isSSC, destLine, destBuffer, currentLineIndex, destWidth);
-
-                pm.worked(1);
+                Arrays.fill(destLine, (short) 0);
+                System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
+            } finally {
+                pm.done();
             }
-        } catch (Exception e) {
-            //System.out.println(e.toString());
-            final int currentLineIndex = (y - sourceOffsetY) * destWidth;
-            Arrays.fill(destLine, (char) 0);
-            copyToDataBuffer(isSSC, destLine, destBuffer, currentLineIndex, destWidth);
-        } finally {
-            pm.done();
+        } else {
+            final char[] destLine = new char[destWidth];
+            try {
+                final char[] srcLine = new char[sourceWidth * 2];
+                for (y = sourceOffsetY; y <= sourceMaxY; y += sourceStepY) {
+                    if (pm.isCanceled()) {
+                        break;
+                    }
+
+                    // Read source line
+                    //synchronized (iiStream) {
+                    iiStream.seek(imageRecordLength * y + xpos);
+                    iiStream.readFully(srcLine, 0, srcLine.length);
+                    //}
+
+                    // Copy source line into destination buffer
+                    final int currentLineIndex = (y - sourceOffsetY) * destWidth;
+                    if (oneOf2)
+                        GenericReader.copyLine1Of2(srcLine, destLine, sourceStepX);
+                    else
+                        GenericReader.copyLine2Of2(srcLine, destLine, sourceStepX);
+
+                    for (int i = 0; i < destWidth; i++) {
+                        destBuffer.setElemFloatAt(i+currentLineIndex, convert16BitsTo32BitFloat(destLine[i]));
+                    }
+
+                    pm.worked(1);
+                }
+            } catch (Exception e) {
+                //System.out.println(e.toString());
+                final int currentLineIndex = (y - sourceOffsetY) * destWidth;
+                Arrays.fill(destLine, (char) 0);
+                for (int i = 0; i < destWidth; i++) {
+                    destBuffer.setElemFloatAt(i+currentLineIndex, convert16BitsTo32BitFloat(destLine[i]));
+                }
+            } finally {
+                pm.done();
+            }
         }
     }
 }
