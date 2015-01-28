@@ -33,41 +33,83 @@ spectrum of EO user communities, including science, applications and services de
 
 # Building toolboxes from the source
 
-1. Clone the source code and related repositories into a folder SNAP/
+## Checkout
+Clone the source code and related repositories into a folder _SNAP/_
 
-	git clone https://github.com/senbox-org/snap.git
+	git clone https://github.com/senbox-org/snap-engine.git
 	
-	git clone https://github.com/senbox-org/beam.git
-	
-	git clone https://github.com/senbox-org/ceres.git
-	
+	git clone https://github.com/senbox-org/snap-desktop.git
+
+After checking out the source code from the repositories the further steps differ depending
+on either if you want to use the new NetBeans based runtime or if you still want to use the old ceres runtime based configuration.
+Read further at the corresponding section
+
+:exclamation:Note: the snap-engine and snap-desktop repositories are mandatory. The toolboxes are each optional and
+currently only useful if you use the ceres based configuration.
+
 	git clone https://github.com/senbox-org/s1tbx.git
-	
+
 	git clone https://github.com/senbox-org/s2tbx.git
-	
+
 	git clone https://github.com/senbox-org/s3tbx.git
-	
-	Note: the snap, beam and ceres repositories are mandetory. The toolboxes are each optional.
-2. CD into SNAP/snap and build the source: 
+
+
+## Build with NetBeans
+1. CD into SNAP/snap-engine:
+```mvn install
+
+2. CD into SNAP/snap-desktop:
+```mvn install
+
+3. CD into SNAP/snap-desktop/snap-application:
+```mvn nbm:cluster-app
+
+4. Start the application via Maven:
+```mvn nbm:run-platform
+
+It is also possible to do step 3 and 4 at once:
+```mvn nbm:cluster-app nbm:run-platform
+
+### IDE Setup (IntelliJ IDEA)
+1. Create an empty project with the _SNAP/_ directory as project directory
+
+2. Import the pom.xml files of snap-engine and snap-desktop as modules. Ensure **not** to enable
+the option *'Create module groups for multi-module Maven projects'*. Everything can be default values.
+
+3. Use the following configuration to run SNAP in the IDE:
+	* **Main class:** org.esa.snap.nbexec.Launcher
+	* **VM parameters:** -Dsun.awt.nopixfmt=true -Dsun.java2d.noddraw=true -Dsun.java2d.dpiaware=false
+	All VM parameters are optional
+	* **Working directory:** SNAP/snap-desktop/snap-application/target/snap/
+	* **Use classpath of module:** nbexec
+
+## Build with Ceres
+1. CD into SNAP/snap-engine and build the source:
 
 	mvn compile or mvn package
-	
-	Use maven profiles to build the desired toolbox components
-	
-	mvn compile -P s2tbx,s3tbx
+
+    Use maven profiles to build the desired toolbox components
+
+    mvn compile -P s2tbx,s3tbx
 	
 	or all components
 	
 	mvn compile -P all
-	
-3. Open the pom.xml file from within IntelliJ IDEA to import.
-4. Use the following configuration to run DAT:
+
+### IDE Setup (IntelliJ IDEA)
+1. Create an empty project with the _SNAP/_ directory as project directory
+
+2. Import the pom.xml files as modules of the projects you have checked out. Ensure **not** to enable
+the option *'Create module groups for multi-module Maven projects'*. Everything can be default values.
+
+3. Use the following configuration to run S2TBX:
 
     * Main class: com.bc.ceres.launcher.Launcher
-    * VM parameters: -Xmx4G -Dceres.context=snap
+    * VM parameters: -Xmx4G -Dceres.context=s2tbx
     * Program parameters: none
     * Working directory: SNAP/output
     * Use classpath of module: snap-bootstrap
 
+As value for the ´ceres.context´ parameter you can also use s1tbx and s2tbx
 
 Enjoy!
