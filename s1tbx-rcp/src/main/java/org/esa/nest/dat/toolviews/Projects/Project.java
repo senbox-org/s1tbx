@@ -31,6 +31,7 @@ import org.esa.snap.dat.dialogs.PromptDialog;
 import org.esa.nest.dat.dialogs.ProductSetDialog;
 import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
 import org.esa.nest.dat.utils.FileFolderUtils;
+import org.esa.snap.db.CommonReaders;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.XMLSupport;
@@ -354,7 +355,7 @@ public class Project extends Observable {
     public static void openSubset(final ProjectSubFolder parentFolder, final File prodFile) {
 
         try {
-            final Product product = ProductIO.readProduct(prodFile);
+            final Product product = CommonReaders.readProduct(prodFile);
             if (product != null) {
                 final Product subsetProduct = getProductSubset(product);
                 if (subsetProduct != null)

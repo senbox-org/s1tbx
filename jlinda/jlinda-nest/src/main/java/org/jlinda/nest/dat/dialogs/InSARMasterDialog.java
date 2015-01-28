@@ -10,6 +10,7 @@ import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.visat.VisatApp;
 import org.esa.snap.dat.dialogs.ProductSetPanel;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.db.CommonReaders;
 import org.esa.snap.db.ProductEntry;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.DialogUtils;
@@ -171,7 +172,7 @@ public class InSARMasterDialog extends ModelessDialog {
         final File mstFile = slcFileMap.get(slaveList[masterIndex].getMasterMetadata());
 //        String test = df.format(slaveList[masterIndex].getCoherence());
         try {
-            final Product productMst = ProductIO.readProduct(mstFile);
+            final Product productMst = CommonReaders.readProduct(mstFile);
             final MetadataElement absRootMst = AbstractMetadata.getAbstractedMetadata(productMst);
             final String[] mstValues = new String[]{
                     productMst.getName(),
@@ -194,7 +195,7 @@ public class InSARMasterDialog extends ModelessDialog {
             final File slvFile = slcFileMap.get(slave.getSlaveMetadata());
             if (!slvFile.equals(mstFile)) {
                 try {
-                    final Product product = ProductIO.readProduct(slvFile);
+                    final Product product = CommonReaders.readProduct(slvFile);
                     final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 
                     final String[] slvValues = new String[]{
@@ -224,7 +225,7 @@ public class InSARMasterDialog extends ModelessDialog {
 
         for (File file : inputFiles) {
             try {
-                final Product product = ProductIO.readProduct(file);
+                final Product product = CommonReaders.readProduct(file);
                 final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
                 final SLCImage img = new SLCImage(absRoot);
                 final Orbit orb = new Orbit(absRoot, 3);

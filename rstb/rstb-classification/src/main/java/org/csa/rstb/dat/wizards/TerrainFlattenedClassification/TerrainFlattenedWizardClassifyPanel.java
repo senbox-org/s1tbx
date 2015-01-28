@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.wizards.WizardPanel;
 import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
+import org.esa.snap.db.CommonReaders;
 
 import javax.swing.*;
 import java.awt.*;
@@ -44,7 +45,7 @@ public class TerrainFlattenedWizardClassifyPanel extends WizardPanel {
 
         Product inputProduct = null;
         try {
-            inputProduct = ProductIO.readProduct(productFileList[0]);
+            inputProduct = CommonReaders.readProduct(productFileList[0]);
         } catch (Exception e) {
 
         }

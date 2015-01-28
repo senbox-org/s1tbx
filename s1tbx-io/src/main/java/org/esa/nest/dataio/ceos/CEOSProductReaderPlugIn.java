@@ -45,11 +45,7 @@ public class CEOSProductReaderPlugIn implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
 
-        final File parentDir = file.getParentFile();
-        if (file.isFile() && parentDir.isDirectory()) {
-            return checkProductQualification(file);
-        }
-        return DecodeQualification.UNABLE;
+        return checkProductQualification(file);
     }
 
     protected DecodeQualification checkProductQualification(File file) {
