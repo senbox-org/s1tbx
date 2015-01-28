@@ -56,19 +56,24 @@ currently only useful if you use the ceres based configuration.
 
 ## Build with NetBeans
 1. CD into SNAP/snap-engine:
-```mvn install
+
+   mvn install
 
 2. CD into SNAP/snap-desktop:
-```mvn install
+
+   mvn install
 
 3. CD into SNAP/snap-desktop/snap-application:
-```mvn nbm:cluster-app
+
+   mvn nbm:cluster-app
 
 4. Start the application via Maven:
-```mvn nbm:run-platform
+
+   mvn nbm:run-platform
 
 It is also possible to do step 3 and 4 at once:
-```mvn nbm:cluster-app nbm:run-platform
+
+   mvn nbm:cluster-app nbm:run-platform
 
 ### IDE Setup (IntelliJ IDEA)
 1. Create an empty project with the _SNAP/_ directory as project directory
