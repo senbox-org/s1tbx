@@ -774,16 +774,16 @@ public class Product extends ProductNode {
         return sceneRasterSize != null ? (Dimension) sceneRasterSize.clone() : null;
     }
 
-    // todo - do we want this method at all? Maybe useful to init size after no-size constructor before bands are added
-    public void setSceneRasterSize(Dimension sceneRasterSize) {
-        Assert.state(!sceneRasterGeometryInvalidated && this.sceneRasterSize == null);
-        if (!ObjectUtils.equalObjects(this.sceneRasterSize, sceneRasterSize)) {
-            Dimension oldSceneRasterSize = this.sceneRasterSize;
-            this.sceneRasterSize = sceneRasterSize != null ? (Dimension) sceneRasterSize.clone() : null;
-            sceneRasterGeometryInvalidated = false;
-            fireNodeChanged(this, "sceneRasterSize", oldSceneRasterSize, sceneRasterSize);
-        }
-    }
+    // todo - [multisize_products] do we want this method at all? Maybe useful to init size after no-size constructor before bands are added
+//    public void setSceneRasterSize(Dimension sceneRasterSize) {
+//        Assert.state(!sceneRasterGeometryInvalidated && this.sceneRasterSize == null);
+//        if (!ObjectUtils.equalObjects(this.sceneRasterSize, sceneRasterSize)) {
+//            Dimension oldSceneRasterSize = this.sceneRasterSize;
+//            this.sceneRasterSize = sceneRasterSize != null ? (Dimension) sceneRasterSize.clone() : null;
+//            sceneRasterGeometryInvalidated = false;
+//            fireNodeChanged(this, "sceneRasterSize", oldSceneRasterSize, sceneRasterSize);
+//        }
+//    }
 
     /**
      * @return The scene raster width in pixels, or 0 if the scene raster geometry is not (yet) determined.
@@ -2239,6 +2239,7 @@ public class Product extends ProductNode {
 
     private void recomputeSceneRasterGeometry() {
         // todo - [multisize_products] replace this numb algorithm by something reasonable that takes the bands' geographical coverage into account (nf)
+        // todo - [multisize_products] also loop through tiePointGrids, masks
         Band[] bands = getBands();
         Dimension dimension = null;
         for (Band band : bands) {
@@ -2248,7 +2249,6 @@ public class Product extends ProductNode {
             dimension.width = Math.max(dimension.width, band.getRasterWidth());
             dimension.height = Math.max(dimension.height, band.getRasterHeight());
         }
-        // todo - [multisize_products] also loop through tiePointGrids, masks
         sceneRasterSize = dimension;
         sceneRasterGeometryInvalidated = false;
     }
