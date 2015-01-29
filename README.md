@@ -81,7 +81,9 @@ It is also possible to do step 3 and 4 at once:
 2. Import the pom.xml files of snap-engine and snap-desktop as modules. Ensure **not** to enable
 the option *'Create module groups for multi-module Maven projects'*. It would create an odd project structure but would still work. Everything can be default values.
 
-3. Use the following configuration to run SNAP in the IDE:
+3. Set the used SDK for the main project. A JDK 1.8 or later is needed.
+
+4. Use the following configuration to run SNAP in the IDE:
 	* **Main class:** org.esa.snap.nbexec.Launcher
 	* **VM parameters:** -Dsun.awt.nopixfmt=true -Dsun.java2d.noddraw=true -Dsun.java2d.dpiaware=false
 	All VM parameters are optional
@@ -107,7 +109,9 @@ the option *'Create module groups for multi-module Maven projects'*. It would cr
 2. Import the pom.xml files as modules of the projects you have checked out. Ensure **not** to enable
 the option *'Create module groups for multi-module Maven projects'*. It would create an odd project structure but would still work. Everything can be default values.
 
-3. Use the following configuration to run S2TBX:
+3. Set the used SDK for the main project. A JDK 1.8 or later is needed.
+
+4. Use the following configuration to run S2TBX:
 
     * Main class: com.bc.ceres.launcher.Launcher
     * VM parameters: -Xmx4G -Dceres.context=s2tbx
