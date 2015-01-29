@@ -41,6 +41,7 @@ public class ProductSceneRasterSizeTest {
         assertEquals(new Dimension(30, 20), product.getSceneRasterSize());
 
         product.addBand(new Band("B0", ProductData.TYPE_FLOAT32, 5, 2));
+        // todo - [multisize_products] or do we want to allow that a product can shrink after it has been initialized
         assertEquals(new Dimension(30, 20), product.getSceneRasterSize());
 
         product.addBand(new Band("B1", ProductData.TYPE_FLOAT32, 100, 200));
