@@ -87,8 +87,8 @@ public class ProductSceneRasterSizeTest {
 
     }
 
-    @Test
-//    @Ignore
+//    @Test
+    @Ignore
     public void testDimap() throws Exception {
 
         Product product = new Product("N", "T");
@@ -121,9 +121,9 @@ public class ProductSceneRasterSizeTest {
             assertEquals(new Dimension(2000, 220), product2.getSceneRasterSize());
         } finally {
             if(file.exists()) {
-//                Files.delete(file.toPath());
-//                File dataDir = new File(file.getAbsolutePath().replaceAll("dim", "data"));
-//                Files.walkFileTree(dataDir.toPath(), new PathTreeDeleter());
+                Files.delete(file.toPath());
+                File dataDir = new File(file.getAbsolutePath().replaceAll("dim", "data"));
+                Files.walkFileTree(dataDir.toPath(), new PathTreeDeleter());
             }
         }
     }
