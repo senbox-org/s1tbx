@@ -355,6 +355,9 @@ public final class DimapProductConstants {
     public static final String TAG_NAME = "NAME";
     public static final String TAG_DESCRIPTION = "DESCRIPTION";
     public static final String TAG_TRANSPARENCY = "TRANSPARENCY";
+    public static final String TAG_MASK_RASTER_WIDTH = "MASK_RASTER_WIDTH";
+    public static final String TAG_MASK_RASTER_HEIGHT = "MASK_RASTER_HEIGHT";
+
     // BandMathMask
     public static final String TAG_EXPRESSION = "EXPRESSION";
     // RangeMask

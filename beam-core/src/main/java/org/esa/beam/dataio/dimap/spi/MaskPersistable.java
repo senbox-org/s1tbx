@@ -35,8 +35,15 @@ public abstract class MaskPersistable implements DimapPersistable {
     @Override
     public final Mask createObjectFromXml(Element element, Product product) {
         final String name = getChildAttributeValue(element, TAG_NAME, ATTRIB_VALUE);
-        final int width = product.getSceneRasterWidth();
-        final int height = product.getSceneRasterHeight();
+        final int width;
+        final int height;
+        if(element.getChild(TAG_MASK_RASTER_WIDTH) != null && element.getChild(TAG_MASK_RASTER_HEIGHT) != null) {
+            width = Integer.parseInt(getChildAttributeValue(element, TAG_MASK_RASTER_WIDTH, ATTRIB_VALUE));
+            height = Integer.parseInt(getChildAttributeValue(element, TAG_MASK_RASTER_HEIGHT, ATTRIB_VALUE));
+        } else {
+            width = product.getSceneRasterWidth();
+            height = product.getSceneRasterHeight();
+        }
         final Mask mask = new Mask(name, width, height, createImageType());
         mask.setDescription(getChildAttributeValue(element, TAG_DESCRIPTION, ATTRIB_VALUE));
 
@@ -57,11 +64,13 @@ public abstract class MaskPersistable implements DimapPersistable {
         final Element root = new Element(TAG_MASK);
         root.setAttribute(ATTRIB_TYPE, mask.getImageType().getName());
 
-        final PropertyContainer config = mask.getImageConfig();
         root.addContent(createElement(TAG_NAME, mask.getName()));
+        root.addContent(createElement(TAG_MASK_RASTER_WIDTH, String.valueOf(mask.getRasterWidth())));
+        root.addContent(createElement(TAG_MASK_RASTER_HEIGHT, String.valueOf(mask.getRasterHeight())));
         root.addContent(createElement(TAG_DESCRIPTION, mask.getDescription()));
         final Element colorElement = new Element(TAG_COLOR);
-        final Color color = (Color) config.getValue(Mask.ImageType.PROPERTY_NAME_COLOR);
+        final PropertyContainer config = mask.getImageConfig();
+        final Color color = config.getValue(Mask.ImageType.PROPERTY_NAME_COLOR);
         colorElement.setAttribute(ATTRIB_RED, String.valueOf(color.getRed()));
         colorElement.setAttribute(ATTRIB_GREEN, String.valueOf(color.getGreen()));
         colorElement.setAttribute(ATTRIB_BLUE, String.valueOf(color.getBlue()));

@@ -49,6 +49,10 @@ public class MaskPersistableTest {
 
         final Element name = element.getChild(TAG_NAME);
         assertEquals("myRange", getAttributeString(name, ATTRIB_VALUE));
+        final Element widthElem = element.getChild(TAG_MASK_RASTER_WIDTH);
+        assertEquals(10, getAttributeInt(widthElem, ATTRIB_VALUE));
+        final Element heightElem = element.getChild(TAG_MASK_RASTER_HEIGHT);
+        assertEquals(10, getAttributeInt(heightElem, ATTRIB_VALUE));
 
         final Element description = element.getChild(TAG_DESCRIPTION);
         assertEquals("Carefully defined range", getAttributeString(description, ATTRIB_VALUE));
@@ -87,6 +91,24 @@ public class MaskPersistableTest {
         assertEquals(TestImageType.class, maskFromXml.getImageType().getClass());
         assertEquals(10, maskFromXml.getSceneRasterWidth());
         assertEquals(10, maskFromXml.getSceneRasterHeight());
+        assertEquals("Bibo", maskFromXml.getName());
+        assertEquals("A big yellow bird is in the pixel.", maskFromXml.getDescription());
+        assertEquals(0.7, maskFromXml.getImageTransparency(), 0.0);
+        assertEquals(new Color(17, 11, 67), maskFromXml.getImageColor());
+    }
+
+    @Test
+    public void testMaskCreation_WithSize() throws IOException, JDOMException {
+        final DimapPersistable persistable = new TestMaskPersistable();
+        final InputStream resourceStream = getClass().getResourceAsStream("TestMask_WithSize.xml");
+        final Document document = new SAXBuilder().build(resourceStream);
+        final Product product = new Product("P", "T", 10, 10);
+        final Mask maskFromXml = (Mask) persistable.createObjectFromXml(document.getRootElement(), product);
+
+        assertNotNull(maskFromXml);
+        assertEquals(TestImageType.class, maskFromXml.getImageType().getClass());
+        assertEquals(30, maskFromXml.getSceneRasterWidth());
+        assertEquals(25, maskFromXml.getSceneRasterHeight());
         assertEquals("Bibo", maskFromXml.getName());
         assertEquals("A big yellow bird is in the pixel.", maskFromXml.getDescription());
         assertEquals(0.7, maskFromXml.getImageTransparency(), 0.0);

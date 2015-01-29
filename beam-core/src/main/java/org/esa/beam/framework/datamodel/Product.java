@@ -312,8 +312,10 @@ public class Product extends ProductNode {
     }
 
     private void handleMaskAdded(ProductNodeEvent event) {
-        // TODO - move code to where masks are created
         final Mask mask = (Mask) event.getSourceNode();
+        maybeInvalidateSceneRasterGeometry(mask);
+
+        // TODO - move code to where masks are created
         if (StringUtils.isNullOrEmpty(mask.getDescription()) && mask.getImageType() == Mask.BandMathsType.INSTANCE) {
             String expression = Mask.BandMathsType.getExpression(mask);
             mask.setDescription(getSuitableBitmaskDefDescription(expression));
@@ -2176,7 +2178,8 @@ public class Product extends ProductNode {
      */
     public Mask addMask(String maskName, Mask.ImageType imageType) {
         final Mask mask = new Mask(maskName, getSceneRasterWidth(), getSceneRasterHeight(), imageType);
-        return addMask(mask);
+        addMask(mask);
+        return mask;
     }
 
     /**
@@ -2195,7 +2198,8 @@ public class Product extends ProductNode {
         final Mask mask = Mask.BandMathsType.create(maskName, description,
                                                     getSceneRasterWidth(), getSceneRasterHeight(),
                                                     expression, color, transparency);
-        return addMask(mask);
+        addMask(mask);
+        return mask;
     }
 
     /**
@@ -2220,14 +2224,17 @@ public class Product extends ProductNode {
         mask.setDescription(description);
         mask.setImageColor(color);
         mask.setImageTransparency(transparency);
-        return addMask(mask);
+        addMask(mask);
+        return mask;
     }
 
-    private Mask addMask(Mask mask) {
+    /**
+     * Adds the given mask to this product.
+     *
+     * @param mask the mask to be added, must not be <code>null</code>
+     */
+    public void addMask(Mask mask) {
         getMaskGroup().add(mask);
-        // todo - [multisize_products] test, then comment out
-        //maybeInvalidateSceneRasterGeometry(mask);
-        return mask;
     }
 
     private void maybeInvalidateSceneRasterGeometry(RasterDataNode rasterDataNode) {
@@ -2239,10 +2246,14 @@ public class Product extends ProductNode {
 
     private void recomputeSceneRasterGeometry() {
         // todo - [multisize_products] replace this numb algorithm by something reasonable that takes the bands' geographical coverage into account (nf)
-        // todo - [multisize_products] also loop through tiePointGrids, masks
-        Band[] bands = getBands();
+        // todo - [multisize_products] also loop through tie-point-grids
+        RasterDataNode[] bands = getBands();
+        RasterDataNode[] masks = getMaskGroup().toArray(new Mask[0]);
+        List<RasterDataNode> rasters = new ArrayList<>();
+        rasters.addAll(Arrays.asList(bands));
+        rasters.addAll(Arrays.asList(masks));
         Dimension dimension = null;
-        for (Band band : bands) {
+        for (RasterDataNode band : rasters) {
             if (dimension == null) {
                 dimension = new Dimension();
             }

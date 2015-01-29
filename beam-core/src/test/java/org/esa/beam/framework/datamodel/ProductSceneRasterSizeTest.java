@@ -21,6 +21,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.media.jai.operator.ConstantDescriptor;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
@@ -45,8 +46,15 @@ public class ProductSceneRasterSizeTest {
         product.addBand(new Band("B2", ProductData.TYPE_FLOAT32, 110, 190));
         assertEquals(new Dimension(110, 200), product.getSceneRasterSize());
 
+        product.addMask(Mask.BandMathsType.create("M1", "description1", 115, 210, "true", Color.BLACK, 0.0));
+        assertEquals(new Dimension(115, 210), product.getSceneRasterSize());
+
+        product.getMaskGroup().add(Mask.BandMathsType.create("M2", "description2", 120, 220, "true", Color.RED, 0.0));
+        assertEquals(new Dimension(120, 220), product.getSceneRasterSize());
+
         product.addTiePointGrid(new TiePointGrid("TPG1", 1000, 1, 0f, 0f, 1f, 1f, new float[1000]));
-        assertEquals(new Dimension(110, 200), product.getSceneRasterSize());
+        assertEquals(new Dimension(120, 220), product.getSceneRasterSize());
+
     }
 
     @Test
@@ -60,12 +68,18 @@ public class ProductSceneRasterSizeTest {
         product.addBand(new Band("B2", ProductData.TYPE_FLOAT32, 110, 190));
         assertEquals(new Dimension(110, 200), product.getSceneRasterSize());
 
+        product.addMask(Mask.BandMathsType.create("M1", "description1", 115, 210, "true", Color.BLACK, 0.0));
+        assertEquals(new Dimension(115, 210), product.getSceneRasterSize());
+
+        product.getMaskGroup().add(Mask.BandMathsType.create("M2", "description2", 120, 220, "true", Color.RED, 0.0));
+        assertEquals(new Dimension(120, 220), product.getSceneRasterSize());
+
         product.addTiePointGrid(new TiePointGrid("TPG1", 1000, 1, 0f, 0f, 1f, 1f, new float[1000]));
-        assertEquals(new Dimension(110, 200), product.getSceneRasterSize());
+        assertEquals(new Dimension(120, 220), product.getSceneRasterSize());
     }
 
-//    @Test
-    @Ignore
+    @Test
+//    @Ignore
     public void testDimap() throws Exception {
 
         Product product = new Product("N", "T");
@@ -74,20 +88,24 @@ public class ProductSceneRasterSizeTest {
         Band b1 = new Band("B1", ProductData.TYPE_FLOAT32, 100, 200);
         b1.setSourceImage(ConstantDescriptor.create(100f, 200f, new Float[]{1f}, null));
         product.addBand(b1);
-        assertEquals(new Dimension(100, 200), product.getSceneRasterSize());
 
         Band b2 = new Band("B2", ProductData.TYPE_FLOAT32, 110, 190);
         b2.setSourceImage(ConstantDescriptor.create(110f, 190f, new Float[]{2f}, null));
         product.addBand(b2);
-        assertEquals(new Dimension(110, 200), product.getSceneRasterSize());
+
+        product.addMask(Mask.BandMathsType.create("M1", "description1", 115, 210, "true", Color.BLACK, 0.0));
+        product.getMaskGroup().add(Mask.BandMathsType.create("M2", "description2", 120, 220, "true", Color.RED, 0.0));
+
 
         File file = new File("multisize_product.dim");
         try {
             ProductIO.writeProduct(product, file, "BEAM-DIMAP", false);
             Product product2 = ProductIO.readProduct(file);
-            assertEquals(new Dimension(110, 200), product2.getSceneRasterSize());
             assertEquals(new Dimension(100, 200), product2.getBand("B1").getRasterSize());
             assertEquals(new Dimension(110, 190), product2.getBand("B2").getRasterSize());
+            assertEquals(new Dimension(115, 210), product2.getMaskGroup().get("M1").getRasterSize());
+            assertEquals(new Dimension(120, 220), product2.getMaskGroup().get("M2").getRasterSize());
+            assertEquals(new Dimension(120, 220), product2.getSceneRasterSize());
         } finally {
             if(file.exists()) {
                 Files.delete(file.toPath());

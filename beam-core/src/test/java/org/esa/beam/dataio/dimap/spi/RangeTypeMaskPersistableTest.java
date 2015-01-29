@@ -102,8 +102,8 @@ public class RangeTypeMaskPersistableTest {
         assertEquals(0.78, maskFromXml.getImageTransparency(), 0.0);
         assertEquals(new Color(0, 255, 0, 128), maskFromXml.getImageColor());
 
-        assertEquals(0.35, (double)maskFromXml.getImageConfig().getValue(Mask.RangeType.PROPERTY_NAME_MINIMUM), 1.0e-6);
-        assertEquals(0.76, (double)maskFromXml.getImageConfig().getValue(Mask.RangeType.PROPERTY_NAME_MAXIMUM), 1.0e-6);
+        assertEquals(0.35, maskFromXml.getImageConfig().getValue(Mask.RangeType.PROPERTY_NAME_MINIMUM), 1.0e-6);
+        assertEquals(0.76, maskFromXml.getImageConfig().getValue(Mask.RangeType.PROPERTY_NAME_MAXIMUM), 1.0e-6);
         assertEquals("reflectance_13", maskFromXml.getImageConfig().getValue(Mask.RangeType.PROPERTY_NAME_RASTER));
     }
 
