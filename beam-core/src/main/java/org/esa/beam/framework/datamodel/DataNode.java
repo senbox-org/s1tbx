@@ -20,6 +20,8 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ObjectUtils;
 
+import java.text.MessageFormat;
+
 /**
  * A <code>DataNode</code> is the base class for all nodes within a data product which carry data. The data is
  * represented by an instance of <code>{@link ProductData}</code>.
@@ -250,19 +252,13 @@ public abstract class DataNode extends ProductNode {
         Debug.assertNotNull(data);
 
         if (data.getType() != getDataType()) {
-            throw new IllegalArgumentException("illegal data for data node '"
-                    + getName()
-                    + "', type "
-                    + ProductData.getTypeString(getDataType())
-                    + " expected");
+            String msgPattern = "Illegal data for data node ''{0}'', type {1} expected";
+            throw new IllegalArgumentException(MessageFormat.format(msgPattern, getName(), ProductData.getTypeString(getDataType())));
         }
 
         if (data.getNumElems() != getNumDataElems()) {
-            throw new IllegalArgumentException("illegal number of data elements for data node '"
-                    + getName()
-                    + "', "
-                    + getNumDataElems()
-                    + " elements expected");
+            String msgPattern = "Illegal number of data elements for data node ''{0}'', {1} elements expected but was {2}";
+            throw new IllegalArgumentException(MessageFormat.format(msgPattern, getName(), getNumDataElems(), data.getNumElems()));
         }
     }
 
