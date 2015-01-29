@@ -158,6 +158,15 @@ public abstract class Term {
     }
 
     /**
+     * Tests whether or not this term returns a <code>String</code>.
+     *
+     * @return <code>true</code> if so
+     */
+    public final boolean isS() {
+        return getRetType() == TYPE_S;
+    }
+
+    /**
      * Converts an <code>int</code> to a <code>boolean</code>.
      *
      * @param value the value to be converted
@@ -387,6 +396,10 @@ public abstract class Term {
 
         public ConstS(String value) {
             this.value = value;
+        }
+
+        public String getValue() {
+            return value;
         }
 
         @Override

@@ -91,81 +91,166 @@ public final class SymbolFactory {
         return new VariableD(name, value);
     }
 
-    private static final class VariableB extends AbstractSymbol.B implements Variable {
+    public static final class VariableB extends AbstractSymbol.B implements Variable {
 
-        private boolean _value;
+        private boolean value;
 
-        private VariableB(final String name, final boolean value) {
+        public VariableB(final String name, final boolean value) {
             super(name);
-            _value = value;
+            this.value = value;
         }
 
         public boolean evalB(final EvalEnv env) {
-            return _value;
+            return value;
         }
 
         public void assignB(final EvalEnv env, final boolean v) {
-            _value = v;
+            value = v;
         }
 
         public void assignI(final EvalEnv env, final int v) {
-            _value = Term.toB(v);
+            value = Term.toB(v);
         }
 
         public void assignD(final EvalEnv env, final double v) {
-            _value = Term.toB(v);
+            value = Term.toB(v);
         }
     }
 
-    private static final class VariableI extends AbstractSymbol.I implements Variable {
+    public static final class VariableI extends AbstractSymbol.I implements Variable {
 
-        private int _value;
+        private int value;
+        private Integer min;
+        private Integer max;
+        private Integer step;
 
-        private VariableI(final String name, final int value) {
+        public VariableI(String name, int value) {
+            this(name, value, null, null, null);
+        }
+
+        public VariableI(String name, int value, Integer min, Integer max, Integer step) {
             super(name);
-            _value = value;
+            this.value = value;
+            this.min = min;
+            this.max = max;
+            this.step = step;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
+
+        public Integer getMin() {
+            return min;
+        }
+
+        public void setMin(Integer min) {
+            this.min = min;
+        }
+
+        public Integer getMax() {
+            return max;
+        }
+
+        public void setMax(Integer max) {
+            this.max = max;
+        }
+
+        public Integer getStep() {
+            return step;
+        }
+
+        public void setStep(Integer step) {
+            this.step = step;
         }
 
         public int evalI(final EvalEnv env) {
-            return _value;
+            return value;
         }
 
         public void assignB(final EvalEnv env, final boolean v) {
-            _value = Term.toI(v);
+            value = Term.toI(v);
         }
 
         public void assignI(final EvalEnv env, final int v) {
-            _value = v;
+            value = v;
         }
 
         public void assignD(final EvalEnv env, final double v) {
-            _value = Term.toI(v);
+            value = Term.toI(v);
         }
     }
 
-    private static final class VariableD extends AbstractSymbol.D implements Variable {
+    public static class VariableD extends AbstractSymbol.D implements Variable {
 
-        private double _value;
+        private double value;
+        private Double min;
+        private Double max;
+        private Double step;
 
-        private VariableD(final String name, final double value) {
+        public VariableD(String name, double value) {
+            this(name, value, null, null, null);
+        }
+
+        public VariableD(String name, double value, Double min, Double max, Double step) {
             super(name);
-            _value = value;
+            this.value = value;
+            this.min = min;
+            this.max = max;
+            this.step = step;
+        }
+
+        public double getValue() {
+            return value;
+        }
+
+        public void setValue(double value) {
+            this.value = value;
+        }
+
+        public Double getMin() {
+            return min;
+        }
+
+        public void setMin(Double min) {
+            this.min = min;
+        }
+
+        public Double getMax() {
+            return max;
+        }
+
+        public void setMax(Double max) {
+            this.max = max;
+        }
+
+        public Double getStep() {
+            return step;
+        }
+
+        public void setStep(Double step) {
+            this.step = step;
         }
 
         public double evalD(final EvalEnv env) {
-            return _value;
+            return value;
         }
 
         public void assignB(final EvalEnv env, final boolean v) {
-            _value = Term.toD(v);
+            value = Term.toD(v);
         }
 
         public void assignI(final EvalEnv env, final int v) {
-            _value = v;
+            value = v;
         }
 
         public void assignD(final EvalEnv env, final double v) {
-            _value = v;
+            value = v;
         }
     }
+
 }

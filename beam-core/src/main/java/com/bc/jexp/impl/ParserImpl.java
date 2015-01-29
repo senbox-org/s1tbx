@@ -21,6 +21,7 @@ import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
 import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
+import com.bc.jexp.WritableNamespace;
 
 
 /**
@@ -695,11 +696,15 @@ public final class ParserImpl implements Parser {
         tt = tokenizer.next();
         if (tt == '(') {
             Term[] args = parseArgumentList();
-            Function function = defaultNamespace.resolveFunction(name, args);
-            if (function != null) {
-                t1 = new Term.Call(function, args);
+            if ("var".equals(name)) {
+                return parseVar(args);
             } else {
-                reportError("Undefined function '" + getFunctionCallString(name, args) + "'."); /*I18N*/
+                Function function = defaultNamespace.resolveFunction(name, args);
+                if (function != null) {
+                    t1 = new Term.Call(function, args);
+                } else {
+                    reportError("Undefined function '" + getFunctionCallString(name, args) + "'."); /*I18N*/
+                }
             }
         } else {
             tokenizer.pushBack();
@@ -711,6 +716,111 @@ public final class ParserImpl implements Parser {
             }
         }
         return t1;
+    }
+
+    /**
+     * Parses a variable definition <i>'var' '(' name ',' value [',' min ','  max [','  step]] ')'</i>
+     *
+     * @return The generated term.
+     * @throws ParseException if a parse error occurs
+     */
+    private Term parseVar(Term[] args) throws ParseException {
+
+        String varName = null;
+        Object varVal = null;
+        Number varMin = null;
+        Number varMax = null;
+        Number varStep = null;
+
+        Term arg0 = args[0];
+        if (arg0 instanceof Term.ConstS) {
+            varName = ((Term.ConstS) arg0).getValue();
+        } else {
+            reportError("<name> must be a string constant: var(<name>, <value> [, <min>, <max> [, <step>]])");
+        }
+
+        int intCount = 0;
+
+        if (args.length > 1) {
+            Term arg1 = args[1];
+            if (arg1 instanceof Term.ConstI) {
+                varVal = ((Term.ConstI) arg1).getValue();
+                intCount++;
+                if (args.length != 2 && args.length != 4 && args.length != 5) {
+                    reportError("Wrong number of arguments: var(<name>, <value> [, <min>, <max> [, <step>]])");
+                }
+            } else if (arg1 instanceof Term.ConstD) {
+                varVal = ((Term.ConstD) arg1).getValue();
+                if (args.length != 2 && args.length != 4 && args.length != 5) {
+                    reportError("Wrong number of arguments: var(<name>, <value> [, <min>, <max> [, <step>]])");
+                }
+            } else if (arg1 instanceof Term.ConstB) {
+                varVal = ((Term.ConstB) arg1).getValue();
+                if (args.length != 2) {
+                    reportError("Wrong number of arguments: var(<name>, <boolean>)");
+                }
+            } else {
+                reportError("2nd arg of 'var' must be a numeric or boolean constant");
+            }
+        } else {
+            reportError("Wrong number of arguments: var(<name>, <val> [, <min>, <max> [, <step>]])");
+        }
+
+        if (args.length >= 4) {
+            Term arg2 = args[2];
+            if (arg2 instanceof Term.ConstI) {
+                varMin = ((Term.ConstI) arg2).getValue();
+                intCount++;
+            } else if (arg2 instanceof Term.ConstD) {
+                varMin = ((Term.ConstD) arg2).getValue();
+            } else {
+                reportError("<min> must be numeric: var(<name>, <val> [, <min>, <max> [, <step>]])");
+            }
+
+            Term arg3 = args[3];
+            if (arg3 instanceof Term.ConstI) {
+                varMax = ((Term.ConstI) arg3).getValue();
+                intCount++;
+            } else if (arg3 instanceof Term.ConstD) {
+                varMax = ((Term.ConstD) arg3).getValue();
+            } else {
+                reportError("<max> must be numeric: var(<name>, <val> [, <min>, <max> [, <step>]])");
+            }
+        }
+
+        if (args.length == 5) {
+            Term arg4 = args[4];
+            if (arg4 instanceof Term.ConstI) {
+                varStep = ((Term.ConstI) arg4).getValue();
+                intCount++;
+            } else if (arg4 instanceof Term.ConstD) {
+                varStep = ((Term.ConstD) arg4).getValue();
+            } else {
+                reportError("<step> must be numeric: var(<name>, <val> [, <min>, <max> [, <step>]])");
+            }
+        }
+
+        Symbol var;
+        if (varVal instanceof Boolean) {
+            var = new SymbolFactory.VariableB(varName, (Boolean) varVal);
+        } else if (intCount == args.length - 1) {
+            var = new SymbolFactory.VariableI(varName,
+                                              ((Number) varVal).intValue(),
+                                              varMin != null ? varMin.intValue() : 0,
+                                              varMax != null ? varMax.intValue() : 100,
+                                              varStep != null ? varStep.intValue() : 1);
+        } else {
+            var = new SymbolFactory.VariableD(varName,
+                                              ((Number) varVal).doubleValue(),
+                                              varMin != null ? varMin.doubleValue() : 0.0,
+                                              varMax != null ? varMax.doubleValue() : 1.0,
+                                              varStep != null ? varStep.doubleValue() : 0.1);
+        }
+        if (defaultNamespace instanceof WritableNamespace) {
+            WritableNamespace writableNamespace = (WritableNamespace) defaultNamespace;
+            writableNamespace.registerSymbol(var);
+        }
+        return new Term.Ref(var);
     }
 
 

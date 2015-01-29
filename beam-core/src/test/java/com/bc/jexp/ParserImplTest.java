@@ -319,6 +319,57 @@ public class ParserImplTest {
     }
 
     @Test
+    public void testValidVariableDExpression() throws ParseException {
+        Term term;
+
+        term = parser.parse("var(\"a\", 0.9)");
+        assertEquals(0.9, term.evalD(env), 1.e-10);
+
+        term = parser.parse("var(\"a\", 0.2, 0.0, 1.0)");
+        assertEquals(0.2, term.evalD(env), 1.e-10);
+
+        term = parser.parse("var(\"a\", 0.5, 0.0, 1.0, 0.1)");
+        assertEquals(0.5, term.evalD(env), 1.e-10);
+
+        term = parser.parse("a");
+        assertEquals(0.5, term.evalD(env), 1.e-10);
+
+        Symbol a = parser.getDefaultNamespace().resolveSymbol("a");
+        assertTrue(a instanceof Variable);
+        ((Variable) a).assignD(null, 0.1);
+
+        assertEquals(0.1, term.evalD(env), 1.e-10);
+    }
+
+    @Test
+    public void testInvalidVariableDExpression() {
+
+        try {
+            parser.parse("var(2, 0.9, 0.1)");
+        } catch (ParseException e) {
+            assertEquals("<name> must be a string constant: var(<name>, <value> [, <min>, <max> [, <step>]])", e.getMessage());
+        }
+
+        try {
+            parser.parse("var(\"a\", 0.9, 0.1)");
+        } catch (ParseException e) {
+            assertEquals("Wrong number of arguments: var(<name>, <value> [, <min>, <max> [, <step>]])", e.getMessage());
+        }
+
+        try {
+            parser.parse("var(\"a\", 0.2, 0.0, true)");
+        } catch (ParseException e) {
+            assertEquals("<max> must be numeric: var(<name>, <val> [, <min>, <max> [, <step>]])", e.getMessage());
+        }
+
+        try {
+            parser.parse("var(\"a\", 0.5, 0.0, 1.0, 0.1, 2)");
+        } catch (ParseException e) {
+            assertEquals("Wrong number of arguments: var(<name>, <value> [, <min>, <max> [, <step>]])", e.getMessage());
+        }
+    }
+
+    @Test
     public void testNestedConditionalIfThenElse() throws ParseException {
         testNestedConditional("x > 0 ? 1 : x < 0 ? -1 : 0");
         testNestedConditional("x <= 0 ? (x==0?0:-1):1");
