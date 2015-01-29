@@ -282,6 +282,9 @@ public class Product extends ProductNode {
         addProductNodeListener(new ProductNodeListenerAdapter() {
             @Override
             public void nodeAdded(ProductNodeEvent event) {
+                if(event.getSourceNode() instanceof RasterDataNode) {
+                    maybeInvalidateSceneRasterGeometry((RasterDataNode) event.getSourceNode());
+                }
                 if (event.getGroup() == vectorDataGroup) {
                     handleVectorDataNodeAdded(event);
                 } else if (event.getGroup() == maskGroup) {
@@ -313,8 +316,6 @@ public class Product extends ProductNode {
 
     private void handleMaskAdded(ProductNodeEvent event) {
         final Mask mask = (Mask) event.getSourceNode();
-        maybeInvalidateSceneRasterGeometry(mask);
-
         // TODO - move code to where masks are created
         if (StringUtils.isNullOrEmpty(mask.getDescription()) && mask.getImageType() == Mask.BandMathsType.INSTANCE) {
             String expression = Mask.BandMathsType.getExpression(mask);
@@ -927,8 +928,7 @@ public class Product extends ProductNode {
                                                        "a tie-point grid with the name '" + tiePointGrid.getName() + "'.");
         }
         tiePointGridGroup.add(tiePointGrid);
-        // todo - [multisize_products] test, then comment out
-        //maybeInvalidateSceneRasterGeometry(tiePointGrid);
+//        maybeInvalidateSceneRasterGeometry(tiePointGrid);
     }
 
     /**
@@ -1034,7 +1034,7 @@ public class Product extends ProductNode {
                         "The Product '" + getName() + "' already contains " +
                         "a band with the name '" + band.getName() + "'.");
         bandGroup.add(band);
-        maybeInvalidateSceneRasterGeometry(band);
+//        maybeInvalidateSceneRasterGeometry(band);
     }
 
     /**
@@ -2240,19 +2240,20 @@ public class Product extends ProductNode {
     private void maybeInvalidateSceneRasterGeometry(RasterDataNode rasterDataNode) {
         if (sceneRasterGeometryInvalidated || !rasterDataNode.getRasterSize().equals(sceneRasterSize)) {
             sceneRasterGeometryInvalidated = true;
-            sceneRasterSize = null;
         }
     }
 
     private void recomputeSceneRasterGeometry() {
         // todo - [multisize_products] replace this numb algorithm by something reasonable that takes the bands' geographical coverage into account (nf)
-        // todo - [multisize_products] also loop through tie-point-grids
         RasterDataNode[] bands = getBands();
+        RasterDataNode[] grids = getTiePointGrids();
         RasterDataNode[] masks = getMaskGroup().toArray(new Mask[0]);
         List<RasterDataNode> rasters = new ArrayList<>();
         rasters.addAll(Arrays.asList(bands));
+        rasters.addAll(Arrays.asList(grids));
         rasters.addAll(Arrays.asList(masks));
-        Dimension dimension = null;
+        Object oldSceneRasterSize = sceneRasterSize != null ? sceneRasterSize.clone() : null;
+        Dimension dimension = sceneRasterSize;
         for (RasterDataNode band : rasters) {
             if (dimension == null) {
                 dimension = new Dimension();
@@ -2262,6 +2263,9 @@ public class Product extends ProductNode {
         }
         sceneRasterSize = dimension;
         sceneRasterGeometryInvalidated = false;
+        if (sceneRasterSize != null && !sceneRasterSize.equals(oldSceneRasterSize)) {
+            fireNodeChanged(this, "sceneRasterSize", oldSceneRasterSize, sceneRasterSize);
+        }
     }
 
     /**

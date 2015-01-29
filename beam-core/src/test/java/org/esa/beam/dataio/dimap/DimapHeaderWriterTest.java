@@ -76,6 +76,8 @@ public class DimapHeaderWriterTest extends TestCase {
                     "            <BAND_INDEX>0</BAND_INDEX>" + LS +
                     "            <BAND_DESCRIPTION />" + LS +
                     "            <BAND_NAME>b1</BAND_NAME>" + LS +
+                    "            <BAND_RASTER_WIDTH>200</BAND_RASTER_WIDTH>" + LS +
+                    "            <BAND_RASTER_HEIGHT>300</BAND_RASTER_HEIGHT>" + LS +
                     "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
                     "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
                     "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
@@ -90,6 +92,8 @@ public class DimapHeaderWriterTest extends TestCase {
                     "            <BAND_INDEX>1</BAND_INDEX>" + LS +
                     "            <BAND_DESCRIPTION />" + LS +
                     "            <BAND_NAME>b2</BAND_NAME>" + LS +
+                    "            <BAND_RASTER_WIDTH>200</BAND_RASTER_WIDTH>" + LS +
+                    "            <BAND_RASTER_HEIGHT>300</BAND_RASTER_HEIGHT>" + LS +
                     "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
                     "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
                     "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
@@ -104,6 +108,8 @@ public class DimapHeaderWriterTest extends TestCase {
                     "            <BAND_INDEX>2</BAND_INDEX>" + LS +
                     "            <BAND_DESCRIPTION />" + LS +
                     "            <BAND_NAME>vb1</BAND_NAME>" + LS +
+                    "            <BAND_RASTER_WIDTH>200</BAND_RASTER_WIDTH>" + LS +
+                    "            <BAND_RASTER_HEIGHT>300</BAND_RASTER_HEIGHT>" + LS +
                     "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
                     "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
                     "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
@@ -290,6 +296,8 @@ public class DimapHeaderWriterTest extends TestCase {
                         "    <Masks>" + LS +
                         "        <Mask type=\"Maths\">" + LS +
                         "            <NAME value=\"bitmaskDef1\" />" + LS +
+                        "            <MASK_RASTER_WIDTH value=\"200\" />" + LS +
+                        "            <MASK_RASTER_HEIGHT value=\"300\" />" + LS +
                         "            <DESCRIPTION value=\"description1\" />" + LS +
                         "            <COLOR red=\"0\" green=\"0\" blue=\"255\" alpha=\"255\" />" + LS +
                         "            <TRANSPARENCY value=\"0.75\" />" + LS +
@@ -297,6 +305,8 @@ public class DimapHeaderWriterTest extends TestCase {
                         "        </Mask>" + LS +
                         "        <Mask type=\"Maths\">" + LS +
                         "            <NAME value=\"bitmaskDef2\" />" + LS +
+                        "            <MASK_RASTER_WIDTH value=\"200\" />" + LS +
+                        "            <MASK_RASTER_HEIGHT value=\"300\" />" + LS +
                         "            <DESCRIPTION value=\"description2\" />" + LS +
                         "            <COLOR red=\"0\" green=\"255\" blue=\"0\" alpha=\"255\" />" + LS +
                         "            <TRANSPARENCY value=\"0.5\" />" + LS +
@@ -791,6 +801,8 @@ public class DimapHeaderWriterTest extends TestCase {
                 "            <BAND_INDEX>0</BAND_INDEX>" + LS +
                 "            <BAND_DESCRIPTION />" + LS +
                 "            <BAND_NAME>b1</BAND_NAME>" + LS +
+                "            <BAND_RASTER_WIDTH>200</BAND_RASTER_WIDTH>" + LS +
+                "            <BAND_RASTER_HEIGHT>300</BAND_RASTER_HEIGHT>" + LS +
                 "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
                 "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
                 "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +
@@ -805,6 +817,8 @@ public class DimapHeaderWriterTest extends TestCase {
                 "            <BAND_INDEX>1</BAND_INDEX>" + LS +
                 "            <BAND_DESCRIPTION />" + LS +
                 "            <BAND_NAME>b2</BAND_NAME>" + LS +
+                "            <BAND_RASTER_WIDTH>200</BAND_RASTER_WIDTH>" + LS +
+                "            <BAND_RASTER_HEIGHT>300</BAND_RASTER_HEIGHT>" + LS +
                 "            <DATA_TYPE>int8</DATA_TYPE>" + LS +
                 "            <SOLAR_FLUX>0.0</SOLAR_FLUX>" + LS +
                 "            <BAND_WAVELEN>0.0</BAND_WAVELEN>" + LS +

@@ -875,6 +875,8 @@ public class DimapDocumentTest extends TestCase {
         pw.println("    <Masks>");
         pw.println("        <Mask type=\"Maths\">");
         pw.println("            <NAME value=\"name1\" />");
+        pw.println("            <MASK_RASTER_WIDTH value=\"1121\" />");
+        pw.println("            <MASK_RASTER_HEIGHT value=\"2241\" />");
         pw.println("            <DESCRIPTION value=\"bitmask.description1\" />");
         pw.println("            <COLOR red=\"0\" green=\"0\" blue=\"0\" alpha=\"255\" />");
         pw.println("            <TRANSPARENCY value=\"1.0\" />");
@@ -882,6 +884,8 @@ public class DimapDocumentTest extends TestCase {
         pw.println("        </Mask>");
         pw.println("        <Mask type=\"Maths\">");
         pw.println("            <NAME value=\"name2\" />");
+        pw.println("            <MASK_RASTER_WIDTH value=\"1121\" />");
+        pw.println("            <MASK_RASTER_HEIGHT value=\"2241\" />");
         pw.println("            <DESCRIPTION value=\"bitmask.description2\" />");
         pw.println("            <COLOR red=\"0\" green=\"0\" blue=\"255\" alpha=\"255\" />");
         pw.println("            <TRANSPARENCY value=\"0.75\" />");
@@ -889,6 +893,8 @@ public class DimapDocumentTest extends TestCase {
         pw.println("        </Mask>");
         pw.println("        <Mask type=\"Maths\">");
         pw.println("            <NAME value=\"name3\" />");
+        pw.println("            <MASK_RASTER_WIDTH value=\"1121\" />");
+        pw.println("            <MASK_RASTER_HEIGHT value=\"2241\" />");
         pw.println("            <DESCRIPTION value=\"bitmask.description3\" />");
         pw.println("            <COLOR red=\"0\" green=\"255\" blue=\"0\" alpha=\"255\" />");
         pw.println("            <TRANSPARENCY value=\"0.23409999907016754\" />");
@@ -900,6 +906,8 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <BAND_INDEX>0</BAND_INDEX>");
         pw.println("            <BAND_DESCRIPTION>Band1-Description</BAND_DESCRIPTION>");
         pw.println("            <BAND_NAME>Band1</BAND_NAME>"); // band name
+        pw.println("            <BAND_RASTER_WIDTH>1121</BAND_RASTER_WIDTH>");
+        pw.println("            <BAND_RASTER_HEIGHT>2241</BAND_RASTER_HEIGHT>");
         pw.println("            <DATA_TYPE>int16</DATA_TYPE>");
         pw.println("            <PHYSICAL_UNIT>unit for Band1</PHYSICAL_UNIT>");
         pw.println("            <SOLAR_FLUX>" + 0.12f + "</SOLAR_FLUX>");
@@ -917,6 +925,8 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <BAND_INDEX>1</BAND_INDEX>");
         pw.println("            <BAND_DESCRIPTION>Band2-Description</BAND_DESCRIPTION>");
         pw.println("            <BAND_NAME>Band2</BAND_NAME>"); // band name
+        pw.println("            <BAND_RASTER_WIDTH>1121</BAND_RASTER_WIDTH>");
+        pw.println("            <BAND_RASTER_HEIGHT>2241</BAND_RASTER_HEIGHT>");
         pw.println("            <DATA_TYPE>int8</DATA_TYPE>");
         pw.println("            <PHYSICAL_UNIT>unit for Band2</PHYSICAL_UNIT>");
         pw.println("            <SOLAR_FLUX>" + 0.23f + "</SOLAR_FLUX>");
@@ -933,6 +943,8 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <BAND_INDEX>2</BAND_INDEX>");
         pw.println("            <BAND_DESCRIPTION>Flags1-Description</BAND_DESCRIPTION>");
         pw.println("            <BAND_NAME>Flags1</BAND_NAME>"); // band name
+        pw.println("            <BAND_RASTER_WIDTH>1121</BAND_RASTER_WIDTH>");
+        pw.println("            <BAND_RASTER_HEIGHT>2241</BAND_RASTER_HEIGHT>");
         pw.println("            <DATA_TYPE>int8</DATA_TYPE>");
         pw.println("            <SOLAR_FLUX>" + 0.0f + "</SOLAR_FLUX>");
         pw.println("            <BAND_WAVELEN>" + 0.0f + "</BAND_WAVELEN>");
@@ -948,6 +960,8 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <BAND_INDEX>3</BAND_INDEX>");
         pw.println("            <BAND_DESCRIPTION>Flags2-Description</BAND_DESCRIPTION>");
         pw.println("            <BAND_NAME>Flags2</BAND_NAME>"); // band name
+        pw.println("            <BAND_RASTER_WIDTH>1121</BAND_RASTER_WIDTH>");
+        pw.println("            <BAND_RASTER_HEIGHT>2241</BAND_RASTER_HEIGHT>");
         pw.println("            <DATA_TYPE>int8</DATA_TYPE>");
         pw.println("            <SOLAR_FLUX>" + 0.0f + "</SOLAR_FLUX>");
         pw.println("            <BAND_WAVELEN>" + 0.0f + "</BAND_WAVELEN>");
@@ -963,6 +977,8 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <BAND_INDEX>4</BAND_INDEX>");
         pw.println("            <BAND_DESCRIPTION>Index-Description</BAND_DESCRIPTION>");
         pw.println("            <BAND_NAME>Index</BAND_NAME>"); // band name
+        pw.println("            <BAND_RASTER_WIDTH>1121</BAND_RASTER_WIDTH>");
+        pw.println("            <BAND_RASTER_HEIGHT>2241</BAND_RASTER_HEIGHT>");
         pw.println("            <DATA_TYPE>uint16</DATA_TYPE>");
         pw.println("            <SOLAR_FLUX>" + 0.0f + "</SOLAR_FLUX>");
         pw.println("            <BAND_WAVELEN>" + 0.0f + "</BAND_WAVELEN>");
@@ -978,6 +994,8 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <BAND_INDEX>5</BAND_INDEX>");
         pw.println("            <BAND_DESCRIPTION>VirtualBand-Description</BAND_DESCRIPTION>");
         pw.println("            <BAND_NAME>vb1</BAND_NAME>"); // band name
+        pw.println("            <BAND_RASTER_WIDTH>1121</BAND_RASTER_WIDTH>");
+        pw.println("            <BAND_RASTER_HEIGHT>2241</BAND_RASTER_HEIGHT>");
         pw.println("            <DATA_TYPE>float32</DATA_TYPE>");
         pw.println("            <SOLAR_FLUX>" + 0.0f + "</SOLAR_FLUX>");
         pw.println("            <BAND_WAVELEN>" + 0.0f + "</BAND_WAVELEN>");
