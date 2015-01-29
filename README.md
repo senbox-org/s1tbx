@@ -79,7 +79,7 @@ It is also possible to do step 3 and 4 at once:
 1. Create an empty project with the _SNAP/_ directory as project directory
 
 2. Import the pom.xml files of snap-engine and snap-desktop as modules. Ensure **not** to enable
-the option *'Create module groups for multi-module Maven projects'*. Everything can be default values.
+the option *'Create module groups for multi-module Maven projects'*. It would create an odd project structure but would still work. Everything can be default values.
 
 3. Use the following configuration to run SNAP in the IDE:
 	* **Main class:** org.esa.snap.nbexec.Launcher
@@ -105,7 +105,7 @@ the option *'Create module groups for multi-module Maven projects'*. Everything 
 1. Create an empty project with the _SNAP/_ directory as project directory
 
 2. Import the pom.xml files as modules of the projects you have checked out. Ensure **not** to enable
-the option *'Create module groups for multi-module Maven projects'*. Everything can be default values.
+the option *'Create module groups for multi-module Maven projects'*. It would create an odd project structure but would still work. Everything can be default values.
 
 3. Use the following configuration to run S2TBX:
 
