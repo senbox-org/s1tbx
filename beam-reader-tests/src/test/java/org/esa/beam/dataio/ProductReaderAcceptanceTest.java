@@ -34,9 +34,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.media.jai.OpImage;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -44,19 +42,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
-import java.util.logging.StreamHandler;
+import java.util.logging.*;
 
 import static org.junit.Assert.*;
 
@@ -132,7 +120,7 @@ public class ProductReaderAcceptanceTest {
         logger.info("");
         logger.info(INDENT + "Number of test products: " + testProductList.size());
         logger.info(INDENT + "Number of ReaderPlugIns: " + testDefinitionList.size());
-        logger.info(INDENT + "Logging only decode qualification tests >"+DECODE_QUALI_LOG_THRESHOLD+"ms");
+        logger.info(INDENT + "Logging only decode qualification tests >" + DECODE_QUALI_LOG_THRESHOLD + "ms");
         logger.info("");
 
         for (TestDefinition testDefinition : testDefinitionList) {
@@ -243,10 +231,10 @@ public class ProductReaderAcceptanceTest {
     public void testProductReadTimes() throws Exception {
         logInfoWithStars("Testing product read times");
         logger.info(String.format("%s%s - %s - %s - %s", INDENT,
-                                    " findReader ",
-                                    " readNodes  ",
-                                    "   getStx   ",
-                                    " getViewData"));
+                " findReader ",
+                " readNodes  ",
+                "   getStx   ",
+                " getViewData"));
         final StopWatch stopWatchTotal = new StopWatch();
         stopWatchTotal.start();
         int testCounter = 0;
@@ -284,12 +272,14 @@ public class ProductReaderAcceptanceTest {
                             RenderedImage viewImage = band0.getSourceImage().getImage(viewLevel);
 
                             stopWatch.start();
-                            if (viewImage instanceof OpImage) {
-                                OpImage opImage = (OpImage) viewImage;
-                                Point[] tileIndices = opImage.getTileIndices(null);
-                                for (Point tileIndice : tileIndices) {
-                                    Raster tileRaster = opImage.getTile(tileIndice.x, tileIndice.y);
-                                    assertNotNull("tileRaster", tileRaster);
+                            final int numXTiles = viewImage.getNumXTiles();
+                            final int numYTiles = viewImage.getNumYTiles();
+                            if (numXTiles > 0 && numYTiles > 0) {
+                                for (int x = 0; x < numXTiles; x++) {
+                                    for (int y = 0; y < numYTiles; y++) {
+                                        Raster tileRaster = viewImage.getTile(x, y);
+                                        assertNotNull("tileRaster", tileRaster);
+                                    }
                                 }
                             } else {
                                 Raster imageRaster = viewImage.getData();
