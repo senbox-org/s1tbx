@@ -127,6 +127,14 @@ public class TiePointGrid extends RasterDataNode {
         }
         this.discontinuity = discontinuity;
 
+        // todo - if we want to allow grids smaller then  2 points we need to consider this in
+        // getPixels(int, int, int, int, double[], ProgressMonitor)() for the interpolation
+        if (gridWidth < 2) {
+            throw new IllegalArgumentException("'gridWidth' is less than 2");
+        }
+        if (gridHeight < 2) {
+            throw new IllegalArgumentException("'gridHeight' is less than 2");
+        }
         if (tiePoints.length != gridWidth * gridHeight) {
             throw new IllegalArgumentException("data array size does not match 'gridWidth' x 'gridHeight'");
         }
