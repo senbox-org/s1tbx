@@ -89,6 +89,7 @@
         <module>beam-arcbingrid-reader</module>
         <module>beam-atsr-reader</module>
         <module>beam-avhrr-reader</module>
+        <module>beam-bigtiff</module>
         <module>beam-binning</module>
         <module>beam-chris-reader</module>
         <module>beam-cluster-analysis</module>

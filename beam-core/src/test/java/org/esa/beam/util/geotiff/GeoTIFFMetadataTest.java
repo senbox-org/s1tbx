@@ -49,7 +49,7 @@ public class GeoTIFFMetadataTest extends TestCase {
 
         // md.dump();
 
-        final Element rootTree = md.createRootTree();
+        final Element rootTree = md.createRootTree("whatever");
 
         assertEquals("com_sun_media_imageio_plugins_tiff_image_1.0", rootTree.getName());
 

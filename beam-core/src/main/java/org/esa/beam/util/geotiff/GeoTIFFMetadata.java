@@ -15,7 +15,6 @@
  */
 package org.esa.beam.util.geotiff;
 
-import com.sun.media.imageio.plugins.tiff.BaselineTIFFTagSet;
 import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
 import com.sun.media.imageio.plugins.tiff.TIFFTag;
 import org.jdom.Element;
@@ -71,8 +70,8 @@ public class GeoTIFFMetadata {
 
     public GeoTIFFMetadata() {
         this(DEFAULT_GEOTIFF_VERSION,
-             DEFAULT_KEY_REVISION_MAJOR,
-             DEFAULT_KEY_REVISION_MINOR);
+                DEFAULT_KEY_REVISION_MAJOR,
+                DEFAULT_KEY_REVISION_MINOR);
     }
 
     public GeoTIFFMetadata(final int geoTIFFVersion, final int keyRevisionMajor, final int keyRevisionMinor) {
@@ -298,15 +297,15 @@ public class GeoTIFFMetadata {
         getGeoKeyEntryAt(0).data[3] = _geoKeyEntries.size() - 1; // exclusive the basic GeoKeyDirectoryTag
     }
 
-    public void assignTo(Element element) {
-        if (!element.getName().equals(IIO_TIFF_ROOT_ELEMENT_NAME)) {
-            throw new IllegalArgumentException("root not found: " + IIO_TIFF_ROOT_ELEMENT_NAME);
+    public void assignTo(Element element, String metadataFormatName, String classNameList) {
+        if (!element.getName().equals(metadataFormatName)) {
+            throw new IllegalArgumentException("root not found: " + metadataFormatName);
         }
         final Element ifd1 = element.getChild(IIO_TIFF_IFD_ELEMENT_NAME);
         if (ifd1 == null) {
             throw new IllegalArgumentException("child not found: " + IIO_TIFF_IFD_ELEMENT_NAME);
         }
-        final Element ifd2 = createIFD();
+        final Element ifd2 = createIFD(classNameList);
         ifd1.setAttribute(IIO_TIFF_TAGSETS_ATT_NAME, ifd2.getAttributeValue(IIO_TIFF_TAGSETS_ATT_NAME));
         final Element[] childElems = (Element[]) ifd2.getChildren().toArray(new Element[0]);
         for (Element child : childElems) {
@@ -315,9 +314,9 @@ public class GeoTIFFMetadata {
         }
     }
 
-    public Element createRootTree() {
+    public Element createRootTree(String classNameList) {
         final Element rootElement = new Element(IIO_TIFF_ROOT_ELEMENT_NAME);
-        rootElement.addContent(createIFD());
+        rootElement.addContent(createIFD(classNameList));
         return rootElement;
     }
 
@@ -391,7 +390,7 @@ public class GeoTIFFMetadata {
         prettyFormat.setOmitDeclaration(true);
         prettyFormat.setTextMode(Format.TextMode.NORMALIZE);
         final XMLOutputter xmlOutputter = new XMLOutputter(prettyFormat);
-        return xmlOutputter.outputString(createRootTree());
+        return xmlOutputter.outputString(createRootTree("class name list template"));
     }
 
     protected static TIFFTag getGeoKeyDirectoryTag() {
@@ -476,12 +475,11 @@ public class GeoTIFFMetadata {
         return _geoAsciiParams.length();
     }
 
-    private Element createIFD() {
+    private Element createIFD(String classNameList) {
         Element ifd = new Element(IIO_TIFF_IFD_ELEMENT_NAME);
         ifd.setAttribute(
-                    IIO_TIFF_TAGSETS_ATT_NAME,
-                    BaselineTIFFTagSet.class.getName() + "," +
-                    GeoTIFFTagSet.class.getName());
+                IIO_TIFF_TAGSETS_ATT_NAME,
+                classNameList);
         if (isModelPixelScaleSet()) {
             ifd.addContent(createModelPixelScaleElement());
         }

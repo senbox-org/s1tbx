@@ -1,0 +1,56 @@
+{
+    "id": "L5_60m19950627",
+    "decodeQualification": "SUITABLE",
+    "expectedContent": {
+        "sceneWidth": 3991,
+        "sceneHeight": 3541,
+        "geoCoding": {
+            "coordinates": [
+                {
+                    "x": 1721.0,
+                    "y": 1903.0,
+                    "lat": 38.835517,
+                    "lon": -120.354446
+                },
+                {
+                    "x": 2963.0,
+                    "y": 2297.0,
+                    "lat": 38.600299,
+                    "lon": -119.507591
+                }
+            ],
+            "reverseAccuracy": 0.01
+        },
+        "bands": [
+            {
+                "name": "band_1",
+                "noDataValue": "0.0",
+                "noDataValueUsed": "false",
+                "spectralWavelength": "0.0",
+                "spectralBandwidth": "0.0",
+                "expectedPixels": [
+                    {
+                        "x": 208,
+                        "y": 630,
+                        "value": 0.0
+                    },
+                    {
+                        "x": 2734,
+                        "y": 3011,
+                        "value": 92.0
+                    }
+                ]
+            }
+        ],
+        "metadata": [
+            {
+                "path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/GTCitationGeoKey",
+                "value": "UTM Zone 10 N with WGS84"
+            },
+            {
+                "path": "TIFF Metadata/GeoTIFF Metadata/GeoKeyDirectory/ProjectedCSTypeGeoKey",
+                "value": "PCS_WGS84_UTM_zone_10N"
+            }
+        ]
+    }
+}
