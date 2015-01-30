@@ -17,6 +17,7 @@
 package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -108,6 +109,14 @@ public class ProductSceneRasterSizeTest {
 
         product.addTiePointGrid(new TiePointGrid("TPG1", 500, 2, 0f, 0f, 1f, 1f, new float[1000]));
         product.getTiePointGridGroup().add(new TiePointGrid("TPG2", 1000, 2, 0f, 0f, 1f, 1f, new float[2000]));
+
+        TiePointGrid latGrid = new TiePointGrid("latGrid", 2, 2, 0.5f, 0.5f, 500, 500, new float[]{54, 54, 56, 56});
+        TiePointGrid lonGrid = new TiePointGrid("lonGrid", 2, 2, 0.5f, 0.5f, 500, 500, new float[]{9, 11, 9, 11});
+
+        product.addTiePointGrid(latGrid);
+        product.addTiePointGrid(lonGrid);
+
+        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
 
         File file = new File("multisize_product.dim");
         try {
