@@ -56,11 +56,11 @@ public class ProductSceneRasterSizeTest {
         product.getMaskGroup().add(Mask.BandMathsType.create("M2", "description2", 120, 220, "true", Color.RED, 0.0));
         assertEquals(new Dimension(120, 220), product.getSceneRasterSize());
 
-        product.addTiePointGrid(new TiePointGrid("TPG1", 1000, 1, 0f, 0f, 1f, 1f, new float[1000]));
-        assertEquals(new Dimension(1000, 220), product.getSceneRasterSize());
+        product.addTiePointGrid(new TiePointGrid("TPG1", 500, 2, 0f, 0f, 1f, 1f, new float[1000]));
+        assertEquals(new Dimension(500, 220), product.getSceneRasterSize());
 
-        product.getTiePointGridGroup().add(new TiePointGrid("TPG2", 2000, 1, 0f, 0f, 1f, 1f, new float[2000]));
-        assertEquals(new Dimension(2000, 220), product.getSceneRasterSize());
+        product.getTiePointGridGroup().add(new TiePointGrid("TPG2", 1000, 2, 0f, 0f, 1f, 1f, new float[2000]));
+        assertEquals(new Dimension(1000, 220), product.getSceneRasterSize());
     }
 
     @Test
@@ -80,11 +80,11 @@ public class ProductSceneRasterSizeTest {
         product.getMaskGroup().add(Mask.BandMathsType.create("M2", "description2", 120, 220, "true", Color.RED, 0.0));
         assertEquals(new Dimension(120, 220), product.getSceneRasterSize());
 
-        product.addTiePointGrid(new TiePointGrid("TPG1", 1000, 1, 0f, 0f, 1f, 1f, new float[1000]));
-        assertEquals(new Dimension(1000, 220), product.getSceneRasterSize());
+        product.addTiePointGrid(new TiePointGrid("TPG1", 500, 2, 0f, 0f, 1f, 1f, new float[1000]));
+        assertEquals(new Dimension(500, 220), product.getSceneRasterSize());
 
-        product.getTiePointGridGroup().add(new TiePointGrid("TPG2", 2000, 1, 0f, 0f, 1f, 1f, new float[2000]));
-        assertEquals(new Dimension(2000, 220), product.getSceneRasterSize());
+        product.getTiePointGridGroup().add(new TiePointGrid("TPG2", 1000, 2, 0f, 0f, 1f, 1f, new float[2000]));
+        assertEquals(new Dimension(1000, 220), product.getSceneRasterSize());
 
     }
 
@@ -106,8 +106,8 @@ public class ProductSceneRasterSizeTest {
         product.addMask(Mask.BandMathsType.create("M1", "description1", 115, 210, "true", Color.BLACK, 0.0));
         product.getMaskGroup().add(Mask.BandMathsType.create("M2", "description2", 120, 220, "true", Color.RED, 0.0));
 
-        product.addTiePointGrid(new TiePointGrid("TPG1", 1000, 1, 0f, 0f, 1f, 1f, new float[1000]));
-        product.getTiePointGridGroup().add(new TiePointGrid("TPG2", 2000, 2, 0f, 0f, 1f, 1f, new float[4000]));
+        product.addTiePointGrid(new TiePointGrid("TPG1", 500, 2, 0f, 0f, 1f, 1f, new float[1000]));
+        product.getTiePointGridGroup().add(new TiePointGrid("TPG2", 1000, 2, 0f, 0f, 1f, 1f, new float[2000]));
 
         File file = new File("multisize_product.dim");
         try {
@@ -117,9 +117,9 @@ public class ProductSceneRasterSizeTest {
             assertEquals(new Dimension(110, 190), product2.getBand("B2").getRasterSize());
             assertEquals(new Dimension(115, 210), product2.getMaskGroup().get("M1").getRasterSize());
             assertEquals(new Dimension(120, 220), product2.getMaskGroup().get("M2").getRasterSize());
-            assertEquals(new Dimension(1000, 1), product2.getTiePointGrid("TPG1").getRasterSize());
-            assertEquals(new Dimension(2000, 2), product2.getTiePointGrid("TPG2").getRasterSize());
-            assertEquals(new Dimension(2000, 220), product2.getSceneRasterSize());
+            assertEquals(new Dimension(500, 2), product2.getTiePointGrid("TPG1").getRasterSize());
+            assertEquals(new Dimension(1000, 2), product2.getTiePointGrid("TPG2").getRasterSize());
+            assertEquals(new Dimension(1000, 220), product2.getSceneRasterSize());
         } finally {
             if(file.exists()) {
                 Files.delete(file.toPath());
