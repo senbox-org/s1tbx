@@ -181,7 +181,10 @@ public class ProductTable implements TableInterface {
     public ResultSet addRecord(final ProductEntry record) throws SQLException {
         stmtSaveNewRecord.clearParameters();
         int i = 1;
-        stmtSaveNewRecord.setString(i++, record.getFile().getAbsolutePath());
+        if(record.getFile() == null)
+            stmtSaveNewRecord.setString(i++, "");
+        else
+            stmtSaveNewRecord.setString(i++, record.getFile().getAbsolutePath());
         stmtSaveNewRecord.setString(i++, record.getName());
         stmtSaveNewRecord.setString(i++, record.getMission());
         stmtSaveNewRecord.setString(i++, record.getProductType());
