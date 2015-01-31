@@ -194,7 +194,7 @@ public final class AbstractMetadata {
      * @param root the product metadata root
      * @return abstracted metadata root
      */
-    public static MetadataElement addAbstractedMetadataHeader(MetadataElement root) {
+    public static MetadataElement addAbstractedMetadataHeader(final MetadataElement root) {
         MetadataElement absRoot;
         if (root == null) {
             absRoot = new MetadataElement(ABSTRACT_METADATA_ROOT);
@@ -560,12 +560,17 @@ public final class AbstractMetadata {
         try {
             final int dotPos = timeStr.lastIndexOf('.');
             if (dotPos > 0) {
-                final String newTimeStr = timeStr.substring(0, Math.min(dotPos + 6, timeStr.length()));
-                return ProductData.UTC.parse(newTimeStr, format);
+                final String newTimeStr = timeStr.substring(0, Math.min(dotPos + 7, timeStr.length()));
+                try {
+                    return ProductData.UTC.parse(newTimeStr, format);
+                } catch (Throwable e) {
+                    ProductData.UTC time = ProductData.UTC.parse(newTimeStr, format);
+                    return time;
+                }
             }
             return ProductData.UTC.parse(timeStr, format);
-        } catch (ParseException e) {
-            System.out.println("UTC parse error:" + e.toString());
+        } catch (Throwable e) {
+            System.out.println("UTC parse error:"+ timeStr +":"+ e.toString());
             return NO_METADATA_UTC;
         }
     }
@@ -624,12 +629,27 @@ public final class AbstractMetadata {
             abstractedMetadata = root.getElement("Abstracted Metadata"); // legacy
             if (abstractedMetadata == null) {
                 abstractedMetadata = addAbstractedMetadataHeader(root);
+                defaultToProduct(abstractedMetadata, sourceProduct);
             }
         }
         migrateToCurrentVersion(abstractedMetadata);
         patchMissingMetadata(abstractedMetadata);
 
         return abstractedMetadata;
+    }
+
+    private static void defaultToProduct(final MetadataElement abstractedMetadata, final Product product) {
+        setAttribute(abstractedMetadata, PRODUCT, product.getName());
+        setAttribute(abstractedMetadata, PRODUCT_TYPE, product.getProductType());
+        setAttribute(abstractedMetadata, SPH_DESCRIPTOR, product.getDescription());
+
+        setAttribute(abstractedMetadata, num_output_lines, product.getSceneRasterHeight());
+        setAttribute(abstractedMetadata, num_samples_per_line, product.getSceneRasterWidth());
+
+        setAttribute(abstractedMetadata, first_line_time, product.getStartTime());
+        setAttribute(abstractedMetadata, last_line_time, product.getEndTime());
+
+        setAttribute(abstractedMetadata, MISSION, product.getProductReader().getReaderPlugIn().getFormatNames()[0]);
     }
 
     private static void migrateToCurrentVersion(final MetadataElement abstractedMetadata) {
