@@ -124,7 +124,7 @@ public final class DBScanner extends SwingWorker {
 
                 try {
                     // quick test for common readers
-                    final Product sourceProduct = ProductIO.readProduct(file);
+                    final Product sourceProduct = CommonReaders.readProduct(file);
                     if (sourceProduct != null) {
                         final ProductEntry entry = db.saveProduct(sourceProduct);
                         ++prodCount;

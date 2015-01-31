@@ -33,7 +33,7 @@ public class DBSearch {
 
     public static ProductEntry[] search(final File srcFile) throws Exception {
 
-        return search(ProductIO.readProduct(srcFile));
+        return search(CommonReaders.readProduct(srcFile));
     }
 
     public static ProductEntry[] search(final Product srcProduct) throws Exception {

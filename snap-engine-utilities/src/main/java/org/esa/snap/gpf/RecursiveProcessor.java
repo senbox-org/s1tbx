@@ -17,6 +17,7 @@ package org.esa.snap.gpf;
 
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.snap.db.CommonReaders;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.TestUtils;
 
@@ -43,7 +44,7 @@ public abstract class RecursiveProcessor {
                 }
             } else {
                 try {
-                    final Product sourceProduct = ProductIO.readProduct(file);
+                    final Product sourceProduct = CommonReaders.readProduct(file);
                     if (sourceProduct != null) {
                         if (productTypeExemptions != null && TestUtils.containsProductType(productTypeExemptions, sourceProduct.getProductType()))
                             continue;

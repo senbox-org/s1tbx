@@ -25,6 +25,7 @@ import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.gpf.operators.standard.ReadOp;
+import org.esa.snap.db.CommonReaders;
 import org.esa.snap.db.DBSearch;
 import org.esa.snap.db.ProductEntry;
 
@@ -57,7 +58,7 @@ public class FindImagePairOp extends ReadOp {
                 if (entryList.length > 0) {
 
                     final File file = entryList[0].getFile();
-                    final Product targetProduct = ProductIO.readProduct(file);
+                    final Product targetProduct = CommonReaders.readProduct(file);
                     this.productReader = targetProduct.getProductReader();
                     targetProduct.setFileLocation(file);
                     super.setTargetProduct(targetProduct);

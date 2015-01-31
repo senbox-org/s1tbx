@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.visat.VisatApp;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.db.CommonReaders;
 import org.esa.snap.db.ProductEntry;
 import org.esa.snap.gpf.OperatorUtils;
 
@@ -64,7 +65,7 @@ public class FileModel extends BaseFileModel implements FileTableModel {
             data[0] = file.getName();
             Product product = getProductFromProductManager(file);
             if(product == null) {
-                product = ProductIO.readProduct(file);
+                product = CommonReaders.readProduct(file);
             }
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 

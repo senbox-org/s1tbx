@@ -29,6 +29,7 @@ import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
 import org.esa.snap.dat.graphbuilder.GraphExecuter;
 import org.esa.snap.dat.graphbuilder.GraphNode;
 import org.esa.snap.dat.graphbuilder.ProgressBarProgressMonitor;
+import org.esa.snap.db.CommonReaders;
 import org.esa.snap.db.ProductEntry;
 import org.esa.snap.gpf.ProcessTimeMonitor;
 import org.esa.snap.util.MemUtils;
@@ -347,7 +348,7 @@ public class BatchGraphDialog extends ModelessDialog {
             for (File file : fileList) {
                 try {
 
-                    final Product product = ProductIO.readProduct(file);
+                    final Product product = CommonReaders.readProduct(file);
                     if (product != null) {
                         appContext.getProductManager().addProduct(product);
                     }

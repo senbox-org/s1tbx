@@ -30,6 +30,7 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.db.CommonReaders;
 
 import javax.media.jai.JAI;
 import java.io.File;
@@ -138,7 +139,7 @@ public class TestUtils {
         if (!inputFile.exists()) {
             throw new IOException(inputFile.getAbsolutePath() + " not found");
         }
-        final Product product = ProductIO.readProduct(inputFile);
+        final Product product = CommonReaders.readProduct(inputFile);
         if(product == null) {
             throw new IOException("Unable to read "+inputFile.toString());
         }

@@ -42,6 +42,7 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.visat.VisatApp;
 import org.esa.snap.dat.graphbuilder.GraphExecuter;
+import org.esa.snap.db.CommonReaders;
 import org.esa.snap.gpf.ProgressMonitorList;
 import org.esa.snap.gpf.ui.OperatorUI;
 import org.esa.snap.gpf.ui.UIValidation;
@@ -334,7 +335,7 @@ public class SingleOperatorDialog extends SingleTargetProductDialog {
                 saveTime = System.currentTimeMillis() - t0;
                 File targetFile = model.getProductFile();
                 if (model.isOpenInAppSelected() && targetFile.exists()) {
-                    product = ProductIO.readProduct(targetFile);
+                    product = CommonReaders.readProduct(targetFile);
                     if (product == null) {
                         product = targetProduct; // todo - check - this cannot be ok!!! (nf)
                     }

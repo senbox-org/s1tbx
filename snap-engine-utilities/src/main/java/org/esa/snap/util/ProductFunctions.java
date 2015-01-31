@@ -18,6 +18,9 @@ package org.esa.snap.util;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.snap.datamodel.AbstractMetadata;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,17 +30,24 @@ import java.util.ArrayList;
  */
 public class ProductFunctions {
 
-    private final static String[] validExtensions = {".dim", ".n1", ".e1", ".e2", ".h5"};
+    private final static String[] validExtensions = {".dim", ".n1", ".e1", ".e2", ".h5", ".zip"};
     private final static String[] xmlPrefix = {"product", "tsx1_sar", "tsx2_sar", "tdx1_sar", "tdx2_sar"};
 
-    private static final String[] nonValidExtensions = {"xsd", "xsl", "xls", "pdf", "txt", "doc", "ps", "db", "ief", "ord",
-            "tfw", "gif", "jpg", "jgw", "hdr", "self", "report", "raw", "tgz",
-            "log", "html", "htm", "png", "bmp", "ps", "aux", "ovr", "brs", "kml", "kmz",
-            "sav", "7z", "rrd", "lbl", "z", "gz", "exe", "so", "dll", "bat", "sh", "rtf",
-            "prj", "dbf", "shx", "shp", "ace", "ace2", "tar", "tooldes", "metadata.xml"};
+    // valid but not products
+    private static final String[] excludedExtensions = { "pix", "tif" };
+
+    private static final String[] nonValidExtensions = {"xsd", "xsl", "xls", "pdf", "doc", "ps", "db", "rtf",
+            "ief", "ord", "rrd", "lbl", "aux", "ovr", "brs",
+            "self", "report", "raw", "tgz", "pox", "img", "hdr", "ras", "ntf",
+            "tfw", "gif", "jpg", "jgw", "log", "html", "htm", "png", "bmp", "kml", "kmz",
+            "sav", "7z",  "z", "gz", "tar", "exe", "so", "dll", "bat", "sh",
+            "prj", "dbf", "shx", "shp", "ace", "ace2", "tooldes"};
     private static final String[] nonValidprefixes = {"led", "trl", "tra_", "nul", "lea", "dat", "img", "imop", "sarl", "sart", "par_",
             "dfas", "dfdn", "lut",
             "readme", "l1b_iif", "dor_vor", "imagery_", "browse"};
+
+    final static String[] invalidFolders = {"annotation", "measurement", "auxraster", "auxfiles", "imagedata", "preview",
+            "support", "quality", "source_images", "schemas"};
 
     public static boolean isValidProduct(final File file) {
         final String name = file.getName().toLowerCase();
@@ -59,6 +69,27 @@ public class ProductFunctions {
         // test with readers
         final ProductReader reader = ProductIO.getProductReaderForInput(file);
         return reader != null;
+    }
+
+    // common SAR missions -- non exhaustive
+    private static String[] SARMISSIONS = {"SENTINEL1", "ERS", "CSK", "RS", "ALOS", "TSX", "JERS", "UAVSAR"};
+
+    public static boolean isSARProduct(final Product product) {
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        if(absRoot != null) {
+            final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
+            if(mission.equals("ENVISAT")) {
+                if(product.getProductType().startsWith("ASA")) {
+                    return true;
+                }
+            }
+            for(String sar : SARMISSIONS) {
+                if (mission.startsWith(sar)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -100,11 +131,15 @@ public class ProductFunctions {
             final String name = file.getName().toLowerCase();
             for (String ext : validExtensions) {
                 if (name.endsWith(ext)) {
-                    return !name.startsWith("asa_wss");
+                    return !name.startsWith("asa_wss");     // exclude wss products
                 }
             }
             for (String pre : nonValidprefixes) {
                 if (name.startsWith(pre))
+                    return false;
+            }
+            for (String ext : excludedExtensions) {
+                if (name.endsWith(ext))
                     return false;
             }
             for (String ext : nonValidExtensions) {
@@ -122,9 +157,6 @@ public class ProductFunctions {
      */
     public static class DirectoryFileFilter implements java.io.FileFilter {
 
-        final static String[] skip = {"annotation", "measurement", "auxraster", "auxfiles", "imagedata", "preview",
-                "support", "quality", "source_images", "schemas"};
-
         public boolean accept(final File file) {
             if (!file.isDirectory()) return false;
             final String name = file.getName().toLowerCase();
@@ -132,8 +164,8 @@ public class ProductFunctions {
                 return false;
             if (name.endsWith("safe"))
                 return true;
-            for (String ext : skip) {
-                if (name.equalsIgnoreCase(ext))
+            for (String foldername : invalidFolders) {
+                if (name.endsWith(foldername))
                     return false;
             }
             return true;

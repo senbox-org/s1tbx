@@ -20,6 +20,7 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.snap.db.CommonReaders;
 
 import javax.swing.*;
 import java.io.File;
@@ -77,7 +78,7 @@ public class SourceUI extends BaseOperatorUI {
         if (value != null) {
 
             try {
-                final Product product = ProductIO.readProduct((File) value);
+                final Product product = CommonReaders.readProduct((File) value);
                 sourceProductSelector.setSelectedProduct(product);
             } catch (IOException e) {
                 // do nothing

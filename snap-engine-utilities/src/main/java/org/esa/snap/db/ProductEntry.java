@@ -403,7 +403,7 @@ public class ProductEntry {
         final List<ProductEntry> entryList = new ArrayList<>(fileList.length);
         for (File file : fileList) {
             try {
-                final Product prod = ProductIO.readProduct(file);
+                final Product prod = CommonReaders.readProduct(file);
                 entryList.add(new ProductEntry(prod));
                 prod.dispose();
             } catch (IOException e) {

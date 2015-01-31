@@ -25,6 +25,7 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.snap.dat.graphbuilder.GraphExecuter;
 import org.esa.snap.dat.graphbuilder.ProgressBarProgressMonitor;
+import org.esa.snap.db.CommonReaders;
 import org.esa.snap.util.MemUtils;
 
 import javax.swing.*;
@@ -233,7 +234,7 @@ public abstract class MultiGraphDialog extends ModelessDialog {
             for (File file : fileList) {
                 try {
 
-                    final Product product = ProductIO.readProduct(file);
+                    final Product product = CommonReaders.readProduct(file);
                     if (product != null) {
                         appContext.getProductManager().addProduct(product);
                     }
