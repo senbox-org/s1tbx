@@ -81,6 +81,30 @@ public class InputProductValidator {
         } else if (!shouldbe && isMultiSwath) {
             throw new OperatorException("Source product should first be deburst");
         }
+        if(!shouldbe) {
+            for (Band band : product.getBands()) {
+                final String name = band.getName();
+                if (name.startsWith("i_IW1") || name.startsWith("i_EW1") ||
+                        name.startsWith("i_IW2") || name.startsWith("i_EW2") ||
+                        name.startsWith("i_IW3") || name.startsWith("i_EW3")) {
+                    throw new OperatorException("Source product should first be deburst");
+                }
+            }
+        }
+    }
+
+    public boolean isTOPSARBurstProduct() throws OperatorException {
+        final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
+        if (!mission.startsWith("SENTINEL-1")) {
+            return false;
+        }
+
+        final boolean isMultiSwath = isMultiSwath();
+        if (!isMultiSwath) {
+            return false;
+        }
+
+        return true;
     }
 
     private static boolean contains(final String[] list, final String tag) {
