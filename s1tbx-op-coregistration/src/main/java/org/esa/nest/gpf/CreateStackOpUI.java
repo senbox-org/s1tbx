@@ -51,6 +51,9 @@ public class CreateStackOpUI extends BaseOperatorUI {
     private final JLabel masterProductLabel = new JLabel();
     private final JComboBox resamplingType = new JComboBox(ResamplingFactory.resamplingNames);
 
+    private final JComboBox initialOffsetMethod = new JComboBox(new String[] {CreateStackOp.INITIAL_OFFSET_ORBIT,
+            CreateStackOp.INITIAL_OFFSET_GCP});
+
     private final JComboBox extent = new JComboBox(new String[]{CreateStackOp.MASTER_EXTENT,
             CreateStackOp.MIN_EXTENT,
             CreateStackOp.MAX_EXTENT});
@@ -83,6 +86,9 @@ public class CreateStackOpUI extends BaseOperatorUI {
             masterProductLabel.setText(masterProduct.getName());
         }
         resamplingType.setSelectedItem(paramMap.get("resamplingType"));
+
+        initialOffsetMethod.setSelectedItem(paramMap.get("initialOffsetMethod"));
+
         extent.setSelectedItem(paramMap.get("extent"));
     }
 
@@ -128,6 +134,9 @@ public class CreateStackOpUI extends BaseOperatorUI {
         //OperatorUIUtils.updateParamList(slvBandList, paramMap, "slaveBandNames");
 
         paramMap.put("resamplingType", resamplingType.getSelectedItem());
+
+        paramMap.put("initialOffsetMethod", initialOffsetMethod.getSelectedItem());
+
         paramMap.put("extent", extent.getSelectedItem());
     }
 
@@ -158,6 +167,8 @@ public class CreateStackOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "Master:", masterProductLabel);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Resampling Type:", resamplingType);
+        gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, "Initial Offset Method:", initialOffsetMethod);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Output Extents:", extent);
         gbc.gridy++;

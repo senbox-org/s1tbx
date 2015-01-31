@@ -188,6 +188,59 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         //productLayer.setPickEnabled(false);
         productLayer.setName("Opened Products");
 
+        // ADDED
+        // testLayer will react to selectListener which is added later
+        // anything added to product layer doesn't seem to react to select listener
+        /*
+        RenderableLayer testLayer = new RenderableLayer();
+
+
+        Polyline pLine = new Polyline();
+        pLine.setLineWidth(10);
+        pLine.setFollowTerrain(true);
+
+        java.util.List<Position> positions = new ArrayList<Position>();
+        positions.add(new Position(Angle.fromDegreesLatitude(10.0),
+                Angle.fromDegreesLongitude(10.0), 0.0));
+        positions.add(new Position(Angle.fromDegreesLatitude(10.0),
+                Angle.fromDegreesLongitude(20.0), 0.0));
+        positions.add(new Position(Angle.fromDegreesLatitude(20.0),
+                Angle.fromDegreesLongitude(20.0), 0.0));
+        positions.add(new Position(Angle.fromDegreesLatitude(20.0),
+                Angle.fromDegreesLongitude(10.0), 0.0));
+        positions.add(new Position(Angle.fromDegreesLatitude(10.0),
+                Angle.fromDegreesLongitude(10.0), 0.0));
+        pLine.setPositions(positions);
+
+
+        testLayer.addRenderable(pLine);
+
+        AnnotationAttributes controlPointsAttributes = new AnnotationAttributes();
+        // Define an 8x8 square centered on the screen point
+        controlPointsAttributes.setFrameShape(AVKey.SHAPE_RECTANGLE);
+        controlPointsAttributes.setLeader(AVKey.SHAPE_NONE);
+        controlPointsAttributes.setAdjustWidthToText(AVKey.SIZE_FIXED);
+        controlPointsAttributes.setSize(new Dimension(12, 12));
+        controlPointsAttributes.setDrawOffset(new Point(0, -4));
+        controlPointsAttributes.setInsets(new Insets(0, 0, 0, 0));
+        controlPointsAttributes.setBorderWidth(0);
+        controlPointsAttributes.setCornerRadius(0);
+        controlPointsAttributes.setBackgroundColor(Color.BLUE);    // Normal color
+        controlPointsAttributes.setTextColor(Color.GREEN);         // Highlighted color
+        controlPointsAttributes.setHighlightScale(1.2);
+        controlPointsAttributes.setDistanceMaxScale(1);            // No distance scaling
+        controlPointsAttributes.setDistanceMinScale(1);
+        controlPointsAttributes.setDistanceMinOpacity(1);
+
+        Position pos = new Position(Angle.fromDegreesLatitude(10.0),
+                Angle.fromDegreesLongitude(10.0), 0.0);
+        GlobeAnnotation currControlPoint = new GlobeAnnotation("Test Point", pos, controlPointsAttributes);
+        testLayer.addRenderable(currControlPoint);
+
+        getWwd().getModel().getLayers().add(testLayer);
+        */
+        // ADDED: end
+
         insertTiledLayer(getWwd(), productLayer);
 
         // Add an internal frame listener to VISAT so that we can update our

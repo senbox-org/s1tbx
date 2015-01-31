@@ -22,7 +22,6 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
@@ -250,14 +249,14 @@ public class hAAlpha extends DecompositionBase implements Decomposition {
 
         final double EPS = Constants.EPS;
         for (int j = 0; j < 3; ++j) {
-            alpha[j] = FastMath.acos(norm(EigenVectRe[0][j], EigenVectIm[0][j])) * MathUtils.RTOD;
+            alpha[j] = FastMath.acos(norm(EigenVectRe[0][j], EigenVectIm[0][j])) * Constants.RTOD;
             beta[j] = Math.atan2(norm(EigenVectRe[2][j], EigenVectIm[2][j]),
-                    EPS + norm(EigenVectRe[1][j], EigenVectIm[1][j])) * MathUtils.RTOD;
+                    EPS + norm(EigenVectRe[1][j], EigenVectIm[1][j])) * Constants.RTOD;
             phi[j] = Math.atan2(EigenVectIm[0][j], EPS + EigenVectRe[0][j]);
             delta[j] = Math.atan2(EigenVectIm[1][j], EPS + EigenVectRe[1][j]) - phi[j];
-            delta[j] = Math.atan2(FastMath.sin(delta[j]), FastMath.cos(delta[j]) + EPS) * MathUtils.RTOD;
+            delta[j] = Math.atan2(FastMath.sin(delta[j]), FastMath.cos(delta[j]) + EPS) * Constants.RTOD;
             gamma[j] = Math.atan2(EigenVectIm[2][j], EPS + EigenVectRe[2][j]) - phi[j];
-            gamma[j] = Math.atan2(FastMath.sin(gamma[j]), FastMath.cos(gamma[j]) + EPS) * MathUtils.RTOD;
+            gamma[j] = Math.atan2(FastMath.sin(gamma[j]), FastMath.cos(gamma[j]) + EPS) * Constants.RTOD;
             p[j] = lambda[j] / sum;
             if (p[j] < 0) {
                 p[j] = 0;

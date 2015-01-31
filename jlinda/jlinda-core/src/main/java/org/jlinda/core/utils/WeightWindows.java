@@ -1,4 +1,6 @@
 package org.jlinda.core.utils;
+
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.DoubleMatrix;
 
 public class WeightWindows {
@@ -33,7 +35,7 @@ public class WeightWindows {
     public static double[] hamming(final int n) {
         double[] window = new double[n];
         for (int i = 0; i < n; i++) {
-            window[i] = 0.54 - 0.46 * Math.cos(2 * Math.PI * ((double) i / (double) (n - 1)));
+            window[i] = 0.54 - 0.46 * FastMath.cos(2 * Math.PI * ((double) i / (double) (n - 1)));
         }
         return window;
     }
@@ -66,7 +68,7 @@ public class WeightWindows {
         double[] hamWin = new double[fr.length];
         for (int i = 0; i < fr.length; ++i) {
             if (Math.abs(fr[i]/br) < 0.5) {   // rect window
-                hamWin[i] = (alpha + (1 - alpha) * Math.cos((2 * Math.PI / fs) * fr[i]));
+                hamWin[i] = (alpha + (1 - alpha) * FastMath.cos((2 * Math.PI / fs) * fr[i]));
             }
         }
         return hamWin;

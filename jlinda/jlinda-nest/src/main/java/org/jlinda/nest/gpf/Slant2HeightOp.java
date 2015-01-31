@@ -168,7 +168,7 @@ public class Slant2HeightOp extends Operator {
         // check whether there are absolute phases bands in the product
         Band tempBand = null;
         for (Band band : sourceProduct.getBands()) {
-            if (band.getUnit().equals(Unit.ABS_PHASE)) {
+            if (band.getUnit() != null && band.getUnit().equals(Unit.ABS_PHASE)) {
                 tempBand = band;
             }
         }

@@ -37,6 +37,7 @@ import org.esa.snap.gpf.TileGeoreferencing;
 import org.esa.snap.gpf.TileIndex;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.wkt.UnformattableObjectException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.awt.*;
@@ -203,8 +204,15 @@ public class MosaicOp extends Operator {
 
     private CrsGeoCoding createCRSGeoCoding(GeoCoding srcGeocoding) throws Exception {
         final CoordinateReferenceSystem srcCRS = srcGeocoding.getMapCRS();
-        final CoordinateReferenceSystem targetCRS = MapProjectionHandler.getCRS(srcCRS.toWKT());
-        final double pixelSpacingInDegree = pixelSize / Constants.semiMajorAxis * MathUtils.RTOD;
+        String wkt;
+        try {
+            wkt = srcCRS.toWKT();
+        } catch (UnformattableObjectException e) {        // if too complex to convert using strict
+            wkt = srcCRS.toString();
+        }
+
+        final CoordinateReferenceSystem targetCRS = MapProjectionHandler.getCRS(wkt);
+        final double pixelSpacingInDegree = pixelSize / Constants.semiMajorAxis * Constants.RTOD;
 
         double pixelSizeX = pixelSize;
         double pixelSizeY = pixelSize;

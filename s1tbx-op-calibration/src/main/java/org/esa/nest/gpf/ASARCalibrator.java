@@ -22,7 +22,6 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.datamodel.BaseCalibrator;
 import org.esa.nest.datamodel.Calibrator;
 import org.esa.snap.datamodel.AbstractMetadata;
@@ -959,14 +958,14 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                 }
 
                 // apply calibration constant and incidence angle corrections
-                sigma *= FastMath.sin(incidenceAnglesArray[xx] * MathUtils.DTOR) / theCalibrationFactor;
+                sigma *= FastMath.sin(incidenceAnglesArray[xx] * Constants.DTOR) / theCalibrationFactor;
 
                 if (applyRangeSpreadingCorr && targetTileSlantRange != null) { // apply range spreading loss compensation
                     /*
                     time = slantRangeTimeArray[xx] / 1000000000.0; //convert ns to s
                     sigma *= Math.pow(time * halfLightSpeedByRefSlantRange, rangeSpreadingCompPower);
                     */
-                    sigma *= Math.pow(targetTileSlantRange[yy][xx] / refSlantRange800km, rangeSpreadingCompPower);
+                    sigma *= FastMath.pow(targetTileSlantRange[yy][xx] / refSlantRange800km, rangeSpreadingCompPower);
                 }
 
                 if (applyAntennaPatternCorr) { // apply antenna pattern correction
@@ -1157,8 +1156,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         }
         final double theta0 = refElevationAngle - 5.0 + k0 * delta;
         final double theta1 = theta0 + delta;
-        final double gain0 = Math.pow(10, (double) antPatArray[k0] / 10.0); // convert dB to linear scale
-        final double gain1 = Math.pow(10, (double) antPatArray[k0 + 1] / 10.0);
+        final double gain0 = FastMath.pow(10, (double) antPatArray[k0] / 10.0); // convert dB to linear scale
+        final double gain1 = FastMath.pow(10, (double) antPatArray[k0 + 1] / 10.0);
         final double mu = (elevAngle - theta0) / (theta1 - theta0);
 
         return Maths.interpolationLinear(gain0, gain1, mu);
@@ -1256,12 +1255,12 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         final double minSpacing = Math.min(rangeSpacing, azimuthSpacing);
         double minAbsLat;
         if (latMin * latMax > 0) {
-            minAbsLat = Math.min(Math.abs(latMin), Math.abs(latMax)) * org.esa.beam.util.math.MathUtils.DTOR;
+            minAbsLat = Math.min(Math.abs(latMin), Math.abs(latMax)) * Constants.DTOR;
         } else {
             minAbsLat = 0.0;
         }
-        delLat = minSpacing / Constants.MeanEarthRadius * org.esa.beam.util.math.MathUtils.RTOD;
-        final double delLon = minSpacing / (Constants.MeanEarthRadius * FastMath.cos(minAbsLat)) * org.esa.beam.util.math.MathUtils.RTOD;
+        delLat = minSpacing / Constants.MeanEarthRadius * Constants.RTOD;
+        final double delLon = minSpacing / (Constants.MeanEarthRadius * FastMath.cos(minAbsLat)) * Constants.RTOD;
         delLat = Math.min(delLat, delLon);
 
         final int h = (int) ((latMax - latMin) / delLat) + 1;
@@ -1298,7 +1297,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                                                final double sceneToEarthCentre) {
 
         return FastMath.acos((slantRange * slantRange + satelliteHeight * satelliteHeight -
-                sceneToEarthCentre * sceneToEarthCentre) / (2 * slantRange * satelliteHeight)) * MathUtils.RTOD;
+                sceneToEarthCentre * sceneToEarthCentre) / (2 * slantRange * satelliteHeight)) * Constants.RTOD;
     }
 
     /**
@@ -1361,13 +1360,13 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         }
 
         if (bandUnit == Unit.UnitType.AMPLITUDE) {
-            return v * Math.sqrt(gain) * Math.pow(refSlantRange800km / slantRange, halfRangeSpreadingCompPower); // amplitude
+            return v * Math.sqrt(gain) * FastMath.pow(refSlantRange800km / slantRange, halfRangeSpreadingCompPower); // amplitude
         } else if (bandUnit == Unit.UnitType.AMPLITUDE_DB) {
-            return 10.0 * Math.log10(Math.pow(10, v / 10.0) * Math.sqrt(gain) * Math.pow(refSlantRange800km / slantRange, halfRangeSpreadingCompPower));
+            return 10.0 * Math.log10(FastMath.pow(10, v / 10.0) * Math.sqrt(gain) * FastMath.pow(refSlantRange800km / slantRange, halfRangeSpreadingCompPower));
         } else if (bandUnit == Unit.UnitType.INTENSITY || bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
-            return v * gain * Math.pow(refSlantRange800km / slantRange, rangeSpreadingCompPower); // intensity
+            return v * gain * FastMath.pow(refSlantRange800km / slantRange, rangeSpreadingCompPower); // intensity
         } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-            return 10.0 * Math.log10(Math.pow(10, v / 10.0) * gain * Math.pow(refSlantRange800km / slantRange, rangeSpreadingCompPower));
+            return 10.0 * Math.log10(FastMath.pow(10, v / 10.0) * gain * FastMath.pow(refSlantRange800km / slantRange, rangeSpreadingCompPower));
         } else {
             throw new OperatorException("Unknown band unit");
         }
@@ -1432,16 +1431,16 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         if (bandUnit == Unit.UnitType.AMPLITUDE) {
             sigma = v * v;
         } else if (bandUnit == Unit.UnitType.AMPLITUDE_DB) {
-            sigma = Math.pow(10, v / 5.0); // convert dB to linear scale, then square
+            sigma = FastMath.pow(10, v / 5.0); // convert dB to linear scale, then square
         } else if (bandUnit == Unit.UnitType.INTENSITY || bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
             sigma = v;
         } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-            sigma = Math.pow(10, v / 10.0); // convert dB to linear scale
+            sigma = FastMath.pow(10, v / 10.0); // convert dB to linear scale
         } else {
             throw new OperatorException("Unknown band unit");
         }
 
-        sigma *= FastMath.sin(Math.abs(localIncidenceAngle) * org.esa.beam.util.math.MathUtils.DTOR) /
+        sigma *= FastMath.sin(Math.abs(localIncidenceAngle) * Constants.DTOR) /
                 newCalibrationConstant[bandPolarIdx];
 
         if (multilookFlag && antElevCorrFlag) { // calibration constant and incidence angle corrections only
@@ -1449,7 +1448,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
         }
 
         if (auxFile == null || !auxFile.contains(CalibrationOp.PRODUCT_AUX)) {
-            sigma *= Math.pow(slantRange / refSlantRange800km, rangeSpreadingCompPower);
+            sigma *= FastMath.pow(slantRange / refSlantRange800km, rangeSpreadingCompPower);
         }
 
         if (applyAntennaPatternCorr) {
@@ -1544,14 +1543,14 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
                 slantRange = targetTileSlantRange[yy][xx];
 
                 if (bandUnit == Unit.UnitType.AMPLITUDE) {
-                    v *= Math.sqrt(gain) * Math.pow(refSlantRange800km / slantRange, 0.5 * rangeSpreadingCompPower);
+                    v *= Math.sqrt(gain) * FastMath.pow(refSlantRange800km / slantRange, 0.5 * rangeSpreadingCompPower);
                 } else if (bandUnit == Unit.UnitType.AMPLITUDE_DB) {
-                    v = Math.pow(10, v / 10.0) * Math.sqrt(gain) * Math.pow(refSlantRange800km / slantRange, 0.5 * rangeSpreadingCompPower);
+                    v = FastMath.pow(10, v / 10.0) * Math.sqrt(gain) * FastMath.pow(refSlantRange800km / slantRange, 0.5 * rangeSpreadingCompPower);
                     v = 10.0 * Math.log10(v);
                 } else if (bandUnit == Unit.UnitType.INTENSITY) {
-                    v *= gain * Math.pow(refSlantRange800km / slantRange, rangeSpreadingCompPower);
+                    v *= gain * FastMath.pow(refSlantRange800km / slantRange, rangeSpreadingCompPower);
                 } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-                    v = Math.pow(10, v / 10.0) * gain * Math.pow(refSlantRange800km / slantRange, rangeSpreadingCompPower);
+                    v = FastMath.pow(10, v / 10.0) * gain * FastMath.pow(refSlantRange800km / slantRange, rangeSpreadingCompPower);
                     v = 10.0 * Math.log10(v);
                 } else {
                     throw new OperatorException("Unknown band unit");

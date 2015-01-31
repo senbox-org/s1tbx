@@ -1,20 +1,20 @@
 package org.jlinda.core.geom;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.junit.*;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 import static org.jlinda.core.io.DataReader.readDoubleData;
 import static org.jlinda.core.io.DataReader.readFloatData;
 
 public class TopoPhaseTest {
 
-    //static Logger logger = Logger.getLogger(TopoPhase.class.getName());
+    static Logger logger = BeamLogManager.getSystemLogger();
     private static String testDataDir = "/d2/etna_test/demTest/";
     private static final File masterResFile = new File("/d2/etna_test/demTest/master.res");
     private static final File slaveResFile = new File("/d2/etna_test/demTest/slave.res");
@@ -131,7 +131,7 @@ public class TopoPhaseTest {
         long t0 = System.currentTimeMillis();
         topoPhase.radarCode();
         long t1 = System.currentTimeMillis();
-        //Logger.info("Data radarcoded in: " + (0.001 * (t1 - t0)) + " sec");
+        logger.info("Data radarcoded in: " + (0.001 * (t1 - t0)) + " sec");
 
         /* assert result */
         for (int i = 0; i < DEMline_buffer.length; i++) {
@@ -175,7 +175,7 @@ public class TopoPhaseTest {
 
         topoPhase.gridData();
         long t1 = System.currentTimeMillis();
-        //Logger.info("Data set gridded in " + (0.001 * (t1 - t0)) + " sec");
+        logger.info("Data set gridded in " + (0.001 * (t1 - t0)) + " sec");
 
 
         /* assert result */

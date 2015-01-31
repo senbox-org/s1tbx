@@ -148,6 +148,72 @@ public class SARGeocoding {
         return firstLineUTC + y0 * lineTimeInterval;
     }
 
+    public static double getEarthPointZeroDopplerTimeNewton(
+            final double firstLineUTC, final double lineTimeInterval, final double wavelength,
+            final double[] earthPoint, final SARGeocoding.Orbit orbit) throws OperatorException {
+
+        final int numOrbitVec = orbit.orbitStateVectors.length;
+        double[] sensorPosition = new double[3];
+        double[] sensorVelocity = new double[3];
+
+        sensorPosition[0] = orbit.orbitStateVectors[0].x_pos;
+        sensorPosition[1] = orbit.orbitStateVectors[0].y_pos;
+        sensorPosition[2] = orbit.orbitStateVectors[0].z_pos;
+        sensorVelocity[0] = orbit.orbitStateVectors[0].x_vel;
+        sensorVelocity[1] = orbit.orbitStateVectors[0].y_vel;
+        sensorVelocity[2] = orbit.orbitStateVectors[0].z_vel;
+        final double firstVecFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+        final double firstVecTime = orbit.orbitStateVectors[0].time_mjd;
+
+        sensorPosition[0] = orbit.orbitStateVectors[numOrbitVec - 1].x_pos;
+        sensorPosition[1] = orbit.orbitStateVectors[numOrbitVec - 1].y_pos;
+        sensorPosition[2] = orbit.orbitStateVectors[numOrbitVec - 1].z_pos;
+        sensorVelocity[0] = orbit.orbitStateVectors[numOrbitVec - 1].x_vel;
+        sensorVelocity[1] = orbit.orbitStateVectors[numOrbitVec - 1].y_vel;
+        sensorVelocity[2] = orbit.orbitStateVectors[numOrbitVec - 1].z_vel;
+        final double lastVecFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+        final double lastVecTime = orbit.orbitStateVectors[numOrbitVec - 1].time_mjd;
+
+        if (firstVecFreq == 0.0) {
+            return firstVecTime;
+        } else if (lastVecFreq == 0.0) {
+            return lastVecTime;
+        } else if (firstVecFreq * lastVecFreq > 0.0) {
+            return NonValidZeroDopplerTime;
+        }
+
+        double oldTime = firstVecTime, oldTimeDel;
+        double oldFreq = firstVecFreq;
+        double newTime = (firstVecTime + lastVecTime) / 2.0, oldFreqDel = 0.0;
+        orbit.getPositionVelocity(newTime, sensorPosition, sensorVelocity);
+        double newFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+
+        double d;
+        int numIter = 0;
+        while (Math.abs(newFreq) > 0.001 && numIter <= 10) {
+            oldTime = newTime;
+            oldFreq = newFreq;
+
+            orbit.getPositionVelocity(oldTime + lineTimeInterval, sensorPosition, sensorVelocity);
+            oldFreqDel = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+
+            d = (oldFreqDel - oldFreq) / lineTimeInterval;
+
+            newTime = oldTime - oldFreq / d;
+            if (newTime < 0.0) {
+                newTime = 0.0;
+            } else if (newTime > lastVecTime) {
+                newTime = lastVecTime;
+            }
+
+            orbit.getPositionVelocity(newTime, sensorPosition, sensorVelocity);
+            newFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+            numIter++;
+        }
+
+        return newTime;
+    }
+
     /**
      * Compute zero Doppler time for given point with the product orbit state vectors using bisection method.
      *
@@ -456,7 +522,7 @@ public class SARGeocoding {
 
         if (saveLocalIncidenceAngle) { // local incidence angle
             final double nsInnerProduct = Maths.innerProduct(n, s);
-            localIncidenceAngles[0] = FastMath.acos(nsInnerProduct) * org.esa.beam.util.math.MathUtils.RTOD;
+            localIncidenceAngles[0] = FastMath.acos(nsInnerProduct) * Constants.RTOD;
         }
 
         if (saveProjectedLocalIncidenceAngle || saveSigmaNought) { // projected local incidence angle
@@ -465,7 +531,7 @@ public class SARGeocoding {
             final double mnInnerProduct = Maths.innerProduct(m, n);
             final double[] n1 = {n[0] - m[0] * mnInnerProduct, n[1] - m[1] * mnInnerProduct, n[2] - m[2] * mnInnerProduct};
             Maths.normalizeVector(n1);
-            localIncidenceAngles[1] = FastMath.acos(Maths.innerProduct(n1, s)) * org.esa.beam.util.math.MathUtils.RTOD;
+            localIncidenceAngles[1] = FastMath.acos(Maths.innerProduct(n1, s)) * Constants.RTOD;
         }
     }
 
@@ -594,7 +660,7 @@ public class SARGeocoding {
 
             if (saveLocalIncidenceAngle) { // local incidence angle
                 final double nsInnerProduct = Maths.innerProduct(n, s);
-                localIncidenceAngles[0] = FastMath.acos(nsInnerProduct) * org.esa.beam.util.math.MathUtils.RTOD;
+                localIncidenceAngles[0] = FastMath.acos(nsInnerProduct) * Constants.RTOD;
             }
 
             if (saveProjectedLocalIncidenceAngle || saveSigmaNought) { // projected local incidence angle
@@ -603,7 +669,7 @@ public class SARGeocoding {
                 final double mnInnerProduct = Maths.innerProduct(m, n);
                 final double[] n1 = {n[0] - m[0] * mnInnerProduct, n[1] - m[1] * mnInnerProduct, n[2] - m[2] * mnInnerProduct};
                 Maths.normalizeVector(n1);
-                localIncidenceAngles[1] = FastMath.acos(Maths.innerProduct(n1, s)) * org.esa.beam.util.math.MathUtils.RTOD;
+                localIncidenceAngles[1] = FastMath.acos(Maths.innerProduct(n1, s)) * Constants.RTOD;
             }
         } catch (Exception e) {
             throw e;
@@ -676,7 +742,7 @@ public class SARGeocoding {
         if (incidenceAngle == null) {
             throw new OperatorException("incidence_angle tie point grid not found in product");
         }
-        return incidenceAngle.getPixelDouble(x, y) * org.esa.beam.util.math.MathUtils.DTOR;
+        return incidenceAngle.getPixelDouble(x, y) * Constants.DTOR;
     }
 
     /**
@@ -686,8 +752,8 @@ public class SARGeocoding {
      * @return The pixel spacing in degrees.
      */
     public static double getPixelSpacingInDegree(final double pixelSpacingInMeter) {
-        return pixelSpacingInMeter / Constants.semiMajorAxis * org.esa.beam.util.math.MathUtils.RTOD;
-//        return pixelSpacingInMeter / Constants.MeanEarthRadius * org.esa.beam.util.math.MathUtils.RTOD;
+        return pixelSpacingInMeter / Constants.semiMajorAxis * Constants.RTOD;
+//        return pixelSpacingInMeter / Constants.MeanEarthRadius * Constants.RTOD;
     }
 
     /**
@@ -697,8 +763,8 @@ public class SARGeocoding {
      * @return The pixel spacing in meters.
      */
     public static double getPixelSpacingInMeter(final double pixelSpacingInDegree) {
-        return pixelSpacingInDegree * Constants.semiMinorAxis * org.esa.beam.util.math.MathUtils.DTOR;
-//        return pixelSpacingInDegree * Constants.MeanEarthRadius * org.esa.beam.util.math.MathUtils.DTOR;
+        return pixelSpacingInDegree * Constants.semiMinorAxis * Constants.DTOR;
+//        return pixelSpacingInDegree * Constants.MeanEarthRadius * Constants.DTOR;
     }
 
     public static boolean isValidCell(final double rangeIndex, final double azimuthIndex,
@@ -849,7 +915,13 @@ public class SARGeocoding {
         }
 
         private static double polyVal(final double t, final double[] coeff) {
-            return (coeff[2]*t + coeff[1])*t + coeff[0];
+
+            final int polyDegree = coeff.length - 1;
+            double value = 0.0;
+            for (int i = 0; i <= polyDegree; i++) {
+                value += coeff[i]*Math.pow(t, i);
+            }
+            return value;
         }
 
         public double getVelocity(final double time) {
@@ -949,7 +1021,7 @@ public class SARGeocoding {
                 return 0;
             }
 
-            if (time > orbitStateVectors[nv - 1].time_mjd) {
+            if (time >= orbitStateVectors[nv - 1].time_mjd) {
                 return nv - 2;
             }
 

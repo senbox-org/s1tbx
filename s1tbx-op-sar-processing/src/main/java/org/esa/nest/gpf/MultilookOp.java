@@ -16,6 +16,7 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -26,7 +27,6 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
@@ -396,7 +396,7 @@ public final class MultilookOp extends Operator {
             for (int y = yStart; y < yEnd; y++) {
                 offset = srcIndex.calculateStride(y);
                 for (int x = xStart; x < xEnd; x++) {
-                    meanValue += Math.pow(10, srcData1.getElemDoubleAt(x - offset) / 10.0); // dB to linear
+                    meanValue += FastMath.pow(10, srcData1.getElemDoubleAt(x - offset) / 10.0); // dB to linear
                 }
             }
 
@@ -449,7 +449,7 @@ public final class MultilookOp extends Operator {
             if (incidenceAngle != null) {
                 final double incidenceAngleAtCentreRangePixel = getIncidenceAngleAtCentreRangePixel(srcProduct,
                         incidenceAngle);
-                groundRangeSpacing /= Math.sin(incidenceAngleAtCentreRangePixel * MathUtils.DTOR);
+                groundRangeSpacing /= FastMath.sin(incidenceAngleAtCentreRangePixel * Constants.DTOR);
             }
         }
 

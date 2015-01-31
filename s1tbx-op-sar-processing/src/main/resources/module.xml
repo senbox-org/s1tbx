@@ -222,7 +222,7 @@
             <placeAfter>SlantRangeGroundRangeOp</placeAfter>
         </action>
 
-        <!--action>
+        <action>
             <id>TerrainFlatteningOp</id>
             <helpId>TerrainFlatteningOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
@@ -233,7 +233,7 @@
             <shortDescr>Terrain Flattening</shortDescr>
             <operatorName>Terrain-Flattening</operatorName>
             <targetProductNameSuffix>_TF</targetProductNameSuffix>
-        </action-->
+        </action>
 
         <action>
             <id>SlantRangeGroundRangeOp</id>

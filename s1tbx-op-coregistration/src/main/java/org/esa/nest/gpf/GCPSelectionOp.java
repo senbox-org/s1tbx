@@ -17,10 +17,8 @@ package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.nest.dataio.dem.ElevationModel;
-import org.esa.nest.dataio.dem.ElevationModelDescriptor;
-import org.esa.nest.dataio.dem.ElevationModelRegistry;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -34,8 +32,12 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.toolviews.placemark.PlacemarkNameFactory;
+import org.esa.nest.dataio.dem.ElevationModel;
+import org.esa.nest.dataio.dem.ElevationModelDescriptor;
+import org.esa.nest.dataio.dem.ElevationModelRegistry;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.*;
 import org.esa.snap.util.MemUtils;
 
@@ -204,11 +206,7 @@ public class GCPSelectionOp extends Operator {
                         achievableAccuracy + ", GCP Tolerance is below it.");
             }
 
-            masterBand1 = sourceProduct.getBandAt(0);
-            if (masterBand1.getUnit() != null && masterBand1.getUnit().equals(Unit.REAL) && sourceProduct.getNumBands() > 1) {
-                masterBand2 = sourceProduct.getBandAt(1);
-                complexCoregistration = true;
-            }
+            getMasterBands();
 
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
@@ -230,6 +228,28 @@ public class GCPSelectionOp extends Operator {
             }
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private void getMasterBands() {
+        String mstBandName = sourceProduct.getBandAt(0).getName();
+
+        // find co-pol bands
+        final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
+        for(String bandName : masterBandNames) {
+            final String mstPol = OperatorUtils.getPolarizationFromBandName(bandName);
+            if(mstPol != null && (mstPol.equals("hh") || mstPol.equals("vv"))) {
+                mstBandName = bandName;
+                break;
+            }
+        }
+        masterBand1 = sourceProduct.getBand(mstBandName);
+        if (masterBand1.getUnit() != null && masterBand1.getUnit().equals(Unit.REAL)) {
+            int mstIdx = sourceProduct.getBandIndex(mstBandName);
+            if(sourceProduct.getNumBands() > mstIdx + 1) {
+                masterBand2 = sourceProduct.getBandAt(mstIdx + 1);
+                complexCoregistration = true;
+            }
         }
     }
 
@@ -290,6 +310,23 @@ public class GCPSelectionOp extends Operator {
         final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
 
         final int numSrcBands = sourceProduct.getNumBands();
+
+        //find slave band matching master pol
+        Band slvBand1 = null, slvBand2 = null;
+        final String mstPol = OperatorUtils.getPolarizationFromBandName(masterBand1.getName());
+        for(Band slvBand : sourceProduct.getBands()) {
+            if (!StringUtils.contains(masterBandNames, slvBand.getName())) {
+                final String slvPol = OperatorUtils.getPolarizationFromBandName(slvBand.getName());
+                if(mstPol.equals(slvPol)) {
+                    final String unit = slvBand.getUnit();
+                    if (unit != null && !unit.contains(Unit.IMAGINARY)) {
+                        slvBand1 = slvBand;
+                        break;
+                    }
+                }
+            }
+        }
+
         boolean oneSlaveProcessed = false;          // all other use setSourceImage
         for (int i = 0; i < numSrcBands; ++i) {
             final Band srcBand = sourceProduct.getBandAt(i);
@@ -298,7 +335,7 @@ public class GCPSelectionOp extends Operator {
             sourceRasterMap.put(targetBand, srcBand);
             gcpsComputedMap.put(srcBand, false);
 
-            if (srcBand == masterBand1 || srcBand == masterBand2 || oneSlaveProcessed ||
+            if (srcBand == masterBand1 || srcBand == masterBand2 || oneSlaveProcessed || srcBand != slvBand1 ||
                     StringUtils.contains(masterBandNames, srcBand.getName())) {
                 targetBand.setSourceImage(srcBand.getSourceImage());
             } else {
@@ -541,14 +578,14 @@ public class GCPSelectionOp extends Operator {
                 final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
                 final double incidenceAngleAtCentreRangePixel =
                         incidenceAngle.getPixelDouble(sourceImageWidth / 2f, sourceImageHeight / 2f);
-                groundRangeSpacing /= Math.sin(incidenceAngleAtCentreRangePixel * MathUtils.DTOR);
+                groundRangeSpacing /= FastMath.sin(incidenceAngleAtCentreRangePixel * Constants.DTOR);
             }
             final int nRgLooks = Math.max(1, sourceImageWidth / 2048);
             final int nAzLooks = Math.max(1, (int) ((double) nRgLooks * groundRangeSpacing / azimuthSpacing + 0.5));
             final int targetImageWidth = sourceImageWidth / nRgLooks;
             final int targetImageHeight = sourceImageHeight / nAzLooks;
-            final int windowWidth = (int) Math.pow(2, (int) (Math.log10(targetImageWidth) / Math.log10(2)));
-            final int windowHeight = (int) Math.pow(2, (int) (Math.log10(targetImageHeight) / Math.log10(2)));
+            final int windowWidth = (int) FastMath.pow(2, (int) (Math.log10(targetImageWidth) / Math.log10(2)));
+            final int windowHeight = (int) FastMath.pow(2, (int) (Math.log10(targetImageHeight) / Math.log10(2)));
             final double[] mI = new double[windowWidth * windowHeight];
             final double[] sI = new double[windowWidth * windowHeight];
 
@@ -1512,7 +1549,7 @@ public class GCPSelectionOp extends Operator {
 
         int k2;
         double phaseK;
-        final double phase = -2.0 * Math.PI * shift / signalLength;
+        final double phase = -2.0 * Constants.PI * shift / signalLength;
         final int halfSignalLength = (int) (signalLength * 0.5 + 0.5);
 
         for (int k = 0; k < signalLength; ++k) {
@@ -1522,8 +1559,8 @@ public class GCPSelectionOp extends Operator {
                 phaseK = phase * (k - signalLength);
             }
             k2 = k * 2;
-            phaseArray[k2] = Math.cos(phaseK);
-            phaseArray[k2 + 1] = Math.sin(phaseK);
+            phaseArray[k2] = FastMath.cos(phaseK);
+            phaseArray[k2 + 1] = FastMath.sin(phaseK);
         }
     }
 

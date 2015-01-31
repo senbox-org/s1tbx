@@ -1,10 +1,13 @@
 package org.jlinda.core;
 
-import org.apache.log4j.Logger;
+import org.esa.beam.util.logging.BeamLogManager;
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.Decompose;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 import org.jlinda.core.utils.LinearAlgebraUtils;
+
+import java.util.logging.Logger;
 
 import static org.jblas.MatrixFunctions.abs;
 import static org.jlinda.core.utils.LinearAlgebraUtils.matTxmat;
@@ -32,7 +35,7 @@ import static org.jlinda.core.utils.PolyUtils.normalize2;
 
 public class Baseline {
 
-    //static Logger logger = Logger.getLogger(Baseline.class.getName());
+    static Logger logger = BeamLogManager.getSystemLogger();
 
     private boolean isInitialized;
     private double masterWavelength;   // tmp for now used for h_amb
@@ -68,7 +71,7 @@ public class Baseline {
 
     public Baseline() {
 
-        //Logger.trace("Baseline class");
+        logger.info("Baseline class");
 
         isInitialized = false;
         numCoeffs = 10;
@@ -96,7 +99,7 @@ public class Baseline {
                            final double pixel,
                            final double height) throws Exception {
 
-        //Logger.trace("polyVal for baseline modeling");
+        logger.info("polyVal for baseline modeling");
 
         if (C.length != 10) {
             throw new Exception();
@@ -115,7 +118,7 @@ public class Baseline {
     private static void compute_B_Bpar_Bperp_Theta(BaselineComponents BBparBperptheta,
                                                    final Point point, final Point master, final Point slave) {
 
-        //Logger.trace("BBparBperpTheta method");
+        logger.info("BBparBperpTheta method");
         BBparBperptheta.b = master.distance(slave); // baseline. abs. value (in plane master,point,slave)
         final double range1 = master.distance(point);
         final double range2 = slave.distance(point);
@@ -141,7 +144,7 @@ public class Baseline {
      */
     private double computeIncAngle(final Point master, final Point point) {
 
-        //Logger.trace("IncidenceAngle method");
+        logger.info("IncidenceAngle method");
         final Point r1 = master.min(point);// points from P to M
         return point.angle(r1);
 
@@ -150,15 +153,15 @@ public class Baseline {
     public void model(final SLCImage master, final SLCImage slave, Orbit masterOrbit, Orbit slaveOrbit) throws Exception {
 
         if (!masterOrbit.isInterpolated()) {
-            //Logger.debug("Baseline cannot be computed, master orbit not initialized.");
+            logger.info("Baseline cannot be computed, master orbit not initialized.");
             throw new Exception("Baseline.model_parameters: master orbit not initialized");
         } else if (!slaveOrbit.isInterpolated()) {
-            //Logger.debug("Baseline cannot be computed, slave orbit not initialized.");
+            logger.info("Baseline cannot be computed, slave orbit not initialized.");
             throw new Exception("Baseline.model_parameters: slave orbit not initialized");
         }
 
         if (isInitialized) {
-            //Logger.warn("baseline already isInitialized??? (returning)");
+            logger.warning("baseline already isInitialized??? (returning)");
             return;
         }
 
@@ -243,8 +246,8 @@ public class Baseline {
                     final Point velOnSlaveOrb = slaveOrbit.getXYZDot(sTazi);
                     final double angleOrbits = velOnMasterOrb.angle(velOnSlaveOrb);
 
-                    //Logger.debug("Angle between orbits master-slave (at l,p= " + line + "," + pixel + ") = " +
-                    //        rad2deg(angleOrbits) + " [deg]");
+                    logger.info("Angle between orbits master-slave (at l,p= " + line + "," + pixel + ") = " +
+                            rad2deg(angleOrbits) + " [deg]");
 
                     // Note: convergence assumed constant!
                     orbitConvergence = angleOrbits;
@@ -292,24 +295,24 @@ public class Baseline {
                     final double alpha = (bPar == 0 && bPerp == 0) ? Double.NaN : theta - Math.atan2(bPar, bPerp);            // sign ok atan2
 
                     // horizontal/vertical representation of baseline
-                    final double bH = b * Math.cos(alpha); // sign ok
-                    final double bV = b * Math.sin(alpha); // sign ok
+                    final double bH = b * FastMath.cos(alpha); // sign ok
+                    final double bV = b * FastMath.sin(alpha); // sign ok
 
                     // TODO: check sign of infinity!!!
                     // Height ambiguity: [h] = -lambda/4pi * (r1sin(theta)/bPerp) * phi==2pi
-                    final double hAmbiguity = (bPerp == 0) ? Double.POSITIVE_INFINITY : -master.getRadarWavelength() * (pointOnMasterOrb.min(pointOnEllips)).norm() * Math.sin(theta) / (2.0 * bPerp);
+                    final double hAmbiguity = (bPerp == 0) ? Double.POSITIVE_INFINITY : -master.getRadarWavelength() * (pointOnMasterOrb.min(pointOnEllips)).norm() * FastMath.sin(theta) / (2.0 * bPerp);
 
                     // Some extra info if in DEBUG unwrapMode
-                    //Logger.debug("The baseline parameters for (l,p,h) = " + line + ", " + pixel + ", " + height);
-                    //Logger.debug("\talpha (deg), BASELINE: \t" + rad2deg(alpha) + " \t" + b);
-                    //Logger.debug("\tbPar, bPerp:      \t" + bPar + " \t" + bPerp);
-                    //Logger.debug("\tbH, bV:           \t" + bH + " \t" + bV);
-                    //Logger.debug("\tHeight ambiguity: \t" + hAmbiguity);
-                    //Logger.debug("\ttheta (deg):      \t" + rad2deg(theta));
-                    //Logger.debug("\tthetaInc (deg):  \t" + rad2deg(thetaInc));
-                    //Logger.debug("\tpointOnMasterOrb (x,y,z) = " + pointOnMasterOrb.toString());
-                    //Logger.debug("\tpointOnSlaveOrb (x,y,z) = " + pointOnSlaveOrb.toString());
-                    //Logger.debug("\tpointOnEllips (x,y,z) = " + pointOnEllips.toString());
+                    logger.info("The baseline parameters for (l,p,h) = " + line + ", " + pixel + ", " + height);
+                    logger.info("\talpha (deg), BASELINE: \t" + rad2deg(alpha) + " \t" + b);
+                    logger.info("\tbPar, bPerp:      \t" + bPar + " \t" + bPerp);
+                    logger.info("\tbH, bV:           \t" + bH + " \t" + bV);
+                    logger.info("\tHeight ambiguity: \t" + hAmbiguity);
+                    logger.info("\ttheta (deg):      \t" + rad2deg(theta));
+                    logger.info("\tthetaInc (deg):  \t" + rad2deg(thetaInc));
+                    logger.info("\tpointOnMasterOrb (x,y,z) = " + pointOnMasterOrb.toString());
+                    logger.info("\tpointOnSlaveOrb (x,y,z) = " + pointOnSlaveOrb.toString());
+                    logger.info("\tpointOnEllips (x,y,z) = " + pointOnEllips.toString());
                 } // loop pixels
             } // loop lines
         } // loop heights
@@ -359,12 +362,12 @@ public class Baseline {
 
         final double maxDev = abs(nMatrix.mmul(Qx_hat).sub(DoubleMatrix.eye(Qx_hat.rows))).max();
 
-        //Logger.debug("BASELINE: max(abs(nMatrix*inv(nMatrix)-I)) = " + maxDev);
+        logger.info("BASELINE: max(abs(nMatrix*inv(nMatrix)-I)) = " + maxDev);
 
         if (maxDev > .01) {
-            //Logger.warn("BASELINE: max. deviation nMatrix*inv(nMatrix) from unity = " + maxDev + ". This is larger than .01: do not use this!");
+            logger.warning("BASELINE: max. deviation nMatrix*inv(nMatrix) from unity = " + maxDev + ". This is larger than .01: do not use this!");
         } else if (maxDev > .001) {
-            //Logger.warn("BASELINE: max. deviation nMatrix*inv(nMatrix) from unity = " + maxDev + ". This is between 0.01 and 0.001 (maybe not use it)");
+            logger.warning("BASELINE: max. deviation nMatrix*inv(nMatrix) from unity = " + maxDev + ". This is between 0.01 and 0.001 (maybe not use it)");
         }
 
 
@@ -373,36 +376,36 @@ public class Baseline {
         //                a100*l   + a010*p   + a001*h   +
         //                a110*l*p + a101*l*h + a011*p*h +
         //                a200*l^2 + a020*p^2 + a002*h^2
-        //Logger.debug("--------------------");
-        //Logger.debug("Result of modeling: Bperp(l,p) = a000 + a100*l + a010*p + a001*h + ");
-        //Logger.debug(" a110*l*p + a101*l*h + a011*p*h + a200*l^2 + a020*p^2 + a002*h^2");
-        //Logger.debug("l,p,h in normalized coordinates [-2:2].");
-        //Logger.debug("Bperp_a000 = " + rhsBperp.get(0, 0));
-        //Logger.debug("Bperp_a100 = " + rhsBperp.get(1, 0));
-        //Logger.debug("Bperp_a010 = " + rhsBperp.get(2, 0));
-        //Logger.debug("Bperp_a001 = " + rhsBperp.get(3, 0));
-        //Logger.debug("Bperp_a110 = " + rhsBperp.get(4, 0));
-        //Logger.debug("Bperp_a101 = " + rhsBperp.get(5, 0));
-        //Logger.debug("Bperp_a011 = " + rhsBperp.get(6, 0));
-        //Logger.debug("Bperp_a200 = " + rhsBperp.get(7, 0));
-        //Logger.debug("Bperp_a020 = " + rhsBperp.get(8, 0));
-        //Logger.debug("Bperp_a002 = " + rhsBperp.get(9, 0));
+        logger.info("--------------------");
+        logger.info("Result of modeling: Bperp(l,p) = a000 + a100*l + a010*p + a001*h + ");
+        logger.info(" a110*l*p + a101*l*h + a011*p*h + a200*l^2 + a020*p^2 + a002*h^2");
+        logger.info("l,p,h in normalized coordinates [-2:2].");
+        logger.info("Bperp_a000 = " + rhsBperp.get(0, 0));
+        logger.info("Bperp_a100 = " + rhsBperp.get(1, 0));
+        logger.info("Bperp_a010 = " + rhsBperp.get(2, 0));
+        logger.info("Bperp_a001 = " + rhsBperp.get(3, 0));
+        logger.info("Bperp_a110 = " + rhsBperp.get(4, 0));
+        logger.info("Bperp_a101 = " + rhsBperp.get(5, 0));
+        logger.info("Bperp_a011 = " + rhsBperp.get(6, 0));
+        logger.info("Bperp_a200 = " + rhsBperp.get(7, 0));
+        logger.info("Bperp_a020 = " + rhsBperp.get(8, 0));
+        logger.info("Bperp_a002 = " + rhsBperp.get(9, 0));
         double maxerr = (abs(eHatBperp)).max();
 
         if (maxerr > 2.00)//
         {
-            //Logger.warn("Max. error bperp modeling at 3D datapoints: " + maxerr + "m");
+            logger.warning("Max. error bperp modeling at 3D datapoints: " + maxerr + "m");
 
         } else {
-            //Logger.info("Max. error bperp modeling at 3D datapoints: " + maxerr + "m");
+            logger.info("Max. error bperp modeling at 3D datapoints: " + maxerr + "m");
         }
-        //Logger.debug("--------------------");
-        //Logger.debug("Range: r(p) = r0 + dr*p");
-        //Logger.debug("l and p in un-normalized, absolute, coordinates (1:nMatrix).");
+        logger.info("--------------------");
+        logger.info("Range: r(p) = r0 + dr*p");
+        logger.info("l and p in un-normalized, absolute, coordinates (1:nMatrix).");
         final double range1 = master.pix2range(1.0);
         final double range5000 = master.pix2range(5000.0);
         final double drange = (range5000 - range1) / 5000.0;
-        //Logger.debug("range = " + (range1 - drange) + " + " + drange + "*p");
+        logger.info("range = " + (range1 - drange) + " + " + drange + "*p");
 
         // orbit initialized
         isInitialized = true;
@@ -517,14 +520,14 @@ public class Baseline {
     public double getBhor(final double line, final double pixel, final double height) throws Exception {
         final double B = getB(line, pixel, height);
         final double alpha = getAlpha(line, pixel, height);
-        return B * Math.cos(alpha);// sign ok
+        return B * FastMath.cos(alpha);// sign ok
     }
 
     // Return Bv
     public double getBvert(final double line, final double pixel, final double height) throws Exception {
         final double B = getB(line, pixel, height);
         final double alpha = getAlpha(line, pixel, height);
-        return B * Math.sin(alpha);// sign ok
+        return B * FastMath.sin(alpha);// sign ok
     }
 
     // Return Height ambiguity
@@ -535,7 +538,7 @@ public class Baseline {
         final double range_MP = getRange(pixel);// >
 
         final double h_amb = (Bperp == 0) ? Double.POSITIVE_INFINITY : // inf
-                -masterWavelength * range_MP * Math.sin(theta_inc) / (2.0 * Bperp);// this is wrt local
+                -masterWavelength * range_MP * FastMath.sin(theta_inc) / (2.0 * Bperp);// this is wrt local
         //-masterWavelength*range_MP*sin(theta)/(2.0*Bperp);// this is wrt
         return h_amb;
     }
@@ -551,7 +554,7 @@ public class Baseline {
     void dump(final double line, final double pixel, final double height) throws Exception {
 
         if (!isInitialized) {
-            //Logger.debug("Exiting dumpbaseline, baseline not initialized.");
+            logger.info("Exiting dumpbaseline, baseline not initialized.");
             return;
         }
 
@@ -571,15 +574,15 @@ public class Baseline {
         // Height ambiguity: [h] = -lambda/4pi * (r1sin(theta)/Bperp) * phi==2pi
 
         // Log output to screen as INFO
-        //Logger.info("The baseline parameters for (l,p,h) = " +
-        //        line + ", " + pixel + ", " + height);
+        logger.info("The baseline parameters for (l,p,h) = " +
+                line + ", " + pixel + ", " + height);
 
-        //Logger.info("\tBpar, Bperp:      \t" + Bpar + " \t" + Bperp);
-        //Logger.debug("\tB, alpha (deg):  \t" + B + " \t" + rad2deg(alpha));
-        //Logger.debug("\tBh, Bv:          \t" + Bh + " \t" + Bv);
-        //Logger.info("\tHeight ambiguity: \t" + h_amb);
-        //Logger.info("\tLook angle (deg): \t" + rad2deg(theta));
-        //Logger.debug("\tIncidence angle (deg): \t" + rad2deg(theta_inc));
+        logger.info("\tBpar, Bperp:      \t" + Bpar + " \t" + Bperp);
+        logger.info("\tB, alpha (deg):  \t" + B + " \t" + rad2deg(alpha));
+        logger.info("\tBh, Bv:          \t" + Bh + " \t" + Bv);
+        logger.info("\tHeight ambiguity: \t" + h_amb);
+        logger.info("\tLook angle (deg): \t" + rad2deg(theta));
+        logger.info("\tIncidence angle (deg): \t" + rad2deg(theta_inc));
 
     }
 

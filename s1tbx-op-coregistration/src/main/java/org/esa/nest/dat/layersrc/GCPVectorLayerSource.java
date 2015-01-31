@@ -34,7 +34,7 @@ public class GCPVectorLayerSource implements LayerSource {
         final Band band = product.getBand(pageContext.getAppContext().getSelectedProductSceneView().getRaster().getName());
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
-        if (absRoot != null) {
+        if (absRoot != null && band != null) {
             final MetadataElement bandElem = AbstractMetadata.getBandAbsMetadata(absRoot, band.getName(), false);
             if (bandElem != null) {
                 final MetadataElement warpDataElem = bandElem.getElement("WarpData");

@@ -1,10 +1,14 @@
 package org.jlinda.core.coregistration.cross;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.jlinda.core.utils.MathUtils;
 import org.jlinda.core.utils.PolyUtils;
+
+import java.util.logging.Logger;
 
 
 /**
@@ -17,8 +21,7 @@ import org.jlinda.core.utils.PolyUtils;
 public class CrossGeometry {
 
     // logger
-   // private static final Logger logger = (Logger) LoggerFactory.getLogger(CrossGeometry.class);
-   // private static Level level = Level.WARN;
+    private static final Logger logger = BeamLogManager.getSystemLogger();
 
     // used only for normalization
     private Window dataWindow;
@@ -155,7 +158,7 @@ public class CrossGeometry {
 
     private void setLoggerLevel() {
         // logger level
-        //Logger.setLevel(level);
+        //logger.setLevel(level);
     }
 
 
@@ -224,8 +227,8 @@ public class CrossGeometry {
         coeffsRg = PolyUtils.polyFit2D(sourceX, sourceY, offsetX, polyDegree);
 
         // show polynomials depending on logger level <- not in production
-        //Logger.debug("coeffsAZ (offsets): estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsAz));
-        //Logger.debug("coeffsRg (offsets): estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsRg));
+        logger.info("coeffsAZ (offsets): estimated with PolyUtils.polyFit2D : {}"+ ArrayUtils.toString(coeffsAz));
+        logger.info("coeffsRg (offsets): estimated with PolyUtils.polyFit2D : {}"+ ArrayUtils.toString(coeffsRg));
 
     }
 
@@ -263,8 +266,8 @@ public class CrossGeometry {
         coeffsRg = PolyUtils.polyFit2D(sourceX, sourceY, targetX, polyDegree);
 
         // show polynomials depending on logger level <- not in production
-        //Logger.debug("coeffsAZ (coords): estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsAz));
-        //Logger.debug("coeffsRg (coords): estimated with PolyUtils.polyFit2D : {}", ArrayUtils.toString(coeffsRg));
+        logger.info("coeffsAZ (coords): estimated with PolyUtils.polyFit2D : {}" + ArrayUtils.toString(coeffsAz));
+        logger.info("coeffsRg (coords): estimated with PolyUtils.polyFit2D : {}"+ ArrayUtils.toString(coeffsRg));
 
     }
 

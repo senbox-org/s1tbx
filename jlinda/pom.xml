@@ -48,7 +48,7 @@
         <repository>
             <id>ppolabs-mvn-repo</id>
             <name>Public Maven Repository of PPO.labs</name>
-            <url>http://maven.ppolabs.me/</url>
+            <url>http://maven.ppolabs.net/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -136,12 +136,12 @@
         <repository>
             <uniqueVersion>true</uniqueVersion>
             <id>nexus-releases</id>
-            <url>http://maven.ppolabs.me/content/repositories/releases/</url>
+            <url>http://maven.ppolabs.net/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
             <uniqueVersion>false</uniqueVersion>
             <id>nexus-snapshots</id>
-            <url>http://maven.ppolabs.me/content/repositories/snapshots/</url>
+            <url>http://maven.ppolabs.net/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 

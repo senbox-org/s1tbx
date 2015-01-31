@@ -16,6 +16,7 @@
 package org.esa.nest.dataio.cosmo;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.*;
@@ -23,8 +24,8 @@ import org.esa.beam.util.Guardian;
 import org.esa.nest.dataio.SARReader;
 import org.esa.nest.dataio.netcdf.*;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
@@ -38,6 +39,7 @@ import ucar.nc2.Variable;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,7 +57,9 @@ public class CosmoSkymedReader extends SARReader {
     private boolean isComplex = false;
     private final ProductReaderPlugIn readerPlugIn;
 
-    private final Map<Band, Variable> bandMap = new HashMap<Band, Variable>(10);
+    private final Map<Band, Variable> bandMap = new HashMap<>(10);
+
+    private static final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     /**
      * Constructs a new abstract product reader.
@@ -260,7 +264,7 @@ public class CosmoSkymedReader extends SARReader {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.MISSION, "CSK");
         //AbstractMetadata.setAttribute(absRoot, AbstractMetadata.satellite, globalElem.getAttributeString("Satellite_Id", "CSK"));
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
-                ReaderUtils.getTime(globalElem, "Product_Generation_UTC", AbstractMetadata.dateFormat));
+                ReaderUtils.getTime(globalElem, "Product_Generation_UTC", standardDateFormat));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier,
                 globalElem.getAttributeString("Processing_Centre", defStr));
@@ -408,7 +412,7 @@ public class CosmoSkymedReader extends SARReader {
     private static void addOrbitStateVectors(final MetadataElement absRoot, final MetadataElement globalElem) {
 
         final MetadataElement orbitVectorListElem = absRoot.getElement(AbstractMetadata.orbit_state_vectors);
-        final ProductData.UTC referenceUTC = ReaderUtils.getTime(globalElem, "Reference_UTC", AbstractMetadata.dateFormat);
+        final ProductData.UTC referenceUTC = ReaderUtils.getTime(globalElem, "Reference_UTC", standardDateFormat);
         final int numPoints = globalElem.getAttributeInt("Number_of_State_Vectors");
 
         for (int i = 0; i < numPoints; i++) {
@@ -474,7 +478,7 @@ public class CosmoSkymedReader extends SARReader {
         final MetadataElement globalElem = root.getElement(NetcdfConstants.GLOBAL_ATTRIBUTES_NAME);
         final MetadataElement bandElem = getBandElement(product.getBandAt(0));
 
-        final double referenceUTC = ReaderUtils.getTime(globalElem, "Reference_UTC", AbstractMetadata.dateFormat).getMJD(); // in days
+        final double referenceUTC = ReaderUtils.getTime(globalElem, "Reference_UTC", standardDateFormat).getMJD(); // in days
         double firstLineTime = bandElem.getAttributeDouble("Zero_Doppler_Azimuth_First_Time", 0) / (24 * 3600); // in days
         if (firstLineTime == 0) {
             final MetadataElement s01Elem = globalElem.getElement("S01");
@@ -540,7 +544,7 @@ public class CosmoSkymedReader extends SARReader {
             if (i == 0) {
                 srgrCoeff += referenceRange;
             } else {
-                srgrCoeff /= Math.pow(rangeSpacing, i);
+                srgrCoeff /= FastMath.pow(rangeSpacing, i);
             }
 
             final MetadataElement coefElem = new MetadataElement(AbstractMetadata.coefficient + '.' + (i + 1));
@@ -661,8 +665,8 @@ public class CosmoSkymedReader extends SARReader {
         final double nearRangeAngle = bandElem.getAttributeDouble("Near_Incidence_Angle", 0);
         final double farRangeAngle = bandElem.getAttributeDouble("Far_Incidence_Angle", 0);
 
-        final double firstRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_First_Time", 0) * 1000000000.0f;
-        final double lastRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_Last_Time", 0) * 1000000000.0f;
+        final double firstRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_First_Time", 0) * Constants.oneBillion;
+        final double lastRangeTime = bandElem.getAttributeDouble("Zero_Doppler_Range_Last_Time", 0) * Constants.oneBillion;
 
         final float[] incidenceCorners = new float[]{(float)nearRangeAngle, (float)farRangeAngle, (float)nearRangeAngle, (float)farRangeAngle};
         final float[] slantRange = new float[]{(float)firstRangeTime, (float)lastRangeTime, (float)firstRangeTime, (float)lastRangeTime};

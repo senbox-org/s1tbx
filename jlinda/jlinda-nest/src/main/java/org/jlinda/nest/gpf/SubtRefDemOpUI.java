@@ -127,7 +127,9 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
         topoPhaseBandName.setText(String.valueOf(paramMap.get("topoPhaseBandName")));
 
         allowTuning = (Boolean) paramMap.get("allowTuning");
-        allowTuningCheckBox.setSelected(allowTuning);
+        if(allowTuning != null) {
+            allowTuningCheckBox.setSelected(allowTuning);
+        }
 
         tileExtensionPercent.setSelectedItem(paramMap.get("tileExtensionPercent"));
         enableTuningFields();
@@ -149,11 +151,12 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
         }
         paramMap.put("topoPhaseBandName", topoPhaseBandName.getText());
 
-        paramMap.put("allowTuning", allowTuning);
-        if (allowTuning) {
-            paramMap.put("tileExtensionPercent", Integer.parseInt((String) tileExtensionPercent.getSelectedItem()));
+        if(allowTuning != null) {
+            paramMap.put("allowTuning", allowTuning);
+            if (allowTuning) {
+                paramMap.put("tileExtensionPercent", Integer.parseInt((String) tileExtensionPercent.getSelectedItem()));
+            }
         }
-        
     }
 
     private JComponent createPanel() {
@@ -195,7 +198,9 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
         }
 
     private void enableTuningFields() {
-        tileExtensionPercent.setEnabled(allowTuning);
+        if(allowTuning != null) {
+            tileExtensionPercent.setEnabled(allowTuning);
+        }
     }
     
 }

@@ -1,5 +1,6 @@
 package org.jlinda.core.utils;
 
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Window;
 import org.junit.Assert;
@@ -20,7 +21,7 @@ public class MathUtilsTest {
 
     final static double VALUE = 2;
     final static double EXPONENT = 2;
-    final static double DELTA = Math.pow(10, -6);
+    final static double DELTA = FastMath.pow(10, -6);
 
     /// for RAMP ///
     static int nRows;
@@ -51,8 +52,8 @@ public class MathUtilsTest {
     @BeforeClass
     public static void defineExpectedValues() {
 
-        powerOfTwo_EXPECTED = Math.pow(VALUE, EXPONENT);
-        notPowerOfTwo_EXPECTED = Math.pow(VALUE, EXPONENT) - 1;
+        powerOfTwo_EXPECTED = FastMath.pow(VALUE, EXPONENT);
+        notPowerOfTwo_EXPECTED = FastMath.pow(VALUE, EXPONENT) - 1;
         evenVal_EXPECTED = 8;
         oddVal_EXPECTED = 7;
 
@@ -122,7 +123,7 @@ public class MathUtilsTest {
 
     @Test
     public void testSqr() throws Exception {
-        Assert.assertEquals(Math.pow(VALUE, 2), MathUtils.sqr(VALUE), DELTA);
+        Assert.assertEquals(FastMath.pow(VALUE, 2), MathUtils.sqr(VALUE), DELTA);
     }
 
     @Test

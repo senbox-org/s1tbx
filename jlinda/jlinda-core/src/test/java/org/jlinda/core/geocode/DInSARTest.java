@@ -1,5 +1,6 @@
 package org.jlinda.core.geocode;
 
+import org.esa.beam.util.logging.BeamLogManager;
 import org.perf4j.StopWatch;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
@@ -19,10 +20,12 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DInSARTest {
 
-    //private static final Logger logger = (Logger) LoggerFactory.getLogger(DInSARTest.class);
+    private static final Logger logger = BeamLogManager.getSystemLogger();
 
     private static final double PHASE2DEFO = (0.056d / (4d * Math.PI));
 
@@ -53,7 +56,7 @@ public class DInSARTest {
 
     @Before
     public void setUp() throws Exception {
-        //Logger.setLevel(Level.DEBUG);
+        logger.setLevel(Level.INFO);
     }
 
     @BeforeClass
@@ -117,7 +120,7 @@ public class DInSARTest {
         dinsar.dinsar();
         watch.stop();
 
-        //Logger.info("Total processing time: {} milli-seconds", watch.getElapsedTime());
+        logger.info("Total processing time: {} milli-seconds"+ watch.getElapsedTime());
 
         // subtracted expected minus computed and convert to deformation : check on +/- 0.001m level
         ComplexDoubleMatrix expected = SarUtils.computeIfg(defoCplxIfg, dinsar.getDefoData());
@@ -145,7 +148,7 @@ public class DInSARTest {
         dinsar.applyDInSAR(tileWindow, defoData, topoPhase);
         watch.stop();
 
-        //Logger.info("Total processing time: {} milli-seconds", watch.getElapsedTime());
+        logger.info("Total processing time: {} milli-seconds"+ watch.getElapsedTime());
 
         // subtracted expected minus computed and convert to deformation : check on +/- 0.001m level
         ComplexDoubleMatrix expected = SarUtils.computeIfg(defoCplxIfg, defoData);

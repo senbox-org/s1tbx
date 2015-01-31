@@ -1,7 +1,6 @@
 package org.jlinda.core.geom;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
@@ -10,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 import static org.jlinda.core.io.DataReader.readFloatData;
 
@@ -21,7 +21,7 @@ import static org.jlinda.core.io.DataReader.readFloatData;
 public class
         DemTileTest {
 
-    //static Logger logger = Logger.getLogger(DemTile.class.getName());
+    static Logger logger = BeamLogManager.getSystemLogger();
     private static final File masterResFile = new File("/d2/etna_test/demTest/master.res");
 
     private static final double DELTA_08 = 1e-08;
@@ -34,7 +34,7 @@ public class
 
     //public static Logger initLog() {
     //    String filePathToLog4JProperties = "log4j.properties";
-    //    Logger logger = //Logger.getLogger(TopoPhase.class);
+    //    Logger logger = logger.getLogger(TopoPhase.class);
     //    PropertyConfigurator.configure(filePathToLog4JProperties);
     //    return logger;
    // }

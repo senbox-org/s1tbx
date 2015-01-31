@@ -2,10 +2,9 @@ package org.jlinda.core.delaunay;
 
 
 import com.vividsolutions.jts.geom.Coordinate;
+
 import java.util.Collections;
 import java.util.List;
-
-import static org.jlinda.core.delaunay.MathUtils.*;
 
 /**
  * A triangle in a triangulation defined by its 3 vertices A, B, C.
@@ -82,7 +81,6 @@ public class Triangle {
      * @param A
      * @param B
      * @param C
-     * @param check check the validity of parameters and build the triangle
      * in a ccw order
      */
     public Triangle(Coordinate A, Coordinate B, Coordinate C, boolean ccw) {
@@ -93,7 +91,7 @@ public class Triangle {
         assert (A.equals(C)) : "A must not be equal to C";
         assert (B.equals(C)) : "B must not be equal to C";
         this.A = A;
-        if (C==HORIZON || !ccw || ccw(A.x, A.y, B.x, B.y, C.x, C.y) < 0) {
+        if (C==HORIZON || !ccw || MathUtils.ccw(A.x, A.y, B.x, B.y, C.x, C.y) < 0) {
             this.B = B;
             this.C = C;
         }
@@ -118,7 +116,7 @@ public class Triangle {
         else if (A == HORIZON || B == HORIZON) {
             return false;
         }
-        else if (C != HORIZON && ccw(A.x, A.y, B.x, B.y, C.x, C.y) <= 0) {
+        else if (C != HORIZON && MathUtils.ccw(A.x, A.y, B.x, B.y, C.x, C.y) <= 0) {
             return false;
         }
         else if (A.equals(B) || B.equals(C) || C.equals(A)) {
@@ -313,9 +311,9 @@ public class Triangle {
      * @return an integer representing the position of p
      */
     public int locate(Coordinate p) {
-        int cc0 = ccw(A.x, A.y, B.x, B.y, p.x, p.y);
-        int cc1 = ccw(B.x, B.y, C.x, C.y, p.x, p.y);
-        int cc2 = ccw(C.x, C.y, A.x, A.y, p.x, p.y);
+        int cc0 = MathUtils.ccw(A.x, A.y, B.x, B.y, p.x, p.y);
+        int cc1 = MathUtils.ccw(B.x, B.y, C.x, C.y, p.x, p.y);
+        int cc2 = MathUtils.ccw(C.x, C.y, A.x, A.y, p.x, p.y);
         cc0 = cc0<0?2:cc0;
         cc1 = cc1<0?2:cc1;
         cc2 = cc2<0?2:cc2;
@@ -332,7 +330,7 @@ public class Triangle {
     /**
      * String representation of this Triangle as a set of indices in a
      * {@link Coordinate}s list.
-     * @param the coordinates list
+     * @param pts the coordinates list
      */
     public String toString(List<Coordinate> pts) {
         StringBuffer sb = new StringBuffer("T:");
@@ -369,5 +367,27 @@ public class Triangle {
         final double clift = cdx * cdx + cdy * cdy;
 
         return alift * bcdet + blift * cadet + clift * abdet;
+    }
+
+    /**
+     * Orientation of the p0-p1-p2 triangle. The function returns : <ul>
+     * <li>-1 if p0-p1-p2 triangle is cw (or p2 on right of p0 - p1)</li>
+     * <li>0 if p0-p1-p2 alignedtriangle is cw (or p2 on right of p0 - p1)</li>
+     * <li>1 if p0-p1-p2 triangle is ccw (or p2 on left of p0 - p1)</li>
+     * </ul>
+     * Some versions of this function compare the length of p0-p1 and p0-p2
+     * to return positive, negative or null in the colinear case.
+     * This one just return 0 if p0, p1 and p2 are colinear.
+     * @return a negative, null or positive integer depending on the position
+     * p2 relative to p0 - p1
+     */
+    public final int ccw(final Coordinate c) {
+        final double dx1dy2 = (B.x - A.x) * (c.y - A.y);
+        final double dy1dx2 = (B.y - A.y) * (c.x - A.x);
+        if (dx1dy2 > dy1dx2)
+            return 1;
+        else if (dx1dy2 < dy1dx2)
+            return -1;
+        return 0;
     }
 }

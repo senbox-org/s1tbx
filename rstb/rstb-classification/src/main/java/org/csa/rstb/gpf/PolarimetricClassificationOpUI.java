@@ -30,8 +30,9 @@ public class PolarimetricClassificationOpUI extends BaseOperatorUI {
 
     private final JComboBox classification = new JComboBox(new String[]{
             PolarimetricClassificationOp.UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION,
-            PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION,
-            PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION,
+            PolarimetricClassificationOp.UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION,
+            PolarimetricClassificationOp.UNSUPERVISED_HALPHA_WISHART_DUAL_POL_CLASSIFICATION,
+            PolarimetricClassificationOp.UNSUPERVISED_FREEMAN_DURDEN_CLASSIFICATION,
     });
 
     private final JLabel windowSizeLabel = new JLabel("Window Size:");
@@ -96,13 +97,14 @@ public class PolarimetricClassificationOpUI extends BaseOperatorUI {
         classification.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent event) {
                 String item = (String) classification.getSelectedItem();
-                if (item.equals(PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION)) {
+                if (item.equals(PolarimetricClassificationOp.UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION) ||
+                    item.equals(PolarimetricClassificationOp.UNSUPERVISED_HALPHA_WISHART_DUAL_POL_CLASSIFICATION)) {
                     DialogUtils.enableComponents(maxIterationsLabel, maxIterations, true);
                 } else {
                     DialogUtils.enableComponents(maxIterationsLabel, maxIterations, false);
                 }
 
-                if (item.equals(PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION)) {
+                if (item.equals(PolarimetricClassificationOp.UNSUPERVISED_FREEMAN_DURDEN_CLASSIFICATION)) {
                     DialogUtils.enableComponents(numInitialClassesLabel, numInitialClasses, true);
                     DialogUtils.enableComponents(numFinalClassesLabel, numFinalClasses, true);
                     DialogUtils.enableComponents(mixedCategoryThresholdLabel, mixedCategoryThreshold, true);

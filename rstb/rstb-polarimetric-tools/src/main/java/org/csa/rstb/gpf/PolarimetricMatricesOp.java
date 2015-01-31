@@ -31,6 +31,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 
@@ -97,18 +98,13 @@ public final class PolarimetricMatricesOp extends Operator {
      */
     @Override
     public void initialize() throws OperatorException {
-
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfTOPSARBurstProduct(false);
+            validator.checkIfSLC();
 
             srcBandList = PolBandUtils.getSourceBands(sourceProduct,
                     PolBandUtils.getSourceProductType(sourceProduct));
-
-            /*
-            System.out.println("srcBandList.length = " + srcBandList.length);
-            for (Band b : srcBandList[0].srcBands) {
-                System.out.println("src band = " + b.getName());
-            }
-            */
 
             createTargetProduct();
 

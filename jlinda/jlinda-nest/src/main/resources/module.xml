@@ -37,6 +37,40 @@
         <module>jlinda-core</module>
     </dependency>
 
+     <extension point="snap-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.jlinda.nest.dat.coregistration.CreateInSARStackOpUI</id>
+            <class>org.jlinda.nest.dat.coregistration.CreateInSARStackOpUI</class>
+            <operatorName>CreateInSARStack</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.jlinda.nest.dat.coregistration.CoarseFineCoregOpUI</id>
+            <class>org.jlinda.nest.dat.coregistration.CoarseFineCoregOpUI</class>
+            <operatorName>CoarseFine-Coregistration2</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.jlinda.nest.dat.coregistration.ResampleOpUI</id>
+            <class>org.jlinda.nest.dat.coregistration.ResampleOpUI</class>
+            <operatorName>Resample2</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.jlinda.nest.gpf.CrossResamplingOpUI</id>
+            <class>org.jlinda.nest.gpf.CrossResamplingOpUI</class>
+            <operatorName>CrossResampling</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.jlinda.nest.gpf.SimulateAmplitudeOpUI</id>
+            <class>org.jlinda.nest.gpf.SimulateAmplitudeOpUI</class>
+            <operatorName>SimulateAmplitude</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.jlinda.nest.gpf.SubtRefDemOpUI</id>
+            <class>org.jlinda.nest.gpf.SubtRefDemOpUI</class>
+            <operatorName>SubtRefDem</operatorName>
+        </OperatorUI>
+    </extension>
+    
     <extension point="snap-ui:actions">
 
         <action>
@@ -234,18 +268,6 @@
         <!--/// COREGISTRATION ///-->
 
         <action>
-            <id>CreateInSARStackOp</id>
-            <helpId>CreateInSARStack</helpId>
-            <class>org.esa.snap.dat.actions.GraphAction</class>
-            <icon>esaIcon</icon>
-            <parent>insar_coregistration</parent>
-            <text>Create InSAR Stack</text>
-            <dialogTitle>Create InSAR Stack</dialogTitle>
-            <shortDescr>Stacks together several products on their metadata.</shortDescr>
-            <graphFile>CreateInSARStackGraph.xml</graphFile>
-        </action>
-
-        <action>
 	        <id>InSARCoregistrationGraph</id>
 	        <helpId>InSARCoregistration</helpId>
 	        <class>org.esa.snap.dat.actions.GraphAction</class>
@@ -280,33 +302,5 @@
             <path>doc/help/jlinda.hs</path>
         </helpSet>
     </extension>
-
-    <!-- LEFTOVERS -->
-
-    <!--<action>-->
-        <!--<id>snaphu</id>-->
-        <!--<class>org.esa.nest.dat.actions.ComingSoonAction</class>-->
-        <!--<text>Unwrapping (coming soon)</text>-->
-        <!--<placeAfter>filtering</placeAfter>-->
-        <!--<separatorAfter>true</separatorAfter>-->
-        <!--<parent>insar</parent>-->
-    <!--</action>-->
-
-    <!--<action>-->
-        <!--<id>sarTools</id>-->
-        <!--<class>org.esa.nest.dat.actions.ComingSoonAction</class>-->
-        <!--<text>SAR Tools</text>-->
-        <!--<placeAfter>snaphu</placeAfter>-->
-        <!--<parent>insar</parent>-->
-    <!--</action>-->
-
-    <!--<action>-->
-        <!--<id>geoTools</id>-->
-        <!--<class>org.esa.nest.dat.actions.ComingSoonAction</class>-->
-        <!--<text>GEO Tools</text>-->
-        <!--<placeAfter>sarTools</placeAfter>-->
-        <!--<separatorAfter>true</separatorAfter>-->
-        <!--<parent>insar</parent>-->
-    <!--</action>-->
 
 </module>

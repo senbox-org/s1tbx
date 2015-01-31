@@ -1,5 +1,7 @@
 package org.jlinda.core.coregistration.estimation.utils;
 
+import org.apache.commons.math3.util.FastMath;
+
 import java.util.*;
 
 
@@ -284,7 +286,7 @@ public class MathUtils {
     public static double vectorL2Norm(double[] v) {
         double norm = 0;
         for (double d : v) {
-            norm += Math.pow(d, 2);
+            norm += FastMath.pow(d, 2);
         }
         return Math.sqrt(norm);
     }
@@ -371,7 +373,7 @@ public class MathUtils {
         double rmse = 0;
         int n = a.length;
         for (int i = 0; i < n; i++) {
-            rmse += Math.pow(a[i] - b[i], 2);
+            rmse += FastMath.pow(a[i] - b[i], 2);
         }
         rmse = Math.sqrt(rmse / (double) n);
         return rmse;
@@ -581,8 +583,8 @@ public class MathUtils {
      * @param decimalPlacesRequired the number of required decimal places
      * @return d reduced to the specified precision
      */
-    public static final double round(double d, int decimalPlacesRequired) {
-        double factor = Math.pow(10, decimalPlacesRequired);
+    public static double round(double d, int decimalPlacesRequired) {
+        double factor = FastMath.pow(10, decimalPlacesRequired);
         return Math.round((d * factor)) / factor;
     }
 
@@ -593,7 +595,7 @@ public class MathUtils {
      * @param multipleOf the value that the final number should be a multiple of.
      * @return value rounded to the nearest number that is a multiple of multipleOf.
      */
-    public static final int roundToMultiple(int value, int multipleOf) {
+    public static int roundToMultiple(int value, int multipleOf) {
         return (int) Math.round((double) value / multipleOf) * multipleOf;
     }
 

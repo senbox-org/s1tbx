@@ -142,7 +142,7 @@ public class DatApp extends VisatApp {
 
     private void installDefaultColorPalettes() {
         final URL codeSourceUrl = this.getClass().getProtectionDomain().getCodeSource().getLocation();
-        final File auxdataDir = new File(SystemUtils.getApplicationDataDir(), "beam-ui/auxdata/color-palettes");
+        final File auxdataDir = new File(SystemUtils.getApplicationDataDir(), "snap-ui/auxdata/color-palettes");
         final ResourceInstaller resourceInstaller = new ResourceInstaller(codeSourceUrl, "auxdata/color_palettes/",
                 auxdataDir);
         ProgressMonitorSwingWorker swingWorker = new ProgressMonitorSwingWorker(getMainFrame(),

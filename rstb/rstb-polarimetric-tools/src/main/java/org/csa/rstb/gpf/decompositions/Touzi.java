@@ -24,6 +24,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.nest.dataio.PolBandUtils;
 import org.esa.nest.dataio.PolBandUtils.MATRIX;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
@@ -197,7 +198,7 @@ public class Touzi extends DecompositionBase implements Decomposition {
 
                         alpha[k] = Math.atan(Math.sqrt((vr[1] * vr[1] + vi[1] * vi[1]) / (vr[0] * vr[0] + vi[2] * vi[2])));
 
-                        if ((psi[k] < -Math.PI / 4.0) || (psi[k] > Math.PI / 4.0)) {
+                        if ((psi[k] < -Constants.PI / 4.0) || (psi[k] > Constants.PI / 4.0)) {
                             tau[k] = -tau[k];
                             phi[k] = -phi[k];
                         }

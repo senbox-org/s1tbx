@@ -15,6 +15,7 @@
  */
 package org.esa.nest.dataio.radarsat2;
 
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.SystemUtils;
@@ -44,6 +45,8 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
     private String productType = "Radarsat2";
     private final String productDescription = "";
     private boolean compactPolMode = false;
+
+    private static final DateFormat standardDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private static final boolean flipToSARGeometry = System.getProperty(SystemUtils.getApplicationContextId() +
             ".flip.to.sar.geometry", "false").equals("true");
@@ -223,14 +226,14 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         ProductData.UTC stopTime = null;
         if (flipToSARGeometry && pass.equals("ASCENDING")) {
             stopTime = ReaderUtils.getTime(sarProcessingInformation,
-                    "zeroDopplerTimeFirstLine", AbstractMetadata.dateFormat);
+                    "zeroDopplerTimeFirstLine", standardDateFormat);
             startTime = ReaderUtils.getTime(sarProcessingInformation,
-                    "zeroDopplerTimeLastLine", AbstractMetadata.dateFormat);
+                    "zeroDopplerTimeLastLine", standardDateFormat);
         } else {
             startTime = ReaderUtils.getTime(sarProcessingInformation,
-                    "zeroDopplerTimeFirstLine", AbstractMetadata.dateFormat);
+                    "zeroDopplerTimeFirstLine", standardDateFormat);
             stopTime = ReaderUtils.getTime(sarProcessingInformation,
-                    "zeroDopplerTimeLastLine", AbstractMetadata.dateFormat);
+                    "zeroDopplerTimeLastLine", standardDateFormat);
         }
 
         final DateFormat dateFormat = ProductData.UTC.createDateFormat("dd-MMM-yyyy_HH.mm");
@@ -248,7 +251,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         );
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME,
-                ReaderUtils.getTime(generalProcessingInformation, "processingTime", AbstractMetadata.dateFormat));
+                ReaderUtils.getTime(generalProcessingInformation, "processingTime", standardDateFormat));
 
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ant_elev_corr_flag,
                 getFlag(sarProcessingInformation, "elevationPatternCorrection"));
@@ -379,7 +382,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                 equalElems(AbstractMetadata.NO_METADATA_UTC)) {
 
             AbstractMetadata.setAttribute(absRoot, AbstractMetadata.STATE_VECTOR_TIME,
-                    ReaderUtils.getTime(stateVectorElems[0], "timeStamp", AbstractMetadata.dateFormat));
+                    ReaderUtils.getTime(stateVectorElems[0], "timeStamp", standardDateFormat));
         }
     }
 
@@ -388,7 +391,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final MetadataElement orbitVectorElem = new MetadataElement(name + num);
 
         orbitVectorElem.setAttributeUTC(AbstractMetadata.orbit_vector_time,
-                ReaderUtils.getTime(srcElem, "timeStamp", AbstractMetadata.dateFormat));
+                ReaderUtils.getTime(srcElem, "timeStamp", standardDateFormat));
 
         final MetadataElement xpos = srcElem.getElement("xPosition");
         orbitVectorElem.setAttributeDouble(AbstractMetadata.orbit_vector_x_pos,
@@ -422,7 +425,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                 srgrCoefficientsElem.addElement(srgrListElem);
                 ++listCnt;
 
-                final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "zeroDopplerAzimuthTime", AbstractMetadata.dateFormat);
+                final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "zeroDopplerAzimuthTime", standardDateFormat);
                 srgrListElem.setAttributeUTC(AbstractMetadata.srgr_coef_time, utcTime);
 
                 final double grOrigin = elem.getElement("groundRangeOrigin").getAttributeDouble("groundRangeOrigin", 0);
@@ -461,7 +464,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                 dopplerCentroidCoefficientsElem.addElement(dopplerListElem);
                 ++listCnt;
 
-                final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "timeOfDopplerCentroidEstimate", AbstractMetadata.dateFormat);
+                final ProductData.UTC utcTime = ReaderUtils.getTime(elem, "timeOfDopplerCentroidEstimate", standardDateFormat);
                 dopplerListElem.setAttributeUTC(AbstractMetadata.dop_coef_time, utcTime);
 
                 final double refTime = elem.getElement("dopplerCentroidReferenceTime").
@@ -644,10 +647,10 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         final MetadataElement incidenceAngleNearRangeElem = sarProcessingInformation.getElement("incidenceAngleNearRange");
         final double nearRangeIncidenceAngle = (float) incidenceAngleNearRangeElem.getAttributeDouble("incidenceAngleNearRange", 0);
 
-        final double alpha1 = nearRangeIncidenceAngle * org.esa.beam.util.math.MathUtils.DTOR;
-        final double lambda = sceneCenterLatitude * org.esa.beam.util.math.MathUtils.DTOR;
-        final double cos2 = Math.cos(lambda) * Math.cos(lambda);
-        final double sin2 = Math.sin(lambda) * Math.sin(lambda);
+        final double alpha1 = nearRangeIncidenceAngle * Constants.DTOR;
+        final double lambda = sceneCenterLatitude * Constants.DTOR;
+        final double cos2 = FastMath.cos(lambda) * FastMath.cos(lambda);
+        final double sin2 = FastMath.sin(lambda) * FastMath.sin(lambda);
         final double e2 = (b * b) / (a * a);
         final double rt = a * Math.sqrt((cos2 + e2 * e2 * sin2) / (cos2 + e2 * sin2));
         final double rt2 = rt * rt;
@@ -656,22 +659,22 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
         if (srgrFlag) { // detected
             groundRangeSpacing = rangeSpacing;
         } else {
-            groundRangeSpacing = rangeSpacing / Math.sin(alpha1);
+            groundRangeSpacing = rangeSpacing / FastMath.sin(alpha1);
         }
 
         double deltaPsi = groundRangeSpacing / rt; // in radian
         final double r1 = slantRangeToFirstPixel;
-        final double rtPlusH = Math.sqrt(rt2 + r1 * r1 + 2.0 * rt * r1 * Math.cos(alpha1));
+        final double rtPlusH = Math.sqrt(rt2 + r1 * r1 + 2.0 * rt * r1 * FastMath.cos(alpha1));
         final double rtPlusH2 = rtPlusH * rtPlusH;
-        final double theta1 = Math.acos((r1 + rt * Math.cos(alpha1)) / rtPlusH);
+        final double theta1 = FastMath.acos((r1 + rt * FastMath.cos(alpha1)) / rtPlusH);
         final double psi1 = alpha1 - theta1;
         double psi = psi1;
         float[] incidenceAngles = new float[gridWidth];
         final int n = gridWidth * subSamplingX;
         int k = 0;
         for (int i = 0; i < n; i++) {
-            final double ri = Math.sqrt(rt2 + rtPlusH2 - 2.0 * rt * rtPlusH * Math.cos(psi));
-            final double alpha = Math.acos((rtPlusH2 - ri * ri - rt2) / (2.0 * ri * rt));
+            final double ri = Math.sqrt(rt2 + rtPlusH2 - 2.0 * rt * rtPlusH * FastMath.cos(psi));
+            final double alpha = FastMath.acos((rtPlusH2 - ri * ri - rt2) / (2.0 * ri * rt));
             if (i % subSamplingX == 0) {
                 int index = k++;
 
@@ -679,11 +682,11 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
                     index = gridWidth - 1 - index;
                 }
 
-                incidenceAngles[index] = (float) (alpha * org.esa.beam.util.math.MathUtils.RTOD);
+                incidenceAngles[index] = (float) (alpha * Constants.RTOD);
             }
 
             if (!srgrFlag) { // complex
-                groundRangeSpacing = rangeSpacing / Math.sin(alpha);
+                groundRangeSpacing = rangeSpacing / FastMath.sin(alpha);
                 deltaPsi = groundRangeSpacing / rt;
             }
             psi = psi + deltaPsi;
@@ -719,7 +722,7 @@ public class Radarsat2ProductDirectory extends XMLProductDirectory {
             if (elem.getName().equalsIgnoreCase("slantRangeToGroundRange")) {
                 final coefList coef = new coefList();
                 segmentsArray.add(coef);
-                coef.utcSeconds = ReaderUtils.getTime(elem, "zeroDopplerAzimuthTime", AbstractMetadata.dateFormat).getMJD() * 24 * 3600;
+                coef.utcSeconds = ReaderUtils.getTime(elem, "zeroDopplerAzimuthTime", standardDateFormat).getMJD() * 24 * 3600;
                 coef.grOrigin = elem.getElement("groundRangeOrigin").getAttributeDouble("groundRangeOrigin", 0);
 
                 final String coeffStr = elem.getAttributeString("groundToSlantRangeCoefficients", "");

@@ -123,12 +123,16 @@ public class DecompositionBase {
                                 dataBuffers[i] = sourceTiles[i].getDataBuffer();
                             }
 
+                            //final MeanCovariance covariance = new MeanCovariance(sourceProductType, sourceTiles,
+                            //        dataBuffers, halfWindowSizeX, halfWindowSizeY);
+
                             for (int y = rectangle.y; y < yMax; ++y) {
 
                                 for (int x = rectangle.x; x < xMax; ++x) {
 
                                     PolOpUtils.getMeanCovarianceMatrix(x, y, halfWindowSizeX, halfWindowSizeX,
                                             sourceProductType, sourceTiles, dataBuffers, Cr, Ci);
+                                    //covariance.getMeanCovarianceMatrix(x, y, Cr, Ci);
 
                                     span = Cr[0][0] + Cr[1][1] + Cr[2][2];
 
@@ -181,6 +185,9 @@ public class DecompositionBase {
         if (p < PolOpUtils.EPS) p = spanMin;
 
         return 10.0 * Math.log10(p);
+
+        //double db = 10.0 * Math.log10(p);
+        //return db < 0 ? 0 : db;
     }
 
     /**

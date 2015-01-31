@@ -29,6 +29,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -44,6 +46,9 @@ public class SentinelPODOrbitFile implements OrbitFile {
     // 5) NRT Restituted
 
     private File orbitFile = null;
+
+    private final static DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyMMdd-HHmmss");
+    private final static DateFormat orbitDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private final class FixedHeader {
 
@@ -67,64 +72,43 @@ public class SentinelPODOrbitFile implements OrbitFile {
 
     private final class OSV {
 
-        private final String tai;
         private final String utc;
-        private final String ut1;
-        private final int absoluteOrbit;
-        private final float x;
-        private final float y;
-        private final float z;
-        private final float vx;
-        private final float vy;
-        private final float vz;
-        private final String quality;
-
+        private final float x, y, z;
+        private final float vx, vy, vz;
         private double utcMJD;
 
         OSV(final double utcMJD) {
 
-            this.tai = "";
             this.utc = "";
-            this.ut1 = "";
-            this.absoluteOrbit = 0;
             this.x = 0.0F;
             this.y = 0.0F;
             this.z = 0.0F;
             this.vx = 0.0F;
             this.vy = 0.0F;
             this.vz = 0.0F;
-            this.quality = "";
 
             this.utcMJD = utcMJD;
         }
 
-        OSV(final String tai, final String utc, final String ut1, final int absoluteOrbit, final float x, final float y, final float z, final float vx, final float vy, final float vz, final String quality) throws Exception{
+        OSV(final String utc, final float x, final float y, final float z, final float vx, final float vy, final float vz) throws Exception{
 
-            this.tai = tai;
             this.utc = utc;
-            this.ut1 = ut1;
-            this.absoluteOrbit = absoluteOrbit;
             this.x = x;
             this.y = y;
             this.z = z;
             this.vx = vx;
             this.vy = vy;
             this.vz = vz;
-            this.quality = quality;
 
-            this.utcMJD = ProductData.UTC.parse(convertUTC(this.utc)).getMJD();
+            this.utcMJD = toUTC(utc).getMJD();
         }
 
         void dump() {
 
             System.out.println("SentinelPODOrbitFile.OSV:");
-            System.out.println("  tai " + tai);
             System.out.println("  utc " + utc);
-            System.out.println("  ut1 " + ut1);
-            System.out.println("  absoluteOrbit " + absoluteOrbit);
             System.out.println("  x = " + x + " y = " + y + " z = " + z);
             System.out.println("  vx = " + vx + " vy = " + vy + " vz = " + vz);
-            System.out.println("  quality = " + quality);
             System.out.println("  utcMJD = " + utcMJD);
         }
     }
@@ -144,13 +128,14 @@ public class SentinelPODOrbitFile implements OrbitFile {
         }
     };
 
-    public SentinelPODOrbitFile(final String fullFilePath) throws Exception {
-
-        final File orbitFile = findPODOrbitFile(fullFilePath);
-
-        if (orbitFile == null) {
+    public SentinelPODOrbitFile(final File orbitFile) throws Exception {
+        this.orbitFile = orbitFile;
+        if (!orbitFile.exists()) {
             throw new IOException("SentinelPODOrbitFile: Unable to find POD orbit file");
         }
+
+        // read content of the orbit file
+        readOrbitFile();
     }
 
     public File getOrbitFile() {
@@ -278,24 +263,6 @@ public class SentinelPODOrbitFile implements OrbitFile {
         orbitData.zVel = Maths.polyVal(normalizedTime, zVelCoeff);
 
         return orbitData;
-    }
-
-
-    /**
-     * Find POD orbit file.
-     */
-    private File findPODOrbitFile(final String fullFilePath)
-            throws Exception {
-
-        orbitFile = new File(fullFilePath);
-        if (!orbitFile.exists()) {
-                return null;
-        }
-
-        // read content of the orbit file
-        readOrbitFile();
-
-        return orbitFile;
     }
 
     private void readOrbitFile() throws Exception {
@@ -479,37 +446,21 @@ public class SentinelPODOrbitFile implements OrbitFile {
 
     private void readOneOSV(final org.w3c.dom.Node osvNode) throws Exception {
 
-        String tai = "";
         String utc = "";
-        String ut1 = "";
-        int absoluteOrbit = 0;
         float x = 0.0F;
         float y = 0.0F;
         float z = 0.0F;
         float vx = 0.0F;
         float vy = 0.0F;
         float vz = 0.0F;
-        String quality = "";
 
         org.w3c.dom.Node childNode = osvNode.getFirstChild();
 
         while (childNode != null) {
 
             switch (childNode.getNodeName()) {
-                case "TAI": {
-                    tai = childNode.getTextContent();
-                }
-                    break;
                 case "UTC": {
                     utc = childNode.getTextContent();
-                }
-                    break;
-                case "UT1": {
-                    ut1 = childNode.getTextContent();
-                }
-                    break;
-                case "Absolute_Orbit": {
-                    absoluteOrbit = Integer.parseInt(childNode.getTextContent());
                 }
                     break;
                 case "X": {
@@ -536,10 +487,6 @@ public class SentinelPODOrbitFile implements OrbitFile {
                     vz = Float.parseFloat(childNode.getTextContent());
                 }
                     break;
-                case "Quality": {
-                    quality = childNode.getTextContent();
-                }
-                    break;
                 default:
                     break;
             }
@@ -547,7 +494,7 @@ public class SentinelPODOrbitFile implements OrbitFile {
             childNode = childNode.getNextSibling();
         }
 
-        OSV osv = new OSV(tai, utc, ut1, absoluteOrbit, x, y, z, vx, vy, vz, quality);
+        OSV osv = new OSV(utc, x, y, z, vx, vy, vz);
         osvList.add(osv);
 
         //osv.dump();
@@ -581,69 +528,9 @@ public class SentinelPODOrbitFile implements OrbitFile {
         return attrNode;
     }
 
-    public static String convertUTC(String utc) {
+    private static String convertUTC(String utc) {
 
-        final String dd = utc.substring(12, 14);
-        final String mm = utc.substring(9, 11);
-        final String yyyy = utc.substring(4, 8);
-        final String hhmmss = utc.substring(15);
-
-        String MMM = "MMM";
-
-        switch (mm) {
-            case "01": {
-                MMM = "jan";
-            }
-                break;
-            case "02": {
-                MMM = "feb";
-            }
-                break;
-            case "03": {
-                MMM = "mar";
-            }
-                break;
-            case "04": {
-                MMM = "apr";
-            }
-                break;
-            case "05": {
-                MMM = "may";
-            }
-                break;
-            case "06": {
-                MMM = "jun";
-            }
-                break;
-            case "07": {
-                MMM = "jul";
-            }
-                break;
-            case "08": {
-                MMM = "aug";
-            }
-                break;
-            case "09": {
-                MMM = "sep";
-            }
-                break;
-            case "10": {
-                MMM = "oct";
-            }
-                break;
-            case "11": {
-                MMM = "nov";
-            }
-                break;
-            case "12": {
-                MMM = "dec";
-            }
-                break;
-            default:
-                break;
-        }
-
-        return dd + "-" + MMM + "-" + yyyy + " " + hhmmss;
+        return utc.replace("UTC=","").replace("T"," ");
     }
 
     public static String getMissionIDFromFilename(String filename) {
@@ -668,16 +555,38 @@ public class SentinelPODOrbitFile implements OrbitFile {
         return "UTC=" + yyyy + "-" + mmDate + "-" + dd + "T" + hh + ":" + mmTime + ":" + ss;
     }
 
+    private static String extractTimeFromFilename(final String filename, final int offset) {
+
+        return filename.substring(offset,offset+15).replace("T","-");
+    }
+
+    public static ProductData.UTC getValidityStartFromFilenameUTC(String filename) throws ParseException {
+
+        if (filename.substring(41,42).equals("V")) {
+
+            String val = extractTimeFromFilename(filename, 42);
+            return ProductData.UTC.parse(val, dateFormat);
+        }
+        return null;
+    }
+
+    public static ProductData.UTC getValidityStopFromFilenameUTC(String filename) throws ParseException {
+
+        if (filename.substring(41,42).equals("V")) {
+
+            String val = extractTimeFromFilename(filename, 58);
+            return ProductData.UTC.parse(val, dateFormat);
+        }
+        return null;
+    }
+
     public static String getValidityStartFromFilename(String filename) {
 
         if (filename.substring(41,42).equals("V")) {
 
             return extractUTCTimeFromFilename(filename, 42);
-
-        } else {
-
-            return null;
         }
+        return null;
     }
 
     public static String getValidityStopFromFilename(String filename) {
@@ -685,46 +594,43 @@ public class SentinelPODOrbitFile implements OrbitFile {
         if (filename.substring(41,42).equals("V")) {
 
             return extractUTCTimeFromFilename(filename, 58);
-
-        } else {
-
-            return null;
         }
+        return null;
     }
 
     public String getMissionFromHeader() {
 
         if (fixedHeader != null) {
             return fixedHeader.mission;
-        } else {
-            return null;
         }
+        return null;
     }
 
     public String getFileTypeFromHeader() {
 
         if (fixedHeader != null) {
             return fixedHeader.fileType;
-        } else {
-            return null;
         }
+        return null;
     }
 
     public String getValidityStartFromHeader() {
 
         if (fixedHeader != null) {
             return fixedHeader.validityStart;
-        } else {
-            return null;
         }
+        return null;
     }
 
     public String getValidityStopFromHeader() {
 
         if (fixedHeader != null) {
             return fixedHeader.validityStop;
-        } else {
-            return null;
         }
+        return null;
+    }
+
+    public static ProductData.UTC toUTC(final String str) throws ParseException {
+        return ProductData.UTC.parse(convertUTC(str), orbitDateFormat);
     }
 }

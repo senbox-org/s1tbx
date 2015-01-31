@@ -1,12 +1,14 @@
 package org.jlinda.core;
 
-import org.apache.log4j.Logger;
+import org.esa.beam.util.logging.BeamLogManager;
+import org.apache.commons.math3.util.FastMath;
+import java.util.logging.Logger;
 
 import static org.jlinda.core.Constants.DTOR;
 
 public class Ellipsoid {
 
-    Logger logger = Logger.getLogger(Ellipsoid.class.getName());
+    Logger logger = BeamLogManager.getSystemLogger();
 
     private static double e2 = 0.00669438003551279091;  // squared first  eccentricity (derived)
     private static double e2b = 0.00673949678826153145; // squared second eccentricity (derived)
@@ -43,11 +45,11 @@ public class Ellipsoid {
     }
 
     public void showdata() {
-        //Logger.info("ELLIPSOID: \tEllipsoid used (orbit, output): " + name + ".");
-        //Logger.info("ELLIPSOID: a   = " + a);
-        //Logger.info("ELLIPSOID: b   = " + b);
-        //Logger.info("ELLIPSOID: e2  = " + e2);
-        //Logger.info("ELLIPSOID: e2' = " + e2b);
+        logger.info("ELLIPSOID: \tEllipsoid used (orbit, output): " + name + ".");
+        logger.info("ELLIPSOID: a   = " + a);
+        logger.info("ELLIPSOID: b   = " + b);
+        logger.info("ELLIPSOID: e2  = " + e2);
+        logger.info("ELLIPSOID: e2' = " + e2b);
     }
 
     /**
@@ -67,14 +69,14 @@ public class Ellipsoid {
     public static double[] xyz2ell(final Point xyz) {
 
 //        double[] phi_lambda_height = new double[3];
-        final double r = Math.sqrt(Math.pow(xyz.x, 2) + Math.pow(xyz.y, 2));
+        final double r = Math.sqrt(FastMath.pow(xyz.x, 2) + FastMath.pow(xyz.y, 2));
         final double nu = Math.atan2((xyz.z * a), (r * b));
-        final double sin3 = Math.pow(Math.sin(nu), 3);
-        final double cos3 = Math.pow(Math.cos(nu), 3);
+        final double sin3 = FastMath.pow(FastMath.sin(nu), 3);
+        final double cos3 = FastMath.pow(FastMath.cos(nu), 3);
         final double phi = Math.atan2((xyz.z + e2b * b * sin3), (r - e2 * a * cos3));
         final double lambda = Math.atan2(xyz.y, xyz.x);
         final double N = computeEllipsoidNormal(phi);
-        final double height = (r / Math.cos(phi)) - N;
+        final double height = (r / FastMath.cos(phi)) - N;
 
         return new double[]{phi, lambda, height};
 
@@ -108,9 +110,9 @@ public class Ellipsoid {
         final double N = computeEllipsoidNormal(phi);
         final double Nph = N + height;
         return new Point(
-                Nph * Math.cos(phi) * Math.cos(lambda),
-                Nph * Math.cos(phi) * Math.sin(lambda),
-                (Nph - e2 * N) * Math.sin(phi));
+                Nph * FastMath.cos(phi) * FastMath.cos(lambda),
+                Nph * FastMath.cos(phi) * FastMath.sin(lambda),
+                (Nph - e2 * N) * FastMath.sin(phi));
     }
 
     public static Point ell2xyz(final double[] phiLambdaHeight) throws IllegalArgumentException {
@@ -126,9 +128,9 @@ public class Ellipsoid {
         final double N = computeEllipsoidNormal(phi);
         final double Nph = N + height;
         return new Point(
-                Nph * Math.cos(phi) * Math.cos(lambda),
-                Nph * Math.cos(phi) * Math.sin(lambda),
-                (Nph - e2 * N) * Math.sin(phi));
+                Nph * FastMath.cos(phi) * FastMath.cos(lambda),
+                Nph * FastMath.cos(phi) * FastMath.sin(lambda),
+                (Nph - e2 * N) * FastMath.sin(phi));
     }
 
     public static Point ell2xyz(final GeoPoint geoPoint, final double height) {
@@ -154,24 +156,24 @@ public class Ellipsoid {
     }
 
     private static double computeEllipsoidNormal(final double phi) {
-        return a / Math.sqrt(1.0 - e2 * Math.pow(Math.sin(phi), 2));
+        return a / Math.sqrt(1.0 - e2 * FastMath.pow(FastMath.sin(phi), 2));
     }
 
     private double computeCurvatureRadiusInMeridianPlane(final double phi) {
-        return a * (1 - e2) / Math.pow((1 - e2 * Math.pow(Math.sin(phi), 2)), 3 / 2);
+        return a * (1 - e2) / FastMath.pow((1 - e2 * FastMath.pow(FastMath.sin(phi), 2)), 3 / 2);
 
     }
 
     // first ecc.
     private static void set_ecc1st_sqr() {
         //  faster than e2=(sqr(a)-sqr(b))/sqr(a)
-        e2 = 1.0 - Math.pow(b / a, 2);
+        e2 = 1.0 - FastMath.pow(b / a, 2);
     }
 
     // second ecc.
     private static void set_ecc2nd_sqr() {
         // faster than e2b=(sqr(a)-sqr(b))/sqr(b);
-        e2b = Math.pow(a / b, 2) - 1.0;
+        e2b = FastMath.pow(a / b, 2) - 1.0;
     }
 
 }

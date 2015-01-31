@@ -422,13 +422,13 @@ public class WindFieldEstimationOp extends Operator {
 
         double sigma = sourceTile.getDataBuffer().getElemDoubleAt(sourceTile.getDataBufferIndex(x, y));
         if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-            sigma = Math.pow(10.0, sigma / 10);
+            sigma = FastMath.pow(10.0, sigma / 10);
         }
 
         if (normalizeSigma) {
             final double alpha = 1.0; // in range [0.4, 1.0]
-            final double tanTheta = Math.tan(theta * org.esa.beam.util.math.MathUtils.DTOR);
-            sigma *= Math.pow((1 + 2.0 * tanTheta * tanTheta) / (1 + alpha * tanTheta * tanTheta), 2.0);
+            final double tanTheta = FastMath.tan(theta * Constants.DTOR);
+            sigma *= FastMath.pow((1 + 2.0 * tanTheta * tanTheta) / (1 + alpha * tanTheta * tanTheta), 2.0);
         }
         return sigma;
     }
@@ -880,8 +880,8 @@ public class WindFieldEstimationOp extends Operator {
      */
     private static double estimateWindSpeed(final double nrcs, final double[] direction, final double theta) {
 
-        final double fi = Math.atan2(direction[1], direction[0]) * org.esa.beam.util.math.MathUtils.RTOD;
-        final double cosFI = Math.cos(fi * org.esa.beam.util.math.MathUtils.DTOR);
+        final double fi = Math.atan2(direction[1], direction[0]) * Constants.RTOD;
+        final double cosFI = FastMath.cos(fi * Constants.DTOR);
 
         // try wind speed from 0.1 m/s to 20 m/s with step size 0.1
         final double[] err = new double[200];
@@ -938,7 +938,7 @@ public class WindFieldEstimationOp extends Operator {
         private final static double y0 = c19;
         private final static double n = c20;
         private final static double a = y0 - (y0 - 1) / n;
-        private final static double b = 1 / (n * Math.pow(y0 - 1, n - 1));
+        private final static double b = 1 / (n * FastMath.pow(y0 - 1, n - 1));
 
         /**
          * Compute normalized radar cross section (NRCS) using CMOD5 model.
@@ -960,10 +960,10 @@ public class WindFieldEstimationOp extends Operator {
             final double s = a2 * v;
             double a3 = 1.0 / (1.0 + FastMath.exp(-Math.max(s, s0)));
             if (s < s0) {
-                a3 = a3 * Math.pow((s / s0), s0 * (1.0 - a3));
+                a3 = a3 * FastMath.pow((s / s0), s0 * (1.0 - a3));
             }
 
-            final double b0 = Math.pow(a3, gamma) * Math.pow(10.0, a0 + a1 * v);
+            final double b0 = FastMath.pow(a3, gamma) * FastMath.pow(10.0, a0 + a1 * v);
             double b1 = c15 * v * (0.5 + x - FastMath.tanh(4.0 * (x + c16 + c17 * v)));
             b1 = (c14 * (1.0 + x) - b1) / (FastMath.exp(0.34 * (v - c18)) + 1);
             final double v0 = c21 + c22 * x + c23 * xx;
@@ -971,11 +971,11 @@ public class WindFieldEstimationOp extends Operator {
             final double d2 = c27 + c28 * x;
             double v2 = v / v0 + 1.0;
             if (v2 < y0) {
-                v2 = a + b * Math.pow(v2 - 1.0, n);
+                v2 = a + b * FastMath.pow(v2 - 1.0, n);
             }
-            final double b2 = (-d1 + d2 * v2) * Math.exp(-v2);
+            final double b2 = (-d1 + d2 * v2) * FastMath.exp(-v2);
 
-            return b0 * Math.pow(1.0 + b1 * cosFI + b2 * (2.0 * cosFI * cosFI - 1.0), ZPOW);
+            return b0 * FastMath.pow(1.0 + b1 * cosFI + b2 * (2.0 * cosFI * cosFI - 1.0), ZPOW);
         }
     }
 

@@ -1,6 +1,6 @@
 package org.jlinda.core.filtering;
 
-import org.apache.log4j.Logger;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
@@ -9,12 +9,14 @@ import org.jlinda.core.utils.LinearAlgebraUtils;
 import org.jlinda.core.utils.SarUtils;
 import org.jlinda.core.utils.SpectralUtils;
 
+import java.util.logging.Logger;
+
 import static org.jblas.MatrixFunctions.powi;
 import static org.jlinda.core.utils.MathUtils.isEven;
 
 public class PhaseFilterUtils {
 
-    static Logger logger = Logger.getLogger(PhaseFilter.class.getName());
+    static Logger logger = BeamLogManager.getSystemLogger();
 
 
     /**
@@ -66,7 +68,7 @@ public class PhaseFilterUtils {
         } catch (Exception e) {
             doSmooth = false;
         }
-//        PhaseFilterUtils.//Logger.debug("SMOOTH flag: " + doSmooth);  // problem with uint<0 index in smoothkernel
+//        PhaseFilterUtils.logger.info("SMOOTH flag: " + doSmooth);  // problem with uint<0 index in smoothkernel
 
         // use FFT's for convolution with smoothkernel
         // this could also be done static, or in the calling routine
@@ -77,7 +79,7 @@ public class PhaseFilterUtils {
             for (int ii = -smooth; ii <= smooth; ++ii) {// 1d kernel function of block
                 int tmpValue_1 = (ii + size) % size;
                 int tmpValue_2 = ii + smooth;// used to be ii-SMOOTH: wrong
-//                PhaseFilterUtils.//Logger.debug("tmp1: " + tmpValue_1 + "; tmp2: " + tmpValue_2);
+//                PhaseFilterUtils.logger.info("tmp1: " + tmpValue_1 + "; tmp2: " + tmpValue_2);
                 kernel1D.put(0, tmpValue_1, new ComplexDouble(smoothKernel[tmpValue_2]));
             }
 
@@ -85,7 +87,7 @@ public class PhaseFilterUtils {
             SpectralUtils.fft2D_inplace(kernel2D);  // should be real sinc
 
         }
-//        PhaseFilterUtils.//Logger.debug("kernel created for smoothing spectrum");
+//        PhaseFilterUtils.logger.info("kernel created for smoothing spectrum");
 
         // ====== Loop forever, stop after lastblockdone ======
         for (; ; ) {  //forever, like in c!
@@ -538,7 +540,7 @@ public class PhaseFilterUtils {
             powi(amplitude, alpha);
             LinearAlgebraUtils.dotmult_inplace(block, new ComplexDoubleMatrix(amplitude));
         } else {
-//            PhaseFilterUtils.//Logger.warn("no filtering, maxAmplitude < " + goldsteinThreshold + ", are zeros in this data block?");
+//            PhaseFilterUtils.logger.warning("no filtering, maxAmplitude < " + goldsteinThreshold + ", are zeros in this data block?");
         }
     }
 

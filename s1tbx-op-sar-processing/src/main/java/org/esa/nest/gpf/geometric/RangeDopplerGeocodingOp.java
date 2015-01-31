@@ -921,7 +921,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                     GeoUtils.geo2xyzWGS84(lat, lon, alt, earthPoint);
 
-                    final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(firstLineUTC,
+                    double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(firstLineUTC,
                             lineTimeInterval, wavelength, earthPoint, orbit.sensorPosition, orbit.sensorVelocity);
 
                     if (Double.compare(zeroDopplerTime, SARGeocoding.NonValidZeroDopplerTime) == 0) {
@@ -931,18 +931,14 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                     double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
 
-                    double azimuthIndex = 0.0;
-                    double rangeIndex = 0.0;
-                    double zeroDoppler = zeroDopplerTime;
                     if (!skipBistaticCorrection) {
                         // skip bistatic correction for COSMO, TerraSAR-X and RadarSAT-2
-                        zeroDoppler = zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
+                        zeroDopplerTime += slantRange / Constants.lightSpeedInMetersPerDay;
+                        slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
                     }
 
-                    slantRange = SARGeocoding.computeSlantRange(zeroDoppler, orbit, earthPoint, sensorPos);
-
-                    rangeIndex = SARGeocoding.computeRangeIndex(srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC,
-                            rangeSpacing, zeroDoppler, slantRange, nearEdgeSlantRange, srgrConvParams);
+                    double rangeIndex = SARGeocoding.computeRangeIndex(srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC,
+                            rangeSpacing, zeroDopplerTime, slantRange, nearEdgeSlantRange, srgrConvParams);
 
                     if (rangeIndex == -1.0) {
                         //saveNoDataValueToTarget(index, trgTiles);
@@ -954,7 +950,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                         rangeIndex = srcMaxRange - rangeIndex;
                     }
 
-                    azimuthIndex = (zeroDoppler - firstLineUTC) / lineTimeInterval;
+                    final double azimuthIndex = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
 
                     if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, tileGeoRef,
                             srcMaxRange, srcMaxAzimuth, sensorPos)) {

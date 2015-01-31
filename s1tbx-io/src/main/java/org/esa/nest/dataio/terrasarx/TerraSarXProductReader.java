@@ -152,7 +152,7 @@ public class TerraSarXProductReader extends SARReader {
 
                 final ImageInputStream iiStream = dataDir.getCosarImageInputStream(destBand);
                 final boolean isImaginary = destBand.getUnit() != null && destBand.getUnit().equals(Unit.IMAGINARY);
-                readBandRasterDataSLCShort(sourceOffsetX, sourceOffsetY,
+                readBandRasterDataSLC16Bit(sourceOffsetX, sourceOffsetY,
                         sourceWidth, sourceHeight,
                         sourceStepX, sourceStepY,
                         destWidth, destBuffer,
@@ -247,12 +247,49 @@ public class TerraSarXProductReader extends SARReader {
         }
     }
 
-    private static synchronized void readBandRasterDataSLCShort(final int sourceOffsetX, final int sourceOffsetY,
+    private static float convert16BitsTo32BitFloat(final char halfFloat) {
+
+        // char is 16 bits
+
+        int s = (halfFloat >> 15) & 0x00000001; // sign
+        int e = (halfFloat >> 10) & 0x0000001f; // exponent
+        int f =  halfFloat        & 0x000003ff; // fraction
+
+        //System.out.println("s = " + s + " e = " + e + " f = " + f);
+
+        // need to handle 7c00 INF and fc00 -INF?
+        if (e == 0) {
+            // need to handle +-0 case f==0 or f=0x8000?
+            if (f == 0) // Plus or minus zero
+                return Float.intBitsToFloat(s << 31);
+            else { // Denormalized number -- renormalize it
+                while ((f & 0x00000400)==0) {
+                    f <<= 1;
+                    e -=  1;
+                }
+                e += 1;
+                f &= ~0x00000400;
+            }
+        } else if (e == 31) {
+            if (f == 0) // Inf
+                return Float.intBitsToFloat((s << 31) | 0x7f800000);
+            else // NaN
+                return Float.intBitsToFloat((s << 31) | 0x7f800000 | (f << 13));
+        }
+
+        e = e + (127 - 15);
+        f = f << 13;
+
+        return Float.intBitsToFloat(((s << 31) | (e << 23) | f));
+    }
+
+    private static synchronized void readBandRasterDataSLC16Bit(final int sourceOffsetX, final int sourceOffsetY,
                                                                 final int sourceWidth, final int sourceHeight,
                                                                 final int sourceStepX, final int sourceStepY,
                                                                 final int destWidth, final ProductData destBuffer, boolean oneOf2,
                                                                 final ImageInputStream iiStream, final ProgressMonitor pm)
             throws IOException {
+
         iiStream.seek(0);
         final int bib = iiStream.readInt();
         final int rsri = iiStream.readInt();
@@ -271,44 +308,97 @@ public class TerraSarXProductReader extends SARReader {
         final int asri = rs;
         final int asfv = rs;
         final int aslv = rs;
+
+        final int csar = iiStream.readInt();
+        final int version = iiStream.readInt();
+
+        if (version != 1 && version != 2) {
+            throw new IOException("Unknown version = " + version);
+        }
+
+        //System.out.println("csar = " + csar + " version = " + version);
+
+        final boolean isSSC = (version == 1); // true means it is SSC, false means it is CoSSC
+
         //final long xpos = rtnb + x + ((filler + asri +filler+ asfv +filler+ aslv +filler+filler)*4);
         final long xpos = rtnb + x + ((filler + asri + filler + asfv + filler + aslv + filler) * 4);
         iiStream.setByteOrder(ByteOrder.BIG_ENDIAN);
 
         pm.beginTask("Reading band...", sourceMaxY - sourceOffsetY);
-        final short[] destLine = new short[destWidth];
         int y = 0;
-        try {
-            final short[] srcLine = new short[sourceWidth * 2];
-            for (y = sourceOffsetY; y <= sourceMaxY; y += sourceStepY) {
-                if (pm.isCanceled()) {
-                    break;
+
+        if(isSSC) {
+            final short[] destLine = new short[destWidth];
+            try {
+                final short[] srcLine = new short[sourceWidth * 2];
+                for (y = sourceOffsetY; y <= sourceMaxY; y += sourceStepY) {
+                    if (pm.isCanceled()) {
+                        break;
+                    }
+
+                    // Read source line
+                    //synchronized (iiStream) {
+                    iiStream.seek(imageRecordLength * y + xpos);
+                    iiStream.readFully(srcLine, 0, srcLine.length);
+                    //}
+
+                    // Copy source line into destination buffer
+                    final int currentLineIndex = (y - sourceOffsetY) * destWidth;
+                    if (oneOf2)
+                        GenericReader.copyLine1Of2(srcLine, destLine, sourceStepX);
+                    else
+                        GenericReader.copyLine2Of2(srcLine, destLine, sourceStepX);
+
+                    System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
+
+                    pm.worked(1);
                 }
-
-                // Read source line
-                //synchronized (iiStream) {
-                iiStream.seek(imageRecordLength * y + xpos);
-                iiStream.readFully(srcLine, 0, srcLine.length);
-                //}
-
-                // Copy source line into destination buffer
+            } catch (Exception e) {
+                //System.out.println(e.toString());
                 final int currentLineIndex = (y - sourceOffsetY) * destWidth;
-                if (oneOf2)
-                    GenericReader.copyLine1Of2(srcLine, destLine, sourceStepX);
-                else
-                    GenericReader.copyLine2Of2(srcLine, destLine, sourceStepX);
-
+                Arrays.fill(destLine, (short) 0);
                 System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
-
-                pm.worked(1);
+            } finally {
+                pm.done();
             }
-        } catch (Exception e) {
-            //System.out.println(e.toString());
-            final int currentLineIndex = (y - sourceOffsetY) * destWidth;
-            Arrays.fill(destLine, (short) 0);
-            System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
-        } finally {
-            pm.done();
+        } else {
+            final char[] destLine = new char[destWidth];
+            try {
+                final char[] srcLine = new char[sourceWidth * 2];
+                for (y = sourceOffsetY; y <= sourceMaxY; y += sourceStepY) {
+                    if (pm.isCanceled()) {
+                        break;
+                    }
+
+                    // Read source line
+                    //synchronized (iiStream) {
+                    iiStream.seek(imageRecordLength * y + xpos);
+                    iiStream.readFully(srcLine, 0, srcLine.length);
+                    //}
+
+                    // Copy source line into destination buffer
+                    final int currentLineIndex = (y - sourceOffsetY) * destWidth;
+                    if (oneOf2)
+                        GenericReader.copyLine1Of2(srcLine, destLine, sourceStepX);
+                    else
+                        GenericReader.copyLine2Of2(srcLine, destLine, sourceStepX);
+
+                    for (int i = 0; i < destWidth; i++) {
+                        destBuffer.setElemFloatAt(i+currentLineIndex, convert16BitsTo32BitFloat(destLine[i]));
+                    }
+
+                    pm.worked(1);
+                }
+            } catch (Exception e) {
+                //System.out.println(e.toString());
+                final int currentLineIndex = (y - sourceOffsetY) * destWidth;
+                Arrays.fill(destLine, (char) 0);
+                for (int i = 0; i < destWidth; i++) {
+                    destBuffer.setElemFloatAt(i+currentLineIndex, convert16BitsTo32BitFloat(destLine[i]));
+                }
+            } finally {
+                pm.done();
+            }
         }
     }
 }
