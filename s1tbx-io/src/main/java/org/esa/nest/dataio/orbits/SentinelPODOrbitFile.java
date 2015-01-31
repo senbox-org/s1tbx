@@ -73,24 +73,25 @@ public class SentinelPODOrbitFile implements OrbitFile {
     private final class OSV {
 
         private final String utc;
-        private final float x, y, z;
-        private final float vx, vy, vz;
+        private final double x, y, z;
+        private final double vx, vy, vz;
         private double utcMJD;
 
         OSV(final double utcMJD) {
 
             this.utc = "";
-            this.x = 0.0F;
-            this.y = 0.0F;
-            this.z = 0.0F;
-            this.vx = 0.0F;
-            this.vy = 0.0F;
-            this.vz = 0.0F;
+            this.x = 0.0;
+            this.y = 0.0;
+            this.z = 0.0;
+            this.vx = 0.0;
+            this.vy = 0.0;
+            this.vz = 0.0;
 
             this.utcMJD = utcMJD;
         }
 
-        OSV(final String utc, final float x, final float y, final float z, final float vx, final float vy, final float vz) throws Exception{
+        OSV(final String utc, final double x, final double y, final double z,
+            final double vx, final double vy, final double vz) throws Exception{
 
             this.utc = utc;
             this.x = x;
@@ -447,12 +448,12 @@ public class SentinelPODOrbitFile implements OrbitFile {
     private void readOneOSV(final org.w3c.dom.Node osvNode) throws Exception {
 
         String utc = "";
-        float x = 0.0F;
-        float y = 0.0F;
-        float z = 0.0F;
-        float vx = 0.0F;
-        float vy = 0.0F;
-        float vz = 0.0F;
+        double x = 0.0;
+        double y = 0.0;
+        double z = 0.0;
+        double vx = 0.0;
+        double vy = 0.0;
+        double vz = 0.0;
 
         org.w3c.dom.Node childNode = osvNode.getFirstChild();
 
@@ -464,27 +465,27 @@ public class SentinelPODOrbitFile implements OrbitFile {
                 }
                     break;
                 case "X": {
-                    x = Float.parseFloat(childNode.getTextContent());
+                    x = Double.parseDouble(childNode.getTextContent());
                 }
                     break;
                 case "Y": {
-                    y = Float.parseFloat(childNode.getTextContent());
+                    y = Double.parseDouble(childNode.getTextContent());
                 }
                     break;
                 case "Z": {
-                    z = Float.parseFloat(childNode.getTextContent());
+                    z = Double.parseDouble(childNode.getTextContent());
                 }
                     break;
                 case "VX": {
-                    vx = Float.parseFloat(childNode.getTextContent());
+                    vx = Double.parseDouble(childNode.getTextContent());
                 }
                     break;
                 case "VY": {
-                    vy = Float.parseFloat(childNode.getTextContent());
+                    vy = Double.parseDouble(childNode.getTextContent());
                 }
                     break;
                 case "VZ": {
-                    vz = Float.parseFloat(childNode.getTextContent());
+                    vz = Double.parseDouble(childNode.getTextContent());
                 }
                     break;
                 default:
