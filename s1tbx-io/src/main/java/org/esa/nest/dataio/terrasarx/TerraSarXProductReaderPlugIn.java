@@ -43,7 +43,7 @@ public class TerraSarXProductReaderPlugIn implements ProductReaderPlugIn {
         }
         final String filename = file.getName().toUpperCase();
         for (String header : TerraSarXConstants.HEADER_PREFIX) {
-            if (filename.startsWith(header) && filename.endsWith(TerraSarXConstants.getIndicationKey())) {
+            if (filename.startsWith(header) && filename.endsWith(".XML")) {
                 return DecodeQualification.INTENDED;
             }
         }

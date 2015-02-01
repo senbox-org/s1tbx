@@ -46,14 +46,16 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
                     filename.equalsIgnoreCase(Radarsat2Constants.RSM_SIM_PRODUCT_HEADER_NAME)) {
 
                 final File[] files = file.getParentFile().listFiles();
-                for (File f : files) {
-                    if (f.getName().toLowerCase().endsWith("ntf")) {
-                        return DecodeQualification.SUITABLE;
+                if(files != null) {
+                    for (File f : files) {
+                        if (f.getName().toLowerCase().endsWith("ntf")) {
+                            return DecodeQualification.SUITABLE;
+                        }
                     }
                 }
                 return DecodeQualification.INTENDED;
             }
-            if (isZippedRS2(file)) {
+            if (filename.endsWith(".zip") && isZippedRS2(file)) {
                 return DecodeQualification.INTENDED;
             }
         }
@@ -64,15 +66,13 @@ public class Radarsat2ProductReaderPlugIn implements ProductReaderPlugIn {
 
     static boolean isZippedRS2(final File file) {
         try {
-            if (file.getName().toLowerCase().endsWith(".zip")) {
-                final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
+            final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
 
-                final Optional result = productZip.stream()
-                        .filter(ze -> !ze.isDirectory())
-                        .filter(ze -> ze.getName().toLowerCase().endsWith(Radarsat2Constants.PRODUCT_HEADER_NAME))
-                        .findFirst();
-                return result.isPresent();
-            }
+            final Optional result = productZip.stream()
+                    .filter(ze -> !ze.isDirectory())
+                    .filter(ze -> ze.getName().toLowerCase().endsWith(Radarsat2Constants.PRODUCT_HEADER_NAME))
+                    .findFirst();
+            return result.isPresent();
         } catch (Exception e) {
             //e.printStackTrace();
         }
