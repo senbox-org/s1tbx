@@ -91,31 +91,12 @@ public final class ApplyS1OrbitFileOp extends Operator {
 
             podOrbitFile = new SentinelPODOrbitFile(orbitType, absRoot, sourceProduct, polyDegree);
 
-            checkOrbitFileValidity();
-
             createTargetProduct();
 
             updateOrbitStateVectors();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
-        }
-    }
-
-    /**
-     * Check if product acquisition time is within the validity period of the orbit file.
-     * @throws Exception
-     */
-    private void checkOrbitFileValidity() throws Exception {
-
-        final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
-        final String validityStartTimeStr = podOrbitFile.getValidityStartFromHeader();
-        final String validityStopTimeStr = podOrbitFile.getValidityStopFromHeader();
-        final double validityStartTimeMJD = SentinelPODOrbitFile.toUTC(validityStartTimeStr).getMJD();
-        final double validityStopTimeMJD = SentinelPODOrbitFile.toUTC(validityStopTimeStr).getMJD();
-
-        if (stateVectorTime < validityStartTimeMJD || stateVectorTime > validityStopTimeMJD) {
-            throw new OperatorException("Product acquisition time is not within the validity period of the orbit");
         }
     }
 
