@@ -12,4 +12,4 @@ $S1TBX_HOME/jre/bin/java \
 	"-Dncsa.hdf.hdf5lib.H5.hdf5lib=$S1TBX_HOME/modules/lib-hdf-2.3/lib/macosx/libjhdf5.so" \
 	-jar "$S1TBX_HOME/bin/snap-launcher.jar" -d "$@" 
 
-exit 0
+exit $?

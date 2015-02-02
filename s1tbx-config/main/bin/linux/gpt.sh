@@ -12,6 +12,6 @@ $S1TBX_HOME/jre/bin/java \
 	"-D${installer:context}.debug=false" \
     "-Dncsa.hdf.hdflib.HDFLibrary.hdflib=$S1TBX_HOME/libjhdf.so" \
     "-Dncsa.hdf.hdf5lib.H5.hdf5lib=$S1TBX_HOME/libjhdf5.so" \
-    -jar $S1TBX_HOME/bin/snap-launcher.jar "$@"
+    -jar "$S1TBX_HOME/bin/snap-launcher.jar" "$@"
 
-exit 0
+exit $?
