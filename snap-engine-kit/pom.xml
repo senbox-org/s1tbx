@@ -12,7 +12,8 @@
     <packaging>nbm</packaging>
 
     <name>SNAP Engine</name>
-    <description>The SNAP Engine provides sensor-independent core functionality for remote sensing applications.</description>
+    <description>The SNAP Engine provides sensor-independent core functionality for remote sensing applications.
+    </description>
 
     <build>
         <plugins>
@@ -30,6 +31,64 @@
     </build>
 
     <dependencies>
+        <!-- Engine Core Modules -->
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-binding</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-binio</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ceres-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-glayer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-jai</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-metadata</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ceres-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-visat-rcp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ncsa.hdf</groupId>
+            <artifactId>lib-hdf</artifactId>
+            <version>2.7</version>
+        </dependency>
+
+        <!-- Engine Extension Modules -->
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-aatsr-sst</artifactId>
@@ -58,11 +117,6 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-collocation</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -177,57 +231,12 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-ui</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
             <artifactId>snap-unmix</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-visat-rcp</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
             <artifactId>blue-marble-worldmap</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-binding</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-binio</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-ceres-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-glayer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-jai</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-metadata</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-ceres-ui</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -246,7 +255,8 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- S3TBX -->
+        <!-- Sentinel-3 Toolbox -->
+        <!-- todo - move into s3tbx cluster -->
         <dependency>
             <groupId>org.esa.s3tbx</groupId>
             <artifactId>s3tbx-alos-reader</artifactId>
@@ -296,13 +306,6 @@
             <groupId>org.esa.s3tbx</groupId>
             <artifactId>s3tbx-chris-reader</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <!-- Very special -->
-        <dependency>
-            <groupId>ncsa.hdf</groupId>
-            <artifactId>lib-hdf</artifactId>
-            <version>2.7</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap.seadas</groupId>
