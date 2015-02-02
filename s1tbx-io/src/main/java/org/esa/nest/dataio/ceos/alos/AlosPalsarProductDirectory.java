@@ -922,7 +922,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
             //System.out.println((new ProductData.UTC(curLineUTC)).toString());
 
             // compute the satellite position and velocity for the zero Doppler time using cubic interpolation
-            final Orbits.OrbitData data = getOrbitData(curLineUTC, timeArray, xPosArray, yPosArray, zPosArray,
+            final Orbits.OrbitVector data = getOrbitData(curLineUTC, timeArray, xPosArray, yPosArray, zPosArray,
                     xVelArray, yVelArray, zVelArray);
 
             for (int c = 0; c < gridWidth; c++) {
@@ -963,7 +963,7 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
      * @param data     The orbit data.
      * @return The geo position of the target.
      */
-    private static GeoPos computeLatLon(final double refLat, final double refLon, double slrgTime, Orbits.OrbitData data) {
+    private static GeoPos computeLatLon(final double refLat, final double refLon, double slrgTime, Orbits.OrbitVector data) {
 
         final double[] xyz = new double[3];
         final GeoPos geoPos = new GeoPos(refLat, refLon);
@@ -1011,20 +1011,18 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
      * @param zVelArray Array holding z velocities for sensor positions in all state vectors.
      * @return The orbit information.
      */
-    private static Orbits.OrbitData getOrbitData(final double utc, final double[] timeArray,
+    private static Orbits.OrbitVector getOrbitData(final double utc, final double[] timeArray,
                                                  final double[] xPosArray, final double[] yPosArray, final double[] zPosArray,
                                                  final double[] xVelArray, final double[] yVelArray, final double[] zVelArray) {
 
         // Lagrange polynomial interpolation
-        final Orbits.OrbitData orbitData = new Orbits.OrbitData();
-        orbitData.xPos = Maths.lagrangeInterpolatingPolynomial(timeArray, xPosArray, utc);
-        orbitData.yPos = Maths.lagrangeInterpolatingPolynomial(timeArray, yPosArray, utc);
-        orbitData.zPos = Maths.lagrangeInterpolatingPolynomial(timeArray, zPosArray, utc);
-        orbitData.xVel = Maths.lagrangeInterpolatingPolynomial(timeArray, xVelArray, utc);
-        orbitData.yVel = Maths.lagrangeInterpolatingPolynomial(timeArray, yVelArray, utc);
-        orbitData.zVel = Maths.lagrangeInterpolatingPolynomial(timeArray, zVelArray, utc);
-
-        return orbitData;
+        return new Orbits.OrbitVector(utc,
+                Maths.lagrangeInterpolatingPolynomial(timeArray, xPosArray, utc),
+                Maths.lagrangeInterpolatingPolynomial(timeArray, yPosArray, utc),
+                Maths.lagrangeInterpolatingPolynomial(timeArray, zPosArray, utc),
+                Maths.lagrangeInterpolatingPolynomial(timeArray, xVelArray, utc),
+                Maths.lagrangeInterpolatingPolynomial(timeArray, yVelArray, utc),
+                Maths.lagrangeInterpolatingPolynomial(timeArray, zVelArray, utc));
     }
 
 }

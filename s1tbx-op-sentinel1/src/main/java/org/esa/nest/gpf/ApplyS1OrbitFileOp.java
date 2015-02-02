@@ -133,7 +133,7 @@ public final class ApplyS1OrbitFileOp extends Operator {
 
         for (OrbitStateVector orbitStateVector : orbitStateVectors) {
             final double time = orbitStateVector.time_mjd;
-            final Orbits.OrbitData orbitData = podOrbitFile.getOrbitData(time);
+            final Orbits.OrbitVector orbitData = podOrbitFile.getOrbitData(time);
             orbitStateVector.x_pos = orbitData.xPos;
             orbitStateVector.y_pos = orbitData.yPos;
             orbitStateVector.z_pos = orbitData.zPos;

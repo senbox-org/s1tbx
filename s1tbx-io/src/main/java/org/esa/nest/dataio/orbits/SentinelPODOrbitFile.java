@@ -37,7 +37,10 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Sentinel POD Orbit File
@@ -54,7 +57,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     public final static String RESTITUTED = "Sentinel Restituded";
     public final static String PRECISE = "Sentinel Precise";
 
-    private final File orbitFile;
     private final int polyDegree;
 
     private final static DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyMMdd-HHmmss");
@@ -80,64 +82,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     private FixedHeader fixedHeader = null;
 
-    private final class OSV {
-
-        private final String utc;
-        private final double x, y, z;
-        private final double vx, vy, vz;
-        private double utcMJD;
-
-        OSV(final double utcMJD) {
-
-            this.utc = "";
-            this.x = 0.0;
-            this.y = 0.0;
-            this.z = 0.0;
-            this.vx = 0.0;
-            this.vy = 0.0;
-            this.vz = 0.0;
-
-            this.utcMJD = utcMJD;
-        }
-
-        OSV(final String utc, final double x, final double y, final double z,
-            final double vx, final double vy, final double vz) throws Exception{
-
-            this.utc = utc;
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.vx = vx;
-            this.vy = vy;
-            this.vz = vz;
-
-            this.utcMJD = toUTC(utc).getMJD();
-        }
-
-        void dump() {
-
-            System.out.println("SentinelPODOrbitFile.OSV:");
-            System.out.println("  utc " + utc);
-            System.out.println("  x = " + x + " y = " + y + " z = " + z);
-            System.out.println("  vx = " + vx + " vy = " + vy + " vz = " + vz);
-            System.out.println("  utcMJD = " + utcMJD);
-        }
-    }
-
-    private final List<OSV> osvList = new ArrayList<>();
-
-    Comparator<OSV> osvComparator = new Comparator<OSV>() {
-        @Override
-        public int compare(OSV osv1, OSV osv2) {
-            if (osv1.utcMJD < osv2.utcMJD) {
-                return -1;
-            } else if (osv1.utcMJD > osv2.utcMJD) {
-                return 1;
-            } else {
-                return 0;
-            }
-        }
-    };
+    private final List<Orbits.OrbitVector> osvList = new ArrayList<>();
 
     public SentinelPODOrbitFile(final String orbitType, final MetadataElement absRoot,
                                 final Product sourceProduct, final int polyDegree) throws Exception {
@@ -216,10 +161,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         }
     }
 
-    public File getOrbitFile() {
-        return orbitFile;
-    }
-
     /**
      * Get orbit information for given time.
      *
@@ -227,10 +168,10 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
      * @return The orbit information.
      * @throws Exception The exceptions.
      */
-    public Orbits.OrbitData getOrbitDataOld(final double utc) throws Exception {
+    public Orbits.OrbitVector getOrbitDataOld(final double utc) throws Exception {
 
-        final OSV osv = new OSV(utc);
-        int idx = Collections.binarySearch(osvList, osv, osvComparator);
+        final Orbits.OrbitVector osv = new Orbits.OrbitVector(utc);
+        int idx = Collections.binarySearch(osvList, osv, new Orbits.OrbitComparator());
 
         if (idx < 0) {
 
@@ -250,8 +191,8 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             } else {
 
                 // utc is between insertionPt and the point before it.
-                final OSV osv1 = osvList.get(insertionPt-1);
-                final OSV osv2 = osvList.get(insertionPt);
+                final Orbits.OrbitVector osv1 = osvList.get(insertionPt-1);
+                final Orbits.OrbitVector osv2 = osvList.get(insertionPt);
 
                 if (Math.abs(osv1.utcMJD - utc) > Math.abs(osv2.utcMJD - utc)) {
                     idx = insertionPt;
@@ -261,16 +202,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             }
         }
 
-        final Orbits.OrbitData orbitData = new Orbits.OrbitData();
-
-        orbitData.xPos = osvList.get(idx).x;
-        orbitData.yPos = osvList.get(idx).y;
-        orbitData.zPos = osvList.get(idx).z;
-        orbitData.xVel = osvList.get(idx).vx;
-        orbitData.yVel = osvList.get(idx).vy;
-        orbitData.zVel = osvList.get(idx).vz;
-
-        return orbitData;
+        return osvList.get(idx);
     }
 
     /**
@@ -280,7 +212,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
      * @return The orbit state vector.
      * @throws Exception The exceptions.
      */
-    public Orbits.OrbitData getOrbitData(final double utc) throws Exception {
+    public Orbits.OrbitVector getOrbitData(final double utc) throws Exception {
 
         final int numVectors = osvList.size();
         final double t0 = osvList.get(0).utcMJD;
@@ -314,12 +246,12 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
         for (int i = 0; i < numVecPolyFit; i++) {
             timeArray[i] = osvList.get(vectorIndices[i]).utcMJD - t0;
-            xPosArray[i] = osvList.get(vectorIndices[i]).x;
-            yPosArray[i] = osvList.get(vectorIndices[i]).y;
-            zPosArray[i] = osvList.get(vectorIndices[i]).z;
-            xVelArray[i] = osvList.get(vectorIndices[i]).vx;
-            yVelArray[i] = osvList.get(vectorIndices[i]).vy;
-            zVelArray[i] = osvList.get(vectorIndices[i]).vz;
+            xPosArray[i] = osvList.get(vectorIndices[i]).xPos;
+            yPosArray[i] = osvList.get(vectorIndices[i]).yPos;
+            zPosArray[i] = osvList.get(vectorIndices[i]).zPos;
+            xVelArray[i] = osvList.get(vectorIndices[i]).xVel;
+            yVelArray[i] = osvList.get(vectorIndices[i]).yVel;
+            zVelArray[i] = osvList.get(vectorIndices[i]).zVel;
         }
 
         final Matrix A = Maths.createVandermondeMatrix(timeArray, polyDegree);
@@ -330,16 +262,15 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         final double[] yVelCoeff = Maths.polyFit(A, yVelArray);
         final double[] zVelCoeff = Maths.polyFit(A, zVelArray);
 
-        final Orbits.OrbitData orbitData = new Orbits.OrbitData();
         final double normalizedTime = utc - t0;
-        orbitData.xPos = Maths.polyVal(normalizedTime, xPosCoeff);
-        orbitData.yPos = Maths.polyVal(normalizedTime, yPosCoeff);
-        orbitData.zPos = Maths.polyVal(normalizedTime, zPosCoeff);
-        orbitData.xVel = Maths.polyVal(normalizedTime, xVelCoeff);
-        orbitData.yVel = Maths.polyVal(normalizedTime, yVelCoeff);
-        orbitData.zVel = Maths.polyVal(normalizedTime, zVelCoeff);
 
-        return orbitData;
+        return new Orbits.OrbitVector(utc,
+                Maths.polyVal(normalizedTime, xPosCoeff),
+                Maths.polyVal(normalizedTime, yPosCoeff),
+                Maths.polyVal(normalizedTime, zPosCoeff),
+                Maths.polyVal(normalizedTime, xVelCoeff),
+                Maths.polyVal(normalizedTime, yVelCoeff),
+                Maths.polyVal(normalizedTime, zVelCoeff));
     }
 
     private void readOrbitFile() throws Exception {
@@ -511,7 +442,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             childNode = childNode.getNextSibling();
         }
 
-        Collections.sort(osvList, osvComparator);
+        Collections.sort(osvList, new Orbits.OrbitComparator());
 
         //System.out.println("SentinelPODOrbitFile.readOSVList: osvCnt = " + osvCnt);
 
@@ -571,10 +502,9 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             childNode = childNode.getNextSibling();
         }
 
-        OSV osv = new OSV(utc, x, y, z, vx, vy, vz);
-        osvList.add(osv);
+        final double utcTime =  toUTC(utc).getMJD();
 
-        //osv.dump();
+        osvList.add(new Orbits.OrbitVector(utcTime, x, y, z, vx, vy, vz));
     }
 
     // TODO This is copied from Sentinel1Level0Reader.java; may be we should put in in some utilities class.

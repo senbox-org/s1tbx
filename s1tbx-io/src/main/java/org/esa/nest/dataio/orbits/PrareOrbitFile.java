@@ -54,19 +54,9 @@ public class PrareOrbitFile extends BaseOrbitFile {
      * @return The orbit information.
      * @throws Exception The exceptions.
      */
-    public Orbits.OrbitData getOrbitData(final double utc) throws Exception {
+    public Orbits.OrbitVector getOrbitData(final double utc) throws Exception {
 
-        final Orbits.OrbitData orbitData = new Orbits.OrbitData();
-
-        final PrareOrbitReader.OrbitVector orb = prareReader.getOrbitVector(utc);
-        orbitData.xPos = orb.xPos;
-        orbitData.yPos = orb.yPos;
-        orbitData.zPos = orb.zPos;
-        orbitData.xVel = orb.xVel;
-        orbitData.yVel = orb.yVel;
-        orbitData.zVel = orb.zVel;
-
-        return orbitData;
+        return prareReader.getOrbitVector(utc);
     }
 
     /**

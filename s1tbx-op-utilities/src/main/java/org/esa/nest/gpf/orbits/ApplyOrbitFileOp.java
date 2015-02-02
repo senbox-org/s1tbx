@@ -278,7 +278,7 @@ public final class ApplyOrbitFileOp extends Operator {
             //System.out.println((new ProductData.UTC(curLineUTC)).toString());
 
             // compute the satellite position and velocity for the zero Doppler time using cubic interpolation
-            final Orbits.OrbitData data = orbitProvider.getOrbitData(curLineUTC);
+            final Orbits.OrbitVector data = orbitProvider.getOrbitData(curLineUTC);
 
             for (int c = 0; c < targetTiePointGridWidth; c++) {
 
@@ -349,7 +349,7 @@ public final class ApplyOrbitFileOp extends Operator {
      * @return The geo position of the target.
      */
     @Deprecated
-    private GeoPos computeLatLon(final int x, final int y, final double slrgTime, final Orbits.OrbitData data) {
+    private GeoPos computeLatLon(final int x, final int y, final double slrgTime, final Orbits.OrbitVector data) {
 
         final double[] xyz = new double[3];
         final double lat = latitude.getPixelDouble((float)x, (float)y);
@@ -386,7 +386,7 @@ public final class ApplyOrbitFileOp extends Operator {
         // compute new orbit state vectors
         for (OrbitStateVector orbitStateVector : orbitStateVectors) {
             final double time = orbitStateVector.time_mjd;
-            final Orbits.OrbitData orbitData = orbitProvider.getOrbitData(time);
+            final Orbits.OrbitVector orbitData = orbitProvider.getOrbitData(time);
             orbitStateVector.x_pos = orbitData.xPos; // m
             orbitStateVector.y_pos = orbitData.yPos; // m
             orbitStateVector.z_pos = orbitData.zPos; // m

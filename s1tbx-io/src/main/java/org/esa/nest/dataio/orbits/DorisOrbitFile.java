@@ -53,19 +53,13 @@ public class DorisOrbitFile extends BaseOrbitFile {
      * @return The orbit information.
      * @throws Exception The exceptions.
      */
-    public Orbits.OrbitData getOrbitData(final double utc) throws Exception {
-
-        final Orbits.OrbitData orbitData = new Orbits.OrbitData();
+    public Orbits.OrbitVector getOrbitData(final double utc) throws Exception {
 
         final EnvisatOrbitReader.OrbitVector orb = dorisReader.getOrbitVector(utc);
-        orbitData.xPos = orb.xPos;
-        orbitData.yPos = orb.yPos;
-        orbitData.zPos = orb.zPos;
-        orbitData.xVel = orb.xVel;
-        orbitData.yVel = orb.yVel;
-        orbitData.zVel = orb.zVel;
 
-        return orbitData;
+        return new Orbits.OrbitVector(utc,
+                orb.xPos, orb.yPos, orb.zPos,
+                orb.xVel, orb.yVel, orb.zVel);
     }
 
     /**

@@ -43,7 +43,7 @@ public class TestSentinelPODOrbitFile {
         // First OSV (exact match)
         String utcStr1 = "UTC=2014-05-25T15:19:21.698661";
         double utc1 = SentinelPODOrbitFile.toUTC(utcStr1).getMJD();
-        Orbits.OrbitData orbitData = podOrbitFile.getOrbitData(utc1);
+        Orbits.OrbitVector orbitData = podOrbitFile.getOrbitData(utc1);
         assert(orbitData.xPos == 5385157.178934F);
         assert(orbitData.yPos == 4581079.075900F);
         assert(orbitData.zPos == -98597.029370F);
