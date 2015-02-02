@@ -155,16 +155,20 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
         // read content of the orbit file
         readOrbitFile();
+
+        checkOrbitFileValidity();
     }
 
     private File findOrbitFile() {
+        final int year = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getAsCalendar().get(Calendar.YEAR);
+
         final String prefix;
         final File orbitFileFolder;
         if(orbitType.endsWith(RESTITUTED)) {
-            prefix = "S1A_OPER_AUX_RESORB";
+            prefix = "S1A_OPER_AUX_RESORB_OPOD_"+year;
             orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinelResOrbitPath"));
         } else {
-            prefix = "S1A_OPER_AUX_POEORB";
+            prefix = "S1A_OPER_AUX_POEORB_OPOD_"+year;
             orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinelPOEOrbitPath"));
         }
 
@@ -193,6 +197,23 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             }
         }
         return null;
+    }
+
+    /**
+     * Check if product acquisition time is within the validity period of the orbit file.
+     * @throws Exception
+     */
+    private void checkOrbitFileValidity() throws Exception {
+
+        final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
+        final String validityStartTimeStr = getValidityStartFromHeader();
+        final String validityStopTimeStr = getValidityStopFromHeader();
+        final double validityStartTimeMJD = SentinelPODOrbitFile.toUTC(validityStartTimeStr).getMJD();
+        final double validityStopTimeMJD = SentinelPODOrbitFile.toUTC(validityStopTimeStr).getMJD();
+
+        if (stateVectorTime < validityStartTimeMJD || stateVectorTime > validityStopTimeMJD) {
+            throw new OperatorException("Product acquisition time is not within the validity period of the orbit");
+        }
     }
 
     public File getOrbitFile() {
