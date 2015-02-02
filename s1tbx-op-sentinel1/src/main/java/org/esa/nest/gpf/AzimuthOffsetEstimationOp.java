@@ -17,19 +17,24 @@ package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.snap.eo.Constants;
-import org.esa.snap.gpf.*;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.StatusProgressMonitor;
+import org.esa.snap.gpf.ThreadManager;
 
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Estimate global azimuth offset using Enhanced Spectral Diversity (ESD) approach.
@@ -41,7 +46,7 @@ import java.util.List;
         category = "SAR Processing/SENTINEL-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Estimate global azimuth offset for the whole image", internal=true)
+        description = "Estimate global azimuth offset for the whole image")
 public class AzimuthOffsetEstimationOp extends Operator {
 
     @SourceProduct(alias = "source")
