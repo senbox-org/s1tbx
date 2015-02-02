@@ -936,20 +936,20 @@ public class ProductTest {
     public void testThatAddBandThrowExceptionIfNameIsNotUnique() {
         final Product product = new Product("p", "t", 1, 1);
         product.addBand("band1", ProductData.TYPE_FLOAT32);
-        product.addTiePointGrid(new TiePointGrid("grid", 1, 1, 0, 0, 1, 1, new float[]{0.0f}));
+        product.addTiePointGrid(new TiePointGrid("grid", 2, 2, 0, 0, 1, 1, new float[]{0.0f, 0.0f, 0.0f, 0.0f}));
 
         try {
             product.addBand("band1", ProductData.TYPE_FLOAT32);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().indexOf("name") > -1);
+            assertTrue(e.getMessage().contains("name"));
         }
 
         try {
             product.addBand("grid", ProductData.TYPE_FLOAT32);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().indexOf("name") > -1);
+            assertTrue(e.getMessage().contains("name"));
         }
     }
 
@@ -957,17 +957,17 @@ public class ProductTest {
     public void testThatAddTiePointGridThrowExceptionIfNameIsNotUnique() {
         final Product product = new Product("p", "t", 1, 1);
         product.addBand("band1", ProductData.TYPE_FLOAT32);
-        product.addTiePointGrid(new TiePointGrid("grid", 1, 1, 0, 0, 1, 1, new float[]{0.0f}));
+        product.addTiePointGrid(new TiePointGrid("grid", 2, 2, 0, 0, 1, 1, new float[]{0.0f, 0.0f, 0.0f, 0.0f}));
 
         try {
-            product.addTiePointGrid(new TiePointGrid("grid", 1, 1, 0, 0, 1, 1, new float[]{0.0f}));
+            product.addTiePointGrid(new TiePointGrid("grid", 2, 2, 0, 0, 1, 1, new float[]{0.0f, 0.0f, 0.0f, 0.0f}));
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("name"));
         }
 
         try {
-            product.addTiePointGrid(new TiePointGrid("band1", 1, 1, 0, 0, 1, 1, new float[]{0.0f}));
+            product.addTiePointGrid(new TiePointGrid("band1", 2, 2, 0, 0, 1, 1, new float[]{0.0f, 0.0f, 0.0f, 0.0f}));
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("name"));
