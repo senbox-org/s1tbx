@@ -100,8 +100,8 @@ public class ProductSceneRasterSizeTest {
         b1.setSourceImage(ConstantDescriptor.create(100f, 200f, new Float[]{1f}, null));
         product.addBand(b1);
 
-        Band b2 = new Band("B2", ProductData.TYPE_FLOAT32, 110, 190);
-        b2.setSourceImage(ConstantDescriptor.create(110f, 190f, new Float[]{2f}, null));
+        Band b2 = new Band("B2", ProductData.TYPE_FLOAT32, 800, 190);
+        b2.setSourceImage(ConstantDescriptor.create(800f, 190f, new Float[]{2f}, null));
         product.addBand(b2);
 
         product.addMask(Mask.BandMathsType.create("M1", "description1", 115, 210, "true", Color.BLACK, 0.0));
@@ -123,7 +123,7 @@ public class ProductSceneRasterSizeTest {
             ProductIO.writeProduct(product, file, "BEAM-DIMAP", false);
             Product product2 = ProductIO.readProduct(file);
             assertEquals(new Dimension(100, 200), product2.getBand("B1").getRasterSize());
-            assertEquals(new Dimension(110, 190), product2.getBand("B2").getRasterSize());
+            assertEquals(new Dimension(800, 190), product2.getBand("B2").getRasterSize());
             assertEquals(new Dimension(115, 210), product2.getMaskGroup().get("M1").getRasterSize());
             assertEquals(new Dimension(120, 220), product2.getMaskGroup().get("M2").getRasterSize());
             assertEquals(new Dimension(500, 2), product2.getTiePointGrid("TPG1").getRasterSize());
