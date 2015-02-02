@@ -18,7 +18,6 @@ package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
-import com.jidesoft.action.CommandMenuBar;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
@@ -127,12 +126,7 @@ public class OperatorMenu {
         helpMenu.add(createHelpMenuItem());
         helpMenu.add(aboutAction);
 
-        final JMenuBar menuBar;
-        if (SystemUtils.isRunningOnMacOS()) {
-            menuBar = new JMenuBar();
-        } else {
-            menuBar = new CommandMenuBar();
-        }
+        final JMenuBar menuBar = new JMenuBar();
         menuBar.add(fileMenu);
         menuBar.add(helpMenu);
 
