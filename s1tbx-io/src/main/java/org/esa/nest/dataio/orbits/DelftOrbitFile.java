@@ -30,6 +30,8 @@ import java.util.Date;
  */
 public class DelftOrbitFile extends BaseOrbitFile {
 
+    public static final String DELFT_PRECISE = "DELFT Precise";
+
     private OrbitalDataRecordReader delftReader = null;
 
     public DelftOrbitFile(final String orbitType, final MetadataElement absRoot,

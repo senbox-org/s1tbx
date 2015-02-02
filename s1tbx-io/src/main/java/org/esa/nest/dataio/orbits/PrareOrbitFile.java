@@ -36,6 +36,8 @@ import java.util.Set;
  */
 public class PrareOrbitFile extends BaseOrbitFile {
 
+    public static final String PRARE_PRECISE = "PRARE Precise";
+
     private PrareOrbitReader prareReader = null;
 
     public PrareOrbitFile(final String orbitType, final MetadataElement absRoot,

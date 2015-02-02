@@ -16,9 +16,14 @@
 package org.esa.nest.dataio.orbits;
 
 import Jama.Matrix;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.util.Maths;
+import org.esa.snap.util.Settings;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
@@ -28,6 +33,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -36,7 +42,7 @@ import java.util.*;
 /**
  * Sentinel POD Orbit File
  */
-public class SentinelPODOrbitFile implements OrbitFile {
+public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     // 5 types of orbits:
     // 1) Predicted
@@ -45,7 +51,11 @@ public class SentinelPODOrbitFile implements OrbitFile {
     // 4) POE
     // 5) NRT Restituted
 
-    private File orbitFile = null;
+    public final static String RESTITUTED = "Sentinel Restituded";
+    public final static String PRECISE = "Sentinel Precise";
+
+    private final File orbitFile;
+    private final int polyDegree;
 
     private final static DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyMMdd-HHmmss");
     private final static DateFormat orbitDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -129,14 +139,60 @@ public class SentinelPODOrbitFile implements OrbitFile {
         }
     };
 
-    public SentinelPODOrbitFile(final File orbitFile) throws Exception {
-        this.orbitFile = orbitFile;
+    public SentinelPODOrbitFile(final String orbitType, final MetadataElement absRoot,
+                                final Product sourceProduct, final int polyDegree) throws Exception {
+        super(orbitType, absRoot);
+        this.orbitFile = findOrbitFile();
+        this.polyDegree = polyDegree;
+        if(orbitFile == null) {
+            String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
+            throw new OperatorException("No valid orbit file found for "+timeStr);
+        }
+
         if (!orbitFile.exists()) {
             throw new IOException("SentinelPODOrbitFile: Unable to find POD orbit file");
         }
 
         // read content of the orbit file
         readOrbitFile();
+    }
+
+    private File findOrbitFile() {
+        final String prefix;
+        final File orbitFileFolder;
+        if(orbitType.endsWith(RESTITUTED)) {
+            prefix = "S1A_OPER_AUX_RESORB";
+            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinelResOrbitPath"));
+        } else {
+            prefix = "S1A_OPER_AUX_POEORB";
+            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinelPOEOrbitPath"));
+        }
+
+        final File[] files = orbitFileFolder.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                name = name.toUpperCase();
+                return (name.endsWith(".ZIP") || name.endsWith(".EOF")) && name.startsWith(prefix);
+            }
+        });
+        if(files == null || files.length == 0)
+            return null;
+
+        final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
+        for(File file : files) {
+            try {
+                final String filename = file.getName();
+                final ProductData.UTC utcStart = SentinelPODOrbitFile.getValidityStartFromFilenameUTC(filename);
+                final ProductData.UTC utcEnd = SentinelPODOrbitFile.getValidityStopFromFilenameUTC(filename);
+                if(utcStart != null && utcEnd != null) {
+                    if(stateVectorTime >= utcStart.getMJD() && stateVectorTime < utcEnd.getMJD()) {
+                        return file;
+                    }
+                }
+            } catch (ParseException ignored) {
+            }
+        }
+        return null;
     }
 
     public File getOrbitFile() {
@@ -150,7 +206,7 @@ public class SentinelPODOrbitFile implements OrbitFile {
      * @return The orbit information.
      * @throws Exception The exceptions.
      */
-    public Orbits.OrbitData getOrbitData(final double utc) throws Exception {
+    public Orbits.OrbitData getOrbitDataOld(final double utc) throws Exception {
 
         final OSV osv = new OSV(utc);
         int idx = Collections.binarySearch(osvList, osv, osvComparator);
@@ -200,11 +256,10 @@ public class SentinelPODOrbitFile implements OrbitFile {
      * Get orbit state vector for given time using polynomial fitting.
      *
      * @param utc The UTC in days.
-     * @param polyDegree Polynomial degree.
      * @return The orbit state vector.
      * @throws Exception The exceptions.
      */
-    public Orbits.OrbitData getOrbitData(final double utc, final int polyDegree) throws Exception {
+    public Orbits.OrbitData getOrbitData(final double utc) throws Exception {
 
         final int numVectors = osvList.size();
         final double t0 = osvList.get(0).utcMJD;

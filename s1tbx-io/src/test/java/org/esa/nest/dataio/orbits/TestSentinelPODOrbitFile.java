@@ -1,6 +1,10 @@
 package org.esa.nest.dataio.orbits;
 
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
@@ -24,8 +28,17 @@ public class TestSentinelPODOrbitFile {
             TestUtils.skipTest(this, orbitFile + " not found");
             return;
         }
+        final File sourceFile = TestData.inputS1_GRD;
+        if(!sourceFile.exists()) {
+            TestUtils.skipTest(this, sourceFile + " not found");
+            return;
+        }
+
+        final Product sourceProduct = ProductIO.readProduct(sourceFile);
+        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+
         TestUtils.log.info("testSentinelPODOrbitFile...");
-        final SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile(orbitFile);
+        final SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile(SentinelPODOrbitFile.RESTITUTED, absRoot, sourceProduct, 3);
 
         // First OSV (exact match)
         String utcStr1 = "UTC=2014-05-25T15:19:21.698661";
