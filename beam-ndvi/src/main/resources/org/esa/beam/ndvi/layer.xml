@@ -1,0 +1,33 @@
+
+<filesystem>
+    <folder name="Actions">
+        <folder name="Operators">
+            <file name="org-esa-beam-ndvi-NdviOpAction.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.gui.actions.DefaultOperatorAction.create"/>
+                <attr name="displayName"
+                      stringvalue="NDVI Processor"/>
+                <attr name="operatorName"
+                      stringvalue="NdviOp"/>
+                <attr name="dialogTitle"
+                      stringvalue="NDVI"/>
+                <attr name="targetProductNameSuffix"
+                      stringvalue="_ndvi"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Tools">
+            <folder name="Optical">
+                <file name="org-esa-beam-ndvi-NdviOpAction.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-beam-ndvi-NdviOpAction.instance"/>
+                    <attr name="position"
+                          intvalue="0"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>
