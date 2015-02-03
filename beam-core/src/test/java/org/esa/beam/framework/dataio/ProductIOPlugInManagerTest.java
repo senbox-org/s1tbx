@@ -138,6 +138,11 @@ public class ProductIOPlugInManagerTest extends TestCase {
 
     static class XProductWriterPi implements ProductWriterPlugIn {
 
+        @Override
+        public EncodeQualification getEncodeQualification(Product product) {
+            return EncodeQualification.FULL;
+        }
+
         public Class[] getOutputTypes() {
             return new Class[]{String.class};
         }
@@ -165,6 +170,11 @@ public class ProductIOPlugInManagerTest extends TestCase {
     }
 
     static class YProductWriterPi implements ProductWriterPlugIn {
+
+        @Override
+        public EncodeQualification getEncodeQualification(Product product) {
+            return EncodeQualification.FULL;
+        }
 
         public Class[] getOutputTypes() {
             return new Class[]{String.class};

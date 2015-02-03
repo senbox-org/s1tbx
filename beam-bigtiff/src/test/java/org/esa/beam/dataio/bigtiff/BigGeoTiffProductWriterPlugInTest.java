@@ -1,7 +1,13 @@
 package org.esa.beam.dataio.bigtiff;
 
+import org.esa.beam.framework.dataio.EncodeQualification;
 import org.esa.beam.framework.dataio.ProductWriter;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,4 +65,28 @@ public class BigGeoTiffProductWriterPlugInTest {
         assertNotNull(writer);
         assertTrue(writer instanceof BigGeoTiffProductWriter);
     }
+
+    @Test
+    public void testEncodingQualification() throws Exception {
+        Product product = new Product("N", "T", 2, 2);
+
+        EncodeQualification encodeQualification = plugIn.getEncodeQualification(product);
+        assertNotNull(encodeQualification);
+        assertEquals(EncodeQualification.Preservation.PARTIAL, encodeQualification.getPreservation());
+        assertNotNull(encodeQualification.getInfoString());
+
+        TiePointGrid lat = new TiePointGrid("lat", 2, 2, 0, 0, 1, 1, new float[4]);
+        TiePointGrid lon = new TiePointGrid("lon", 2, 2, 0, 0, 1, 1, new float[4]);
+        product.addTiePointGrid(lat);
+        product.addTiePointGrid(lon);
+        product.setGeoCoding(new TiePointGeoCoding(lat, lon));
+        encodeQualification = plugIn.getEncodeQualification(product);
+        assertEquals(EncodeQualification.Preservation.PARTIAL, encodeQualification.getPreservation());
+        assertNotNull(encodeQualification.getInfoString());
+
+        product.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, 2, 2, 0, 0, 1, 1));
+        encodeQualification = plugIn.getEncodeQualification(product);
+        assertEquals(EncodeQualification.Preservation.FULL, encodeQualification.getPreservation());
+    }
+
 }

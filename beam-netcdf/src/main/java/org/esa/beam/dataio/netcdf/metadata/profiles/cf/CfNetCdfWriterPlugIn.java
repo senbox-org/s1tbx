@@ -22,11 +22,17 @@ import org.esa.beam.dataio.netcdf.metadata.ProfilePartWriter;
 import org.esa.beam.dataio.netcdf.nc.NFileWriteable;
 import org.esa.beam.dataio.netcdf.nc.NWritableFactory;
 import org.esa.beam.dataio.netcdf.util.Constants;
+import org.esa.beam.framework.dataio.EncodeQualification;
+import org.esa.beam.framework.datamodel.Product;
 
 import java.io.IOException;
 import java.util.Locale;
 
 public class CfNetCdfWriterPlugIn extends AbstractNetCdfWriterPlugIn {
+    @Override
+    public EncodeQualification getEncodeQualification(Product product) {
+        return new EncodeQualification(EncodeQualification.Preservation.PARTIAL);
+    }
 
     @Override
     public String[] getFormatNames() {

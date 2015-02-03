@@ -18,10 +18,12 @@ package org.esa.beam.dataio.rtp;
 
 import com.thoughtworks.xstream.XStream;
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.EncodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.File;
@@ -36,6 +38,11 @@ public class RawTiledPyramidsProductCodecSpi implements ProductReaderPlugIn, Pro
     public DecodeQualification getDecodeQualification(Object input) {
         final File headerFile = getHeaderFile(input);
         return headerFile.isFile() ? DecodeQualification.INTENDED : DecodeQualification.UNABLE;
+    }
+
+    @Override
+    public EncodeQualification getEncodeQualification(Product product) {
+        return new EncodeQualification(EncodeQualification.Preservation.PARTIAL, "All metadata will be lost!");
     }
 
     public Class[] getInputTypes() {

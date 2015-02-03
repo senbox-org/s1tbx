@@ -4,6 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.EncodeQualification;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -50,6 +51,11 @@ public class TestProductIOPlugIn implements ProductReaderPlugIn, ProductWriterPl
     public void clear() {
         sourceProducts.clear();
         targetProducts.clear();
+    }
+
+    @Override
+    public EncodeQualification getEncodeQualification(Product product) {
+        return EncodeQualification.FULL;
     }
 
     @Override

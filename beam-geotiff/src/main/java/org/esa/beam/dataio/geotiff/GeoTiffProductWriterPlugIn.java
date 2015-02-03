@@ -15,8 +15,13 @@
  */
 package org.esa.beam.dataio.geotiff;
 
+import org.esa.beam.framework.dataio.EncodeQualification;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.File;
@@ -36,16 +41,29 @@ public class GeoTiffProductWriterPlugIn implements ProductWriterPlugIn {
     public static final String[] GEOTIFF_FILE_EXTENSION = {".tif", ".tiff"};
     private static final String DESCRIPTION = "GeoTIFF product";
 
-
     /**
      * Constructs a new GeoTIFF product writer plug-in instance.
      */
     public GeoTiffProductWriterPlugIn() {
     }
 
+    @Override
+    public EncodeQualification getEncodeQualification(Product product) {
+        GeoCoding geoCoding = product.getGeoCoding();
+        if (geoCoding == null) {
+            return new EncodeQualification(EncodeQualification.Preservation.PARTIAL,
+                                           "The product is not geo-coded. A usual TIFF file will be written instead.");
+        } else if (!(geoCoding instanceof MapGeoCoding) && !(geoCoding instanceof CrsGeoCoding)) {
+            return new EncodeQualification(EncodeQualification.Preservation.PARTIAL,
+                                           "The product is geo-coded but seems not rectified. Geo-coding information may not be properly preserved.");
+        } else {
+            return new EncodeQualification(EncodeQualification.Preservation.FULL);
+        }
+    }
+
 
     /**
-     * Returns a string array containing the single entry <code>&quot;GEOTIFF&quot;</code>.
+     * Returns a string array containing the single entry <code>&quot;GeoTIFF&quot;</code>.
      */
     public String[] getFormatNames() {
         return new String[]{GEOTIFF_FORMAT_NAME};

@@ -18,10 +18,12 @@ package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
+import org.esa.beam.framework.dataio.EncodeQualification;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.junit.Before;
@@ -154,6 +156,11 @@ public class TargetProductSelectorModelTest {
     }
 
     private class DummyTestProductWriterPlugIn implements ProductWriterPlugIn {
+
+        @Override
+        public EncodeQualification getEncodeQualification(Product product) {
+            return EncodeQualification.FULL;
+        }
 
         public Class[] getOutputTypes() {
             return new Class[]{String.class};

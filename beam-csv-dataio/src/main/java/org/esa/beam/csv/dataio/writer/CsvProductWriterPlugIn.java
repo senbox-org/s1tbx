@@ -16,6 +16,8 @@
 
 package org.esa.beam.csv.dataio.writer;
 
+import org.esa.beam.framework.dataio.EncodeQualification;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.io.Constants;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
@@ -41,6 +43,11 @@ public class CsvProductWriterPlugIn implements ProductWriterPlugIn {
     public CsvProductWriterPlugIn(Writer writer, int config) {
         this.writer = writer;
         this.config = config;
+    }
+
+    @Override
+    public EncodeQualification getEncodeQualification(Product product) {
+        return new EncodeQualification(EncodeQualification.Preservation.PARTIAL);
     }
 
     @Override

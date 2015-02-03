@@ -15,6 +15,8 @@
  */
 package org.esa.beam.framework.dataio;
 
+import org.esa.beam.framework.datamodel.Product;
+
 /**
  * The <code>ProductWriterPlugIn</code> interface is implemented by data product writer plug-ins.
  * <p/>
@@ -29,6 +31,15 @@ package org.esa.beam.framework.dataio;
  * @see org.esa.beam.framework.dataio.ProductReaderPlugIn
  */
 public interface ProductWriterPlugIn extends ProductIOPlugIn {
+
+    /**
+     * Gets the encode qualification of this product writer plugin w.r.t. the given product.
+     *
+     * @param product The product.
+     * @return The encode qualification.
+     * @since SNAP 2.0
+     */
+    EncodeQualification getEncodeQualification(Product product);
 
     /**
      * Returns an array containing the classes that represent valid output types for this writer.
