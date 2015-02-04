@@ -1,0 +1,81 @@
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Operators">
+            <file name="org-esa-beam-cluster-EmClusterAnalysis.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.gui.actions.DefaultOperatorAction.create"/>
+                <attr name="displayName"
+                      stringvalue="EM Cluster Analysis"/>
+                <attr name="operatorName"
+                      stringvalue="EMClusterAnalysis"/>
+                <attr name="dialogTitle"
+                      stringvalue="EM Cluster Analysis"/>
+                <attr name="targetProductNameSuffix"
+                      stringvalue="_em"/>
+                <attr name="helpId"
+                      stringvalue="clusterAnalysisEM"/>
+            </file>
+            <file name="org-esa-beam-cluster-KMeansClusterAnalysis.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.gui.actions.DefaultOperatorAction.create"/>
+                <attr name="displayName"
+                      stringvalue="K-Means Cluster Analysis"/>
+                <attr name="operatorName"
+                      stringvalue="KMeansClusterAnalysis"/>
+                <attr name="dialogTitle"
+                      stringvalue="K-Means Cluster Analysis"/>
+                <attr name="targetProductNameSuffix"
+                      stringvalue="_kmeans"/>
+                <attr name="helpId"
+                      stringvalue="clusterAnalysisKMeans"/>
+            </file>
+            <file name="org-esa-beam-cluster-PrincipleComponentAnalysis.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.gui.actions.DefaultOperatorAction.create"/>
+                <attr name="displayName"
+                      stringvalue="Principle Component Analysis"/>
+                <attr name="operatorName"
+                      stringvalue="PCA"/>
+                <attr name="dialogTitle"
+                      stringvalue="Principle Component Analysis"/>
+                <attr name="targetProductNameSuffix"
+                      stringvalue="_pca"/>
+                <attr name="helpId"
+                      stringvalue="principleComponentAnalysis"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="Processing">
+            <folder name="Image Analysis">
+                <file name="org-esa-beam-cluster-EmClusterAnalysis.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-beam-cluster-EmClusterAnalysis.instance"/>
+                    <attr name="position"
+                          intvalue="10"/>
+                </file>
+                <file name="org-esa-beam-cluster-KMeansClusterAnalysis.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-beam-cluster-KMeansClusterAnalysis.instance"/>
+                    <attr name="position"
+                          intvalue="20"/>
+                </file>
+                <file name="org-esa-beam-cluster-PrincipleComponentAnalysis.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-beam-cluster-PrincipleComponentAnalysis.instance"/>
+                    <attr name="position"
+                          intvalue="30"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+
+</filesystem>
