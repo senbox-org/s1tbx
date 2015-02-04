@@ -85,9 +85,7 @@
         <!-- BEAM Plugin Modules -->
 
         <module>beam-aatsr-sst</module>
-        <module>beam-alos-reader</module>
         <module>beam-arcbingrid-reader</module>
-        <module>beam-atsr-reader</module>
         <module>beam-avhrr-reader</module>
         <module>beam-bigtiff</module>
         <module>beam-binning</module>
