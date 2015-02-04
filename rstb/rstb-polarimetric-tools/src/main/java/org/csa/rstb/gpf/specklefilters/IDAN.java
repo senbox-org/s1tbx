@@ -65,6 +65,7 @@ public class IDAN implements SpeckleFilter {
         if (sourceProductType == PolBandUtils.MATRIX.FULL ||
                 sourceProductType == PolBandUtils.MATRIX.C3 ||
                 sourceProductType == PolBandUtils.MATRIX.T3) {
+            idanFilter(targetTiles, targetRectangle, sourceRectangle);
         } else if(sourceProductType == PolBandUtils.MATRIX.C2 ||
                 sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
                 sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
