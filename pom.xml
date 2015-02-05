@@ -63,9 +63,6 @@
         <module>snap-help</module>
         <module>snap-engine-kit</module>
 
-        <!-- the bootstrap module has no sources, its only purpose is to construct a class path for VISAT -->
-        <module>beam-bootstrap</module>
-
         <!-- BEAM System Modules -->
 
         <module>beam-core</module>
@@ -89,7 +86,7 @@
         <module>beam-bigtiff</module>
         <module>beam-binning</module>
         <module>beam-chris-reader</module>
-        <module>beam-cluster-analysis</module>
+        <module>snap-cluster-analysis</module>
         <module>beam-collocation</module>
         <module>beam-envi-reader</module>
         <module>beam-envisat-reader</module>

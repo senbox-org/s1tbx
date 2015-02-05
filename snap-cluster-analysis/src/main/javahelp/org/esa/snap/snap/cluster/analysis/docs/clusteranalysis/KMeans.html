@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>Expectation Maximization (EM) Cluster Analysis Tool</title>
+    <title>K-Means (KM) Cluster Analysis Tool</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 
@@ -25,7 +25,7 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Expectation Maximization (EM) Cluster Analysis
+            K-Means (KM) Cluster Analysis
         </td>
         <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/snap_header.jpg"
                                                                                      border=0></a>
@@ -49,79 +49,68 @@
 <h3>Algorithm</h3>
 
 <p>
-    The EM algorithm implemented in SNAP can be regarded as a generalization of
-    the <a href="KMeans.html">k-means algorithm</a>. The main differences are:
+    The k-means clustering tool implemented in SNAP is capable of working with arbitrary large scenes. Given the number
+    of clusters <em>k</em>, the basic algorithm implemented in SNAP is:
 </p>
 
 <ol>
     <li>
-        Pixels are not assigned to clusters. The membership of each pixel to a cluster is defined by a (posterior)
-        probability. For each pixel, there are as many (posterior) probability values as there are clusters and
-        for each pixel the sum of (posterior) probability values is equal to unity.
+        Randomly choose <em>k</em> pixels whose samples define the initial cluster centers.
     </li>
     <li>
-        Clusters are defined by a prior probability, a cluster center, and a cluster covariance matrix. Cluster centers
-        and covariance matrixes determine a Mahalanobis distance between a cluster center and a pixel.
+        Assign each pixel to the nearest cluster center as defined by the Euclidean distance.
     </li>
     <li>
-        For each cluster a pixel likelihood function is defined as a normalized Gaussian function of the Mahalanobis
-        distance between cluster center and pixels.
+        Recalculate the cluster centers as the arithmetic means of all samples from all pixels in a cluster.
     </li>
     <li>
-        Posterior cluster probabilities as well as cluster centers and covariance matrixes and are recalculated
-        iteratively. In the <em>E-step</em>, for each cluster, the cluster prior and posterior probabilities are
-        recalculated. In the <em>M-step</em> all cluster centers and covariance matrixes are recalculated from the
-        updated posteriors, so that the resulting data likelihood function is maximized.
-    </li>
-    <li>
-        When the iteration is completed, each pixel is assigned to the cluster where the posterior probability is
-        maximal.
+        Repeat steps 2 and 3 until the convergence criterion is met.
     </li>
 </ol>
 
 <p>
-    The algorithm is described in detail on the Wikipedia entry on
-    <a href="http://en.wikipedia.org/wiki/Expectation-maximization_algorithms">Expectation maximization</a>. Use this
-    algorithm when you want to perform a cluster analysis of a small scene or region-of-interest and are not satisfied
-    with the results obtained from the <a href="KMeans.html">k-means</a> algorithm.
+    The convergence criterion is met when the maximum number of iterations specified by the user is
+    exceeded or when the cluster centers did not change between two iterations. This algorithm should be your primary
+    choice for performing a cluster analysis. <em>For the analysis of large scenes, this algorithm is strongly
+    recommended.</em>
+</p>
 
 <p>
     The result of the cluster analysis is written to a band named <strong>class_indices</strong>. The
     values in this band indicate the class indices, where a value '0' refers to the first
     cluster, a value of '1' refers to the second cluster, etc. The class indices are sorted according
-    to the prior probability associated with cluster, i.e. a class index of '0' refers to the
-    cluster with the highest probability.
+    to the number of members in the corresponding cluster, i.e. a class index of '0' refers to the
+    cluster with the most members.
 </p>
 
 <p>
     Note that an index coding is attached to the <strong>class_indices</strong> band, which can be edited
     in the <a href="visat/ColorManipulationWindow.html#editingIndexCodedBands">Color Manipulation Window</a>.
     It is possible to change the label and the color associated with a class index. The last columns of the
-    color manipulation window lists the location of the cluster centers. Further information on the clusters
-    is listed in the <strong>Cluster-Analysis</strong> group of the product metadata.
+    color manipulation window lists the location of the cluster centers. The cluster centers are also listed
+    in the <strong>Cluster-Analysis</strong> group of the product metadata.
 </p>
 
 <p align="center">
-    <img src="images/em-color-manip.png" alt="Color Manipulation Window"/>
+    <img src="images/kmeans-color-manip.PNG" alt="Color Manipulation Window"/>
 </p>
 
 <h3>User Interface</h3>
 
 <p>
-    The EM cluster analysis tool can be invoked in the Sentinel Toolbox from the tool menu by selecting
-    <b>Processing->Image Analysis->EM Cluster Analysis...</b>.
-    In the command line it is available by means of the Graph Processing Tool <code>gpt</code> which is located in
-    the Sentinel Toolbox <code>bin</code>
-    directory. Please type <code>gpt EMClusterAnalysis -h</code> for further information.
+    The k-means (KM) cluster analysis tool can be invoked from the Sentinel Toolbox tool menu by selecting
+    the <b>K-Means Cluster Analysis</b> command in the <b>Image Analysis</b> submenu. In the command line it is
+    available by means of the Graph Processing Tool <code>gpt</code> which is located in the Sentinel Toolbox
+    <code>bin</code> directory. Please type <code>gpt KMeansClusterAnalysis -h</code> for further information.
 </p>
 
 <p>
-    Selecting the <b>EM Cluster Analysis</b> command from the Sentinel Toolbox tool menu pops up the
+    Selecting the <b>K-Means Cluster Analysis</b> command from the Sentinel Toolbox tool menu pops up the
     following dialog:
 </p>
 
 <p align="center">
-    <img src="images/em-io-parameters.png" alt="EM Cluster Analysis Dialog"/>
+    <img src="images/kmeans-io-parameters.PNG" alt="K-Means Cluster Analysis Dialog"/>
 </p>
 
 <h5>Source Product Group</h5>
@@ -155,7 +144,7 @@
 </p>
 
 <p align="center">
-    <img src="images/em-proc-parameters.png" alt="K-Means Cluster Analysis Dialog"/>
+    <img src="images/kmeans-proc-parameters.PNG" alt="K-Means Cluster Analysis Dialog"/>
 </p>
 
 <h5>Processing Parameters Panel</h5>
@@ -173,7 +162,7 @@
 
 <p class="i1">
     <b>Random seed:</b>
-    The EM algorithm starts with a pseudo-random distribution of initial clusters. The random seed initializes
+    The KM algorithm starts with a pseudo-random distribution of initial clusters. The random seed initializes
     the pseudo-random number generator, which is used to generate the initial clusters. By changing the random
     seed, you can start with different initial clusters. Any positive integral number will be a perfect random
     seed. The default seed is 31415.
@@ -189,12 +178,6 @@
     <b>ROI-Mask:</b>
     Use this field to restrict the cluster analysis to a region-of-interest (ROI). The combo box allows to select the
     band which provides the ROI.
-</p>
-
-<p class="i1">
-    <b>Include probability bands:</b>
-    Check this box if you want the cluster posterior probabilities to be included in the target product. The
-    target then will contain a single probability band for each cluster.
 </p>
 
 <h5>Button Group</h5>
@@ -213,7 +196,7 @@
 
 <p class="i1">
     <b>Help</b>
-    Displays this page in the Sentinel Toolbox Help.
+    Displays this page in Sentinel Toolbox Help.
 </p>
 
 <h3>Further information</h3>
