@@ -84,7 +84,7 @@
 
         <!-- Formaer BEAM Extension Modules -->
 
-        <module>beam-arcbingrid-reader</module>
+        <module>snap-arcbingrid-reader</module>
         <module>beam-avhrr-reader</module>
         <module>beam-bigtiff</module>
         <module>beam-binning</module>
