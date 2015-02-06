@@ -79,14 +79,18 @@
         <module>snap-engine-utilities</module>
         <module>snap-graph-builder</module>
 
-        <!-- BEAM Plugin Modules -->
+        <!-- SNAP Extension Modules -->
+
+        <module>snap-ndvi</module>
+        <module>snap-cluster-analysis</module>
+
+        <!-- Formaer BEAM Extension Modules -->
 
         <module>beam-arcbingrid-reader</module>
         <module>beam-avhrr-reader</module>
         <module>beam-bigtiff</module>
         <module>beam-binning</module>
         <module>beam-chris-reader</module>
-        <module>snap-cluster-analysis</module>
         <module>beam-collocation</module>
         <module>beam-envi-reader</module>
         <module>beam-envisat-reader</module>
@@ -96,7 +100,6 @@
         <module>beam-hdf5-writer</module>
         <module>beam-landsat-reader</module>
         <module>beam-meris-cloud</module>
-        <module>beam-ndvi</module>
         <module>beam-meris-radiometry</module>
         <module>beam-meris-smac</module>
         <module>beam-merisl3-reader</module>
@@ -890,23 +893,11 @@
                         <cluster>snap</cluster>
                         <defaultCluster>snap</defaultCluster>
                         <requiresRestart>true</requiresRestart>
-                        <keystore>..\snap-desktop\snap-gui\src\main\resources\keystore\snap.ks</keystore>
+                        <!-- todo: fix wrongly directed dependency to snap-desktop (nf, 20150206) -->
+                        <keystore>../../snap-desktop/snap-gui/src/main/resources/keystore/snap.ks</keystore>
                         <keystorealias>snap</keystorealias>
                         <keystorepassword>snap-123</keystorepassword>
                     </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>com.bc.maven.plugins</groupId>
-                    <artifactId>maven-javahelp-plugin</artifactId>
-                    <version>1.0</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>javahelp-indexer</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
 
             </plugins>
@@ -945,15 +936,6 @@
             </extension>
         </extensions>
     </build>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
-            </plugin>
-        </plugins>
-    </reporting>
 
     <developers>
         <developer>
@@ -1030,18 +1012,5 @@
             </roles>
         </developer>
     </developers>
-
-
-    <!-- TODO - check is this is still needed in BEAM 5.0 -->
-    <!-- Dependency on SLF4J binding to Java logging. -->
-    <!-- Its only purpose is to prevent SLF4 from outputting annoying 'missing binding' messages to System.err -->
-    <!-- So, since it is not used in any module, it's included on the highest level. -->
-    <!--<dependencies>-->
-        <!--<dependency>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>slf4j-jdk14</artifactId>-->
-            <!--<version>1.6.1</version>-->
-        <!--</dependency>-->
-    <!--</dependencies>-->
 
 </project>
