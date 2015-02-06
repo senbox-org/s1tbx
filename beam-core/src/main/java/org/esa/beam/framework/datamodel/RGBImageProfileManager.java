@@ -19,7 +19,6 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,14 +36,14 @@ public class RGBImageProfileManager {
 
     static {
         profilesDir = new File(SystemUtils.getApplicationDataDir(),
-                               "beam-core/auxdata/rgb_profiles");
+                               "snap-core/auxdata/rgb_profiles");
         if (!profilesDir.exists()) {
             profilesDir.mkdirs();
         }
     }
 
     private RGBImageProfileManager() {
-        _profiles = new ArrayList<RGBImageProfile>();
+        _profiles = new ArrayList<>();
         loadDefaultProfiles();
     }
 
@@ -88,12 +87,9 @@ public class RGBImageProfileManager {
             profilesDir.mkdirs();
             BeamLogManager.getSystemLogger().log(Level.INFO, "Directory for RGB-image profiles not found: " + getProfilesDir());
         }
-        final File[] files = getProfilesDir().listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.endsWith(RGBImageProfile.FILENAME_EXTENSION) || name.endsWith(
-                        RGBImageProfile.FILENAME_EXTENSION.toUpperCase());
-            }
-        });
+        final File[] files = getProfilesDir().listFiles(
+                (dir, name) -> name.endsWith(RGBImageProfile.FILENAME_EXTENSION) || name.endsWith(
+                        RGBImageProfile.FILENAME_EXTENSION.toUpperCase()));
         if (files != null) {
             for (File file : files) {
                 try {
@@ -106,7 +102,7 @@ public class RGBImageProfileManager {
             BeamLogManager.getSystemLogger().log(Level.INFO, "No RGB-image profiles found in " + getProfilesDir());
         }
     }
-    
+
     // Initialization on demand holder idiom
     private static class Holder {
         private static final RGBImageProfileManager instance = new RGBImageProfileManager();
