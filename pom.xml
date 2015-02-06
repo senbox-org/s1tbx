@@ -32,6 +32,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <snap.version>[2.0.0-SNAPSHOT,2.1.0-SNAPSHOT)</snap.version>
 
+        <!-- todo: remove wrongly directed dependencies on S-1, S-2, S-3 Toolboxes (nf, 20150206) -->
         <!--<snapVersionRange>[2.0.0-SNAPSHOT,2.1.0-SNAPSHOT)</snapVersionRange>-->
         <s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
         <s2tbx.version>2.0.0-SNAPSHOT</s2tbx.version>
@@ -67,7 +68,6 @@
         <module>beam-csv-dataio</module>
         <module>beam-examples</module>
         <module>beam-gpf</module>
-        <module>beam-help</module>
         <module>beam-scripting</module>
         <module>beam-ui</module>
         <module>beam-visat-rcp</module>
@@ -889,7 +889,7 @@
                         <cluster>snap</cluster>
                         <defaultCluster>snap</defaultCluster>
                         <requiresRestart>true</requiresRestart>
-                        <!-- todo: fix wrongly directed dependency to snap-desktop (nf, 20150206) -->
+                        <!-- todo: fix wrongly directed dependency on snap-desktop (nf, 20150206) -->
                         <keystore>../../snap-desktop/snap-gui/src/main/resources/keystore/snap.ks</keystore>
                         <keystorealias>snap</keystorealias>
                         <keystorepassword>snap-123</keystorepassword>
