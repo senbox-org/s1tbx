@@ -16,8 +16,6 @@
 
 package org.esa.beam.dataio.bigtiff.internal;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Guardian;
 
 /**
@@ -106,28 +104,17 @@ class TiffType {
     public static final byte DOUBLE_TYPE = 12;
     public static final TiffShort DOUBLE = new TiffShort(DOUBLE_TYPE);
 
-    public static short getBytesForType(final TiffShort type) {
-        switch (type.getValue()) {
-        case BYTE_TYPE:
-        case SBYTE_TYPE:
-        case ASCII_TYPE:
-        case UNDEFINED_TYPE:
-            return 1;
-        case SHORT_TYPE:
-        case SSHORT_TYPE:
-            return 2;
-        case LONG_TYPE:
-        case SLONG_TYPE:
-        case FLOAT_TYPE:
-            return 4;
-        case RATIONAL_TYPE:
-        case SRATIONAL_TYPE:
-        case DOUBLE_TYPE:
-            return 8;
-        default:
-            throw new IllegalArgumentException("illegal tiff data type");
-        }
-    }
+    /**
+     * unsigned integer (8-byte)
+     */
+    public static final byte LONG_8_TYPE = 16;
+    public static final TiffShort LONG_8 = new TiffShort(LONG_8_TYPE);
+
+    /**
+     * signed integer (8-byte)
+     */
+    public static final byte SLONG_8_TYPE = 17;
+    public static final TiffShort SLONG_8 = new TiffShort(SLONG_8_TYPE);
 
     public static TiffShort getType(final TiffValue[] values) {
         Guardian.assertNotNull("values", values);
@@ -138,8 +125,8 @@ class TiffType {
             ensureElementsEqualValueType(values, TiffShort.class);
             return SHORT;
         }
-        if (value instanceof TiffLong) {
-            ensureElementsEqualValueType(values, TiffLong.class);
+        if (value instanceof TiffUInt) {
+            ensureElementsEqualValueType(values, TiffUInt.class);
             return LONG;
         }
         if (value instanceof TiffRational) {
@@ -158,39 +145,19 @@ class TiffType {
             ensureElementsEqualValueType(values, TiffDouble.class);
             return DOUBLE;
         }
+        if (value instanceof TiffLong) {
+            ensureElementsEqualValueType(values, TiffLong.class);
+            return SLONG_8;
+        }
         throw new IllegalArgumentException("the given type [" + values.getClass() + "] is not supported");
     }
 
     private static void ensureElementsEqualValueType(final TiffValue[] values, final Class compareClass) {
-        for (int i = 0; i < values.length; i++) {
-            if (!compareClass.isInstance(values[i])) {
+        for (TiffValue value : values) {
+            if (!compareClass.isInstance(value)) {
                 throw new IllegalArgumentException("all elements of the given values array must be instances " +
-                                                   "of the same type [" + compareClass.getName() + "]");
+                        "of the same type [" + compareClass.getName() + "]");
             }
-        }
-    }
-
-    public static TiffShort getTiffTypeFrom(final Band band) {
-        final int dataType = band.getGeophysicalDataType();
-        switch (dataType) {
-        case ProductData.TYPE_UINT8:
-            return TiffType.BYTE;
-        case ProductData.TYPE_UINT16:
-            return TiffType.SHORT;
-        case ProductData.TYPE_UINT32:
-            return TiffType.LONG;
-        case ProductData.TYPE_INT8:
-            return TiffType.SBYTE;
-        case ProductData.TYPE_INT16:
-            return TiffType.SSHORT;
-        case ProductData.TYPE_INT32:
-            return TiffType.SLONG;
-        case ProductData.TYPE_FLOAT32:
-            return TiffType.FLOAT;
-        case ProductData.TYPE_FLOAT64:
-            return TiffType.DOUBLE;
-        default:
-            throw new IllegalArgumentException("the given band has an unsupported geophysical data type");
         }
     }
 }

@@ -32,9 +32,9 @@ public class TiffDirectoryEntry {
     public static final short BYTES_PER_ENTRY = 12;
     private TiffShort tag;
     private TiffShort type;
-    private TiffLong count;
+    private TiffUInt count;
     private TiffValue[] values;
-    private TiffLong valuesOffset;
+    private TiffUInt valuesOffset;
 
     public TiffDirectoryEntry(final TiffShort tiffTag, final TiffValue value) {
         this(tiffTag, new TiffValue[]{value});
@@ -51,7 +51,7 @@ public class TiffDirectoryEntry {
         return tag;
     }
 
-    public TiffLong getCount() {
+    public TiffUInt getCount() {
         return count;
     }
 
@@ -100,7 +100,7 @@ public class TiffDirectoryEntry {
     }
 
     public void setValuesOffset(final long offset) {
-        valuesOffset = new TiffLong(offset);
+        valuesOffset = new TiffUInt(offset);
     }
 
     public long getSize() {
@@ -131,18 +131,18 @@ public class TiffDirectoryEntry {
         }
     }
 
-    public TiffLong getValuesOffset() {
+    public TiffUInt getValuesOffset() {
         return valuesOffset;
     }
 
-    private TiffLong getCount(final TiffValue[] values) {
+    private TiffUInt getCount(final TiffValue[] values) {
         if (type.getValue() != TiffType.ASCII.getValue()) {
-            return new TiffLong(values.length);
+            return new TiffUInt(values.length);
         }
         long size = 0;
         for (TiffValue value : values) {
             size += value.getSizeInBytes();
         }
-        return new TiffLong(size);
+        return new TiffUInt(size);
     }
 }
