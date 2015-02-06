@@ -1,5 +1,6 @@
 
 <filesystem>
+
     <folder name="Actions">
         <folder name="Operators">
             <file name="org-esa-beam-ndvi-NdviOpAction.instance">
@@ -15,12 +16,15 @@
                       stringvalue="NDVI"/>
                 <attr name="targetProductNameSuffix"
                       stringvalue="_ndvi"/>
+                <attr name="ShortDescription"
+                      stringvalue="Generates NDVI from a source product with at least two spectral bands."/>
             </file>
         </folder>
     </folder>
+
     <folder name="Menu">
-        <folder name="Tools">
-            <folder name="Optical">
+        <folder name="Processing">
+            <folder name="Thematic Land Processing">
                 <file name="org-esa-beam-ndvi-NdviOpAction.shadow">
                     <attr name="originalFile"
                           stringvalue="Actions/Operators/org-esa-beam-ndvi-NdviOpAction.instance"/>
@@ -30,4 +34,13 @@
             </folder>
         </folder>
     </folder>
+
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="helpset.xml" url="helpset.xml">
+                <attr name="position" intvalue="4010"/>
+            </file>
+        </folder>
+    </folder>
+
 </filesystem>
