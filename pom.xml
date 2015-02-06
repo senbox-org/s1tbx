@@ -38,6 +38,7 @@
         <s2tbx.version>2.0.0-SNAPSHOT</s2tbx.version>
         <s3tbx.version>2.0.0-SNAPSHOT</s3tbx.version>
 
+        <javahelp.version>2.0.05</javahelp.version>
         <hdf.version>2.7</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>
         <geotools.version>2.7.4</geotools.version>
@@ -96,7 +97,6 @@
         <module>beam-hdf5-writer</module>
         <module>beam-landsat-reader</module>
         <module>beam-meris-cloud</module>
-        <module>beam-meris-radiometry</module>
         <module>beam-meris-smac</module>
         <module>beam-merisl3-reader</module>
         <module>beam-modis-reader</module>
@@ -578,7 +578,7 @@
             <dependency>
                 <groupId>javax.help</groupId>
                 <artifactId>javahelp</artifactId>
-                <version>2.0.05</version>
+                <version>${javahelp.version}</version>
                 <scope>provided</scope>
             </dependency>
 
