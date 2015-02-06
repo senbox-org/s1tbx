@@ -57,8 +57,6 @@
         <module>ceres-metadata</module>
         <module>ceres-site</module>
 
-        <module>snap-app</module>
-        <module>snap-bootstrap</module>
         <module>snap-config</module>
         <module>snap-help</module>
         <module>snap-engine-kit</module>
