@@ -44,7 +44,7 @@ import java.util.List;
         category = "SAR Processing/SENTINEL-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Estimate constant offset for the whole image", internal=true)
+        description = "Estimate constant offset for the whole image")
 public class ConstantOffsetEstimationOp extends Operator {
 
     @SourceProduct(alias = "source")

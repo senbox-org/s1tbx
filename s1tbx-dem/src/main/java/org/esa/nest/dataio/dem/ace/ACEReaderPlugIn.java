@@ -50,12 +50,9 @@ public class ACEReaderPlugIn implements ProductReaderPlugIn {
     public DecodeQualification getDecodeQualification(final Object input) {
         final File file = ReaderUtils.getFileFromInput(input);
         if (file != null) {
-            final String fileName = file.getName().toLowerCase();
-            final String[] extensions = getDefaultFileExtensions();
-            for (final String extension : extensions) {
-                if (fileName.endsWith(extension.toLowerCase()) && !fileName.equals(extension.toLowerCase())) {
-                    return DecodeQualification.INTENDED;
-                }
+            final String fileName = file.getName().toUpperCase();
+            if (fileName.endsWith(".ACE")) {
+                return DecodeQualification.INTENDED;
             }
         }
         return DecodeQualification.UNABLE;

@@ -31,7 +31,6 @@ public class TestApplyS1OrbitFileOp {
         final ApplyS1OrbitFileOp op = (ApplyS1OrbitFileOp) spi.createOperator();
         assertNotNull(op);
         op.setSourceProduct(sourceProduct);
-        op.setOrbitFileFolder(orbitFileFolder);
 
         // get targetProduct: execute initialize()
         //final Product targetProduct = op.getTargetProduct();

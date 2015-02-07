@@ -152,7 +152,9 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
                     mainPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     progMon.setCanceled(true);
                 } else {
-                    rescanFolder();
+                    final RescanOptions dlg = new RescanOptions();
+                    dlg.show();
+                    rescanFolder(dlg.shouldDoRecusive(), dlg.shouldDoQuicklooks());
                 }
             }
         });
@@ -295,18 +297,15 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         checkBoxMap.put("Generate quicklooks?", false);
         checkBoxMap.put("Search folder recursively?", true);
 
-        final CheckListDialog dlg = new CheckListDialog("Scan Folder Options", checkBoxMap);
+        final RescanOptions dlg = new RescanOptions();
         dlg.show();
-
-        final boolean doRecursive = checkBoxMap.get("Search folder recursively?");
-        final boolean doQuicklooks = checkBoxMap.get("Generate quicklooks?");
 
         libConfig.addBaseDir(baseDir);
         final int index = repositoryListCombo.getItemCount();
         repositoryListCombo.insertItemAt(baseDir, index);
         setUIComponentsEnabled(repositoryListCombo.getItemCount() > 1);
 
-        updateRepostitory(baseDir, doRecursive, doQuicklooks);
+        updateRepostitory(baseDir, dlg.shouldDoRecusive(), dlg.shouldDoQuicklooks());
     }
 
     private void updateRepostitory(final File baseDir, final boolean doRecursive, final boolean doQuicklooks) {
@@ -380,13 +379,13 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         productEntryTable.updateUI();
     }
 
-    private void rescanFolder() {
+    private void rescanFolder(final boolean doRecursive, final boolean doQuicklooks) {
         if (repositoryListCombo.getSelectedIndex() != 0) {
-            updateRepostitory((File) repositoryListCombo.getSelectedItem(), true, true);
+            updateRepostitory((File) repositoryListCombo.getSelectedItem(), doRecursive, doQuicklooks);
         } else {
             final File[] baseDirList = libConfig.getBaseDirs();
             for (File f : baseDirList) {
-                updateRepostitory(f, true, true);
+                updateRepostitory(f, doRecursive, doQuicklooks);
             }
         }
     }
@@ -494,7 +493,7 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
     }
 
     public void notifyDirectoryChanged() {
-        rescanFolder();
+        rescanFolder(true, false);
         UpdateUI();
     }
 
@@ -518,6 +517,28 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
                 }
             }
             UpdateUI();
+        }
+    }
+
+    private class RescanOptions extends CheckListDialog {
+        RescanOptions() {
+            super("Scan Folder Options");
+        }
+
+        @Override
+        protected void initContent() {
+            items.put("Generate quicklooks?", false);
+            items.put("Search folder recursively?", true);
+
+            super.initContent();
+        }
+
+        public boolean shouldDoRecusive() {
+            return items.get("Search folder recursively?");
+        }
+
+        public boolean shouldDoQuicklooks() {
+            return items.get("Generate quicklooks?");
         }
     }
 }

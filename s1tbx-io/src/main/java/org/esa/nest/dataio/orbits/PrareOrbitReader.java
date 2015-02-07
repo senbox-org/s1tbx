@@ -18,6 +18,7 @@ package org.esa.nest.dataio.orbits;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.ZipUtils;
@@ -39,7 +40,7 @@ public final class PrareOrbitReader {
     private DataHeaderRecord dataHeaderRecord = null;
     private QualityParameterRecord[] qualityParameterRecords = null;
 
-    private OrbitVector[] orbitVectors = null;
+    private Orbits.OrbitVector[] orbitVectors = null;
     private double[] recordTimes = null;
     private int numOfTrajectoryRecords;
     private int numOfQualityParameterRecords;
@@ -197,7 +198,7 @@ public final class PrareOrbitReader {
 
         computeNumberOfRecords(file);
 
-        orbitVectors = new OrbitVector[numOfTrajectoryRecords];
+        orbitVectors = new Orbits.OrbitVector[numOfTrajectoryRecords];
 
         recordTimes = new double[numOfTrajectoryRecords];
 
@@ -212,18 +213,19 @@ public final class PrareOrbitReader {
 
             final TrajectoryRecord dataRecord = readTrajectoryRecord(reader);
 
-            orbitVectors[i] = new OrbitVector();
             // convert TDT time to UTC time
-            orbitVectors[i].utcTime = TDT2UTC((double) dataRecord.tTagD * 0.1 + 0.5 +
+            double utcTime = TDT2UTC((double) dataRecord.tTagD * 0.1 + 0.5 +
                     (double) dataRecord.tTagMs * microSecondToSecond * secondToDay);
-            orbitVectors[i].xPos = (double) dataRecord.xSat * millimeterToMeter;
-            orbitVectors[i].yPos = (double) dataRecord.ySat * millimeterToMeter;
-            orbitVectors[i].zPos = (double) dataRecord.zSat * millimeterToMeter;
-            orbitVectors[i].xVel = (double) dataRecord.xDSat * microMeterToMeter;
-            orbitVectors[i].yVel = (double) dataRecord.yDSat * microMeterToMeter;
-            orbitVectors[i].zVel = (double) dataRecord.zDSat * microMeterToMeter;
 
-            recordTimes[i] = orbitVectors[i].utcTime;
+            orbitVectors[i] = new Orbits.OrbitVector(utcTime,
+                    (double) dataRecord.xSat * millimeterToMeter,
+                    (double) dataRecord.ySat * millimeterToMeter,
+                    (double) dataRecord.zSat * millimeterToMeter,
+                    (double) dataRecord.xDSat * microMeterToMeter,
+                    (double) dataRecord.yDSat * microMeterToMeter,
+                    (double) dataRecord.zDSat * microMeterToMeter);
+
+            recordTimes[i] = utcTime;
         }
 
         if (numOfQualityParameterRecords > 0) {
@@ -471,7 +473,7 @@ public final class PrareOrbitReader {
      * @param n The vector index.
      * @return The orbit vector.
      */
-    public OrbitVector getOrbitVector(int n) {
+    public Orbits.OrbitVector getOrbitVector(int n) {
         return orbitVectors[n];
     }
 
@@ -482,7 +484,7 @@ public final class PrareOrbitReader {
      * @return The orbit vector.
      * @throws Exception for incorrect time.
      */
-    public OrbitVector getOrbitVector(double utc) throws Exception {
+    public Orbits.OrbitVector getOrbitVector(double utc) throws Exception {
 
         final int order = interpolationOrder;
         final int nRecords = recordTimes.length;
@@ -536,26 +538,23 @@ public final class PrareOrbitReader {
                 orbitVectors[n4].zVel,
                 orbitVectors[n5].zVel, orbitVectors[n6].zVel, orbitVectors[n7].zVel, orbitVectors[n8].zVel};
 
-        final OrbitVector orb = new OrbitVector();
-
         double ref = tRel - itRel;
 
-        orb.utcTime = utc;
-        orb.xPos = Maths.lagrangeEightOrderInterpolation(xPosArray, ref);
-        orb.yPos = Maths.lagrangeEightOrderInterpolation(yPosArray, ref);
-        orb.zPos = Maths.lagrangeEightOrderInterpolation(zPosArray, ref);
-        orb.xVel = Maths.lagrangeEightOrderInterpolation(xVelArray, ref);
-        orb.yVel = Maths.lagrangeEightOrderInterpolation(yVelArray, ref);
-        orb.zVel = Maths.lagrangeEightOrderInterpolation(zVelArray, ref);
+        return new Orbits.OrbitVector(utc,
+                Maths.lagrangeEightOrderInterpolation(xPosArray, ref),
+                Maths.lagrangeEightOrderInterpolation(yPosArray, ref),
+                Maths.lagrangeEightOrderInterpolation(zPosArray, ref),
+                Maths.lagrangeEightOrderInterpolation(xVelArray, ref),
+                Maths.lagrangeEightOrderInterpolation(yVelArray, ref),
+                Maths.lagrangeEightOrderInterpolation(zVelArray, ref));
 
-        return orb;
         /*
         final double mu = (utc - recordTimes[n1]) / (recordTimes[n2] - recordTimes[n1]);
 
-        OrbitVector orb = new OrbitVector();
-
-        orb.utcTime = MathUtils.interpolationCubic(
+        double utcTime = MathUtils.interpolationCubic(
             orbitVectors[n0].utcTime, orbitVectors[n1].utcTime, orbitVectors[n2].utcTime, orbitVectors[n3].utcTime, mu);
+
+        OrbitVector orb = new OrbitVector(utcTime);
 
         orb.xPos = MathUtils.interpolationCubic(
             orbitVectors[n0].xPos, orbitVectors[n1].xPos, orbitVectors[n2].xPos, orbitVectors[n3].xPos, mu);
@@ -630,16 +629,6 @@ public final class PrareOrbitReader {
         String qPValue;
         String qPUnit;
         String qPRefVal;
-    }
-
-    public final static class OrbitVector {
-        public double utcTime = 0;
-        public double xPos = 0;
-        public double yPos = 0;
-        public double zPos = 0;
-        public double xVel = 0;
-        public double yVel = 0;
-        public double zVel = 0;
     }
 
     /**

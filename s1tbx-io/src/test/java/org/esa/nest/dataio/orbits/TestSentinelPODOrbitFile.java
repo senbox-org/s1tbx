@@ -1,6 +1,10 @@
 package org.esa.nest.dataio.orbits;
 
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
@@ -24,13 +28,22 @@ public class TestSentinelPODOrbitFile {
             TestUtils.skipTest(this, orbitFile + " not found");
             return;
         }
+        final File sourceFile = TestData.inputS1_GRD;
+        if(!sourceFile.exists()) {
+            TestUtils.skipTest(this, sourceFile + " not found");
+            return;
+        }
+
+        final Product sourceProduct = ProductIO.readProduct(sourceFile);
+        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+
         TestUtils.log.info("testSentinelPODOrbitFile...");
-        final SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile(orbitFile);
+        final SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile(SentinelPODOrbitFile.RESTITUTED, absRoot, sourceProduct, 3);
 
         // First OSV (exact match)
         String utcStr1 = "UTC=2014-05-25T15:19:21.698661";
         double utc1 = SentinelPODOrbitFile.toUTC(utcStr1).getMJD();
-        Orbits.OrbitData orbitData = podOrbitFile.getOrbitData(utc1);
+        Orbits.OrbitVector orbitData = podOrbitFile.getOrbitData(utc1);
         assert(orbitData.xPos == 5385157.178934F);
         assert(orbitData.yPos == 4581079.075900F);
         assert(orbitData.zPos == -98597.029370F);

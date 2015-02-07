@@ -19,15 +19,12 @@ import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
-import org.esa.nest.dataio.SARReader;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.ZipUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.Optional;
-import java.util.zip.ZipFile;
 
 /**
  * The ReaderPlugIn for Sentinel1 products.
@@ -44,13 +41,12 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
     public DecodeQualification getDecodeQualification(final Object input) {
         final File file = ReaderUtils.getFileFromInput(input);
         if (file != null) {
-            final String filename = file.getName().toUpperCase();
-            if (filename.startsWith(Sentinel1Constants.PRODUCT_HEADER_PREFIX) &&
-                    filename.endsWith(Sentinel1Constants.getIndicationKey())) {
+            final String filename = file.getName().toLowerCase();
+            if (filename.equals("manifest.safe")) {
                 if (isLevel1(file) || isLevel2(file) || isLevel0(file))
                     return DecodeQualification.INTENDED;
             }
-            if (ZipUtils.isZip(file) && (ZipUtils.findInZip(file, "s1", Sentinel1Constants.PRODUCT_HEADER_NAME) ||
+            if (filename.endsWith(".zip") && (ZipUtils.findInZip(file, "s1", Sentinel1Constants.PRODUCT_HEADER_NAME) ||
                     ZipUtils.findInZip(file, "rs2", Sentinel1Constants.PRODUCT_HEADER_NAME))) {
                 return DecodeQualification.INTENDED;
             }

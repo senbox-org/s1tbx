@@ -21,6 +21,7 @@ import org.esa.beam.visat.VisatApp;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,17 +30,23 @@ import java.util.Map;
  */
 public class CheckListDialog extends ModalDialog {
     private final List<JToggleButton> toggleList = new ArrayList<>(3);
-    private final Map<String, Boolean> items;
+    protected final Map<String, Boolean> items;
+    private final boolean singleSelection;
     private boolean ok = false;
 
-    public CheckListDialog(final String title, final Map<String, Boolean> items) {
-        this(title, items, false);
+    public CheckListDialog(final String title) {
+        this(title, new HashMap<>(3), false);
     }
 
     public CheckListDialog(final String title, final Map<String, Boolean> items, final boolean singleSelection) {
         super(VisatApp.getApp().getMainFrame(), title, ModalDialog.ID_OK, null);
         this.items = items;
+        this.singleSelection = singleSelection;
 
+        initContent();
+    }
+
+    protected void initContent() {
         final JPanel content = new JPanel();
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
