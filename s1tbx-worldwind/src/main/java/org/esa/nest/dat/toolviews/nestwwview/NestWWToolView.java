@@ -68,6 +68,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -126,6 +128,10 @@ public class NestWWToolView extends AbstractToolView implements WWView {
     public JComponent createControl() {
 
         productLayer = new ProductLayer(true);
+        // ADDED
+        //productLayer.setMinActiveAltitude(3e6);
+        //productLayer.setMaxActiveAltitude(4e6);
+
         final Window windowPane = getPaneWindow();
         if (windowPane != null)
             windowPane.setSize(800, 400);
@@ -178,7 +184,8 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         insertTiledLayer(getWwd(), streetLayer);
 
         productLayer.setOpacity(0.8);
-        productLayer.setPickEnabled(false);
+        // CHANGED: otherwise the objects in the product layer won't react to the select listener
+        //productLayer.setPickEnabled(false);
         productLayer.setName("Opened Products");
 
         // ADDED
@@ -266,7 +273,8 @@ public class NestWWToolView extends AbstractToolView implements WWView {
 
     private void initialize(JPanel mainPane) {
         // ADDED
-        //System.out.println("INITIALIZE IN NestWWToolView CALLED");
+        System.out.println("INITIALIZE IN NestWWToolView CALLED" + " includeLayerPanel " + includeLayerPanel + " includeProductPanel " + includeProductPanel);
+
         // Create the WorldWindow.
         try {
             wwjPanel = new AppPanel(canvasSize, includeStatusBar);
@@ -345,8 +353,9 @@ public class NestWWToolView extends AbstractToolView implements WWView {
     }
 
     private JPanel makeControlPanel() {
-        final JPanel controlPanel = new JPanel(new GridLayout(0, 1, 5, 5));
-
+        // CHANGED
+        //final JPanel controlPanel = new JPanel(new GridLayout(0, 1, 5, 5));
+        final JPanel controlPanel = new JPanel(new GridLayout(4, 1, 5, 5));
         opacitySlider = new JSlider();
         opacitySlider.setMaximum(100);
         opacitySlider.setValue((int) (productLayer.getOpacity() * 100));
@@ -363,6 +372,55 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         opacityPanel.add(this.opacitySlider, BorderLayout.CENTER);
 
         controlPanel.add(opacityPanel);
+
+        // ADDED
+        JPanel maxPanel = new JPanel(new GridLayout(1, 2, 5, 5));
+        maxPanel.add(new JLabel("Max:"));
+
+
+        JSpinner maxSP = new JSpinner(new SpinnerNumberModel(1, 0, 10, 1));
+        maxSP.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                int newValue = (Integer) ((JSpinner) e.getSource()).getValue();
+
+
+            }
+        });
+        maxPanel.add(maxSP);
+        controlPanel.add(maxPanel);
+
+        JPanel minPanel = new JPanel(new GridLayout(1, 2, 5, 5));
+        minPanel.add(new JLabel("Min:"));
+
+        JSpinner minSP = new JSpinner(new SpinnerNumberModel(1, 0, 10, 1));
+        minSP.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                System.out.println("new value " + ((JSpinner) e.getSource()).getValue());
+                System.out.println(productLayer.colorBarLegend);
+            }
+        });
+        minPanel.add(minSP);
+        controlPanel.add(minPanel);
+
+        JButton newButton = new JButton("Update");
+        newButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (productLayer.colorBarLegend != null) {
+                    productLayer.removeRenderable(productLayer.colorBarLegend);
+                    double minValue = ((Integer) minSP.getValue()) * 1.0e4;
+                    double maxValue = ((Integer) maxSP.getValue()) * 1.0e4;
+                    productLayer.createColorBarLegend(minValue, maxValue);
+                    productLayer.createColorGradient(minValue, maxValue);
+                    getWwd().redrawNow();
+                }
+            }
+        });
+        controlPanel.add(newButton);
+
         controlPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
         return controlPanel;
@@ -375,7 +433,7 @@ public class NestWWToolView extends AbstractToolView implements WWView {
 
     public void setSelectedProduct(Product product) {
         // ADDED
-        //System.out.println("SET SELECTED PRODUCT " + product);
+        System.out.println("SET SELECTED PRODUCT " + product);
         if (productLayer != null)
             productLayer.setSelectedProduct(product);
         if (productPanel != null)

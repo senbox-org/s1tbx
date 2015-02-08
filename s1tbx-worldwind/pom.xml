@@ -42,7 +42,11 @@
 		<dependency>
 			 <groupId>org.jogamp.jogl</groupId>
 			 <artifactId>jogl-all-main</artifactId>
-		</dependency>			
+		</dependency>
+        <dependency>
+            <groupId>com.alee</groupId>
+            <artifactId>weblaf</artifactId>
+        </dependency>		
     </dependencies>
 
 </project>

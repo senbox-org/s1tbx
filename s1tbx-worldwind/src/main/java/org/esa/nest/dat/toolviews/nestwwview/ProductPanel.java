@@ -15,13 +15,23 @@
  */
 package org.esa.nest.dat.toolviews.nestwwview;
 
+import gov.nasa.worldwind.Model;
+import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
+import gov.nasa.worldwind.avlist.AVKey;
+import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+
+import com.alee.extended.panel.GroupPanel;
+import com.alee.extended.tree.WebCheckBoxTree;
+import com.alee.laf.scroll.WebScrollPane;
+
 
 class ProductPanel extends JPanel {
     private final ProductLayer productLayer;
@@ -29,6 +39,8 @@ class ProductPanel extends JPanel {
     private JPanel westPanel;
     private JScrollPane scrollPane;
     private Font defaultFont = null;
+    //private JTree tree = null;
+    private WebCheckBoxTree tree = null;
 
     public ProductPanel(WorldWindow wwd, ProductLayer prodLayer) {
         super(new BorderLayout());
@@ -50,6 +62,8 @@ class ProductPanel extends JPanel {
 
         // Must put the layer grid in a container to prevent scroll panel from stretching their vertical spacing.
         final JPanel dummyPanel = new JPanel(new BorderLayout());
+
+        // CHANGED
         dummyPanel.add(this.layersPanel, BorderLayout.NORTH);
 
         // Put the name panel in a scroll bar.
@@ -59,21 +73,52 @@ class ProductPanel extends JPanel {
             this.scrollPane.setPreferredSize(size);
 
         // Add the scroll bar and name panel to a titled panel that will resize with the main window.
+        // CHANGED
+
         westPanel = new JPanel(new GridLayout(0, 1, 0, 10));
         westPanel.setBorder(
                 new CompoundBorder(BorderFactory.createEmptyBorder(9, 9, 9, 9), new TitledBorder("Products")));
         westPanel.setToolTipText("Products to Show");
         westPanel.add(scrollPane);
         this.add(westPanel, BorderLayout.CENTER);
+
+        /*
+        WorldWindow emptyWWD = this.createWorldWindow();
+        ((Component) emptyWWD).setPreferredSize(size);
+
+        // Create the default model as described in the current worldwind properties.
+        Model m = (Model) WorldWind.createConfigurationComponent(AVKey.MODEL_CLASS_NAME);
+        emptyWWD.setModel(m);
+        this.add((Component) emptyWWD, BorderLayout.CENTER);
+        */
+    }
+
+    protected WorldWindow createWorldWindow()
+    {
+        return new WorldWindowGLCanvas();
     }
 
     private void fill(WorldWindow wwd) {
+
+
         final String[] productNames = productLayer.getProductNames();
         for (String name : productNames) {
             final LayerAction action = new LayerAction(productLayer, wwd, name, productLayer.getOpacity(name) != 0);
             final JCheckBox jcb = new JCheckBox(action);
+
+            // CHANGED
+            System.out.println("fill: checkbox" + name);
             jcb.setSelected(action.selected);
             this.layersPanel.add(jcb);
+
+            /*
+            DefaultMutableTreeNode top =
+                    new DefaultMutableTreeNode("The Java Series");
+            createNodes(top);
+            //Create a tree that allows one selection at a time.
+            tree = new WebCheckBoxTree(top);
+            this.layersPanel.add(tree);
+            */
 
             if (defaultFont == null) {
                 this.defaultFont = jcb.getFont();
@@ -110,6 +155,8 @@ class ProductPanel extends JPanel {
         }
 
         public void actionPerformed(ActionEvent actionEvent) {
+            // ADDED
+            System.out.println("actionPerformed " + actionEvent);
             // Simply enable or disable the layer based on its toggle button.
             if (((JCheckBox) actionEvent.getSource()).isSelected())
                 this.layer.setOpacity(name, this.layer.getOpacity());
@@ -119,4 +166,40 @@ class ProductPanel extends JPanel {
             wwd.redraw();
         }
     }
+
+
+
+    private void createNodes(DefaultMutableTreeNode top) {
+        DefaultMutableTreeNode category = null;
+        DefaultMutableTreeNode book = null;
+
+        category = new DefaultMutableTreeNode("Books for Java Programmers");
+        top.add(category);
+
+        //original Tutorial
+        book = new DefaultMutableTreeNode(new BookInfo
+                ("The Java Tutorial: A Short Course on the Basics",
+                        "tutorial.html"));
+        category.add(book);
+
+        //Tutorial Continued
+        book = new DefaultMutableTreeNode(new BookInfo
+                ("The Java Tutorial Continued: The Rest of the JDK",
+                        "tutorialcont.html"));
+        category.add(book);
+
+    }
+
+    private class BookInfo {
+        public String bookName;
+
+        public BookInfo(String book, String filename) {
+            bookName = book;
+        }
+
+        public String toString() {
+            return bookName;
+        }
+    }
+
 }

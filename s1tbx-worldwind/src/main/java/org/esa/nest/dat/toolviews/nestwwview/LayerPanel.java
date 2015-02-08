@@ -68,8 +68,10 @@ class LayerPanel extends JPanel {
     }
 
     private void fill(WorldWindow wwd) {
+
         // Fill the layers panel with the titles of all layers in the world window's current model.
         for (Layer layer : wwd.getModel().getLayers()) {
+
             if (layer.getName().equalsIgnoreCase("Atmosphere") || layer.getName().equalsIgnoreCase("World Map") ||
                     layer.getName().equalsIgnoreCase("Scale bar") || layer.getName().equalsIgnoreCase("Compass"))
                 continue;
@@ -112,6 +114,7 @@ class LayerPanel extends JPanel {
         }
 
         public void actionPerformed(ActionEvent actionEvent) {
+
             // Simply enable or disable the layer based on its toggle button.
             if (((JCheckBox) actionEvent.getSource()).isSelected())
                 this.layer.setEnabled(true);
