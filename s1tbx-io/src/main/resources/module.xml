@@ -79,6 +79,18 @@
             <placeAfter>importJERSCEOSProduct</placeAfter>
         </action>
         <action>
+            <id>importAlos2Product</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ALOS 2 CEOS</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Import an ALOS 2 CEOS data product or subset.</shortDescr>
+            <description>Import an ALOS 2 CEOS data product or subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <helpId>importAlos2Product</helpId>
+            <parent>importSAR</parent>
+            <placeAfter>importAlosPalsarProduct</placeAfter>
+        </action>
+        <action>
             <id>importRadarsatProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <formatName>RADARSAT-1 CEOS</formatName>
@@ -88,7 +100,7 @@
             <largeIcon>icons/Import24.gif</largeIcon>
             <helpId>importRadarsatProduct</helpId>
             <parent>importSAR</parent>
-            <placeAfter>importAlosPalsarProduct</placeAfter>
+            <placeAfter>importAlos2Product</placeAfter>
         </action>
 
         <action>

@@ -25,7 +25,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
 
-class AlosPalsarImageFile extends CEOSImageFile {
+public class AlosPalsarImageFile extends CEOSImageFile {
 
     private final static String mission = "alos";
     private final static String image_DefinitionFile = "image_file.xml";

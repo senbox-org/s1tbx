@@ -51,7 +51,7 @@ import java.util.Map;
  * <p>This class is public for the benefit of the implementation of another (internal) class and its API may
  * change in future releases of the software.</p>
  */
-class AlosPalsarProductDirectory extends CEOSProductDirectory {
+public class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
     private AlosPalsarImageFile[] imageFiles = null;
     private AlosPalsarLeaderFile leaderFile = null;

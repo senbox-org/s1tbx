@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.nest.dataio.ceos.alos;
+package org.esa.nest.dataio.ceos.alos2;
 
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
@@ -22,12 +22,12 @@ import org.esa.nest.dataio.ceos.CEOSProductReaderPlugIn;
 import java.io.File;
 
 /**
- * The ReaderPlugIn for ALOS PALSAR CEOS products.
+ * The ReaderPlugIn for ALOS 2 CEOS products.
  */
-public class AlosPalsarProductReaderPlugIn extends CEOSProductReaderPlugIn {
+public class Alos2ProductReaderPlugIn extends CEOSProductReaderPlugIn {
 
-    public AlosPalsarProductReaderPlugIn() {
-        constants = new AlosPalsarConstants();
+    public Alos2ProductReaderPlugIn() {
+        constants = new Alos2Constants();
     }
 
     /**
@@ -37,15 +37,15 @@ public class AlosPalsarProductReaderPlugIn extends CEOSProductReaderPlugIn {
      */
     @Override
     public ProductReader createReaderInstance() {
-        return new AlosPalsarProductReader(this);
+        return new Alos2ProductReader(this);
     }
 
     @Override
     protected DecodeQualification checkProductQualification(File file) {
         final String name = file.getName().toUpperCase();
         for (String prefix : constants.getVolumeFilePrefix()) {
-            if (name.startsWith(prefix) && !name.contains("ALOS2")) {
-                final AlosPalsarProductReader reader = new AlosPalsarProductReader(this);
+            if (name.startsWith(prefix) && name.contains("ALOS2")) {
+                final Alos2ProductReader reader = new Alos2ProductReader(this);
                 return reader.checkProductQualification(file);
             }
         }

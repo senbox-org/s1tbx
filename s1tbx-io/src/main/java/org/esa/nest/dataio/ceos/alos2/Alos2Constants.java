@@ -13,27 +13,27 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.nest.dataio.ceos.alos;
+package org.esa.nest.dataio.ceos.alos2;
 
 import org.esa.nest.dataio.ceos.CEOSConstants;
 
 /**
  * Several constants used for reading Palsar products.
  */
-public class AlosPalsarConstants implements CEOSConstants {
+public class Alos2Constants implements CEOSConstants {
 
-    private final static String[] FORMAT_NAMES = new String[]{"ALOS PALSAR CEOS"};
+    private final static String[] FORMAT_NAMES = new String[]{"ALOS 2 CEOS"};
     private final static String[] FORMAT_FILE_EXTENSIONS = new String[]{""};
-    private final static String PLUGIN_DESCRIPTION = "ALOS PALSAR CEOS Products";      /*I18N*/
+    private final static String PLUGIN_DESCRIPTION = "ALOS 2 CEOS Products";      /*I18N*/
 
     private final static String[] VOLUME_FILE_PREFIX = {"VOL"};
     private static final String[] LEADER_FILE_PREFIX = {"LE"};
     private static final String[] IMAGE_FILE_PREFIX = {"IMG"};
     private static final String[] TRAILER_FILE_PREFIX = {"TR"};
 
-    final static String MISSION = "ALOS";
+    final static String MISSION = "ALOS2";
 
-    final static String PRODUCT_DESCRIPTION_PREFIX = "ALOS PALSAR product ";
+    final static String PRODUCT_DESCRIPTION_PREFIX = "ALOS 2 product ";
 
     final static String SUMMARY_FILE_NAME = "summary.txt";
     final static String WORKREPORT_FILE_NAME = "workreport";
