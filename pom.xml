@@ -87,7 +87,6 @@
 
         <module>beam-bigtiff</module>
         <module>snap-binning</module>
-        <module>beam-chris-reader</module>
         <module>beam-collocation</module>
         <module>beam-envi-reader</module>
         <module>beam-envisat-reader</module>

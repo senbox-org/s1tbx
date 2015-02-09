@@ -278,11 +278,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.s3tbx</groupId>
-            <artifactId>s3tbx-chris-reader</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.esa.snap.seadas</groupId>
             <artifactId>seadas-reader</artifactId>
             <version>1.5.6</version>
