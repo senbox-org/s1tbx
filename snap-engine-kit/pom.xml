@@ -269,22 +269,12 @@
         </dependency>
         <dependency>
             <groupId>org.esa.s3tbx</groupId>
-            <artifactId>s3tbx-meris-radiometry</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.s3tbx</groupId>
             <artifactId>s3tbx-meris-smac</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s3tbx</groupId>
             <artifactId>s3tbx-merisl3-reader</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.s3tbx</groupId>
-            <artifactId>s3tbx-avhrr-reader</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
