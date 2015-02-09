@@ -63,6 +63,7 @@
 
         <!-- SNAP Extension Modules -->
 
+        <module>snap-arcbingrid-reader</module>
         <module>snap-ndvi</module>
         <module>snap-cluster-analysis</module>
         <module>snap-binning</module>
