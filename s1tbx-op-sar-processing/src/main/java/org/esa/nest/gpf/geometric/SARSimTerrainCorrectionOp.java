@@ -200,7 +200,6 @@ public class SARSimTerrainCorrectionOp extends Operator {
     private double delLat = 0.0;
     private double delLon = 0.0;
     private SARGeocoding.Orbit orbit = null;
-    private int polyDegree = 2; // degree of fitting polynomial
 
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
     private OrbitStateVector[] orbitStateVectors = null;
@@ -507,7 +506,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
      */
     private void computeSensorPositionsAndVelocities() {
 
-        orbit = new SARGeocoding.Orbit(orbitStateVectors, polyDegree, firstLineUTC, lineTimeInterval, sourceImageHeight);
+        orbit = new SARGeocoding.Orbit(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
     }
 
     private static void addLayoverShadowBitmasks(final Product product) {

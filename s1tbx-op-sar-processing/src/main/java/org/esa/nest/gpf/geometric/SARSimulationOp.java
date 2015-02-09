@@ -168,7 +168,6 @@ public final class SARSimulationOp extends Operator {
     private double wavelength = 0.0; // in m
     private double demNoDataValue = 0; // no data value for DEM
     private SARGeocoding.Orbit orbit = null;
-    private int polyDegree = 2; // degree of fitting polynomial
 
     private int tileSize = 400;
 
@@ -272,7 +271,7 @@ public final class SARSimulationOp extends Operator {
      */
     private void computeSensorPositionsAndVelocities() {
 
-        orbit = new SARGeocoding.Orbit(orbitStateVectors, polyDegree, firstLineUTC, lineTimeInterval, sourceImageHeight);
+        orbit = new SARGeocoding.Orbit(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
     }
 
     /**

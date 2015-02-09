@@ -94,7 +94,6 @@ public class ALOSDeskewingOp extends Operator {
     private double slantRangeToFirstPixel = 0.0;
     private double radarWaveLength = 0.0;
     private SARGeocoding.Orbit orbit = null;
-    private int polyDegree = 2; // degree of fitting polynomial
 
     private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>();
 
@@ -190,7 +189,7 @@ public class ALOSDeskewingOp extends Operator {
      */
     private void computeSensorPositionsAndVelocities() {
 
-        orbit = new SARGeocoding.Orbit(orbitStateVectors, polyDegree, firstLineTime, lineTimeInterval, sourceImageHeight);
+        orbit = new SARGeocoding.Orbit(orbitStateVectors, firstLineTime, lineTimeInterval, sourceImageHeight);
     }
 
     /**
