@@ -843,31 +843,14 @@ public class SARGeocoding {
     public static class Orbit {
 
         public OrbitStateVector[] orbitStateVectors = null;
-        public int polyDegree;            // degree of fitting polynomial
-        public double firstLineUTC;
         public double[][] sensorPosition = null; // sensor position for all range lines
         public double[][] sensorVelocity = null; // sensor velocity for all range lines
 
-        private PolyCoeff[] polyCoeffArray = null;
-
         public Orbit(OrbitStateVector[] orbitStateVectors,
-                     final int polyDegree, double firstLineUTC, double lineTimeInterval, int sourceImageHeight) {
-
-            this.polyDegree = polyDegree;
-            this.firstLineUTC = firstLineUTC;
-
-            if (orbitStateVectors.length < polyDegree + 1) {
-                throw new OperatorException("Not enough orbit state vectors for polynomial fitting");
-            }
+                     double firstLineUTC, double lineTimeInterval, int sourceImageHeight) {
 
             this.orbitStateVectors = new OrbitStateVector[orbitStateVectors.length];
             System.arraycopy(orbitStateVectors, 0, this.orbitStateVectors, 0, orbitStateVectors.length);
-
-            polyCoeffArray = new PolyCoeff[orbitStateVectors.length - 1];
-            for (int i = 0; i < orbitStateVectors.length - 1; i++) {
-                int[] adjVecIndices = findAdjacentVectors(i);
-                polyCoeffArray[i] = computePolyFitCoeff(adjVecIndices);
-            }
 
             this.sensorPosition = new double[sourceImageHeight][3];
             this.sensorVelocity = new double[sourceImageHeight][3];
@@ -877,51 +860,41 @@ public class SARGeocoding {
             }
         }
 
-        public Orbit(OrbitStateVector[] orbitStateVectors, final int polyDegree, double firstLineUTC) {
-
-            this.polyDegree = polyDegree;
-            this.firstLineUTC = firstLineUTC;
-
-            if (orbitStateVectors.length < polyDegree + 1) {
-                throw new OperatorException("Not enough orbit state vectors for polynomial fitting");
-            }
+        public Orbit(OrbitStateVector[] orbitStateVectors) {
 
             this.orbitStateVectors = new OrbitStateVector[orbitStateVectors.length];
             System.arraycopy(orbitStateVectors, 0, this.orbitStateVectors, 0, orbitStateVectors.length);
-
-            polyCoeffArray = new PolyCoeff[orbitStateVectors.length - 1];
-            for (int i = 0; i < orbitStateVectors.length - 1; i++) {
-                int[] adjVecIndices = findAdjacentVectors(i);
-                polyCoeffArray[i] = computePolyFitCoeff(adjVecIndices);
-            }
         }
 
         public void getPositionVelocity(final double time, double[] position, double[] velocity) {
 
-            try {
-                final int polyCoeffIndex = getPolyCoeffIndex(time);
-                final double normalizedTime = time - firstLineUTC;
+            final int[] adjVecIndices = findAdjacentVectors(time);
 
-                position[0] = polyVal(normalizedTime, polyCoeffArray[polyCoeffIndex].xPosCoeff);
-                position[1] = polyVal(normalizedTime, polyCoeffArray[polyCoeffIndex].yPosCoeff);
-                position[2] = polyVal(normalizedTime, polyCoeffArray[polyCoeffIndex].zPosCoeff);
+            final int numVectors = adjVecIndices.length;
+            double[] timeArray = new double[numVectors];
+            double[] xPosArray = new double[numVectors];
+            double[] yPosArray = new double[numVectors];
+            double[] zPosArray = new double[numVectors];
+            double[] xVelArray = new double[numVectors];
+            double[] yVelArray = new double[numVectors];
+            double[] zVelArray = new double[numVectors];
 
-                velocity[0] = polyVal(normalizedTime, polyCoeffArray[polyCoeffIndex].xVelCoeff);
-                velocity[1] = polyVal(normalizedTime, polyCoeffArray[polyCoeffIndex].yVelCoeff);
-                velocity[2] = polyVal(normalizedTime, polyCoeffArray[polyCoeffIndex].zVelCoeff);
-            } catch (Exception e) {
-                throw e;
+            for (int j = 0; j < numVectors; j++) {
+                timeArray[j] = orbitStateVectors[adjVecIndices[j]].time_mjd;
+                xPosArray[j] = orbitStateVectors[adjVecIndices[j]].x_pos;
+                yPosArray[j] = orbitStateVectors[adjVecIndices[j]].y_pos;
+                zPosArray[j] = orbitStateVectors[adjVecIndices[j]].z_pos;
+                xVelArray[j] = orbitStateVectors[adjVecIndices[j]].x_vel;
+                yVelArray[j] = orbitStateVectors[adjVecIndices[j]].y_vel;
+                zVelArray[j] = orbitStateVectors[adjVecIndices[j]].z_vel;
             }
-        }
 
-        private static double polyVal(final double t, final double[] coeff) {
-
-            final int polyDegree = coeff.length - 1;
-            double value = 0.0;
-            for (int i = 0; i <= polyDegree; i++) {
-                value += coeff[i]*Math.pow(t, i);
-            }
-            return value;
+            position[0] = Maths.lagrangeInterpolatingPolynomial(timeArray, xPosArray, time);
+            position[1] = Maths.lagrangeInterpolatingPolynomial(timeArray, yPosArray, time);
+            position[2] = Maths.lagrangeInterpolatingPolynomial(timeArray, zPosArray, time);
+            velocity[0] = Maths.lagrangeInterpolatingPolynomial(timeArray, xVelArray, time);
+            velocity[1] = Maths.lagrangeInterpolatingPolynomial(timeArray, yVelArray, time);
+            velocity[2] = Maths.lagrangeInterpolatingPolynomial(timeArray, zVelArray, time);
         }
 
         public double getVelocity(final double time) {
@@ -932,127 +905,48 @@ public class SARGeocoding {
             return Math.sqrt(velocity[0]*velocity[0] + velocity[1]*velocity[1] + velocity[2]*velocity[2]);
         }
 
-        private int[] findAdjacentVectors(final int midVecIdx) {
+        private int[] findAdjacentVectors(final double time) {
 
-            final int nv = orbitStateVectors.length;
-            final int[] vectorIndices = new int[4];
-
-            if (nv <= 4) {
-                for (int i = 0; i < nv; i++) {
+            int[] vectorIndices = null;
+            final int nv = 8;
+            final int totalVectors = orbitStateVectors.length;
+            if (totalVectors <= nv) {
+                vectorIndices = new int[totalVectors];
+                for (int i = 0; i < totalVectors; i++) {
                     vectorIndices[i] = i;
                 }
                 return vectorIndices;
             }
 
-            if (midVecIdx == 0) {
-                vectorIndices[0] = 0;
-                vectorIndices[1] = 1;
-                vectorIndices[2] = 2;
-                vectorIndices[3] = 3;
-            } else if (midVecIdx >= nv - 2) {
-                vectorIndices[0] = nv -4;
-                vectorIndices[1] = nv -3;
-                vectorIndices[2] = nv -2;
-                vectorIndices[3] = nv -1;
+            int idx = 0;
+            for (int i = 0; i < totalVectors; i++) {
+                if (time < orbitStateVectors[i].time_mjd) {
+                    idx = i - 1;
+                    break;
+                }
+            }
+
+            if (idx == -1) {
+                vectorIndices = new int[nv];
+                for (int i = 0; i < nv; i++) {
+                    vectorIndices[i] = i;
+                }
+            } else if (idx == 0) {
+                vectorIndices = new int[nv];
+                for (int i = 0; i < nv; i++) {
+                    vectorIndices[i] = totalVectors - nv + i;
+                }
             } else {
-                vectorIndices[0] = midVecIdx - 1;
-                vectorIndices[1] = midVecIdx;
-                vectorIndices[2] = midVecIdx + 1;
-                vectorIndices[3] = midVecIdx + 2;
+                final int stIdx = Math.max(idx - nv/2 + 1, 0);
+                final int edIdx = Math.min(idx + nv/2, totalVectors - 1);
+                vectorIndices = new int[edIdx - stIdx + 1];
+                for (int i = 0; i < vectorIndices.length; i++) {
+                    vectorIndices[i] = stIdx + i;
+                }
             }
 
             return vectorIndices;
         }
-
-        private PolyCoeff computePolyFitCoeff(final int[] adjVecIndices) {
-
-            final double[] timeArray = new double[adjVecIndices.length];
-            final double[] xPosArray = new double[adjVecIndices.length];
-            final double[] yPosArray = new double[adjVecIndices.length];
-            final double[] zPosArray = new double[adjVecIndices.length];
-            final double[] xVelArray = new double[adjVecIndices.length];
-            final double[] yVelArray = new double[adjVecIndices.length];
-            final double[] zVelArray = new double[adjVecIndices.length];
-
-            for (int i = 0; i < adjVecIndices.length; i++) {
-                final int idx = adjVecIndices[i];
-                timeArray[i] = orbitStateVectors[idx].time_mjd - firstLineUTC;
-                xPosArray[i] = orbitStateVectors[idx].x_pos; // m
-                yPosArray[i] = orbitStateVectors[idx].y_pos; // m
-                zPosArray[i] = orbitStateVectors[idx].z_pos; // m
-                xVelArray[i] = orbitStateVectors[idx].x_vel; // m/s
-                yVelArray[i] = orbitStateVectors[idx].y_vel; // m/s
-                zVelArray[i] = orbitStateVectors[idx].z_vel; // m/s
-            }
-
-            final Matrix A = Maths.createVandermondeMatrix(timeArray, polyDegree);
-
-            final double[] xPosCoeff = Maths.polyFit(A, xPosArray);
-            final double[] yPosCoeff = Maths.polyFit(A, yPosArray);
-            final double[] zPosCoeff = Maths.polyFit(A, zPosArray);
-            final double[] xVelCoeff = Maths.polyFit(A, xVelArray);
-            final double[] yVelCoeff = Maths.polyFit(A, yVelArray);
-            final double[] zVelCoeff = Maths.polyFit(A, zVelArray);
-
-            PolyCoeff polyCoeff = new PolyCoeff(polyDegree);
-            System.arraycopy(xPosCoeff, 0, polyCoeff.xPosCoeff, 0, xPosCoeff.length);
-            System.arraycopy(yPosCoeff, 0, polyCoeff.yPosCoeff, 0, yPosCoeff.length);
-            System.arraycopy(zPosCoeff, 0, polyCoeff.zPosCoeff, 0, zPosCoeff.length);
-            System.arraycopy(xVelCoeff, 0, polyCoeff.xVelCoeff, 0, xVelCoeff.length);
-            System.arraycopy(yVelCoeff, 0, polyCoeff.yVelCoeff, 0, yVelCoeff.length);
-            System.arraycopy(zVelCoeff, 0, polyCoeff.zVelCoeff, 0, zVelCoeff.length);
-
-            /*
-            double[] tmp = new double[timeArray.length];
-            for (int i = 0; i < timeArray.length; i++) {
-                tmp[i] = Maths.polyVal(timeArray[i], xPosCoeff) - xPosArray[i];
-                System.out.print(tmp[i] + " ");
-            }
-            System.out.println();
-            */
-            return polyCoeff;
-        }
-
-        private int getPolyCoeffIndex(final double time) {
-
-            final int nv = orbitStateVectors.length;
-
-            if (time < orbitStateVectors[0].time_mjd) {
-                return 0;
-            }
-
-            if (time >= orbitStateVectors[nv - 1].time_mjd) {
-                return nv - 2;
-            }
-
-            for (int i = 0; i < nv - 1; i++) {
-                if (time >= orbitStateVectors[i].time_mjd && time < orbitStateVectors[i+1].time_mjd) {
-                    return i;
-                }
-            }
-
-            return -1;
-        }
-
-        private static class PolyCoeff {
-
-            public double[] xPosCoeff = null;
-            public double[] yPosCoeff = null;
-            public double[] zPosCoeff = null;
-            public double[] xVelCoeff = null;
-            public double[] yVelCoeff = null;
-            public double[] zVelCoeff = null;
-
-            public PolyCoeff(final int polyDegree) {
-                xPosCoeff = new double[polyDegree + 1];
-                yPosCoeff = new double[polyDegree + 1];
-                zPosCoeff = new double[polyDegree + 1];
-                xVelCoeff = new double[polyDegree + 1];
-                yVelCoeff = new double[polyDegree + 1];
-                zVelCoeff = new double[polyDegree + 1];
-            }
-        }
-
     }
 
 }
