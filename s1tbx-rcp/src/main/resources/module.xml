@@ -28,6 +28,12 @@
     <dependency>
         <module>snap-graph-builder</module>
     </dependency>
+    <dependency>
+        <module>snap-gui-utilities</module>
+    </dependency>
+    <dependency>
+        <module>s1tbx-io</module>
+    </dependency>
 
     <categories>Application,DAT</categories>
 

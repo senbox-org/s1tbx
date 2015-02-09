@@ -22,7 +22,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.nest.dat.layers.ScreenPixelConverter;
 import org.esa.snap.eo.Constants;
-import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.ImageUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,7 +34,7 @@ import java.awt.image.BufferedImage;
  */
 public class CompassComponent implements MapToolsComponent {
 
-    private static final ImageIcon roseIcon = ResourceUtils.LoadIcon("org/esa/nest/icons/compass_rose.png");
+    private static final ImageIcon roseIcon = ImageUtils.LoadIcon("org/esa/nest/icons/compass_rose.png");
     private final BufferedImage image;
     private final PixelPos tail, head;
     private final PixelPos point1;

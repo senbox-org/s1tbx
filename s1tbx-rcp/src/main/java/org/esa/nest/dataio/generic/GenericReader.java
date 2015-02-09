@@ -27,6 +27,7 @@ import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.GenericBinaryDialog;
 import org.esa.nest.dataio.FileImageInputStreamExtImpl;
+import org.esa.nest.dataio.binary.ArrayCopy;
 import org.esa.nest.dataio.binary.BinaryFileReader;
 import org.esa.nest.dataio.binary.IllegalBinaryFormatException;
 import org.esa.snap.datamodel.AbstractMetadata;
@@ -241,9 +242,9 @@ public class GenericReader extends AbstractProductReader {
                 }
 
                 if (oneOf2)
-                    copyLine1Of2(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine1Of2(srcLine, destLine, sourceStepX);
                 else
-                    copyLine2Of2(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine2Of2(srcLine, destLine, sourceStepX);
 
                 System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
 
@@ -253,7 +254,6 @@ public class GenericReader extends AbstractProductReader {
             pm.done();
         }
     }
-
 
     public static void readBandRasterDataShort(final int sourceOffsetX, final int sourceOffsetY,
                                                final int sourceWidth, final int sourceHeight,
@@ -289,7 +289,7 @@ public class GenericReader extends AbstractProductReader {
 
                     System.arraycopy(srcLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 } else {
-                    copyLine(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine(srcLine, destLine, sourceStepX);
 
                     System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 }
@@ -331,11 +331,11 @@ public class GenericReader extends AbstractProductReader {
                 // Copy source line into destination buffer
                 final int currentLineIndex = (y - sourceOffsetY) * destWidth;
                 if (sourceStepX == 1) {
-                    copyLine(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine(srcLine, destLine, sourceStepX);
 
                     System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 } else {
-                    copyLine(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine(srcLine, destLine, sourceStepX);
 
                     System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 }
@@ -382,7 +382,7 @@ public class GenericReader extends AbstractProductReader {
 
                     System.arraycopy(srcLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 } else {
-                    copyLine(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine(srcLine, destLine, sourceStepX);
 
                     System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 }
@@ -432,7 +432,7 @@ public class GenericReader extends AbstractProductReader {
 
                     System.arraycopy(srcLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 } else {
-                    copyLine(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine(srcLine, destLine, sourceStepX);
 
                     System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 }
@@ -480,7 +480,7 @@ public class GenericReader extends AbstractProductReader {
 
                     System.arraycopy(srcLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 } else {
-                    copyLine(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine(srcLine, destLine, sourceStepX);
 
                     System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 }
@@ -527,7 +527,7 @@ public class GenericReader extends AbstractProductReader {
 
                     System.arraycopy(srcLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 } else {
-                    copyLine(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine(srcLine, destLine, sourceStepX);
 
                     System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 }
@@ -574,7 +574,7 @@ public class GenericReader extends AbstractProductReader {
 
                     System.arraycopy(srcLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 } else {
-                    copyLine(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine(srcLine, destLine, sourceStepX);
 
                     System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 }
@@ -621,7 +621,7 @@ public class GenericReader extends AbstractProductReader {
 
                     System.arraycopy(srcLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 } else {
-                    copyLine(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine(srcLine, destLine, sourceStepX);
 
                     System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
                 }
@@ -663,9 +663,9 @@ public class GenericReader extends AbstractProductReader {
                 // Copy source line into destination buffer
                 final int currentLineIndex = (y - sourceOffsetY) * destWidth;
                 if (oneOf2)
-                    copyLine1Of2(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine1Of2(srcLine, destLine, sourceStepX);
                 else
-                    copyLine2Of2(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine2Of2(srcLine, destLine, sourceStepX);
 
                 System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
 
@@ -706,9 +706,9 @@ public class GenericReader extends AbstractProductReader {
                 // Copy source line into destination buffer
                 final int currentLineIndex = (y - sourceOffsetY) * destWidth;
                 if (oneOf2)
-                    copyLine1Of2(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine1Of2(srcLine, destLine, sourceStepX);
                 else
-                    copyLine2Of2(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine2Of2(srcLine, destLine, sourceStepX);
 
                 System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
 
@@ -749,9 +749,9 @@ public class GenericReader extends AbstractProductReader {
                 // Copy source line into destination buffer
                 final int currentLineIndex = (y - sourceOffsetY) * destWidth;
                 if (oneOf2)
-                    copyLine1Of2(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine1Of2(srcLine, destLine, sourceStepX);
                 else
-                    copyLine2Of2(srcLine, destLine, sourceStepX);
+                    ArrayCopy.copyLine2Of2(srcLine, destLine, sourceStepX);
 
                 System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
 
@@ -760,119 +760,6 @@ public class GenericReader extends AbstractProductReader {
 
         } finally {
             pm.done();
-        }
-    }
-
-    private static void copyLine(final byte[] srcLine, final byte[] destLine, final int sourceStepX) {
-        for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = srcLine[i];
-        }
-    }
-
-    private static void copyLine(final short[] srcLine, final short[] destLine, final int sourceStepX) {
-        for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = srcLine[i];
-        }
-    }
-
-    private static void copyLine(final char[] srcLine, final char[] destLine, final int sourceStepX) {
-        for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = srcLine[i];
-        }
-    }
-
-    private static void copyLine(final char[] srcLine, final short[] destLine, final int sourceStepX) {
-        for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = (short) srcLine[i];
-        }
-    }
-
-    private static void copyLine(final int[] srcLine, final int[] destLine, final int sourceStepX) {
-        for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = srcLine[i];
-        }
-    }
-
-    private static void copyLine(final long[] srcLine, final long[] destLine, final int sourceStepX) {
-        for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = srcLine[i];
-        }
-    }
-
-    private static void copyLine(final float[] srcLine, final float[] destLine, final int sourceStepX) {
-        for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = srcLine[i];
-        }
-    }
-
-    private static void copyLine(final double[] srcLine, final double[] destLine, final int sourceStepX) {
-        for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = srcLine[i];
-        }
-    }
-
-    public static void copyLine1Of2(final char[] srcLine, final char[] destLine, final int sourceStepX) {
-        for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = srcLine[i << 1];
-        }
-    }
-
-    public static void copyLine1Of2(final short[] srcLine, final short[] destLine, final int sourceStepX) {
-        for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = srcLine[i << 1];
-        }
-    }
-
-    private static void copyLine1Of2(final byte[] srcLine, final byte[] destLine, final int sourceStepX) {
-        for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = srcLine[i << 1];
-        }
-    }
-
-    public static void copyLine1Of2(final int[] srcLine, final int[] destLine, final int sourceStepX) {
-        for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = srcLine[i << 1];
-        }
-    }
-
-    private static void copyLine1Of2(final float[] srcLine, final float[] destLine, final int sourceStepX) {
-        for (int x = 0, i = 0; x < destLine.length; ++x, i += sourceStepX) {
-            destLine[x] = (int) srcLine[i << 1];
-        }
-    }
-
-    public static void copyLine2Of2(final char[] srcLine, final char[] destLine, final int sourceStepX) {
-        final int length = destLine.length;
-        for (int x = 0, i = 0; x < length; ++x, i += sourceStepX) {
-            destLine[x] = srcLine[(i << 1) + 1];
-        }
-    }
-
-    public static void copyLine2Of2(final short[] srcLine, final short[] destLine, final int sourceStepX) {
-        final int length = destLine.length;
-        for (int x = 0, i = 0; x < length; ++x, i += sourceStepX) {
-            destLine[x] = srcLine[(i << 1) + 1];
-        }
-    }
-
-    private static void copyLine2Of2(final byte[] srcLine, final byte[] destLine, final int sourceStepX) {
-        final int length = destLine.length;
-        for (int x = 0, i = 0; x < length; ++x, i += sourceStepX) {
-            destLine[x] = srcLine[(i << 1) + 1];
-        }
-    }
-
-    public static void copyLine2Of2(final int[] srcLine, final int[] destLine, final int sourceStepX) {
-        final int length = destLine.length;
-        for (int x = 0, i = 0; x < length; ++x, i += sourceStepX) {
-            destLine[x] = srcLine[(i << 1) + 1];
-        }
-    }
-
-    private static void copyLine2Of2(final float[] srcLine, final float[] destLine, final int sourceStepX) {
-        final int length = destLine.length;
-        for (int x = 0, i = 0; x < length; ++x, i += sourceStepX) {
-            destLine[x] = (int) srcLine[(i << 1) + 1];
         }
     }
 }

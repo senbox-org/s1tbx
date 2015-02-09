@@ -19,7 +19,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 import org.esa.nest.dat.wizards.WizardDialog;
-import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.ImageUtils;
 
 public class PolSARWizardAction extends AbstractVisatAction {
 
@@ -27,7 +27,7 @@ public class PolSARWizardAction extends AbstractVisatAction {
     public void actionPerformed(final CommandEvent event) {
         final WizardDialog dialog = new WizardDialog(VisatApp.getApp().getMainFrame(), false,
                 PolSARWizardInstructPanel.title, "PolSARWizard", new PolSARWizardInstructPanel());
-        dialog.setIcon(ResourceUtils.rstbIcon);
+        dialog.setIcon(ImageUtils.rstbIcon);
         dialog.setVisible(true);
     }
 

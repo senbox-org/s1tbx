@@ -17,7 +17,7 @@ package org.esa.nest.dat.layers.maptools.components;
 
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.nest.dat.layers.ScreenPixelConverter;
-import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.ImageUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,7 +29,7 @@ import java.awt.image.BufferedImage;
  */
 public class LogoComponent implements MapToolsComponent {
 
-    private static final ImageIcon procNestIcon = ResourceUtils.LoadIcon("org/esa/nest/icons/proc_nest.png");
+    private static final ImageIcon procNestIcon = ImageUtils.LoadIcon("org/esa/nest/icons/proc_nest.png");
     private final BufferedImage image;
     private final static double marginPct = 0.05;
     private final double scale;

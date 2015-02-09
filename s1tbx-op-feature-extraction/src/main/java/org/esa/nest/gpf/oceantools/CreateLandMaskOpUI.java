@@ -18,7 +18,7 @@ package org.esa.nest.gpf.oceantools;
 import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.snap.gpf.OperatorUIUtils;
+import org.esa.snap.gpf.ui.OperatorUIUtils;
 import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;

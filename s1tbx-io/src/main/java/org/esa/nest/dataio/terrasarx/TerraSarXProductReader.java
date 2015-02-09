@@ -22,7 +22,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.nest.dataio.SARReader;
-import org.esa.nest.dataio.generic.GenericReader;
+import org.esa.nest.dataio.binary.ArrayCopy;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
@@ -345,9 +345,9 @@ public class TerraSarXProductReader extends SARReader {
                     // Copy source line into destination buffer
                     final int currentLineIndex = (y - sourceOffsetY) * destWidth;
                     if (oneOf2)
-                        GenericReader.copyLine1Of2(srcLine, destLine, sourceStepX);
+                        ArrayCopy.copyLine1Of2(srcLine, destLine, sourceStepX);
                     else
-                        GenericReader.copyLine2Of2(srcLine, destLine, sourceStepX);
+                        ArrayCopy.copyLine2Of2(srcLine, destLine, sourceStepX);
 
                     System.arraycopy(destLine, 0, destBuffer.getElems(), currentLineIndex, destWidth);
 
@@ -379,9 +379,9 @@ public class TerraSarXProductReader extends SARReader {
                     // Copy source line into destination buffer
                     final int currentLineIndex = (y - sourceOffsetY) * destWidth;
                     if (oneOf2)
-                        GenericReader.copyLine1Of2(srcLine, destLine, sourceStepX);
+                        ArrayCopy.copyLine1Of2(srcLine, destLine, sourceStepX);
                     else
-                        GenericReader.copyLine2Of2(srcLine, destLine, sourceStepX);
+                        ArrayCopy.copyLine2Of2(srcLine, destLine, sourceStepX);
 
                     for (int i = 0; i < destWidth; i++) {
                         destBuffer.setElemFloatAt(i+currentLineIndex, convert16BitsTo32BitFloat(destLine[i]));

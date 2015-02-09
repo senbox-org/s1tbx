@@ -277,7 +277,13 @@
                 <artifactId>snap-graph-builder</artifactId>
 			    <version>${snap.version}</version>
             </dependency>
-			
+
+            <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-gui-utilities</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>ncsa.hdf</groupId>
                 <artifactId>lib-hdf</artifactId>

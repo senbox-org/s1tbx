@@ -25,7 +25,6 @@ import org.esa.nest.dat.toolviews.productlibrary.model.*;
 import org.esa.nest.dat.toolviews.productlibrary.timeline.TimelinePanel;
 import org.esa.nest.dat.utils.FileFolderUtils;
 import org.esa.snap.db.DBQuery;
-import org.esa.snap.db.DBScanner;
 import org.esa.snap.db.ProductEntry;
 import org.esa.snap.util.DialogUtils;
 
