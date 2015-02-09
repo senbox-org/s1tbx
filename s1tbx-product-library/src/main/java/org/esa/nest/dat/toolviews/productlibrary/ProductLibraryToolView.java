@@ -83,16 +83,18 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         dbPane = new DatabasePane();
         dbPane.addListener(this);
 
-        productLibraryActions = new ProductLibraryActions(productEntryTable);
+        productLibraryActions = new ProductLibraryActions(productEntryTable, this);
         productLibraryActions.addListener(this);
 
         initUI();
+
         mainPanel.addComponentListener(new ComponentAdapter() {
 
             @Override
             public void componentHidden(final ComponentEvent e) {
-                if (progMon != null)
+                if (progMon != null) {
                     progMon.setCanceled(true);
+                }
             }
         });
         applyConfig(libConfig);
@@ -149,7 +151,9 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
                 if (e.getActionCommand().equals("stop")) {
                     updateButton.setEnabled(false);
                     mainPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                    progMon.setCanceled(true);
+                    if(progMon != null) {
+                        progMon.setCanceled(true);
+                    }
                 } else {
                     final RescanOptions dlg = new RescanOptions();
                     dlg.show();
@@ -307,18 +311,22 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         updateRepostitory(baseDir, dlg.shouldDoRecusive(), dlg.shouldDoQuicklooks());
     }
 
-    private synchronized void updateRepostitory(final File baseDir, final boolean doRecursive, final boolean doQuicklooks) {
-        if (baseDir == null) return;
+    LabelBarProgressMonitor createLabelBarProgressMonitor() {
         progMon = new LabelBarProgressMonitor(progressBar, statusLabel);
         progMon.addListener(this);
+        return progMon;
+    }
+
+    private synchronized void updateRepostitory(final File baseDir, final boolean doRecursive, final boolean doQuicklooks) {
+        if (baseDir == null) return;
+        progMon = createLabelBarProgressMonitor();
         final DBScanner scanner = new DBScanner(dbPane.getDB(), baseDir, doRecursive, doQuicklooks, progMon);
         scanner.addListener(new MyDatabaseScannerListener());
         scanner.execute();
     }
 
     private synchronized void removeProducts(final File baseDir) {
-        progMon = new LabelBarProgressMonitor(progressBar, statusLabel);
-        progMon.addListener(this);
+        progMon = createLabelBarProgressMonitor();
         final DBRemover remover = new DBRemover(dbPane.getDB(), baseDir, progMon);
         remover.addListener(new MyDatabaseRemoverListener());
         remover.execute();
@@ -412,7 +420,7 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         worldMapUI.setSelectedProductEntryList(null);
     }
 
-    private static void handleErrorList(final java.util.List<DBScanner.ErrorFile> errorList) {
+    public static void handleErrorList(final java.util.List<DBScanner.ErrorFile> errorList) {
         final StringBuilder str = new StringBuilder();
         int cnt = 1;
         for (DBScanner.ErrorFile err : errorList) {

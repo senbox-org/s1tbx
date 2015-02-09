@@ -76,7 +76,7 @@ public final class DBScanner extends SwingWorker {
         final List<File> dirList = new ArrayList<>(20);
         dirList.add(baseDir);
         if (doRecursive) {
-            final File[] subDirs = collectAllSubDirs(baseDir);
+            final File[] subDirs = collectAllSubDirs(baseDir, 0, pm);
             dirList.addAll(Arrays.asList(subDirs));
         }
 
@@ -84,6 +84,7 @@ public final class DBScanner extends SwingWorker {
         final List<File> fileList = new ArrayList<>(dirList.size());
         for (File file : dirList) {
             fileList.addAll(Arrays.asList(file.listFiles(fileFilter)));
+            pm.setTaskName("Collecting "+fileList.size()+" files...");
         }
 
         final List<File> qlProductFiles = new ArrayList<>(fileList.size());
@@ -196,14 +197,17 @@ public final class DBScanner extends SwingWorker {
         notifyMSG(DBScannerListener.MSG.DONE);
     }
 
-    private static File[] collectAllSubDirs(final File dir) {
+    private static File[] collectAllSubDirs(final File dir, int count, final com.bc.ceres.core.ProgressMonitor pm) {
         final List<File> dirList = new ArrayList<>(20);
         final ProductFunctions.DirectoryFileFilter dirFilter = new ProductFunctions.DirectoryFileFilter();
 
         final File[] subDirs = dir.listFiles(dirFilter);
+        count += subDirs.length;
+        pm.setTaskName("Collecting "+count+" folders...");
+
         for (final File subDir : subDirs) {
             dirList.add(subDir);
-            final File[] dirs = collectAllSubDirs(subDir);
+            final File[] dirs = collectAllSubDirs(subDir, count, pm);
             dirList.addAll(Arrays.asList(dirs));
         }
         return dirList.toArray(new File[dirList.size()]);
