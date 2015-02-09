@@ -66,6 +66,7 @@
         <module>snap-ndvi</module>
         <module>snap-cluster-analysis</module>
         <module>snap-binning</module>
+        <module>snap-collocation</module>
         <module>snap-graph-builder</module>
 
         <!-- BEAM System Modules -->
