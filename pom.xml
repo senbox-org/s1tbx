@@ -59,13 +59,13 @@
         <module>ceres-metadata</module>
         <module>ceres-site</module>
 
+        <module>snap-core</module>
         <module>snap-config</module>
         <module>snap-help</module>
         <module>snap-engine-kit</module>
 
         <!-- BEAM System Modules -->
 
-        <module>beam-core</module>
         <module>beam-csv-dataio</module>
         <module>beam-examples</module>
         <module>beam-gpf</module>
