@@ -316,6 +316,14 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         scanner.execute();
     }
 
+    private void removeProducts(final File baseDir) {
+        progMon = new LabelBarProgressMonitor(progressBar, statusLabel);
+        progMon.addListener(this);
+        final DBRemover remover = new DBRemover(dbPane.getDB(), baseDir, progMon);
+        remover.addListener(new MyDatabaseRemoverListener());
+        remover.execute();
+    }
+
     private void removeRepository() {
 
         final Object selectedItem = repositoryListCombo.getSelectedItem();
@@ -329,7 +337,7 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
                 final File baseDir = (File) repositoryListCombo.getItemAt(1);
                 libConfig.removeBaseDir(baseDir);
                 repositoryListCombo.removeItemAt(1);
-                dbPane.removeProducts(baseDir);
+                removeProducts(baseDir);
             }
             try {
                 dbPane.getDB().removeAllProducts();
@@ -345,10 +353,8 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
                 return;
             libConfig.removeBaseDir(baseDir);
             repositoryListCombo.removeItemAt(index);
-            dbPane.removeProducts(baseDir);
+            removeProducts(baseDir);
         }
-        setUIComponentsEnabled(repositoryListCombo.getItemCount() > 1);
-        UpdateUI();
     }
 
     private void setUIComponentsEnabled(final boolean enable) {
@@ -516,6 +522,16 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
                 }
             }
             UpdateUI();
+        }
+    }
+
+    private class MyDatabaseRemoverListener implements DBRemover.DBRemoverListener {
+
+        public void notifyMSG(final MSG msg) {
+            if (msg.equals(DBRemover.DBRemoverListener.MSG.DONE)) {
+                setUIComponentsEnabled(repositoryListCombo.getItemCount() > 1);
+                UpdateUI();
+            }
         }
     }
 
