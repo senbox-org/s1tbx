@@ -32,6 +32,12 @@ public final class DBRemover extends SwingWorker {
     private final com.bc.ceres.core.ProgressMonitor pm;
     private final List<DBRemoverListener> listenerList = new ArrayList<>(1);
 
+    /**
+     *
+     * @param database the database
+     * @param baseDir the basedir to remove. If null, all entries will be removed
+     * @param pm the progress monitor
+     */
     public DBRemover(final ProductDB database, final File baseDir, final com.bc.ceres.core.ProgressMonitor pm) {
         this.db = database;
         this.pm = pm;
@@ -54,8 +60,11 @@ public final class DBRemover extends SwingWorker {
     protected Boolean doInBackground() throws Exception {
 
         try {
-            db.removeProducts(baseDir, pm);
-
+            if(baseDir == null) {
+                db.removeAllProducts(pm);
+            } else {
+                db.removeProducts(baseDir, pm);
+            }
         } catch (Throwable e) {
             System.out.println("Product Removal Exception\n" + e.getMessage());
         } finally {

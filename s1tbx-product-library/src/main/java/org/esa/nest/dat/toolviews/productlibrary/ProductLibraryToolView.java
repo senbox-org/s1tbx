@@ -307,7 +307,7 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         updateRepostitory(baseDir, dlg.shouldDoRecusive(), dlg.shouldDoQuicklooks());
     }
 
-    private void updateRepostitory(final File baseDir, final boolean doRecursive, final boolean doQuicklooks) {
+    private synchronized void updateRepostitory(final File baseDir, final boolean doRecursive, final boolean doQuicklooks) {
         if (baseDir == null) return;
         progMon = new LabelBarProgressMonitor(progressBar, statusLabel);
         progMon.addListener(this);
@@ -316,7 +316,7 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         scanner.execute();
     }
 
-    private void removeProducts(final File baseDir) {
+    private synchronized void removeProducts(final File baseDir) {
         progMon = new LabelBarProgressMonitor(progressBar, statusLabel);
         progMon.addListener(this);
         final DBRemover remover = new DBRemover(dbPane.getDB(), baseDir, progMon);
@@ -337,13 +337,9 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
                 final File baseDir = (File) repositoryListCombo.getItemAt(1);
                 libConfig.removeBaseDir(baseDir);
                 repositoryListCombo.removeItemAt(1);
-                removeProducts(baseDir);
             }
-            try {
-                dbPane.getDB().removeAllProducts();
-            } catch (Exception e) {
-                System.out.println("Failed to remove all products");
-            }
+            removeProducts(null); // remove all
+
         } else if (selectedItem instanceof File) {
             final File baseDir = (File) selectedItem;
             final int status = VisatApp.getApp().showQuestionDialog("This will remove all products within " +
