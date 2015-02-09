@@ -175,7 +175,7 @@ public class CreateInterferogramOp extends Operator {
         mstSlantRangeToFirstPixel = mstAbsRoot.getAttributeDouble(AbstractMetadata.slant_range_to_first_pixel);
         mstSlantRangePixelSpacing = mstAbsRoot.getAttributeDouble(AbstractMetadata.range_spacing);
         mstWavelength = SARUtils.getRadarFrequency(mstAbsRoot);
-        mOrbit = new SARGeocoding.Orbit(orbitStateVectors, orbitDegree, mstFirstLineTime);
+        mOrbit = new SARGeocoding.Orbit(orbitStateVectors);
 
         sourceImageWidth = sourceProduct.getSceneRasterWidth();
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
@@ -192,7 +192,7 @@ public class CreateInterferogramOp extends Operator {
                 Constants.secondsInDay % (24*3600); // sec in day;
         slvLineTimeInterval = slvAbsRoot.getAttributeDouble(AbstractMetadata.line_time_interval); // in s;
         slvWavelength = SARUtils.getRadarFrequency(slvAbsRoot);
-        sOrbit = new SARGeocoding.Orbit(orbitStateVectors, orbitDegree, slvFirstLineTime);
+        sOrbit = new SARGeocoding.Orbit(orbitStateVectors);
         slvImageHeight = slvAbsRoot.getAttributeInt(AbstractMetadata.num_output_lines);
     }
 
