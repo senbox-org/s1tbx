@@ -20,20 +20,17 @@
         </folder>
         <folder name="Writers">
             <file name="org-esa-beam-csv-dataio-ExportCSVProduct.instance">
-                <attr name="instanceCreate"
-                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate"
-                      methodvalue="org.esa.snap.gui.actions.file.ExportProductAction.create"/>
-                <attr name="displayName"
-                      stringvalue="CSV"/>
-                <attr name="formatName"
-                      stringvalue="CSV"/>
-                <attr name="useAllFileFilter"
-                      boolvalue="true"/>
-                <attr name="helpId"
-                      stringvalue="exportCsvProduct"/>
-                <attr name="ShortDescription"
-                      stringvalue="Writes a product in CSV format."/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
+                <attr name="type" stringvalue="org.esa.beam.framework.datamodel.ProductNode"/>
+                <!--<attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>-->
+                <attr name="delegate" methodvalue="org.esa.snap.gui.actions.file.ExportProductAction.create"/>
+                <!--<attr name="injectable" stringvalue="org.esa.snap.gui.actions.file.ExportProductAction"/>-->
+                <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
+                <attr name="displayName" stringvalue="CSV"/>
+                <attr name="formatName" stringvalue="CSV"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="exportCsvProduct"/>
+                <attr name="ShortDescription" stringvalue="Writes a product in CSV format."/>
             </file>
         </folder>
     </folder>
