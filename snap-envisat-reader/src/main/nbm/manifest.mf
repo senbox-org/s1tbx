@@ -3,6 +3,7 @@ AutoUpdate-Show-In-Client: false
 AutoUpdate-Essential-Module: true
 OpenIDE-Module-Java-Dependencies: Java > 1.8
 OpenIDE-Module-Display-Category: SNAP
+OpenIDE-Module-Layer: org/esa/beam/dataio/envisat/layer.xml
 OpenIDE-Module-Long-Description: <p>Enables SNAP to read ENVISAT data 
  products.</p><p><b>Vendor:</b> Brockmann Consult GmbH</p><p><b>Contac
  t address:</b> Max-Planck-Str. 2, 21502 Geesthacht (Germany)</p><p><b
