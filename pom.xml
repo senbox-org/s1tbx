@@ -90,10 +90,7 @@
         <module>beam-geotiff</module>
         <module>beam-getasse30-reader</module>
         <module>beam-hdf5-writer</module>
-        <module>beam-landsat-reader</module>
         <module>beam-meris-cloud</module>
-        <module>beam-meris-smac</module>
-        <module>beam-merisl3-reader</module>
         <module>beam-modis-reader</module>
         <module>beam-netcdf</module>
         <module>seadas-reader</module>
@@ -668,7 +665,7 @@
             <dependency>
                 <groupId>org.jython</groupId>
                 <artifactId>jython</artifactId>
-                <version>2.5.2</version>
+                <version>2.5.3</version>
             </dependency>
 
             <!-- TAR archive support ########################################  -->
