@@ -20,13 +20,13 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.dialogs.CheckListDialog;
 import org.esa.nest.dat.toolviews.productlibrary.model.*;
 import org.esa.nest.dat.toolviews.productlibrary.timeline.TimelinePanel;
-import org.esa.nest.dat.utils.FileFolderUtils;
+import org.esa.snap.dat.dialogs.CheckListDialog;
 import org.esa.snap.db.DBQuery;
 import org.esa.snap.db.ProductEntry;
 import org.esa.snap.util.DialogUtils;
+import org.esa.snap.util.FileFolderUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -440,7 +440,7 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
                 null) == 0) {
 
             File file = FileFolderUtils.GetSaveFilePath("Save as...", "Text", "txt",
-                    "ProductErrorList", "Products with errors");
+                                                        "ProductErrorList", "Products with errors");
             try {
                 writeErrors(errorList, file);
             } catch (Exception e) {

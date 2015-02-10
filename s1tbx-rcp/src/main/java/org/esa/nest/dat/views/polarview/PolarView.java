@@ -21,7 +21,7 @@ import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.utils.FileFolderUtils;
+import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 
 import javax.swing.*;

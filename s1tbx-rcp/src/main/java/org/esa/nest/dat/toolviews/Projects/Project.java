@@ -30,7 +30,7 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.snap.dat.dialogs.PromptDialog;
 import org.esa.nest.dat.dialogs.ProductSetDialog;
 import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
-import org.esa.nest.dat.utils.FileFolderUtils;
+import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.db.CommonReaders;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.ResourceUtils;

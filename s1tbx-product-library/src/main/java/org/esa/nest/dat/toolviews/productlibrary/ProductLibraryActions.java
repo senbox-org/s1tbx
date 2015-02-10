@@ -4,11 +4,11 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.toolviews.productlibrary.model.SortingDecorator;
-import org.esa.nest.dat.utils.ProductOpener;
 import org.esa.snap.dat.dialogs.BatchGraphDialog;
 import org.esa.snap.db.ProductEntry;
 import org.esa.snap.util.ClipboardUtils;
 import org.esa.snap.util.DialogUtils;
+import org.esa.snap.util.ProductOpener;
 import org.esa.snap.util.ResourceUtils;
 import org.jlinda.nest.dat.dialogs.InSARMasterDialog;
 

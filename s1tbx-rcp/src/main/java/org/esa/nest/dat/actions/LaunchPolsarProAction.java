@@ -19,7 +19,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.utils.FileFolderUtils;
+import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.util.ResourceUtils;
 
 import java.io.*;

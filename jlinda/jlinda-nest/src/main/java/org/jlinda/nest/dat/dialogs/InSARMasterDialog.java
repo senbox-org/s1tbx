@@ -2,7 +2,6 @@ package org.jlinda.nest.dat.dialogs;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -14,6 +13,7 @@ import org.esa.snap.db.CommonReaders;
 import org.esa.snap.db.ProductEntry;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.DialogUtils;
+import org.esa.snap.util.ProductOpener;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.stacks.MasterSelection;
