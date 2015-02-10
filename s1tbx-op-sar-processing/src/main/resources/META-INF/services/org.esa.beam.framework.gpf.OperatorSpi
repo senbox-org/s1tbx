@@ -12,3 +12,4 @@ org.esa.nest.gpf.filtering.MultiTemporalSpeckleFilterOp$Spi
 org.esa.nest.gpf.DeburstWSSOp$Spi
 org.esa.nest.gpf.MultilookOp$Spi
 org.esa.nest.gpf.geometric.UpdateGeoRefOp$Spi
+org.esa.nest.gpf.orbits.ApplyOrbitFileOp$Spi
