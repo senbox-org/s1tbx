@@ -583,6 +583,38 @@
             <helpId>Reports</helpId>
         </action-->
 
+        <action>
+            <id>importGenericBinary</id>
+            <class>org.esa.nest.dat.actions.GenericReaderAction</class>
+            <text>Generic Binary</text>
+            <formatName>Generic Binary</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Import Generic Binary</shortDescr>
+            <helpId>importGenericBinary</helpId>
+            <parent>importFileFormats</parent>
+        </action>
+
+        <action>
+            <id>importComplexGenericBinary</id>
+            <class>org.esa.nest.dat.actions.GenericComplexReaderAction</class>
+            <text>Complex Binary</text>
+            <formatName>Complex Binary</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Import Complex Generic Binary</shortDescr>
+            <helpId>importComplexGenericBinary</helpId>
+            <parent>importFileFormats</parent>
+        </action>
+
+        <action>
+            <id>exportGenericBinary</id>
+            <text>Generic Binary</text>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <formatName>Generic Binary</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Export Generic Binary</shortDescr>
+            <helpId>exportGenericBinary</helpId>
+        </action>
+
     </extension>
 
     <extension point="snap-ui:helpSets">

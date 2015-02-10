@@ -16,10 +16,6 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>snap-visat-rcp</module>
-        <optional>true</optional>
-    </dependency>
-    <dependency>
         <module>snap-engine-utilities</module>
     </dependency>
     <dependency>
@@ -206,29 +202,6 @@
         </action>
 
         <action>
-            <id>importGenericBinary</id>
-            <class>GenericReaderAction</class>
-            <text>Generic Binary</text>
-            <formatName>Generic Binary</formatName>
-            <useAllFileFilter>true</useAllFileFilter>
-            <shortDescr>Import Generic Binary</shortDescr>
-            <helpId>importGenericBinary</helpId>
-            <parent>importFileFormats</parent>
-        </action>
-
-        <action>
-            <id>importComplexGenericBinary</id>
-            <class>GenericComplexReaderAction</class>
-            <text>Complex Binary</text>
-            <formatName>Complex Binary</formatName>
-            <useAllFileFilter>true</useAllFileFilter>
-            <shortDescr>Import Complex Generic Binary</shortDescr>
-            <helpId>importComplexGenericBinary</helpId>
-            <parent>importFileFormats</parent>
-        </action>
-
-
-        <action>
             <id>importGTOPO30</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <formatName>GTOPO30</formatName>
@@ -244,15 +217,6 @@
 
         <!-- Exports -->
 
-        <action>
-            <id>exportGenericBinary</id>
-            <text>Generic Binary</text>
-            <class>org.esa.beam.visat.actions.ProductExportAction</class>
-            <formatName>Generic Binary</formatName>
-            <useAllFileFilter>true</useAllFileFilter>
-            <shortDescr>Export Generic Binary</shortDescr>
-            <helpId>exportGenericBinary</helpId>
-        </action>
         <action>
             <id>exportPolsarPro</id>
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
