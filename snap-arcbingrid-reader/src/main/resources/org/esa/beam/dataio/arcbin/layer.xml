@@ -22,7 +22,6 @@
     <folder name="Menu">
         <folder name="File">
             <folder name="Import">
-                <attr name="position" intvalue="300"/>
                 <folder name="Generic Data">
                     <file name="org-esa-beam-dataio-arcbin-ImportArcbinGridProduct.shadow">
                         <attr name="originalFile"
