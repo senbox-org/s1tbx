@@ -46,7 +46,9 @@ import java.util.Map;
 
 @OperatorMetadata(alias = "SubtRefDem",
         category = "SAR Processing/InSAR/Products",
-        description = "Compute and subtract TOPO phase", internal = false)
+        authors = "Petar Marinkovic",
+        copyright = "Copyright (C) 2013 by PPO.labs",
+        description = "Compute and subtract TOPO phase")
 public final class SubtRefDemOp extends Operator {
 
     @SourceProduct

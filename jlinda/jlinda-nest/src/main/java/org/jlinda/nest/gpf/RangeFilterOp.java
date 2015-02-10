@@ -35,7 +35,9 @@ import java.util.Map;
 
 @OperatorMetadata(alias = "RangeFilter",
         category = "SAR Processing/InSAR/Tools",
-        description = "Range Filter", internal = false)
+        authors = "Petar Marinkovic",
+        copyright = "Copyright (C) 2013 by PPO.labs",
+        description = "Range Filter")
 public class RangeFilterOp extends Operator {
 
     @SourceProduct

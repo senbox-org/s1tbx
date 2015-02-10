@@ -35,8 +35,9 @@ import static org.jlinda.core.utils.MathUtils.isPower2;
 
 @OperatorMetadata(alias = "PhaseFilter",
         category = "SAR Processing/InSAR/Tools",
-        description = "Interferometric phase filtering",
-        internal = false)
+        authors = "Petar Marinkovic",
+        copyright = "Copyright (C) 2013 by PPO.labs",
+        description = "Interferometric phase filtering")
 public class PhaseFilterOp extends Operator {
 
     @SourceProduct

@@ -46,7 +46,9 @@ import java.util.Map;
 
 @OperatorMetadata(alias = "Three-passDInSAR",
         category = "SAR Processing/InSAR/Products",
-        description = "Differential Interferometry", internal = false)
+        authors = "Petar Marinkovic",
+        copyright = "Copyright (C) 2013 by PPO.labs",
+        description = "Differential Interferometry")
 public class DInSAROp extends Operator {
 
     @SourceProducts(description = "Source products: InSAR DEFO pair product, and InSAR (unwrapped) TOPO pair product")

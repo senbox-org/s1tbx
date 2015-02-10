@@ -35,7 +35,9 @@ import java.util.HashMap;
 
 @OperatorMetadata(alias = "Coherence",
         category = "SAR Processing/InSAR/Products",
-        description = "Estimate coherence from stack of coregistered images", internal = false)
+        authors = "Petar Marinkovic",
+        copyright = "Copyright (C) 2013 by PPO.labs",
+        description = "Estimate coherence from stack of coregistered images")
 public class CoherenceOp extends Operator {
 
     @SourceProduct
