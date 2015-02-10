@@ -2,7 +2,8 @@ package org.esa.beam.csv.dataio.writer;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
+
 
 /**
  * @author Thomas Storm

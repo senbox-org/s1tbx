@@ -11,7 +11,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.io.IOException;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Storm
