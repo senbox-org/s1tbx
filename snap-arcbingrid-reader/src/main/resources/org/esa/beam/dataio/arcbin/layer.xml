@@ -22,7 +22,7 @@
     <folder name="Menu">
         <folder name="File">
             <folder name="Import">
-                <folder name="Generic Data">
+                <folder name="Generic Formats">
                     <file name="org-esa-beam-dataio-arcbin-ImportArcbinGridProduct.shadow">
                         <attr name="originalFile"
                               stringvalue="Actions/Readers/org-esa-beam-dataio-arcbin-ImportArcbinGridProduct.instance"/>
