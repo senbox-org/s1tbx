@@ -6,7 +6,7 @@
                 <attr name="instanceCreate"
                       methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate"
-                      methodvalue="org.esa.snap.gui.actions.DefaultOperatorAction.create"/>
+                      methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
                 <attr name="displayName"
                       stringvalue="EM Cluster Analysis"/>
                 <attr name="operatorName"
@@ -22,7 +22,7 @@
                 <attr name="instanceCreate"
                       methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate"
-                      methodvalue="org.esa.snap.gui.actions.DefaultOperatorAction.create"/>
+                      methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
                 <attr name="displayName"
                       stringvalue="K-Means Cluster Analysis"/>
                 <attr name="operatorName"
@@ -38,7 +38,7 @@
                 <attr name="instanceCreate"
                       methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate"
-                      methodvalue="org.esa.snap.gui.actions.DefaultOperatorAction.create"/>
+                      methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
                 <attr name="displayName"
                       stringvalue="Principle Component Analysis"/>
                 <attr name="operatorName"

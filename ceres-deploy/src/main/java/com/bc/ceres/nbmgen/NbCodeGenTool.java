@@ -233,7 +233,7 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
 
             String classNameBase = NbCodeGenTool.this.getActionBaseName(actionClassName);
             String path = parent != null ? parentToPath.get(parent) : "Menu/Extras";
-            String packageName = "org.esa.snap.gui.action";
+            String packageName = "org.esa.snap.rcp.action";
             String category = "SNAP"; // todo
             String baseClassName = "AbstractAction";
             int position = 100;

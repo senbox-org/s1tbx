@@ -5,7 +5,7 @@
                 <attr name="instanceCreate"
                       methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate"
-                      methodvalue="org.esa.snap.gui.actions.file.ImportProductAction.create"/>
+                      methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName"
                       stringvalue="ArcInfo Binary Grid"/>
                 <attr name="formatName"
