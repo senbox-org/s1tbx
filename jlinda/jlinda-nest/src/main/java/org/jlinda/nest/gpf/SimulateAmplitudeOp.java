@@ -43,7 +43,7 @@ import java.util.Map;
 
 @OperatorMetadata(alias = "SimulateAmplitude",
         category = "SAR Processing/InSAR/Products",
-        description = "Simulate amplitude based on DEM", internal = false)
+        description = "Simulate amplitude based on DEM", internal = true)
 public final class SimulateAmplitudeOp extends Operator {
 
     @SourceProduct
