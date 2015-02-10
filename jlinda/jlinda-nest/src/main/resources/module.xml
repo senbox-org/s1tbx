@@ -147,7 +147,7 @@
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Three-pass Differential InSAR</text>
-            <operatorName>DInSAR</operatorName>
+            <operatorName>Three-passDInSAR</operatorName>
             <dialogTitle>Three-Pass differential InSAR</dialogTitle>
             <targetProductNameSuffix>_dinsar</targetProductNameSuffix>
             <shortDescr>Three-Pass differential InSAR</shortDescr>
@@ -161,9 +161,9 @@
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Phase to Height</text>
-            <operatorName>Slant2Height</operatorName>
+            <operatorName>Phase2Height</operatorName>
             <dialogTitle>Phase to height conversion</dialogTitle>
-            <targetProductNameSuffix>_dinsar</targetProductNameSuffix>
+            <targetProductNameSuffix>_hgt</targetProductNameSuffix>
             <shortDescr>Phase to height conversion</shortDescr>
             <parent>products</parent>
             <placeAfter>DInSAROp</placeAfter>
@@ -205,28 +205,41 @@
 
         <action>
             <id>RangeFilterOp</id>
-            <class>org.jlinda.nest.dat.RangeFilterAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
             <text>Range Filtering</text>
+            <operatorName>RangeFilter</operatorName>
+            <dialogTitle>Range Filtering</dialogTitle>
             <shortDescr>Filter stack of SAR images in RANGE direction</shortDescr>
-            <placeBefore>org.jlinda.nest.dat.AzimuthFilterAction</placeBefore>
             <parent>spectral_filtering</parent>
+            <helpId>RangeFilterOp</helpId>
         </action>
 
         <action>
             <id>AzimuthFilterOp</id>
-            <class>org.jlinda.nest.dat.AzimuthFilterAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
             <text>Azimuth Filtering</text>
+            <operatorName>AzimuthFilter</operatorName>
+            <dialogTitle>Azimuth Filtering</dialogTitle>
             <shortDescr>Filter stack of SAR images in AZIMUTH direction</shortDescr>
             <parent>spectral_filtering</parent>
+            <placeAfter>RangeFilterOp</placeAfter>
+            <helpId>AzimuthFilterOp</helpId>
         </action>
 
         <action>
             <id>PhaseFilterOp</id>
-            <class>org.jlinda.nest.dat.PhaseFilterAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
             <text>Phase Filtering</text>
+            <operatorName>PhaseFilter</operatorName>
+            <dialogTitle>Phase Filtering</dialogTitle>
+            <targetProductNameSuffix>_flt</targetProductNameSuffix>
             <shortDescr>Phase filter stack of interferograms</shortDescr>
-            <placeAfter>spectral_filtering</placeAfter>
             <parent>insar_tools</parent>
+            <placeAfter>spectral_filtering</placeAfter>
+            <helpId>PhaseFilterOp</helpId>
         </action>
 
         <action>
@@ -236,6 +249,18 @@
             <parent>insar</parent>
             <text>InSAR Stack Overview</text>
             <separatorAfter>true</separatorAfter>
+        </action>
+
+        <action>
+            <id>CrossResamplingOp</id>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Cross InSAR resampling</text>
+            <operatorName>CrossResampling</operatorName>
+            <dialogTitle>Cross InSAR resampling</dialogTitle>
+            <shortDescr>Perform resampling of SAR geometries for Cross-InSAR</shortDescr>
+            <parent>insar_tools</parent>
+            <helpId>CrossResamplingOp</helpId>
         </action>
 
         <!--/// UNWRAPPING ///-->
@@ -312,18 +337,6 @@
             <placeAfter>CreateInSARStackOp</placeAfter>
             <separatorAfter>true</separatorAfter>
         </action>
-        
-        <action>
-            <id>CrossResamplingOp</id>
-            <helpId>CrossResamplingOp</helpId>
-            <class>org.jlinda.nest.dat.CrossResamplingAction</class>
-            <text>Cross InSAR resampling</text>
-            <shortDescr>Perform resampling of SAR geometries for Cross-InSAR</shortDescr>
-            <placeAfter>InSARCoregistrationGraph</placeAfter>
-            <parent>insar_coregistration</parent>
-        </action>
-        
-        
         
     </extension>
 
