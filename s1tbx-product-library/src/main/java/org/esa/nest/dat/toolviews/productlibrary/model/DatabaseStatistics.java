@@ -17,6 +17,8 @@ public class DatabaseStatistics implements DatabaseQueryListener {
     private Integer overallMaxDayCnt = 0;
     private MonthData monthData;
 
+    private static final Calendar calendar = createCalendar();
+
     public DatabaseStatistics(final DatabasePane dbPane) {
         this.dbPane = dbPane;
         dbPane.addListener(this);
@@ -37,17 +39,17 @@ public class DatabaseStatistics implements DatabaseQueryListener {
 
         for (ProductEntry entry : entryList) {
             final ProductData.UTC utc = entry.getFirstLineTime();
-
-            final int year = utc.getAsCalendar().get(Calendar.YEAR);
+            final Calendar cal = getAsCalendar(utc);
+            final int year = cal.get(Calendar.YEAR);
             YearData yData = yearDataMap.get(year);
             if (yData == null) {
                 yData = new YearData(year);
                 yearDataMap.put(year, yData);
             }
-            final int dayOfYear = utc.getAsCalendar().get(Calendar.DAY_OF_YEAR);
+            final int dayOfYear = cal.get(Calendar.DAY_OF_YEAR);
             yData.addDayOfYear(dayOfYear);
 
-            final int month = utc.getAsCalendar().get(Calendar.MONTH);
+            final int month = cal.get(Calendar.MONTH);
             monthData.add(month);
         }
 
@@ -67,6 +69,22 @@ public class DatabaseStatistics implements DatabaseQueryListener {
         }
 
         //showStats();
+    }
+
+    private static Calendar createCalendar() {
+        final Calendar calendar = GregorianCalendar.getInstance(ProductData.UTC.UTC_TIME_ZONE, Locale.ENGLISH);
+        calendar.clear();
+        calendar.set(2000, 0, 1);
+        return calendar;
+    }
+
+    private Calendar getAsCalendar(final ProductData.UTC utc) {
+        calendar.clear();
+        calendar.set(2000, 0, 1);
+        calendar.add(Calendar.DATE, utc.getDaysFraction());
+        calendar.add(Calendar.SECOND, (int) utc.getSecondsFraction());
+        calendar.add(Calendar.MILLISECOND, (int) Math.round(utc.getMicroSecondsFraction() / 1000.0));
+        return calendar;
     }
 
     public Map<Integer, YearData> getYearDataMap() {
