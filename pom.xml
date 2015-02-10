@@ -29,16 +29,16 @@
     <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
 
     <properties>
+        <brandingToken>snap</brandingToken>
+        <outputdir>../../output</outputdir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <snap.version>[2.0.0-SNAPSHOT,2.1.0-SNAPSHOT)</snap.version>
 
+        <snap.version>[2.0.0-SNAPSHOT,2.1.0-SNAPSHOT)</snap.version>
         <javahelp.version>2.0.05</javahelp.version>
         <hdf.version>2.7</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>
         <geotools.version>2.7.4</geotools.version>
         <jide.version>3.6.1</jide.version>
-
-        <outputdir>../../output</outputdir>
     </properties>
 
     <modules>
@@ -93,8 +93,6 @@
         <module>beam-meris-cloud</module>
         <module>beam-modis-reader</module>
         <module>beam-netcdf</module>
-        <module>seadas-reader</module>
-        <module>beam-opendap</module>
         <module>beam-pconvert</module>
         <module>beam-pixel-extraction</module>
         <module>beam-rtp-codec</module>
@@ -107,6 +105,7 @@
         <module>blue-marble-worldmap</module>
         <module>globcover-worldmap</module>
         <module>lib-hdf</module>
+        <module>seadas-reader</module>
     </modules>
 
     <organization>
@@ -229,6 +228,11 @@
             </dependency>
             <dependency>
                 <groupId>edu.ucar</groupId>
+                <artifactId>opendap</artifactId>
+                <version>${netcdf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>edu.ucar</groupId>
                 <artifactId>nujan</artifactId>
                 <version>1.4.1.1</version>
             </dependency>
@@ -236,11 +240,6 @@
                 <groupId>org.htmlparser</groupId>
                 <artifactId>htmlparser</artifactId>
                 <version>1.6</version>
-            </dependency>
-            <dependency>
-                <groupId>edu.ucar</groupId>
-                <artifactId>opendap</artifactId>
-                <version>${netcdf.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -877,12 +876,12 @@
                     <configuration>
                         <moduleType>normal</moduleType>
                         <licenseName>GPL 3</licenseName>
-                        <licenseFile>../LICENSE.html</licenseFile>
-                        <cluster>snap</cluster>
-                        <defaultCluster>snap</defaultCluster>
+                        <licenseFile>${project.basedir}/../LICENSE.html</licenseFile>
+                        <cluster>${brandingToken}</cluster>
+                        <defaultCluster>${brandingToken}</defaultCluster>
+                        <brandingToken>${brandingToken}</brandingToken>
                         <requiresRestart>true</requiresRestart>
-                        <!-- todo: fix wrongly directed dependency on snap-desktop (nf, 20150206) -->
-                        <keystore>../../snap-desktop/snap-gui/src/main/resources/keystore/snap.ks</keystore>
+                        <keystore>${project.basedir}/../keystore/snap.ks</keystore>
                         <keystorealias>snap</keystorealias>
                         <keystorepassword>snap-123</keystorepassword>
                     </configuration>
