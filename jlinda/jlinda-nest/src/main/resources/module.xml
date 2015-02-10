@@ -122,7 +122,7 @@
             <text>Interferogram Formation</text>
             <operatorName>Interferogram</operatorName>
             <dialogTitle>Interferogram</dialogTitle>
-            <targetProductNameSuffix>_avg</targetProductNameSuffix>
+            <targetProductNameSuffix>_ifg</targetProductNameSuffix>
             <shortDescr>Interferogram Formation and Flat Earth Phase Removal</shortDescr>
             <parent>products</parent>
             <helpId>InterferogramOp</helpId>
@@ -130,20 +130,28 @@
 
         <action>
             <id>SubtRefDemOp</id>
-            <helpId>SubtRefDemOp</helpId>
-            <class>org.jlinda.nest.dat.SubtRefDemAction</class>
-            <text>Topo Phase Removal</text>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Topographic Phase Removal</text>
+            <operatorName>SubtRefDem</operatorName>
+            <dialogTitle>Topographic Phase Removal</dialogTitle>
+            <targetProductNameSuffix>_dinsar</targetProductNameSuffix>
             <shortDescr>Compute and subtract topographic phase</shortDescr>
-            <placeBefore>CoherenceOp</placeBefore>
             <parent>products</parent>
+            <helpId>SubtRefDemOp</helpId>
         </action>
 
         <action>
             <id>CoherenceOp</id>
-            <class>org.jlinda.nest.dat.CoherenceAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
             <text>Coherence Estimation</text>
+            <operatorName>Coherence</operatorName>
+            <dialogTitle>Coherence</dialogTitle>
+            <targetProductNameSuffix>_coh</targetProductNameSuffix>
             <shortDescr>Estimate coherence of stack of images</shortDescr>
             <parent>products</parent>
+            <helpId>CoherenceOp</helpId>
         </action>
 
         <!--action>
