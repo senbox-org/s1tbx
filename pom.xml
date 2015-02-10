@@ -60,6 +60,7 @@
         <module>snap-help</module>
         <module>snap-engine-kit</module>
         <module>snap-engine-utilities</module>
+        <module>snap-csv-dataio</module>
 
         <!-- SNAP Extension Modules -->
 
@@ -72,7 +73,6 @@
 
         <!-- BEAM System Modules -->
 
-        <module>beam-csv-dataio</module>
         <module>beam-examples</module>
         <module>beam-gpf</module>
         <module>beam-scripting</module>

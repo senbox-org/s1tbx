@@ -1,0 +1,59 @@
+<filesystem>
+    <folder name="Actions">
+        <folder name="Readers">
+            <file name="org-esa-beam-csv-dataio-ImportCSVProduct.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.gui.actions.file.ImportProductAction.create"/>
+                <attr name="displayName"
+                      stringvalue="CSV"/>
+                <attr name="formatName"
+                      stringvalue="CSV"/>
+                <attr name="useAllFileFilter"
+                      boolvalue="true"/>
+                <attr name="helpId"
+                      stringvalue="importCsvProduct"/>
+                <attr name="ShortDescription"
+                      stringvalue="Import a CSV data product."/>
+            </file>
+        </folder>
+        <folder name="Writers">
+            <file name="org-esa-beam-csv-dataio-ExportCSVProduct.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.gui.actions.file.ExportProductAction.create"/>
+                <attr name="displayName"
+                      stringvalue="CSV"/>
+                <attr name="formatName"
+                      stringvalue="CSV"/>
+                <attr name="useAllFileFilter"
+                      boolvalue="true"/>
+                <attr name="helpId"
+                      stringvalue="exportCsvProduct"/>
+                <attr name="ShortDescription"
+                      stringvalue="Writes a product in CSV format."/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="File">
+            <folder name="Import">
+                <folder name="Generic Formats">
+                    <file name="org-esa-beam-csv-dataio-ImportCSVProduct.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Readers/org-esa-beam-csv-dataio-ImportCSVProduct.instance"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="Export">
+                <file name="org-esa-beam-csv-dataio-ExportCSVProduct.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Writers/org-esa-beam-csv-dataio-ExportCSVProduct.instance"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+
+</filesystem>
