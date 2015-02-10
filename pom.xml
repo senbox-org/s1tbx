@@ -65,6 +65,7 @@
         <!-- SNAP Extension Modules -->
 
         <module>snap-arcbingrid-reader</module>
+        <module>snap-envisat-reader</module>
         <module>snap-ndvi</module>
         <module>snap-cluster-analysis</module>
         <module>snap-binning</module>
@@ -85,7 +86,6 @@
 
         <module>beam-bigtiff</module>
         <module>beam-envi-reader</module>
-        <module>beam-envisat-reader</module>
         <module>beam-flhmci</module>
         <module>beam-geotiff</module>
         <module>beam-getasse30-reader</module>
