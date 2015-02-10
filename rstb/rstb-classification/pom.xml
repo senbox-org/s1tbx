@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.csa.rstb</groupId>
         <artifactId>rstb</artifactId>
-        <version>6.3.0</version>
+        <version>6.3.2</version>
     </parent>
 
     <name>RSTB Classification Tools</name>

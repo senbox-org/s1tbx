@@ -13,7 +13,7 @@
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${context}</surefire.jvm.args>
 
 		<jlinda.version>0.8.1</jlinda.version>
-		<rstb.version>6.3.0</rstb.version>
+		<rstb.version>6.3.2</rstb.version>
 		<s1tbx.version>1.1.0</s1tbx.version>
 		<snap.version>1.0.1</snap.version>
 		
