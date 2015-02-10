@@ -66,3 +66,6 @@ Added support for versions 3H, 3K, 4A and 4B of ASAR products
 
 2008/04/25
 Added support for ASA_XCA_AX, DOR_POR_AX and DOR_VOR_AX 
+
+2015/02/06
+Added support for MER_RRG_2P

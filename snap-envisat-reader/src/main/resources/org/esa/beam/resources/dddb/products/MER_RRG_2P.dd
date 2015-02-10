@@ -1,0 +1,31 @@
+MER_RRG_2P|MERIS Reduced Resolution Geo/Ortho-corrected TOA Radiance|*
+#
+MPH                |@/records/MPH.dd                         |* |1247                    |Main Product Header
+SPH                |@/records/meris/MER_RR__2P_sph.dd        |* |.MPH.sph_size           |Level 2 SPH
+DSD                |@/records/DSD.dd                         |* |.MPH.num_dsd            |Data Set Descriptor array
+Quality_ADS        |@/records/meris/MER_RR__2P_ADSR_sq.dd    |Quality ADS                |Level 2 ADS Summary Quality (SQ ADS)
+Scaling_Factor_GADS|@/records/meris/MER_RR__2P_GADS_sfgi.dd  |Scaling Factor GADS        |Level 2 GADS Scaling Factors and Offsets
+Tie_points_ADS     |@/records/meris/MER_RR__1P_ADSR_tie_pt.dd|Tie points ADS             |Level 2 ADS Tie Points Location & Aux. Data(L ADS)
+Norm_rho_surf_1    |@/records/meris/MER_RR__2P_MDSR_1_13.dd  |Norm. rho_surf - MDS(1)    |Level 2 MDS(1) normalised surface reflectance
+Norm_rho_surf_2    |@/records/meris/MER_RR__2P_MDSR_1_13.dd  |Norm. rho_surf - MDS(2)    |Level 2 MDS(2) normalised surface reflectance
+Norm_rho_surf_3    |@/records/meris/MER_RR__2P_MDSR_1_13.dd  |Norm. rho_surf - MDS(3)    |Level 2 MDS(3) normalised surface reflectance
+Norm_rho_surf_4    |@/records/meris/MER_RR__2P_MDSR_1_13.dd  |Norm. rho_surf - MDS(4)    |Level 2 MDS(4) normalised surface reflectance
+Norm_rho_surf_5    |@/records/meris/MER_RR__2P_MDSR_1_13.dd  |Norm. rho_surf - MDS(5)    |Level 2 MDS(5) normalised surface reflectance
+Norm_rho_surf_6    |@/records/meris/MER_RR__2P_MDSR_1_13.dd  |Norm. rho_surf - MDS(6)    |Level 2 MDS(6) normalised surface reflectance
+Norm_rho_surf_7    |@/records/meris/MER_RR__2P_MDSR_1_13.dd  |Norm. rho_surf - MDS(7)    |Level 2 MDS(7) normalised surface reflectance
+Norm_rho_surf_8    |@/records/meris/MER_RR__2P_MDSR_1_13.dd  |Norm. rho_surf - MDS(8)    |Level 2 MDS(8) normalised surface reflectance
+Norm_rho_surf_9    |@/records/meris/MER_RR__2P_MDSR_1_13.dd  |Norm. rho_surf - MDS(9)    |Level 2 MDS(9) normalised surface reflectance
+Norm_rho_surf_10   |@/records/meris/MER_RR__2P_MDSR_1_13.dd  |Norm. rho_surf - MDS(10)   |Level 2 MDS(10) normalised surface reflectance
+Norm_rho_surf_11   |@/records/meris/MER_RR__2P_MDSR_1_13.dd  |Norm. rho_surf - MDS(11)   |Level 2 MDS(11) normalised surface reflectance
+Norm_rho_surf_12   |@/records/meris/MER_RR__2P_MDSR_1_13.dd  |Norm. rho_surf - MDS(12)   |Level 2 MDS(12) normalised surface reflectance
+Norm_rho_surf_13   |@/records/meris/MER_RR__2P_MDSR_1_13.dd  |Norm. rho_surf - MDS(13)   |Level 2 MDS(13) normalised surface reflectance
+Vapour_Content     |@/records/meris/MER_RR__2P_MDSR_14.dd    |Vapour Content - MDS(14)   |Level 2 MDS(14) water vapour content
+Chl_1_TOAVI_CTP    |@/records/meris/MER_RR__2P_MDSR_15.dd    |Chl_1, TOAVI   - MDS(15)   |Level 2 MDS(15) algal index I or TOAVI
+YS_SPM_Rect_rho    |@/records/meris/MER_RR__2P_MDSR_16.dd    |YS, SPM, Rect. Rho- MDS(16)|Level 2 MDS(16) yellow substance total suspended matter
+Chl_2_BOAVI        |@/records/meris/MER_RR__2P_MDSR_17.dd    |Chl_2, BOAVI   - MDS(17)   |Level 2 MDS(17) algal index II  BOAVI
+Press_PAR_Alb      |@/records/meris/MER_RR__2P_MDSR_18.dd    |Press PAR Alb  - MDS(18)   |Level 2 MDS(18) surface pressure  PAR  cloud albedo
+Alpha_OPT          |@/records/meris/MER_RR__2P_MDSR_19.dd    |Alpha, OPT     - MDS(19)   |Level 2 MDS(19) aerosol Angstrom exponent or cloud type and optical thickness
+Flags              |@/records/meris/MER_RR__2P_MDSR_20.dd    |Flags          - MDS(20)   |Level 2 MDS(20) flags
+Longitude          |@/records/meris/MER_FSG_2P_MDSR_21.dd    |Corrected Longitude MDS(21)      |Level 2 MDS Longitude
+Latitude           |@/records/meris/MER_FSG_2P_MDSR_22.dd    |Corrected Latitude MDS(22)       |Level 2 MDS Latitude
+Altitude           |@/records/meris/MER_FSG_2P_MDSR_23.dd    |Altitude MDS(23)       |Level 2 MDS Altitude
