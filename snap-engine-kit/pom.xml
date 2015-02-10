@@ -259,22 +259,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.s3tbx</groupId>
-            <artifactId>s3tbx-landsat-reader</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.s3tbx</groupId>
             <artifactId>s3tbx-meris-cloud</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.s3tbx</groupId>
-            <artifactId>s3tbx-meris-smac</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.s3tbx</groupId>
-            <artifactId>s3tbx-merisl3-reader</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
