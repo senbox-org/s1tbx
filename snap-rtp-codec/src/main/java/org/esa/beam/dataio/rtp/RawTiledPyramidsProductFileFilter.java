@@ -16,10 +16,15 @@
 
 package org.esa.beam.dataio.rtp;
 
-import static org.esa.beam.dataio.rtp.RawTiledPyramidsProductCodecSpi.*;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.File;
+
+import static org.esa.beam.dataio.rtp.RawTiledPyramidsProductCodecSpi.FORMAT_DESCRIPTION;
+import static org.esa.beam.dataio.rtp.RawTiledPyramidsProductCodecSpi.FORMAT_NAME;
+import static org.esa.beam.dataio.rtp.RawTiledPyramidsProductCodecSpi.HEADER_NAME;
+import static org.esa.beam.dataio.rtp.RawTiledPyramidsProductCodecSpi.NO_FILE_EXTENSIONS;
+import static org.esa.beam.dataio.rtp.RawTiledPyramidsProductCodecSpi.isProductDir;
 
 
 class RawTiledPyramidsProductFileFilter extends BeamFileFilter {

@@ -26,7 +26,8 @@
     </parent>
 
     <artifactId>snap-rtp-codec</artifactId>
-    <name>SNAP Raw, tiled pyramid codec (experimental)</name>
+    <name>SNAP Raw, tiled pyramid product I/O (experimental)</name>
+    <description>A product reader and writer for raw, tiled pyramids (experimental)</description>
 
     <dependencies>
         <dependency>
@@ -34,5 +35,21 @@
             <artifactId>snap-core</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
