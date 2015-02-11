@@ -23,10 +23,13 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.util.Settings;
+import org.esa.snap.util.ZipUtils;
 import org.esa.snap.util.ftpUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -40,7 +43,7 @@ public class DorisOrbitFile extends BaseOrbitFile {
     public static final String DORIS_VOR = "DORIS Precise VOR";
 
     public DorisOrbitFile(final String orbitType, final MetadataElement absRoot,
-                          final Product sourceProduct) throws IOException {
+                          final Product sourceProduct) throws Exception {
         super(orbitType, absRoot);
 
         init(sourceProduct);
@@ -68,7 +71,7 @@ public class DorisOrbitFile extends BaseOrbitFile {
      * @param sourceProduct the input product
      * @throws java.io.IOException The exception.
      */
-    private void init(final Product sourceProduct) throws IOException {
+    private void init(final Product sourceProduct) throws Exception {
 
         dorisReader = EnvisatOrbitReader.getInstance();
         final int absOrbit = absRoot.getAttributeInt(AbstractMetadata.ABS_ORBIT, 0);
@@ -78,15 +81,17 @@ public class DorisOrbitFile extends BaseOrbitFile {
         String remoteBaseFolder = "";
         if (orbitType.contains(DORIS_VOR)) {
             orbitPath = Settings.instance().get("OrbitFiles.dorisVOROrbitPath");
-            remoteBaseFolder = Settings.instance().get("OrbitFiles.dorisFTP_vor_remotePath");
+            remoteBaseFolder = ftpUtils.getPathFromSettings("OrbitFiles.dorisFTP_vor_remotePath");
         } else if (orbitType.contains(DORIS_POR)) {
             orbitPath = Settings.instance().get("OrbitFiles.dorisPOROrbitPath");
-            remoteBaseFolder = Settings.instance().get("OrbitFiles.dorisFTP_por_remotePath");
+            remoteBaseFolder = ftpUtils.getPathFromSettings("OrbitFiles.dorisFTP_por_remotePath");
         }
 
-        final Date startDate = sourceProduct.getStartTime().getAsDate();
-        final int month = startDate.getMonth() + 1;
-        String folder = String.valueOf(startDate.getYear() + 1900);
+        final Calendar startCal = sourceProduct.getStartTime().getAsCalendar();
+        final int year = startCal.get(Calendar.YEAR);
+        final int month = startCal.get(Calendar.MONTH) + 1;
+        String folder = String.valueOf(year);
+
         if (month < 10) {
             folder += '0';
         }
@@ -95,17 +100,42 @@ public class DorisOrbitFile extends BaseOrbitFile {
         final File localPath = new File(orbitPath);
 
         // find orbit file in the folder
+        final Date startDate = sourceProduct.getStartTime().getAsDate();
         orbitFile = FindDorisOrbitFile(dorisReader, localPath, startDate, absOrbit);
         if (orbitFile == null) {
-            final String remotePath = remoteBaseFolder + '/' + folder;
-            getRemoteDorisFiles(remotePath, localPath);
-            // find again in newly downloaded folder
+            getRemoteFiles(year);
             orbitFile = FindDorisOrbitFile(dorisReader, localPath, startDate, absOrbit);
+
+            if (orbitFile == null) {
+                final String remotePath = remoteBaseFolder + '/' + folder;
+                getRemoteDorisFiles(remotePath, localPath);
+                // find again in newly downloaded folder
+                orbitFile = FindDorisOrbitFile(dorisReader, localPath, startDate, absOrbit);
+            }
         }
 
         if (orbitFile == null) {
             throw new IOException("Unable to find suitable DORIS orbit file in\n" + orbitPath);
         }
+
+        dorisReader.readOrbitData();
+    }
+
+    private void getRemoteFiles(final int year) throws Exception {
+
+        if(!orbitType.contains(DORIS_VOR)) {
+            return;
+        }
+
+        final File localFolder = new File(Settings.instance().get("OrbitFiles.dorisVOROrbitPath"));
+        final URL remotePath = new URL(ftpUtils.getPathFromSettings("OrbitFiles.dorisHTTP_vor_remotePath"));
+        final File localFile = new File(localFolder, year+".zip");
+
+        final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
+        final File archiveFile = (File)archive.getContentFile();
+
+        ZipUtils.unzipToFolder(archiveFile, localFolder);
+        archiveFile.delete();
     }
 
     /**
@@ -143,12 +173,7 @@ public class DorisOrbitFile extends BaseOrbitFile {
                 final Date stopDate = dorisReader.getSensingStop();
                 if (productDate.after(startDate) && productDate.before(stopDate)) {
 
-                    // get the absolute orbit code and compare it against the orbit code in the product
-                    dorisReader.readOrbitData();
-                    //EnvisatOrbitReader.OrbitVector orb = dorisReader.getOrbitVector(0);
-                    //if (absOrbit == orb.absOrbit) {
                     return f;
-                    //}
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
