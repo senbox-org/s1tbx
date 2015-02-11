@@ -1,8 +1,10 @@
 package org.esa.beam.statistics.percentile.interpolated;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
-import org.junit.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class GapFillerTest_fillStartAndEndWithFallback {
 

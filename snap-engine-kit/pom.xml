@@ -211,7 +211,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-temporal-percentile-op</artifactId>
+            <artifactId>snap-temporal-percentile</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

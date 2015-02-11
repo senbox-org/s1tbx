@@ -1,16 +1,17 @@
 package org.esa.beam.statistics.percentile.interpolated;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertArrayEquals;
-
 import org.esa.beam.framework.gpf.OperatorException;
-import org.junit.*;
-import org.junit.rules.*;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import javax.media.jai.operator.ConstantDescriptor;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.util.Vector;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.fail;
 
 public class MeanOpImageTest {
 

@@ -76,6 +76,7 @@
         <module>snap-ndvi</module>
         <module>snap-pgx-reader</module>
         <module>snap-rtp-codec</module>
+        <module>snap-temporal-percentile</module>
         <module>snap-unmix</module>
 
         <!-- BEAM System Modules -->
@@ -99,7 +100,6 @@
         <module>beam-pconvert</module>
         <module>beam-pixel-extraction</module>
         <module>beam-statistics-op</module>
-        <module>beam-temporal-percentile-op</module>
         <module>beam-time-series-tool</module>
         <module>blue-marble-worldmap</module>
         <module>globcover-worldmap</module>

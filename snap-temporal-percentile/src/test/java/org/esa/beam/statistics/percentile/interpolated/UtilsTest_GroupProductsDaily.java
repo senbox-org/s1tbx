@@ -11,7 +11,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 public class UtilsTest_GroupProductsDaily {
 
