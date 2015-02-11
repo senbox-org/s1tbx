@@ -69,11 +69,14 @@
         <module>snap-binning</module>
         <module>snap-cluster-analysis</module>
         <module>snap-collocation</module>
+        <module>snap-envi-reader</module>
         <module>snap-envisat-reader</module>
         <module>snap-geotiff</module>
         <module>snap-graph-builder</module>
         <module>snap-ndvi</module>
+        <module>snap-pgx-reader</module>
         <module>snap-rtp-codec</module>
+        <module>snap-unmix</module>
 
         <!-- BEAM System Modules -->
 
@@ -87,7 +90,6 @@
 
         <!-- Former BEAM Extension Modules -->
 
-        <module>beam-envi-reader</module>
         <module>beam-flhmci</module>
         <module>beam-getasse30-reader</module>
         <module>beam-hdf5-writer</module>
@@ -96,11 +98,9 @@
         <module>beam-netcdf</module>
         <module>beam-pconvert</module>
         <module>beam-pixel-extraction</module>
-        <module>beam-pgx-reader</module>
         <module>beam-statistics-op</module>
         <module>beam-temporal-percentile-op</module>
         <module>beam-time-series-tool</module>
-        <module>beam-unmix</module>
         <module>blue-marble-worldmap</module>
         <module>globcover-worldmap</module>
         <module>lib-hdf</module>
