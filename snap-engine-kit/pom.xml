@@ -74,12 +74,12 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-ui</artifactId>
+            <artifactId>snap-engine-utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-visat-rcp</artifactId>
+            <artifactId>snap-ui</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -156,12 +156,12 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-hdf5-writer</artifactId>
+            <artifactId>snap-graph-builder</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-beam-help</artifactId>
+            <artifactId>snap-hdf5-writer</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -177,11 +177,6 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-netcdf</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-opendap</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -239,24 +234,9 @@
             <artifactId>globcover-worldmap</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-engine-utilities</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-graph-builder</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <!-- Sentinel-3 Toolbox -->
         <!-- todo - move into s3tbx cluster -->
-        <dependency>
-            <groupId>org.esa.s3tbx</groupId>
-            <artifactId>s3tbx-spot-vgt-reader</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.esa.s3tbx</groupId>
             <artifactId>s3tbx-meris-cloud</artifactId>
