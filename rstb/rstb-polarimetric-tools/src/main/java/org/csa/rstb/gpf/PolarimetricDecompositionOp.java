@@ -32,6 +32,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 
 import java.awt.*;
@@ -152,6 +153,9 @@ public final class PolarimetricDecompositionOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSentinel1DeburstProduct();
+
             sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
 
             srcBandList = PolBandUtils.getSourceBands(sourceProduct, sourceProductType);
