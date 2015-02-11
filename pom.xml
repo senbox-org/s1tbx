@@ -65,12 +65,14 @@
         <!-- SNAP Extension Modules -->
 
         <module>snap-arcbingrid-reader</module>
-        <module>snap-envisat-reader</module>
-        <module>snap-ndvi</module>
-        <module>snap-cluster-analysis</module>
+        <module>snap-bigtiff</module>
         <module>snap-binning</module>
+        <module>snap-cluster-analysis</module>
         <module>snap-collocation</module>
+        <module>snap-envisat-reader</module>
         <module>snap-graph-builder</module>
+        <module>snap-ndvi</module>
+        <module>snap-rtp-codec</module>
 
         <!-- BEAM System Modules -->
 
@@ -84,7 +86,6 @@
 
         <!-- Former BEAM Extension Modules -->
 
-        <module>beam-bigtiff</module>
         <module>beam-envi-reader</module>
         <module>beam-flhmci</module>
         <module>beam-geotiff</module>
@@ -95,7 +96,6 @@
         <module>beam-netcdf</module>
         <module>beam-pconvert</module>
         <module>beam-pixel-extraction</module>
-        <module>beam-rtp-codec</module>
         <module>beam-pgx-reader</module>
         <module>beam-spot-vgt-reader</module>
         <module>beam-statistics-op</module>
