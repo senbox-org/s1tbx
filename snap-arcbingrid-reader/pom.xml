@@ -11,8 +11,8 @@
     <artifactId>snap-arcbingrid-reader</artifactId>
     <packaging>nbm</packaging>
 
-    <name>Arc/Info Binary Grid Reader</name>
-    <description>This module provides a product reader for importing Arc/Info Binary Grid data products into SNAP.</description>
+    <name>ArcInfo Binary Grid Reader</name>
+    <description>Imports ESRI ArcInfo Binary Grid data products into SNAP.</description>
 
     <dependencies>
         <dependency>
