@@ -70,6 +70,7 @@
         <module>snap-cluster-analysis</module>
         <module>snap-collocation</module>
         <module>snap-envisat-reader</module>
+        <module>snap-geotiff</module>
         <module>snap-graph-builder</module>
         <module>snap-ndvi</module>
         <module>snap-rtp-codec</module>
@@ -88,7 +89,6 @@
 
         <module>beam-envi-reader</module>
         <module>beam-flhmci</module>
-        <module>beam-geotiff</module>
         <module>beam-getasse30-reader</module>
         <module>beam-hdf5-writer</module>
         <module>beam-meris-cloud</module>

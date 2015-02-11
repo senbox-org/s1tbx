@@ -14,12 +14,12 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.dataio.bigtiff;
+package org.esa.beam.dataio.geotiff;
 
 import com.bc.ceres.core.ProgressMonitor;
-import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
-import it.geosolutions.imageioimpl.plugins.tiff.TIFFRenderedImage;
-import org.esa.beam.framework.dataio.ProductIO;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReader;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFRenderedImage;
+import com.sun.media.jai.codec.ByteArraySeekableStream;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.CrsGeoCoding;
@@ -41,13 +41,11 @@ import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.io.FileUtils;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.datum.DefaultGeodeticDatum;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.parameter.ParameterValueGroup;
@@ -61,21 +59,23 @@ import org.opengis.referencing.operation.TransformException;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
-import javax.imageio.stream.ImageInputStream;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.MemoryCacheImageInputStream;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 @SuppressWarnings({"InstanceVariableMayNotBeInitialized"})
-public class BigGeoTiffWriteReadTest {
-
+public class GeoTiffWriteReadTest {
     private static final String WGS_84 = "EPSG:4326";
     private static final String WGS_72 = "EPSG:4322";
     private static final String WGS_84_UTM_ZONE_28S = "EPSG:32728";
@@ -84,29 +84,22 @@ public class BigGeoTiffWriteReadTest {
     private static final String LAMBERT_CONIC_CONFORMAL_1SP = "EPSG:9801";
     private static final String ALBERS_CONIC_EQUAL_AREA = "Albers_Conic_Equal_Area";
 
-    private final static File TEST_DIR = new File("test_data");
-
     private Product outProduct;
+    private ByteArrayOutputStream outputStream;
+    private GeoTiffProductReader reader;
     private File location;
 
     @Before
     public void setup() {
-        if (!TEST_DIR.mkdirs()) {
-            fail("unable to create test directory");
-        }
+        reader = (GeoTiffProductReader) new GeoTiffProductReaderPlugIn().createReaderInstance();
+        outputStream = new ByteArrayOutputStream();
+        location = new File("memory.tif");
         final int width = 14;
         final int height = 14;
         outProduct = new Product("P", "T", width, height);
         final Band bandInt16 = outProduct.addBand("int16", ProductData.TYPE_INT16);
         bandInt16.setDataElems(createShortData(getProductSize(), 23));
         ImageManager.getInstance().getSourceImage(bandInt16, 0);
-    }
-
-    @After
-    public void tearDown() {
-        if (!FileUtils.deleteTree(TEST_DIR)) {
-            fail("unable to delete test directory");
-        }
     }
 
     @Test
@@ -121,69 +114,76 @@ public class BigGeoTiffWriteReadTest {
         expectedBand.setNoDataValueUsed(true);
 
         final Product inProduct = writeReadProduct();
-        try {
-            assertEquals(outProduct.getName(), inProduct.getName());
-            assertEquals(outProduct.getProductType(), inProduct.getProductType());
-            assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
 
-            final Band actualBand = inProduct.getBandAt(0);
-            assertEquals(expectedBand.getName(), actualBand.getName());
-            assertEquals(expectedBand.getDescription(), actualBand.getDescription());
-            assertEquals(expectedBand.getUnit(), actualBand.getUnit());
-            assertEquals(expectedBand.getDataType(), actualBand.getDataType());
-            assertEquals(expectedBand.getScalingFactor(), actualBand.getScalingFactor(), 1.0e-6);
-            assertEquals(expectedBand.getScalingOffset(), actualBand.getScalingOffset(), 1.0e-6);
-            assertEquals(expectedBand.isLog10Scaled(), actualBand.isLog10Scaled());
-            assertEquals(expectedBand.getNoDataValue(), actualBand.getNoDataValue(), 1.0e-6);
-            assertEquals(expectedBand.isNoDataValueUsed(), actualBand.isNoDataValueUsed());
-        } finally {
-            inProduct.dispose();
-        }
+        assertEquals(outProduct.getName(), inProduct.getName());
+        assertEquals(outProduct.getProductType(), inProduct.getProductType());
+        assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
+
+        final Band actualBand = inProduct.getBandAt(0);
+        assertEquals(expectedBand.getName(), actualBand.getName());
+        assertEquals(expectedBand.getDescription(), actualBand.getDescription());
+        assertEquals(expectedBand.getUnit(), actualBand.getUnit());
+        assertEquals(expectedBand.getDataType(), actualBand.getDataType());
+        assertEquals(expectedBand.getScalingFactor(), actualBand.getScalingFactor(), 1.0e-6);
+        assertEquals(expectedBand.getScalingOffset(), actualBand.getScalingOffset(), 1.0e-6);
+        assertEquals(expectedBand.isLog10Scaled(), actualBand.isLog10Scaled());
+        assertEquals(expectedBand.getNoDataValue(), actualBand.getNoDataValue(), 1.0e-6);
+        assertEquals(expectedBand.isNoDataValueUsed(), actualBand.isNoDataValueUsed());
     }
 
     @Test
     public void testWriteReadVirtualBandIsNotExcludedInProduct() throws IOException {
         final VirtualBand virtualBand = new VirtualBand("VB", ProductData.TYPE_FLOAT32,
-                outProduct.getSceneRasterWidth(),
-                outProduct.getSceneRasterHeight(), "X * Y");
+                                                        outProduct.getSceneRasterWidth(),
+                                                        outProduct.getSceneRasterHeight(), "X * Y");
         outProduct.addBand(virtualBand);
         final Product inProduct = writeReadProduct();
 
-        try {
-            assertEquals(2, inProduct.getNumBands());
-            assertNotNull(inProduct.getBand("VB"));
-        } finally {
-            inProduct.dispose();
-        }
+        assertEquals(2, inProduct.getNumBands());
+        assertNotNull(inProduct.getBand("VB"));
     }
 
     @Test
     public void testWriteReadVirtualBandIsExcludedInImageFile() throws IOException {
         final VirtualBand virtualBand = new VirtualBand("VB", ProductData.TYPE_FLOAT32,
-                outProduct.getSceneRasterWidth(),
-                outProduct.getSceneRasterHeight(), "X * Y");
+                                                        outProduct.getSceneRasterWidth(),
+                                                        outProduct.getSceneRasterHeight(), "X * Y");
         outProduct.addBand(virtualBand);
-
-        final Product inProduct = writeReadProduct();
-
-        try {
-            assertEquals(2, inProduct.getNumBands());
-
-            try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(location)) {
-                final TIFFImageReader imageReader = BigGeoTiffProductReaderPlugIn.getTiffImageReader(imageInputStream);
-                if (imageReader == null) {
-                    throw new IOException("GeoTiff imageReader not found");
-                }
-                imageReader.setInput(imageInputStream);
-                assertEquals(1, imageReader.getNumImages(true));
-
-                final ImageReadParam readParam = imageReader.getDefaultReadParam();
-                TIFFRenderedImage image = (TIFFRenderedImage) imageReader.readAsRenderedImage(0, readParam);
-                assertEquals(1, image.getSampleModel().getNumBands());
+        final GeoTiffProductWriter writer = (GeoTiffProductWriter) new GeoTiffProductWriterPlugIn().createWriterInstance();
+        outProduct.setProductWriter(writer);
+        writer.writeGeoTIFFProduct(new MemoryCacheImageOutputStream(outputStream), outProduct);
+        final Band[] bands = outProduct.getBands();
+        for (Band band : bands) {
+            if (writer.shouldWrite(band)) {
+                band.readRasterDataFully(ProgressMonitor.NULL);
+                writer.writeBandRasterData(band,
+                                           0, 0,
+                                           band.getSceneRasterWidth(), band.getSceneRasterHeight(),
+                                           band.getData(), ProgressMonitor.NULL);
             }
-        } finally {
-            inProduct.dispose();
         }
+        writer.flush();
+        ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());
+        final MemoryCacheImageInputStream imageStream = new MemoryCacheImageInputStream(inputStream);
+        Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageStream);
+        TIFFImageReader imageReader = null;
+        while(imageReaders.hasNext()) {
+            final ImageReader nextReader = imageReaders.next();
+            if (nextReader instanceof TIFFImageReader) {
+                imageReader = (TIFFImageReader) nextReader;
+            }
+        }
+        if (imageReader == null) {
+            throw new IllegalStateException("No TIFFImageReader found");
+        }
+
+        imageReader.setInput(imageStream);
+        assertEquals(1, imageReader.getNumImages(true));
+
+        final ImageReadParam readParam = imageReader.getDefaultReadParam();
+        TIFFRenderedImage image = (TIFFRenderedImage) imageReader.readAsRenderedImage(0, readParam);
+        assertEquals(1, image.getSampleModel().getNumBands());
+        inputStream.close();
     }
 
     @Test
@@ -204,13 +204,9 @@ public class BigGeoTiffWriteReadTest {
 
         final Product inProduct = writeReadProduct();
 
-        try {
-            assertEquals(1, inProduct.getIndexCodingGroup().getNodeCount());
-            final Band indexBand = inProduct.getBandAt(0);
-            testIndexCoding(indexBand, 4);
-        } finally {
-            inProduct.dispose();
-        }
+        assertEquals(1, inProduct.getIndexCodingGroup().getNodeCount());
+        final Band indexBand = inProduct.getBandAt(0);
+        testIndexCoding(indexBand, 4);
     }
 
     @Test
@@ -232,13 +228,9 @@ public class BigGeoTiffWriteReadTest {
 
         final Product inProduct = writeReadProduct();
 
-        try {
-            assertEquals(1, inProduct.getIndexCodingGroup().getNodeCount());
-            testIndexCoding(inProduct.getBandAt(0), 4);
-            testIndexCoding(inProduct.getBandAt(1), 4);
-        } finally {
-            inProduct.dispose();
-        }
+        assertEquals(1, inProduct.getIndexCodingGroup().getNodeCount());
+        testIndexCoding(inProduct.getBandAt(0), 4);
+        testIndexCoding(inProduct.getBandAt(1), 4);
     }
 
     private void testIndexCoding(Band indexBand, final int expectedIndices) {
@@ -256,22 +248,18 @@ public class BigGeoTiffWriteReadTest {
     @Test
     public void testWriteReadUTMProjection() throws IOException, TransformException, FactoryException {
         setGeoCoding(outProduct, WGS_84_UTM_ZONE_28S);
-
         final Product inProduct = writeReadProduct();
-        try {
-            assertEquals(outProduct.getName(), inProduct.getName());
-            assertEquals(outProduct.getProductType(), inProduct.getProductType());
-            assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
-            assertEquals(outProduct.getBandAt(0).getName(), inProduct.getBandAt(0).getName());
-            assertEquals(outProduct.getBandAt(0).getDataType(), inProduct.getBandAt(0).getDataType());
-            assertEquals(outProduct.getBandAt(0).getScalingFactor(), inProduct.getBandAt(0).getScalingFactor(), 1.0e-6);
-            assertEquals(outProduct.getBandAt(0).getScalingOffset(), inProduct.getBandAt(0).getScalingOffset(), 1.0e-6);
-            assertEquals(location, inProduct.getFileLocation());
-            assertNotNull(inProduct.getGeoCoding());
-            assertEquality(outProduct.getGeoCoding(), inProduct.getGeoCoding(), 2.0e-5f);
-        } finally {
-            inProduct.dispose();
-        }
+
+        assertEquals(outProduct.getName(), inProduct.getName());
+        assertEquals(outProduct.getProductType(), inProduct.getProductType());
+        assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
+        assertEquals(outProduct.getBandAt(0).getName(), inProduct.getBandAt(0).getName());
+        assertEquals(outProduct.getBandAt(0).getDataType(), inProduct.getBandAt(0).getDataType());
+        assertEquals(outProduct.getBandAt(0).getScalingFactor(), inProduct.getBandAt(0).getScalingFactor(), 1.0e-6);
+        assertEquals(outProduct.getBandAt(0).getScalingOffset(), inProduct.getBandAt(0).getScalingOffset(), 1.0e-6);
+        assertEquals(location, inProduct.getFileLocation());
+        assertNotNull(inProduct.getGeoCoding());
+        assertEquality(outProduct.getGeoCoding(), inProduct.getGeoCoding(), 2.0e-5f);
     }
 
     @Test
@@ -279,20 +267,16 @@ public class BigGeoTiffWriteReadTest {
         setGeoCoding(outProduct, WGS_84);
         final Product inProduct = writeReadProduct();
 
-        try {
-            assertEquals(outProduct.getName(), inProduct.getName());
-            assertEquals(outProduct.getProductType(), inProduct.getProductType());
-            assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
-            assertEquals(outProduct.getBandAt(0).getName(), inProduct.getBandAt(0).getName());
-            assertEquals(outProduct.getBandAt(0).getDataType(), inProduct.getBandAt(0).getDataType());
-            assertEquals(outProduct.getBandAt(0).getScalingFactor(), inProduct.getBandAt(0).getScalingFactor(), 1.0e-6);
-            assertEquals(outProduct.getBandAt(0).getScalingOffset(), inProduct.getBandAt(0).getScalingOffset(), 1.0e-6);
-            assertEquals(location, inProduct.getFileLocation());
-            assertNotNull(inProduct.getGeoCoding());
-            assertEquality(outProduct.getGeoCoding(), inProduct.getGeoCoding(), 2.0e-5f);
-        } finally {
-            inProduct.dispose();
-        }
+        assertEquals(outProduct.getName(), inProduct.getName());
+        assertEquals(outProduct.getProductType(), inProduct.getProductType());
+        assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
+        assertEquals(outProduct.getBandAt(0).getName(), inProduct.getBandAt(0).getName());
+        assertEquals(outProduct.getBandAt(0).getDataType(), inProduct.getBandAt(0).getDataType());
+        assertEquals(outProduct.getBandAt(0).getScalingFactor(), inProduct.getBandAt(0).getScalingFactor(), 1.0e-6);
+        assertEquals(outProduct.getBandAt(0).getScalingOffset(), inProduct.getBandAt(0).getScalingOffset(), 1.0e-6);
+        assertEquals(location, inProduct.getFileLocation());
+        assertNotNull(inProduct.getGeoCoding());
+        assertEquality(outProduct.getGeoCoding(), inProduct.getGeoCoding(), 2.0e-5f);
     }
 
     @Test
@@ -302,70 +286,6 @@ public class BigGeoTiffWriteReadTest {
         bandFloat32.setDataElems(createFloats(getProductSize(), 2.343f));
 
         performTest(2.0e-5f);
-    }
-
-    @Test
-    public void testWriteReadTiePointGeoCoding_withMultipleMixedBands() throws IOException {
-        setTiePointGeoCoding(outProduct);
-        Band bandFloat32 = outProduct.addBand("float32_1", ProductData.TYPE_FLOAT32);
-        bandFloat32.setDataElems(createFloats(getProductSize(), 2.343f));
-
-        bandFloat32 = outProduct.addBand("float32_2", ProductData.TYPE_FLOAT32);
-        bandFloat32.setDataElems(createFloats(getProductSize(), 3.19f));
-
-        bandFloat32 = outProduct.addBand("float32_3", ProductData.TYPE_FLOAT32);
-        bandFloat32.setDataElems(createFloats(getProductSize(), 2.66f));
-
-        bandFloat32 = outProduct.addBand("float32_4", ProductData.TYPE_FLOAT32);
-        bandFloat32.setDataElems(createFloats(getProductSize(), 0.619f));
-
-        bandFloat32 = outProduct.addBand("float32_5", ProductData.TYPE_FLOAT32);
-        bandFloat32.setDataElems(createFloats(getProductSize(), 11.8f));
-
-        performTest(2.0e-5f);
-    }
-
-    @Test
-    public void testWriteReadTiePointGeoCoding_forceBigTiff() throws IOException {
-        setTiePointGeoCoding(outProduct);
-        final Band bandFloat32 = outProduct.addBand("float32", ProductData.TYPE_FLOAT32);
-        bandFloat32.setDataElems(createFloats(getProductSize(), 2.343f));
-
-        try {
-            System.setProperty("org.esa.beam.dataio.bigtiff.force.bigtiff", "true");
-            performTest(2.0e-5f);
-        } finally {
-            System.clearProperty("org.esa.beam.dataio.bigtiff.force.bigtiff");
-        }
-    }
-
-    @Test
-    public void testWriteReadTiePointGeoCoding_compressed() throws IOException {
-        setTiePointGeoCoding(outProduct);
-        Band bandFloat32 = outProduct.addBand("float32_1", ProductData.TYPE_FLOAT32);
-        bandFloat32.setDataElems(createFloats(getProductSize(), 2.343f));
-
-        bandFloat32 = outProduct.addBand("float32_2", ProductData.TYPE_FLOAT32);
-        bandFloat32.setDataElems(createFloats(getProductSize(), 5.66f));
-
-        bandFloat32 = outProduct.addBand("float32_3", ProductData.TYPE_FLOAT32);
-        bandFloat32.setDataElems(createFloats(getProductSize(), 11.8f));
-
-        bandFloat32 = outProduct.addBand("float32_4", ProductData.TYPE_FLOAT32);
-        bandFloat32.setDataElems(createFloats(getProductSize(), 19.2f));
-
-        bandFloat32 = outProduct.addBand("float32_5", ProductData.TYPE_FLOAT32);
-        bandFloat32.setDataElems(createFloats(getProductSize(), 108.65f));
-
-        try {
-            System.setProperty("org.esa.beam.dataio.bigtiff.compression.type", "LZW");
-            System.setProperty("org.esa.beam.dataio.bigtiff.compression.quality", "0.8");
-
-            performTest(2.0e-5f);
-        } finally {
-            System.clearProperty("org.esa.beam.dataio.bigtiff.compression.type");
-            System.clearProperty("org.esa.beam.dataio.bigtiff.compression.quality");
-        }
     }
 
     @Test
@@ -381,6 +301,7 @@ public class BigGeoTiffWriteReadTest {
 
         performTest(2.0e-5f);
     }
+
 
     @Test
     public void testWriteReadLambertConformalConic_MapGeoCoding() throws IOException, TransformException, FactoryException {
@@ -406,19 +327,15 @@ public class BigGeoTiffWriteReadTest {
     private void performTest(float accuracy) throws IOException {
         final Product inProduct = writeReadProduct();
 
-        try {
-            assertEquals(outProduct.getName(), inProduct.getName());
-            assertEquals(outProduct.getProductType(), inProduct.getProductType());
-            assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
-            for (int i = 0; i < outProduct.getNumBands(); i++) {
-                assertEquality(outProduct.getBandAt(i), inProduct.getBandAt(i));
-            }
-            assertEquals(location, inProduct.getFileLocation());
-            assertNotNull(inProduct.getGeoCoding());
-            assertEquality(outProduct.getGeoCoding(), inProduct.getGeoCoding(), accuracy);
-        } finally {
-            inProduct.dispose();
+        assertEquals(outProduct.getName(), inProduct.getName());
+        assertEquals(outProduct.getProductType(), inProduct.getProductType());
+        assertEquals(outProduct.getNumBands(), inProduct.getNumBands());
+        for (int i = 0; i < outProduct.getNumBands(); i++) {
+            assertEquality(outProduct.getBandAt(i), inProduct.getBandAt(i));
         }
+        assertEquals(location, inProduct.getFileLocation());
+        assertNotNull(inProduct.getGeoCoding());
+        assertEquality(outProduct.getGeoCoding(), inProduct.getGeoCoding(), accuracy);
     }
 
     private int getProductSize() {
@@ -507,7 +424,7 @@ public class BigGeoTiffWriteReadTest {
 
     private static void setLambertConformalConicGeoCoding_MapGeoCoding(final Product product) {
         final MapTransformDescriptor descriptor = MapProjectionRegistry.getDescriptor(
-                LambertConformalConicDescriptor.TYPE_ID);
+                    LambertConformalConicDescriptor.TYPE_ID);
         final double[] values = descriptor.getParameterDefaultValues();
         for (int i = 0; i < values.length; i++) {
             values[i] = values[i] - 0.001;
@@ -521,7 +438,7 @@ public class BigGeoTiffWriteReadTest {
     }
 
     private static void setLambertConformalConicGeoCoding(final Product product) throws FactoryException,
-            TransformException {
+                                                                                        TransformException {
         final MathTransformFactory transformFactory = ReferencingFactoryFinder.getMathTransformFactory(null);
         final ParameterValueGroup parameters = transformFactory.getDefaultParameters(LAMBERT_CONIC_CONFORMAL_1SP);
         final Ellipsoid ellipsoid = DefaultGeodeticDatum.WGS84.getEllipsoid();
@@ -533,9 +450,9 @@ public class BigGeoTiffWriteReadTest {
 
         final MathTransform transform1 = transformFactory.createParameterizedTransform(parameters);
         final DefaultProjectedCRS crs = new DefaultProjectedCRS(parameters.getDescriptor().getName().getCode(),
-                (GeographicCRS) CRS.decode(WGS_72, true),
-                transform1,
-                DefaultCartesianCS.PROJECTED);
+                                                                (GeographicCRS) CRS.decode(WGS_72, true),
+                                                                transform1,
+                                                                DefaultCartesianCS.PROJECTED);
         final AffineTransform imageToMap = new AffineTransform();
         imageToMap.translate(0.7, 0.8);
         imageToMap.scale(0.9, -0.8);
@@ -547,7 +464,7 @@ public class BigGeoTiffWriteReadTest {
     private static void setAlbersEqualAreaGeoCoding(final Product product) throws FactoryException, TransformException {
         final MathTransformFactory transformFactory = ReferencingFactoryFinder.getMathTransformFactory(null);
         final ParameterValueGroup parameters = transformFactory.getDefaultParameters(ALBERS_CONIC_EQUAL_AREA);
-        final Ellipsoid ellipsoid = DefaultGeodeticDatum.WGS84.getEllipsoid();
+        final org.opengis.referencing.datum.Ellipsoid ellipsoid = DefaultGeodeticDatum.WGS84.getEllipsoid();
         parameters.parameter("semi_major").setValue(ellipsoid.getSemiMajorAxis());
         parameters.parameter("semi_minor").setValue(ellipsoid.getSemiMinorAxis());
         parameters.parameter("latitude_of_origin").setValue(50.0);
@@ -558,9 +475,9 @@ public class BigGeoTiffWriteReadTest {
 
         final MathTransform transform1 = transformFactory.createParameterizedTransform(parameters);
         final DefaultProjectedCRS crs = new DefaultProjectedCRS(parameters.getDescriptor().getName().getCode(),
-                (GeographicCRS) CRS.decode(WGS_72, true),
-                transform1,
-                DefaultCartesianCS.PROJECTED);
+                                                                (GeographicCRS) CRS.decode(WGS_72, true),
+                                                                transform1,
+                                                                DefaultCartesianCS.PROJECTED);
         final AffineTransform imageToMap = new AffineTransform();
         imageToMap.translate(0.7, 0.8);
         imageToMap.scale(0.9, -0.8);
@@ -572,26 +489,39 @@ public class BigGeoTiffWriteReadTest {
 
     private static void setTiePointGeoCoding(final Product product) {
         final TiePointGrid latGrid = new TiePointGrid("lat", 3, 3, 0.5f, 0.5f, 5, 5, new float[]{
-                85, 84, 83,
-                75, 74, 73,
-                65, 64, 63
+                    85, 84, 83,
+                    75, 74, 73,
+                    65, 64, 63
         });
         final TiePointGrid lonGrid = new TiePointGrid("lon", 3, 3, 0.5f, 0.5f, 5, 5, new float[]{
-                -15, -5, 5,
-                -16, -6, 4,
-                -17, -7, 3
+                    -15, -5, 5,
+                    -16, -6, 4,
+                    -17, -7, 3
         });
         product.addTiePointGrid(latGrid);
         product.addTiePointGrid(lonGrid);
-        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
+        product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, org.esa.beam.framework.dataop.maptransf.Datum.WGS_84));
     }
 
     private Product writeReadProduct() throws IOException {
-        location = new File(TEST_DIR, "test_product.tif");
-
-        final String bigGeoTiffFormatName = BigGeoTiffProductReaderPlugIn.FORMAT_NAME;
-        ProductIO.writeProduct(outProduct, location.getAbsolutePath(), bigGeoTiffFormatName);
-
-        return ProductIO.readProduct(location, bigGeoTiffFormatName);
+        final GeoTiffProductWriter writer = (GeoTiffProductWriter) new GeoTiffProductWriterPlugIn().createWriterInstance();
+        outProduct.setProductWriter(writer);
+        writer.writeGeoTIFFProduct(new MemoryCacheImageOutputStream(outputStream), outProduct);
+        final Band[] bands = outProduct.getBands();
+        for (Band band : bands) {
+            if (writer.shouldWrite(band)) {
+                band.readRasterDataFully(ProgressMonitor.NULL);
+                writer.writeBandRasterData(band,
+                                           0, 0,
+                                           band.getSceneRasterWidth(), band.getSceneRasterHeight(),
+                                           band.getData(), ProgressMonitor.NULL);
+            }
+        }
+        writer.flush();
+        ByteArraySeekableStream inputStream = new ByteArraySeekableStream(outputStream.toByteArray());
+        final Product product = reader.readGeoTIFFProduct(new MemoryCacheImageInputStream(inputStream), location);
+        product.setProductReader(reader);
+        return product;
     }
+
 }

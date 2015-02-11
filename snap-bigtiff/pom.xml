@@ -12,7 +12,7 @@
     <artifactId>snap-bigtiff</artifactId>
     <packaging>nbm</packaging>
 
-    <name>SNAP GeoTIFF/BigGeoTIFF Product Reader</name>
+    <name>SNAP GeoTIFF/BigTIFF Product Reader</name>
     <description>Enables SNAP to read GeoTiff data products.</description>
 
     <dependencies>

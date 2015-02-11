@@ -14,18 +14,16 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.dataio.bigtiff.internal;
+package org.esa.beam.dataio.geotiff.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.dimap.DimapHeaderWriter;
+import org.esa.beam.dataio.geotiff.Utils;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.FilterBand;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
@@ -49,6 +47,7 @@ import java.util.List;
  */
 public class TiffIFD {
 
+    private static final long MAX_FILE_SIZE = 4294967296L;
     private static final int TIFF_COLORMAP_SIZE = 256;
     private static final int BYTES_FOR_NEXT_IFD_OFFSET = 4;
     private static final int BYTES_FOR_NUMBER_OF_ENTRIES = 2;
@@ -76,8 +75,7 @@ public class TiffIFD {
         writeNextIfdOffset(ios, ifdOffset, nextIfdOffset);
     }
 
-    private void writeNextIfdOffset(final ImageOutputStream ios, final long ifdOffset, final long nextIfdOffset) throws
-            IOException {
+    private void writeNextIfdOffset(final ImageOutputStream ios, final long ifdOffset, final long nextIfdOffset) throws IOException {
         ios.seek(getPosForNextIfdOffset(ifdOffset));
         new TiffLong(nextIfdOffset).write(ios);
     }
@@ -194,9 +192,9 @@ public class TiffIFD {
 
     private static int getNumBands(Product product) {
         final Band[] bands = product.getBands();
-        final List<Band> bandList = new ArrayList<>(bands.length);
+        final List<Band> bandList = new ArrayList<Band>(bands.length);
         for (Band band : bands) {
-            if (shouldWriteNode(band)) {
+            if (Utils.shouldWriteNode(band)) {
                 bandList.add(band);
             }
         }
@@ -232,7 +230,7 @@ public class TiffIFD {
 
     private static boolean isValidColorMapProduct(Product product) {
         return getNumBands(product) == 1 && product.getBandAt(0).getIndexCoding() != null &&
-                product.getBandAt(0).getDataType() == ProductData.TYPE_UINT8;
+               product.getBandAt(0).getDataType() == ProductData.TYPE_UINT8;
     }
 
     static TiffAscii getBeamMetadata(final Product product) {
@@ -254,8 +252,8 @@ public class TiffIFD {
 
         final int numEntries = geoTIFFMetadata.getNumGeoKeyEntries();
         final TiffShort[] directoryTagValues = new TiffShort[numEntries * 4];
-        final ArrayList<TiffDouble> doubleValues = new ArrayList<>();
-        final ArrayList<String> asciiValues = new ArrayList<>();
+        final ArrayList<TiffDouble> doubleValues = new ArrayList<TiffDouble>();
+        final ArrayList<String> asciiValues = new ArrayList<String>();
         for (int i = 0; i < numEntries; i++) {
             final GeoTIFFMetadata.KeyEntry entry = geoTIFFMetadata.getGeoKeyEntryAt(i);
             final int[] data = entry.getData();
@@ -346,11 +344,7 @@ public class TiffIFD {
         }
 
         if (maxFloatType != -1) {
-            if (maxUnsignedIntType == ProductData.TYPE_UINT32 || maxSignedIntType == ProductData.TYPE_INT32) {
-                return ProductData.TYPE_FLOAT64;
-            } else {
-                return maxFloatType;
-            }
+            return ProductData.TYPE_FLOAT32;
         }
 
         if (maxUnsignedIntType != -1) {
@@ -360,7 +354,7 @@ public class TiffIFD {
             if (ProductData.getElemSize(maxUnsignedIntType) >= ProductData.getElemSize(maxSignedIntType)) {
                 int returnType = maxUnsignedIntType - 10 + 1;
                 if (returnType > 12) {
-                    return ProductData.TYPE_FLOAT64;
+                    return ProductData.TYPE_FLOAT32;
                 } else {
                     return returnType;
                 }
@@ -411,6 +405,10 @@ public class TiffIFD {
             tiffValues[i] = new TiffLong(offset);
             long byteCount = getByteCount(bitsPerSample, i);
             offset += byteCount;
+            if (offset > MAX_FILE_SIZE) {
+                String msg = String.format("File size too big. TIFF file size is limited to [%d] bytes!", MAX_FILE_SIZE);
+                throw new IllegalStateException(msg);
+            }
         }
         return tiffValues;
     }
@@ -440,15 +438,5 @@ public class TiffIFD {
 
     private long getWidth() {
         return ((TiffLong) getEntry(TiffTag.IMAGE_WIDTH).getValues()[0]).getValue();
-    }
-
-    // @todo 1 tb/tb copied from utils class ...
-    static boolean shouldWriteNode(ProductNode node) {
-        if (node instanceof VirtualBand) {
-            return false;
-        } else if (node instanceof FilterBand) {
-            return false;
-        }
-        return true;
     }
 }
