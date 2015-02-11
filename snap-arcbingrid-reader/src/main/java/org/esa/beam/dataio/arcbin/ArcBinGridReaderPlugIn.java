@@ -26,7 +26,7 @@ import java.util.Locale;
 
 public class ArcBinGridReaderPlugIn implements ProductReaderPlugIn {
 
-    private static final String DESCRIPTION = "Reads Arc/Info Binary Grids";
+    private static final String DESCRIPTION = "ArcInfo Binary Grids";
     private static final String[] FILE_EXTENSIONS = new String[]{""};
     private static final String FORMAT_NAME = "ARC_INFO_BIN_GRID";
     private static final String[] FORMAT_NAMES = new String[]{FORMAT_NAME};
