@@ -34,7 +34,6 @@ public final class Sentinel1Utils {
     private MetadataElement absRoot = null;
     private MetadataElement origProdRoot = null;
     private int numOfSubSwath = 0;
-    private int polyDegree = 2;
     private String acquisitionMode = null;
     private SubSwathInfo[] subSwath = null;
     private SARGeocoding.Orbit orbit = null;
@@ -117,8 +116,7 @@ public final class Sentinel1Utils {
         this.sourceImageWidth = sourceProduct.getSceneRasterWidth();
         this.sourceImageHeight = sourceProduct.getSceneRasterHeight();
         OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
-        this.orbit = new SARGeocoding.Orbit(
-                orbitStateVectors, polyDegree, firstLineUTC, lineTimeInterval, sourceImageHeight);
+        this.orbit = new SARGeocoding.Orbit(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
 
         if (this.srgrFlag) {
             this.srgrConvParams = AbstractMetadata.getSRGRCoefficients(absRoot);
@@ -328,18 +326,16 @@ public final class Sentinel1Utils {
         }
     }
 
-    private void getProductOrbit(final int polyDegree) {
+    private void getProductOrbit() {
 
-        this.polyDegree = polyDegree;
         final OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
-        final double firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD();
-        this.orbit = new SARGeocoding.Orbit(orbitStateVectors, polyDegree, firstLineUTC);
+        this.orbit = new SARGeocoding.Orbit(orbitStateVectors);
     }
 
-    public SARGeocoding.Orbit getOrbit(final int polyDegree) {
+    public SARGeocoding.Orbit getOrbit() {
 
-        if (this.orbit == null || this.polyDegree != polyDegree) {
-            getProductOrbit(polyDegree);
+        if (this.orbit == null) {
+            getProductOrbit();
         }
         return orbit;
     }
@@ -532,7 +528,7 @@ public final class Sentinel1Utils {
     public void computeDopplerRate() {
 
         if (orbit == null) {
-            getProductOrbit(polyDegree);
+            getProductOrbit();
         }
 
         if (!isRangeDependDopplerRateAvailable) {

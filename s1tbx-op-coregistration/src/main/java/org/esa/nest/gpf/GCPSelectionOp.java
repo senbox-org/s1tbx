@@ -317,7 +317,7 @@ public class GCPSelectionOp extends Operator {
         for(Band slvBand : sourceProduct.getBands()) {
             if (!StringUtils.contains(masterBandNames, slvBand.getName())) {
                 final String slvPol = OperatorUtils.getPolarizationFromBandName(slvBand.getName());
-                if(mstPol.equals(slvPol)) {
+                if(mstPol == null || mstPol.equals(slvPol)) {
                     final String unit = slvBand.getUnit();
                     if (unit != null && !unit.contains(Unit.IMAGINARY)) {
                         slvBand1 = slvBand;

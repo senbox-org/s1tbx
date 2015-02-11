@@ -65,6 +65,7 @@ public class LayerPanelLayer extends LayerManagerLayer {
      */
     @Override
     public void selected(SelectEvent event) {
+        System.out.println("event.getEventAction(): " + event.getEventAction());
         final ScreenAnnotation annotation = getAnnotation();
         if (event.hasObjects() && event.getTopObject() == annotation) {
             boolean update = false;

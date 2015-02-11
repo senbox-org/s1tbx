@@ -203,7 +203,6 @@ public class RangeDopplerGeocodingOp extends Operator {
     private CoordinateReferenceSystem targetCRS;
     private double delLat = 0.0;
     private double delLon = 0.0;
-    private int polyDegree = 2; // degree of fitting polynomial
     private SARGeocoding.Orbit orbit = null;
 
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
@@ -546,7 +545,7 @@ public class RangeDopplerGeocodingOp extends Operator {
      */
     private void computeSensorPositionsAndVelocities() {
 
-        orbit = new SARGeocoding.Orbit(orbitStateVectors, polyDegree, firstLineUTC, lineTimeInterval, sourceImageHeight);
+        orbit = new SARGeocoding.Orbit(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
     }
 
     /**

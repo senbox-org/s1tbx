@@ -30,10 +30,11 @@ import org.jlinda.nest.utils.TileUtilsDoris;
 import java.awt.*;
 import java.util.HashMap;
 
-@OperatorMetadata(alias = "Phase2Height",//"Slant2Height",
+@OperatorMetadata(alias = "Phase2Height",
         category = "SAR Processing/InSAR/Products",
-        description = "Phase to Height conversion",
-        internal = false)
+        authors = "Petar Marinkovic",
+        copyright = "Copyright (C) 2013 by PPO.labs",
+        description = "Phase to Height conversion")
 public class Slant2HeightOp extends Operator {
 
     @SourceProduct(description = "Source product that contains unwrapped phase.")

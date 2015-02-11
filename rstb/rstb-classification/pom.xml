@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.csa.rstb</groupId>
         <artifactId>rstb</artifactId>
-        <version>6.3.0</version>
+        <version>6.3.2</version>
     </parent>
 
     <name>RSTB Classification Tools</name>
@@ -24,6 +24,10 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-visat-rcp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-engine-utilities</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>

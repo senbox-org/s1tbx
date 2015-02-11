@@ -42,7 +42,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         final File file = ReaderUtils.getFileFromInput(input);
         if (file != null) {
             final String filename = file.getName().toLowerCase();
-            if (filename.equals("manifest.xml")) {
+            if (filename.equals("manifest.safe")) {
                 if (isLevel1(file) || isLevel2(file) || isLevel0(file))
                     return DecodeQualification.INTENDED;
             }

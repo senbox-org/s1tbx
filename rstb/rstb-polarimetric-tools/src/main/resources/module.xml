@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>rstb-polarimetric-tools</symbolicName>
-    <version>6.3.0</version>
+    <version>6.3.2</version>
     <name>RSTB Polarimetric SAR Tools</name>
 
     <description>Polarimetric SAR Tools</description>

@@ -23,7 +23,7 @@
         <module>snap-engine-utilities</module>
     </dependency>
     <dependency>
-        <module>s1tbx-rcp</module>
+        <module>snap-gui-utilities</module>
     </dependency>
     <dependency>
         <module>jlinda-nest</module>

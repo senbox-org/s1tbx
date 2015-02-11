@@ -29,15 +29,18 @@
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
         </dependency>
-		<dependency>
-            <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-rcp</artifactId>
-			<version>${s1tbx.version}</version>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-gui-utilities</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jlinda</groupId>
             <artifactId>jlinda-nest</artifactId>
             <version>${jlinda.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alee</groupId>
+            <artifactId>weblaf</artifactId>
         </dependency>
     </dependencies>
 

@@ -122,7 +122,6 @@ public final class UpdateGeoRefOp extends Operator {
     private double delLon = 0.0;
 
     private SARGeocoding.Orbit orbit = null;
-    private int polyDegree = 2; // degree of fitting polynomial
 
     private OrbitStateVector[] orbitStateVectors = null;
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
@@ -213,7 +212,7 @@ public final class UpdateGeoRefOp extends Operator {
      */
     private void computeSensorPositionsAndVelocities() {
 
-        orbit = new SARGeocoding.Orbit(orbitStateVectors, polyDegree, firstLineUTC, lineTimeInterval, sourceImageHeight);
+        orbit = new SARGeocoding.Orbit(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
     }
 
     /**

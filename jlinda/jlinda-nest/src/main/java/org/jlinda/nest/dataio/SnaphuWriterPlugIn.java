@@ -1,7 +1,9 @@
 package org.jlinda.nest.dataio;
 
+import org.esa.beam.framework.dataio.EncodeQualification;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.File;
@@ -19,6 +21,11 @@ public class SnaphuWriterPlugIn implements ProductWriterPlugIn {
      * Constructs a new ENVI product writer plug-in instance.
      */
     public SnaphuWriterPlugIn() {
+    }
+
+    @Override
+    public EncodeQualification getEncodeQualification(Product product) {
+        return new EncodeQualification(EncodeQualification.Preservation.PARTIAL);
     }
 
     /**

@@ -19,7 +19,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.utils.FileFolderUtils;
+import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.util.DialogUtils;
 import org.esa.snap.util.Settings;
 

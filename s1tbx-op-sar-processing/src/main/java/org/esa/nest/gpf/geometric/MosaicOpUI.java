@@ -20,7 +20,7 @@ import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.util.SystemUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.gpf.OperatorUIUtils;
+import org.esa.snap.gpf.ui.OperatorUIUtils;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.snap.gpf.ui.UIValidation;

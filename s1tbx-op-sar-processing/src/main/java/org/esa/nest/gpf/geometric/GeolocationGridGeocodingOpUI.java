@@ -19,7 +19,7 @@ import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.snap.gpf.OperatorUIUtils;
+import org.esa.snap.gpf.ui.OperatorUIUtils;
 import org.esa.snap.util.DialogUtils;
 import org.geotools.referencing.wkt.UnformattableObjectException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;

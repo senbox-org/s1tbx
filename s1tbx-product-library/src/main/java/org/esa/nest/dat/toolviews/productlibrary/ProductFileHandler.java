@@ -20,8 +20,11 @@ import org.esa.beam.util.io.FileUtils;
 import org.esa.snap.db.ProductEntry;
 import org.esa.snap.util.FileIOUtils;
 
+import javax.swing.*;
 import java.io.File;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -29,18 +32,109 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 /**
  * Handle product files
  */
-public class ProductFileHandler {
+public class ProductFileHandler extends SwingWorker {
 
     private static final String[] singleFileExt = {"n1", "e1", "e2", "tif", "tiff", "zip"};
     private static final String[] folderExt = {"safe"};
     private static final String[] folderMissions = {"RS2", "TSX", "TDX", "CSKS1", "CSKS2", "CSKS3", "CSKS4",
             "ALOS", "JERS1", "RS1"};
 
+    public enum TYPE { COPY_TO, MOVE_TO, DELETE }
+
+    private final ProductEntry[] entries;
+    private final TYPE operationType;
+    private final File targetFolder;
+    private final com.bc.ceres.core.ProgressMonitor pm;
+    private final List<ProductFileHandlerListener> listenerList = new ArrayList<>(1);
+    private final List<DBScanner.ErrorFile> errorList = new ArrayList<>();
+
+    public ProductFileHandler(final ProductEntry[] entries, final TYPE operationType, final File targetFolder,
+                              final com.bc.ceres.core.ProgressMonitor pm) {
+        this.entries = entries;
+        this.operationType = operationType;
+        this.targetFolder = targetFolder;
+        this.pm = pm;
+    }
+
+    public TYPE getOperationType() {
+        return operationType;
+    }
+
+    public void addListener(final ProductFileHandlerListener listener) {
+        if (!listenerList.contains(listener)) {
+            listenerList.add(listener);
+        }
+    }
+
+    private void notifyMSG(final ProductFileHandlerListener.MSG msg) {
+        for (final ProductFileHandlerListener listener : listenerList) {
+            listener.notifyMSG(this, msg);
+        }
+    }
+
+    private String getOperationStr() {
+        if(operationType.equals(TYPE.COPY_TO)) {
+            return "Copying";
+        } else if(operationType.equals(TYPE.MOVE_TO)) {
+            return "Moving";
+        } else if(operationType.equals(TYPE.DELETE)) {
+            return "Deleting";
+        }
+        return "";
+    }
+
+    @Override
+    protected Boolean doInBackground() throws Exception {
+        errorList.clear();
+
+        try {
+            pm.beginTask(getOperationStr()+" products...", entries.length);
+            for (ProductEntry entry : entries) {
+                if (pm.isCanceled())
+                    break;
+                try {
+                    if(operationType.equals(TYPE.COPY_TO)) {
+                        ProductFileHandler.copyTo(entry, targetFolder);
+                    } else if(operationType.equals(TYPE.MOVE_TO)) {
+                        ProductFileHandler.moveTo(entry, targetFolder);
+                    } else if(operationType.equals(TYPE.DELETE)) {
+                        ProductFileHandler.delete(entry);
+                    }
+                    pm.worked(1);
+                } catch (Exception e) {
+                    errorList.add(new DBScanner.ErrorFile(entry.getFile(), getOperationStr()+" file failed: " + e.getMessage()));
+                }
+            }
+
+        } catch (Throwable e) {
+            System.out.println("File Handling Exception\n" + e.getMessage());
+        } finally {
+            pm.done();
+        }
+        return true;
+    }
+
+    @Override
+    public void done() {
+        notifyMSG(ProductFileHandlerListener.MSG.DONE);
+    }
+
+    public List<DBScanner.ErrorFile> getErrorList() {
+        return errorList;
+    }
+
+    public interface ProductFileHandlerListener {
+
+        public enum MSG {DONE}
+
+        public void notifyMSG(final ProductFileHandler fileHandler, final MSG msg);
+    }
+
     public static boolean canMove(final ProductEntry entry) {
         return isDimap(entry) || isFolderProduct(entry) || isSingleFile(entry) || isSMOS(entry);
     }
 
-    public static void copyTo(final ProductEntry entry, final File targetFolder) throws Exception {
+    private static void copyTo(final ProductEntry entry, final File targetFolder) throws Exception {
 
         if (isSingleFile(entry)) {
             final File newFile = new File(targetFolder, entry.getFile().getName());

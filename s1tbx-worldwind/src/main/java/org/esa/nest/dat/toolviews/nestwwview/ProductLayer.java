@@ -69,7 +69,15 @@ public class ProductLayer extends RenderableLayer {
     private final ConcurrentHashMap<String, Polyline[]> outlineTable = new ConcurrentHashMap<String, Polyline[]>();
     private final ConcurrentHashMap<String, SurfaceImage> imageTable = new ConcurrentHashMap<String, SurfaceImage>();
 
-    ProductLayer(boolean showSurfaceImages) {
+    private static double HUE_BLUE = 240d / 360d;
+    private static double HUE_RED = 0d / 360d;
+
+    private AnalyticSurface analyticSurface = null;
+    private BufferWrapper analyticSurfaceValueBuffer = null;
+
+    public AnalyticSurfaceLegend colorBarLegend = null;
+
+            ProductLayer(boolean showSurfaceImages) {
         enableSurfaceImages = showSurfaceImages;
     }
 
@@ -145,7 +153,7 @@ public class ProductLayer extends RenderableLayer {
 
             try {
                 // CHANGED
-                 if (product.getName().indexOf("_OCN_") >= 0) {
+                 if (product.getName().indexOf("S1A_S1_OCN_") >= 0 || product.getName().indexOf("003197_05B7") >= 0) {
                     final Product newProduct = product;
 
 
@@ -158,19 +166,20 @@ public class ProductLayer extends RenderableLayer {
                     */
                     System.out.println("product " + product.getName());
 
-                    final Band lonBand = newProduct.getBand("hh_001_owiLon");
-                    final Band latBand = newProduct.getBand("hh_001_owiLat");
-                    final Band incAngleBand = newProduct.getBand("hh_001_owiIncidenceAngle");
-                    final Band windSpeedBand = newProduct.getBand("hh_001_owiWindSpeed");
-                    final Band windDirBand = newProduct.getBand("hh_001_owiWindDirection");
 
-                     final Band oswLonBand = newProduct.getBand("hh_001_oswLon");
-                     final Band oswLatBand = newProduct.getBand("hh_001_oswLat");
-                     final Band oswWindDirBand = newProduct.getBand("hh_001_oswWindDirection");
+                    final Band lonBand = newProduct.getBand("vv_001_owiLon");
+                    final Band latBand = newProduct.getBand("vv_001_owiLat");
+                    final Band incAngleBand = newProduct.getBand("vv_001_owiIncidenceAngle");
+                    final Band windSpeedBand = newProduct.getBand("vv_001_owiWindSpeed");
+                    final Band windDirBand = newProduct.getBand("vv_001_owiWindDirection");
 
-                     final Band rvlLonBand = newProduct.getBand("hh_001_rvlLon");
-                     final Band rvlLatBand = newProduct.getBand("hh_001_rvlLat");
-                     final Band rvlRadVelBand = newProduct.getBand("hh_001_rvlRadVel");
+                     //final Band oswLonBand = newProduct.getBand("hh_001_oswLon");
+                     //final Band oswLatBand = newProduct.getBand("hh_001_oswLat");
+                     //final Band oswWindDirBand = newProduct.getBand("hh_001_oswWindDirection");
+
+                     //final Band rvlLonBand = newProduct.getBand("hh_001_rvlLon");
+                     //final Band rvlLatBand = newProduct.getBand("hh_001_rvlLat");
+                     //final Band rvlRadVelBand = newProduct.getBand("hh_001_rvlRadVel");
 
                     //final Band band = newProduct.getBand();
                     System.out.println("band 0 " + lonBand);
@@ -193,101 +202,199 @@ public class ProductLayer extends RenderableLayer {
                     windDirBand.readPixels(0, 0, windDirBand.getRasterWidth(), windDirBand.getRasterHeight(), windDirValues, com.bc.ceres.core.ProgressMonitor.NULL);
 
 
-                     final float[] oswLonValues = new float[oswLonBand.getRasterWidth() * oswLonBand.getRasterHeight()];
-                     incAngleBand.readPixels(0, 0, oswLonBand.getRasterWidth(), oswLonBand.getRasterHeight(), oswLonValues, com.bc.ceres.core.ProgressMonitor.NULL);
+                     //final float[] oswLonValues = new float[oswLonBand.getRasterWidth() * oswLonBand.getRasterHeight()];
+                     //incAngleBand.readPixels(0, 0, oswLonBand.getRasterWidth(), oswLonBand.getRasterHeight(), oswLonValues, com.bc.ceres.core.ProgressMonitor.NULL);
 
-                     final float[] oswLatValues = new float[oswLatBand.getRasterWidth() * oswLatBand.getRasterHeight()];
-                     oswLatBand.readPixels(0, 0, oswLatBand.getRasterWidth(), oswLatBand.getRasterHeight(), oswLatValues, com.bc.ceres.core.ProgressMonitor.NULL);
+                     //final float[] oswLatValues = new float[oswLatBand.getRasterWidth() * oswLatBand.getRasterHeight()];
+                     //oswLatBand.readPixels(0, 0, oswLatBand.getRasterWidth(), oswLatBand.getRasterHeight(), oswLatValues, com.bc.ceres.core.ProgressMonitor.NULL);
 
-                     final float[] oswWindDirValues = new float[oswWindDirBand.getRasterWidth() * oswWindDirBand.getRasterHeight()];
-                     oswWindDirBand.readPixels(0, 0, oswWindDirBand.getRasterWidth(), oswWindDirBand.getRasterHeight(), oswWindDirValues, com.bc.ceres.core.ProgressMonitor.NULL);
+                     //final float[] oswWindDirValues = new float[oswWindDirBand.getRasterWidth() * oswWindDirBand.getRasterHeight()];
+                     //oswWindDirBand.readPixels(0, 0, oswWindDirBand.getRasterWidth(), oswWindDirBand.getRasterHeight(), oswWindDirValues, com.bc.ceres.core.ProgressMonitor.NULL);
 
-                     final float[] rvlLonValues = new float[rvlLonBand.getRasterWidth() * rvlLonBand.getRasterHeight()];
-                     rvlLonBand.readPixels(0, 0, rvlLonBand.getRasterWidth(), rvlLonBand.getRasterHeight(), rvlLonValues, com.bc.ceres.core.ProgressMonitor.NULL);
+                     //final float[] rvlLonValues = new float[rvlLonBand.getRasterWidth() * rvlLonBand.getRasterHeight()];
+                     //rvlLonBand.readPixels(0, 0, rvlLonBand.getRasterWidth(), rvlLonBand.getRasterHeight(), rvlLonValues, com.bc.ceres.core.ProgressMonitor.NULL);
 
-                     final float[] rvlLatValues = new float[rvlLatBand.getRasterWidth() * rvlLatBand.getRasterHeight()];
-                     windSpeedBand.readPixels(0, 0, rvlLatBand.getRasterWidth(), rvlLatBand.getRasterHeight(), rvlLatValues, com.bc.ceres.core.ProgressMonitor.NULL);
+                     //final float[] rvlLatValues = new float[rvlLatBand.getRasterWidth() * rvlLatBand.getRasterHeight()];
+                     //windSpeedBand.readPixels(0, 0, rvlLatBand.getRasterWidth(), rvlLatBand.getRasterHeight(), rvlLatValues, com.bc.ceres.core.ProgressMonitor.NULL);
 
-                     final float[] rvlRadVelValues = new float[rvlRadVelBand.getRasterWidth() * rvlRadVelBand.getRasterHeight()];
-                     rvlRadVelBand.readPixels(0, 0, rvlRadVelBand.getRasterWidth(), rvlRadVelBand.getRasterHeight(), rvlRadVelValues, com.bc.ceres.core.ProgressMonitor.NULL);
+                     //final float[] rvlRadVelValues = new float[rvlRadVelBand.getRasterWidth() * rvlRadVelBand.getRasterHeight()];
+                     //rvlRadVelBand.readPixels(0, 0, rvlRadVelBand.getRasterWidth(), rvlRadVelBand.getRasterHeight(), rvlRadVelValues, com.bc.ceres.core.ProgressMonitor.NULL);
 
                     final GeoPos geoPos1 = product.getGeoCoding().getGeoPos(new PixelPos(0, 0), null);
                     final GeoPos geoPos2 = product.getGeoCoding().getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1,
                                     product.getSceneRasterHeight() - 1), null);
 
-                    double HUE_BLUE = 240d / 360d;
-                    double HUE_RED = 0d / 360d;
-                    double minValue = -200e3 * 2d;
-                    double maxValue = 200e3 / 2d;
 
-                    createRandomColorSurface(geoPos2.getLat(), geoPos1.getLat(), geoPos1.getLon(), geoPos2.getLon(), HUE_BLUE, HUE_RED, 40, 40, minValue, maxValue, this);
+
+                    //double minValue = -200e3 * 2d;
+                    double minValue = 0;
+                    double maxValue = 1e5;
+                    //double maxValue = 200e3 / 2d;
+
+                    createRandomColorSurface(geoPos2.getLat(), geoPos1.getLat(), geoPos1.getLon(), geoPos2.getLon(), 40, 40, minValue, maxValue);
                     //createRandomColorSurface(25, 35, -110, -100, HUE_BLUE, HUE_RED, 40, 40, minValue, maxValue, this);
                     //createRandomColorSurface(geoPos2.getLat(),  geoPos1.getLat(), 55, 57, HUE_BLUE, HUE_RED, 40, 40, minValue, maxValue, this);
                     System.out.println("geoPos1.getLat(), geoPos2.getLat(), geoPos1.getLon(), geoPos2.getLon() " + geoPos1.getLat() + " " + geoPos2.getLat() + " " + geoPos1.getLon() + " " + geoPos2.getLon());
-                    ShapeAttributes attrs = new BasicShapeAttributes();
-                    attrs.setOutlineMaterial(Material.BLACK);
-                    attrs.setOutlineWidth(2d);
+                     createColorGradient(minValue, maxValue);
 
-                     Format legendLabelFormat = new DecimalFormat("# m/s");
-                         /*
-                     {
-                         public StringBuffer format(double number, StringBuffer result, FieldPosition fieldPosition)
-                         {
+                     createColorBarLegend(minValue, maxValue);
 
-                             double altitudeMeters = altitude + verticalScale * number;
-                             double altitudeKm = altitudeMeters * WWMath.METERS_TO_KILOMETERS;
-                             return super.format(altitudeKm, result, fieldPosition);
+
+                     int[] cellSizeArr = {16, 24, 32, 48, 64};
+                     for (int cellSizeInd = 0; cellSizeInd < cellSizeArr.length; cellSizeInd++) {
+                         double minHeight = 0;
+                         double maxHeight = cellSizeArr[cellSizeInd] * 0.5e6 / 16;
+                         if (cellSizeInd > 0) {
+                             minHeight = cellSizeArr[cellSizeInd - 1] * 0.5e6 / 16;
                          }
-                     };
+                         addWindSpeedArrows (latValues, lonValues, windDirValues, lonBand.getRasterWidth(), lonBand.getRasterHeight(), cellSizeArr[cellSizeInd], minHeight, maxHeight);
+                     }
+                     /*
+                     addWindSpeedArrows (latValues, lonValues, windDirValues, lonBand.getRasterWidth(), lonBand.getRasterHeight(), 16);
+                     addWindSpeedArrows (latValues, lonValues, windDirValues, lonBand.getRasterWidth(), lonBand.getRasterHeight(), 24);
+                     addWindSpeedArrows (latValues, lonValues, windDirValues, lonBand.getRasterWidth(), lonBand.getRasterHeight(), 32);
+                     addWindSpeedArrows (latValues, lonValues, windDirValues, lonBand.getRasterWidth(), lonBand.getRasterHeight(), 48);
+                     addWindSpeedArrows (latValues, lonValues, windDirValues, lonBand.getRasterWidth(), lonBand.getRasterHeight(), 64);
                      */
-                     AnalyticSurfaceLegend legend = AnalyticSurfaceLegend.fromColorGradient(minValue, maxValue, HUE_BLUE, HUE_RED,
-                             AnalyticSurfaceLegend.createDefaultColorGradientLabels(minValue, maxValue, legendLabelFormat),
-                             AnalyticSurfaceLegend.createDefaultTitle("Wind Speed"));
-                     legend.setOpacity(0.8);
-                     legend.setScreenLocation(new Point(650, 300));
-                    addRenderable(legend);
-
-                    for (int i = 0; i < latValues.length; i++) {
-                        //System.out.println(lonValues[i] + "::==::" + latValues[i] + "::==::" + incAngleValues[i] + "::==::" + windSpeedValues[i] + "::==::" + windDirValues[i] + "::==::");
-                        Position startPos = new Position(Angle.fromDegreesLatitude(latValues[i]), Angle.fromDegreesLongitude(lonValues[i]), 10.0);
-                        Position endPos = new Position(LatLon.greatCircleEndPosition(startPos, Angle.fromDegrees(windDirValues[i]), Angle.fromDegrees(0.01)), 10.0);
-
-                        //System.out.println("startPos " + startPos + " endPos " + endPos);
-
-                        ArrayList<Position> positions = new ArrayList<Position>();
-                        positions.add(startPos);
-                        positions.add(endPos);
-
-                        /*
-                        Polyline pl = new Polyline();
-                        pl.setColor(Color.YELLOW);
-                        pl.setPositions(positions);
-                        pl.setPathType(Polyline.RHUMB_LINE);
-                        pl.setNumSubsegments(2);
-                        pl.setFollowTerrain(true);
-                        */
-
-                        DirectedPath directedPath = new DirectedPath(positions);
-                        directedPath.setAttributes(attrs);
-                        directedPath.setVisible(true);
-                        directedPath.setAltitudeMode(WorldWind.RELATIVE_TO_GROUND);
-                        directedPath.setPathType(AVKey.GREAT_CIRCLE);
-
-                        addRenderable(directedPath);
-                    }
                 }
             } catch (Exception e) {
                 System.out.println("exception " + e);
                 e.printStackTrace();
             }
             // add image
-            if (product.getName().indexOf("_OCN_") < 0) {
+            if (!(product.getName().indexOf("S1A_S1_OCN_") >= 0 || product.getName().indexOf("003197_05B7") >= 0)) {
                 if (enableSurfaceImages)
                     addSurfaceImage(product);
             }
             // add outline
             addOutline(product);
         }
+    }
+
+    public void createColorBarLegend(double minValue, double maxValue) {
+        Format legendLabelFormat = new DecimalFormat("# m/s");
+        colorBarLegend = AnalyticSurfaceLegend.fromColorGradient(minValue, maxValue, HUE_BLUE, HUE_RED,
+                AnalyticSurfaceLegend.createDefaultColorGradientLabels(minValue, maxValue, legendLabelFormat),
+                AnalyticSurfaceLegend.createDefaultTitle("Wind Speed"));
+        colorBarLegend.setOpacity(0.8);
+        colorBarLegend.setScreenLocation(new Point(650, 300));
+
+        addRenderable(colorBarLegend);
+    }
+
+    private void addWindSpeedArrows (float[] latValues, float[] lonValues, float[] windDirValues, int width, int height, int cellSize, double minHeight, double maxHeight) {
+        float pixelWidth = Math.abs(lonValues[0] - lonValues[lonValues.length - 1]) / width;
+        float pixelHeight = Math.abs(latValues[0] - latValues[latValues.length - 1]) / height;
+
+        System.out.println("pixelWidth " + pixelWidth + " pixelHeight " + pixelHeight);
+        // take half of the smaller dimension
+        float arrowLength = pixelWidth;
+        if (pixelHeight < pixelWidth) {
+            arrowLength = pixelHeight;
+        }
+        arrowLength = arrowLength * cellSize / 2;
+
+        ShapeAttributes attrs = new BasicShapeAttributes();
+        attrs.setOutlineMaterial(Material.BLACK);
+        attrs.setOutlineWidth(2d);
+        for (int row = 0; row < height; row=row+cellSize) {
+            for (int col = 0; col < width; col=col+cellSize) {
+                //int i = row*width + col;
+                int globalInd = row*width + col;
+                float avgLat = 0;
+                float avgLon = 0;
+                float avgWindDir = 0;
+                int finalCellRow = row +  cellSize;
+                int finalCellCol = col +  cellSize;
+
+                if (finalCellRow > height) {
+                    finalCellRow = height;
+                }
+                if (finalCellCol > width) {
+                    finalCellCol = width;
+                }
+                for (int currCellRow = row; currCellRow < finalCellRow; currCellRow++) {
+                    for (int currCellCol = col; currCellCol < finalCellCol; currCellCol++) {
+                        int i = currCellRow*width + currCellCol;
+                        avgLat += latValues[i];
+                        avgLon += lonValues[i];
+                        avgWindDir += windDirValues[i];
+                    }
+                }
+
+                avgLat = avgLat / ((finalCellRow - row) * (finalCellCol - col));
+                avgLon = avgLon / ((finalCellRow - row) * (finalCellCol - col));
+                avgWindDir = avgWindDir / ((finalCellRow - row) * (finalCellCol - col));
+
+                           /*
+                           avgLat = latValues[globalInd];
+                           avgLon = lonValues[globalInd];
+                           avgWindDir = windDirValues[globalInd];
+                            */
+                            /*
+                           System.out.println("avgLat " + avgLat);
+                           System.out.println("avgLon " + avgLon);
+                           System.out.println("avgWindDir " + avgWindDir);
+                            */
+                //for (int i = 0; i < latValues.length; i=i+50) {
+                //System.out.println(lonValues[i] + "::==::" + latValues[i] + "::==::" + incAngleValues[i] + "::==::" + windSpeedValues[i] + "::==::" + windDirValues[i] + "::==::");
+                final Position startPos = new Position(Angle.fromDegreesLatitude(avgLat), Angle.fromDegreesLongitude(avgLon), 10.0);
+                final Position endPos = new Position(LatLon.greatCircleEndPosition(startPos, Angle.fromDegrees(avgWindDir), Angle.fromDegrees(arrowLength)), 10.0);
+
+                //System.out.println("startPos " + startPos + " endPos " + endPos);
+
+                ArrayList<Position> positions = new ArrayList<Position>();
+                positions.add(startPos);
+                positions.add(endPos);
+
+
+
+                Renderable renderable = new Renderable() {
+                    public void render (DrawContext dc) {
+                        DirectedPath directedPath = new DirectedPath(positions);
+                        directedPath.setAttributes(attrs);
+                        directedPath.setVisible(true);
+                        directedPath.setFollowTerrain(true);
+                        directedPath.setAltitudeMode(WorldWind.RELATIVE_TO_GROUND);
+                        directedPath.setPathType(AVKey.GREAT_CIRCLE);
+                        // this is the length of the arrow head actually
+                        double arrowHeadLength = computeSegmentLength(directedPath, dc, startPos, endPos) / 4;
+                        directedPath.setArrowLength(arrowHeadLength);
+                        //double maxHeight = cellSize * 0.5e6 / 16;
+
+                        if (dc.getView().getCurrentEyePosition().getAltitude() > minHeight && dc.getView().getCurrentEyePosition().getAltitude() < maxHeight) {
+                            directedPath.render(dc);
+                            //System.out.println("arrowHeadLength " + arrowHeadLength);
+                        }
+
+                        //System.out.println("eyePosition " + dc.getView().getCurrentEyePosition());
+                    }
+                };
+                addRenderable(renderable);
+            }
+        }
+    }
+
+    protected double computeSegmentLength(Path path, DrawContext dc, Position posA,
+                                          Position posB)
+    {
+        LatLon llA = new LatLon(posA.getLatitude(), posA.getLongitude());
+        LatLon llB = new LatLon(posB.getLatitude(), posB.getLongitude());
+
+        Angle ang;
+        String pathType = path.getPathType();
+        if (pathType == AVKey.LINEAR)
+            ang = LatLon.linearDistance(llA, llB);
+        else if (pathType == AVKey.RHUMB_LINE || pathType == AVKey.LOXODROME)
+            ang = LatLon.rhumbDistance(llA, llB);
+        else // Great circle
+            ang = LatLon.greatCircleDistance(llA, llB);
+
+        if (path.getAltitudeMode() == WorldWind.CLAMP_TO_GROUND)
+            return ang.radians * (dc.getGlobe().getRadius());
+
+        double height = 0.5 * (posA.getElevation() + posB.getElevation());
+        return ang.radians * (dc.getGlobe().getRadius() + height * dc.getVerticalExaggeration());
     }
 
     private void addSurfaceImage(final Product product) {
@@ -342,40 +449,45 @@ public class ProductLayer extends RenderableLayer {
     }
 
     // ADDED
-    protected static void createRandomColorSurface(double minLat, double maxLat, double minLon, double maxLon, double minHue, double maxHue, int width, int height, double minValue, double maxValue,
-                                                   RenderableLayer outLayer)
+    protected void createRandomColorSurface(double minLat, double maxLat, double minLon, double maxLon, int width, int height, double minValue, double maxValue)
     {
         //double minValue = -200e3;
         //double maxValue = 200e3;
 
-        AnalyticSurface surface = new AnalyticSurface();
-        surface.setSector(Sector.fromDegrees(minLat, maxLat, minLon, maxLon));
-        surface.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
-        surface.setDimensions(width, height);
-        surface.setClientLayer(outLayer);
-        outLayer.addRenderable(surface);
-
-        //BufferWrapper firstBuffer = randomGridValues(width, height, minValue / 2d, maxValue * 2d);
-        BufferWrapper secondBuffer = randomGridValues(width, height, minValue, maxValue);
-
-        ArrayList<AnalyticSurface.GridPointAttributes> attributesList
-                = new ArrayList<AnalyticSurface.GridPointAttributes>();
-        for (int i = 0; i < secondBuffer.length(); i++)
-        {
-            attributesList.add(
-                    AnalyticSurface.createColorGradientAttributes(secondBuffer.getDouble(i), minValue, maxValue, minHue, maxHue));
-        }
-
-        surface.setValues(attributesList);
-
-        //mixValuesOverTime(2000L, firstBuffer, secondBuffer, minValue, maxValue, minHue, maxHue, surface);
+        analyticSurface = new AnalyticSurface();
+        analyticSurface.setSector(Sector.fromDegrees(minLat, maxLat, minLon, maxLon));
+        analyticSurface.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
+        analyticSurface.setDimensions(width, height);
 
         AnalyticSurfaceAttributes attr = new AnalyticSurfaceAttributes();
         attr.setDrawShadow(false);
         attr.setInteriorOpacity(0.6);
         //attr.setOutlineWidth(3);
         attr.setDrawOutline(false);
-        surface.setSurfaceAttributes(attr);
+        analyticSurface.setSurfaceAttributes(attr);
+
+
+        analyticSurface.setClientLayer(this);
+        addRenderable(analyticSurface);
+
+        //BufferWrapper firstBuffer = randomGridValues(width, height, minValue / 2d, maxValue * 2d);
+        analyticSurfaceValueBuffer = randomGridValues(width, height, minValue, maxValue);
+
+
+        //mixValuesOverTime(2000L, firstBuffer, analyticSurfaceValueBuffer, minValue, maxValue, minHue, maxHue, analyticSurface);
+
+    }
+
+    public void createColorGradient(double minValue, double maxValue) {
+        ArrayList<AnalyticSurface.GridPointAttributes> attributesList
+                = new ArrayList<AnalyticSurface.GridPointAttributes>();
+        for (int i = 0; i < analyticSurfaceValueBuffer.length(); i++)
+        {
+            attributesList.add(
+                    AnalyticSurface.createColorGradientAttributes(analyticSurfaceValueBuffer.getDouble(i), minValue, maxValue, HUE_BLUE, HUE_RED));
+        }
+
+        analyticSurface.setValues(attributesList);
     }
 
     public static BufferWrapper randomGridValues(int width, int height, double min, double max, int numIterations,

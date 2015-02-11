@@ -19,7 +19,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
-import org.esa.snap.gpf.OperatorUIUtils;
+import org.esa.snap.gpf.ui.OperatorUIUtils;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.snap.gpf.ui.UIValidation;

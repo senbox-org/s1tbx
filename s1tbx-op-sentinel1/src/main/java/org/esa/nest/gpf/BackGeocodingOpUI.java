@@ -15,19 +15,14 @@
  */
 package org.esa.nest.gpf;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.dem.DEMFactory;
-import org.esa.snap.gpf.OperatorUIUtils;
+import org.esa.snap.gpf.ui.OperatorUIUtils;
 import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.snap.datamodel.Unit;
 import org.esa.snap.util.DialogUtils;
-import org.jlinda.core.stacks.MasterSelection;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,9 +31,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 /**

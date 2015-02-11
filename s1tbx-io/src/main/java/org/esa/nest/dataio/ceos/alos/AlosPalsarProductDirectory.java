@@ -51,7 +51,7 @@ import java.util.Map;
  * <p>This class is public for the benefit of the implementation of another (internal) class and its API may
  * change in future releases of the software.</p>
  */
-class AlosPalsarProductDirectory extends CEOSProductDirectory {
+public class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
     private AlosPalsarImageFile[] imageFiles = null;
     private AlosPalsarLeaderFile leaderFile = null;
@@ -360,10 +360,10 @@ class AlosPalsarProductDirectory extends CEOSProductDirectory {
             for (int j = 0; j < gridHeight; j++) {
                 for (int i = 0; i < gridWidth; i++) {
                     angles[k] = (float)((a0 + a1 * rangeDist[k] / 1000.0 +
-                            a2 * FastMath.pow(rangeDist[k] / 1000.0, 2.0) +
-                            a3 * FastMath.pow(rangeDist[k] / 1000.0, 3.0) +
-                            a4 * FastMath.pow(rangeDist[k] / 1000.0, 4.0) +
-                            a5 * FastMath.pow(rangeDist[k] / 1000.0, 5.0)) * Constants.RTOD);
+                            a2 * Math.pow(rangeDist[k] / 1000.0, 2.0) +
+                            a3 * Math.pow(rangeDist[k] / 1000.0, 3.0) +
+                            a4 * Math.pow(rangeDist[k] / 1000.0, 4.0) +
+                            a5 * Math.pow(rangeDist[k] / 1000.0, 5.0)) * Constants.RTOD);
                     k++;
                 }
             }

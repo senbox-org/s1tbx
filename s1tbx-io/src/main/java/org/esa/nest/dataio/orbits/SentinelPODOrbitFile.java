@@ -205,6 +205,50 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return osvList.get(idx);
     }
 
+    public Orbits.OrbitVector[] getOrbitData(final double startUTC, final double endUTC) throws Exception {
+
+        final Orbits.OrbitVector startOSV = new Orbits.OrbitVector(startUTC);
+        int startIdx = Collections.binarySearch(osvList, startOSV, new Orbits.OrbitComparator());
+
+        if (startIdx < 0) {
+            final int insertionPt = -(startIdx+1);
+            if (insertionPt == osvList.size()) {
+                startIdx = insertionPt - 1;
+            } else if (insertionPt <= 0) {
+                startIdx = 0;
+            } else {
+                startIdx = insertionPt - 1;
+            }
+        }
+
+        final Orbits.OrbitVector endOSV = new Orbits.OrbitVector(endUTC);
+        int endIdx = Collections.binarySearch(osvList, endOSV, new Orbits.OrbitComparator());
+
+        if (endIdx < 0) {
+            final int insertionPt = -(endIdx+1);
+            if (insertionPt == osvList.size()) {
+                endIdx = insertionPt - 1;
+            } else if (insertionPt == 0) {
+                endIdx = 0;
+            } else {
+                endIdx = insertionPt;
+            }
+        }
+
+        startIdx -= 3;
+        endIdx += 3;
+
+        final int numOSV = endIdx - startIdx + 1;
+        final Orbits.OrbitVector[] orbitDataList = new Orbits.OrbitVector[numOSV];
+        int idx = startIdx;
+        for (int i = 0; i < numOSV; i++) {
+            orbitDataList[i] = osvList.get(idx);
+            idx++;
+        }
+
+        return orbitDataList;
+    }
+
     /**
      * Get orbit state vector for given time using polynomial fitting.
      *

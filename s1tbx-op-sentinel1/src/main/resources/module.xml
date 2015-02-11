@@ -131,19 +131,6 @@
         </action>
 
         <action>
-            <id>ApplyS1OrbitFileOp</id>
-            <helpId>ApplyS1OrbitFileOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
-            <icon>esaIcon</icon>
-            <parent>Sentinel1</parent>
-            <text>Apply S1 Orbit File</text>
-            <operatorName>Apply-S1-Orbit-File</operatorName>
-            <dialogTitle>Apply S1 Orbit File</dialogTitle>
-            <shortDescr>Apply S1 Orbit File</shortDescr>
-            <targetProductNameSuffix>_orb</targetProductNameSuffix>
-        </action>
-
-        <action>
             <id>ConstantOffsetEstimationOp</id>
             <helpId>ConstantOffsetEstimationOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>

@@ -15,6 +15,8 @@
  */
 package org.esa.nest.dat.toolviews.productlibrary;
 
+import com.bc.ceres.core.*;
+import com.bc.ceres.core.ProgressMonitor;
 import com.jidesoft.combobox.DateComboBox;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -356,14 +358,6 @@ public final class DatabasePane extends JPanel {
         dbQuery.setBaseDir(dir);
         if (db != null)
             queryDatabase();
-    }
-
-    public void removeProducts(final File baseDir) {
-        try {
-            db.removeProducts(baseDir);
-        } catch (Throwable t) {
-            handleException(t);
-        }
     }
 
     private void addMetadataText() {
