@@ -35,15 +35,13 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.ui.GeneralExpressionConverter;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.converters.GeneralExpressionConverter;
 import org.esa.beam.util.math.MathUtils;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 
 /**
  * Implements a Principle Component Analysis.

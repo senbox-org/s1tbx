@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>NdviOp Operator</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;NdviOp Operator</td>
+        <td class="header" align="right">
+            <a href="../general/BeamOverview.html"> <img src="images/snap_header.jpg" border="0"/></a>
+        </td>
+    </tr>
+</table>
+<h1>NdviOp Operator Description</h1>
+
+<h2>Overview</h2>
+<table>
+    <tr>
+        <td><b>Name:</b></td>
+        <td><code>NdviOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Full name:</b></td>
+        <td><code>org.esa.beam.ndvi.NdviOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Purpose:</b></td>
+        <td>The retrieves the Normalized Difference Vegetation Index (NDVI).</td>
+    </tr>
+    <tr>
+        <td><b>Version:</b></td>
+        <td>null</td>
+    </tr>
+</table>
+<h2>Description</h2>
+The <code>NdviOp</code> retrieves the Normalized Difference Vegetation Index (NDVI).
+<h2>Sources</h2>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>sourceProduct</code></td>
+        <td></td>
+    </tr>
+</table>
+<h2>Parameters</h2>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Description</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td><code>redFactor</code></td>
+        <td><code>float</code></td>
+        <td><code>1.0F</code></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>nirFactor</code></td>
+        <td><code>float</code></td>
+        <td><code>1.0F</code></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>redInputBand</code></td>
+        <td><code>String</code></td>
+        <td><code></code></td>
+        <td>The red band for the NDVI computation. If not provided, the operator will try to find the best fitting
+            band.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>nirInputBand</code></td>
+        <td><code>String</code></td>
+        <td><code></code></td>
+        <td>The near-infrared band for the NDVI computation. If not provided, the operator will try to find the best
+            fitting band.
+        </td>
+        <td></td>
+    </tr>
+</table>
+<hr/>
+</body>
+</html>

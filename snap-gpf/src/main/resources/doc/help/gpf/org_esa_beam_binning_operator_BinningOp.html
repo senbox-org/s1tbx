@@ -1,0 +1,249 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>Binning Operator</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;Binning Operator</td>
+        <td class="header" align="right">
+            <a href="../general/BeamOverview.html"> <img src="images/snap_header.jpg" border="0"/></a>
+        </td>
+    </tr>
+</table>
+<h1>Binning Operator Description</h1>
+
+<h2>Overview</h2>
+<table>
+    <tr>
+        <td><b>Name:</b></td>
+        <td><code>Binning</code></td>
+    </tr>
+    <tr>
+        <td><b>Full name:</b></td>
+        <td><code>org.esa.beam.binning.operator.BinningOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Purpose:</b></td>
+        <td>Performs spatial and temporal aggregation of pixel values into cells ('bins') of a planetary grid</td>
+    </tr>
+    <tr>
+        <td><b>Version:</b></td>
+        <td>1.0</td>
+    </tr>
+</table>
+<h2>Description</h2>
+An operator that is used to perform spatial and temporal aggregations into "bin" cells for any number of source
+product. The output is either a file comprising the resulting bins or a reprojected "map" of the bin cells
+represented by a usual data product.
+<p/>
+Unlike most other operators, that can compute single {@link org.esa.beam.framework.gpf.Tile tiles},
+the binning operator processes all
+of its source products in its {@link #initialize()} method.
+<h2>Sources</h2>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>sourceProducts</code></td>
+        <td>The source products to be binned. Must be all of the same structure. If not given, the parameter
+            'sourceProductPaths' must be provided.
+        </td>
+    </tr>
+</table>
+<h2>Parameters</h2>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Description</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td><code>sourceProductPaths</code></td>
+        <td><code>String[]</code></td>
+        <td><code></code></td>
+        <td>A comma-separated list of file paths specifying the source products.
+            Each path may contain the wildcards '**' (matches recursively any directory),
+            '*' (matches any character sequence in path names) and
+            '?' (matches any single character).
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>sourceProductFormat</code></td>
+        <td><code>String</code></td>
+        <td><code></code></td>
+        <td>The common product format of all source products. This parameter is optional and may be used in conjunction
+            with parameter 'sourceProductPaths' and only to speed up source product opening.Try "NetCDF-CF", "GeoTIFF",
+            "BEAM-DIMAP", or "ENVISAT", etc.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>region</code></td>
+        <td><code>Geometry</code></td>
+        <td><code></code></td>
+        <td>The considered geographical region as a geometry in well-known text format (WKT).
+            If not given, the geographical region will be computed according to the extents of the input products.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>startDateTime</code></td>
+        <td><code>String</code></td>
+        <td><code></code></td>
+        <td>The UTC start date of the binning period. The format is either 'yyyy-MM-dd HH:mm:ss' or 'yyyy-MM-dd'. If
+            only the date part is given, the time 00:00:00 is assumed.
+        </td>
+        <td>pattern: \d{4}-\d{2}-\d{2}(\s\d{2}:\d{2}:\d{2})?</td>
+    </tr>
+    <tr>
+        <td><code>periodDuration</code></td>
+        <td><code>Double</code></td>
+        <td><code></code></td>
+        <td>Duration of the binning period in days.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>timeFilterMethod</code></td>
+        <td><code>TimeFilterMethod</code></td>
+        <td><code>NONE</code></td>
+        <td>The method that is used to decide which source pixels are used with respect to their observation time.
+            'NONE': ignore pixel observation time, use all source pixels. 'TIME_RANGE': use all pixels that have been
+            acquired in the given binning period. 'SPATIOTEMPORAL_DATA_DAY': use a sensor-dependent, spatial "data-day"
+            definition with the goal to minimise the time between the first and last observation contributing to the
+            same bin in the given binning period. The decision, whether a source pixel contributes to a bin or not, is a
+            function of the pixel's observation longitude and time. Requires the parameter 'minDataHour'.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>minDataHour</code></td>
+        <td><code>Double</code></td>
+        <td><code></code></td>
+        <td>A sensor-dependent constant given in hours of a day (0 to 24) at which a sensor has a minimum number of
+            observations at the date line (the 180 degree meridian). Only used if parameter 'dataDayMode' is set to
+            'SPATIOTEMPORAL_DATADAY'.
+        </td>
+        <td>interval: [0,24]</td>
+    </tr>
+    <tr>
+        <td><code>numRows</code></td>
+        <td><code>int</code></td>
+        <td><code>2160</code></td>
+        <td>Number of rows in the (global) planetary grid. Must be even.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>superSampling</code></td>
+        <td><code>Integer</code></td>
+        <td><code>1</code></td>
+        <td>The square of the number of pixels used for super-sampling an input pixel into multiple sub-pixels</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>maskExpr</code></td>
+        <td><code>String</code></td>
+        <td><code></code></td>
+        <td>The band maths expression used to filter input pixels</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>variables</code></td>
+        <td><code>VariableConfig[]</code></td>
+        <td><code></code></td>
+        <td>List of variables. A variable will generate a virtual band in each source data product, so that it can be
+            used as input for the binning.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>aggregators</code></td>
+        <td><code>AggregatorConfig[]</code></td>
+        <td><code></code></td>
+        <td>List of aggregators. Aggregators generate the bands in the binned output products</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>postProcessor</code></td>
+        <td><code>CellProcessorConfig</code></td>
+        <td><code></code></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>outputType</code></td>
+        <td><code>String</code></td>
+        <td><code>Product</code></td>
+        <td></td>
+        <td>value set: [Product, RGB, Grey]</td>
+    </tr>
+    <tr>
+        <td><code>outputFile</code></td>
+        <td><code>String</code></td>
+        <td><code></code></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>outputFormat</code></td>
+        <td><code>String</code></td>
+        <td><code>BEAM-DIMAP</code></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>outputBands</code></td>
+        <td><code>BandConfiguration[]</code></td>
+        <td><code></code></td>
+        <td>Configures the target bands. Not needed if output type 'Product' is chosen.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>productCustomizer</code></td>
+        <td><code>ProductCustomizerConfig</code></td>
+        <td><code></code></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>outputBinnedData</code></td>
+        <td><code>boolean</code></td>
+        <td><code>false</code></td>
+        <td>If true, a SeaDAS-style, binned data NetCDF file is written in addition to the
+            target product. The output file name will be
+            <target>-bins.nc
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>outputMappedProduct</code></td>
+        <td><code>boolean</code></td>
+        <td><code>true</code></td>
+        <td>If true, a mapped product is written. Set this to 'false' if only a binned product is needed.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>metadataPropertiesFile</code></td>
+        <td><code>File</code></td>
+        <td><code>./metadata.properties</code></td>
+        <td>The name of the file containing metadata key-value pairs (google "Java Properties file format").</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>metadataTemplateDir</code></td>
+        <td><code>File</code></td>
+        <td><code>.</code></td>
+        <td>The name of the directory containing metadata templates (google "Apache Velocity VTL format").</td>
+        <td></td>
+    </tr>
+</table>
+<hr/>
+</body>
+</html>

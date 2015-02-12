@@ -1,0 +1,55 @@
+<metadata>
+
+    <source>
+        <name>$sourceProduct.name</name>
+        <width>$sourceProduct.sceneRasterWidth</width>
+        <height>$sourceProduct.sceneRasterHeight</height>
+    </source>
+
+    <sources>
+        <product>
+            #foreach ($key in $sourceProducts.keySet())
+                <$key>$sourceProducts.get($key).name</$key>
+            #end
+        </product>
+        <metadata>
+            #foreach( $sourceM in $sourceMetadata)
+   #foreach( $reports in $sourceM)
+                $reports.content
+            #end
+#end
+        </metadata>
+    </sources>
+
+    <target>
+        <name>$targetProduct.name</name>
+        <width>$targetProduct.sceneRasterWidth</width>
+        <height>$targetProduct.sceneRasterHeight</height>
+    </target>
+
+    <parameterMetadata>
+        <parameters>
+            #foreach ($key in $parameters.keySet())
+                <$key>$parameters.get($key)</$key>
+            #end
+        </parameters>
+        <parameterFile>$parameterFile.path</parameterFile>
+        <parameterFileContent><![CDATA[$parameterFile.content]]></parameterFileContent>
+    </parameterMetadata>
+
+    <graphMetadata>
+        <graphFile>$graphXml.path</graphFile>
+        <graphXml><![CDATA[$graphXml.content]]></graphXml>
+        <graphNodeIds>
+            #foreach ($node in $graph.nodes)
+                <node>$node.id</node>
+            #end
+        </graphNodeIds>
+    </graphMetadata>
+
+    <extraMetadata>
+        #foreach ($key in $metadata.map.keySet())
+            <$key>$metadata.map.get($key)</$key>
+        #end
+    </extraMetadata>
+</metadata>

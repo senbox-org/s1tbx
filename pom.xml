@@ -60,7 +60,8 @@
         <module>snap-help</module>
         <module>snap-engine-kit</module>
         <module>snap-engine-utilities</module>
-        <module>snap-csv-dataio</module>
+        <module>snap-gpf</module>
+        <module>snap-gpf-ui</module>
 
         <!-- SNAP Extension Modules -->
 
@@ -69,6 +70,7 @@
         <module>snap-binning</module>
         <module>snap-cluster-analysis</module>
         <module>snap-collocation</module>
+        <module>snap-csv-dataio</module>
         <module>snap-envi-reader</module>
         <module>snap-envisat-reader</module>
         <module>snap-geotiff</module>
@@ -83,7 +85,6 @@
         <!-- BEAM System Modules -->
 
         <module>beam-examples</module>
-        <module>beam-gpf</module>
         <module>beam-scripting</module>
         <module>beam-ui</module>
         <module>beam-visat-rcp</module>
@@ -129,7 +130,7 @@
     <dependencyManagement>
         <dependencies>
 
-            <!-- Ceres System Level Modules ############################################# -->
+            <!-- Ceres System Level Modules -->
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
@@ -179,7 +180,7 @@
                 <version>${snap.version}</version>
             </dependency>
 
-            <!-- BEAM System Level Modules ############################################# -->
+            <!-- SNAP System Level Modules -->
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
@@ -191,21 +192,33 @@
                 <artifactId>snap-gpf</artifactId>
                 <version>${snap.version}</version>
             </dependency>
+            <!-- todo: move to snap-desktop -->
+            <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-gpf-ui</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
+            <!-- todo: move to snap-desktop -->
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-ui</artifactId>
                 <version>${snap.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.esa.snap</groupId>
-                <artifactId>snap-csv-dataio</artifactId>
-                <version>${snap.version}</version>
-            </dependency>
+            <!-- todo: move to snap-desktop -->
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-visat-rcp</artifactId>
                 <version>${snap.version}</version>
             </dependency>
+
+            <!-- SNAP Extension Modules -->
+
+            <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-csv-dataio</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-netcdf</artifactId>
@@ -260,28 +273,7 @@
             </dependency>
 
             <!-- Apache ############################################# -->
-            <!--
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>2.6</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>1.1.1</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>3.2.1</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>1.4</version>
-            </dependency>
-            -->
+
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>

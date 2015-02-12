@@ -1,0 +1,26 @@
+<graph id="g">
+    <version>1.0</version>
+
+    <node id="mergeNode">
+
+        <operator>Merge</operator>
+
+        <sources>
+            <masterProduct>${masterProduct}</masterProduct>
+            <sourceProducts>${sourceProducts}</sourceProducts>
+        </sources>
+
+        <parameters>
+            <includes>
+                <include>
+                    <productId>sourceProducts0</productId>
+                    <name/>
+                    <newName/>
+                    <namePattern>reflec.*</namePattern>
+                </include>
+            </includes>
+            <excludes/>
+        </parameters>
+    </node>
+
+</graph>

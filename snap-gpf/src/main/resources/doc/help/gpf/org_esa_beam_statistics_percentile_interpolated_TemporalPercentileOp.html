@@ -1,0 +1,259 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>TemporalPercentile Operator</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;TemporalPercentile Operator</td>
+        <td class="header" align="right">
+            <a href="../general/BeamOverview.html"> <img src="images/snap_header.jpg" border="0"/></a>
+        </td>
+    </tr>
+</table>
+<h1>TemporalPercentile Operator Description</h1>
+
+<h2>Overview</h2>
+<table>
+    <tr>
+        <td><b>Name:</b></td>
+        <td><code>TemporalPercentile</code></td>
+    </tr>
+    <tr>
+        <td><b>Full name:</b></td>
+        <td><code>org.esa.beam.statistics.percentile.interpolated.TemporalPercentileOp</code></td>
+    </tr>
+    <tr>
+        <td><b>Purpose:</b></td>
+        <td>Computes percentiles over a given time period.</td>
+    </tr>
+    <tr>
+        <td><b>Version:</b></td>
+        <td>1.0</td>
+    </tr>
+</table>
+<h2>Description</h2>
+An operator that is used to compute percentiles over a given time period. Products with different observation times
+serve as computation base. All the input products are sorted chronologically and grouped per day. For each day
+inside the given time period, a collocated mean band from the grouped products is computed. By this means, a
+intermediate
+time series product is created successively.
+<p/>
+This time series product is used to create time series' per pixel. Days with missing values or with values that have
+been
+masked out using the valid pixel expression will cause gaps in a time series. To improve the percentile calculation
+results, such gaps can be filled.
+Three gap filling strategies are available.
+<ul>
+    <li>gap filling by linear interpolation</li>
+    <li>gap filling by spline interpolation</li>
+    <li>gap filling by quadratic interpolation</li>
+</ul>
+<p/>
+Based on these time series', for each percentile a band is written to the target product.
+In these bands, each pixel holds the threshold of the respective percentile.
+<p/>
+
+<h2>Sources</h2>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>sourceProducts</code></td>
+        <td>Don't use this parameter. Use sourceProductPaths instead</td>
+    </tr>
+</table>
+<h2>Parameters</h2>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Data Type</th>
+        <th>Default</th>
+        <th>Description</th>
+        <th>Constraints</th>
+    </tr>
+    <tr>
+        <td><code>sourceProductPaths</code></td>
+        <td><code>String[]</code></td>
+        <td><code></code></td>
+        <td>A comma-separated list of file paths specifying the source products.
+            Source products to be considered for percentile computation.
+            Each path may contain the wildcards '**' (matches recursively any directory),
+            '*' (matches any character sequence in path names) and
+            '?' (matches any single character).
+            If, for example, all NetCDF files under /eodata/ shall be considered, use '/eodata/**/*.nc'.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>startDate</code></td>
+        <td><code>UTC</code></td>
+        <td><code></code></td>
+        <td>The start date. If not given, it is taken from the 'oldest' source product. Products that
+            have a start date earlier than the start date given by this parameter are not considered.
+        </td>
+        <td>format: yyyy-MM-dd HH:mm:ss</td>
+    </tr>
+    <tr>
+        <td><code>endDate</code></td>
+        <td><code>UTC</code></td>
+        <td><code></code></td>
+        <td>The end date. If not given, it is taken from the 'newest' source product. Products that
+            have an end date later than the end date given by this parameter are not considered.
+        </td>
+        <td>format: yyyy-MM-dd HH:mm:ss</td>
+    </tr>
+    <tr>
+        <td><code>keepIntermediateTimeSeriesProduct</code></td>
+        <td><code>boolean</code></td>
+        <td><code>true</code></td>
+        <td>Determines whether the time series product which is created during computation
+            should be written to disk.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>timeSeriesOutputDir</code></td>
+        <td><code>File</code></td>
+        <td><code></code></td>
+        <td>The output directory for the intermediate time series product. If not given, the time
+            series product will be written to the working directory.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>crs</code></td>
+        <td><code>String</code></td>
+        <td><code>EPSG:4326</code></td>
+        <td>A text specifying the target Coordinate Reference System, either in WKT or as an
+            authority code. For appropriate EPSG authority codes see (www.epsg-registry.org).
+            AUTO authority can be used with code 42001 (UTM), and 42002 (Transverse Mercator)
+            where the scene center is used as reference. Examples: EPSG:4326, AUTO:42001
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>resampling</code></td>
+        <td><code>String</code></td>
+        <td><code>Nearest</code></td>
+        <td>The method used for resampling of floating-point raster data, if source products must
+            be reprojected to the target CRS.
+        </td>
+        <td>value set: [Nearest, Bilinear, Bicubic]</td>
+    </tr>
+    <tr>
+        <td><code>westBound</code></td>
+        <td><code>double</code></td>
+        <td><code>-15.0</code></td>
+        <td>The most-western longitude. All values west of this longitude will not be considered.</td>
+        <td>interval: [-180,180]</td>
+    </tr>
+    <tr>
+        <td><code>northBound</code></td>
+        <td><code>double</code></td>
+        <td><code>75.0</code></td>
+        <td>The most-northern latitude. All values north of this latitude will not be considered.</td>
+        <td>interval: [-90,90]</td>
+    </tr>
+    <tr>
+        <td><code>eastBound</code></td>
+        <td><code>double</code></td>
+        <td><code>30.0</code></td>
+        <td>The most-eastern longitude. All values east of this longitude will not be considered.</td>
+        <td>interval: [-180,180]</td>
+    </tr>
+    <tr>
+        <td><code>southBound</code></td>
+        <td><code>double</code></td>
+        <td><code>35.0</code></td>
+        <td>The most-southern latitude. All values south of this latitude will not be considered.</td>
+        <td>interval: [-90,90]</td>
+    </tr>
+    <tr>
+        <td><code>pixelSizeX</code></td>
+        <td><code>double</code></td>
+        <td><code>0.05</code></td>
+        <td>Size of a pixel in X-direction in map units.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>pixelSizeY</code></td>
+        <td><code>double</code></td>
+        <td><code>0.05</code></td>
+        <td>Size of a pixel in Y-direction in map units.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>sourceBandName</code></td>
+        <td><code>String</code></td>
+        <td><code></code></td>
+        <td>The name of the band in the source products. Either this or 'bandMathsExpression' must be provided.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>bandMathsExpression</code></td>
+        <td><code>String</code></td>
+        <td><code></code></td>
+        <td>A band maths expression serving as input band. Either this or 'sourceBandName' must be provided.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>percentileBandNamePrefix</code></td>
+        <td><code>String</code></td>
+        <td><code></code></td>
+        <td>If given, this is the percentile band name prefix. If empty, the resulting percentile band’s name
+            prefix will be either the 'sourceBandName' or created from the 'bandMathsExpression'.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>validPixelExpression</code></td>
+        <td><code>String</code></td>
+        <td><code>true</code></td>
+        <td>The valid pixel expression serving as criterion for whether to consider pixels for computation.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>percentiles</code></td>
+        <td><code>int[]</code></td>
+        <td><code>90</code></td>
+        <td>The percentiles.</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>gapFillingMethod</code></td>
+        <td><code>String</code></td>
+        <td><code>gapFillingLinearInterpolation</code></td>
+        <td>The gap filling method for percentile calculation.</td>
+        <td>value set: [noGapFilling, gapFillingLinearInterpolation, gapFillingSplineInterpolation,
+            gapFillingQuadraticInterpolation]
+        </td>
+    </tr>
+    <tr>
+        <td><code>startValueFallback</code></td>
+        <td><code>Double</code></td>
+        <td><code>0.0</code></td>
+        <td>The fallback value for the start of a pixel time series. It will be considered if
+            there is no valid value at the pixel of the oldest collocated mean band. This would be
+            the case, if, e.g., there is a cloudy day at the time period start.
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><code>endValueFallback</code></td>
+        <td><code>Double</code></td>
+        <td><code>0.0</code></td>
+        <td>The fallback value for the end of a pixel time series. It will be considered ifthere is no valid value at
+            the pixel of the newest collocated mean band. This would be
+            the case, if, e.g., there is a cloudy day at the time period end.
+        </td>
+        <td></td>
+    </tr>
+</table>
+<hr/>
+</body>
+</html>

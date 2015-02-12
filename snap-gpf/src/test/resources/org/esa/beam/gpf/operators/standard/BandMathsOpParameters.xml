@@ -1,0 +1,43 @@
+<parameters>
+    <targetBands>
+        <targetBand>
+            <name>reflec_13</name>
+            <type>float32</type>
+            <expression>radiance_13 / (PI * SOLAR_FLUX_13)</expression>
+            <description>TOA reflectance in channel 13</description>
+            <unit>none</unit>
+            <validExpression>reflec_13 >= 0</validExpression>
+            <noDataValue>-999.0</noDataValue>
+            <spectralBandIndex>13</spectralBandIndex>
+            <spectralWavelength>865.0</spectralWavelength>
+            <spectralBandwidth>20.0</spectralBandwidth>
+        </targetBand>
+        <targetBand>
+            <name>reflec_14</name>
+            <type>float32</type>
+            <expression>radiance_14 / (PI * SOLAR_FLUX_14)</expression>
+            <description>TOA reflectance in channel 14</description>
+            <unit>myunits</unit>
+            <validExpression>reflec_14 >= 0</validExpression>
+            <noDataValue>-999.0</noDataValue>
+            <spectralBandIndex>14</spectralBandIndex>
+        </targetBand>
+    </targetBands>
+    <variables>
+        <variable>
+            <name>SOLAR_FLUX_13</name>
+            <type>float32</type>
+            <value>914.18945</value>
+        </variable>
+        <variable>
+            <name>SOLAR_FLUX_14</name>
+            <type>float32</type>
+            <value>882.8275</value>
+        </variable>
+        <variable>
+            <name>PI</name>
+            <type>float64</type>
+            <value>3.1415</value>
+        </variable>
+    </variables>
+</parameters>

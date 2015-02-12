@@ -1,0 +1,63 @@
+<!--
+  ~ Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>snap-gpf</symbolicName>
+    <version>2.0.0</version>
+    <name>SNAP Graph Processing Framework (GPF)</name>
+
+    <description>The basic framework for processing using Operators and the GPT.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max-Planck-Str. 2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2014 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <changelog>
+        <![CDATA[
+         <b>Changes in 1.0.1</b><br/>
+            [SNAP-17] Saving a product takes too long<br/>
+            [SNAP-16] BandMathsOp shall consider scaling factor and scaling offset<br/>
+        ]]>
+    </changelog>
+
+    <dependency>
+        <module>snap-binding</module>
+    </dependency>
+    <dependency>
+        <module>snap-core</module>
+    </dependency>
+    <dependency>
+        <module>snap-ui</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>System,Application,Processing</categories>
+
+    <extension point="snap-ceres-core:serviceProviders">
+        <serviceProvider>org.esa.beam.framework.gpf.OperatorSpi</serviceProvider>
+    </extension>
+
+    <extension point="snap-ui:helpSets">
+        <helpSet>
+            <parent>snap-beam-help</parent>
+            <path>doc/help/gpf.hs</path>
+        </helpSet>
+    </extension>
+
+</module>

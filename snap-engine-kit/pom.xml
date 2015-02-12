@@ -62,6 +62,7 @@
             <artifactId>snap-metadata</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- todo - move to snap-desktop -->
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-ceres-ui</artifactId>
@@ -77,6 +78,7 @@
             <artifactId>snap-engine-utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- todo - move to snap-desktop -->
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-ui</artifactId>
@@ -149,6 +151,13 @@
             <artifactId>snap-gpf</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- todo - move to snap-desktop -->
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-gpf-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- todo - move to snap-desktop -->
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-graph-builder</artifactId>
@@ -237,6 +246,7 @@
             <artifactId>s3tbx-meris-cloud</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- todo - move into s3tbx cluster -->
         <dependency>
             <groupId>org.esa.snap.seadas</groupId>
             <artifactId>seadas-reader</artifactId>
