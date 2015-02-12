@@ -22,10 +22,12 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.util.Settings;
+import org.esa.snap.util.ZipUtils;
 import org.esa.snap.util.ftpUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +43,7 @@ public class PrareOrbitFile extends BaseOrbitFile {
     private PrareOrbitReader prareReader = null;
 
     public PrareOrbitFile(final String orbitType, final MetadataElement absRoot,
-                          final Product sourceProduct) throws IOException {
+                          final Product sourceProduct) throws Exception {
         super(orbitType, absRoot);
 
         init(sourceProduct);
@@ -65,20 +67,23 @@ public class PrareOrbitFile extends BaseOrbitFile {
      * @param sourceProduct the input product
      * @throws java.io.IOException The exceptions.
      */
-    private void init(final Product sourceProduct) throws IOException {
+    private void init(final Product sourceProduct) throws Exception {
 
         prareReader = PrareOrbitReader.getInstance();
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
 
         // construct path to the orbit file folder
-        String orbitPath = "";
-        String remoteBaseFolder = "";
+        final String orbitPath;
+        final String remoteBaseFolder;
+        final String remoteHTTPFolder;
         if (mission.equals("ERS1")) {
             orbitPath = Settings.instance().get("OrbitFiles.prareERS1OrbitPath");
-            remoteBaseFolder = Settings.instance().get("OrbitFiles.prareFTP_ERS1_remotePath");
-        } else if (mission.equals("ERS2")) {
+            remoteBaseFolder = ftpUtils.getPathFromSettings("OrbitFiles.prareFTP_ERS1_remotePath");
+            remoteHTTPFolder = ftpUtils.getPathFromSettings("OrbitFiles.prareHTTP_ERS1_remotePath");
+        } else {
             orbitPath = Settings.instance().get("OrbitFiles.prareERS2OrbitPath");
-            remoteBaseFolder = Settings.instance().get("OrbitFiles.prareFTP_ERS2_remotePath");
+            remoteBaseFolder = ftpUtils.getPathFromSettings("OrbitFiles.prareFTP_ERS2_remotePath");
+            remoteHTTPFolder = ftpUtils.getPathFromSettings("OrbitFiles.prareHTTP_ERS2_remotePath");
         }
 
         // get product start time
@@ -88,26 +93,45 @@ public class PrareOrbitFile extends BaseOrbitFile {
         final int year = startDate.get(Calendar.YEAR);
         final int month = startDate.get(Calendar.MONTH) + 1;
         final String folder = String.valueOf(year);
-        orbitPath += File.separator + folder;
-        final File localPath = new File(orbitPath);
+        final File localPath = new File(orbitPath + File.separator + folder);
 
         // find orbit file in the folder
         orbitFile = FindPrareOrbitFile(prareReader, localPath, startMJD);
         if (orbitFile == null) {
-            final String remotePath = remoteBaseFolder + '/' + folder;
-            getRemotePrareFiles(remotePath, localPath, getPrefix(year, month));
-            // find again in newly downloaded folder
+            getRemoteFiles(new File(orbitPath), remoteHTTPFolder, year);
             orbitFile = FindPrareOrbitFile(prareReader, localPath, startMJD);
+
             if (orbitFile == null) {
-                // check next month
-                getRemotePrareFiles(remotePath, localPath, getPrefix(year, month + 1));
+                final String remotePath = remoteBaseFolder + '/' + folder;
+                getRemotePrareFiles(remotePath, localPath, getPrefix(year, month));
+                // find again in newly downloaded folder
                 orbitFile = FindPrareOrbitFile(prareReader, localPath, startMJD);
+                if (orbitFile == null) {
+                    // check next month
+                    getRemotePrareFiles(remotePath, localPath, getPrefix(year, month + 1));
+                    orbitFile = FindPrareOrbitFile(prareReader, localPath, startMJD);
+                }
             }
         }
 
         if (orbitFile == null) {
             throw new IOException("Unable to find suitable orbit file \n" + orbitPath + "\nPlease check your firewall settings");
         }
+
+        // read orbit data records in each orbit file
+        prareReader.readOrbitData(orbitFile);
+    }
+
+    private void getRemoteFiles(final File localFolder, final String remoteHTTPFolder, final int year) throws Exception {
+
+        final URL remotePath = new URL(remoteHTTPFolder);
+        final File localFile = new File(localFolder, year+".zip");
+
+        final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
+        final File archiveFile = (File)archive.getContentFile();
+
+        ZipUtils.unzipToFolder(archiveFile, localFolder);
+        archiveFile.delete();
     }
 
     private static String getPrefix(int year, int month) {
@@ -188,8 +212,6 @@ public class PrareOrbitFile extends BaseOrbitFile {
             final float stopDateInMJD = prareReader.getSensingStop(); // in days
             if (startDateInMJD <= startMJD && startMJD < stopDateInMJD) {
                 try {
-                    // read orbit data records in each orbit file
-                    prareReader.readOrbitData(f);
                     return f;
                 } catch (Exception e) {
                     throw new IOException("Unable to parse file: " + e.toString());
