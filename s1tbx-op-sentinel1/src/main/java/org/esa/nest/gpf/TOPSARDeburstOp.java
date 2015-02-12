@@ -230,9 +230,17 @@ public final class TOPSARDeburstOp extends Operator {
 
         // source band name is assumed in format: name_acquisitionModeAndSubSwathIndex_polarization_prefix
         // target band name is then in format: name_polarization_prefix
+        boolean hasVirtualPhaseBand = false;
         for (Band srcBand:sourceBands) {
             final String srcBandName = srcBand.getName();
-            if (srcBand instanceof VirtualBand || !containSelectedPolarisations(srcBandName)) {
+            if (!containSelectedPolarisations(srcBandName)) {
+                continue;
+            }
+
+            if (srcBand instanceof VirtualBand) {
+                if (srcBandName.toLowerCase().contains("phase")) {
+                    hasVirtualPhaseBand = true;
+                }
                 continue;
             }
 
@@ -253,6 +261,11 @@ public final class TOPSARDeburstOp extends Operator {
                 if (qBandUnit == Unit.UnitType.IMAGINARY) {
                     ReaderUtils.createVirtualIntensityBand(
                             targetProduct, targetBands[i], targetBands[i+1], '_' + getPrefix(targetBands[i].getName()));
+
+                    if (hasVirtualPhaseBand) {
+                        ReaderUtils.createVirtualPhaseBand(targetProduct,
+                                targetBands[i], targetBands[i+1], '_' + getPrefix(targetBands[i].getName()));
+                    }
                     i++;
                 }
             }
