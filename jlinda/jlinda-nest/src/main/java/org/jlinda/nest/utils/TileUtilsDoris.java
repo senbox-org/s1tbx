@@ -91,11 +91,12 @@ public class TileUtilsDoris {
     public static void pushDoubleMatrix(DoubleMatrix data, Tile tile, Rectangle rect) {
 
         final ProductData samples = tile.getRawSamples(); // checkout
+        final int height = (int) rect.getHeight();
         final int width = (int) rect.getWidth();
 
-        for (int y = 0, rowIdx = 0; y < rect.getHeight(); y++, rowIdx++) {
+        for (int y = 0, rowIdx = 0; y < height; y++, rowIdx++) {
             final int stride = y * width;
-            for (int x = 0, columnIdx = 0; x < rect.getWidth(); x++, columnIdx++) {
+            for (int x = 0, columnIdx = 0; x < width; x++, columnIdx++) {
                 samples.setElemDoubleAt(stride + x, data.get(rowIdx, columnIdx));
             }
         }

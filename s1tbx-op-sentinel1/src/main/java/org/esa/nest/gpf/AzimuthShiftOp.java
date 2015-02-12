@@ -17,6 +17,7 @@ package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
@@ -42,12 +43,12 @@ import java.util.Map;
  * using a frequency domain method.
  */
 
-@OperatorMetadata(alias = "Azimuth-Offset-Estimation",
+@OperatorMetadata(alias = "Azimuth-Shift",
         category = "SAR Processing/SENTINEL-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Estimate global azimuth offset for the whole image")
-public class AzimuthOffsetEstimationOp extends Operator {
+public class AzimuthShiftOp extends Operator {
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
@@ -76,7 +77,7 @@ public class AzimuthOffsetEstimationOp extends Operator {
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
-    public AzimuthOffsetEstimationOp() {
+    public AzimuthShiftOp() {
     }
 
     /**
@@ -289,8 +290,8 @@ public class AzimuthOffsetEstimationOp extends Operator {
 
             // todo The following simple average should be replaced by weighted average using coherence as weight
             double sumAzOffset = 0.0;
-            for (int i = 0; i < azOffsetArray.size(); i++) {
-                sumAzOffset += azOffsetArray.get(i);
+            for (Double anAzOffsetArray : azOffsetArray) {
+                sumAzOffset += anAzOffsetArray;
             }
             azOffset = sumAzOffset / numOverlaps;
 
@@ -415,8 +416,8 @@ public class AzimuthOffsetEstimationOp extends Operator {
                 phaseK = phase * (k - signalLength);
             }
             k2 = k * 2;
-            phaseArray[k2] = Math.cos(phaseK);
-            phaseArray[k2 + 1] = Math.sin(phaseK);
+            phaseArray[k2] = FastMath.cos(phaseK);
+            phaseArray[k2 + 1] = FastMath.sin(phaseK);
         }
     }
 
@@ -448,7 +449,7 @@ public class AzimuthOffsetEstimationOp extends Operator {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(AzimuthOffsetEstimationOp.class);
+            super(AzimuthShiftOp.class);
         }
     }
 

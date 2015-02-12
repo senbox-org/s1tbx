@@ -16,39 +16,20 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.nest.dataio.dem.ElevationModel;
-import org.esa.beam.framework.dataop.resamp.Resampling;
-import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.*;
-import org.esa.beam.util.ProductUtils;
-import org.esa.nest.dataio.dem.DEMFactory;
-import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.ProductInformation;
-import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
-import org.esa.snap.eo.GeoUtils;
-import org.esa.nest.gpf.geometric.SARGeocoding;
 import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.gpf.StackUtils;
 import org.esa.snap.gpf.TileIndex;
-import org.jlinda.core.delaunay.FastDelaunayTriangulator;
-import org.jlinda.core.delaunay.Triangle;
-import org.jlinda.core.delaunay.TriangulationException;
 
 
 import java.awt.*;
-import java.io.File;
 import java.util.*;
 
 /**
