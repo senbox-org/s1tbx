@@ -44,7 +44,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @OperatorMetadata(alias = "SubtRefDem",
-        category = "SAR Processing/InSAR/Products",
+        category = "SAR Processing/Interferometric/Products",
         authors = "Petar Marinkovic",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Compute and subtract TOPO phase")
