@@ -40,10 +40,8 @@ public class CosmoSkymedReaderPlugIn extends NetCDFReaderPlugIn {
     @Override
     protected DecodeQualification checkProductQualification(final File file) {
         final String fileName = file.getName().toLowerCase();
-        for (String ext : FORMAT_FILE_EXTENSIONS) {
-            if (!ext.isEmpty() && fileName.endsWith(ext) && fileName.startsWith(COSMO_FILE_PREFIX))
-                return DecodeQualification.INTENDED;
-        }
+        if (fileName.endsWith(".h5") && fileName.startsWith(COSMO_FILE_PREFIX))
+            return DecodeQualification.INTENDED;
 
         return DecodeQualification.UNABLE;
     }

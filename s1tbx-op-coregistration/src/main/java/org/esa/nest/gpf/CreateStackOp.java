@@ -32,7 +32,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.util.FeatureCollectionClipper;
+import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.ProductInformation;
@@ -40,6 +40,9 @@ import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.StackUtils;
 import org.esa.snap.gpf.TileIndex;
+import org.jlinda.core.Orbit;
+import org.jlinda.core.Point;
+import org.jlinda.core.SLCImage;
 
 import java.awt.*;
 import java.text.MessageFormat;
@@ -94,8 +97,17 @@ public class CreateStackOp extends Operator {
     final static String MIN_EXTENT = "Minimum";
     final static String MAX_EXTENT = "Maximum";
 
-    private final Map<Band, Band> sourceRasterMap = new HashMap<>(10);
-    private final Map<Product, int[]> slaveOffsettMap = new HashMap<>(10);
+    @Parameter(valueSet = {"ORBIT", "GCP"},
+            defaultValue = "ORBIT",
+            description = "Method to be used in computation of initial offset between master and slave",
+            label = "Initial Offset Method")
+    private String initialOffsetMethod = "ORBIT";
+
+    public final static String INITIAL_OFFSET_GCP = "GCP";
+    public final static String INITIAL_OFFSET_ORBIT = "ORBIT";
+
+    private final Map<Band, Band> sourceRasterMap = new HashMap<Band, Band>(10);
+    private final Map<Product, int[]> slaveOffsettMap = new HashMap<Product, int[]>(10);
 
     private boolean appendToMaster = false;
     private boolean productPixelSpacingChecked = false;
@@ -277,7 +289,13 @@ public class CreateStackOp extends Operator {
             if (!resamplingType.contains("NONE")) {
                 selectedResampling = ResamplingFactory.createResampling(resamplingType);
             } else {
-                computeTargetSlaveCoordinateOffsets();
+				if (initialOffsetMethod.equals(INITIAL_OFFSET_GCP)) {
+                	computeTargetSlaveCoordinateOffsets_GCP();
+            	}
+
+            	if (initialOffsetMethod.equals(INITIAL_OFFSET_ORBIT)) {
+                	computeTargetSlaveCoordinateOffsets_Orbits();
+            	}
             }
 
         } catch (Throwable e) {
@@ -489,12 +507,12 @@ public class CreateStackOp extends Operator {
      */
     private void determinMinExtents() {
 
-        Geometry tgtGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(masterProduct);
+        Geometry tgtGeometry = FeatureUtils.createGeoBoundaryPolygon(masterProduct);
 
         for (final Product slvProd : sourceProduct) {
             if (slvProd == masterProduct) continue;
 
-            final Geometry slvGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(slvProd);
+            final Geometry slvGeometry = FeatureUtils.createGeoBoundaryPolygon(slvProd);
             tgtGeometry = tgtGeometry.intersection(slvGeometry);
         }
 
@@ -659,13 +677,13 @@ public class CreateStackOp extends Operator {
         }
     }
 
-    private void computeTargetSlaveCoordinateOffsets() {
+    private void computeTargetSlaveCoordinateOffsets_GCP() {
 
         final GeoCoding targGeoCoding = targetProduct.getGeoCoding();
         final int targImageWidth = targetProduct.getSceneRasterWidth();
         final int targImageHeight = targetProduct.getSceneRasterHeight();
 
-        final Geometry tgtGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(targetProduct);
+        final Geometry tgtGeometry = FeatureUtils.createGeoBoundaryPolygon(targetProduct);
 
         final PixelPos slvPixelPos = new PixelPos();
         final PixelPos tgtPixelPos = new PixelPos();
@@ -700,7 +718,7 @@ public class CreateStackOp extends Operator {
             }
 
             if (!foundOverlapPoint) {
-                final Geometry slvGeometry = FeatureCollectionClipper.createGeoBoundaryPolygon(slvProd);
+                final Geometry slvGeometry = FeatureUtils.createGeoBoundaryPolygon(slvProd);
                 final Geometry intersect = tgtGeometry.intersection(slvGeometry);
 
                 for (Coordinate c : intersect.getCoordinates()) {
@@ -729,6 +747,51 @@ public class CreateStackOp extends Operator {
             if (!foundOverlapPoint) {
                 throw new OperatorException("Product " + slvProd.getName() + " has no overlap with master product.");
             }
+        }
+    }
+
+    private void computeTargetSlaveCoordinateOffsets_Orbits() throws Exception {
+
+        // Note: This procedure will always compute some overlap
+
+        // Similar as for GCPs but for every GCP use orbit information
+        MetadataElement root = AbstractMetadata.getAbstractedMetadata(targetProduct);
+
+        final int orbitDegree = 3;
+
+        SLCImage metaMaster = new SLCImage(root);
+        Orbit orbitMaster = new Orbit(root, orbitDegree);
+        SLCImage metaSlave;
+        Orbit orbitSlave;
+
+        // Reference point in Master radar geometry
+        Point tgtLP = metaMaster.getApproxRadarCentreOriginal();
+
+        for (final Product slvProd : sourceProduct) {
+
+            if (slvProd == masterProduct) {
+                // if master is ref product put 0-es for offset
+                slaveOffsettMap.put(slvProd, new int[]{0, 0});
+                continue;
+            }
+
+            // Slave metadata
+            root = AbstractMetadata.getAbstractedMetadata(slvProd);
+            metaSlave = new SLCImage(root);
+            orbitSlave = new Orbit(root, orbitDegree);
+
+            // (lp_master) & (master_orbit)-> (xyz_master) & (slave_orbit)-> (lp_slave)
+            Point tgtXYZ = orbitMaster.lp2xyz(tgtLP, metaMaster);
+            Point slvLP = orbitSlave.xyz2lp(tgtXYZ, metaSlave);
+
+            // Offset: slave minus master
+            Point offsetLP = slvLP.min(tgtLP);
+
+            int offsetX = (int) Math.floor(offsetLP.x + .5);
+            int offsetY = (int) Math.floor(offsetLP.y + .5);
+
+            addOffset(slvProd, offsetX, offsetY);
+
         }
     }
 

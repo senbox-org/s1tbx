@@ -910,7 +910,7 @@ public class DEMBasedCoregistrationOp extends Operator {
                     Constants.secondsInDay; // s to day
             this.prf = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.pulse_repetition_frequency); //Hz
             this.samplingRate = AbstractMetadata.getAttributeDouble(absRoot, AbstractMetadata.range_sampling_rate)*
-                    1000000; // MHz to Hz
+                    Constants.oneMillion; // MHz to Hz
             this.sourceImageWidth = sourceProduct.getSceneRasterWidth();
             this.sourceImageHeight = sourceProduct.getSceneRasterHeight();
             OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);

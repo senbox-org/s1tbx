@@ -39,8 +39,9 @@ public class CloudePottier extends PolClassifierBase implements PolClassifier {
 
     public CloudePottier(final PolBandUtils.MATRIX sourceProductType,
                          final int sourceWidth, final int sourceHeight, final int winSize,
-                         final Map<Band, PolBandUtils.PolSourceBand> srcbandMap) {
-        super(sourceProductType, sourceWidth, sourceHeight, winSize, srcbandMap);
+                         final Map<Band, PolBandUtils.PolSourceBand> srcbandMap,
+                         final PolarimetricClassificationOp op) {
+        super(sourceProductType, sourceWidth, sourceHeight, winSize, winSize, srcbandMap, op);
 
         useLeeHAlphaPlaneDefinition = Boolean.getBoolean(SystemUtils.getApplicationContextId() +
                 ".useLeeHAlphaPlaneDefinition");
@@ -69,10 +70,9 @@ public class CloudePottier extends PolClassifierBase implements PolClassifier {
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @param op         the polarimetric decomposition operator
      * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
-    public void computeTile(final Band targetBand, final Tile targetTile, final PolarimetricClassificationOp op) {
+    public void computeTile(final Band targetBand, final Tile targetTile) {
         final Rectangle targetRectangle = targetTile.getRectangle();
         final int x0 = targetRectangle.x;
         final int y0 = targetRectangle.y;
@@ -102,7 +102,7 @@ public class CloudePottier extends PolClassifierBase implements PolClassifier {
             trgIndex.calculateStride(y);
             for (int x = x0; x < maxX; ++x) {
 
-                PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSize, halfWindowSize, srcWidth, srcHeight,
+                PolOpUtils.getMeanCoherencyMatrix(x, y, halfWindowSizeX, halfWindowSizeY, srcWidth, srcHeight,
                         sourceProductType, srcIndex, dataBuffers, Tr, Ti);
 
                 final hAAlpha.HAAlpha data = hAAlpha.computeHAAlpha(Tr, Ti);

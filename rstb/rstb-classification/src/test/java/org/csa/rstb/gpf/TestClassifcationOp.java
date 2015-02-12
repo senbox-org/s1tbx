@@ -71,20 +71,20 @@ public class TestClassifcationOp {
     public void testWishartClassifier() throws Exception {
 
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
-                PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, TestData.inputQuad);
+                PolarimetricClassificationOp.UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION, TestData.inputQuad);
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
-                PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, TestData.inputQuadFullStack);
+                PolarimetricClassificationOp.UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION, TestData.inputQuadFullStack);
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
-                PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, TestData.inputC3Stack);
+                PolarimetricClassificationOp.UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION, TestData.inputC3Stack);
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
-                PolarimetricClassificationOp.UNSUPERVISED_WISHART_CLASSIFICATION, TestData.inputT3Stack);
+                PolarimetricClassificationOp.UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION, TestData.inputT3Stack);
     }
 
     @Test
     public void testTerrainClassifier() throws Exception {
 
         runClassification((PolarimetricClassificationOp) spi.createOperator(),
-                PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION, TestData.inputQuad);
+                PolarimetricClassificationOp.UNSUPERVISED_FREEMAN_DURDEN_CLASSIFICATION, TestData.inputQuad);
 //        runClassification((PolarimetricClassificationOp)spi.createOperator(),
 //                PolarimetricClassificationOp.UNSUPERVISED_TERRAIN_CLASSIFICATION, TestData.inputQuadFullStack);
 //        runClassification((PolarimetricClassificationOp)spi.createOperator(),

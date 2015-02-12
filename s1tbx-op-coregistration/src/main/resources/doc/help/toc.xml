@@ -15,6 +15,10 @@
             <tocitem text="GCP Selection" target="GCPSelectionOp"/>
             <tocitem text="Warp" target="WarpOp"/>
         </tocitem>
+        <tocitem text="InSAR">
+            <tocitem text="Goldstein Phase Filtering" target="GoldsteinFilterOp"/>
+            <tocitem text="DEM Generation" target="DEMGenerationOp"/>
+        </tocitem>
     </tocitem>
 
 </toc>

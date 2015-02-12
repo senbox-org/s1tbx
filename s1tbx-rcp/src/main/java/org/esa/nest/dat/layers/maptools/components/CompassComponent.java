@@ -21,6 +21,7 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.nest.dat.layers.ScreenPixelConverter;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.util.ResourceUtils;
 
 import javax.swing.*;
@@ -71,7 +72,7 @@ public class CompassComponent implements MapToolsComponent {
         if (point1Geo.getLat() < point2Geo.getLat()) {
             tail = point1;
             head = point2;
-            angle += Math.PI;
+            angle += Constants.PI;
         } else {
             tail = point2;
             head = point1;

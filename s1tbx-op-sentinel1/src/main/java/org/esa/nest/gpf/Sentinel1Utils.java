@@ -15,15 +15,15 @@
  */
 package org.esa.nest.gpf;
 
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.nest.gpf.geometric.SARGeocoding;
+import org.esa.nest.gpf.geometric.SARUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.eo.Constants;
-import org.esa.nest.gpf.geometric.SARGeocoding;
-import org.esa.nest.gpf.geometric.SARUtils;
 import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.util.Maths;
 
 import java.text.DateFormat;
 import java.util.*;
@@ -145,7 +145,7 @@ public final class Sentinel1Utils {
     private void getProductPolarizations() {
 
         final MetadataElement[] elems = absRoot.getElements();
-        final List<String> polList = new ArrayList<String>(4);
+        final List<String> polList = new ArrayList<>(4);
         for (MetadataElement elem : elems) {
             if (elem.getName().contains("Band_")) {
                 final String pol = elem.getAttributeString("polarization");
@@ -163,7 +163,7 @@ public final class Sentinel1Utils {
     private void getProductSubSwathNames() {
 
         final MetadataElement[] elems = absRoot.getElements();
-        final List<String> subSwathNameList = new ArrayList<String>(4);
+        final List<String> subSwathNameList = new ArrayList<>(4);
         for (MetadataElement elem : elems) {
             if (elem.getName().contains(acquisitionMode)) {
                 final String swath = elem.getAttributeString("swath");
@@ -331,7 +331,7 @@ public final class Sentinel1Utils {
     private void getProductOrbit(final int polyDegree) {
 
         this.polyDegree = polyDegree;
-        OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
+        final OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
         final double firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD();
         this.orbit = new SARGeocoding.Orbit(orbitStateVectors, polyDegree, firstLineUTC);
     }
@@ -381,7 +381,7 @@ public final class Sentinel1Utils {
         final MetadataElement noiseVectorListElem = noise.getElement("noiseVectorList");
         final MetadataElement[] list = noiseVectorListElem.getElements();
 
-        final List<NoiseVector> noiseVectorList = new ArrayList<NoiseVector>(5);
+        final List<NoiseVector> noiseVectorList = new ArrayList<>(5);
         for (MetadataElement noiseVectorElem : list) {
             final ProductData.UTC time = getTime(noiseVectorElem, "azimuthTime");
             final int line = Integer.parseInt(noiseVectorElem.getAttributeString("line"));
@@ -432,7 +432,7 @@ public final class Sentinel1Utils {
         final MetadataElement calibrationVectorListElem = getCalibrationVectorList(subSwathIndex, polarization);
         final MetadataElement[] list = calibrationVectorListElem.getElements();
 
-        final List<CalibrationVector> calibrationVectorList = new ArrayList<CalibrationVector>(5);
+        final List<CalibrationVector> calibrationVectorList = new ArrayList<>(5);
         for (MetadataElement calibrationVectorElem : list) {
             final ProductData.UTC time = getTime(calibrationVectorElem, "azimuthTime");
             final int line = Integer.parseInt(calibrationVectorElem.getAttributeString("line"));
@@ -541,12 +541,11 @@ public final class Sentinel1Utils {
 
         final double waveLength = Constants.lightSpeed / subSwath[0].radarFrequency;
         for (int s = 0; s < numOfSubSwath; s++) {
+            final double azTime = (subSwath[s].firstLineTime + subSwath[s].lastLineTime)/2.0;
             subSwath[s].dopplerRate = new double[subSwath[s].numOfBursts][subSwath[s].samplesPerBurst];
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
-                final double azTime = (subSwath[s].burstFirstLineTime[b] + subSwath[s].burstLastLineTime[b])/2.0;
-                final double v = orbit.getVelocity(azTime/Constants.secondsInDay);
-                //final double v = orbit.getVelocity(azTime); //use this line when orbit uses second for time
-                final double steeringRate = subSwath[s].azimuthSteeringRate * org.esa.beam.util.math.MathUtils.DTOR;
+                final double v = orbit.getVelocity(azTime/Constants.secondsInDay); // DLR: 7594.0232
+                final double steeringRate = subSwath[s].azimuthSteeringRate * Constants.DTOR;
                 final double krot = 2*v*steeringRate/waveLength; // doppler rate by antenna steering
                 for (int x = 0; x < subSwath[s].samplesPerBurst; x++) {
                     subSwath[s].dopplerRate[b][x] = subSwath[s].rangeDependDopplerRate[b][x] * krot
@@ -572,8 +571,11 @@ public final class Sentinel1Utils {
         for (int s = 0; s < numOfSubSwath; s++) {
             subSwath[s].referenceTime = new double[subSwath[s].numOfBursts][subSwath[s].samplesPerBurst];
             final double tmp1 = subSwath[s].linesPerBurst * subSwath[s].azimuthTimeInterval / 2.0;
+
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
-                final double tmp2 = tmp1 + subSwath[s].dopplerCentroid[b][0] / subSwath[s].rangeDependDopplerRate[b][0];
+                final double tmp2 = tmp1 + subSwath[s].dopplerCentroid[b][subSwath[s].firstValidPixel] /
+                        subSwath[s].rangeDependDopplerRate[b][subSwath[s].firstValidPixel];
+
                 for (int x = 0; x < subSwath[s].samplesPerBurst; x++) {
                     subSwath[s].referenceTime[b][x] = tmp2 -
                             subSwath[s].dopplerCentroid[b][x] / subSwath[s].rangeDependDopplerRate[b][x];
@@ -589,15 +591,19 @@ public final class Sentinel1Utils {
 
         for (int s = 0; s < numOfSubSwath; s++) {
             final DCPolynomial[] dcEstimateList = getDCEstimateList(subSwath[s].subSwathName);
-            final DCPolynomial[] dcBurstList = computeDCForBurstCenters(dcEstimateList, s+1);
+            if (dcEstimateList.length != subSwath[s].numOfBursts) {
+                throw new OperatorException("Subswath " + (s+1) + ": The number of dataDCPolynomials in " +
+                        "dcEstimateList is different from the number of bursts");
+            }
+            //final DCPolynomial[] dcBurstList = computeDCForBurstCenters(dcEstimateList, s+1);
             subSwath[s].dopplerCentroid = new double[subSwath[s].numOfBursts][subSwath[s].samplesPerBurst];
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
                 for (int x = 0; x < subSwath[s].samplesPerBurst; x++) {
                     final double slrt = getSlantRangeTime(x, s+1)*2; // 1-way to 2-way
-                    final double dt = slrt - dcBurstList[b].t0;
+                    final double dt = slrt - dcEstimateList[b].t0;
                     double dcValue = 0.0;
-                    for (int i = 0; i < dcBurstList[b].dataDcPolynomial.length; i++) {
-                        dcValue += dcBurstList[b].dataDcPolynomial[i] * Math.pow(dt, i);
+                    for (int i = 0; i < dcEstimateList[b].dataDcPolynomial.length; i++) {
+                        dcValue += dcEstimateList[b].dataDcPolynomial[i] * FastMath.pow(dt, i);
                     }
                     subSwath[s].dopplerCentroid[b][x] = dcValue;
                 }
@@ -645,7 +651,7 @@ public final class Sentinel1Utils {
 
     private DCPolynomial[] computeDCForBurstCenters(final DCPolynomial[] dcEstimateList, final int subSwathIndex) {
 
-        DCPolynomial[] dcBurstList = new DCPolynomial[subSwath[subSwathIndex - 1].numOfBursts];
+        final DCPolynomial[] dcBurstList = new DCPolynomial[subSwath[subSwathIndex - 1].numOfBursts];
         for (int b = 0; b < subSwath[subSwathIndex - 1].numOfBursts; b++) {
             final double centerTime = 0.5*(subSwath[subSwathIndex - 1].burstFirstLineTime[b] +
                     subSwath[subSwathIndex - 1].burstLastLineTime[b]);
@@ -675,7 +681,7 @@ public final class Sentinel1Utils {
             }
         }
 
-        DCPolynomial dcPolynomial = new DCPolynomial();
+        final DCPolynomial dcPolynomial = new DCPolynomial();
         dcPolynomial.time = centerTime;
         dcPolynomial.t0 = dcEstimateList[i0].t0;
         dcPolynomial.dataDcPolynomial = new double[dcEstimateList[i0].dataDcPolynomial.length];
@@ -734,7 +740,7 @@ public final class Sentinel1Utils {
 
         final MetadataElement[] list = noiseVectorListElem.getElements();
 
-        final List<NoiseVector> noiseVectorList = new ArrayList<NoiseVector>(5);
+        final List<NoiseVector> noiseVectorList = new ArrayList<>(5);
         for (MetadataElement noiseVectorElem : list) {
             final ProductData.UTC time = getTime(noiseVectorElem, "azimuthTime");
             final int line = Integer.parseInt(noiseVectorElem.getAttributeString("line"));
@@ -764,7 +770,7 @@ public final class Sentinel1Utils {
 
         final MetadataElement[] list = calibrationVectorListElem.getElements();
 
-        final List<CalibrationVector> calibrationVectorList = new ArrayList<CalibrationVector>(5);
+        final List<CalibrationVector> calibrationVectorList = new ArrayList<>(5);
         for (MetadataElement calibrationVectorElem : list) {
             final ProductData.UTC time = getTime(calibrationVectorElem, "azimuthTime");
             final int line = Integer.parseInt(calibrationVectorElem.getAttributeString("line"));
@@ -817,7 +823,7 @@ public final class Sentinel1Utils {
     public static String[] getProductPolarizations(final MetadataElement absRoot) {
 
         final MetadataElement[] elems = absRoot.getElements();
-        final List<String> polList = new ArrayList<String>(4);
+        final List<String> polList = new ArrayList<>(4);
         for (MetadataElement elem : elems) {
             if (elem.getName().contains("Band_")) {
                 final String pol = elem.getAttributeString("polarization", null);
@@ -1011,44 +1017,44 @@ public final class Sentinel1Utils {
         return getIncidenceAngleValue(index, subSwathIndex);
     }
 
-    private float getLatitudeValue(final Index index, final int subSwathIndex) {
+    private double getLatitudeValue(final Index index, final int subSwathIndex) {
         final double lat00 = subSwath[subSwathIndex - 1].latitude[index.i0][index.j0];
         final double lat01 = subSwath[subSwathIndex - 1].latitude[index.i0][index.j1];
         final double lat10 = subSwath[subSwathIndex - 1].latitude[index.i1][index.j0];
         final double lat11 = subSwath[subSwathIndex - 1].latitude[index.i1][index.j1];
 
-        return (float) ((1 - index.muY) * ((1 - index.muX) * lat00 + index.muX * lat01) +
-                index.muY * ((1 - index.muX) * lat10 + index.muX * lat11));
+        return (1 - index.muY) * ((1 - index.muX) * lat00 + index.muX * lat01) +
+                index.muY * ((1 - index.muX) * lat10 + index.muX * lat11);
     }
 
-    private float getLongitudeValue(final Index index, final int subSwathIndex) {
+    private double getLongitudeValue(final Index index, final int subSwathIndex) {
         final double lon00 = subSwath[subSwathIndex - 1].longitude[index.i0][index.j0];
         final double lon01 = subSwath[subSwathIndex - 1].longitude[index.i0][index.j1];
         final double lon10 = subSwath[subSwathIndex - 1].longitude[index.i1][index.j0];
         final double lon11 = subSwath[subSwathIndex - 1].longitude[index.i1][index.j1];
 
-        return (float) ((1 - index.muY) * ((1 - index.muX) * lon00 + index.muX * lon01) +
-                index.muY * ((1 - index.muX) * lon10 + index.muX * lon11));
+        return (1 - index.muY) * ((1 - index.muX) * lon00 + index.muX * lon01) +
+                index.muY * ((1 - index.muX) * lon10 + index.muX * lon11);
     }
 
-    private float getSlantRangeTimeValue(final Index index, final int subSwathIndex) {
+    private double getSlantRangeTimeValue(final Index index, final int subSwathIndex) {
         final double slrt00 = subSwath[subSwathIndex - 1].slantRangeTime[index.i0][index.j0];
         final double slrt01 = subSwath[subSwathIndex - 1].slantRangeTime[index.i0][index.j1];
         final double slrt10 = subSwath[subSwathIndex - 1].slantRangeTime[index.i1][index.j0];
         final double slrt11 = subSwath[subSwathIndex - 1].slantRangeTime[index.i1][index.j1];
 
-        return (float) ((1 - index.muY) * ((1 - index.muX) * slrt00 + index.muX * slrt01) +
-                index.muY * ((1 - index.muX) * slrt10 + index.muX * slrt11));
+        return (1 - index.muY) * ((1 - index.muX) * slrt00 + index.muX * slrt01) +
+                index.muY * ((1 - index.muX) * slrt10 + index.muX * slrt11);
     }
 
-    private float getIncidenceAngleValue(final Index index, final int subSwathIndex) {
+    private double getIncidenceAngleValue(final Index index, final int subSwathIndex) {
         final double inc00 = subSwath[subSwathIndex - 1].incidenceAngle[index.i0][index.j0];
         final double inc01 = subSwath[subSwathIndex - 1].incidenceAngle[index.i0][index.j1];
         final double inc10 = subSwath[subSwathIndex - 1].incidenceAngle[index.i1][index.j0];
         final double inc11 = subSwath[subSwathIndex - 1].incidenceAngle[index.i1][index.j1];
 
-        return (float) ((1 - index.muY) * ((1 - index.muX) * inc00 + index.muX * inc01) +
-                index.muY * ((1 - index.muX) * inc10 + index.muX * inc11));
+        return (1 - index.muY) * ((1 - index.muX) * inc00 + index.muX * inc01) +
+                index.muY * ((1 - index.muX) * inc10 + index.muX * inc11);
     }
 
     public static void updateBandNames(
@@ -1081,15 +1087,15 @@ public final class Sentinel1Utils {
 
     private static int[] getIntArray(final MetadataElement elem, final String tag) {
 
-        MetadataAttribute attribute = elem.getAttribute(tag);
+        final MetadataAttribute attribute = elem.getAttribute(tag);
         if (attribute == null) {
             throw new OperatorException(tag + " attribute not found");
         }
 
         int[] array = null;
         if (attribute.getDataType() == ProductData.TYPE_ASCII) {
-            String dataStr = attribute.getData().getElemString();
-            String[] items = dataStr.split(" ");
+            final String dataStr = attribute.getData().getElemString();
+            final String[] items = dataStr.split(" ");
             array = new int[items.length];
             for (int i = 0; i < items.length; i++) {
                 try {
@@ -1105,15 +1111,15 @@ public final class Sentinel1Utils {
 
     private static double[] getDoubleArray(final MetadataElement elem, final String tag) {
 
-        MetadataAttribute attribute = elem.getAttribute(tag);
+        final MetadataAttribute attribute = elem.getAttribute(tag);
         if (attribute == null) {
             throw new OperatorException(tag + " attribute not found");
         }
 
         double[] array = null;
         if (attribute.getData() instanceof ProductData.ASCII) {
-            String dataStr = attribute.getData().getElemString();
-            String[] items = dataStr.split(" ");
+            final String dataStr = attribute.getData().getElemString();
+            final String[] items = dataStr.split(" ");
             array = new double[items.length];
             for (int i = 0; i < items.length; i++) {
                 try {
@@ -1185,10 +1191,10 @@ public final class Sentinel1Utils {
         public double[][] incidenceAngle;
 
         // Noise vectors
-        public Map<String, NoiseVector[]> noise = new HashMap<String, NoiseVector[]>();
+        public Map<String, NoiseVector[]> noise = new HashMap<>();
 
         // Calibration vectors
-        public Map<String, CalibrationVector[]> calibration = new HashMap<String, CalibrationVector[]>();
+        public Map<String, CalibrationVector[]> calibration = new HashMap<>();
 
     }
 

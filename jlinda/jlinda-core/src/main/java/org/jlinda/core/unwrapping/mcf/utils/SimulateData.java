@@ -1,5 +1,6 @@
 package org.jlinda.core.unwrapping.mcf.utils;
 
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.DoubleMatrix;
 
 import static org.jblas.MatrixFunctions.exp;
@@ -55,9 +56,9 @@ public class SimulateData {
     // tested as public method, and test method commented out
     private double peaks(double x, double y) {
         double z;
-        z = 3 * Math.pow(1 - x, 2) * Math.exp(-Math.pow(x, 2) - Math.pow(y + 1, 2))
-                - 10 * (x / 5 - Math.pow(x, 3) - Math.pow(y, 5)) * Math.exp(-Math.pow(x, 2) - Math.pow(y, 2))
-                - 1 / 3 * Math.exp(-Math.pow(x + 1, 2) - Math.pow(y, 2));
+        z = 3 * FastMath.pow(1 - x, 2) * FastMath.exp(-FastMath.pow(x, 2) - FastMath.pow(y + 1, 2))
+                - 10 * (x / 5 - FastMath.pow(x, 3) - FastMath.pow(y, 5)) * FastMath.exp(-FastMath.pow(x, 2) - FastMath.pow(y, 2))
+                - 1 / 3 * FastMath.exp(-FastMath.pow(x + 1, 2) - FastMath.pow(y, 2));
         return z;
     }
 

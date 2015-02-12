@@ -16,9 +16,14 @@
 package org.esa.nest.dataio.orbits;
 
 import Jama.Matrix;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.util.Maths;
+import org.esa.snap.util.Settings;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
@@ -28,13 +33,19 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Sentinel POD Orbit File
  */
-public class SentinelPODOrbitFile implements OrbitFile {
+public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     // 5 types of orbits:
     // 1) Predicted
@@ -43,7 +54,13 @@ public class SentinelPODOrbitFile implements OrbitFile {
     // 4) POE
     // 5) NRT Restituted
 
-    private File orbitFile = null;
+    public final static String RESTITUTED = "Sentinel Restituded";
+    public final static String PRECISE = "Sentinel Precise";
+
+    private final int polyDegree;
+
+    private final static DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyyMMdd-HHmmss");
+    private final static DateFormat orbitDateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private final class FixedHeader {
 
@@ -65,96 +82,83 @@ public class SentinelPODOrbitFile implements OrbitFile {
 
     private FixedHeader fixedHeader = null;
 
-    private final class OSV {
+    private final List<Orbits.OrbitVector> osvList = new ArrayList<>();
 
-        private final String tai;
-        private final String utc;
-        private final String ut1;
-        private final int absoluteOrbit;
-        private final float x;
-        private final float y;
-        private final float z;
-        private final float vx;
-        private final float vy;
-        private final float vz;
-        private final String quality;
-
-        private double utcMJD;
-
-        OSV(final double utcMJD) {
-
-            this.tai = "";
-            this.utc = "";
-            this.ut1 = "";
-            this.absoluteOrbit = 0;
-            this.x = 0.0F;
-            this.y = 0.0F;
-            this.z = 0.0F;
-            this.vx = 0.0F;
-            this.vy = 0.0F;
-            this.vz = 0.0F;
-            this.quality = "";
-
-            this.utcMJD = utcMJD;
+    public SentinelPODOrbitFile(final String orbitType, final MetadataElement absRoot,
+                                final Product sourceProduct, final int polyDegree) throws Exception {
+        super(orbitType, absRoot);
+        this.orbitFile = findOrbitFile();
+        this.polyDegree = polyDegree;
+        if(orbitFile == null) {
+            String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
+            throw new OperatorException("No valid orbit file found for "+timeStr);
         }
 
-        OSV(final String tai, final String utc, final String ut1, final int absoluteOrbit, final float x, final float y, final float z, final float vx, final float vy, final float vz, final String quality) throws Exception{
-
-            this.tai = tai;
-            this.utc = utc;
-            this.ut1 = ut1;
-            this.absoluteOrbit = absoluteOrbit;
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.vx = vx;
-            this.vy = vy;
-            this.vz = vz;
-            this.quality = quality;
-
-            this.utcMJD = ProductData.UTC.parse(convertUTC(this.utc)).getMJD();
-        }
-
-        void dump() {
-
-            System.out.println("SentinelPODOrbitFile.OSV:");
-            System.out.println("  tai " + tai);
-            System.out.println("  utc " + utc);
-            System.out.println("  ut1 " + ut1);
-            System.out.println("  absoluteOrbit " + absoluteOrbit);
-            System.out.println("  x = " + x + " y = " + y + " z = " + z);
-            System.out.println("  vx = " + vx + " vy = " + vy + " vz = " + vz);
-            System.out.println("  quality = " + quality);
-            System.out.println("  utcMJD = " + utcMJD);
-        }
-    }
-
-    private final List<OSV> osvList = new ArrayList<>();
-
-    Comparator<OSV> osvComparator = new Comparator<OSV>() {
-        @Override
-        public int compare(OSV osv1, OSV osv2) {
-            if (osv1.utcMJD < osv2.utcMJD) {
-                return -1;
-            } else if (osv1.utcMJD > osv2.utcMJD) {
-                return 1;
-            } else {
-                return 0;
-            }
-        }
-    };
-
-    public SentinelPODOrbitFile(final String fullFilePath) throws Exception {
-
-        final File orbitFile = findPODOrbitFile(fullFilePath);
-
-        if (orbitFile == null) {
+        if (!orbitFile.exists()) {
             throw new IOException("SentinelPODOrbitFile: Unable to find POD orbit file");
         }
+
+        // read content of the orbit file
+        readOrbitFile();
+
+        checkOrbitFileValidity();
     }
 
-    public File getOrbitFile() {
-        return orbitFile;
+    private File findOrbitFile() {
+        final int year = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getAsCalendar().get(Calendar.YEAR);
+
+        final String prefix;
+        final File orbitFileFolder;
+        if(orbitType.endsWith(RESTITUTED)) {
+            prefix = "S1A_OPER_AUX_RESORB_OPOD_"+year;
+            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinelResOrbitPath"));
+        } else {
+            prefix = "S1A_OPER_AUX_POEORB_OPOD_"+year;
+            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinelPOEOrbitPath"));
+        }
+
+        final File[] files = orbitFileFolder.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                name = name.toUpperCase();
+                return (name.endsWith(".ZIP") || name.endsWith(".EOF")) && name.startsWith(prefix);
+            }
+        });
+        if(files == null || files.length == 0)
+            return null;
+
+        final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
+        for(File file : files) {
+            try {
+                final String filename = file.getName();
+                final ProductData.UTC utcStart = SentinelPODOrbitFile.getValidityStartFromFilenameUTC(filename);
+                final ProductData.UTC utcEnd = SentinelPODOrbitFile.getValidityStopFromFilenameUTC(filename);
+                if(utcStart != null && utcEnd != null) {
+                    if(stateVectorTime >= utcStart.getMJD() && stateVectorTime < utcEnd.getMJD()) {
+                        return file;
+                    }
+                }
+            } catch (ParseException ignored) {
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Check if product acquisition time is within the validity period of the orbit file.
+     * @throws Exception
+     */
+    private void checkOrbitFileValidity() throws Exception {
+
+        final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
+        final String validityStartTimeStr = getValidityStartFromHeader();
+        final String validityStopTimeStr = getValidityStopFromHeader();
+        final double validityStartTimeMJD = SentinelPODOrbitFile.toUTC(validityStartTimeStr).getMJD();
+        final double validityStopTimeMJD = SentinelPODOrbitFile.toUTC(validityStopTimeStr).getMJD();
+
+        if (stateVectorTime < validityStartTimeMJD || stateVectorTime > validityStopTimeMJD) {
+            throw new OperatorException("Product acquisition time is not within the validity period of the orbit");
+        }
     }
 
     /**
@@ -164,10 +168,10 @@ public class SentinelPODOrbitFile implements OrbitFile {
      * @return The orbit information.
      * @throws Exception The exceptions.
      */
-    public Orbits.OrbitData getOrbitData(final double utc) throws Exception {
+    public Orbits.OrbitVector getOrbitDataOld(final double utc) throws Exception {
 
-        final OSV osv = new OSV(utc);
-        int idx = Collections.binarySearch(osvList, osv, osvComparator);
+        final Orbits.OrbitVector osv = new Orbits.OrbitVector(utc);
+        int idx = Collections.binarySearch(osvList, osv, new Orbits.OrbitComparator());
 
         if (idx < 0) {
 
@@ -187,8 +191,8 @@ public class SentinelPODOrbitFile implements OrbitFile {
             } else {
 
                 // utc is between insertionPt and the point before it.
-                final OSV osv1 = osvList.get(insertionPt-1);
-                final OSV osv2 = osvList.get(insertionPt);
+                final Orbits.OrbitVector osv1 = osvList.get(insertionPt-1);
+                final Orbits.OrbitVector osv2 = osvList.get(insertionPt);
 
                 if (Math.abs(osv1.utcMJD - utc) > Math.abs(osv2.utcMJD - utc)) {
                     idx = insertionPt;
@@ -198,27 +202,17 @@ public class SentinelPODOrbitFile implements OrbitFile {
             }
         }
 
-        final Orbits.OrbitData orbitData = new Orbits.OrbitData();
-
-        orbitData.xPos = osvList.get(idx).x;
-        orbitData.yPos = osvList.get(idx).y;
-        orbitData.zPos = osvList.get(idx).z;
-        orbitData.xVel = osvList.get(idx).vx;
-        orbitData.yVel = osvList.get(idx).vy;
-        orbitData.zVel = osvList.get(idx).vz;
-
-        return orbitData;
+        return osvList.get(idx);
     }
 
     /**
      * Get orbit state vector for given time using polynomial fitting.
      *
      * @param utc The UTC in days.
-     * @param polyDegree Polynomial degree.
      * @return The orbit state vector.
      * @throws Exception The exceptions.
      */
-    public Orbits.OrbitData getOrbitData(final double utc, final int polyDegree) throws Exception {
+    public Orbits.OrbitVector getOrbitData(final double utc) throws Exception {
 
         final int numVectors = osvList.size();
         final double t0 = osvList.get(0).utcMJD;
@@ -252,12 +246,12 @@ public class SentinelPODOrbitFile implements OrbitFile {
 
         for (int i = 0; i < numVecPolyFit; i++) {
             timeArray[i] = osvList.get(vectorIndices[i]).utcMJD - t0;
-            xPosArray[i] = osvList.get(vectorIndices[i]).x;
-            yPosArray[i] = osvList.get(vectorIndices[i]).y;
-            zPosArray[i] = osvList.get(vectorIndices[i]).z;
-            xVelArray[i] = osvList.get(vectorIndices[i]).vx;
-            yVelArray[i] = osvList.get(vectorIndices[i]).vy;
-            zVelArray[i] = osvList.get(vectorIndices[i]).vz;
+            xPosArray[i] = osvList.get(vectorIndices[i]).xPos;
+            yPosArray[i] = osvList.get(vectorIndices[i]).yPos;
+            zPosArray[i] = osvList.get(vectorIndices[i]).zPos;
+            xVelArray[i] = osvList.get(vectorIndices[i]).xVel;
+            yVelArray[i] = osvList.get(vectorIndices[i]).yVel;
+            zVelArray[i] = osvList.get(vectorIndices[i]).zVel;
         }
 
         final Matrix A = Maths.createVandermondeMatrix(timeArray, polyDegree);
@@ -268,34 +262,15 @@ public class SentinelPODOrbitFile implements OrbitFile {
         final double[] yVelCoeff = Maths.polyFit(A, yVelArray);
         final double[] zVelCoeff = Maths.polyFit(A, zVelArray);
 
-        final Orbits.OrbitData orbitData = new Orbits.OrbitData();
         final double normalizedTime = utc - t0;
-        orbitData.xPos = Maths.polyVal(normalizedTime, xPosCoeff);
-        orbitData.yPos = Maths.polyVal(normalizedTime, yPosCoeff);
-        orbitData.zPos = Maths.polyVal(normalizedTime, zPosCoeff);
-        orbitData.xVel = Maths.polyVal(normalizedTime, xVelCoeff);
-        orbitData.yVel = Maths.polyVal(normalizedTime, yVelCoeff);
-        orbitData.zVel = Maths.polyVal(normalizedTime, zVelCoeff);
 
-        return orbitData;
-    }
-
-
-    /**
-     * Find POD orbit file.
-     */
-    private File findPODOrbitFile(final String fullFilePath)
-            throws Exception {
-
-        orbitFile = new File(fullFilePath);
-        if (!orbitFile.exists()) {
-                return null;
-        }
-
-        // read content of the orbit file
-        readOrbitFile();
-
-        return orbitFile;
+        return new Orbits.OrbitVector(utc,
+                Maths.polyVal(normalizedTime, xPosCoeff),
+                Maths.polyVal(normalizedTime, yPosCoeff),
+                Maths.polyVal(normalizedTime, zPosCoeff),
+                Maths.polyVal(normalizedTime, xVelCoeff),
+                Maths.polyVal(normalizedTime, yVelCoeff),
+                Maths.polyVal(normalizedTime, zVelCoeff));
     }
 
     private void readOrbitFile() throws Exception {
@@ -467,7 +442,7 @@ public class SentinelPODOrbitFile implements OrbitFile {
             childNode = childNode.getNextSibling();
         }
 
-        Collections.sort(osvList, osvComparator);
+        Collections.sort(osvList, new Orbits.OrbitComparator());
 
         //System.out.println("SentinelPODOrbitFile.readOSVList: osvCnt = " + osvCnt);
 
@@ -479,65 +454,45 @@ public class SentinelPODOrbitFile implements OrbitFile {
 
     private void readOneOSV(final org.w3c.dom.Node osvNode) throws Exception {
 
-        String tai = "";
         String utc = "";
-        String ut1 = "";
-        int absoluteOrbit = 0;
-        float x = 0.0F;
-        float y = 0.0F;
-        float z = 0.0F;
-        float vx = 0.0F;
-        float vy = 0.0F;
-        float vz = 0.0F;
-        String quality = "";
+        double x = 0.0;
+        double y = 0.0;
+        double z = 0.0;
+        double vx = 0.0;
+        double vy = 0.0;
+        double vz = 0.0;
 
         org.w3c.dom.Node childNode = osvNode.getFirstChild();
 
         while (childNode != null) {
 
             switch (childNode.getNodeName()) {
-                case "TAI": {
-                    tai = childNode.getTextContent();
-                }
-                    break;
                 case "UTC": {
                     utc = childNode.getTextContent();
                 }
                     break;
-                case "UT1": {
-                    ut1 = childNode.getTextContent();
-                }
-                    break;
-                case "Absolute_Orbit": {
-                    absoluteOrbit = Integer.parseInt(childNode.getTextContent());
-                }
-                    break;
                 case "X": {
-                    x = Float.parseFloat(childNode.getTextContent());
+                    x = Double.parseDouble(childNode.getTextContent());
                 }
                     break;
                 case "Y": {
-                    y = Float.parseFloat(childNode.getTextContent());
+                    y = Double.parseDouble(childNode.getTextContent());
                 }
                     break;
                 case "Z": {
-                    z = Float.parseFloat(childNode.getTextContent());
+                    z = Double.parseDouble(childNode.getTextContent());
                 }
                     break;
                 case "VX": {
-                    vx = Float.parseFloat(childNode.getTextContent());
+                    vx = Double.parseDouble(childNode.getTextContent());
                 }
                     break;
                 case "VY": {
-                    vy = Float.parseFloat(childNode.getTextContent());
+                    vy = Double.parseDouble(childNode.getTextContent());
                 }
                     break;
                 case "VZ": {
-                    vz = Float.parseFloat(childNode.getTextContent());
-                }
-                    break;
-                case "Quality": {
-                    quality = childNode.getTextContent();
+                    vz = Double.parseDouble(childNode.getTextContent());
                 }
                     break;
                 default:
@@ -547,10 +502,9 @@ public class SentinelPODOrbitFile implements OrbitFile {
             childNode = childNode.getNextSibling();
         }
 
-        OSV osv = new OSV(tai, utc, ut1, absoluteOrbit, x, y, z, vx, vy, vz, quality);
-        osvList.add(osv);
+        final double utcTime =  toUTC(utc).getMJD();
 
-        //osv.dump();
+        osvList.add(new Orbits.OrbitVector(utcTime, x, y, z, vx, vy, vz));
     }
 
     // TODO This is copied from Sentinel1Level0Reader.java; may be we should put in in some utilities class.
@@ -581,69 +535,9 @@ public class SentinelPODOrbitFile implements OrbitFile {
         return attrNode;
     }
 
-    public static String convertUTC(String utc) {
+    private static String convertUTC(String utc) {
 
-        final String dd = utc.substring(12, 14);
-        final String mm = utc.substring(9, 11);
-        final String yyyy = utc.substring(4, 8);
-        final String hhmmss = utc.substring(15);
-
-        String MMM = "MMM";
-
-        switch (mm) {
-            case "01": {
-                MMM = "jan";
-            }
-                break;
-            case "02": {
-                MMM = "feb";
-            }
-                break;
-            case "03": {
-                MMM = "mar";
-            }
-                break;
-            case "04": {
-                MMM = "apr";
-            }
-                break;
-            case "05": {
-                MMM = "may";
-            }
-                break;
-            case "06": {
-                MMM = "jun";
-            }
-                break;
-            case "07": {
-                MMM = "jul";
-            }
-                break;
-            case "08": {
-                MMM = "aug";
-            }
-                break;
-            case "09": {
-                MMM = "sep";
-            }
-                break;
-            case "10": {
-                MMM = "oct";
-            }
-                break;
-            case "11": {
-                MMM = "nov";
-            }
-                break;
-            case "12": {
-                MMM = "dec";
-            }
-                break;
-            default:
-                break;
-        }
-
-        return dd + "-" + MMM + "-" + yyyy + " " + hhmmss;
+        return utc.replace("UTC=","").replace("T"," ");
     }
 
     public static String getMissionIDFromFilename(String filename) {
@@ -668,16 +562,38 @@ public class SentinelPODOrbitFile implements OrbitFile {
         return "UTC=" + yyyy + "-" + mmDate + "-" + dd + "T" + hh + ":" + mmTime + ":" + ss;
     }
 
+    private static String extractTimeFromFilename(final String filename, final int offset) {
+
+        return filename.substring(offset,offset+15).replace("T","-");
+    }
+
+    public static ProductData.UTC getValidityStartFromFilenameUTC(String filename) throws ParseException {
+
+        if (filename.substring(41,42).equals("V")) {
+
+            String val = extractTimeFromFilename(filename, 42);
+            return ProductData.UTC.parse(val, dateFormat);
+        }
+        return null;
+    }
+
+    public static ProductData.UTC getValidityStopFromFilenameUTC(String filename) throws ParseException {
+
+        if (filename.substring(41,42).equals("V")) {
+
+            String val = extractTimeFromFilename(filename, 58);
+            return ProductData.UTC.parse(val, dateFormat);
+        }
+        return null;
+    }
+
     public static String getValidityStartFromFilename(String filename) {
 
         if (filename.substring(41,42).equals("V")) {
 
             return extractUTCTimeFromFilename(filename, 42);
-
-        } else {
-
-            return null;
         }
+        return null;
     }
 
     public static String getValidityStopFromFilename(String filename) {
@@ -685,46 +601,43 @@ public class SentinelPODOrbitFile implements OrbitFile {
         if (filename.substring(41,42).equals("V")) {
 
             return extractUTCTimeFromFilename(filename, 58);
-
-        } else {
-
-            return null;
         }
+        return null;
     }
 
     public String getMissionFromHeader() {
 
         if (fixedHeader != null) {
             return fixedHeader.mission;
-        } else {
-            return null;
         }
+        return null;
     }
 
     public String getFileTypeFromHeader() {
 
         if (fixedHeader != null) {
             return fixedHeader.fileType;
-        } else {
-            return null;
         }
+        return null;
     }
 
     public String getValidityStartFromHeader() {
 
         if (fixedHeader != null) {
             return fixedHeader.validityStart;
-        } else {
-            return null;
         }
+        return null;
     }
 
     public String getValidityStopFromHeader() {
 
         if (fixedHeader != null) {
             return fixedHeader.validityStop;
-        } else {
-            return null;
         }
+        return null;
+    }
+
+    public static ProductData.UTC toUTC(final String str) throws ParseException {
+        return ProductData.UTC.parse(convertUTC(str), orbitDateFormat);
     }
 }

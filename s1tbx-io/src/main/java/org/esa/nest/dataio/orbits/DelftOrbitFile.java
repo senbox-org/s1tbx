@@ -30,6 +30,8 @@ import java.util.Date;
  */
 public class DelftOrbitFile extends BaseOrbitFile {
 
+    public static final String DELFT_PRECISE = "DELFT Precise";
+
     private OrbitalDataRecordReader delftReader = null;
 
     public DelftOrbitFile(final String orbitType, final MetadataElement absRoot,
@@ -46,19 +48,13 @@ public class DelftOrbitFile extends BaseOrbitFile {
      * @return The orbit information.
      * @throws Exception The exceptions.
      */
-    public Orbits.OrbitData getOrbitData(final double utc) throws Exception {
-
-        final Orbits.OrbitData orbitData = new Orbits.OrbitData();
+    public Orbits.OrbitVector getOrbitData(final double utc) throws Exception {
 
         final OrbitalDataRecordReader.OrbitVector orb = delftReader.getOrbitVector(utc);
-        orbitData.xPos = orb.xPos;
-        orbitData.yPos = orb.yPos;
-        orbitData.zPos = orb.zPos;
-        orbitData.xVel = orb.xVel;
-        orbitData.yVel = orb.yVel;
-        orbitData.zVel = orb.zVel;
 
-        return orbitData;
+        return new Orbits.OrbitVector(utc,
+                orb.xPos, orb.yPos, orb.zPos,
+                orb.xVel, orb.yVel, orb.zVel);
     }
 
     /**

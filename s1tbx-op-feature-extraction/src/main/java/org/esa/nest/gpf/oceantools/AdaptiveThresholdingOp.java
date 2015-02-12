@@ -29,6 +29,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 
@@ -139,7 +140,7 @@ public class AdaptiveThresholdingOp extends Operator {
         if (srgrFlag) {
             meanPixelSpacing = (rangeSpacing + azimuthSpacing) / 2.0;
         } else {
-            meanPixelSpacing = (rangeSpacing / Math.sin(getIncidenceAngleAtCentreRangePixel()) + azimuthSpacing) / 2.0;
+            meanPixelSpacing = (rangeSpacing / FastMath.sin(getIncidenceAngleAtCentreRangePixel()) + azimuthSpacing) / 2.0;
         }
     }
 
@@ -156,7 +157,7 @@ public class AdaptiveThresholdingOp extends Operator {
         if (incidenceAngle == null) {
             throw new OperatorException("incidence_angle tie point grid not found in product");
         }
-        return incidenceAngle.getPixelDouble(x, y) * org.esa.beam.util.math.MathUtils.DTOR;
+        return incidenceAngle.getPixelDouble(x, y) * Constants.DTOR;
     }
 
     /**
@@ -380,7 +381,7 @@ public class AdaptiveThresholdingOp extends Operator {
      * @return The desigm parameter.
      */
     private static double computeDetectorDesignParameter(final double pfa) {
-        return Math.sqrt(2) * inverf(1.0 - 2.0 * Math.pow(10.0, -pfa));
+        return Math.sqrt(2) * inverf(1.0 - 2.0 * FastMath.pow(10.0, -pfa));
     }
 
     /**
@@ -427,7 +428,7 @@ public class AdaptiveThresholdingOp extends Operator {
         double x = -0.70711 * ((2.30753 + t * 0.27061) / (1.0 + t * (0.99229 + t * 0.04481)) - t);
         for (int j = 0; j < 2; j++) {
             final double err = erfc(x) - pp;
-            x += err / (1.12837916709551257 * Math.exp(-Math.sqrt(x)) - x * err);
+            x += err / (1.12837916709551257 * FastMath.exp(-Math.sqrt(x)) - x * err);
         }
         return (p < 1.0 ? x : -x);
     }

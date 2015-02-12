@@ -25,10 +25,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.nest.dataio.orbits.DelftOrbitFile;
-import org.esa.nest.dataio.orbits.DorisOrbitFile;
-import org.esa.nest.dataio.orbits.OrbitFile;
-import org.esa.nest.dataio.orbits.PrareOrbitFile;
+import org.esa.nest.dataio.orbits.*;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.Orbits;
@@ -83,10 +80,14 @@ public final class ApplyOrbitFileOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(valueSet = {DorisOrbitFile.DORIS_POR + " (ENVISAT)", DorisOrbitFile.DORIS_VOR + " (ENVISAT)",
-            DELFT_PRECISE + " (ENVISAT, ERS1&2)", PRARE_PRECISE + " (ERS1&2)"},
+    @Parameter(valueSet = {SentinelPODOrbitFile.PRECISE, SentinelPODOrbitFile.RESTITUTED,
+            DorisOrbitFile.DORIS_POR + " (ENVISAT)", DorisOrbitFile.DORIS_VOR + " (ENVISAT)",
+            DelftOrbitFile.DELFT_PRECISE + " (ENVISAT, ERS1&2)", PrareOrbitFile.PRARE_PRECISE + " (ERS1&2)"},
             defaultValue = DorisOrbitFile.DORIS_VOR + " (ENVISAT)", label = "Orbit State Vectors")
     private String orbitType = null;
+
+    @Parameter(label = "Polynomial Degree", defaultValue = "3")
+    private int polyDegree = 3;
 
     private MetadataElement absRoot = null;
     private MetadataElement tgtAbsRoot = null;
@@ -105,9 +106,6 @@ public final class ApplyOrbitFileOp extends Operator {
     private TiePointGrid longitude = null;
 
     private String mission;
-
-    private static final String DELFT_PRECISE = "DELFT Precise";
-    private static final String PRARE_PRECISE = "PRARE Precise";
 
     private OrbitFile orbitProvider = null;
 
@@ -140,22 +138,29 @@ public final class ApplyOrbitFileOp extends Operator {
                 if (mission.equals("ENVISAT")) {
                     orbitType = DorisOrbitFile.DORIS_VOR;
                 } else if (mission.equals("ERS1") || mission.equals("ERS2")) {
-                    orbitType = PRARE_PRECISE;
+                    orbitType = PrareOrbitFile.PRARE_PRECISE;
+                } else if (mission.startsWith("SENTINEL")) {
+                    orbitType = SentinelPODOrbitFile.PRECISE;
                 }
             }
-            if (mission.equals("ENVISAT")) {
-                if (!orbitType.startsWith(DELFT_PRECISE) && !orbitType.startsWith(DorisOrbitFile.DORIS_POR) &&
+            if(mission.equals("ENVISAT")) {
+                if (!orbitType.startsWith(DelftOrbitFile.DELFT_PRECISE) && !orbitType.startsWith(DorisOrbitFile.DORIS_POR) &&
                         !orbitType.startsWith(DorisOrbitFile.DORIS_VOR)) {
                     //throw new OperatorException(orbitType + " is not suitable for an ENVISAT product");
                     orbitType = DorisOrbitFile.DORIS_VOR;
                 }
-            } else if (mission.equals("ERS1") || mission.equals("ERS2")) {
-                if (!orbitType.startsWith(DELFT_PRECISE) && !orbitType.startsWith(PRARE_PRECISE)) {
+            } else if(mission.startsWith("ERS")) {
+                    if (!orbitType.startsWith(DelftOrbitFile.DELFT_PRECISE) && !orbitType.startsWith(PrareOrbitFile.PRARE_PRECISE)) {
+                        //throw new OperatorException(orbitType + " is not suitable for an ERS1 product");
+                        orbitType = SentinelPODOrbitFile.PRECISE;
+                    }
+            } else if(mission.startsWith("SENTINEL")) {
+                if (!orbitType.startsWith("Sentinel")) {
                     //throw new OperatorException(orbitType + " is not suitable for an ERS1 product");
-                    orbitType = PRARE_PRECISE;
+                    orbitType = PrareOrbitFile.PRARE_PRECISE;
                 }
             } else {
-                throw new OperatorException(orbitType + " is not suitable for a " + mission + " product");
+                    throw new OperatorException(orbitType + " is not suitable for a " + mission + " product");
             }
 
             if (orbitType.contains("DORIS")) {
@@ -164,6 +169,8 @@ public final class ApplyOrbitFileOp extends Operator {
                 orbitProvider = new DelftOrbitFile(orbitType, absRoot, sourceProduct);
             } else if (orbitType.contains("PRARE")) {
                 orbitProvider = new PrareOrbitFile(orbitType, absRoot, sourceProduct);
+            } else if (orbitType.contains("Sentinel")) {
+                orbitProvider = new SentinelPODOrbitFile(orbitType, absRoot, sourceProduct, polyDegree);
             }
 
             getTiePointGrid();
@@ -172,12 +179,9 @@ public final class ApplyOrbitFileOp extends Operator {
 
             setTargetMetadata();
 
-            // first update orbits and then rest of geocoding
-            // ...because of dependence on jLinda in updateTargetProductGEOCodingJLinda
             updateOrbitStateVectors();
 
             updateTargetProductGEOCodingJLinda();
-
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -205,8 +209,6 @@ public final class ApplyOrbitFileOp extends Operator {
         absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
         mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        //System.out.println("mission is "+mission);
-        //System.out.println("orbitType is "+orbitType);
 
         sourceImageWidth = sourceProduct.getSceneRasterWidth();
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
@@ -249,6 +251,7 @@ public final class ApplyOrbitFileOp extends Operator {
      *
      * @throws Exception The exceptions.
      */
+    @Deprecated
     private void updateTargetProductGEOCoding() throws Exception {
 
         final float[] targetLatTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
@@ -271,11 +274,11 @@ public final class ApplyOrbitFileOp extends Operator {
                 y = r * subSamplingY;
             }
 
-            final double curLineUTC = computeCurrentLineUTC(y);
+            final double curLineUTC = firstLineUTC + y * lineTimeInterval;
             //System.out.println((new ProductData.UTC(curLineUTC)).toString());
 
             // compute the satellite position and velocity for the zero Doppler time using cubic interpolation
-            final Orbits.OrbitData data = orbitProvider.getOrbitData(curLineUTC);
+            final Orbits.OrbitVector data = orbitProvider.getOrbitData(curLineUTC);
 
             for (int c = 0; c < targetTiePointGridWidth; c++) {
 
@@ -337,16 +340,6 @@ public final class ApplyOrbitFileOp extends Operator {
     }
 
     /**
-     * Compute UTC for a given range line.
-     *
-     * @param y The range line index.
-     * @return The UTC in days.
-     */
-    private double computeCurrentLineUTC(final int y) {
-        return firstLineUTC + y * lineTimeInterval;
-    }
-
-    /**
      * Compute accurate target geo position.
      *
      * @param x        The x coordinate of the given pixel.
@@ -355,7 +348,8 @@ public final class ApplyOrbitFileOp extends Operator {
      * @param data     The orbit data.
      * @return The geo position of the target.
      */
-    private GeoPos computeLatLon(final int x, final int y, final double slrgTime, final Orbits.OrbitData data) {
+    @Deprecated
+    private GeoPos computeLatLon(final int x, final int y, final double slrgTime, final Orbits.OrbitVector data) {
 
         final double[] xyz = new double[3];
         final double lat = latitude.getPixelDouble((float)x, (float)y);
@@ -392,7 +386,7 @@ public final class ApplyOrbitFileOp extends Operator {
         // compute new orbit state vectors
         for (OrbitStateVector orbitStateVector : orbitStateVectors) {
             final double time = orbitStateVector.time_mjd;
-            final Orbits.OrbitData orbitData = orbitProvider.getOrbitData(time);
+            final Orbits.OrbitVector orbitData = orbitProvider.getOrbitData(time);
             orbitStateVector.x_pos = orbitData.xPos; // m
             orbitStateVector.y_pos = orbitData.yPos; // m
             orbitStateVector.z_pos = orbitData.zPos; // m
@@ -430,8 +424,8 @@ public final class ApplyOrbitFileOp extends Operator {
 
         // put NEST abstracted_metadata into jLinda metadata containers
         final SLCImage metaData = new SLCImage(tgtAbsRoot);
-        final Orbit orbit = new Orbit(tgtAbsRoot, 3); // New Orbits - assumed metadata updated! 
-        final Orbit oldOrbit = new Orbit(absRoot, 3); // Old Orbits 
+        final Orbit orbit = new Orbit(tgtAbsRoot, polyDegree); // New Orbits - assumed metadata updated!
+        final Orbit oldOrbit = new Orbit(absRoot, polyDegree); // Old Orbits
 
         // Create new tie point grid
         int k = 0;
@@ -454,7 +448,7 @@ public final class ApplyOrbitFileOp extends Operator {
                 final double refLat = latitude.getPixelDouble((float) x, (float) y);
                 final double refLon = longitude.getPixelDouble((float) x, (float) y);
 
-                final Point refSarPoint = oldOrbit.ell2lp(new double[]{refLat * org.jlinda.core.Constants.DTOR, refLon * org.jlinda.core.Constants.DTOR, 0}, metaData);
+                final Point refSarPoint = oldOrbit.ell2lp(new double[]{refLat * Constants.DTOR, refLon * Constants.DTOR, 0}, metaData);
                 final double[] refGeoPoint = orbit.lp2ell(refSarPoint, metaData);
                 final Point refXyzPoint = Ellipsoid.ell2xyz(refGeoPoint);
 
@@ -466,17 +460,16 @@ public final class ApplyOrbitFileOp extends Operator {
                 final Point refPointOrbit = orbit.getXYZ(curLineTime);
                 final Point rangeDist = refPointOrbit.min(refXyzPoint);
                 final double incAngle = refXyzPoint.angle(rangeDist);
-                final double slantRangeTime = metaData.pix2tr(pixel) * 2 * org.jlinda.core.Constants.GIGA;
+                final double slantRangeTime = metaData.pix2tr(pixel) * 2 * Constants.oneBillion;
 
-                final double lat = refGeoPoint[0] * org.jlinda.core.Constants.RTOD;
-                final double lon = refGeoPoint[1] * org.jlinda.core.Constants.RTOD;
+                final double lat = refGeoPoint[0] * Constants.RTOD;
+                final double lon = refGeoPoint[1] * Constants.RTOD;
 
-                targetIncidenceAngleTiePoints[k] = (float)(incAngle * org.jlinda.core.Constants.RTOD);
+                targetIncidenceAngleTiePoints[k] = (float)(incAngle * Constants.RTOD);
                 targetSlantRangeTimeTiePoints[k] = (float)slantRangeTime;
                 targetLatTiePoints[k] = (float)lat;
                 targetLonTiePoints[k] = (float)lon;
                 k++;
-
             }
         }
 

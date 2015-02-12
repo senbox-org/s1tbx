@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.nest.dat.layers.ArrowOverlay;
 import org.esa.nest.dat.layers.ScreenPixelConverter;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
 
 import java.awt.*;
@@ -68,7 +69,7 @@ public class NorthArrowComponent implements MapToolsComponent {
         angle = FastMath.asin(op / hyp);
 
         if (point1Geo.getLat() < centrePointGeo.getLat()) {
-            angle += Math.PI;
+            angle += Constants.PI;
         }
 
         // determine distance

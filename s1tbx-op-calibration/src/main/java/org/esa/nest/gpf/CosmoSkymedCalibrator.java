@@ -15,6 +15,7 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -24,6 +25,7 @@ import org.esa.nest.datamodel.Calibrator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.datamodel.Unit.UnitType;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 
@@ -196,7 +198,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
         referenceSlantRangeExp = absRoot.getAttributeDouble(
                 AbstractMetadata.ref_slant_range_exp);
         referenceIncidenceAngle = absRoot.getAttributeDouble(
-                AbstractMetadata.ref_inc_angle) * Math.PI / 180.0;
+                AbstractMetadata.ref_inc_angle) * Constants.PI / 180.0;
         rescalingFactor = absRoot.getAttributeDouble(
                 AbstractMetadata.rescaling_factor);
 
@@ -244,16 +246,16 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
         } else if (bandUnit == Unit.UnitType.INTENSITY || bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
             sigma = v;
         } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-            sigma = Math.pow(10, v / 10.0); // convert dB to linear scale
+            sigma = FastMath.pow(10, v / 10.0); // convert dB to linear scale
         } else {
             throw new OperatorException("Unknown band unit");
         }
 
         if (applyRangeSpreadingLossCorrection)
-            sigma *= Math.pow(referenceSlantRange, 2 * referenceSlantRangeExp);
+            sigma *= FastMath.pow(referenceSlantRange, 2 * referenceSlantRangeExp);
 
         if (applyIncidenceAngleCorrection)
-            sigma *= Math.sin(referenceIncidenceAngle);
+            sigma *= FastMath.sin(referenceIncidenceAngle);
 
         sigma /= (rescalingFactor * rescalingFactor * Ks);
 
@@ -323,8 +325,8 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
 
         double sigma, dn, i, q;
         int srcIdx, tgtIdx;
-        final double powFactor = Math.pow(referenceSlantRange, 2 * referenceSlantRangeExp);
-        final double sinRefIncidenceAngle = Math.sin(referenceIncidenceAngle);
+        final double powFactor = FastMath.pow(referenceSlantRange, 2 * referenceSlantRangeExp);
+        final double sinRefIncidenceAngle = FastMath.sin(referenceIncidenceAngle);
         final double rescaleCalFactor = rescalingFactor * rescalingFactor * Ks;
 
         for (int y = y0; y < maxY; ++y) {
@@ -345,7 +347,7 @@ public class CosmoSkymedCalibrator extends BaseCalibrator implements Calibrator 
                     q = srcData2.getElemDoubleAt(srcIdx);
                     sigma = i * i + q * q;
                 } else if (bandUnit == Unit.UnitType.INTENSITY_DB) {
-                    sigma = Math.pow(10, srcData1.getElemDoubleAt(srcIdx) / 10.0); // convert dB to linear scale
+                    sigma = FastMath.pow(10, srcData1.getElemDoubleAt(srcIdx) / 10.0); // convert dB to linear scale
                 } else {
                     throw new OperatorException("CosmoSkymed Calibration: unhandled unit");
                 }

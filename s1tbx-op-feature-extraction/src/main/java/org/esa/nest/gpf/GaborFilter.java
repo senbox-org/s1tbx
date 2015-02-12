@@ -21,6 +21,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 package org.esa.nest.gpf;
 
+import org.apache.commons.math3.util.FastMath;
+import org.esa.snap.eo.Constants;
+
 /**
  * Date: May 7, 2010
  * Time: 3:25:34 PM
@@ -37,17 +40,17 @@ public class GaborFilter {
 
         // Bounding box
         int nstds = 3;
-        int xmax = (int) Math.ceil(Math.max(1, Math.max(Math.abs(nstds * sigma_x * Math.cos(theta)), Math.abs(nstds * sigma_y * Math.sin(theta)))));
-        int ymax = (int) Math.ceil(Math.max(1, Math.max(Math.abs(nstds * sigma_x * Math.sin(theta)), Math.abs(nstds * sigma_y * Math.cos(theta)))));
+        int xmax = (int) Math.ceil(Math.max(1, Math.max(Math.abs(nstds * sigma_x * FastMath.cos(theta)), Math.abs(nstds * sigma_y * FastMath.sin(theta)))));
+        int ymax = (int) Math.ceil(Math.max(1, Math.max(Math.abs(nstds * sigma_x * FastMath.sin(theta)), Math.abs(nstds * sigma_y * FastMath.cos(theta)))));
 
         double[][] out = new double[2 * xmax + 1][2 * ymax + 1];
 
         double sum = 0;
         for (int x = -xmax; x <= xmax; x++) {
             for (int y = -ymax; y <= ymax; y++) {
-                double x_theta = x * Math.cos(theta) + y * Math.sin(theta);
-                double y_theta = -x * Math.sin(theta) + y * Math.cos(theta);
-                out[x + xmax][y + ymax] = Math.exp(-(Math.pow(x_theta, 2) + Math.pow(gamma, 2) * Math.pow(y_theta, 2)) / (2 * Math.pow(sigma, 2))) * Math.cos(2 * Math.PI * x_theta / lambda + psi);
+                double x_theta = x * FastMath.cos(theta) + y * FastMath.sin(theta);
+                double y_theta = -x * FastMath.sin(theta) + y * FastMath.cos(theta);
+                out[x + xmax][y + ymax] = FastMath.exp(-(FastMath.pow(x_theta, 2) + FastMath.pow(gamma, 2) * FastMath.pow(y_theta, 2)) / (2 * FastMath.pow(sigma, 2))) * FastMath.cos(2 * Constants.PI * x_theta / lambda + psi);
                 sum += out[x + xmax][y + ymax];
                 //out[x+xmax][y+ymax]= 1/(2*Math.PI*sigma_x *sigma_y) * Math.exp(-0.5*(Math.pow(x_theta,2)/Math.pow(sigma_x,2)+(Math.pow(y_theta,2)/(Math.pow(sigma_y,2)))*Math.cos(2*Math.PI/lambda*x_theta+psi);
             }

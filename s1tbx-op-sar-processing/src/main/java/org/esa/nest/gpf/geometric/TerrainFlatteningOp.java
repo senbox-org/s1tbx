@@ -60,7 +60,7 @@ import java.util.Map;
         category = "SAR Processing/Radiometric",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Terrain Flattening", internal=true)
+        description = "Terrain Flattening")
 public final class TerrainFlatteningOp extends Operator {
 
     @SourceProduct(alias = "source")
@@ -146,7 +146,10 @@ public final class TerrainFlatteningOp extends Operator {
         try {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfMapProjected();
-            validator.checkIfNotCalibrated();
+
+            if (!OperatorUtils.isCalibrated(sourceProduct)) {
+                throw new OperatorException("Source product should be calibrated to beta0");
+            }
 
             getMetadata();
 
@@ -766,8 +769,7 @@ public final class TerrainFlatteningOp extends Operator {
         final double H2 = sensorPos[0] * sensorPos[0] + sensorPos[1] * sensorPos[1] + sensorPos[2] * sensorPos[2];
         final double R2 = earthPoint[0] * earthPoint[0] + earthPoint[1] * earthPoint[1] + earthPoint[2] * earthPoint[2];
 
-        return FastMath.acos((slantRange * slantRange + H2 - R2) / (2 * slantRange * Math.sqrt(H2))) *
-                org.esa.beam.util.math.MathUtils.RTOD;
+        return FastMath.acos((slantRange * slantRange + H2 - R2) / (2 * slantRange * Math.sqrt(H2))) * Constants.RTOD;
     }
 
     /**

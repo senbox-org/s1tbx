@@ -17,6 +17,7 @@ package org.csa.rstb.gpf;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -35,10 +36,10 @@ public class TestPolarimetricSpeckleFilterOp {
 
     private final static OperatorSpi spi = new PolarimetricSpeckleFilterOp.Spi();
 
-    private final static String inputPathQuad = TestUtils.rootPathTestProducts + "\\input\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
-    private final static String inputQuadFullStack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
-    private final static String inputC3Stack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-C3-Stack.dim";
-    private final static String inputT3Stack = TestUtils.rootPathTestProducts + "\\input\\QuadPolStack\\RS2-T3-Stack.dim";
+    private final static String inputPathQuad = TestData.inputSAR + "\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900.dim";
+    private final static String inputQuadFullStack = TestData.inputSAR + "\\QuadPolStack\\RS2-Quad_Pol_Stack.dim";
+    private final static String inputC3Stack = TestData.inputSAR + "\\QuadPolStack\\RS2-C3-Stack.dim";
+    private final static String inputT3Stack = TestData.inputSAR + "\\QuadPolStack\\RS2-T3-Stack.dim";
 
     private final static String expectedBoxCar = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_BoxCar.dim";
     private final static String expectedRefinedLee = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_RefinedLee.dim";

@@ -663,7 +663,7 @@ public class ALOSDeskewingOp extends Operator {
 
     private static double getAngularVelocity() {
         final double dayLength = 24.0 * 60.0 * 60.0;
-        return (366.225 / 365.225) * 2 * Math.PI / dayLength;
+        return (366.225 / 365.225) * 2 * Constants.PI / dayLength;
     }
 
     /**

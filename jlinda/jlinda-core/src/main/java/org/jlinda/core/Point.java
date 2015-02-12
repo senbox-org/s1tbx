@@ -1,6 +1,7 @@
 package org.jlinda.core;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import org.apache.commons.math3.util.FastMath;
 
 /**
  * User: pmar@ppolabs.com
@@ -110,7 +111,7 @@ public class Point extends Coordinate {
 
     // Radians [0:pi]
     public double angle(Point p) {
-        return Math.acos(in(p) / (norm() * p.norm()));
+        return FastMath.acos(in(p) / (norm() * p.norm()));
     }
 
     public Point scale(double scalar) {

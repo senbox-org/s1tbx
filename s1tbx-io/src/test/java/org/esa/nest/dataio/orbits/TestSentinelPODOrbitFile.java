@@ -1,6 +1,10 @@
 package org.esa.nest.dataio.orbits;
 
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
@@ -8,28 +12,38 @@ import org.junit.Test;
 
 import java.io.File;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * To test SentinelPODOrbitFile
  */
 public class TestSentinelPODOrbitFile {
 
-    private final static String orbitFile = TestData.inputSAR+"Orbits"+TestData.sep+
-            "S1A_OPER_AUX_RESORB_OPOD_20140611T152302_V20140525T151921_20140525T183641.EOF";
+    private final static File orbitFile = new File(TestData.inputSAR+"Orbits"+TestData.sep+
+            "S1A_OPER_AUX_RESORB_OPOD_20140611T152302_V20140525T151921_20140525T183641.EOF");
 
     @Test
-    public void testSentinelPODOrbitFile() throws Throwable {
-        final File file = new File(orbitFile);
-        if (!file.exists()) {
-            TestUtils.skipTest(this, file + " not found");
+    public void testSentinelPODOrbitFile() throws Exception {
+        if (!orbitFile.exists()) {
+            TestUtils.skipTest(this, orbitFile + " not found");
             return;
         }
+        final File sourceFile = TestData.inputS1_GRD;
+        if(!sourceFile.exists()) {
+            TestUtils.skipTest(this, sourceFile + " not found");
+            return;
+        }
+
+        final Product sourceProduct = ProductIO.readProduct(sourceFile);
+        MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+
         TestUtils.log.info("testSentinelPODOrbitFile...");
-        final SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile(orbitFile);
+        final SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile(SentinelPODOrbitFile.RESTITUTED, absRoot, sourceProduct, 3);
 
         // First OSV (exact match)
         String utcStr1 = "UTC=2014-05-25T15:19:21.698661";
-        double utc1 = ProductData.UTC.parse(SentinelPODOrbitFile.convertUTC(utcStr1)).getMJD();
-        Orbits.OrbitData orbitData = podOrbitFile.getOrbitData(utc1);
+        double utc1 = SentinelPODOrbitFile.toUTC(utcStr1).getMJD();
+        Orbits.OrbitVector orbitData = podOrbitFile.getOrbitData(utc1);
         assert(orbitData.xPos == 5385157.178934F);
         assert(orbitData.yPos == 4581079.075900F);
         assert(orbitData.zPos == -98597.029370F);
@@ -39,7 +53,7 @@ public class TestSentinelPODOrbitFile {
 
         // Last OSV (exact match)
         utcStr1 = "UTC=2014-05-25T18:36:41.698661";
-        utc1 = ProductData.UTC.parse(SentinelPODOrbitFile.convertUTC(utcStr1)).getMJD();
+        utc1 = SentinelPODOrbitFile.toUTC(utcStr1).getMJD();
         orbitData = podOrbitFile.getOrbitData(utc1);
         assert(orbitData.xPos == 6983513.585397F);
         assert(orbitData.yPos == -1106276.317976F);
@@ -50,7 +64,7 @@ public class TestSentinelPODOrbitFile {
 
         // 500th OSV (exact match)
         utcStr1 = "UTC=2014-05-25T16:42:31.698661";
-        utc1 = ProductData.UTC.parse(SentinelPODOrbitFile.convertUTC(utcStr1)).getMJD();
+        utc1 = SentinelPODOrbitFile.toUTC(utcStr1).getMJD();
         orbitData = podOrbitFile.getOrbitData(utc1);
         assert(orbitData.xPos == 3337932.006259F);
         assert(orbitData.yPos == 2076857.815226F);
@@ -61,7 +75,7 @@ public class TestSentinelPODOrbitFile {
 
         // between 450th and 451th OSV (closer to 450th)
         utcStr1 = "UTC=2014-05-25T16:34:14.698661";
-        utc1 = ProductData.UTC.parse(SentinelPODOrbitFile.convertUTC(utcStr1)).getMJD();
+        utc1 = SentinelPODOrbitFile.toUTC(utcStr1).getMJD();
         orbitData = podOrbitFile.getOrbitData(utc1);
         assert(orbitData.xPos == -80628.326729F);
         assert(orbitData.yPos == 1048544.403175F);
@@ -72,7 +86,7 @@ public class TestSentinelPODOrbitFile {
 
         // between 450th and 451th OSV (closer to 451th)
         utcStr1 = "UTC=2014-05-25T16:34:18.698661";
-        utc1 = ProductData.UTC.parse(SentinelPODOrbitFile.convertUTC(utcStr1)).getMJD();
+        utc1 = SentinelPODOrbitFile.toUTC(utcStr1).getMJD();
         orbitData = podOrbitFile.getOrbitData(utc1);
         assert(orbitData.xPos == -10036.237767F);
         assert(orbitData.yPos == 1075578.908285F);
@@ -83,7 +97,7 @@ public class TestSentinelPODOrbitFile {
 
         // OSV earlier than all
         utcStr1 = "UTC=2014-05-25T15:10:21.698661";
-        utc1 = ProductData.UTC.parse(SentinelPODOrbitFile.convertUTC(utcStr1)).getMJD();
+        utc1 = SentinelPODOrbitFile.toUTC(utcStr1).getMJD();
         orbitData = podOrbitFile.getOrbitData(utc1);
         assert(orbitData.xPos == 5385157.178934F);
         assert(orbitData.yPos == 4581079.075900F);
@@ -94,7 +108,7 @@ public class TestSentinelPODOrbitFile {
 
         // OSV later than all
         utcStr1 = "UTC=2014-05-25T18:36:41.699662";
-        utc1 = ProductData.UTC.parse(SentinelPODOrbitFile.convertUTC(utcStr1)).getMJD();
+        utc1 = SentinelPODOrbitFile.toUTC(utcStr1).getMJD();
         orbitData = podOrbitFile.getOrbitData(utc1);
         assert(orbitData.xPos == 6983513.585397F);
         assert(orbitData.yPos == -1106276.317976F);
@@ -135,5 +149,20 @@ public class TestSentinelPODOrbitFile {
         final String vStop = SentinelPODOrbitFile.getValidityStopFromFilename("S1A_OPER_AUX_POEORB_OPOD_20140526T151322_V20140509T225944_20140511T005944.EOF");
         TestUtils.log.info("validity stop from filename = " + vStop);
         assert(vStop.equals("UTC=2014-05-11T00:59:44"));
+    }
+
+    @Test
+    public void testSentinelPODOrbitFileOperations() throws Exception {
+        if (!orbitFile.exists()) {
+            TestUtils.skipTest(this, orbitFile + " not found");
+            return;
+        }
+
+        String name = orbitFile.getName();
+        final ProductData.UTC utcStart = SentinelPODOrbitFile.getValidityStartFromFilenameUTC(name);
+        assertEquals(5258.6384375, utcStart.getMJD(), 0.00001);
+
+        final ProductData.UTC utcEnd = SentinelPODOrbitFile.getValidityStopFromFilenameUTC(name);
+        assertEquals(5258.775474537037, utcEnd.getMJD(), 0.00001);
     }
 }

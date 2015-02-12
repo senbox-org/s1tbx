@@ -15,6 +15,7 @@
  */
 package org.esa.nest.dat.toolviews.productlibrary.model;
 
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.util.Guardian;
 import org.esa.nest.dat.toolviews.productlibrary.model.dataprovider.DataProvider;
 import org.esa.snap.db.ProductEntry;
@@ -261,7 +262,7 @@ public class SortingDecorator extends AbstractTableModel {
             final Color color = c == null ? Color.GRAY : c.getBackground();
             // In a compound sort, make each succesive triangle 20%
             // smaller than the previous one.
-            final int dx = (int) (size / 2 * Math.pow(0.8, priority));
+            final int dx = (int) (size / 2 * FastMath.pow(0.8, priority));
             final int dy = descending ? dx : -dx;
             // Align icon (roughly) with font baseline.
             y = y + 5 * size / 6 + (descending ? -dy : 0);

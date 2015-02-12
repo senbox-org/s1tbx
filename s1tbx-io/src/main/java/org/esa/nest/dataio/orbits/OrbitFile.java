@@ -31,7 +31,7 @@ public interface OrbitFile {
      * @return The orbit information.
      * @throws Exception The exceptions.
      */
-    public Orbits.OrbitData getOrbitData(final double utc) throws Exception;
+    public Orbits.OrbitVector getOrbitData(final double utc) throws Exception;
 
     /**
      * Get the orbit file used

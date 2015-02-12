@@ -1,11 +1,12 @@
 package org.jlinda.core.utils;
 
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.jblas.MatrixFunctions.pow;
 
@@ -18,7 +19,7 @@ public class PolyUtils {
     private static final Logger logger = BeamLogManager.getSystemLogger();
 
     private static void setLoggerLevel() {
-        //Logger.setLevel(Level.WARNING);
+        logger.setLevel(Level.WARNING);
     }
 
     public static double normalize2(double data, final int min, final int max) {
@@ -43,7 +44,7 @@ public class PolyUtils {
     }
 
     public static int numberOfCoefficients(final int degree) {
-        return (int) (0.5 * (Math.pow(degree + 1, 2) + degree + 1));
+        return (int) (0.5 * (FastMath.pow(degree + 1, 2) + degree + 1));
     }
 
     /**
@@ -71,7 +72,7 @@ public class PolyUtils {
         setLoggerLevel();
 
         if (x.length != y.length || !x.isVector() || !y.isVector()) {
-            //Logger.severe("polyfit: require same size vectors.");
+            logger.severe("polyfit: require same size vectors.");
             throw new IllegalArgumentException("polyfit: require same size vectors.");
         }
 
@@ -92,7 +93,7 @@ public class PolyUtils {
         }
 
         // Fit polynomial
-        //Logger.fine("Solving lin. system of equations with Cholesky.");
+        logger.fine("Solving lin. system of equations with Cholesky.");
         DoubleMatrix N = A.transpose().mmul(A);
         DoubleMatrix rhs = A.transpose().mmul(z);
 
@@ -102,12 +103,12 @@ public class PolyUtils {
         DoubleMatrix Qx_hat = Solve.solveSymmetric(N, DoubleMatrix.eye(N.getRows()));
 
         double maxDeviation = (N.mmul(Qx_hat).sub(DoubleMatrix.eye(Qx_hat.rows))).normmax();
-        //Logger.fine("polyfit orbit: max(abs(N*inv(N)-I)) = " + maxDeviation);
+        logger.fine("polyfit orbit: max(abs(N*inv(N)-I)) = " + maxDeviation);
 
         // ___ report max error... (seems sometimes this can be extremely large) ___
         if (maxDeviation > 1e-6) {
-            //Logger.warning("polyfit orbit: max(abs(N*inv(N)-I)) = {"+maxDeviation+"}");
-            //Logger.warning("polyfit orbit interpolation unstable!");
+            logger.warning("polyfit orbit: max(abs(N*inv(N)-I)) = {"+maxDeviation+"}");
+            logger.warning("polyfit orbit interpolation unstable!");
         }
 
         // work out residuals
@@ -115,18 +116,18 @@ public class PolyUtils {
         DoubleMatrix e_hat = z.sub(y_hat);
 
         if (e_hat.normmax() > 0.02) {
-            //Logger.warning("WARNING: Max. polyFit2D approximation error at datapoints (x,y,or z?): {"+e_hat.normmax()+"}");
+            logger.warning("WARNING: Max. polyFit2D approximation error at datapoints (x,y,or z?): {"+e_hat.normmax()+"}");
         } else {
-            //Logger.info("Max. polyFit2D approximation error at datapoints (x,y,or z?): {"+e_hat.normmax()+"}");
+            logger.info("Max. polyFit2D approximation error at datapoints (x,y,or z?): {"+e_hat.normmax()+"}");
         }
 
-        //if (Logger.isLoggable(Level.FINE)) {
-            //Logger.fine("REPORTING POLYFIT LEAST SQUARES ERRORS");
-            //Logger.fine(" time \t\t\t y \t\t\t yhat  \t\t\t ehat");
-            //for (int i = 0; i < numOfObs; i++) {
-                //Logger.fine(" (" + x.get(i) + "," + y.get(i) + ") :" + "\t" + y.get(i) + "\t" + y_hat.get(i) + "\t" + e_hat.get(i));
-            //}
-        //}
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine("REPORTING POLYFIT LEAST SQUARES ERRORS");
+            logger.fine(" time \t\t\t y \t\t\t yhat  \t\t\t ehat");
+            for (int i = 0; i < numOfObs; i++) {
+                logger.fine(" (" + x.get(i) + "," + y.get(i) + ") :" + "\t" + y.get(i) + "\t" + y_hat.get(i) + "\t" + e_hat.get(i));
+            }
+        }
         return rhs.toArray();
     }
 
@@ -135,7 +136,7 @@ public class PolyUtils {
         setLoggerLevel();
 
         if (t.length != y.length || !t.isVector() || !y.isVector()) {
-            //Logger.severe("polyfit: require same size vectors.");
+            logger.severe("polyfit: require same size vectors.");
             throw new IllegalArgumentException("polyfit: require same size vectors.");
         }
 
@@ -144,17 +145,17 @@ public class PolyUtils {
 
         // Check redundancy
         final int numOfUnknowns = degree + 1;
-        //Logger.fine("Degree of interpolating polynomial: {"+degree+"}");
-        //Logger.fine("Number of unknowns: {"+numOfUnknowns+"}");
-        //Logger.fine("Number of data points: {"+numOfPoints+"}");
+        logger.fine("Degree of interpolating polynomial: {"+degree+"}");
+        logger.fine("Number of unknowns: {"+numOfUnknowns+"}");
+        logger.fine("Number of data points: {"+numOfPoints+"}");
 
         if (numOfPoints < numOfUnknowns) {
-            //Logger.severe("Number of points is smaller than parameters solved for.");
+            logger.severe("Number of points is smaller than parameters solved for.");
             throw new IllegalArgumentException("Number of points is smaller than parameters solved for.");
         }
 
         // Set up system of equations to solve coeff :: Design matrix
-        //Logger.fine("Setting up linear system of equations");
+        logger.fine("Setting up linear system of equations");
         DoubleMatrix A = new DoubleMatrix(numOfPoints, numOfUnknowns);
         // work with columns
         for (int j = 0; j <= degree; j++) {
@@ -162,7 +163,7 @@ public class PolyUtils {
         }
 
         // Fit polynomial through computed vector of phases
-        //Logger.fine("Solving lin. system of equations with Cholesky.");
+        logger.fine("Solving lin. system of equations with Cholesky.");
 
         DoubleMatrix N = A.transpose().mmul(A);
         DoubleMatrix rhs = A.transpose().mmul(y);
@@ -172,12 +173,12 @@ public class PolyUtils {
         DoubleMatrix Qx_hat = Solve.solveSymmetric(N, DoubleMatrix.eye(N.getRows()));
 
         double maxDeviation = (N.mmul(Qx_hat).sub(DoubleMatrix.eye(Qx_hat.rows))).normmax();
-        //Logger.fine("polyfit orbit: max(abs(N*inv(N)-I)) = " + maxDeviation);
+        logger.fine("polyfit orbit: max(abs(N*inv(N)-I)) = " + maxDeviation);
 
         // ___ report max error... (seems sometimes this can be extremely large) ___
         if (maxDeviation > 1e-6) {
-            //Logger.warning("polyfit orbit: max(abs(N*inv(N)-I)) = {"+maxDeviation+"}");
-            //Logger.warning("polyfit orbit interpolation unstable!");
+            logger.warning("polyfit orbit: max(abs(N*inv(N)-I)) = {"+maxDeviation+"}");
+            logger.warning("polyfit orbit interpolation unstable!");
         }
 
         // work out residuals
@@ -186,26 +187,26 @@ public class PolyUtils {
 
         // 0.05 is already 1 wavelength! (?)
         if (e_hat.normmax() > 0.02) {
-            //Logger.warning("WARNING: Max. approximation error at datapoints (x,y,or z?): {"+e_hat.normmax()+"}");
+            logger.warning("WARNING: Max. approximation error at datapoints (x,y,or z?): {"+e_hat.normmax()+"}");
         } else {
-            //Logger.fine("Max. approximation error at datapoints (x,y,or z?): {"+ e_hat.normmax()+"}");
+            logger.fine("Max. approximation error at datapoints (x,y,or z?): {"+ e_hat.normmax()+"}");
         }
 
-        if (false) {//Logger.isLoggable(Level.FINE)) {
-            //Logger.fine("REPORTING POLYFIT LEAST SQUARES ERRORS");
-            //Logger.fine(" time \t\t\t y \t\t\t yhat  \t\t\t ehat");
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine("REPORTING POLYFIT LEAST SQUARES ERRORS");
+            logger.fine(" time \t\t\t y \t\t\t yhat  \t\t\t ehat");
             for (int i = 0; i < numOfPoints; i++) {
-                //Logger.fine(" " + t.get(i) + "\t" + y.get(i) + "\t" + y_hat.get(i) + "\t" + e_hat.get(i));
+                logger.fine(" " + t.get(i) + "\t" + y.get(i) + "\t" + y_hat.get(i) + "\t" + e_hat.get(i));
             }
 
             for (int i = 0; i < numOfPoints - 1; i++) {
                 // ___ check if dt is constant, not necessary for me, but may ___
                 // ___ signal error in header data of SLC image ___
                 double dt = t.get(i + 1) - t.get(i);
-                //Logger.fine("Time step between point " + i + 1 + " and " + i + "= " + dt);
+                logger.fine("Time step between point " + i + 1 + " and " + i + "= " + dt);
 
-                //if (Math.abs(dt - (t.get(1) - t.get(0))) > 0.001)// 1ms of difference we allow...
-                    //Logger.warning("WARNING: Orbit: data does not have equidistant time interval?");
+                if (Math.abs(dt - (t.get(1) - t.get(0))) > 0.001)// 1ms of difference we allow...
+                    logger.warning("WARNING: Orbit: data does not have equidistant time interval?");
             }
         }
         return x.toArray();
@@ -225,11 +226,11 @@ public class PolyUtils {
         setLoggerLevel();
 
         if (degree < -1) {
-            //Logger.warning("polyValGrid: degree < -1 ????");
+            logger.warning("polyValGrid: degree < -1 ????");
         }
 
         if (x.length > y.length) {
-            //Logger.warning("polValGrid: x larger than y, while optimized for y larger x");
+            logger.warning("polValGrid: x larger than y, while optimized for y larger x");
         }
 
         if (degree == -1) {
@@ -269,13 +270,13 @@ public class PolyUtils {
                 for (j = 0; j < columns; j++) {
                     double y1 = y[j];
                     double c00pc01y1 = c00 + c01 * y1;
-                    double c02y2 = c02 * Math.pow(y1, 2);
+                    double c02y2 = c02 * FastMath.pow(y1, 2);
                     double c11y1 = c11 * y1;
                     for (i = 0; i < rows; i++) {
                         double x1 = x[i];
                         result[i][j] = c00pc01y1
                                 + c10 * x1
-                                + c20 * Math.pow(x1, 2)
+                                + c20 * FastMath.pow(x1, 2)
                                 + c11y1 * x1
                                 + c02y2;
                     }
@@ -294,7 +295,7 @@ public class PolyUtils {
                 c03 = coeff[9];
                 for (j = 0; j < columns; j++) {
                     double y1 = y[j];
-                    double y2 = Math.pow(y1, 2);
+                    double y2 = FastMath.pow(y1, 2);
                     double c00pc01y1 = c00 + c01 * y1;
                     double c02y2 = c02 * y2;
                     double c11y1 = c11 * y1;
@@ -303,7 +304,7 @@ public class PolyUtils {
                     double c03y3 = c03 * y1 * y2;
                     for (i = 0; i < rows; i++) {
                         double x1 = x[i];
-                        double x2 = Math.pow(x1, 2);
+                        double x2 = FastMath.pow(x1, 2);
                         result[i][j] = c00pc01y1
                                 + c10 * x1
                                 + c20 * x2
@@ -335,7 +336,7 @@ public class PolyUtils {
                 c04 = coeff[14];
                 for (j = 0; j < columns; j++) {
                     double y1 = y[j];
-                    double y2 = Math.pow(y1, 2);
+                    double y2 = FastMath.pow(y1, 2);
                     double c00pc01y1 = c00 + c01 * y1;
                     double c02y2 = c02 * y2;
                     double c11y1 = c11 * y1;
@@ -348,7 +349,7 @@ public class PolyUtils {
                     double c04y4 = c04 * y2 * y2;
                     for (i = 0; i < rows; i++) {
                         double x1 = x[i];
-                        double x2 = Math.pow(x1, 2);
+                        double x2 = FastMath.pow(x1, 2);
                         result[i][j] = c00pc01y1
                                 + c10 * x1
                                 + c20 * x2
@@ -390,7 +391,7 @@ public class PolyUtils {
                 c05 = coeff[20];
                 for (j = 0; j < columns; j++) {
                     double y1 = y[j];
-                    double y2 = Math.pow(y1, 2);
+                    double y2 = FastMath.pow(y1, 2);
                     double y3 = y2 * y1;
                     double c00pc01y1 = c00 + c01 * y1;
                     double c02y2 = c02 * y2;
@@ -409,7 +410,7 @@ public class PolyUtils {
                     double c05y5 = c05 * y3 * y2;
                     for (i = 0; i < rows; i++) {
                         double x1 = x[i];
-                        double x2 = Math.pow(x1, 2);
+                        double x2 = FastMath.pow(x1, 2);
                         double x3 = x1 * x2;
                         result[i][j] = c00pc01y1
                                 + c10 * x1
@@ -453,26 +454,26 @@ public class PolyUtils {
         setLoggerLevel();
 
         if (!x.isColumnVector()) {
-            //Logger.warning("polyValGrid: require (x) standing data vectors!");
+            logger.warning("polyValGrid: require (x) standing data vectors!");
             throw new IllegalArgumentException("polyval functions require (x) standing data vectors!");
         }
 
         if (!y.isColumnVector()) {
-            //Logger.warning("polyValGrid: require (y) standing data vectors!");
+            logger.warning("polyValGrid: require (y) standing data vectors!");
             throw new IllegalArgumentException("polyval functions require (y) standing data vectors!");
         }
 
         if (!coeff.isColumnVector()) {
-            //Logger.warning("polyValGrid: require (coeff) standing data vectors!");
+            logger.warning("polyValGrid: require (coeff) standing data vectors!");
             throw new IllegalArgumentException("polyval functions require (coeff) standing data vectors!");
         }
 
         if (degree < -1) {
-            //Logger.warning("polyValGrid: degree < -1 ????");
+            logger.warning("polyValGrid: degree < -1 ????");
         }
 
         if (x.length > y.length) {
-            //Logger.warning("polValGrid: x larger than y, while optimized for y larger x");
+            logger.warning("polValGrid: x larger than y, while optimized for y larger x");
         }
 
         if (degree == -1) {
@@ -510,13 +511,13 @@ public class PolyUtils {
                 for (j = 0; j < result.columns; j++) {
                     double y1 = y.get(j, 0);
                     double c00pc01y1 = c00 + c01 * y1;
-                    double c02y2 = c02 * Math.pow(y1, 2);
+                    double c02y2 = c02 * FastMath.pow(y1, 2);
                     double c11y1 = c11 * y1;
                     for (i = 0; i < result.rows; i++) {
                         double x1 = x.get(i, 0);
                         result.put(i, j, c00pc01y1
                                 + c10 * x1
-                                + c20 * Math.pow(x1, 2)
+                                + c20 * FastMath.pow(x1, 2)
                                 + c11y1 * x1
                                 + c02y2);
                     }
@@ -535,7 +536,7 @@ public class PolyUtils {
                 c03 = coeff.get(9, 0);
                 for (j = 0; j < result.columns; j++) {
                     double y1 = y.get(j, 0);
-                    double y2 = Math.pow(y1, 2);
+                    double y2 = FastMath.pow(y1, 2);
                     double c00pc01y1 = c00 + c01 * y1;
                     double c02y2 = c02 * y2;
                     double c11y1 = c11 * y1;
@@ -544,7 +545,7 @@ public class PolyUtils {
                     double c03y3 = c03 * y1 * y2;
                     for (i = 0; i < result.rows; i++) {
                         double x1 = x.get(i, 0);
-                        double x2 = Math.pow(x1, 2);
+                        double x2 = FastMath.pow(x1, 2);
                         result.put(i, j, c00pc01y1
                                 + c10 * x1
                                 + c20 * x2
@@ -576,7 +577,7 @@ public class PolyUtils {
                 c04 = coeff.get(14, 0);
                 for (j = 0; j < result.columns; j++) {
                     double y1 = y.get(j, 0);
-                    double y2 = Math.pow(y1, 2);
+                    double y2 = FastMath.pow(y1, 2);
                     double c00pc01y1 = c00 + c01 * y1;
                     double c02y2 = c02 * y2;
                     double c11y1 = c11 * y1;
@@ -589,7 +590,7 @@ public class PolyUtils {
                     double c04y4 = c04 * y2 * y2;
                     for (i = 0; i < result.rows; i++) {
                         double x1 = x.get(i, 0);
-                        double x2 = Math.pow(x1, 2);
+                        double x2 = FastMath.pow(x1, 2);
                         result.put(i, j, c00pc01y1
                                 + c10 * x1
                                 + c20 * x2
@@ -631,7 +632,7 @@ public class PolyUtils {
                 c05 = coeff.get(20, 0);
                 for (j = 0; j < result.columns; j++) {
                     double y1 = y.get(j, 0);
-                    double y2 = Math.pow(y1, 2);
+                    double y2 = FastMath.pow(y1, 2);
                     double y3 = y2 * y1;
                     double c00pc01y1 = c00 + c01 * y1;
                     double c02y2 = c02 * y2;
@@ -650,7 +651,7 @@ public class PolyUtils {
                     double c05y5 = c05 * y3 * y2;
                     for (i = 0; i < result.rows; i++) {
                         double x1 = x.get(i, 0);
-                        double x2 = Math.pow(x1, 2);
+                        double x2 = FastMath.pow(x1, 2);
                         double x3 = x1 * x2;
                         result.put(i, j, c00pc01y1
                                 + c10 * x1
@@ -703,13 +704,13 @@ public class PolyUtils {
         setLoggerLevel();
 
         if (degree < 0 || degree > 1000) {
-            //Logger.warning("polyval: degree value [" + degree + "] not realistic!");
+            logger.warning("polyval: degree value [" + degree + "] not realistic!");
             throw new IllegalArgumentException("polyval: degree not realistic!");
         }
 
         //// Check default arguments ////
         if (degree < -1) {
-            //Logger.warning("polyValGrid: degree < -1 ????");
+            logger.warning("polyValGrid: degree < -1 ????");
             degree = degreeFromCoefficients(coeff.length);
         }
 
@@ -722,12 +723,12 @@ public class PolyUtils {
         } else if (degree == 2) {
             sum += (coeff[1] * x
                     + coeff[2] * y
-                    + coeff[3] * Math.pow(x, 2)
+                    + coeff[3] * FastMath.pow(x, 2)
                     + coeff[4] * x * y
-                    + coeff[5] * Math.pow(y, 2));
+                    + coeff[5] * FastMath.pow(y, 2));
         } else if (degree == 3) {
-            final double xx = Math.pow(x, 2);
-            final double yy = Math.pow(y, 2);
+            final double xx = FastMath.pow(x, 2);
+            final double yy = FastMath.pow(y, 2);
             sum += (coeff[1] * x
                     + coeff[2] * y
                     + coeff[3] * xx
@@ -738,9 +739,9 @@ public class PolyUtils {
                     + coeff[8] * x * yy
                     + coeff[9] * yy * y);
         } else if (degree == 4) {
-            final double xx = Math.pow(x, 2);
+            final double xx = FastMath.pow(x, 2);
             final double xxx = xx * x;
-            final double yy = Math.pow(y, 2);
+            final double yy = FastMath.pow(y, 2);
             final double yyy = yy * y;
             sum += (coeff[1] * x
                     + coeff[2] * y
@@ -757,10 +758,10 @@ public class PolyUtils {
                     + coeff[13] * x * yyy
                     + coeff[14] * yy * yy);
         } else if (degree == 5) {
-            final double xx = Math.pow(x, 2);
+            final double xx = FastMath.pow(x, 2);
             final double xxx = xx * x;
             final double xxxx = xxx * x;
-            final double yy = Math.pow(y, 2);
+            final double yy = FastMath.pow(y, 2);
             final double yyy = yy * y;
             final double yyyy = yyy * y;
             sum += (coeff[1] * x
@@ -789,7 +790,7 @@ public class PolyUtils {
             int coeffIndex = 0;
             for (int l = 0; l <= degree; l++) {
                 for (int k = 0; k <= l; k++) {
-                    sum += coeff[coeffIndex] * Math.pow(x, (double) (l - k)) * Math.pow(y, (double) k);
+                    sum += coeff[coeffIndex] * FastMath.pow(x, (double) (l - k)) * FastMath.pow(y, (double) k);
                     coeffIndex++;
                 }
             }

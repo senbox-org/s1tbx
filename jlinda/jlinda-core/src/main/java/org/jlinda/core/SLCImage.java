@@ -1,5 +1,6 @@
 package org.jlinda.core;
 
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.jlinda.core.io.ResFile;
@@ -292,7 +293,7 @@ public final class SLCImage {
 
     // Convert pixel number to range time (1 is first pixel)
     public double pix2tr(double pixel) {
-        return tRange1 + ((pixel - 1.0) / (rsr2x*0.5));
+        return tRange1 + ((pixel - 1.0) / rsr2x);
     }
 
     // Convert pixel number to range (1 is first pixel)
@@ -302,7 +303,7 @@ public final class SLCImage {
 
     // Convert range time to pixel number (1 is first pixel)
     public double tr2pix(double rangeTime) {
-        return 1.0 + (0.5 * rsr2x * (rangeTime - tRange1));
+        return 1.0 + (rsr2x * (rangeTime - tRange1));
     }
 
     /*---  AZIMUTH CONVERSIONS ---*/
@@ -532,7 +533,7 @@ public final class SLCImage {
         // Convert range pixel to fDC (1 is first pixel, can be ovs)
         public double pix2fdc(double pixel) {
             final double tau = (pixel - 1.0) / (rsr2x / 2.0);// two-way time
-            return f_DC_a0 + (f_DC_a1 * tau) + (f_DC_a2 * Math.pow(tau, 2));
+            return f_DC_a0 + (f_DC_a1 * tau) + (f_DC_a2 * FastMath.pow(tau, 2));
         }
 
     }

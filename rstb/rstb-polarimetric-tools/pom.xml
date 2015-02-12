@@ -37,6 +37,11 @@
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-io</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jblas</groupId>
+            <artifactId>jblas</artifactId>
+            <version>1.2.3</version>
+        </dependency>
     </dependencies>
 
     <build>

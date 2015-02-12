@@ -44,15 +44,6 @@ public class TestRangeDopplerOp {
     }
     private final static OperatorSpi spi = new RangeDopplerGeocodingOp.Spi();
 
-    private final static String inputPathWSM = TestUtils.rootPathTestProducts + "\\input\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim";
-    private final static String expectedPathWSM = TestUtils.rootPathTestProducts + "\\expected\\subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977_TC.dim";
-
-    private final static String inputPathIMS = TestUtils.rootPathTestProducts + "\\input\\ENVISAT-ASA_IMS_1PNDPA20050405_211952_000000162036_00115_16201_8523.dim";
-    private final static String expectedPathIMS = TestUtils.rootPathTestProducts + "\\expected\\ENVISAT-ASA_IMS_1PNDPA20050405_211952_000000162036_00115_16201_8523_TC.dim";
-
-    private final static String inputPathAPM = TestUtils.rootPathTestProducts + "\\input\\ASA_APM_1PNIPA20030327_091853_000000152015_00036_05601_5422.N1";
-    private final static String expectedPathAPM = TestUtils.rootPathTestProducts + "\\expected\\ENVISAT-ASA_APM_1PNIPA20030327_091853_000000152015_00036_05601_5422.N1_TC.dim";
-
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
     private String[] exceptionExemptions = {"not supported", "not be map projected", "outside of SRTM valid area",
                                 "Source product should first be deburst"};
@@ -142,7 +133,7 @@ public class TestRangeDopplerOp {
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
-        final float[] expected = new float[] { 0.010062427f, 0.13139872f, 0.125968f};
+        final float[] expected = new float[] { 0.010018039f, 0.13253337f, 0.12609826f };
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), expected);
     }
 

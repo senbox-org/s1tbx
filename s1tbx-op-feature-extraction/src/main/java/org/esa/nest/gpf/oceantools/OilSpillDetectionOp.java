@@ -16,6 +16,7 @@
 package org.esa.nest.gpf.oceantools;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
@@ -95,7 +96,7 @@ public class OilSpillDetectionOp extends Operator {
             if (k < 0) {
                 throw new OperatorException("Threshold Shift cannot be negative");
             } else {
-                kInLinearScale = Math.pow(10.0, k / 10.0);
+                kInLinearScale = FastMath.pow(10.0, k / 10.0);
             }
 
             targetProduct = new Product(sourceProduct.getName(),

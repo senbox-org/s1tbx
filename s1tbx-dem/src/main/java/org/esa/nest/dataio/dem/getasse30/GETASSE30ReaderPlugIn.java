@@ -54,11 +54,8 @@ public class GETASSE30ReaderPlugIn implements ProductReaderPlugIn {
         final File file = ReaderUtils.getFileFromInput(input);
         if (file != null) {
             final String fileName = file.getName().toLowerCase();
-            final String[] extensions = getDefaultFileExtensions();
-            for (final String extension : extensions) {
-                if (fileName.endsWith(extension) && !fileName.equals(extension)) {
-                    return DecodeQualification.INTENDED;
-                }
+            if (fileName.endsWith(".getasse30")) {
+                return DecodeQualification.INTENDED;
             }
         }
         return DecodeQualification.UNABLE;

@@ -19,6 +19,7 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.visat.VisatApp;
+import org.esa.snap.db.CommonReaders;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class ProductOpener {
                 continue;
             }
             try {
-                final Product product = ProductIO.readProduct(productFile);
+                final Product product = CommonReaders.readProduct(productFile);
 
                 final ProductManager productManager = visatApp.getProductManager();
                 productManager.addProduct(product);

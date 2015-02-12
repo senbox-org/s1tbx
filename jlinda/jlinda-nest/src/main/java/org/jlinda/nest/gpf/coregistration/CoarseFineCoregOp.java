@@ -26,6 +26,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.visat.toolviews.placemark.PlacemarkNameFactory;
 import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.nest.dataio.dem.ElevationModelDescriptor;
@@ -45,6 +46,8 @@ import org.jlinda.nest.utils.TileUtilsDoris;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @OperatorMetadata(alias = "CoarseFine-Coregistration",
         category = "SAR Processing/InSAR/InSAR Coregistration",
@@ -137,14 +140,14 @@ public class CoarseFineCoregOp extends Operator {
     private static final int EXTRA_BORDER = 20; // work with slightly smaller search space, used in gcp validation
 
     // Logger
-    //private static final Logger logger = (Logger) LoggerFactory.getLogger(CoarseFineCoregOp.class);
+    private static final Logger logger = BeamLogManager.getSystemLogger();
     
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
     public CoarseFineCoregOp() {
-        //logger.setLevel(Level.WARN);
+        logger.setLevel(Level.WARNING);
     }
 
     /**
@@ -441,7 +444,7 @@ public class CoarseFineCoregOp extends Operator {
                     final PixelPos mGCPPixelPos = mPin.getPixelPos();
                     final PixelPos sGCPPixelPos = new PixelPos(mPin.getPixelPos().x, mPin.getPixelPos().y);
                     if (!checkSlaveGCPValidity(sGCPPixelPos)) {
-                        //logger.warn("GCP({}) is outside slave image.", i);
+                        logger.warning("GCP({}) is outside slave image."+ i);
                         continue;
                     }
 
@@ -450,7 +453,7 @@ public class CoarseFineCoregOp extends Operator {
                         @Override
                         public void run() {
 
-                            //logger.info("Running {}", mPin.getName());
+                            logger.info("Running {}"+ mPin.getName());
                             boolean getSlaveGCP = getCoarseOffsets(slaveBand1, slaveBand2, mGCPPixelPos, sGCPPixelPos);
 
                             if (getSlaveGCP) {
@@ -562,8 +565,8 @@ public class CoarseFineCoregOp extends Operator {
 
             double coherence = CoregistrationUtils.crossCorrelateFFT(coarseOffset, mI, sI, coarseWin.ovsFactor, coarseWin.accY, coarseWin.accX);
 
-            //logger.info("Coarse sGCP = ({}, {})", coarseOffset[1], coarseOffset[0]);
-            //logger.info("Coarse sGCP coherence = {}", coherence);
+            logger.info("Coarse sGCP = ({}, {})"+ coarseOffset[1]+ coarseOffset[0]);
+            logger.info("Coarse sGCP coherence = {}"+ coherence);
 
             sGCPPixelPos.x += (float) coarseOffset[1];
             sGCPPixelPos.y += (float) coarseOffset[0];
@@ -580,8 +583,8 @@ public class CoarseFineCoregOp extends Operator {
                                    final PixelPos mGCPPixelPos,
                                    final PixelPos sGCPPixelPos) {
         try {
-            //logger.info("mGCP = ({}, {})", mGCPPixelPos.x, mGCPPixelPos.y);
-            //logger.info("Initial sGCP = ({}, {})", sGCPPixelPos.x, sGCPPixelPos.y);
+            logger.info("mGCP = ({}, {})"+ mGCPPixelPos.x+ mGCPPixelPos.y);
+            logger.info("Initial sGCP = ({}, {})"+ sGCPPixelPos.x+ sGCPPixelPos.y);
 
             ComplexDoubleMatrix mI = getComplexDoubleMatrix(masterBand1, masterBand2, mGCPPixelPos, fineWin);
             ComplexDoubleMatrix sI = getComplexDoubleMatrix(slaveBand1, slaveBand2, sGCPPixelPos, fineWin);
@@ -590,8 +593,8 @@ public class CoarseFineCoregOp extends Operator {
 
             final double coherence = CoregistrationUtils.crossCorrelateFFT(fineOffset, mI, sI, fineWin.ovsFactor, fineWin.accY, fineWin.accX);
 
-            //logger.info("Final sGCP = ({},{})", fineOffset[1], fineOffset[0]);
-            //logger.info("Final sGCP coherence = {}", coherence);
+            logger.info("Final sGCP = ({},{})"+ fineOffset[1]+ fineOffset[0]);
+            logger.info("Final sGCP coherence = {}"+ coherence);
             
             if (coherence < coherenceThreshold) {
                 //System.out.println("Invalid GCP");

@@ -28,8 +28,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.StringTokenizer;
 
-import static org.esa.beam.util.math.MathUtils.RTOD;
-
 /**
  * Reads Delft ODR format orbit files
  */
@@ -355,7 +353,7 @@ public final class OrbitalDataRecordReader {
         xyz[2] = Maths.lagrangeEightOrderInterpolation(zPosArray, ref);
 
         GeoUtils.cartesian2polar(xyz, phiLamHeight);
-        GeoUtils.geo2xyz(phiLamHeight[0] * RTOD, phiLamHeight[1] * RTOD, phiLamHeight[2], xyz, GeoUtils.EarthModel.GRS80);
+        GeoUtils.geo2xyz(phiLamHeight[0] * Constants.RTOD, phiLamHeight[1] * Constants.RTOD, phiLamHeight[2], xyz, GeoUtils.EarthModel.GRS80);
 
         orbitPosition.xPos = xyz[0];
         orbitPosition.yPos = xyz[1];

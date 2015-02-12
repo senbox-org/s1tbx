@@ -4,6 +4,8 @@ import gnu.trove.iterator.TIntObjectIterator;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import org.esa.beam.util.logging.BeamLogManager;
+import org.apache.commons.math3.util.FastMath;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 import org.jlinda.core.coregistration.estimation.utils.SimpleAsciiFileParser;
@@ -11,6 +13,8 @@ import org.jlinda.core.utils.PolyUtils;
 import org.perf4j.StopWatch;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.jblas.MatrixFunctions.abs;
 import static org.jblas.MatrixFunctions.pow;
@@ -18,15 +22,15 @@ import static org.jblas.MatrixFunctions.pow;
 
 public class TestEstimation_DoubleMatrix {
 
-    //private static final Logger logger = (Logger) LoggerFactory.getLogger(TestEstimation_DoubleMatrix.class);
+    private static final Logger logger = BeamLogManager.getSystemLogger();
 
     public static void main(String[] args) throws IOException {
 
         StopWatch clockFull = new StopWatch();
         clockFull.start();
 
-        //Logger.setLevel(Level.INFO);
-        //Logger.trace("Start Estimation");
+        logger.setLevel(Level.INFO);
+        logger.info("Start Estimation");
 
         /** estimation without Data Snooping -- only AdjustA */
 
@@ -109,11 +113,11 @@ public class TestEstimation_DoubleMatrix {
             stopWatch.setTag(codeBlockMessage);
             stopWatch.start();
 
-            //Logger.info("Start iteration: {}", ITERATION);
+            logger.info("Start iteration: {}"+ ITERATION);
 
             /** Remove identified outlier from previous estimation */
             if (ITERATION != 0) {
-                //Logger.info("Removing observation {}, index {},  from observation vector.", index.getQuick(maxWSum_idx), maxWSum_idx);
+                logger.info("Removing observation {}, index {},  from observation vector."+ index.getQuick(maxWSum_idx)+ maxWSum_idx);
                 index.removeAt(maxWSum_idx);
                 lines.removeAt(maxWSum_idx);
                 pixels.removeAt(maxWSum_idx);
@@ -125,36 +129,36 @@ public class TestEstimation_DoubleMatrix {
             /** Check redundancy */
             numObs = index.size(); // Number of points > threshold
             if (numObs < numUnk) {
-                //Logger.error("coregpm: Number of windows > threshold is smaller than parameters solved for.");
+                logger.severe("coregpm: Number of windows > threshold is smaller than parameters solved for.");
                 throw new ArithmeticException("coregpm: Number of windows > threshold is smaller than parameters solved for.");
             }
 
 
             DoubleMatrix A = SystemOfEquations.constructDesignMatrix(new DoubleMatrix(lines.toArray()), new DoubleMatrix(pixels.toArray()), degree);
             final DoubleMatrix A_transpose = A.transpose();
-            //Logger.info("TIME FOR SETUP of SYSTEM : {}", stopWatch.lap("setup"));
+            logger.info("TIME FOR SETUP of SYSTEM : {}"+ stopWatch.lap("setup"));
 
 
             DoubleMatrix Qy_1; // vector
             switch (weight) {
                 case "linear":
-                    //Logger.debug("Using sqrt(coherence) as weights");
+                    logger.info("Using sqrt(coherence) as weights");
                     Qy_1 = new DoubleMatrix(coh.toArray());
                     // Normalize weights to avoid influence on estimated var.factor
-                    //Logger.debug("Normalizing covariance matrix for LS estimation");
+                    logger.info("Normalizing covariance matrix for LS estimation");
                     Qy_1.divi(Qy_1.mean()); // normalize vector
                     break;
                 case "quadratic":
-                    //Logger.debug("Using coherence as weights.");
+                    logger.info("Using coherence as weights.");
                     Qy_1 = new DoubleMatrix(coh.toArray());
                     Qy_1.muli(Qy_1);
                     // Normalize weights to avoid influence on estimated var.factor
-                    //Logger.debug("Normalizing covariance matrix for LS estimation.");
+                    logger.info("Normalizing covariance matrix for LS estimation.");
                     Qy_1.divi(Qy_1.mean()); // normalize vector
                     break;
                 case "bamler":
                     // TODO: see Bamler papers IGARSS 2000 and 2004
-                    //Logger.warn("Bamler weighting method NOT IMPLEMENTED, falling back to None.");
+                    logger.warning("Bamler weighting method NOT IMPLEMENTED, falling back to None.");
                     Qy_1 = DoubleMatrix.ones(numObs);
                     break;
                 case "none":
@@ -165,49 +169,49 @@ public class TestEstimation_DoubleMatrix {
                     break;
             }
 
-            //Logger.info("TIME FOR SETUP of VC vector: {}", stopWatch.lap("VC vector"));
+            logger.info("TIME FOR SETUP of VC vector: {}"+ stopWatch.lap("VC vector"));
 
 //            final DoubleMatrix Qy_1_diag = DoubleMatrix.diag(Qy_1);
-//            //Logger.info("TIME FOR SETUP of VC diag matris: {}", stopWatch.lap("diag VC matrix"));
+//            logger.info("TIME FOR SETUP of VC diag matris: {}", stopWatch.lap("diag VC matrix"));
 
 
             /** temp matrices */
             final DoubleMatrix yL_matrix = new DoubleMatrix(yL.toArray());
             final DoubleMatrix yP_matrix = new DoubleMatrix(yP.toArray());
-            //Logger.info("TIME FOR SETUP of TEMP MATRICES: {}", stopWatch.lap("Temp matrices"));
+            logger.info("TIME FOR SETUP of TEMP MATRICES: {}"+ stopWatch.lap("Temp matrices"));
 
             /** normal matrix */
             final DoubleMatrix N = A_transpose.mmul(diagxmat(Qy_1, A));
             DoubleMatrix Qx_hat = N.dup(); // store N into Qx_hat
-            //Logger.info("TIME FOR SETUP of NORMAL MATRIX: {}", stopWatch.lap("Normal matrix"));
+            logger.info("TIME FOR SETUP of NORMAL MATRIX: {}"+ stopWatch.lap("Normal matrix"));
 
             /** right hand sides */
             DoubleMatrix rhsL = A_transpose.mmul(diagxmat(Qy_1, yL_matrix));
             DoubleMatrix rhsP = A_transpose.mmul(diagxmat(Qy_1, yP_matrix));
-            //Logger.info("TIME FOR SETUP of RightHand Side: {}", stopWatch.lap("Right-hand-side"));
+            logger.info("TIME FOR SETUP of RightHand Side: {}"+ stopWatch.lap("Right-hand-side"));
 
             /** compute solution */
             rhsL = Solve.solvePositive(Qx_hat, rhsL);
             rhsP = Solve.solvePositive(Qx_hat, rhsP);
-            //Logger.info("TIME FOR SOLVING of System: {}", stopWatch.lap("Solving System"));
+            logger.info("TIME FOR SOLVING of System: {}"+ stopWatch.lap("Solving System"));
 
             /** inverting of Qx_hat for stability check */
             Qx_hat = Solve.solvePositive(Qx_hat, DoubleMatrix.eye(Qx_hat.getRows())); // store inverted N back into Qx_hat
-            //Logger.info("TIME FOR INVERSION OF N: {}", stopWatch.lap("Inversion of N"));
+            logger.info("TIME FOR INVERSION OF N: {}"+ stopWatch.lap("Inversion of N"));
 
             /** test inversion and check stability: max(abs([N*inv(N) - E)) ?= 0 */
             double maxDeviation = (N.mmul(Qx_hat).sub(DoubleMatrix.eye(Qx_hat.getRows()))).normmax();
             if (maxDeviation > .01) {
-                //Logger.error("COREGPM: maximum deviation N*inv(N) from unity = {}. This is larger than 0.01", maxDeviation);
+                logger.severe("COREGPM: maximum deviation N*inv(N) from unity = {}. This is larger than 0.01"+ maxDeviation);
                 throw new IllegalStateException("COREGPM: maximum deviation N*inv(N) from unity)");
             } else if (maxDeviation > .001) {
-                //Logger.warn("COREGPM: maximum deviation N*inv(N) from unity = {}. This is between 0.01 and 0.001", maxDeviation);
+                logger.warning("COREGPM: maximum deviation N*inv(N) from unity = {}. This is between 0.01 and 0.001"+ maxDeviation);
             }
-            //Logger.info("TIME FOR STABILITY CHECK: {}", stopWatch.lap("Stability Check"));
+            logger.info("TIME FOR STABILITY CHECK: {}"+ stopWatch.lap("Stability Check"));
 
-            //Logger.debug("Coeffs in Azimuth direction: {}", rhsL.toString());
-            //Logger.debug("Coeffs in Range direction: {}", rhsP.toString());
-            //Logger.debug("Max Deviation: {}", maxDeviation);
+            logger.info("Coeffs in Azimuth direction: {}"+ rhsL.toString());
+            logger.info("Coeffs in Range direction: {}"+ rhsP.toString());
+            logger.info("Max Deviation: {}"+ maxDeviation);
 
             /** some other stuff if the scale is okay */
             DoubleMatrix Qy_hat = A.mmul(Qx_hat.mmul(A_transpose));
@@ -220,7 +224,7 @@ public class TestEstimation_DoubleMatrix {
             DoubleMatrix yP_hat = A.mmul(rhsP);
             DoubleMatrix eP_hat = yP_matrix.sub(yP_hat);
 //            scale diagonal
-            //Logger.info("TIME FOR DATA preparation for TESTING: {}", stopWatch.lap("Testing Setup"));
+            logger.info("TIME FOR DATA preparation for TESTING: {}"+ stopWatch.lap("Testing Setup"));
 
             /** overal model test (variance factor) */
             double overAllModelTest_L;
@@ -234,17 +238,17 @@ public class TestEstimation_DoubleMatrix {
 */
             overAllModelTest_L = (pow(eL_hat, 2).mul(Qy_1)).sum();
             overAllModelTest_P = (pow(eP_hat, 2).mul(Qy_1)).sum();
-            //Logger.info("TIME FOR OMT: {}", stopWatch.lap("OMT"));
+            logger.info("TIME FOR OMT: {}"+ stopWatch.lap("OMT"));
 
             /** WHAT IS THE REFERENCE FOR THESE CONSTANT VALUES???? */
             final double SIGMA_L = 0.15;
             final double SIGMA_P = 0.10;
 
-            overAllModelTest_L = (overAllModelTest_L / Math.pow(SIGMA_L, 2)) / (numObs - numUnk);
-            overAllModelTest_P = (overAllModelTest_P / Math.pow(SIGMA_P, 2)) / (numObs - numUnk);
+            overAllModelTest_L = (overAllModelTest_L / FastMath.pow(SIGMA_L, 2)) / (numObs - numUnk);
+            overAllModelTest_P = (overAllModelTest_P / FastMath.pow(SIGMA_P, 2)) / (numObs - numUnk);
 
-            //Logger.debug("Overall Model Test Lines: {}", overAllModelTest_L);
-            //Logger.debug("Overall Model Test Pixels: {}", overAllModelTest_P);
+            logger.info("Overall Model Test Lines: {}"+ overAllModelTest_L);
+            logger.info("Overall Model Test Pixels: {}"+ overAllModelTest_P);
 
             /** ---------------------- DATASNOPING ----------------------------------- **/
             /** Assumed Qy diag */
@@ -262,38 +266,38 @@ public class TestEstimation_DoubleMatrix {
             // azimuth
             winL = abs(wTest_L).argmax();
             double maxWinL = abs(wTest_L).get(winL);
-            //Logger.debug("maximum wtest statistic azimuth = {} for window number: {} ", maxWinL, index.get(winL));
+            logger.info("maximum wtest statistic azimuth = {} for window number: {} "+ maxWinL+ index.get(winL));
 
             // range
             winP = abs(wTest_P).argmax();
             double maxWinP = abs(wTest_P).get(winP);
-            //Logger.debug("maximum wtest statistic range = {} for window number: {} ", maxWinP, index.get(winP));
+            logger.info("maximum wtest statistic range = {} for window number: {} "+ maxWinP+ index.get(winP));
 
             /** use summed wTest in Azimuth and Range direction for outlier detection */
             DoubleMatrix wTestSum = pow(wTest_L, 2).add(pow(wTest_P, 2));
             maxWSum_idx = abs(wTestSum).argmax();
             double maxWSum = abs(wTestSum).get(maxWSum_idx);
-            //Logger.info("Detected outlier: summed sqr.wtest = {}; observation: {}", maxWSum, index.get(maxWSum_idx));
+            logger.info("Detected outlier: summed sqr.wtest = {}; observation: {}"+ maxWSum+ index.get(maxWSum_idx));
 
             /** Test if we are done yet */
             // check on number of observations
             if (numObs <= numUnk) {
-                //Logger.warn("NO redundancy!  Exiting iterations.");
+                logger.warning("NO redundancy!  Exiting iterations.");
                 DONE = true;// cannot remove more than this
             }
 
             // check on test k_alpha
             if (Math.max(maxWinL, maxWinP) <= CRIT_VALUE) {
                 // all tests accepted?
-                //Logger.info("All outlier tests accepted! (final solution computed)");
+                logger.info("All outlier tests accepted! (final solution computed)");
                 DONE = true;
             }
 
             if (ITERATION >= MAX_ITERATIONS) {
-                //Logger.info("max. number of iterations reached (exiting loop).");
+                logger.info("max. number of iterations reached (exiting loop).");
 
                 clockFull.stop();
-                //Logger.info("Time for {} iterations {}: ", ITERATION, clockFull.getElapsedTime());
+                logger.info("Time for {} iterations {}: "+ ITERATION+ clockFull.getElapsedTime());
 
                 DONE = true; // we reached max. (or no max_iter specified)
             }
@@ -302,21 +306,21 @@ public class TestEstimation_DoubleMatrix {
             if (DONE) {
                 // ___ use trace buffer to store string, remember to rewind it ___
                 if (overAllModelTest_L > 10) {
-                    //Logger.warn("COREGPM: Overall Model Test, Lines = {} is larger than 10. (Suggest model or a priori sigma not correct.)", overAllModelTest_L);
+                    logger.warning("COREGPM: Overall Model Test, Lines = {} is larger than 10. (Suggest model or a priori sigma not correct.)"+ overAllModelTest_L);
                 }
                 if (overAllModelTest_P > 10) {
-                    //Logger.warn("COREGPM: Overall Model Test, Pixels = {} is larger than 10. (Suggest model or a priori sigma not correct.)", overAllModelTest_P);
+                    logger.warning("COREGPM: Overall Model Test, Pixels = {} is larger than 10. (Suggest model or a priori sigma not correct.)"+ overAllModelTest_P);
                 }
 
                 /** if a priori sigma is correct, max wtest should be something like 1.96 */
                 if (Math.max(maxWinL, maxWinP) > 200.0) {
-                    //Logger.warn("Recommendation: remove window number: {} and re-run step COREGPM.  max. wtest is: {}.", index.get(winL), Math.max(maxWinL, maxWinP));
+                    logger.warning("Recommendation: remove window number: {} and re-run step COREGPM.  max. wtest is: {}."+ index.get(winL)+ Math.max(maxWinL, maxWinP));
                 }
 
             }
 
-            //Logger.info("TIME FOR wTestStatistics: {}", stopWatch.lap("WTEST"));
-            //Logger.info("Total Estimation TIME: {}", clock.getElapsedTime());
+            logger.info("TIME FOR wTestStatistics: {}"+ stopWatch.lap("WTEST"));
+            logger.info("Total Estimation TIME: {}"+ clock.getElapsedTime());
 
             ITERATION++;// update counter here!
 
@@ -335,7 +339,7 @@ public class TestEstimation_DoubleMatrix {
     public static DoubleMatrix diagxmat(final DoubleMatrix diag, final DoubleMatrix B) {
 
         //if (!diag.isVector())
-            //Logger.error("diagXMat: sizes A,B: diag is NOT vector.");
+            logger.severe("diagXMat: sizes A,B: diag is NOT vector.");
 
         DoubleMatrix result = B.dup();
 

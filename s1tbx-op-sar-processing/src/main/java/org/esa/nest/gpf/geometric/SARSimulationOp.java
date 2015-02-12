@@ -18,7 +18,6 @@ package org.esa.nest.gpf.geometric;
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -29,14 +28,16 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
+import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.nest.dataio.dem.FileElevationModel;
-import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.eo.*;
+import org.esa.snap.eo.Constants;
+import org.esa.snap.eo.GeoUtils;
+import org.esa.snap.eo.LocalGeometry;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileGeoreferencing;
 import org.jlinda.core.Ellipsoid;
@@ -690,8 +691,8 @@ public final class SARSimulationOp extends Operator {
 
                         if (orbitMethod) {
                             double[] latlon = jOrbit.lp2ell(new Point(x + 0.5, y + 0.5), meta);
-                            lat = latlon[0] * MathUtils.RTOD;
-                            lon = latlon[1] * MathUtils.RTOD;
+                            lat = latlon[0] * Constants.RTOD;
+                            lon = latlon[1] * Constants.RTOD;
                             alt = dem.getElevation(new GeoPos(lat, lon));
                         }
 
@@ -765,7 +766,7 @@ public final class SARSimulationOp extends Operator {
                                          final int x0, final int y0, final int w, final int h,
                                          final PositionData data) {
 
-        double[] phi_lam_height = {lat * org.esa.beam.util.math.MathUtils.DTOR, lon * org.esa.beam.util.math.MathUtils.DTOR, alt};
+        double[] phi_lam_height = {lat * Constants.DTOR, lon * Constants.DTOR, alt};
         Point pointOnDem = Ellipsoid.ell2xyz(phi_lam_height);
         //Point slaveTime = jOrbit.xyz2t(pointOnDem, meta);
 
@@ -984,9 +985,9 @@ public final class SARSimulationOp extends Operator {
      * @return The backscattered power.
      */
     private static double computeBackscatteredPower(final double localIncidenceAngle) {
-        final double alpha = localIncidenceAngle * org.esa.beam.util.math.MathUtils.DTOR;
+        final double alpha = localIncidenceAngle * Constants.DTOR;
         final double cosAlpha = FastMath.cos(alpha);
-        return (0.0118 * cosAlpha / Math.pow(FastMath.sin(alpha) + 0.111 * cosAlpha, 3));
+        return (0.0118 * cosAlpha / FastMath.pow(FastMath.sin(alpha) + 0.111 * cosAlpha, 3));
     }
 
     /**
@@ -1003,8 +1004,7 @@ public final class SARSimulationOp extends Operator {
         final double H2 = sensorPos[0] * sensorPos[0] + sensorPos[1] * sensorPos[1] + sensorPos[2] * sensorPos[2];
         final double R2 = earthPoint[0] * earthPoint[0] + earthPoint[1] * earthPoint[1] + earthPoint[2] * earthPoint[2];
 
-        return FastMath.acos((slantRange * slantRange + H2 - R2) / (2 * slantRange * Math.sqrt(H2))) *
-                org.esa.beam.util.math.MathUtils.RTOD;
+        return FastMath.acos((slantRange * slantRange + H2 - R2) / (2 * slantRange * Math.sqrt(H2))) * Constants.RTOD;
     }
 
     /**
@@ -1074,12 +1074,12 @@ public final class SARSimulationOp extends Operator {
         final double latMax = latLonMinMax[1];
         double minAbsLat;
         if (latMin * latMax > 0) {
-            minAbsLat = Math.min(Math.abs(latMin), Math.abs(latMax)) * org.esa.beam.util.math.MathUtils.DTOR;
+            minAbsLat = Math.min(Math.abs(latMin), Math.abs(latMax)) * Constants.DTOR;
         } else {
             minAbsLat = 0.0;
         }
-        delLat = spacing / Constants.MeanEarthRadius * org.esa.beam.util.math.MathUtils.RTOD;
-        delLon = spacing / (Constants.MeanEarthRadius * Math.cos(minAbsLat)) * org.esa.beam.util.math.MathUtils.RTOD;
+        delLat = spacing / Constants.MeanEarthRadius * Constants.RTOD;
+        delLon = spacing / (Constants.MeanEarthRadius * FastMath.cos(minAbsLat)) * Constants.RTOD;
         delLat = Math.min(delLat, delLon); // (delLat + delLon)/2.0;
         delLon = delLat;
     }

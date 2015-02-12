@@ -19,6 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.beam.framework.dataop.resamp.Resampling;
@@ -130,7 +131,7 @@ public final class BackGeocodingOp extends Operator {
 
     private final int polyDegree = 2; // degree of polynomial for orbit fitting
     private final double invalidIndex = -9999.0;
-    private final int tileSize = 100;
+    private int tileSize = 100;
 
     /**
      * Default constructor. The graph processing framework
@@ -310,6 +311,13 @@ public final class BackGeocodingOp extends Operator {
         ProductUtils.copyProductNodes(masterProduct, targetProduct);
         copySlaveMetadata();
 
+        int nt = mSubSwath[subSwathIndex - 1].linesPerBurst / tileSize;
+        int rsd = mSubSwath[subSwathIndex - 1].linesPerBurst - nt*tileSize;
+        while (rsd > 0 && rsd < 50 && tileSize >= rsd + 1) {
+            tileSize--;
+            nt = mSubSwath[subSwathIndex - 1].linesPerBurst / tileSize;
+            rsd = mSubSwath[subSwathIndex - 1].linesPerBurst - nt*tileSize;
+        }
         targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(), tileSize);
         //todo change this line, looking at all swath
         //targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(),
@@ -487,6 +495,10 @@ public final class BackGeocodingOp extends Operator {
                 pixPos.setLocation(x, y);
                 bandGeoCoding.getGeoPos(pixPos, geoPos);
                 final double alt = dem.getElevation(geoPos);
+                if (alt == demNoDataValue) {
+                    continue;
+                }
+
                 GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, earthPoint);
 
                 final double zeroDopplerTimeInDays = SARGeocoding.getZeroDopplerTime(
@@ -514,13 +526,13 @@ public final class BackGeocodingOp extends Operator {
         }
 
         if (tileOverlapPercentageMin != Double.MAX_VALUE && tileOverlapPercentageMin < 0.0) {
-            overlapPercentages[0] = tileOverlapPercentageMin - 0.5;
+            overlapPercentages[0] = tileOverlapPercentageMin - 0.1;
         } else {
             overlapPercentages[0] = 0.0;
         }
 
         if (tileOverlapPercentageMax != -Double.MAX_VALUE && tileOverlapPercentageMax > 0.0) {
-            overlapPercentages[1] = tileOverlapPercentageMax + 0.5;
+            overlapPercentages[1] = tileOverlapPercentageMax + 0.1;
         } else {
             overlapPercentages[1] = 0.0;
         }
@@ -541,12 +553,11 @@ public final class BackGeocodingOp extends Operator {
         }
 
         if (outputRangeAzimuthOffset) {
-            outputRangeAzimuthOffsets(x0, y0, w, h, targetTileMap, slavePixPos);
+            outputRangeAzimuthOffsets(x0, y0, w, h, targetTileMap, slavePixPos, subSwathIndex, burstIndex);
         }
 
         final int margin = selectedResampling.getKernelSize();
-        final Rectangle sourceRectangle = getBoundingBox(
-                slavePixPos, margin, sSubSwath[subSwathIndex - 1].numOfSamples, sSubSwath[subSwathIndex - 1].numOfLines);
+        final Rectangle sourceRectangle = getBoundingBox(slavePixPos, margin, subSwathIndex, burstIndex);
 
         if (sourceRectangle == null) {
             return;
@@ -593,8 +604,10 @@ public final class BackGeocodingOp extends Operator {
             computeImageGeoBoundary(xmin, xmax, ymin, ymax, latLonMinMax);
 
             final double delta = (double)dem.getDescriptor().getDegreeRes() / (double)dem.getDescriptor().getPixelRes();
-            final double extralat = 1.5*delta + 4.0/25.0;
-            final double extralon = 1.5*delta + 4.0/25.0;
+//            final double extralat = 1.5*delta + 4.0/25.0;
+//            final double extralon = 1.5*delta + 4.0/25.0;
+            final double extralat = 2*delta;
+            final double extralon = 2*delta;
             final double latMin = latLonMinMax[0] - extralat;
             final double latMax = latLonMinMax[1] + extralat;
             final double lonMin = latLonMinMax[2] - extralon;
@@ -650,19 +663,17 @@ public final class BackGeocodingOp extends Operator {
             //final double rgAzRatio = computeRangeAzimuthSpacingRatio(w, h, latLonMinMax);
             final double rgAzRatio = mSU.rangeSpacing / mSU.azimuthSpacing;
 
-            final double[][] azArray = TriangleUtils.gridDataLinear(
-                    masterAz, masterRg, slaveAz, tileWindow, rgAzRatio, 1, 1, invalidIndex, 0);
-
-            if (azArray == null) {
-                return null;
+            final double[][] azArray = new double[(int)tileWindow.lines()][(int)tileWindow.pixels()];
+            final double[][] rgArray = new double[(int)tileWindow.lines()][(int)tileWindow.pixels()];
+            for (double[] data : azArray) {
+                Arrays.fill(data, invalidIndex);
+            }
+            for (double[] data : rgArray) {
+                Arrays.fill(data, invalidIndex);
             }
 
-            final double[][] rgArray = TriangleUtils.gridDataLinear(
-                    masterAz, masterRg, slaveRg, tileWindow, rgAzRatio, 1, 1, invalidIndex, 0);
-
-            if (rgArray == null) {
-                return null;
-            }
+            TriangleUtils.gridDataLinear(
+                    masterAz, masterRg, slaveAz, slaveRg, azArray, rgArray, tileWindow, rgAzRatio, 1, 1, invalidIndex, 0);
 
             final PixelPos[][] slavePixelPos = new PixelPos[h][w];
             for(int yy = 0; yy < h; yy++) {
@@ -771,8 +782,13 @@ public final class BackGeocodingOp extends Operator {
         return false;
     }
 
-    private static Rectangle getBoundingBox(
-            final PixelPos[][] slavePixPos, final int margin, final int maxWidth, final int maxHeight) {
+    private Rectangle getBoundingBox(
+            final PixelPos[][] slavePixPos, final int margin, final int subSwathIndex, final int burstIndex) {
+
+        final int firstLineIndex = burstIndex*sSubSwath[subSwathIndex - 1].linesPerBurst;
+        final int lastLineIndex = firstLineIndex + sSubSwath[subSwathIndex - 1].linesPerBurst - 1;
+        final int firstPixelIndex = 0;
+        final int lastPixelIndex = sSubSwath[subSwathIndex - 1].samplesPerBurst - 1;
 
         int minX = Integer.MAX_VALUE;
         int maxX = -Integer.MAX_VALUE;
@@ -805,10 +821,10 @@ public final class BackGeocodingOp extends Operator {
             return null;
         }
 
-        minX = Math.max(minX - margin, 0);
-        maxX = Math.min(maxX + margin, maxWidth - 1);
-        minY = Math.max(minY - margin, 0);
-        maxY = Math.min(maxY + margin, maxHeight - 1);
+        minX = Math.max(minX - margin, firstPixelIndex);
+        maxX = Math.min(maxX + margin, lastPixelIndex);
+        minY = Math.max(minY - margin, firstLineIndex);
+        maxY = Math.min(maxY + margin, lastLineIndex);
 
         return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
@@ -840,8 +856,8 @@ public final class BackGeocodingOp extends Operator {
                 for (int x = x0; x < xMax; x++) {
                     final int xx = x - x0;
                     final double kt = sSubSwath[s].dopplerRate[burstIndex][x];
-                    final double deramp = -Math.PI * kt * Math.pow(ta - sSubSwath[s].referenceTime[burstIndex][x], 2);
-                    final double demod = -2 * Math.PI * sSubSwath[s].dopplerCentroid[burstIndex][x] * ta;
+                    final double deramp = -Constants.PI * kt * FastMath.pow(ta - sSubSwath[s].referenceTime[burstIndex][x], 2);
+                    final double demod = -Constants.TWO_PI * sSubSwath[s].dopplerCentroid[burstIndex][x] * ta;
                     phase[yy][xx] = deramp + demod;
                 }
             }
@@ -876,8 +892,8 @@ public final class BackGeocodingOp extends Operator {
                     final int xx = x - x0;
                     final double valueI = slaveDataI.getElemDoubleAt(idx);
                     final double valueQ = slaveDataQ.getElemDoubleAt(idx);
-                    final double cosPhase = Math.cos(derampDemodPhase[yy][xx]);
-                    final double sinPhase = Math.sin(derampDemodPhase[yy][xx]);
+                    final double cosPhase = FastMath.cos(derampDemodPhase[yy][xx]);
+                    final double sinPhase = FastMath.sin(derampDemodPhase[yy][xx]);
                     derampDemodI[yy][xx] = valueI*cosPhase - valueQ*sinPhase;
                     derampDemodQ[yy][xx] = valueI*sinPhase + valueQ*cosPhase;
                 }
@@ -894,9 +910,9 @@ public final class BackGeocodingOp extends Operator {
                                       final PixelPos[][] slavePixPos, final int subswathIndex, final int burstIndex) {
 
         try {
-            final ResamplingRaster resamplingRasterI = new ResamplingRaster(slaveTileI, sourceRectangle, derampDemodI);
-            final ResamplingRaster resamplingRasterQ = new ResamplingRaster(slaveTileQ, sourceRectangle, derampDemodQ);
-            final ResamplingRaster resamplingRasterPhase = new ResamplingRaster(slaveTileI, sourceRectangle, derampDemodPhase);
+            final ResamplingRaster resamplingRasterI = new ResamplingRaster(slaveTileI, derampDemodI);
+            final ResamplingRaster resamplingRasterQ = new ResamplingRaster(slaveTileQ, derampDemodQ);
+            final ResamplingRaster resamplingRasterPhase = new ResamplingRaster(slaveTileI, derampDemodPhase);
 
             final Band[] targetBands = targetProduct.getBands();
             Band iBand = null;
@@ -923,12 +939,14 @@ public final class BackGeocodingOp extends Operator {
             final ProductData tgtBufferQ = tgtTileQ.getDataBuffer();
             final TileIndex tgtIndex = new TileIndex(tgtTileI);
 
-            Tile tgtTilePhase = null;
+            Tile tgtTilePhase;
             ProductData tgtBufferPhase = null;
             if (outputDerampPhase) {
                 tgtTilePhase = targetTileMap.get(phaseBand);
                 tgtBufferPhase = tgtTilePhase.getDataBuffer();
             }
+
+            final Resampling.Index resamplingIndex = selectedResampling.createIndex();
 
             for (int y = y0; y < y0 + h; y++) {
                 tgtIndex.calculateStride(y);
@@ -948,17 +966,16 @@ public final class BackGeocodingOp extends Operator {
                     }
 
                     if (isSlavePixPosValid(slavePixelPos, subswathIndex, burstIndex)) {
-                        final Resampling.Index resamplingIndex = selectedResampling.createIndex();
 
-                        selectedResampling.computeIndex(slavePixelPos.x, slavePixelPos.y,
-                                sSubSwath[subswathIndex - 1].numOfSamples, sSubSwath[subswathIndex - 1].numOfLines,
-                                resamplingIndex);
+                        selectedResampling.computeIndex(
+                                slavePixelPos.x - sourceRectangle.x, slavePixelPos.y - sourceRectangle.y,
+                                sourceRectangle.width, sourceRectangle.height, resamplingIndex);
 
                         final double samplePhase = selectedResampling.resample(resamplingRasterPhase, resamplingIndex);
                         final double sampleI = selectedResampling.resample(resamplingRasterI, resamplingIndex);
                         final double sampleQ = selectedResampling.resample(resamplingRasterQ, resamplingIndex);
-                        final double cosPhase = Math.cos(samplePhase);
-                        final double sinPhase = Math.sin(samplePhase);
+                        final double cosPhase = FastMath.cos(samplePhase);
+                        final double sinPhase = FastMath.sin(samplePhase);
                         double rerampRemodI = sampleI * cosPhase + sampleQ * sinPhase;
                         double rerampRemodQ = -sampleI * sinPhase + sampleQ * cosPhase;
 
@@ -991,20 +1008,6 @@ public final class BackGeocodingOp extends Operator {
         }
     }
 
-    private String getPolarization(final String bandName) {
-        if (bandName.contains("HH")) {
-            return "HH";
-        } else if (bandName.contains("HV")) {
-            return "HV";
-        } else if (bandName.contains("VV")) {
-            return "VV";
-        } else if (bandName.contains("VH")) {
-            return "VH";
-        } else {
-            throw new OperatorException("Unknown polarization in target band " + bandName);
-        }
-    }
-
     private Band getBand(
             final Product product, final String prefix, final String swathIndexStr, final String polarization) {
 
@@ -1026,7 +1029,8 @@ public final class BackGeocodingOp extends Operator {
     }
 
     private void outputRangeAzimuthOffsets(final int x0, final int y0, final int w, final int h,
-                                           final Map<Band, Tile> targetTileMap, final PixelPos[][] slavePixPos) {
+                                           final Map<Band, Tile> targetTileMap, final PixelPos[][] slavePixPos,
+                                           final int subSwathIndex, final int burstIndex) {
 
         try {
             final Band azOffsetBand = targetProduct.getBand("azOffset");
@@ -1035,6 +1039,9 @@ public final class BackGeocodingOp extends Operator {
             if (azOffsetBand == null || rgOffsetBand == null) {
                 return;
             }
+
+            Sentinel1Utils.SubSwathInfo mSubSwath = mSU.getSubSwath()[subSwathIndex - 1];
+            Sentinel1Utils.SubSwathInfo sSubSwath = sSU.getSubSwath()[subSwathIndex - 1];
 
             final Tile tgtTileAzOffset = targetTileMap.get(azOffsetBand);
             final Tile tgtTileRgOffset = targetTileMap.get(rgOffsetBand);
@@ -1053,8 +1060,24 @@ public final class BackGeocodingOp extends Operator {
                         tgtBufferAzOffset.setElemFloatAt(tgtIdx, (float) noDataValue);
                         tgtBufferRgOffset.setElemFloatAt(tgtIdx, (float) noDataValue);
                     } else {
-                        tgtBufferAzOffset.setElemFloatAt(tgtIdx, (float)(y - slavePixPos[yy][xx].y));
+
+                        final double mta = mSubSwath.burstFirstLineTime[burstIndex] +
+                                (y - burstIndex*mSubSwath.linesPerBurst)*mSubSwath.azimuthTimeInterval;
+
+                        final double mY = (mta - mSubSwath.burstFirstLineTime[0]) / mSubSwath.azimuthTimeInterval;
+
+                        final double sta = sSubSwath.burstFirstLineTime[burstIndex] +
+                                (slavePixPos[yy][xx].y - burstIndex*sSubSwath.linesPerBurst)*sSubSwath.azimuthTimeInterval;
+
+                        final double sY = (sta - sSubSwath.burstFirstLineTime[0]) / sSubSwath.azimuthTimeInterval;
+
+                        final float yOffset = (float)(mY - sY);
+
+                        tgtBufferAzOffset.setElemFloatAt(tgtIdx, yOffset);
                         tgtBufferRgOffset.setElemFloatAt(tgtIdx, (float)(x - slavePixPos[yy][xx].x));
+
+                        //tgtBufferAzOffset.setElemFloatAt(tgtIdx, (float)(y - slavePixPos[yy][xx].y));
+                        //tgtBufferRgOffset.setElemFloatAt(tgtIdx, (float)(x - slavePixPos[yy][xx].x));
                     }
                 }
             }
@@ -1086,8 +1109,6 @@ public final class BackGeocodingOp extends Operator {
 
     private static class ResamplingRaster implements Resampling.Raster {
 
-        private final int x0;
-        private final int y0;
         private final Tile tile;
         private final double[][] data;
         private final boolean usesNoData;
@@ -1095,9 +1116,7 @@ public final class BackGeocodingOp extends Operator {
         private final double noDataValue;
         private final double geophysicalNoDataValue;
 
-        public ResamplingRaster(final Tile tile, final Rectangle rectangle, final double[][] data) {
-            this.x0 = rectangle.x;
-            this.y0 = rectangle.y;
+        public ResamplingRaster(final Tile tile, final double[][] data) {
             this.tile = tile;
             this.data = data;
             final RasterDataNode rasterDataNode = tile.getRasterDataNode();
@@ -1118,19 +1137,28 @@ public final class BackGeocodingOp extends Operator {
         public boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception {
             boolean allValid = true;
 
-            for (int i = 0; i < y.length; i++) {
-                final int yy = y[i] - y0;
-                for (int j = 0; j < x.length; j++) {
+            try {
+                double val;
+                int i = 0;
+                while (i < y.length) {
+                    int j = 0;
+                    while (j < x.length) {
+                        val = data[y[i]][x[j]];
 
-                    samples[i][j] = data[yy][x[j] - x0];
-
-                    if (usesNoData) {
-                        if (scalingApplied && geophysicalNoDataValue == samples[i][j] || noDataValue == samples[i][j]) {
-                            samples[i][j] = Double.NaN;
-                            allValid = false;
+                        if (usesNoData) {
+                            if (scalingApplied && geophysicalNoDataValue == val || noDataValue == val) {
+                                val = Double.NaN;
+                                allValid = false;
+                            }
                         }
+                        samples[i][j] = val;
+                        ++j;
                     }
+                    ++i;
                 }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                allValid = false;
             }
 
             return allValid;
@@ -1139,25 +1167,25 @@ public final class BackGeocodingOp extends Operator {
 
     private static class TriangleUtils {
 
-        public static double[][] gridDataLinear(final double[][] x_in, final double[][] y_in, final double[][] z_in,
-                                                final org.jlinda.core.Window window, final double xyRatio,
-                                                final int xScale, final int yScale, final double invalidIndex,
-                                                final int offset)
+        public static void gridDataLinear(final double[][] x_in, final double[][] y_in, final double[][] z1_in,
+                                          final double[][] z2_in, final double[][] z1_out, final double[][] z2_out,
+                                          final org.jlinda.core.Window window, final double xyRatio,
+                                          final int xScale, final int yScale, final double invalidIndex,
+                                          final int offset)
                 throws Exception {
 
-            final FastDelaunayTriangulator FDT = triangulate(x_in, y_in, z_in, xyRatio, invalidIndex);
+            final FastDelaunayTriangulator FDT = triangulate(x_in, y_in, xyRatio, invalidIndex);
 
             if (FDT == null) {
-                return null;
+                return;
             }
 
-            return interpolate(xyRatio, window, xScale, yScale, offset, invalidIndex, FDT);
+            interpolate(xyRatio, window, xScale, yScale, offset, invalidIndex, FDT, z1_in, z2_in, z1_out, z2_out);
 
         }
 
         private static FastDelaunayTriangulator triangulate(final double[][] x_in, final double[][] y_in,
-                                                            final double[][] z_in, final double xyRatio,
-                                                            final double invalidIndex)
+                                                            final double xyRatio, final double invalidIndex)
                 throws Exception {
 
             java.util.List<Geometry> list = new ArrayList<>();
@@ -1167,7 +1195,7 @@ public final class BackGeocodingOp extends Operator {
                     if (x_in[i][j] == invalidIndex || y_in[i][j] == invalidIndex) {
                         continue;
                     }
-                    list.add(gf.createPoint(new Coordinate(x_in[i][j], y_in[i][j] * xyRatio, z_in[i][j])));
+                    list.add(gf.createPoint(new Coordinate(x_in[i][j], y_in[i][j] * xyRatio, i*x_in[0].length + j)));
                 }
             }
 
@@ -1185,12 +1213,12 @@ public final class BackGeocodingOp extends Operator {
             return FDT;
         }
 
-        private static double[][] interpolate(double xyRatio, final org.jlinda.core.Window tileWindow,
-                                              final double xScale, final double yScale,
-                                              final double offset, final double invalidIndex,
-                                              FastDelaunayTriangulator FDT) {
+        private static void interpolate(final double xyRatio, final org.jlinda.core.Window tileWindow,
+                                        final double xScale, final double yScale, final double offset,
+                                        final double invalidIndex, FastDelaunayTriangulator FDT,
+                                        final double[][] z1_in, final double[][] z2_in,
+                                        final double[][] z1_out, final double[][] z2_out) {
 
-            final int zLoops = 1;
             final double x_min = tileWindow.linelo;
             final double y_min = tileWindow.pixlo;
 
@@ -1199,25 +1227,19 @@ public final class BackGeocodingOp extends Operator {
             double xp, yp;
             double xkj, ykj, xlj, ylj;
             double f; // function
+            double a, b, c;
             double zj, zk, zl, zkj, zlj;
 
-            // containers
-            int zLoop; // z-level - hardcoded!
-            double[] a = new double[zLoops];
-            double[] b = new double[zLoops];
-            double[] c = new double[zLoops];
             // containers for xy coordinates of Triangles: p1-p2-p3-p1
             double[] vx = new double[4];
             double[] vy = new double[4];
+            double[] vz = new double[3];
+            double[] abc1 = new double[3];
+            double[] abc2 = new double[3];
 
             // declare demRadarCode_phase
-            double[][] griddedData = new double[(int) tileWindow.lines()][(int) tileWindow.pixels()];
-            final int nx = griddedData.length / zLoops;
-            final int ny = griddedData[0].length;
-
-            for (double[] aGriddedData : griddedData) {
-                Arrays.fill(aGriddedData, invalidIndex);
-            }
+            final int nx = (int) tileWindow.lines();
+            final int ny = (int) tileWindow.pixels();
 
             // interpolate: loop over triangles
             for (Triangle triangle : FDT.triangles) {
@@ -1287,16 +1309,12 @@ public final class BackGeocodingOp extends Operator {
 
                 f = 1.0 / (xkj * ylj - ykj * xlj);
 
-                for (zLoop = 0; zLoop < zLoops; zLoop++) {
-                    zj = triangle.getA().z;
-                    zk = triangle.getB().z;
-                    zl = triangle.getC().z;
-                    zkj = zk - zj;
-                    zlj = zl - zj;
-                    a[zLoop] = -f * (ykj * zlj - zkj * ylj);
-                    b[zLoop] = -f * (zkj * xlj - xkj * zlj);
-                    c[zLoop] = -a[zLoop] * vx[1] - b[zLoop] * vy[1] + zk;
-                }
+                vz[0] = triangle.getA().z;
+                vz[1] = triangle.getB().z;
+                vz[2] = triangle.getC().z;
+
+                abc1 = getABC(vx, vy, vz, z1_in, f, xkj, ykj, xlj, ylj);
+                abc2 = getABC(vx, vy, vz, z2_in, f, xkj, ykj, xlj, ylj);
 
                 for (i = (int) i_min; i <= i_max; i++) {
                     xp = indexToCoord(i, x_min, xScale, offset);
@@ -1307,14 +1325,38 @@ public final class BackGeocodingOp extends Operator {
                             continue;
                         }
 
-                        for (zLoop = 0; zLoop < zLoops; zLoop++) {
-                            griddedData[i][j] = a[zLoop] * xp + b[zLoop] * yp + c[zLoop];
-                        }
+                        z1_out[i][j] = abc1[0] * xp + abc1[1] * yp + abc1[2];
+                        z2_out[i][j] = abc2[0] * xp + abc2[1] * yp + abc2[2];
                     }
                 }
             }
+        }
 
-            return griddedData;
+        private static double[] getABC(
+                final double[] vx, final double[] vy, final double[] vz, final double[][] z_in,
+                final double f, final double  xkj, final double ykj, final double xlj, final double ylj) {
+
+            final int i0 = (int)(vz[0]/z_in[0].length);
+            final int j0 = (int)(vz[0] - i0*z_in[0].length);
+            final double zj = z_in[i0][j0];
+
+            final int i1 = (int)(vz[1]/z_in[1].length);
+            final int j1 = (int)(vz[1] - i1*z_in[1].length);
+            final double zk = z_in[i1][j1];
+
+            final int i2 = (int)(vz[2]/z_in[2].length);
+            final int j2 = (int)(vz[2] - i2*z_in[2].length);
+            final double zl = z_in[i2][j2];
+
+            final double zkj = zk - zj;
+            final double zlj = zl - zj;
+
+            final double[] abc = new double[3];
+            abc[0] = -f * (ykj * zlj - zkj * ylj);
+            abc[1] = -f * (zkj * xlj - xkj * zlj);
+            abc[2] = -abc[0] * vx[1] - abc[1] * vy[1] + zk;
+
+            return abc;
         }
 
         private static boolean pointInTriangle(double[] xt, double[] yt, double x, double y) {

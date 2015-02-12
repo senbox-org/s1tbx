@@ -183,6 +183,17 @@
         </action>
 
         <action>
+            <id>importRAT</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <readerPlugin>org.esa.nest.dataio.TAXI.RATProductReaderPlugIn</readerPlugin>
+            <formatName>RAT</formatName>
+            <shortDescr>Import DLR RAT data product or subset.</shortDescr>
+            <description>Import DLR RAT data product or product subset.</description>
+            <helpId>importRAT</helpId>
+            <parent>importFileFormats</parent>
+        </action>
+
+        <action>
             <id>importGenericBinary</id>
             <class>org.esa.nest.dat.actions.GenericReaderAction</class>
             <text>Generic Binary</text>

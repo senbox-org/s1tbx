@@ -17,6 +17,7 @@ package org.esa.nest.gpf.geometric;
 
 import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -29,6 +30,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
@@ -303,7 +305,7 @@ public class SRGROp extends Operator {
         final double dg = groundRangeSpacing * x;
         double ds = 0.0;
         for (int j = 0; j < warpPolynomialOrder + 1; j++) {
-            ds += Math.pow(dg, (double) j) * warpPolynomialCoef[j];
+            ds += FastMath.pow(dg, (double) j) * warpPolynomialCoef[j];
         }
         return ds / slantRangeSpacing;
     }
@@ -342,7 +344,7 @@ public class SRGROp extends Operator {
      * Compute ground range spacing.
      */
     private void computeGroundRangeSpacing() {
-        groundRangeSpacing = slantRangeSpacing / Math.sin(nearRangeIncidenceAngle * Math.PI / 180.0);
+        groundRangeSpacing = slantRangeSpacing / FastMath.sin(nearRangeIncidenceAngle * Constants.PI / 180.0);
     }
 
     /**
@@ -388,9 +390,9 @@ public class SRGROp extends Operator {
 
             geoPos = geoCoding.getGeoPos(new PixelPos(i, 0), null);
             GeoUtils.geo2xyz(geoPos, xyz);
-            totalDistance += Math.sqrt(Math.pow(xP0 - xyz[0], 2) +
-                    Math.pow(yP0 - xyz[1], 2) +
-                    Math.pow(zP0 - xyz[2], 2));
+            totalDistance += Math.sqrt(FastMath.pow(xP0 - xyz[0], 2) +
+                    FastMath.pow(yP0 - xyz[1], 2) +
+                    FastMath.pow(zP0 - xyz[2], 2));
 
             xP0 = xyz[0];
             yP0 = xyz[1];

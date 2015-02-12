@@ -1,11 +1,14 @@
 package org.jlinda.core.geom;
 
+import org.esa.beam.util.logging.BeamLogManager;
 import org.jlinda.core.*;
+
+import java.util.logging.Logger;
 
 public class DemTile {
 
     //// logger
-    //static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(DemTile.class.getName());
+    static Logger logger = BeamLogManager.getSystemLogger();
 
     //// topoPhase global params
     double lat0;
@@ -135,8 +138,8 @@ public class DemTile {
                 }
             }
         } catch (Exception e) {
-            //Logger.error("Something went wrong when computing DEM tile stats");
-            //Logger.error("Is DEM tile declared?");
+            logger.severe("Something went wrong when computing DEM tile stats");
+            logger.severe("Is DEM tile declared?");
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
@@ -239,31 +242,31 @@ public class DemTile {
 
         //// sanity checks ////
         if (indexPhi0DEM < 0) {
-            //Logger.warn("indexPhi0DEM: " + indexPhi0DEM);
+            logger.warning("indexPhi0DEM: " + indexPhi0DEM);
             indexPhi0DEM = 0;   // reset to default start at first
-            //Logger.warn("DEM does not cover entire interferogram/tile.");
-            //Logger.warn("input DEM should be extended to the North.");
+            logger.warning("DEM does not cover entire interferogram/tile.");
+            logger.warning("input DEM should be extended to the North.");
         }
 
         if (indexPhiNDEM > nLatPixels - 1) {
-            //Logger.warn("indexPhiNDEM: " + indexPhi0DEM);
+            logger.warning("indexPhiNDEM: " + indexPhi0DEM);
             indexPhiNDEM = (int) (nLatPixels - 1);
-            //Logger.warn("DEM does not cover entire interferogram/tile.");
-            //Logger.warn("input DEM should be extended to the South.");
+            logger.warning("DEM does not cover entire interferogram/tile.");
+            logger.warning("input DEM should be extended to the South.");
         }
 
         if (indexLambda0DEM < 0) {
-            //Logger.warn("indexLambda0DEM: " + indexLambda0DEM);
+            logger.warning("indexLambda0DEM: " + indexLambda0DEM);
             indexLambda0DEM = 0;    // default start at first
-            //Logger.warn("DEM does not cover entire interferogram/tile.");
-            //Logger.warn("input DEM should be extended to the West.");
+            logger.warning("DEM does not cover entire interferogram/tile.");
+            logger.warning("input DEM should be extended to the West.");
         }
 
         if (indexLambdaNDEM > nLonPixels - 1) {
-            //Logger.warn("indexLambdaNDEM: " + indexLambdaNDEM);
+            logger.warning("indexLambdaNDEM: " + indexLambdaNDEM);
             indexLambdaNDEM = (int) (nLonPixels - 1);
-            //Logger.warn("DEM does not cover entire interferogram/tile.");
-            //Logger.warn("input DEM should be extended to the East.");
+            logger.warning("DEM does not cover entire interferogram/tile.");
+            logger.warning("input DEM should be extended to the East.");
         }
 
     }

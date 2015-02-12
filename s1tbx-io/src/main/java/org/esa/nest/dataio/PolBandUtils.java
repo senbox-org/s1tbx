@@ -126,9 +126,9 @@ public class PolBandUtils {
                                                   final MATRIX sourceProductType) throws Exception {
 
         final boolean isCoregistered = StackUtils.isCoregisteredStack(srcProduct);
-        final List<PolSourceBand> quadSrcBandList = new ArrayList<PolSourceBand>(10);
+        final List<PolSourceBand> quadSrcBandList = new ArrayList<>(10);
 
-        if (isCoregistered && !sourceProductType.equals(PolBandUtils.MATRIX.C2)) {
+        if (isCoregistered) {
             final String[] mstBandNames = StackUtils.getMasterBandNames(srcProduct);
             final Band[] mstBands = getBands(srcProduct, sourceProductType, mstBandNames);
             final String suffix = mstBandNames[0].substring(mstBandNames[0].lastIndexOf('_'), mstBandNames[0].length());
@@ -291,7 +291,11 @@ public class PolBandUtils {
     }
 
     public static boolean isQuadPol(final MATRIX m) {
-        return m == MATRIX.C3 || m == MATRIX.T3 || m == MATRIX.C4 || m == MATRIX.T4 || m == MATRIX.FULL;
+        return m == MATRIX.C3 || m == MATRIX.T3 || m == MATRIX.C4 || m == MATRIX.T4;
+    }
+
+    public static boolean isFullPol(final MATRIX m) {
+        return m == MATRIX.FULL;
     }
 
     public static String[] getDualPolHHHVBandNames() {

@@ -14,5 +14,8 @@
     <!--SAR Operators-->
     <mapID target="GCPSelectionOp" url="operators/GCPSelectionOp.html"/>
     <mapID target="WarpOp" url="operators/WarpOp.html"/>
+    <!-- InSAR -->
+    <mapID target="GoldsteinFilterOp" url="operators/GoldsteinFilterOp.html"/>
+    <mapID target="DEMGenerationOp" url="operators/DEMGenerationOp.html"/>
 
 </map>

@@ -16,6 +16,7 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Mask;
 import org.esa.beam.framework.datamodel.Product;
@@ -450,7 +451,7 @@ public class ForestAreaDetectionOp extends Operator {
                     for (int x = x0; x < maxx; x++) {
                         final double v = srcData.getElemDoubleAt(tileIndex.getIndex(x));
                         if (v != noDataValue) {
-                            double vv = Math.pow(10.0, v / 10.0);
+                            double vv = FastMath.pow(10.0, v / 10.0);
                             samples[numSamples++] = vv * vv;
                         }
                     }
@@ -464,7 +465,7 @@ public class ForestAreaDetectionOp extends Operator {
                     for (int x = x0; x < maxx; x++) {
                         final double v = srcData.getElemDoubleAt(tileIndex.getIndex(x));
                         if (v != noDataValue) {
-                            samples[numSamples++] = Math.pow(10.0, v / 10.0);
+                            samples[numSamples++] = FastMath.pow(10.0, v / 10.0);
                         }
                     }
                 }

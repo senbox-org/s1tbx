@@ -15,7 +15,6 @@
  */
 package org.csa.rstb.gpf.specklefilters;
 
-import org.csa.rstb.gpf.PolOpUtils;
 import org.csa.rstb.gpf.PolarimetricSpeckleFilterOp;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -26,8 +25,10 @@ import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
-import java.awt.List;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Polarimetric Speckle Filter
@@ -65,9 +66,286 @@ public class IDAN implements SpeckleFilter {
                 sourceProductType == PolBandUtils.MATRIX.C3 ||
                 sourceProductType == PolBandUtils.MATRIX.T3) {
             idanFilter(targetTiles, targetRectangle, sourceRectangle);
+        } else if(sourceProductType == PolBandUtils.MATRIX.C2 ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_HV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_VH_VV ||
+                sourceProductType == PolBandUtils.MATRIX.DUAL_HH_VV) {
+            idanFilterC2(targetTiles, targetRectangle, sourceRectangle);
         } else {
-            throw new OperatorException("For IDAN filter, only C3 and T3 are supported currently");
+            throw new OperatorException("For IDAN filtering, only C2, C3 and T3 are currently supported");
         }
+    }
+
+    /**
+     * Filter full polarimetric data with IDAN filter for given tile.
+     *
+     * @param targetTiles     The current tiles to be computed for each target band.
+     * @param targetRectangle The area in pixel coordinates to be computed.
+     * @param sourceRectangle The area in the source product
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     */
+    private void idanFilterC2(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
+                              final Rectangle sourceRectangle) {
+
+        final int x0 = targetRectangle.x, y0 = targetRectangle.y;
+        final int w = targetRectangle.width,  h = targetRectangle.height;
+        final int maxY = y0 + h, maxX = x0 + w;
+        // System.out.println("idanFilter x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
+
+        final int sx0 = sourceRectangle.x, sy0 = sourceRectangle.y;
+        final int sw = sourceRectangle.width, sh = sourceRectangle.height;
+
+        final double[][] data11Real = new double[sh][sw];
+        final double[][] data12Real = new double[sh][sw];
+        final double[][] data12Imag = new double[sh][sw];
+        final double[][] data22Real = new double[sh][sw];
+        final double[][] span = new double[sh][sw];
+
+        final TileIndex trgIndex = new TileIndex(targetTiles.get(targetProduct.getBandAt(0)));
+
+        for (final PolBandUtils.PolSourceBand bandList : srcBandList) {
+
+            final Tile[] sourceTiles = new Tile[bandList.srcBands.length];
+            final ProductData[] dataBuffers = new ProductData[bandList.srcBands.length];
+            for (int i = 0; i < bandList.srcBands.length; ++i) {
+                sourceTiles[i] = operator.getSourceTile(bandList.srcBands[i], sourceRectangle);
+                dataBuffers[i] = sourceTiles[i].getDataBuffer();
+            }
+
+            final Tile srcTile = operator.getSourceTile(bandList.srcBands[0], sourceRectangle);
+            createC2SpanImage(srcTile, sourceProductType, sourceRectangle, dataBuffers,
+                    data11Real, data12Real, data12Imag, data22Real, span);
+
+            for (int y = y0; y < maxY; ++y) {
+                trgIndex.calculateStride(y);
+                for (int x = x0; x < maxX; ++x) {
+                    final int idx = trgIndex.getIndex(x);
+
+                    final Seed seed = getInitialSeed(x, y, sx0, sy0, sw, sh, data11Real, data22Real);
+
+                    final Pix[] anPixelList = getIDANPixels(x, y, sx0, sy0, sw, sh, data11Real, data22Real, seed);
+
+                    final double b = computeFilterScaleParam(sx0, sy0, anPixelList, span);
+
+                    for (final Band targetBand : bandList.targetBands) {
+                        final String targetBandName = targetBand.getName();
+                        final ProductData dataBuffer = targetTiles.get(targetBand).getDataBuffer();
+
+                        if (targetBandName.contains("C11")) {
+                            double value = getIDANFilteredValue(x, y, sx0, sy0, anPixelList, data11Real, b);
+                            dataBuffer.setElemFloatAt(idx, (float) value);
+                        } else if (targetBandName.contains("C12_real")) {
+                            double value = getIDANFilteredValue(x, y, sx0, sy0, anPixelList, data12Real, b);
+                            dataBuffer.setElemFloatAt(idx, (float) value);
+                        } else if (targetBandName.contains("C12_imag")) {
+                            double value = getIDANFilteredValue(x, y, sx0, sy0, anPixelList, data12Imag, b);
+                            dataBuffer.setElemFloatAt(idx, (float) value);
+                        } else if (targetBandName.contains("C22")) {
+                            double value = getIDANFilteredValue(x, y, sx0, sy0, anPixelList, data22Real, b);
+                            dataBuffer.setElemFloatAt(idx, (float) value);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Compute the initial seed value for given pixel. The marginal median in a 3x3 neighborhood of the given pixel
+     * is computed and used as the seed value.
+     *
+     * @param xc         X coordinate of the given pixel
+     * @param yc         Y coordinate of the given pixel
+     * @param sx0        X coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sy0        Y coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sw         Width of the source rectangle
+     * @param sh         Height of the source rectangle
+     * @param data11Real Data of the 1st diagonal element in covariance matrix for all pixels in source rectangle
+     * @param data22Real Data of the 2nd diagonal element in covariance matrix for all pixels in source rectangle
+     * @return seed The computed initial seed value
+     */
+    private static Seed getInitialSeed(final int xc, final int yc, final int sx0, final int sy0, final int sw,
+                                       final int sh, final double[][] data11Real, final double[][] data22Real) {
+
+        // define vector p = [d11 d22], then the seed is the marginal median of all vectors in the 3x3 window
+        final double[] d11 = new double[9];
+        final double[] d22 = new double[9];
+
+        int r, c;
+        int k = 0;
+        for (int y = yc - 1; y <= yc + 1; y++) {
+            for (int x = xc - 1; x <= xc + 1; x++) {
+                if (x >= sx0 && x < sx0 + sw && y >= sy0 && y < sy0 + sh) {
+                    r = y - sy0;
+                    c = x - sx0;
+                    d11[k] = data11Real[r][c];
+                    d22[k] = data22Real[r][c];
+                    k++;
+                }
+            }
+        }
+
+        Arrays.sort(d11, 0, k);
+        Arrays.sort(d22, 0, k);
+
+        final int med = k / 2;
+        final Seed seed = new Seed();
+        seed.value[0] = d11[med];
+        seed.value[1] = d22[med];
+        seed.calculateAbsolutes();
+        return seed;
+    }
+
+    /**
+     * Find all pixels in the adaptive neighbourhood of a given pixel.
+     *
+     * @param xc         X coordinate of the given pixel
+     * @param yc         Y coordinate of the given pixel
+     * @param sx0        X coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sy0        Y coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sw         Width of the source rectangle
+     * @param sh         Height of the source rectangle
+     * @param data11Real Data of the 1st diagonal element in coherency matrix for all pixels in source rectangle
+     * @param data22Real Data of the 2nd diagonal element in coherency matrix for all pixels in source rectangle
+     * @param seed       The initial seed value
+     * @return anPixelList List of pixels in the adaptive neighbourhood
+     */
+    private Pix[] getIDANPixels(final int xc, final int yc, final int sx0, final int sy0, final int sw, final int sh,
+                                final double[][] data11Real, final double[][] data22Real, final Seed seed) {
+
+        // 1st run of region growing with IDAN50 threshold and initial seed, qualified pixel goes to anPixelList,
+        // non-qualified pixel goes to "background pixels" list
+        final double threshold50 = 4 / 3 * sigmaV;
+        final java.util.List<Pix> anPixelList = new ArrayList<Pix>(anSize);
+        final Pix[] bgPixelList = regionGrowing(
+                xc, yc, sx0, sy0, sw, sh, data11Real, data22Real, seed, threshold50, anPixelList);
+
+        // update seed with the pixels in AN
+        final Seed newSeed = new Seed();
+        if (!anPixelList.isEmpty()) {
+            for (Pix pixel : anPixelList) {
+                newSeed.value[0] += data11Real[pixel.y - sy0][pixel.x - sx0];
+                newSeed.value[1] += data22Real[pixel.y - sy0][pixel.x - sx0];
+            }
+            newSeed.value[0] /= anPixelList.size();
+            newSeed.value[1] /= anPixelList.size();
+        } else {
+            newSeed.value[0] = seed.value[0];
+            newSeed.value[1] = seed.value[1];
+        }
+        newSeed.calculateAbsolutes();
+
+        // 2nd run of region growing with IDAN95 threshold, the new seed and "background pixels" i.e. pixels rejected
+        // in the 1st run of region growing are checked and added to AN
+        final double threshold95 = 4 * sigmaV;
+        reExamBackgroundPixels(sx0, sy0, data11Real, data22Real, newSeed, threshold95, anPixelList, bgPixelList);
+
+        if (anPixelList.isEmpty()) {
+            return new Pix[]{new Pix(xc, yc)};
+        }
+        return anPixelList.toArray(new Pix[anPixelList.size()]);
+    }
+
+    /**
+    * Re-exam the pixels that are rejected in the region growing process and add them to AN if qualified.
+    *
+    * @param sx0         X coordinate of the pixel at the upper left corner of the source rectangle
+    * @param sy0         Y coordinate of the pixel at the upper left corner of the source rectangle
+    * @param data11Real  Data of the 1st diagonal element in coherency matrix for all pixels in source rectangle
+    * @param data22Real  Data of the 2nd diagonal element in coherency matrix for all pixels in source rectangle
+    * @param seed        The seed value for AN
+    * @param threshold   Threshold used in searching for pixels in AN
+    * @param anPixelList List of pixels in AN
+    * @param bgPixelList List of pixels rejected in searching for AN pixels
+    */
+    private static void reExamBackgroundPixels(final int sx0, final int sy0, final double[][] data11Real,
+                                               final double[][] data22Real, final Seed seed, final double threshold,
+                                               final java.util.List<Pix> anPixelList, final Pix[] bgPixelList) {
+        int r, c;
+        for (final Pix pixel : bgPixelList) {
+            r = pixel.y - sy0;
+            c = pixel.x - sx0;
+            if (distance(data11Real[r][c], data22Real[r][c], seed) < threshold) {
+                anPixelList.add(new Pix(pixel.x, pixel.y));
+            }
+        }
+    }
+
+    /**
+     * Find pixels in the adaptive neighbourhood (AN) of a given pixel using region growing method.
+     *
+     * @param xc          X coordinate of the given pixel
+     * @param yc          Y coordinate of the given pixel
+     * @param sx0         X coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sy0         Y coordinate of the pixel at the upper left corner of the source rectangle
+     * @param sw          Width of the source rectangle
+     * @param sh          Height of the source rectangle
+     * @param data11Real  Data of the 1st diagonal element in coherency matrix for all pixels in source rectangle
+     * @param data22Real  Data of the 2nd diagonal element in coherency matrix for all pixels in source rectangle
+     * @param seed        The initial seed value for AN
+     * @param threshold   Threshold used in searching for pixels in AN
+     * @param anPixelList List of pixels in AN
+     * @return bgPixelList List of pixels rejected in searching for AN pixels
+     */
+    private Pix[] regionGrowing(final int xc, final int yc, final int sx0, final int sy0, final int sw, final int sh,
+                                final double[][] data11Real, final double[][] data22Real, final Seed seed,
+                                final double threshold, final java.util.List<Pix> anPixelList) {
+
+        final int rc = yc - sy0;
+        final int cc = xc - sx0;
+        final Map<Integer, Boolean> visited = new HashMap<Integer, Boolean>(anSize + 8);
+        final java.util.List<Pix> bgPixelList = new ArrayList<Pix>(anSize);
+
+        if (distance(data11Real[rc][cc], data22Real[rc][cc], seed) < threshold) {
+            anPixelList.add(new Pix(xc, yc));
+        } else {
+            bgPixelList.add(new Pix(xc, yc));
+        }
+        visited.put(rc * sw + cc, true);
+
+        final java.util.List<Pix> front = new ArrayList<Pix>(anSize);
+        front.add(new Pix(xc, yc));
+        final java.util.List<Pix> newfront = new ArrayList<Pix>(anSize);
+
+        final int width = sx0 + sw;
+        final int height = sy0 + sh;
+        int r, c;
+        Integer index;
+
+        while (anPixelList.size() < anSize && !front.isEmpty()) {
+            newfront.clear();
+
+            for (final Pix p : front) {
+
+                final int[] x = {p.x - 1, p.x, p.x + 1, p.x - 1, p.x + 1, p.x - 1, p.x, p.x + 1};
+                final int[] y = {p.y - 1, p.y - 1, p.y - 1, p.y, p.y, p.y + 1, p.y + 1, p.y + 1};
+
+                for (int i = 0; i < 8; i++) {
+
+                    if (x[i] >= sx0 && x[i] < width && y[i] >= sy0 && y[i] < height) {
+                        r = y[i] - sy0;
+                        c = x[i] - sx0;
+                        index = r * sw + c;
+                        if (visited.get(index) == null) {
+                            visited.put(index, true);
+                            final Pix newPos = new Pix(x[i], y[i]);
+                            if (distance(data11Real[r][c], data22Real[r][c], seed) < threshold) {
+                                anPixelList.add(newPos);
+                                newfront.add(newPos);
+                            } else {
+                                bgPixelList.add(newPos);
+                            }
+                        }
+                    }
+                }
+                if (anPixelList.size() > anSize) {
+                    break;
+                }
+            }
+            front.clear();
+            front.addAll(newfront);
+        }
+        return bgPixelList.toArray(new Pix[bgPixelList.size()]);
     }
 
     /**
@@ -409,6 +687,19 @@ public class IDAN implements SpeckleFilter {
             x = xx;
             y = yy;
         }
+    }
+
+    /**
+     * Cmpute distance between vector p and a given seed vector.
+     *
+     * @param p0   Vector
+     * @param p1   Vector
+     * @param seed Vector
+     * @return Distance
+     */
+    private static double distance(final double p0, final double p1, final Seed seed) {
+        return Math.abs(p0 - seed.value[0]) / seed.absValue[0] +
+                Math.abs(p1 - seed.value[1]) / seed.absValue[1];
     }
 
     /**

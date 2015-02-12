@@ -15,6 +15,8 @@
  */
 package org.esa.nest.dat.views.polarview;
 
+import org.apache.commons.math3.util.FastMath;
+
 import java.awt.*;
 
 public class Axis {
@@ -136,7 +138,7 @@ public class Axis {
         if (negative)
             val = -val;
         final int exponent = (int) Math.floor(Math.log10(val));
-        val *= Math.pow(10D, -exponent);
+        val *= FastMath.pow(10D, -exponent);
         int i;
         for (i = stepValues.length - 1; i > 0; i--) {
             if (val > stepValues[i])
@@ -146,7 +148,7 @@ public class Axis {
             val = stepValues[i + 1];
         else
             val = stepValues[i];
-        val *= Math.pow(10D, exponent);
+        val *= FastMath.pow(10D, exponent);
         if (negative)
             val = -val;
         return val;
@@ -322,7 +324,7 @@ public class Axis {
 
     private static String valueToString(double v, int exponent) {
         if (exponent != 0) {
-            final float vm = (float) (v * Math.pow(10D, -exponent));
+            final float vm = (float) (v * FastMath.pow(10D, -exponent));
             if (vm != 0.0F)
                 return Float.toString(vm) + 'e' + exponent;
         }

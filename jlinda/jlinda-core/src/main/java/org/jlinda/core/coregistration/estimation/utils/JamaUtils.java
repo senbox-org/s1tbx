@@ -1,6 +1,7 @@
 package org.jlinda.core.coregistration.estimation.utils;
 
 import Jama.Matrix;
+import org.apache.commons.math3.util.FastMath;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -665,7 +666,7 @@ public class JamaUtils {
      */
     public static Matrix regLeastSquares(Matrix A, Matrix b, double lambda) {
         int m = A.getColumnDimension();
-        Matrix regop = Matrix.identity(m, m).times(Math.pow(lambda, 2));
+        Matrix regop = Matrix.identity(m, m).times(FastMath.pow(lambda, 2));
         return regLeastSquares(A, b, regop);
     }
 

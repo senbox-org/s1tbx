@@ -18,11 +18,13 @@
 #If expected_results is not included, only output will be processed without comparison
 ####################################################################################
 
-testRoot = C:\\Build\\nest-test
-dataRoot = P:\\s1tbx\\s1tbx\\Data
+graphRoot = ${SNAP_HOME}\\..\\testdata\\graphs\\
+testRoot =  ${SNAP_HOME}\\..\\testdata\\
+dataRoot = P:\\s1tbx\\s1tbx\\Data\\Senthub
 maxProductsPerInputFolder = 1
 
-test.1.graph = ${testRoot}\\graphs\\Writers\\WriteDimap.xml
+test.1.skip = true
+test.1.graph = ${graphRoot}\\Writers\\WriteDimap.xml
 test.1.input_products = 	${dataRoot}\\RTOPS_Products
 test.1.expected_results = 	${testRoot}\\expected
 test.1.output_products = 	${testRoot}\\output
