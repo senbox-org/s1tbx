@@ -102,6 +102,7 @@ public final class PolarimetricMatricesOp extends Operator {
             final InputProductValidator validator = new InputProductValidator(sourceProduct);
             validator.checkIfTOPSARBurstProduct(false);
             validator.checkIfSLC();
+            checkSourceProductType();
 
             srcBandList = PolBandUtils.getSourceBands(sourceProduct,
                     PolBandUtils.getSourceProductType(sourceProduct));
@@ -178,6 +179,36 @@ public final class PolarimetricMatricesOp extends Operator {
         }
 
         mapMatrixElemToBands();
+    }
+
+    private void checkSourceProductType() {
+
+        final PolBandUtils.MATRIX sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
+
+        if(sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
+            // This check will catch products with a single pol.
+            throw new OperatorException("Input should be a polarimetric product");
+        }
+
+        switch (matrix) {
+            case C2:
+                if (sourceProductType != PolBandUtils.MATRIX.DUAL_HH_HV &&
+                        sourceProductType != PolBandUtils.MATRIX.DUAL_HH_VV &&
+                        sourceProductType != PolBandUtils.MATRIX.DUAL_HH_VV) {
+                    throw new OperatorException("C2 cannot be generated for this product");
+                }
+                break;
+            case C3:
+            case C4:
+            case T3:
+            case T4:
+                if (PolBandUtils.isDualPol(sourceProductType)) {
+                    throw new OperatorException("C3 or C4 or T3 or T4 cannot be generated for this product");
+                }
+                break;
+            default:
+                throw new OperatorException("Unknown matrix type: " + matrix);
+        }
     }
 
     private void mapMatrixElemToBands() {

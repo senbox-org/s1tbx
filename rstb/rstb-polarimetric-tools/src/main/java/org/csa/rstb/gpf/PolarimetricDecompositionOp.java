@@ -162,21 +162,31 @@ public final class PolarimetricDecompositionOp extends Operator {
 
             polDecomp = createDecomposition();
 
-            if(sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
-                throw new OperatorException("Input should be a polarimetric product");
-            }
-            if(polDecomp instanceof HAlphaC2 && !PolBandUtils.isDualPol(sourceProductType)) {
-                throw new OperatorException("Input should be a dual polarimetric product");
-            } else if(!(polDecomp instanceof HAlphaC2) && !PolBandUtils.isQuadPol(sourceProductType) &&
-                    !PolBandUtils.isFullPol(sourceProductType)) {
-                throw new OperatorException("Input should be a full polarimetric product");
-            }
+            checkSourceProductType(sourceProductType);
 
             createTargetProduct();
 
             updateTargetProductMetadata();
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private void checkSourceProductType(final PolBandUtils.MATRIX  sourceProductType) {
+
+        if(sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
+
+            throw new OperatorException("Input should be a polarimetric product");
+        }
+
+        if(polDecomp instanceof HAlphaC2 && !PolBandUtils.isDualPol(sourceProductType)) {
+
+            throw new OperatorException("Input should be a dual polarimetric product");
+
+        } else if(!(polDecomp instanceof HAlphaC2) && !PolBandUtils.isQuadPol(sourceProductType) &&
+                !PolBandUtils.isFullPol(sourceProductType)) {
+
+            throw new OperatorException("Input should be a full polarimetric product");
         }
     }
 

@@ -125,9 +125,8 @@ public class PolarimetricClassificationOp extends Operator {
             validator.checkIfSentinel1DeburstProduct();
 
             sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
-            if(sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
-                throw new OperatorException("Input should be a polarimetric product");
-            }
+
+            checkSourceProductType(sourceProductType);
 
             sourceImageWidth = sourceProduct.getSceneRasterWidth();
             sourceImageHeight = sourceProduct.getSceneRasterHeight();
@@ -146,6 +145,31 @@ public class PolarimetricClassificationOp extends Operator {
             updateTargetProductMetadata();
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private void checkSourceProductType(final PolBandUtils.MATRIX sourceProductType) {
+
+        if(sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
+            // This check will catch products with a single pol.
+            throw new OperatorException("Input should be a polarimetric product");
+        }
+
+        switch (classification) {
+            case UNSUPERVISED_CLOUDE_POTTIER_CLASSIFICATION:
+            case UNSUPERVISED_HALPHA_WISHART_CLASSIFICATION:
+            case UNSUPERVISED_FREEMAN_DURDEN_CLASSIFICATION:
+                if (PolBandUtils.isDualPol(sourceProductType)) {
+                    throw new OperatorException("Input product cannot be dual pol");
+                }
+                break;
+            case UNSUPERVISED_HALPHA_WISHART_DUAL_POL_CLASSIFICATION:
+                if (PolBandUtils.isQuadPol(sourceProductType)) {
+                    throw new OperatorException("Input product cannot be quad pol");
+                }
+                break;
+            default:
+                break;
         }
     }
 
