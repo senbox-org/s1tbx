@@ -75,6 +75,7 @@
         <module>snap-graph-builder</module>
         <module>snap-ndvi</module>
         <module>snap-pgx-reader</module>
+        <module>snap-pixel-extraction</module>
         <module>snap-rtp-codec</module>
         <module>snap-temporal-percentile</module>
         <module>snap-unmix</module>
@@ -97,7 +98,6 @@
         <module>beam-modis-reader</module>
         <module>beam-netcdf</module>
         <module>beam-pconvert</module>
-        <module>beam-pixel-extraction</module>
         <module>beam-statistics-op</module>
         <module>beam-time-series-tool</module>
         <module>blue-marble-worldmap</module>
