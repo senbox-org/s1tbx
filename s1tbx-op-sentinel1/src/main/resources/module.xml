@@ -179,7 +179,7 @@
             <operatorName>Create-Interferogram</operatorName>
             <dialogTitle>Create Interferogram</dialogTitle>
             <shortDescr>Create Interferogram</shortDescr>
-            <targetProductNameSuffix>_coh</targetProductNameSuffix>
+            <targetProductNameSuffix>_ifg</targetProductNameSuffix>
         </action>
 
 
