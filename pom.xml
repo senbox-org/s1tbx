@@ -91,7 +91,6 @@
 
         <!-- Former BEAM Extension Modules -->
 
-        <module>beam-flhmci</module>
         <module>beam-getasse30-reader</module>
         <module>beam-hdf5-writer</module>
         <module>beam-meris-cloud</module>
