@@ -2,6 +2,7 @@ package org.jlinda.nest.utils;
 
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.snap.gpf.TileIndex;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
@@ -90,17 +91,21 @@ public class TileUtilsDoris {
 
     public static void pushDoubleMatrix(DoubleMatrix data, Tile tile, Rectangle rect) {
 
-        final ProductData samples = tile.getRawSamples(); // checkout
-        final int width = (int) rect.getWidth();
-
-        for (int y = 0, rowIdx = 0; y < rect.getHeight(); y++, rowIdx++) {
-            final int stride = y * width;
-            for (int x = 0, columnIdx = 0; x < rect.getWidth(); x++, columnIdx++) {
-                samples.setElemDoubleAt(stride + x, data.get(rowIdx, columnIdx));
+        final int x0 = rect.x;
+        final int y0 = rect.y;
+        final int w = rect.width;
+        final int h = rect.height;
+        final ProductData samples = tile.getDataBuffer();
+        final TileIndex tgtIndex = new TileIndex(tile);
+        for (int y = y0; y < y0 + h; y++) {
+            tgtIndex.calculateStride(y);
+            final int yy = y - y0;
+            for (int x = x0; x < x0 + w; x++) {
+                final int tgtIdx = tgtIndex.getIndex(x);
+                final int xx = x - x0;
+                samples.setElemFloatAt(tgtIdx, (float)data.get(yy, xx));
             }
         }
-        tile.setRawSamples(samples); // commit
-        samples.dispose();
     }
 
     public static void pushDoubleMatrix(DoubleMatrix data, Tile tile, Rectangle rect, int y0, int x0) {
