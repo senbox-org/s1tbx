@@ -51,6 +51,10 @@ import java.awt.*;
 import java.io.File;
 import java.util.*;
 
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 /**
  * "Backgeocoding" + "Coregistration" processing blocks in The Sentinel-1 TOPS InSAR processing chain.
  * Burst co-registration is performed using orbits and DEM.
@@ -129,7 +133,6 @@ public final class BackGeocodingOp extends Operator {
     private SARGeocoding.Orbit mOrbit = null;
     private SARGeocoding.Orbit sOrbit = null;
 
-    private final int polyDegree = 2; // degree of polynomial for orbit fitting
     private final double invalidIndex = -9999.0;
     private int tileSize = 100;
 
@@ -170,9 +173,14 @@ public final class BackGeocodingOp extends Operator {
             sSU.computeDopplerRate();
             sSU.computeReferenceTime();
 
-            mOrbit = mSU.getOrbit(polyDegree);
-            sOrbit = sSU.getOrbit(polyDegree);
-
+            mOrbit = mSU.getOrbit();
+            sOrbit = sSU.getOrbit();
+            /*
+            outputToFile("c:\\output\\mSensorPosition.dat", mOrbit.sensorPosition);
+            outputToFile("c:\\output\\mSensorVelocity.dat", mOrbit.sensorVelocity);
+            outputToFile("c:\\output\\sSensorPosition.dat", sOrbit.sensorPosition);
+            outputToFile("c:\\output\\sSensorVelocity.dat", sOrbit.sensorVelocity);
+            */
             mSubSwath = mSU.getSubSwath();
             sSubSwath = sSU.getSubSwath();
 			
@@ -193,7 +201,8 @@ public final class BackGeocodingOp extends Operator {
             final String[] mPolarizations = mSU.getPolarizations();
 			final String[] sPolarizations = sSU.getPolarizations();
 			if (mPolarizations.length != 1 || sPolarizations.length != 1) {
-                throw new OperatorException("Split product with one polarization is expected.");
+                targetProduct = OperatorUtils.createDummyTargetProduct(sourceProduct);
+                //throw new OperatorException("Split product with one polarization is expected.");
             }
 			
 			if (!mPolarizations[0].equals(sPolarizations[0])) {
@@ -223,6 +232,25 @@ public final class BackGeocodingOp extends Operator {
 
         } catch (Throwable e) {
             throw new OperatorException(e.getMessage());
+        }
+    }
+
+    private static void outputToFile(final String filePath, double[][] fbuf) throws IOException {
+
+        try{
+            FileOutputStream fos = new FileOutputStream(filePath);
+            DataOutputStream dos = new DataOutputStream(fos);
+
+            for (double[] aFbuf : fbuf) {
+                for (int j = 0; j < fbuf[0].length; j++) {
+                    dos.writeDouble(aFbuf[j]);
+                }
+            }
+            //dos.flush();
+            dos.close();
+            fos.close();
+        }catch(Exception e){
+            e.printStackTrace();
         }
     }
 

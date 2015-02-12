@@ -17,18 +17,23 @@ package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
-import org.esa.beam.framework.datamodel.*;
+import org.apache.commons.math3.util.FastMath;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
-
 
 import java.awt.*;
 import java.util.Map;
@@ -352,8 +357,8 @@ public final class ComputeDerampedAzimuthSpectrumOp extends Operator {
                     final int xx = x - x0;
                     final double valueI = srcDataI.getElemDoubleAt(idx);
                     final double valueQ = srcDataQ.getElemDoubleAt(idx);
-                    final double cosPhase = Math.cos(derampDemodPhase[yy][xx]);
-                    final double sinPhase = Math.sin(derampDemodPhase[yy][xx]);
+                    final double cosPhase = FastMath.cos(derampDemodPhase[yy][xx]);
+                    final double sinPhase = FastMath.sin(derampDemodPhase[yy][xx]);
                     derampDemodI[yy][xx] = valueI*cosPhase - valueQ*sinPhase;
                     derampDemodQ[yy][xx] = valueI*sinPhase + valueQ*cosPhase;
                 }

@@ -114,7 +114,6 @@ public final class TerrainFlatteningOp extends Operator {
     private double wavelength = 0.0; // in m
     private double demNoDataValue = 0; // no data value for DEM
     private SARGeocoding.Orbit orbit = null;
-    private int polyDegree = 2; // degree of fitting polynomial
 
     private double noDataValue = 0;
     private double beta0 = 0;
@@ -230,7 +229,7 @@ public final class TerrainFlatteningOp extends Operator {
      */
     private void computeSensorPositionsAndVelocities() {
 
-        orbit = new SARGeocoding.Orbit(orbitStateVectors, polyDegree, firstLineUTC, lineTimeInterval, sourceImageHeight);
+        orbit = new SARGeocoding.Orbit(orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
     }
 
     /**

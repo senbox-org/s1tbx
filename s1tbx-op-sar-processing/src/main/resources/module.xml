@@ -387,6 +387,20 @@
             <helpId>CoregisterWizard</helpId>
         </action>
 
+
+        <action>
+            <id>applyOrbitFile</id>
+            <helpId>ApplyOrbitFileOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sar Processing</parent>
+            <text>Apply Orbit File</text>
+            <operatorName>Apply-Orbit-File</operatorName>
+            <dialogTitle>Apply Orbit File to Product</dialogTitle>
+            <targetProductNameSuffix>_Orb</targetProductNameSuffix>
+            <placeBefore>Calibration</placeBefore>
+        </action>
+
     </extension>
 
     <extension point="snap-ui:helpSets">

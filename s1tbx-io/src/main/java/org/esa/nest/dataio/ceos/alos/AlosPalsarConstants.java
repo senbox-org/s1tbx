@@ -31,7 +31,7 @@ public class AlosPalsarConstants implements CEOSConstants {
     private static final String[] IMAGE_FILE_PREFIX = {"IMG"};
     private static final String[] TRAILER_FILE_PREFIX = {"TR"};
 
-    final static String MISSION = "alos";
+    final static String MISSION = "ALOS";
 
     final static String PRODUCT_DESCRIPTION_PREFIX = "ALOS PALSAR product ";
 

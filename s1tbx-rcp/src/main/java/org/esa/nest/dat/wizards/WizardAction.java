@@ -21,7 +21,7 @@ import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.VisatApp;
 import org.esa.snap.dat.actions.OperatorAction;
-import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.ImageUtils;
 
 /**
  * <p>An action which creates a default dialog for an operator given by the
@@ -55,7 +55,7 @@ public class WizardAction extends OperatorAction {
 
             final WizardDialog dialog = new WizardDialog(VisatApp.getApp().getMainFrame(), false,
                     dialogTitle, getHelpId(), wizardPanel);
-            dialog.setIcon(ResourceUtils.rstbIcon);
+            dialog.setIcon(ImageUtils.rstbIcon);
             dialog.setVisible(true);
         } catch (Exception e) {
             e.printStackTrace();

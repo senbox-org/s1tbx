@@ -4,11 +4,11 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.toolviews.productlibrary.model.SortingDecorator;
-import org.esa.nest.dat.utils.ProductOpener;
 import org.esa.snap.dat.dialogs.BatchGraphDialog;
 import org.esa.snap.db.ProductEntry;
 import org.esa.snap.util.ClipboardUtils;
 import org.esa.snap.util.DialogUtils;
+import org.esa.snap.util.ProductOpener;
 import org.esa.snap.util.ResourceUtils;
 import org.jlinda.nest.dat.dialogs.InSARMasterDialog;
 
@@ -34,6 +34,7 @@ public class ProductLibraryActions {
     private static final ImageIcon stackIcon = UIUtils.loadImageIcon("/org/esa/nest/icons/stack24.png", ProductLibraryToolView.class);
 
     private final JTable productEntryTable;
+    private final ProductLibraryToolView toolView;
     private final ProductOpener openHandler;
     private JButton selectAllButton, openAllSelectedButton, copySelectedButton, batchProcessButton, stackButton;
 
@@ -42,8 +43,9 @@ public class ProductLibraryActions {
     private File currentDirectory;
     private final java.util.List<ProductLibraryActionListener> listenerList = new ArrayList<>(1);
 
-    public ProductLibraryActions(final JTable productEntryTable) {
+    public ProductLibraryActions(final JTable productEntryTable, final ProductLibraryToolView toolView) {
         this.productEntryTable = productEntryTable;
+        this.toolView = toolView;
         this.openHandler = new ProductOpener(VisatApp.getApp());
     }
 
@@ -164,49 +166,16 @@ public class ProductLibraryActions {
             ClipboardUtils.copyToClipboard(fileList);
     }
 
-    private void performCopyToAction() {
+    private void performFileAction(final ProductFileHandler.TYPE operationType) {
         final File targetFolder = promptForRepositoryBaseDir();
         if (targetFolder == null) return;
 
         final ProductEntry[] entries = getSelectedProductEntries();
-        for (ProductEntry entry : entries) {
-            try {
-                ProductFileHandler.copyTo(entry, targetFolder);
-            } catch (Exception e) {
-                VisatApp.getApp().showErrorDialog("Unable to copy file " + entry.getFile().getAbsolutePath() +
-                        '\n' + e.getMessage());
-            }
-        }
-    }
+        final LabelBarProgressMonitor progMon = toolView.createLabelBarProgressMonitor();
 
-    private void performMoveToAction() {
-        final File targetFolder = promptForRepositoryBaseDir();
-        if (targetFolder == null) return;
-
-        final ProductEntry[] entries = getSelectedProductEntries();
-        for (ProductEntry entry : entries) {
-            try {
-                ProductFileHandler.moveTo(entry, targetFolder);
-            } catch (Exception e) {
-                VisatApp.getApp().showErrorDialog("Unable to move file " + entry.getFile().getAbsolutePath() +
-                        '\n' + e.getMessage());
-            }
-        }
-        notifyDirectoryChanged();
-    }
-
-    private void performDeleteAction() {
-        final ProductEntry[] entries = getSelectedProductEntries();
-        for (ProductEntry entry : entries) {
-            try {
-                ProductFileHandler.delete(entry);
-
-            } catch (Exception e) {
-                VisatApp.getApp().showErrorDialog("Unable to delete file " + entry.getFile().getAbsolutePath() +
-                        '\n' + e.getMessage());
-            }
-        }
-        notifyDirectoryChanged();
+        final ProductFileHandler fileHandler = new ProductFileHandler(entries, operationType, targetFolder, progMon);
+        fileHandler.addListener(new MyFileHandlerListener());
+        fileHandler.execute();
     }
 
     public void performOpenAction() {
@@ -285,7 +254,7 @@ public class ProductLibraryActions {
         copyToItem = new JMenuItem("Copy Selected Files To...");
         copyToItem.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
-                performCopyToAction();
+                performFileAction(ProductFileHandler.TYPE.COPY_TO);
             }
         });
         popup.add(copyToItem);
@@ -293,7 +262,7 @@ public class ProductLibraryActions {
         moveToItem = new JMenuItem("Move Selected Files To...");
         moveToItem.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
-                performMoveToAction();
+                performFileAction(ProductFileHandler.TYPE.MOVE_TO);
             }
         });
         popup.add(moveToItem);
@@ -303,7 +272,7 @@ public class ProductLibraryActions {
             public void actionPerformed(final ActionEvent e) {
                 final int status = VisatApp.getApp().showQuestionDialog("Are you sure you want to delete these products", "");
                 if (status == JOptionPane.YES_OPTION)
-                    performDeleteAction();
+                    performFileAction(ProductFileHandler.TYPE.DELETE);
             }
         });
         popup.add(deleteItem);
@@ -451,5 +420,22 @@ public class ProductLibraryActions {
 
         public void notifyDirectoryChanged();
         public void notifySelectionChanged();
+    }
+
+    private class MyFileHandlerListener implements ProductFileHandler.ProductFileHandlerListener {
+
+        public void notifyMSG(final ProductFileHandler fileHandler, final MSG msg) {
+            if (msg.equals(ProductFileHandler.ProductFileHandlerListener.MSG.DONE)) {
+                final java.util.List<DBScanner.ErrorFile> errorList = fileHandler.getErrorList();
+                if (!errorList.isEmpty()) {
+                    toolView.handleErrorList(errorList);
+                }
+                if(fileHandler.getOperationType().equals(ProductFileHandler.TYPE.MOVE_TO) ||
+                        fileHandler.getOperationType().equals(ProductFileHandler.TYPE.DELETE)) {
+                    notifyDirectoryChanged();
+                }
+            }
+            toolView.UpdateUI();
+        }
     }
 }

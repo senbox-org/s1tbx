@@ -2,9 +2,6 @@ package org.jlinda.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.nest.dataio.dem.ElevationModel;
-import org.esa.nest.dataio.dem.ElevationModelDescriptor;
-import org.esa.nest.dataio.dem.ElevationModelRegistry;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -16,6 +13,9 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
+import org.esa.nest.dataio.dem.ElevationModel;
+import org.esa.nest.dataio.dem.ElevationModelDescriptor;
+import org.esa.nest.dataio.dem.ElevationModelRegistry;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
@@ -30,7 +30,6 @@ import org.jlinda.core.geom.DemTile;
 import org.jlinda.core.geom.TopoPhase;
 import org.jlinda.core.utils.GeoUtils;
 import org.jlinda.core.utils.MathUtils;
-import org.jlinda.core.utils.SarUtils;
 import org.jlinda.nest.utils.BandUtilsDoris;
 import org.jlinda.nest.utils.CplxContainer;
 import org.jlinda.nest.utils.ProductContainer;
@@ -45,8 +44,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @OperatorMetadata(alias = "SubtRefDem",
-        category = "SAR Processing/InSAR/Products",
-        description = "Compute and subtract TOPO phase", internal = false)
+        category = "SAR Processing/Interferometric/Products",
+        authors = "Petar Marinkovic",
+        copyright = "Copyright (C) 2013 by PPO.labs",
+        description = "Compute and subtract TOPO phase")
 public final class SubtRefDemOp extends Operator {
 
     @SourceProduct
@@ -430,7 +431,7 @@ public final class SubtRefDemOp extends Operator {
                         MatrixFunctions.cos(new DoubleMatrix(topoPhase.demPhase)),
                         MatrixFunctions.sin(new DoubleMatrix(topoPhase.demPhase)));
 
-                SarUtils.computeIfg_inplace(complexIfg, cplxTopoPhase.conji());
+                complexIfg.muli(cplxTopoPhase.conji());
 
                 /// commit to target ///
                 targetBand_I = targetProduct.getBand(product.targetBandName_I);

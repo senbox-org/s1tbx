@@ -117,7 +117,6 @@ public class DEMBasedCoregistrationOp extends Operator {
     private ElevationModel dem = null;
     private boolean isElevationModelAvailable = false;
     private double demNoDataValue = 0; // no data value for DEM
-    private int polyDegree = 2; // degree of fitting polynomial
     private int numGCPs = 20;
     private int rowUpSamplingFactor = 4; // cross correlation interpolation factor in row direction, must be power of 2
     private int colUpSamplingFactor = 4; // cross correlation interpolation factor in column direction, must be power of 2
@@ -168,11 +167,11 @@ public class DEMBasedCoregistrationOp extends Operator {
             cHalfWindowHeight = cWindowHeight / 2;
 
             masterProduct = sourceProduct[0];
-            masterInfo = new ImageInfo(masterProduct, polyDegree);
+            masterInfo = new ImageInfo(masterProduct);
             masterBandNames = masterProduct.getBandNames();
 
             slaveProduct = sourceProduct[1];
-            slaveInfo = new ImageInfo(slaveProduct, polyDegree);
+            slaveInfo = new ImageInfo(slaveProduct);
             slaveBandNames = slaveProduct.getBandNames();
 
             if (externalDEMFile == null) {
@@ -896,7 +895,7 @@ public class DEMBasedCoregistrationOp extends Operator {
         public boolean srgrFlag = false;
         public AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
 
-        public ImageInfo(final Product sourceProduct, final int polyDegree) throws Exception {
+        public ImageInfo(final Product sourceProduct) throws Exception {
 
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
@@ -915,7 +914,7 @@ public class DEMBasedCoregistrationOp extends Operator {
             this.sourceImageHeight = sourceProduct.getSceneRasterHeight();
             OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(absRoot);
             this.orbit = new SARGeocoding.Orbit(
-                    orbitStateVectors, polyDegree, firstLineUTC, lineTimeInterval, sourceImageHeight);
+                    orbitStateVectors, firstLineUTC, lineTimeInterval, sourceImageHeight);
 
             if (this.srgrFlag) {
                 this.srgrConvParams = AbstractMetadata.getSRGRCoefficients(absRoot);

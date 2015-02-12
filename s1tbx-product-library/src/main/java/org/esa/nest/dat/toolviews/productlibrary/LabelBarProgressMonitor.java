@@ -89,6 +89,9 @@ public class LabelBarProgressMonitor implements ProgressMonitor {
                         listener.notifyDone();
                     }
                 }
+                if (messageLabel != null) {
+                    messageLabel.setText("");
+                }
             }
         });
     }

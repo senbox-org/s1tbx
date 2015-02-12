@@ -18,7 +18,7 @@ package org.esa.nest.gpf;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.gpf.OperatorUIUtils;
+import org.esa.snap.gpf.ui.OperatorUIUtils;
 import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.snap.util.DialogUtils;
@@ -32,8 +32,8 @@ import java.util.Map;
  */
 public class TOPSARSplitOpUI extends BaseOperatorUI {
 
-    private final JComboBox<String> subswathCombo = new JComboBox<String>();
-    private final JList<String> polList = new JList<String>();
+    private final JComboBox<String> subswathCombo = new JComboBox<>();
+    private final JList<String> polList = new JList<>();
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {

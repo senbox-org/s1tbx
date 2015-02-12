@@ -15,8 +15,10 @@
  */
 package org.esa.nest.dataio.geotiffxml;
 
+import org.esa.beam.framework.dataio.EncodeQualification;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.File;
@@ -34,6 +36,11 @@ public class GeoTiffXMLProductWriterPlugIn implements ProductWriterPlugIn {
      * Constructs a new product writer plug-in instance.
      */
     public GeoTiffXMLProductWriterPlugIn() {
+    }
+
+    @Override
+    public EncodeQualification getEncodeQualification(Product product) {
+        return new EncodeQualification(EncodeQualification.Preservation.FULL);
     }
 
     /**

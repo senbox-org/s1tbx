@@ -19,25 +19,10 @@
         <module>snap-gpf</module>
     </dependency>
     <dependency>
-        <module>snap-envisat-reader</module>
-    </dependency>
-    <dependency>
         <module>snap-graph-builder</module>
     </dependency>
     <dependency>
         <module>snap-engine-utilities</module>
-    </dependency>
-    <dependency>
-        <module>s1tbx-rcp</module>
-    </dependency>
-    <dependency>
-        <module>s1tbx-io</module>
-    </dependency>
-    <dependency>
-        <module>s1tbx-dem</module>
-    </dependency>
-    <dependency>
-        <module>jlinda-core</module>
     </dependency>
 
     <categories>Processing</categories>
@@ -153,19 +138,6 @@
             <parent>DatasetConversion</parent>
             <context>band</context>
             <helpId>ScaleData</helpId>
-        </action>
-
-        <action>
-            <id>applyOrbitFile</id>
-            <helpId>ApplyOrbitFileOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
-            <icon>esaIcon</icon>
-            <parent>tools</parent>
-            <text>Apply Orbit File</text>
-            <operatorName>Apply-Orbit-File</operatorName>
-            <dialogTitle>Apply Orbit File to Product</dialogTitle>
-            <targetProductNameSuffix>_Orb</targetProductNameSuffix>
-            <placeBefore>Calibration</placeBefore>
         </action>
 
         <action>

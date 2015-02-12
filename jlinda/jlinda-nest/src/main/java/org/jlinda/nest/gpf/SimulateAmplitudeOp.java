@@ -42,8 +42,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @OperatorMetadata(alias = "SimulateAmplitude",
-        category = "SAR Processing/InSAR/Products",
-        description = "Simulate amplitude based on DEM", internal = false)
+        category = "SAR Processing/Interferometric/Products",
+        authors = "Petar Marinkovic",
+        copyright = "Copyright (C) 2013 by PPO.labs",
+        description = "Simulate amplitude based on DEM", internal = true)
 public final class SimulateAmplitudeOp extends Operator {
 
     @SourceProduct

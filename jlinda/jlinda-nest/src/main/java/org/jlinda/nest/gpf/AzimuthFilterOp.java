@@ -35,8 +35,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @OperatorMetadata(alias = "AzimuthFilter",
-        category = "SAR Processing/InSAR/Tools",
-        description = "Azimuth Filter", internal = false)
+        category = "SAR Processing/Interferometric/Tools",
+        authors = "Petar Marinkovic",
+        copyright = "Copyright (C) 2013 by PPO.labs",
+        description = "Azimuth Filter")
 public class AzimuthFilterOp extends Operator {
 
     @SourceProduct

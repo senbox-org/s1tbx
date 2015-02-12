@@ -20,14 +20,13 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.dialogs.CheckListDialog;
 import org.esa.nest.dat.toolviews.productlibrary.model.*;
 import org.esa.nest.dat.toolviews.productlibrary.timeline.TimelinePanel;
-import org.esa.nest.dat.utils.FileFolderUtils;
+import org.esa.snap.dat.dialogs.CheckListDialog;
 import org.esa.snap.db.DBQuery;
-import org.esa.snap.db.DBScanner;
 import org.esa.snap.db.ProductEntry;
 import org.esa.snap.util.DialogUtils;
+import org.esa.snap.util.FileFolderUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -84,16 +83,18 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         dbPane = new DatabasePane();
         dbPane.addListener(this);
 
-        productLibraryActions = new ProductLibraryActions(productEntryTable);
+        productLibraryActions = new ProductLibraryActions(productEntryTable, this);
         productLibraryActions.addListener(this);
 
         initUI();
+
         mainPanel.addComponentListener(new ComponentAdapter() {
 
             @Override
             public void componentHidden(final ComponentEvent e) {
-                if (progMon != null)
+                if (progMon != null) {
                     progMon.setCanceled(true);
+                }
             }
         });
         applyConfig(libConfig);
@@ -150,7 +151,9 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
                 if (e.getActionCommand().equals("stop")) {
                     updateButton.setEnabled(false);
                     mainPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                    progMon.setCanceled(true);
+                    if(progMon != null) {
+                        progMon.setCanceled(true);
+                    }
                 } else {
                     final RescanOptions dlg = new RescanOptions();
                     dlg.show();
@@ -308,13 +311,25 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         updateRepostitory(baseDir, dlg.shouldDoRecusive(), dlg.shouldDoQuicklooks());
     }
 
-    private void updateRepostitory(final File baseDir, final boolean doRecursive, final boolean doQuicklooks) {
-        if (baseDir == null) return;
+    LabelBarProgressMonitor createLabelBarProgressMonitor() {
         progMon = new LabelBarProgressMonitor(progressBar, statusLabel);
         progMon.addListener(this);
+        return progMon;
+    }
+
+    private synchronized void updateRepostitory(final File baseDir, final boolean doRecursive, final boolean doQuicklooks) {
+        if (baseDir == null) return;
+        progMon = createLabelBarProgressMonitor();
         final DBScanner scanner = new DBScanner(dbPane.getDB(), baseDir, doRecursive, doQuicklooks, progMon);
         scanner.addListener(new MyDatabaseScannerListener());
         scanner.execute();
+    }
+
+    private synchronized void removeProducts(final File baseDir) {
+        progMon = createLabelBarProgressMonitor();
+        final DBRemover remover = new DBRemover(dbPane.getDB(), baseDir, progMon);
+        remover.addListener(new MyDatabaseRemoverListener());
+        remover.execute();
     }
 
     private void removeRepository() {
@@ -330,13 +345,9 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
                 final File baseDir = (File) repositoryListCombo.getItemAt(1);
                 libConfig.removeBaseDir(baseDir);
                 repositoryListCombo.removeItemAt(1);
-                dbPane.removeProducts(baseDir);
             }
-            try {
-                dbPane.getDB().removeAllProducts();
-            } catch (Exception e) {
-                System.out.println("Failed to remove all products");
-            }
+            removeProducts(null); // remove all
+
         } else if (selectedItem instanceof File) {
             final File baseDir = (File) selectedItem;
             final int status = VisatApp.getApp().showQuestionDialog("This will remove all products within " +
@@ -346,10 +357,8 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
                 return;
             libConfig.removeBaseDir(baseDir);
             repositoryListCombo.removeItemAt(index);
-            dbPane.removeProducts(baseDir);
+            removeProducts(baseDir);
         }
-        setUIComponentsEnabled(repositoryListCombo.getItemCount() > 1);
-        UpdateUI();
     }
 
     private void setUIComponentsEnabled(final boolean enable) {
@@ -411,7 +420,7 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         worldMapUI.setSelectedProductEntryList(null);
     }
 
-    private static void handleErrorList(final java.util.List<DBScanner.ErrorFile> errorList) {
+    public static void handleErrorList(final java.util.List<DBScanner.ErrorFile> errorList) {
         final StringBuilder str = new StringBuilder();
         int cnt = 1;
         for (DBScanner.ErrorFile err : errorList) {
@@ -431,7 +440,7 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
                 null) == 0) {
 
             File file = FileFolderUtils.GetSaveFilePath("Save as...", "Text", "txt",
-                    "ProductErrorList", "Products with errors");
+                                                        "ProductErrorList", "Products with errors");
             try {
                 writeErrors(errorList, file);
             } catch (Exception e) {
@@ -517,6 +526,16 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
                 }
             }
             UpdateUI();
+        }
+    }
+
+    private class MyDatabaseRemoverListener implements DBRemover.DBRemoverListener {
+
+        public void notifyMSG(final MSG msg) {
+            if (msg.equals(DBRemover.DBRemoverListener.MSG.DONE)) {
+                setUIComponentsEnabled(repositoryListCombo.getItemCount() > 1);
+                UpdateUI();
+            }
         }
     }
 

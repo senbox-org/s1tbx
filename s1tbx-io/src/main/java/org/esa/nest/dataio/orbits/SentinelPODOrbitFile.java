@@ -22,8 +22,11 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Orbits;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.Settings;
+import org.esa.snap.util.ZipUtils;
+import org.esa.snap.util.ftpUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
@@ -35,12 +38,16 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * Sentinel POD Orbit File
@@ -87,11 +94,24 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     public SentinelPODOrbitFile(final String orbitType, final MetadataElement absRoot,
                                 final Product sourceProduct, final int polyDegree) throws Exception {
         super(orbitType, absRoot);
-        this.orbitFile = findOrbitFile();
+
+        final InputProductValidator validator = new InputProductValidator(sourceProduct);
+        if(validator.isMultiSwath()) {
+            throw new OperatorException("Multiple swaths are not supported. Apply TOPSAR Split");
+        }
+
+        final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
+        final int year = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getAsCalendar().get(Calendar.YEAR);
+
+        this.orbitFile = findOrbitFile(stateVectorTime, year);
         this.polyDegree = polyDegree;
         if(orbitFile == null) {
-            String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
-            throw new OperatorException("No valid orbit file found for "+timeStr);
+            getRemoteFiles(year);
+            this.orbitFile = findOrbitFile(stateVectorTime, year);
+            if(orbitFile == null) {
+                String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
+                throw new OperatorException("No valid orbit file found for " + timeStr + "\nOrbit files may be downloaded from https://qc.sentinel1.eo.esa.int/");
+            }
         }
 
         if (!orbitFile.exists()) {
@@ -104,17 +124,16 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         checkOrbitFileValidity();
     }
 
-    private File findOrbitFile() {
-        final int year = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getAsCalendar().get(Calendar.YEAR);
+    private File findOrbitFile(final double stateVectorTime, final int year) {
 
         final String prefix;
         final File orbitFileFolder;
         if(orbitType.endsWith(RESTITUTED)) {
             prefix = "S1A_OPER_AUX_RESORB_OPOD_"+year;
-            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinelResOrbitPath"));
+            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1ResOrbitPath")+File.separator+year);
         } else {
             prefix = "S1A_OPER_AUX_POEORB_OPOD_"+year;
-            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinelPOEOrbitPath"));
+            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath")+File.separator+year);
         }
 
         final File[] files = orbitFileFolder.listFiles(new FilenameFilter() {
@@ -127,7 +146,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         if(files == null || files.length == 0)
             return null;
 
-        final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
         for(File file : files) {
             try {
                 final String filename = file.getName();
@@ -142,6 +160,23 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             }
         }
         return null;
+    }
+
+    private void getRemoteFiles(final int year) throws Exception {
+
+        if(orbitType.endsWith(RESTITUTED)) {
+            return;
+        }
+
+        final File localFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath"));
+        final URL remotePath = new URL(ftpUtils.getPathFromSettings("OrbitFiles.sentinel1POEOrbit_remotePath"));
+        final File localFile = new File(localFolder, year+".zip");
+
+        final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
+        final File archiveFile = (File)archive.getContentFile();
+
+        ZipUtils.unzipToFolder(archiveFile, localFolder);
+        archiveFile.delete();
     }
 
     /**
@@ -203,6 +238,50 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         }
 
         return osvList.get(idx);
+    }
+
+    public Orbits.OrbitVector[] getOrbitData(final double startUTC, final double endUTC) throws Exception {
+
+        final Orbits.OrbitVector startOSV = new Orbits.OrbitVector(startUTC);
+        int startIdx = Collections.binarySearch(osvList, startOSV, new Orbits.OrbitComparator());
+
+        if (startIdx < 0) {
+            final int insertionPt = -(startIdx+1);
+            if (insertionPt == osvList.size()) {
+                startIdx = insertionPt - 1;
+            } else if (insertionPt <= 0) {
+                startIdx = 0;
+            } else {
+                startIdx = insertionPt - 1;
+            }
+        }
+
+        final Orbits.OrbitVector endOSV = new Orbits.OrbitVector(endUTC);
+        int endIdx = Collections.binarySearch(osvList, endOSV, new Orbits.OrbitComparator());
+
+        if (endIdx < 0) {
+            final int insertionPt = -(endIdx+1);
+            if (insertionPt == osvList.size()) {
+                endIdx = insertionPt - 1;
+            } else if (insertionPt == 0) {
+                endIdx = 0;
+            } else {
+                endIdx = insertionPt;
+            }
+        }
+
+        startIdx -= 3;
+        endIdx += 3;
+
+        final int numOSV = endIdx - startIdx + 1;
+        final Orbits.OrbitVector[] orbitDataList = new Orbits.OrbitVector[numOSV];
+        int idx = startIdx;
+        for (int i = 0; i < numOSV; i++) {
+            orbitDataList[i] = osvList.get(idx);
+            idx++;
+        }
+
+        return orbitDataList;
     }
 
     /**
@@ -278,7 +357,17 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         try {
             final DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
-            final Document doc = documentBuilder.parse(orbitFile);
+
+            final Document doc;
+            if(orbitFile.getName().toLowerCase().endsWith(".zip")) {
+                final ZipFile productZip = new ZipFile(orbitFile, ZipFile.OPEN_READ);
+                final Enumeration<? extends ZipEntry> entries = productZip.entries();
+                final ZipEntry zipEntry = entries.nextElement();
+
+                doc = documentBuilder.parse(productZip.getInputStream(zipEntry));
+            } else {
+                doc = documentBuilder.parse(orbitFile);
+            }
 
             if (doc == null) {
 

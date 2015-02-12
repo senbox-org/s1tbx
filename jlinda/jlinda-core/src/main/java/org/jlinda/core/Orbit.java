@@ -230,6 +230,79 @@ public final class Orbit {
         return new Point(ellipsoidPosition);
     }
 
+    public Point lph2xyz(final double azTime, final double rgTime, final double height, final Point approxXYZCentre)
+            throws Exception {
+
+        logger.setLevel(Level.OFF);
+
+        Point satellitePosition;
+        Point satelliteVelocity;
+        Point ellipsoidPosition; // returned
+
+        // allocate matrices
+        double[] equationSet = new double[3];
+        double[][] partialsXYZ = new double[3][3];
+
+        satellitePosition = getXYZ(azTime);
+        satelliteVelocity = getXYZDot(azTime);
+
+        // initial value
+        ellipsoidPosition = approxXYZCentre;
+
+        // iterate for the solution
+        for (int iter = 0; iter <= MAXITER; iter++) {
+
+            // update equations and solve system
+
+            Point dsat_P = ellipsoidPosition.min(satellitePosition);
+
+            equationSet[0] = -eq1_Doppler(satelliteVelocity, dsat_P);
+            equationSet[1] = -eq2_Range(dsat_P, rgTime);
+            equationSet[2] = -eq3_Ellipsoid(ellipsoidPosition, height);
+
+            partialsXYZ[0][0] = satelliteVelocity.x;
+            partialsXYZ[0][1] = satelliteVelocity.y;
+            partialsXYZ[0][2] = satelliteVelocity.z;
+            partialsXYZ[1][0] = 2 * dsat_P.x;
+            partialsXYZ[1][1] = 2 * dsat_P.y;
+            partialsXYZ[1][2] = 2 * dsat_P.z;
+            partialsXYZ[2][0] = (2 * ellipsoidPosition.x) / (FastMath.pow(ell_a + height, 2));
+            partialsXYZ[2][1] = (2 * ellipsoidPosition.y) / (FastMath.pow(ell_a + height, 2));
+            partialsXYZ[2][2] = (2 * ellipsoidPosition.z) / (FastMath.pow(ell_b + height, 2));
+
+            double[] ellipsoidPositionSolution = LinearAlgebraUtils.solve33(partialsXYZ, equationSet);
+
+            // update solution
+            ellipsoidPosition.x += ellipsoidPositionSolution[0];
+            ellipsoidPosition.y += ellipsoidPositionSolution[1];
+            ellipsoidPosition.z += ellipsoidPositionSolution[2];
+
+            logger.fine("ellipsoidPosition.x = " + ellipsoidPosition.x);
+            logger.fine("ellipsoidPosition.y = " + ellipsoidPosition.y);
+            logger.fine("ellipsoidPosition.z = " + ellipsoidPosition.z);
+
+            // check convergence
+            if (Math.abs(ellipsoidPositionSolution[0]) < CRITERPOS &&
+                    Math.abs(ellipsoidPositionSolution[1]) < CRITERPOS &&
+                    Math.abs(ellipsoidPositionSolution[2]) < CRITERPOS) {
+                logger.info("INFO: ellipsoidPosition (converged): {"+ellipsoidPosition+"} ");
+                break;
+
+            } else if (iter >= MAXITER) {
+                logger.warning("line, pix -> x,y,z: maximum iterations ( {"+MAXITER+"} ) reached.");
+                logger.warning("Criterium (m): {"+CRITERPOS+"}  dx,dy,dz = {"+ ArrayUtils.toString(ellipsoidPositionSolution)+"}");
+
+                if (MAXITER > 10) {
+                    logger.severe("lp2xyz : MAXITER limit reached! lp2xyz() estimation is diverging?!");
+                    throw new Exception("Orbit.lp2xyz : MAXITER limit reached! lp2xyz() estimation is diverging?!");
+                }
+
+            }
+        }
+
+        return new Point(ellipsoidPosition);
+    }
+
     public synchronized Point lp2xyz(final Point sarPixel, final SLCImage slcimage) throws Exception {
         return lph2xyz(sarPixel.y, sarPixel.x, 0, slcimage);
     }
@@ -255,6 +328,46 @@ public final class Orbit {
 
         // inital value
         double timeAzimuth = slcimage.line2ta(0.5 * slcimage.getApproxRadarCentreOriginal().y);
+
+        int iter;
+        double solution = 0;
+        for (iter = 0; iter <= MAXITER; ++iter) {
+            Point satellitePosition = getXYZ(timeAzimuth);
+            Point satelliteVelocity = getXYZDot(timeAzimuth);
+            Point satelliteAcceleration = getXYZDotDot(timeAzimuth);
+            delta = pointOnEllips.min(satellitePosition);
+
+            // update solution
+            solution = -eq1_Doppler(satelliteVelocity, delta) / eq1_Doppler_dt(delta, satelliteVelocity, satelliteAcceleration);
+            timeAzimuth += solution;
+
+            if (Math.abs(solution) < CRITERTIM) {
+                break;
+            }
+        }
+
+        // Check number of iterations
+        if (iter >= MAXITER) {
+            logger.warning("x,y,z -> line, pix: maximum iterations ( {"+MAXITER+"} ) reached. ");
+            logger.warning("Criterium (s): {"+CRITERTIM+"} dta (s)= {"+solution+"}");
+        }
+
+        // Compute range time
+
+        // Update equations
+        Point satellitePosition = getXYZ(timeAzimuth);
+        delta = pointOnEllips.min(satellitePosition);
+        double timeRange = delta.norm() / SOL;
+
+        return new Point(timeRange, timeAzimuth);
+    }
+
+    public synchronized Point xyz2t(final Point pointOnEllips, final double sceneCentreAzimuthTime) {
+
+        Point delta;
+
+        // inital value
+        double timeAzimuth = sceneCentreAzimuthTime;
 
         int iter;
         double solution = 0;
