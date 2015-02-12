@@ -24,12 +24,12 @@ import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.DecimalTableCellRenderer;
-import org.esa.beam.visat.toolviews.placemark.AbstractPlacemarkTableModel;
+import org.esa.beam.framework.ui.product.AbstractPlacemarkTableModel;
 import org.esa.beam.visat.toolviews.placemark.PlacemarkManagerToolView;
 import org.esa.beam.visat.toolviews.placemark.TableModelFactory;
 
 import javax.swing.table.TableColumnModel;
-import java.awt.*;
+import java.awt.Component;
 import java.text.DecimalFormat;
 
 /**

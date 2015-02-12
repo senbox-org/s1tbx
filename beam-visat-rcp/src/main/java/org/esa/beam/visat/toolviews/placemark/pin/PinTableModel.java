@@ -26,7 +26,7 @@ import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.visat.toolviews.placemark.AbstractPlacemarkTableModel;
+import org.esa.beam.framework.ui.product.AbstractPlacemarkTableModel;
 import org.esa.beam.visat.toolviews.placemark.PlacemarkUtils;
 
 import java.awt.Color;
