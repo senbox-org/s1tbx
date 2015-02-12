@@ -32,8 +32,8 @@ import java.util.Map;
  */
 public class TOPSARSplitOpUI extends BaseOperatorUI {
 
-    private final JComboBox<String> subswathCombo = new JComboBox<String>();
-    private final JList<String> polList = new JList<String>();
+    private final JComboBox<String> subswathCombo = new JComboBox<>();
+    private final JList<String> polList = new JList<>();
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {

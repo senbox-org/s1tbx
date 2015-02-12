@@ -39,7 +39,7 @@ import java.awt.*;
 import java.util.Map;
 
 @OperatorMetadata(alias = "GoldsteinPhaseFiltering",
-        category = "SAR Processing/InSAR/Tools",
+        category = "SAR Processing/Interferometric/Tools",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Phase Filtering")

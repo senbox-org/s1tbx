@@ -55,7 +55,7 @@ import java.util.Map;
 
 
 @OperatorMetadata(alias = "DEMGeneration",
-        category = "SAR Processing/InSAR/Products",
+        category = "SAR Processing/Interferometric/Products",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "DEM Generation")
@@ -336,8 +336,8 @@ public final class DEMGenerationOp extends Operator {
                     bn = baseline.getBperp(y, x);
                     bp = baseline.getBpar(y, x);
                     flatAngle = lookAngles[x] - lookAngles[xc];
-                    alpha = -slantRange * Math.sin(incidenceAngle) /
-                            (2 * waveNumber * (bp * Math.sin(flatAngle) + bn * Math.cos(flatAngle)));
+                    alpha = -slantRange * FastMath.sin(incidenceAngle) /
+                            (2 * waveNumber * (bp * FastMath.sin(flatAngle) + bn * FastMath.cos(flatAngle)));
 //                  alpha = -slantRange*Math.sin(incidenceAngle)/(2*waveNumber*bn);
                     height = refHeight + alpha * (phase - refPhase);
                     targetData.setElemDoubleAt(trgIndex.getIndex(x), height);
@@ -459,8 +459,8 @@ public final class DEMGenerationOp extends Operator {
             bn = baseline.getBperp(seed.y, seed.x);
             bp = baseline.getBpar(seed.y, seed.x);
             flatAngle = lookAngles[seed.x] - lookAngles[xc];
-            alpha = -slantRange * Math.sin(incidenceAngle) /
-                    (2 * waveNumber * (bp * Math.sin(flatAngle) + bn * Math.cos(flatAngle)));
+            alpha = -slantRange * FastMath.sin(incidenceAngle) /
+                    (2 * waveNumber * (bp * FastMath.sin(flatAngle) + bn * FastMath.cos(flatAngle)));
 //            alpha = -slantRange*Math.sin(incidenceAngle)/(2*waveNumber*bn);
             a += -alpha * alpha;
             b += alpha;

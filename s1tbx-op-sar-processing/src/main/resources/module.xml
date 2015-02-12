@@ -387,14 +387,13 @@
             <helpId>CoregisterWizard</helpId>
         </action>
 
-        <!-- Utility Operators -->
 
         <action>
             <id>applyOrbitFile</id>
             <helpId>ApplyOrbitFileOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>tools</parent>
+            <parent>Sar Processing</parent>
             <text>Apply Orbit File</text>
             <operatorName>Apply-Orbit-File</operatorName>
             <dialogTitle>Apply Orbit File to Product</dialogTitle>

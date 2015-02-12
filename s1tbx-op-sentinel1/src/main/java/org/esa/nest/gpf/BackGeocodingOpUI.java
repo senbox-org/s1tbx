@@ -38,8 +38,8 @@ import java.util.Map;
  */
 public class BackGeocodingOpUI extends BaseOperatorUI {
 
-    private final JComboBox<String> demName = new JComboBox<String>(DEMFactory.getDEMNameList());
-    private final JComboBox demResamplingMethod = new JComboBox<String>(ResamplingFactory.resamplingNames);
+    private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
+    private final JComboBox demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
     private final JComboBox resamplingType = new JComboBox(ResamplingFactory.resamplingNames);
     final JCheckBox outputRangeAzimuthOffsetCheckBox = new JCheckBox("Output Range and Azimuth Offset");
     final JCheckBox outputDerampPhaseCheckBox = new JCheckBox("Output Deramp Phase");

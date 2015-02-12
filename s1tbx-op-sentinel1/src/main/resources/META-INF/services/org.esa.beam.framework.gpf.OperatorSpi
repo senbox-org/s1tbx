@@ -2,8 +2,8 @@ org.esa.nest.gpf.TOPSARDeburstOp$Spi
 org.esa.nest.gpf.TOPSARSplitOp$Spi
 org.esa.nest.gpf.SliceAssemblyOp$Spi
 org.esa.nest.gpf.BackGeocodingOp$Spi
-org.esa.nest.gpf.ConstantOffsetEstimationOp$Spi
-org.esa.nest.gpf.AzimuthOffsetEstimationOp$Spi
+org.esa.nest.gpf.RangeShiftOp$Spi
+org.esa.nest.gpf.AzimuthShiftOp$Spi
 org.esa.nest.gpf.ComputeDerampedAzimuthSpectrumOp$Spi
 org.esa.nest.gpf.ComputeDerampDemodPhaseOp$Spi
 org.esa.nest.gpf.CreateCoherenceImageOp$Spi

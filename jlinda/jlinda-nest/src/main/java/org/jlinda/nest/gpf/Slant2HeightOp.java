@@ -31,7 +31,7 @@ import java.awt.*;
 import java.util.HashMap;
 
 @OperatorMetadata(alias = "Phase2Height",
-        category = "SAR Processing/InSAR/Products",
+        category = "SAR Processing/Interferometric/Products",
         authors = "Petar Marinkovic",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Phase to Height conversion")

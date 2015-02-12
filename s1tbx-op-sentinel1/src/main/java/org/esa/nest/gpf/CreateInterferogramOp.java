@@ -41,12 +41,12 @@ import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jblas.MatrixFunctions;
 import org.jblas.Solve;
-import org.jlinda.core.*;
+import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
+import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.jlinda.core.utils.MathUtils;
 import org.jlinda.core.utils.PolyUtils;
-import org.jlinda.core.utils.SarUtils;
 import org.jlinda.nest.utils.BandUtilsDoris;
 import org.jlinda.nest.utils.CplxContainer;
 import org.jlinda.nest.utils.ProductContainer;
@@ -608,7 +608,7 @@ public class CreateInterferogramOp extends Operator {
                     complexSlave.muli(complexReferencePhase); // no conjugate here!
                 }
 
-                SarUtils.computeIfg_inplace(complexMaster, complexSlave.conji());
+                complexMaster.muli(complexSlave.conji());
 
                 /// commit to target ///
                 targetBand_I = targetProduct.getBand(product.targetBandName_I);
@@ -719,7 +719,7 @@ public class CreateInterferogramOp extends Operator {
                     complexSlave.muli(complexReferencePhase); // no conjugate here!
                 }
 
-                SarUtils.computeIfg_inplace(complexMaster, complexSlave.conji());
+                complexMaster.muli(complexSlave.conji());
 
                 /// commit to target ///
                 targetBand_I = targetProduct.getBand(product.targetBandName_I);

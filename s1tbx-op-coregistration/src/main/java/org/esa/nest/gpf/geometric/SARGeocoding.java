@@ -267,12 +267,14 @@ public class SARGeocoding {
         double upperBoundTime = secondVecTime;
         double lowerBoundFreq = firstVecFreq;
         double upperBoundFreq = secondVecFreq;
+        double midTime = 0.0;
+        double midFreq = 0.0;
         double diffTime = Math.abs(upperBoundTime - lowerBoundTime);
         while (diffTime > Math.abs(lineTimeInterval)) {
 
-            final double midTime = (upperBoundTime + lowerBoundTime) / 2.0;
+            midTime = (upperBoundTime + lowerBoundTime) / 2.0;
             orbit.getPositionVelocity(midTime, sensorPosition, sensorVelocity);
-            final double midFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+            midFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
 
             if (midFreq * lowerBoundFreq > 0.0) {
                 lowerBoundTime = midTime;
@@ -286,8 +288,24 @@ public class SARGeocoding {
 
             diffTime = Math.abs(upperBoundTime - lowerBoundTime);
         }
+        /*
+        midTime = (upperBoundTime + lowerBoundTime) / 2.0;
+        orbit.getPositionVelocity(midTime, sensorPosition, sensorVelocity);
+        midFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+        final double[] freqArray = {lowerBoundFreq, midFreq, upperBoundFreq};
+        final double[][] tmp = {{1, -1, 1}, {1,0,0}, {1,1,1}};
+        final Matrix A = new Matrix(tmp);
+        final double[] c = Maths.polyFit(A, freqArray);
+        double t1 = (-c[1] + Math.sqrt(c[1]*c[1] - 4.0*c[0]*c[2]))/ (2.0*c[2]);
+        double t2 = (-c[1] - Math.sqrt(c[1]*c[1] - 4.0*c[0]*c[2]))/ (2.0*c[2]);
+        if (t1 >= -1 && t1 <= 1) {
+            return 0.5*(1 - t1)*lowerBoundTime + 0.5*(1 + t1)*upperBoundTime;//return t1;
+        } else {
+            return 0.5*(1 - t2)*lowerBoundTime + 0.5*(1 + t2)*upperBoundTime;//return t2;
+        }*/
 
-        return lowerBoundTime - lowerBoundFreq * (upperBoundTime - lowerBoundTime) / (upperBoundFreq - lowerBoundFreq);
+        double time = lowerBoundTime - lowerBoundFreq * (upperBoundTime - lowerBoundTime) / (upperBoundFreq - lowerBoundFreq);
+        return time;
     }
 
     /**

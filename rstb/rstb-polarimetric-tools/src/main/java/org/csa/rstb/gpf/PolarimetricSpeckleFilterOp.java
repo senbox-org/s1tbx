@@ -34,6 +34,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 
 import java.awt.*;
@@ -143,9 +144,14 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfSLC();
+
             getSourceImageDimension();
 
             sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
+
+            checkSourceProductType(sourceProductType);
 
             srcBandList = PolBandUtils.getSourceBands(sourceProduct, sourceProductType);
 
@@ -157,6 +163,15 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private void checkSourceProductType(final PolBandUtils.MATRIX sourceProductType) {
+
+        // Inside each of the 4 filters, there is a check for sourceProductType and UNKNOWN will cause an exception.
+        // Without this check, we get a null pointer exception.
+        if(sourceProductType == PolBandUtils.MATRIX.UNKNOWN) {
+            throw new OperatorException("Input should be a polarimetric product");
         }
     }
 
