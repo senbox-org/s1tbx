@@ -163,7 +163,7 @@
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
-                <artifactId>snap-glayer</artifactId>
+                <artifactId>ceres-glayer</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 

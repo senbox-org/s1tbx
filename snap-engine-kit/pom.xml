@@ -49,7 +49,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-glayer</artifactId>
+            <artifactId>ceres-glayer</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

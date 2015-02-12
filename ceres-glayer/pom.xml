@@ -8,7 +8,7 @@
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>snap-glayer</artifactId>
+    <artifactId>ceres-glayer</artifactId>
     <packaging>nbm</packaging>
 
     <name>Ceres GLayer Library</name>
