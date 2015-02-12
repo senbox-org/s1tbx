@@ -139,6 +139,14 @@ public class CreateInterferogramOp extends Operator {
                 productTag = "ifg_srp";
             }
 
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfCoregisteredStack();
+            isTOPSARBurstProduct = validator.isTOPSARBurstProduct();
+            if (isTOPSARBurstProduct) {
+                final String topsarTag = getTOPSARTag(sourceProduct);
+                productTag = topsarTag + "_" + productTag;
+            }
+
             constructSourceMetadata();
             constructTargetMetadata();
             createTargetProduct();
@@ -146,9 +154,6 @@ public class CreateInterferogramOp extends Operator {
             getSourceImageDimension();
 
             if (!doNotSubtract) {
-                final InputProductValidator validator = new InputProductValidator(sourceProduct);
-                validator.checkIfCoregisteredStack();
-                isTOPSARBurstProduct = validator.isTOPSARBurstProduct();
 
                 if (isTOPSARBurstProduct) {
                     su = new Sentinel1Utils(sourceProduct);
@@ -169,6 +174,17 @@ public class CreateInterferogramOp extends Operator {
         }
     }
 
+    private String getTOPSARTag(final Product sourceProduct) {
+
+        final Band[] bands = sourceProduct.getBands();
+        for (Band band:bands) {
+            final String bandName = band.getName();
+            if (bandName.contains("i_") && bandName.contains("_mst")) {
+                return bandName.substring(bandName.indexOf("i_")+2, bandName.indexOf("_mst"));
+            }
+        }
+        return "";
+    }
 
     private void getMstApproxSceneCentreXYZ() throws Exception {
 
@@ -194,14 +210,14 @@ public class CreateInterferogramOp extends Operator {
 
     private void getSlvApproxSceneCentreAzimuthTime() throws Exception {
 
-        final MetadataElement root = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
-        final MetadataElement slvRoot = AbstractMetadata.getSlaveMetadata(root);
+        MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(AbstractMetadata.SLAVE_METADATA_ROOT);
+        MetadataElement[] slaveRoot = slaveElem.getElements();
+        final MetadataElement slvRoot = slaveRoot[0];
 
-        final double firstLineTime = slvRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD() *
-                Constants.secondsInDay;
-
-        final double lastLineTime = slvRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD() *
-                Constants.secondsInDay;
+        final double firstLineTimeInDays = slvRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD();
+        final double firstLineTime = (firstLineTimeInDays - (int)firstLineTimeInDays) * Constants.secondsInDay;
+        final double lastLineTimeInDays = slvRoot.getAttributeUTC(AbstractMetadata.last_line_time).getMJD();
+        final double lastLineTime = (lastLineTimeInDays - (int)lastLineTimeInDays) * Constants.secondsInDay;
 
         slvScenseCentreAzimuthTime = 0.5*(firstLineTime + lastLineTime);
     }
@@ -246,7 +262,7 @@ public class CreateInterferogramOp extends Operator {
                         final String polynomialName = slave.name + "_" + s + "_" + b;
 
                         flatEarthPolyMap.put(polynomialName, estimateFlatEarthPolynomial(
-                                master.metaData, master.orbit, slave.metaData, slave.orbit, s, b));
+                                master.metaData, master.orbit, slave.metaData, slave.orbit, s+1, b));
                     }
                 }
             }
@@ -475,9 +491,7 @@ public class CreateInterferogramOp extends Operator {
             final double mstRgTime = subSwath[subSwathIndex - 1].slrTimeToFirstPixel +
                     pixel*su.rangeSpacing/Constants.lightSpeed;
 
-            final double mstAzTime = subSwath[subSwathIndex - 1].burstFirstLineTime[burstIndex] +
-                    (line - burstIndex * subSwath[subSwathIndex - 1].linesPerBurst) *
-                            subSwath[subSwathIndex - 1].azimuthTimeInterval;
+            final double mstAzTime = line2AzimuthTime(line, subSwathIndex, burstIndex);
 
             // compute xyz of this point : sourceMaster
             org.jlinda.core.Point xyzMaster = masterOrbit.lph2xyz(mstAzTime, mstRgTime, 0.0, mstSceneCentreXYZ);
@@ -509,6 +523,17 @@ public class CreateInterferogramOp extends Operator {
         DoubleMatrix rhs = Atranspose.mmul(y);
 
         return Solve.solve(N, rhs);
+    }
+
+    private double line2AzimuthTime(final double line, final int subSwathIndex, final int burstIndex) {
+
+        final double firstLineTimeInDays = subSwath[subSwathIndex - 1].burstFirstLineTime[burstIndex] /
+                Constants.secondsInDay;
+
+        final double firstLineTime = (firstLineTimeInDays - (int)firstLineTimeInDays)*Constants.secondsInDay;
+
+        return firstLineTime + (line - burstIndex * subSwath[subSwathIndex - 1].linesPerBurst) *
+                        subSwath[subSwathIndex - 1].azimuthTimeInterval;
     }
 
     /**
