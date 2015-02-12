@@ -34,7 +34,7 @@ import java.util.Map;
 import static org.jlinda.core.utils.MathUtils.isPower2;
 
 @OperatorMetadata(alias = "PhaseFilter",
-        category = "SAR Processing/InSAR/Tools",
+        category = "SAR Processing/Interferometric/Tools",
         authors = "Petar Marinkovic",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Interferometric phase filtering")

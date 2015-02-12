@@ -45,17 +45,6 @@
     </modules>
 
     <repositories>
-        <repository>
-            <id>ppolabs-mvn-repo</id>
-            <name>Public Maven Repository of PPO.labs</name>
-            <url>http://maven.ppolabs.net/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
 		<repository>
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>

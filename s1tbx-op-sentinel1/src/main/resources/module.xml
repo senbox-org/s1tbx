@@ -50,12 +50,6 @@
             <class>org.esa.nest.gpf.BackGeocodingOpUI</class>
             <operatorName>Back-Geocoding</operatorName>
         </OperatorUI>
-        <OperatorUI>
-            <id>org.esa.nest.gpf.ConstantOffsetEstimationOpUI</id>
-            <class>org.esa.nest.gpf.ConstantOffsetEstimationOpUI</class>
-            <operatorName>Constant-Offset-Estimation</operatorName>
-        </OperatorUI>
-
     </extension>
 
     <extension point="snap-ui:actions">
@@ -124,23 +118,36 @@
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
-            <text>Back Geocoding</text>
+            <text>Sentinel-1 Back Geocoding</text>
             <dialogTitle>Back Geocoding</dialogTitle>
             <shortDescr>Back Geocoding</shortDescr>
             <graphFile>BackGeocodingGraph.xml</graphFile>
         </action>
 
         <action>
-            <id>ConstantOffsetEstimationOp</id>
-            <helpId>ConstantOffsetEstimationOp</helpId>
+            <id>RangeShiftOp</id>
+            <helpId>RangeShiftOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
-            <text>Constant Offset Estimation</text>
-            <operatorName>Constant-Offset-Estimation</operatorName>
-            <dialogTitle>Constant Offset Estimation</dialogTitle>
-            <shortDescr>Constant Offset Estimation</shortDescr>
-            <targetProductNameSuffix>_of</targetProductNameSuffix>
+            <text>Sentinel-1 Range Shift</text>
+            <operatorName>Range-Shift</operatorName>
+            <dialogTitle>Constant Range Offset Estimation</dialogTitle>
+            <shortDescr>Constant Range Offset Estimation</shortDescr>
+            <targetProductNameSuffix>_rg</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>AzimuthShiftOp</id>
+            <helpId>AzimuthShiftOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>Sentinel-1 Azimuth Shift</text>
+            <operatorName>Azimuth-Shift</operatorName>
+            <dialogTitle>Azimuth Offset Estimation</dialogTitle>
+            <shortDescr>Azimuth Offset Estimation</shortDescr>
+            <targetProductNameSuffix>_az</targetProductNameSuffix>
         </action>
 
         <action>
@@ -179,7 +186,7 @@
             <operatorName>Create-Interferogram</operatorName>
             <dialogTitle>Create Interferogram</dialogTitle>
             <shortDescr>Create Interferogram</shortDescr>
-            <targetProductNameSuffix>_coh</targetProductNameSuffix>
+            <targetProductNameSuffix>_ifg</targetProductNameSuffix>
         </action>
 
 

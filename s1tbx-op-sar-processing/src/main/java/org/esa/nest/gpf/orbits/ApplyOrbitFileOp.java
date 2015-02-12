@@ -69,7 +69,7 @@ import java.io.File;
  */
 
 @OperatorMetadata(alias = "Apply-Orbit-File",
-        category = "Utilities",
+        category = "Sar Processing",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Apply orbit file")
@@ -80,10 +80,10 @@ public final class ApplyOrbitFileOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(valueSet = {SentinelPODOrbitFile.PRECISE, SentinelPODOrbitFile.RESTITUTED,
-            DorisOrbitFile.DORIS_POR + " (ENVISAT)", DorisOrbitFile.DORIS_VOR + " (ENVISAT)",
-            DelftOrbitFile.DELFT_PRECISE + " (ENVISAT, ERS1&2)", PrareOrbitFile.PRARE_PRECISE + " (ERS1&2)"},
-            defaultValue = DorisOrbitFile.DORIS_VOR + " (ENVISAT)", label = "Orbit State Vectors")
+    @Parameter(valueSet = {SentinelPODOrbitFile.PRECISE+" (Auto Download)", SentinelPODOrbitFile.RESTITUTED,
+            DorisOrbitFile.DORIS_POR + " (ENVISAT)", DorisOrbitFile.DORIS_VOR + " (ENVISAT)"+" (Auto Download)",
+            DelftOrbitFile.DELFT_PRECISE + " (ENVISAT, ERS1&2)" +" (Auto Download)", PrareOrbitFile.PRARE_PRECISE + " (ERS1&2)"+" (Auto Download)"},
+            defaultValue = SentinelPODOrbitFile.PRECISE+" (Auto Download)", label = "Orbit State Vectors")
     private String orbitType = null;
 
     @Parameter(label = "Polynomial Degree", defaultValue = "3")
@@ -152,12 +152,12 @@ public final class ApplyOrbitFileOp extends Operator {
             } else if(mission.startsWith("ERS")) {
                     if (!orbitType.startsWith(DelftOrbitFile.DELFT_PRECISE) && !orbitType.startsWith(PrareOrbitFile.PRARE_PRECISE)) {
                         //throw new OperatorException(orbitType + " is not suitable for an ERS1 product");
-                        orbitType = SentinelPODOrbitFile.PRECISE;
+                        orbitType = PrareOrbitFile.PRARE_PRECISE;
                     }
             } else if(mission.startsWith("SENTINEL")) {
                 if (!orbitType.startsWith("Sentinel")) {
                     //throw new OperatorException(orbitType + " is not suitable for an ERS1 product");
-                    orbitType = PrareOrbitFile.PRARE_PRECISE;
+                    orbitType = SentinelPODOrbitFile.PRECISE;
                 }
             } else {
                     throw new OperatorException(orbitType + " is not suitable for a " + mission + " product");

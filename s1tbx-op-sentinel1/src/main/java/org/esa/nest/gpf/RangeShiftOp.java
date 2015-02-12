@@ -17,19 +17,26 @@ package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
+import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.gpf.*;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.StatusProgressMonitor;
+import org.esa.snap.gpf.ThreadManager;
 
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Estimate range and azimuth offsets for each burst using cross-correlation with a 512x512 block in
@@ -40,12 +47,12 @@ import java.util.List;
  * a frequency domain method.
  */
 
-@OperatorMetadata(alias = "Constant-Offset-Estimation",
+@OperatorMetadata(alias = "Range-Shift",
         category = "SAR Processing/SENTINEL-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Estimate constant offset for the whole image")
-public class ConstantOffsetEstimationOp extends Operator {
+        description = "Estimate constant range offset for the whole image")
+public class RangeShiftOp extends Operator {
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
@@ -81,7 +88,7 @@ public class ConstantOffsetEstimationOp extends Operator {
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
      */
-    public ConstantOffsetEstimationOp() {
+    public RangeShiftOp() {
     }
 
     /**
@@ -228,9 +235,10 @@ public class ConstantOffsetEstimationOp extends Operator {
             computeShiftPhaseArray(rgOffset, w, phase);
 
             for (int r = 0; r < h; r++) {
+                final int rw = r * w;
                 for (int c = 0; c < w; c++) {
-                    line[2 * c] = slvArrayI[r * w + c];
-                    line[2 * c + 1] = slvArrayQ[r * w + c];
+                    line[2 * c] = slvArrayI[rw + c];
+                    line[2 * c + 1] = slvArrayQ[rw + c];
                 }
 
                 row_fft.complexForward(line);
@@ -240,8 +248,8 @@ public class ConstantOffsetEstimationOp extends Operator {
                 row_fft.complexInverse(line, true);
 
                 for (int c = 0; c < w; c++) {
-                    tgtArrayI[r * w + c] = (float)line[2 * c];
-                    tgtArrayQ[r * w + c] = (float)line[2 * c + 1];
+                    tgtArrayI[rw + c] = (float)line[2 * c];
+                    tgtArrayQ[rw + c] = (float)line[2 * c + 1];
                 }
             }
 
@@ -342,10 +350,10 @@ public class ConstantOffsetEstimationOp extends Operator {
         final int numBursts = subSwath[subSwathIndex - 1].numOfBursts;
         final int burstHeight = subSwath[subSwathIndex - 1].linesPerBurst;
         final int burstWidth = subSwath[subSwathIndex - 1].samplesPerBurst;
-        Rectangle[] rectangleArray = new Rectangle[numBursts];
+        final Rectangle[] rectangleArray = new Rectangle[numBursts];
 
+        final int x0 = Math.max((burstWidth - cWindowSize) / 2 - margin, 0);
         for (int i = 0; i < numBursts; i++) {
-            final int x0 = Math.max((burstWidth - cWindowSize) / 2 - margin, 0);
             final int y0 = Math.max((burstHeight - cWindowSize) / 2 + i * burstHeight - margin, 0);
             rectangleArray[i] = new Rectangle(x0, y0, cWindowSize + 2*margin, cWindowSize + 2*margin);
         }
@@ -415,8 +423,8 @@ public class ConstantOffsetEstimationOp extends Operator {
                 phaseK = phase * (k - signalLength);
             }
             k2 = k * 2;
-            phaseArray[k2] = Math.cos(phaseK);
-            phaseArray[k2 + 1] = Math.sin(phaseK);
+            phaseArray[k2] = FastMath.cos(phaseK);
+            phaseArray[k2 + 1] = FastMath.sin(phaseK);
         }
     }
 
@@ -448,7 +456,7 @@ public class ConstantOffsetEstimationOp extends Operator {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(ConstantOffsetEstimationOp.class);
+            super(RangeShiftOp.class);
         }
     }
 

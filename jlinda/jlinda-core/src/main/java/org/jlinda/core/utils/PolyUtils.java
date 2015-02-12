@@ -511,13 +511,13 @@ public class PolyUtils {
                 for (j = 0; j < result.columns; j++) {
                     double y1 = y.get(j, 0);
                     double c00pc01y1 = c00 + c01 * y1;
-                    double c02y2 = c02 * FastMath.pow(y1, 2);
+                    double c02y2 = c02 * y1*y1;
                     double c11y1 = c11 * y1;
                     for (i = 0; i < result.rows; i++) {
                         double x1 = x.get(i, 0);
                         result.put(i, j, c00pc01y1
                                 + c10 * x1
-                                + c20 * FastMath.pow(x1, 2)
+                                + c20 * x1*x1
                                 + c11y1 * x1
                                 + c02y2);
                     }
@@ -536,7 +536,7 @@ public class PolyUtils {
                 c03 = coeff.get(9, 0);
                 for (j = 0; j < result.columns; j++) {
                     double y1 = y.get(j, 0);
-                    double y2 = FastMath.pow(y1, 2);
+                    double y2 = y1*y1;
                     double c00pc01y1 = c00 + c01 * y1;
                     double c02y2 = c02 * y2;
                     double c11y1 = c11 * y1;
@@ -545,7 +545,7 @@ public class PolyUtils {
                     double c03y3 = c03 * y1 * y2;
                     for (i = 0; i < result.rows; i++) {
                         double x1 = x.get(i, 0);
-                        double x2 = FastMath.pow(x1, 2);
+                        double x2 = x1*x1;
                         result.put(i, j, c00pc01y1
                                 + c10 * x1
                                 + c20 * x2
@@ -577,7 +577,7 @@ public class PolyUtils {
                 c04 = coeff.get(14, 0);
                 for (j = 0; j < result.columns; j++) {
                     double y1 = y.get(j, 0);
-                    double y2 = FastMath.pow(y1, 2);
+                    double y2 = y1*y1;
                     double c00pc01y1 = c00 + c01 * y1;
                     double c02y2 = c02 * y2;
                     double c11y1 = c11 * y1;
@@ -590,7 +590,7 @@ public class PolyUtils {
                     double c04y4 = c04 * y2 * y2;
                     for (i = 0; i < result.rows; i++) {
                         double x1 = x.get(i, 0);
-                        double x2 = FastMath.pow(x1, 2);
+                        double x2 = x1*x1;
                         result.put(i, j, c00pc01y1
                                 + c10 * x1
                                 + c20 * x2
@@ -632,7 +632,7 @@ public class PolyUtils {
                 c05 = coeff.get(20, 0);
                 for (j = 0; j < result.columns; j++) {
                     double y1 = y.get(j, 0);
-                    double y2 = FastMath.pow(y1, 2);
+                    double y2 = y1*y1;
                     double y3 = y2 * y1;
                     double c00pc01y1 = c00 + c01 * y1;
                     double c02y2 = c02 * y2;
@@ -651,7 +651,7 @@ public class PolyUtils {
                     double c05y5 = c05 * y3 * y2;
                     for (i = 0; i < result.rows; i++) {
                         double x1 = x.get(i, 0);
-                        double x2 = FastMath.pow(x1, 2);
+                        double x2 = x1*x1;
                         double x3 = x1 * x2;
                         result.put(i, j, c00pc01y1
                                 + c10 * x1
@@ -682,8 +682,7 @@ public class PolyUtils {
                 for (j = 0; j < result.columns; j++) {
                     double yy = y.get(j, 0);
                     for (i = 0; i < result.rows; i++) {
-                        double xx = x.get(i, 0);
-                        result.put(i, j, polyval(xx, yy, coeff, degree));
+                        result.put(i, j, polyval(x.get(i, 0), yy, coeff, degree));
                     }
                 }
         } // switch degree
@@ -723,12 +722,12 @@ public class PolyUtils {
         } else if (degree == 2) {
             sum += (coeff[1] * x
                     + coeff[2] * y
-                    + coeff[3] * FastMath.pow(x, 2)
+                    + coeff[3] * x*x
                     + coeff[4] * x * y
-                    + coeff[5] * FastMath.pow(y, 2));
+                    + coeff[5] * y*y);
         } else if (degree == 3) {
-            final double xx = FastMath.pow(x, 2);
-            final double yy = FastMath.pow(y, 2);
+            final double xx = x*x;
+            final double yy = y*y;
             sum += (coeff[1] * x
                     + coeff[2] * y
                     + coeff[3] * xx
@@ -739,9 +738,9 @@ public class PolyUtils {
                     + coeff[8] * x * yy
                     + coeff[9] * yy * y);
         } else if (degree == 4) {
-            final double xx = FastMath.pow(x, 2);
+            final double xx = x*x;
             final double xxx = xx * x;
-            final double yy = FastMath.pow(y, 2);
+            final double yy = y*y;
             final double yyy = yy * y;
             sum += (coeff[1] * x
                     + coeff[2] * y
@@ -758,10 +757,10 @@ public class PolyUtils {
                     + coeff[13] * x * yyy
                     + coeff[14] * yy * yy);
         } else if (degree == 5) {
-            final double xx = FastMath.pow(x, 2);
+            final double xx = x*x;
             final double xxx = xx * x;
             final double xxxx = xxx * x;
-            final double yy = FastMath.pow(y, 2);
+            final double yy = y*y;
             final double yyy = yy * y;
             final double yyyy = yyy * y;
             sum += (coeff[1] * x
@@ -790,7 +789,7 @@ public class PolyUtils {
             int coeffIndex = 0;
             for (int l = 0; l <= degree; l++) {
                 for (int k = 0; k <= l; k++) {
-                    sum += coeff[coeffIndex] * FastMath.pow(x, (double) (l - k)) * FastMath.pow(y, (double) k);
+                    sum += coeff[coeffIndex] * Math.pow(x, (double) (l - k)) * Math.pow(y, (double) k);
                     coeffIndex++;
                 }
             }

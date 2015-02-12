@@ -201,7 +201,8 @@ public final class BackGeocodingOp extends Operator {
             final String[] mPolarizations = mSU.getPolarizations();
 			final String[] sPolarizations = sSU.getPolarizations();
 			if (mPolarizations.length != 1 || sPolarizations.length != 1) {
-                throw new OperatorException("Split product with one polarization is expected.");
+                targetProduct = OperatorUtils.createDummyTargetProduct(sourceProduct);
+                //throw new OperatorException("Split product with one polarization is expected.");
             }
 			
 			if (!mPolarizations[0].equals(sPolarizations[0])) {
@@ -240,9 +241,9 @@ public final class BackGeocodingOp extends Operator {
             FileOutputStream fos = new FileOutputStream(filePath);
             DataOutputStream dos = new DataOutputStream(fos);
 
-            for (int i = 0; i < fbuf.length; i++) {
+            for (double[] aFbuf : fbuf) {
                 for (int j = 0; j < fbuf[0].length; j++) {
-                    dos.writeDouble(fbuf[i][j]);
+                    dos.writeDouble(aFbuf[j]);
                 }
             }
             //dos.flush();
