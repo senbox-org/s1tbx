@@ -143,7 +143,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-getasse30-reader</artifactId>
+            <artifactId>snap-getasse30-dem</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -15,6 +15,7 @@
  */
 package org.esa.beam.dataio.getasse30;
 
+import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -28,8 +29,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import com.bc.ceres.core.Assert;
 
 public class GETASSE30ElevationModel implements ElevationModel, Resampling.Raster {
 

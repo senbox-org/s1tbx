@@ -8,11 +8,11 @@
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>snap-getasse30-reader</artifactId>
+    <artifactId>snap-getasse30-dem</artifactId>
     <packaging>nbm</packaging>
 
-    <name>GETASSE30 DEM Reader</name>
-    <description>Enables SNAP to read the GETASSE30 digital elevation model.</description>
+    <name>GETASSE30 DEM</name>
+    <description>Provides the GETASSE30 digital elevation model.</description>
 
     <dependencies>
         <dependency>
