@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -43,6 +43,26 @@ public class ProductDataUTCTest extends TestCase {
         assertEquals(6, utc.getSecondsFraction());
         assertEquals(7, utc.getMicroSecondsFraction());
         assertEquals("05-JAN-2000 00:00:06.000007", utc.format());
+    }
+
+    public void testMjdToUTCConversion() throws Exception {
+        // these dates represent 3 consecutive scanline-times of a MERIS RR orbit
+        ProductData.UTC utc1 = new ProductData.UTC(2923.999998208953);
+        ProductData.UTC utc2 = new ProductData.UTC(2924.000000245851);
+        ProductData.UTC utc3 = new ProductData.UTC(2924.0000022827494);
+
+        assertEquals(2923, utc1.getDaysFraction());
+        assertEquals(2924, utc2.getDaysFraction());
+        assertEquals(2924, utc3.getDaysFraction());
+
+        assertEquals(86399, utc1.getSecondsFraction());
+        assertEquals(0, utc2.getSecondsFraction());
+        assertEquals(0, utc3.getSecondsFraction());
+
+        assertEquals(845253, utc1.getMicroSecondsFraction());
+        assertEquals(21241, utc2.getMicroSecondsFraction());
+        assertEquals(197229, utc3.getMicroSecondsFraction());
+
     }
 
     public void testMjdAfter2000() throws Exception {
