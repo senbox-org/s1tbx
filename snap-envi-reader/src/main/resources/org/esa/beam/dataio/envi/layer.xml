@@ -22,7 +22,7 @@
             </file>
         </folder>
         <folder name="Writers">
-            <file name="org-esa-beam-dataio-geotiff-ExportEnviProduct.instance">
+            <file name="org-esa-beam-dataio-envi-ExportEnviProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
                 <attr name="type" stringvalue="org.esa.beam.framework.datamodel.ProductNode"/>
                 <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
