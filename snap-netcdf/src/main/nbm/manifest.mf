@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: false
+AutoUpdate-Essential-Module: true
+OpenIDE-Module-Java-Dependencies: Java > 1.8
+OpenIDE-Module-Display-Category: SNAP
+OpenIDE-Module-Layer: org/esa/beam/dataio/netcdf/layer.xml
+OpenIDE-Module-Long-Description: <p>A product reader and writer for Ne
+ tCDF files. It supports metadata profiles for CF, BEAM, HDF-EOS, ODES
+ A.</p><p><b>Vendor:</b> Brockmann Consult GmbH</p><p><b>Contact addre
+ ss:</b> Max-Planck-Str. 2, 21502 Geesthacht (Germany)</p><p><b>Copyri
+ ght:</b> (C) 2014 by Brockmann Consult GmbH</p><p><b>Vendor:</b> Broc
+ kmann Consult GmbH</p><p><b>License:</b> http://www.gnu.org/licenses/
+ gpl.html</p>
