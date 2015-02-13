@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning.operator;
 
 import com.bc.ceres.binding.ConversionException;
@@ -9,6 +25,7 @@ import com.bc.ceres.core.Assert;
 import org.esa.beam.binning.TypedConfig;
 import org.esa.beam.binning.TypedDescriptor;
 import org.esa.beam.binning.TypedDescriptorsRegistry;
+import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 
 /**
  * @author Norman Fomferra
@@ -63,9 +80,7 @@ public class TypedConfigDomConverter<TD extends TypedDescriptor, TC extends Type
     }
 
     private DomConverter createChildConverter(Class<?> actualConfigType) {
-        // Note that we use @Parameter annotations in the configurations, so we actually must use
-        //return new DefaultDomConverter(actualConfigType, new ParameterDescriptorFactory());
-        return new DefaultDomConverter(actualConfigType);
+        return new DefaultDomConverter(actualConfigType, new ParameterDescriptorFactory());
     }
 
 }
