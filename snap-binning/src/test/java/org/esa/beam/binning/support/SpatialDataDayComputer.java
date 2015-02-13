@@ -120,9 +120,9 @@ public class SpatialDataDayComputer {
     static DataPeriod.Membership[] analyseBasic(DataPeriod dataPeriod, Product product) {
         GeoCoding geoCoding = product.getGeoCoding();
         ProductData.UTC firstScanLineTime = ProductUtils.getScanLineTime(product, 0);
-        float firstLon = geoCoding.getGeoPos(new PixelPos(0, 0), null).lon;
+        double firstLon = geoCoding.getGeoPos(new PixelPos(0, 0), null).lon;
         DataPeriod.Membership fl = dataPeriod.getObservationMembership(firstLon, firstScanLineTime.getMJD());
-        float lastLon = geoCoding.getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1, 0), null).lon;
+        double lastLon = geoCoding.getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1, 0), null).lon;
         DataPeriod.Membership fr = dataPeriod.getObservationMembership(lastLon, firstScanLineTime.getMJD());
 
 
