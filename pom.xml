@@ -89,7 +89,6 @@
         <!-- BEAM System Modules -->
 
         <module>beam-examples</module>
-        <module>beam-scripting</module>
         <module>beam-ui</module>
         <module>beam-visat-rcp</module>
         <module>beam-reader-tests</module>
