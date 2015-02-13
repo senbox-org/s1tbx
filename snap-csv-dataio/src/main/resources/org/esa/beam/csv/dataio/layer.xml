@@ -22,9 +22,7 @@
             <file name="org-esa-beam-csv-dataio-ExportCSVProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
                 <attr name="type" stringvalue="org.esa.beam.framework.datamodel.ProductNode"/>
-                <!--<attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>-->
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ExportProductAction.create"/>
-                <!--<attr name="injectable" stringvalue="org.esa.snap.rcp.actions.file.ExportProductAction"/>-->
                 <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
                 <attr name="displayName" stringvalue="CSV"/>
                 <attr name="formatName" stringvalue="CSV"/>
