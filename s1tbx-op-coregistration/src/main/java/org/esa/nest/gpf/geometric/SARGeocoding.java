@@ -1,10 +1,9 @@
 package org.esa.nest.gpf.geometric;
 
-import Jama.Matrix;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.eo.Constants;
@@ -907,12 +906,27 @@ public class SARGeocoding {
                 zVelArray[j] = orbitStateVectors[adjVecIndices[j]].z_vel;
             }
 
-            position[0] = Maths.lagrangeInterpolatingPolynomial(timeArray, xPosArray, time);
-            position[1] = Maths.lagrangeInterpolatingPolynomial(timeArray, yPosArray, time);
-            position[2] = Maths.lagrangeInterpolatingPolynomial(timeArray, zPosArray, time);
-            velocity[0] = Maths.lagrangeInterpolatingPolynomial(timeArray, xVelArray, time);
-            velocity[1] = Maths.lagrangeInterpolatingPolynomial(timeArray, yVelArray, time);
-            velocity[2] = Maths.lagrangeInterpolatingPolynomial(timeArray, zVelArray, time);
+            //lagrangeInterpolatingPolynomial
+            position[0] = 0;
+            position[1] = 0;
+            position[2] = 0;
+            velocity[0] = 0;
+            velocity[1] = 0;
+            velocity[2] = 0;
+            for (int i = 0; i < numVectors; ++i) {
+                double weight = 1;
+                for (int j = 0; j < numVectors; ++j) {
+                    if (j != i) {
+                        weight *= (time - timeArray[j]) / (timeArray[i] - timeArray[j]);
+                    }
+                }
+                position[0] += weight * xPosArray[i];
+                position[1] += weight * yPosArray[i];
+                position[2] += weight * zPosArray[i];
+                velocity[0] += weight * xVelArray[i];
+                velocity[1] += weight * yVelArray[i];
+                velocity[2] += weight * zVelArray[i];
+            }
         }
 
         public double getVelocity(final double time) {
