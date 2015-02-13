@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.framework.datamodel;/*
  * Copyright (C) 2012 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
@@ -19,6 +35,7 @@ import com.bc.jexp.ParseException;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.Interpolation;
 import javax.media.jai.operator.CropDescriptor;
@@ -148,5 +165,44 @@ public class GeoCodingFactory {
 
     private static boolean mustSubSample(int subSamplingX, int subSamplingY) {
         return subSamplingX != 1 || subSamplingY != 1;
+    }
+
+    public static double interpolateLon(double wx, double wy, double d00, double d10, double d01, double d11) {
+        double range = GeoCodingFactory.computeRange(d00, d01, d10, d11);
+        if (range > 180) {
+            return GeoCodingFactory.interpolateSperical(wx, wy, d00, d10, d01, d11);
+        } else {
+            return MathUtils.interpolate2D(wx, wy, d00, d10, d01, d11);
+        }
+    }
+
+
+    private static double computeRange(double d00, double d01, double d10, double d11) {
+        double min = Math.min(d00, Math.min(d01, Math.min(d10, d11)));
+        double max = Math.max(d00, Math.max(d01, Math.max(d10, d11)));
+
+        return max - min;
+    }
+
+    private static double interpolateSperical(double wx, double wy, double d00, double d10, double d01, double d11) {
+        double r00 = Math.toRadians(d00);
+        double s00 = Math.sin(r00);
+        double c00 = Math.cos(r00);
+
+        double r01 = Math.toRadians(d01);
+        double s01 = Math.sin(r01);
+        double c01 = Math.cos(r01);
+
+        double r10 = Math.toRadians(d10);
+        double s10 = Math.sin(r10);
+        double c10 = Math.cos(r10);
+
+        double r11 = Math.toRadians(d11);
+        double s11 = Math.sin(r11);
+        double c11 = Math.cos(r11);
+
+        double sinAngle = MathUtils.interpolate2D(wx, wy, s00, s10, s01, s11);
+        double cosAngle = MathUtils.interpolate2D(wx, wy, c00, c10, c01, c11);
+        return MathUtils.RTOD * Math.atan2(sinAngle, cosAngle);
     }
 }
