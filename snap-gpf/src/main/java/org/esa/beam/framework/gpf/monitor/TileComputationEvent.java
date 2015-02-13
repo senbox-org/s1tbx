@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -31,10 +31,11 @@ public class TileComputationEvent {
     private final long startNanos;
     private final long endNanos;
     private final String threadName;
+    private final long nettoNanos;
 
     static int ids = 0;
 
-    public TileComputationEvent(OperatorImage image, int tileX, int tileY, long startNanos, long endNanos) {
+    public TileComputationEvent(OperatorImage image, int tileX, int tileY, long startNanos, long endNanos, long nettoNanos) {
         this.id = ++ids;
         this.image = image;
         this.tileX = tileX;
@@ -42,6 +43,7 @@ public class TileComputationEvent {
         this.startNanos = startNanos;
         this.endNanos = endNanos;
         this.threadName = Thread.currentThread().getName();
+        this.nettoNanos = nettoNanos;
     }
 
     public int getId() {
@@ -66,6 +68,10 @@ public class TileComputationEvent {
 
     public long getEndNanos() {
         return endNanos;
+    }
+
+    public long getNettoNanos() {
+        return nettoNanos;
     }
 
     public String getThreadName() {

@@ -599,11 +599,13 @@ class CommandLineTool implements GraphProcessingObserver {
         velocityContext.put("targetProducts", outputProducts);
 
         Product sourceProduct = null;
+        Operator currentOperator = null;
         Map<String, Product> sourceProducts = new HashMap<>();
         for (Node node : graphContext.getGraph().getNodes()) {
             final NodeContext nodeContext = graphContext.getNodeContext(node);
-            if (nodeContext.getOperator() instanceof ReadOp) {
-                final Product product = nodeContext.getOperator().getTargetProduct();
+            currentOperator = nodeContext.getOperator();
+            if (currentOperator instanceof ReadOp) {
+                final Product product = currentOperator.getTargetProduct();
                 if (sourceProduct == null) {
                     sourceProduct = product;
                 }
@@ -613,6 +615,10 @@ class CommandLineTool implements GraphProcessingObserver {
                 }
             }
         }
+        if (currentOperator != null) {
+            currentOperator.stopTileComputationObservation();
+        }
+
         velocityContext.put("sourceProduct", sourceProduct);
         velocityContext.put("sourceProducts", sourceProducts);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -92,6 +92,7 @@ public class OperatorImageTileStack extends OperatorImage {
         long startNanos = System.nanoTime();
 
         final OperatorContext operatorContext = getOperatorContext();
+
         Band[] targetBands = operatorContext.getTargetProduct().getBands();
         Map<Band, Tile> targetTiles = new HashMap<Band, Tile>(targetBands.length * 2);
         Map<Band, WritableRaster> writableRasters = new HashMap<Band, WritableRaster>(targetBands.length);
@@ -108,7 +109,10 @@ public class OperatorImageTileStack extends OperatorImage {
             }
         }
 
+        operatorContext.startWatch();
         operatorContext.getOperator().computeTileStack(targetTiles, destRect, ProgressMonitor.NULL);
+        operatorContext.stopWatch();
+//        long nettoNanos = operatorContext.getNettoTime();
 
         final int tileX = XToTileX(destRect.x);
         final int tileY = YToTileY(destRect.y);
