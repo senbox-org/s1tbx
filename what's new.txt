@@ -1,8 +1,18 @@
 New in S1TBX 1.1.0
 
-
+Sentinel-1 precise orbit application
+TOPSAR Iterferometry
+	- Backgeocoding
+	- Enhanced Spectral Diversity
+	- Burst coherence and interferogram
+	- Deburst of insar products
 Support for TanDEM-X CoSSC
 Support for ALOS-2
+Dual Pol processing
+	- C2 matrix
+	- dual pol speckle filtering
+	- dual pol H-Alpha decomposition
+	- dual pol Wishart classifier
 
 New in S1TBX 1.0.3
 
