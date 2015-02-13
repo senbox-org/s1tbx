@@ -158,6 +158,12 @@
             <green>C22</green>
             <blue>C33</blue>
         </rgbProfile>
+        <rgbProfile>
+            <name>C2</name>
+            <red>C11</red>
+            <green>C22</green>
+            <blue>C11/C22</blue>
+        </rgbProfile>
     </extension>
 
     <extension point="snap-ui:helpSets">
