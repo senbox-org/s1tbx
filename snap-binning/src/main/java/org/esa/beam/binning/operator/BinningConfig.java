@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,6 +19,7 @@ package org.esa.beam.binning.operator;
 import com.bc.ceres.binding.BindingException;
 import com.vividsolutions.jts.geom.Geometry;
 import org.esa.beam.binning.*;
+import org.esa.beam.binning.support.BinTracer;
 import org.esa.beam.binning.support.BinningContextImpl;
 import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.binning.support.SpatialDataPeriod;
@@ -271,13 +272,18 @@ public class BinningConfig {
 
 
     public BinningContext createBinningContext(Geometry region, ProductData.UTC startDate, Double periodDuration) {
+        PlanetaryGrid planetaryGridInst = createPlanetaryGrid();
         VariableContext variableContext = createVariableContext();
-        return new BinningContextImpl(createPlanetaryGrid(),
-                createBinManager(variableContext),
-                compositingType,
-                getSuperSampling() != null ? getSuperSampling() : 1,
-                createDataPeriod(startDate, periodDuration, minDataHour),
-                region);
+        Aggregator[] aggregators = createAggregators(variableContext);
+        BinManager binManager = createBinManager(variableContext, aggregators);
+        binManager.setBinTracer(BinTracer.create(binManager, planetaryGridInst, outputFile));
+        DataPeriod dataPeriod = createDataPeriod(startDate, periodDuration, minDataHour);
+        return new BinningContextImpl(planetaryGridInst,
+                                      binManager,
+                                      compositingType,
+                                      getSuperSampling() != null ? getSuperSampling() : 1,
+                                      dataPeriod,
+                                      region);
     }
 
     /**
@@ -306,11 +312,6 @@ public class BinningConfig {
                 throw new IllegalArgumentException(planetaryGrid, e);
             }
         }
-    }
-
-    private BinManager createBinManager(VariableContext variableContext) {
-        Aggregator[] aggregators = createAggregators(variableContext);
-        return createBinManager(variableContext, aggregators);
     }
 
     public Aggregator[] createAggregators(VariableContext variableContext) {
@@ -362,6 +363,10 @@ public class BinningConfig {
                     throw new IllegalArgumentException("Unknown aggregator type: " + aggregatorConfig.getName());
                 }
             }
+        }
+        if (BinTracer.isActive()) {
+             variableContext.defineVariable("_TRACE_X", "X");
+             variableContext.defineVariable("_TRACE_Y", "Y");
         }
 
         return variableContext;

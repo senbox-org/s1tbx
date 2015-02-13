@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de) 
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,10 +16,14 @@
 
 package org.esa.beam.binning;
 
+import org.esa.beam.binning.support.BinTracer;
 import org.esa.beam.binning.support.VariableContextImpl;
 import org.esa.beam.binning.support.VectorImpl;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,8 +43,11 @@ public class BinManager {
     private final int[] spatialFeatureOffsets;
     private final int[] temporalFeatureOffsets;
     private final int[] outputFeatureOffsets;
+    private final String[] spatialFeatureNames;
+    private final String[] temporalFeatureNames;
     private final String[] outputFeatureNames;
     private final String[] postFeatureNames;
+    private BinTracer binTracer;
 
     public BinManager() {
         this(new VariableContextImpl());
@@ -59,6 +66,8 @@ public class BinManager {
         int spatialFeatureCount = 0;
         int temporalFeatureCount = 0;
         int outputFeatureCount = 0;
+        List<String> spatialFeatureNameList = new ArrayList<>();
+        List<String> temporalFeatureNameList = new ArrayList<>();
         for (int i = 0; i < aggregators.length; i++) {
             Aggregator aggregator = aggregators[i];
             spatialFeatureOffsets[i] = spatialFeatureCount;
@@ -67,10 +76,14 @@ public class BinManager {
             spatialFeatureCount += aggregator.getSpatialFeatureNames().length;
             temporalFeatureCount += aggregator.getTemporalFeatureNames().length;
             outputFeatureCount += aggregator.getOutputFeatureNames().length;
+            Collections.addAll(spatialFeatureNameList, aggregator.getSpatialFeatureNames());
+            Collections.addAll(temporalFeatureNameList, aggregator.getTemporalFeatureNames());
         }
         this.spatialFeatureCount = spatialFeatureCount;
         this.temporalFeatureCount = temporalFeatureCount;
         this.outputFeatureCount = outputFeatureCount;
+        this.spatialFeatureNames = spatialFeatureNameList.toArray(new String[spatialFeatureNameList.size()]);
+        this.temporalFeatureNames = temporalFeatureNameList.toArray(new String[temporalFeatureNameList.size()]);
         this.outputFeatureNames = new String[outputFeatureCount];
         final NameUnifier nameUnifier = new NameUnifier();
         int k = 0;
@@ -105,7 +118,7 @@ public class BinManager {
         }
     }
 
-    public VariableContext getVariableContext() {
+    public final VariableContext getVariableContext() {
         return variableContext;
     }
 
@@ -121,7 +134,15 @@ public class BinManager {
         return outputFeatureCount;
     }
 
-    public int getPostProcessFeatureCount() {
+    public final String[] getSpatialFeatureNames() {
+        return spatialFeatureNames;
+    }
+
+    public final String[] getTemporalFeatureNames() {
+        return temporalFeatureNames;
+    }
+
+    public final int getPostProcessFeatureCount() {
         return postFeatureCount;
     }
 
@@ -129,11 +150,11 @@ public class BinManager {
         return outputFeatureNames;
     }
 
-    final String[] getPostProcessFeatureNames() {
+    public final String[] getPostProcessFeatureNames() {
         return postFeatureNames;
     }
 
-    public int getResultFeatureCount() {
+    public final int getResultFeatureCount() {
         if (hasPostProcessor()) {
             return postFeatureCount;
         } else {
@@ -179,6 +200,7 @@ public class BinManager {
     public SpatialBin createSpatialBin(long binIndex) {
         final SpatialBin spatialBin = new SpatialBin(binIndex, spatialFeatureCount);
         initSpatialBin(spatialBin);
+        traceSpatial("createSpatial", null, spatialBin);
         return spatialBin;
     }
 
@@ -190,6 +212,7 @@ public class BinManager {
             aggregator.aggregateSpatial(spatialBin, observation, spatialVector);
         }
         spatialBin.numObs++;
+        traceSpatial("aggregateSpatial", observation, spatialBin);
     }
 
     public void completeSpatialBin(SpatialBin spatialBin) {
@@ -199,11 +222,13 @@ public class BinManager {
             spatialVector.setOffsetAndSize(spatialFeatureOffsets[i], aggregator.getSpatialFeatureNames().length);
             aggregator.completeSpatial(spatialBin, spatialBin.numObs, spatialVector);
         }
+        traceSpatial("completeSpatial", null, spatialBin);
     }
 
     public TemporalBin createTemporalBin(long binIndex) {
         final TemporalBin temporalBin = new TemporalBin(binIndex, temporalFeatureCount);
         initTemporalBin(temporalBin);
+        traceTemporal("createTemporal", null, temporalBin);
         return temporalBin;
     }
 
@@ -219,6 +244,7 @@ public class BinManager {
     public void aggregateTemporalBin(SpatialBin inputBin, TemporalBin outputBin) {
         aggregateBin(inputBin, outputBin);
         outputBin.numPasses++;
+        traceTemporal("aggregateTemporal", inputBin, outputBin);
     }
 
     // method is used in Calvalus - undocumented API :-) don't remove
@@ -246,6 +272,7 @@ public class BinManager {
             temporalVector.setOffsetAndSize(temporalFeatureOffsets[i], aggregator.getTemporalFeatureNames().length);
             aggregator.completeTemporal(temporalBin, temporalBin.numObs, temporalVector);
         }
+        traceTemporal("completeTemporal", null, temporalBin);
     }
 
     public TemporalBin createOutputBin(long binIndex) {
@@ -262,6 +289,7 @@ public class BinManager {
             aggregator.computeOutput(temporalVector, outputVector);
         }
         outputVectorImpl.setOffsetAndSize(0, outputFeatureCount);
+        traceOutput(temporalBin, outputVector);
     }
 
     protected void initSpatialBin(SpatialBin bin) {
@@ -294,6 +322,13 @@ public class BinManager {
         cellProcessor.compute(outputVector, postVector);
     }
 
+    public void setBinTracer(BinTracer binTracer) {
+        this.binTracer = binTracer;
+    }
+    public BinTracer getBinTracer() {
+        return binTracer;
+    }
+
     static class NameUnifier {
 
         private final Map<String, Integer> addedNames = new HashMap<String, Integer>();
@@ -306,6 +341,24 @@ public class BinManager {
                 addedNames.put(name, addedNames.get(name) + 1);
             }
             return name + "_" + addedNames.get(name);
+        }
+    }
+
+    private void traceSpatial(String action, Observation observation, SpatialBin spatialBin) {
+        if (BinTracer.traceThis(binTracer, spatialBin.getIndex())) {
+            binTracer.traceSpatial(action, observation, spatialBin);
+        }
+    }
+
+    private void traceTemporal(String action, SpatialBin spatialBin, TemporalBin temporalBin) {
+        if (BinTracer.traceThis(binTracer, temporalBin.getIndex())) {
+            binTracer.traceTemporal(action, spatialBin, temporalBin);
+        }
+    }
+
+    private void traceOutput(TemporalBin temporalBin, WritableVector outputVector) {
+        if (BinTracer.traceThis(binTracer, temporalBin.getIndex())) {
+            binTracer.traceOutput(temporalBin, outputVector);
         }
     }
 }

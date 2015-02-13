@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -26,6 +26,7 @@ import org.esa.beam.binning.ObservationSlice;
 import org.esa.beam.binning.PlanetaryGrid;
 import org.esa.beam.binning.SpatialBinner;
 import org.esa.beam.binning.VariableContext;
+import org.esa.beam.binning.support.BinTracer;
 import org.esa.beam.binning.support.PlateCarreeGrid;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -110,7 +111,12 @@ public class SpatialProductBinner {
         }
         final float[] superSamplingSteps = getSuperSamplingSteps(binningContext.getSuperSampling());
         long numObsTotal = 0;
-        progressMonitor.beginTask("Spatially binning of " + product.getName(), sliceRectangles.length);
+        String productName = product.getName();
+        BinTracer binTracer = spatialBinner.getBinningContext().getBinManager().getBinTracer();
+        if (binTracer != null) {
+            binTracer.setProductName(productName);
+        }
+        progressMonitor.beginTask("Spatially binning of " + productName, sliceRectangles.length);
         final Logger logger = BeamLogManager.getSystemLogger();
         for (int idx = 0; idx < sliceRectangles.length; idx++) {
             StopWatch stopWatch = new StopWatch();
