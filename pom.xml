@@ -96,7 +96,6 @@
 
         <module>beam-hdf5-writer</module>
         <module>beam-meris-cloud</module>
-        <module>beam-modis-reader</module>
         <module>beam-netcdf</module>
         <module>beam-pconvert</module>
         <module>beam-statistics-op</module>
