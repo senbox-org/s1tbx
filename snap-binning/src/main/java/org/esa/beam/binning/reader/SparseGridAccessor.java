@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.beam.binning.reader;
 
 import org.esa.beam.framework.datamodel.Band;
@@ -49,18 +65,13 @@ class SparseGridAccessor extends AbstractGridAccessor {
 
     @Override
     Array getLineValues(Band destBand, VariableReader variableReader, int lineIndex) throws IOException {
-        int[] origin = {0};
-
         Array lineValues = null;
         final int binOffset = binOffsets[lineIndex];
         if (binOffset > 0) {
-            int[] shape = {1};
-            final Integer binIndexInBinList = indexMap.get(binOffset);
-            origin[0] = binIndexInBinList;
-            final int binExtent = binExtents[lineIndex];
-            shape[0] = binExtent;
+            int firstIndex = indexMap.get(binOffset);
+            int length = binExtents[lineIndex];
             synchronized (netcdfFile) {
-                lineValues = variableReader.read(origin, shape);
+                lineValues = variableReader.read(firstIndex, length);
             }
         }
         return lineValues;

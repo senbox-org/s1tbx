@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -118,14 +118,51 @@ public class BinnedProductReader extends AbstractProductReader {
         int largestDimensionSize = getLargestDimensionSize();
         //read geophysical band values
         for (Variable variable : netcdfFile.getVariables()) {
-            final List<Dimension> dimensions = variable.getDimensions();
-            if (!dimensions.isEmpty() && dimensions.get(0).getLength() == largestDimensionSize) {
-                final String bandName = variable.getFullName();
-                if (dimensions.size() == 1) {
-                    addBand(bandName);
-                } else {
-                    for (int i = 0; i < dimensions.get(1).getLength(); i++) {
-                        addBand(bandName, i);
+            final List<Dimension> variableDimensions = variable.getDimensions();
+            int numDimensions = variableDimensions.size();
+            if (numDimensions == 0) {
+                continue;
+            } else if (numDimensions == 1) {
+                if (variableDimensions.get(0).getLength() == largestDimensionSize) {
+                    addBand(variable.getFullName());
+                }
+            } else {
+                // can handle:
+                // - dimension length = 1: 0 to many
+                // - dimension length = largestDimensionSize: exact 1
+                // - auxiliary dimensions: 1 (currently)
+                int binDimIndex = -1;
+                int auxDimIndex = -1;
+                for (int i = 0; i < numDimensions; i++) {
+                    if (variableDimensions.get(i).getLength() == largestDimensionSize) {
+                        if (binDimIndex != -1) {
+                            throw new IllegalArgumentException("2 Dimensions have num bins. Unsupported.");
+                        }
+                        binDimIndex = i;
+                    } else if (variableDimensions.get(i).getLength() > 1) {
+                        if (auxDimIndex != -1) {
+                            throw new IllegalArgumentException("2 Auxiliary dimension. Unsupported.");
+                        }
+                        auxDimIndex = i;
+                    }
+                }
+                if (binDimIndex != -1) {
+                    int[] origin = new int[numDimensions];
+                    Arrays.fill(origin, 0);
+                    int[] shape = new int[numDimensions];
+                    Arrays.fill(shape, 1);
+                    shape[binDimIndex] = largestDimensionSize;
+                    if (auxDimIndex != -1) {
+                        for (int i = 0; i < variableDimensions.get(auxDimIndex).getLength(); i++) {
+                            String suffix = "_" + i;
+                            int[] auxOrigin = origin.clone();
+                            auxOrigin[auxDimIndex] = i;
+                            int[] auxShape = shape.clone();
+                            auxShape[auxDimIndex] = 1;
+                            addBand(variable.getFullName(), suffix, auxOrigin, auxShape, binDimIndex);
+                        }
+                    } else {
+                        addBand(variable.getFullName(), "", origin, shape, binDimIndex);
                     }
                 }
             }
@@ -380,11 +417,11 @@ public class BinnedProductReader extends AbstractProductReader {
         }
     }
 
-    private void addBand(String varName, int layer) {
+    private void addBand(String varName, String suffix, int[] origin, int[] shape, int binDimIndex) {
         final VariableMetadata variableMetadata = getVariableMetadata(varName);
 
         if (variableMetadata != null) {
-            final String bandName = variableMetadata.name + "_" + layer;
+            final String bandName = variableMetadata.name + suffix;
 
             final Band band = new Band(bandName, variableMetadata.dataType, sceneRasterWidth, sceneRasterHeight);
             band.setDescription(variableMetadata.description);
@@ -394,7 +431,7 @@ public class BinnedProductReader extends AbstractProductReader {
             band.setSpectralWavelength(getWavelengthFromBandName(varName));
 
             product.addBand(band);
-            final VariableReader variableReader = new VariableReader(variableMetadata.variable, layer);
+            final VariableReader variableReader = new VariableReader(variableMetadata.variable, origin, shape, binDimIndex);
             bandMap.put(band, variableReader);
         }
     }
