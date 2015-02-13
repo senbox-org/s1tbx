@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -36,8 +36,9 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
 
     private final TiePointGrid latGrid;
     private final TiePointGrid lonGrid;
-    private final Approximation[] approximations;
     private final Datum datum;
+
+    private boolean approximationsComputed;
 
     private boolean normalized;
     private double normalizedLonMin;
@@ -46,6 +47,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
     private double latMax;
     private double overlapStart;
     private double overlapEnd;
+    private Approximation[] approximations;
 
     /**
      * Constructs geo-coding based on two given tie-point grids providing coordinates on the WGS-84 datum.
@@ -79,9 +81,16 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         this.latGrid = latGrid;
         this.lonGrid = lonGrid;
         this.datum = datum;
-        final TiePointGrid normalizedLonGrid = initNormalizedLonGrid();
-        initLatLonMinMax(normalizedLonGrid);
-        approximations = initApproximations(normalizedLonGrid);
+        approximationsComputed = false;
+    }
+
+    private synchronized void computeApproximations() {
+        if (!approximationsComputed) {
+            final TiePointGrid normalizedLonGrid = initNormalizedLonGrid();
+            initLatLonMinMax(normalizedLonGrid);
+            approximations = initApproximations(normalizedLonGrid);
+            approximationsComputed = true;
+        }
     }
 
     /**
@@ -111,6 +120,9 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      * @return the number of approximations, zero if no approximations could be computed
      */
     public int getNumApproximations() {
+        if (!approximationsComputed) {
+            computeApproximations();
+        }
         return approximations != null ? approximations.length : 0;
     }
 
@@ -142,6 +154,9 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      */
     @Override
     public boolean canGetPixelPos() {
+        if (!approximationsComputed) {
+            computeApproximations();
+        }
         return approximations != null;
     }
 
@@ -194,6 +209,9 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      */
     @Override
     public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
+        if (!approximationsComputed) {
+            computeApproximations();
+        }
         if (approximations != null) {
             double lat = normalizeLat(geoPos.lat);
             double lon = normalizeLon(geoPos.lon);
