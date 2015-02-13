@@ -76,6 +76,7 @@
         <module>snap-getasse30-dem</module>
         <module>snap-geotiff</module>
         <module>snap-graph-builder</module>
+        <module>snap-hdf5-writer</module>
         <module>snap-ndvi</module>
         <module>snap-pgx-reader</module>
         <module>snap-pixel-extraction</module>
@@ -94,7 +95,6 @@
 
         <!-- Former BEAM Extension Modules -->
 
-        <module>beam-hdf5-writer</module>
         <module>beam-meris-cloud</module>
         <module>beam-netcdf</module>
         <module>beam-pconvert</module>

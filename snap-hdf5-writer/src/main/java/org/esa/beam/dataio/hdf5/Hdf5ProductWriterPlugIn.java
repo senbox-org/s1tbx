@@ -18,11 +18,7 @@ package org.esa.beam.dataio.hdf5;
 import org.esa.beam.framework.dataio.EncodeQualification;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
-import org.esa.beam.framework.datamodel.CrsGeoCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.logging.BeamLogManager;
 
