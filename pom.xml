@@ -95,7 +95,6 @@
 
         <!-- Former BEAM Extension Modules -->
 
-        <module>beam-meris-cloud</module>
         <module>beam-netcdf</module>
         <module>beam-pconvert</module>
         <module>beam-statistics-op</module>

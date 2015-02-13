@@ -234,14 +234,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Sentinel-3 Toolbox -->
-        <!-- todo - move into s3tbx cluster -->
-        <dependency>
-            <groupId>org.esa.s3tbx</groupId>
-            <artifactId>s3tbx-meris-cloud</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
     </dependencies>
 
     <properties>
