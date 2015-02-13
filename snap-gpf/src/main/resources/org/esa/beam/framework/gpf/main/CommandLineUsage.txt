@@ -63,6 +63,7 @@ Options:
                      used operator or graph. In an XML graph, all occurrences
                      of $'{<name>'} will be replaced with <value>. Overwrites
                      parameter values specified by the ''-p'' option.
+  -D<name>=<value>   Defines a system property for this invocation.
   -v <dir>           A directory containing any number of Velocity templates.
                      Each template generates a text output file along with the
                      target product. This feature has been added to support a

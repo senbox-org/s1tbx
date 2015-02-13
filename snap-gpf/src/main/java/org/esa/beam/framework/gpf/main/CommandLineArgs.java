@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -23,7 +23,9 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.util.io.FileUtils;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -49,6 +51,7 @@ public class CommandLineArgs {
     private String targetFilePath;
     private TreeMap<String, String> parameterMap;
     private TreeMap<String, String> sourceFilePathMap;
+    private Map<String, String> systemPropertiesMap;
     private String targetFormatName;
     private String parameterFilePath;
     private String metadataFilePath;
@@ -76,6 +79,7 @@ public class CommandLineArgs {
         sourceFilePathMap = new TreeMap<String, String>();
         targetFilePathMap = new TreeMap<String, String>();
         parameterMap = new TreeMap<String, String>();
+        systemPropertiesMap = new HashMap<>();
         tileCacheCapacity = DEFAULT_TILE_CACHE_SIZE_IN_M * M;
         tileSchedulerParallelism = DEFAULT_TILE_SCHEDULER_PARALLELISM;
         stackTraceDump = isStackTraceDumpEnabled(args);
@@ -105,6 +109,9 @@ public class CommandLineArgs {
                 } else if (arg.startsWith("-T")) {
                     String[] pair = parseNameValuePair(arg);
                     targetFilePathMap.put(pair[0], pair[1]);
+                } else if (arg.startsWith("-D")) {
+                    String[] pair = parseNameValuePair(arg);
+                    systemPropertiesMap.put(pair[0], pair[1]);
                 } else if (arg.equals("-h")) {
                     helpRequested = true;
                 } else if (arg.equals("-x")) {
@@ -241,6 +248,10 @@ public class CommandLineArgs {
 
     public SortedMap<String, String> getTargetFilePathMap() {
         return targetFilePathMap;
+    }
+
+    public Map<String, String> getSystemPropertiesMap() {
+        return systemPropertiesMap;
     }
 
     public boolean isHelpRequested() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -28,6 +28,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.junit.Test;
 
+import java.util.Map;
 import java.util.SortedMap;
 
 import static org.esa.beam.framework.gpf.main.CommandLineArgs.parseArgs;
@@ -42,6 +43,16 @@ public class CommandLineArgsTest {
 
     private static final int K = 1024;
     private static final int M = 1024 * 1024;
+
+    @Test
+    public void testSystemProperties() throws Exception {
+        CommandLineArgs lineArgs = parseArgs("Reproject", "-Dfoo=bar", "-Dbeam.performance=lightning");
+        Map<String, String> systemPropertiesMap = lineArgs.getSystemPropertiesMap();
+        assertNotNull(systemPropertiesMap);
+        assertEquals(2, systemPropertiesMap.size());
+        assertEquals("bar", systemPropertiesMap.get("foo"));
+        assertEquals("lightning", systemPropertiesMap.get("beam.performance"));
+    }
 
     @Test
     public void testArgsCloned() throws Exception {

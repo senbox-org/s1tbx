@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -126,9 +126,17 @@ public class CommandLineToolOperatorTest {
         } catch (Exception e) {
             // expected
         }
-
     }
 
+    @Test
+    public void testSystemProperty() throws Exception {
+        assertTrue(context.output.length() == 0);
+        assertNull(System.getProperty("foo"));
+        int originalSize = System.getProperties().size();
+        clTool.run("Op4", "-Dfoo=bar");
+        assertEquals("bar", System.getProperty("foo"));
+        assertEquals(originalSize + 1, System.getProperties().size());
+    }
 
     private static class OpCommandLineContext implements CommandLineContext {
 

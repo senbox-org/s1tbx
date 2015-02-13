@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -144,11 +144,19 @@ class CommandLineTool implements GraphProcessingObserver {
     }
 
     private void run() throws Exception {
+        initializeSystemProperties();
         initializeJAI();
         initVelocityContext();
         readMetadata();
         runGraphOrOperator();
         runVelocityTemplates();
+    }
+
+    private void initializeSystemProperties() {
+        Map<String, String> systemPropertiesMap = commandLineArgs.getSystemPropertiesMap();
+        for (Entry<String, String> properties : systemPropertiesMap.entrySet()) {
+            System.setProperty(properties.getKey(), properties.getValue());
+        }
     }
 
     private void initializeJAI() {
