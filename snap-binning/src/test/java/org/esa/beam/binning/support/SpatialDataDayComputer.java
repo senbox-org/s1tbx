@@ -60,7 +60,7 @@ public class SpatialDataDayComputer {
                 return f1.getName().compareTo(f2.getName());
             }
         });
-        int mode = 3; // 1 basic, 2, precise,3 both
+        int mode = 3; // 1 precise, 2, basic, 3 both
         Double periodDuration = 1.0;
         ProductData.UTC startUtc = ProductData.UTC.parse(startDate, DATE_INPUT_PATTERN);
         DataPeriod dataPeriod = new SpatialDataPeriod(startUtc.getMJD(), periodDuration, minDataHour);
@@ -68,6 +68,7 @@ public class SpatialDataDayComputer {
         System.out.println("startUtc       = " + startUtc);
         System.out.println("minDataHour    = " + minDataHour);
         System.out.println("periodDuration = " + periodDuration);
+        System.out.println("num files      = " + filesList.size());
         System.out.println();
 
         if (mode == 1) {
