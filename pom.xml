@@ -56,7 +56,7 @@
         <!-- SNAP System Modules -->
 
         <module>snap-core</module>
-        <module>snap-config</module>
+        <!--<module>snap-config</module>-->
         <module>snap-help</module>
         <module>snap-engine-kit</module>
         <module>snap-engine-utilities</module>
