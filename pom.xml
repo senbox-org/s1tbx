@@ -79,6 +79,7 @@
         <module>snap-hdf5-writer</module>
         <module>snap-ndvi</module>
         <module>snap-netcdf</module>
+        <module>snap-pconvert</module>
         <module>snap-pgx-reader</module>
         <module>snap-pixel-extraction</module>
         <module>snap-rtp-codec</module>
@@ -96,7 +97,6 @@
 
         <!-- Former BEAM Extension Modules -->
 
-        <module>beam-pconvert</module>
         <module>beam-statistics-op</module>
         <module>beam-time-series-tool</module>
         <module>blue-marble-worldmap</module>
