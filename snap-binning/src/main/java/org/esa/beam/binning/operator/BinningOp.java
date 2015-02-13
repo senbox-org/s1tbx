@@ -39,6 +39,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.gpf.operators.standard.SubsetOp;
+import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.converters.JtsGeometryConverter;
@@ -643,7 +644,14 @@ public class BinningOp extends Operator {
 
         if (region == null && regionArea != null) {
             for (GeneralPath generalPath : ProductUtils.createGeoBoundaryPaths(sourceProduct)) {
-                regionArea.add(new Area(generalPath));
+                try {
+                    Area area = new Area(generalPath);
+                    regionArea.add(area);
+                } catch (Throwable e) {
+                    getLogger().log(Level.SEVERE, String.format("Failed to handle product boundary: %s", e.getMessage()), e);
+                    // sometimes the Area constructor throw an "java.lang.InternalError: Odd number of new curves!"
+                    // then just ignore this geometry
+                }
             }
         }
 
