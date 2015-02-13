@@ -177,16 +177,17 @@
         </action>
 
         <action>
-            <id>CreateInterferogramOp</id>
-            <helpId>CreateCoherenceImageOp</helpId>
+            <id>InterferogramOp</id>
+            <helpId>InterferogramOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>Sentinel1</parent>
-            <text>Create Interferogram</text>
-            <operatorName>Create-Interferogram</operatorName>
-            <dialogTitle>Create Interferogram</dialogTitle>
-            <shortDescr>Create Interferogram</shortDescr>
+            <text>Interferogram Formation</text>
+            <operatorName>Interferogram</operatorName>
+            <dialogTitle>Interferogram Formation</dialogTitle>
+            <shortDescr>Interferogram Formation and Flat Earth Phase Removal</shortDescr>
             <targetProductNameSuffix>_ifg</targetProductNameSuffix>
+            <parent>products</parent>
+            <placeAfter>CoherenceOp</placeAfter>
         </action>
 
 

@@ -57,8 +57,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-@OperatorMetadata(alias = "Create-Interferogram",
-        category = "SAR Processing/SENTINEL-1",
+@OperatorMetadata(alias = "Interferogram",
+        category = "SAR Processing/Interferometric/Products",
+        authors = "Petar Marinkovic, Jun Lu",
         description = "Compute interferograms from stack of coregistered S-1 images", internal = false)
 public class CreateInterferogramOp extends Operator {
     @SourceProduct
