@@ -25,6 +25,10 @@
     <dependency>
         <module>s1tbx-op-coregistration</module>
     </dependency>
+    <dependency>
+        <module>jlinda-nest</module>
+    </dependency>
+
 
     <categories>Processor</categories>
 
