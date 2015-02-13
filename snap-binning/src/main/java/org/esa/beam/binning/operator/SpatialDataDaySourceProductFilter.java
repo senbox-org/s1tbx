@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,6 +17,7 @@
 package org.esa.beam.binning.operator;
 
 import org.esa.beam.binning.DataPeriod;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -39,28 +40,46 @@ class SpatialDataDaySourceProductFilter extends BinningProductFilter {
 
     @Override
     protected boolean acceptForBinning(Product product) {
-        double firstLon = product.getGeoCoding().getGeoPos(new PixelPos(0, 0), null).lon;
-        double lastLon = product.getGeoCoding().getGeoPos(new PixelPos(0, product.getSceneRasterHeight() - 1), null).lon;
-        ProductData.UTC firstScanLineTime = ProductUtils.getScanLineTime(product, 0);
-        ProductData.UTC lastScanLineTime = ProductUtils.getScanLineTime(product, product.getSceneRasterHeight() - 1);
-        DataPeriod.Membership firstLineMembership = dataPeriod.getObservationMembership(firstLon, firstScanLineTime.getMJD());
-        DataPeriod.Membership lastLineMembership = dataPeriod.getObservationMembership(lastLon, lastScanLineTime.getMJD());
+            GeoCoding geoCoding = product.getGeoCoding();
+            ProductData.UTC firstScanLineTime = ProductUtils.getScanLineTime(product, 0);
+            ProductData.UTC lastScanLineTime = ProductUtils.getScanLineTime(product, product.getSceneRasterHeight() - 1);
+            if (firstScanLineTime == null || lastScanLineTime == null) {
+                String message = String.format("not accepting product '%s': missing time coding", product.getName());
+                setReason(message);
+                return false;
+            }
+            double firstLon = geoCoding.getGeoPos(new PixelPos(0, 0), null).lon;
+            DataPeriod.Membership topLeft = dataPeriod.getObservationMembership(firstLon, firstScanLineTime.getMJD());
+            double lastLon = geoCoding.getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1, 0), null).lon;
+            DataPeriod.Membership topRight = dataPeriod.getObservationMembership(lastLon, firstScanLineTime.getMJD());
 
-        String message = String.format("accepting product '%s': firstLineMembership=%s, " +
-                                       "lastLineMembership=%s, startTime=%s, endTime=%s",
-                                       product.getName(),
-                                       firstLineMembership,
-                                       lastLineMembership,
-                                       product.getStartTime(),
-                                       product.getEndTime());
-        if (firstLineMembership == lastLineMembership && firstLineMembership != DataPeriod.Membership.CURRENT_PERIOD) {
-            final String msg = "not " + message;
-            BeamLogManager.getSystemLogger().finer(msg);
-            setReason(msg);
-            return false;
+
+            firstLon = geoCoding.getGeoPos(new PixelPos(0, product.getSceneRasterHeight() - 1), null).lon;
+            DataPeriod.Membership bottomLeft = dataPeriod.getObservationMembership(firstLon, lastScanLineTime.getMJD());
+            lastLon = geoCoding.getGeoPos(new PixelPos(product.getSceneRasterWidth() - 1, product.getSceneRasterHeight() - 1), null).lon;
+            DataPeriod.Membership bottomRight = dataPeriod.getObservationMembership(lastLon, lastScanLineTime.getMJD());
+
+            String message = String.format("accepting product '%s': " +
+                                           "topLeftMembership=%s, topRightMembership=%s, " +
+                                           "bottomLeftMembership=%s, bottomRightMembership=%s, " +
+                                           "startTime=%s, endTime=%s",
+                                           product.getName(),
+                                           topLeft, topRight,
+                                           bottomLeft, bottomRight,
+                                           product.getStartTime(),
+                                           product.getEndTime());
+
+            if (topLeft == topRight &&
+                topRight == bottomLeft &&
+                bottomLeft == bottomRight &&
+                topLeft != DataPeriod.Membership.CURRENT_PERIOD) {
+                final String msg = "not " + message;
+                BeamLogManager.getSystemLogger().finer(msg);
+                setReason(msg);
+                return false;
+            }
+            BeamLogManager.getSystemLogger().finer(message);
+
+            return true;
         }
-        BeamLogManager.getSystemLogger().finer(message);
-
-        return true;
-    }
 }
