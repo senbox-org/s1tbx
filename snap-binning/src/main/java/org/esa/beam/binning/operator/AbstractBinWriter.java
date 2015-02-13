@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -132,9 +132,9 @@ public abstract class AbstractBinWriter implements BinWriter {
         final int[] origin0 = {0};
         final int[] shape = {bufferIndex};
         for (BinListVar var : vars) {
-            netcdfFile.write(var.variable.getFullName(),
-                    origin,
-                    var.buffer.section(origin0, shape));
+            String fullName = var.variable.getFullName();
+            Array valuesToWrite = var.buffer.sectionNoReduce(origin0, shape, null);
+            netcdfFile.write(fullName, origin, valuesToWrite);
         }
     }
 

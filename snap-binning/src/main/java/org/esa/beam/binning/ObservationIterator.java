@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,6 +19,8 @@ package org.esa.beam.binning;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.prep.PreparedGeometry;
+import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import org.esa.beam.binning.support.ObservationImpl;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
@@ -53,7 +55,7 @@ abstract class ObservationIterator implements Iterator<Observation> {
     private final Product product;
     private final boolean productHasTime;
     private final DataPeriod dataPeriod;
-    private final Geometry region;
+    private final PreparedGeometry region;
     private final GeometryFactory geometryFactory;
 
     static ObservationIterator create(PlanarImage[] sourceImages, PlanarImage maskImage, Product product,
@@ -76,7 +78,12 @@ abstract class ObservationIterator implements Iterator<Observation> {
     private ObservationIterator(Product product, SamplePointer pointer, BinningContext binningContext) {
         this.pointer = pointer;
         this.dataPeriod = binningContext.getDataPeriod();
-        this.region = binningContext.getRegion();
+        Geometry geometryRegion = binningContext.getRegion();
+        if (geometryRegion != null) {
+            this.region = PreparedGeometryFactory.prepare(binningContext.getRegion());
+        } else {
+            this.region = null;
+        }
         this.product = product;
         this.productHasTime = product.getStartTime() != null || product.getEndTime() != null;
         this.gc = product.getGeoCoding();
