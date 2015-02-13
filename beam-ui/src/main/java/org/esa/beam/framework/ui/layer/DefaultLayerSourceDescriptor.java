@@ -28,7 +28,7 @@ import com.bc.ceres.glayer.LayerTypeRegistry;
  * the extension point {@code "layerSources"} in the {@code module.xml}.
  * </p>
  * Example 1:<br/>
- * <p/>
+ * <p>
  * <pre>
  *    &lt;extension point="beam-visat-rcp:layerSources"&gt;
  *      &lt;layerSource&gt;
@@ -40,7 +40,7 @@ import com.bc.ceres.glayer.LayerTypeRegistry;
  *    &lt;/extension&gt;
  * </pre>
  * Example 1:<br/>
- * <p/>
+ * <p>
  * <pre>
  *    &lt;extension point="beam-visat-rcp:layerSources"&gt;
  *      &lt;layerSource&gt;
@@ -51,41 +51,35 @@ import com.bc.ceres.glayer.LayerTypeRegistry;
  *      &lt;/layerSource&gt;
  *    &lt;/extension&gt;
  * </pre>
- * <p/>
+ * <p>
  * <i>Note: This API is not public yet and may significantly change in the future. Use it at your own risk.</i>
  */
 @SuppressWarnings({"UnusedDeclaration"})
 public class DefaultLayerSourceDescriptor implements LayerSourceDescriptor {
 
-    private String id;
-    private String name;
-    private String description;
-    private Class<? extends LayerSource> layerSourceClass;
-    private String layerTypeClassName;
+    private final String id;
+    private final String name;
+    private final String description;
+    private final Class<? extends LayerSource> layerSourceClass;
+    private final String layerTypeClassName;
     private LayerType layerType;
 
-    /**
-     * Constructor used by Ceres runtime.
-     */
-    public DefaultLayerSourceDescriptor() {
-    }
-
-    // Constructor only used in tests.
-    DefaultLayerSourceDescriptor(String id, String name, String description,
-                                 Class<? extends LayerSource> layerSourceClass) {
+    public DefaultLayerSourceDescriptor(String id, String name, String description,
+                                        Class<? extends LayerSource> layerSourceClass) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.layerSourceClass = layerSourceClass;
+        this.layerTypeClassName = null;
     }
 
-    // Constructor only used in tests.
-    DefaultLayerSourceDescriptor(String id, String name, String description,
-                                 String layerTypeClassName) {
+    public DefaultLayerSourceDescriptor(String id, String name, String description,
+                                        String layerTypeClassName) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.layerTypeClassName = layerTypeClassName;
+        this.layerSourceClass = null;
     }
 
     @Override

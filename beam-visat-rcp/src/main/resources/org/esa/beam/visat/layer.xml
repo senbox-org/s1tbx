@@ -1,0 +1,152 @@
+<!-- todo: move this content to snap-rcp, once the Java code is there -->
+
+<filesystem>
+    <!--
+        <extension point="snap-ui:layerEditors">
+            <layerEditor>
+                <editorFactory>org.esa.beam.visat.toolviews.layermanager.editors.VectorDataLayerEditorFactory
+                </editorFactory>
+                <layer>org.esa.beam.framework.ui.product.VectorDataLayer</layer>
+            </layerEditor>
+            <layerEditor>
+                <editor>org.esa.beam.visat.toolviews.layermanager.editors.ImageLayerEditor</editor>
+                <layerType>com.bc.ceres.glayer.support.ImageLayer$Type</layerType>
+            </layerEditor>
+            <layerEditor>
+                <editor>org.esa.beam.visat.toolviews.layermanager.editors.NoDataLayerEditor</editor>
+                <layerType>org.esa.beam.glayer.NoDataLayerType</layerType>
+            </layerEditor>
+            <layerEditor>
+                <editor>org.esa.beam.visat.toolviews.layermanager.editors.FeatureLayerEditor</editor>
+                <layerType>org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayerType</layerType>
+            </layerEditor>
+            <layerEditor>
+                <editor>org.esa.beam.visat.toolviews.layermanager.editors.GraticuleLayerEditor</editor>
+                <layerType>org.esa.beam.glayer.GraticuleLayerType</layerType>
+            </layerEditor>
+        </extension>
+    -->
+    <folder name="LayerEditors">
+        <file name="VectorDataLayer">
+            <attr name="layerClass"
+                  stringvalue="org.esa.beam.framework.ui.product.VectorDataLayer"/>
+            <attr name="editorFactoryClass"
+                  stringvalue="org.esa.beam.visat.toolviews.layermanager.editors.VectorDataLayerEditorFactory"/>
+        </file>
+        <file name="ImageLayer">
+            <attr name="layerTypeClass"
+                  stringvalue="com.bc.ceres.glayer.support.ImageLayer$Type"/>
+            <attr name="editorClass"
+                  stringvalue="org.esa.beam.visat.toolviews.layermanager.editors.ImageLayerEditor"/>
+        </file>
+        <file name="NoDataLayerType">
+            <attr name="layerTypeClass"
+                  stringvalue="org.esa.beam.glayer.NoDataLayerType"/>
+            <attr name="editorClass"
+                  stringvalue="org.esa.beam.visat.toolviews.layermanager.editors.NoDataLayerEditor"/>
+        </file>
+        <file name="FeatureLayerType">
+            <attr name="layerTypeClass"
+                  stringvalue="org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.FeatureLayerType"/>
+            <attr name="editorClass"
+                  stringvalue="org.esa.beam.visat.toolviews.layermanager.editors.FeatureLayerEditor"/>
+        </file>
+        <file name="GraticuleLayerType">
+            <attr name="layerTypeClass"
+                  stringvalue="org.esa.beam.glayer.GraticuleLayerType"/>
+            <attr name="editorClass"
+                  stringvalue="org.esa.beam.visat.toolviews.layermanager.editors.GraticuleLayerEditor"/>
+        </file>
+    </folder>
+    <!--
+        <extension point="snap-ui:layerSources">
+            <layerSource>
+                <id>wms-layer-source</id>
+                <name>Image from Web Map Server (WMS)</name>
+                <description>Retrieves images from a Web Map Server (WMS)</description>
+                <class>org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsLayerSource</class>
+            </layerSource>
+            <layerSource>
+                <id>shapefile-layer-source</id>
+                <name>ESRI Shapefile</name>
+                <description>Displays shapes from an ESRI Shapefile</description>
+                <class>org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileLayerSource</class>
+            </layerSource>
+            <layerSource>
+                <id>productdata-layer-source</id>
+                <name>Image of Band / Tie-Point Grid</name>
+                <description>Displays images from a Band or Tie-Point Grid of compatible products</description>
+                <class>org.esa.beam.visat.toolviews.layermanager.layersrc.product.ProductLayerSource</class>
+            </layerSource>
+            <layerSource>
+                <id>image-layer-source</id>
+                <name>Image from File</name>
+                <description>Displays images from a file</description>
+                <class>org.esa.beam.visat.toolviews.layermanager.layersrc.image.ImageFileLayerSource</class>
+            </layerSource>
+            <layerSource>
+                <id>group-layer-source</id>
+                <name>Layer Group</name>
+                <description>Inserts an empty Layer Group</description>
+                <class>org.esa.beam.framework.ui.layer.CollectionLayerSource</class>
+            </layerSource>
+            <layerSource>
+                <id>windfield-layer-source</id>
+                <name>Wind speed vectors from MERIS ECMWF annotations</name>
+                <description>Creates a windfield layer based on MERIS 'zonal_wind' and 'merid_wind' data</description>
+                <class>org.esa.beam.visat.toolviews.layermanager.layersrc.windfield.WindFieldLayerSource</class>
+            </layerSource>
+        </extension>
+        -->
+    <folder name="LayerSources">
+        <file name="WmsLayerSource">
+            <attr name="displayName"
+                  stringvalue="Image from Web Map Server (WMS)"/>
+            <attr name="description"
+                  stringvalue="Retrieves images from a Web Map Server (WMS)"/>
+            <attr name="layerSourceClass"
+                  stringvalue="org.esa.beam.visat.toolviews.layermanager.layersrc.wms.WmsLayerSource"/>
+        </file>
+        <file name="ShapefileLayerSource">
+            <attr name="displayName"
+                  stringvalue="ESRI Shapefile"/>
+            <attr name="description"
+                  stringvalue="Displays shapes from an ESRI Shapefile"/>
+            <attr name="layerSourceClass"
+                  stringvalue="org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.ShapefileLayerSource"/>
+        </file>
+        <file name="ProductLayerSource">
+            <attr name="displayName"
+                  stringvalue="Image of Band / Tie-Point Grid"/>
+            <attr name="description"
+                  stringvalue="Displays images from a Band or Tie-Point Grid of compatible products"/>
+            <attr name="layerSourceClass"
+                  stringvalue="org.esa.beam.visat.toolviews.layermanager.layersrc.product.ProductLayerSource"/>
+        </file>
+        <file name="ImageFileLayerSource">
+            <attr name="displayName"
+                  stringvalue="RGB Image from File"/>
+            <attr name="description"
+                  stringvalue="Displays RGB images read from JPEG, PNG or GIF file"/>
+            <attr name="layerSourceClass"
+                  stringvalue="org.esa.beam.visat.toolviews.layermanager.layersrc.image.ImageFileLayerSource"/>
+        </file>
+        <file name="CollectionLayerSource">
+            <attr name="displayName"
+                  stringvalue="Layer Group"/>
+            <attr name="description"
+                  stringvalue="Inserts an empty layer group"/>
+            <attr name="layerSourceClass"
+                  stringvalue="org.esa.beam.framework.ui.layer.CollectionLayerSource"/>
+        </file>
+        <file name="MerisWindFieldLayerSource">
+            <attr name="displayName"
+                  stringvalue="Wind speed vectors from MERIS ECMWF annotations"/>
+            <attr name="description"
+                  stringvalue="Creates a windfield layer based on MERIS 'zonal_wind' and 'merid_wind' data"/>
+            <attr name="layerSourceClass"
+                  stringvalue="org.esa.beam.visat.toolviews.layermanager.layersrc.windfield.WindFieldLayerSource"/>
+        </file>
+    </folder>
+
+</filesystem>

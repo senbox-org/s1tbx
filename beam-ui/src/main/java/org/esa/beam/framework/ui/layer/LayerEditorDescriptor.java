@@ -28,7 +28,9 @@ import com.bc.ceres.glayer.LayerType;
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  * @since BEAM 4.6
+ * @deprecated since SNAP 2, no used
  */
+@Deprecated
 public interface LayerEditorDescriptor {
     /**
      * Gets the {@link Layer} class which is associated directly with a {@link LayerEditor} class or indirectly

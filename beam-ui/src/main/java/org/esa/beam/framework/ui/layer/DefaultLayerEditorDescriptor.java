@@ -48,7 +48,9 @@ import com.bc.ceres.glayer.LayerType;
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  * @since BEAM 4.6
+ * @deprecated since SNAP 2, no used
  */
+@Deprecated
 @SuppressWarnings({"UnusedDeclaration"})
 public class DefaultLayerEditorDescriptor implements LayerEditorDescriptor, ConfigurableExtension {
     private Class<? extends Layer> layerClass;
