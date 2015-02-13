@@ -100,7 +100,7 @@
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Interferometric</text>
             <parent>Sar Processing</parent>
-            <placeAfter>geometry</placeAfter>
+            <placeAfter>SpeckleFiltering</placeAfter>
         </action>
 
         <!-- Geometric -->
@@ -110,7 +110,7 @@
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Geometric</text>
             <parent>Sar Processing</parent>
-            <placeAfter>Calibration</placeAfter>
+            <placeAfter>polarimetrictools</placeAfter>
         </action>
 
         <action>
@@ -196,12 +196,22 @@
         </action>
 
         <action>
+            <id>reprojection2</id>
+            <helpId>reprojectionAction</helpId>
+            <class>org.esa.beam.gpf.operators.reproject.ReprojectionAction</class>
+            <text>Reprojection...</text>
+            <shortDescr>Apply a reprojection.</shortDescr>
+            <parent>geometry</parent>
+            <placeAfter>EllipsoidCorrection</placeAfter>
+        </action>
+
+        <action>
             <id>MosaicOp</id>
             <helpId>MosaicOp</helpId>
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>geometry</parent>
-            <placeAfter>DEMTools</placeAfter>
+            <placeAfter>reprojection2</placeAfter>
             <text>SAR Mosaic</text>
             <shortDescr>Mosaic various images together</shortDescr>
             <dialogTitle>Mosaic</dialogTitle>
@@ -245,7 +255,7 @@
             <operatorName>SRGR</operatorName>
             <dialogTitle>Converts from slant range to ground range</dialogTitle>
             <targetProductNameSuffix>_GrdRg</targetProductNameSuffix>
-            <placeAfter>DEMTools</placeAfter>
+            <placeAfter>EllipsoidCorrection</placeAfter>
         </action>
 
         <action>

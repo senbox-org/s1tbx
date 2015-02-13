@@ -524,17 +524,6 @@
             <placeAfter>exportKmzFile</placeAfter>
         </action>
 
-
-        <action>
-            <parent>geometry</parent>
-            <id>reprojection2</id>
-            <placeFirst>true</placeFirst>
-            <class>org.esa.beam.gpf.operators.reproject.ReprojectionAction</class>
-            <text>Reprojection...</text>
-            <shortDescr>Apply a reprojection.</shortDescr>
-            <helpId>reprojectionAction</helpId>
-        </action>
-
         <action>
             <parent>tools</parent>
             <id>createSubsetFromView2</id>

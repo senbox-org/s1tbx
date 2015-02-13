@@ -31,7 +31,6 @@ import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
-import org.esa.snap.eo.GeoUtils;
 import org.esa.snap.gpf.OperatorUtils;
 import org.jlinda.core.Ellipsoid;
 import org.jlinda.core.Orbit;
@@ -247,81 +246,19 @@ public final class ApplyOrbitFileOp extends Operator {
     }
 
     /**
-     * Update target product GEOCoding. A new tie point grid is generated.
+     * Called by the framework in order to compute a tile for the given target band.
+     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      *
-     * @throws Exception The exceptions.
+     * @param targetBand The target band.
+     * @param targetTile The current tile associated with the target band to be computed.
+     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
-    @Deprecated
-    private void updateTargetProductGEOCoding() throws Exception {
-
-        final float[] targetLatTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
-        final float[] targetLonTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
-        final float[] targetIncidenceAngleTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
-        final float[] targetSlantRangeTimeTiePoints = new float[targetTiePointGridHeight * targetTiePointGridWidth];
-
-        final int subSamplingX = sourceImageWidth / (targetTiePointGridWidth - 1);
-        final int subSamplingY = sourceImageHeight / (targetTiePointGridHeight - 1);
-
-        // Create new tie point grid
-        int k = 0;
-        for (int r = 0; r < targetTiePointGridHeight; r++) {
-
-            // get the zero Doppler time for the rth line
-            int y;
-            if (r == targetTiePointGridHeight - 1) { // last row
-                y = sourceImageHeight - 1;
-            } else { // other rows
-                y = r * subSamplingY;
-            }
-
-            final double curLineUTC = firstLineUTC + y * lineTimeInterval;
-            //System.out.println((new ProductData.UTC(curLineUTC)).toString());
-
-            // compute the satellite position and velocity for the zero Doppler time using cubic interpolation
-            final Orbits.OrbitVector data = orbitProvider.getOrbitData(curLineUTC);
-
-            for (int c = 0; c < targetTiePointGridWidth; c++) {
-
-                final int x = getSampleIndex(c, subSamplingX);
-                targetIncidenceAngleTiePoints[k] = (float)incidenceAngle.getPixelDouble((float) x, (float) y);
-                targetSlantRangeTimeTiePoints[k] = (float)slantRangeTime.getPixelDouble((float) x, (float) y);
-
-                final double slrgTime = targetSlantRangeTimeTiePoints[k] / Constants.oneBillion; // ns to s;
-                final GeoPos geoPos = computeLatLon(x, y, slrgTime, data);
-                targetLatTiePoints[k] = (float)geoPos.lat;
-                targetLonTiePoints[k] = (float)geoPos.lon;
-                k++;
-            }
-        }
-
-        final TiePointGrid angleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, subSamplingX, subSamplingY, targetIncidenceAngleTiePoints);
-        angleGrid.setUnit(Unit.DEGREES);
-
-        final TiePointGrid slrgtGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, subSamplingX, subSamplingY, targetSlantRangeTimeTiePoints);
-        slrgtGrid.setUnit(Unit.NANOSECONDS);
-
-        final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, subSamplingX, subSamplingY, targetLatTiePoints);
-        latGrid.setUnit(Unit.DEGREES);
-
-        final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE, targetTiePointGridWidth, targetTiePointGridHeight,
-                0.0f, 0.0f, subSamplingX, subSamplingY, targetLonTiePoints, TiePointGrid.DISCONT_AT_180);
-        lonGrid.setUnit(Unit.DEGREES);
-
-        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
-
-        for (TiePointGrid tpg : targetProduct.getTiePointGrids()) {
-            targetProduct.removeTiePointGrid(tpg);
-        }
-
-        targetProduct.addTiePointGrid(angleGrid);
-        targetProduct.addTiePointGrid(slrgtGrid);
-        targetProduct.addTiePointGrid(latGrid);
-        targetProduct.addTiePointGrid(lonGrid);
-        targetProduct.setGeoCoding(tpGeoCoding);
-    }
+    //@Override
+    //public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    //    final Tile srcRaster = getSourceTile(sourceProduct.getBand(targetBand.getName()), targetTile.getRectangle());
+    //    targetTile.setRawSamples(srcRaster.getRawSamples());
+    //}
 
     /**
      * Get corresponding sample index for a given column index in the new tie point grid.
@@ -337,40 +274,6 @@ public final class ApplyOrbitFileOp extends Operator {
         } else { // other columns
             return colIdx * subSamplingX;
         }
-    }
-
-    /**
-     * Compute accurate target geo position.
-     *
-     * @param x        The x coordinate of the given pixel.
-     * @param y        The y coordinate of the given pixel.
-     * @param slrgTime The slant range time of the given pixel.
-     * @param data     The orbit data.
-     * @return The geo position of the target.
-     */
-    @Deprecated
-    private GeoPos computeLatLon(final int x, final int y, final double slrgTime, final Orbits.OrbitVector data) {
-
-        final double[] xyz = new double[3];
-        final double lat = latitude.getPixelDouble((float)x, (float)y);
-        final double lon = longitude.getPixelDouble((float)x, (float)y);
-        final GeoPos geoPos = new GeoPos(lat, lon);
-
-        // compute initial (x,y,z) coordinate from lat/lon
-        GeoUtils.geo2xyz(geoPos, xyz);
-
-        // compute accurate (x,y,z) coordinate using Newton's method
-        GeoUtils.computeAccurateXYZ(data, xyz, slrgTime);
-
-        // compute (lat, lon, alt) from accurate (x,y,z) coordinate
-        final GeoPos newGeoPos = new GeoPos();
-        GeoUtils.xyz2geo(xyz, newGeoPos);
-
-        //System.out.println("prev: "+geoPos.toString() +" new: "+newGeoPos.toString());
-        //System.out.println("prev lat: "+geoPos.getLat() +" new lat: "+newGeoPos.getLat());
-        //System.out.println("prev lon: "+geoPos.getLon() +" new lon: "+newGeoPos.getLon());
-
-        return newGeoPos;
     }
 
     /**

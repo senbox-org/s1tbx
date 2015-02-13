@@ -38,8 +38,8 @@
             <id>DEMTools</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>DEM Tools</text>
-            <parent>geometry</parent>
-            <placeAfter>EllipsoidCorrection</placeAfter>
+            <parent>tools</parent>
+            <placeAfter>Masks</placeAfter>
         </action>
 
         <action>
