@@ -16,7 +16,6 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -37,21 +36,21 @@ import org.esa.snap.eo.GeoUtils;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
-import org.jblas.ComplexDoubleMatrix;
-import org.jblas.DoubleMatrix;
-import org.jblas.MatrixFunctions;
-import org.jblas.Solve;
+import org.esa.snap.gpf.TileIndex;
+import org.jblas.*;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.jlinda.core.utils.MathUtils;
 import org.jlinda.core.utils.PolyUtils;
+import org.jlinda.core.utils.SarUtils;
 import org.jlinda.nest.utils.BandUtilsDoris;
 import org.jlinda.nest.utils.CplxContainer;
 import org.jlinda.nest.utils.ProductContainer;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
+import javax.media.jai.BorderExtender;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,6 +66,9 @@ public class CreateInterferogramOp extends Operator {
 
     @TargetProduct
     private Product targetProduct;
+
+    @Parameter(defaultValue="true", label="Subtract flat-earth phase from interferogram")
+    private boolean subtractFlatEarthPhase = true;
 
     @Parameter(valueSet = {"1", "2", "3", "4", "5", "6", "7", "8"},
             description = "Order of 'Flat earth phase' polynomial",
@@ -86,18 +88,30 @@ public class CreateInterferogramOp extends Operator {
             label = "Orbit interpolation degree")
     private int orbitDegree = 3;
 
-    @Parameter(defaultValue="false", label="Do NOT subtract flat-earth phase from interferogram.")
-    private boolean doNotSubtract = false;
+    @Parameter(defaultValue="true", label="Include coherence estimation")
+    private boolean includeCoherence = true;
+
+    @Parameter(interval = "(1, 40]",
+            description = "Size of coherence estimation window in Azimuth direction",
+            defaultValue = "10",
+            label = "Coherence Azimuth Window Size")
+    private int cohWinAz = 10;
+
+    @Parameter(interval = "(1, 40]",
+            description = "Size of coherence estimation window in Range direction",
+            defaultValue = "10",
+            label = "Coherence Range Window Size")
+    private int cohWinRg = 10;
 
     // flat_earth_polynomial container
-    private HashMap<String, DoubleMatrix> flatEarthPolyMap = new HashMap<String, DoubleMatrix>();
+    private HashMap<String, DoubleMatrix> flatEarthPolyMap = new HashMap<>();
 
     // source
-    private HashMap<Integer, CplxContainer> masterMap = new HashMap<Integer, CplxContainer>();
-    private HashMap<Integer, CplxContainer> slaveMap = new HashMap<Integer, CplxContainer>();
+    private HashMap<Integer, CplxContainer> masterMap = new HashMap<>();
+    private HashMap<Integer, CplxContainer> slaveMap = new HashMap<>();
 
     // target
-    private HashMap<String, ProductContainer> targetMap = new HashMap<String, ProductContainer>();
+    private HashMap<String, ProductContainer> targetMap = new HashMap<>();
 
     // operator tags
     private static final boolean CREATE_VIRTUAL_BAND = true;
@@ -132,7 +146,7 @@ public class CreateInterferogramOp extends Operator {
 
         try {
             // rename product if no subtraction of the flat-earth phase
-            if (doNotSubtract) {
+            if (!subtractFlatEarthPhase) {
                 productName = "ifgs";
                 productTag = "ifg";
             } else {
@@ -140,13 +154,7 @@ public class CreateInterferogramOp extends Operator {
                 productTag = "ifg_srp";
             }
 
-            final InputProductValidator validator = new InputProductValidator(sourceProduct);
-            validator.checkIfCoregisteredStack();
-            isTOPSARBurstProduct = validator.isTOPSARBurstProduct();
-            if (isTOPSARBurstProduct) {
-                final String topsarTag = getTOPSARTag(sourceProduct);
-                productTag = topsarTag + "_" + productTag;
-            }
+            checkUserInput();
 
             constructSourceMetadata();
             constructTargetMetadata();
@@ -154,13 +162,9 @@ public class CreateInterferogramOp extends Operator {
 
             getSourceImageDimension();
 
-            if (!doNotSubtract) {
+            if (subtractFlatEarthPhase) {
 
                 if (isTOPSARBurstProduct) {
-                    su = new Sentinel1Utils(sourceProduct);
-                    subSwath = su.getSubSwath();
-                    numSubSwaths = su.getNumOfSubSwath();
-                    subSwathIndex = 1; // subSwathIndex is always 1 because of split product
 
                     getMstApproxSceneCentreXYZ();
                     getSlvApproxSceneCentreAzimuthTime();
@@ -175,7 +179,28 @@ public class CreateInterferogramOp extends Operator {
         }
     }
 
-    private String getTOPSARTag(final Product sourceProduct) {
+    private void checkUserInput() {
+
+        try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfCoregisteredStack();
+            isTOPSARBurstProduct = validator.isTOPSARBurstProduct();
+
+            if (isTOPSARBurstProduct) {
+                su = new Sentinel1Utils(sourceProduct);
+                subSwath = su.getSubSwath();
+                numSubSwaths = su.getNumOfSubSwath();
+                subSwathIndex = 1; // subSwathIndex is always 1 because of split product
+
+                final String topsarTag = getTOPSARTag(sourceProduct);
+                productTag = productTag + "_" + topsarTag;
+            }
+        } catch (Exception e) {
+            throw new OperatorException(e);
+        }
+    }
+
+    public static String getTOPSARTag(final Product sourceProduct) {
 
         final Band[] bands = sourceProduct.getBands();
         for (Band band:bands) {
@@ -284,8 +309,12 @@ public class CreateInterferogramOp extends Operator {
                 final CplxContainer slave = slaveMap.get(keySlave);
                 final ProductContainer product = new ProductContainer(productName, master, slave, true);
 
-                product.targetBandName_I = "i_" + productTag + "_" + master.date + "_" + slave.date;
-                product.targetBandName_Q = "q_" + productTag + "_" + master.date + "_" + slave.date;
+                product.addBand(Unit.REAL, "i_" + productTag + "_" + master.date + "_" + slave.date);
+                product.addBand(Unit.IMAGINARY, "q_" + productTag + "_" + master.date + "_" + slave.date);
+
+                if(includeCoherence) {
+                    product.addBand(Unit.COHERENCE, "coh" + "_" + master.date + "_" + slave.date);
+                }
 
                 // put ifg-product bands into map
                 targetMap.put(productName, product);
@@ -371,32 +400,30 @@ public class CreateInterferogramOp extends Operator {
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        for (final Band band : targetProduct.getBands()) {
-            targetProduct.removeBand(band);
-        }
-
         for (String key : targetMap.keySet()) {
 
-            String targetBandName_I = targetMap.get(key).targetBandName_I;
-            targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT32);
-            targetProduct.getBand(targetBandName_I).setUnit(Unit.REAL);
+            final String targetBandName_I = targetMap.get(key).getBandName(Unit.REAL);
+            final Band iBand = targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT32);
+            iBand.setUnit(Unit.REAL);
 
-            String targetBandName_Q = targetMap.get(key).targetBandName_Q;
-            targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT32);
-            targetProduct.getBand(targetBandName_Q).setUnit(Unit.IMAGINARY);
+            final String targetBandName_Q = targetMap.get(key).getBandName(Unit.IMAGINARY);
+            final Band qBand = targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT32);
+            qBand.setUnit(Unit.IMAGINARY);
 
             final String tag0 = targetMap.get(key).sourceMaster.date;
             final String tag1 = targetMap.get(key).sourceSlave.date;
             if (CREATE_VIRTUAL_BAND) {
-                String countStr = "_" + productTag + "_" + tag0 + "_" + tag1;
+                final String countStr = "_" + productTag + "_" + tag0 + "_" + tag1;
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
                 ReaderUtils.createVirtualPhaseBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
             }
+
+            if(includeCoherence) {
+                final String targetBandCoh = targetMap.get(key).getBandName(Unit.COHERENCE);
+                final Band cohBand = targetProduct.addBand(targetBandCoh, ProductData.TYPE_FLOAT32);
+                cohBand.setUnit(Unit.COHERENCE);
+            }
         }
-
-        // For testing: the optimal results with 1024x1024 pixels tiles, not clear whether it's platform dependent?
-        // targetProduct.setPreferredTileSize(512, 512);
-
     }
 
     private DoubleMatrix estimateFlatEarthPolynomial(
@@ -445,7 +472,7 @@ public class CreateInterferogramOp extends Operator {
 
             for (int j = 0; j <= srpPolynomialDegree; j++) {
                 for (int k = 0; k <= j; k++) {
-                    A.put(i, index, (FastMath.pow(posL, (double) (j - k)) * FastMath.pow(posP, (double) k)));
+                    A.put(i, index, (Math.pow(posL, (double) (j - k)) * Math.pow(posP, (double) k)));
                     index++;
                 }
             }
@@ -512,7 +539,7 @@ public class CreateInterferogramOp extends Operator {
 
             for (int j = 0; j <= srpPolynomialDegree; j++) {
                 for (int k = 0; k <= j; k++) {
-                    A.put(i, index, (FastMath.pow(posL, (double) (j - k)) * FastMath.pow(posP, (double) k)));
+                    A.put(i, index, (Math.pow(posL, (double) (j - k)) * Math.pow(posP, (double) k)));
                     index++;
                 }
             }
@@ -562,35 +589,50 @@ public class CreateInterferogramOp extends Operator {
             Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
 
         try {
+            final int cohx0 = targetRectangle.x - (cohWinRg - 1) / 2;
+            final int cohy0 = targetRectangle.y - (cohWinAz - 1) / 2;
+            final int cohw = targetRectangle.width + cohWinRg - 1;
+            final int cohh = targetRectangle.height + cohWinAz - 1;
+            targetRectangle.x = cohx0;
+            targetRectangle.y = cohy0;
+            targetRectangle.width = cohw;
+            targetRectangle.height = cohh;
+
+            final BorderExtender border = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
+
             int y0 = targetRectangle.y;
             int yN = y0 + targetRectangle.height - 1;
             int x0 = targetRectangle.x;
             int xN = targetRectangle.x + targetRectangle.width - 1;
-            final Window tileWindow = new Window(y0, yN, x0, xN);
-
-            Band targetBand_I;
-            Band targetBand_Q;
 
             for (String ifgKey : targetMap.keySet()) {
 
-                ProductContainer product = targetMap.get(ifgKey);
+                final ProductContainer product = targetMap.get(ifgKey);
 
-                /// check out results from source ///
-                Tile tileReal = getSourceTile(product.sourceMaster.realBand, targetRectangle);
-                Tile tileImag = getSourceTile(product.sourceMaster.imagBand, targetRectangle);
-                ComplexDoubleMatrix complexMaster = TileUtilsDoris.pullComplexDoubleMatrix(tileReal, tileImag);
+                /// check out results from master ///
+                final Tile mstTileReal = getSourceTile(product.sourceMaster.realBand, targetRectangle, border);
+                final Tile mstTileImag = getSourceTile(product.sourceMaster.imagBand, targetRectangle, border);
+                final ComplexDoubleMatrix dataMaster = TileUtilsDoris.pullComplexDoubleMatrix(mstTileReal, mstTileImag);
 
-                /// check out results from source ///
-                tileReal = getSourceTile(product.sourceSlave.realBand, targetRectangle);
-                tileImag = getSourceTile(product.sourceSlave.imagBand, targetRectangle);
-                ComplexDoubleMatrix complexSlave = TileUtilsDoris.pullComplexDoubleMatrix(tileReal, tileImag);
+                /// check out results from slave ///
+                final Tile slvTileReal = getSourceTile(product.sourceSlave.realBand, targetRectangle, border);
+                final Tile slvTileImag = getSourceTile(product.sourceSlave.imagBand, targetRectangle, border);
+                final ComplexDoubleMatrix dataSlave = TileUtilsDoris.pullComplexDoubleMatrix(slvTileReal, slvTileImag);
 
-                if (!doNotSubtract) {
+                ComplexDoubleMatrix dataMaster2 = null, dataSlave2 = null;
+                if(includeCoherence) {
+                    dataMaster2 = new ComplexDoubleMatrix(mstTileReal.getHeight(), mstTileReal.getWidth());
+                    dataSlave2 = new ComplexDoubleMatrix(slvTileReal.getHeight(), slvTileReal.getWidth());
+                    dataMaster2.copy(dataMaster);
+                    dataSlave2.copy(dataSlave);
+                }
+
+                if (subtractFlatEarthPhase) {
                     // normalize range and azimuth axis
-                    DoubleMatrix rangeAxisNormalized = DoubleMatrix.linspace(x0, xN, complexMaster.columns);
+                    DoubleMatrix rangeAxisNormalized = DoubleMatrix.linspace(x0, xN, dataMaster.columns);
                     rangeAxisNormalized = normalizeDoubleMatrix(rangeAxisNormalized, 0, sourceImageWidth - 1);
 
-                    DoubleMatrix azimuthAxisNormalized = DoubleMatrix.linspace(y0, yN, complexMaster.rows);
+                    DoubleMatrix azimuthAxisNormalized = DoubleMatrix.linspace(y0, yN, dataMaster.rows);
                     azimuthAxisNormalized = normalizeDoubleMatrix(azimuthAxisNormalized, 0, sourceImageHeight - 1);
 
                     // pull polynomial from the map
@@ -606,24 +648,71 @@ public class CreateInterferogramOp extends Operator {
                             new ComplexDoubleMatrix(MatrixFunctions.cos(realReferencePhase),
                                     MatrixFunctions.sin(realReferencePhase));
 
-                    complexSlave.muli(complexReferencePhase); // no conjugate here!
+                    dataSlave.muli(complexReferencePhase); // no conjugate here!
                 }
 
-                complexMaster.muli(complexSlave.conji());
+                dataMaster.muli(dataSlave.conji());
 
                 /// commit to target ///
-                targetBand_I = targetProduct.getBand(product.targetBandName_I);
-                Tile tileOutReal = targetTileMap.get(targetBand_I);
-                TileUtilsDoris.pushDoubleMatrix(complexMaster.real(), tileOutReal, targetRectangle);
+                final Band targetBand_I = targetProduct.getBand(product.getBandName(Unit.REAL));
+                final Tile tileOutReal = targetTileMap.get(targetBand_I);
 
-                targetBand_Q = targetProduct.getBand(product.targetBandName_Q);
-                Tile tileOutImag = targetTileMap.get(targetBand_Q);
-                TileUtilsDoris.pushDoubleMatrix(complexMaster.imag(), tileOutImag, targetRectangle);
+                final Band targetBand_Q = targetProduct.getBand(product.getBandName(Unit.IMAGINARY));
+                final Tile tileOutImag = targetTileMap.get(targetBand_Q);
+
+                // coherence
+                DoubleMatrix cohMatrix = null;
+                ProductData samplesCoh = null;
+                if(includeCoherence) {
+                    for (int i = 0; i < dataMaster.length; i++) {
+                        double tmp = norm(dataMaster2.get(i));
+                        dataMaster2.put(i, dataMaster2.get(i).mul(dataSlave2.get(i).conj()));
+                        dataSlave2.put(i, new ComplexDouble(norm(dataSlave2.get(i)), tmp));
+                    }
+
+                    cohMatrix = SarUtils.coherence2(dataMaster2, dataSlave2, cohWinAz, cohWinRg);
+
+                    final Band targetBandCoh = targetProduct.getBand(product.getBandName(Unit.COHERENCE));
+                    final Tile tileOutCoh = targetTileMap.get(targetBandCoh);
+
+                    samplesCoh = tileOutCoh.getDataBuffer();
+                }
+
+                // push all
+
+                final ProductData samplesReal = tileOutReal.getDataBuffer();
+                final ProductData samplesImag = tileOutImag.getDataBuffer();
+                final DoubleMatrix dataReal = dataMaster.real();
+                final DoubleMatrix dataImag = dataMaster.imag();
+
+                final Rectangle rect = tileOutReal.getRectangle();
+                final int maxX = rect.x + rect.width;
+                final int maxY = rect.y + rect.height;
+                final TileIndex tgtIndex = new TileIndex(tileOutReal);
+                for (int y = rect.y; y < maxY; y++) {
+                    tgtIndex.calculateStride(y);
+                    final int yy = y - rect.y;
+                    for (int x = rect.x; x < maxX; x++) {
+                        final int trgIndex = tgtIndex.getIndex(x);
+                        final int xx = x - rect.x;
+                        samplesReal.setElemFloatAt(trgIndex, (float)dataReal.get(yy, xx));
+                        samplesImag.setElemFloatAt(trgIndex, (float)dataImag.get(yy, xx));
+                        if(samplesCoh != null) {
+                            samplesCoh.setElemFloatAt(trgIndex, (float) cohMatrix.get(yy, xx));
+                        }
+                    }
+                }
             }
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        } finally {
+            pm.done();
         }
+    }
+
+    private static double norm(final ComplexDouble number) {
+        return number.real()*number.real() + number.imag()*number.imag();
     }
 
     private void computeTileStackForTOPSARProduct(
@@ -652,7 +741,7 @@ public class CreateInterferogramOp extends Operator {
                 final int ntyMax = Math.min(tyMax, lastLineIdx + 1);
                 final int nth = ntyMax - nty0;
                 final Rectangle partialTileRectangle = new Rectangle(ntx0, nty0, ntw, nth);
-                System.out.println("burst = " + burstIndex + ": ntx0 = " + ntx0 + ", nty0 = " + nty0 + ", ntw = " + ntw + ", nth = " + nth);
+                //System.out.println("burst = " + burstIndex + ": ntx0 = " + ntx0 + ", nty0 = " + nty0 + ", ntw = " + ntw + ", nth = " + nth);
 
                 computePartialTile(subSwathIndex, burstIndex, partialTileRectangle, targetTileMap, pm);
             }
@@ -695,7 +784,7 @@ public class CreateInterferogramOp extends Operator {
                 tileImag = getSourceTile(product.sourceSlave.imagBand, targetRectangle);
                 ComplexDoubleMatrix complexSlave = TileUtilsDoris.pullComplexDoubleMatrix(tileReal, tileImag);
 
-                if (!doNotSubtract) {
+                if (subtractFlatEarthPhase) {
                     // normalize range and azimuth axis
                     DoubleMatrix rangeAxisNormalized = DoubleMatrix.linspace(x0, xN, complexMaster.columns);
                     rangeAxisNormalized = normalizeDoubleMatrix(rangeAxisNormalized, minPixel, maxPixel);
@@ -723,11 +812,11 @@ public class CreateInterferogramOp extends Operator {
                 complexMaster.muli(complexSlave.conji());
 
                 /// commit to target ///
-                targetBand_I = targetProduct.getBand(product.targetBandName_I);
+                targetBand_I = targetProduct.getBand(product.getBandName(Unit.REAL));
                 Tile tileOutReal = targetTileMap.get(targetBand_I);
                 TileUtilsDoris.pushDoubleMatrix(complexMaster.real(), tileOutReal, targetRectangle);
 
-                targetBand_Q = targetProduct.getBand(product.targetBandName_Q);
+                targetBand_Q = targetProduct.getBand(product.getBandName(Unit.IMAGINARY));
                 Tile tileOutImag = targetTileMap.get(targetBand_Q);
                 TileUtilsDoris.pushDoubleMatrix(complexMaster.imag(), tileOutImag, targetRectangle);
             }
