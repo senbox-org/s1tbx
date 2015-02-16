@@ -188,6 +188,12 @@
             <!-- Ceres System Level Module ############################################# -->
 
             <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-launcher</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.bc.snap</groupId>
                 <artifactId>ceres-core</artifactId>
                 <version>${snap.version}</version>
