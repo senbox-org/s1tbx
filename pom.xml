@@ -42,7 +42,6 @@
     </properties>
 
     <modules>
-        <module>ceres-launcher</module>
         <module>ceres-core</module>
         <module>ceres-binding</module>
         <module>ceres-ui</module>
@@ -125,12 +124,6 @@
         <dependencies>
 
             <!-- Ceres System Level Modules -->
-
-            <dependency>
-                <groupId>org.esa.snap</groupId>
-                <artifactId>snap-launcher</artifactId>
-                <version>${snap.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
