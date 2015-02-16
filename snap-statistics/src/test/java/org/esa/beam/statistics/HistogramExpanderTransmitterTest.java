@@ -1,11 +1,13 @@
 package org.esa.beam.statistics;
 
-import static org.junit.Assert.*;
-
 import org.esa.beam.framework.datamodel.HistogramStxOp;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.media.jai.Histogram;
+
+import static org.junit.Assert.*;
 
 public class HistogramExpanderTransmitterTest {
 

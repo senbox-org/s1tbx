@@ -1,12 +1,13 @@
 package org.esa.beam.statistics.tools;
 
-import static org.junit.Assert.*;
-
 import org.esa.beam.framework.datamodel.ProductData;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.Calendar;
+
+import static org.junit.Assert.*;
 
 public class FilenameDateExtractorTest {
 

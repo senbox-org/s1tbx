@@ -200,7 +200,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-statistics-op</artifactId>
+            <artifactId>snap-statistics</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

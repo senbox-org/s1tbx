@@ -2,7 +2,6 @@ package org.esa.beam.statistics.tools;
 
 import com.bc.ceres.binding.ValidationException;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.TimeStampExtractor;
 
 import java.io.File;

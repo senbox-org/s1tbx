@@ -64,7 +64,7 @@
                   (prerequisite: beam-gpf needs to be moved to beam-core before) -->
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-statistics-op</artifactId>
+            <artifactId>snap-statistics</artifactId>
             <version>${snap.version}</version>
         </dependency>
         <dependency>

@@ -1,11 +1,13 @@
 package org.esa.beam.statistics.tools;
 
 import org.esa.beam.statistics.StatisticsOp;
-import org.junit.*;
-
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.TreeSet;
+
+import static org.junit.Assert.*;
 
 public class StatisticalMappingAnalyserTest {
 
