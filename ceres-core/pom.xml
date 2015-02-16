@@ -8,7 +8,7 @@
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>snap-ceres-core</artifactId>
+    <artifactId>ceres-core</artifactId>
     <packaging>nbm</packaging>
 
     <name>Ceres Runtime Library</name>
@@ -82,7 +82,7 @@
                         <!--
                         todo - fix this export, without it we get for module snap-jai:
                         [INFO] Private classes referenced in module: [javax.xml.namespace.QName]
-                        [ERROR] Project depends on packages not accessible at runtime in module org.esa.snap:snap-ceres-core:jar:2.0.0-SNAPSHOT
+                        [ERROR] Project depends on packages not accessible at runtime in module org.esa.snap:ceres-core:jar:2.0.0-SNAPSHOT
                          -->
                         <publicPackage>javax.xml.*</publicPackage>
                         <publicPackage>org.xmlpull.*</publicPackage>
