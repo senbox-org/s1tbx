@@ -195,7 +195,7 @@
 
             <dependency>
                 <groupId>com.bc.snap</groupId>
-                <artifactId>snap-ceres-core</artifactId>
+                <artifactId>ceres-core</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 
