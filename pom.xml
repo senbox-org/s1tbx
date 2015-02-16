@@ -91,7 +91,6 @@
         <module>beam-examples</module>
         <module>beam-ui</module>
         <module>beam-visat-rcp</module>
-        <module>beam-reader-tests</module>
         <module>beam-python</module>
 
         <!-- Former BEAM Extension Modules -->
@@ -247,11 +246,6 @@
                 <groupId>org.htmlparser</groupId>
                 <artifactId>htmlparser</artifactId>
                 <version>1.6</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>2.2.2</version>
             </dependency>
 
             <!-- JDOM Library ############################################# -->
@@ -651,13 +645,6 @@
                 <groupId>org.jython</groupId>
                 <artifactId>jython</artifactId>
                 <version>2.5.3</version>
-            </dependency>
-
-            <!-- TAR archive support ########################################  -->
-            <dependency>
-                <groupId>org.xeustechnologies</groupId>
-                <artifactId>jtar</artifactId>
-                <version>1.0.4</version>
             </dependency>
 
         </dependencies>
