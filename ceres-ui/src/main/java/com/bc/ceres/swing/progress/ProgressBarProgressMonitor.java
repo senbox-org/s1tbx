@@ -14,7 +14,10 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.ceres.core;
+package com.bc.ceres.swing.progress;
+
+import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ProgressMonitor;
 
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;

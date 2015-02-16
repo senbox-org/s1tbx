@@ -16,8 +16,8 @@
 
 package org.esa.beam.visat.actions.pgrab.ui;
 
-import com.bc.ceres.core.ProgressBarProgressMonitor;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressBarProgressMonitor;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.UIUtils;
