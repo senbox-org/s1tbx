@@ -7,7 +7,7 @@
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>snap-binding</artifactId>
+    <artifactId>ceres-binding</artifactId>
     <packaging>nbm</packaging>
 
     <name>Ceres Binding</name>

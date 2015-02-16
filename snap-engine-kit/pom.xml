@@ -34,7 +34,7 @@
         <!-- Engine Core Modules -->
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-binding</artifactId>
+            <artifactId>ceres-binding</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
