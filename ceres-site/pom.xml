@@ -12,7 +12,7 @@
     </parent>
 
     <name>Ceres Site Generation</name>
-    <artifactId>snap-site</artifactId>
+    <artifactId>ceres-site</artifactId>
 
     <dependencies>
         <dependency>
