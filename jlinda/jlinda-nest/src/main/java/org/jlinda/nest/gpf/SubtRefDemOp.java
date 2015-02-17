@@ -74,10 +74,6 @@ public final class SubtRefDemOp extends Operator {
     @Parameter(label = "DEM No Data Value", defaultValue = "0")
     private double externalDEMNoDataValue = 0;
 
-    @Parameter(label = "Advance Performance Optimization",
-            defaultValue = "false")
-    private boolean allowTuning = false;
-
     @Parameter(valueSet = {"10", "20", "30", "40", "50", "60", "70", "80", "90", "100"},
             label = "Tile Extension [%]",
             description = "Define extension of tile for DEM similuation (optimization parameter).",
