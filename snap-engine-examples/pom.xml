@@ -22,11 +22,11 @@
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>snap-examples</artifactId>
+    <artifactId>snap-engine-examples</artifactId>
     <packaging>nbm</packaging>
 
-    <name>SNAP Examples</name>
-    <description>SNAP Programming Examples</description>
+    <name>SNAP Engine Examples</name>
+    <description>SNAP Engine Programming Examples</description>
 
     <dependencies>
         <dependency>
