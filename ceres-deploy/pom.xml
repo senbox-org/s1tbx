@@ -10,7 +10,7 @@
     </parent>
 
     <name>Ceres Deployment Tool</name>
-    <artifactId>snap-deploy</artifactId>
+    <artifactId>ceres-deploy</artifactId>
 
     <packaging>jar</packaging>
 
