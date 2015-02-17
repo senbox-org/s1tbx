@@ -7,7 +7,7 @@
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>snap-binio</artifactId>
+    <artifactId>ceres-binio</artifactId>
     <packaging>nbm</packaging>
 
     <name>Ceres Binary I/O Library</name>
