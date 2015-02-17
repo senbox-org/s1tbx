@@ -8,7 +8,7 @@
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>snap-jai</artifactId>
+    <artifactId>ceres-jai</artifactId>
     <packaging>nbm</packaging>
 
     <name>Ceres JAI Library</name>

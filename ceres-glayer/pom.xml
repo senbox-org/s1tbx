@@ -27,7 +27,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-jai</artifactId>
+            <artifactId>ceres-jai</artifactId>
         </dependency>
     </dependencies>
 

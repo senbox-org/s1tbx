@@ -80,7 +80,7 @@
                 <configuration>
                     <publicPackages>
                         <!--
-                        todo - fix this export, without it we get for module snap-jai:
+                        todo - fix this export, without it we get for module ceres-jai:
                         [INFO] Private classes referenced in module: [javax.xml.namespace.QName]
                         [ERROR] Project depends on packages not accessible at runtime in module org.esa.snap:ceres-core:jar:2.0.0-SNAPSHOT
                          -->
