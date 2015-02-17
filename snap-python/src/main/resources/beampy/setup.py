@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 BEAMPY_NAME = 'beampy'
-BEAMPY_VERSION = '5.0.4-SNAPSHOT'
+BEAMPY_VERSION = '5.0.5-SNAPSHOT'
 BEAMPY_SUMMARY = 'BEAM Python API'
 BEAMPY_AUTHOR = 'Norman Fomferra, Brockmann Consult GmbH'
-BEAMPY_JPY = 'jpy>=0.7.5'
+BEAMPY_JPY = 'jpy>=0.8-SNAPSHOT'
 
 try:
     import setuptools

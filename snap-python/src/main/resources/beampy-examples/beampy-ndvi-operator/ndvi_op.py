@@ -43,7 +43,7 @@ class NdviComputer:
 
         ndviLow = ndvi < 0.0
         ndviHigh = ndvi > 0.1
-        ndviFlags = ndviLow + 2 * ndviHigh
+        ndviFlags = (ndviLow + 2 * ndviHigh).astype(numpy.uint8)
 
         ndviTile.setSamples(ndvi)
         ndviFlagsTile.setSamples(ndviFlags)

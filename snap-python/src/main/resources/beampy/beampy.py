@@ -32,9 +32,8 @@ debug = False
 if config.has_option('DEFAULT', 'debug'):
     debug = config.getboolean('DEFAULT', 'debug')
 
-# todo - find a way to determine path to JVM shared library and extend PATH / LD_LIBRARY_PATH env vars so that jpy
-# can load it without any further configuration
-
+import jpyutil
+jpyutil.preload_jvm_dll()
 import jpy
 
 if debug:
@@ -82,9 +81,31 @@ def _get_jvm_options():
     else:
         beam_home = os.getenv('BEAM_HOME', os.getenv('BEAM4_HOME', os.getenv('BEAM5_HOME')))
 
-    if beam_home is None or not os.path.exists(beam_home):
-        raise RuntimeError('environment variable "BEAM_HOME" must be set to a valid BEAM installation directory')
+    if beam_home is None or not os.path.isdir(beam_home):
+        raise IOError('environment variable "BEAM_HOME" must be set to a valid BEAM installation directory')
 
+    module_prefix = 'beam-python-'
+    module_glob_path = os.path.join(beam_home, 'modules', module_prefix + "*")
+
+    import glob
+
+    module_dirs = glob.glob(module_glob_path)
+
+    if len(module_dirs) == 0:
+        raise IOError("got no results for '%s'" % module_glob_path)
+
+    if len(module_dirs) == 1:
+        module_dir = module_dirs[0]
+    else:
+        versions = [(os.path.basename(module_dir)[len(module_prefix):].upper().split('-'), module_dir) for module_dir in module_dirs]
+        max_parts = max([len(v) for (v,p) in versions])
+        versions = [(v + (max_parts - len(v)) * ['~'], p) for (v,p) in versions]
+        module_dir = max(versions, key=lambda x: x[0])[1]
+
+    beampy_module_dir = os.path.join(module_dir, 'beampy')
+    #pprint("beampy_module_dir = '%s'" % beampy_module_dir)
+
+    sys.path = [beampy_module_dir] + sys.path
 
     #import pprint
     searchpath = _get_beam_jar_locations()

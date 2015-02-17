@@ -16,15 +16,15 @@
 
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    <symbolicName>snap-python</symbolicName>
-    <version>2.0.0</version>
-    <name>SNAP Python Interface</name>
+    <symbolicName>beam-python</symbolicName>
+    <version>5.0.5-SNAPSHOT</version>
+    <name>BEAM Python Interface</name>
     <packaging>dir</packaging>
 
     <description>
         This modules allows for integrating new data processors written entirely in Python 2.7 or 3.3+.
         As it uses CPython, developers can use any Python native extensions such as numpy, scipy, etc.
-        The bundled README.md file provides the instructions how to setup SNAP for Python development.
+        The bundled README.md file provides the instructions how to setup BEAM for Python development.
     </description>
 
     <vendor>Brockmann Consult GmbH</vendor>
@@ -33,15 +33,35 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
+    <changelog>
+        <![CDATA[
+                <p>Changes in 5.0.4<br/>
+                [BEAM-1704] Import of beampy fails on Python 2.7 if beampy.ini is used<br/>
+                [BEAM-1703] BEAM Python operators might fail in case of multiple tiles<br/>
+                Extended README.md on how to use the Java API<br/>
+                Added new example how to write a PNG image from a product's band<br/>
+                Updated to use jpy 0.7.5 (https://github.com/bcdev/jpy/issues/43)<br/>
+                <p>Changes in 5.0.3<br/>
+                [BEAM-1699] JAI not always initialised propertly in beampy clients<br/>
+                <p>Changes in 5.0.2<br/>
+                [BEAM-1691] BEAM Python tests require specific test product<br/>
+                [BEAM-1690] BEAM Python examples often generate zero-valued output<br/>
+                [BEAM-1686] BEAM Python setup fails without setuptools installed<br/>
+                <p>Changes in 5.0.1<br/>
+                [BEAM-1671] beampy: provide python 2.x support<br/>
+                </p>
+                ]]>
+    </changelog>
+
 
     <dependency>
-        <module>snap-core</module>
+        <module>beam-core</module>
     </dependency>
     <dependency>
-        <module>snap-gpf</module>
+        <module>beam-gpf</module>
     </dependency>
     <dependency>
-        <module>snap-visat-rcp</module>
+        <module>beam-visat-rcp</module>
     </dependency>
     <dependency>
         <lib>lib/jpy.jar</lib>

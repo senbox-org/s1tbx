@@ -23,7 +23,7 @@ import java.util.Map;
  */
 @OperatorMetadata(alias = "PyOp",
                   description = "Uses Python code to process data products",
-                  version = "0.5.1",
+                  version = "0.8",
                   authors = "N. Fomferra",
                   internal = true)
 public class PyOperator extends Operator {
@@ -68,6 +68,7 @@ public class PyOperator extends Operator {
         this.pythonClassName = pythonClassName;
     }
 
+
     @Override
     public void initialize() throws OperatorException {
         if (pythonModuleName == null || pythonModuleName.isEmpty()) {
@@ -77,18 +78,13 @@ public class PyOperator extends Operator {
             throw new OperatorException("Missing value for parameter 'pythonClassName'");
         }
 
+        PyBridge.establish();
+
         synchronized (PyLib.class) {
-            //PyLib.Diag.setFlags(PyLib.Diag.F_JVM);
+            PyBridge.extendSysPath(pythonModulePath);
 
-            PyLib.startPython();
-
-            if (pythonModulePath != null && !pythonModulePath.isEmpty()) {
-                PyModule pySysModule = PyModule.importModule("sys");
-                PyObject pyPathList = pySysModule.getAttribute("path");
-                pyPathList.callMethod("append", pythonModulePath);
-            }
-
-            PyLib.execScript(String.format("if '%s' in globals(): del %s", pythonModuleName, pythonModuleName));
+            String code = String.format("if '%s' in globals(): del %s", pythonModuleName, pythonModuleName);
+            PyLib.execScript(code);
 
             pyModule = PyModule.importModule(pythonModuleName);
             PyObject pythonProcessorImpl = pyModule.call(pythonClassName);
