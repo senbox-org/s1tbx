@@ -298,10 +298,12 @@ public class CreateCoherenceImageOp extends Operator {
 
         } catch (Exception e) {
             throw new OperatorException(e);
+        } finally {
+            pm.done();
         }
     }
 
-    private void computeTileForTOPSARProduct(Band targetBand, Tile targetTile, ProgressMonitor pm) {
+    private void computeTileForTOPSARProduct(final Band targetBand, final Tile targetTile, final ProgressMonitor pm) {
 
         try {
             final Rectangle targetRectangle = targetTile.getRectangle();
@@ -329,7 +331,7 @@ public class CreateCoherenceImageOp extends Operator {
                 final Rectangle partialTileRectangle = new Rectangle(ntx0, nty0, ntw, nth);
                 System.out.println("burst = " + burstIndex + ": ntx0 = " + ntx0 + ", nty0 = " + nty0 + ", ntw = " + ntw + ", nth = " + nth);
 
-                computePartialTile(subSwathIndex, burstIndex, targetBand, targetTile, partialTileRectangle, pm);
+                computePartialTile(subSwathIndex, burstIndex, targetBand, targetTile, partialTileRectangle);
             }
 
         } catch (Throwable e) {
@@ -340,14 +342,14 @@ public class CreateCoherenceImageOp extends Operator {
     }
 
     private void computePartialTile(final int subSwathIndex, final int burstIndex, final Band targetBand,
-                                    final Tile targetTile, final Rectangle targetRectangle, ProgressMonitor pm) {
+                                    final Tile targetTile, final Rectangle targetRectangle) {
 
         try {
-            final int x0 = targetRectangle.x - (cohWinRg - 1) / 2;
-            final int y0 = targetRectangle.y - (cohWinAz - 1) / 2;
-            final int w = targetRectangle.width + cohWinRg - 1;
-            final int h = targetRectangle.height + cohWinAz - 1;
-            final Rectangle rect = new Rectangle(x0, y0, w, h);
+            final int cohx0 = targetRectangle.x - (cohWinRg - 1) / 2;
+            final int cohy0 = targetRectangle.y - (cohWinAz - 1) / 2;
+            final int cohw = targetRectangle.width + cohWinRg - 1;
+            final int cohh = targetRectangle.height + cohWinAz - 1;
+            final Rectangle rect = new Rectangle(cohx0, cohy0, cohw, cohh);
 
             final int yMin = burstIndex * subSwath[subSwathIndex - 1].linesPerBurst;
             final int yMax = yMin + subSwath[subSwathIndex - 1].linesPerBurst - 1;
@@ -370,7 +372,7 @@ public class CreateCoherenceImageOp extends Operator {
                             TileUtilsDoris.pullComplexDoubleMatrix(tileRealSlave, tileImagSlave);
 
                     for (int r = 0; r < dataMaster.rows; r++) {
-                        final int y = y0 + r;
+                        final int y = cohy0 + r;
                         for (int c = 0; c < dataMaster.columns; c++) {
                             double tmp = norm(dataMaster.get(r, c));
                             if (y < yMin || y > yMax) {
