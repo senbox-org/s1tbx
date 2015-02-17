@@ -951,7 +951,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                     final double azimuthIndex = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
 
-                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, tileGeoRef,
+                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, latitude, longitude,
                             srcMaxRange, srcMaxAzimuth, sensorPos)) {
                         //saveNoDataValueToTarget(index, trgTiles);
                     } else {
