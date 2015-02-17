@@ -282,19 +282,24 @@ public final class TOPSARDeburstOp extends Operator {
         targetProduct.setPreferredTileSize(500, 50);
     }
 
-    private static String getTargetBandNameFromSourceBandName(final String srcBandName) {
+    private String getTargetBandNameFromSourceBandName(final String srcBandName) {
 
-        final int firstSeparationIdx = srcBandName.indexOf("_");
+        final int firstSeparationIdx = srcBandName.indexOf(acquisitionMode);
         final int secondSeparationIdx = srcBandName.indexOf("_", firstSeparationIdx + 1);
-        return srcBandName.substring(0, firstSeparationIdx) + srcBandName.substring(secondSeparationIdx);
+        return srcBandName.substring(0, firstSeparationIdx) + srcBandName.substring(secondSeparationIdx + 1);
     }
 
-    private static String getSourceBandNameFromTargetBandName(
+    private String getSourceBandNameFromTargetBandName(
             final String tgtBandName, final String acquisitionMode, final String swathIndexStr) {
 
-        final int firstSeparationIdx = tgtBandName.indexOf("_");
-        return tgtBandName.substring(0, firstSeparationIdx) + "_" + acquisitionMode + swathIndexStr +
-                tgtBandName.substring(firstSeparationIdx);
+        final String[] srcBandNames = sourceProduct.getBandNames();
+        for (String srcBandName:srcBandNames) {
+            if (srcBandName.contains(acquisitionMode + swathIndexStr) &&
+                    getTargetBandNameFromSourceBandName(srcBandName).equals(tgtBandName)) {
+                return srcBandName;
+            }
+        }
+        return null;
     }
 
     private static String getPrefix(final String tgtBandName) {
@@ -528,7 +533,7 @@ public final class TOPSARDeburstOp extends Operator {
      * @throws org.esa.beam.framework.gpf.OperatorException if an error occurs during computation of the target rasters.
      */
     @Override
-    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm)
+    public synchronized void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm)
             throws OperatorException {
 
         try {
