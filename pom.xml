@@ -231,7 +231,7 @@
 			
 			<dependency>
                 <groupId>org.esa.snap</groupId>
-                <artifactId>snap-metadata</artifactId>
+                <artifactId>ceres-metadata</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 			
