@@ -30,7 +30,6 @@
 
     <properties>
         <brandingToken>snap</brandingToken>
-        <outputdir>../../output</outputdir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <snap.version>[2.0.0-SNAPSHOT,2.1.0-SNAPSHOT)</snap.version>
@@ -706,7 +705,6 @@
     </pluginRepositories>
 
     <build>
-        <outputDirectory>${outputdir}/modules/${project.artifactId}-${project.version}</outputDirectory>
 
         <!-- Maven plugin configurations common to all BEAM modules -->
         <pluginManagement>
