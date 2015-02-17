@@ -39,7 +39,7 @@ import java.util.logging.Logger;
  * Image resampling for Cross Interferometry
  */
 @OperatorMetadata(alias = "CrossResampling",
-        category = "SAR Processing/Interferometric/InSAR Coregistration",
+        category = "SAR Processing/Coregistration",
         authors = "Petar Marinkovic",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Estimate Resampling Polynomial using SAR Image Geometry, and Resample Input Images")

@@ -73,7 +73,7 @@
             <id>polarimetrictools</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Polarimetric</text>
-            <parent>Sar Processing</parent>
+            <parent>SAR Processing</parent>
             <placeAfter>insar</placeAfter>
         </action>
 
