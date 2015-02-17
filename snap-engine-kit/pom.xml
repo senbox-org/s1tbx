@@ -59,7 +59,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-metadata</artifactId>
+            <artifactId>ceres-metadata</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- todo - move to snap-desktop -->
