@@ -55,7 +55,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
     private BasicCeosLeaderFile leaderFile = null;
     private BasicCeosTrailerFile trailerFile = null;
 
-    private final transient Map<String, BasicCeosImageFile> bandImageFileMap = new HashMap<String, BasicCeosImageFile>(1);
+    private final transient Map<String, BasicCeosImageFile> bandImageFileMap = new HashMap<>(1);
 
     public BasicCeosProductDirectory(final File dir) {
         Guardian.assertNotNull("dir", dir);
@@ -80,7 +80,7 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
             histogramRec = trailerFile.getHistogramRecord();
 
         final String[] imageFileNames = CEOSImageFile.getImageFileNames(baseDir, constants.getImageFilePrefix());
-        final List<BasicCeosImageFile> imgArray = new ArrayList<BasicCeosImageFile>(imageFileNames.length);
+        final List<BasicCeosImageFile> imgArray = new ArrayList<>(imageFileNames.length);
         for (String fileName : imageFileNames) {
             try {
                 final BasicCeosImageFile imgFile = new BasicCeosImageFile(createInputStream(new File(baseDir, fileName)), histogramRec);

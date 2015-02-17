@@ -142,16 +142,22 @@ public class SRGROp extends Operator {
 
             createTargetProduct();
 
-            if (interpolationMethod.equals(nearestNeighbourStr)) {
-                interpMethod = Interpolation.NEAREST_NEIGHBOR;
-            } else if (interpolationMethod.equals(linearStr)) {
-                interpMethod = Interpolation.LINEAR;
-            } else if (interpolationMethod.equals(cubicStr)) {
-                interpMethod = Interpolation.CUBIC;
-            } else if (interpolationMethod.equals(cubic2Str)) {
-                interpMethod = Interpolation.CUBIC2;
-            } else if (interpolationMethod.equals(sincStr)) {
-                interpMethod = Interpolation.SINC;
+            switch (interpolationMethod) {
+                case nearestNeighbourStr:
+                    interpMethod = Interpolation.NEAREST_NEIGHBOR;
+                    break;
+                case linearStr:
+                    interpMethod = Interpolation.LINEAR;
+                    break;
+                case cubicStr:
+                    interpMethod = Interpolation.CUBIC;
+                    break;
+                case cubic2Str:
+                    interpMethod = Interpolation.CUBIC2;
+                    break;
+                case sincStr:
+                    interpMethod = Interpolation.SINC;
+                    break;
             }
 
         } catch (Throwable e) {

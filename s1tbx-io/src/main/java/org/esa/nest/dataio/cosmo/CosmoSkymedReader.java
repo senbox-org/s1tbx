@@ -177,7 +177,7 @@ public class CosmoSkymedReader extends SARReader {
     private static void removeQuickLooks(Map<NcRasterDim, List<Variable>> variableListMap) {
         final String[] excludeList = {"qlk"};
         final NcRasterDim[] keys = variableListMap.keySet().toArray(new NcRasterDim[variableListMap.keySet().size()]);
-        final List<NcRasterDim> removeList = new ArrayList<NcRasterDim>();
+        final List<NcRasterDim> removeList = new ArrayList<>();
 
         for (final NcRasterDim rasterDim : keys) {
             final List<Variable> varList = variableListMap.get(rasterDim);

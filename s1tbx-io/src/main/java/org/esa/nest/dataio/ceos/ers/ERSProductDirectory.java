@@ -46,7 +46,7 @@ class ERSProductDirectory extends CEOSProductDirectory {
     private ERSImageFile[] imageFiles = null;
     private ERSLeaderFile leaderFile = null;
 
-    private final transient Map<String, ERSImageFile> bandImageFileMap = new HashMap<String, ERSImageFile>(1);
+    private final transient Map<String, ERSImageFile> bandImageFileMap = new HashMap<>(1);
 
     public ERSProductDirectory(final File dir) {
         Guardian.assertNotNull("dir", dir);
@@ -62,7 +62,7 @@ class ERSProductDirectory extends CEOSProductDirectory {
                 createInputStream(CeosHelper.getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
 
         final String[] imageFileNames = CEOSImageFile.getImageFileNames(baseDir, constants.getImageFilePrefix());
-        final List<ERSImageFile> imgArray = new ArrayList<ERSImageFile>(imageFileNames.length);
+        final List<ERSImageFile> imgArray = new ArrayList<>(imageFileNames.length);
         for (String fileName : imageFileNames) {
             try {
                 final ERSImageFile imgFile = new ERSImageFile(createInputStream(new File(baseDir, fileName)));

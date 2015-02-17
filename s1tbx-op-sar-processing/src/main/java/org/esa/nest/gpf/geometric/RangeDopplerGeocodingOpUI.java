@@ -44,23 +44,23 @@ import java.util.Map;
 public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
-    private final JComboBox<String> demName = new JComboBox<String>(DEMFactory.getDEMNameList());
+    private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
 
     private static final String externalDEMStr = "External DEM";
 
-    private JComboBox<String> demResamplingMethod = new JComboBox<String>(DEMFactory.getDEMResamplingMethods());
+    private JComboBox<String> demResamplingMethod = new JComboBox<>(DEMFactory.getDEMResamplingMethods());
 
-    final JComboBox<String> imgResamplingMethod = new JComboBox<String>(ResamplingFactory.resamplingNames);
+    final JComboBox<String> imgResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
 
-    final JComboBox incidenceAngleForGamma0 = new JComboBox<String>(new String[]{Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
+    final JComboBox incidenceAngleForGamma0 = new JComboBox<>(new String[]{Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID});
 
-    final JComboBox incidenceAngleForSigma0 = new JComboBox<String>(new String[]{Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
+    final JComboBox incidenceAngleForSigma0 = new JComboBox<>(new String[]{Constants.USE_PROJECTED_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM,
             Constants.USE_INCIDENCE_ANGLE_FROM_ELLIPSOID});
 
-    final JComboBox auxFile = new JComboBox<String>(new String[]{CalibrationOp.LATEST_AUX,
+    final JComboBox auxFile = new JComboBox<>(new String[]{CalibrationOp.LATEST_AUX,
             CalibrationOp.PRODUCT_AUX,
             CalibrationOp.EXTERNAL_AUX});
 

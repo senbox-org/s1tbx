@@ -54,7 +54,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
     private RadarsatLeaderFile leaderFile = null;
     private RadarsatTrailerFile trailerFile = null;
 
-    private final transient Map<String, RadarsatImageFile> bandImageFileMap = new HashMap<String, RadarsatImageFile>(1);
+    private final transient Map<String, RadarsatImageFile> bandImageFileMap = new HashMap<>(1);
 
     public RadarsatProductDirectory(final File dir) {
         Guardian.assertNotNull("dir", dir);
@@ -79,7 +79,7 @@ class RadarsatProductDirectory extends CEOSProductDirectory {
             histogramRec = trailerFile.getHistogramRecord();
 
         final String[] imageFileNames = CEOSImageFile.getImageFileNames(baseDir, constants.getImageFilePrefix());
-        final List<RadarsatImageFile> imgArray = new ArrayList<RadarsatImageFile>(imageFileNames.length);
+        final List<RadarsatImageFile> imgArray = new ArrayList<>(imageFileNames.length);
         for (String fileName : imageFileNames) {
             try {
                 final RadarsatImageFile imgFile = new RadarsatImageFile(createInputStream(new File(baseDir, fileName)), histogramRec);

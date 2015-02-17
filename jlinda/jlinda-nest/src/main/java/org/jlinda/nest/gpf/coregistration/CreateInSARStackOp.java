@@ -25,7 +25,6 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.util.FeatureCollectionClipper;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
@@ -49,7 +48,7 @@ import java.util.Map;
  *
  */
 @OperatorMetadata(alias = "CreateInSARStack",
-        category = "SAR Processing/Interferometric/InSAR Coregistration",
+        category = "SAR Processing/Coregistration",
         authors = "Petar Marinkovic (with contributions of Jun Lu, Luis Veci)",
         copyright = "PPO.labs and European Space Agency",
         description = "Collocates two or more products based on their metadata and/or geo-codings.")

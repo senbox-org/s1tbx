@@ -17,7 +17,6 @@ package org.esa.nest.dataio.imageio;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -40,7 +39,7 @@ public class ImageIOReader extends AbstractProductReader {
     private ImageIOFile imgIOFile = null;
     private String productType = "productType";
 
-    private final transient Map<Band, ImageIOFile.BandInfo> bandMap = new HashMap<Band, ImageIOFile.BandInfo>(3);
+    private final transient Map<Band, ImageIOFile.BandInfo> bandMap = new HashMap<>(3);
 
     /**
      * Constructs a new abstract product reader.

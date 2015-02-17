@@ -55,14 +55,14 @@ public class Sentinel1OCNReader {
     // MDS = Measurement Data Set
 
     // This maps the MDS .nc file name to the NetcdfFile
-    private final Map<String, NetcdfFile> bandNCFileMap = new HashMap<String, NetcdfFile>(1);
+    private final Map<String, NetcdfFile> bandNCFileMap = new HashMap<>(1);
 
     private final Sentinel1Level2Directory dataDir;
 
     // For WV, there can be more than one MDS .nc file. See Table 4-3 in Product Spec v2/7 (S1-RS-MDA-52-7441).
     // Each MDS has the same variables, so we want unique band names for variables of same name from different .nc file.
     // Given a band name, we want to map back to the .nc file.
-    private final Map<String, NetcdfFile> bandNameNCFileMap = new HashMap<String, NetcdfFile>(1);
+    private final Map<String, NetcdfFile> bandNameNCFileMap = new HashMap<>(1);
 
     public Sentinel1OCNReader(final Sentinel1Level2Directory dataDir) {
 

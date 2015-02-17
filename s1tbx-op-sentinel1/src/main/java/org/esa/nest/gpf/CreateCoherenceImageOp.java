@@ -1,7 +1,6 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -34,9 +33,9 @@ import javax.media.jai.BorderExtender;
 import java.awt.*;
 import java.util.HashMap;
 
-@OperatorMetadata(alias = "Create-Coherence-Image",
-        category = "SAR Processing/SENTINEL-1",
-        authors = "Petar Marinkovic",
+@OperatorMetadata(alias = "Coherence",
+        category = "SAR Processing/Interferometric/Products",
+        authors = "Petar Marinkovic, Jun Lu",
         copyright = "Copyright (C) 2013 by PPO.labs",
         description = "Estimate coherence from stack of coregistered images")
 public class CreateCoherenceImageOp extends Operator {
@@ -50,21 +49,21 @@ public class CreateCoherenceImageOp extends Operator {
     @Parameter(interval = "(1, 40]",
             description = "Size of coherence estimation window in Azimuth direction",
             defaultValue = "10",
-            label = "Coherence Window Size in Azimuth")
-    private int winAz = 10;
+            label = "Coherence Azimuth Window Size")
+    private int cohWinAz = 10;
 
     @Parameter(interval = "(1, 40]",
             description = "Size of coherence estimation window in Range direction",
             defaultValue = "10",
-            label = "Coherence Window Size in Range")
-    private int winRg = 10;
+            label = "Coherence Range Window Size")
+    private int cohWinRg = 10;
 
     // source
-    private HashMap<Integer, CplxContainer> masterMap = new HashMap<Integer, CplxContainer>();
-    private HashMap<Integer, CplxContainer> slaveMap = new HashMap<Integer, CplxContainer>();
+    private HashMap<Integer, CplxContainer> masterMap = new HashMap<>();
+    private HashMap<Integer, CplxContainer> slaveMap = new HashMap<>();
 
     // target
-    private HashMap<String, ProductContainer> targetMap = new HashMap<String, ProductContainer>();
+    private HashMap<String, ProductContainer> targetMap = new HashMap<>();
 
     private boolean isTOPSARBurstProduct = false;
     private String productName = null;
@@ -75,7 +74,6 @@ public class CreateCoherenceImageOp extends Operator {
     private int subSwathIndex = 0;
 
     private static final int ORBIT_DEGREE = 3; // hardcoded
-    private static final boolean CREATE_VIRTUAL_BAND = false;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -123,24 +121,12 @@ public class CreateCoherenceImageOp extends Operator {
                 numSubSwaths = su.getNumOfSubSwath();
                 subSwathIndex = 1; // subSwathIndex is always 1 because of split product
 
-                final String topsarTag = getTOPSARTag(sourceProduct);
+                final String topsarTag = CreateInterferogramOp.getTOPSARTag(sourceProduct);
                 productTag = productTag + "_" + topsarTag;
             }
         } catch (Exception e) {
             throw new OperatorException(e);
         }
-    }
-
-    private String getTOPSARTag(final Product sourceProduct) {
-
-        final Band[] bands = sourceProduct.getBands();
-        for (Band band:bands) {
-            final String bandName = band.getName();
-            if (bandName.contains("i_") && bandName.contains("_mst")) {
-                return bandName.substring(bandName.indexOf("i_")+2, bandName.indexOf("_mst"));
-            }
-        }
-        return "";
     }
 
     private void constructSourceMetadata() throws Exception {
@@ -241,14 +227,9 @@ public class CreateCoherenceImageOp extends Operator {
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        for (final Band band : targetProduct.getBands()) {
-            targetProduct.removeBand(band);
-        }
-
         for (String key : targetMap.keySet()) {
-            String bandName = targetMap.get(key).targetBandName_I;
-            targetProduct.addBand(bandName, ProductData.TYPE_FLOAT32);
-            targetProduct.getBand(bandName).setUnit(Unit.COHERENCE);
+            final Band cohBand = targetProduct.addBand(targetMap.get(key).targetBandName_I, ProductData.TYPE_FLOAT32);
+            cohBand.setUnit(Unit.COHERENCE);
         }
     }
 
@@ -276,10 +257,10 @@ public class CreateCoherenceImageOp extends Operator {
 
         try {
             final Rectangle rect = targetTile.getRectangle();
-            final int x0 = rect.x - (winRg - 1) / 2;
-            final int y0 = rect.y - (winAz - 1) / 2;
-            final int w = rect.width + winRg - 1;
-            final int h = rect.height + winAz - 1;
+            final int x0 = rect.x - (cohWinRg - 1) / 2;
+            final int y0 = rect.y - (cohWinAz - 1) / 2;
+            final int w = rect.width + cohWinRg - 1;
+            final int h = rect.height + cohWinAz - 1;
             rect.x = x0;
             rect.y = y0;
             rect.width = w;
@@ -309,7 +290,7 @@ public class CreateCoherenceImageOp extends Operator {
                         dataSlave.put(i, new ComplexDouble(norm(dataSlave.get(i)), tmp));
                     }
 
-                    DoubleMatrix cohMatrix = SarUtils.coherence2(dataMaster, dataSlave, winAz, winRg);
+                    DoubleMatrix cohMatrix = SarUtils.coherence2(dataMaster, dataSlave, cohWinAz, cohWinRg);
 
                     TileUtilsDoris.pushDoubleMatrix(cohMatrix, targetTile, targetTile.getRectangle());
                 }
@@ -362,10 +343,10 @@ public class CreateCoherenceImageOp extends Operator {
                                     final Tile targetTile, final Rectangle targetRectangle, ProgressMonitor pm) {
 
         try {
-            final int x0 = targetRectangle.x - (winRg - 1) / 2;
-            final int y0 = targetRectangle.y - (winAz - 1) / 2;
-            final int w = targetRectangle.width + winRg - 1;
-            final int h = targetRectangle.height + winAz - 1;
+            final int x0 = targetRectangle.x - (cohWinRg - 1) / 2;
+            final int y0 = targetRectangle.y - (cohWinAz - 1) / 2;
+            final int w = targetRectangle.width + cohWinRg - 1;
+            final int h = targetRectangle.height + cohWinAz - 1;
             final Rectangle rect = new Rectangle(x0, y0, w, h);
 
             final int yMin = burstIndex * subSwath[subSwathIndex - 1].linesPerBurst;
@@ -401,7 +382,7 @@ public class CreateCoherenceImageOp extends Operator {
                         }
                     }
 
-                    DoubleMatrix cohMatrix = SarUtils.coherence2(dataMaster, dataSlave, winAz, winRg);
+                    DoubleMatrix cohMatrix = SarUtils.coherence2(dataMaster, dataSlave, cohWinAz, cohWinRg);
 
                     TileUtilsDoris.pushDoubleMatrix(cohMatrix, targetTile, targetRectangle);
                 }
@@ -412,8 +393,8 @@ public class CreateCoherenceImageOp extends Operator {
         }
     }
 
-    private double norm(ComplexDouble number) {
-        return FastMath.pow(number.real(), 2) + FastMath.pow(number.imag(), 2);
+    private static double norm(final ComplexDouble number) {
+        return number.real()*number.real() + number.imag()*number.imag();
     }
 
     /**

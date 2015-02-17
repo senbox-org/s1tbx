@@ -357,7 +357,7 @@ public final class SARSimulationOp extends Operator {
         // add selected slave bands
         if (sourceBandNames == null || sourceBandNames.length == 0) {
             final Band[] bands = sourceProduct.getBands();
-            final List<String> bandNameList = new ArrayList<String>(sourceProduct.getNumBands());
+            final List<String> bandNameList = new ArrayList<>(sourceProduct.getNumBands());
             for (Band band : bands) {
                 String unit = band.getUnit();
                 if (unit == null || unit.contains(Unit.INTENSITY)) {

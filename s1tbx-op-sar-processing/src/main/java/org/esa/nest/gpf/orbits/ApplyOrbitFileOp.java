@@ -68,7 +68,7 @@ import java.io.File;
  */
 
 @OperatorMetadata(alias = "Apply-Orbit-File",
-        category = "Sar Processing",
+        category = "SAR Processing",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Apply orbit file")

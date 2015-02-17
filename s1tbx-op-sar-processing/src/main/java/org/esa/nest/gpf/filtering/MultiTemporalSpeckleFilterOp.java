@@ -141,23 +141,29 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
 
             int windowWidth = 0;
             int windowHeight = 0;
-            if (windowSize.equals(WINDOW_SIZE_3x3)) {
-                windowWidth = 3;
-                windowHeight = 3;
-            } else if (windowSize.equals(WINDOW_SIZE_5x5)) {
-                windowWidth = 5;
-                windowHeight = 5;
-            } else if (windowSize.equals(WINDOW_SIZE_7x7)) {
-                windowWidth = 7;
-                windowHeight = 7;
-            } else if (windowSize.equals(WINDOW_SIZE_9x9)) {
-                windowWidth = 9;
-                windowHeight = 9;
-            } else if (windowSize.equals(WINDOW_SIZE_11x11)) {
-                windowWidth = 11;
-                windowHeight = 11;
-            } else {
-                throw new OperatorException("Unknown filter size: " + windowSize);
+            switch (windowSize) {
+                case WINDOW_SIZE_3x3:
+                    windowWidth = 3;
+                    windowHeight = 3;
+                    break;
+                case WINDOW_SIZE_5x5:
+                    windowWidth = 5;
+                    windowHeight = 5;
+                    break;
+                case WINDOW_SIZE_7x7:
+                    windowWidth = 7;
+                    windowHeight = 7;
+                    break;
+                case WINDOW_SIZE_9x9:
+                    windowWidth = 9;
+                    windowHeight = 9;
+                    break;
+                case WINDOW_SIZE_11x11:
+                    windowWidth = 11;
+                    windowHeight = 11;
+                    break;
+                default:
+                    throw new OperatorException("Unknown filter size: " + windowSize);
             }
 
             halfWindowWidth = windowWidth / 2;
@@ -174,7 +180,7 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
 
         if (sourceBandNames == null || sourceBandNames.length == 0 && OperatorUtils.isComplex(sourceProduct)) {
             final Band[] bands = sourceProduct.getBands();
-            final List<String> bandNameList = new ArrayList<String>(sourceProduct.getNumBands());
+            final List<String> bandNameList = new ArrayList<>(sourceProduct.getNumBands());
             for (Band band : bands) {
                 if (band.getUnit().contains("intensity"))
                     bandNameList.add(band.getName());

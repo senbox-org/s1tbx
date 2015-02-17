@@ -1,5 +1,8 @@
 package org.jlinda.nest.utils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * User: pmar@ppolabs.com
  * Date: 6/20/11
@@ -12,6 +15,7 @@ public class ProductContainer {
     public CplxContainer sourceSlave;
     public String targetBandName_I;
     public String targetBandName_Q;
+    private final Map<String,String> bandNameMap = new HashMap<>(3);
 
     public boolean subProductsFlag;
     public SubProduct masterSubProduct;
@@ -38,7 +42,14 @@ public class ProductContainer {
             this.masterSubProduct = new SubProduct();
             this.slaveSubProduct = new SubProduct();
         }
+    }
 
+    public void addBand(final String key, final String bandName) {
+        bandNameMap.put(key, bandName);
+    }
+
+    public String getBandName(final String key) {
+        return bandNameMap.get(key);
     }
 
     // helper sub-class

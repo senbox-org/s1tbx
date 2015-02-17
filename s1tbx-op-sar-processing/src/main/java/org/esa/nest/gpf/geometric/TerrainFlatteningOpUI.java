@@ -39,11 +39,11 @@ import java.util.Map;
 public class TerrainFlatteningOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
-    private final JComboBox<String> demName = new JComboBox<String>(DEMFactory.getDEMNameList());
+    private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
     private static final String externalDEMStr = "External DEM";
     //private final JCheckBox outputSimulatedImageCheckBox = new JCheckBox("Output Simulated Image");
 
-    private final JComboBox<String> demResamplingMethod = new JComboBox<String>(ResamplingFactory.resamplingNames);
+    private final JComboBox<String> demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
     private final JTextField externalDEMFile = new JTextField("");
     private final JTextField externalDEMNoDataValue = new JTextField("");
     private final JButton externalDEMBrowseButton = new JButton("...");
