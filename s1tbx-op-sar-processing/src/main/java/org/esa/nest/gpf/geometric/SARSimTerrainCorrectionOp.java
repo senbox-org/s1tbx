@@ -966,7 +966,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                         rangeIndex = srcMaxRange - rangeIndex;
                     }
 
-                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, tileGeoRef,
+                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, latitude, longitude,
                             srcMaxRange, srcMaxAzimuth, sensorPos)) {
                         //saveNoDataValueToTarget(index, trgTiles);
                     } else {

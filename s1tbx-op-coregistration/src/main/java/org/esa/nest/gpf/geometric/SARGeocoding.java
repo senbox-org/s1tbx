@@ -786,7 +786,7 @@ public class SARGeocoding {
 
     public static boolean isValidCell(final double rangeIndex, final double azimuthIndex,
                                       final double lat, final double lon,
-                                      final TileGeoreferencing tileGeoRef,
+                                      final TiePointGrid latitude, final TiePointGrid longitude,
                                       final int srcMaxRange, final int srcMaxAzimuth, final double[] sensorPos) {
 
         if (rangeIndex < 0.0 || rangeIndex >= srcMaxRange || azimuthIndex < 0.0 || azimuthIndex >= srcMaxAzimuth) {
@@ -805,10 +805,8 @@ public class SARGeocoding {
             delLonMax = Math.abs(lon - sensorGeoPos.lon);
         }
 
-        final GeoPos geoPos = new GeoPos();
-        tileGeoRef.getGeoPos(new PixelPos(rangeIndex, azimuthIndex), geoPos);
-        final double delLat = Math.abs(lat - geoPos.getLat());
-        final double srcLon = geoPos.getLon();
+        final double delLat = Math.abs(lat - latitude.getPixelFloat((float)rangeIndex, (float)azimuthIndex));
+        final double srcLon = longitude.getPixelFloat((float)rangeIndex, (float)azimuthIndex);
 
         double delLon;
         if (lon < 0 && srcLon > 0) {
