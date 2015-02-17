@@ -45,7 +45,7 @@ on either if you want to use the new NetBeans based runtime or if you still want
 Read further at the corresponding section
 
 :exclamation:Note: the snap-engine and snap-desktop repositories are mandatory. The toolboxes are each optional and
-currently only useful if you use the ceres based configuration.
+currently only the Sentinel-3 Toolbox is currently configured to be used with SNAP.
 
 	git clone https://github.com/senbox-org/s1tbx.git
 
@@ -90,35 +90,10 @@ the option *'Create module groups for multi-module Maven projects'*. It would cr
 	* **Working directory:** SNAP/snap-desktop/snap-application/target/snap/
 	* **Use classpath of module:** nbexec
 
-## Build with Ceres
-1. CD into SNAP/snap-engine and build the source:
+### Run SNAP with a Toolbox
+The Sentinel-3 Toolbox is configured to build all the modules into the cluster directory *´${project.basedir}/../target/nbmCluster´*
+This cluster can be set as parameter to the above mentioned launcher.
+Specify as program parameter e.g. *´--clusters "SNAP\s3tbx\target\nbmCluster\netbeans\s3tbx"´*
 
-	mvn compile or mvn package
-
-    Use maven profiles to build the desired toolbox components
-
-    mvn compile -P s2tbx,s3tbx
-	
-	or all components
-	
-	mvn compile -P all
-
-### IDE Setup (IntelliJ IDEA)
-1. Create an empty project with the _SNAP/_ directory as project directory
-
-2. Import the pom.xml files as modules of the projects you have checked out. Ensure **not** to enable
-the option *'Create module groups for multi-module Maven projects'*. It would create an odd project structure but would still work. Everything can be default values.
-
-3. Set the used SDK for the main project. A JDK 1.8 or later is needed.
-
-4. Use the following configuration to run S2TBX:
-
-    * Main class: com.bc.ceres.launcher.Launcher
-    * VM parameters: -Xmx4G -Dceres.context=s2tbx
-    * Program parameters: none
-    * Working directory: SNAP/output
-    * Use classpath of module: snap-bootstrap
-
-As value for the ´ceres.context´ parameter you can also use s1tbx and s2tbx
 
 Enjoy!
