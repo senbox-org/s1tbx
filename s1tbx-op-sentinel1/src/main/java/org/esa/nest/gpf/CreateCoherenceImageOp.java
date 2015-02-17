@@ -33,7 +33,7 @@ import javax.media.jai.BorderExtender;
 import java.awt.*;
 import java.util.HashMap;
 
-@OperatorMetadata(alias = "Create-Coherence-Image",
+@OperatorMetadata(alias = "Coherence",
         category = "SAR Processing/Interferometric/Products",
         authors = "Petar Marinkovic, Jun Lu",
         copyright = "Copyright (C) 2013 by PPO.labs",

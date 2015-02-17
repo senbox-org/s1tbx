@@ -1021,7 +1021,7 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
     }
 
     private boolean arePolarizationsUnique() {
-        final List<String> pols = new ArrayList<String>();
+        final List<String> pols = new ArrayList<>();
         for (final File file : cosarFileList) {
             pols.add(SARReader.findPolarizationInBandName(file.getName()));
         }

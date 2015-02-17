@@ -25,7 +25,6 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.util.FeatureCollectionClipper;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;

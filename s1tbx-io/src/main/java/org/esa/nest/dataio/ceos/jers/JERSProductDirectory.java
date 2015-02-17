@@ -50,7 +50,7 @@ class JERSProductDirectory extends CEOSProductDirectory {
     private JERSLeaderFile leaderFile = null;
     private JERSTrailerFile trailerFile = null;
 
-    private final transient Map<String, JERSImageFile> bandImageFileMap = new HashMap<String, JERSImageFile>(1);
+    private final transient Map<String, JERSImageFile> bandImageFileMap = new HashMap<>(1);
 
     public JERSProductDirectory(final File dir) {
         Guardian.assertNotNull("dir", dir);
@@ -66,7 +66,7 @@ class JERSProductDirectory extends CEOSProductDirectory {
                 createInputStream(CeosHelper.getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
 
         final String[] imageFileNames = CEOSImageFile.getImageFileNames(baseDir, constants.getImageFilePrefix());
-        final List<JERSImageFile> imgArray = new ArrayList<JERSImageFile>(imageFileNames.length);
+        final List<JERSImageFile> imgArray = new ArrayList<>(imageFileNames.length);
         for (String fileName : imageFileNames) {
             try {
                 final JERSImageFile imgFile = new JERSImageFile(createInputStream(new File(baseDir, fileName)));

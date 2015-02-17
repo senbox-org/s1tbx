@@ -61,7 +61,7 @@ public final class DeburstWSSOp extends Operator {
     @Parameter(defaultValue = "false", label = "Mean Average Intensities")
     private boolean average = false;
 
-    private final Vector<Integer> startLine = new Vector<Integer>(5);
+    private final Vector<Integer> startLine = new Vector<>(5);
     private static final double zeroThreshold = 1000;
     private static final double zeroThresholdSmall = 500;
     private LineTime[] lineTimes = null;
@@ -70,7 +70,7 @@ public final class DeburstWSSOp extends Operator {
     private double nodatavalue = 0;
     private double lineTimeInterval = 0;
 
-    private final Map<Band, ComplexBand> bandMap = new HashMap<Band, ComplexBand>(5);
+    private final Map<Band, ComplexBand> bandMap = new HashMap<>(5);
 
     private final static String SS1 = "SS1";
     private final static String SS2 = "SS2";
@@ -290,11 +290,11 @@ public final class DeburstWSSOp extends Operator {
         }
 
         int subSamplingX = 1;
-        final List<Double> time = new ArrayList<Double>(13);
-        final List<Float> lats = new ArrayList<Float>(143);
-        final List<Float> lons = new ArrayList<Float>(143);
-        final List<Float> slant = new ArrayList<Float>(143);
-        final List<Float> incidence = new ArrayList<Float>(143);
+        final List<Double> time = new ArrayList<>(13);
+        final List<Float> lats = new ArrayList<>(143);
+        final List<Float> lons = new ArrayList<>(143);
+        final List<Float> slant = new ArrayList<>(143);
+        final List<Float> incidence = new ArrayList<>(143);
 
         for (MetadataElement geolocElem : geolocElems) {
             final String swathStr = geolocElem.getAttributeString("swath_number");
@@ -380,26 +380,30 @@ public final class DeburstWSSOp extends Operator {
     }
 
     private static int getSubSwathNumber(final String subSwath) {
-        if (subSwath.equals(SS1))
-            return 0;
-        else if (subSwath.equals(SS2))
-            return 1;
-        else if (subSwath.equals(SS3))
-            return 2;
-        else if (subSwath.equals(SS4))
-            return 3;
+        switch (subSwath) {
+            case SS1:
+                return 0;
+            case SS2:
+                return 1;
+            case SS3:
+                return 2;
+            case SS4:
+                return 3;
+        }
         return 4;
     }
 
     private static int getRealBandNumFromSubSwath(final String subSwath) {
-        if (subSwath.equals(SS1))
-            return 0;
-        else if (subSwath.equals(SS2))
-            return 2;
-        else if (subSwath.equals(SS3))
-            return 4;
-        else if (subSwath.equals(SS4))
-            return 6;
+        switch (subSwath) {
+            case SS1:
+                return 0;
+            case SS2:
+                return 2;
+            case SS3:
+                return 4;
+            case SS4:
+                return 6;
+        }
         return 8;
     }
 
@@ -458,7 +462,7 @@ public final class DeburstWSSOp extends Operator {
             final double start = targetProduct.getStartTime().getMJD();
             final double end = targetProduct.getEndTime().getMJD();
             final double interval = (end - start) / targetHeight;
-            final Vector<Integer> burstLines = new Vector<Integer>(4);
+            final Vector<Integer> burstLines = new Vector<>(4);
 
             for (int y = targetRectangle.y; y < maxY; ++y) {
                 double startTime = start + (y * interval);
@@ -601,8 +605,8 @@ public final class DeburstWSSOp extends Operator {
         Arrays.fill(avgTotals, 0);
         double Ival, Qval, intensity;
 
-        final Vector<short[]> srcDataListI = new Vector<short[]>(3);
-        final Vector<short[]> srcDataListQ = new Vector<short[]>(3);
+        final Vector<short[]> srcDataListI = new Vector<>(3);
+        final Vector<short[]> srcDataListQ = new Vector<>(3);
         final int widthMargin = targetWidth - margin;
 
         try {

@@ -43,8 +43,8 @@ public class PolsarProProductReader extends EnviProductReader {
         final File folder = inputFile.getParentFile();
         final File[] fileList = folder.listFiles();
 
-        final List<Header> headerList = new ArrayList<Header>(fileList.length);
-        final HashMap<Header, File> headerFileMap = new HashMap<Header, File>(fileList.length);
+        final List<Header> headerList = new ArrayList<>(fileList.length);
+        final HashMap<Header, File> headerFileMap = new HashMap<>(fileList.length);
         Header mainHeader = null;
         File mainHeaderFile = null;
 

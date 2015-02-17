@@ -17,7 +17,6 @@ package org.esa.nest.dataio.sentinel1;
 
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.nest.dataio.FileImageInputStreamExtImpl;
 import org.esa.nest.dataio.binary.BinaryFileReader;

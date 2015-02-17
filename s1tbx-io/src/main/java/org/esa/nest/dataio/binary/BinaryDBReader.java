@@ -46,7 +46,7 @@ public final class BinaryDBReader {
     private final static int B8 = 8;
     private final static int Debug = -1;
 
-    private final Map<String, Object> metaMap = new HashMap<String, Object>(100);
+    private final Map<String, Object> metaMap = new HashMap<>(100);
     private final Document xmlDoc;
     private final String recName;
     private final long startPos;
