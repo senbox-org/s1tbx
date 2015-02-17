@@ -27,7 +27,7 @@
             <sourceProduct refid="CreateStack"/>
         </sources>
         <parameters>
-            <numWindows>200</numWindows>
+            <numWindows>2000</numWindows>
             <coarseRegistrationWindowWidth>128</coarseRegistrationWindowWidth>
             <coarseRegistrationWindowHeight>128</coarseRegistrationWindowHeight>
             <coarseRegistrationWindowAccAzimuth>2</coarseRegistrationWindowAccAzimuth>

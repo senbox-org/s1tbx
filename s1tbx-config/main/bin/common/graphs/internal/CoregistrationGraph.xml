@@ -29,9 +29,9 @@
       <sourceProduct refid="CreateStack"/>
     </sources>
     <parameters>
-      <numGCPtoGenerate>200</numGCPtoGenerate>
-      <coarseRegistrationWindowWidth>64</coarseRegistrationWindowWidth>
-      <coarseRegistrationWindowHeight>64</coarseRegistrationWindowHeight>
+      <numGCPtoGenerate>2000</numGCPtoGenerate>
+      <coarseRegistrationWindowWidth>128</coarseRegistrationWindowWidth>
+      <coarseRegistrationWindowHeight>128</coarseRegistrationWindowHeight>
       <rowInterpFactor>4</rowInterpFactor>
       <columnInterpFactor>4</columnInterpFactor>
       <maxIteration>10</maxIteration>
@@ -52,8 +52,8 @@
       <sourceProduct refid="GCP-Selection"/>
     </sources>
     <parameters>
-      <rmsThreshold>0.5</rmsThreshold>
-      <warpPolynomialOrder>1</warpPolynomialOrder>
+      <rmsThreshold>0.05</rmsThreshold>
+      <warpPolynomialOrder>2</warpPolynomialOrder>
       <interpolationMethod>Bilinear interpolation</interpolationMethod>
       <openResidualsFile>false</openResidualsFile>
     </parameters>
