@@ -69,6 +69,7 @@
         <module>snap-cluster-analysis</module>
         <module>snap-collocation</module>
         <module>snap-csv-dataio</module>
+        <module>snap-engine-examples</module>
         <module>snap-envi-reader</module>
         <module>snap-envisat-reader</module>
         <module>snap-getasse30-dem</module>
@@ -80,23 +81,22 @@
         <module>snap-pconvert</module>
         <module>snap-pgx-reader</module>
         <module>snap-pixel-extraction</module>
+        <module>snap-python</module>
         <module>snap-rtp-codec</module>
         <module>snap-statistics</module>
         <module>snap-temporal-percentile</module>
         <module>snap-unmix</module>
+        <module>blue-marble-worldmap</module>
+        <module>globcover-worldmap</module>
 
         <!-- BEAM System Modules -->
 
-        <module>beam-examples</module>
         <module>beam-ui</module>
         <module>beam-visat-rcp</module>
-        <module>beam-python</module>
 
         <!-- Former BEAM Extension Modules -->
 
         <module>beam-time-series-tool</module>
-        <module>blue-marble-worldmap</module>
-        <module>globcover-worldmap</module>
         <module>lib-hdf</module>
     </modules>
 
