@@ -68,30 +68,19 @@ public class Ellipsoid {
     */
     public static double[] xyz2ell(final Point xyz) {
 
-//        double[] phi_lambda_height = new double[3];
-        final double r = Math.sqrt(FastMath.pow(xyz.x, 2) + FastMath.pow(xyz.y, 2));
+        final double r = Math.sqrt(xyz.x*xyz.x + xyz.y*xyz.y);
         final double nu = Math.atan2((xyz.z * a), (r * b));
-        final double sin3 = FastMath.pow(FastMath.sin(nu), 3);
-        final double cos3 = FastMath.pow(FastMath.cos(nu), 3);
+        final double sinNu = FastMath.sin(nu);
+        final double cosNu = FastMath.cos(nu);
+        final double sin3 = sinNu*sinNu*sinNu;
+        final double cos3 = cosNu*cosNu*cosNu;
         final double phi = Math.atan2((xyz.z + e2b * b * sin3), (r - e2 * a * cos3));
         final double lambda = Math.atan2(xyz.y, xyz.x);
         final double N = computeEllipsoidNormal(phi);
         final double height = (r / FastMath.cos(phi)) - N;
 
         return new double[]{phi, lambda, height};
-
     }
-
-
-//    public static double[] xyz2ell(final Point xyz) {
-//        double r = Math.sqrt(Math.pow(xyz.x, 2) + Math.pow(xyz.y, 2));
-//        double nu = Math.atan2((xyz.z * a), (r * b));
-//        double sin3 = Math.pow(Math.sin(nu), 3);
-//        double cos3 = Math.pow(Math.cos(nu), 3);
-//        phi = Math.atan2((xyz.z + e2b * b * sin3), (r - e2 * a * cos3));
-//        lambda = Math.atan2(xyz.y, xyz.x);
-//    }
-
 
     /**
      * ell2xyz
@@ -109,9 +98,10 @@ public class Ellipsoid {
 
         final double N = computeEllipsoidNormal(phi);
         final double Nph = N + height;
+        final double A = Nph * FastMath.cos(phi);
         return new Point(
-                Nph * FastMath.cos(phi) * FastMath.cos(lambda),
-                Nph * FastMath.cos(phi) * FastMath.sin(lambda),
+                A * FastMath.cos(lambda),
+                A * FastMath.sin(lambda),
                 (Nph - e2 * N) * FastMath.sin(phi));
     }
 
@@ -127,9 +117,10 @@ public class Ellipsoid {
 
         final double N = computeEllipsoidNormal(phi);
         final double Nph = N + height;
+        final double A = Nph * FastMath.cos(phi);
         return new Point(
-                Nph * FastMath.cos(phi) * FastMath.cos(lambda),
-                Nph * FastMath.cos(phi) * FastMath.sin(lambda),
+                A * FastMath.cos(lambda),
+                A * FastMath.sin(lambda),
                 (Nph - e2 * N) * FastMath.sin(phi));
     }
 

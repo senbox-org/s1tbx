@@ -17,7 +17,7 @@
       <demResamplingMethod>BILINEAR_INTERPOLATION</demResamplingMethod>
       <externalDEMFile/>
       <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
-      <resamplingType>BISINC_21_POINT_INTERPOLATION</resamplingType>
+      <resamplingType>BISINC_5_POINT_INTERPOLATION</resamplingType>
       <outputRangeAzimuthOffset>false</outputRangeAzimuthOffset>
       <outputDerampPhase>false</outputDerampPhase>
     </parameters>
