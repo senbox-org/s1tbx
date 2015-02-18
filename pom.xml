@@ -124,12 +124,6 @@
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
-                <artifactId>snap-launcher</artifactId>
-                <version>${snap.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.esa.snap</groupId>
                 <artifactId>ceres-core</artifactId>
                 <version>${snap.version}</version>
             </dependency>

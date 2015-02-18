@@ -18,10 +18,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-launcher</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
         </dependency>
