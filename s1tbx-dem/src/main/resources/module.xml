@@ -28,7 +28,7 @@
 
     <categories>Reader,DEM</categories>
 
-    <extension point="snap-ceres-core:serviceProviders">
+    <extension point="ceres-core:serviceProviders">
         <serviceProvider>org.esa.nest.dataio.dem.ElevationModelDescriptor</serviceProvider>
     </extension>
 

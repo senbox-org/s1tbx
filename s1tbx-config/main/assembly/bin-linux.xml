@@ -68,8 +68,6 @@
             <excludes>
                 <exclude>org.esa.snap:snap-beam-bootstrap</exclude>
 				<exclude>org.esa.snap:snap-rtp-codec</exclude>
-				<exclude>org.esa.snap:snap-deploy</exclude>
-                <exclude>org.esa.snap:snap-site</exclude>
                 <exclude>org.esa.s1tbx:s1tbx-bootstrap</exclude>
                 <exclude>org.esa.s1tbx:s1tbx-benchmark</exclude>
                 <exclude>org.esa.s1tbx:s1tbx-config</exclude>
@@ -102,20 +100,13 @@
                         </outputFileNameMapping>
                         <excludes>
 							<exclude>ncsa.hdf:lib-hdf</exclude>
-                            <exclude>org.esa.s1tbx:s1tbx-op-sentinel1</exclude>
-                            <exclude>org.esa.s1tbx:s1tbx-op-calibration</exclude>
-                            <exclude>org.esa.s1tbx:s1tbx-op-coregistration</exclude>
-                            <exclude>org.esa.s1tbx:s1tbx-dem</exclude>
-                            <exclude>org.esa.s1tbx:s1tbx-io</exclude>
-							<exclude>org.esa.s1tbx:s1tbx-product-library</exclude>
-                            <exclude>org.esa.s1tbx:s1tbx-rcp</exclude>
-							<exclude>org.esa.s2tbx:s2tbx-commons</exclude>
-                            <exclude>org.esa.s3tbx:s3tbx-merisl3-reader</exclude>
-                            <exclude>org.jlinda:jlinda-core</exclude>
-							<exclude>org.jlinda:jlinda-nest</exclude>
-                            <exclude>org.esa.pfa:pfa-core</exclude>
-                            <exclude>org.esa.pfa:pfa-database</exclude>
-                            <exclude>org.csa.rstb:rstb-polarimetric-tools</exclude>
+                            <exclude>org.esa.s1tbx:s1tbx-*</exclude>
+							<exclude>org.esa.s2tbx:s2tbx-*</exclude>
+                            <exclude>org.esa.s3tbx:s3tbx-*</exclude>
+							<exclude>org.jlinda:jlinda-*</exclude>
+                            <exclude>org.esa.pfa:pfa-*</exclude>
+                            <exclude>org.csa.rstb:rstb-*</exclude>
+							<exclude>org.esa.snap:ceres-*</exclude>
                             <exclude>org.esa.snap:snap-*</exclude>
                         </excludes>
                     </dependencySet>

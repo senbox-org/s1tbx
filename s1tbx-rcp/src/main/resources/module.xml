@@ -37,7 +37,7 @@
 
     <categories>Application,DAT</categories>
 
-    <extension point="snap-ceres-core:applications">
+    <extension point="ceres-core:applications">
         <application id="S1TBXMain" class="org.esa.nest.dat.S1TBXMain"/>
     </extension>
 
