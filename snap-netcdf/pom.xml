@@ -93,6 +93,8 @@
                         <publicPackage>ucar.nc2.dataset</publicPackage>
                         <publicPackage>ucar.nc2.dt</publicPackage>
                         <publicPackage>ucar.nc2.dt.point</publicPackage>
+                        <publicPackage>ucar.nc2.ft.point.standard</publicPackage>
+                        <publicPackage>ucar.nc2.time</publicPackage>
                         <publicPackage>ucar.nc2.util</publicPackage>
                         <publicPackage>ucar.nc2.util.rc</publicPackage>
                         <publicPackage>ucar.nc2.util.net</publicPackage>
@@ -100,7 +102,11 @@
                         <publicPackage>ucar.nc2.units</publicPackage>
                         <publicPackage>ucar.nc2.iosp</publicPackage>
                         <publicPackage>ucar.nc2.iosp.hdf5</publicPackage>
+                        <publicPackage>ucar.nc2.iosp.netcdf3</publicPackage>
+                        <publicPackage>ucar.nc2.wmo</publicPackage>
                         <publicPackage>ucar.unidata.geoloc</publicPackage>
+                        <publicPackage>ucar.unidata.io</publicPackage>
+                        <publicPackage>ucar.unidata.io.bzip2</publicPackage>
                         <publicPackage>ucar.unidata.util</publicPackage>
                         <publicPackage>thredds.catalog</publicPackage>
                         <publicPackage>org.slf4j</publicPackage>
