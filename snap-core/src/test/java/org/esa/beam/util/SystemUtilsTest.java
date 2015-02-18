@@ -74,16 +74,6 @@ public class SystemUtilsTest {
     }
 
     @Test
-    public void testGetApplicationHomeDir() {
-        final File applicationHomeDir = SystemUtils.getApplicationHomeDir();
-        assertNotNull(applicationHomeDir);
-        assertTrue(applicationHomeDir.exists());
-        assertTrue(new File(applicationHomeDir, "modules").exists());
-        assertTrue(!applicationHomeDir.getPath().contains("modules"));
-        assertTrue(!applicationHomeDir.getPath().contains(".jar"));
-    }
-
-    @Test
     public void testGetApplicationDataDir() {
         final File applicationDataDir = SystemUtils.getApplicationDataDir();
         assertNotNull(applicationDataDir);
