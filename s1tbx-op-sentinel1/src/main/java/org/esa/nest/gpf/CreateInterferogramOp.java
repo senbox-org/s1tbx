@@ -313,8 +313,11 @@ public class CreateInterferogramOp extends Operator {
                 product.addBand(Unit.IMAGINARY, "q_" + productTag + "_" + master.date + "_" + slave.date);
 
                 if(includeCoherence) {
-                    final String topsarTag = getTOPSARTag(sourceProduct);
-                    final String cohTag = "coh"+"_"+topsarTag;
+                    String cohTag = "coh";
+                    if (isTOPSARBurstProduct) {
+                        final String topsarTag = getTOPSARTag(sourceProduct);
+                        cohTag += "_" + topsarTag;
+                    }
                     product.addBand(Unit.COHERENCE, cohTag + "_" + master.date + "_" + slave.date);
                 }
 
