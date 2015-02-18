@@ -41,7 +41,6 @@
     </properties>
 
     <modules>
-        <module>ceres-launcher</module>
         <module>ceres-core</module>
         <module>ceres-binding</module>
         <module>ceres-ui</module>
