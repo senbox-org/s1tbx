@@ -50,7 +50,6 @@
         <module>ceres-jai</module>
         <module>ceres-binio</module>
         <module>ceres-metadata</module>
-        <module>ceres-site</module>
 
         <!-- SNAP System Modules -->
 
