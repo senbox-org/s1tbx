@@ -2,8 +2,8 @@ package com.bc.ceres.nbmgen;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import org.jdom.Element;
-import org.jdom.JDOMException;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
 
 import java.io.File;
 import java.io.FileWriter;
