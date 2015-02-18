@@ -23,8 +23,6 @@ import java.io.StringReader;
 import java.util.Map;
 import java.util.Properties;
 
-import com.bc.ceres.util.TemplateReader;
-
 public class TemplateReaderTest extends TestCase {
 
     public void testNullArgConvention() {

@@ -38,7 +38,7 @@ public class TemplateReader extends FilterReader {
     private char keyIndicator = DEFAULT_KEY_INDICATOR;
 
     /**
-     * Constructs a template reader for the given reader stream and a resolver given by a {@link java.util.Map}.
+     * Constructs a template reader for the given reader stream and a resolver given by a {@link Map}.
      *
      * @param in  the underlying reader
      * @param map the map to serve as resolver
@@ -85,7 +85,7 @@ public class TemplateReader extends FilterReader {
     /**
      * Reads all content.
      * @return the content
-     * @throws java.io.IOException if an I/O error occurs
+     * @throws IOException if an I/O error occurs
      */
     public String readAll() throws IOException {
         StringBuilder sb = new StringBuilder(16 * 1024);
@@ -102,7 +102,7 @@ public class TemplateReader extends FilterReader {
     /**
      * Read a single character.
      *
-     * @throws java.io.IOException If an I/O error occurs
+     * @throws IOException If an I/O error occurs
      */
     @Override
     public int read() throws IOException {
@@ -181,7 +181,7 @@ public class TemplateReader extends FilterReader {
      * @return The number of characters read, or -1
      *         if the end of the stream
      *         has been reached
-     * @throws java.io.IOException If an I/O error occurs
+     * @throws IOException If an I/O error occurs
      */
     @Override
     public int read(char cbuf[]) throws IOException {
@@ -191,7 +191,7 @@ public class TemplateReader extends FilterReader {
     /**
      * Read characters into a portion of an array.
      *
-     * @throws java.io.IOException If an I/O error occurs
+     * @throws IOException If an I/O error occurs
      */
     @Override
     public int read(char cbuf[], int off, int len) throws IOException {
@@ -217,7 +217,7 @@ public class TemplateReader extends FilterReader {
      * @param target the buffer to read characters into
      * @return The number of characters added to the buffer, or
      *         -1 if this source of characters is at its end
-     * @throws java.io.IOException  if an I/O error occurs
+     * @throws IOException  if an I/O error occurs
      * @throws NullPointerException if target is null
      * @throws java.nio.ReadOnlyBufferException
      *                              if target is a read only buffer
@@ -238,7 +238,7 @@ public class TemplateReader extends FilterReader {
     /**
      * Skip characters.
      *
-     * @throws java.io.IOException If an I/O error occurs
+     * @throws IOException If an I/O error occurs
      */
     @Override
     public long skip(long n) throws IOException {
@@ -260,7 +260,7 @@ public class TemplateReader extends FilterReader {
     /**
      * Tell whether this stream is ready to be read.
      *
-     * @throws java.io.IOException If an I/O error occurs
+     * @throws IOException If an I/O error occurs
      */
     @Override
     public boolean ready() throws IOException {
@@ -278,7 +278,7 @@ public class TemplateReader extends FilterReader {
     /**
      * Mark the present position in the stream.
      *
-     * @throws java.io.IOException If an I/O error occurs
+     * @throws IOException If an I/O error occurs
      */
     @Override
     public void mark(int readAheadLimit) throws IOException {
@@ -288,7 +288,7 @@ public class TemplateReader extends FilterReader {
     /**
      * Reset the stream.
      *
-     * @throws java.io.IOException If an I/O error occurs
+     * @throws IOException If an I/O error occurs
      */
     @Override
     public void reset() throws IOException {
@@ -298,7 +298,7 @@ public class TemplateReader extends FilterReader {
     /**
      * Close the stream.
      *
-     * @throws java.io.IOException If an I/O error occurs
+     * @throws IOException If an I/O error occurs
      */
     @Override
     public void close() throws IOException {
