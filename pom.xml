@@ -45,7 +45,6 @@
         <module>ceres-core</module>
         <module>ceres-binding</module>
         <module>ceres-ui</module>
-        <module>ceres-deploy</module>
         <module>ceres-glayer</module>
         <module>ceres-jai</module>
         <module>ceres-binio</module>

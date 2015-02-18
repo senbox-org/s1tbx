@@ -14,7 +14,7 @@ import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.bc.ceres.nbmgen.CeresModuleProject.getFile;
+import static com.bc.ceres.nbmgen.CeresModuleProject.*;
 
 /**
  * Usage:
