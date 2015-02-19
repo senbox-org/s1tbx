@@ -34,12 +34,12 @@
             <groupId>org.jpy</groupId>
             <artifactId>jpy</artifactId>
             <version>0.7.5</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
+<!--
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
@@ -62,12 +62,14 @@
                     </execution>
                 </executions>
             </plugin>
+-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
-                        <publicPackage>org.esa.beam.framework.gpf.*</publicPackage>
+                        <publicPackage>org.esa.beam.framework.gpf.jpy</publicPackage>
+                        <publicPackage>org.jpy.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
