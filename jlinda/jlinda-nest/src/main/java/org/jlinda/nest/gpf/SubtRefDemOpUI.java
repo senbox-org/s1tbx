@@ -132,6 +132,7 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
             paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
         }
         paramMap.put("topoPhaseBandName", topoPhaseBandName.getText());
+        paramMap.put("tileExtensionPercent", tileExtensionPercent.getSelectedItem());
     }
 
     private JComponent createPanel() {
