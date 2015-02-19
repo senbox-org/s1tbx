@@ -16,7 +16,6 @@
 package org.esa.snap.util;
 
 import org.esa.beam.util.logging.BeamLogManager;
-import org.esa.snap.db.FileListSelection;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;

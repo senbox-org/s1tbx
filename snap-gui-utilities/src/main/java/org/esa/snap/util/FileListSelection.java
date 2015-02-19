@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.db;
+package org.esa.snap.util;
 
 import com.bc.ceres.swing.selection.AbstractSelection;
 
