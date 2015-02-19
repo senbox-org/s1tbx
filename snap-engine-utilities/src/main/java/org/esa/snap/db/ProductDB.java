@@ -15,6 +15,7 @@
  */
 package org.esa.snap.db;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.io.FileDeleteStrategy;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
@@ -161,14 +162,17 @@ public class ProductDB extends DAO {
         }
     }
 
-    public void cleanUpRemovedProducts() throws SQLException {
+    public void cleanUpRemovedProducts(final ProgressMonitor pm) throws SQLException {
         final DBQuery dbQuery = new DBQuery();
         final ProductEntry[] entries = dbQuery.queryDatabase(this);
+        pm.beginTask("Cleaning up database...", entries.length);
         for (ProductEntry entry : entries) {
             if (!entry.getFile().exists()) {
                 deleteProductEntry(entry);
             }
+            pm.worked(1);
         }
+        pm.done();
     }
 
     public void deleteProductEntry(final ProductEntry entry) throws SQLException {
@@ -181,20 +185,32 @@ public class ProductDB extends DAO {
         QuickLookGenerator.deleteQuickLook(id);
     }
 
-    public void removeProducts(final File baseDir) throws SQLException {
+    public void removeProducts(final File baseDir, final ProgressMonitor pm) throws SQLException {
         final String queryStr = AbstractMetadata.PATH + " LIKE '" + baseDir.getAbsolutePath() + "%'";
         final ProductEntry[] list = queryProduct(queryStr);
+        pm.beginTask("Removing products...", list.length);
         for (ProductEntry entry : list) {
+            if(pm.isCanceled())
+                break;
+
             deleteProductEntry(entry);
+            pm.worked(1);
         }
+        pm.done();
     }
 
-    public void removeAllProducts() throws SQLException {
+    public void removeAllProducts(final ProgressMonitor pm) throws SQLException {
         final String queryStr = "";
         final ProductEntry[] list = queryProduct(queryStr);
+        pm.beginTask("Removing products...", list.length);
         for (ProductEntry entry : list) {
+            if(pm.isCanceled())
+                break;
+
             deleteProductEntry(entry);
+            pm.worked(1);
         }
+        pm.done();
     }
 
     public ProductEntry[] getProductEntryList(final boolean validate) throws SQLException {

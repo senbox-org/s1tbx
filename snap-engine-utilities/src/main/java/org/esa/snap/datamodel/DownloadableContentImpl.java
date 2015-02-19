@@ -148,7 +148,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
 
     /**
      * Downloads a file from the specified URL to the specified local target directory.
-     * The method uses a Swing progress monitor to visualize the download process.
+     * The method uses a progress monitor to visualize the download process.
      *
      * @param fileUrl      the URL of the file to be downloaded
      * @param localZipFile the target file
