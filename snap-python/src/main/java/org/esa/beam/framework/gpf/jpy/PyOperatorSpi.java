@@ -1,6 +1,5 @@
 package org.esa.beam.framework.gpf.jpy;
 
-import com.bc.ceres.core.runtime.RuntimeContext;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -11,17 +10,13 @@ import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.Enumeration;
+import java.util.logging.Level;
 
 import static org.esa.beam.util.SystemUtils.LOG;
 
@@ -31,26 +26,19 @@ import static org.esa.beam.util.SystemUtils.LOG;
 public class PyOperatorSpi extends OperatorSpi {
 
     public static final String PY_OP_RESOURCE_NAME = "META-INF/services/beampy-operators";
-    public static boolean installed;
 
     public PyOperatorSpi() {
         super(PyOperator.class);
-        install();
     }
 
     public PyOperatorSpi(OperatorDescriptor operatorDescriptor) {
         super(operatorDescriptor);
-        install();
     }
 
-    private static void install() {
-        if (installed) {
-            return;
-        }
+    static {
         scanDir(Paths.get(System.getProperty("user.home"), ".snap", "snappy", "ext"));
         scanDirs(System.getProperty("snap.snappy.ext", "").split(File.pathSeparator));
         scanClassPath();
-        installed = true;
     }
 
     private static void scanDirs(String... paths) {
@@ -60,113 +48,111 @@ public class PyOperatorSpi extends OperatorSpi {
     }
 
     private static void scanDir(Path dir) {
-        try {
-            LOG.fine("Scanning for Python modules in " + dir + "...");
-            Files.list(dir).forEach(path -> {
-                Path resolvedPath = path.resolve(PY_OP_RESOURCE_NAME);
-                LOG.fine("Python module registration file found: " + resolvedPath);
-                //registerPythonModule(resolvedPath);
-                // todo
-            });
-        } catch (IOException e) {
-            LOG.severe("Failed scan for Python modules: I/O problem: " + e.getMessage());
+        if (Files.exists(dir)) {
+            try {
+                LOG.fine("Scanning for Python modules in directory " + dir);
+                Files.list(dir).forEach(path -> {
+                    registerPythonModule(path.resolve(PY_OP_RESOURCE_NAME));
+                });
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE, "Failed scan for Python modules: " + e.getMessage(), e);
+            }
+        } else {
+            LOG.warning("Ignoring non-existent Python module path: " + dir);
         }
     }
 
     private static void scanClassPath() {
         try {
+            // todo - we've got a problem here when running on NetBeans Platform (nf 20150219)
+            // module class loader will not allow for accessing other module resources
+            Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources(PY_OP_RESOURCE_NAME);
             LOG.fine("Scanning for Python modules in Java class path...");
-            Enumeration<URL> resources = RuntimeContext.getResources(PY_OP_RESOURCE_NAME);
             while (resources.hasMoreElements()) {
                 URL url = resources.nextElement();
                 try {
-                    LOG.fine("Python module registration file found: " + url);
-                    registerPythonModule(url);
-                } catch (IOException e) {
-                    LOG.warning("Failed to register Python modules seen in " + url + ": " + e.getMessage());
+                    registerPythonModule(Paths.get(url.toURI()));
+                } catch (URISyntaxException e) {
+                    LOG.log(Level.WARNING, "Ignoring malformed Python module path: " + url, e);
                 }
             }
         } catch (IOException e) {
-            LOG.severe("Failed scan for Python modules: I/O problem: " + e.getMessage());
+            LOG.log(Level.SEVERE, "Failed to scan class path for Python modules: " + e.getMessage(), e);
         }
     }
 
-    private static void registerPythonModule(URL resourceUrl) throws IOException {
-        String uriString = resourceUrl.toString();
-        int pos = uriString.indexOf(PY_OP_RESOURCE_NAME);
-        if (pos < 0) {
+    private static void registerPythonModule(Path resourcePath) {
+        Path resourceRelPath = Paths.get(PY_OP_RESOURCE_NAME);
+        if (!Files.exists(resourcePath) || !resourcePath.endsWith(resourceRelPath)) {
             return;
         }
 
-        while (pos > 0 && uriString.charAt(pos - 1) == '/') {
-            pos--;
-        }
-        if (pos > 0 && uriString.charAt(pos - 1) == '!') {
-            pos--;
-        }
+        Path moduleRoot = subtract(resourcePath, resourceRelPath);
+        LOG.info("Python module root found: " + moduleRoot);
 
-        String moduleUriString = uriString.substring(0, pos);
-
-        LineNumberReader reader = new LineNumberReader(new InputStreamReader(resourceUrl.openStream()));
-        while (true) {
-            String line = reader.readLine();
-            if (line == null) {
-                break;
-            }
-            line = line.trim();
-            if (!line.isEmpty() && !line.startsWith("#")) {
-                String[] split = line.split("\\s+");
-                if (split.length == 2) {
-                    try {
-                        registerModule(moduleUriString, split[0].trim(), split[1].trim());
-                    } catch (OperatorException e) {
-                        LOG.warning(String.format("Invalid Python module entry in %s (line %d): %s", resourceUrl, reader.getLineNumber(), line));
-                        LOG.warning(String.format("Caused by an I/O problem: %s", e.getMessage()));
+        try {
+            Files.lines(resourcePath).forEach(line -> {
+                line = line.trim();
+                if (!line.isEmpty() && !line.startsWith("#")) {
+                    String[] split = line.split("\\s+");
+                    if (split.length == 2) {
+                        String modulePath = split[0].trim();
+                        String className = split[1].trim();
+                        if (!registerModule(moduleRoot, modulePath, className)) {
+                            LOG.warning(String.format("Python module not installed: invalid entry in %s: %s", resourcePath, line));
+                        }
+                    } else {
+                        LOG.warning(String.format("Invalid Python module entry in %s: %s", resourcePath, line));
                     }
-                } else {
-                    LOG.warning(String.format("Invalid Python module entry in %s (line %d): %s", resourceUrl, reader.getLineNumber(), line));
                 }
-            }
+            });
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, "Python modules not installed: " + e.getMessage(), e);
         }
     }
 
-    private static void registerModule(String moduleDirUri, String pythonModuleRelPath, final String pythonClassName) throws OperatorException, IOException {
+    private static Path subtract(Path resourcePath, Path resourceRelPath) {
+        Path moduleRoot = resourcePath;
+        for (Path path : resourceRelPath) {
+            moduleRoot = moduleRoot.resolve("..");
+        }
+        moduleRoot = moduleRoot.normalize();
+        return moduleRoot;
+    }
+
+    private static boolean registerModule(Path moduleRoot, String moduleRelPath, final String pythonClassName) {
         String pythonModuleRelSubPath;
         final String pythonModuleName;
-        int i1 = pythonModuleRelPath.lastIndexOf('/');
+        int i1 = moduleRelPath.lastIndexOf('/');
         if (i1 == 0) {
             pythonModuleRelSubPath = "";
-            pythonModuleName = pythonModuleRelPath.substring(1);
+            pythonModuleName = moduleRelPath.substring(1);
         } else if (i1 > 0) {
-            pythonModuleRelSubPath = pythonModuleRelPath.substring(0, i1);
-            pythonModuleName = pythonModuleRelPath.substring(i1 + 1);
+            pythonModuleRelSubPath = moduleRelPath.substring(0, i1);
+            pythonModuleName = moduleRelPath.substring(i1 + 1);
         } else {
             pythonModuleRelSubPath = "";
-            pythonModuleName = pythonModuleRelPath;
+            pythonModuleName = moduleRelPath;
         }
 
-        FileSystem fs;
-        try {
-            URI uri = URI.create(moduleDirUri);
-            fs = FileSystems.newFileSystem(uri, Collections.emptyMap());
-        } catch (IOException e) {
-            throw new OperatorException(e);
-        }
-        if (pythonModuleRelSubPath.isEmpty()) {
-            pythonModuleRelSubPath = "/";
-        }
-        Path pythonModuleDir = fs.getPath(pythonModuleRelSubPath);
+        Path pythonModuleDir = moduleRoot.resolve(pythonModuleRelSubPath);
 
         Path pythonModuleFile = pythonModuleDir.resolve(pythonModuleName + ".py");
         if (!Files.exists(pythonModuleFile)) {
-            throw new OperatorException("file not found: " + pythonModuleFile);
+            LOG.severe(String.format("Missing Python module '%s'", pythonModuleFile));
+            return false;
         }
 
         Path pythonInfoXmlFile = pythonModuleDir.resolve(pythonModuleName + "-info.xml");
         DefaultOperatorDescriptor operatorDescriptor;
         if (Files.exists(pythonInfoXmlFile)) {
-            try (BufferedReader reader = Files.newBufferedReader(pythonInfoXmlFile)) {
-                operatorDescriptor = DefaultOperatorDescriptor.fromXml(reader, pythonInfoXmlFile.toString(), PyOperatorSpi.class.getClassLoader());
+            try {
+                try (BufferedReader reader = Files.newBufferedReader(pythonInfoXmlFile)) {
+                    operatorDescriptor = DefaultOperatorDescriptor.fromXml(reader, pythonInfoXmlFile.toString(), PyOperatorSpi.class.getClassLoader());
+                }
+            } catch (IOException e) {
+                LOG.severe(String.format("Failed to read from '%s'", pythonInfoXmlFile));
+                return false;
             }
         } else {
             operatorDescriptor = new DefaultOperatorDescriptor(pythonModuleName, PyOperator.class);
@@ -189,7 +175,8 @@ public class PyOperatorSpi extends OperatorSpi {
 
         String operatorName = operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorName, operatorSpi);
-        LOG.info(String.format("Python operator '%s' registered (class '%s' in file '%s')",
-                               pythonModuleName, pythonClassName, pythonModuleFile));
+        LOG.info(String.format("Python operator '%s' registered (Python module '%s', class '%s', path '%s')",
+                               operatorName, pythonModuleName, pythonClassName, pythonModuleDir));
+        return true;
     }
 }
