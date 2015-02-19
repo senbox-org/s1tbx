@@ -113,7 +113,7 @@ public class GoldsteinFilterOp extends Operator {
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        targetProduct.setPreferredTileSize(512, 512); // 2^n > 256
+        //targetProduct.setPreferredTileSize(512, 512); // 2^n > 256
     }
 
     /**
@@ -144,8 +144,9 @@ public class GoldsteinFilterOp extends Operator {
                     throw new OperatorException("I and Q bands should be selected in pairs");
                 }
             } else {
+                // let other bands such as coherence pass through
+                ProductUtils.copyBand(srcBandI.getName(), sourceProduct, targetProduct, true);
                 continue;
-                //throw new OperatorException("Please select I and Q bands in pairs only");
             }
 
             final Band targetBandI = targetProduct.addBand(srcBandI.getName(), ProductData.TYPE_FLOAT64);

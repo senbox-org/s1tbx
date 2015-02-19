@@ -15,8 +15,6 @@
  */
 package org.esa.nest.dat.toolviews.productlibrary;
 
-import com.bc.ceres.core.*;
-import com.bc.ceres.core.ProgressMonitor;
 import com.jidesoft.combobox.DateComboBox;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MetadataElement;

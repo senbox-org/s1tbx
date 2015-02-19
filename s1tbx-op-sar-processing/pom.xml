@@ -8,7 +8,6 @@
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx-op-sar-processing</artifactId>
     <name>S1TBX SAR Processing</name>
     <description>Provides for orthorectifying SAR data</description>

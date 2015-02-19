@@ -207,9 +207,9 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
     private OrbitStateVector[] orbitStateVectors = null;
-    private final HashMap<String, Band[]> targetBandNameToSourceBand = new HashMap<String, Band[]>();
-    private final Map<String, Boolean> targetBandApplyRadiometricNormalizationFlag = new HashMap<String, Boolean>();
-    private final Map<String, Boolean> targetBandApplyRetroCalibrationFlag = new HashMap<String, Boolean>();
+    private final HashMap<String, Band[]> targetBandNameToSourceBand = new HashMap<>();
+    private final Map<String, Boolean> targetBandApplyRadiometricNormalizationFlag = new HashMap<>();
+    private final Map<String, Boolean> targetBandApplyRetroCalibrationFlag = new HashMap<>();
     private TiePointGrid incidenceAngle = null;
     private TiePointGrid latitude = null;
     private TiePointGrid longitude = null;
@@ -833,7 +833,7 @@ public class RangeDopplerGeocodingOp extends Operator {
             ProductData projectedLocalIncidenceAngleBuffer = null;
             ProductData incidenceAngleFromEllipsoidBuffer = null;
 
-            final List<TileData> trgTileList = new ArrayList<TileData>();
+            final List<TileData> trgTileList = new ArrayList<>();
             final Set<Band> keySet = targetTiles.keySet();
             for (Band targetBand : keySet) {
 
@@ -951,7 +951,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                     final double azimuthIndex = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
 
-                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, tileGeoRef,
+                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, latitude, longitude,
                             srcMaxRange, srcMaxAzimuth, sensorPos)) {
                         //saveNoDataValueToTarget(index, trgTiles);
                     } else {

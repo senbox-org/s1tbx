@@ -154,7 +154,7 @@ public class PrareOrbitFile extends BaseOrbitFile {
                 final String pass = Settings.instance().get("OrbitFiles.prareFTP_pass");
                 ftp = new ftpUtils(prareFTP, user, pass);
                 final Map<String, Long> allfileSizeMap = ftpUtils.readRemoteFileList(ftp, prareFTP, remotePath);
-                fileSizeMap = new HashMap<String, Long>(10);
+                fileSizeMap = new HashMap<>(10);
 
                 // keep only those starting with prefix
                 final Set<String> remoteFileNames = allfileSizeMap.keySet();

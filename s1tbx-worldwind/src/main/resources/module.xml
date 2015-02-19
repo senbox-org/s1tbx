@@ -22,6 +22,10 @@
     <dependency>
         <module>snap-engine-utilities</module>
     </dependency>
+    <dependency>
+        <module>snap-gui-utilities</module>
+    </dependency>
+
 
     <extension point="snap-ui:toolViews">
         <toolView>

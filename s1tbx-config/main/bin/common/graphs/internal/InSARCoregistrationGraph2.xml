@@ -1,6 +1,6 @@
 <graph id="Graph">
     <version>1.0</version>
-    <node id="ProductSet-Reader">
+    <node id="1-ProductSet-Reader">
         <operator>ProductSet-Reader</operator>
         <sources/>
         <parameters>
@@ -10,7 +10,7 @@
     <node id="CreateStack">
         <operator>CreateStack</operator>
         <sources>
-            <sourceProduct refid="ProductSet-Reader"/>
+            <sourceProduct refid="1-ProductSet-Reader"/>
         </sources>
         <parameters>
             <masterBands/>
@@ -21,13 +21,36 @@
             <includeMaster>true</includeMaster>
         </parameters>
     </node>
-    <node id="CoarseFine-Coregistration">
+    <node id="GCP-Selection">
+        <operator>GCP-Selection</operator>
+        <sources>
+            <sourceProduct refid="CreateStack"/>
+        </sources>
+        <parameters>
+            <numGCPtoGenerate>200</numGCPtoGenerate>
+            <coarseRegistrationWindowWidth>64</coarseRegistrationWindowWidth>
+            <coarseRegistrationWindowHeight>64</coarseRegistrationWindowHeight>
+            <rowInterpFactor>4</rowInterpFactor>
+            <columnInterpFactor>4</columnInterpFactor>
+            <maxIteration>10</maxIteration>
+            <gcpTolerance>0.25</gcpTolerance>
+            <applyFineRegistration>false</applyFineRegistration>
+            <fineRegistrationWindowWidth>32</fineRegistrationWindowWidth>
+            <fineRegistrationWindowHeight>32</fineRegistrationWindowHeight>
+            <coherenceWindowSize>3</coherenceWindowSize>
+            <coherenceThreshold>0.6</coherenceThreshold>
+            <useSlidingWindow>false</useSlidingWindow>
+            <computeOffset>false</computeOffset>
+            <onlyGCPsOnLand>false</onlyGCPsOnLand>
+        </parameters>
+    </node>
+    <!--node id="3-CoarseFine-Coregistration">
         <operator>CoarseFine-Coregistration</operator>
         <sources>
             <sourceProduct refid="CreateStack"/>
         </sources>
         <parameters>
-            <numWindows>2000</numWindows>
+            <numWindows>200</numWindows>
             <coarseRegistrationWindowWidth>128</coarseRegistrationWindowWidth>
             <coarseRegistrationWindowHeight>128</coarseRegistrationWindowHeight>
             <coarseRegistrationWindowAccAzimuth>2</coarseRegistrationWindowAccAzimuth>
@@ -42,11 +65,11 @@
             <computeOffset>false</computeOffset>
             <onlyGCPsOnLand>false</onlyGCPsOnLand>
         </parameters>
-    </node>
-    <node id="Resample">
+    </node-->
+    <node id="4-Resample">
         <operator>Resample</operator>
         <sources>
-            <sourceProduct refid="CoarseFine-Coregistration"/>
+            <sourceProduct refid="GCP-Selection"/>
         </sources>
         <parameters>
             <cpmDegree>2</cpmDegree>
@@ -58,10 +81,10 @@
             <openResidualsFile>false</openResidualsFile>
         </parameters>
     </node>
-    <node id="Write">
+    <node id="5-Write">
         <operator>Write</operator>
         <sources>
-            <sourceProduct refid="Resample"/>
+            <sourceProduct refid="4-Resample"/>
         </sources>
         <parameters>
             <formatName>BEAM-DIMAP</formatName>
@@ -70,19 +93,19 @@
     </node>
     <applicationData id="Presentation">
         <Description/>
-        <node id="ProductSet-Reader">
+        <node id="1-ProductSet-Reader">
             <displayPosition y="102.0" x="21.0"/>
         </node>
-        <node id="CreateInSARStack">
+        <node id="2-CreateInSARStack">
             <displayPosition y="101.0" x="154.0"/>
         </node>
-        <node id="CoarseFine-Coregistration">
+        <node id="3-CoarseFine-Coregistration">
             <displayPosition y="100.0" x="248.0"/>
         </node>
-        <node id="Resample">
+        <node id="4-Resample">
             <displayPosition y="100.0" x="356.0"/>
         </node>
-        <node id="Write">
+        <node id="5-Write">
             <displayPosition y="100.0" x="434.0"/>
         </node>
     </applicationData>

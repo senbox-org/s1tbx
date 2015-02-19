@@ -16,21 +16,12 @@
 package org.esa.nest.dataio.sentinel1;
 
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.nest.dataio.XMLProductDirectory;
-import org.esa.nest.dataio.imageio.ImageIOFile;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.Unit;
-import org.esa.snap.eo.Constants;
-import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This class represents a product directory.

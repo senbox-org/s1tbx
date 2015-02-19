@@ -1,10 +1,9 @@
 package org.esa.nest.gpf.geometric;
 
-import Jama.Matrix;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.eo.Constants;
@@ -267,12 +266,14 @@ public class SARGeocoding {
         double upperBoundTime = secondVecTime;
         double lowerBoundFreq = firstVecFreq;
         double upperBoundFreq = secondVecFreq;
+        double midTime = 0.0;
+        double midFreq = 0.0;
         double diffTime = Math.abs(upperBoundTime - lowerBoundTime);
         while (diffTime > Math.abs(lineTimeInterval)) {
 
-            final double midTime = (upperBoundTime + lowerBoundTime) / 2.0;
+            midTime = (upperBoundTime + lowerBoundTime) / 2.0;
             orbit.getPositionVelocity(midTime, sensorPosition, sensorVelocity);
-            final double midFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+            midFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
 
             if (midFreq * lowerBoundFreq > 0.0) {
                 lowerBoundTime = midTime;
@@ -286,8 +287,24 @@ public class SARGeocoding {
 
             diffTime = Math.abs(upperBoundTime - lowerBoundTime);
         }
+        /*
+        midTime = (upperBoundTime + lowerBoundTime) / 2.0;
+        orbit.getPositionVelocity(midTime, sensorPosition, sensorVelocity);
+        midFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
+        final double[] freqArray = {lowerBoundFreq, midFreq, upperBoundFreq};
+        final double[][] tmp = {{1, -1, 1}, {1,0,0}, {1,1,1}};
+        final Matrix A = new Matrix(tmp);
+        final double[] c = Maths.polyFit(A, freqArray);
+        double t1 = (-c[1] + Math.sqrt(c[1]*c[1] - 4.0*c[0]*c[2]))/ (2.0*c[2]);
+        double t2 = (-c[1] - Math.sqrt(c[1]*c[1] - 4.0*c[0]*c[2]))/ (2.0*c[2]);
+        if (t1 >= -1 && t1 <= 1) {
+            return 0.5*(1 - t1)*lowerBoundTime + 0.5*(1 + t1)*upperBoundTime;//return t1;
+        } else {
+            return 0.5*(1 - t2)*lowerBoundTime + 0.5*(1 + t2)*upperBoundTime;//return t2;
+        }*/
 
-        return lowerBoundTime - lowerBoundFreq * (upperBoundTime - lowerBoundTime) / (upperBoundFreq - lowerBoundFreq);
+        double time = lowerBoundTime - lowerBoundFreq * (upperBoundTime - lowerBoundTime) / (upperBoundFreq - lowerBoundFreq);
+        return time;
     }
 
     /**
@@ -769,7 +786,7 @@ public class SARGeocoding {
 
     public static boolean isValidCell(final double rangeIndex, final double azimuthIndex,
                                       final double lat, final double lon,
-                                      final TileGeoreferencing tileGeoRef,
+                                      final TiePointGrid latitude, final TiePointGrid longitude,
                                       final int srcMaxRange, final int srcMaxAzimuth, final double[] sensorPos) {
 
         if (rangeIndex < 0.0 || rangeIndex >= srcMaxRange || azimuthIndex < 0.0 || azimuthIndex >= srcMaxAzimuth) {
@@ -788,10 +805,8 @@ public class SARGeocoding {
             delLonMax = Math.abs(lon - sensorGeoPos.lon);
         }
 
-        final GeoPos geoPos = new GeoPos();
-        tileGeoRef.getGeoPos(new PixelPos(rangeIndex, azimuthIndex), geoPos);
-        final double delLat = Math.abs(lat - geoPos.getLat());
-        final double srcLon = geoPos.getLon();
+        final double delLat = Math.abs(lat - latitude.getPixelFloat((float)rangeIndex, (float)azimuthIndex));
+        final double srcLon = longitude.getPixelFloat((float)rangeIndex, (float)azimuthIndex);
 
         double delLon;
         if (lon < 0 && srcLon > 0) {
@@ -889,12 +904,27 @@ public class SARGeocoding {
                 zVelArray[j] = orbitStateVectors[adjVecIndices[j]].z_vel;
             }
 
-            position[0] = Maths.lagrangeInterpolatingPolynomial(timeArray, xPosArray, time);
-            position[1] = Maths.lagrangeInterpolatingPolynomial(timeArray, yPosArray, time);
-            position[2] = Maths.lagrangeInterpolatingPolynomial(timeArray, zPosArray, time);
-            velocity[0] = Maths.lagrangeInterpolatingPolynomial(timeArray, xVelArray, time);
-            velocity[1] = Maths.lagrangeInterpolatingPolynomial(timeArray, yVelArray, time);
-            velocity[2] = Maths.lagrangeInterpolatingPolynomial(timeArray, zVelArray, time);
+            //lagrangeInterpolatingPolynomial
+            position[0] = 0;
+            position[1] = 0;
+            position[2] = 0;
+            velocity[0] = 0;
+            velocity[1] = 0;
+            velocity[2] = 0;
+            for (int i = 0; i < numVectors; ++i) {
+                double weight = 1;
+                for (int j = 0; j < numVectors; ++j) {
+                    if (j != i) {
+                        weight *= (time - timeArray[j]) / (timeArray[i] - timeArray[j]);
+                    }
+                }
+                position[0] += weight * xPosArray[i];
+                position[1] += weight * yPosArray[i];
+                position[2] += weight * zPosArray[i];
+                velocity[0] += weight * xVelArray[i];
+                velocity[1] += weight * yVelArray[i];
+                velocity[2] += weight * zVelArray[i];
+            }
         }
 
         public double getVelocity(final double time) {

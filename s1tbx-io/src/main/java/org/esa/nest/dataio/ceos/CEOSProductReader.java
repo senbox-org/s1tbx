@@ -20,7 +20,6 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.Debug;
 import org.esa.nest.dataio.SARReader;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.ReaderUtils;

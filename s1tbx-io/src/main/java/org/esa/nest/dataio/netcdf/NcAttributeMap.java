@@ -34,7 +34,7 @@ public class NcAttributeMap {
     private final Map<String, Attribute> _map;
 
     private NcAttributeMap(int initialCapacity) {
-        _map = new HashMap<String, Attribute>(initialCapacity);
+        _map = new HashMap<>(initialCapacity);
     }
 
     private NcAttributeMap(Attribute[] attributes) {

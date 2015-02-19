@@ -94,8 +94,8 @@ public class MosaicOp extends Operator {
     private double convergenceThreshold = 1e-4;
 
     private final OperatorUtils.SceneProperties scnProp = new OperatorUtils.SceneProperties();
-    private final Map<Integer, Band> bandIndexSet = new HashMap<Integer, Band>(20);
-    private final Map<Product, Rectangle> srcRectMap = new HashMap<Product, Rectangle>(10);
+    private final Map<Integer, Band> bandIndexSet = new HashMap<>(20);
+    private final Map<Product, Rectangle> srcRectMap = new HashMap<>(10);
     private Product[] selectedProducts = null;
 
     private boolean outputGradientBand = false;
@@ -246,8 +246,8 @@ public class MosaicOp extends Operator {
     }
 
     private Band[] getSourceBands() throws OperatorException {
-        final List<Band> bandList = new ArrayList<Band>(20);
-        final Set<Product> selectedProductSet = new HashSet<Product>(sourceProduct.length);
+        final List<Band> bandList = new ArrayList<>(20);
+        final Set<Product> selectedProductSet = new HashSet<>(sourceProduct.length);
 
         if (sourceBandNames == null || sourceBandNames.length == 0) {
             for (final Product srcProduct : sourceProduct) {
@@ -396,7 +396,7 @@ public class MosaicOp extends Operator {
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
 
         try {
-            final List<Product> validProducts = new ArrayList<Product>(sourceProduct.length);
+            final List<Product> validProducts = new ArrayList<>(sourceProduct.length);
 
             for (final Product srcProduct : selectedProducts) {
                 final Rectangle srcRect = srcRectMap.get(srcProduct);
@@ -419,7 +419,7 @@ public class MosaicOp extends Operator {
 
             final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, minX, minY, maxX - minX + 1, maxY - minY + 1);
 
-            final List<PixelPos[]> srcPixelCoords = new ArrayList<PixelPos[]>(validProducts.size());
+            final List<PixelPos[]> srcPixelCoords = new ArrayList<>(validProducts.size());
             final int numPixelPos = targetRectangle.width * targetRectangle.height;
             for (Product validProduct : validProducts) {
                 srcPixelCoords.add(new PixelPos[numPixelPos]);
@@ -456,7 +456,7 @@ public class MosaicOp extends Operator {
                 return;
             }
 
-            final List<SourceData> validSourceData = new ArrayList<SourceData>(validProducts.size());
+            final List<SourceData> validSourceData = new ArrayList<>(validProducts.size());
             for (final Map.Entry<Band, Tile> bandTileEntry : targetTiles.entrySet()) {
                 final String trgBandName = bandTileEntry.getKey().getName();
                 validSourceData.clear();
@@ -596,7 +596,7 @@ public class MosaicOp extends Operator {
             byte[][] mask = new byte[targetRectangle.height][targetRectangle.width];
             // -1: no data, 0: used by existing product, 1: used by new product, 2: need mosaic
 
-            final List<SourceData> validSourceData = new ArrayList<SourceData>(validProducts.size());
+            final List<SourceData> validSourceData = new ArrayList<>(validProducts.size());
 
             // loop through all target bands
             for (final Map.Entry<Band, Tile> bandTileEntry : targetTiles.entrySet()) {

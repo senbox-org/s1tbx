@@ -15,7 +15,6 @@
  */
 package org.esa.nest.dataio.netcdf;
 
-import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.io.IOException;

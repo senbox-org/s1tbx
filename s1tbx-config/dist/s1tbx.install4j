@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="6.0" transformSequenceNumber="5">
   <directoryPresets config="../../../package/s1tbx-bin-mac" />
-  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="s1tbx" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="1.0.4" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" macVolumeId="9979cf145cd6c9cb" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
+  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="s1tbx" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="1.0.6" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" macVolumeId="9979cf145cd6c9cb" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -147,40 +147,38 @@
           <entry location="images" fileType="regular" />
           <entry location="licenses" fileType="regular" />
           <entry location="resource" fileType="regular" />
-          <entry location="modules/blue-marble-worldmap-1.0.1" fileType="regular" />
+          <entry location="modules/blue-marble-worldmap-1.1.0" fileType="regular" />
+          <entry location="modules/ceres-binding-1.1.0.jar" fileType="regular" />
+          <entry location="modules/ceres-binio-1.1.0.jar" fileType="regular" />
+          <entry location="modules/ceres-core-1.1.0.jar" fileType="regular" />
+          <entry location="modules/ceres-glayer-1.1.0.jar" fileType="regular" />
+          <entry location="modules/ceres-jai-1.1.0.jar" fileType="regular" />
+          <entry location="modules/ceres-metadata-1.1.0.jar" fileType="regular" />
+          <entry location="modules/ceres-ui-1.1.0.jar" fileType="regular" />
           <entry location="modules/lib-hdf-2.7" fileType="regular" />
-          <entry location="modules/snap-arcbingrid-reader-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-binding-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-binio-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-binning-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-ceres-core-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-ceres-ui-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-cluster-analysis-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-collocation-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-core-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-csv-dataio-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-engine-utilities-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-envi-reader-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-envisat-reader-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-geotiff-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-glayer-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-gpf-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-graph-builder-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-hdf5-writer-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-jai-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-launcher-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-metadata-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-netcdf-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-opendap-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-pconvert-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-pixel-extraction-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-python-1.0.1" fileType="regular" />
-          <entry location="modules/snap-scripting-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-statistics-op-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-temporal-percentile-op-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-time-series-tool-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-ui-1.0.1.jar" fileType="regular" />
-          <entry location="modules/snap-visat-rcp-1.0.1.jar" fileType="regular" />
+          <entry location="modules/snap-arcbingrid-reader-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-cluster-analysis-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-core-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-csv-dataio-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-engine-utilities-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-envi-reader-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-envisat-reader-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-geotiff-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-gpf-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-graph-builder-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-gui-utilities-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-hdf5-writer-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-launcher-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-netcdf-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-pgx-reader-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-pixel-extraction-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-python-1.1.0" fileType="regular" />
+          <entry location="modules/snap-statistics-op-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-temporal-percentile-op-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-time-series-tool-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-ui-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-unmix-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-visat-rcp-1.1.0.jar" fileType="regular" />
         </include>
         <dependencies />
       </component>
@@ -220,8 +218,8 @@
       <component name="Radarsat-2 Toolbox Modules" id="5014" customizedId="" displayDescription="true" hideHelpButton="true" selected="true" changeable="true" downloadable="false" hidden="false">
         <description>Polarimetric Tools</description>
         <include all="false">
-          <entry location="modules/rstb-classification-6.3.0.jar" fileType="regular" />
-          <entry location="modules/rstb-polarimetric-tools-6.3.0.jar" fileType="regular" />
+          <entry location="modules/rstb-classification-6.3.2.jar" fileType="regular" />
+          <entry location="modules/rstb-polarimetric-tools-6.3.2.jar" fileType="regular" />
         </include>
         <dependencies>
           <component id="5274" />
@@ -269,7 +267,7 @@
       <component name="Globcover World Map" id="5755" customizedId="" displayDescription="false" hideHelpButton="false" selected="false" changeable="true" downloadable="true" hidden="false">
         <description />
         <include all="false">
-          <entry location="modules/globcover-worldmap-1.0.1" fileType="regular" />
+          <entry location="modules/globcover-worldmap-1.1.0" fileType="regular" />
         </include>
         <dependencies>
           <component id="5274" />
@@ -2384,5 +2382,5 @@ if (wizardContext != null) {
     <mediaSet refId="4500" />
     <mediaSet refId="5413" />
   </buildIds>
-  <buildOptions verbose="false" faster="false" disableSigning="false" disableJreBundling="false" debug="false" />
+  <buildOptions verbose="false" faster="true" disableSigning="false" disableJreBundling="false" debug="false" />
 </install4j>

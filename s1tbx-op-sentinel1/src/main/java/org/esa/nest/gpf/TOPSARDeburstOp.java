@@ -230,9 +230,17 @@ public final class TOPSARDeburstOp extends Operator {
 
         // source band name is assumed in format: name_acquisitionModeAndSubSwathIndex_polarization_prefix
         // target band name is then in format: name_polarization_prefix
+        boolean hasVirtualPhaseBand = false;
         for (Band srcBand:sourceBands) {
             final String srcBandName = srcBand.getName();
-            if (srcBand instanceof VirtualBand || !containSelectedPolarisations(srcBandName)) {
+            if (!containSelectedPolarisations(srcBandName)) {
+                continue;
+            }
+
+            if (srcBand instanceof VirtualBand) {
+                if (srcBandName.toLowerCase().contains("phase")) {
+                    hasVirtualPhaseBand = true;
+                }
                 continue;
             }
 
@@ -253,6 +261,11 @@ public final class TOPSARDeburstOp extends Operator {
                 if (qBandUnit == Unit.UnitType.IMAGINARY) {
                     ReaderUtils.createVirtualIntensityBand(
                             targetProduct, targetBands[i], targetBands[i+1], '_' + getPrefix(targetBands[i].getName()));
+
+                    if (hasVirtualPhaseBand) {
+                        ReaderUtils.createVirtualPhaseBand(targetProduct,
+                                targetBands[i], targetBands[i+1], '_' + getPrefix(targetBands[i].getName()));
+                    }
                     i++;
                 }
             }
@@ -269,19 +282,24 @@ public final class TOPSARDeburstOp extends Operator {
         targetProduct.setPreferredTileSize(500, 50);
     }
 
-    private static String getTargetBandNameFromSourceBandName(final String srcBandName) {
+    private String getTargetBandNameFromSourceBandName(final String srcBandName) {
 
-        final int firstSeparationIdx = srcBandName.indexOf("_");
+        final int firstSeparationIdx = srcBandName.indexOf(acquisitionMode);
         final int secondSeparationIdx = srcBandName.indexOf("_", firstSeparationIdx + 1);
-        return srcBandName.substring(0, firstSeparationIdx) + srcBandName.substring(secondSeparationIdx);
+        return srcBandName.substring(0, firstSeparationIdx) + srcBandName.substring(secondSeparationIdx + 1);
     }
 
-    private static String getSourceBandNameFromTargetBandName(
+    private String getSourceBandNameFromTargetBandName(
             final String tgtBandName, final String acquisitionMode, final String swathIndexStr) {
 
-        final int firstSeparationIdx = tgtBandName.indexOf("_");
-        return tgtBandName.substring(0, firstSeparationIdx) + "_" + acquisitionMode + swathIndexStr +
-                tgtBandName.substring(firstSeparationIdx);
+        final String[] srcBandNames = sourceProduct.getBandNames();
+        for (String srcBandName:srcBandNames) {
+            if (srcBandName.contains(acquisitionMode + swathIndexStr) &&
+                    getTargetBandNameFromSourceBandName(srcBandName).equals(tgtBandName)) {
+                return srcBandName;
+            }
+        }
+        return null;
     }
 
     private static String getPrefix(final String tgtBandName) {

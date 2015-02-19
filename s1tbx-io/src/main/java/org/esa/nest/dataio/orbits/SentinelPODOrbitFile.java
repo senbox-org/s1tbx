@@ -196,50 +196,6 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         }
     }
 
-    /**
-     * Get orbit information for given time.
-     *
-     * @param utc The UTC in days.
-     * @return The orbit information.
-     * @throws Exception The exceptions.
-     */
-    public Orbits.OrbitVector getOrbitDataOld(final double utc) throws Exception {
-
-        final Orbits.OrbitVector osv = new Orbits.OrbitVector(utc);
-        int idx = Collections.binarySearch(osvList, osv, new Orbits.OrbitComparator());
-
-        if (idx < 0) {
-
-            // insertionPt is the index of the first element greater than the key
-            final int insertionPt = -(idx+1);
-
-            if (insertionPt == osvList.size()) {
-
-                // All points are less than utc, so return the last point which is the greatest.
-                idx = insertionPt - 1;
-
-            } else if (insertionPt == 0) {
-
-                // All points are greater than utc, so return the first point which is the smallest.
-                idx = 0;
-
-            } else {
-
-                // utc is between insertionPt and the point before it.
-                final Orbits.OrbitVector osv1 = osvList.get(insertionPt-1);
-                final Orbits.OrbitVector osv2 = osvList.get(insertionPt);
-
-                if (Math.abs(osv1.utcMJD - utc) > Math.abs(osv2.utcMJD - utc)) {
-                    idx = insertionPt;
-                } else {
-                    idx = insertionPt-1;
-                }
-            }
-        }
-
-        return osvList.get(idx);
-    }
-
     public Orbits.OrbitVector[] getOrbitData(final double startUTC, final double endUTC) throws Exception {
 
         final Orbits.OrbitVector startOSV = new Orbits.OrbitVector(startUTC);

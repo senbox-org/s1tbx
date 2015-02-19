@@ -37,7 +37,7 @@
 
     <categories>Application,DAT</categories>
 
-    <extension point="snap-ceres-core:applications">
+    <extension point="ceres-core:applications">
         <application id="S1TBXMain" class="org.esa.nest.dat.S1TBXMain"/>
     </extension>
 
@@ -513,17 +513,6 @@
             <description>Export the product as Google Earth KMZ file.</description>
             <helpId>exportKmzFile</helpId>
             <placeAfter>exportKmzFile</placeAfter>
-        </action>
-
-
-        <action>
-            <parent>geometry</parent>
-            <id>reprojection2</id>
-            <placeFirst>true</placeFirst>
-            <class>org.esa.beam.gpf.operators.reproject.ReprojectionAction</class>
-            <text>Reprojection...</text>
-            <shortDescr>Apply a reprojection.</shortDescr>
-            <helpId>reprojectionAction</helpId>
         </action>
 
         <action>

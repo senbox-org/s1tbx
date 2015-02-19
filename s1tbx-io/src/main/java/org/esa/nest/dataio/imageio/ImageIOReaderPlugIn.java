@@ -40,7 +40,7 @@ public class ImageIOReaderPlugIn implements ProductReaderPlugIn {
     private final Class[] VALID_INPUT_TYPES = new Class[]{File.class, String.class};
 
     private static String[] getFormatNamesList() {
-        final List<String> names = new ArrayList<String>(20);
+        final List<String> names = new ArrayList<>(20);
         names.add("ImageIO");
         names.addAll(Arrays.asList(ImageIO.getReaderFormatNames()));
         return names.toArray(new String[names.size()]);
@@ -48,7 +48,7 @@ public class ImageIOReaderPlugIn implements ProductReaderPlugIn {
 
     private static String[] getFormatFileExtensions() {
 
-        final List<String> extList = new ArrayList<String>(20);
+        final List<String> extList = new ArrayList<>(20);
         extList.addAll(Arrays.asList(ImageIO.getReaderFileSuffixes()));
 
         exludeExtensions(extList);
@@ -98,7 +98,7 @@ public class ImageIOReaderPlugIn implements ProductReaderPlugIn {
     }
 
     private static String[] getPrunedImageIOExtensions() {
-        final List<String> extList = new ArrayList<String>(20);
+        final List<String> extList = new ArrayList<>(20);
      /*   extList.addAll(Arrays.asList(ImageIO.getReaderFileSuffixes()));
 
         excludeExtensions(extList);

@@ -95,7 +95,7 @@ public class ALOSDeskewingOp extends Operator {
     private double radarWaveLength = 0.0;
     private SARGeocoding.Orbit orbit = null;
 
-    private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>();
+    private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>();
 
     private final static double AngularVelocity = getAngularVelocity();
 

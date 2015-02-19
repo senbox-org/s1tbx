@@ -110,7 +110,7 @@ public final class GeolocationGridGeocodingOp extends Operator {
     private double delLon = 0.0;
 
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
-    private final Map<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>(10);
+    private final Map<String, String[]> targetBandNameToSourceBandName = new HashMap<>(10);
 
     private Resampling imgResampling = null;
 
