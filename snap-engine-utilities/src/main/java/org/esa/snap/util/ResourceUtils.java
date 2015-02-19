@@ -17,7 +17,6 @@ package org.esa.snap.util;
 
 import org.esa.beam.util.SystemUtils;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -30,18 +29,6 @@ import java.util.Properties;
  * Look up paths to resources
  */
 public final class ResourceUtils {
-
-    public static ImageIcon rstbIcon = LoadIcon("org/esa/snap/icons/csa.png");
-    public static ImageIcon arrayIcon = LoadIcon("org/esa/snap/icons/array_logo.png");
-    public static ImageIcon esaIcon = LoadIcon("org/esa/snap/icons/esa.png");
-    public static ImageIcon esaPlanetIcon = LoadIcon("org/esa/snap/icons/esa-planet.png");
-    public static ImageIcon geoAusIcon = LoadIcon("org/esa/snap/icons/geo_aus.png");
-
-    public static ImageIcon LoadIcon(final String path) {
-        final java.net.URL imageURL = ResourceUtils.class.getClassLoader().getResource(path);
-        if (imageURL == null) return null;
-        return new ImageIcon(imageURL);
-    }
 
     public static void deleteFile(final File file) {
         if (file.isDirectory()) {
