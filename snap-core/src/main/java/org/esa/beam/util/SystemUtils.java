@@ -55,53 +55,20 @@ import java.util.logging.Logger;
  */
 public class SystemUtils {
 
+    public static final String SNAP_LOGGER_NAME_PROPERTY_NAME = "snap.logger.name";
+    public static final String SNAP_LOGGER_LEVEL_PROPERTY_NAME = "snap.logger.level";
+    public static final String BEAM_PARALLELISM_PROPERTY_NAME = "snap.parallelism";
+
+    private static final String LAX_INSTALL_DIR_PROPERTY_NAME = "lax.root.install.dir";
+
     /**
      * The SNAP system logger. Default name is "org.esa.snap" which may be overridden by system property "snap.logger.name".
      */
-    public static final Logger LOG = Logger.getLogger(System.getProperty("snap.logger.name", "org.esa.snap"));
+    public static final Logger LOG;
 
-    /**
-     * The URL string to the BEAM home page.
-     *
-     * @deprecated since 4.10, use {@link #getApplicationHomepageUrl()} instead
-     */
-    @Deprecated
-    public static final String BEAM_HOME_PAGE = getApplicationHomepageUrl();
-    // public static final String BEAM_HOME_PAGE = "http://envisat.esa.int/beam/";
-
-    /**
-     * The name of the system property that specifies the application home (= installation) directory.
-     *
-     * @deprecated since 4.10, use {@link #getApplicationHomePropertyName()} instead
-     */
-    @Deprecated
-    public static final String BEAM_HOME_PROPERTY_NAME = getApplicationHomePropertyName();
-    // public static final String BEAM_HOME_PROPERTY_NAME = "beam.home";
-
-    /**
-     * @deprecated since 4.10, not in use.
-     */
-    @Deprecated
-    public static final String BEAM_PLUGIN_PATH_PROPERTY_NAME = "beam.plugin.path";
-
-    public static final String BEAM_PARALLELISM_PROPERTY_NAME = "snap.parallelism";
-
-    public static final String LAX_INSTALL_DIR_PROPERTY_NAME = "lax.root.install.dir";
-
-    /**
-     * SYSTEM_DEPENDENT_LINE_SEPARATOR
-     */
     public static final String LS = System.getProperty("line.separator");
 
     private static final char _URL_DIR_SEPARATOR_CHAR = '/';
-    public static final int LL_DEBUG = 10;
-    public static final int LL_INFO = 20;
-    public static final int LL_WARNING = 30;
-    public static final int LL_ERROR = 40;
-    public static final String LLS_DEBUG = "DEBUG";
-    public static final String LLS_INFO = "INFO";
-    public static final String LLS_WARNING = "WARNING";
-    public static final String LLS_ERROR = "ERROR";
 
     /**
      * Name of BEAM's extensions directory.
@@ -120,6 +87,20 @@ public class SystemUtils {
 
     private static final String EPSG_DATABASE_DIR_NAME = "epsg-database";
     private static final String JAI_REGISTRY_PATH = "/META-INF/javax.media.jai.registryFile.jai";
+
+    static {
+        LOG = Logger.getLogger(System.getProperty(SNAP_LOGGER_NAME_PROPERTY_NAME, "org.esa.snap"));
+        String levelName = System.getProperty(SNAP_LOGGER_LEVEL_PROPERTY_NAME, "INFO");
+        try {
+            Level level = parseLogLevel(levelName);
+            LOG.setLevel(level);
+        } catch (IllegalArgumentException e) {
+            LOG.severe("illegal log level '" + levelName + "'");
+        } catch (SecurityException e) {
+            LOG.severe("failed to set log level '" + levelName + "'");
+        }
+    }
+
 
     /**
      * Gets the current user's name, or the string <code>"unknown"</code> if the the user's name cannot be determined.
@@ -532,18 +513,14 @@ public class SystemUtils {
         return System.getProperty(getApplicationContextId() + ".build.id", "1");
     }
 
-    public static int getLogLevel(String logLevelStr) {
-        int logLevel = LL_INFO;
-        if (LLS_DEBUG.equalsIgnoreCase(logLevelStr)) {
-            logLevel = LL_DEBUG;
-        } else if (LLS_INFO.equalsIgnoreCase(logLevelStr)) {
-            logLevel = LL_INFO;
-        } else if (LLS_ERROR.equalsIgnoreCase(logLevelStr)) {
-            logLevel = LL_ERROR;
-        } else if (LLS_WARNING.equalsIgnoreCase(logLevelStr)) {
-            logLevel = LL_WARNING;
+    public static Level parseLogLevel(String levelName) throws IllegalArgumentException {
+        if ("DEBUG".equalsIgnoreCase(levelName)) {
+            return Level.FINE;
+        } else if ("ERROR".equalsIgnoreCase(levelName)) {
+            return Level.SEVERE;
+        } else {
+            return Level.parse(levelName);
         }
-        return logLevel;
     }
 
     /**
@@ -619,20 +596,19 @@ public class SystemUtils {
                 operationRegistry.registerServices(cl);
                 JAI.getDefaultInstance().setOperationRegistry(operationRegistry);
             } catch (IOException e) {
-                BeamLogManager.getSystemLogger().log(Level.SEVERE,
-                                                     MessageFormat.format("Error loading {0}: {1}", JAI_REGISTRY_PATH,
-                                                                          e.getMessage()), e);
+                LOG.log(Level.SEVERE,
+                        MessageFormat.format("Error loading {0}: {1}", JAI_REGISTRY_PATH,
+                                             e.getMessage()), e);
             } finally {
                 setSystemErr(oldErr);
             }
         } else {
-            BeamLogManager.getSystemLogger().warning(MessageFormat.format("{0} not found", JAI_REGISTRY_PATH));
+            LOG.warning(MessageFormat.format("{0} not found", JAI_REGISTRY_PATH));
         }
         Integer parallelism = Integer.getInteger(BEAM_PARALLELISM_PROPERTY_NAME,
                                                  Runtime.getRuntime().availableProcessors());
         JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
-        BeamLogManager.getSystemLogger().info(
-                MessageFormat.format("JAI tile scheduler parallelism set to {0}", parallelism));
+        LOG.info(MessageFormat.format("JAI tile scheduler parallelism set to {0}", parallelism));
     }
 
     private static void setSystemErr(PrintStream oldErr) {
