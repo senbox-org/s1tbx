@@ -555,8 +555,8 @@ public class TestUtils {
                         continue;
                     }
                 } else {
-                    //reader = CommonReaders.findCommonProductReader(file);     //todo add CommonReaders
-                    //if(reader == null)
+                    reader = CommonReaders.findCommonProductReader(file);
+                    if(reader == null)
                         reader = ProductIO.getProductReaderForInput(file);
                 }
                 if (reader != null) {
