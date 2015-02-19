@@ -55,6 +55,7 @@
         <!--<module>snap-config</module>-->
         <module>snap-engine-kit</module>
         <module>snap-engine-utilities</module>
+        <module>snap-gui-utilities</module>
         <module>snap-gpf</module>
         <module>snap-gpf-ui</module>
 
