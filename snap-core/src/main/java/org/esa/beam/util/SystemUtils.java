@@ -42,6 +42,7 @@ import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A collection of (BEAM-) system level functions.
@@ -53,6 +54,11 @@ import java.util.logging.Level;
  * @version $Revision$ $Date$
  */
 public class SystemUtils {
+
+    /**
+     * The SNAP system logger. Default name is "org.esa.snap" which may be overridden by system property "snap.logger.name".
+     */
+    public static final Logger LOG = Logger.getLogger(System.getProperty("snap.logger.name", "org.esa.snap"));
 
     /**
      * The URL string to the BEAM home page.
