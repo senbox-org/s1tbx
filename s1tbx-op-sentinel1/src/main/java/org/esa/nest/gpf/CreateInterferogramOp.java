@@ -594,8 +594,10 @@ public class CreateInterferogramOp extends Operator {
             final Map<Band, Tile> targetTileMap, Rectangle targetRectangle, final ProgressMonitor pm) throws OperatorException {
 
         try {
-            final int cohx0 = targetRectangle.x - (cohWinRg - 1) / 2;
-            final int cohy0 = targetRectangle.y - (cohWinAz - 1) / 2;
+            final int rgOffset = (cohWinRg - 1) / 2;
+            final int azOffset = (cohWinAz - 1) / 2;
+            final int cohx0 = targetRectangle.x - rgOffset;
+            final int cohy0 = targetRectangle.y - azOffset;
             final int cohw = targetRectangle.width + cohWinRg - 1;
             final int cohh = targetRectangle.height + cohWinAz - 1;
             targetRectangle = new Rectangle(cohx0, cohy0, cohw, cohh);
@@ -832,18 +834,20 @@ public class CreateInterferogramOp extends Operator {
                                     final Map<Band, Tile> targetTileMap) throws Exception {
 
         try {
-            final int cohx0 = targetRectangle.x - (cohWinRg - 1) / 2;
-            final int cohy0 = targetRectangle.y - (cohWinAz - 1) / 2;
+            final int rgOffset = (cohWinRg - 1) / 2;
+            final int azOffset = (cohWinAz - 1) / 2;
+            final int cohx0 = targetRectangle.x - rgOffset;
+            final int cohy0 = targetRectangle.y - azOffset;
             final int cohw = targetRectangle.width + cohWinRg - 1;
             final int cohh = targetRectangle.height + cohWinAz - 1;
             final Rectangle rect = new Rectangle(cohx0, cohy0, cohw, cohh);
 
             final BorderExtender border = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
 
-            final int y0 = targetRectangle.y;
-            final int yN = y0 + targetRectangle.height - 1;
-            final int x0 = targetRectangle.x;
-            final int xN = targetRectangle.x + targetRectangle.width - 1;
+            final int y0 = rect.y;
+            final int yN = y0 + rect.height - 1;
+            final int x0 = rect.x;
+            final int xN = rect.x + rect.width - 1;
 
             final long minLine = burstIndex*subSwath[subSwathIndex - 1].linesPerBurst;
             final long maxLine = minLine + subSwath[subSwathIndex - 1].linesPerBurst - 1;
@@ -905,11 +909,9 @@ public class CreateInterferogramOp extends Operator {
                 /// commit to target ///
                 targetBand_I = targetProduct.getBand(product.getBandName(Unit.REAL));
                 Tile tileOutReal = targetTileMap.get(targetBand_I);
-                //TileUtilsDoris.pushDoubleMatrix(dataMaster.real(), tileOutReal, targetRectangle);
 
                 targetBand_Q = targetProduct.getBand(product.getBandName(Unit.IMAGINARY));
                 Tile tileOutImag = targetTileMap.get(targetBand_Q);
-                //TileUtilsDoris.pushDoubleMatrix(dataMaster.imag(), tileOutImag, targetRectangle);
 
                 // coherence
                 DoubleMatrix cohMatrix = null;
@@ -927,8 +929,6 @@ public class CreateInterferogramOp extends Operator {
                     final Tile tileOutCoh = targetTileMap.get(targetBandCoh);
 
                     samplesCoh = tileOutCoh.getDataBuffer();
-
-                    //TileUtilsDoris.pushDoubleMatrix(cohMatrix, tileOutCoh, targetRectangle);
                 }
 
                 // push all
@@ -946,8 +946,8 @@ public class CreateInterferogramOp extends Operator {
                     for (int x = targetRectangle.x; x < maxX; x++) {
                         final int trgIndex = tgtIndex.getIndex(x);
                         final int xx = x - targetRectangle.x;
-                        samplesReal.setElemFloatAt(trgIndex, (float)dataReal.get(yy, xx));
-                        samplesImag.setElemFloatAt(trgIndex, (float)dataImag.get(yy, xx));
+                        samplesReal.setElemFloatAt(trgIndex, (float)dataReal.get(yy+azOffset, xx+rgOffset));
+                        samplesImag.setElemFloatAt(trgIndex, (float)dataImag.get(yy+azOffset, xx+rgOffset));
                         if(samplesCoh != null) {
                             samplesCoh.setElemFloatAt(trgIndex, (float) cohMatrix.get(yy, xx));
                         }
