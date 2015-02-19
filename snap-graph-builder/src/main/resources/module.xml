@@ -22,6 +22,9 @@
     <dependency>
         <module>snap-engine-utilities</module>
     </dependency>
+    <dependency>
+        <module>snap-gui-utilities</module>
+    </dependency>
 
     <categories>System, GPF</categories>
 

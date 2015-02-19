@@ -18,7 +18,7 @@ package org.esa.snap.dat.actions;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
-import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.ImageUtils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -28,7 +28,7 @@ public class OpenGraphBuilderAction extends AbstractVisatAction {
     @Override
     public void actionPerformed(final CommandEvent event) {
         final GraphBuilderDialog dialog = new GraphBuilderDialog(getAppContext(), "Graph Builder", "graph_builder");
-        dialog.getJDialog().setIconImage(ResourceUtils.esaPlanetIcon.getImage());
+        dialog.getJDialog().setIconImage(ImageUtils.esaPlanetIcon.getImage());
         dialog.show();
 
         final File graphPath = GraphBuilderDialog.getInternalGraphFolder();

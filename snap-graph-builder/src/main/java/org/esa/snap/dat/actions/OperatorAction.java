@@ -21,7 +21,7 @@ import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 import org.esa.snap.dat.dialogs.SingleOperatorDialog;
-import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.ImageUtils;
 
 import javax.swing.*;
 
@@ -80,15 +80,15 @@ public class OperatorAction extends AbstractVisatAction {
 
     protected void addIcon(final ModelessDialog dlg) {
         if (iconName == null) {
-            setIcon(dlg, ResourceUtils.esaPlanetIcon);
+            setIcon(dlg, ImageUtils.esaPlanetIcon);
         } else if (iconName.equals("esaIcon")) {
-            setIcon(dlg, ResourceUtils.esaPlanetIcon);
+            setIcon(dlg, ImageUtils.esaPlanetIcon);
         } else if (iconName.equals("rstbIcon")) {
-            setIcon(dlg, ResourceUtils.rstbIcon);
+            setIcon(dlg, ImageUtils.rstbIcon);
         } else if (iconName.equals("geoAusIcon")) {
-            setIcon(dlg, ResourceUtils.geoAusIcon);
+            setIcon(dlg, ImageUtils.geoAusIcon);
         } else {
-            final ImageIcon icon = ResourceUtils.LoadIcon(iconName);
+            final ImageIcon icon = ImageUtils.LoadIcon(iconName);
             if (icon != null)
                 setIcon(dlg, icon);
         }

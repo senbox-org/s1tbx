@@ -18,7 +18,7 @@ package org.esa.snap.dat.graphbuilder;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.gpf.graph.NodeSource;
 import org.esa.beam.util.StringUtils;
-import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.ImageUtils;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -44,8 +44,8 @@ class GraphPanel extends JPanel implements ActionListener, PopupMenuListener, Mo
     private final ConnectMenuListener connectListener = new ConnectMenuListener(this);
     private final RemoveSourceMenuListener removeSourceListener = new RemoveSourceMenuListener(this);
 
-    private static final ImageIcon opIcon = ResourceUtils.LoadIcon("org/esa/snap/icons/operator.png");
-    private static final ImageIcon folderIcon = ResourceUtils.LoadIcon("org/esa/snap/icons/folder.png");
+    private static final ImageIcon opIcon = ImageUtils.LoadIcon("org/esa/snap/icons/operator.png");
+    private static final ImageIcon folderIcon = ImageUtils.LoadIcon("org/esa/snap/icons/folder.png");
 
     private static final Font font = new Font("Ariel", Font.BOLD, 10);
     private static final Color opColor = new Color(0, 177, 255, 128);

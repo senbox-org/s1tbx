@@ -21,7 +21,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.io.WKTReader;
 import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.snap.gpf.OperatorUIUtils;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.visat.VisatApp;
 import org.esa.snap.gpf.ui.worldmap.WorldMapUI;
