@@ -25,7 +25,7 @@
       <module>snap-visat-rcp</module>
     </dependency>
     <dependency>
-      <module>ceres-ui</module>
+      <module>snap-ceres-ui</module>
     </dependency>
 
 </module>
