@@ -1773,7 +1773,7 @@ public class BasicApp {
 
         preferences.setPropertyBool(PROPERTY_KEY_APP_LOG_ENABLED, false);
         preferences.setPropertyString(PROPERTY_KEY_APP_LOG_PREFIX, getAppName());
-        preferences.setPropertyString(PROPERTY_KEY_APP_LOG_LEVEL, SystemUtils.LLS_INFO);
+        preferences.setPropertyString(PROPERTY_KEY_APP_LOG_LEVEL, "INFO");
         preferences.setPropertyBool(PROPERTY_KEY_APP_LOG_ECHO, false);
 
         preferencesFile = new File(appUserDir, "preferences.properties");

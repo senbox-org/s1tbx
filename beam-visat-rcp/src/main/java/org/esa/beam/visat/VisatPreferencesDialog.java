@@ -1364,7 +1364,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param.getProperties().setLabel("Echo log output (effective only with console)"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter(PROPERTY_KEY_APP_LOG_LEVEL, SystemUtils.LLS_INFO);
+            param = new Parameter(PROPERTY_KEY_APP_LOG_LEVEL, "INFO");
             param.getProperties().setLabel("Log level"); /*I18N*/
             param.getProperties().setReadOnly(true);
             configParams.addParameter(param);
@@ -1377,9 +1377,9 @@ public class VisatPreferencesDialog extends ConfigDialog {
                     if (configParam != null) {
                         boolean isLogDebug = (Boolean) event.getParameter().getValue();
                         if (isLogDebug) {
-                            configParam.setValue(SystemUtils.LLS_DEBUG, null);
+                            configParam.setValue("DEBUG", null);
                         } else {
-                            configParam.setValue(SystemUtils.LLS_INFO, null);
+                            configParam.setValue("INFO", null);
                         }
                     }
                 }
