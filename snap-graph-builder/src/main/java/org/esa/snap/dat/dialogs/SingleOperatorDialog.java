@@ -22,7 +22,6 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.bc.ceres.swing.selection.AbstractSelectionChangeListener;
 import com.bc.ceres.swing.selection.Selection;
 import com.bc.ceres.swing.selection.SelectionChangeEvent;
-import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
@@ -46,7 +45,8 @@ import org.esa.snap.db.CommonReaders;
 import org.esa.snap.gpf.ProgressMonitorList;
 import org.esa.snap.gpf.ui.OperatorUI;
 import org.esa.snap.gpf.ui.UIValidation;
-import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.ImageUtils;
+import org.esa.snap.util.ProductFunctions;
 
 import javax.media.jai.JAI;
 import javax.swing.*;
@@ -118,7 +118,7 @@ public class SingleOperatorDialog extends SingleTargetProductDialog {
         addParameters();
 
         getJDialog().setMinimumSize(new Dimension(450, 450));
-        getJDialog().setIconImage(ResourceUtils.esaPlanetIcon.getImage());
+        getJDialog().setIconImage(ImageUtils.esaPlanetIcon.getImage());
 
         statusLabel = new JLabel("");
         statusLabel.setForeground(new Color(255, 0, 0));
@@ -293,7 +293,6 @@ public class SingleOperatorDialog extends SingleTargetProductDialog {
     private class ProductWriterWorker extends ProgressMonitorSwingWorker<Product, Object> {
 
         private final Product targetProduct;
-        private long saveTime;
         private Date executeStartTime;
 
         private ProductWriterWorker(Product targetProduct) {
@@ -306,7 +305,6 @@ public class SingleOperatorDialog extends SingleTargetProductDialog {
             final TargetProductSelectorModel model = getTargetProductSelector().getModel();
             pm.beginTask("Writing...", model.isOpenInAppSelected() ? 100 : 95);
             ProgressMonitorList.instance().add(pm);
-            saveTime = 0L;
             Product product = null;
             try {
                 // free cache	// NESTMOD
@@ -332,7 +330,6 @@ public class SingleOperatorDialog extends SingleTargetProductDialog {
                 final OperatorExecutor executor = OperatorExecutor.create(operator);
                 executor.execute(SubProgressMonitor.create(pm, 95));
 
-                saveTime = System.currentTimeMillis() - t0;
                 File targetFile = model.getProductFile();
                 if (model.isOpenInAppSelected() && targetFile.exists()) {
                     product = CommonReaders.readProduct(targetFile);
@@ -359,16 +356,14 @@ public class SingleOperatorDialog extends SingleTargetProductDialog {
         protected void done() {
             final TargetProductSelectorModel model = getTargetProductSelector().getModel();
             try {
-                final Date now = Calendar.getInstance().getTime();
-                final long diff = (now.getTime() - executeStartTime.getTime()) / 1000;
-                if (diff > 120) {
-                    final float minutes = diff / 60f;
-                    statusLabel.setText("Processing completed in " + minutes + " minutes");
-                } else {
-                    statusLabel.setText("Processing completed in " + diff + " seconds");
-                }
-
                 final Product targetProduct = get();
+                final Date now = Calendar.getInstance().getTime();
+                final long totalSeconds = (now.getTime() - executeStartTime.getTime()) / 1000;
+                final long totalBytes = ProductFunctions.getRawStorageSize(targetProduct);
+                final long totalPixels = ProductFunctions.getTotalPixels(targetProduct);
+
+                statusLabel.setText(ProductFunctions.getProcessingStatistics(totalSeconds, totalBytes, totalPixels));
+
                 if (model.isOpenInAppSelected()) {
                     appContext.getProductManager().addProduct(targetProduct);
                     //showSaveAndOpenInAppInfo(saveTime);
