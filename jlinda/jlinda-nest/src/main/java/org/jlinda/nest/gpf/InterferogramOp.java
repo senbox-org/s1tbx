@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-@OperatorMetadata(alias = "Interferogram",
+@OperatorMetadata(alias = "InterferogramPPO",
         category = "SAR Processing/Interferometric/Products",
         authors = "Petar Marinkovic",
         copyright = "Copyright (C) 2013 by PPO.labs",
