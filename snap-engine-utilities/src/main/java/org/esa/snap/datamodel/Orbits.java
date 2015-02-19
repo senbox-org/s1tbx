@@ -15,17 +15,49 @@
  */
 package org.esa.snap.datamodel;
 
-/**
+import java.util.Comparator;
 
+/**
+ storage for orbit state vectors
  */
 public class Orbits {
 
-    public final static class OrbitData {
+    public final static class OrbitVector {
+        public double utcMJD;
         public double xPos;
         public double yPos;
         public double zPos;
         public double xVel;
         public double yVel;
         public double zVel;
+
+        public OrbitVector(final double utcMJD) {
+            this.utcMJD = utcMJD;
+        }
+
+        public OrbitVector(final double utcMJD,
+                           final double xPos, final double yPos, final double zPos,
+                           final double xVel, final double yVel, final double zVel) {
+            this.utcMJD = utcMJD;
+            this.xPos = xPos;
+            this.yPos = yPos;
+            this.zPos = zPos;
+            this.xVel = xVel;
+            this.yVel = yVel;
+            this.zVel = zVel;
+        }
     }
+
+    public static class OrbitComparator implements Comparator<OrbitVector> {
+        @Override
+        public int compare(OrbitVector osv1, OrbitVector osv2) {
+            if (osv1.utcMJD < osv2.utcMJD) {
+                return -1;
+            } else if (osv1.utcMJD > osv2.utcMJD) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    };
 }

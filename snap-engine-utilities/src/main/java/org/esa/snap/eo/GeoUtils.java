@@ -257,7 +257,7 @@ public final class GeoUtils {
      * @param xyz  The xyz coordinate for the target.
      * @param time The slant range time in seconds.
      */
-    public static void computeAccurateXYZ(final Orbits.OrbitData data, final double[] xyz, final double time) {
+    public static void computeAccurateXYZ(final Orbits.OrbitVector data, final double[] xyz, final double time) {
 
         final double a = Constants.semiMajorAxis;
         final double b = Constants.semiMinorAxis;
@@ -351,7 +351,7 @@ public final class GeoUtils {
         final double R = 1.0 - F;
         double TU = R * FastMath.tan(lat1);
         final double SF = FastMath.sin(FAZ);
-        final double CF = Math.cos(FAZ);
+        final double CF = FastMath.cos(FAZ);
         double BAZ = 0.0;
         if (CF != 0.0)
             BAZ = Math.atan2(TU, CF) * 2.0;
