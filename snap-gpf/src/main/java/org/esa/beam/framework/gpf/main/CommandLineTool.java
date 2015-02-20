@@ -387,7 +387,7 @@ class CommandLineTool implements GraphProcessingObserver {
                 try {
                     domConverter.convertDomToValue(parametersElement, container);
                 } catch (ConversionException e) {
-                    String msgPattern = "Can not convert XML parameters for operator '%s'. Reason: %s";
+                    String msgPattern = "Operator '%s': cannot convert XML parameters for reason: %s";
                     throw new RuntimeException(String.format(msgPattern, operatorName, e.getMessage()), e);
                 }
             }
@@ -401,7 +401,7 @@ class CommandLineTool implements GraphProcessingObserver {
                 property.setValueFromText(paramValue);
             } else {
                 throw new RuntimeException(String.format(
-                        "Parameter '%s' is not known by operator '%s'", paramName, operatorName));
+                        "Operator '%s': unknown parameter '%s'", operatorName, paramName));
             }
         }
         return parameters;
