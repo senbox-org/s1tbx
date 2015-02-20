@@ -23,11 +23,10 @@ import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.avlist.AVList;
 import gov.nasa.worldwind.avlist.AVListImpl;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
+import gov.nasa.worldwind.render.*;
 import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
 import gov.nasa.worldwindx.examples.WMSLayersPanel;
-import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
-import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.globes.Earth;
 import gov.nasa.worldwind.globes.ElevationModel;
 import gov.nasa.worldwind.layers.Earth.MSVirtualEarthLayer;
@@ -36,23 +35,17 @@ import gov.nasa.worldwind.layers.Earth.MSVirtualEarthLayer;
 import gov.nasa.worldwind.layers.Earth.OSMMapnikLayer;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.LayerList;
-import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.layers.WorldMapLayer;
 import gov.nasa.worldwind.layers.placename.PlaceNameLayer;
-import gov.nasa.worldwind.render.AnnotationAttributes;
-import gov.nasa.worldwind.render.GlobeAnnotation;
-import gov.nasa.worldwind.render.Polyline;
-import gov.nasa.worldwind.render.ScreenAnnotation;
 import gov.nasa.worldwind.terrain.CompoundElevationModel;
 import gov.nasa.worldwind.terrain.WMSBasicElevationModel;
 import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwind.util.StatusBar;
 import gov.nasa.worldwind.view.orbit.BasicOrbitView;
-import gov.nasa.worldwind.wms.Capabilities;
 import gov.nasa.worldwind.wms.CapabilitiesRequest;
+import gov.nasa.worldwindx.examples.util.DirectedPath;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
-import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
 import org.w3c.dom.Document;
@@ -101,6 +94,7 @@ public class NestWWToolView extends AbstractToolView implements WWView {
     private ProductPanel productPanel = null;
 
     private JSlider opacitySlider = null;
+    //private JLabel theSelectedObjectLabel = null;
     private ProductLayer productLayer = null;
 
     private final Dimension wmsPanelSize = new Dimension(400, 600);
@@ -112,6 +106,11 @@ public class NestWWToolView extends AbstractToolView implements WWView {
     private static final boolean includeLayerPanel = false;
     private static final boolean includeProductPanel = true;
     private static final boolean includeWMSPanel = false;
+
+    private DirectedPath theLastSelectedDP = null;
+
+    private boolean theOWILimitChanged = false;
+    private boolean theRVLLimitChanged = false;
 
     private static final String[] servers = new String[]
             {
@@ -138,6 +137,7 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         final JPanel mainPane = new JPanel(new BorderLayout(4, 4));
         mainPane.setSize(new Dimension(300, 300));
 
+
         /*     JToolBar toolbar = new JToolBar();
 
           JButton loadDEMButton = new JButton();
@@ -161,6 +161,7 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         // world wind canvas
         initialize(mainPane);
         if (wwjPanel == null) return mainPane;
+
 
         final MSVirtualEarthLayer virtualEarthLayerA = new MSVirtualEarthLayer(MSVirtualEarthLayer.LAYER_AERIAL);
         virtualEarthLayerA.setName("MS Bing Aerial");
@@ -294,6 +295,7 @@ public class NestWWToolView extends AbstractToolView implements WWView {
                 mainPane.add(productPanel, BorderLayout.WEST);
 
                 productPanel.add(makeControlPanel(), BorderLayout.SOUTH);
+
                 productPanel.update(getWwd());
             }
             if (includeWMSPanel) {
@@ -336,12 +338,33 @@ public class NestWWToolView extends AbstractToolView implements WWView {
 
                 public void selected(SelectEvent event)
                 {
-                    System.out.println(event.getTopObject());
-                    System.out.println(event.getEventAction());
-                    if (event.getEventAction().equals(SelectEvent.LEFT_CLICK)) {
-                        System.out.println("selectedProduct " + getSelectedProduct());
-                        final ExecCommand command = datApp.getCommandManager().getExecCommand("showPolarWaveView");
-                        command.execute(2);
+                    //System.out.println(event.getTopObject());
+                    //System.out.println(event.getEventAction());
+                    if (event.getEventAction().equals(SelectEvent.ROLLOVER) && (event.getTopObject() instanceof DirectedPath)) {
+                        System.out.println("click " + event.getTopObject());
+
+                        System.out.println("DirectedPath:::");
+                        DirectedPath dp = (DirectedPath) event.getTopObject();
+                        //dp.getAttributes().setOutlineMaterial(Material.WHITE);
+                        dp.setHighlighted(true);
+                        //dp.setAttributes(productLayer.dpHighlightAttrs);
+                        //theSelectedObjectLabel.setText("" + productLayer.theObjectInfoHash.get(dp));
+
+                        productLayer.infoAnnotation.setText(productLayer.theObjectInfoHash.get(dp));
+                        productLayer.infoAnnotation.getAttributes().setVisible(true);
+                        theLastSelectedDP = dp;
+                        //System.out.println("selectedProduct " + getSelectedProduct());
+                        //final ExecCommand command = datApp.getCommandManager().getExecCommand("showPolarWaveView");
+                        //command.execute(2);
+                    }
+                    else {
+
+                        if (theLastSelectedDP != null) {
+                            theLastSelectedDP.setHighlighted(false);
+
+                        }
+                        productLayer.infoAnnotation.getAttributes().setVisible(false);
+                        //theSelectedObjectLabel.setText("");
                     }
                 }
             });
@@ -355,7 +378,8 @@ public class NestWWToolView extends AbstractToolView implements WWView {
     private JPanel makeControlPanel() {
         // CHANGED
         //final JPanel controlPanel = new JPanel(new GridLayout(0, 1, 5, 5));
-        final JPanel controlPanel = new JPanel(new GridLayout(4, 1, 5, 5));
+        //final JPanel mainControlPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+        final JPanel controlPanel = new JPanel(new GridLayout(6, 1, 5, 5));
         opacitySlider = new JSlider();
         opacitySlider.setMaximum(100);
         opacitySlider.setValue((int) (productLayer.getOpacity() * 100));
@@ -367,6 +391,9 @@ public class NestWWToolView extends AbstractToolView implements WWView {
                 getWwd().repaint();
             }
         });
+
+        //theSelectedObjectLabel = new JLabel("Selected: ");
+
         final JPanel opacityPanel = new JPanel(new BorderLayout(5, 5));
         opacityPanel.add(new JLabel("Opacity"), BorderLayout.WEST);
         opacityPanel.add(this.opacitySlider, BorderLayout.CENTER);
@@ -374,57 +401,194 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         controlPanel.add(opacityPanel);
 
         // ADDED
+
+        JRadioButton owiBtn = new JRadioButton("OWI");
+        owiBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                System.out.println("owi:");
+                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "owi", true);
+                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "osw", false);
+                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "rvl", false);
+
+
+            }
+        });
+
+
+        JRadioButton oswBtn = new JRadioButton("OSW");
+        oswBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                System.out.println("osw:");
+                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "owi", false);
+                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "osw", true);
+                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "rvl", false);
+
+            }
+        });
+
+
+        JRadioButton rvlBtn = new JRadioButton("RVL");
+        rvlBtn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                System.out.println("rvl:");
+                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "owi", false);
+                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "osw", false);
+                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "rvl", true);
+
+            }
+        });
+
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(owiBtn);
+        group.add(oswBtn);
+        group.add(rvlBtn);
+        owiBtn.setSelected(true);
+
+        JPanel componentTypePanel = new JPanel(new GridLayout(1, 4, 5, 5));
+        componentTypePanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+        componentTypePanel.add(new JLabel("Component:"));
+        componentTypePanel.add(owiBtn);
+        componentTypePanel.add(oswBtn);
+        componentTypePanel.add(rvlBtn);
+        controlPanel.add(componentTypePanel);
+
+
         JPanel maxPanel = new JPanel(new GridLayout(1, 2, 5, 5));
-        maxPanel.add(new JLabel("Max:"));
+        maxPanel.add(new JLabel("Max OWI Wind Speed:"));
 
 
-        JSpinner maxSP = new JSpinner(new SpinnerNumberModel(1, 0, 10, 1));
+        JSpinner maxSP = new JSpinner(new SpinnerNumberModel(10, 0, 10, 1));
         maxSP.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 int newValue = (Integer) ((JSpinner) e.getSource()).getValue();
 
-
+                theOWILimitChanged = true;
             }
         });
         maxPanel.add(maxSP);
         controlPanel.add(maxPanel);
 
         JPanel minPanel = new JPanel(new GridLayout(1, 2, 5, 5));
-        minPanel.add(new JLabel("Min:"));
+        minPanel.add(new JLabel("Min OWI Wind Speed:"));
 
-        JSpinner minSP = new JSpinner(new SpinnerNumberModel(1, 0, 10, 1));
+        JSpinner minSP = new JSpinner(new SpinnerNumberModel(0, 0, 10, 1));
         minSP.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 System.out.println("new value " + ((JSpinner) e.getSource()).getValue());
-                System.out.println(productLayer.colorBarLegend);
+
+                theOWILimitChanged = true;
             }
         });
         minPanel.add(minSP);
         controlPanel.add(minPanel);
+
+        JPanel maxRVLPanel = new JPanel(new GridLayout(1, 2, 5, 5));
+        maxRVLPanel.add(new JLabel("Max RVL Rad Vel.:"));
+
+
+        JSpinner maxRVLSP = new JSpinner(new SpinnerNumberModel(6, 0, 10, 1));
+        maxRVLSP.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                int newValue = (Integer) ((JSpinner) e.getSource()).getValue();
+                theRVLLimitChanged = true;
+            }
+        });
+        maxRVLPanel.add(maxRVLSP);
+        controlPanel.add(maxRVLPanel);
+
+        JButton updateButton = new JButton("Update");
+        updateButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                if (theOWILimitChanged && productLayer.owiColorBarLegend != null) {
+
+                    //double minValue = ((Integer) minSP.getValue()) * 1.0e4;
+                    //double maxValue = ((Integer) maxSP.getValue()) * 1.0e4;
+                    double minValue = ((Integer) minSP.getValue());
+                    double maxValue = ((Integer) maxSP.getValue());
+
+                    productLayer.removeRenderable(productLayer.owiColorBarLegend);
+                    productLayer.createColorBarLegend(minValue, maxValue, productLayer.theCurrMinHue, productLayer.theCurrMaxHue, false, "OWI Wind Speed", "owi");
+                    productLayer.addRenderable(productLayer.owiColorBarLegend);
+
+                    productLayer.createColorGradient(minValue, maxValue, productLayer.theCurrMinHue, productLayer.theCurrMaxHue, false, productLayer.theProductRenderablesInfoHash.get(productLayer.colorBarLegendProduct), "owi");
+                    getWwd().redrawNow();
+                }
+                if (theRVLLimitChanged && productLayer.rvlColorBarLegend != null) {
+                    System.out.println("theRVLLimitChanged");
+
+                    //double minValue = ((Integer) minSP.getValue()) * 1.0e4;
+                    //double maxValue = ((Integer) maxSP.getValue()) * 1.0e4;
+
+                    double maxValue = ((Integer) maxRVLSP.getValue());
+                    double minValue = -1*maxValue;
+
+                    productLayer.removeRenderable(productLayer.rvlColorBarLegend);
+                    productLayer.createColorBarLegend(minValue, maxValue, productLayer.theCurrMinHue, productLayer.theCurrMaxHue, true, "RVL Rad. Vel.", "rvl");
+                    productLayer.addRenderable(productLayer.rvlColorBarLegend);
+
+                    productLayer.createColorGradient(minValue, maxValue, productLayer.theCurrMinHue, productLayer.theCurrMaxHue, true, productLayer.theProductRenderablesInfoHash.get(productLayer.colorBarLegendProduct), "rvl");
+                    getWwd().redrawNow();
+                }
+
+
+                theOWILimitChanged = false;
+                theRVLLimitChanged = false;
+            }
+        });
+        controlPanel.add(updateButton);
+
+        //mainControlPanel.add(controlPanel);
+        //mainControlPanel.add(makeRVLPanel ());
+        //controlPanel.add(makeRVLPanel ());
+
+        //controlPanel.add(theSelectedObjectLabel);
+        controlPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+
+        return controlPanel;
+    }
+
+    // ADDED
+    /*
+    private JPanel makeRVLPanel () {
+        //final JPanel rvlPanel = new JPanel(new GridLayout(1, 3, 5, 5));
+
+
+        JPanel maxRVLPanel = new JPanel(new GridLayout(1, 2, 5, 5));
+        maxRVLPanel.add(new JLabel("Max RVL Rad Vel.:"));
+
+
+        JSpinner maxRVLSP = new JSpinner(new SpinnerNumberModel(10, 0, 10, 1));
+        maxRVLSP.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                int newValue = (Integer) ((JSpinner) e.getSource()).getValue();
+            }
+        });
+        maxRVLPanel.add(maxRVLSP);
+        //rvlPanel.add(maxPanel);
+
 
         JButton newButton = new JButton("Update");
         newButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (productLayer.colorBarLegend != null) {
-                    productLayer.removeRenderable(productLayer.colorBarLegend);
-                    double minValue = ((Integer) minSP.getValue()) * 1.0e4;
-                    double maxValue = ((Integer) maxSP.getValue()) * 1.0e4;
-                    productLayer.createColorBarLegend(minValue, maxValue);
-                    productLayer.createColorGradient(minValue, maxValue);
-                    getWwd().redrawNow();
-                }
+
             }
         });
-        controlPanel.add(newButton);
+        maxPanel.add(newButton);
 
-        controlPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+        //controlPanel.add(theSelectedObjectLabel);
+        maxPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
-        return controlPanel;
+        return maxPanel;
     }
+    */
 
     private void LoadDEM() {
 
@@ -453,7 +617,7 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         if (productLayer != null) {
             for (Product prod : products) {
                 try {
-                    productLayer.addProduct(prod);
+                    productLayer.addProduct(prod, true, getWwd());
                 } catch (Exception e) {
                     datApp.showErrorDialog("WorldWind unable to add product " + prod.getName() +
                             "\n" + e.getMessage());
