@@ -31,7 +31,7 @@
 
     <parameters>
         <parameter>
-            <!-- The name of the parameter; by this name the specified value can be retrieved in the python implementation -->
+            <!-- The name of the parameter; user operator.getParameter('lowerFactor') in your Python code to retrieve the value -->
             <name>lowerFactor</name>
             <!-- The description is shown in the help on the command line and also as tooltip in the GUI -->
             <description>The value of the lower band is multiplied by this value.</description>
@@ -43,9 +43,6 @@
         <parameter>
             <name>lowerName</name>
             <description>The name of the spectral band with the lower (red) wavelength.</description>
-            <!-- The label use used in the graphical user interface before the, if not given the name of the parameter is
-                 converted into a human readable label
-            -->
             <label>Lower band name</label>
             <dataType>java.lang.String</dataType>
             <defaultValue>radiance_7</defaultValue>
