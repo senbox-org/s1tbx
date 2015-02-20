@@ -8,6 +8,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +62,14 @@ public class PyBridge {
         if (beampyDir == null) {
             throw new OperatorException("Can't find BEAM-Python module directory.\n" +
                                                 "(Make sure the BEAM-Python module is unpacked.)");
+        }
+
+        try {
+            copyResourceFile("/beampy", new File(System.getProperty("user.home"), ".snap/soopy"));
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         LOG.info("BEAM-Python module directory: " + beampyDir);
@@ -180,4 +192,26 @@ public class PyBridge {
         return null;
     }
 
+    static File copyResourceFile(String resourcePath, File target) throws URISyntaxException, IOException {
+        URL resourceUrl = PyBridge.class.getResource(resourcePath);
+        Path path = Paths.get(resourceUrl.toURI());
+        Files.copy(path, target.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+        return target;
+        /*
+
+        //System.out.println("resourceUrl = " + resourceUrl);
+        if (resourceUrl != null) {
+            try {
+                File resourceFile = new File(resourceUrl.toURI());
+                //System.out.println("resourceFile = " + resourceFile);
+                if (resourceFile.exists()) {
+                    return resourceFile;
+                }
+            } catch (URISyntaxException e) {
+                // mmmmh
+            }
+        }
+        return null;
+        */
+    }
 }
