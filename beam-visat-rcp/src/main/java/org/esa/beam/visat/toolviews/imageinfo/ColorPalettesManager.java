@@ -3,7 +3,7 @@ package org.esa.beam.visat.toolviews.imageinfo;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -39,7 +39,7 @@ class ColorPalettesManager {
                 newCpdList.add(newCpd);
                 newCpdNames.add(file.getName());
             } catch (IOException e) {
-                final Logger logger = BeamLogManager.getSystemLogger();
+                final Logger logger = SystemUtils.LOG;
                 logger.warning("Unable to load color palette definition from file '" + file.getAbsolutePath() + "'");
                 logger.log(Level.INFO, e.getMessage(), e);
             }

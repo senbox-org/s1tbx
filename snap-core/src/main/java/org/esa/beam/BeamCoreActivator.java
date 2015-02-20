@@ -18,11 +18,17 @@ package org.esa.beam;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryManager;
-import com.bc.ceres.core.runtime.*;
+import com.bc.ceres.core.runtime.Activator;
+import com.bc.ceres.core.runtime.ConfigurationElement;
+import com.bc.ceres.core.runtime.Extension;
+import com.bc.ceres.core.runtime.ExtensionPoint;
+import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.ModuleContext;
+import com.bc.ceres.core.runtime.ModuleRuntime;
+import com.bc.ceres.core.runtime.ModuleState;
 import org.esa.beam.framework.datamodel.RGBImageProfile;
 import org.esa.beam.framework.datamodel.RGBImageProfileManager;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.factory.FactoryIteratorProvider;
 import org.geotools.factory.GeoTools;
 import org.geotools.referencing.operation.MathTransformProvider;
@@ -65,7 +71,7 @@ public class BeamCoreActivator implements Activator {
                 if (moduleContext != null) {
                     logger = moduleContext.getLogger();
                 } else {
-                    logger = BeamLogManager.getSystemLogger();
+                    logger = SystemUtils.LOG;
                 }
                 logger.log(Level.WARNING, e.getMessage(), e.getCause());
             }

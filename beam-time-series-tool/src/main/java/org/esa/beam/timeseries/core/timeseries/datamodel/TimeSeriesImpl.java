@@ -36,7 +36,7 @@ import org.esa.beam.timeseries.core.insitu.InsituSource;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
 import java.net.URI;
@@ -160,7 +160,7 @@ final class TimeSeriesImpl extends AbstractTimeSeries {
             productLocationList = new ArrayList<ProductLocation>();
         }
         if (!productLocationList.contains(productLocation)) {
-            final Logger logger = BeamLogManager.getSystemLogger();
+            final Logger logger = SystemUtils.LOG;
             final ProductLocationType type = productLocation.getProductLocationType();
             final String path = productLocation.getPath();
             logger.log(Level.INFO, "Try to load product location type: '" + type + "' at path: '" + path + "'");

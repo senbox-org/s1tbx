@@ -16,11 +16,12 @@
 package org.esa.beam.util.logging;
 
 import junit.framework.TestCase;
+import org.esa.beam.util.SystemUtils;
 
 public class BeamLogManagerTest extends TestCase {
 
     public void testThatLoggerExists() {
-        assertNotNull(BeamLogManager.getSystemLogger());
+        assertNotNull(SystemUtils.LOG);
     }
 
 }

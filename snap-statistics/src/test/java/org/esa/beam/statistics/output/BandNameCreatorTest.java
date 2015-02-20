@@ -16,7 +16,7 @@
 
 package org.esa.beam.statistics.output;
 
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.junit.Test;
 
 import java.io.PrintStream;
@@ -24,7 +24,8 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Thomas Storm
@@ -52,9 +53,9 @@ public class BandNameCreatorTest {
             }
         };
 
-        final Level level = BeamLogManager.getSystemLogger().getLevel();
-        BeamLogManager.getSystemLogger().setLevel(Level.WARNING);
-        BeamLogManager.getSystemLogger().addHandler(handler);
+        final Level level = SystemUtils.LOG.getLevel();
+        SystemUtils.LOG.setLevel(Level.WARNING);
+        SystemUtils.LOG.addHandler(handler);
 
         BandNameCreator bandNameCreator = new BandNameCreator();
         String attributeName1 = bandNameCreator.createUniqueAttributeName("median", "radiance_12");
@@ -91,8 +92,8 @@ public class BandNameCreatorTest {
 
         assertEquals(19, warningCount[0]);
 
-        BeamLogManager.getSystemLogger().removeHandler(handler);
-        BeamLogManager.getSystemLogger().setLevel(level);
+        SystemUtils.LOG.removeHandler(handler);
+        SystemUtils.LOG.setLevel(level);
     }
 
     @Test

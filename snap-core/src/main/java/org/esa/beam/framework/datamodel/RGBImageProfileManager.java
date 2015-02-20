@@ -16,7 +16,6 @@
 package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -85,7 +84,7 @@ public class RGBImageProfileManager {
     private void loadDefaultProfiles() {
         if (!getProfilesDir().exists()) {
             profilesDir.mkdirs();
-            BeamLogManager.getSystemLogger().log(Level.INFO, "Directory for RGB-image profiles not found: " + getProfilesDir());
+            SystemUtils.LOG.log(Level.INFO, "Directory for RGB-image profiles not found: " + getProfilesDir());
         }
         final File[] files = getProfilesDir().listFiles(
                 (dir, name) -> name.endsWith(RGBImageProfile.FILENAME_EXTENSION) || name.endsWith(
@@ -95,11 +94,11 @@ public class RGBImageProfileManager {
                 try {
                     addProfile(RGBImageProfile.loadProfile(file));
                 } catch (IOException e) {
-                    BeamLogManager.getSystemLogger().log(Level.SEVERE, "Failed to load RGB-image profile from " + file, e);
+                    SystemUtils.LOG.log(Level.SEVERE, "Failed to load RGB-image profile from " + file, e);
                 }
             }
         } else {
-            BeamLogManager.getSystemLogger().log(Level.INFO, "No RGB-image profiles found in " + getProfilesDir());
+            SystemUtils.LOG.log(Level.INFO, "No RGB-image profiles found in " + getProfilesDir());
         }
     }
 

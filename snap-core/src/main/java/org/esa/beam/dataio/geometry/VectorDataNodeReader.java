@@ -34,10 +34,10 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.converters.JavaTypeConverter;
 import org.esa.beam.util.io.CsvReader;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.data.DataUtilities;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
@@ -309,7 +309,7 @@ public class VectorDataNodeReader {
             try {
                 simpleFeature = interpretationStrategy.interpretLine(tokens, builder, simpleFeatureType);
             } catch (ConversionException e) {
-                BeamLogManager.getSystemLogger().warning(String.format("Unable to parse %s: %s", sourceName, e.getMessage()));
+                SystemUtils.LOG.warning(String.format("Unable to parse %s: %s", sourceName, e.getMessage()));
             } catch (TransformException e) {
                 throw new IOException(e);
             }
@@ -324,8 +324,8 @@ public class VectorDataNodeReader {
     private boolean isLineValid(SimpleFeatureType simpleFeatureType, String[] tokens) {
         int expectedTokenCount = interpretationStrategy.getExpectedTokenCount(simpleFeatureType.getAttributeCount());
         if (tokens.length != expectedTokenCount) {
-            BeamLogManager.getSystemLogger().warning(String.format("Problem in '%s': unexpected number of columns: expected %d, but got %d",
-                                                                   sourceName, expectedTokenCount, tokens.length));
+            SystemUtils.LOG.warning(String.format("Problem in '%s': unexpected number of columns: expected %d, but got %d",
+                                                  sourceName, expectedTokenCount, tokens.length));
             return false;
         }
         return true;
@@ -445,8 +445,8 @@ public class VectorDataNodeReader {
                     feature.setDefaultGeometry(lineString);
                 }
             } catch (SchemaException e) {
-                BeamLogManager.getSystemLogger().warning("Cannot create line/polygon geometry: " + e.getMessage() +
-                                                                 " --> Will interpret points as they are.");
+                SystemUtils.LOG.warning("Cannot create line/polygon geometry: " + e.getMessage() +
+                                                " --> Will interpret points as they are.");
                 return featureCollection;
             }
 

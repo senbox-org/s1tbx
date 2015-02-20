@@ -17,13 +17,10 @@ package org.esa.beam.framework.ui.command;
 
 
 import com.bc.ceres.core.Assert;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JSeparator;
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -84,7 +81,7 @@ public class DefaultCommandMenuInserter implements CommandMenuInserter {
             }
         }
 
-        BeamLogManager.getSystemLogger().fine(String.format("Inserting command '%s' into menu '%s' with %d item(s)", newCommand.getCommandID(), menu.getName(), componentCount));
+        SystemUtils.LOG.fine(String.format("Inserting command '%s' into menu '%s' with %d item(s)", newCommand.getCommandID(), menu.getName(), componentCount));
 
         ArrayList<Command> commands = new ArrayList<>(commandMap.values());
         if (isSortedByName(menu, commandManager)) {
@@ -201,7 +198,7 @@ public class DefaultCommandMenuInserter implements CommandMenuInserter {
         }
 
         if (iteration > 1 && iteration == commands.size()) {
-            BeamLogManager.getSystemLogger().warning(String.format("Sorting updated command list took %d iterations!", iteration));
+            SystemUtils.LOG.warning(String.format("Sorting updated command list took %d iterations!", iteration));
         }
 
         commands.clear();

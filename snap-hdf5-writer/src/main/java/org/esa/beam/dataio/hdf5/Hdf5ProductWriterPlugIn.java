@@ -19,8 +19,8 @@ import org.esa.beam.framework.dataio.EncodeQualification;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileFilter;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
 import java.text.MessageFormat;
@@ -157,7 +157,7 @@ public class Hdf5ProductWriterPlugIn implements ProductWriterPlugIn {
             try {
                 return Class.forName(className, true, classLoader);
             } catch (Throwable error) {
-                BeamLogManager.getSystemLogger().warning(MessageFormat.format(warningPattern, callerClass, error.getClass(), error.getMessage()));
+                SystemUtils.LOG.warning(MessageFormat.format(warningPattern, callerClass, error.getClass(), error.getMessage()));
                 return null;
             }
         } else {

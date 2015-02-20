@@ -22,7 +22,7 @@ import com.bc.ceres.core.ServiceRegistryManager;
 import org.esa.beam.BeamCoreActivator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -202,7 +202,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
         Assert.notNull(aliasName, "aliasName");
         Assert.notNull(spiClassName, "spiClassName");
         if (classNames.get(aliasName) != null) {
-            BeamLogManager.getSystemLogger().severe(
+            SystemUtils.LOG.severe(
                     spiClassName + ':' + aliasName + " conflicts with " + classNames.get(aliasName) + ':' + aliasName);
         }
         classNames.put(aliasName, spiClassName);

@@ -21,7 +21,7 @@ import com.bc.ceres.binding.dom.XppDomElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.internal.OperatorConfiguration;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import javax.media.jai.JAI;
 import java.awt.*;
@@ -77,7 +77,7 @@ public class GraphContext {
         }
 
         this.graph = graph;
-        this.logger = BeamLogManager.getSystemLogger();
+        this.logger = SystemUtils.LOG;
 
         outputNodeContextList = new ArrayList<>(graph.getNodeCount() / 2);
 

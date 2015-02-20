@@ -16,14 +16,12 @@
 package org.esa.beam.util;
 
 import com.bc.ceres.core.runtime.RuntimeContext;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
 import javax.media.jai.JAI;
 import javax.media.jai.OperationRegistry;
-import javax.swing.UIManager;
-import java.awt.Image;
-import java.awt.Toolkit;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -450,7 +448,7 @@ public class SystemUtils {
         if (clipboard != null) {
             clipboard.setContents(selection, selection);
         } else {
-            BeamLogManager.getSystemLogger().severe("failed to obtain clipboard instance");
+            LOG.severe("failed to obtain clipboard instance");
         }
     }
 
@@ -465,7 +463,7 @@ public class SystemUtils {
         if (clipboard != null) {
             clipboard.setContents(selection, null);
         } else {
-            BeamLogManager.getSystemLogger().severe("failed to obtain clipboard instance");
+            LOG.severe("failed to obtain clipboard instance");
         }
     }
 
@@ -554,7 +552,7 @@ public class SystemUtils {
             try {
                 return Class.forName(className, true, classLoader);
             } catch (Throwable error) {
-                BeamLogManager.getSystemLogger().warning(
+                LOG.warning(
                         MessageFormat.format(warningPattern, callerClass, error.getClass(), error.getMessage()));
                 return null;
             }

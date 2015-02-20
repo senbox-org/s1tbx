@@ -18,11 +18,10 @@ package org.esa.beam.framework.dataop.dem;
 import com.bc.io.FileDownloader;
 import com.bc.io.FileUnpacker;
 import org.esa.beam.util.Debug;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
-import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -78,23 +77,23 @@ class ElevationModelInstaller extends SwingWorker {
                     throw new IOException("Failed to create directory " + demInstallDir);
                 }
             }
-            BeamLogManager.getSystemLogger().info("Downloading DEM archive from " + archiveUrl);
+            SystemUtils.LOG.info("Downloading DEM archive from " + archiveUrl);
             _archiveFile = FileDownloader.downloadFile(archiveUrl, demInstallDir, _parent);
-            BeamLogManager.getSystemLogger().info("Unpacking DEM archive " + _archiveFile + " to " + demInstallDir);
+            SystemUtils.LOG.info("Unpacking DEM archive " + _archiveFile + " to " + demInstallDir);
             FileUnpacker.unpackZip(_archiveFile, demInstallDir, _parent);
-            BeamLogManager.getSystemLogger().info("DEM successfully installed");
+            SystemUtils.LOG.info("DEM successfully installed");
         } catch (IOException e) {
             _ioException = e;
         } finally {
             if (_ioException == null) {
                 _status = ElevationModelDescriptor.DEM_INSTALLED;
-                BeamLogManager.getSystemLogger().info("DEM successfully installed");
+                SystemUtils.LOG.info("DEM successfully installed");
                 _descriptor.storeProperties();
             } else {
                 _status = ElevationModelDescriptor.DEM_INSTALLATION_ERROR;
-                BeamLogManager.getSystemLogger().log(Level.SEVERE,
-                                                     "Failed to install DEM " + _descriptor.getName(),
-                                                     _ioException);
+                SystemUtils.LOG.log(Level.SEVERE,
+                                    "Failed to install DEM " + _descriptor.getName(),
+                                    _ioException);
                 Debug.trace(_ioException);
             }
         }

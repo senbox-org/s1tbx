@@ -24,11 +24,9 @@ import org.esa.beam.timeseries.core.timeseries.datamodel.AbstractTimeSeries;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.AbstractAction;
-import javax.swing.JFileChooser;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -81,7 +79,7 @@ class LoadInsituAction extends AbstractAction {
             insituSource = new InsituSource(insituLoader.loadSource());
             currentTimeSeries.setInsituSource(insituSource);
         } catch (IOException exception) {
-            BeamLogManager.getSystemLogger().log(Level.WARNING, "Unable to load in-situ data from '" + selectedFile + "'.", exception);
+            SystemUtils.LOG.log(Level.WARNING, "Unable to load in-situ data from '" + selectedFile + "'.", exception);
             return;
         }
 

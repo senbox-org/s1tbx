@@ -15,7 +15,7 @@
  */
 package org.esa.snap.util;
 
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -42,7 +42,7 @@ public class ClipboardUtils {
         if (clipboard != null) {
             clipboard.setContents(selection, selection);
         } else {
-            BeamLogManager.getSystemLogger().severe("failed to obtain clipboard instance");
+            SystemUtils.LOG.severe("failed to obtain clipboard instance");
         }
     }
 
@@ -70,7 +70,7 @@ public class ClipboardUtils {
         if (clipboard != null) {
             clipboard.setContents(selection, selection);
         } else {
-            BeamLogManager.getSystemLogger().severe("failed to obtain clipboard instance");
+            SystemUtils.LOG.severe("failed to obtain clipboard instance");
         }
     }
 

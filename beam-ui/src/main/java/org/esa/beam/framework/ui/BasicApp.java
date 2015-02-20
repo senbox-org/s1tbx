@@ -54,41 +54,14 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.FileChooserFactory;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.help.HelpSet;
 import javax.help.HelpSetException;
-import javax.swing.AbstractButton;
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JToolBar;
-import javax.swing.RepaintManager;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.UIDefaults;
-import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.FontUIResource;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ContainerEvent;
@@ -476,7 +449,7 @@ public class BasicApp {
     }
 
     private void initLogger() {
-        logger = BeamLogManager.getSystemLogger();
+        logger = SystemUtils.LOG;
     }
 
     protected boolean initLookAndFeel() {
@@ -621,7 +594,7 @@ public class BasicApp {
             pathPart = pathPart.trim();
             URL iconURL = getClass().getResource(pathPart);
             if (iconURL == null) {
-                BeamLogManager.getSystemLogger().severe("Missing icon resource: " + pathPart);
+                SystemUtils.LOG.severe("Missing icon resource: " + pathPart);
                 continue;
             }
             images.add(new ImageIcon(iconURL).getImage());

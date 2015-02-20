@@ -60,8 +60,8 @@ import org.esa.beam.framework.gpf.internal.OperatorConfiguration.Reference;
 import org.esa.beam.framework.gpf.monitor.TileComputationEvent;
 import org.esa.beam.framework.gpf.monitor.TileComputationObserver;
 import org.esa.beam.gpf.operators.standard.WriteOp;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.jai.JAIUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.media.jai.BorderExtender;
 import javax.media.jai.JAI;
@@ -141,7 +141,7 @@ public class OperatorContext {
         this.sourceProductList = new ArrayList<>(3);
         this.sourceProductMap = new HashMap<>(3);
         this.targetPropertyMap = new HashMap<>(3);
-        this.logger = BeamLogManager.getSystemLogger();
+        this.logger = SystemUtils.LOG;
         this.renderingHints = new RenderingHints(JAI.KEY_TILE_CACHE_METRIC, this);
 
         startTileComputationObservation();
@@ -159,7 +159,7 @@ public class OperatorContext {
             image.setTileCache(null);
         } else if (image.getTileCache() == null) {
             image.setTileCache(getTileCache());
-            BeamLogManager.getSystemLogger().finest(String.format("Tile cache assigned to %s", image));
+            SystemUtils.LOG.finest(String.format("Tile cache assigned to %s", image));
         }
     }
 
@@ -170,11 +170,11 @@ public class OperatorContext {
             if (useFileTileCache) {
                 tileCache = new SwappingTileCache(JAI.getDefaultInstance().getTileCache().getMemoryCapacity(),
                                                   new DefaultSwapSpace(SwappingTileCache.DEFAULT_SWAP_DIR,
-                                                                       BeamLogManager.getSystemLogger()));
+                                                                       SystemUtils.LOG));
             } else {
                 tileCache = JAI.getDefaultInstance().getTileCache();
             }
-            BeamLogManager.getSystemLogger().info(
+            SystemUtils.LOG.info(
                     String.format("All GPF operators will share an instance of %s with a capacity of %dM",
                                   tileCache.getClass().getName(),
                                   tileCache.getMemoryCapacity() / (1024 * 1024)));

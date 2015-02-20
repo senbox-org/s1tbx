@@ -33,8 +33,8 @@ import org.esa.beam.framework.datamodel.VectorDataNode;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -531,7 +531,7 @@ public class DimapProductWriter extends AbstractProductWriter {
             vectorDataNodeWriter.write(vectorDataNode, new File(vectorDataDir,
                                                                 vectorDataNode.getName() + VectorDataNodeIO.FILENAME_EXTENSION));
         } catch (IOException e) {
-            BeamLogManager.getSystemLogger().throwing("DimapProductWriter", "writeVectorData", e);
+            SystemUtils.LOG.throwing("DimapProductWriter", "writeVectorData", e);
         }
     }
 

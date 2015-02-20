@@ -18,7 +18,7 @@ package org.esa.snap.datamodel.metadata;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 public abstract class AbstractMetadataBase {
 
     protected MetadataElement absRoot;
-    private static Logger log = BeamLogManager.getSystemLogger();
+    private static Logger log = SystemUtils.LOG;
 
     /**
      * Default no data values

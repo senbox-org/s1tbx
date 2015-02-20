@@ -19,7 +19,7 @@ package org.esa.beam.framework.datamodel;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 /**
  * This class is not public API yet.
@@ -75,7 +75,7 @@ public final class SceneFactory {
                     if (transferGeoCoding(sourceRasterScene, targetRasterScene, subsetDef)) {
                         numTransferred++;
                     } else {
-                        BeamLogManager.getSystemLogger().warning(
+                        SystemUtils.LOG.warning(
                                 "failed to transfer geo-coding of band '" + sourceRaster.getName() + "'");
                     }
                 }

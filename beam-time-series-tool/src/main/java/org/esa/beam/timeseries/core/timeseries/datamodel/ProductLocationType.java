@@ -21,7 +21,7 @@ import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -128,8 +128,8 @@ public enum ProductLocationType {
             return product;
         } catch (IllegalArgumentException e) {
             //todo inform the User with Popup Dialog
-            BeamLogManager.getSystemLogger().log(Level.WARNING, "Product '" + productName +
-                                                                "' does not contain readable time information.", e);
+            SystemUtils.LOG.log(Level.WARNING, "Product '" + productName +
+                    "' does not contain readable time information.", e);
             return null;
         }
     }

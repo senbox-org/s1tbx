@@ -28,10 +28,9 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.TableModel;
 import java.net.URL;
 import java.util.List;
@@ -207,7 +206,7 @@ class InformationPanel extends TablePagePanel {
     private static String getProductReaderModule(final Product product) {
         final ProductReader productReader = product.getProductReader();
         if (productReader != null) {
-            Logger logger = BeamLogManager.getSystemLogger();
+            Logger logger = SystemUtils.LOG;
             ModuleReader moduleReader = new ModuleReader(logger);
             URL moduleLocation = productReader.getClass().getProtectionDomain().getCodeSource().getLocation();
             try {

@@ -28,11 +28,9 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductFileChooser;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JFileChooser;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -131,7 +129,7 @@ public class ProductExportAction extends ExecCommand {
                 writerPlugin = (ProductWriterPlugIn) iter.next();
             } else {
                 writerPlugin = null;
-                BeamLogManager.getSystemLogger().severe(
+                SystemUtils.LOG.severe(
                         "no writer plug-in installed for products of type '" + getFormatName() + "'");
             }
         }

@@ -19,9 +19,9 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.ValidationException;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
-import javax.swing.AbstractListModel;
+import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -165,7 +165,7 @@ class InputListModel extends AbstractListModel<Object> {
                                 setElements((String[]) newValue);
                             }
                         } catch (ValidationException e) {
-                            BeamLogManager.getSystemLogger().log(Level.SEVERE, "Problems at setElements.", e);
+                            SystemUtils.LOG.log(Level.SEVERE, "Problems at setElements.", e);
                         }
                     }
                 }

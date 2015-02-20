@@ -23,14 +23,12 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.TreeNode;
-import org.esa.beam.util.logging.BeamLogManager;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-
-import static org.esa.beam.util.logging.BeamLogManager.getSystemLogger;
 
 /**
  * The <code>AbstractProductReader</code>  class can be used as a base class for new product reader implementations. The
@@ -177,7 +175,7 @@ public abstract class AbstractProductReader implements ProductReader {
         }
         final long endTime = System.currentTimeMillis();
         String msg = String.format("Read product nodes (took %d ms)", (endTime - startTime));
-        BeamLogManager.getSystemLogger().fine(msg);
+        SystemUtils.LOG.fine(msg);
         return product;
     }
 
@@ -448,12 +446,12 @@ public abstract class AbstractProductReader implements ProductReader {
             Dimension oldSize = product.getPreferredTileSize();
             if (oldSize == null) {
                 product.setPreferredTileSize(newSize);
-                getSystemLogger().fine(String.format("Product '%s': tile size set to %d x %d pixels",
-                                                     product.getName(), newSize.width, newSize.height));
+                SystemUtils.LOG.fine(String.format("Product '%s': tile size set to %d x %d pixels",
+                                                   product.getName(), newSize.width, newSize.height));
             } else if (!oldSize.equals(newSize)) {
                 product.setPreferredTileSize(newSize);
-                getSystemLogger().fine(String.format("Product '%s': tile size set to %d x %d pixels, was %d x %d pixels",
-                                                     product.getName(), newSize.width, newSize.height, oldSize.width, oldSize.height));
+                SystemUtils.LOG.fine(String.format("Product '%s': tile size set to %d x %d pixels, was %d x %d pixels",
+                                                   product.getName(), newSize.width, newSize.height, oldSize.width, oldSize.height));
             }
         }
     }

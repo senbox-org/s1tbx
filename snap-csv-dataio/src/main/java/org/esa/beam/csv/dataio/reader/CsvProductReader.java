@@ -26,7 +26,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import java.io.IOException;
@@ -107,7 +107,7 @@ public class CsvProductReader extends AbstractProductReader {
                                           int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
-        BeamLogManager.getSystemLogger().log(Level.FINEST, MessageFormat.format(
+        SystemUtils.LOG.log(Level.FINEST, MessageFormat.format(
                 "reading band data (" + destBand.getName() + ") from {0} to {1}",
                 destOffsetY * destWidth, sourceOffsetY * destWidth + destWidth * destHeight));
         pm.beginTask("reading band data...", destWidth * destHeight);

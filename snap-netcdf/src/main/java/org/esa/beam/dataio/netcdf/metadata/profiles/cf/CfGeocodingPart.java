@@ -34,7 +34,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import ucar.ma2.Array;
@@ -43,7 +43,7 @@ import ucar.ma2.Index;
 import ucar.nc2.Attribute;
 import ucar.nc2.Variable;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 
@@ -231,7 +231,7 @@ public class CfGeocodingPart extends ProfilePartIO {
                                                              product.getSceneRasterWidth(),
                                                              product.getSceneRasterHeight(), ctx);
                 } catch (Exception e) {
-                    BeamLogManager.getSystemLogger().warning("Failed to create NetCDF geo-coding");
+                    SystemUtils.LOG.warning("Failed to create NetCDF geo-coding");
                 }
             }
         }

@@ -60,19 +60,19 @@ import org.esa.beam.pixex.output.ScatterPlotDecoratingStrategy;
 import org.esa.beam.pixex.output.TargetWriterFactoryAndMap;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.TimeStampExtractor;
 import org.esa.beam.util.io.WildcardMatcher;
 import org.esa.beam.util.kmz.KmlDocument;
 import org.esa.beam.util.kmz.KmlPlacemark;
 import org.esa.beam.util.kmz.KmzExporter;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.MathUtils;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.ConstantDescriptor;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
@@ -93,7 +93,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipOutputStream;
 
-import static java.lang.Math.*;
+import static java.lang.Math.floor;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 /**
  * This operator is used to extract pixels from given locations and source products.
@@ -597,7 +599,7 @@ public class PixExOp extends Operator {
         try {
             simpleFeatures = PixExOpUtils.extractFeatures(matchupFile);
         } catch (IOException e) {
-            BeamLogManager.getSystemLogger().warning(
+            SystemUtils.LOG.warning(
                     String.format("Unable to read matchups from file '%s'. Reason: %s",
                                   matchupFile.getAbsolutePath(), e.getMessage()));
             return result;
@@ -610,7 +612,7 @@ public class PixExOp extends Operator {
                 final Date dateTime = (Date) extendedFeature.getAttribute(Placemark.PROPERTY_NAME_DATETIME);
                 result.add(new Coordinate(extendedFeature.getID(), geoPos.lat, geoPos.lon, dateTime, originalValues));
             } catch (IOException e) {
-                BeamLogManager.getSystemLogger().warning(e.getMessage());
+                SystemUtils.LOG.warning(e.getMessage());
             }
         }
         return result;

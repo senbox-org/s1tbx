@@ -20,8 +20,8 @@ package org.esa.beam.binning.operator;
 
 import com.bc.ceres.core.VirtualDir;
 import org.esa.beam.binning.TemporalBin;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -47,7 +47,7 @@ class TemporalBinList extends AbstractList<TemporalBin> {
     public static final int DEFAULT_BINS_PER_FILE = 1000;
 
     private static final String FILE_NAME_PATTERN = "temporal-bins-%05d.tmp"; // at least 5 digits; zero padded
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
 
     private final long numberOfBins;

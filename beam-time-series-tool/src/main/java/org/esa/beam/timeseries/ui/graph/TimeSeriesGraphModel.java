@@ -31,7 +31,7 @@ import org.esa.beam.timeseries.core.timeseries.datamodel.AbstractTimeSeries;
 import org.esa.beam.timeseries.core.timeseries.datamodel.AxisMapping;
 import org.esa.beam.timeseries.core.timeseries.datamodel.TimeCoding;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
 import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYLineAnnotation;
@@ -47,11 +47,7 @@ import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Paint;
-import java.awt.Shape;
-import java.awt.Stroke;
+import java.awt.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -264,7 +260,7 @@ class TimeSeriesGraphModel implements TimeSeriesGraphUpdater.TimeSeriesDataHandl
         try {
             return validation.validate(timeSeries, dataSourceName, type);
         } catch (ParseException e) {
-            BeamLogManager.getSystemLogger().log(Level.SEVERE, e.getMessage(), e);
+            SystemUtils.LOG.log(Level.SEVERE, e.getMessage(), e);
             throw new IllegalStateException(e);
         }
     }

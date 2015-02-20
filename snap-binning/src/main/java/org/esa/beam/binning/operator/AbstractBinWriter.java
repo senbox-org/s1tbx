@@ -21,8 +21,8 @@ import org.esa.beam.binning.TemporalBin;
 import org.esa.beam.binning.support.SEAGrid;
 import org.esa.beam.binning.support.SeadasGrid;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import ucar.ma2.Array;
 import ucar.ma2.InvalidRangeException;
 import ucar.nc2.NetcdfFileWriteable;
@@ -55,7 +55,7 @@ public abstract class AbstractBinWriter implements BinWriter {
         this.region = region;
         this.startTime = startTime;
         this.stopTime = stopTime;
-        this.logger = BeamLogManager.getSystemLogger();
+        this.logger = SystemUtils.LOG;
     }
 
     @Override

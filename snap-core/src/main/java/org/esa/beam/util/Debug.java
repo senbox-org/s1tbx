@@ -23,8 +23,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.logging.Logger;
 
-import org.esa.beam.util.logging.BeamLogManager;
-
 /**
  * The <code>Debug</code> as it name says is a utility class for debugging. It contains exculisvely static methods and
  * cannot be instantiated.
@@ -358,7 +356,7 @@ public class Debug {
         if (isEnabled()) {
             if (isLogging()) {
                 if (_logger == null) {
-                    _logger = BeamLogManager.getSystemLogger();
+                    _logger = SystemUtils.LOG;
                 }
                 _logger.finest(message);
             }

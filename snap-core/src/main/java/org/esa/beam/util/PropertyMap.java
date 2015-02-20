@@ -15,8 +15,7 @@
  */
 package org.esa.beam.util;
 
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedWriter;
@@ -30,8 +29,6 @@ import java.util.Enumeration;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
-
-import org.esa.beam.util.logging.BeamLogManager;
 
 /**
  * The <code>PropertyMap</code> class can be used instead of the standard JDK <code>java.util.Properties</code>
@@ -62,7 +59,7 @@ public class PropertyMap {
      */
     public PropertyMap(Properties properties) {
         _properties = (properties != null) ? properties : new Properties();
-        _logger = BeamLogManager.getSystemLogger();
+        _logger = SystemUtils.LOG;
     }
 
     /**

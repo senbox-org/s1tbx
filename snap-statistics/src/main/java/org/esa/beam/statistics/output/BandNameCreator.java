@@ -16,7 +16,7 @@
 
 package org.esa.beam.statistics.output;
 
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -83,7 +83,7 @@ public class BandNameCreator {
             indexMap.put(algorithmName, index + 1);
         }
         if (tooLong) {
-            BeamLogManager.getSystemLogger().warning(
+            SystemUtils.LOG.warning(
                     "attribute name '" + desiredAttributeName + "' exceeds 10 characters in length. Shortened to '" +
                             attributeName +
                             "'.");

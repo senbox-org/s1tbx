@@ -17,17 +17,10 @@ package org.esa.beam.visat;
 
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
+import javax.swing.*;
+import java.awt.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,7 +58,7 @@ public class VisatAboutBox extends ModalDialog {
             if (resource != null) {
                 imageIcon = new ImageIcon(resource);
             } else {
-                BeamLogManager.getSystemLogger().severe("Missing icon resource: " + aboutImagePath);
+                SystemUtils.LOG.severe("Missing icon resource: " + aboutImagePath);
             }
         }
 

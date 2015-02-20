@@ -17,24 +17,14 @@ package org.esa.beam.framework.ui;
 
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.Debug;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import javax.help.BadIDException;
 import javax.help.DefaultHelpBroker;
 import javax.help.HelpBroker;
 import javax.help.HelpSet;
-import javax.swing.AbstractButton;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Window;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -612,7 +602,7 @@ public abstract class AbstractDialog {
         try {
             helpBroker.setCurrentID(helpId);
         } catch (BadIDException e) {
-            Logger systemLogger = BeamLogManager.getSystemLogger();
+            Logger systemLogger = SystemUtils.LOG;
             if (systemLogger != null) {
                 systemLogger.severe("ModalDialog: '" + helpId + "' is not a valid helpID");
             } else {

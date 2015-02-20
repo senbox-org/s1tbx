@@ -16,8 +16,12 @@
 package org.esa.beam.dataio.dimap.spi;
 
 import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.framework.datamodel.GeneralFilterBand;
+import org.esa.beam.framework.datamodel.Kernel;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.util.SystemUtils;
 import org.jdom.Element;
 
 import java.awt.*;
@@ -44,8 +48,8 @@ class GeneralFilterBandPersistable implements DimapPersistable {
 
         GeneralFilterBand.OpType opType = parseOpType(filterBandInfo);
         if (opType == null) {
-            BeamLogManager.getSystemLogger().warning(String.format("BEAM-DIMAP problem in element '%s': missing or illegal value for element '%s'",
-                                                                   filterBandInfo.getName(), DimapProductConstants.TAG_FILTER_OP_TYPE));
+            SystemUtils.LOG.warning(String.format("BEAM-DIMAP problem in element '%s': missing or illegal value for element '%s'",
+                                                  filterBandInfo.getName(), DimapProductConstants.TAG_FILTER_OP_TYPE));
             return null;
         }
 
@@ -56,8 +60,8 @@ class GeneralFilterBandPersistable implements DimapPersistable {
         } else {
             Dimension size = parseSize(filterBandInfo);
             if (size == null || size.width <= 0|| size.height <= 0) {
-                BeamLogManager.getSystemLogger().warning(String.format("BEAM-DIMAP problem in element '%s': missing or illegal value for element '%s'",
-                                                                       filterBandInfo.getName(), DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE));
+                SystemUtils.LOG.warning(String.format("BEAM-DIMAP problem in element '%s': missing or illegal value for element '%s'",
+                                                      filterBandInfo.getName(), DimapProductConstants.TAG_FILTER_SUB_WINDOW_SIZE));
                 return null;
             }
             double[] data = new double[size.width * size.height];

@@ -21,7 +21,7 @@ import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -249,7 +249,7 @@ public class ProductIO {
      */
     public static ProductReader getProductReaderForInput(Object input) {
         final long startTimeTotal = System.currentTimeMillis();
-        Logger logger = BeamLogManager.getSystemLogger();
+        Logger logger = SystemUtils.LOG;
         logger.fine("Searching reader plugin for '" + input + "'");
         ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
         Iterator<ProductReaderPlugIn> it = registry.getAllReaderPlugIns();

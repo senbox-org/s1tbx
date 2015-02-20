@@ -25,7 +25,7 @@ import org.esa.beam.statistics.output.BandNameCreator;
 import org.esa.beam.statistics.output.FeatureStatisticsWriter;
 import org.esa.beam.statistics.output.StatisticsOutputContext;
 import org.esa.beam.statistics.output.Util;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.feature.FeatureCollection;
@@ -34,9 +34,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 import javax.media.jai.Histogram;
-import javax.swing.AbstractAction;
-import javax.swing.JInternalFrame;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
@@ -93,7 +91,7 @@ class PutStatisticsIntoVectorDataAction extends AbstractAction {
         for (final SimpleFeatureType featureType : getFeatureTypes()) {
             final VectorDataNode originalVDN = featureType2VDN.get(featureType);
             if (originalVDN.isPermanent()) {
-                BeamLogManager.getSystemLogger().warning("Unable to put statistics into permanent vector data.");
+                SystemUtils.LOG.warning("Unable to put statistics into permanent vector data.");
                 VisatApp.getApp().showErrorDialog("Unable to put statistics into permanent vector data (such as pins/GCPs).");
                 continue;
             }

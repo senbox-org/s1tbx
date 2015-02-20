@@ -15,10 +15,10 @@
  */
 package org.esa.beam.framework.param;
 
-import java.util.logging.Logger;
-
 import org.esa.beam.util.Debug;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
+
+import java.util.logging.Logger;
 
 /**
  * The <code>AbstractParamValidator</code> acts as a base class for implementations of <code>ParamValidator</code>
@@ -33,7 +33,7 @@ public abstract class AbstractParamValidator implements ParamValidator {
     protected Logger _logger;
 
     protected AbstractParamValidator() {
-        _logger = BeamLogManager.getSystemLogger();
+        _logger = SystemUtils.LOG;
     }
 
     public boolean equalValues(Parameter parameter, Object value1, Object value2) {

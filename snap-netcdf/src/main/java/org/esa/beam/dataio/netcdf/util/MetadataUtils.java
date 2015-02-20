@@ -20,7 +20,7 @@ import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
 import ucar.ma2.InvalidRangeException;
@@ -111,7 +111,7 @@ public class MetadataUtils {
     private static int getMaxNumValuesRead() {
         String maxNumValuesRead = System.getProperty(PROPERTY_KEY_METADATA_ELEMENT_LIMIT);
         if (maxNumValuesRead == null) {
-            BeamLogManager.getSystemLogger().warning("Missing system property '" + PROPERTY_KEY_METADATA_ELEMENT_LIMIT + ". Falling back to default");
+            SystemUtils.LOG.warning("Missing system property '" + PROPERTY_KEY_METADATA_ELEMENT_LIMIT + ". Falling back to default");
             maxNumValuesRead = DEFAULT_MAX_NUM_VALUES_READ;
         }
         return Integer.parseInt(maxNumValuesRead);

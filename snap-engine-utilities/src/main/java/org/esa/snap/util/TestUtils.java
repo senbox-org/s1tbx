@@ -19,15 +19,25 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeConfig;
 import com.bc.ceres.core.runtime.support.DefaultRuntimeConfig;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.dataio.*;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.ProductSubsetBuilder;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.TiePointGeoCoding;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.gpf.operators.standard.WriteOp;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.db.CommonReaders;
@@ -54,7 +64,7 @@ public class TestUtils {
     private static boolean testEnvironmentInitialized = false;
     public static final String SKIPTEST = "skipTest";
 
-    public static final Logger log = BeamLogManager.getSystemLogger();
+    public static final Logger log = SystemUtils.LOG;
     private final static String contextID = SystemUtils.getApplicationContextId();
     private static final PropertiesMap testPreferences = Config.getAutomatedTestConfigPropertyMap(contextID + ".tests");
 

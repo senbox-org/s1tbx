@@ -38,7 +38,7 @@ import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.jai.ImageManager;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.visat.VisatApp;
 import org.geotools.feature.FeatureCollection;
@@ -75,24 +75,10 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -108,7 +94,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
-import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.*;
+import static org.esa.beam.visat.toolviews.stat.StatisticChartStyling.getAxisLabel;
 
 /**
  * The scatter plot pane within the statistics window.
@@ -684,7 +670,7 @@ class ScatterPlotPanel extends ChartPagePanel {
 
             @Override
             protected ComputedData[] doInBackground() throws Exception {
-                BeamLogManager.getSystemLogger().finest("start computing scatter plot data");
+                SystemUtils.LOG.finest("start computing scatter plot data");
 
                 final List<ComputedData> computedDataList = new ArrayList<>();
 
@@ -832,7 +818,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                     computeRegressionAndAcceptableDeviationData();
                     computingData = false;
                 } catch (InterruptedException | CancellationException e) {
-                    BeamLogManager.getSystemLogger().log(Level.WARNING, "Failed to compute correlative plot.", e);
+                    SystemUtils.LOG.log(Level.WARNING, "Failed to compute correlative plot.", e);
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
                                                   "Calculation canceled.",
@@ -840,7 +826,7 @@ class ScatterPlotPanel extends ChartPagePanel {
                                                   CHART_TITLE, /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
                 } catch (ExecutionException e) {
-                    BeamLogManager.getSystemLogger().log(Level.WARNING, "Failed to compute correlative plot.", e);
+                    SystemUtils.LOG.log(Level.WARNING, "Failed to compute correlative plot.", e);
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                   "Failed to compute correlative plot.\n" +
                                                   "An error occurred:\n" +

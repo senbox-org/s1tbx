@@ -24,7 +24,7 @@ import org.esa.beam.binning.SpatialBin;
 import org.esa.beam.binning.TemporalBin;
 import org.esa.beam.binning.VariableContext;
 import org.esa.beam.binning.Vector;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -90,7 +90,7 @@ public class BinTracer {
                 double lon = Double.parseDouble(latLon[1]);
                 long binIndex = planetaryGrid.getBinIndex(lat, lon);
                 String msg = String.format("Bin tracing enabled for lat=%s lon=%s binIndex=%d", lat, lon, binIndex);
-                BeamLogManager.getSystemLogger().info(msg);
+                SystemUtils.LOG.info(msg);
                 return binIndex;
             }
         }

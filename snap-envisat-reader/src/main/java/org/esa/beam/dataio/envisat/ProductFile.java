@@ -25,11 +25,11 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import java.awt.Color;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -188,7 +188,7 @@ public abstract class ProductFile {
         this.file = file;
         this.dataInputStream = dataInputStream;
         this.lineInterleaved = lineInterleaved;
-        this.logger = BeamLogManager.getSystemLogger();
+        this.logger = SystemUtils.LOG;
         init();
     }
 

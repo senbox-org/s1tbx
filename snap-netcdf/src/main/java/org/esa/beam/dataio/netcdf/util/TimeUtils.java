@@ -17,7 +17,7 @@
 package org.esa.beam.dataio.netcdf.util;
 
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 
@@ -79,7 +79,7 @@ public class TimeUtils {
                 try {
                     return ProductData.UTC.parse(dateTimeStr, ALTERNATIVE_DATE_TIME_PATTERN);
                 } catch (ParseException ignoreAgain) {
-                    BeamLogManager.getSystemLogger().warning("Failed to parse time string '" + dateTimeStr + "'");
+                    SystemUtils.LOG.warning("Failed to parse time string '" + dateTimeStr + "'");
                     return null;
                 }
             }

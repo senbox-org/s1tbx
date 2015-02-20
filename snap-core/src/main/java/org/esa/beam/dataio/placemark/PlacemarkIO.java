@@ -32,9 +32,9 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.XmlWriter;
 import org.esa.beam.util.io.BeamFileFilter;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.DOMBuilder;
@@ -45,7 +45,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.Color;
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -460,7 +460,7 @@ public class PlacemarkIO {
             try {
                 fillProperty.setValue(fillColor);
             } catch (ValidationException e) {
-                BeamLogManager.getSystemLogger().warning(e.getMessage());
+                SystemUtils.LOG.warning(e.getMessage());
             }
         }
         return fillProperty;

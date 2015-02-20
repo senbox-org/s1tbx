@@ -20,7 +20,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.JAI;
@@ -150,7 +150,7 @@ public class OperatorExecutor {
             effectiveExecutionOrder = ExecutionOrder.valueOf(executionOrderProperty);
         }
         if (effectiveExecutionOrder != executionOrder) {
-            BeamLogManager.getSystemLogger().info(
+            SystemUtils.LOG.info(
                     "Changing execution order from " + executionOrder + " to " + effectiveExecutionOrder);
         }
         return effectiveExecutionOrder;
@@ -207,8 +207,8 @@ public class OperatorExecutor {
     private void scheduleTile(final PlanarImage image, int tileX, int tileY, Semaphore semaphore,
                               TileComputationListener[] listeners, ProgressMonitor pm) {
 
-        BeamLogManager.getSystemLogger().finest(String.format("Scheduling tile x=%d/%d y=%d/%d for %s",
-                                                              tileX + 1, tileCountX, tileY + 1, tileCountY, image));
+        SystemUtils.LOG.finest(String.format("Scheduling tile x=%d/%d y=%d/%d for %s",
+                                             tileX + 1, tileCountX, tileY + 1, tileCountY, image));
 
         checkForCancelation(pm);
         acquirePermits(semaphore, 1);
@@ -300,8 +300,8 @@ public class OperatorExecutor {
                                  Raster raster) {
             for (PlanarImage planarImage : images) {
                 if (image != planarImage) {
-                    BeamLogManager.getSystemLogger().finest(String.format("Scheduling tile x=%d/%d y=%d/%d for %s",
-                                                                          tileX + 1, tileCountX, tileY + 1, tileCountY, planarImage));
+                    SystemUtils.LOG.finest(String.format("Scheduling tile x=%d/%d y=%d/%d for %s",
+                                                         tileX + 1, tileCountX, tileY + 1, tileCountY, planarImage));
                     planarImage.getTile(tileX, tileY);
                 }
                 pm.worked(1);

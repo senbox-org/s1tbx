@@ -63,7 +63,6 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.XmlWriter;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.FXYSum;
 import org.geotools.referencing.CRS;
 import org.jdom.Content;
@@ -79,8 +78,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.Color;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
@@ -1257,11 +1255,11 @@ public class DimapProductHelpers {
                 try {
                     return Double.parseDouble(text);
                 } catch (NumberFormatException e) {
-                    BeamLogManager.getSystemLogger().severe(
+                    SystemUtils.LOG.severe(
                             "Number format exception at reading DIMAP product tag '" + tag + "'");
-                    BeamLogManager.getSystemLogger().log(Level.SEVERE,
-                                                         "Number format exception at reading DIMAP product tag '" + tag + "'",
-                                                         e);
+                    SystemUtils.LOG.log(Level.SEVERE,
+                                        "Number format exception at reading DIMAP product tag '" + tag + "'",
+                                        e);
                     return null;
                 }
             } else {
@@ -1275,11 +1273,11 @@ public class DimapProductHelpers {
                 try {
                     return Integer.parseInt(text);
                 } catch (NumberFormatException e) {
-                    BeamLogManager.getSystemLogger().severe(
+                    SystemUtils.LOG.severe(
                             "Number format exception at reading DIMAP product tag '" + tag + "'");
-                    BeamLogManager.getSystemLogger().log(Level.SEVERE,
-                                                         "Number format exception at reading DIMAP product tag '" + tag + "'",
-                                                         e);
+                    SystemUtils.LOG.log(Level.SEVERE,
+                                        "Number format exception at reading DIMAP product tag '" + tag + "'",
+                                        e);
                     return null;
                 }
             } else {

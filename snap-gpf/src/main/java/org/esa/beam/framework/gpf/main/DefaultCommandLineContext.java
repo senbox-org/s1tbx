@@ -27,7 +27,7 @@ import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessingObserver;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -91,7 +91,7 @@ class DefaultCommandLineContext implements CommandLineContext {
 
     @Override
     public Logger getLogger() {
-        return BeamLogManager.getSystemLogger();
+        return SystemUtils.LOG;
     }
 
     @Override

@@ -15,7 +15,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.statistics.output.Util;
 import org.esa.beam.util.FeatureUtils;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -25,7 +25,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.media.jai.Histogram;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.image.DataBuffer;
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class StatisticComputer {
 
     public StatisticComputer(File shapefile, BandConfiguration[] bandConfigurations, int initialBinCount, Logger logger) {
         this.initialBinCount = initialBinCount;
-        this.logger = logger != null ? logger : BeamLogManager.getSystemLogger();
+        this.logger = logger != null ? logger : SystemUtils.LOG;
         if (shapefile != null) {
             try {
                 features = FeatureUtils.loadFeatureCollectionFromShapefile(shapefile);

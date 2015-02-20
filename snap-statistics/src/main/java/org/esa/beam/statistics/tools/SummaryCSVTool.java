@@ -12,7 +12,6 @@ import org.esa.beam.framework.gpf.main.GPT;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -72,7 +71,7 @@ public class SummaryCSVTool {
 
         initSystem();
 
-        final Logger logger = BeamLogManager.getSystemLogger();
+        final Logger logger = SystemUtils.LOG;
 
         final ShapeFileReader shapeFileReader = new ShapeFileReader() {
             @Override

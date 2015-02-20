@@ -15,7 +15,7 @@
  */
 package org.esa.beam.visat;
 
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import java.util.logging.Level;
 
@@ -48,13 +48,13 @@ class VisatPlugInManager {
                 final String msg = String.format("%s plug-in started: %s",
                                                  VisatApp.getApp().getAppName(),
                                                  plugin.getClass().getName());
-                BeamLogManager.getSystemLogger().info(msg);
+                SystemUtils.LOG.info(msg);
             } catch (Throwable e) {
                 // Note: it is OK in this case to catch a Throwable, because "foreign" code is executed here
                 final String msg = String.format("Failed to start %s plug-in: %s",
                                                VisatApp.getApp().getAppName(),
                                                plugin.getClass().getName());
-                BeamLogManager.getSystemLogger().log(Level.SEVERE, msg, e);
+                SystemUtils.LOG.log(Level.SEVERE, msg, e);
             }
         }
     }
@@ -72,12 +72,12 @@ class VisatPlugInManager {
                                                  VisatApp.getApp().getAppName(),
                                                  plugin.getClass().getName());
 
-                BeamLogManager.getSystemLogger().info(msg);
+                SystemUtils.LOG.info(msg);
             } catch (Throwable e) {
                 final String msg = String.format("Failed to stop %s plug-in: %s",
                                                VisatApp.getApp().getAppName(),
                                                plugin.getClass().getName());
-                BeamLogManager.getSystemLogger().log(Level.SEVERE, msg, e);
+                SystemUtils.LOG.log(Level.SEVERE, msg, e);
             }
         }
     }

@@ -46,11 +46,11 @@ import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.jai.ImageManager;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.geotiff.EPSGCodes;
 import org.esa.beam.util.geotiff.GeoTIFFCodes;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.jai.JAIUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffConstants;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffException;
 import org.geotools.coverage.grid.io.imageio.geotiff.GeoTiffIIOMetadataDecoder;
@@ -559,7 +559,7 @@ public class GeoTiffProductReader extends AbstractProductReader {
         try {
             return Integer.parseInt(metadata.getGeoKey(key));
         } catch (NumberFormatException ne) {
-            BeamLogManager.getSystemLogger().log(Level.FINE, ne.getMessage(), ne);
+            SystemUtils.LOG.log(Level.FINE, ne.getMessage(), ne);
             return GeoTiffConstants.UNDEFINED;
         }
 

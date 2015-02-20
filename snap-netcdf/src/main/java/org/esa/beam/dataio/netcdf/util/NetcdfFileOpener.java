@@ -16,7 +16,7 @@
 
 package org.esa.beam.dataio.netcdf.util;
 
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.iosp.IOServiceProvider;
 import ucar.nc2.iosp.hdf4.H4iosp;
@@ -54,7 +54,7 @@ import java.util.zip.ZipInputStream;
  */
 public class NetcdfFileOpener {
 
-    private static final Logger LOG = BeamLogManager.getSystemLogger();
+    private static final Logger LOG = SystemUtils.LOG;
 
     private static final int MAGIC_BUFFER_LENGTH = 8;
     private static final int COPY_BUFFER_LENGTH = 100000;

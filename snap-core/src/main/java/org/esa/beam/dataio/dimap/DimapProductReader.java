@@ -37,8 +37,8 @@ import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.FeatureUtils;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.jdom.Document;
 import org.jdom.input.DOMBuilder;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -192,9 +192,9 @@ public class DimapProductReader extends AbstractProductReader {
             }
             final File dataFile = bandDataFiles.get(band);
             if (dataFile == null || !dataFile.canRead()) {
-                BeamLogManager.getSystemLogger().warning(
+                SystemUtils.LOG.warning(
                         "DimapProductReader: Unable to read file '" + dataFile + "' referenced by '" + band.getName() + "'.");
-                BeamLogManager.getSystemLogger().warning(
+                SystemUtils.LOG.warning(
                         "DimapProductReader: Removed band '" + band.getName() + "' from product '" + product.getFileLocation() + "'.");
             }
         }
@@ -380,9 +380,9 @@ public class DimapProductReader extends AbstractProductReader {
             try {
                 inputStream = new FileImageInputStream(file);
             } catch (IOException e) {
-                BeamLogManager.getSystemLogger().log(Level.WARNING,
-                                                     "DimapProductReader: Unable to read file '" + file + "' referenced by '" + band.getName() + "'.",
-                                                     e);
+                SystemUtils.LOG.log(Level.WARNING,
+                                    "DimapProductReader: Unable to read file '" + file + "' referenced by '" + band.getName() + "'.",
+                                    e);
             }
             if (inputStream == null) {
                 return null;
@@ -439,7 +439,7 @@ public class DimapProductReader extends AbstractProductReader {
                 vectorDataGroup.add(vectorDataNode);
             }
         } catch (IOException e) {
-            BeamLogManager.getSystemLogger().log(Level.SEVERE, "Error reading '" + vectorFile + "'", e);
+            SystemUtils.LOG.log(Level.SEVERE, "Error reading '" + vectorFile + "'", e);
         } finally {
             if (reader != null) {
                 reader.close();

@@ -38,12 +38,10 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -118,7 +116,7 @@ public class SpatialProductBinner {
             binTracer.setProductName(productName);
         }
         progressMonitor.beginTask("Spatially binning of " + productName, sliceRectangles.length);
-        final Logger logger = BeamLogManager.getSystemLogger();
+        final Logger logger = SystemUtils.LOG;
         for (int idx = 0; idx < sliceRectangles.length; idx++) {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
@@ -223,7 +221,7 @@ public class SpatialProductBinner {
         String sliceHeightString = System.getProperty(PROPERTY_KEY_SLICE_HEIGHT, String.valueOf(sliceHeight));
         Dimension dimension = new Dimension(sliceWidth, Integer.parseInt(sliceHeightString));
         String logMsg = String.format("Using slice dimension [width=%d, height=%d] in binning", dimension.width, dimension.height);
-        BeamLogManager.getSystemLogger().log(Level.INFO, logMsg);
+        SystemUtils.LOG.log(Level.INFO, logMsg);
         return dimension;
     }
 

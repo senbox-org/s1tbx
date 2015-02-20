@@ -16,7 +16,6 @@
 package org.esa.snap.util;
 
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,13 +46,13 @@ public class Config {
 
     public static void load(final PropertiesMap propMap, final File file) {
         if (!file.exists()) {
-            BeamLogManager.getSystemLogger().severe(file.getAbsolutePath() + " not found");
+            SystemUtils.LOG.severe(file.getAbsolutePath() + " not found");
         }
         try {
             propMap.load(file);
 
         } catch (IOException e) {
-            BeamLogManager.getSystemLogger().severe("Unable to load application config " + e.getMessage());
+            SystemUtils.LOG.severe("Unable to load application config " + e.getMessage());
         }
     }
 
@@ -67,7 +66,7 @@ public class Config {
                 testPrefs.put(testFile.getName(), testPref);
 
             } catch (IOException e) {
-                BeamLogManager.getSystemLogger().severe("Unable to load test config " + e.getMessage());
+                SystemUtils.LOG.severe("Unable to load test config " + e.getMessage());
             }
         }
     }

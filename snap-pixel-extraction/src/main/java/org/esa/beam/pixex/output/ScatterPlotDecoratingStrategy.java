@@ -21,7 +21,7 @@ import org.esa.beam.measurement.Measurement;
 import org.esa.beam.measurement.writer.FormatStrategy;
 import org.esa.beam.pixex.PixExOp;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -123,7 +123,7 @@ public class ScatterPlotDecoratingStrategy implements FormatStrategy {
                     );
                     ChartUtilities.saveChartAsPNG(targetFile, entry.getValue(), 600, 400);
                 } catch (IOException e) {
-                    BeamLogManager.getSystemLogger().warning(e.getMessage());
+                    SystemUtils.LOG.warning(e.getMessage());
                 }
             }
         }

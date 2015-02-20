@@ -22,7 +22,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 /**
  * Filters out all products that do not overlap with the given data day.
@@ -74,11 +74,11 @@ class SpatialDataDaySourceProductFilter extends BinningProductFilter {
                 bottomLeft == bottomRight &&
                 topLeft != DataPeriod.Membership.CURRENT_PERIOD) {
                 final String msg = "not " + message;
-                BeamLogManager.getSystemLogger().finer(msg);
+                SystemUtils.LOG.finer(msg);
                 setReason(msg);
                 return false;
             }
-            BeamLogManager.getSystemLogger().finer(message);
+        SystemUtils.LOG.finer(message);
 
             return true;
         }
