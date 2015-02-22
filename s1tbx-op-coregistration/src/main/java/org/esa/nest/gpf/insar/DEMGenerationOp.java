@@ -251,7 +251,7 @@ public final class DEMGenerationOp extends Operator {
      */
     private void addSelectedBands() {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
         boolean validProduct = false;
         for (Band band : sourceBands) {
             if (band.getName().startsWith("Unw")) {

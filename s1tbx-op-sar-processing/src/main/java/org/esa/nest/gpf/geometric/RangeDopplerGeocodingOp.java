@@ -274,7 +274,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                 calibrator = CalibrationFactory.createCalibrator(sourceProduct);
 
                 if (calibrator instanceof Sentinel1Calibrator) {
-                    final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+                    final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
                     final Set<String> polList = new HashSet<>();
                     for(Band band : sourceBands) {
                         polList.add(OperatorUtils.getBandPolarization(band.getName(), absRoot));
@@ -555,7 +555,7 @@ public class RangeDopplerGeocodingOp extends Operator {
      */
     void addSelectedBands() throws OperatorException {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
         String targetBandName;
         for (int i = 0; i < sourceBands.length; i++) {
