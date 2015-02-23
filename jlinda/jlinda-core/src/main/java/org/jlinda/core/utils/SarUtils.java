@@ -220,7 +220,7 @@ public class SarUtils {
             logger.warning("coherence: estimator window size L<P not very efficiently programmed.");
         }
 
-        if (input.rows != norms.rows || input.rows != input.rows) {
+        if (input.rows != norms.rows) {
             logger.severe("coherence: not same dimensions.");
             throw new IllegalArgumentException("coherence: not the same dimensions.");
         }
@@ -228,14 +228,14 @@ public class SarUtils {
         // allocate output :: account for window overlap
         final int extent_RG = input.columns;
         final int extent_AZ = input.rows - winL + 1;
-        DoubleMatrix result = new DoubleMatrix(input.rows - winL + 1, input.columns - winP + 1);
+        final DoubleMatrix result = new DoubleMatrix(input.rows - winL + 1, input.columns - winP + 1);
 
         // temp variables
         int i, j, k, l;
         ComplexDouble sum;
         ComplexDouble power;
-        int leadingZeros = (winP - 1) / 2;  // number of pixels=0 floor...
-        int trailingZeros = (winP) / 2;     // floor...
+        final int leadingZeros = (winP - 1) / 2;  // number of pixels=0 floor...
+        final int trailingZeros = (winP) / 2;     // floor...
 
         for (j = leadingZeros; j < extent_RG - trailingZeros; j++) {
 
@@ -243,19 +243,23 @@ public class SarUtils {
             power = new ComplexDouble(0);
 
             //// Compute sum over first data block ////
+            int minL = j - leadingZeros;
+            int maxL = minL + winP;
             for (k = 0; k < winL; k++) {
-                for (l = j - leadingZeros; l < j - leadingZeros + winP; l++) {
+                for (l = minL; l < maxL; l++) {
                     sum.addi(input.get(k, l));
                     power.addi(norms.get(k, l));
                 }
             }
-            result.put(0, j - leadingZeros, coherenceProduct(sum, power));
+            result.put(0, minL, coherenceProduct(sum, power));
 
             //// Compute (relatively) sum over rest of data blocks ////
-            for (i = 0; i < extent_AZ - 1; i++) {
-                for (l = j - leadingZeros; l < j - leadingZeros + winP; l++) {
-                    sum.addi(input.get(i + winL, l).sub(input.get(i, l)));
-                    power.addi(norms.get(i + winL, l).sub(norms.get(i, l)));
+            final int maxI = extent_AZ - 1;
+            for (i = 0; i < maxI; i++) {
+                final int iwinL = i + winL;
+                for (l = minL; l < maxL; l++) {
+                    sum.addi(input.get(iwinL, l).sub(input.get(i, l)));
+                    power.addi(norms.get(iwinL, l).sub(norms.get(i, l)));
                 }
                 result.put(i + 1, j - leadingZeros, coherenceProduct(sum, power));
             }

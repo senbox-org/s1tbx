@@ -259,7 +259,7 @@ public class NetCDFWriter extends AbstractProductWriter {
     }
 
     private void addElements(final MetadataElement parentElem, final Group parentGroup) {
-        final Map<String, Integer> dupeCntElem = new HashMap<String, Integer>();
+        final Map<String, Integer> dupeCntElem = new HashMap<>();
 
         for (int i = 0; i < parentElem.getNumElements(); i++) {
             final MetadataElement subElement = parentElem.getElementAt(i);
@@ -296,7 +296,7 @@ public class NetCDFWriter extends AbstractProductWriter {
     }
 
     private void addAttributes(final MetadataElement elem, final Group newGroup) {
-        final Map<String, Integer> dupeCntAtrib = new HashMap<String, Integer>();
+        final Map<String, Integer> dupeCntAtrib = new HashMap<>();
 
         for (int i = 0; i < elem.getNumAttributes(); i++) {
             final MetadataAttribute attrib = elem.getAttributeAt(i);

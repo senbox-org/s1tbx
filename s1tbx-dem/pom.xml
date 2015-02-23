@@ -9,7 +9,6 @@
         <version>1.1.0</version>
     </parent>
 
-    <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx-dem</artifactId>
     <name>S1TBX Digital Elevation Models</name>
 

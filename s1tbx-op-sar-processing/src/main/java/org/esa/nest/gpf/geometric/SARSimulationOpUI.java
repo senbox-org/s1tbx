@@ -39,10 +39,10 @@ import java.util.Map;
 public class SARSimulationOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
-    private final JComboBox<String> demName = new JComboBox<String>(DEMFactory.getDEMNameList());
+    private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
     private static final String externalDEMStr = "External DEM";
 
-    private final JComboBox demResamplingMethod = new JComboBox<String>(ResamplingFactory.resamplingNames);
+    private final JComboBox demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
 
     private final JTextField externalDEMFile = new JTextField("");
     private final JTextField externalDEMNoDataValue = new JTextField("");

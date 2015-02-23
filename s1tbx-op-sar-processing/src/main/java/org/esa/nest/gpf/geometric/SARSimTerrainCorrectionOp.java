@@ -203,10 +203,10 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
     private OrbitStateVector[] orbitStateVectors = null;
-    private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>();
-    private final Map<String, Boolean> targetBandapplyRadiometricNormalizationFlag = new HashMap<String, Boolean>();
-    private final Map<String, Boolean> targetBandApplyRetroCalibrationFlag = new HashMap<String, Boolean>();
-    private final Map<Band, WarpOp.WarpData> warpDataMap = new HashMap<Band, WarpOp.WarpData>(10);
+    private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>();
+    private final Map<String, Boolean> targetBandapplyRadiometricNormalizationFlag = new HashMap<>();
+    private final Map<String, Boolean> targetBandApplyRetroCalibrationFlag = new HashMap<>();
+    private final Map<Band, WarpOp.WarpData> warpDataMap = new HashMap<>(10);
     private String processedSlaveBand;
 
     private TiePointGrid incidenceAngle = null;
@@ -840,7 +840,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
             outputResidualAndShiftFiles();
         }
 
-        final List<RangeDopplerGeocodingOp.TileData> trgTileList = new ArrayList<RangeDopplerGeocodingOp.TileData>();
+        final List<RangeDopplerGeocodingOp.TileData> trgTileList = new ArrayList<>();
         for (Band targetBand : keySet) {
 
             if (targetBand.getName().equals("elevation")) {
@@ -966,7 +966,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
                         rangeIndex = srcMaxRange - rangeIndex;
                     }
 
-                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, tileGeoRef,
+                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, latitude, longitude,
                             srcMaxRange, srcMaxAzimuth, sensorPos)) {
                         //saveNoDataValueToTarget(index, trgTiles);
                     } else {

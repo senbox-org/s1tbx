@@ -391,7 +391,7 @@ public class NetCDFUtils {
 
     public static Variable[] getTiePointGridVariables(Map<NcRasterDim, List<Variable>> variableLists,
                                                       Variable[] rasterVariables) {
-        final List<Variable> tpgList = new ArrayList<Variable>();
+        final List<Variable> tpgList = new ArrayList<>();
         final Set<NcRasterDim> keySet = variableLists.keySet();
         for (NcRasterDim o : keySet) {
             final List<Variable> varList = variableLists.get(o);
@@ -467,7 +467,7 @@ public class NetCDFUtils {
     }
 
     public static Map<NcRasterDim, List<Variable>> getVariableListMap(final Group group) {
-        final Map<NcRasterDim, List<Variable>> variableLists = new HashMap<NcRasterDim, List<Variable>>(31);
+        final Map<NcRasterDim, List<Variable>> variableLists = new HashMap<>(31);
         collectVariableLists(group, variableLists);
         return variableLists;
     }
@@ -488,7 +488,7 @@ public class NetCDFUtils {
                     NcRasterDim rasterDim = new NcRasterDim(dimX, dimY);
                     List<Variable> list = variableLists.get(rasterDim);
                     if (list == null) {
-                        list = new ArrayList<Variable>();
+                        list = new ArrayList<>();
                         variableLists.put(rasterDim, list);
                     }
                     list.add(variable);

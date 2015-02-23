@@ -95,22 +95,14 @@
 
     <extension point="snap-ui:actions">
 
-        <action>
-            <id>insar</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Interferometric</text>
-            <parent>Sar Processing</parent>
-            <placeAfter>geometry</placeAfter>
-        </action>
-
         <!-- Geometric -->
 
         <action>
             <id>geometry</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Geometric</text>
-            <parent>Sar Processing</parent>
-            <placeAfter>Calibration</placeAfter>
+            <parent>SAR Processing</parent>
+            <placeAfter>insar</placeAfter>
         </action>
 
         <action>
@@ -196,12 +188,22 @@
         </action>
 
         <action>
+            <id>reprojection2</id>
+            <helpId>reprojectionAction</helpId>
+            <class>org.esa.beam.gpf.operators.reproject.ReprojectionAction</class>
+            <text>Reprojection...</text>
+            <shortDescr>Apply a reprojection.</shortDescr>
+            <parent>geometry</parent>
+            <placeAfter>EllipsoidCorrection</placeAfter>
+        </action>
+
+        <action>
             <id>MosaicOp</id>
             <helpId>MosaicOp</helpId>
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>geometry</parent>
-            <placeAfter>DEMTools</placeAfter>
+            <placeAfter>reprojection2</placeAfter>
             <text>SAR Mosaic</text>
             <shortDescr>Mosaic various images together</shortDescr>
             <dialogTitle>Mosaic</dialogTitle>
@@ -245,7 +247,7 @@
             <operatorName>SRGR</operatorName>
             <dialogTitle>Converts from slant range to ground range</dialogTitle>
             <targetProductNameSuffix>_GrdRg</targetProductNameSuffix>
-            <placeAfter>DEMTools</placeAfter>
+            <placeAfter>EllipsoidCorrection</placeAfter>
         </action>
 
         <action>
@@ -268,7 +270,7 @@
             <id>SpeckleFiltering</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Speckle Filtering</text>
-            <parent>Sar Processing</parent>
+            <parent>SAR Processing</parent>
             <placeAfter>Calibration</placeAfter>
         </action>
 
@@ -305,8 +307,8 @@
             <helpId>MultilookOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>Sar Processing</parent>
-            <placeAfter>CoregistrationGroup</placeAfter>
+            <parent>SAR Processing</parent>
+            <placeAfter>Sentinel1</placeAfter>
             <text>Multilooking</text>
             <operatorName>Multilook</operatorName>
             <dialogTitle>Multilook</dialogTitle>
@@ -319,8 +321,8 @@
             <helpId>SLCtoPRI</helpId>
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
-            <parent>Sar Processing</parent>
-            <placeAfter>CoregistrationGroup</placeAfter>
+            <parent>SAR Processing</parent>
+            <placeAfter>Sentinel1</placeAfter>
             <text>Complex to Detected GR</text>
             <shortDescr>Convert a SLC product to a detected ground range product</shortDescr>
             <dialogTitle>Complex to Detected Ground Range</dialogTitle>
@@ -331,7 +333,7 @@
             <id>ASARWSS</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>ASAR WSS</text>
-            <parent>Sar Processing</parent>
+            <parent>SAR Processing</parent>
             <placeAfter>SpeckleFiltering</placeAfter>
         </action>
 
@@ -393,7 +395,7 @@
             <helpId>ApplyOrbitFileOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>Sar Processing</parent>
+            <parent>SAR Processing</parent>
             <text>Apply Orbit File</text>
             <operatorName>Apply-Orbit-File</operatorName>
             <dialogTitle>Apply Orbit File to Product</dialogTitle>

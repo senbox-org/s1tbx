@@ -45,7 +45,7 @@ import java.util.List;
  */
 @OperatorMetadata(alias = "Stack-Split",
         description = "Writes all bands to files.",
-        category = "SAR Processing/Coregistration")
+        category = "SAR Processing/Coregistration/Stack Tools")
 public class StackSplitWriter extends Operator implements Output {
 
     @TargetProduct

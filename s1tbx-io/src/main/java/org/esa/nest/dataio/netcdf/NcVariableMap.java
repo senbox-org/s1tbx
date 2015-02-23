@@ -34,7 +34,7 @@ public class NcVariableMap {
     private final Map<String, Variable> map;
 
     private NcVariableMap(final int initialCapacity) {
-        map = new HashMap<String, Variable>(initialCapacity);
+        map = new HashMap<>(initialCapacity);
     }
 
     public NcVariableMap(final Variable[] variables) {

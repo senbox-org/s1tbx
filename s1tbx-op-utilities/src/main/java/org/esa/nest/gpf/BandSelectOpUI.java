@@ -15,37 +15,53 @@
  */
 package org.esa.nest.gpf;
 
-import org.esa.snap.gpf.ui.BaseOperatorUI;
-import org.esa.snap.gpf.ui.UIValidation;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ui.BaseOperatorUI;
+import org.esa.snap.gpf.ui.OperatorUIUtils;
+import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * User interface for MultiInputStackAveragingOp
+ * User interface for Band Select
  */
-public class MultiInputStackAveragingOpUI extends BaseOperatorUI {
+public class BandSelectOpUI extends BaseOperatorUI {
 
-    private final JComboBox statistic = new JComboBox(new String[]{"Mean Average", "Minimum", "Maximum",
-            "Standard Deviation", "Coefficient of Variation"});
+    private final JList<String> polList = new JList<>();
+    private final JList bandList = new JList();
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
 
         initializeOperatorUI(operatorName, parameterMap);
         final JComponent panel = createPanel();
-
         initParameters();
-
         return new JScrollPane(panel);
     }
 
     @Override
     public void initParameters() {
-        statistic.setSelectedItem(paramMap.get("statistic"));
+
+        if (sourceProducts != null && sourceProducts.length > 0) {
+            final Set<String> pols = new HashSet<>(4);
+            for(Band srcBand : sourceProducts[0].getBands()) {
+                final String pol = OperatorUtils.getPolarizationFromBandName(srcBand.getName());
+                if(pol != null)
+                    pols.add(pol.toUpperCase());
+            }
+
+            OperatorUIUtils.initParamList(polList, pols.toArray(new String[pols.size()]),
+                    (String[])paramMap.get("selectedPolarisations"));
+        }
+
+        OperatorUIUtils.initParamList(bandList, getBandNames());
     }
 
     @Override
@@ -55,17 +71,21 @@ public class MultiInputStackAveragingOpUI extends BaseOperatorUI {
 
     @Override
     public void updateParameters() {
-        paramMap.put("statistic", statistic.getSelectedItem());
+
+        OperatorUIUtils.updateParamList(polList, paramMap, "selectedPolarisations");
+
+        OperatorUIUtils.updateParamList(bandList, paramMap, OperatorUIUtils.SOURCE_BAND_NAMES);
     }
 
     private JComponent createPanel() {
 
-        final JPanel contentPane = new JPanel();
-        contentPane.setLayout(new GridBagLayout());
+        final JPanel contentPane = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
 
-        DialogUtils.addComponent(contentPane, gbc, "Statistic:", statistic);
+        DialogUtils.addComponent(contentPane, gbc, "Polarisations:", polList);
+
         gbc.gridy++;
+        DialogUtils.addComponent(contentPane, gbc, "Source Bands:", new JScrollPane(bandList));
 
         DialogUtils.fillPanel(contentPane, gbc);
 

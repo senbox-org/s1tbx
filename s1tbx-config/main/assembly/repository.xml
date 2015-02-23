@@ -12,10 +12,6 @@
 			<excludes>
                 <exclude>org.esa.snap:snap-beam-bootstrap</exclude>
 				<exclude>org.esa.snap:snap-rtp-codec</exclude>
-				<exclude>org.esa.snap:snap-installer</exclude>
-				<exclude>org.esa.snap:snap-deploy</exclude>
-                <exclude>org.esa.snap:snap-metadata</exclude>
-                <exclude>org.esa.snap:snap-site</exclude>
                 <exclude>org.esa.s1tbx:s1tbx-bootstrap</exclude>
                 <exclude>org.esa.s1tbx:s1tbx-benchmark</exclude>
                 <exclude>org.esa.s1tbx:s1tbx-config</exclude>

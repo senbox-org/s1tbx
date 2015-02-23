@@ -203,21 +203,21 @@ public final class Orbit {
             ellipsoidPosition.y += ellipsoidPositionSolution[1];
             ellipsoidPosition.z += ellipsoidPositionSolution[2];
 
-            logger.fine("ellipsoidPosition.x = " + ellipsoidPosition.x);
-            logger.fine("ellipsoidPosition.y = " + ellipsoidPosition.y);
-            logger.fine("ellipsoidPosition.z = " + ellipsoidPosition.z);
+            //logger.fine("ellipsoidPosition.x = " + ellipsoidPosition.x);
+            //logger.fine("ellipsoidPosition.y = " + ellipsoidPosition.y);
+            //logger.fine("ellipsoidPosition.z = " + ellipsoidPosition.z);
 
             // check convergence
             if (Math.abs(ellipsoidPositionSolution[0]) < CRITERPOS &&
                     Math.abs(ellipsoidPositionSolution[1]) < CRITERPOS &&
                     Math.abs(ellipsoidPositionSolution[2]) < CRITERPOS) {
-                logger.info("INFO: ellipsoidPosition (converged): {"+ellipsoidPosition+"} ");
+                //logger.info("INFO: ellipsoidPosition (converged): {"+ellipsoidPosition+"} ");
                 break;
 
             } else if (iter >= MAXITER) {
 //                MAXITER = MAXITER + 1;
-                logger.warning("line, pix -> x,y,z: maximum iterations ( {"+MAXITER+"} ) reached.");
-                logger.warning("Criterium (m): {"+CRITERPOS+"}  dx,dy,dz = {"+ ArrayUtils.toString(ellipsoidPositionSolution)+"}");
+                //logger.warning("line, pix -> x,y,z: maximum iterations ( {"+MAXITER+"} ) reached.");
+                //logger.warning("Criterium (m): {"+CRITERPOS+"}  dx,dy,dz = {"+ ArrayUtils.toString(ellipsoidPositionSolution)+"}");
 
                 if (MAXITER > 10) {
                     logger.severe("lp2xyz : MAXITER limit reached! lp2xyz() estimation is diverging?!");
@@ -303,26 +303,26 @@ public final class Orbit {
         return new Point(ellipsoidPosition);
     }
 
-    public synchronized Point lp2xyz(final Point sarPixel, final SLCImage slcimage) throws Exception {
+    public Point lp2xyz(final Point sarPixel, final SLCImage slcimage) throws Exception {
         return lph2xyz(sarPixel.y, sarPixel.x, 0, slcimage);
     }
 
-    public synchronized Point lp2xyz(final double line, final double pixel, final SLCImage slcimage) throws Exception {
+    public Point lp2xyz(final double line, final double pixel, final SLCImage slcimage) throws Exception {
         return lph2xyz(line, pixel, 0, slcimage);
     }
 
-    public synchronized Point xyz2orb(final Point pointOnEllips, final SLCImage slcimage) {
+    public Point xyz2orb(final Point pointOnEllips, final SLCImage slcimage) {
         // return satellite position
         // Point pointTime = xyz2t(pointOnEllips,slcimage);
         return getXYZ(xyz2t(pointOnEllips, slcimage).y); // inlined
     }
 
-    public synchronized Point lp2orb(final Point sarPixel, final SLCImage slcimage) throws Exception {
+    public Point lp2orb(final Point sarPixel, final SLCImage slcimage) throws Exception {
         // return satellite position
         return getXYZ(xyz2t(lp2xyz(sarPixel, slcimage), slcimage).y); // inlined
     }
 
-    public synchronized Point xyz2t(final Point pointOnEllips, final SLCImage slcimage) {
+    public Point xyz2t(final Point pointOnEllips, final SLCImage slcimage) {
 
         Point delta;
 
@@ -362,7 +362,7 @@ public final class Orbit {
         return new Point(timeRange, timeAzimuth);
     }
 
-    public synchronized Point xyz2t(final Point pointOnEllips, final double sceneCentreAzimuthTime) {
+    public Point xyz2t(final Point pointOnEllips, final double sceneCentreAzimuthTime) {
 
         Point delta;
 
@@ -403,43 +403,32 @@ public final class Orbit {
     }
 
 
-    public synchronized Point xyz2lp(final Point pointOnEllips, final SLCImage slcimage) {
-
-        Point sarPixel = new Point();
+    public Point xyz2lp(final Point pointOnEllips, final SLCImage slcimage) {
 
         // Compute tazi, tran
         Point time = xyz2t(pointOnEllips, slcimage);
 
-        // Convert time to pixel
-        sarPixel.x = slcimage.tr2pix(time.x);
-        sarPixel.y = slcimage.ta2line(time.y);
-
-        return new Point(sarPixel);
+        return new Point(slcimage.tr2pix(time.x), slcimage.ta2line(time.y));
     }
 
-    public synchronized Point ell2lp(final double[] phi_lam_height, final SLCImage slcimage) throws Exception {
-        final Point pointOnEllips = Ellipsoid.ell2xyz(phi_lam_height);
-        return xyz2lp(pointOnEllips, slcimage);
+    public Point ell2lp(final double[] phi_lam_height, final SLCImage slcimage) throws Exception {
+        return xyz2lp(Ellipsoid.ell2xyz(phi_lam_height), slcimage);
     }
 
-    public synchronized double[] lp2ell(final Point sarPixel, final SLCImage slcimage) throws Exception {
-        final Point xyz = lp2xyz(sarPixel, slcimage);
-        return Ellipsoid.xyz2ell(xyz);
+    public double[] lp2ell(final Point sarPixel, final SLCImage slcimage) throws Exception {
+        return Ellipsoid.xyz2ell(lp2xyz(sarPixel, slcimage));
     }
 
-    public synchronized double[] lph2ell(final double line, final double pixel, final double height, final SLCImage slcimage) throws Exception {
-        final Point xyz = lph2xyz(line, pixel, height, slcimage);
-        return Ellipsoid.xyz2ell(xyz);
+    public double[] lph2ell(final double line, final double pixel, final double height, final SLCImage slcimage) throws Exception {
+        return Ellipsoid.xyz2ell(lph2xyz(line, pixel, height, slcimage));
     }
 
-    public synchronized double[] lph2ell(final Point sarPixel, final SLCImage slcimage) throws Exception {
-        final Point xyz = lph2xyz(sarPixel.x, sarPixel.y, sarPixel.z, slcimage);
-        return Ellipsoid.xyz2ell(xyz);
+    public double[] lph2ell(final Point sarPixel, final SLCImage slcimage) throws Exception {
+        return Ellipsoid.xyz2ell(lph2xyz(sarPixel.x, sarPixel.y, sarPixel.z, slcimage));
     }
 
-    public synchronized double[] lph2ell(final Point sarPixel, final double height, final SLCImage slcimage) throws Exception {
-        final Point xyz = lph2xyz(sarPixel.x, sarPixel.y, height, slcimage);
-        return Ellipsoid.xyz2ell(xyz);
+    public double[] lph2ell(final Point sarPixel, final double height, final SLCImage slcimage) throws Exception {
+        return Ellipsoid.xyz2ell(lph2xyz(sarPixel.x, sarPixel.y, height, slcimage));
     }
 
     // TODO: legacy support, implementation from baseline class
@@ -450,31 +439,26 @@ public final class Orbit {
 
     public Point getXYZ(final double azTime) {
 
-        if (azTime < time[0] || azTime > time[numStateVectors - 1]) {
-            logger.warning("getXYZ() interpolation at: " + azTime + " is outside interval time axis: ("
-                    + time[0] + ", " + time[numStateVectors - 1] + ").");
-        }
-
-        Point satelliteXYZPosition = new Point();
+        //if (azTime < time[0] || azTime > time[numStateVectors - 1]) {
+        //    logger.warning("getXYZ() interpolation at: " + azTime + " is outside interval time axis: ("
+        //            + time[0] + ", " + time[numStateVectors - 1] + ").");
+        //}
 
         // normalize time
         double azTimeNormal = (azTime - time[time.length / 2]) / 10;
 
-        satelliteXYZPosition.x = PolyUtils.polyVal1D(azTimeNormal, coeff_X);
-        satelliteXYZPosition.y = PolyUtils.polyVal1D(azTimeNormal, coeff_Y);
-        satelliteXYZPosition.z = PolyUtils.polyVal1D(azTimeNormal, coeff_Z);
-
-        return satelliteXYZPosition;  //To change body of created methods use File | Settings | File Templates.
+        return new Point(
+                PolyUtils.polyVal1D(azTimeNormal, coeff_X),
+                PolyUtils.polyVal1D(azTimeNormal, coeff_Y),
+                PolyUtils.polyVal1D(azTimeNormal, coeff_Z));
     }
 
     public Point getXYZDot(double azTime) {
 
-        if (azTime < time[0] || azTime > time[numStateVectors - 1]) {
-            logger.warning("getXYZDot() interpolation at: " + azTime + " is outside interval time axis: ("
-                    + time[0] + ", " + time[numStateVectors - 1] + ").");
-        }
-
-        Point satelliteVelocity = new Point();
+        //if (azTime < time[0] || azTime > time[numStateVectors - 1]) {
+        //    logger.warning("getXYZDot() interpolation at: " + azTime + " is outside interval time axis: ("
+        //            + time[0] + ", " + time[numStateVectors - 1] + ").");
+        //}
 
         //TODO: spline support!
 
@@ -483,25 +467,21 @@ public final class Orbit {
 
         int DEGREE = coeff_X.length - 1;
 
-        satelliteVelocity.x = coeff_X[1];
-        satelliteVelocity.y = coeff_Y[1];
-        satelliteVelocity.z = coeff_Z[1];
+        double x = coeff_X[1];
+        double y = coeff_Y[1];
+        double z = coeff_Z[1];
 
         for (int i = 2; i <= DEGREE; ++i) {
-            double powT = (double) i * FastMath.pow(azTime, (double) (i - 1));
-            satelliteVelocity.x += coeff_X[i] * powT;
-            satelliteVelocity.y += coeff_Y[i] * powT;
-            satelliteVelocity.z += coeff_Z[i] * powT;
+            double powT = i * FastMath.pow(azTime, i - 1);
+            x += coeff_X[i] * powT;
+            y += coeff_Y[i] * powT;
+            z += coeff_Z[i] * powT;
         }
 
-        return satelliteVelocity.divByScalar(10.0d);
-
+        return new Point(x/10.0, y/10.0, z/10.0);
     }
 
     public Point getXYZDotDot(final double azTime) {
-
-        //TODO: sanity check
-        Point satelliteAcceleration = new Point();
 
         // normalize time
         double azTimeNormal = (azTime - time[time.length / 2]) / 10.0d;
@@ -509,14 +489,15 @@ public final class Orbit {
         // NOTE: orbit interpolator is simple polynomial
         // 2a_2 + 2*3a_3*t^1 + 3*4a_4*t^2...
 
+        double x=0, y=0, z=0;
         for (int i = 2; i <= poly_degree; ++i) {
-            double powT = (double) ((i - 1) * i) * FastMath.pow(azTimeNormal, (double) (i - 2));
-            satelliteAcceleration.x += coeff_X[i] * powT;
-            satelliteAcceleration.y += coeff_Y[i] * powT;
-            satelliteAcceleration.z += coeff_Z[i] * powT;
+            double powT = ((i - 1) * i) * FastMath.pow(azTimeNormal, i - 2);
+            x += coeff_X[i] * powT;
+            y += coeff_Y[i] * powT;
+            z += coeff_Z[i] * powT;
         }
 
-        return satelliteAcceleration.divByScalar(100.0d);
+        return new Point(x/100.0, y/100.0, z/100.0);
 
     }
 
@@ -525,7 +506,7 @@ public final class Orbit {
     }
 
     private double eq1_Doppler_dt(final Point pointEllipsSat, final Point satVelocity, final Point satAcceleration) {
-        return satAcceleration.in(pointEllipsSat) - FastMath.pow(satVelocity.x, 2) - FastMath.pow(satVelocity.y, 2) - FastMath.pow(satVelocity.z, 2);
+        return satAcceleration.in(pointEllipsSat) - satVelocity.x*satVelocity.x - satVelocity.y*satVelocity.y - satVelocity.z*satVelocity.z;
     }
 
     public double eq2_Range(final Point pointEllipsSat, final double rgTime) {
@@ -533,7 +514,7 @@ public final class Orbit {
     }
 
     public double eq3_Ellipsoid(final Point pointOnEllips, final double height) {
-        return ((FastMath.pow(pointOnEllips.x, 2) + FastMath.pow(pointOnEllips.y, 2)) / FastMath.pow(ell_a + height, 2)) +
+        return ((pointOnEllips.x*pointOnEllips.x + pointOnEllips.y*pointOnEllips.y) / FastMath.pow(ell_a + height, 2)) +
                 FastMath.pow(pointOnEllips.z / (ell_b + height), 2) - 1.0;
     }
 
@@ -542,7 +523,7 @@ public final class Orbit {
     }
 
     public double eq3_Ellipsoid(final Point pointOnEllips, final double semiMajorA, final double semiMinorB, final double height) {
-        return ((FastMath.pow(pointOnEllips.x, 2) + FastMath.pow(pointOnEllips.y, 2)) / FastMath.pow(semiMajorA + height, 2)) +
+        return ((pointOnEllips.x*pointOnEllips.x + pointOnEllips.y*pointOnEllips.y) / FastMath.pow(semiMajorA + height, 2)) +
                 FastMath.pow(pointOnEllips.z / (semiMinorB + height), 2) - 1.0;
     }
 

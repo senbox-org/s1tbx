@@ -298,19 +298,19 @@
             <name>Dual Pol HH+HV</name>
             <red>Intensity_HH</red>
             <green>Intensity_HV</green>
-            <blue>(Intensity_HH+Intensity_HV)/2</blue>
+            <blue>Intensity_HH/Intensity_HV</blue>
         </rgbProfile>
         <rgbProfile>
             <name>Dual Pol VV+VH</name>
             <red>Intensity_VV</red>
             <green>Intensity_VH</green>
-            <blue>(Intensity_VV+Intensity_VH)/2</blue>
+            <blue>Intensity_VV/Intensity_VH</blue>
         </rgbProfile>
         <rgbProfile>
             <name>Dual Pol HH+VV</name>
             <red>Intensity_HH</red>
             <green>Intensity_VV</green>
-            <blue>(Intensity_HH+Intensity_VV)/2</blue>
+            <blue>Intensity_HH/Intensity_VV</blue>
         </rgbProfile>
     </extension>
 	

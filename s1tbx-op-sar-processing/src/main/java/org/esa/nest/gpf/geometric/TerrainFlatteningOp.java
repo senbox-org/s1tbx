@@ -286,13 +286,12 @@ public final class TerrainFlatteningOp extends Operator {
      */
     private void addSelectedBands() {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
         String tgtBandName;
         String tgtUnit;
-        for (int i = 0; i < sourceBands.length; i++) {
-            final Band srcBand = sourceBands[i];
+        for (final Band srcBand : sourceBands) {
             final String srcBandName = srcBand.getName();
             if (!srcBandName.contains("Beta")) {
                 throw new OperatorException("Please select beta0 bands only");

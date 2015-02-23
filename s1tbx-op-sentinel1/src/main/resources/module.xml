@@ -25,6 +25,10 @@
     <dependency>
         <module>s1tbx-op-coregistration</module>
     </dependency>
+    <dependency>
+        <module>jlinda-nest</module>
+    </dependency>
+
 
     <categories>Processor</categories>
 
@@ -58,21 +62,8 @@
             <id>Sentinel1</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>SENTINEL-1</text>
-            <parent>Sar Processing</parent>
+            <parent>SAR Processing</parent>
             <placeAfter>ASARWSS</placeAfter>
-        </action>
-
-        <action>
-            <id>TOPSARDeburstOp</id>
-            <helpId>TOPSARDeburstOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
-            <icon>esaIcon</icon>
-            <parent>Sentinel1</parent>
-            <text>Sentinel-1 TOPSAR Deburst</text>
-            <operatorName>TOPSAR-Deburst</operatorName>
-            <dialogTitle>Sentinel1 TOPSAR Deburst operator</dialogTitle>
-            <shortDescr>Deburst a Sentinel1 TOPSAR product</shortDescr>
-            <targetProductNameSuffix>_Deburst</targetProductNameSuffix>
         </action>
 
         <action>
@@ -86,6 +77,19 @@
             <dialogTitle>Sentinel1 TOPSAR split operator</dialogTitle>
             <shortDescr>Split a Sentinel1 TOPSAR product</shortDescr>
             <targetProductNameSuffix>_split</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>TOPSARDeburstOp</id>
+            <helpId>TOPSARDeburstOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>Sentinel-1 TOPSAR Deburst</text>
+            <operatorName>TOPSAR-Deburst</operatorName>
+            <dialogTitle>Sentinel1 TOPSAR Deburst operator</dialogTitle>
+            <shortDescr>Deburst a Sentinel1 TOPSAR product</shortDescr>
+            <targetProductNameSuffix>_Deburst</targetProductNameSuffix>
         </action>
 
         <action>
@@ -118,6 +122,7 @@
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
+            <placeAfter>TOPSARSplitOp</placeAfter>
             <text>Sentinel-1 Back Geocoding</text>
             <dialogTitle>Back Geocoding</dialogTitle>
             <shortDescr>Back Geocoding</shortDescr>
@@ -130,6 +135,7 @@
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
+            <placeAfter>BackGeocodingOp</placeAfter>
             <text>Sentinel-1 Range Shift</text>
             <operatorName>Range-Shift</operatorName>
             <dialogTitle>Constant Range Offset Estimation</dialogTitle>
@@ -143,6 +149,7 @@
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
+            <placeAfter>RangeShiftOp</placeAfter>
             <text>Sentinel-1 Azimuth Shift</text>
             <operatorName>Azimuth-Shift</operatorName>
             <dialogTitle>Azimuth Offset Estimation</dialogTitle>
@@ -150,7 +157,7 @@
             <targetProductNameSuffix>_az</targetProductNameSuffix>
         </action>
 
-        <action>
+        <!--action>
             <id>ComputeDerampDemodPhaseOp</id>
             <helpId>ComputeDerampDemodPhaseOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
@@ -161,9 +168,9 @@
             <dialogTitle>Compute Deramp Demodulation Phase</dialogTitle>
             <shortDescr>Compute Deramp Demodulation Phase</shortDescr>
             <targetProductNameSuffix>_ddp</targetProductNameSuffix>
-        </action>
+        </action-->
 
-        <action>
+        <!--action>
             <id>CreateCoherenceImageOp</id>
             <helpId>CreateCoherenceImageOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
@@ -174,19 +181,20 @@
             <dialogTitle>Create Coherence Image</dialogTitle>
             <shortDescr>Create Coherence Image</shortDescr>
             <targetProductNameSuffix>_coh</targetProductNameSuffix>
-        </action>
+        </action-->
 
         <action>
-            <id>CreateInterferogramOp</id>
-            <helpId>CreateCoherenceImageOp</helpId>
+            <id>InterferogramOp</id>
+            <helpId>InterferogramOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>Sentinel1</parent>
-            <text>Create Interferogram</text>
-            <operatorName>Create-Interferogram</operatorName>
-            <dialogTitle>Create Interferogram</dialogTitle>
-            <shortDescr>Create Interferogram</shortDescr>
+            <text>Interferogram Formation</text>
+            <operatorName>Interferogram</operatorName>
+            <dialogTitle>Interferogram Formation</dialogTitle>
+            <shortDescr>Interferogram Formation and Flat Earth Phase Removal</shortDescr>
             <targetProductNameSuffix>_ifg</targetProductNameSuffix>
+            <parent>products</parent>
+            <placeAfter>CoherenceOp</placeAfter>
         </action>
 
 

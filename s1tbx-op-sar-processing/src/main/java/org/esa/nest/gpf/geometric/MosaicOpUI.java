@@ -41,7 +41,7 @@ public class MosaicOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
 
-    private final JComboBox<String> resamplingMethod = new JComboBox<String>(ResamplingFactory.resamplingNames);
+    private final JComboBox<String> resamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
 
     private final JTextField pixelSize = new JTextField("");
     private final JTextField sceneWidth = new JTextField("");

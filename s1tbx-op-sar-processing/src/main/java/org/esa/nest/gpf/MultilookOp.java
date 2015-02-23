@@ -100,7 +100,7 @@ public final class MultilookOp extends Operator {
     private double azimuthSpacing;
     private boolean isPolsar = false;
 
-    private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>();
+    private final HashMap<String, String[]> targetBandNameToSourceBandName = new HashMap<>();
 
     /**
      * Initializes this operator and sets the one and only target product.

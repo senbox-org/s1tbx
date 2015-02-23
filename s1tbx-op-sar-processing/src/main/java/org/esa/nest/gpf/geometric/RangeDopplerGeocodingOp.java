@@ -207,9 +207,9 @@ public class RangeDopplerGeocodingOp extends Operator {
 
     private AbstractMetadata.SRGRCoefficientList[] srgrConvParams = null;
     private OrbitStateVector[] orbitStateVectors = null;
-    private final HashMap<String, Band[]> targetBandNameToSourceBand = new HashMap<String, Band[]>();
-    private final Map<String, Boolean> targetBandApplyRadiometricNormalizationFlag = new HashMap<String, Boolean>();
-    private final Map<String, Boolean> targetBandApplyRetroCalibrationFlag = new HashMap<String, Boolean>();
+    private final HashMap<String, Band[]> targetBandNameToSourceBand = new HashMap<>();
+    private final Map<String, Boolean> targetBandApplyRadiometricNormalizationFlag = new HashMap<>();
+    private final Map<String, Boolean> targetBandApplyRetroCalibrationFlag = new HashMap<>();
     private TiePointGrid incidenceAngle = null;
     private TiePointGrid latitude = null;
     private TiePointGrid longitude = null;
@@ -274,7 +274,7 @@ public class RangeDopplerGeocodingOp extends Operator {
                 calibrator = CalibrationFactory.createCalibrator(sourceProduct);
 
                 if (calibrator instanceof Sentinel1Calibrator) {
-                    final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+                    final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
                     final Set<String> polList = new HashSet<>();
                     for(Band band : sourceBands) {
                         polList.add(OperatorUtils.getBandPolarization(band.getName(), absRoot));
@@ -555,7 +555,7 @@ public class RangeDopplerGeocodingOp extends Operator {
      */
     void addSelectedBands() throws OperatorException {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
         String targetBandName;
         for (int i = 0; i < sourceBands.length; i++) {
@@ -833,7 +833,7 @@ public class RangeDopplerGeocodingOp extends Operator {
             ProductData projectedLocalIncidenceAngleBuffer = null;
             ProductData incidenceAngleFromEllipsoidBuffer = null;
 
-            final List<TileData> trgTileList = new ArrayList<TileData>();
+            final List<TileData> trgTileList = new ArrayList<>();
             final Set<Band> keySet = targetTiles.keySet();
             for (Band targetBand : keySet) {
 
@@ -951,7 +951,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                     final double azimuthIndex = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
 
-                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, tileGeoRef,
+                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, latitude, longitude,
                             srcMaxRange, srcMaxAzimuth, sensorPos)) {
                         //saveNoDataValueToTarget(index, trgTiles);
                     } else {

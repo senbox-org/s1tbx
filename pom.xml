@@ -15,7 +15,7 @@
 		<jlinda.version>0.8.1</jlinda.version>
 		<rstb.version>6.3.2</rstb.version>
 		<s1tbx.version>1.1.0</s1tbx.version>
-		<snap.version>1.0.1</snap.version>
+		<snap.version>1.1.0</snap.version>
 		
 		<geotools.version>2.7.4</geotools.version>
 		<jide.version>3.6.1</jide.version>
@@ -184,44 +184,44 @@
             </dependency>
 
             <dependency>
-                <groupId>com.bc.snap</groupId>
-                <artifactId>snap-ceres-core</artifactId>
+                <groupId>com.esa.snap</groupId>
+                <artifactId>ceres-core</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
-                <artifactId>snap-binding</artifactId>
+                <artifactId>ceres-binding</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
-                <artifactId>snap-ceres-ui</artifactId>
+                <artifactId>ceres-ui</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 
 			<dependency>
                 <groupId>org.esa.snap</groupId>
-                <artifactId>snap-binio</artifactId>
+                <artifactId>ceres-binio</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
-                <artifactId>snap-glayer</artifactId>
+                <artifactId>ceres-glayer</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 			
 			<dependency>
                 <groupId>org.esa.snap</groupId>
-                <artifactId>snap-jai</artifactId>
+                <artifactId>ceres-jai</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 			
 			<dependency>
                 <groupId>org.esa.snap</groupId>
-                <artifactId>snap-metadata</artifactId>
+                <artifactId>ceres-metadata</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 			

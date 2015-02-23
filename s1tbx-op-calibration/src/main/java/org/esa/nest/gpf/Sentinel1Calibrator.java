@@ -339,7 +339,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
     private void addSelectedBands(final Product sourceProduct, final String[] sourceBandNames) {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
         for (int i = 0; i < sourceBands.length; i++) {
 

@@ -16,7 +16,6 @@
 package org.esa.nest.dataio.ceos.alos;
 
 import Jama.Matrix;
-import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Debug;
@@ -57,7 +56,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
     private AlosPalsarLeaderFile leaderFile = null;
     private AlosPalsarTrailerFile trailerFile = null;
 
-    private final transient Map<String, AlosPalsarImageFile> bandImageFileMap = new HashMap<String, AlosPalsarImageFile>(1);
+    private final transient Map<String, AlosPalsarImageFile> bandImageFileMap = new HashMap<>(1);
     public static final DateFormat dateFormat1 = ProductData.UTC.createDateFormat("yyyyMMddHHmmssSSS");
     public static final DateFormat dateFormat2 = ProductData.UTC.createDateFormat("yyyyMMdd HH:mm:ss");
     public static final DateFormat dateFormat3 = ProductData.UTC.createDateFormat("yyyyDDDSSSSSSSS");
@@ -83,7 +82,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         }
 
         final String[] imageFileNames = CEOSImageFile.getImageFileNames(baseDir, constants.getImageFilePrefix());
-        final List<AlosPalsarImageFile> imgArray = new ArrayList<AlosPalsarImageFile>(imageFileNames.length);
+        final List<AlosPalsarImageFile> imgArray = new ArrayList<>(imageFileNames.length);
         for (String fileName : imageFileNames) {
             try {
                 final AlosPalsarImageFile imgFile = new AlosPalsarImageFile(createInputStream(new File(baseDir, fileName)),
@@ -705,7 +704,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                         final int days = imageRecordElem.getAttributeInt("Sensor acquisition day of year", 0);
                         final int milliseconds = imageRecordElem.getAttributeInt("Sensor acquisition milliseconds of day", 0);
 
-                        StringBuffer sb = new StringBuffer(String.valueOf(year));
+                        StringBuilder sb = new StringBuilder(String.valueOf(year));
                         String dayStr = String.valueOf(days);
                         for (int i = dayStr.length(); i < 3; i++) {
                             sb.append('0');
@@ -788,7 +787,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                         final double prf = imageRecordElem.getAttributeDouble("PRF", 0);
                         milliseconds += (int)((numRecords - 1) * Constants.oneMillion / prf);
 
-                        StringBuffer sb = new StringBuffer(String.valueOf(year));
+                        StringBuilder sb = new StringBuilder(String.valueOf(year));
                         String dayStr = String.valueOf(days);
                         for (int i = dayStr.length(); i < 3; i++) {
                             sb.append('0');

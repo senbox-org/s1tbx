@@ -73,31 +73,57 @@
     
     <extension point="snap-ui:actions">
 
-
+        <!--/// COREGISTRATION ///-->
 
         <action>
-            <id>unwrapping</id>
+            <id>CoregistrationGroup</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Unwrapping</text>
-            <placeAfter>insar_tools</placeAfter>
-            <parent>insar</parent>
+            <text>Coregistration</text>
+            <parent>SAR Processing</parent>
+            <placeAfter>SpeckleFiltering</placeAfter>
         </action>
 
         <action>
-            <id>insar_coregistration</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Coregistration</text>
-            <placeAfter>unwrapping</placeAfter>
-            <parent>insar</parent>
+            <id>InSARCoregistrationGraph</id>
+            <helpId>InSARCoregistration</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>CoregistrationGroup</parent>
+            <placeFirst>true</placeFirst>
+            <text>InSAR Optimized Coregistration</text>
+            <shortDescr>Perform InSAR Optimized Automatic Coregistration</shortDescr>
+            <dialogTitle>InSAR Coregistration</dialogTitle>
+            <graphFile>InSARCoregistrationGraph.xml</graphFile>
+        </action>
+
+        <action>
+            <id>CrossResamplingOp</id>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Cross InSAR resampling</text>
+            <operatorName>CrossResampling</operatorName>
+            <dialogTitle>Cross InSAR resampling</dialogTitle>
+            <shortDescr>Perform resampling of SAR geometries for Cross-InSAR</shortDescr>
+            <parent>CoregistrationGroup</parent>
+            <placeAfter>InSARCoregistrationGraph</placeAfter>
+            <helpId>CrossResamplingOp</helpId>
         </action>
 
         <!--/// PRODUCTS ///-->
 
         <action>
+            <id>insar</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Interferometric</text>
+            <parent>SAR Processing</parent>
+            <placeAfter>CoregistrationGroup</placeAfter>
+        </action>
+
+        <action>
             <id>products</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Products</text>
-            <placeBefore>insar_tools</placeBefore>
+            <placeAfter>CoregistrationGroup</placeAfter>
             <parent>insar</parent>
         </action>
 
@@ -176,8 +202,7 @@
             <id>insar_tools</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Tools</text>
-            <placeAfter>Products</placeAfter>
-            <separatorAfter>true</separatorAfter>
+            <placeAfter>products</placeAfter>
             <parent>insar</parent>
         </action>
 
@@ -200,6 +225,7 @@
             <id>spectral_filtering</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Spectral Filtering</text>
+            <placeFirst>true</placeFirst>
             <parent>insar_tools</parent>
         </action>
 
@@ -242,29 +268,17 @@
             <helpId>PhaseFilterOp</helpId>
         </action>
 
-        <action>
-            <id>InSARMaster</id>
-            <helpId>InSARMaster</helpId>
-            <class>org.jlinda.nest.dat.InSARMasterAction</class>
-            <parent>insar</parent>
-            <text>InSAR Stack Overview</text>
-            <separatorAfter>true</separatorAfter>
-        </action>
-
-        <action>
-            <id>CrossResamplingOp</id>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
-            <icon>esaIcon</icon>
-            <text>Cross InSAR resampling</text>
-            <operatorName>CrossResampling</operatorName>
-            <dialogTitle>Cross InSAR resampling</dialogTitle>
-            <shortDescr>Perform resampling of SAR geometries for Cross-InSAR</shortDescr>
-            <parent>insar_tools</parent>
-            <helpId>CrossResamplingOp</helpId>
-        </action>
-
         <!--/// UNWRAPPING ///-->
-        
+
+        <action>
+            <id>unwrapping</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Unwrapping</text>
+            <placeAfter>insar_tools</placeAfter>
+            <separatorAfter>true</separatorAfter>
+            <parent>insar</parent>
+        </action>
+
         <!--/// integrated unwrapping ///-->
         <action>
             <id>UnwrapOp</id>
@@ -322,22 +336,16 @@
             <helpId>exportSnaphuProduct</helpId>
         </action>
 
-        <!--/// COREGISTRATION ///-->
 
         <action>
-	        <id>InSARCoregistrationGraph</id>
-	        <helpId>InSARCoregistration</helpId>
-	        <class>org.esa.snap.dat.actions.GraphAction</class>
-            <icon>esaIcon</icon>
-            <parent>insar_coregistration</parent>
-	        <text>InSAR Coregistration</text>
-            <shortDescr>Perform InSAR Optimized Automatic Coregistration</shortDescr>
-	        <dialogTitle>InSAR Coregistration</dialogTitle>
-            <graphFile>InSARCoregistrationGraph.xml</graphFile>
-            <placeAfter>CreateInSARStackOp</placeAfter>
-            <separatorAfter>true</separatorAfter>
+            <id>InSARMaster</id>
+            <helpId>InSARMaster</helpId>
+            <class>org.jlinda.nest.dat.InSARMasterAction</class>
+            <parent>insar</parent>
+            <text>InSAR Stack Overview</text>
+            <placeAfter>unwrapping</placeAfter>
         </action>
-        
+
     </extension>
 
     <extension point="snap-ui:helpSets">

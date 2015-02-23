@@ -2,6 +2,7 @@ package org.jlinda.nest.utils;
 
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.snap.gpf.TileIndex;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
@@ -17,14 +18,14 @@ import java.awt.*;
 public class TileUtilsDoris {
 
     // see javadoc for org.esa.beam.framework.gpf.Tile (interface)
-    public static ComplexDoubleMatrix pullComplexDoubleMatrix(Tile tile1, Tile tile2) {
+    public static ComplexDoubleMatrix pullComplexDoubleMatrix(final Tile tile1, final Tile tile2) {
 
         final int height = tile1.getHeight();
         final int width = tile1.getWidth();
-        ComplexDoubleMatrix result = new ComplexDoubleMatrix(height, width);
+        final ComplexDoubleMatrix result = new ComplexDoubleMatrix(height, width);
 
-        ProductData samples1 = tile1.getRawSamples();
-        ProductData samples2 = tile2.getRawSamples();
+        final ProductData samples1 = tile1.getRawSamples();
+        final ProductData samples2 = tile2.getRawSamples();
 
         for (int y = 0; y < height; y++) {
             final int stride = y * width;
@@ -34,19 +35,19 @@ public class TileUtilsDoris {
             }
         }
 
-        samples1.dispose();
-        samples2.dispose();
+        //samples1.dispose();
+        //samples2.dispose();
         return result;
     }
 
     // see javadoc for org.esa.beam.framework.gpf.Tile (interface)
-    public static DoubleMatrix pullDoubleMatrix(Tile tile) {
+    public static DoubleMatrix pullDoubleMatrix(final Tile tile) {
 
         final int height = tile.getHeight();
         final int width = tile.getWidth();
-        DoubleMatrix result = new DoubleMatrix(height, width);
+        final DoubleMatrix result = new DoubleMatrix(height, width);
 
-        ProductData samples = tile.getRawSamples();
+        final ProductData samples = tile.getRawSamples();
 
         for (int y = 0; y < height; y++) {
             final int stride = y * width;
@@ -88,20 +89,19 @@ public class TileUtilsDoris {
         samples.dispose();
     }
 
-    public static void pushDoubleMatrix(DoubleMatrix data, Tile tile, Rectangle rect) {
+    public static void pushDoubleMatrix(final DoubleMatrix data, final Tile tile, final Rectangle rect) {
 
-        final ProductData samples = tile.getRawSamples(); // checkout
-        final int height = (int) rect.getHeight();
-        final int width = (int) rect.getWidth();
-
-        for (int y = 0, rowIdx = 0; y < height; y++, rowIdx++) {
-            final int stride = y * width;
-            for (int x = 0, columnIdx = 0; x < width; x++, columnIdx++) {
-                samples.setElemDoubleAt(stride + x, data.get(rowIdx, columnIdx));
+        final int maxX = rect.x + rect.width;
+        final int maxY = rect.y + rect.height;
+        final ProductData samples = tile.getDataBuffer();
+        final TileIndex tgtIndex = new TileIndex(tile);
+        for (int y = rect.y; y < maxY; y++) {
+            tgtIndex.calculateStride(y);
+            final int yy = y - rect.y;
+            for (int x = rect.x; x < maxX; x++) {
+                samples.setElemFloatAt(tgtIndex.getIndex(x), (float)data.get(yy, x - rect.x));
             }
         }
-        tile.setRawSamples(samples); // commit
-        samples.dispose();
     }
 
     public static void pushDoubleMatrix(DoubleMatrix data, Tile tile, Rectangle rect, int y0, int x0) {

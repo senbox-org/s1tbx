@@ -68,11 +68,6 @@
             <operatorName>DEM-Based-Coregistration</operatorName>
         </OperatorUI>
         <OperatorUI>
-            <id>org.esa.nest.gpf.MultiInputStackAveragingOpUI</id>
-            <class>org.esa.nest.gpf.MultiInputStackAveragingOpUI</class>
-            <operatorName>Multi-Input-Stack-Averaging</operatorName>
-        </OperatorUI>
-        <OperatorUI>
             <id>org.esa.nest.gpf.insar.DEMGenerationOpUI</id>
             <class>org.esa.nest.gpf.insar.DEMGenerationOpUI</class>
             <operatorName>DEMGeneration</operatorName>
@@ -103,19 +98,12 @@
         </action>
 
         <action>
-            <id>CoregistrationGroup</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Coregistration</text>
-            <parent>Sar Processing</parent>
-            <placeAfter>Sentinel1</placeAfter>
-        </action>
-
-        <action>
             <id>CoregistrationGraph</id>
             <helpId>Coregistration</helpId>
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>CoregistrationGroup</parent>
+            <placeAfter>InSARCoregistrationGraph</placeAfter>
             <text>Automatic Coregistration</text>
             <shortDescr>Perform Automatic Coregistration</shortDescr>
             <dialogTitle>Automatic Coregistration</dialogTitle>
@@ -149,6 +137,14 @@
         </action>
 
         <action>
+            <id>StackGroup</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Stack Tools</text>
+            <parent>CoregistrationGroup</parent>
+            <placeLast>CoregistrationGraph</placeLast>
+        </action>
+
+        <action>
             <id>StackAveraging</id>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
@@ -157,7 +153,7 @@
             <dialogTitle>Stack Averaging</dialogTitle>
             <targetProductNameSuffix>_avg</targetProductNameSuffix>
             <shortDescr>Stack Averaging</shortDescr>
-            <parent>CoregistrationGroup</parent>
+            <parent>StackGroup</parent>
             <helpId>StackAveraging</helpId>
         </action>
 
@@ -166,23 +162,11 @@
             <helpId>StackSplit</helpId>
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
-            <parent>CoregistrationGroup</parent>
+            <parent>StackGroup</parent>
             <text>Stack Split</text>
             <shortDescr>Stack Split</shortDescr>
             <dialogTitle>Stack Split</dialogTitle>
             <graphFile>StackSplitGraph.xml</graphFile>
-        </action>
-
-        <action>
-            <id>Multi-Input-Stack-Averaging</id>
-            <helpId>Multi-Input-Stack-Averaging</helpId>
-            <class>org.esa.snap.dat.actions.GraphAction</class>
-            <icon>esaIcon</icon>
-            <parent>CoregistrationGroup</parent>
-            <text>Multi Input Stack Averaging</text>
-            <dialogTitle>Multi Input Stack Averaging</dialogTitle>
-            <shortDescr>Multi Input Stack Averaging</shortDescr>
-            <graphFile>MultiInputStackAveragingGraph.xml</graphFile>
         </action>
 
         <action>

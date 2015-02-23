@@ -90,7 +90,7 @@ public class SpeckleFilterOp extends Operator {
     static final String LEE_SPECKLE_FILTER = "Lee";
     static final String LEE_REFINED_FILTER = "Refined Lee";
 
-    private final Map<String, String[]> targetBandNameToSourceBandName = new HashMap<String, String[]>();
+    private final Map<String, String[]> targetBandNameToSourceBandName = new HashMap<>();
     private int halfSizeX;
     private int halfSizeY;
     private int sourceImageWidth;
