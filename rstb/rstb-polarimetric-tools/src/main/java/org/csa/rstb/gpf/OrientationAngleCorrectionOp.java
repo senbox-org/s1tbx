@@ -79,6 +79,8 @@ public final class OrientationAngleCorrectionOp extends Operator {
         try {
             sourceProductType = PolBandUtils.getSourceProductType(sourceProduct);
 
+            checkSourceProductType();
+
             srcBandList = PolBandUtils.getSourceBands(sourceProduct, sourceProductType);
 
             createTargetProduct();
@@ -103,6 +105,16 @@ public final class OrientationAngleCorrectionOp extends Operator {
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         AbstractMetadata.getAbstractedMetadata(targetProduct).setAttributeInt(AbstractMetadata.polsarData, 1);
+    }
+
+    private void checkSourceProductType() {
+
+        if (sourceProductType != PolBandUtils.MATRIX.FULL &&  sourceProductType != PolBandUtils.MATRIX.T3 &&
+                sourceProductType != PolBandUtils.MATRIX.T4 && sourceProductType != PolBandUtils.MATRIX.C3 &&
+                sourceProductType != PolBandUtils.MATRIX.C4) {
+
+            throw new OperatorException("OA correction cannot be performed on the input product type");
+        }
     }
 
     /**
