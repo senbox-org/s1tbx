@@ -588,7 +588,7 @@ public final class Sentinel1Utils {
         for (int s = 0; s < numOfSubSwath; s++) {
             final DCPolynomial[] dcEstimateList = getDCEstimateList(subSwath[s].subSwathName);
             if (dcEstimateList.length != subSwath[s].numOfBursts) {
-                throw new OperatorException("Subswath " + (s+1) + ": The number of dataDCPolynomials in " +
+                System.out.println("Subswath " + (s+1) + ": The number of dataDCPolynomials in " +
                         "dcEstimateList is different from the number of bursts");
             }
             //final DCPolynomial[] dcBurstList = computeDCForBurstCenters(dcEstimateList, s+1);
@@ -829,6 +829,21 @@ public final class Sentinel1Utils {
             }
         }
         return polList.toArray(new String[polList.size()]);
+    }
+
+    public static String[] getProductSubswaths(final MetadataElement absRoot) {
+
+        final MetadataElement[] elems = absRoot.getElements();
+        final List<String> swathList = new ArrayList<>(4);
+        for (MetadataElement elem : elems) {
+            if (elem.getName().contains("Band_")) {
+                final String swath = elem.getAttributeString("swath", null);
+                if (swath != null && !swathList.contains(swath)) {
+                    swathList.add(swath);
+                }
+            }
+        }
+        return swathList.toArray(new String[swathList.size()]);
     }
 
     public static ProductData.UTC getTime(final MetadataElement elem, final String tag) {
