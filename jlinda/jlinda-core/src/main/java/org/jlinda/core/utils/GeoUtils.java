@@ -76,7 +76,7 @@ public class GeoUtils {
         return outGeo;
     }
 
-    public synchronized static GeoPoint defineExtraPhiLam(final double heightMin, final double heightMax, final Window window, final SLCImage meta, final Orbit orbit) throws Exception {
+    public static GeoPoint defineExtraPhiLam(final double heightMin, final double heightMax, final Window window, final SLCImage meta, final Orbit orbit) throws Exception {
 
         // compute Phi, Lambda for Tile corners
         double[] latLonMax;
