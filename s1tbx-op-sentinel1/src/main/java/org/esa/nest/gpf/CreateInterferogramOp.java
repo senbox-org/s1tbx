@@ -594,8 +594,10 @@ public class CreateInterferogramOp extends Operator {
             final Map<Band, Tile> targetTileMap, Rectangle targetRectangle, final ProgressMonitor pm) throws OperatorException {
 
         try {
-            final int cohx0 = targetRectangle.x - (cohWinRg - 1) / 2;
-            final int cohy0 = targetRectangle.y - (cohWinAz - 1) / 2;
+            final int rgOffset = (cohWinRg - 1) / 2;
+            final int azOffset = (cohWinAz - 1) / 2;
+            final int cohx0 = targetRectangle.x - rgOffset;
+            final int cohy0 = targetRectangle.y - azOffset;
             final int cohw = targetRectangle.width + cohWinRg - 1;
             final int cohh = targetRectangle.height + cohWinAz - 1;
             targetRectangle = new Rectangle(cohx0, cohy0, cohw, cohh);
@@ -694,11 +696,12 @@ public class CreateInterferogramOp extends Operator {
                 for (int y = rect.y; y < maxY; y++) {
                     tgtIndex.calculateStride(y);
                     final int yy = y - rect.y;
+                    final int yy2 = yy+azOffset;
                     for (int x = rect.x; x < maxX; x++) {
                         final int trgIndex = tgtIndex.getIndex(x);
                         final int xx = x - rect.x;
-                        samplesReal.setElemFloatAt(trgIndex, (float)dataReal.get(yy, xx));
-                        samplesImag.setElemFloatAt(trgIndex, (float)dataImag.get(yy, xx));
+                        samplesReal.setElemFloatAt(trgIndex, (float)dataReal.get(yy2, xx+rgOffset));
+                        samplesImag.setElemFloatAt(trgIndex, (float)dataImag.get(yy2, xx+rgOffset));
                         if(samplesCoh != null) {
                             samplesCoh.setElemFloatAt(trgIndex, (float) cohMatrix.get(yy, xx));
                         }
@@ -745,7 +748,7 @@ public class CreateInterferogramOp extends Operator {
                 final Rectangle partialTileRectangle = new Rectangle(ntx0, nty0, ntw, nth);
                 //System.out.println("burst = " + burstIndex + ": ntx0 = " + ntx0 + ", nty0 = " + nty0 + ", ntw = " + ntw + ", nth = " + nth);
 
-                computePartialTile2(subSwathIndex, burstIndex, partialTileRectangle, targetTileMap);
+                computePartialTile(subSwathIndex, burstIndex, partialTileRectangle, targetTileMap);
             }
 
         } catch (Throwable e) {
@@ -755,95 +758,24 @@ public class CreateInterferogramOp extends Operator {
         }
     }
 
-    private void computePartialTile(final int subSwathIndex, final int burstIndex, final Rectangle targetRectangle,
+    private void computePartialTile(final int subSwathIndex, final int burstIndex, Rectangle targetRectangle,
                                     final Map<Band, Tile> targetTileMap) throws Exception {
 
         try {
-            int y0 = targetRectangle.y;
-            int yN = y0 + targetRectangle.height - 1;
-            int x0 = targetRectangle.x;
-            int xN = targetRectangle.x + targetRectangle.width - 1;
-
-            long minLine = burstIndex*subSwath[subSwathIndex - 1].linesPerBurst;
-            long maxLine = minLine + subSwath[subSwathIndex - 1].linesPerBurst - 1;
-            long minPixel = 0;
-            long maxPixel = subSwath[subSwathIndex - 1].samplesPerBurst - 1;
-
-            Band targetBand_I;
-            Band targetBand_Q;
-
-            for (String ifgKey : targetMap.keySet()) {
-
-                ProductContainer product = targetMap.get(ifgKey);
-
-                /// check out results from source ///
-                Tile tileReal = getSourceTile(product.sourceMaster.realBand, targetRectangle);
-                Tile tileImag = getSourceTile(product.sourceMaster.imagBand, targetRectangle);
-                ComplexDoubleMatrix complexMaster = TileUtilsDoris.pullComplexDoubleMatrix(tileReal, tileImag);
-
-                /// check out results from source ///
-                tileReal = getSourceTile(product.sourceSlave.realBand, targetRectangle);
-                tileImag = getSourceTile(product.sourceSlave.imagBand, targetRectangle);
-                ComplexDoubleMatrix complexSlave = TileUtilsDoris.pullComplexDoubleMatrix(tileReal, tileImag);
-
-                if (subtractFlatEarthPhase) {
-                    // normalize range and azimuth axis
-                    DoubleMatrix rangeAxisNormalized = DoubleMatrix.linspace(x0, xN, complexMaster.columns);
-                    rangeAxisNormalized = normalizeDoubleMatrix(rangeAxisNormalized, minPixel, maxPixel);
-
-                    DoubleMatrix azimuthAxisNormalized = DoubleMatrix.linspace(y0, yN, complexMaster.rows);
-                    azimuthAxisNormalized = normalizeDoubleMatrix(azimuthAxisNormalized, minLine, maxLine);
-
-                    // pull polynomial from the map
-                    final String polynomialName = product.sourceSlave.name + "_" + (subSwathIndex - 1) + "_" + burstIndex;
-                    DoubleMatrix polyCoeffs = flatEarthPolyMap.get(polynomialName);
-
-                    // estimate the phase on the grid
-                    DoubleMatrix realReferencePhase =
-                            PolyUtils.polyval(azimuthAxisNormalized, rangeAxisNormalized,
-                                    polyCoeffs, PolyUtils.degreeFromCoefficients(polyCoeffs.length));
-
-                    // compute the reference phase
-                    ComplexDoubleMatrix complexReferencePhase =
-                            new ComplexDoubleMatrix(MatrixFunctions.cos(realReferencePhase),
-                                    MatrixFunctions.sin(realReferencePhase));
-
-                    complexSlave.muli(complexReferencePhase); // no conjugate here!
-                }
-
-                complexMaster.muli(complexSlave.conji());
-
-                /// commit to target ///
-                targetBand_I = targetProduct.getBand(product.getBandName(Unit.REAL));
-                Tile tileOutReal = targetTileMap.get(targetBand_I);
-                TileUtilsDoris.pushDoubleMatrix(complexMaster.real(), tileOutReal, targetRectangle);
-
-                targetBand_Q = targetProduct.getBand(product.getBandName(Unit.IMAGINARY));
-                Tile tileOutImag = targetTileMap.get(targetBand_Q);
-                TileUtilsDoris.pushDoubleMatrix(complexMaster.imag(), tileOutImag, targetRectangle);
-            }
-
-        } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId(), e);
-        }
-    }
-
-    private void computePartialTile2(final int subSwathIndex, final int burstIndex, Rectangle targetRectangle,
-                                    final Map<Band, Tile> targetTileMap) throws Exception {
-
-        try {
-            final int cohx0 = targetRectangle.x - (cohWinRg - 1) / 2;
-            final int cohy0 = targetRectangle.y - (cohWinAz - 1) / 2;
+            final int rgOffset = (cohWinRg - 1) / 2;
+            final int azOffset = (cohWinAz - 1) / 2;
+            final int cohx0 = targetRectangle.x - rgOffset;
+            final int cohy0 = targetRectangle.y - azOffset;
             final int cohw = targetRectangle.width + cohWinRg - 1;
             final int cohh = targetRectangle.height + cohWinAz - 1;
             final Rectangle rect = new Rectangle(cohx0, cohy0, cohw, cohh);
 
             final BorderExtender border = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
 
-            final int y0 = targetRectangle.y;
-            final int yN = y0 + targetRectangle.height - 1;
-            final int x0 = targetRectangle.x;
-            final int xN = targetRectangle.x + targetRectangle.width - 1;
+            final int y0 = rect.y;
+            final int yN = y0 + rect.height - 1;
+            final int x0 = rect.x;
+            final int xN = rect.x + rect.width - 1;
 
             final long minLine = burstIndex*subSwath[subSwathIndex - 1].linesPerBurst;
             final long maxLine = minLine + subSwath[subSwathIndex - 1].linesPerBurst - 1;
@@ -905,11 +837,9 @@ public class CreateInterferogramOp extends Operator {
                 /// commit to target ///
                 targetBand_I = targetProduct.getBand(product.getBandName(Unit.REAL));
                 Tile tileOutReal = targetTileMap.get(targetBand_I);
-                //TileUtilsDoris.pushDoubleMatrix(dataMaster.real(), tileOutReal, targetRectangle);
 
                 targetBand_Q = targetProduct.getBand(product.getBandName(Unit.IMAGINARY));
                 Tile tileOutImag = targetTileMap.get(targetBand_Q);
-                //TileUtilsDoris.pushDoubleMatrix(dataMaster.imag(), tileOutImag, targetRectangle);
 
                 // coherence
                 DoubleMatrix cohMatrix = null;
@@ -927,8 +857,6 @@ public class CreateInterferogramOp extends Operator {
                     final Tile tileOutCoh = targetTileMap.get(targetBandCoh);
 
                     samplesCoh = tileOutCoh.getDataBuffer();
-
-                    //TileUtilsDoris.pushDoubleMatrix(cohMatrix, tileOutCoh, targetRectangle);
                 }
 
                 // push all
@@ -943,11 +871,12 @@ public class CreateInterferogramOp extends Operator {
                 for (int y = targetRectangle.y; y < maxY; y++) {
                     tgtIndex.calculateStride(y);
                     final int yy = y - targetRectangle.y;
+                    final int yy2 = yy+azOffset;
                     for (int x = targetRectangle.x; x < maxX; x++) {
                         final int trgIndex = tgtIndex.getIndex(x);
                         final int xx = x - targetRectangle.x;
-                        samplesReal.setElemFloatAt(trgIndex, (float)dataReal.get(yy, xx));
-                        samplesImag.setElemFloatAt(trgIndex, (float)dataImag.get(yy, xx));
+                        samplesReal.setElemFloatAt(trgIndex, (float)dataReal.get(yy2, xx+rgOffset));
+                        samplesImag.setElemFloatAt(trgIndex, (float)dataImag.get(yy2, xx+rgOffset));
                         if(samplesCoh != null) {
                             samplesCoh.setElemFloatAt(trgIndex, (float) cohMatrix.get(yy, xx));
                         }

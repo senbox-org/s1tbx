@@ -188,7 +188,7 @@ public class FlatEarthWWToolView extends AbstractToolView implements WWView {
         if (productLayer != null) {
             for (Product prod : products) {
                 try {
-                    productLayer.addProduct(prod);
+                    productLayer.addProduct(prod, false, getWwd());
                 } catch (Exception e) {
                     datApp.showErrorDialog("WorldWind unable to add product " + prod.getName() + '\n' + e.getMessage());
                 }

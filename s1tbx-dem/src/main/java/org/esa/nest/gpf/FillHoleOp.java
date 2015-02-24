@@ -117,7 +117,7 @@ public final class FillHoleOp extends Operator {
      */
     private void addSelectedBands() throws OperatorException {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
         for (Band sourceBand : sourceBands) {
 

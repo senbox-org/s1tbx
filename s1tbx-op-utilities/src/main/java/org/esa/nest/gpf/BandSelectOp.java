@@ -17,6 +17,7 @@ package org.esa.nest.gpf;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -42,6 +43,9 @@ public final class BandSelectOp extends Operator {
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
+
+    @Parameter(description = "The list of polarisations", label = "Polarisations")
+    private String[] selectedPolarisations;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
             rasterDataNodeType = Band.class, label = "Source Bands")
@@ -78,11 +82,38 @@ public final class BandSelectOp extends Operator {
 
     private void addSelectedBands() throws OperatorException {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, true);
 
         for (Band srcBand : sourceBands) {
-            final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
-            targetBand.setSourceImage(srcBand.getSourceImage());
+            // check first if polarisation is found
+            if (selectedPolarisations != null && selectedPolarisations.length > 0) {
+                String pol = OperatorUtils.getPolarizationFromBandName(srcBand.getName());
+                boolean foundPol = false;
+                for(String selPol : selectedPolarisations) {
+                    if(pol.equalsIgnoreCase(selPol)) {
+                        foundPol = true;
+                    }
+                }
+                if(!foundPol)
+                    continue;
+            }
+
+            if (srcBand instanceof VirtualBand) {
+                final VirtualBand sourceBand = (VirtualBand) srcBand;
+                final VirtualBand targetBand = new VirtualBand(sourceBand.getName(),
+                        sourceBand.getDataType(),
+                        sourceBand.getRasterWidth(),
+                        sourceBand.getRasterHeight(),
+                        sourceBand.getExpression());
+                ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
+                targetProduct.addBand(targetBand);
+            } else {
+                ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+            }
+        }
+
+        if(targetProduct.getNumBands() == 0) {
+            throw new OperatorException("No valid bands found in target product");
         }
     }
 

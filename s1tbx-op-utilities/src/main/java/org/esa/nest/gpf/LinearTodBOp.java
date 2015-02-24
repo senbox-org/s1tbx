@@ -187,7 +187,7 @@ public final class LinearTodBOp extends Operator {
 
     private void addSelectedBands() throws OperatorException {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
         final boolean isPolsar = absRoot.getAttributeInt(AbstractMetadata.polsarData, 0) == 1;

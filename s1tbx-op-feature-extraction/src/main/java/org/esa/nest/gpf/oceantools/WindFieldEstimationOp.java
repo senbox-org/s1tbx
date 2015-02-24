@@ -226,7 +226,7 @@ public class WindFieldEstimationOp extends Operator {
      */
     private void addSelectedBands() throws OperatorException {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
         for (Band srcBand : sourceBands) {
             final String srcBandName = srcBand.getName();

@@ -238,30 +238,6 @@ public class WarpOp extends Operator {
         }
     }
 
-    private void constructInterpolationTable(String interpolationMethod) {
-
-        // construct interpolation LUT
-        SimpleLUT lut = new SimpleLUT(interpolationMethod);
-        lut.constructLUT();
-
-        int kernelLength = lut.getKernelLength();
-
-        // get LUT and cast it to float for JAI
-        double[] lutArrayDoubles = lut.getKernelAsArray();
-        float lutArrayFloats[] = new float[lutArrayDoubles.length];
-        int i = 0;
-        for (double lutElement : lutArrayDoubles) {
-            lutArrayFloats[i++] = (float) lutElement;
-        }
-
-        // construct interpolation table for JAI resampling
-        final int subsampleBits = 7;
-        final int precisionBits = 32;
-        int padding = kernelLength / 2 - 1;
-
-        interpTable = new InterpolationTable(padding, kernelLength, subsampleBits, precisionBits, lutArrayFloats);
-    }
-
     private void addSlaveGCPs(final WarpData warpData, final String bandName) {
 
         final GeoCoding targetGeoCoding = targetProduct.getGeoCoding();
@@ -383,6 +359,83 @@ public class WarpOp extends Operator {
         }
     }
 
+    /**
+     * Called by the framework in order to compute a tile for the given target band.
+     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
+     *
+     * @param targetBand The target band.
+     * @param targetTile The current tile associated with the target band to be computed.
+     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
+     */
+    @Override
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        final Rectangle targetRectangle = targetTile.getRectangle();
+        final int x0 = targetRectangle.x;
+        final int y0 = targetRectangle.y;
+        final int w = targetRectangle.width;
+        final int h = targetRectangle.height;
+        //System.out.println("WARPOperator: x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
+
+        try {
+            if (!warpDataAvailable) {
+                getWarpData(targetRectangle);
+            }
+
+            final Band srcBand = sourceRasterMap.get(targetBand);
+            if (srcBand == null)
+                return;
+            Band realSrcBand = complexSrcMap.get(srcBand);
+            if (realSrcBand == null)
+                realSrcBand = srcBand;
+
+            // create source image
+            final Tile sourceRaster = getSourceTile(srcBand, targetRectangle);
+
+            if (pm.isCanceled())
+                return;
+
+            final WarpData warpData = warpDataMap.get(realSrcBand);
+            if (warpData.notEnoughGCPs)
+                return;
+
+            final RenderedImage srcImage = sourceRaster.getRasterDataNode().getSourceImage();
+
+            // get warped image
+            final RenderedOp warpedImage = createWarpImage(warpData.jaiWarp, srcImage);
+
+            // copy warped image data to target
+            final float[] dataArray = warpedImage.getData(targetRectangle).getSamples(x0, y0, w, h, 0, (float[]) null);
+
+            targetTile.setRawSamples(ProductData.createInstance(dataArray));
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
+        } finally {
+            pm.done();
+        }
+    }
+
+    /**
+     * Compute WARP polynomial function using master and slave GCP pairs.
+     *
+     * @param warpData            Stores the warp information per band.
+     * @param warpPolynomialOrder The WARP polynimal order.
+     * @param masterGCPGroup      The master GCPs.
+     */
+    public static void computeWARPPolynomial(
+            final WarpData warpData, final int warpPolynomialOrder, final ProductNodeGroup<Placemark> masterGCPGroup) {
+
+        getNumOfValidGCPs(warpData, warpPolynomialOrder);
+
+        getMasterAndSlaveGCPCoordinates(warpData, masterGCPGroup);
+        if (warpData.notEnoughGCPs) return;
+
+        warpData.computeWARP(warpPolynomialOrder);
+
+        computeRMS(warpData, warpPolynomialOrder);
+    }
+
     private synchronized void getWarpData(final Rectangle targetRectangle) throws OperatorException {
 
         if (warpDataAvailable) {
@@ -401,7 +454,6 @@ public class WarpOp extends Operator {
             inc = 2;
 
         final ProductNodeGroup<Placemark> masterGCPGroup = GCPManager.instance().getGcpGroup(masterBand);
-        //GCPManager.instance().removeGcpGroup(masterBand);
 
         boolean appendFlag = false;
         for (int i = 0; i < numSrcBands; i += inc) {
@@ -546,97 +598,6 @@ public class WarpOp extends Operator {
     }
 
     /**
-     * Called by the framework in order to compute a tile for the given target band.
-     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
-     *
-     * @param targetTileMap   The target tiles associated with all target bands to be computed.
-     * @param targetRectangle The rectangle of target tile.
-     * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
-     *          If an error occurs during computation of the target raster.
-     */
-    //@Override
-    // public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
-    //         throws OperatorException {
-
-    /**
-     * Called by the framework in order to compute a tile for the given target band.
-     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
-     *
-     * @param targetBand The target band.
-     * @param targetTile The current tile associated with the target band to be computed.
-     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
-     */
-    @Override
-    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        final Rectangle targetRectangle = targetTile.getRectangle();
-        final int x0 = targetRectangle.x;
-        final int y0 = targetRectangle.y;
-        final int w = targetRectangle.width;
-        final int h = targetRectangle.height;
-        //System.out.println("WARPOperator: x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
-
-        try {
-            if (!warpDataAvailable) {
-                getWarpData(targetRectangle);
-            }
-
-            final Band srcBand = sourceRasterMap.get(targetBand);
-            if (srcBand == null)
-                return;
-            Band realSrcBand = complexSrcMap.get(srcBand);
-            if (realSrcBand == null)
-                realSrcBand = srcBand;
-
-            // create source image
-            final Tile sourceRaster = getSourceTile(srcBand, targetRectangle);
-
-            if (pm.isCanceled())
-                return;
-
-            final WarpData warpData = warpDataMap.get(realSrcBand);
-            if (warpData.notEnoughGCPs)
-                return;
-
-            final RenderedImage srcImage = sourceRaster.getRasterDataNode().getSourceImage();
-
-            // get warped image
-            final RenderedOp warpedImage = createWarpImage(warpData.jaiWarp, srcImage);
-
-            // copy warped image data to target
-            final float[] dataArray = warpedImage.getData(targetRectangle).getSamples(x0, y0, w, h, 0, (float[]) null);
-
-            targetTile.setRawSamples(ProductData.createInstance(dataArray));
-
-        } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId(), e);
-        } finally {
-            pm.done();
-        }
-    }
-
-    /**
-     * Compute WARP polynomial function using master and slave GCP pairs.
-     *
-     * @param warpData            Stores the warp information per band.
-     * @param warpPolynomialOrder The WARP polynimal order.
-     * @param masterGCPGroup      The master GCPs.
-     */
-    public static void computeWARPPolynomial(
-            final WarpData warpData, final int warpPolynomialOrder, final ProductNodeGroup<Placemark> masterGCPGroup) {
-
-        getNumOfValidGCPs(warpData, warpPolynomialOrder);
-
-        getMasterAndSlaveGCPCoordinates(warpData, masterGCPGroup);
-        if (warpData.notEnoughGCPs) return;
-
-        warpData.computeWARP(warpPolynomialOrder);
-
-        computeRMS(warpData, warpPolynomialOrder);
-    }
-
-    /**
      * Get the number of valid GCPs.
      *
      * @param warpData            Stores the warp information per band.
@@ -738,6 +699,30 @@ public class WarpOp extends Operator {
         warpData.rmsStd = Math.sqrt(rms2Mean - warpData.rmsMean * warpData.rmsMean);
         warpData.rowResidualStd = Math.sqrt(rowResidual2Mean - warpData.rowResidualMean * warpData.rowResidualMean);
         warpData.colResidualStd = Math.sqrt(colResidual2Mean - warpData.colResidualMean * warpData.colResidualMean);
+    }
+
+    private void constructInterpolationTable(String interpolationMethod) {
+
+        // construct interpolation LUT
+        SimpleLUT lut = new SimpleLUT(interpolationMethod);
+        lut.constructLUT();
+
+        int kernelLength = lut.getKernelLength();
+
+        // get LUT and cast it to float for JAI
+        double[] lutArrayDoubles = lut.getKernelAsArray();
+        float lutArrayFloats[] = new float[lutArrayDoubles.length];
+        int i = 0;
+        for (double lutElement : lutArrayDoubles) {
+            lutArrayFloats[i++] = (float) lutElement;
+        }
+
+        // construct interpolation table for JAI resampling
+        final int subsampleBits = 7;
+        final int precisionBits = 32;
+        int padding = kernelLength / 2 - 1;
+
+        interpTable = new InterpolationTable(padding, kernelLength, subsampleBits, precisionBits, lutArrayFloats);
     }
 
     /**
