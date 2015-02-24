@@ -923,8 +923,9 @@ public class CreateStackOp extends Operator {
     }
 
     // for unit test
-    protected void setTestParameters(final String ext) {
-        extent = ext;
+    protected void setTestParameters(final String ext, final String offsetMethod) {
+        this.extent = ext;
+        this.initialOffsetMethod = offsetMethod;
     }
 
     /**
