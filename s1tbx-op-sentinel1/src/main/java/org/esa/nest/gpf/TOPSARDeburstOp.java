@@ -284,6 +284,10 @@ public final class TOPSARDeburstOp extends Operator {
 
     private String getTargetBandNameFromSourceBandName(final String srcBandName) {
 
+        if (numOfSubSwath == 1) {
+            return srcBandName;
+        }
+
         final int firstSeparationIdx = srcBandName.indexOf(acquisitionMode);
         final int secondSeparationIdx = srcBandName.indexOf("_", firstSeparationIdx + 1);
         return srcBandName.substring(0, firstSeparationIdx) + srcBandName.substring(secondSeparationIdx + 1);
@@ -291,6 +295,10 @@ public final class TOPSARDeburstOp extends Operator {
 
     private String getSourceBandNameFromTargetBandName(
             final String tgtBandName, final String acquisitionMode, final String swathIndexStr) {
+
+        if (numOfSubSwath == 1) {
+            return tgtBandName;
+        }
 
         final String[] srcBandNames = sourceProduct.getBandNames();
         for (String srcBandName:srcBandNames) {
