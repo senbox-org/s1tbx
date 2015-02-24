@@ -659,6 +659,7 @@ public final class BackGeocodingOp extends Operator {
             double[][] slaveRg = new double[numLines][numPixels];
             final PositionData posData = new PositionData();
 
+            boolean noValidSlavePixPos = true;
             for (int l = 0; l < numLines; l++) {
                 for (int p = 0; p < numPixels; p++) {
 
@@ -675,6 +676,7 @@ public final class BackGeocodingOp extends Operator {
 
                                 slaveAz[l][p] = posData.azimuthIndex;
                                 slaveRg[l][p] = posData.rangeIndex;
+                                noValidSlavePixPos = false;
                                 continue;
                             }
                         }
@@ -683,6 +685,10 @@ public final class BackGeocodingOp extends Operator {
                     masterAz[l][p] = invalidIndex;
                     masterRg[l][p] = invalidIndex;
                 }
+            }
+
+            if (noValidSlavePixPos) {
+                return null;
             }
 
             // Compute azimuth/range offsets for pixels in target tile using Delaunay interpolation
