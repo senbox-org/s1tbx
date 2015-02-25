@@ -445,7 +445,7 @@ public final class Orbit {
         //}
 
         // normalize time
-        double azTimeNormal = (azTime - time[time.length / 2]) / 10;
+        double azTimeNormal = (azTime - time[time.length / 2]) / 10.0;
 
         return new Point(
                 PolyUtils.polyVal1D(azTimeNormal, coeff_X),
