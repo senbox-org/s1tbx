@@ -286,10 +286,6 @@ public class VisatApp extends BasicApp implements AppContext {
     protected static final String SHOW_TOOLVIEW_CMD_POSTFIX = ".showCmd";
 
     /**
-     * VISAT's plug-in manager
-     */
-    private VisatPlugInManager plugInManager;
-    /**
      * All internal frame listeners.
      */
     private List<InternalFrameListener> internalFrameListeners;
@@ -387,9 +383,7 @@ public class VisatApp extends BasicApp implements AppContext {
             loadToolViews();
             pm.worked(1);
 
-            pm.setTaskName("Starting plugins");
-            loadPlugins();
-            plugInManager.startPlugins();
+            pm.setTaskName("Registering tool window commands");
             registerShowToolViewCommands();
             pm.worked(1);
 
@@ -572,9 +566,6 @@ public class VisatApp extends BasicApp implements AppContext {
      */
     @Override
     protected void handleImminentExit() {
-        if (plugInManager != null) {
-            plugInManager.stopPlugins();
-        }
         if (singleThreadExecutor != null) {
             singleThreadExecutor.shutdown();
             singleThreadExecutor = null;
@@ -589,10 +580,6 @@ public class VisatApp extends BasicApp implements AppContext {
             // triggers also command registration in command manager
             toolViewDescriptor.createShowViewCommand(applicationPage);
         }
-    }
-
-    private void loadPlugins() {
-        plugInManager = new VisatPlugInManager(VisatActivator.getInstance().getPlugins());
     }
 
     /**
@@ -1886,7 +1873,6 @@ public class VisatApp extends BasicApp implements AppContext {
         if (preferencesDialog != null) {
             SwingUtilities.updateComponentTreeUI(preferencesDialog.getJDialog());
         }
-        plugInManager.updatePluginsComponentTreeUI();
         getCommandManager().updateComponentTreeUI();
     }
 

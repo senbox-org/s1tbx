@@ -130,11 +130,7 @@
 
     </extension>
 
-    <!--
-       todo - The VisatPlugIn interface should be deprecated, use an ApplicationLifecycleListener instead
-    -->
     <extension point="snap-ceres-core:serviceProviders">
-        <serviceProvider>org.esa.beam.visat.VisatPlugIn</serviceProvider>
         <serviceProvider>com.bc.ceres.glayer.LayerType</serviceProvider>
     </extension>
 
