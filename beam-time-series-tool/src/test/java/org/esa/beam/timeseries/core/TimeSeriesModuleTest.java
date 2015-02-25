@@ -1,17 +1,18 @@
 package org.esa.beam.timeseries.core;
 
-import static org.junit.Assert.*;
-
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.timeseries.core.timeseries.datamodel.AbstractTimeSeries;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 
-public class TimeSeriesToolActivatorTest {
+import static org.junit.Assert.*;
+
+public class TimeSeriesModuleTest {
 
     private Product testProduct;
     private String absoluteProductPath1;
@@ -29,10 +30,10 @@ public class TimeSeriesToolActivatorTest {
     }
 
     @Test
-    public void testSomething() {
+    public void testAbsToRelPath() {
         File testOutputDir = new File(absOutputPath);
         // execution
-        TimeSeriesToolActivator.convertAbsolutPathsToRelative(testProduct, testOutputDir);
+        TimeSeriesModule.convertAbsolutPathsToRelative(testProduct, testOutputDir);
 
         assertEquals("and/a/product/file/product1.dim", getPathString(AbstractTimeSeries.PRODUCT_LOCATIONS, 0));
         assertEquals("and/a/product/file/product2.dim", getPathString(AbstractTimeSeries.PRODUCT_LOCATIONS, 1));
