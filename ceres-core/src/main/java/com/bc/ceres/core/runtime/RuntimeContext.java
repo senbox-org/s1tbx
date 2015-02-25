@@ -16,8 +16,6 @@
 
 package com.bc.ceres.core.runtime;
 
-import com.bc.ceres.core.runtime.internal.RuntimeActivator;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -58,8 +56,7 @@ public final class RuntimeContext {
      * @return The runtime's system module context, or {@code null}.
      */
     public static ModuleContext getModuleContext() {
-        final RuntimeActivator instance = RuntimeActivator.getInstance();
-        return instance != null ? instance.getModuleContext() : null;
+        return null;
     }
 
     /**
@@ -83,9 +80,6 @@ public final class RuntimeContext {
      * @since 0.14
      */
     public static Enumeration<URL> getResources(String resourceName)  throws IOException {
-        final RuntimeActivator instance = RuntimeActivator.getInstance();
-        return instance != null
-                ? instance.getResourcesClassLoader().getResources(resourceName)
-                : Thread.currentThread().getContextClassLoader().getResources(resourceName);
+        return Thread.currentThread().getContextClassLoader().getResources(resourceName);
     }
 }

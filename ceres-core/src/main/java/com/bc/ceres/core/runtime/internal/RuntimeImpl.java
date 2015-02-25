@@ -26,7 +26,6 @@ import com.bc.ceres.core.runtime.ModuleRuntime;
 import com.bc.ceres.core.runtime.ModuleState;
 import com.bc.ceres.core.runtime.ProxyConfig;
 import com.bc.ceres.core.runtime.RuntimeConfig;
-import com.bc.ceres.core.runtime.RuntimeRunnable;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +40,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.bc.ceres.core.runtime.Constants.SYSTEM_MODULE_NAME;
+import static com.bc.ceres.core.runtime.Constants.*;
 
 // todo - handle "note: executing foreign code here!"
 // todo - delegate specific behaviour to kind-of RuntimeAdvisor / RuntimeConfigurer
@@ -130,7 +129,6 @@ public class RuntimeImpl extends ExtensibleObject implements ModuleRuntime {
             registerShutdownHook();
 
             progressMonitor.setSubTaskName("Running application");
-            runApplication(SubProgressMonitor.create(progressMonitor, 30)); // = 100%
         } finally {
             progressMonitor.done();
         }
@@ -283,7 +281,7 @@ public class RuntimeImpl extends ExtensibleObject implements ModuleRuntime {
     private void resolveModules(ProgressMonitor pm) {
 
         ModuleImpl[] modules = moduleRegistry.getModules();
-        resolvedModules = new ArrayList<ModuleImpl>(modules.length);
+        resolvedModules = new ArrayList<>(modules.length);
 
         pm.beginTask("Resolving modules", modules.length + 1);
 
@@ -425,29 +423,6 @@ public class RuntimeImpl extends ExtensibleObject implements ModuleRuntime {
             }
         });
         getLogger().info("Shutdown hook registered.");
-    }
-
-    private void runApplication(ProgressMonitor pm) throws CoreException {
-        String applicationId = config.getApplicationId();
-        if (applicationId == null) {
-            return;
-        }
-        RuntimeRunnable application = getRuntimeActivator().getApplication(applicationId);
-        if (application == null) {
-            throw new CoreException(MessageFormat.format("Application [{0}] not found", applicationId));
-        }
-        try {
-            getLogger().info(MessageFormat.format("Invoking application [{0}].", applicationId));
-            // note: executing foreign code here!
-            application.run(commandLineArgs, pm);
-            getLogger().info(MessageFormat.format("Application [{0}] invoked.", applicationId));
-        } catch (Throwable t) {
-            throw new CoreException(MessageFormat.format("Failed to invoke application [{0}]", applicationId), t);
-        }
-    }
-
-    private RuntimeActivator getRuntimeActivator() {
-        return ((RuntimeActivator) systemModule.getActivator());
     }
 
 

@@ -4,7 +4,6 @@
     <symbolicName>snap-ceres-core</symbolicName>
     <version>2.0.0</version>
     <name>Ceres Runtime Library</name>
-    <activator>com.bc.ceres.core.runtime.internal.RuntimeActivator</activator>
 
     <changelog>
         <![CDATA[

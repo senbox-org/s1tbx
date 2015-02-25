@@ -15,7 +15,6 @@
  */
 package org.esa.snap.util;
 
-import com.bc.ceres.core.runtime.internal.RuntimeActivator;
 import org.esa.beam.util.VersionChecker;
 
 /**
@@ -24,10 +23,11 @@ import org.esa.beam.util.VersionChecker;
 public class VersionUtil {
 
     public static String getContextID() {
-        if (RuntimeActivator.getInstance() != null
-                && RuntimeActivator.getInstance().getModuleContext() != null) {
-            return RuntimeActivator.getInstance().getModuleContext().getRuntimeConfig().getContextId();
-        }
+        // todo RuntimeActivator can not be used any more. Find a replacement.
+//        if (RuntimeActivator.getInstance() != null
+//                && RuntimeActivator.getInstance().getModuleContext() != null) {
+//            return RuntimeActivator.getInstance().getModuleContext().getRuntimeConfig().getContextId();
+//        }
         return System.getProperty("ceres.context", "nest");
     }
 
