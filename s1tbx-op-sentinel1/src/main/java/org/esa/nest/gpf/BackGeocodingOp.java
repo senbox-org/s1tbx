@@ -95,10 +95,10 @@ public final class BackGeocodingOp extends Operator {
     @Parameter(valueSet = {ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
             ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
             ResamplingFactory.BISINC_21_POINT_INTERPOLATION_NAME},
-            defaultValue = ResamplingFactory.BISINC_21_POINT_INTERPOLATION_NAME,
+            defaultValue = ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
             description = "The method to be used when resampling the slave grid onto the master grid.",
             label = "Resampling Type")
-    private String resamplingType = ResamplingFactory.BISINC_21_POINT_INTERPOLATION_NAME;
+    private String resamplingType = ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME;
 
     @Parameter(defaultValue = "false", label = "Output Range and Azimuth Offset")
     private boolean outputRangeAzimuthOffset = false;
