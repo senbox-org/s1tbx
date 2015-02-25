@@ -78,7 +78,7 @@ public final class SubtRefDemOp extends Operator {
             label = "Tile Extension [%]",
             description = "Define extension of tile for DEM similuation (optimization parameter).",
             defaultValue = "50")
-    private int tileExtensionPercent = 50;
+    private String tileExtensionPercent = "50";
 
     @Parameter(description = "The topographic phase band name.",
             defaultValue = "topo_phase",
@@ -291,18 +291,12 @@ public final class SubtRefDemOp extends Operator {
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        for (final Band band : targetProduct.getBands()) {
-            targetProduct.removeBand(band);
-        }
-
         for (String key : targetMap.keySet()) {
 
             String targetBandName_I = targetMap.get(key).targetBandName_I;
             String targetBandName_Q = targetMap.get(key).targetBandName_Q;
-            targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT64);
-            targetProduct.getBand(targetBandName_I).setUnit(Unit.REAL);
-            targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT64);
-            targetProduct.getBand(targetBandName_Q).setUnit(Unit.IMAGINARY);
+            targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT64).setUnit(Unit.REAL);
+            targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT64).setUnit(Unit.IMAGINARY);
 
             final String tag0 = targetMap.get(key).sourceMaster.date;
             final String tag1 = targetMap.get(key).sourceSlave.date;
@@ -319,11 +313,20 @@ public final class SubtRefDemOp extends Operator {
                 targetProduct.getBand(topoBandName).setUnit(Unit.PHASE);
                 targetProduct.getBand(topoBandName).setDescription("topographic_phase");
             }
+
+            // copy other bands through
+            String tagStr = tag0 + "_" + tag1;
+            for(Band srcBand : sourceProduct.getBands()) {
+                if(srcBand instanceof VirtualBand)
+                    continue;
+                String srcBandName = srcBand.getName();
+                if(srcBandName.endsWith(tagStr)) {
+                    if (srcBandName.startsWith("coh")|| srcBandName.startsWith("elev")) {
+                        ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+                    }
+                }
+            }
         }
-
-        // For testing: the optimal results with 1024x1024 pixels tiles, not clear whether it's platform dependent?
-        // targetProduct.setPreferredTileSize(512, 512);
-
     }
 
     /**
@@ -468,9 +471,10 @@ public final class SubtRefDemOp extends Operator {
           - Parameters are defined for the reliability, not(!) the performance.
          */
 
-        final float extraTileX = (float) (1 + tileExtensionPercent / 100.0); // = 1.5f
-        final float extraTileY = (float) (1 + tileExtensionPercent / 100.0); // = 1.5f
-        final float scaleMaxHeight = (float) (1 + tileExtensionPercent/ 100.0); // = 1.25f
+        int tileExtPercent = Integer.parseInt(tileExtensionPercent);
+        final float extraTileX = (float) (1 + tileExtPercent / 100.0); // = 1.5f
+        final float extraTileY = (float) (1 + tileExtPercent / 100.0); // = 1.5f
+        final float scaleMaxHeight = (float) (1 + tileExtPercent/ 100.0); // = 1.25f
 
         double[] heightArray = new double[2];
 
