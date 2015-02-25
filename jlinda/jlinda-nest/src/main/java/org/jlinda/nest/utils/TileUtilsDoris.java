@@ -121,6 +121,7 @@ public class TileUtilsDoris {
 
     public static void pushDoubleArray2D(double[][] data, Tile tile, Rectangle rect) {
 
+        /*
         final ProductData samples = tile.getRawSamples(); // checkout
         final int width = (int) rect.getWidth();
 
@@ -132,6 +133,18 @@ public class TileUtilsDoris {
         }
         tile.setRawSamples(samples); // commit
         samples.dispose();
+        */
+        final int maxX = rect.x + rect.width;
+        final int maxY = rect.y + rect.height;
+        final ProductData samples = tile.getDataBuffer();
+        final TileIndex tgtIndex = new TileIndex(tile);
+        for (int y = rect.y; y < maxY; y++) {
+            tgtIndex.calculateStride(y);
+            final int yy = y - rect.y;
+            for (int x = rect.x; x < maxX; x++) {
+                samples.setElemFloatAt(tgtIndex.getIndex(x), (float)data[yy][x - rect.x]);
+            }
+        }
     }
 
     public static void pushDoubleMatrix(FloatMatrix data, Tile tile, Rectangle rect) {
