@@ -16,7 +16,12 @@
 package org.esa.beam;
 
 import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.runtime.*;
+import com.bc.ceres.core.runtime.ConfigurationElement;
+import com.bc.ceres.core.runtime.Extension;
+import com.bc.ceres.core.runtime.ExtensionPoint;
+import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.ModuleContext;
+import com.bc.ceres.core.runtime.ModuleState;
 import com.sun.java.help.search.QueryEngine;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
@@ -31,7 +36,13 @@ import org.esa.beam.util.TreeNode;
 import javax.help.HelpSet;
 import javax.help.HelpSet.DefaultHelpSetFactory;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,9 +53,9 @@ import java.util.logging.Logger;
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  */
-public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
+public class BeamUiActivator implements ToolViewDescriptorRegistry {
 
-    private static BeamUiActivator instance;
+    private static BeamUiActivator instance = new BeamUiActivator();
     private ModuleContext moduleContext;
     private TreeNode<HelpSet> helpSetRegistry;
     private List<Command> actionList;
@@ -54,7 +65,6 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
     private ApplicationDescriptor applicationDescriptor;
     private int helpSetNo;
 
-    @Override
     public void start(ModuleContext moduleContext) throws CoreException {
         this.moduleContext = moduleContext;
         instance = this;
@@ -67,7 +77,6 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
         registerLayerSources(moduleContext);
     }
 
-    @Override
     public void stop(ModuleContext moduleContext) throws CoreException {
         this.helpSetRegistry = null;
         this.moduleContext = null;

@@ -18,6 +18,10 @@ package com.bc.ceres.core.runtime;
 
 import com.bc.ceres.core.CoreException;
 
+/**
+ * @deprecated since 2.0, no replacement
+ */
+@Deprecated
 public interface Activator {
     void start(ModuleContext moduleContext) throws CoreException;
 

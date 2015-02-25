@@ -17,7 +17,6 @@
 package org.esa.beam.visat;
 
 import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.runtime.Activator;
 import com.bc.ceres.core.runtime.ModuleContext;
 import org.esa.beam.BeamUiActivator;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
@@ -29,13 +28,10 @@ import java.util.List;
 /**
  * The activator for VISAT. This activator processes the extension point <code>plugins</code>.
  */
-public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
+public class VisatActivator implements ToolViewDescriptorRegistry {
 
     private static VisatActivator instance;
     private ModuleContext moduleContext;
-
-    public VisatActivator() {
-    }
 
     public static VisatActivator getInstance() {
         return instance;
@@ -59,13 +55,11 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
         return BeamUiActivator.getInstance().getToolViewDescriptor(viewDescriptorId);
     }
 
-    @Override
     public void start(ModuleContext moduleContext) throws CoreException {
         instance = this;
         this.moduleContext = moduleContext;
     }
 
-    @Override
     public void stop(ModuleContext moduleContext) throws CoreException {
         this.moduleContext = null;
         instance = null;
