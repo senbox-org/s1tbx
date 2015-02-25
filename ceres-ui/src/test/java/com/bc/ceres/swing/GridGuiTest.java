@@ -1,7 +1,5 @@
 package com.bc.ceres.swing;
 
-import com.jidesoft.utils.Lm;
-
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -16,8 +14,6 @@ import java.awt.BorderLayout;
 
 public class GridGuiTest {
     public static void main(String[] args) {
-        Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
-
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
