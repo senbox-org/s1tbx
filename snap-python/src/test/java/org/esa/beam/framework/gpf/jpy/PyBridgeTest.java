@@ -1,5 +1,6 @@
 package org.esa.beam.framework.gpf.jpy;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.URI;
@@ -9,9 +10,8 @@ import java.nio.file.Paths;
 
 import static org.junit.Assert.assertNotNull;
 
-/**
- * Created by Norman on 20.02.2015.
- */
+
+@Ignore
 public class PyBridgeTest {
 
     @Test
