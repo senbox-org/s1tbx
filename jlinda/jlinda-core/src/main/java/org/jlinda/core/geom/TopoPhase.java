@@ -91,7 +91,7 @@ public class TopoPhase {
         this.rngAzRatio = rngAzRatio;
     }
 
-    public void radarCode() throws Exception {
+    public synchronized void radarCode() throws Exception {
 
         logger.info("Converting DEM to radar system for this tile.");
 

@@ -50,7 +50,7 @@ public class TestCreateStackOp {
         //ProductIO.writeProduct(slvProduct1, "c:\\data\\out\\slvProduct1", "BEAM-DIMAP");
 
         op.setSourceProducts(new Product[]{mstProduct, slvProduct1});
-        op.setTestParameters(CreateStackOp.MASTER_EXTENT);
+        op.setTestParameters(CreateStackOp.MASTER_EXTENT, CreateStackOp.INITIAL_OFFSET_GCP);
 
         // get targetProduct gets initialize to be executed
         final Product targetProduct = op.getTargetProduct();

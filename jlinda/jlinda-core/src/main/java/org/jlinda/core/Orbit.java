@@ -463,7 +463,7 @@ public final class Orbit {
         //TODO: spline support!
 
         // normalize time
-        azTime = (azTime - time[numStateVectors / 2]) / 10;
+        azTime = (azTime - time[numStateVectors / 2]) / 10.0;
 
         int DEGREE = coeff_X.length - 1;
 

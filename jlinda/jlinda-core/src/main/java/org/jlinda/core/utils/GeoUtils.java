@@ -81,6 +81,7 @@ public class GeoUtils {
             final double heightMin, final double heightMax, final Window window, final SLCImage meta, final Orbit orbit)
             throws Exception {
 
+        // compute Phi, Lambda for Tile corners
         final double midPix = (window.pixlo + window.pixhi) / 2.0;
         final double midLin = (window.linelo + window.linehi) / 2.0;
         final double[] latLonMin = orbit.lph2ell(midLin, midPix, heightMin, meta);
