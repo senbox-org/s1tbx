@@ -45,6 +45,8 @@ import java.util.List;
  */
 @OperatorMetadata(alias = "Stack-Split",
         description = "Writes all bands to files.",
+        authors = "Jun Lu, Luis Veci",
+        copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         category = "SAR Processing/Coregistration/Stack Tools")
 public class StackSplitWriter extends Operator implements Output {
 

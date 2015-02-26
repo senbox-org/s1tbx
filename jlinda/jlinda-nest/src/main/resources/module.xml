@@ -254,7 +254,7 @@
             <helpId>AzimuthFilterOp</helpId>
         </action>
 
-        <action>
+        <!--action>
             <id>PhaseFilterOp</id>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
@@ -266,7 +266,7 @@
             <parent>insar_tools</parent>
             <placeAfter>spectral_filtering</placeAfter>
             <helpId>PhaseFilterOp</helpId>
-        </action>
+        </action-->
 
         <!--/// UNWRAPPING ///-->
 
@@ -303,6 +303,20 @@
         </action>
         
         <!--/// snaphu unwrapping ///-->
+
+        <action>
+            <id>SnaphuExport</id>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <helpId>Unwrap</helpId>
+            <text>Snaphu Export</text>
+            <operatorName>Snaphu-Export</operatorName>
+            <dialogTitle>Export data for SNAPHU unwrapping</dialogTitle>
+            <targetProductNameSuffix>_snaphu</targetProductNameSuffix>
+            <shortDescr>Export data and construct conf file for SNAPHU unwrapping</shortDescr>
+            <parent>unwrapping</parent>
+            <placeAfter>StitchOp</placeAfter>
+        </action>
+
         <action>
             <id>SnaphuExportOp</id>
             <class>org.esa.snap.dat.actions.GraphAction</class>
