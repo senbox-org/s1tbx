@@ -243,6 +243,12 @@ public class ProductLayer extends RenderableLayer {
                     final Band windDirBand = newProduct.getBand(prefix + "_001_owiWindDirection");
                     final Band rvlRadVelBand = newProduct.getBand(prefix + "_001_rvlRadVel");
 
+                     final Band waveLatBand = newProduct.getBand(prefix + "_001_oswLon");
+                     final Band waveLonBand = newProduct.getBand(prefix + "_001_oswLat");
+                     final Band waveHeightBand = newProduct.getBand(prefix + "_001_oswHs");
+                     final Band waveLengthBand = newProduct.getBand(prefix + "_001_oswWl");
+                     final Band waveDirBand = newProduct.getBand(prefix + "_001_oswDirmet");
+
                      //final Band oswLonBand = newProduct.getBand("hh_001_oswLon");
                      //final Band oswLatBand = newProduct.getBand("hh_001_oswLat");
                      //final Band oswWindDirBand = newProduct.getBand("hh_001_oswWindDirection");
@@ -272,7 +278,24 @@ public class ProductLayer extends RenderableLayer {
                     windDirBand.readPixels(0, 0, windDirBand.getRasterWidth(), windDirBand.getRasterHeight(), windDirValues, com.bc.ceres.core.ProgressMonitor.NULL);
 
                     final double[] rvlRadVelValues = new double[rvlRadVelBand.getRasterWidth() * rvlRadVelBand.getRasterHeight()];
-                     rvlRadVelBand.readPixels(0, 0, rvlRadVelBand.getRasterWidth(), rvlRadVelBand.getRasterHeight(), rvlRadVelValues, com.bc.ceres.core.ProgressMonitor.NULL);
+                    rvlRadVelBand.readPixels(0, 0, rvlRadVelBand.getRasterWidth(), rvlRadVelBand.getRasterHeight(), rvlRadVelValues, com.bc.ceres.core.ProgressMonitor.NULL);
+
+
+
+                     final double[] waveLonValues = new double[waveLonBand.getRasterWidth() * waveLonBand.getRasterHeight()];
+                     waveLonBand.readPixels(0, 0, waveLonBand.getRasterWidth(), waveLonBand.getRasterHeight(), waveLonValues, com.bc.ceres.core.ProgressMonitor.NULL);
+
+                     final double[] waveLatValues = new double[waveLatBand.getRasterWidth() * waveLatBand.getRasterHeight()];
+                     waveLatBand.readPixels(0, 0, waveLatBand.getRasterWidth(), waveLatBand.getRasterHeight(), waveLatValues, com.bc.ceres.core.ProgressMonitor.NULL);
+
+                     final double[] waveHeightValues = new double[waveHeightBand.getRasterWidth() * waveHeightBand.getRasterHeight()];
+                     waveHeightBand.readPixels(0, 0, waveHeightBand.getRasterWidth(), waveHeightBand.getRasterHeight(), waveHeightValues, com.bc.ceres.core.ProgressMonitor.NULL);
+
+                     final double[] waveLengthValues = new double[waveLengthBand.getRasterWidth() * waveLengthBand.getRasterHeight()];
+                     waveLengthBand.readPixels(0, 0, waveLengthBand.getRasterWidth(), waveLengthBand.getRasterHeight(), waveLengthValues, com.bc.ceres.core.ProgressMonitor.NULL);
+
+                     final double[] waveDirValues = new double[waveDirBand.getRasterWidth() * waveDirBand.getRasterHeight()];
+                     waveDirBand.readPixels(0, 0, waveDirBand.getRasterWidth(), waveDirBand.getRasterHeight(), waveDirValues, com.bc.ceres.core.ProgressMonitor.NULL);
 
 
                      //final float[] oswLonValues = new float[oswLonBand.getRasterWidth() * oswLonBand.getRasterHeight()];
@@ -311,8 +334,8 @@ public class ProductLayer extends RenderableLayer {
                          addWindSpeedArrows (latValues, lonValues, incAngleValues, windSpeedValues, windDirValues, lonBand.getRasterWidth(), lonBand.getRasterHeight(), cellSizeArr[cellSizeInd], minHeight, maxHeight, productRenderablesInfo.owiRenderableList);
                      }
 
-                     createColorSurfaceAndBar(geoPos1, geoPos2, windSpeedValues, 0, 10, HUE_RED, 1.0, false, productRenderablesInfo.owiRenderableList, "OWI Wind Speed", productRenderablesInfo, "owi");
-                     createColorSurfaceAndBar(geoPos1, geoPos2, rvlRadVelValues, -6, 6, HUE_RED, 1.0, true, productRenderablesInfo.rvlRenderableList, "RVL Rad. Vel.", productRenderablesInfo, "rvl");
+                     createColorSurfaceAndBar(geoPos1, geoPos2, windSpeedValues, windSpeedBand.getRasterWidth(), windSpeedBand.getRasterHeight(), 0, 10, HUE_RED, 1.0, false, productRenderablesInfo.owiRenderableList, "OWI Wind Speed", productRenderablesInfo, "owi");
+                     createColorSurfaceAndBar(geoPos1, geoPos2, rvlRadVelValues, rvlRadVelBand.getRasterWidth(), rvlRadVelBand.getRasterHeight(), -6, 6, HUE_RED, 1.0, true, productRenderablesInfo.rvlRenderableList, "RVL Rad. Vel.", productRenderablesInfo, "rvl");
 
                      theProductRenderablesInfoHash.put(product, productRenderablesInfo);
 
@@ -334,8 +357,8 @@ public class ProductLayer extends RenderableLayer {
 
 
     // ADDED
-    public void createColorSurfaceAndBar (GeoPos geoPos1, GeoPos geoPos2, double[] values, double minValue, double maxValue, double minHue, double maxHue, boolean whiteZero, ArrayList<Renderable> renderableList, String legendTitle, ProductRenderablesInfo prodRenderInfo, String comp) {
-        createColorSurface(geoPos2.getLat(), geoPos1.getLat(), geoPos1.getLon(), geoPos2.getLon(), values, 40, 40, minValue, maxValue, renderableList, prodRenderInfo, comp);
+    public void createColorSurfaceAndBar (GeoPos geoPos1, GeoPos geoPos2, double[] values, int width, int height, double minValue, double maxValue, double minHue, double maxHue, boolean whiteZero, ArrayList<Renderable> renderableList, String legendTitle, ProductRenderablesInfo prodRenderInfo, String comp) {
+        createColorSurface(geoPos2.getLat(), geoPos1.getLat(), geoPos1.getLon(), geoPos2.getLon(), values, width, height, renderableList, prodRenderInfo, comp);
         //createColorSurface(geoPos2.getLat(), geoPos1.getLat(), geoPos1.getLon(), geoPos2.getLon(), rvlRadVelValues, 40, 40, minValue, maxValue, renderableList);
 
         theCurrMinHue = minHue;
@@ -621,11 +644,11 @@ public class ProductLayer extends RenderableLayer {
     }
 
     // ADDED
-    protected void createColorSurface(double minLat, double maxLat, double minLon, double maxLon, double[] values, int width, int height, double minValue, double maxValue, ArrayList<Renderable> renderableList, ProductRenderablesInfo prodRenderInfo, String comp)
+    protected void createColorSurface(double minLat, double maxLat, double minLon, double maxLon, double[] values, int width, int height, ArrayList<Renderable> renderableList, ProductRenderablesInfo prodRenderInfo, String comp)
     {
         //double minValue = -200e3;
         //double maxValue = 200e3;
-
+        System.out.println("createColorSurface " + minLat + " " + maxLat + " " + minLon + " " + maxLon);
         AnalyticSurface analyticSurface = new AnalyticSurface();
         analyticSurface.setSector(Sector.fromDegrees(minLat, maxLat, minLon, maxLon));
         analyticSurface.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
@@ -646,8 +669,8 @@ public class ProductLayer extends RenderableLayer {
         BufferWrapper analyticSurfaceValueBuffer = (new BufferFactory.DoubleBufferFactory()).newBuffer(values.length);
         analyticSurfaceValueBuffer.putDouble(0, values, 0, values.length);
 
-        smoothValues(width, height, values, 0.5d);
-        scaleValues(values, values.length, minValue, maxValue);
+        //smoothValues(width, height, values, 0.5d);
+        //scaleValues(values, values.length, minValue, maxValue);
 
         //mixValuesOverTime(2000L, firstBuffer, analyticSurfaceValueBuffer, minValue, maxValue, minHue, maxHue, analyticSurface);
 
@@ -659,7 +682,7 @@ public class ProductLayer extends RenderableLayer {
     }
 
     public void createColorGradient(double minValue, double maxValue, double minHue, double maxHue, boolean whiteZero, ProductRenderablesInfo prodRenderInfo, String comp) {
-        System.out.println("createColorGradient");
+        System.out.println("createColorGradient " + minValue + " " + maxValue + " " + minHue + " " + maxHue + " " + comp);
         AnalyticSurface analyticSurface = null;
         BufferWrapper analyticSurfaceValueBuffer = null;
 
@@ -675,8 +698,26 @@ public class ProductLayer extends RenderableLayer {
         ArrayList<AnalyticSurface.GridPointAttributes> attributesList = new ArrayList<AnalyticSurface.GridPointAttributes>();
         for (int i = 0; i < analyticSurfaceValueBuffer.length(); i++)
         {
+            /*
+            String s = analyticSurfaceValueBuffer.getDouble(i) + "";
+            System.out.print(s.substring(0, 3) + " ");
+            if (i % 82 == 0) {
+                System.out.println();
+            }
+            */
+            double d = analyticSurfaceValueBuffer.getDouble(i);
+            /*
+            if (i % 82 == 0) {
+                d = 0.0;
+            }
+            */
+            /*
+            if (i / 93 == 0) {
+                d = 0.0;
+            }
+            */
             attributesList.add(
-                    createColorGradientAttributes(analyticSurfaceValueBuffer.getDouble(i), minValue, maxValue, minHue, maxHue, whiteZero));
+                    createColorGradientAttributes(d, minValue, maxValue, minHue, maxHue, whiteZero));
         }
 
         analyticSurface.setValues(attributesList);
@@ -689,7 +730,8 @@ public class ProductLayer extends RenderableLayer {
     {
         double hueFactor = WWMath.computeInterpolationFactor(value, minValue, maxValue);
 
-        double hue = WWMath.mixSmooth(hueFactor, minHue, maxHue);
+        //double hue = WWMath.mixSmooth(hueFactor, minHue, maxHue);
+        double hue = WWMath.mix(hueFactor, minHue, maxHue);
         double sat = 1.0;
         if (whiteZero) {
             sat = Math.abs(WWMath.mixSmooth(hueFactor, -1, 1));
@@ -700,7 +742,7 @@ public class ProductLayer extends RenderableLayer {
 
         return AnalyticSurface.createGridPointAttributes(value, rgbaColor);
     }
-    /*
+
     public static BufferWrapper randomGridValues(int width, int height, double min, double max, int numIterations,
                                                  double smoothness, BufferFactory factory)
     {
@@ -744,7 +786,7 @@ public class ProductLayer extends RenderableLayer {
         return randomGridValues(width, height, min, max, 1000, 0.5d,
                 new BufferFactory.DoubleBufferFactory());
     }
-    */
+
     protected static void scaleValues(double[] values, int count, double minValue, double maxValue)
     {
         double min = Double.MAX_VALUE;

@@ -15,6 +15,7 @@
  */
 package org.esa.nest.dat.toolviews.nestwwview;
 
+import gov.nasa.worldwind.render.DrawContext;
 import gov.nasa.worldwind.util.WWMath;
 import gov.nasa.worldwind.render.ScreenImage;
 import java.awt.*;
@@ -79,5 +80,15 @@ public class ColorBarLegend extends gov.nasa.worldwindx.examples.analytics.Analy
         }
 
         return image;
+    }
+
+    public void render (DrawContext dc) {
+        //System.out.println("render");
+
+        double x = dc.getView().getViewport().getWidth() - 75.0;
+        double y = 320.0;
+
+        setScreenLocation(new Point ((int) x, (int) y));
+        super.render(dc);
     }
 }

@@ -73,6 +73,8 @@ public final class Sentinel1Utils {
         getProductSubSwathNames();
 
         getSubSwathParameters();
+
+        this.nearRangeOnLeft = (subSwath[0].incidenceAngle[0][0] < subSwath[0].incidenceAngle[0][1]);
     }
 
     private void getMetadataRoot() {
@@ -125,8 +127,8 @@ public final class Sentinel1Utils {
                     AbstractMetadata.slant_range_to_first_pixel);
         }
 
-        final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
-        this.nearRangeOnLeft = SARGeocoding.isNearRangeOnLeft(incidenceAngle, sourceImageWidth);
+        //final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
+        //this.nearRangeOnLeft = SARGeocoding.isNearRangeOnLeft(incidenceAngle, sourceImageWidth);
     }
 
     /**
