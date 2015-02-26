@@ -35,6 +35,11 @@
             <operatorName>BandMaths</operatorName>
         </OperatorUI>
         <OperatorUI>
+            <id>org.esa.nest.gpf.BandSelectOpUI</id>
+            <class>org.esa.nest.gpf.BandSelectOpUI</class>
+            <operatorName>BandSelect</operatorName>
+        </OperatorUI>
+        <OperatorUI>
             <id>org.esa.nest.gpf.FilterOpUI</id>
             <class>org.esa.nest.gpf.FilterOpUI</class>
             <operatorName>Image-Filter</operatorName>
@@ -148,6 +153,18 @@
             <description>Replace product metadata with that of another product</description>
             <parent>MetadataTools</parent>
             <context>metadataNode</context>
+        </action>
+
+        <action>
+            <id>BandSelectOp</id>
+            <helpId>BandSelectOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>csaIcon</icon>
+            <parent>tools</parent>
+            <text>Band Select</text>
+            <shortDescr>Select a subset of bands</shortDescr>
+            <operatorName>BandSelect</operatorName>
+            <dialogTitle>Band Select</dialogTitle>
         </action>
 
         <action>

@@ -127,7 +127,7 @@ public class BaseCalibrator {
 
     private void outputInComplex(final Product sourceProduct, final String[] sourceBandNames) {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
         for (int i = 0; i < sourceBands.length; i += 2) {
 
@@ -170,7 +170,7 @@ public class BaseCalibrator {
 
     private void outputInIntensity(final Product sourceProduct, final String[] sourceBandNames) {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
         String targetBandName;

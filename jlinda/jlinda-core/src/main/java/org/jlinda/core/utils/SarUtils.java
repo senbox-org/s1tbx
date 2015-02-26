@@ -247,8 +247,11 @@ public class SarUtils {
             int maxL = minL + winP;
             for (k = 0; k < winL; k++) {
                 for (l = minL; l < maxL; l++) {
-                    sum.addi(input.get(k, l));
-                    power.addi(norms.get(k, l));
+                    //sum.addi(input.get(k, l));
+                    //power.addi(norms.get(k, l));
+                    int inI = 2 * input.index(k, l);
+                    sum.set(sum.real()+input.data[inI], sum.imag()+input.data[inI+1]);
+                    power.set(power.real()+norms.data[inI], power.imag()+norms.data[inI+1]);
                 }
             }
             result.put(0, minL, coherenceProduct(sum, power));
@@ -258,8 +261,13 @@ public class SarUtils {
             for (i = 0; i < maxI; i++) {
                 final int iwinL = i + winL;
                 for (l = minL; l < maxL; l++) {
-                    sum.addi(input.get(iwinL, l).sub(input.get(i, l)));
-                    power.addi(norms.get(iwinL, l).sub(norms.get(i, l)));
+                    //sum.addi(input.get(iwinL, l).sub(input.get(i, l)));
+                    //power.addi(norms.get(iwinL, l).sub(norms.get(i, l)));
+
+                    int inI = 2 * input.index(i, l);
+                    int inWinL = 2 * input.index(iwinL, l);
+                    sum.set(sum.real()+(input.data[inWinL]-input.data[inI]), sum.imag()+(input.data[inWinL+1]-input.data[inI+1]));
+                    power.set(power.real()+(norms.data[inWinL]-norms.data[inI]), power.imag()+(norms.data[inWinL+1]-norms.data[inI+1]));
                 }
                 result.put(i + 1, j - leadingZeros, coherenceProduct(sum, power));
             }

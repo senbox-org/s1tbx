@@ -100,7 +100,7 @@ public class ThetaTile {
     }
 
 
-    public synchronized void radarCode() throws Exception {
+    public void radarCode() throws Exception {
 
         logger.info("Converting DEM to radar system for this tile.");
 

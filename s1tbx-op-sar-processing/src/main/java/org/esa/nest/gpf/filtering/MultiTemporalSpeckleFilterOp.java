@@ -187,7 +187,7 @@ public class MultiTemporalSpeckleFilterOp extends Operator {
             }
             sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
         }
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
         if (sourceBands.length <= 1) {
             throw new OperatorException("Multitemporal filtering cannot be applied with one source band. Select more bands.");

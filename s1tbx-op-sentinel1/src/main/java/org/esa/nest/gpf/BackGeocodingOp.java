@@ -95,10 +95,10 @@ public final class BackGeocodingOp extends Operator {
     @Parameter(valueSet = {ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
             ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
             ResamplingFactory.BISINC_21_POINT_INTERPOLATION_NAME},
-            defaultValue = ResamplingFactory.BISINC_21_POINT_INTERPOLATION_NAME,
+            defaultValue = ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
             description = "The method to be used when resampling the slave grid onto the master grid.",
             label = "Resampling Type")
-    private String resamplingType = ResamplingFactory.BISINC_21_POINT_INTERPOLATION_NAME;
+    private String resamplingType = ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME;
 
     @Parameter(defaultValue = "false", label = "Output Range and Azimuth Offset")
     private boolean outputRangeAzimuthOffset = false;
@@ -659,6 +659,7 @@ public final class BackGeocodingOp extends Operator {
             double[][] slaveRg = new double[numLines][numPixels];
             final PositionData posData = new PositionData();
 
+            boolean noValidSlavePixPos = true;
             for (int l = 0; l < numLines; l++) {
                 for (int p = 0; p < numPixels; p++) {
 
@@ -675,6 +676,7 @@ public final class BackGeocodingOp extends Operator {
 
                                 slaveAz[l][p] = posData.azimuthIndex;
                                 slaveRg[l][p] = posData.rangeIndex;
+                                noValidSlavePixPos = false;
                                 continue;
                             }
                         }
@@ -683,6 +685,10 @@ public final class BackGeocodingOp extends Operator {
                     masterAz[l][p] = invalidIndex;
                     masterRg[l][p] = invalidIndex;
                 }
+            }
+
+            if (noValidSlavePixPos) {
+                return null;
             }
 
             // Compute azimuth/range offsets for pixels in target tile using Delaunay interpolation

@@ -1,4 +1,3 @@
-org.jlinda.nest.gpf.CoherenceOp$Spi
 org.jlinda.nest.gpf.RangeFilterOp$Spi
 org.jlinda.nest.gpf.AzimuthFilterOp$Spi
 org.jlinda.nest.gpf.SubtRefDemOp$Spi

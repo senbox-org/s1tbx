@@ -286,7 +286,7 @@ public final class TerrainFlatteningOp extends Operator {
      */
     private void addSelectedBands() {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
         String tgtBandName;

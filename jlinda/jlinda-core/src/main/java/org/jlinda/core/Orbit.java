@@ -445,7 +445,7 @@ public final class Orbit {
         //}
 
         // normalize time
-        double azTimeNormal = (azTime - time[time.length / 2]) / 10;
+        double azTimeNormal = (azTime - time[time.length / 2]) / 10.0;
 
         return new Point(
                 PolyUtils.polyVal1D(azTimeNormal, coeff_X),
@@ -463,7 +463,7 @@ public final class Orbit {
         //TODO: spline support!
 
         // normalize time
-        azTime = (azTime - time[numStateVectors / 2]) / 10;
+        azTime = (azTime - time[numStateVectors / 2]) / 10.0;
 
         int DEGREE = coeff_X.length - 1;
 
