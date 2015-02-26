@@ -187,7 +187,7 @@
             <targetProductNameSuffix>_EC</targetProductNameSuffix>
         </action>
 
-        <action>
+        <!--action>
             <id>reprojection2</id>
             <helpId>reprojectionAction</helpId>
             <class>org.esa.beam.gpf.operators.reproject.ReprojectionAction</class>
@@ -195,7 +195,7 @@
             <shortDescr>Apply a reprojection.</shortDescr>
             <parent>geometry</parent>
             <placeAfter>EllipsoidCorrection</placeAfter>
-        </action>
+        </action-->
 
         <action>
             <id>MosaicOp</id>
@@ -203,7 +203,7 @@
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>geometry</parent>
-            <placeAfter>reprojection2</placeAfter>
+            <placeAfter>EllipsoidCorrection</placeAfter>
             <text>SAR Mosaic</text>
             <shortDescr>Mosaic various images together</shortDescr>
             <dialogTitle>Mosaic</dialogTitle>
