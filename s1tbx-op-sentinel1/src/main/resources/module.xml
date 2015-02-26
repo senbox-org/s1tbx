@@ -54,6 +54,11 @@
             <class>org.esa.nest.gpf.BackGeocodingOpUI</class>
             <operatorName>Back-Geocoding</operatorName>
         </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.TOPSARMergeOpUI</id>
+            <class>org.esa.nest.gpf.TOPSARMergeOpUI</class>
+            <operatorName>TOPSAR-Merge</operatorName>
+        </OperatorUI>
     </extension>
 
     <extension point="snap-ui:actions">
@@ -170,18 +175,18 @@
             <targetProductNameSuffix>_ddp</targetProductNameSuffix>
         </action-->
 
-        <!--action>
-            <id>CreateCoherenceImageOp</id>
-            <helpId>CreateCoherenceImageOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+        <action>
+            <id>TOPSARMergeOp</id>
+            <helpId>TOPSARMergeOp</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
-            <text>Create Coherence Image</text>
-            <operatorName>Create-Coherence-Image</operatorName>
-            <dialogTitle>Create Coherence Image</dialogTitle>
-            <shortDescr>Create Coherence Image</shortDescr>
-            <targetProductNameSuffix>_coh</targetProductNameSuffix>
-        </action-->
+            <placeAfter>AzimuthShiftOp</placeAfter>
+            <text>Sentinel-1 TOPSAR Merge</text>
+            <dialogTitle>TOPSAR Merge</dialogTitle>
+            <shortDescr>TOPSAR Merge</shortDescr>
+            <graphFile>TOPSARMergeGraph.xml</graphFile>
+        </action>
 
         <action>
             <id>InterferogramOp</id>
