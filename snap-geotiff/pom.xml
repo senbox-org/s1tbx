@@ -43,10 +43,6 @@
             <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-visat-rcp</artifactId>
-        </dependency>
-        <dependency>
             <groupId>it.geosolutions.imageio-ext</groupId>
             <artifactId>imageio-ext-tiff</artifactId>
         </dependency>
