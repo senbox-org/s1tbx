@@ -443,7 +443,8 @@ public class SARGeocoding {
 
             final double mid = (lowerBound + upperBound) / 2.0;
             midSlantRange = Maths.computePolynomialValue(mid, srgrCoeff);
-            if (Math.abs(midSlantRange - slantRange) < 0.1) {
+            final double a = midSlantRange - slantRange;
+            if ((a > 0 && a < 0.1) || (a <= 0.0D && 0.0D - a < 0.1)) {
                 return mid;
             } else if (midSlantRange < slantRange) {
                 lowerBound = mid;
@@ -785,12 +786,17 @@ public class SARGeocoding {
     }
 
     public static boolean isValidCell(final double rangeIndex, final double azimuthIndex,
-                                      final double lat, final double lon,
+                                      final double lat, final double lon, final int diffLat,
                                       final TiePointGrid latitude, final TiePointGrid longitude,
                                       final int srcMaxRange, final int srcMaxAzimuth, final double[] sensorPos) {
 
         if (rangeIndex < 0.0 || rangeIndex >= srcMaxRange || azimuthIndex < 0.0 || azimuthIndex >= srcMaxAzimuth) {
             return false;
+        }
+
+        // the rest is only needed for very long images such as GM, WSM or assembled slices
+        if(diffLat < 5) {
+            return true;
         }
 
         final GeoPos sensorGeoPos = new GeoPos();

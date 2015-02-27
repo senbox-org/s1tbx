@@ -881,6 +881,8 @@ public class RangeDopplerGeocodingOp extends Operator {
             final int maxX = x0 + w;
             final TileData[] trgTiles = trgTileList.toArray(new TileData[trgTileList.size()]);
 
+            int diffLat = Math.abs(latitude.getPixelInt(0,0) - latitude.getPixelInt(0,targetImageHeight));
+
             for (int y = y0; y < maxY; y++) {
                 final int yy = y - y0 + 1;
 
@@ -951,7 +953,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                     final double azimuthIndex = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
 
-                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, latitude, longitude,
+                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, diffLat, latitude, longitude,
                             srcMaxRange, srcMaxAzimuth, sensorPos)) {
                         //saveNoDataValueToTarget(index, trgTiles);
                     } else {
