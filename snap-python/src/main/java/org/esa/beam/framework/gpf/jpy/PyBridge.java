@@ -4,14 +4,15 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.Debug;
 import org.jpy.PyLib;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.ProviderNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,8 +47,10 @@ public class PyBridge {
     public static final String BEAMPYUTIL_LOG_FILENAME = "beampyutil.log";
     public static final String JPY_JAVA_API_CONFIG_FILENAME = "jpyconfig.properties";
 
+    private static final Path MODULE_CODE_BASE_PATH = findModuleCodeBasePath();
+
     private static boolean established;
-    private static File beampyDir;
+    private static Path beampyDir;
 
     /**
      * Establishes the BEAM-Python bridge.
@@ -58,36 +61,31 @@ public class PyBridge {
             return;
         }
 
-        beampyDir = getResourceFile("/beampy");
-        if (beampyDir == null) {
-            throw new OperatorException("Can't find BEAM-Python module directory.\n" +
-                                                "(Make sure the BEAM-Python module is unpacked.)");
-        }
-
         try {
-            copyResourceFile("/beampy", new File(System.getProperty("user.home"), ".snap/soopy"));
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Path userModuleDir = Paths.get(System.getProperty("user.home"), ".snap", "snap-python");
+            TreeCopier.copy(getResourcePath("lib"), userModuleDir);
+            TreeCopier.copy(getResourcePath("beampy-examples"), userModuleDir);
+            beampyDir = TreeCopier.copy(getResourcePath("beampy"), userModuleDir);
+            LOG.info("BEAM-Python module directory: " + beampyDir);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new OperatorException("Failed to unpack BEAM-Python resources: " + e.getMessage(), e);
         }
 
-        LOG.info("BEAM-Python module directory: " + beampyDir);
 
         boolean forcePythonConfig = System.getProperty("beam.forcePythonConfig", "true").equalsIgnoreCase("true");
-        File jpyConfigFile = new File(beampyDir, JPY_JAVA_API_CONFIG_FILENAME);
-        if (forcePythonConfig || !jpyConfigFile.exists()) {
+        Path jpyConfigFile = beampyDir.resolve(JPY_JAVA_API_CONFIG_FILENAME);
+        if (forcePythonConfig || !Files.exists(jpyConfigFile)) {
             configureJpy();
         }
-        if (!jpyConfigFile.exists()) {
+        if (!Files.exists(jpyConfigFile)) {
             throw new OperatorException(String.format("Python configuration incomplete.\n" +
                                                               "Missing file '%s'.\n" +
                                                               "Please check '%s'.",
                                                       jpyConfigFile,
-                                                      new File(beampyDir, BEAMPYUTIL_LOG_FILENAME)));
+                                                      beampyDir.resolve(BEAMPYUTIL_LOG_FILENAME)));
         }
 
-        System.setProperty("jpy.config", jpyConfigFile.getPath());
+        System.setProperty("jpy.config", jpyConfigFile.toString());
         if (Debug.isEnabled() && System.getProperty("jpy.debug") == null) {
             System.setProperty("jpy.debug", "true");
         }
@@ -98,9 +96,9 @@ public class PyBridge {
                 String pythonVersion = PyLib.getPythonVersion();
                 LOG.info("Running Python " + pythonVersion);
                 if (!PyLib.isPythonRunning()) {
-                    PyLib.startPython(beampyDir.getPath());
+                    PyLib.startPython(beampyDir.toString());
                 } else {
-                    extendSysPath(beampyDir.getPath());
+                    extendSysPath(beampyDir.toString());
                 }
                 established = true;
             }
@@ -154,7 +152,7 @@ public class PyBridge {
         try {
             Process process = new ProcessBuilder()
                     .command(command)
-                    .directory(beampyDir).start();
+                    .directory(beampyDir.toFile()).start();
             int exitCode = process.waitFor();
             if (exitCode != 0) {
                 throw new OperatorException(String.format("Python configuration failed.\nCommand [%s]\nfailed with return code %s.", commandLine, exitCode));
@@ -175,43 +173,25 @@ public class PyBridge {
         return sb.toString();
     }
 
-    private static File getResourceFile(String resourcePath) {
-        URL resourceUrl = PyBridge.class.getResource(resourcePath);
-        //System.out.println("resourceUrl = " + resourceUrl);
-        if (resourceUrl != null) {
-            try {
-                File resourceFile = new File(resourceUrl.toURI());
-                //System.out.println("resourceFile = " + resourceFile);
-                if (resourceFile.exists()) {
-                    return resourceFile;
-                }
-            } catch (URISyntaxException e) {
-                // mmmmh
-            }
-        }
-        return null;
+    private static Path getResourcePath(String resource) {
+        return MODULE_CODE_BASE_PATH.resolve(resource);
     }
 
-    static File copyResourceFile(String resourcePath, File target) throws URISyntaxException, IOException {
-        URL resourceUrl = PyBridge.class.getResource(resourcePath);
-        Path path = Paths.get(resourceUrl.toURI());
-        Files.copy(path, target.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-        return target;
-        /*
-
-        //System.out.println("resourceUrl = " + resourceUrl);
-        if (resourceUrl != null) {
-            try {
-                File resourceFile = new File(resourceUrl.toURI());
-                //System.out.println("resourceFile = " + resourceFile);
-                if (resourceFile.exists()) {
-                    return resourceFile;
+    private static Path findModuleCodeBasePath() {
+        try {
+            URI uri = PyBridge.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+            Path path = Paths.get(uri);
+            if (Files.isRegularFile(path)) {
+                try {
+                    FileSystem fileSystem = FileSystems.newFileSystem(path, PyBridge.class.getClassLoader());
+                    return fileSystem.getPath("/");
+                } catch (ProviderNotFoundException e) {
+                    // ok
                 }
-            } catch (URISyntaxException e) {
-                // mmmmh
             }
+            return path;
+        } catch (URISyntaxException | IOException e) {
+            throw new RuntimeException("Failed to detect the module's code base path", e);
         }
-        return null;
-        */
     }
 }
