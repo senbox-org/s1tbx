@@ -6,59 +6,72 @@ jpy = beampy.jpy
 
 class NdviOp:
 
+    def __init__(self):
+        self.lower_band = None
+        self.upper_band = None
+        self.ndvi_band = None
+        self.ndvi_flags_band = None
+        self.lower_factor = 0.0
+        self.upper_factor = 0.0
+
+
     def initialize(self, operator):
-        sourceProduct = operator.getSourceProduct('source')
-        print('initialize: source product is', sourceProduct.getFileLocation())
+        source_product = operator.getSourceProduct('source')
+        print('initialize: source product location is', source_product.getFileLocation())
 
-        width = sourceProduct.getSceneRasterWidth()
-        height = sourceProduct.getSceneRasterHeight()
+        width = source_product.getSceneRasterWidth()
+        height = source_product.getSceneRasterHeight()
 
-        self.lowerFactor = operator.getParameter('lowerFactor')
-        self.lowerBandName = operator.getParameter('lowerName')
-        self.lowerBand = self._get_band(sourceProduct, self.lowerBandName)
+        lower_band_name = operator.getParameter('lowerName')
+        if not lower_band_name:
+            raise RuntimeError('Missing parameter "lowerName"')
+        self.lower_band = self._get_band(source_product, lower_band_name)
+        self.lower_factor = operator.getParameter('lowerFactor')
 
-        self.upperFactor = operator.getParameter('upperFactor')
-        self.upperBandName = operator.getParameter('upperName')
-        self.upperBand = self._get_band(sourceProduct, self.upperBandName)
+        upper_band_name = operator.getParameter('upperName')
+        if not upper_band_name:
+            raise RuntimeError('Missing parameter "upperName"')
+        self.upper_band = self._get_band(source_product, upper_band_name)
+        self.upper_factor = operator.getParameter('upperFactor')
 
-        ndviProduct = beampy.Product('pyNDVI', 'pyNDVI', width, height)
-        self.ndviBand = ndviProduct.addBand('ndvi', beampy.ProductData.TYPE_FLOAT32)
-        self.ndviFlagsBand = ndviProduct.addBand('ndvi_flags', beampy.ProductData.TYPE_UINT8)
+        ndvi_product = beampy.Product('py_NDVI', 'py_NDVI', width, height)
+        self.ndvi_band = ndvi_product.addBand('ndvi', beampy.ProductData.TYPE_FLOAT32)
+        self.ndvi_flags_band = ndvi_product.addBand('ndvi_flags', beampy.ProductData.TYPE_UINT8)
 
-        operator.setTargetProduct(ndviProduct)
+        operator.setTargetProduct(ndvi_product)
 
 
-    def compute(self, operator, targetTiles, targetRectangle):
-        lowerTile = operator.getSourceTile(self.lowerBand, targetRectangle)
-        upperTile = operator.getSourceTile(self.upperBand, targetRectangle)
+    def compute(self, operator, target_tiles, target_rectangle):
+        lower_tile = operator.getSourceTile(self.lower_band, target_rectangle)
+        upper_tile = operator.getSourceTile(self.upper_band, target_rectangle)
 
-        ndviTile = targetTiles.get(self.ndviBand)
-        ndviFlagsTile = targetTiles.get(self.ndviFlagsBand)
+        ndvi_tile = target_tiles.get(self.ndvi_band)
+        ndvi_flags_tile = target_tiles.get(self.ndvi_flags_band)
 
-        lowerSamples = lowerTile.getSamplesFloat()
-        upperSamples = upperTile.getSamplesFloat()
+        lower_samples = lower_tile.getSamplesFloat()
+        upper_samples = upper_tile.getSamplesFloat()
 
-        lowerData = numpy.array(lowerSamples, dtype=numpy.float32) * self.lowerFactor
-        upperData = numpy.array(upperSamples, dtype=numpy.float32) * self.upperFactor
+        lower_data = numpy.array(lower_samples, dtype=numpy.float32) * self.lower_factor
+        upper_data = numpy.array(upper_samples, dtype=numpy.float32) * self.upper_factor
 
-        ndvi = (upperData - lowerData ) / (upperData + lowerData )
+        ndvi = (upper_data - lower_data ) / (upper_data + lower_data )
 
-        ndviLow = ndvi < 0.0
-        ndviHigh = ndvi > 0.1
-        ndviFlags = (ndviLow + 2 * ndviHigh).astype(numpy.uint8)
+        ndvi_low = ndvi < 0.0
+        ndvi_high = ndvi > 0.1
+        ndvi_flags = (ndvi_low + 2 * ndvi_high).astype(numpy.uint8)
 
-        ndviTile.setSamples(ndvi)
-        ndviFlagsTile.setSamples(ndviFlags)
+        ndvi_tile.setSamples(ndvi)
+        ndvi_flags_tile.setSamples(ndvi_flags)
 
 
     def dispose(self, operator):
         pass
 
 
-    def _get_band(self, merisProduct, bandName):
-        band = merisProduct.getBand(bandName)
+    def _get_band(self, product, name):
+        band = product.getBand(name)
         if not band:
-            raise RuntimeError('Product does not contain a band named', bandName)
+            raise RuntimeError('Product does not contain a band named', name)
         return band
 
 
