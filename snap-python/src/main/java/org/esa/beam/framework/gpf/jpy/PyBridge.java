@@ -41,7 +41,7 @@ import static org.esa.beam.util.SystemUtils.LOG;
  *
  * @author Norman Fomferra
  */
-public class PyBridge {
+class PyBridge {
 
     public static final String BEAMPYUTIL_PY_FILENAME = "beampyutil.py";
     public static final String BEAMPYUTIL_LOG_FILENAME = "beampyutil.log";
