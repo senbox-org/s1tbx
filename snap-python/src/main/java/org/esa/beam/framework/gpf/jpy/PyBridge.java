@@ -63,7 +63,6 @@ class PyBridge {
 
         try {
             Path userModuleDir = Paths.get(System.getProperty("user.home"), ".snap", "snap-python");
-            TreeCopier.copy(getResourcePath("lib"), userModuleDir);
             TreeCopier.copy(getResourcePath("beampy-examples"), userModuleDir);
             beampyDir = TreeCopier.copy(getResourcePath("beampy"), userModuleDir);
             LOG.info("BEAM-Python module directory: " + beampyDir);
@@ -130,6 +129,8 @@ class PyBridge {
         List<String> command = new ArrayList<>();
         command.add(pythonExecutable);
         command.add(BEAMPYUTIL_PY_FILENAME);
+        command.add("--java_module");
+        command.add(MODULE_CODE_BASE_PATH.toFile().getPath());
         command.add("--force");
         command.add("--log_file");
         command.add(BEAMPYUTIL_LOG_FILENAME);

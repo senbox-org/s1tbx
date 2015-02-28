@@ -8,7 +8,8 @@ import zipfile
 import logging
 
 
-def _configure_beampy(java_home=None,
+def _configure_beampy(java_module=None,
+                      java_home=None,
                       req_arch=None,
                       req_java=False,
                       req_py=False,
@@ -25,6 +26,8 @@ def _configure_beampy(java_home=None,
     :return:
     """
 
+    logging.info("installing from Java module '" + java_module + "'")
+
     if req_arch:
         req_arch = req_arch.lower()
         act_arch = platform.machine().lower()
@@ -37,13 +40,20 @@ def _configure_beampy(java_home=None,
                             "Python is 64 bit but JVM requires " + req_arch)
 
     beampy_dir = os.path.dirname(os.path.abspath(__file__))
-    beampy_lib_dir = os.path.normpath(os.path.join(beampy_dir, '..', 'lib'))
     jpy_distr_name = 'jpy.' + sysconfig.get_platform() + '-' + sysconfig.get_python_version()
-    jpy_archive_file = os.path.join(beampy_lib_dir, jpy_distr_name + '.zip')
     jpy_info_file = os.path.join(beampy_dir, jpy_distr_name + '.info')
     jpyutil_file = os.path.join(beampy_dir, 'jpyutil.py')
     jpyconfig_java_file = os.path.join(beampy_dir, 'jpyconfig.properties')
     jpyconfig_py_file = os.path.join(beampy_dir, 'jpyconfig.py')
+
+    if os.path.isfile(java_module):
+        member = 'lib/' + jpy_distr_name + '.zip'
+        logging.info("extracting '" + member + "' from '" + java_module + "'")
+        with zipfile.ZipFile(java_module) as zf:
+            jpy_archive_file = zf.extract(member, beampy_dir)
+    else:
+        jpy_archive_file = os.path.join(java_module, 'lib', jpy_distr_name + '.zip')
+
 
     #
     # Extract a matching jpy binary distribution from ../lib/jpy.<platform>-<python-version>.zip
@@ -61,7 +71,7 @@ def _configure_beampy(java_home=None,
         # os.mkdir(os.path.join(basename)
         logging.info("unzipping '" + jpy_archive_file + "'")
         with zipfile.ZipFile(jpy_archive_file) as zf:
-            zf.extractall(path=beampy_dir)
+            zf.extractall(beampy_dir)
 
     #
     # Execute jpyutil.py to write runtime configuration:
@@ -104,9 +114,11 @@ def _main():
     parser.add_argument('--req_arch', default=None,
                         help='required JVM architecture, e.g. "amd64", '
                              'may be taken from Java system property "os.arch"')
+    parser.add_argument('--java_module', default=None,
+                        help='directory or JAR file containing the "snap-python" Java module')
     parser.add_argument('--java_home', default=None,
                         help='Java JDK or JRE installation directory, '
-                             'may be taken from Java system property "java.home".')
+                             'may be taken from Java system property "java.home"')
     parser.add_argument("--log_file", action='store', default=None, help="file into which to write logging output")
     parser.add_argument("--log_level", action='store', default='INFO',
                         help="log level, possible values are: DEBUG, INFO, WARNING, ERROR")
@@ -130,7 +142,8 @@ def _main():
         logging.basicConfig(format=log_format, level=log_level)
 
     try:
-        retcode = _configure_beampy(java_home=args.java_home,
+        retcode = _configure_beampy(java_module=args.java_module,
+                                    java_home=args.java_home,
                                     req_arch=args.req_arch,
                                     req_java=args.req_java,
                                     req_py=args.req_py,

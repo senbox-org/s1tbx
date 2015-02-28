@@ -1,5 +1,6 @@
 package org.esa.beam.framework.gpf.jpy;
 
+import com.bc.ceres.core.ResourceLocator;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -10,12 +11,10 @@ import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Enumeration;
+import java.util.Collection;
 import java.util.logging.Level;
 
 import static org.esa.beam.util.SystemUtils.LOG;
@@ -63,22 +62,9 @@ public class PyOperatorSpi extends OperatorSpi {
     }
 
     private static void scanClassPath() {
-        try {
-            // todo - we've got a problem here when running on NetBeans Platform (nf 20150219)
-            // module class loader will not allow for accessing other module resources
-            Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources(PY_OP_RESOURCE_NAME);
-            LOG.fine("Scanning for Python modules in Java class path...");
-            while (resources.hasMoreElements()) {
-                URL url = resources.nextElement();
-                try {
-                    registerPythonModule(Paths.get(url.toURI()));
-                } catch (URISyntaxException e) {
-                    LOG.log(Level.WARNING, "Ignoring malformed Python module path: " + url, e);
-                }
-            }
-        } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Failed to scan class path for Python modules: " + e.getMessage(), e);
-        }
+        LOG.fine("Scanning for Python modules in Java class path...");
+        Collection<Path> resources = ResourceLocator.getResources(PY_OP_RESOURCE_NAME);
+        resources.forEach(PyOperatorSpi::registerPythonModule);
     }
 
     private static void registerPythonModule(Path resourcePath) {
