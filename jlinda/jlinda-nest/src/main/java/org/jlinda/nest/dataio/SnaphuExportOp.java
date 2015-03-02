@@ -17,8 +17,6 @@ package org.jlinda.nest.dataio;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductSubsetBuilder;
-import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
@@ -30,6 +28,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.experimental.Output;
+import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.InputProductValidator;
@@ -92,11 +91,12 @@ public class SnaphuExportOp extends Operator implements Output {
                 targetFolder.mkdirs();
             }
 
-            final int width = sourceProduct.getSceneRasterWidth();
-            final int height = sourceProduct.getSceneRasterHeight();
+            targetProduct = new Product(sourceProduct.getName(),
+                    sourceProduct.getProductType(),
+                    sourceProduct.getSceneRasterWidth(),
+                    sourceProduct.getSceneRasterHeight());
 
-            targetProduct = sourceProduct;
-            //targetProduct.setPreferredTileSize(new Dimension(width, height));
+            ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
             // update metadata with SNAPHU processing flags: the only way to pass info to the writer
             try {
@@ -109,24 +109,15 @@ public class SnaphuExportOp extends Operator implements Output {
                 OperatorUtils.catchOperatorException(getId() + "Metadata of input product is not in the format compatible for SNAPHU export.", e);
             }
 
-            final List<String> bandNames = new ArrayList<>();
             for(Band srcBand : sourceProduct.getBands()) {
                 if(srcBand.getUnit().contains(Unit.COHERENCE) || srcBand.getUnit().contains(Unit.PHASE)) {
-                    bandNames.add(srcBand.getName());
+                    ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
                 }
             }
 
             subsetInfo = new SubsetInfo();
 
-            final ProductSubsetDef subsetDef = new ProductSubsetDef();
-            subsetDef.addNodeNames(sourceProduct.getTiePointGridNames());
-            subsetDef.addNodeNames(bandNames.toArray(new String[bandNames.size()]));
-            subsetDef.setRegion(0, 0, width, height);
-            subsetDef.setSubSampling(1, 1);
-            subsetDef.setIgnoreMetadata(false);
-
-            ProductSubsetBuilder subsetBuilder = new ProductSubsetBuilder();
-            subsetInfo.subsetProduct = subsetBuilder.readProductNodes(sourceProduct, subsetDef);
+            subsetInfo.subsetProduct = targetProduct;
             subsetInfo.file = new File(targetFolder, targetProduct.getName());
 
             subsetInfo.productWriter = ProductIO.getProductWriter(formatName);
@@ -135,9 +126,8 @@ public class SnaphuExportOp extends Operator implements Output {
             }
             subsetInfo.productWriter.setFormatName(formatName);
             subsetInfo.productWriter.setIncrementalMode(false);
-            subsetInfo.subsetProduct.setProductWriter(subsetInfo.productWriter);
+            targetProduct.setProductWriter(subsetInfo.productWriter);
 
-            targetProduct.setModified(false);
         } catch (Throwable t) {
             throw new OperatorException(t);
         }
@@ -146,11 +136,14 @@ public class SnaphuExportOp extends Operator implements Output {
     @Override
     public synchronized void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
-            if (!subsetInfo.written) {
+            writeHeader(subsetInfo);
 
-                writeTile(subsetInfo, new Rectangle(0,0, targetProduct.getSceneRasterWidth(), targetProduct.getSceneRasterHeight()));
-                //writeTile(subsetInfo, targetTile.getRectangle());
-            }
+            final Rectangle trgRect = targetTile.getRectangle();
+            final Tile sourceTile = getSourceTile(sourceProduct.getBand(targetBand.getName()), trgRect);
+            final ProductData rawSamples = sourceTile.getRawSamples();
+
+            subsetInfo.productWriter.writeBandRasterData(targetBand,
+                    trgRect.x, trgRect.y, trgRect.width, trgRect.height, rawSamples, ProgressMonitor.NULL);
         } catch (Exception e) {
             if (e instanceof OperatorException) {
                 throw (OperatorException) e;
@@ -160,20 +153,11 @@ public class SnaphuExportOp extends Operator implements Output {
         }
     }
 
-    private synchronized void writeTile(final SubsetInfo info, final Rectangle trgRect) throws Exception {
+    private synchronized void writeHeader(final SubsetInfo info) throws Exception {
         if (info.written) return;
 
         subsetInfo.productWriter.writeProductNodes(subsetInfo.subsetProduct, subsetInfo.file);
 
-        for(Band trgBand : info.subsetProduct.getBands()) {
-            final Tile sourceTile = getSourceTile(sourceProduct.getBand(trgBand.getName()), trgRect);
-            final ProductData rawSamples = sourceTile.getRawSamples();
-
-            info.productWriter.writeBandRasterData(trgBand,
-                    0, 0, trgBand.getSceneRasterWidth(), trgBand.getSceneRasterHeight(), rawSamples, ProgressMonitor.NULL);
-            //info.productWriter.writeBandRasterData(trgBand,
-            //        trgRect.x, trgRect.y, trgRect.width, trgRect.height, rawSamples, ProgressMonitor.NULL);
-        }
         info.written = true;
     }
 
@@ -195,7 +179,6 @@ public class SnaphuExportOp extends Operator implements Output {
         File file;
         ProductWriter productWriter;
         boolean written = false;
-        final Map<String, String> newBandNamingMap = new HashMap<>();
     }
 
     public static class Spi extends OperatorSpi {
