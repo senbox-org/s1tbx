@@ -1056,8 +1056,6 @@ public final class BackGeocodingOp extends Operator {
 
     private boolean isSlavePixPosValid(final PixelPos slavePixPos, final int subswathIndex, final int burstIndex) {
         return (slavePixPos != null &&
-                slavePixPos.x >= sSubSwath[subswathIndex - 1].firstValidPixel &&
-                slavePixPos.x <= sSubSwath[subswathIndex - 1].lastValidPixel &&
                 slavePixPos.y >= sSubSwath[subswathIndex - 1].linesPerBurst*burstIndex &&
                 slavePixPos.y < sSubSwath[subswathIndex - 1].linesPerBurst*(burstIndex+1));
     }
