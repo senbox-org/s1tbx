@@ -1,13 +1,10 @@
 <graph id="Graph">
   <version>1.0</version>
-  <node id="Write">
-    <operator>Write</operator>
-    <sources>
-      <sourceProduct refid="TOPSAR-Merge"/>
-    </sources>
+  <node id="ProductSet-Reader">
+    <operator>ProductSet-Reader</operator>
+    <sources/>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file>C:\output\target.dim</file>
-      <formatName>BEAM-DIMAP</formatName>
+      <fileList/>
     </parameters>
   </node>
   <node id="TOPSAR-Merge">
@@ -19,23 +16,26 @@
       <selectedPolarisations/>
     </parameters>
   </node>
-  <node id="ProductSet-Reader">
-    <operator>ProductSet-Reader</operator>
-    <sources/>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="TOPSAR-Merge"/>
+    </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <fileList/>
+      <file>target.dim</file>
+      <formatName>BEAM-DIMAP</formatName>
     </parameters>
   </node>
   <applicationData id="Presentation">
     <Description/>
-    <node id="Write">
-      <displayPosition x="433.0" y="125.0"/>
+    <node id="ProductSet-Reader">
+      <displayPosition x="36.0" y="123.0"/>
     </node>
     <node id="TOPSAR-Merge">
       <displayPosition x="232.0" y="124.0"/>
     </node>
-    <node id="ProductSet-Reader">
-      <displayPosition x="36.0" y="123.0"/>
+	<node id="Write">
+      <displayPosition x="433.0" y="125.0"/>
     </node>
   </applicationData>
 </graph>
