@@ -44,12 +44,12 @@ import java.util.List;
 /**
  * Split a stack product into individual products
  */
-@OperatorMetadata(alias = "Snaphu-Export",
+@OperatorMetadata(alias = "SnaphuExport",
         category = "SAR Processing/Interferometric/Unwrapping",
-        authors = "Jun Lu, Luis Veci",
+        authors = "Petar Marinkovic, Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Export data and prepare conf file for SNAPHU processing")
-public class SnaphuExport extends Operator implements Output {
+public class SnaphuExportOp extends Operator implements Output {
 
     @TargetProduct
     private Product targetProduct;
@@ -57,7 +57,7 @@ public class SnaphuExport extends Operator implements Output {
     @SourceProduct(alias = "source", description = "The source product to be written.")
     private Product sourceProduct;
 
-    @Parameter(defaultValue = "target", description = "The output folder to which the data product is written.")
+    @Parameter(description = "The output folder to which the data product is written.")
     private File targetFolder;
 
     @Parameter(valueSet = {"TOPO", "DEFO", "SMOOTH", "NOSTATCOSTS"},
@@ -75,7 +75,7 @@ public class SnaphuExport extends Operator implements Output {
     private SubsetInfo subsetInfo;
     private String formatName = "snaphu";
 
-    public SnaphuExport() {
+    public SnaphuExportOp() {
         setRequiresAllBands(true);
     }
 
@@ -200,7 +200,7 @@ public class SnaphuExport extends Operator implements Output {
 
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(SnaphuExport.class);
+            super(SnaphuExportOp.class);
         }
     }
 }

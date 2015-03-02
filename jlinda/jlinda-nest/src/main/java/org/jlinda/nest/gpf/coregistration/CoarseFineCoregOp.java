@@ -62,9 +62,9 @@ public class CoarseFineCoregOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "Number of Correlation Windows", interval = "(10, *)", defaultValue = "200",
+    @Parameter(description = "Number of Correlation Windows", interval = "(10, *)", defaultValue = "2000",
             label = "Number of GCPs")
-    private int numWindows = 200;
+    private int numWindows = 2000;
 
     @Parameter(valueSet = {"32", "64", "128", "256", "512", "1024", "2048"}, defaultValue = "128", label = "Coarse Registration Window Width")
     private String coarseRegistrationWindowWidth = "128";

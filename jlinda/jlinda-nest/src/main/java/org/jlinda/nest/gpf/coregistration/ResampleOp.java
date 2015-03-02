@@ -74,7 +74,7 @@ public class ResampleOp extends Operator {
     private int cpmMaxIterations = 20;
 
     @Parameter(description = "Confidence level for outlier detection procedure, lower value accepts more outliers",
-            valueSet = {"0.001", "0.05", "0.1"},
+            valueSet = {"0.001", "0.005", "0.05", "0.1"},
             defaultValue = "0.05",
             label = "Significance Level for Outlier Removal")
     private String cpmAlphaValue = "0.05";

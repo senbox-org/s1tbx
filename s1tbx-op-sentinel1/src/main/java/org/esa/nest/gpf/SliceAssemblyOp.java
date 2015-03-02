@@ -435,7 +435,7 @@ public final class SliceAssemblyOp extends Operator {
                 }
 
                 final int yy = y-line.start;
-                srcRect.setBounds(0, yy, targetBandWidth, 1);
+                srcRect.setBounds(targetTileRectangle.x, yy, targetTileRectangle.width, 1);
                 final Tile sourceRaster = getSourceTile(line.band, srcRect);
 
                 final ProductData srcData = sourceRaster.getDataBuffer();
