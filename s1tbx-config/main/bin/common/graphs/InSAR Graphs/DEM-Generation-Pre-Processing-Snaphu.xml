@@ -106,14 +106,15 @@
       <windowSizeString>3</windowSizeString>
     </parameters>
   </node>
-  <node id="Write">
-    <operator>Write</operator>
+  <node id="SnaphuExport">
+    <operator>SnaphuExport</operator>
     <sources>
       <sourceProduct refid="GoldsteinPhaseFiltering"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file>srp_ifgs.dim</file>
-      <formatName>BEAM-DIMAP</formatName>
+      <targetFolder/>
+      <statCostMode>TOPO</statCostMode>
+      <initMethod>MCF</initMethod>
     </parameters>
   </node>
   <applicationData id="Presentation">
@@ -145,8 +146,8 @@
     <node id="GoldsteinPhaseFiltering">
       <displayPosition x="331.0" y="182.0"/>
     </node>
-    <node id="Write">
-      <displayPosition x="371.0" y="228.0"/>
+    <node id="SnaphuExport">
+      <displayPosition x="358.0" y="229.0"/>
     </node>
   </applicationData>
 </graph>
