@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -501,7 +501,14 @@ public final class DimapHeaderWriter extends XmlWriter {
 
     private void writeGeoCoding(final GeoCoding geoCoding, final int indent, final int index) {
         if (geoCoding != null) {
-            if (geoCoding instanceof TiePointGeoCoding) {
+            final DimapPersistable persistable = DimapPersistence.getPersistable(geoCoding);
+            if (persistable != null) {
+                final String[] geopositionTags = createTags(indent, DimapProductConstants.TAG_GEOPOSITION);
+                println(geopositionTags[0]);
+                writeBandIndexIf(index >= 0, index, indent + 1);
+                printElement(indent + 1, persistable.createXmlFromObject(geoCoding));
+                println(geopositionTags[1]);
+            } else if (geoCoding instanceof TiePointGeoCoding) {
                 writeGeoCoding((TiePointGeoCoding) geoCoding, indent, index);
             } else if (geoCoding instanceof MapGeoCoding) {
                 writeGeoCoding((MapGeoCoding) geoCoding, indent);

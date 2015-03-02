@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -275,6 +275,11 @@ public class DimapProductHelpers {
                         geoCodings[bandIndex] = createGeoCodingFromGeoPositionPointsElement(product,
                                                                                             datum,
                                                                                             geopositionPointsElement);
+                    } else {
+                        final DimapPersistable persistable = DimapPersistence.getPersistable(geoPosElem);
+                        if (persistable != null) {
+                            geoCodings[bandIndex] = (GeoCoding) persistable.createObjectFromXml(geoPosElem, product);
+                        }
                     }
                 }
             }
