@@ -709,6 +709,7 @@ public final class BackGeocodingOp extends Operator {
             TriangleUtils.gridDataLinear(
                     masterAz, masterRg, slaveAz, slaveRg, azArray, rgArray, tileWindow, rgAzRatio, 1, 1, invalidIndex, 0);
 
+            boolean allElementsAreNull = true;
             final PixelPos[][] slavePixelPos = new PixelPos[h][w];
             for(int yy = 0; yy < h; yy++) {
                 for (int xx = 0; xx < w; xx++) {
@@ -716,8 +717,13 @@ public final class BackGeocodingOp extends Operator {
                         slavePixelPos[yy][xx] = null;
                     } else {
                         slavePixelPos[yy][xx] = new PixelPos(rgArray[yy][xx], azArray[yy][xx]);
+                        allElementsAreNull = false;
                     }
                 }
+            }
+
+            if (allElementsAreNull) {
+                return null;
             }
 
             return slavePixelPos;
@@ -851,14 +857,14 @@ public final class BackGeocodingOp extends Operator {
             }
         }
 
-        if (minX > maxX || minY > maxY) {
-            return null;
-        }
-
         minX = Math.max(minX - margin, firstPixelIndex);
         maxX = Math.min(maxX + margin, lastPixelIndex);
         minY = Math.max(minY - margin, firstLineIndex);
         maxY = Math.min(maxY + margin, lastLineIndex);
+
+        if (minX > maxX || minY > maxY) {
+            return null;
+        }
 
         return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
