@@ -892,10 +892,6 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                     double alt = localDEM[yy][x - x0 + 1];
 
-                    if (saveDEM) {
-                        demBuffer.setElemDoubleAt(index, alt);
-                    }
-
                     if (alt == demNoDataValue && !useAvgSceneHeight) {
                         if (nodataValueAtSea) {
                             //saveNoDataValueToTarget(index, trgTiles);
@@ -910,11 +906,6 @@ public class RangeDopplerGeocodingOp extends Operator {
                         lon -= 360.0;
                     }
 
-                    if (saveLatLon) {
-                        latBuffer.setElemDoubleAt(index, lat);
-                        lonBuffer.setElemDoubleAt(index, lon);
-                    }
-
                     if (alt == demNoDataValue && !nodataValueAtSea) {
                         // get corrected elevation for 0
                         alt = EarthGravitationalModel96.instance().getEGM(lat, lon);
@@ -926,7 +917,9 @@ public class RangeDopplerGeocodingOp extends Operator {
                             lineTimeInterval, wavelength, earthPoint, orbit.sensorPosition, orbit.sensorVelocity);
 
                     if (Double.compare(zeroDopplerTime, SARGeocoding.NonValidZeroDopplerTime) == 0) {
-                        //saveNoDataValueToTarget(index, trgTiles);
+                        if (saveDEM) {
+                            demBuffer.setElemDoubleAt(index, demNoDataValue);
+                        }
                         continue;
                     }
 
@@ -942,7 +935,9 @@ public class RangeDopplerGeocodingOp extends Operator {
                             rangeSpacing, zeroDopplerTime, slantRange, nearEdgeSlantRange, srgrConvParams);
 
                     if (rangeIndex == -1.0) {
-                        //saveNoDataValueToTarget(index, trgTiles);
+                        if (saveDEM) {
+                            demBuffer.setElemDoubleAt(index, demNoDataValue);
+                        }
                         continue;
                     }
 
@@ -955,7 +950,9 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                     if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, diffLat, latitude, longitude,
                             srcMaxRange, srcMaxAzimuth, sensorPos)) {
-                        //saveNoDataValueToTarget(index, trgTiles);
+                        if (saveDEM) {
+                            demBuffer.setElemDoubleAt(index, demNoDataValue);
+                        }
                     } else {
                         final double[] localIncidenceAngles = {SARGeocoding.NonValidIncidenceAngle, SARGeocoding.NonValidIncidenceAngle};
                         if (saveLocalIncidenceAngle || saveProjectedLocalIncidenceAngle || saveSigmaNought) {
@@ -973,6 +970,14 @@ public class RangeDopplerGeocodingOp extends Operator {
                             if (saveProjectedLocalIncidenceAngle && localIncidenceAngles[1] != SARGeocoding.NonValidIncidenceAngle) {
                                 projectedLocalIncidenceAngleBuffer.setElemDoubleAt(index, localIncidenceAngles[1]);
                             }
+                        }
+
+                        if (saveDEM) {
+                            demBuffer.setElemDoubleAt(index, alt);
+                        }
+                        if (saveLatLon) {
+                            latBuffer.setElemDoubleAt(index, lat);
+                            lonBuffer.setElemDoubleAt(index, lon);
                         }
 
                         if (saveIncidenceAngleFromEllipsoid && incidenceAngle != null) {

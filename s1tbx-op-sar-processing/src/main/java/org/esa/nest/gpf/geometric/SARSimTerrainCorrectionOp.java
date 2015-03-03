@@ -915,12 +915,10 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
                     final double alt = localDEM[yy][x - x0 + 1];
 
-                    if (saveDEM) {
-                        demBuffer.setElemDoubleAt(index, alt);
-                    }
-
                     if (!useAvgSceneHeight && alt == demNoDataValue) {
-                        //saveNoDataValueToTarget(index, trgTiles);
+                        if (saveDEM) {
+                            demBuffer.setElemDoubleAt(index, demNoDataValue);
+                        }
                         continue;
                     }
 
@@ -934,17 +932,14 @@ public class SARSimTerrainCorrectionOp extends Operator {
                         lon -= 360.0;
                     }
 
-                    if (saveLatLon) {
-                        latBuffer.setElemDoubleAt(index, lat);
-                        lonBuffer.setElemDoubleAt(index, lon);
-                    }
-
                     GeoUtils.geo2xyzWGS84(lat, lon, alt, earthPoint);
 
                     final double zeroDopplerTime = getEarthPointZeroDopplerTime(earthPoint);
 
                     if (Double.compare(zeroDopplerTime, NonValidZeroDopplerTime) == 0) {
-                        //saveNoDataValueToTarget(index, trgTiles);
+                        if (saveDEM) {
+                            demBuffer.setElemDoubleAt(index, demNoDataValue);
+                        }
                         continue;
                     }
 
@@ -970,7 +965,9 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
                     if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, diffLat, latitude, longitude,
                             srcMaxRange, srcMaxAzimuth, sensorPos)) {
-                        //saveNoDataValueToTarget(index, trgTiles);
+                        if (saveDEM) {
+                            demBuffer.setElemDoubleAt(index, demNoDataValue);
+                        }
                     } else {
                         final double[] localIncidenceAngles =
                                 {SARGeocoding.NonValidIncidenceAngle, SARGeocoding.NonValidIncidenceAngle};
@@ -990,6 +987,14 @@ public class SARSimTerrainCorrectionOp extends Operator {
                             if (saveProjectedLocalIncidenceAngle && localIncidenceAngles[1] != SARGeocoding.NonValidIncidenceAngle) {
                                 projectedLocalIncidenceAngleBuffer.setElemDoubleAt(index, localIncidenceAngles[1]);
                             }
+                        }
+
+                        if (saveDEM) {
+                            demBuffer.setElemDoubleAt(index, alt);
+                        }
+                        if (saveLatLon) {
+                            latBuffer.setElemDoubleAt(index, lat);
+                            lonBuffer.setElemDoubleAt(index, lon);
                         }
 
                         if (saveLayoverShadowMask) {
