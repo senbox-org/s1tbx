@@ -29,7 +29,7 @@ import java.awt.image.BufferedImage;
  */
 public class LogoComponent implements MapToolsComponent {
 
-    private static final ImageIcon procNestIcon = ImageUtils.LoadIcon("org/esa/nest/icons/proc_nest.png");
+    private static final ImageIcon procNestIcon = ImageUtils.LoadIcon("org/esa/s1tbx/icons/s1_64x.png");
     private final BufferedImage image;
     private final static double marginPct = 0.05;
     private final double scale;
