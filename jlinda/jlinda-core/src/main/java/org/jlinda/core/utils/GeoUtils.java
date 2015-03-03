@@ -6,7 +6,8 @@ import org.jlinda.core.GeoPoint;
 public class GeoUtils {
 
     /* compute tile geocorners at height defined in float[4] array */
-    public static GeoPoint[] computeCorners(final SLCImage meta, final Orbit orbit, final Window tile, final float height[]) throws Exception {
+    public static GeoPoint[] computeCorners(
+            final SLCImage meta, final Orbit orbit, final Window tile, final float height[]) throws Exception {
 
         if (height.length != 4) {
             throw new IllegalArgumentException("input height array has to have 4 elements");
@@ -21,19 +22,19 @@ public class GeoUtils {
         final double pN = tile.pixhi;
 
         // compute Phi, Lambda for Tile corners
-        phiAndLambda = orbit.lph2ell(new Point(p0, l0, height[0]), meta);
+        phiAndLambda = orbit.lph2ell(new Point(l0, p0, height[0]), meta);
         final double phi_l0p0 = phiAndLambda[0];
         final double lambda_l0p0 = phiAndLambda[1];
 
-        phiAndLambda = orbit.lp2ell(new Point(p0, lN, height[1]), meta);
+        phiAndLambda = orbit.lph2ell(new Point(lN, p0, height[1]), meta);
         final double phi_lNp0 = phiAndLambda[0];
         final double lambda_lNp0 = phiAndLambda[1];
 
-        phiAndLambda = orbit.lp2ell(new Point(pN, lN, height[2]), meta);
+        phiAndLambda = orbit.lph2ell(new Point(lN, pN, height[2]), meta);
         final double phi_lNpN = phiAndLambda[0];
         final double lambda_lNpN = phiAndLambda[1];
 
-        phiAndLambda = orbit.lp2ell(new Point(pN, l0, height[3]), meta);
+        phiAndLambda = orbit.lph2ell(new Point(l0, pN, height[3]), meta);
         final double phi_l0pN = phiAndLambda[0];
         final double lambda_l0pN = phiAndLambda[1];
 
@@ -76,14 +77,15 @@ public class GeoUtils {
         return outGeo;
     }
 
-    public synchronized static GeoPoint defineExtraPhiLam(final double heightMin, final double heightMax, final Window window, final SLCImage meta, final Orbit orbit) throws Exception {
+    public static GeoPoint defineExtraPhiLam(
+            final double heightMin, final double heightMax, final Window window, final SLCImage meta, final Orbit orbit)
+            throws Exception {
 
         // compute Phi, Lambda for Tile corners
-        double[] latLonMax;
-        double[] latLonMin;
-        latLonMin = orbit.lph2ell(window.pixels()/2, window.lines()/2, heightMin, meta);
-        latLonMax = orbit.lph2ell(window.pixels()/2, window.lines()/2, heightMax, meta);
-
+        final double midPix = (window.pixlo + window.pixhi) / 2.0;
+        final double midLin = (window.linelo + window.linehi) / 2.0;
+        final double[] latLonMin = orbit.lph2ell(midLin, midPix, heightMin, meta);
+        final double[] latLonMax = orbit.lph2ell(midLin, midPix, heightMax, meta);
         float lonExtra = (float) (Math.abs(latLonMin[1] - latLonMax[1]) * Constants.RTOD);
         float latExtra = (float) (Math.abs(latLonMin[0] - latLonMax[0]) * Constants.RTOD);
 

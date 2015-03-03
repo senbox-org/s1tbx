@@ -1,0 +1,170 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+  </node>
+  <node id="Apply-Orbit-File">
+    <operator>Apply-Orbit-File</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <orbitType>Sentinel Precise (Auto Download)</orbitType>
+      <polyDegree>3</polyDegree>
+    </parameters>
+  </node>
+  <node id="Read(2)">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+  </node>
+  <node id="Apply-Orbit-File(2)">
+    <operator>Apply-Orbit-File</operator>
+    <sources>
+      <sourceProduct refid="Read(2)"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <orbitType>Sentinel Precise (Auto Download)</orbitType>
+      <polyDegree>3</polyDegree>
+    </parameters>
+  </node>
+  <node id="CreateStack">
+    <operator>CreateStack</operator>
+    <sources>
+      <sourceProduct refid="Apply-Orbit-File"/>
+      <sourceProduct refid="Apply-Orbit-File(2)"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <masterBands/>
+      <sourceBands/>
+      <resamplingType>NONE</resamplingType>
+      <extent>Master</extent>
+      <initialOffsetMethod>ORBIT</initialOffsetMethod>
+    </parameters>
+  </node>
+  <node id="CoarseFine-Coregistration">
+    <operator>CoarseFine-Coregistration</operator>
+    <sources>
+      <sourceProduct refid="CreateStack"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <numWindows>2000</numWindows>
+      <coarseRegistrationWindowWidth>128</coarseRegistrationWindowWidth>
+      <coarseRegistrationWindowHeight>128</coarseRegistrationWindowHeight>
+      <coarseRegistrationWindowAccAzimuth>2</coarseRegistrationWindowAccAzimuth>
+      <coarseRegistrationWindowAccRange>2</coarseRegistrationWindowAccRange>
+      <fineMethod>Frequency Domain</fineMethod>
+      <fineRegistrationWindowWidth>32</fineRegistrationWindowWidth>
+      <fineRegistrationWindowHeight>32</fineRegistrationWindowHeight>
+      <fineRegistrationWindowAccAzimuth>16</fineRegistrationWindowAccAzimuth>
+      <fineRegistrationWindowAccRange>16</fineRegistrationWindowAccRange>
+      <fineRegistrationOversampling>16</fineRegistrationOversampling>
+      <coherenceThreshold>0.4</coherenceThreshold>
+      <onlyGCPsOnLand>true</onlyGCPsOnLand>
+    </parameters>
+  </node>
+  <node id="Resample">
+    <operator>Resample</operator>
+    <sources>
+      <sourceProduct refid="CoarseFine-Coregistration"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <cpmDegree>2</cpmDegree>
+      <cpmInterpKernel>Cubic convolution (6 points)</cpmInterpKernel>
+      <cpmMaxIterations>20</cpmMaxIterations>
+      <cpmAlphaValue>0.05</cpmAlphaValue>
+      <cpmDemRefinement>false</cpmDemRefinement>
+      <demName>SRTM 3Sec</demName>
+      <openResidualsFile>false</openResidualsFile>
+    </parameters>
+  </node>
+  <node id="Interferogram">
+    <operator>Interferogram</operator>
+    <sources>
+      <sourceProduct refid="Resample"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <subtractFlatEarthPhase>true</subtractFlatEarthPhase>
+      <srpPolynomialDegree>5</srpPolynomialDegree>
+      <srpNumberPoints>501</srpNumberPoints>
+      <orbitDegree>3</orbitDegree>
+      <includeCoherence>true</includeCoherence>
+      <cohWinAz>10</cohWinAz>
+      <cohWinRg>10</cohWinRg>
+    </parameters>
+  </node>
+  <node id="GoldsteinPhaseFiltering">
+    <operator>GoldsteinPhaseFiltering</operator>
+    <sources>
+      <sourceProduct refid="SubtRefDem"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <alpha>1.0</alpha>
+      <FFTSizeString>64</FFTSizeString>
+      <windowSizeString>3</windowSizeString>
+    </parameters>
+  </node>
+  <node id="SubtRefDem">
+    <operator>SubtRefDem</operator>
+    <sources>
+      <sourceProduct refid="Interferogram"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <orbitDegree>3</orbitDegree>
+      <demName>SRTM 3Sec</demName>
+      <externalDEMFile/>
+      <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+      <tileExtensionPercent>100</tileExtensionPercent>
+      <topoPhaseBandName>topo_phase</topoPhaseBandName>
+    </parameters>
+  </node>
+  <node id="SnaphuExport">
+    <operator>SnaphuExport</operator>
+    <sources>
+      <sourceProduct refid="GoldsteinPhaseFiltering"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <targetFolder/>
+      <statCostMode>DEFO</statCostMode>
+      <initMethod>MCF</initMethod>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="Read">
+      <displayPosition x="37.0" y="6.0"/>
+    </node>
+    <node id="Apply-Orbit-File">
+      <displayPosition x="20.0" y="54.0"/>
+    </node>
+    <node id="Read(2)">
+      <displayPosition x="38.0" y="189.0"/>
+    </node>
+    <node id="Apply-Orbit-File(2)">
+      <displayPosition x="14.0" y="137.0"/>
+    </node>
+    <node id="CreateStack">
+      <displayPosition x="85.0" y="94.0"/>
+    </node>
+    <node id="CoarseFine-Coregistration">
+      <displayPosition x="184.0" y="93.0"/>
+    </node>
+    <node id="Resample">
+      <displayPosition x="368.0" y="94.0"/>
+    </node>
+    <node id="Interferogram">
+      <displayPosition x="357.0" y="134.0"/>
+    </node>
+    <node id="GoldsteinPhaseFiltering">
+      <displayPosition x="330.0" y="222.0"/>
+    </node>
+    <node id="SubtRefDem">
+      <displayPosition x="365.0" y="178.0"/>
+    </node>
+    <node id="SnaphuExport">
+      <displayPosition x="359.0" y="262.0"/>
+    </node>
+  </applicationData>
+</graph>

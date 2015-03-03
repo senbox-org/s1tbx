@@ -124,7 +124,8 @@ public class GoldsteinFilterOp extends Operator {
         String[] sourceBandNames = null;
         final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
-        for (int i = 0; i < sourceBands.length; i += 2) {
+        int i = 0;
+        while (i < sourceBands.length) {
 
             final Band srcBandI = sourceBands[i];
             final String unit = srcBandI.getUnit();
@@ -146,6 +147,7 @@ public class GoldsteinFilterOp extends Operator {
             } else {
                 // let other bands such as coherence pass through
                 ProductUtils.copyBand(srcBandI.getName(), sourceProduct, targetProduct, true);
+                ++i;
                 continue;
             }
 
@@ -156,9 +158,11 @@ public class GoldsteinFilterOp extends Operator {
             final Band targetBandQ = targetProduct.addBand(srcBandQ.getName(), ProductData.TYPE_FLOAT64);
             targetBandQ.setUnit(nextUnit);
 
-            final String suffix = "";
+            final String suffix = targetBandI.getName().substring(targetBandI.getName().indexOf("_"));
             ReaderUtils.createVirtualIntensityBand(targetProduct, targetBandI, targetBandQ, suffix);
             ReaderUtils.createVirtualPhaseBand(targetProduct, targetBandI, targetBandQ, suffix);
+
+            i += 2;
         }
     }
 

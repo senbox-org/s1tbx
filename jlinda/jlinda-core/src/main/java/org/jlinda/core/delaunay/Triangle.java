@@ -24,7 +24,7 @@ import java.util.List;
  * </ul>
  */
 
-public class Triangle {
+public final class Triangle {
 
 
     /**
@@ -147,10 +147,10 @@ public class Triangle {
      * Vertex A is indexed as 0, B as 1, and C as 2.
      * @param i local index of vertex of Triangle Object.
      * @return Coordinate for the given vertex
+     * //TODO: what if i larger then 2? Now method always returns value for i=2.
      */
     public Coordinate getVertex(int i) {
         return i==0?A:i==1?B:C;
-        //TODO: what if i larger then 2? Now method always returns value for i=2.
     }
 
     /**
@@ -237,9 +237,7 @@ public class Triangle {
     public EdgeType getCA() {return CA;}
 
     public EdgeType getEdgeType(int side) {
-        if (side == 0) return AB;
-        else if (side == 1) return BC;
-        else return CA;
+        return side==0 ? AB : side==1 ? BC : CA;
     }
 
     public void setAB(EdgeType type) {this.AB = type;}
@@ -261,24 +259,11 @@ public class Triangle {
      * @return the position of opposite point in the neighbour description
      */
     public int getOpposite(int side) {
-        //switch(side) {
-        if (side==0) {
-            return BAO.getOppSide(A);
-        }
-        if (side==1) {
-            return CBO.getOppSide(B);
-        }
-        if (side==2) {
-            return ACO.getOppSide(C);
-        }
-        return -1;
+        return side==0 ? BAO.getOppSide(A) : side==1 ? CBO.getOppSide(B) : side==2 ? ACO.getOppSide(C) : -1;
     }
 
     public int getOppSide(Coordinate p) {
-        if (A==p) return 1;
-        if (B==p) return 2;
-        if (C==p) return 0;
-        return -1;
+        return A==p ? 1 : B==p ? 2 : C==p ? 0 : -1;
     }
 
     /**

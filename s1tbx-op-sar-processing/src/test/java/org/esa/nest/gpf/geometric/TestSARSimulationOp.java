@@ -19,6 +19,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -48,6 +49,7 @@ public class TestSARSimulationOp {
      * @throws Exception general exception
      */
     @Test
+    @Ignore
     public void testProcessing() throws Exception {
         final File inputFile = TestData.inputASAR_WSM;
         if (!inputFile.exists()) {

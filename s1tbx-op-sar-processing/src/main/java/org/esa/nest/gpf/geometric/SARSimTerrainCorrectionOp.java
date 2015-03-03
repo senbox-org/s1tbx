@@ -893,6 +893,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
         final RangeDopplerGeocodingOp.TileData[] trgTiles = trgTileList.toArray(new RangeDopplerGeocodingOp.TileData[trgTileList.size()]);
         final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, x0 - 1, y0 - 1, w + 2, h + 2);
 
+        int diffLat = Math.abs(latitude.getPixelInt(0,0) - latitude.getPixelInt(0,targetImageHeight));
+
         try {
             final double[][] localDEM = new double[h + 2][w + 2];
             if (useAvgSceneHeight) {
@@ -913,12 +915,10 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
                     final double alt = localDEM[yy][x - x0 + 1];
 
-                    if (saveDEM) {
-                        demBuffer.setElemDoubleAt(index, alt);
-                    }
-
                     if (!useAvgSceneHeight && alt == demNoDataValue) {
-                        //saveNoDataValueToTarget(index, trgTiles);
+                        if (saveDEM) {
+                            demBuffer.setElemDoubleAt(index, demNoDataValue);
+                        }
                         continue;
                     }
 
@@ -932,17 +932,14 @@ public class SARSimTerrainCorrectionOp extends Operator {
                         lon -= 360.0;
                     }
 
-                    if (saveLatLon) {
-                        latBuffer.setElemDoubleAt(index, lat);
-                        lonBuffer.setElemDoubleAt(index, lon);
-                    }
-
                     GeoUtils.geo2xyzWGS84(lat, lon, alt, earthPoint);
 
                     final double zeroDopplerTime = getEarthPointZeroDopplerTime(earthPoint);
 
                     if (Double.compare(zeroDopplerTime, NonValidZeroDopplerTime) == 0) {
-                        //saveNoDataValueToTarget(index, trgTiles);
+                        if (saveDEM) {
+                            demBuffer.setElemDoubleAt(index, demNoDataValue);
+                        }
                         continue;
                     }
 
@@ -966,9 +963,11 @@ public class SARSimTerrainCorrectionOp extends Operator {
                         rangeIndex = srcMaxRange - rangeIndex;
                     }
 
-                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, latitude, longitude,
+                    if (!SARGeocoding.isValidCell(rangeIndex, azimuthIndex, lat, lon, diffLat, latitude, longitude,
                             srcMaxRange, srcMaxAzimuth, sensorPos)) {
-                        //saveNoDataValueToTarget(index, trgTiles);
+                        if (saveDEM) {
+                            demBuffer.setElemDoubleAt(index, demNoDataValue);
+                        }
                     } else {
                         final double[] localIncidenceAngles =
                                 {SARGeocoding.NonValidIncidenceAngle, SARGeocoding.NonValidIncidenceAngle};
@@ -988,6 +987,14 @@ public class SARSimTerrainCorrectionOp extends Operator {
                             if (saveProjectedLocalIncidenceAngle && localIncidenceAngles[1] != SARGeocoding.NonValidIncidenceAngle) {
                                 projectedLocalIncidenceAngleBuffer.setElemDoubleAt(index, localIncidenceAngles[1]);
                             }
+                        }
+
+                        if (saveDEM) {
+                            demBuffer.setElemDoubleAt(index, alt);
+                        }
+                        if (saveLatLon) {
+                            latBuffer.setElemDoubleAt(index, lat);
+                            lonBuffer.setElemDoubleAt(index, lon);
                         }
 
                         if (saveLayoverShadowMask) {
