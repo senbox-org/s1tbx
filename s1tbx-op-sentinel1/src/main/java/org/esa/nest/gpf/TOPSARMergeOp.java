@@ -338,7 +338,7 @@ public final class TOPSARMergeOp extends Operator {
             targetProduct.addTiePointGrid(tiePointGrid);
         }
         */
-        targetProduct.setPreferredTileSize(500, 50);
+        //targetProduct.setPreferredTileSize(500, 50);
     }
 
     private String getTargetBandNameFromSourceBandName(final String srcBandName) {
