@@ -210,11 +210,6 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-time-series-tool</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
             <artifactId>snap-unmix</artifactId>
             <version>${project.version}</version>
         </dependency>

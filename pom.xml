@@ -94,7 +94,6 @@
 
         <!-- Former BEAM Extension Modules -->
 
-        <module>beam-time-series-tool</module>
         <module>lib-hdf</module>
     </modules>
 
