@@ -18,7 +18,6 @@ package org.esa.nest.dataio.dem.ace;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.resamp.Resampling;
-import org.esa.beam.util.SystemUtils;
 import org.esa.nest.dataio.dem.AbstractElevationModelDescriptor;
 import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.snap.util.Settings;
@@ -32,7 +31,7 @@ public class ACEElevationModelDescriptor extends AbstractElevationModelDescripto
 
     private static final String NAME = "ACE30";
     private static final String DB_FILE_SUFFIX = ".ACE";
-    private static final String ARCHIVE_URL_PATH = SystemUtils.BEAM_HOME_PAGE + "data/ACE.zip";
+    private static final String ARCHIVE_URL_PATH = "";
     public static final int NUM_X_TILES = 24;
     public static final int NUM_Y_TILES = 12;
     public static final int DEGREE_RES = 15;
