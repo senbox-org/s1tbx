@@ -85,9 +85,9 @@ public class RegionBoundsInputUI {
         RegionSelectableWorldMapPane.ensureValidBindingContext(bindingContext);
         this.bindingContext = bindingContext;
 
-//        final WorldMapPaneDataModel worldMapPaneDataModel = new WorldMapPaneDataModel();
-//        final RegionSelectableWorldMapPane worldMapPane = new RegionSelectableWorldMapPane(worldMapPaneDataModel, bindingContext);
-        worldMapPaneUI = new JPanel();//worldMapPane.createUI();
+        final WorldMapPaneDataModel worldMapPaneDataModel = new WorldMapPaneDataModel();
+        final RegionSelectableWorldMapPane worldMapPane = new RegionSelectableWorldMapPane(worldMapPaneDataModel, bindingContext);
+        worldMapPaneUI = worldMapPane.createUI();
 
         northLabel = new JLabel("North:");
         northDegreeLabel = createDegreeLabel();
