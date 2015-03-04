@@ -1,7 +1,7 @@
 package org.jlinda.core;
 
-import org.esa.beam.util.logging.BeamLogManager;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.Decompose;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
@@ -35,7 +35,7 @@ import static org.jlinda.core.utils.PolyUtils.normalize2;
 
 public class Baseline {
 
-    static Logger logger = BeamLogManager.getSystemLogger();
+    static Logger logger = SystemUtils.LOG;
 
     private boolean isInitialized;
     private double masterWavelength;   // tmp for now used for h_amb

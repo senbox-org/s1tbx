@@ -1,7 +1,7 @@
 package org.jlinda.core.utils;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
@@ -14,7 +14,7 @@ import static org.jblas.MatrixFunctions.sqrt;
 
 public class SarUtils {
 
-    static Logger logger = BeamLogManager.getSystemLogger();
+    static Logger logger = SystemUtils.LOG;
 
     /**
      * HARMONIC INTERPOLATION

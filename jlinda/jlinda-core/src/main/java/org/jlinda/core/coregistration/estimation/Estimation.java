@@ -1,7 +1,7 @@
 package org.jlinda.core.coregistration.estimation;
 
-import org.esa.beam.util.logging.BeamLogManager;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.Decompose;
 import org.jblas.DoubleMatrix;
 import org.jblas.MatrixFunctions;
@@ -20,7 +20,7 @@ import static org.jblas.MatrixFunctions.abs;
  */
 public class Estimation {
 
-    static Logger logger = BeamLogManager.getSystemLogger();
+    static Logger logger = SystemUtils.LOG;
 
     private static final String FILE_NAME = "/d1/list.txt";
     private static double[][] data = null;

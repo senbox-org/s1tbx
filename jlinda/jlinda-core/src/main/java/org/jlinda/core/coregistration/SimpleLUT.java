@@ -1,13 +1,13 @@
 package org.jlinda.core.coregistration;
 
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 
 import java.util.logging.Logger;
 
 public class SimpleLUT extends LUT {
 
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     public SimpleLUT(String method) {
         super(method);

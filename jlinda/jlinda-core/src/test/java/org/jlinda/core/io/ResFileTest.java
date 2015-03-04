@@ -2,7 +2,7 @@ package org.jlinda.core.io;
 
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.junit.*;
 
 import java.io.BufferedWriter;
@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 
 public class ResFileTest {
 
-    static Logger logger = BeamLogManager.getSystemLogger();
+    static Logger logger = SystemUtils.LOG;
 
     private static File testFile;
     private static String resFileString;

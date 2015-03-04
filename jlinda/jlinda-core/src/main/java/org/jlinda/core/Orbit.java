@@ -3,7 +3,7 @@ package org.jlinda.core;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.jblas.DoubleMatrix;
@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 public final class Orbit {
 
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     private String interpMethod;
 

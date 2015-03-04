@@ -1,14 +1,15 @@
 package org.jlinda.core;
 
-import org.esa.beam.util.logging.BeamLogManager;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.beam.util.SystemUtils;
+
 import java.util.logging.Logger;
 
 import static org.jlinda.core.Constants.DTOR;
 
 public class Ellipsoid {
 
-    Logger logger = BeamLogManager.getSystemLogger();
+    Logger logger = SystemUtils.LOG;
 
     private static double e2 = 0.00669438003551279091;  // squared first  eccentricity (derived)
     private static double e2b = 0.00673949678826153145; // squared second eccentricity (derived)

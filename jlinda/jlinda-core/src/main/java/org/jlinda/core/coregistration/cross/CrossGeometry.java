@@ -1,7 +1,7 @@
 package org.jlinda.core.coregistration.cross;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 public class CrossGeometry {
 
     // logger
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     // used only for normalization
     private Window dataWindow;

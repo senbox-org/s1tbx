@@ -7,7 +7,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.math3.util.FastMath;
 import org.ejml.data.DenseMatrix64F;
 import org.ejml.data.RowD1Matrix64F;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jlinda.core.coregistration.estimation.utils.SimpleAsciiFileParser;
 import org.jlinda.core.utils.PolyUtils;
 import org.perf4j.StopWatch;
@@ -26,7 +26,7 @@ import java.util.logging.Logger;
  */
 public class TestEstimation_UJMP {
 
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     public static void main(String[] args) throws IOException {
         StopWatch clockFull = new StopWatch();

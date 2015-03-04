@@ -1,12 +1,15 @@
 package org.jlinda.core.geocode;
 
-import org.esa.beam.util.logging.BeamLogManager;
-import org.perf4j.StopWatch;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.perf4j.StopWatch;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +22,7 @@ import java.util.logging.Logger;
 
 public class Slant2HeightTest {
 
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     private static final String testDataDir = "/d2/test.processing/bam/bam.quake.dem/Outdata/";
     private static final String testResDir = "/d2/test.processing/bam/bam.quake.dem/";

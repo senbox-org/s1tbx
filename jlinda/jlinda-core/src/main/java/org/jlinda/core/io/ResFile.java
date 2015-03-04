@@ -1,7 +1,7 @@
 package org.jlinda.core.io;
 
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jlinda.core.utils.DateUtils;
 
 import java.io.*;
@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 public final class ResFile {
 
-    private static Logger logger = BeamLogManager.getSystemLogger();
+    private static Logger logger = SystemUtils.LOG;
 
     /*
         public static void initializeLogger() {
