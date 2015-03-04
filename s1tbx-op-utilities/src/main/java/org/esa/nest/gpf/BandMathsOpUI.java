@@ -1,27 +1,34 @@
 package org.esa.nest.gpf;
 
-import org.esa.snap.gpf.ui.BaseOperatorUI;
-import org.esa.snap.gpf.ui.UIValidation;
-import org.esa.beam.framework.ui.*;
-import org.esa.beam.framework.ui.product.ProductExpressionPane;
-import org.esa.beam.framework.param.*;
-import org.esa.beam.framework.datamodel.*;
+import com.bc.jexp.Namespace;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.impl.ParserImpl;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeList;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.param.ParamChangeEvent;
+import org.esa.beam.framework.param.ParamChangeListener;
+import org.esa.beam.framework.param.ParamProperties;
+import org.esa.beam.framework.param.Parameter;
+import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.product.ProductExpressionPane;
+import org.esa.beam.gpf.operators.standard.BandMathsOp;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.PropertyMap;
-import org.esa.beam.gpf.operators.standard.BandMathsOp;
+import org.esa.snap.gpf.ui.BaseOperatorUI;
+import org.esa.snap.gpf.ui.UIValidation;
 
 import javax.swing.*;
-
-import java.util.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-
-import com.bc.jexp.Namespace;
-import com.bc.jexp.Parser;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.impl.ParserImpl;
+import java.awt.event.ActionListener;
+import java.util.Map;
+import java.util.Vector;
 
 /**
 User interface for BandMaths Operator
@@ -104,7 +111,8 @@ public class BandMathsOpUI extends BaseOperatorUI {
 
         bandDesc.name = paramBand.getValueAsText();
         bandDesc.unit = paramBandUnit.getValueAsText();
-        bandDesc.noDataValue = Double.parseDouble(paramNoDataValue.getValueAsText());
+        String noDataValueStr = paramNoDataValue.getValueAsText();
+        bandDesc.noDataValue = noDataValueStr.isEmpty() ? 0 : Double.parseDouble(noDataValueStr);
         bandDesc.expression = paramExpression.getValueAsText();
 
         final BandMathsOp.BandDescriptor[] bandDescriptors = new BandMathsOp.BandDescriptor[1];
@@ -163,8 +171,6 @@ public class BandMathsOpUI extends BaseOperatorUI {
         editExpressionButton.setName("editExpressionButton");
         editExpressionButton.addActionListener(createEditExpressionButtonListener());
 
-        final JLabel infoLabel = new JLabel("Variables $Band0, $Band1, etc can be used in place of Band names for batch processing");
-
         final JPanel gridPanel = GridBagUtils.createPanel();
         int line = 0;
         final GridBagConstraints gbc = new GridBagConstraints();
@@ -195,10 +201,6 @@ public class BandMathsOpUI extends BaseOperatorUI {
         gbc.gridy = ++line;
         GridBagUtils.addToPanel(gridPanel, editExpressionButton, gbc,
                                 "weighty=0, insets.top=3, gridwidth=3, fill=NONE, anchor=EAST");
-
-        gbc.gridy = ++line;
-        GridBagUtils.addToPanel(gridPanel, infoLabel, gbc,
-                                "gridx=1, insets.top=3, gridwidth=2, fill=HORIZONTAL, anchor=WEST");
 
         return gridPanel;
     }
