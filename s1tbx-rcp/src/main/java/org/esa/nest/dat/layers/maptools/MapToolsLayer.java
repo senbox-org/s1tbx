@@ -41,7 +41,7 @@ public class MapToolsLayer extends Layer implements LayerSelection {
     private final RasterDataNode raster;
     private final MapToolsOptions options;
 
-    private final ArrayList<MapToolsComponent> components = new ArrayList<MapToolsComponent>(5);
+    private final ArrayList<MapToolsComponent> components = new ArrayList<>(5);
 
     public MapToolsLayer(LayerType layerType, PropertySet configuration) {
         super(layerType, configuration);
@@ -104,11 +104,9 @@ public class MapToolsLayer extends Layer implements LayerSelection {
     }
 
     public void selectRectangle(final Rectangle rect) {
-
     }
 
     public void selectPoint(final int x, final int y) {
-
     }
 
     public static Layer findMapToolsLayer(final Layer rootLayer) {
