@@ -466,7 +466,7 @@ public final class TerrainFlatteningOp extends Operator {
                         rangeIndex[i] = sourceImageWidth - 1 - rangeIndex[i];
                     }
 
-                    final LocalGeometry localGeometry = new LocalGeometry(x, y, earthPoint, sensorPos, terrainData, xx, yy);
+                    final LocalGeometry localGeometry = new LocalGeometry(earthPoint, sensorPos, terrainData, xx, yy);
 
                     illuminatedArea[i] = computeLocalIlluminatedArea(x0, ymin, x, y, localGeometry,
                             terrainData.localDEM, demNoDataValue);
@@ -786,15 +786,8 @@ public final class TerrainFlatteningOp extends Operator {
                                                final LocalGeometry lg, final double[][] localDEM,
                                                final double demNoDataValue) {
 
-        final int yy = y - yMin + 1; // add 1 because localDEM is larger than tile by 1 pixel in each direction
-        final int xx = x - xMin + 1;
-
-        final double h00 = localDEM[yy][xx];
-        final double h01 = localDEM[yy - 1][xx];
-        final double h10 = localDEM[yy][xx + 1];
-        final double h11 = localDEM[yy - 1][xx + 1];
-
-        if (h00 == demNoDataValue || h01 == demNoDataValue || h10 == demNoDataValue || h11 == demNoDataValue) {
+        if (lg.t00Height == demNoDataValue || lg.t01Height == demNoDataValue ||
+                lg.t10Height == demNoDataValue || lg.t11Height == demNoDataValue) {
             return noDataValue;
         }
 
@@ -803,10 +796,10 @@ public final class TerrainFlatteningOp extends Operator {
         final double[] t10 = new double[3];
         final double[] t11 = new double[3];
 
-        GeoUtils.geo2xyzWGS84(lg.t00Lat, lg.t00Lon, h00, t00);
-        GeoUtils.geo2xyzWGS84(lg.t01Lat, lg.t01Lon, h01, t01);
-        GeoUtils.geo2xyzWGS84(lg.t10Lat, lg.t10Lon, h10, t10);
-        GeoUtils.geo2xyzWGS84(lg.t11Lat, lg.t11Lon, h11, t11);
+        GeoUtils.geo2xyzWGS84(lg.t00Lat, lg.t00Lon, lg.t00Height, t00);
+        GeoUtils.geo2xyzWGS84(lg.t01Lat, lg.t01Lon, lg.t01Height, t01);
+        GeoUtils.geo2xyzWGS84(lg.t10Lat, lg.t10Lon, lg.t10Height, t10);
+        GeoUtils.geo2xyzWGS84(lg.t11Lat, lg.t11Lon, lg.t11Height, t11);
 
         // compute slant range direction
         final double[] s = {lg.sensorPos[0] - lg.centerPoint[0],
@@ -853,26 +846,34 @@ public final class TerrainFlatteningOp extends Operator {
     public static class LocalGeometry {
         public final double t00Lat;
         public final double t00Lon;
+        public final double t00Height;
         public final double t01Lat;
         public final double t01Lon;
+        public final double t01Height;
         public final double t10Lat;
         public final double t10Lon;
+        public final double t10Height;
         public final double t11Lat;
         public final double t11Lon;
+        public final double t11Height;
         public final double[] sensorPos;
         public final double[] centerPoint;
 
-        public LocalGeometry(final int x, final int y, final double[] earthPoint, final double[] sensPos,
+        public LocalGeometry(final double[] earthPoint, final double[] sensPos,
                              final TerrainData terrainData, final int xx, final int yy) {
 
             t00Lat = terrainData.latPixels[yy][xx];
             t00Lon = terrainData.lonPixels[yy][xx];
+            t00Height = terrainData.localDEM[yy][xx];
             t01Lat = terrainData.latPixels[yy - 1][xx];
             t01Lon = terrainData.lonPixels[yy - 1][xx];
+            t01Height = terrainData.localDEM[yy - 1][xx];
             t10Lat = terrainData.latPixels[yy][xx + 1];
             t10Lon = terrainData.lonPixels[yy][xx + 1];
-            t11Lat = terrainData.latPixels[yy + 1][xx + 1];
-            t11Lon = terrainData.lonPixels[yy + 1][xx + 1];
+            t10Height = terrainData.localDEM[yy][xx + 1];
+            t11Lat = terrainData.latPixels[yy - 1][xx + 1];
+            t11Lon = terrainData.lonPixels[yy - 1][xx + 1];
+            t11Height = terrainData.localDEM[yy - 1][xx + 1];
             centerPoint = earthPoint;
             sensorPos = sensPos;
         }
