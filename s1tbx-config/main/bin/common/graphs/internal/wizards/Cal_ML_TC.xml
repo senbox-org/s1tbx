@@ -27,9 +27,14 @@
       <auxFile>Latest Auxiliary File</auxFile>
       <externalAuxFile/>
 	  <outputImageInComplex>false</outputImageInComplex>
-      <outputImageScaleInDb>true</outputImageScaleInDb>
+      <outputImageScaleInDb>false</outputImageScaleInDb>
       <createGammaBand>false</createGammaBand>
       <createBetaBand>false</createBetaBand>
+      <selectedPolarisations/>
+      <outputSigmaBand>true</outputSigmaBand>
+      <outputGammaBand>false</outputGammaBand>
+      <outputBetaBand>false</outputBetaBand>
+      <outputDNBand>false</outputDNBand>
     </parameters>
   </node>
   <node id="4-Multilook">
