@@ -61,8 +61,8 @@ public class ScreenPixelConverter {
     public AffineTransform getImageTransform(final AffineTransform transformSave) {
         final AffineTransform transform = new AffineTransform();
         transform.concatenate(transformSave);
-        transform.concatenate(vp.getModelToViewTransform());
-        transform.concatenate(raster.getSourceImage().getModel().getImageToModelTransform(0));
+        transform.concatenate(m2v);
+        transform.concatenate(mli.getModel().getImageToModelTransform(0));
         return transform;
     }
 

@@ -49,7 +49,7 @@ public abstract class XMLProductDirectory {
 
     private boolean isSLC = false;
 
-    protected transient final Map<String, ImageIOFile> bandImageFileMap = new HashMap<>(1);
+    protected transient final Map<String, ImageIOFile> bandImageFileMap = new TreeMap<>();
     protected transient final Map<Band, ImageIOFile.BandInfo> bandMap = new HashMap<>(3);
 
     protected XMLProductDirectory(final File inputFile) {

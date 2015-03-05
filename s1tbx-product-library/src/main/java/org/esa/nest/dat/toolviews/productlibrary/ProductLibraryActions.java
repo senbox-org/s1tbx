@@ -5,6 +5,7 @@ import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.toolviews.productlibrary.model.SortingDecorator;
 import org.esa.snap.dat.dialogs.BatchGraphDialog;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.db.ProductEntry;
 import org.esa.snap.util.ClipboardUtils;
 import org.esa.snap.util.DialogUtils;
@@ -30,13 +31,14 @@ public class ProductLibraryActions {
     private static final ImageIcon selectAllIcon = UIUtils.loadImageIcon("/org/esa/nest/icons/select-all24.png", ProductLibraryToolView.class);
     private static final ImageIcon openIcon = UIUtils.loadImageIcon("/org/esa/nest/icons/open24.png", ProductLibraryToolView.class);
     private static final ImageIcon copyIcon = UIUtils.loadImageIcon("/org/esa/nest/icons/copy24.png", ProductLibraryToolView.class);
+    private static final ImageIcon findSlicesIcon = UIUtils.loadImageIcon("/org/esa/nest/icons/slices24.png", ProductLibraryToolView.class);
     private static final ImageIcon batchIcon = UIUtils.loadImageIcon("/org/esa/nest/icons/batch24.png", ProductLibraryToolView.class);
     private static final ImageIcon stackIcon = UIUtils.loadImageIcon("/org/esa/nest/icons/stack24.png", ProductLibraryToolView.class);
 
     private final JTable productEntryTable;
     private final ProductLibraryToolView toolView;
     private final ProductOpener openHandler;
-    private JButton selectAllButton, openAllSelectedButton, copySelectedButton, batchProcessButton, stackButton;
+    private JButton selectAllButton, openAllSelectedButton, copySelectedButton, findSlicesButton, batchProcessButton, stackButton;
 
     private JMenuItem copyToItem,  moveToItem, deleteItem;
 
@@ -74,6 +76,13 @@ public class ProductLibraryActions {
             }
         });
 
+        findSlicesButton = DialogUtils.createButton("findSlicesButton", "Find related slices", findSlicesIcon, panel, DialogUtils.ButtonStyle.Icon);
+        findSlicesButton.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                performFindSlicesAction();
+            }
+        });
+
         batchProcessButton = DialogUtils.createButton("batchProcessButton", "Batch", batchIcon, panel, DialogUtils.ButtonStyle.Icon);
         batchProcessButton.setToolTipText("Right click to select a graph");
         batchProcessButton.setComponentPopupMenu(createGraphPopup());
@@ -95,6 +104,8 @@ public class ProductLibraryActions {
         panel.add(copySelectedButton);
         panel.add(batchProcessButton);
         //panel.add(new JSeparator(SwingConstants.HORIZONTAL));
+        panel.add(Box.createRigidArea(new Dimension(24,24)));
+        panel.add(findSlicesButton);
         panel.add(stackButton);
 
         return panel;
@@ -120,6 +131,7 @@ public class ProductLibraryActions {
     public void selectionEnabled(final boolean enable) {
         openAllSelectedButton.setEnabled(enable);
         copySelectedButton.setEnabled(enable);
+        findSlicesButton.setEnabled(enable && getNumberOfSelections() == 1);
         batchProcessButton.setEnabled(enable);
         stackButton.setEnabled(enable && getNumberOfSelections() > 1);
     }
@@ -164,6 +176,14 @@ public class ProductLibraryActions {
         final File[] fileList = getSelectedFiles();
         if (fileList.length != 0)
             ClipboardUtils.copyToClipboard(fileList);
+    }
+
+    private void performFindSlicesAction() {
+        final ProductEntry entry = getSelectedProductEntries()[0];
+        int dataTakeId = entry.getMetadata().getAttributeInt(AbstractMetadata.data_take_id, AbstractMetadata.NO_METADATA);
+        if(dataTakeId != AbstractMetadata.NO_METADATA) {
+            toolView.findSlices(dataTakeId);
+        }
     }
 
     private void performFileAction(final ProductFileHandler.TYPE operationType) {
@@ -351,8 +371,8 @@ public class ProductLibraryActions {
 
                     public void actionPerformed(final ActionEvent e) {
                         //todo
-                       // if (batchProcessButton.isEnabled())
-                       //     batchProcess(getSelectedProductEntries(), file);
+                        if (batchProcessButton.isEnabled())
+                            batchProcess(getSelectedProductEntries(), file);
                     }
                 });
                 menu.add(item);
@@ -376,8 +396,8 @@ public class ProductLibraryActions {
 
                     public void actionPerformed(final ActionEvent e) {
                         //todo
-                       // if (batchProcessButton.isEnabled())
-                      //      batchProcess(getSelectedProductEntries(), file);
+                        if (batchProcessButton.isEnabled())
+                            batchProcess(getSelectedProductEntries(), file);
                     }
                 });
                 menu.add(item);

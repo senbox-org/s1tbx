@@ -388,6 +388,10 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         productEntryTable.updateUI();
     }
 
+    public void findSlices(int dataTakeId) {
+        dbPane.findSlices(dataTakeId);
+    }
+
     private void rescanFolder(final boolean doRecursive, final boolean doQuicklooks) {
         if (repositoryListCombo.getSelectedIndex() != 0) {
             updateRepostitory((File) repositoryListCombo.getSelectedItem(), doRecursive, doQuicklooks);
