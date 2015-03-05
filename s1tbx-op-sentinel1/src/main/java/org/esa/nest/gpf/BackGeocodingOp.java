@@ -198,6 +198,16 @@ public final class BackGeocodingOp extends Operator {
                 throw new OperatorException("Same number of bursts is expected.");
             }
 
+            final double threshold = 0.01;
+            final int gh = mSubSwath[0].latitude.length;
+            final int gw = mSubSwath[0].latitude[0].length;
+            if (Math.abs(mSubSwath[0].latitude[0][0] - sSubSwath[0].latitude[0][0]) > threshold ||
+                Math.abs(mSubSwath[0].latitude[0][gw - 1] - sSubSwath[0].latitude[0][gw - 1]) > threshold ||
+                Math.abs(mSubSwath[0].latitude[gh - 1][0] - sSubSwath[0].latitude[gh - 1][0]) > threshold ||
+                Math.abs(mSubSwath[0].latitude[gh - 1][gw - 1] - sSubSwath[0].latitude[gh - 1][gw - 1]) > threshold) {
+                throw new OperatorException("Sub-swaths with the same geo locations are expected.");
+            }
+
 			subSwathName = mSubSwathNames[0];
 			subSwathIndex = 1; // subSwathIndex is always 1 because of split product
             swathIndexStr = mSubSwathNames[0].substring(2);
@@ -235,7 +245,7 @@ public final class BackGeocodingOp extends Operator {
             }
 
         } catch (Throwable e) {
-            throw new OperatorException(e.getMessage());
+            OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
@@ -261,7 +271,7 @@ public final class BackGeocodingOp extends Operator {
     /**
      * Check source product validity.
      */
-    private void checkSourceProductValidity() {
+    private void checkSourceProductValidity() throws OperatorException {
 
         if (sourceProduct.length != 2) {
             throw new OperatorException("Please select two source products");
@@ -288,32 +298,6 @@ public final class BackGeocodingOp extends Operator {
             throw new OperatorException("Source products should have the same acquisition modes");
         }
         acquisitionMode = mAcquisitionMode;
-
-        final double mFirstNearLat = mAbsRoot.getAttributeDouble(AbstractMetadata.first_near_lat);
-        final double mFirstFarLat = mAbsRoot.getAttributeDouble(AbstractMetadata.first_far_lat);
-        final double mLastNearLat = mAbsRoot.getAttributeDouble(AbstractMetadata.last_near_lat);
-        final double mLastFarLat = mAbsRoot.getAttributeDouble(AbstractMetadata.last_far_lat);
-        final double mFirstNearLon = mAbsRoot.getAttributeDouble(AbstractMetadata.first_near_long);
-        final double mFirstFarLon = mAbsRoot.getAttributeDouble(AbstractMetadata.first_far_long);
-        final double mLastNearLon = mAbsRoot.getAttributeDouble(AbstractMetadata.last_near_long);
-        final double mLastFarLon = mAbsRoot.getAttributeDouble(AbstractMetadata.last_far_long);
-
-        final double sFirstNearLat = sAbsRoot.getAttributeDouble(AbstractMetadata.first_near_lat);
-        final double sFirstFarLat = sAbsRoot.getAttributeDouble(AbstractMetadata.first_far_lat);
-        final double sLastNearLat = sAbsRoot.getAttributeDouble(AbstractMetadata.last_near_lat);
-        final double sLastFarLat = sAbsRoot.getAttributeDouble(AbstractMetadata.last_far_lat);
-        final double sFirstNearLon = sAbsRoot.getAttributeDouble(AbstractMetadata.first_near_long);
-        final double sFirstFarLon = sAbsRoot.getAttributeDouble(AbstractMetadata.first_far_long);
-        final double sLastNearLon = sAbsRoot.getAttributeDouble(AbstractMetadata.last_near_long);
-        final double sLastFarLon = sAbsRoot.getAttributeDouble(AbstractMetadata.last_far_long);
-
-        final double threshold = 0.01;
-        if (Math.abs(mFirstNearLat - sFirstNearLat) > threshold || Math.abs(mFirstFarLat - sFirstFarLat) > threshold ||
-            Math.abs(mLastNearLat - sLastNearLat) > threshold || Math.abs(mLastFarLat - sLastFarLat) > threshold ||
-            Math.abs(mFirstNearLon - sFirstNearLon) > threshold || Math.abs(mFirstFarLon - sFirstFarLon) > threshold ||
-            Math.abs(mLastNearLon - sLastNearLon) > threshold || Math.abs(mLastFarLon - sLastFarLon) > threshold) {
-            throw new OperatorException("Source products should completely overlap");
-        }
     }
 
     /**
@@ -493,7 +477,9 @@ public final class BackGeocodingOp extends Operator {
             }
 
         } catch (Throwable e) {
-            throw new OperatorException(e.getMessage());
+            OperatorUtils.catchOperatorException(getId(), e);
+        } finally {
+            pm.done();
         }
     }
 
