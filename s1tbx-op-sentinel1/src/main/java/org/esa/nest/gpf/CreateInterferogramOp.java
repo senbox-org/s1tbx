@@ -174,8 +174,8 @@ public class CreateInterferogramOp extends Operator {
                 }
             }
 
-        } catch (Exception e) {
-            throw new OperatorException(e);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
@@ -591,7 +591,8 @@ public class CreateInterferogramOp extends Operator {
     }
 
     private void computeTileStackForNormalProduct(
-            final Map<Band, Tile> targetTileMap, Rectangle targetRectangle, final ProgressMonitor pm) throws OperatorException {
+            final Map<Band, Tile> targetTileMap, Rectangle targetRectangle, final ProgressMonitor pm)
+            throws OperatorException {
 
         try {
             final int rgOffset = (cohWinRg - 1) / 2;
@@ -721,7 +722,8 @@ public class CreateInterferogramOp extends Operator {
     }
 
     private void computeTileStackForTOPSARProduct(
-            final Map<Band, Tile> targetTileMap, final Rectangle targetRectangle, final ProgressMonitor pm) throws OperatorException {
+            final Map<Band, Tile> targetTileMap, final Rectangle targetRectangle, final ProgressMonitor pm)
+            throws OperatorException {
 
         try {
             final int tx0 = targetRectangle.x;
