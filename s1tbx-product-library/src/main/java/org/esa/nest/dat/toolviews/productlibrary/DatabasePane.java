@@ -344,14 +344,6 @@ public final class DatabasePane extends JPanel {
         return list.toArray(new String[list.size()]);
     }
 
-    private static String[] toStringArray(Object[] objects) {
-        final String strArray[] = new String[objects.length];
-        for (int i = 0; i < objects.length; ++i) {
-            strArray[i] = (String) objects[i];
-        }
-        return strArray;
-    }
-
     public void setBaseDir(final File dir) {
         dbQuery.setBaseDir(dir);
         if (db != null)
@@ -429,6 +421,15 @@ public final class DatabasePane extends JPanel {
     public DBQuery getDBQuery() {
         setData();
         return dbQuery;
+    }
+
+    public void findSlices(final int dataTakeId) {
+        metadataArea.setText(AbstractMetadata.data_take_id+"="+dataTakeId);
+
+        dbQuery.setSelectionRect(null);
+        queryDatabase();
+
+        metadataArea.setText("");
     }
 
     public void setDBQuery(final DBQuery query) throws Exception {
