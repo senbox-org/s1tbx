@@ -21,7 +21,6 @@ import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.grender.Rendering;
-import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -89,9 +88,7 @@ public class MapToolsLayer extends Layer implements LayerSelection {
         final GeoCoding geoCoding = product.getGeoCoding();
         if (geoCoding == null) return;
 
-        final Viewport vp = rendering.getViewport();
-        final RasterDataNode raster = product.getRasterDataNode(product.getBandAt(0).getName());
-        final ScreenPixelConverter screenPixel = new ScreenPixelConverter(vp, raster);
+        final ScreenPixelConverter screenPixel = new ScreenPixelConverter(rendering.getViewport(), raster);
         if (!screenPixel.withInBounds()) {
             return;
         }

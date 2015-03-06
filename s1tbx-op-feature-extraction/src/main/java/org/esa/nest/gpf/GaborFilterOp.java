@@ -37,7 +37,7 @@ import java.util.HashMap;
 /**
  */
 @OperatorMetadata(alias = "GaborFilter",
-        category = "Image Analysis/Primitive Features",
+        category = "Image Analysis/Texture Analysis",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Extract Texture Features")
