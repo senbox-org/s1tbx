@@ -468,8 +468,7 @@ public final class TerrainFlatteningOp extends Operator {
 
                     final LocalGeometry localGeometry = new LocalGeometry(earthPoint, sensorPos, terrainData, xx, yy);
 
-                    illuminatedArea[i] = computeLocalIlluminatedArea(x0, ymin, x, y, localGeometry,
-                            terrainData.localDEM, demNoDataValue);
+                    illuminatedArea[i] = computeLocalIlluminatedArea(localGeometry, demNoDataValue);
 
                     if (illuminatedArea[i] == noDataValue) {
                         savePixel[i] = false;
@@ -773,18 +772,11 @@ public final class TerrainFlatteningOp extends Operator {
     /**
      * Compute local illuminated area for given point.
      *
-     * @param xMin           Start of the simulated area in range direction.
-     * @param yMin           Start of the simulated area in azimuth direction.
-     * @param x              X coordinate of given point.
-     * @param y              Y coordinate of given point.
      * @param lg             Local geometry information.
-     * @param localDEM       The digital elevation model.
      * @param demNoDataValue Invalid DEM value.
      * @return The computed local illuminated area.
      */
-    private double computeLocalIlluminatedArea(final int xMin, final int yMin, final int x, final int y,
-                                               final LocalGeometry lg, final double[][] localDEM,
-                                               final double demNoDataValue) {
+    private double computeLocalIlluminatedArea(final LocalGeometry lg, final double demNoDataValue) {
 
         if (lg.t00Height == demNoDataValue || lg.t01Height == demNoDataValue ||
                 lg.t10Height == demNoDataValue || lg.t11Height == demNoDataValue) {
