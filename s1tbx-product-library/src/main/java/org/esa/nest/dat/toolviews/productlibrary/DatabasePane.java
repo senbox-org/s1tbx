@@ -49,6 +49,7 @@ import java.util.List;
  */
 public final class DatabasePane extends JPanel {
 
+    private final JTextField nameField = new JTextField();
     private final JList missionJList = new JList();
     private final JList productTypeJList = new JList();
     private final JComboBox acquisitionModeCombo = new JComboBox(new String[]{DBQuery.ALL_MODES});
@@ -189,6 +190,9 @@ public final class DatabasePane extends JPanel {
         this.add(new JScrollPane(missionJList), gbc);
         gbc.gridx = 1;
         this.add(new JScrollPane(productTypeJList), gbc);
+        gbc.gridy++;
+        label = DialogUtils.addComponent(this, gbc, "Product Name:", nameField);
+        label.setHorizontalAlignment(JLabel.RIGHT);
         gbc.gridy++;
         label = DialogUtils.addComponent(this, gbc, "Acquisition Mode:", acquisitionModeCombo);
         label.setHorizontalAlignment(JLabel.RIGHT);
@@ -368,6 +372,7 @@ public final class DatabasePane extends JPanel {
     private void setData() {
         dbQuery.setSelectedMissions(toStringArray(missionJList.getSelectedValuesList()));
         dbQuery.setSelectedProductTypes(toStringArray(productTypeJList.getSelectedValuesList()));
+        dbQuery.setSelectedName(nameField.getText());
         dbQuery.setSelectedAcquisitionMode((String) acquisitionModeCombo.getSelectedItem());
         dbQuery.setSelectedPass((String) passCombo.getSelectedItem());
         dbQuery.setSelectedTrack(trackField.getText());
