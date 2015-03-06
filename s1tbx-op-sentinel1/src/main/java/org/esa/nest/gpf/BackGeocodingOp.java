@@ -218,11 +218,11 @@ public final class BackGeocodingOp extends Operator {
                 targetProduct = OperatorUtils.createDummyTargetProduct(sourceProduct);
                 //throw new OperatorException("Split product with one polarization is expected.");
             }
-			
+
 			if (!mPolarizations[0].equals(sPolarizations[0])) {
 				throw new OperatorException("Same polarization is expected.");
 			}
-			
+            
 			polarization = mPolarizations[0];
 
             if (externalDEMFile == null) {
@@ -651,7 +651,7 @@ public final class BackGeocodingOp extends Operator {
 //            final double extralat = 1.5*delta + 4.0/25.0;
 //            final double extralon = 1.5*delta + 4.0/25.0;
             final double extralat = 2*delta;
-            final double extralon = 2*delta;
+            final double extralon = 2*delta + 4.0/25.0;
             final double latMin = latLonMinMax[0] - extralat;
             final double latMax = latLonMinMax[1] + extralat;
             final double lonMin = latLonMinMax[2] - extralon;
