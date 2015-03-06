@@ -214,15 +214,10 @@ public final class BackGeocodingOp extends Operator {
 
             final String[] mPolarizations = mSU.getPolarizations();
 			final String[] sPolarizations = sSU.getPolarizations();
-			if (mPolarizations.length != 1 || sPolarizations.length != 1) {
-                targetProduct = OperatorUtils.createDummyTargetProduct(sourceProduct);
-                //throw new OperatorException("Split product with one polarization is expected.");
-            }
-
 			if (!mPolarizations[0].equals(sPolarizations[0])) {
 				throw new OperatorException("Same polarization is expected.");
 			}
-            
+
 			polarization = mPolarizations[0];
 
             if (externalDEMFile == null) {
@@ -451,6 +446,10 @@ public final class BackGeocodingOp extends Operator {
             //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
             if (!isElevationModelAvailable) {
+                if (mSU.getPolarizations().length != 1 || sSU.getPolarizations().length != 1) {
+                    throw new OperatorException("Split product with one polarization is expected.");
+                }
+
                 getElevationModel();
             }
 
