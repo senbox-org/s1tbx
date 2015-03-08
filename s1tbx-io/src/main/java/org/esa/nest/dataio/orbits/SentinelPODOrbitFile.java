@@ -25,7 +25,6 @@ import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.Settings;
-import org.esa.snap.util.ZipUtils;
 import org.esa.snap.util.ftpUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -41,11 +40,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -94,17 +89,21 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     public SentinelPODOrbitFile(final String orbitType, final MetadataElement absRoot,
                                 final Product sourceProduct, final int polyDegree) throws Exception {
         super(orbitType, absRoot);
+        this.polyDegree = polyDegree;
 
         final InputProductValidator validator = new InputProductValidator(sourceProduct);
-        if(validator.isMultiSwath()) {
-            throw new OperatorException("Multiple swaths are not supported. Apply TOPSAR Split");
+        if (validator.isMultiSwath()) {
+           // throw new OperatorException("Multiple swaths are not supported. Apply TOPSAR Split");
         }
 
+    }
+
+    public File retrieveOrbitFile() throws Exception {
         final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
         final int year = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getAsCalendar().get(Calendar.YEAR);
 
         this.orbitFile = findOrbitFile(stateVectorTime, year);
-        this.polyDegree = polyDegree;
+
         if(orbitFile == null) {
             getRemoteFiles(year);
             this.orbitFile = findOrbitFile(stateVectorTime, year);
@@ -122,6 +121,8 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         readOrbitFile();
 
         checkOrbitFileValidity();
+
+        return orbitFile;
     }
 
     private File findOrbitFile(final double stateVectorTime, final int year) {
@@ -129,10 +130,10 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         final String prefix;
         final File orbitFileFolder;
         if(orbitType.endsWith(RESTITUTED)) {
-            prefix = "S1A_OPER_AUX_RESORB_OPOD_"+year;
+            prefix = "S1A_OPER_AUX_RESORB_OPOD_";
             orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1ResOrbitPath")+File.separator+year);
         } else {
-            prefix = "S1A_OPER_AUX_POEORB_OPOD_"+year;
+            prefix = "S1A_OPER_AUX_POEORB_OPOD_";
             orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath")+File.separator+year);
         }
 
@@ -173,10 +174,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         final File localFile = new File(localFolder, year+".zip");
 
         final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
-        final File archiveFile = (File)archive.getContentFile();
-
-        ZipUtils.unzipToFolder(archiveFile, localFolder);
-        archiveFile.delete();
+        archive.getContentFiles();
     }
 
     /**

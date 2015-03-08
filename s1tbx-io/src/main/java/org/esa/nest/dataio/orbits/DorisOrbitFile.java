@@ -23,7 +23,6 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.util.Settings;
-import org.esa.snap.util.ZipUtils;
 import org.esa.snap.util.ftpUtils;
 
 import java.io.File;
@@ -38,6 +37,7 @@ import java.util.Date;
 public class DorisOrbitFile extends BaseOrbitFile {
 
     private EnvisatOrbitReader dorisReader = null;
+    private final Product sourceProduct;
 
     public static final String DORIS_POR = "DORIS Preliminary POR";
     public static final String DORIS_VOR = "DORIS Precise VOR";
@@ -45,34 +45,10 @@ public class DorisOrbitFile extends BaseOrbitFile {
     public DorisOrbitFile(final String orbitType, final MetadataElement absRoot,
                           final Product sourceProduct) throws Exception {
         super(orbitType, absRoot);
-
-        init(sourceProduct);
+        this.sourceProduct = sourceProduct;
     }
 
-    /**
-     * Get orbit information for given time.
-     *
-     * @param utc The UTC in days.
-     * @return The orbit information.
-     * @throws Exception The exceptions.
-     */
-    public Orbits.OrbitVector getOrbitData(final double utc) throws Exception {
-
-        final EnvisatOrbitReader.OrbitVector orb = dorisReader.getOrbitVector(utc);
-
-        return new Orbits.OrbitVector(utc,
-                orb.xPos, orb.yPos, orb.zPos,
-                orb.xVel, orb.yVel, orb.zVel);
-    }
-
-    /**
-     * Get DORIS orbit file.
-     *
-     * @param sourceProduct the input product
-     * @throws java.io.IOException The exception.
-     */
-    private void init(final Product sourceProduct) throws Exception {
-
+    public File retrieveOrbitFile() throws Exception {
         dorisReader = EnvisatOrbitReader.getInstance();
         final int absOrbit = absRoot.getAttributeInt(AbstractMetadata.ABS_ORBIT, 0);
 
@@ -119,6 +95,24 @@ public class DorisOrbitFile extends BaseOrbitFile {
         }
 
         dorisReader.readOrbitData();
+
+        return orbitFile;
+    }
+
+    /**
+     * Get orbit information for given time.
+     *
+     * @param utc The UTC in days.
+     * @return The orbit information.
+     * @throws Exception The exceptions.
+     */
+    public Orbits.OrbitVector getOrbitData(final double utc) throws Exception {
+
+        final EnvisatOrbitReader.OrbitVector orb = dorisReader.getOrbitVector(utc);
+
+        return new Orbits.OrbitVector(utc,
+                orb.xPos, orb.yPos, orb.zPos,
+                orb.xVel, orb.yVel, orb.zVel);
     }
 
     private void getRemoteFiles(final int year) throws Exception {
@@ -132,10 +126,7 @@ public class DorisOrbitFile extends BaseOrbitFile {
         final File localFile = new File(localFolder, year+".zip");
 
         final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
-        final File archiveFile = (File)archive.getContentFile();
-
-        ZipUtils.unzipToFolder(archiveFile, localFolder);
-        archiveFile.delete();
+        archive.getContentFiles();
     }
 
     /**

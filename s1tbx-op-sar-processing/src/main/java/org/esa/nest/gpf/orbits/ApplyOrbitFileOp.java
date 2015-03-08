@@ -15,11 +15,13 @@
  */
 package org.esa.nest.gpf.orbits;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
@@ -89,7 +91,6 @@ public final class ApplyOrbitFileOp extends Operator {
     private int polyDegree = 3;
 
     private MetadataElement absRoot = null;
-    private MetadataElement tgtAbsRoot = null;
 
     private int sourceImageWidth;
     private int sourceImageHeight;
@@ -107,6 +108,8 @@ public final class ApplyOrbitFileOp extends Operator {
     private String mission;
 
     private OrbitFile orbitProvider = null;
+
+    private boolean productUpdated = false;
 
     /**
      * Default constructor. The graph processing framework
@@ -176,12 +179,6 @@ public final class ApplyOrbitFileOp extends Operator {
 
             createTargetProduct();
 
-            setTargetMetadata();
-
-            updateOrbitStateVectors();
-
-            updateTargetProductGEOCodingJLinda();
-
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -217,13 +214,6 @@ public final class ApplyOrbitFileOp extends Operator {
     }
 
     /**
-     * Set target metadata
-     */
-    private void setTargetMetadata() {
-        tgtAbsRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
-    }
-
-    /**
      * Create target product.
      */
     void createTargetProduct() {
@@ -235,12 +225,13 @@ public final class ApplyOrbitFileOp extends Operator {
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
+        boolean oneBandToProcess = false;
         for (Band srcBand : sourceProduct.getBands()) {
             if (srcBand instanceof VirtualBand) {
                 OperatorUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
             } else {
-                final Band targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
-                targetBand.setSourceImage(srcBand.getSourceImage());
+                ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, oneBandToProcess);
+                oneBandToProcess = true;
             }
         }
     }
@@ -254,11 +245,34 @@ public final class ApplyOrbitFileOp extends Operator {
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
      * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
-    //@Override
-    //public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-    //    final Tile srcRaster = getSourceTile(sourceProduct.getBand(targetBand.getName()), targetTile.getRectangle());
-    //    targetTile.setRawSamples(srcRaster.getRawSamples());
-    //}
+    @Override
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        try {
+            if(!productUpdated) {
+                updateOrbits();
+            }
+
+            final Tile srcRaster = getSourceTile(sourceProduct.getBand(targetBand.getName()), targetTile.getRectangle());
+            targetTile.setRawSamples(srcRaster.getRawSamples());
+        } catch (Exception e) {
+            OperatorUtils.catchOperatorException(this.getId(), e);
+        }
+    }
+
+    private synchronized void updateOrbits() throws Exception {
+        if(productUpdated)
+            return;
+
+        orbitProvider.retrieveOrbitFile();
+
+        updateOrbitStateVectors();
+
+        if(!(orbitProvider instanceof SentinelPODOrbitFile)) {
+            updateTargetProductGEOCodingJLinda();
+        }
+
+        productUpdated = true;
+    }
 
     /**
      * Get corresponding sample index for a given column index in the new tie point grid.
@@ -282,6 +296,8 @@ public final class ApplyOrbitFileOp extends Operator {
      * @throws Exception The exceptions.
      */
     private void updateOrbitStateVectors() throws Exception {
+
+        final MetadataElement tgtAbsRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
         // get original orbit state vectors
         final OrbitStateVector[] orbitStateVectors = AbstractMetadata.getOrbitStateVectors(tgtAbsRoot);
@@ -324,6 +340,8 @@ public final class ApplyOrbitFileOp extends Operator {
 
         final int subSamplingX = sourceImageWidth / (targetTiePointGridWidth - 1);
         final int subSamplingY = sourceImageHeight / (targetTiePointGridHeight - 1);
+
+        final MetadataElement tgtAbsRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
 
         // put NEST abstracted_metadata into jLinda metadata containers
         final SLCImage metaData = new SLCImage(tgtAbsRoot);
