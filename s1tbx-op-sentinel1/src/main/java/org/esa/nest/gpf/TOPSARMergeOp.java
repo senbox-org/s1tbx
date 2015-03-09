@@ -43,10 +43,10 @@ import java.util.StringTokenizer;
  * Merge subswaths of a Sentinel-1 TOPSAR product.
  */
 @OperatorMetadata(alias = "TOPSAR-Merge",
-        category = "SAR Processing/SENTINEL-1",
+        category = "SAR Processing/Sentinel-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Mwege subswaths of a Sentinel-1 TOPSAR product")
+        description = "Merge subswaths of a Sentinel-1 TOPSAR product")
 public final class TOPSARMergeOp extends Operator {
 
     @SourceProducts

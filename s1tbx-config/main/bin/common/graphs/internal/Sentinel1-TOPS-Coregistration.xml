@@ -66,28 +66,13 @@
       <outputDerampPhase>false</outputDerampPhase>
     </parameters>
   </node>
-  <node id="Interferogram">
-    <operator>Interferogram</operator>
+  <node id="Write">
+    <operator>Write</operator>
     <sources>
       <sourceProduct refid="Back-Geocoding"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <subtractFlatEarthPhase>true</subtractFlatEarthPhase>
-      <srpPolynomialDegree>5</srpPolynomialDegree>
-      <srpNumberPoints>501</srpNumberPoints>
-      <orbitDegree>3</orbitDegree>
-      <includeCoherence>true</includeCoherence>
-      <cohWinAz>10</cohWinAz>
-      <cohWinRg>10</cohWinRg>
-    </parameters>
-  </node>
-  <node id="Write">
-    <operator>Write</operator>
-    <sources>
-      <sourceProduct refid="Interferogram"/>
-    </sources>
-    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file>TOPSAR-interferogram</file>
+      <file></file>
       <formatName>BEAM-DIMAP</formatName>
     </parameters>
   </node>
@@ -113,9 +98,6 @@
     </node>
     <node id="Back-Geocoding">
       <displayPosition x="116.0" y="123.0"/>
-    </node>
-    <node id="Interferogram">
-      <displayPosition x="233.0" y="123.0"/>
     </node>
     <node id="Write">
       <displayPosition x="354.0" y="124.0"/>

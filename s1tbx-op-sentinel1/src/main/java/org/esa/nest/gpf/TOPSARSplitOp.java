@@ -38,7 +38,7 @@ import java.util.List;
  */
 
 @OperatorMetadata(alias = "TOPSAR-Split",
-        category = "SAR Processing/SENTINEL-1",
+        category = "SAR Processing/Sentinel-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Creates a new product with only the selected subswath")
