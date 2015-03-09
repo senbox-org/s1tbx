@@ -132,7 +132,7 @@
             <dialogTitle>Principal Component Analysis</dialogTitle>
             <targetProductNameSuffix>_pca</targetProductNameSuffix>
             <shortDescr>Principal Component Analysis</shortDescr>
-            <parent>PrimitiveFeatureGroup</parent>
+            <parent>processing.imageAnalysis</parent>
             <helpId>PCA</helpId>
         </action>
 

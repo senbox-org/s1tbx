@@ -52,7 +52,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "Principle-Components", description = "Principle Component Analysis",
-        category = "Image Analysis/Primitive Features")
+        category = "Image Analysis")
 public class PCAOp extends Operator {
 
     @SourceProduct

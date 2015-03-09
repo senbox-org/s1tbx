@@ -48,7 +48,7 @@ import java.util.List;
  */
 
 @OperatorMetadata(alias = "Speckle-Divergence",
-        category = "Image Analysis/Primitive Features",
+        category = "Image Analysis",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Detect urban area.")
