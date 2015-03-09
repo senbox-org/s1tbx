@@ -103,8 +103,8 @@ public class CreateCoherenceImageOp extends Operator {
 
             createTargetProduct();
 
-        } catch (Exception e) {
-            throw new OperatorException(e);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
@@ -253,7 +253,8 @@ public class CreateCoherenceImageOp extends Operator {
         }
     }
 
-    private void computeTileForNormalProduct(Band targetBand, Tile targetTile, ProgressMonitor pm) {
+    private void computeTileForNormalProduct(Band targetBand, Tile targetTile, ProgressMonitor pm)
+            throws OperatorException {
 
         try {
             final Rectangle rect = targetTile.getRectangle();
@@ -296,14 +297,15 @@ public class CreateCoherenceImageOp extends Operator {
                 }
             }
 
-        } catch (Exception e) {
-            throw new OperatorException(e);
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
         }
     }
 
-    private void computeTileForTOPSARProduct(final Band targetBand, final Tile targetTile, final ProgressMonitor pm) {
+    private void computeTileForTOPSARProduct(final Band targetBand, final Tile targetTile, final ProgressMonitor pm)
+            throws OperatorException {
 
         try {
             final Rectangle targetRectangle = targetTile.getRectangle();

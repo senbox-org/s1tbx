@@ -1,6 +1,6 @@
 package org.jlinda.core.geom;
 
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jlinda.core.*;
 
 import java.util.logging.Logger;
@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 public class DemTile {
 
     //// logger
-    static Logger logger = BeamLogManager.getSystemLogger();
+    static Logger logger = SystemUtils.LOG;
 
     //// topoPhase global params
     double lat0;

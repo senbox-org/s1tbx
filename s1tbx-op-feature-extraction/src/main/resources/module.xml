@@ -166,11 +166,19 @@
         </action-->
 
         <action>
+            <id>TextureAnalysisGroup</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Texture Analysis</text>
+            <parent>processing.imageAnalysis</parent>
+            <placeBefore>PrimitiveFeatureGroup</placeBefore>
+        </action>
+
+        <action>
             <id>GLCMOp</id>
             <helpId>GLCMOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>PrimitiveFeatureGroup</parent>
+            <parent>TextureAnalysisGroup</parent>
             <text>GLCM</text>
             <shortDescr>Extract Texture Features</shortDescr>
             <operatorName>GLCM</operatorName>
@@ -183,7 +191,7 @@
             <helpId>GaborFilterOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>PrimitiveFeatureGroup</parent>
+            <parent>TextureAnalysisGroup</parent>
             <text>Gabor Filter</text>
             <shortDescr>Extract Texture Features</shortDescr>
             <operatorName>GaborFilter</operatorName>
@@ -223,7 +231,7 @@
             <helpId>ChangeDetectionOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>PrimitiveFeatureGroup</parent>
+            <parent>processing.imageAnalysis</parent>
             <text>Change Detection</text>
             <shortDescr>Change Detection</shortDescr>
 	        <operatorName>Change-Detection</operatorName>

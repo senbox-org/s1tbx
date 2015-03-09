@@ -1,6 +1,6 @@
 package org.jlinda.core.geom;
 
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jlinda.core.*;
 import org.jlinda.core.utils.TriangleUtils;
 
@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 public class ThetaTile {
 
     //// logger
-    static Logger logger = BeamLogManager.getSystemLogger();
+    static Logger logger = SystemUtils.LOG;
 
     private Orbit masterOrbit;   // master
     private SLCImage masterMeta; // master

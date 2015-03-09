@@ -45,7 +45,7 @@ package org.esa.nest.dat.wizards;
 
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.Debug;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jfree.ui.L1R3ButtonPanel;
 
 import javax.help.BadIDException;
@@ -217,7 +217,7 @@ public class WizardDialog extends JDialog implements ActionListener {
         try {
             helpBroker.setCurrentID(helpId);
         } catch (BadIDException e) {
-            Logger systemLogger = BeamLogManager.getSystemLogger();
+            Logger systemLogger = SystemUtils.LOG;
             if (systemLogger != null) {
                 systemLogger.severe("ModalDialog: '" + helpId + "' is not a valid helpID");
             } else {

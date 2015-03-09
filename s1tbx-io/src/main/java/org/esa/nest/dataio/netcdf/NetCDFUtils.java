@@ -17,7 +17,7 @@ package org.esa.nest.dataio.netcdf;
 
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.*;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import ucar.ma2.Array;
 import ucar.ma2.DataType;
@@ -349,7 +349,7 @@ public class NetCDFUtils {
             try {
                 return parseDateTime(dateTimeStr);
             } catch (ParseException e) {
-                BeamLogManager.getSystemLogger().warning(
+                SystemUtils.LOG.warning(
                         "Failed to parse time string '" + dateTimeStr + '\'');
             }
         }

@@ -20,7 +20,7 @@ import com.bc.ceres.core.runtime.RuntimeContext;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.util.ExceptionLog;
@@ -142,7 +142,7 @@ public abstract class SARReader extends AbstractProductReader {
             ExceptionLog.log(message);
         }
 
-        BeamLogManager.getSystemLogger().severe(message);
+        SystemUtils.LOG.severe(message);
         throw new IOException(message);
     }
 }

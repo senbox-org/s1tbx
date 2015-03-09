@@ -22,7 +22,7 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.gpf.ReaderUtils;
 import ucar.ma2.Array;
@@ -208,7 +208,7 @@ public class NetCDFReader extends AbstractProductReader {
                     product.setGeoCoding(new MapGeoCoding(mapInfoX.getMapInfo()));
                 }
             } catch (IOException e) {
-                BeamLogManager.getSystemLogger().warning("Failed to create NetCDF geo-coding");
+                SystemUtils.LOG.warning("Failed to create NetCDF geo-coding");
             }
         }
         return yFlipped;

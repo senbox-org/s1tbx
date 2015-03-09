@@ -193,22 +193,31 @@ public final class BackGeocodingOp extends Operator {
 			if (!mSubSwathNames[0].equals(sSubSwathNames[0])) {
 				throw new OperatorException("Same sub-swath is expected.");
 			}
-			
+
+            if (mSubSwath[0].numOfBursts != sSubSwath[0].numOfBursts) {
+                throw new OperatorException("Same number of bursts is expected.");
+            }
+
+            final double threshold = 0.01;
+            final int gh = mSubSwath[0].latitude.length;
+            final int gw = mSubSwath[0].latitude[0].length;
+            if (Math.abs(mSubSwath[0].latitude[0][0] - sSubSwath[0].latitude[0][0]) > threshold ||
+                Math.abs(mSubSwath[0].latitude[0][gw - 1] - sSubSwath[0].latitude[0][gw - 1]) > threshold ||
+                Math.abs(mSubSwath[0].latitude[gh - 1][0] - sSubSwath[0].latitude[gh - 1][0]) > threshold ||
+                Math.abs(mSubSwath[0].latitude[gh - 1][gw - 1] - sSubSwath[0].latitude[gh - 1][gw - 1]) > threshold) {
+                throw new OperatorException("Sub-swaths with the same geo locations are expected.");
+            }
+
 			subSwathName = mSubSwathNames[0];
 			subSwathIndex = 1; // subSwathIndex is always 1 because of split product
             swathIndexStr = mSubSwathNames[0].substring(2);
 
             final String[] mPolarizations = mSU.getPolarizations();
 			final String[] sPolarizations = sSU.getPolarizations();
-			if (mPolarizations.length != 1 || sPolarizations.length != 1) {
-                targetProduct = OperatorUtils.createDummyTargetProduct(sourceProduct);
-                //throw new OperatorException("Split product with one polarization is expected.");
-            }
-			
 			if (!mPolarizations[0].equals(sPolarizations[0])) {
 				throw new OperatorException("Same polarization is expected.");
 			}
-			
+
 			polarization = mPolarizations[0];
 
             if (externalDEMFile == null) {
@@ -231,7 +240,7 @@ public final class BackGeocodingOp extends Operator {
             }
 
         } catch (Throwable e) {
-            throw new OperatorException(e.getMessage());
+            OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
@@ -257,7 +266,7 @@ public final class BackGeocodingOp extends Operator {
     /**
      * Check source product validity.
      */
-    private void checkSourceProductValidity() {
+    private void checkSourceProductValidity() throws OperatorException {
 
         if (sourceProduct.length != 2) {
             throw new OperatorException("Please select two source products");
@@ -437,6 +446,10 @@ public final class BackGeocodingOp extends Operator {
             //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
             if (!isElevationModelAvailable) {
+                if (mSU.getPolarizations().length != 1 || sSU.getPolarizations().length != 1) {
+                    throw new OperatorException("Split product with one polarization is expected.");
+                }
+
                 getElevationModel();
             }
 
@@ -463,7 +476,9 @@ public final class BackGeocodingOp extends Operator {
             }
 
         } catch (Throwable e) {
-            throw new OperatorException(e.getMessage());
+            OperatorUtils.catchOperatorException(getId(), e);
+        } finally {
+            pm.done();
         }
     }
 
@@ -635,7 +650,7 @@ public final class BackGeocodingOp extends Operator {
 //            final double extralat = 1.5*delta + 4.0/25.0;
 //            final double extralon = 1.5*delta + 4.0/25.0;
             final double extralat = 2*delta;
-            final double extralon = 2*delta;
+            final double extralon = 2*delta + 4.0/25.0;
             final double latMin = latLonMinMax[0] - extralat;
             final double latMax = latLonMinMax[1] + extralat;
             final double lonMin = latLonMinMax[2] - extralon;
@@ -709,6 +724,7 @@ public final class BackGeocodingOp extends Operator {
             TriangleUtils.gridDataLinear(
                     masterAz, masterRg, slaveAz, slaveRg, azArray, rgArray, tileWindow, rgAzRatio, 1, 1, invalidIndex, 0);
 
+            boolean allElementsAreNull = true;
             final PixelPos[][] slavePixelPos = new PixelPos[h][w];
             for(int yy = 0; yy < h; yy++) {
                 for (int xx = 0; xx < w; xx++) {
@@ -716,8 +732,13 @@ public final class BackGeocodingOp extends Operator {
                         slavePixelPos[yy][xx] = null;
                     } else {
                         slavePixelPos[yy][xx] = new PixelPos(rgArray[yy][xx], azArray[yy][xx]);
+                        allElementsAreNull = false;
                     }
                 }
+            }
+
+            if (allElementsAreNull) {
+                return null;
             }
 
             return slavePixelPos;
@@ -851,14 +872,14 @@ public final class BackGeocodingOp extends Operator {
             }
         }
 
-        if (minX > maxX || minY > maxY) {
-            return null;
-        }
-
         minX = Math.max(minX - margin, firstPixelIndex);
         maxX = Math.min(maxX + margin, lastPixelIndex);
         minY = Math.max(minY - margin, firstLineIndex);
         maxY = Math.min(maxY + margin, lastLineIndex);
+
+        if (minX > maxX || minY > maxY) {
+            return null;
+        }
 
         return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }

@@ -1,7 +1,7 @@
 package org.jlinda.core.coregistration.cross;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Window;
 import org.jlinda.core.utils.MathUtils;
@@ -25,7 +25,7 @@ import static org.jlinda.core.utils.PolyUtils.*;
 public class CrossGeometryTest {
 
     // logger
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     // data extent
     private static long lineLo = 1;

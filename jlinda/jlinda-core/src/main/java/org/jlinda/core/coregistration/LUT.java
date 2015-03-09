@@ -1,21 +1,20 @@
 package org.jlinda.core.coregistration;
 
-import org.esa.beam.util.logging.BeamLogManager;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.SLCImage;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LUT {
 
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
 /*
     public static final String NEAREST_NEIGHBOR = "Nearest-neighbor interpolation";

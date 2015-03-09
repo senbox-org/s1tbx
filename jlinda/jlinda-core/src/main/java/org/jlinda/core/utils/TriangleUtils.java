@@ -3,7 +3,7 @@ package org.jlinda.core.utils;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jlinda.core.Window;
 import org.jlinda.core.delaunay.FastDelaunayTriangulator;
 import org.jlinda.core.delaunay.Triangle;
@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 
 public class TriangleUtils {
 
-    static Logger logger = BeamLogManager.getSystemLogger();
+    static Logger logger = SystemUtils.LOG;
 
     public static double[][] gridDataLinear(final double[][] x_in, final double[][] y_in, final double[][] z_in,
                                             final Window window, final double xyRatio, final int xScale,

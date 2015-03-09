@@ -1,7 +1,7 @@
 package org.jlinda.core.utils;
 
-import org.esa.beam.util.logging.BeamLogManager;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Window;
@@ -13,7 +13,7 @@ import static org.jblas.MatrixFunctions.pow;
 
 public class LinearAlgebraUtils {
 
-    static Logger logger = BeamLogManager.getSystemLogger();
+    static Logger logger = SystemUtils.LOG;
 
     /**
      * solve22

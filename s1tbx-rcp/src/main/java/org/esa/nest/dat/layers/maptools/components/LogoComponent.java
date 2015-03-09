@@ -29,7 +29,7 @@ import java.awt.image.BufferedImage;
  */
 public class LogoComponent implements MapToolsComponent {
 
-    private static final ImageIcon procNestIcon = ImageUtils.LoadIcon("org/esa/nest/icons/proc_nest.png");
+    private static final ImageIcon procNestIcon = ImageUtils.LoadIcon("org/esa/s1tbx/icons/s1_64x.png");
     private final BufferedImage image;
     private final static double marginPct = 0.05;
     private final double scale;
@@ -58,14 +58,21 @@ public class LogoComponent implements MapToolsComponent {
     }
 
     public void render(final Graphics2D graphics, final ScreenPixelConverter screenPixel) {
-        final AffineTransform transformSave = graphics.getTransform();
+        final AffineTransform transformSave = (AffineTransform)graphics.getTransform().clone();
         try {
-            final AffineTransform transform = screenPixel.getImageTransform(transformSave);
+            final AffineTransform transform = screenPixel.getImageTransform(graphics.getTransform());
 
             transform.translate(point.x, point.y);
             transform.scale(scale, scale);
 
-            graphics.drawRenderedImage(image, transform);
+            final double[] vpts = new double[2];
+            screenPixel.pixelToScreen(point, vpts);
+
+            graphics.translate(vpts[0], vpts[1]);
+            double scale = transform.getScaleX();
+            graphics.scale(scale, scale);
+
+            graphics.drawRenderedImage(image, null);
         } finally {
             graphics.setTransform(transformSave);
         }

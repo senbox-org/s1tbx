@@ -1,16 +1,12 @@
 package org.jlinda.core.io;
 
 
-import org.esa.beam.util.logging.BeamLogManager;
-import org.jlinda.core.*;
+import org.jlinda.core.Window;
 
 import java.io.*;
 import java.nio.ByteOrder;
-import java.util.logging.Logger;
 
 abstract class FlatBinary implements DataReadersWriters {
-
-    private static Logger logger = BeamLogManager.getSystemLogger();
 
     File file;
     String format;

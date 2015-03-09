@@ -1,6 +1,6 @@
 package org.jlinda.core.filtering;
 
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.SLCImage;
@@ -21,7 +21,7 @@ import static org.jblas.MatrixFunctions.pow;
  */
 public class AzimuthFilter extends SlcDataFilter {
 
-    static Logger logger = BeamLogManager.getSystemLogger();
+    static Logger logger = SystemUtils.LOG;
 
     // TODO
     todo_classes.inputgeneral generalInput;

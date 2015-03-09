@@ -9,7 +9,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.lang3.ArrayUtils;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class SimpleAsciiFileParser {
     private final static String REGEX = "[,]|\\s+";
 
     private int numLines;
-    private static Logger logger = BeamLogManager.getSystemLogger();
+    private static Logger logger = SystemUtils.LOG;
 
     public SimpleAsciiFileParser(final String fileName, final int numLines) throws IOException {
 

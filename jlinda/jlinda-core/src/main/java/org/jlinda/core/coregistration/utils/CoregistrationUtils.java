@@ -1,7 +1,8 @@
 package org.jlinda.core.coregistration.utils;
 
-import org.esa.beam.util.logging.BeamLogManager;
-import org.apache.commons.math3.util.FastMath;import org.jblas.ComplexDouble;
+import org.apache.commons.math3.util.FastMath;
+import org.esa.beam.util.SystemUtils;
+import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jblas.Geometry;
@@ -15,7 +16,7 @@ import java.util.logging.Logger;
 
 public class CoregistrationUtils {
 
-    static Logger logger = BeamLogManager.getSystemLogger();
+    static Logger logger = SystemUtils.LOG;
 
 
     public static double crossCorrelateFFT(double[] offset,

@@ -1,7 +1,7 @@
 package org.jlinda.core.coregistration.legacy;
 
-import org.esa.beam.util.logging.BeamLogManager;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.*;
 import org.jlinda.core.Constants;
 import org.jlinda.core.SLCImage;
@@ -63,7 +63,7 @@ public class CoregistrationTest {
     private int cols;
     private int colsAcc;
 
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     private static StopWatch clock = new StopWatch();
 

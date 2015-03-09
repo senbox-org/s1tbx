@@ -2,7 +2,7 @@ package org.jlinda.core.utils;
 
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_2D;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 
@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 public class SpectralUtils {
 
-    static Logger logger = BeamLogManager.getSystemLogger();
+    static Logger logger = SystemUtils.LOG;
 
     private static void fftTransform1D_inplace(ComplexDoubleMatrix vector, int fftLength, int direction) {
         switch (direction) {

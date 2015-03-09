@@ -18,7 +18,6 @@ package org.esa.nest.dataio.dem.aster;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.resamp.Resampling;
-import org.esa.beam.util.SystemUtils;
 import org.esa.nest.dataio.dem.AbstractElevationModelDescriptor;
 import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.snap.util.Settings;
@@ -31,7 +30,7 @@ public class AsterElevationModelDescriptor extends AbstractElevationModelDescrip
 
     private static final String NAME = "ASTER 1sec GDEM";
     private static final String DB_FILE_SUFFIX = ".TIF";
-    private static final String ARCHIVE_URL_PATH = SystemUtils.BEAM_HOME_PAGE + "data/ACE.zip";
+    private static final String ARCHIVE_URL_PATH = "";
     private static final int NUM_X_TILES = 360;
     private static final int NUM_Y_TILES = 166;
     private static final int DEGREE_RES = 1;

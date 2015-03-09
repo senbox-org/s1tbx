@@ -1,6 +1,5 @@
 package org.jlinda.core.filtering;
 
-import org.esa.beam.util.logging.BeamLogManager;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
@@ -9,14 +8,10 @@ import org.jlinda.core.utils.LinearAlgebraUtils;
 import org.jlinda.core.utils.SarUtils;
 import org.jlinda.core.utils.SpectralUtils;
 
-import java.util.logging.Logger;
-
 import static org.jblas.MatrixFunctions.powi;
 import static org.jlinda.core.utils.MathUtils.isEven;
 
 public class PhaseFilterUtils {
-
-    static Logger logger = BeamLogManager.getSystemLogger();
 
 
     /**

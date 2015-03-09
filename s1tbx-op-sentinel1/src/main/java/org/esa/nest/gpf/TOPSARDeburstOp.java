@@ -134,7 +134,7 @@ public final class TOPSARDeburstOp extends Operator {
             updateTargetProductMetadata();
 
         } catch (Throwable e) {
-            throw new OperatorException(e.getMessage());
+            OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
@@ -618,7 +618,9 @@ public final class TOPSARDeburstOp extends Operator {
                 }
             }
         } catch (Throwable e) {
-            throw new OperatorException(e.getMessage());
+            OperatorUtils.catchOperatorException(getId(), e);
+        } finally {
+            pm.done();
         }
     }
 

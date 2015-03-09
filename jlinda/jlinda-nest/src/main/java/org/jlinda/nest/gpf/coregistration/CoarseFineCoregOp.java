@@ -26,7 +26,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.toolviews.placemark.PlacemarkNameFactory;
 import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.nest.dataio.dem.ElevationModelDescriptor;
@@ -139,7 +139,7 @@ public class CoarseFineCoregOp extends Operator {
     private static final int EXTRA_BORDER = 20; // work with slightly smaller search space, used in gcp validation
 
     // Logger
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
     
     /**
      * Default constructor. The graph processing framework

@@ -18,7 +18,6 @@ package org.esa.nest.dataio.dem.getasse30;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.resamp.Resampling;
-import org.esa.beam.util.SystemUtils;
 import org.esa.nest.dataio.dem.AbstractElevationModelDescriptor;
 import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.snap.util.Settings;
@@ -31,7 +30,7 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
 
     private static final String NAME = "GETASSE30";
     private static final String DB_FILE_SUFFIX = ".GETASSE30";
-    private static final String ARCHIVE_URL_PATH = SystemUtils.BEAM_HOME_PAGE + "data/GETASSE30.zip";
+    private static final String ARCHIVE_URL_PATH = "http://org.esa.beam.s3.amazonaws.com/data/GETASSE30.zip";
     private static final int NUM_X_TILES = 24;
     private static final int NUM_Y_TILES = 12;
     private static final int DEGREE_RES = 15;

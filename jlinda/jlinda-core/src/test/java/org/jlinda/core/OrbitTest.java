@@ -1,15 +1,18 @@
 package org.jlinda.core;
 
-import org.esa.beam.util.logging.BeamLogManager;
-import org.junit.*;
+import org.esa.beam.util.SystemUtils;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.File;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class OrbitTest {
 
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     private static final File resFile = new File("/d2/unit_test_data/test_cr.res");
 //    private static final File resFile = new File("test/test_cr.res");

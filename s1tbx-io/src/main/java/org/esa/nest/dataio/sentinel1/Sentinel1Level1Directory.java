@@ -353,6 +353,11 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             final MetadataElement imageAnnotation = prodElem.getElement("imageAnnotation");
             final MetadataElement imageInformation = imageAnnotation.getElement("imageInformation");
 
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.data_take_id,
+                    Integer.parseInt(adsHeader.getAttributeString("missionDataTakeId")));
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slice_num,
+                    Integer.parseInt(imageInformation.getAttributeString("sliceNumber")));
+
             rangeSpacingTotal += imageInformation.getAttributeDouble("rangePixelSpacing");
             azimuthSpacingTotal += imageInformation.getAttributeDouble("azimuthPixelSpacing");
 

@@ -11,7 +11,7 @@ import org.ejml.factory.LinearSolver;
 import org.ejml.factory.LinearSolverFactory;
 import org.ejml.ops.CommonOps;
 import org.ejml.ops.MatrixFeatures;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jlinda.core.coregistration.estimation.SystemOfEquations;
 import org.jlinda.core.coregistration.estimation.utils.SimpleAsciiFileParser;
 import org.jlinda.core.utils.PolyUtils;
@@ -20,12 +20,12 @@ import org.perf4j.StopWatch;
 import javax.media.jai.WarpPolynomial;
 import java.io.IOException;
 import java.util.concurrent.RecursiveAction;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CPMUtils {
 
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
 
     public static void main(String[] args) throws IOException {
