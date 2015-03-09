@@ -469,6 +469,7 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             srcData2 = sourceRaster2.getDataBuffer();
         }
 
+        final double noDataValue = sourceBand1.getNoDataValue();
         final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
         final ProductData trgData = targetTile.getDataBuffer();
         final TileIndex srcIndex = new TileIndex(sourceRaster1);
@@ -503,6 +504,10 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             for (int x = x0; x < maxX; ++x) {
                 srcIdx = srcIndex.getIndex(x);
                 trgIdx = trgIndex.getIndex(x);
+
+                if (srcData1.getElemDoubleAt(srcIdx) == noDataValue) {
+                    continue;
+                }
 
                 final int pixelIdx = calInfo.getPixelIndex(x, calVecIdx);
                 muX = (x - vec0.pixels[pixelIdx]) / (double)(vec0.pixels[pixelIdx + 1] - vec0.pixels[pixelIdx]);
