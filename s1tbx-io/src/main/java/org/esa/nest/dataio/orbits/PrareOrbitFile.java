@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.visat.VisatApp;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.DownloadableArchive;
 import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.util.Settings;
 import org.esa.snap.util.ftpUtils;

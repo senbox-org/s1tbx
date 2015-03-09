@@ -21,8 +21,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.DownloadableArchive;
 import org.esa.snap.datamodel.Orbits;
-import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.Settings;
 import org.esa.snap.util.ftpUtils;
@@ -90,22 +90,18 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
                                 final Product sourceProduct, final int polyDegree) throws Exception {
         super(orbitType, absRoot);
         this.polyDegree = polyDegree;
-
-        final InputProductValidator validator = new InputProductValidator(sourceProduct);
-        if (validator.isMultiSwath()) {
-           // throw new OperatorException("Multiple swaths are not supported. Apply TOPSAR Split");
-        }
-
     }
 
     public File retrieveOrbitFile() throws Exception {
         final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
-        final int year = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getAsCalendar().get(Calendar.YEAR);
+        final Calendar calendar = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getAsCalendar();
+        final int year = calendar.get(Calendar.YEAR);
+        final int month = calendar.get(Calendar.MONTH) + 1; // zero based
 
         this.orbitFile = findOrbitFile(stateVectorTime, year);
 
         if(orbitFile == null) {
-            getRemoteFiles(year);
+            getRemoteFiles(year, month);
             this.orbitFile = findOrbitFile(stateVectorTime, year);
             if(orbitFile == null) {
                 String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
@@ -163,15 +159,15 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return null;
     }
 
-    private void getRemoteFiles(final int year) throws Exception {
+    private void getRemoteFiles(final int year, final int month) throws Exception {
 
         if(orbitType.endsWith(RESTITUTED)) {
             return;
         }
 
-        final File localFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath"));
+        final File localFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath"), String.valueOf(year));
         final URL remotePath = new URL(ftpUtils.getPathFromSettings("OrbitFiles.sentinel1POEOrbit_remotePath"));
-        final File localFile = new File(localFolder, year+".zip");
+        final File localFile = new File(localFolder, year+"-"+month+".zip");
 
         final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
         archive.getContentFiles();
