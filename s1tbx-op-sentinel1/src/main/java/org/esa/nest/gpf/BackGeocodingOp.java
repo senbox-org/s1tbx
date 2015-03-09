@@ -312,7 +312,12 @@ public final class BackGeocodingOp extends Operator {
             if (masterProduct.getBand(bandName) instanceof VirtualBand) {
                 continue;
             }
-            ProductUtils.copyBand(bandName, masterProduct, bandName + mstSuffix, targetProduct, true);
+            final Band targetBand = ProductUtils.copyBand(bandName, masterProduct, bandName + mstSuffix, targetProduct, true);
+
+            if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
+                int idx = targetProduct.getBandIndex(targetBand.getName());
+                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBandAt(idx-1), targetBand, mstSuffix);
+            }
         }
 
         final Band masterBand = masterProduct.getBand(masterBandNames[0]);
@@ -335,15 +340,20 @@ public final class BackGeocodingOp extends Operator {
             targetBand.setUnit(srcBand.getUnit());
             targetBand.setDescription(srcBand.getDescription());
             targetProduct.addBand(targetBand);
-        }
 
-        final Band[] trgBands = targetProduct.getBands();
-        for(int i=0; i < trgBands.length; ++i) {
-            if(trgBands[i].getUnit().equals(Unit.REAL)) {
-                final String suffix = trgBands[i].getName().contains("_mst") ? mstSuffix : slvSuffix;
-                ReaderUtils.createVirtualIntensityBand(targetProduct, trgBands[i], trgBands[i+1], suffix);
+            if(targetBand.getUnit().equals(Unit.IMAGINARY)) {
+                int idx = targetProduct.getBandIndex(targetBand.getName());
+                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBandAt(idx-1), targetBand, slvSuffix);
             }
         }
+
+        //final Band[] trgBands = targetProduct.getBands();
+        //for(int i=0; i < trgBands.length; ++i) {
+        //    if(trgBands[i].getUnit().equals(Unit.REAL)) {
+        //        final String suffix = trgBands[i].getName().contains("_mst") ? mstSuffix : slvSuffix;
+        //        ReaderUtils.createVirtualIntensityBand(targetProduct, trgBands[i], trgBands[i+1], suffix);
+        //    }
+        //}
 
         ProductUtils.copyProductNodes(masterProduct, targetProduct);
         copySlaveMetadata();
