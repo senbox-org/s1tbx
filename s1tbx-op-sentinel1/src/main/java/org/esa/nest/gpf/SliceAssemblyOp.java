@@ -43,9 +43,6 @@ import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
 import java.util.*;
 import java.util.List;
 
@@ -204,11 +201,18 @@ public final class SliceAssemblyOp extends Operator {
         // maximum of the band widths.
         // So if a particular band should have the same width across different slice products, then all the
         // slice products should have the same product width.
-        // But it seems that the slice products can have different widths, which implies that the width of a band
+        // But the slice products can have different widths, which implies that the width of a band
         // in one slice product can be different from the width of the same band in another slice product.
-        // TODO: For now, for the product width, we take the max among all slice products. This may not be
-        // TODO: correct. It depends on how we have to align the different-sized bands from the slice products.
-        // TODO: For now, we assume we align to the left, in which case taking the max is OK.
+
+        // We assume that the the different-sized bands from the slice products are aligned to the left.
+        // So for the product width, we can take the max among all slice products.
+        // TODO Put a check here to check that the assumption is OK by looking at the slantRangeTime from
+        // TODO Metadata > Original_Product_Metadata > annotation > s1...-00n.xml > product > imageAnnotation >
+        // TODO imageInformation > slantRangeTime
+        // TODO For GRD products, it should only be one value for the entire slice product. It is available in
+        // TODO Abstracted_Metadata as well.
+        // TODO For SLC products, we will need one value for each swath.
+
         for (Product srcProduct : sliceProducts) {
             if (targetWidth < srcProduct.getSceneRasterWidth())
                 targetWidth = srcProduct.getSceneRasterWidth();
@@ -218,8 +222,8 @@ public final class SliceAssemblyOp extends Operator {
 
     private void computeTargetBandWidthAndHeight(final String bandName, final Dimension dim) throws OperatorException {
         // See comments in computeTargetWidthAndHeight().
-        // TODO: For now, for band width, we take the max for that band among all slice products.
-        // TODO: This is consistent with the assumption in computeTargetWidthAndHeight().
+        // For band width, we take the max for that band among all slice products.
+        // This is consistent with the assumption in computeTargetWidthAndHeight().
         for (Product srcProduct : sliceProducts) {
             final Band srcBand = srcProduct.getBand(bandName);
             if(srcBand == null) {
@@ -319,6 +323,40 @@ public final class SliceAssemblyOp extends Operator {
 
     private void createTiePointGridsForGRD() {
 
+        // geolocationGridPointList has a count and a list of geolocationGridPoint(s).
+        // These geolocationGridPoint(s) should form an MxN grid, M = number of rows and N = number of columns.
+        // Each geolocationGridPoint contains line (i.e. row) and pixel (i.e. column).
+        // The horizontal or vertical spacing may not be even.
+        // But from line to line, the pixels are in the same location.
+        // E.g A 4x6 grid for an image of width 24 and height 17:
+        // 1st row: line = 0;	pixels =	0	5	10	15	20	23
+        // 2nd row: line = 6;	pixels = 	0	5	10	15	20	23
+        // 3rd row: line = 12;	pixels = 	0	5	10	15	20	23
+        // 4th row: line = 16;  pixels = 	0	5	10	15	20	23
+        // According to Table 6-88 of Product Specs v2.9, each geolocationGridPoint is a point within the image.
+        // So we cannot have a point with line 17 or pixels 24.
+        //
+        // We assume that from slice to slice, M may differ but N must be the same. However, the pixel spacing
+        // from slice to slice may not be the same.
+        // So the next slice to the example above can be a 5x6 grid for an image of width 30 and height 20:
+        // 1st row: line = 0;	pixels =	0	6	12	18	24	29
+        // 2nd row: line = 5;	pixels = 	0	6	12	18	24	29
+        // 3rd row: line = 10;	pixels = 	0	6	12	18	24	29
+        // 4th row: line = 15;  pixels = 	0	6	12	18	24	29
+        // 5th row: line = 19;  pixels = 	0	6	12	18	24	29
+        //
+        // We concatenate the two geolocationGridPointList(s) together to form a 9x6 grid for an image of width 30 and
+        // height 37:
+        // 1st row: line = 0;	pixels =	0	5	10	15	20	23
+        // 2nd row: line = 6;	pixels = 	0	5	10	15	20	23
+        // 3rd row: line = 12;	pixels = 	0	5	10	15	20	23
+        // 4th row: line = 16;  pixels = 	0	5	10	15	20	23
+        // 5th row: line = 17;	pixels =	0	6	12	18	24	29
+        // 6th row: line = 22;	pixels = 	0	6	12	18	24	29
+        // 7th row: line = 27;	pixels = 	0	6	12	18	24	29
+        // 8th row: line = 32;  pixels = 	0	6	12	18	24	29
+        // 9th row: line = 36;  pixels = 	0	6	12	18	24	29
+
         int geoGridLen = 0;
         final ArrayList<MetadataElement[]> geoGrids = new ArrayList<>();
         int i = 0;
@@ -339,7 +377,8 @@ public final class SliceAssemblyOp extends Operator {
         final int[] x = new int[geoGridLen];
         final int[] y = new int[geoGridLen];
 
-        // We assume here that the slice products will have the same width in the geolocation grid.
+        // We assume here that all the slice products will have the same width in the geolocation grid.
+        // That is the same number of points in each line.
 
         final int[] gridWidths = new int[sliceProducts.length];
         final int[] gridHeights = new int[sliceProducts.length];
@@ -353,7 +392,12 @@ public final class SliceAssemblyOp extends Operator {
 
         i = 0;
         int ptsInPrvSlices = 0;
+        int heightOffset = 0;
         for (int j = 0; j < sliceProducts.length; j++) {
+
+            if (j > 0) {
+                heightOffset += sliceProducts[j-1].getSceneRasterHeight();
+            }
 
             final MetadataElement[] geoGrid = geoGrids.get(j);
 
@@ -367,17 +411,14 @@ public final class SliceAssemblyOp extends Operator {
                 x[i] = (int) ggPoint.getAttributeDouble("pixel", 0);
                 if (x[i] == 0) {
                     // This means we are at the start of a new line
-                    if (gridWidths[j] == 0) // Here we are implicitly assuming that the pixel horizontal spacing is assumed to be the same from line to line.
+                    // gridWidths[j] will be updated to 0 at the 1st line.
+                    // It will be updated to the correct value at the 2nd line.
+                    if (gridWidths[j] == 0)
                         gridWidths[j] = i - ptsInPrvSlices;
                     ++gridHeights[j];
                 }
 
-                y[i] = (int) ggPoint.getAttributeDouble("line", 0);
-                if (j > 0) {
-                    // This is not the first slice
-                    for (int k = 0; k < j; k++)
-                        y[i] += sliceProducts[k].getSceneRasterHeight();
-                }
+                y[i] = (int) ggPoint.getAttributeDouble("line", 0) + heightOffset;
 
                 ++i;
             }
@@ -399,6 +440,9 @@ public final class SliceAssemblyOp extends Operator {
 
         final int newGridWidth = gridWidth;
         final int newGridHeight = gridHeight;
+        if (geoGridLen != (newGridWidth * newGridHeight)) {
+            throw new OperatorException("wrong number of geolocation grid points");
+        }
         final float[] newLatList = new float[newGridWidth * newGridHeight];
         final float[] newLonList = new float[newGridWidth * newGridHeight];
         final float[] newIncList = new float[newGridWidth * newGridHeight];
@@ -505,6 +549,267 @@ public final class SliceAssemblyOp extends Operator {
         targetProduct.setGeoCoding(tpGeoCoding);
     }
 
+    private String extractPol(final String filename) {
+        return "";
+    }
+
+    private String extractImageNumber(final String filename) {
+
+        final int dotIdx = filename.indexOf('.');
+        return filename.substring(dotIdx-3, dotIdx);
+    }
+
+    private ProductData getStopTime(final Product product, final String imageNum) {
+
+        //System.out.println("getStopTime for " + product.getName() + " imageNum = " + imageNum);
+
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+        final MetadataElement calibration = origProdRoot.getElement("calibration");
+        final MetadataElement[] calibrationElems = calibration.getElements();
+
+        ProductData data = null;
+
+        for (MetadataElement e : calibrationElems) {
+
+            //System.out.println("getStopTime: " + e.getName());
+
+            if (extractImageNumber(e.getName()).equals(imageNum)) {
+
+                final MetadataElement calib = e.getElement("calibration");
+                final MetadataElement adsHeader = calib.getElement("adsHeader");
+                final MetadataAttribute stopTime = adsHeader.getAttribute("stopTime");
+                //System.out.println("getStopTime: " + stopTime.getData().toString());
+
+                data = stopTime.getData();
+            }
+
+        }
+
+        return data;
+    }
+
+    MetadataElement getCalibrationVectorList(final Product product, final String imageNum) {
+
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+        final MetadataElement calibration = origProdRoot.getElement("calibration");
+        final MetadataElement[] calibrationElems = calibration.getElements();
+
+        MetadataElement calibVectorList = null;
+
+        for (MetadataElement e : calibrationElems) {
+
+            if (extractImageNumber(e.getName()).equals(imageNum)) {
+
+                final MetadataElement calib = e.getElement("calibration");
+                calibVectorList = calib.getElement("calibrationVectorList");
+            }
+
+        }
+
+        return calibVectorList;
+    }
+
+    private int getCalibrationPixelCount(final Product product, final String imageNum, final int[] pixelSpacing) {
+
+        // TODO fill in pixelSpacing
+
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+        final MetadataElement calibration = origProdRoot.getElement("calibration");
+        final MetadataElement[] calibrationElems = calibration.getElements();
+
+        int pixelCount = 0;
+
+        for (MetadataElement e : calibrationElems) {
+            //System.out.println("getCalibrationPixelCount: " + e.getName());
+            if (extractImageNumber(e.getName()).equals(imageNum)) {
+                final MetadataElement calib = e.getElement("calibration");
+                final MetadataElement calibVectorList = calib.getElement("calibrationVectorList");
+                final MetadataElement firstCalibVector = calibVectorList.getElementAt(0);
+                final MetadataElement pixel = firstCalibVector.getElement("pixel");
+                final MetadataAttribute count = pixel.getAttribute("count");
+                //System.out.println("getCalibrationPixelCount: " + count.getData().toString());
+                pixelCount = Integer.parseInt(count.getData().getElemString());
+            }
+        }
+
+        return pixelCount;
+    }
+
+    private void concatenateCalibrationVectors(final MetadataElement targetCalibVectorList,
+                                               final MetadataElement sliceCalibVectorList,
+                                               final int startVectorIdx,
+                                               final int lineOffset) {
+
+        int idx = Integer.parseInt(targetCalibVectorList.getAttribute("count").getData().getElemString());
+        final int numSliceLines = Integer.parseInt(sliceCalibVectorList.getAttribute("count").getData().getElemString());
+
+        for (int i = startVectorIdx; i < numSliceLines; i++) {
+
+            MetadataElement v = sliceCalibVectorList.getElementAt(i);
+            MetadataElement newV = v.createDeepClone();
+            final int newLine = Integer.parseInt(v.getAttributeString("line")) + lineOffset;
+            newV.setAttributeString("line", Integer.toString(newLine));
+            targetCalibVectorList.addElementAt(newV, idx);
+            idx++;
+        }
+
+        targetCalibVectorList.setAttributeString("count", Integer.toString(idx));
+    }
+
+    private void updateCalibration() {
+
+        final Product lastSliceProduct = sliceProducts[sliceProducts.length-1];
+
+        // The calibration data in metadata in targetProduct at this point is copied from the 1st slice.
+        // So we need to concatenate the calibration vectors from the slices to target.
+
+        final MetadataElement targetOrigProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
+        final MetadataElement targetCalibration = targetOrigProdRoot.getElement("calibration");
+        final MetadataElement[] targetCalibrationElems = targetCalibration.getElements();
+
+        // loop through each s1...-nnn.xml where nnn is the image number
+        for (MetadataElement target : targetCalibrationElems) {
+
+            boolean isSelected = false;
+            for (String pol : selectedPolarisations) {
+                if (target.getName().toUpperCase().contains(pol)) {
+                    isSelected = true;
+                    break;
+                }
+            }
+
+            if (!isSelected) {
+                //System.out.println("remove calibration for " + target.getName());
+                targetCalibration.removeElement(target);
+                continue;
+            }
+
+            //System.out.println("update calibration for " + target.getName());
+
+            final String imageNum = extractImageNumber(target.getName());
+            final MetadataElement targetCalib = target.getElement("calibration");
+
+            // Update stopTime in adsHeader
+            final MetadataElement targetADSHeader = targetCalib.getElement("adsHeader");
+            final ProductData lastSliceStopTime = getStopTime(lastSliceProduct, imageNum);
+            AbstractMetadata.setAttribute(targetADSHeader, "stopTime", lastSliceStopTime.getElemString());
+
+            // Update calibrationVectorList
+
+            final MetadataElement targetCalibVectorList = targetCalib.getElement("calibrationVectorList");
+
+            int numLines = Integer.parseInt(targetCalibVectorList.getAttribute("count").getData().getElemString());
+            final int[] pixelSpacing = new int[1];
+            int numPixels = getCalibrationPixelCount(targetProduct, imageNum, pixelSpacing);
+            int height = sliceProducts[0].getSceneRasterHeight();
+            //System.out.println("initial numLines = " + numLines + " numPixels = " + numPixels + " height = " + height);
+
+            // Loop through 2nd to last slice products in order and concatenate the calibration vectors from each
+            // slice to the bottom of target
+            for (int i = 1; i < sliceProducts.length; i++) {
+
+                final Product sliceProduct = sliceProducts[i];
+                final int[] slicePixelSpacing = new int[1];
+                final int sliceNumPixels = getCalibrationPixelCount(sliceProduct, imageNum, slicePixelSpacing);
+
+                // TODO
+                /*if (pixelSpacing != slicePixelSpacing) {
+                    throw new OperatorException("slice products have different pixel spacing in calibration vectors");
+                }*/
+
+                final MetadataElement targetLastCalibVector = targetCalibVectorList.getElementAt(targetCalibVectorList.getNumElements()-1);
+                int targetLastCalibVectorLine = Integer.parseInt(targetLastCalibVector.getAttributeString("line"));
+                //System.out.println("targetLastCalibVectorLine = " + targetLastCalibVectorLine + " sliceNumPixels = " + sliceNumPixels);
+
+                final MetadataElement sliceCalibVectorList = getCalibrationVectorList(sliceProduct, imageNum);
+                final int sliceNumLines = Integer.parseInt(sliceCalibVectorList.getAttribute("count").getData().getElemString());
+
+                final int topSliceWidth = sliceProducts[i-1].getSceneRasterWidth();
+                final int bottomSliceWidth = sliceProducts[i].getSceneRasterWidth();
+
+                int numLinesRemoved = 0;
+
+                if (targetLastCalibVectorLine == height-1) {
+
+                    concatenateCalibrationVectors(targetCalibVectorList, sliceCalibVectorList, 0, height);
+
+                } else if (numPixels <= sliceNumPixels && topSliceWidth <= bottomSliceWidth) {
+
+                    // Remove excess calibration vectors from target and keep all calibration vectors from bottom
+                    // slice
+
+                    int j;
+                    for (j = numLines-1; j >= 0; j--) {
+                        MetadataElement targetCalibVector = targetCalibVectorList.getElementAt(j);
+                        final int targetCalibVectorLine = Integer.parseInt(targetCalibVector.getAttributeString("line"));
+                        if (targetCalibVectorLine >= height) {
+                            targetCalibVectorList.removeElement(targetCalibVector);
+                        } else {
+                            break;
+                        }
+                    }
+
+                    numLinesRemoved = numLines - j - 1;
+                    // Must update targetCalibVectorList count before calling concatenateCalibrationVectors()
+                    targetCalibVectorList.setAttributeString("count", Integer.toString(numLines - numLinesRemoved));
+                    concatenateCalibrationVectors(targetCalibVectorList, sliceCalibVectorList, 0, height);
+
+                } else {
+
+                    int j;
+
+                    // Remove excess calibration vectors at the bottom in target metadata.
+                    // "numLines" is thee current number of calibration vectors in the target metadata (with i slices assembled).
+                    // "height" is the height of the image after assembling i slices.
+                    // Say, height is 975 and there are calibration vectors at line 950, 1000, 1050, 1100. We can remove
+                    // those for lines 1050 and 1100. There are slice products with such excess calibration vectors.
+                    // They need to be removed before we concatenate the calibration vectors from the next slice.
+                    for (j = numLines-1; j >= 0; j--) {
+                        MetadataElement targetCalibVector = targetCalibVectorList.getElementAt(j);
+                        final int targetCalibVectorLine = Integer.parseInt(targetCalibVector.getAttributeString("line"));
+                        if (targetCalibVectorLine < height-1) {
+                            // We need one calibration vector whose line is >= height-1 (height-1 is last line of image)
+                            // so the j+1 is the last calibration vector we need to keep
+                            break;
+                        }
+                        targetLastCalibVectorLine = targetCalibVectorLine;
+                    }
+                    // Want to keep j+1 as last calibration vector, start removing at j+2.
+                    for (int k = j+2; k < numLines; k++) {
+                        MetadataElement targetCalibVector = targetCalibVectorList.getElementAt(k);
+                        targetCalibVectorList.removeElement(targetCalibVector);
+                    }
+                    targetCalibVectorList.setAttributeString("count", Integer.toString(j+2));
+                    numLinesRemoved = numLines - (j+2);
+
+                    // Since the slice we are concatenating to target is smaller in width, we want to skip the
+                    // starting calibration vectors whose lines are <= the line of the last target calibration vector.
+                    // "sliceNumLines" is the number of calibration vectors in the slice.
+                    // Note that the line of each slice calibration vector has zero offset, so we have to add "height"
+                    // to it before comparing with target.
+                    for (j = 0; j < sliceNumLines; j++) {
+                        final MetadataElement sliceCalibVector = sliceCalibVectorList.getElementAt(j);
+                        final int sliceCalibVectorLine = Integer.parseInt(sliceCalibVector.getAttributeString("line"));
+                        if (sliceCalibVectorLine + height > targetLastCalibVectorLine) {
+                            // j is the first one we want to keep
+                            break;
+                        }
+                    }
+                    numLinesRemoved += j;
+
+                    concatenateCalibrationVectors(targetCalibVectorList, sliceCalibVectorList, j, height);
+                }
+
+                numLines += (sliceNumLines - numLinesRemoved);
+                targetCalibVectorList.setAttributeString("count", Integer.toString(numLines));
+                numPixels = sliceNumPixels;
+                height += sliceProduct.getSceneRasterHeight();
+            }
+        }
+
+        //System.out.println("DONE updateCalibration");
+    }
+
     private void updateTargetProductMetadata() throws Exception {
 
         // All the metadata has been copied from the 1st slice product to the assembled target product.
@@ -558,6 +863,10 @@ public final class SliceAssemblyOp extends Operator {
         AbstractMetadata.setOrbitStateVectors(absTgt, orbVectorList.toArray(new OrbitStateVector[orbVectorList.size()]));
         AbstractMetadata.setSRGRCoefficients(absTgt, srgrList.toArray(new AbstractMetadata.SRGRCoefficientList[srgrList.size()]));
         AbstractMetadata.setDopplerCentroidCoefficients(absTgt, dopList.toArray(new AbstractMetadata.DopplerCentroidCoefficientList[dopList.size()]));
+
+        updateCalibration();
+
+        //System.out.println("DONE updateTargetProductMetadata");
     }
 
     private void determineBandStartEndTimes() {
