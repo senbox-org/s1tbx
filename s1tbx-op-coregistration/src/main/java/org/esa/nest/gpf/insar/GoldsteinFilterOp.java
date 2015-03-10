@@ -39,7 +39,7 @@ import java.awt.*;
 import java.util.Map;
 
 @OperatorMetadata(alias = "GoldsteinPhaseFiltering",
-        category = "SAR Processing/Interferometric/Tools",
+        category = "SAR Processing/Interferometric/Filtering",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Phase Filtering")
@@ -112,8 +112,6 @@ public class GoldsteinFilterOp extends Operator {
         addSelectedBands();
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
-
-        //targetProduct.setPreferredTileSize(512, 512); // 2^n > 256
     }
 
     /**

@@ -48,7 +48,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "Range-Shift",
-        category = "SAR Processing/SENTINEL-1",
+        category = "SAR Processing/Coregistration/S-1 TOPS Coregistration",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Estimate constant range offset for the whole image")

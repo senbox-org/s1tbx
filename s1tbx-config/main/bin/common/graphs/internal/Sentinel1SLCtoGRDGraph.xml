@@ -7,7 +7,7 @@
       <file></file>
     </parameters>
   </node>
-    <node id="Calibration">
+  <node id="Calibration">
     <operator>Calibration</operator>
     <sources>
       <sourceProduct refid="Read"/>
@@ -20,7 +20,7 @@
       <outputImageScaleInDb>false</outputImageScaleInDb>
       <createGammaBand>false</createGammaBand>
       <createBetaBand>false</createBetaBand>
-      <selectedPolarisations></selectedPolarisations>
+      <selectedPolarisations/>
       <outputSigmaBand>true</outputSigmaBand>
       <outputGammaBand>false</outputGammaBand>
       <outputBetaBand>false</outputBetaBand>
@@ -54,8 +54,8 @@
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <sourceBands/>
-      <nRgLooks>2</nRgLooks>
-      <nAzLooks>2</nAzLooks>
+      <nRgLooks>4</nRgLooks>
+      <nAzLooks>1</nAzLooks>
       <outputIntensity>true</outputIntensity>
       <grSquarePixel>true</grSquarePixel>
       <note>Currently, detection for complex data is performed without any resampling</note>
@@ -88,14 +88,21 @@
       <interpolationMethod>Linear interpolation</interpolationMethod>
     </parameters>
   </node>
-  <node id="Write">
-    <operator>Write</operator>
+  <node id="GRD">
+    <operator>GRD-Post</operator>
     <sources>
       <sourceProduct refid="SRGR"/>
     </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="GRD"/>
+    </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <formatName>BEAM-DIMAP</formatName>
       <file></file>
+      <formatName>BEAM-DIMAP</formatName>
     </parameters>
   </node>
   <applicationData id="Presentation">
@@ -118,11 +125,14 @@
     <node id="Speckle-Filter">
       <displayPosition x="198.0" y="137.0"/>
     </node>
-	<node id="SRGR">
+    <node id="SRGR">
       <displayPosition x="319.0" y="138.0"/>
     </node>
+    <node id="GRD">
+      <displayPosition x="320.0" y="180.0"/>
+    </node>
     <node id="Write">
-      <displayPosition x="424.0" y="138.0"/>
+      <displayPosition x="408.0" y="180.0"/>
     </node>
   </applicationData>
 </graph>

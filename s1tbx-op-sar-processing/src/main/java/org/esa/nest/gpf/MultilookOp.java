@@ -366,6 +366,10 @@ public final class MultilookOp extends Operator {
         double oldFirstLineUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
         double newFirstLineUTC = oldFirstLineUTC + oldLineTimeInterval * ((nAzLooks - 1) / 2.0) / Constants.secondsInDay;
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.first_line_time, new ProductData.UTC(newFirstLineUTC));
+
+        if(outputIntensity) {
+            absRoot.setAttributeString(AbstractMetadata.SAMPLE_TYPE, "DETECTED");
+        }
     }
 
     /**
