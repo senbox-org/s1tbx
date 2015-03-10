@@ -194,20 +194,6 @@ public final class BackGeocodingOp extends Operator {
 				throw new OperatorException("Same sub-swath is expected.");
 			}
 
-            if (mSubSwath[0].numOfBursts != sSubSwath[0].numOfBursts) {
-                throw new OperatorException("Same number of bursts is expected.");
-            }
-
-            final double threshold = 0.01;
-            final int gh = mSubSwath[0].latitude.length;
-            final int gw = mSubSwath[0].latitude[0].length;
-            if (Math.abs(mSubSwath[0].latitude[0][0] - sSubSwath[0].latitude[0][0]) > threshold ||
-                Math.abs(mSubSwath[0].latitude[0][gw - 1] - sSubSwath[0].latitude[0][gw - 1]) > threshold ||
-                Math.abs(mSubSwath[0].latitude[gh - 1][0] - sSubSwath[0].latitude[gh - 1][0]) > threshold ||
-                Math.abs(mSubSwath[0].latitude[gh - 1][gw - 1] - sSubSwath[0].latitude[gh - 1][gw - 1]) > threshold) {
-                throw new OperatorException("Sub-swaths with the same geo locations are expected.");
-            }
-
 			subSwathName = mSubSwathNames[0];
 			subSwathIndex = 1; // subSwathIndex is always 1 because of split product
             swathIndexStr = mSubSwathNames[0].substring(2);
