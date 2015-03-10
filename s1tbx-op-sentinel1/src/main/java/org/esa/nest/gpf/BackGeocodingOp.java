@@ -125,6 +125,8 @@ public final class BackGeocodingOp extends Operator {
     private double noDataValue = 0.0;
     
 	private int subSwathIndex = 0;
+    private int burstOffset = 0;
+    private boolean burstOffsetComputed = false;
     private String swathIndexStr = null;
     private String subSwathName = null;
     private String polarization = null;
@@ -193,20 +195,6 @@ public final class BackGeocodingOp extends Operator {
 			if (!mSubSwathNames[0].equals(sSubSwathNames[0])) {
 				throw new OperatorException("Same sub-swath is expected.");
 			}
-
-            if (mSubSwath[0].numOfBursts != sSubSwath[0].numOfBursts) {
-                throw new OperatorException("Same number of bursts is expected.");
-            }
-
-            final double threshold = 0.01;
-            final int gh = mSubSwath[0].latitude.length;
-            final int gw = mSubSwath[0].latitude[0].length;
-            if (Math.abs(mSubSwath[0].latitude[0][0] - sSubSwath[0].latitude[0][0]) > threshold ||
-                Math.abs(mSubSwath[0].latitude[0][gw - 1] - sSubSwath[0].latitude[0][gw - 1]) > threshold ||
-                Math.abs(mSubSwath[0].latitude[gh - 1][0] - sSubSwath[0].latitude[gh - 1][0]) > threshold ||
-                Math.abs(mSubSwath[0].latitude[gh - 1][gw - 1] - sSubSwath[0].latitude[gh - 1][gw - 1]) > threshold) {
-                throw new OperatorException("Sub-swaths with the same geo locations are expected.");
-            }
 
 			subSwathName = mSubSwathNames[0];
 			subSwathIndex = 1; // subSwathIndex is always 1 because of split product
@@ -463,6 +451,10 @@ public final class BackGeocodingOp extends Operator {
                 getElevationModel();
             }
 
+            if (!burstOffsetComputed) {
+                computeBurstOffset();
+            }
+
             for (int burstIndex = 0; burstIndex < mSubSwath[subSwathIndex - 1].numOfBursts; burstIndex++) {
                 final int firstLineIdx = burstIndex*mSubSwath[subSwathIndex - 1].linesPerBurst;
                 final int lastLineIdx = firstLineIdx + mSubSwath[subSwathIndex - 1].linesPerBurst - 1;
@@ -521,6 +513,78 @@ public final class BackGeocodingOp extends Operator {
             t.printStackTrace();
         }
         isElevationModelAvailable = true;
+    }
+
+    private synchronized void computeBurstOffset() throws Exception {
+
+        if (burstOffsetComputed) return;
+        try {
+            final int h = mSubSwath[subSwathIndex - 1].latitude.length;
+            final int w = mSubSwath[subSwathIndex - 1].latitude[0].length;
+            double[] earthPoint = new double[3];
+            for (int i = 0; i < h; i++) {
+                for (int j = 0; j < w; j++) {
+                    final double lat = mSubSwath[subSwathIndex - 1].latitude[i][j];
+                    final double lon = mSubSwath[subSwathIndex - 1].longitude[i][j];
+                    final double alt = dem.getElevation(new GeoPos(lat, lon));
+                    if (alt == demNoDataValue) {
+                        continue;
+                    }
+                    GeoUtils.geo2xyzWGS84(lat, lon, alt, earthPoint);
+                    final int[] mBurstIndices = getBurstIndices(subSwathIndex, mSU, mOrbit, earthPoint);
+                    final int[] sBurstIndices = getBurstIndices(subSwathIndex, sSU, sOrbit, earthPoint);
+                    if (mBurstIndices != null && sBurstIndices != null) {
+                        if (mBurstIndices[1] != -1 && sBurstIndices[1] != -1) {
+                            burstOffset = sBurstIndices[0] - mBurstIndices[0];
+                        } else if (mBurstIndices[1] == -1 && sBurstIndices[1] != -1) {
+                            burstOffset = sBurstIndices[1] - mBurstIndices[0];
+                        } else if (mBurstIndices[1] != -1 && sBurstIndices[1] == -1) {
+                            burstOffset = sBurstIndices[0] - mBurstIndices[1];
+                        }
+                        burstOffsetComputed = true;
+                        return;
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
+    private int[] getBurstIndices(final int subSwathIndex, final Sentinel1Utils su,
+                                  final SARGeocoding.Orbit orbit, final double[] earthPoint) {
+
+        try {
+            Sentinel1Utils.SubSwathInfo subSwath = su.getSubSwath()[subSwathIndex - 1];
+
+            final double zeroDopplerTimeInDays = SARGeocoding.getZeroDopplerTime(
+                    su.firstLineUTC, su.lineTimeInterval, su.wavelength, earthPoint, orbit);
+
+            if (zeroDopplerTimeInDays == SARGeocoding.NonValidZeroDopplerTime) {
+                return null;
+            }
+
+            final double zeroDopplerTime = zeroDopplerTimeInDays * Constants.secondsInDay;
+
+            int[] burstIndices = {-1, -1};
+            int k = 0;
+            for (int i = 0; i < subSwath.numOfBursts; i++) {
+                if (zeroDopplerTime >= subSwath.burstFirstLineTime[i] && zeroDopplerTime < subSwath.burstLastLineTime[i]) {
+                    if (k == 0) {
+                        burstIndices[0] = i;
+                    } else {
+                        burstIndices[1] = i;
+                        break;
+                    }
+                    ++k;
+                }
+            }
+            return burstIndices;
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException("getBurstIndices", e);
+        }
+        return null;
     }
 
     private void computeTileOverlapPercentage(final int x0, final int y0, final int w, final int h,
@@ -591,32 +655,37 @@ public final class BackGeocodingOp extends Operator {
         }
     }
 
-    private void computePartialTile(final int subSwathIndex, final int burstIndex,
+    private void computePartialTile(final int subSwathIndex, final int mBurstIndex,
                                     final int x0, final int y0, final int w, final int h,
                                     final Map<Band, Tile> targetTileMap,
                                     final double[] tileOverlapPercentage,
                                     ProgressMonitor pm)
             throws Exception {
 
+        final int sBurstIndex = mBurstIndex + burstOffset;
+        if (sBurstIndex >= sSubSwath[subSwathIndex - 1].numOfBursts) {
+            return;
+        }
+
         final PixelPos[][] slavePixPos = computeSlavePixPos(
-                subSwathIndex, burstIndex, x0, y0, w, h, tileOverlapPercentage, pm);
+                subSwathIndex, mBurstIndex, sBurstIndex, x0, y0, w, h, tileOverlapPercentage, pm);
 
         if (slavePixPos == null) {
             return;
         }
 
         if (outputRangeAzimuthOffset) {
-            outputRangeAzimuthOffsets(x0, y0, w, h, targetTileMap, slavePixPos, subSwathIndex, burstIndex);
+            outputRangeAzimuthOffsets(x0, y0, w, h, targetTileMap, slavePixPos, subSwathIndex, mBurstIndex, sBurstIndex);
         }
 
         final int margin = selectedResampling.getKernelSize();
-        final Rectangle sourceRectangle = getBoundingBox(slavePixPos, margin, subSwathIndex, burstIndex);
+        final Rectangle sourceRectangle = getBoundingBox(slavePixPos, margin, subSwathIndex, sBurstIndex);
 
         if (sourceRectangle == null) {
             return;
         }
 
-        final double[][] derampDemodPhase = computeDerampDemodPhase(subSwathIndex, burstIndex, sourceRectangle);
+        final double[][] derampDemodPhase = computeDerampDemodPhase(subSwathIndex, sBurstIndex, sourceRectangle);
 
         if (derampDemodPhase == null) {
             return;
@@ -637,10 +706,10 @@ public final class BackGeocodingOp extends Operator {
         performDerampDemod(slaveTileI, slaveTileQ, sourceRectangle, derampDemodPhase, derampDemodI, derampDemodQ);
 
         performInterpolation(x0, y0, w, h, sourceRectangle, slaveTileI, slaveTileQ, targetTileMap, derampDemodPhase,
-                derampDemodI, derampDemodQ, slavePixPos, subSwathIndex, burstIndex);
+                derampDemodI, derampDemodQ, slavePixPos, subSwathIndex, sBurstIndex);
     }
 
-    private PixelPos[][] computeSlavePixPos(final int subSwathIndex, final int burstIndex,
+    private PixelPos[][] computeSlavePixPos(final int subSwathIndex, final int mBurstIndex, final int sBurstIndex,
                                             final int x0, final int y0, final int w, final int h,
                                             final double[] tileOverlapPercentage, ProgressMonitor pm)
             throws Exception {
@@ -693,11 +762,11 @@ public final class BackGeocodingOp extends Operator {
 
                     if (alt != demNoDataValue) {
                         GeoUtils.geo2xyzWGS84(gp.lat, gp.lon, alt, posData.earthPoint);
-                        if(getPosition(subSwathIndex, burstIndex, mSU, mOrbit, posData)) {
+                        if(getPosition(subSwathIndex, mBurstIndex, mSU, mOrbit, posData)) {
 
                             masterAz[l][p] = posData.azimuthIndex;
                             masterRg[l][p] = posData.rangeIndex;
-                            if (getPosition(subSwathIndex, burstIndex, sSU, sOrbit, posData)) {
+                            if (getPosition(subSwathIndex, sBurstIndex, sSU, sOrbit, posData)) {
 
                                 slaveAz[l][p] = posData.azimuthIndex;
                                 slaveRg[l][p] = posData.rangeIndex;
@@ -848,9 +917,9 @@ public final class BackGeocodingOp extends Operator {
     }
 
     private Rectangle getBoundingBox(
-            final PixelPos[][] slavePixPos, final int margin, final int subSwathIndex, final int burstIndex) {
+            final PixelPos[][] slavePixPos, final int margin, final int subSwathIndex, final int sBurstIndex) {
 
-        final int firstLineIndex = burstIndex*sSubSwath[subSwathIndex - 1].linesPerBurst;
+        final int firstLineIndex = sBurstIndex*sSubSwath[subSwathIndex - 1].linesPerBurst;
         final int lastLineIndex = firstLineIndex + sSubSwath[subSwathIndex - 1].linesPerBurst - 1;
         final int firstPixelIndex = 0;
         final int lastPixelIndex = sSubSwath[subSwathIndex - 1].samplesPerBurst - 1;
@@ -897,12 +966,12 @@ public final class BackGeocodingOp extends Operator {
     /**
      * Compute combined deramp and demodulation phase for area in slave image defined by rectangle.
      * @param subSwathIndex Sub-swath index
-     * @param burstIndex Burst index
+     * @param sBurstIndex Burst index
      * @param rectangle Rectangle that defines the area in slave image
      * @return The combined deramp and demodulation phase
      */
     private double[][] computeDerampDemodPhase(
-            final int subSwathIndex, final int burstIndex, final Rectangle rectangle) {
+            final int subSwathIndex, final int sBurstIndex, final Rectangle rectangle) {
 
         try {
             final int x0 = rectangle.x;
@@ -914,15 +983,15 @@ public final class BackGeocodingOp extends Operator {
             final int s = subSwathIndex - 1;
 
             final double[][] phase = new double[h][w];
-            final int firstLineInBurst = burstIndex*sSubSwath[s].linesPerBurst;
+            final int firstLineInBurst = sBurstIndex*sSubSwath[s].linesPerBurst;
             for (int y = y0; y < yMax; y++) {
                 final int yy = y - y0;
                 final double ta = (y - firstLineInBurst)*sSubSwath[s].azimuthTimeInterval;
                 for (int x = x0; x < xMax; x++) {
                     final int xx = x - x0;
-                    final double kt = sSubSwath[s].dopplerRate[burstIndex][x];
-                    final double deramp = -Constants.PI * kt * FastMath.pow(ta - sSubSwath[s].referenceTime[burstIndex][x], 2);
-                    final double demod = -Constants.TWO_PI * sSubSwath[s].dopplerCentroid[burstIndex][x] * ta;
+                    final double kt = sSubSwath[s].dopplerRate[sBurstIndex][x];
+                    final double deramp = -Constants.PI * kt * FastMath.pow(ta - sSubSwath[s].referenceTime[sBurstIndex][x], 2);
+                    final double demod = -Constants.TWO_PI * sSubSwath[s].dopplerCentroid[sBurstIndex][x] * ta;
                     phase[yy][xx] = deramp + demod;
                 }
             }
@@ -972,7 +1041,7 @@ public final class BackGeocodingOp extends Operator {
                                       final Rectangle sourceRectangle, final Tile slaveTileI, final Tile slaveTileQ,
                                       final Map<Band, Tile> targetTileMap, final double[][] derampDemodPhase,
                                       final double[][] derampDemodI, final double[][] derampDemodQ,
-                                      final PixelPos[][] slavePixPos, final int subswathIndex, final int burstIndex) {
+                                      final PixelPos[][] slavePixPos, final int subswathIndex, final int sBurstIndex) {
 
         try {
             final ResamplingRaster resamplingRasterI = new ResamplingRaster(slaveTileI, derampDemodI);
@@ -1030,7 +1099,7 @@ public final class BackGeocodingOp extends Operator {
                         continue;
                     }
 
-                    if (isSlavePixPosValid(slavePixelPos, subswathIndex, burstIndex)) {
+                    if (isSlavePixPosValid(slavePixelPos, subswathIndex, sBurstIndex)) {
 
                         selectedResampling.computeIndex(
                                 slavePixelPos.x - sourceRectangle.x, slavePixelPos.y - sourceRectangle.y,
@@ -1085,15 +1154,15 @@ public final class BackGeocodingOp extends Operator {
         return null;
     }
 
-    private boolean isSlavePixPosValid(final PixelPos slavePixPos, final int subswathIndex, final int burstIndex) {
+    private boolean isSlavePixPosValid(final PixelPos slavePixPos, final int subswathIndex, final int sBurstIndex) {
         return (slavePixPos != null &&
-                slavePixPos.y >= sSubSwath[subswathIndex - 1].linesPerBurst*burstIndex &&
-                slavePixPos.y < sSubSwath[subswathIndex - 1].linesPerBurst*(burstIndex+1));
+                slavePixPos.y >= sSubSwath[subswathIndex - 1].linesPerBurst*sBurstIndex &&
+                slavePixPos.y < sSubSwath[subswathIndex - 1].linesPerBurst*(sBurstIndex+1));
     }
 
     private void outputRangeAzimuthOffsets(final int x0, final int y0, final int w, final int h,
                                            final Map<Band, Tile> targetTileMap, final PixelPos[][] slavePixPos,
-                                           final int subSwathIndex, final int burstIndex) {
+                                           final int subSwathIndex, final int mBurstIndex, final int sBurstIndex) {
 
         try {
             final Band azOffsetBand = targetProduct.getBand("azOffset");
@@ -1124,13 +1193,13 @@ public final class BackGeocodingOp extends Operator {
                         tgtBufferRgOffset.setElemFloatAt(tgtIdx, (float) noDataValue);
                     } else {
 
-                        final double mta = mSubSwath.burstFirstLineTime[burstIndex] +
-                                (y - burstIndex*mSubSwath.linesPerBurst)*mSubSwath.azimuthTimeInterval;
+                        final double mta = mSubSwath.burstFirstLineTime[mBurstIndex] +
+                                (y - mBurstIndex*mSubSwath.linesPerBurst)*mSubSwath.azimuthTimeInterval;
 
                         final double mY = (mta - mSubSwath.burstFirstLineTime[0]) / mSubSwath.azimuthTimeInterval;
 
-                        final double sta = sSubSwath.burstFirstLineTime[burstIndex] +
-                                (slavePixPos[yy][xx].y - burstIndex*sSubSwath.linesPerBurst)*sSubSwath.azimuthTimeInterval;
+                        final double sta = sSubSwath.burstFirstLineTime[sBurstIndex] +
+                                (slavePixPos[yy][xx].y - sBurstIndex*sSubSwath.linesPerBurst)*sSubSwath.azimuthTimeInterval;
 
                         final double sY = (sta - sSubSwath.burstFirstLineTime[0]) / sSubSwath.azimuthTimeInterval;
 
