@@ -20,6 +20,7 @@ import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -57,7 +58,7 @@ public class SpeckleFilterOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
-    @Parameter(valueSet = {MEAN_SPECKLE_FILTER, MEDIAN_SPECKLE_FILTER, FROST_SPECKLE_FILTER,
+    @Parameter(valueSet = {NONE, MEAN_SPECKLE_FILTER, MEDIAN_SPECKLE_FILTER, FROST_SPECKLE_FILTER,
             GAMMA_MAP_SPECKLE_FILTER, LEE_SPECKLE_FILTER, LEE_REFINED_FILTER}, defaultValue = LEE_REFINED_FILTER,
             label = "Filter")
     private String filter;
@@ -83,6 +84,7 @@ public class SpeckleFilterOp extends Operator {
             label = "Number of looks")
     private double enl = 1.0;
 
+    static final String NONE = "None";
     static final String MEAN_SPECKLE_FILTER = "Mean";
     static final String MEDIAN_SPECKLE_FILTER = "Median";
     static final String FROST_SPECKLE_FILTER = "Frost";
@@ -170,8 +172,26 @@ public class SpeckleFilterOp extends Operator {
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        OperatorUtils.addSelectedBands(
-                sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, true, true);
+        if(filter.equals(NONE)) {
+            final Band[] selectedBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
+            for (Band srcBand : selectedBands) {
+                if (srcBand instanceof VirtualBand) {
+                    final VirtualBand sourceBand = (VirtualBand) srcBand;
+                    final VirtualBand targetBand = new VirtualBand(sourceBand.getName(),
+                            sourceBand.getDataType(),
+                            sourceBand.getRasterWidth(),
+                            sourceBand.getRasterHeight(),
+                            sourceBand.getExpression());
+                    ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
+                    targetProduct.addBand(targetBand);
+                } else {
+                    ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+                }
+            }
+        } else {
+            OperatorUtils.addSelectedBands(
+                    sourceProduct, sourceBandNames, targetProduct, targetBandNameToSourceBandName, true, true);
+        }
     }
 
     /**
