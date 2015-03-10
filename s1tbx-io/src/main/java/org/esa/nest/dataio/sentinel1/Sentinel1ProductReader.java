@@ -209,6 +209,9 @@ public class Sentinel1ProductReader extends SARReader {
                                          int sourceOffsetX, int sourceOffsetY, int sourceStepX, int sourceStepY,
                                          final Rectangle destRect) throws IOException {
         final ImageReadParam readParam = imageReader.getDefaultReadParam();
+        if(sourceStepX == 1 && sourceStepY == 1) {
+            readParam.setSourceRegion(destRect);
+        }
         readParam.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
         final RenderedImage subsampledImage = imageReader.readAsRenderedImage(0, readParam);
 
