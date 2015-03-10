@@ -13,6 +13,9 @@ import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileGeoreferencing;
 import org.esa.snap.util.Maths;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Common SAR utilities for Geocoding
  */
@@ -870,8 +873,20 @@ public class SARGeocoding {
         public Orbit(OrbitStateVector[] orbitStateVectors,
                      double firstLineUTC, double lineTimeInterval, int sourceImageHeight) {
 
-            this.orbitStateVectors = new OrbitStateVector[orbitStateVectors.length];
-            System.arraycopy(orbitStateVectors, 0, this.orbitStateVectors, 0, orbitStateVectors.length);
+            final List<OrbitStateVector> vectorList = new ArrayList<>();
+            double currentTime = 0.0;
+            for (int i = 0; i < orbitStateVectors.length; i++) {
+                if (i == 0) {
+                    currentTime = orbitStateVectors[i].time_mjd;
+                    vectorList.add(orbitStateVectors[i]);
+                } else if (orbitStateVectors[i].time_mjd > currentTime) {
+                    currentTime = orbitStateVectors[i].time_mjd;
+                    vectorList.add(orbitStateVectors[i]);
+                }
+            }
+            this.orbitStateVectors = vectorList.toArray(new OrbitStateVector[vectorList.size()]);
+            //this.orbitStateVectors = new OrbitStateVector[orbitStateVectors.length];
+            //System.arraycopy(orbitStateVectors, 0, this.orbitStateVectors, 0, orbitStateVectors.length);
 
             this.sensorPosition = new double[sourceImageHeight][3];
             this.sensorVelocity = new double[sourceImageHeight][3];
