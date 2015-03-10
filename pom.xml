@@ -184,7 +184,7 @@
             </dependency>
 
             <dependency>
-                <groupId>com.esa.snap</groupId>
+                <groupId>org.esa.snap</groupId>
                 <artifactId>ceres-core</artifactId>
                 <version>${snap.version}</version>
             </dependency>
@@ -579,7 +579,25 @@
 			<dependency>
 				<groupId>it.geosolutions.imageio-ext</groupId>
 				<artifactId>imageio-ext-tiff</artifactId>
-				<version>1.1.9</version>
+				<version>1.2-SENTBX</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_codec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.media</groupId>
+                        <artifactId>jai_imageio</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                </exclusions>
 			</dependency>
 			
             <!-- JAI Libraries ############################################# -->

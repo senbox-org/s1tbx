@@ -103,7 +103,7 @@
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>CoregistrationGroup</parent>
-            <placeAfter>InSARCoregistrationGraph</placeAfter>
+            <placeAfter>TOPSCoregistrationGroup</placeAfter>
             <text>Automatic Coregistration</text>
             <shortDescr>Perform Automatic Coregistration</shortDescr>
             <dialogTitle>Automatic Coregistration</dialogTitle>
@@ -132,7 +132,7 @@
             <dialogTitle>Principal Component Analysis</dialogTitle>
             <targetProductNameSuffix>_pca</targetProductNameSuffix>
             <shortDescr>Principal Component Analysis</shortDescr>
-            <parent>PrimitiveFeatureGroup</parent>
+            <parent>processing.imageAnalysis</parent>
             <helpId>PCA</helpId>
         </action>
 
@@ -173,7 +173,7 @@
             <id>GoldsteinPhaseFiltering</id>
             <helpId>GoldsteinFilterOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
-            <parent>insar_tools</parent>
+            <parent>insar_filters</parent>
             <text>Goldstein Phase Filtering</text>
             <operatorName>GoldsteinPhaseFiltering</operatorName>
             <dialogTitle>Goldstein Phase Filtering</dialogTitle>

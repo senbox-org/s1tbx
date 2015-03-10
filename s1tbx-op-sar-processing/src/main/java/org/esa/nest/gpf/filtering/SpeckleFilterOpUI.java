@@ -38,7 +38,8 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
 
-    private final JComboBox filter = new JComboBox(new String[]{SpeckleFilterOp.MEAN_SPECKLE_FILTER,
+    private final JComboBox filter = new JComboBox(new String[]{SpeckleFilterOp.NONE,
+            SpeckleFilterOp.MEAN_SPECKLE_FILTER,
             SpeckleFilterOp.MEDIAN_SPECKLE_FILTER,
             SpeckleFilterOp.FROST_SPECKLE_FILTER,
             SpeckleFilterOp.GAMMA_MAP_SPECKLE_FILTER,
@@ -166,6 +167,7 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
 
     private void updateFilterSelection() {
         final String item = (String) filter.getSelectedItem();
+
         if (item.equals(SpeckleFilterOp.FROST_SPECKLE_FILTER)) {
             DialogUtils.enableComponents(dampingFactorLabel, dampingFactor, true);
         } else {
@@ -191,6 +193,11 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         } else {
             DialogUtils.enableComponents(estimateENLCheckBoxLabel, estimateENLCheckBox, false);
             DialogUtils.enableComponents(enlLabel, enl, false);
+        }
+
+        if(item.equals(SpeckleFilterOp.NONE)) {
+            DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, false);
+            DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, false);
         }
     }
 }

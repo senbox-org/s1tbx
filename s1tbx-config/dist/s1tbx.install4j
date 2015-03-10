@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="6.0" transformSequenceNumber="5">
-  <directoryPresets config="../../../package/s1tbx-bin-mac" />
-  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="s1tbx" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="1.0.7" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" macVolumeId="9979cf145cd6c9cb" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
+<install4j version="6.0.1" transformSequenceNumber="5">
+  <directoryPresets config="../main/bin/common/resource/images" />
+  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="s1tbx" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="1.0.8" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" macVolumeId="9979cf145cd6c9cb" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -360,10 +360,15 @@
         <content />
       </infoPlist>
       <iconImageFiles>
+        <file path="../main/bin/common/resource/images/s1_16x.png" />
+        <file path="../main/bin/common/resource/images/s1_24x.png" />
+        <file path="../main/bin/common/resource/images/s1_32x.png" />
+        <file path="../main/bin/common/resource/images/s1_48x.png" />
         <file path="../main/bin/common/resource/images/s1_64x.png" />
+        <file path="../main/bin/common/resource/images/s1_128x.png" />
       </iconImageFiles>
     </launcher>
-    <launcher name="s1tbx_mac" id="5638" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="S1 Toolbox" icnsFile="../main/bin/macosx/snap-s1.icns" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="5496" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="" useCustomMacosExecutableName="false" customMacosExecutableName="">
+    <launcher name="s1tbx_mac" id="5638" customizedId="" external="false" excludeFromMenu="false" unixMode="755" menuName="S1 Toolbox" icnsFile="" customMacBundleIdentifier="false" macBundleIdentifier="" swtApp="false" fileset="5496" macBundleBinary="JavaApplicationStub" addMacEntitlements="false" macEntitlementsFile="" useCustomMacosExecutableName="false" customMacosExecutableName="">
       <executable name="s1tbx" type="1" iconSet="true" iconFile="" executableDir="" redirectStderr="true" stderrFile="error.log" stderrMode="overwrite" redirectStdout="true" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory="/Applications/S1TBX.app/Contents/java/app" singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false" singleInstanceActivate="true" dpiAware="false">
         <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" productName="" />
       </executable>
@@ -397,7 +402,11 @@
         <content />
       </infoPlist>
       <iconImageFiles>
-        <file path="../main/bin/common/resource/images/s1_64x.png" />
+        <file path="../main/bin/common/resource/images/s1_16x.png" />
+        <file path="../main/bin/common/resource/images/s1_24x.png" />
+        <file path="../main/bin/common/resource/images/s1_32x.png" />
+        <file path="../main/bin/common/resource/images/s1_48x.png" />
+        <file path="../main/bin/common/resource/images/s1_128x.png" />
       </iconImageFiles>
     </launcher>
   </launchers>
@@ -415,13 +424,13 @@
             <object class="com.install4j.runtime.beans.applications.InstallerApplication" id="InstallerApplication0">
               <void property="customHeaderImage">
                 <object class="com.install4j.api.beans.ExternalFile">
-                  <string>../main/bin/common/resource/images/s1_64x.png</string>
+                  <string>../main/bin/common/resource/images/s1_48x.png</string>
                 </object>
               </void>
               <void property="customIconImageFiles">
                 <void method="add">
                   <object class="com.install4j.api.beans.ExternalFile">
-                    <string>../main/bin/common/resource/images/s1_64x.png</string>
+                    <string>../main/bin/common/resource/images/s1_48x.png</string>
                   </object>
                 </void>
               </void>
@@ -1066,6 +1075,11 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                       <void property="launcherId">
                         <string>19</string>
                       </void>
+                      <void property="macIconFile">
+                        <object class="com.install4j.api.beans.ExternalFile">
+                          <string>../main/bin/macosx/snap-s1.icns</string>
+                        </object>
+                      </void>
                       <void property="windowsIconFile">
                         <object class="com.install4j.api.beans.ExternalFile">
                           <string>../main/bin/common/resource/images/s1_64x.png</string>
@@ -1088,6 +1102,11 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                       </void>
                       <void property="launcherId">
                         <string>19</string>
+                      </void>
+                      <void property="macIconFile">
+                        <object class="com.install4j.api.beans.ExternalFile">
+                          <string>../main/bin/macosx/snap-s1.icns</string>
+                        </object>
                       </void>
                       <void property="windowsIconFile">
                         <object class="com.install4j.api.beans.ExternalFile">
@@ -1112,6 +1131,11 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                       <void property="launcherId">
                         <string>19</string>
                       </void>
+                      <void property="macIconFile">
+                        <object class="com.install4j.api.beans.ExternalFile">
+                          <string>../main/bin/macosx/snap-s1.icns</string>
+                        </object>
+                      </void>
                       <void property="windowsIconFile">
                         <object class="com.install4j.api.beans.ExternalFile">
                           <string>../main/bin/common/resource/images/s1_64x.png</string>
@@ -1135,6 +1159,11 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                       <void property="launcherId">
                         <string>19</string>
                       </void>
+                      <void property="macIconFile">
+                        <object class="com.install4j.api.beans.ExternalFile">
+                          <string>../main/bin/macosx/snap-s1.icns</string>
+                        </object>
+                      </void>
                       <void property="windowsIconFile">
                         <object class="com.install4j.api.beans.ExternalFile">
                           <string>../main/bin/common/resource/images/s1_64x.png</string>
@@ -1157,6 +1186,11 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                       </void>
                       <void property="launcherId">
                         <string>19</string>
+                      </void>
+                      <void property="macIconFile">
+                        <object class="com.install4j.api.beans.ExternalFile">
+                          <string>../main/bin/macosx/snap-s1.icns</string>
+                        </object>
                       </void>
                       <void property="windowsIconFile">
                         <object class="com.install4j.api.beans.ExternalFile">
@@ -1272,7 +1306,7 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
             <object class="com.install4j.runtime.beans.applications.UninstallerApplication">
               <void property="customHeaderImage">
                 <object class="com.install4j.api.beans.ExternalFile">
-                  <string>../main/bin/common/resource/images/s1_64x.png</string>
+                  <string>../main/bin/common/resource/images/s1_48x.png</string>
                 </object>
               </void>
               <void property="customMacosExecutableName">
@@ -2378,9 +2412,6 @@ if (wizardContext != null) {
   </mediaSets>
   <buildIds buildAll="false">
     <mediaSet refId="4707" />
-    <mediaSet refId="20" />
-    <mediaSet refId="4500" />
-    <mediaSet refId="5413" />
   </buildIds>
-  <buildOptions verbose="false" faster="false" disableSigning="false" disableJreBundling="false" debug="false" />
+  <buildOptions verbose="false" faster="true" disableSigning="false" disableJreBundling="false" debug="false" />
 </install4j>

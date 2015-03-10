@@ -156,8 +156,8 @@ public class Sentinel1ProductReader extends SARReader {
         int length;
         int[] srcArray;
 
-        final Rectangle rect = new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight);
-        final DataCache.DataKey datakey = new DataCache.DataKey(bandInfo.img, rect);
+        final Rectangle destRect = new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight);
+        final DataCache.DataKey datakey = new DataCache.DataKey(bandInfo.img, destRect);
         final DataCache.Data cachedData = cache.get(datakey);
         if (cachedData != null && cachedData.valid) {
             srcArray = cachedData.intArray;
@@ -165,7 +165,7 @@ public class Sentinel1ProductReader extends SARReader {
         } else {
             final Raster data = readRect(bandInfo.img.getReader(),
                                          sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
-                                         destOffsetX, destOffsetY, destWidth, destHeight);
+                                         destRect);
 
             final SampleModel sampleModel = data.getSampleModel();
             destWidth = Math.min(destWidth, sampleModel.getWidth());
@@ -207,11 +207,14 @@ public class Sentinel1ProductReader extends SARReader {
 
     private synchronized Raster readRect(final ImageReader imageReader,
                                          int sourceOffsetX, int sourceOffsetY, int sourceStepX, int sourceStepY,
-                                         int destOffsetX, int destOffsetY, int destWidth, int destHeight) throws IOException {
+                                         final Rectangle destRect) throws IOException {
         final ImageReadParam readParam = imageReader.getDefaultReadParam();
+        if(sourceStepX == 1 && sourceStepY == 1) {
+            readParam.setSourceRegion(destRect);
+        }
         readParam.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
         final RenderedImage subsampledImage = imageReader.readAsRenderedImage(0, readParam);
 
-        return subsampledImage.getData(new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight));
+        return subsampledImage.getData(destRect);
     }
 }

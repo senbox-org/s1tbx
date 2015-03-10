@@ -97,13 +97,13 @@
             <targetProductNameSuffix>_msk</targetProductNameSuffix>
         </action>
 
-        <action>
+        <!--action>
             <id>PrimitiveFeatureGroup</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Primitive Features</text>
             <parent>processing.imageAnalysis</parent>
             <placeAfter>Masks</placeAfter>
-        </action>
+        </action-->
 
         <!--action>
             <id>FeatureExtractionGroup</id>
@@ -118,7 +118,7 @@
             <helpId>SpeckleDivergence</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>PrimitiveFeatureGroup</parent>
+            <parent>processing.imageAnalysis</parent>
             <text>Speckle Divergence</text>
             <shortDescr>Speckle Divergence</shortDescr>
             <operatorName>Speckle-Divergence</operatorName>

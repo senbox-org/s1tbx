@@ -20,9 +20,9 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.visat.VisatApp;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.DownloadableArchive;
 import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.util.Settings;
-import org.esa.snap.util.ZipUtils;
 import org.esa.snap.util.ftpUtils;
 
 import java.io.File;
@@ -41,34 +41,15 @@ public class PrareOrbitFile extends BaseOrbitFile {
     public static final String PRARE_PRECISE = "PRARE Precise";
 
     private PrareOrbitReader prareReader = null;
+    private final Product sourceProduct;
 
     public PrareOrbitFile(final String orbitType, final MetadataElement absRoot,
                           final Product sourceProduct) throws Exception {
         super(orbitType, absRoot);
-
-        init(sourceProduct);
+        this.sourceProduct = sourceProduct;
     }
 
-    /**
-     * Get orbit information for given time.
-     *
-     * @param utc The UTC in days.
-     * @return The orbit information.
-     * @throws Exception The exceptions.
-     */
-    public Orbits.OrbitVector getOrbitData(final double utc) throws Exception {
-
-        return prareReader.getOrbitVector(utc);
-    }
-
-    /**
-     * Get PRARE orbit file.
-     *
-     * @param sourceProduct the input product
-     * @throws java.io.IOException The exceptions.
-     */
-    private void init(final Product sourceProduct) throws Exception {
-
+    public File retrieveOrbitFile() throws Exception {
         prareReader = PrareOrbitReader.getInstance();
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
 
@@ -120,6 +101,20 @@ public class PrareOrbitFile extends BaseOrbitFile {
 
         // read orbit data records in each orbit file
         prareReader.readOrbitData(orbitFile);
+
+        return orbitFile;
+    }
+
+    /**
+     * Get orbit information for given time.
+     *
+     * @param utc The UTC in days.
+     * @return The orbit information.
+     * @throws Exception The exceptions.
+     */
+    public Orbits.OrbitVector getOrbitData(final double utc) throws Exception {
+
+        return prareReader.getOrbitVector(utc);
     }
 
     private void getRemoteFiles(final File localFolder, final String remoteHTTPFolder, final int year) throws Exception {
@@ -128,10 +123,7 @@ public class PrareOrbitFile extends BaseOrbitFile {
         final File localFile = new File(localFolder, year+".zip");
 
         final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
-        final File archiveFile = (File)archive.getContentFile();
-
-        ZipUtils.unzipToFolder(archiveFile, localFolder);
-        archiveFile.delete();
+        archive.getContentFiles();
     }
 
     private static String getPrefix(int year, int month) {

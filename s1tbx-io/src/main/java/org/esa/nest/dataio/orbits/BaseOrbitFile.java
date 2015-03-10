@@ -42,6 +42,8 @@ public abstract class BaseOrbitFile implements OrbitFile {
         this.absRoot = absRoot;
     }
 
+    public abstract File retrieveOrbitFile() throws Exception;
+
     public abstract Orbits.OrbitVector getOrbitData(final double utc) throws Exception;
 
     public File getOrbitFile() {
