@@ -126,6 +126,9 @@ public final class TerrainFlatteningOp extends Operator {
     private Band[] targetBands = null;
     protected final HashMap<Band, Band> targetBandToSourceBandMap = new HashMap<>(2);
     private boolean nearRangeOnLeft = true;
+    private boolean skipBistaticCorrection = false;
+
+    enum UnitType {AMPLITUDE,INTENSITY,COMPLEX,RATIO}
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -214,6 +217,10 @@ public final class TerrainFlatteningOp extends Operator {
         if (mission.equals("RS2") && pass.contains("DESCENDING")) {
             nearRangeOnLeft = false;
         }
+
+        if (mission.contains("CSKS") || mission.contains("TSX") || mission.equals("RS2") || mission.contains("SENTINEL")) {
+            skipBistaticCorrection = true;
+        }
     }
 
     /**
@@ -286,15 +293,16 @@ public final class TerrainFlatteningOp extends Operator {
      */
     private void addSelectedBands() {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, true);
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
         String tgtBandName;
         String tgtUnit;
         for (final Band srcBand : sourceBands) {
             final String srcBandName = srcBand.getName();
-            if (!srcBandName.contains("Beta")) {
-                throw new OperatorException("Please select beta0 bands only");
+
+            if(!srcBandName.startsWith("Beta0")) {      //beta0 or polsar product
+                continue;
             }
 
             final String unit = srcBand.getUnit();
@@ -323,6 +331,10 @@ public final class TerrainFlatteningOp extends Operator {
                 tgtBand.setUnit(tgtUnit);
                 targetBandToSourceBandMap.put(tgtBand, srcBand);
             }
+        }
+
+        if(targetProduct.getNumBands() == 0) {
+            throw new OperatorException("TerrainFlattening requires beta0 or T3 as input");
         }
 
         if (outputSimulatedImage) {
@@ -440,23 +452,24 @@ public final class TerrainFlatteningOp extends Operator {
 
                     GeoUtils.geo2xyzWGS84(terrainData.latPixels[yy][xx], terrainData.lonPixels[yy][xx], alt, earthPoint);
 
-                    final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
+                    double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
                             firstLineUTC, lineTimeInterval, wavelength, earthPoint,
                             orbit.sensorPosition, orbit.sensorVelocity);
 
                     double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
 
-                    final double zeroDopplerTimeWithoutBias =
-                            zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
+                    if(!skipBistaticCorrection) {
+                        // skip bistatic correction for COSMO, TerraSAR-X and RadarSAT-2 and S-1
+                        zeroDopplerTime += slantRange / Constants.lightSpeedInMetersPerDay;
+                        slantRange = SARGeocoding.computeSlantRange(
+                                zeroDopplerTime, orbit, earthPoint, sensorPos);
+                    }
 
-                    azimuthIndex[i] = (zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval;
-
-                    slantRange = SARGeocoding.computeSlantRange(
-                            zeroDopplerTimeWithoutBias, orbit, earthPoint, sensorPos);
+                    azimuthIndex[i] = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
 
                     rangeIndex[i] = SARGeocoding.computeRangeIndex(
                             srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC, rangeSpacing,
-                            zeroDopplerTimeWithoutBias, slantRange, nearEdgeSlantRange, srgrConvParams);
+                            zeroDopplerTime, slantRange, nearEdgeSlantRange, srgrConvParams);
 
                     if (rangeIndex[i] <= 0.0) {
                         continue;
@@ -543,6 +556,17 @@ public final class TerrainFlatteningOp extends Operator {
                 sourceData = sourceTile.getDataBuffer();
             }
 
+            UnitType unitType = UnitType.AMPLITUDE;
+            if (unit.contains(Unit.AMPLITUDE)) {
+                unitType = UnitType.AMPLITUDE;
+            } else if (unit.contains(Unit.INTENSITY)) {
+                unitType = UnitType.INTENSITY;
+            } else if (unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY)) {
+                unitType = UnitType.COMPLEX;
+            } else if (unit.contains("Ratio")) {
+                unitType = UnitType.RATIO;
+            }
+
             double v;
             for (int y = y0; y < y0 + h; y++) {
                 final int yy = y - y0;
@@ -550,19 +574,25 @@ public final class TerrainFlatteningOp extends Operator {
                 for (int x = x0; x < x0 + w; x++) {
                     final int xx = x - x0;
                     final int idx = trgIndex.getIndex(x);
-                    if (simulatedImage[yy][xx] != noDataValue && simulatedImage[yy][xx] != 0.0) {
+                    double simVal = simulatedImage[yy][xx];
+                    if (simVal != noDataValue && simVal != 0.0) {
 
-                        if (unit.contains(Unit.AMPLITUDE)) {
-                            v = sourceData.getElemDoubleAt(idx);
-                            targetData.setElemDoubleAt(idx, v*v / simulatedImage[yy][xx]);
-                        } else if (unit.contains(Unit.INTENSITY)) {
-                            v = sourceData.getElemDoubleAt(idx);
-                            targetData.setElemDoubleAt(idx, v / simulatedImage[yy][xx]);
-                        } else if (unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY)) {
-                            v = sourceData.getElemDoubleAt(idx);
-                            targetData.setElemDoubleAt(idx, v / Math.sqrt(simulatedImage[yy][xx]));
-                        } else if (unit.contains("Ratio")) {
-                            targetData.setElemDoubleAt(idx, simulatedImage[yy][xx]);
+                        switch (unitType) {
+                            case AMPLITUDE :
+                                v = sourceData.getElemDoubleAt(idx);
+                                targetData.setElemDoubleAt(idx, v*v / simVal);
+                                break;
+                            case INTENSITY:
+                                v = sourceData.getElemDoubleAt(idx);
+                                targetData.setElemDoubleAt(idx, v / simVal);
+                                break;
+                            case COMPLEX:
+                                v = sourceData.getElemDoubleAt(idx);
+                                targetData.setElemDoubleAt(idx, v / Math.sqrt(simVal));
+                                break;
+                            case RATIO:
+                                targetData.setElemDoubleAt(idx, simVal);
+                                break;
                         }
 
                     } else {
