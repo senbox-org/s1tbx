@@ -21,6 +21,7 @@ import com.bc.jexp.Parser;
 import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
+import org.apache.commons.collections.map.HashedMap;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
@@ -40,6 +41,7 @@ import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
@@ -76,6 +78,18 @@ public final class SliceAssemblyOp extends Operator {
 
     // This is the raster width and height of the target product
     private int targetWidth = 0, targetHeight = 0;
+
+    // Map a swath such as "IW1" to the assembled image height and width.
+    // For GRD, use "" for swath.
+    // height is 1st element. width is 2nd element.
+    private Map<String, int[]> swathAssembledImageDimMap = new HashMap<>();
+
+    // Map a product and swath such as "IW1" to the image height and width.
+    // For GRD, use "" for swath.
+    // height is 1st element. width is 2nd element.
+    private Map<Product, Map<String, int[]> > sliceSwathImageDimMap = new HashMap<>();
+
+    private Map<String, TiePointGeoCoding> swathGeocodingMap = new HashMap<>();
 
     /**
      * Default constructor. The graph processing framework
@@ -247,8 +261,44 @@ public final class SliceAssemblyOp extends Operator {
         }
     }
 
+    private ArrayList<String> getSwaths(final Product product) {
+
+        ArrayList<String> swaths = new ArrayList<>();
+
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+        final MetadataElement annotation = origProdRoot.getElement("annotation");
+        final MetadataElement[] annotationElems = annotation.getElements();
+
+        for (MetadataElement e : annotationElems) {
+            String sss = extractSwathIdentifier(e.getName()).toUpperCase();
+            if (sss.endsWith("-")) {
+                sss = sss.substring(0, sss.length()-1);
+            }
+            if (!swaths.contains(sss)) {
+                swaths.add(sss);
+            }
+        }
+
+        return  swaths;
+    }
+
+    private void getSwathDim(final Product product, final String swath, final int[] dim) {
+
+        // dim[0] is height; dim[1] is width
+
+        final Band[] bands = product.getBands();
+
+        for (Band b : bands) {
+            if (b.getName().contains(swath)) {
+                dim[0] = b.getSceneRasterHeight();
+                dim[1] = b.getSceneRasterWidth();
+                break;
+            }
+        }
+    }
+
     private void computeTargetWidthAndHeight() {
-        // TODO This is not clear!
+
         // In GRD products, all the bands will have the same width and height, so the width and height of the
         // product are equal to the width and height of the bands. E.g a GRD product will have these bands:
         // - Amplitude_VH
@@ -276,28 +326,94 @@ public final class SliceAssemblyOp extends Operator {
         // - i_IW3_VV
         // - q_IW3_VV
         //
-        // different bands may have different widths. The width of the product is equal to
-        // maximum of the band widths.
-        // So if a particular band should have the same width across different slice products, then all the
-        // slice products should have the same product width.
-        // But the slice products can have different widths, which implies that the width of a band
-        // in one slice product can be different from the width of the same band in another slice product.
+        // We assume for such a SLC slice product, the scene raster width and height will be the maximum
+        // among the swaths, so product scene raster width = 26326 and product scene raster height = 15534.
+        //
+        // Say 1st slice:
+        //  IW1: w x h = 22553 x 14850
+        //  IW2: w x h = 26326 x 15363
+        //  IW3: w x h = 25321 x 15534
+        //  product width = 26326 and height = 15534
+        //
+        // 2nd slice:
+        //  IW1: w x h = 22571 x 14850
+        //  IW2: w x h = 26351 x 15363
+        //  IW3: w x h = 25350 x 15543
+        // product width = 26351 and height = 15543
+        //
+        // Assemble the 2 slices:
+        //  IW1: w x h = 22571 x 29700
+        //  IW2: w x h = 26351 x 30726
+        //  IW3: w x h = 25350 x 31077
+        // product width = 26351 and height = 31077
 
-        // We assume that the the different-sized bands from the slice products are aligned to the left.
-        // So for the product width, we can take the max among all slice products.
+        final String productType = sliceProducts[0].getProductType();
 
-        for (Product srcProduct : sliceProducts) {
+        if (productType.equals("GRD")) {
 
-            if (targetWidth < srcProduct.getSceneRasterWidth())
-                targetWidth = srcProduct.getSceneRasterWidth();
-            targetHeight += srcProduct.getSceneRasterHeight();
+            for (Product srcProduct : sliceProducts) {
+
+                if (targetWidth < srcProduct.getSceneRasterWidth())
+                    targetWidth = srcProduct.getSceneRasterWidth();
+                targetHeight += srcProduct.getSceneRasterHeight();
+
+                final Map<String, int[]> tmp = new HashMap<>();
+                tmp.put("", new int[]{srcProduct.getSceneRasterHeight(), srcProduct.getSceneRasterWidth()});
+                sliceSwathImageDimMap.put(srcProduct, tmp);
+            }
+
+            swathAssembledImageDimMap.put("", new int[] {targetHeight, targetWidth});
+
+        } else {
+
+            final ArrayList<String> swaths = getSwaths(sliceProducts[0]);
+            final Map<String, Integer> swathHeight = new HashMap<>();
+            final Map<String, Integer> swathWidth = new HashMap<>();
+
+            for (String swath : swaths) {
+                swathHeight.put(swath, 0);
+                swathWidth.put(swath, 0);
+            }
+
+            for (Product srcProduct : sliceProducts) {
+
+                for (String swath : swaths) {
+
+                    final int[] dim = new int[2];
+                    getSwathDim(srcProduct, swath, dim);
+
+                    if (swathWidth.get(swath) < dim[1]) {
+                        swathWidth.replace(swath, dim[1]);
+                    }
+                    swathHeight.replace(swath, swathHeight.get(swath) + dim[0]);
+
+
+                    if (sliceSwathImageDimMap.containsKey(srcProduct)) {
+                        final Map<String, int[]> tmp = sliceSwathImageDimMap.get(srcProduct);
+                        tmp.put(swath, dim);
+                    } else {
+                        final Map<String, int[]> tmp = new HashMap<>();
+                        tmp.put(swath, dim);
+                        sliceSwathImageDimMap.put(srcProduct, tmp);
+                    }
+                }
+            }
+
+            for (String swath : swaths) {
+                swathAssembledImageDimMap.put(swath, new int[] {swathHeight.get(swath), swathWidth.get(swath)});
+                if (targetWidth < swathWidth.get(swath))
+                    targetWidth = swathWidth.get(swath);
+                if (targetHeight < swathHeight.get(swath))
+                    targetHeight = swathHeight.get(swath);
+            }
         }
     }
 
     private void computeTargetBandWidthAndHeight(final String bandName, final Dimension dim) throws OperatorException {
+
         // See comments in computeTargetWidthAndHeight().
         // For band width, we take the max for that band among all slice products.
-        // This is consistent with the assumption in computeTargetWidthAndHeight().
+
         for (Product srcProduct : sliceProducts) {
             final Band srcBand = srcProduct.getBand(bandName);
             if(srcBand == null) {
@@ -367,8 +483,17 @@ public final class SliceAssemblyOp extends Operator {
         targetProduct.setEndTime(lastSliceProduct.getEndTime());
         targetProduct.setDescription(firstSliceProduct.getDescription());
 
-        // TODO still needs to do it for SLC
-        createTiePointGridsForGRD();
+        final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
+        if (productType.equals("GRD")) {
+            createTiePointGrids("");
+        } else {
+            final ArrayList<String> swaths = getSwaths(firstSliceProduct);
+            for (String swath : swaths) {
+                createTiePointGrids(swath);
+            }
+            createLatLonTiePointGridsForSLC();
+        }
+
         addGeocoding();
     }
 
@@ -384,18 +509,45 @@ public final class SliceAssemblyOp extends Operator {
         return term;
     }
 
-    private MetadataElement[] getGeoGridForGRD(final Product product) {
+    private MetadataElement[] getGeoGridForSwath(final Product product, final String sss) {
+
+        // For GRD products, use "" for sss.
 
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement annotationElem = origProdRoot.getElement("annotation");
-        final MetadataElement imgElem = annotationElem.getElementAt(0); // For GRD product, same grid for all bands, so just take the 1st one
+
+        final MetadataElement[] images = annotationElem.getElements();
+
+        MetadataElement imgElem = null;
+        if (sss.equals("")) {
+            // This is GRD product, same grid for all bands, so just take the 1st one
+            imgElem = annotationElem.getElementAt(0);
+        } else {
+            for (MetadataElement e : images) {
+                if (extractSwathIdentifier(e.getName()).equals(sss.toLowerCase())) {
+                    imgElem = e;
+                    break;
+                }
+            }
+        }
+
+        if (imgElem == null) {
+            throw new OperatorException("Cannot locate geolocation grid in metadata for " + sss);
+        }
+
         final MetadataElement productElem = imgElem.getElement("product");
         final MetadataElement geolocationGrid = productElem.getElement("geolocationGrid");
         final MetadataElement geolocationGridPointList = geolocationGrid.getElement("geolocationGridPointList");
         return geolocationGridPointList.getElements();
     }
 
-    private void createTiePointGridsForGRD() {
+    private void createTiePointGrids(final String swath) {
+
+        //System.out.println("SliceAssemblyOp.createTiePointGrids: " + swath);
+
+        // For GRD, use "" for swath. For SLC, it should be something like "IW1".
+
+        // One geolocationGridPointList for one swath.
 
         // geolocationGridPointList has a count and a list of geolocationGridPoint(s).
         // These geolocationGridPoint(s) should form an MxN grid, M = number of rows and N = number of columns.
@@ -435,7 +587,7 @@ public final class SliceAssemblyOp extends Operator {
         final ArrayList<MetadataElement[]> geoGrids = new ArrayList<>();
         int i = 0;
         for (Product product : sliceProducts) {
-            MetadataElement[]  geoGrid = getGeoGridForGRD(product);
+            MetadataElement[]  geoGrid = getGeoGridForSwath(product, swath);
             geoGridLen += geoGrid.length;
             geoGrids.add(i, geoGrid);
             i++;
@@ -450,9 +602,6 @@ public final class SliceAssemblyOp extends Operator {
         final double[] rangeTimeList = new double[geoGridLen];
         final int[] x = new int[geoGridLen];
         final int[] y = new int[geoGridLen];
-
-        // We assume here that all the slice products will have the same width in the geolocation grid.
-        // That is the same number of points in each line.
 
         final int[] gridWidths = new int[sliceProducts.length];
         final int[] gridHeights = new int[sliceProducts.length];
@@ -470,7 +619,7 @@ public final class SliceAssemblyOp extends Operator {
         for (int j = 0; j < sliceProducts.length; j++) {
 
             if (j > 0) {
-                heightOffset += sliceProducts[j-1].getSceneRasterHeight();
+                heightOffset += sliceSwathImageDimMap.get(sliceProducts[j-1]).get(swath)[0];
             }
 
             final MetadataElement[] geoGrid = geoGrids.get(j);
@@ -504,6 +653,8 @@ public final class SliceAssemblyOp extends Operator {
 
         final int gridWidth = gridWidths[0];
 
+        // We assume here that all the slice products will have the same width in the geolocation grid.
+        // That is the same number of points in each line.
         for (int w : gridWidths) {
             if (w != gridWidth) {
                 throw new OperatorException("geolocation grids have different widths among slice products");
@@ -522,8 +673,13 @@ public final class SliceAssemblyOp extends Operator {
         final float[] newIncList = new float[newGridWidth * newGridHeight];
         final float[] newElevList = new float[newGridWidth * newGridHeight];
         final float[] newslrtList = new float[newGridWidth * newGridHeight];
-        final int sceneRasterWidth = targetProduct.getSceneRasterWidth();
-        final int sceneRasterHeight = targetProduct.getSceneRasterHeight();
+
+        final int[] dim = swathAssembledImageDimMap.get(swath);
+        final int sceneRasterWidth = dim[1];
+        final int sceneRasterHeight = dim[0];
+
+        //System.out.println("swath = " + swath + " width = " + sceneRasterWidth + " height = " + sceneRasterHeight);
+
         final double subSamplingX = (double) sceneRasterWidth / (newGridWidth - 1);
         final double subSamplingY = (double) sceneRasterHeight / (newGridHeight - 1);
 
@@ -542,31 +698,88 @@ public final class SliceAssemblyOp extends Operator {
         getListInEvenlySpacedGrid(sceneRasterWidth, sceneRasterHeight, gridWidth, gridHeight, x, y, rangeTimeList,
                 newGridWidth, newGridHeight, subSamplingX, subSamplingY, newslrtList);
 
+        final String prefix = swath.equals("") ? swath : swath + "_";
 
-        final TiePointGrid latGrid = new TiePointGrid(OperatorUtils.TPG_LATITUDE,
+        final TiePointGrid latGrid = new TiePointGrid(prefix + OperatorUtils.TPG_LATITUDE,
                 newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLatList);
         latGrid.setUnit(Unit.DEGREES);
         targetProduct.addTiePointGrid(latGrid);
 
-        final TiePointGrid lonGrid = new TiePointGrid(OperatorUtils.TPG_LONGITUDE,
+        final TiePointGrid lonGrid = new TiePointGrid(prefix +OperatorUtils.TPG_LONGITUDE,
                 newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newLonList, TiePointGrid.DISCONT_AT_180);
         lonGrid.setUnit(Unit.DEGREES);
         targetProduct.addTiePointGrid(lonGrid);
 
-        final TiePointGrid incidentAngleGrid = new TiePointGrid(OperatorUtils.TPG_INCIDENT_ANGLE,
+        final TiePointGrid incidentAngleGrid = new TiePointGrid(prefix + OperatorUtils.TPG_INCIDENT_ANGLE,
                 newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newIncList);
         incidentAngleGrid.setUnit(Unit.DEGREES);
         targetProduct.addTiePointGrid(incidentAngleGrid);
 
-        final TiePointGrid elevAngleGrid = new TiePointGrid(OperatorUtils.TPG_ELEVATION_ANGLE,
+        final TiePointGrid elevAngleGrid = new TiePointGrid(prefix + OperatorUtils.TPG_ELEVATION_ANGLE,
                 newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newElevList);
         elevAngleGrid.setUnit(Unit.DEGREES);
         targetProduct.addTiePointGrid(elevAngleGrid);
 
-        final TiePointGrid slantRangeGrid = new TiePointGrid(OperatorUtils.TPG_SLANT_RANGE_TIME,
+        final TiePointGrid slantRangeGrid = new TiePointGrid(prefix + OperatorUtils.TPG_SLANT_RANGE_TIME,
                 newGridWidth, newGridHeight, 0.5f, 0.5f, subSamplingX, subSamplingY, newslrtList);
         slantRangeGrid.setUnit(Unit.NANOSECONDS);
         targetProduct.addTiePointGrid(slantRangeGrid);
+
+        if (!swath.equals("")) {
+            // This is SLC
+            final String swathNum = swath.substring(swath.length() - 1, swath.length());
+            if (swathNum.equals("1") || swathNum.equals(Integer.toString(swathAssembledImageDimMap.size()))) {
+                final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+                swathGeocodingMap.put(swath, tpGeoCoding);
+            }
+        }
+
+        //System.out.println("SliceAssemblyOp.createTiePointGrids: DONE " + swath);
+    }
+
+    private void createLatLonTiePointGridsForSLC() {
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sliceProducts[0]);
+        final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+
+        final String firstSwath = acquisitionMode + "1";
+        final String lastSwath = acquisitionMode + Integer.toString(swathAssembledImageDimMap.size());
+
+        final GeoCoding firstSWBandGeoCoding = swathGeocodingMap.get(firstSwath);
+        final int firstSWBandHeight = swathAssembledImageDimMap.get(firstSwath)[0];
+
+        final GeoCoding lastSWBandGeoCoding = swathGeocodingMap.get(lastSwath);
+        final int lastSWBandWidth = swathAssembledImageDimMap.get(lastSwath)[1];
+        final int lastSWBandHeight = swathAssembledImageDimMap.get(lastSwath)[0];
+
+        final PixelPos ulPix = new PixelPos(0, 0);
+        final PixelPos llPix = new PixelPos(0, firstSWBandHeight - 1);
+        final GeoPos ulGeo = new GeoPos();
+        final GeoPos llGeo = new GeoPos();
+        firstSWBandGeoCoding.getGeoPos(ulPix, ulGeo);
+        firstSWBandGeoCoding.getGeoPos(llPix, llGeo);
+
+        final PixelPos urPix = new PixelPos(lastSWBandWidth - 1, 0);
+        final PixelPos lrPix = new PixelPos(lastSWBandWidth - 1, lastSWBandHeight - 1);
+        final GeoPos urGeo = new GeoPos();
+        final GeoPos lrGeo = new GeoPos();
+        lastSWBandGeoCoding.getGeoPos(urPix, urGeo);
+        lastSWBandGeoCoding.getGeoPos(lrPix, lrGeo);
+
+        final float[] latCorners = {(float)ulGeo.getLat(), (float)urGeo.getLat(), (float)llGeo.getLat(), (float)lrGeo.getLat()};
+        final float[] lonCorners = {(float)ulGeo.getLon(), (float)urGeo.getLon(), (float)llGeo.getLon(), (float)lrGeo.getLon()};
+
+        ReaderUtils.addGeoCoding(targetProduct, latCorners, lonCorners);
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_lat, ulGeo.getLat());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_near_long, ulGeo.getLon());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_lat, urGeo.getLat());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.first_far_long, urGeo.getLon());
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_lat, llGeo.getLat());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_near_long, llGeo.getLon());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_lat, lrGeo.getLat());
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long, lrGeo.getLon());
     }
 
     private void addGeocoding() {
@@ -695,6 +908,15 @@ public final class SliceAssemblyOp extends Operator {
 
         // The calibration or noise data in metadata in targetProduct at this point is copied from the 1st slice.
         // So we need to concatenate the vectors from the slices to target.
+
+        // TODO: We should make the short vectors longer so that all vectors have "same" columns.
+        // TODO: E.g., a vector from top slice (width = 20055) has pixels:
+        // TODO: 0 40 80 ... 20040 20056
+        // TODO: a vector from the bottom slice (width = 20086) has pixels:
+        // TODO: 0 40 80 ... 20040 20080 20086
+        // TODO: Assembled product has width 20086 and we need to use extrapolation to extend the vectors from the top
+        // TODO: slice to have pixels:
+        // TODO: 0 40 80 ... 20040 20080 20086
 
         final MetadataElement targetOrigProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
         final MetadataElement targetData = targetOrigProdRoot.getElement(dataName);
@@ -840,6 +1062,26 @@ public final class SliceAssemblyOp extends Operator {
         }
     }
 
+    private String getProductLastLineUtcTime(final Product product, final String imageNum) {
+
+        final MetadataElement targetOrigProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+        final MetadataElement targetData = targetOrigProdRoot.getElement("annotation");
+
+        final MetadataElement[] targetDataElems = targetData.getElements();
+
+        for (MetadataElement target : targetDataElems) {
+
+            if (extractImageNumber(target.getName()).equals(imageNum)) {
+                final MetadataElement productElem = target.getElement("product");
+                final MetadataElement imageAnnotationElem = productElem.getElement("imageAnnotation");
+                final MetadataElement imageInformationElem = imageAnnotationElem.getElement("imageInformation");
+                return imageInformationElem.getAttributeString("productLastLineUtcTime");
+            }
+        }
+
+        return "";
+    }
+
     private void updateImageInformation() {
 
         final MetadataElement targetOrigProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
@@ -867,8 +1109,9 @@ public final class SliceAssemblyOp extends Operator {
             final MetadataElement imageAnnotationElem = productElem.getElement("imageAnnotation");
             final MetadataElement imageInformationElem = imageAnnotationElem.getElement("imageInformation");
 
-            // TODO Should update productLastLineUtcTime, but is anyone using it?
-
+            imageInformationElem.setAttributeString("productLastLineUtcTime",
+                    getProductLastLineUtcTime(sliceProducts[sliceProducts.length-1],
+                            extractImageNumber(target.getName())));
             imageInformationElem.setAttributeString("numberOfSamples", Integer.toString(targetProduct.getSceneRasterWidth()));
             imageInformationElem.setAttributeString("numberOfLines", Integer.toString(targetProduct.getSceneRasterHeight()));
         }
@@ -962,6 +1205,7 @@ public final class SliceAssemblyOp extends Operator {
      * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+
         try {
             final Rectangle targetTileRectangle = targetTile.getRectangle();
             final int tx0 = targetTileRectangle.x;
@@ -971,8 +1215,6 @@ public final class SliceAssemblyOp extends Operator {
 
             final BandLines[] lines = bandLineMap.get(targetBand);
             final ProductData trgData = targetTile.getDataBuffer();
-            //final int targetBandWidth = targetBand.getRasterWidth();
-            final int targetBandWidth = maxX;
 
             final TileIndex trgIndex = new TileIndex(targetTile);
             final Rectangle srcRect = new Rectangle();
@@ -981,6 +1223,7 @@ public final class SliceAssemblyOp extends Operator {
 
             BandLines line = lines[0];
             for(int y=ty0; y < maxY; ++y) {
+
                 boolean validLine = y >= line.start && y < line.end;
                 if(!validLine) {
                     for(BandLines l : lines) {
@@ -999,7 +1242,6 @@ public final class SliceAssemblyOp extends Operator {
                 final int yy = y-line.start;
                 srcRect.setBounds(targetTileRectangle.x, yy, targetTileRectangle.width, 1);
                 final Tile sourceRaster = getSourceTile(line.band, srcRect);
-
                 final ProductData srcData = sourceRaster.getDataBuffer();
                 final TileIndex srcIndex = new TileIndex(sourceRaster);
                 trgIndex.calculateStride(y);
