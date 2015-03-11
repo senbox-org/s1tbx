@@ -15,12 +15,9 @@
  */
 package org.esa.nest.gpf.geometric;
 
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 /**
  * This operator performs the same terrain correction as RangeDopplerGeocodingOp does except that it uses average
@@ -34,19 +31,10 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
         description = "Ellipsoid correction with RD method and average scene height")
 public final class EllipsoidCorrectionRDOp extends RangeDopplerGeocodingOp {
 
-    public static final String PRODUCT_SUFFIX = "_EC";
-
-    @SourceProduct(alias = "source")
-    private Product sourceProduct;
-    @TargetProduct
-    private Product targetProduct2;
-
     @Override
     public void initialize() throws OperatorException {
-        super.sourceProduct = this.sourceProduct;
         useAvgSceneHeight = true;
         super.initialize();
-        targetProduct2 = super.targetProduct;
     }
 
     /**

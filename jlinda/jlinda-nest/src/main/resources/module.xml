@@ -117,6 +117,8 @@
             <text>Interferometric</text>
             <parent>SAR Processing</parent>
             <placeAfter>CoregistrationGroup</placeAfter>
+            <separatorBefore>true</separatorBefore>
+            <separatorAfter>true</separatorAfter>
         </action>
 
         <action>

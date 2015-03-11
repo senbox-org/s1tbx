@@ -81,7 +81,7 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
             }
         });
 
-        return panel;
+        return new JScrollPane(panel);
     }
 
     @Override
@@ -124,6 +124,7 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
 
         final JPanel contentPane = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH;
 
         DialogUtils.addComponent(contentPane, gbc, "Source Bands:", new JScrollPane(bandList));
         gbc.gridy++;
@@ -134,6 +135,8 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
                 updateFilterSelection();
             }
         });
+
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         gbc.gridy++;
         final int savedY = gbc.gridy;
@@ -153,7 +156,6 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, edgeThresholdLabel, edgeThreshold);
 
         gbc.weightx = 1.0;
-        contentPane.add(new JPanel(), gbc);
 
         DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, true);
         DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, true);
@@ -161,6 +163,8 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         DialogUtils.enableComponents(estimateENLCheckBoxLabel, estimateENLCheckBox, false);
         DialogUtils.enableComponents(enlLabel, enl, false);
         DialogUtils.enableComponents(edgeThresholdLabel, edgeThreshold, false);
+
+        DialogUtils.fillPanel(contentPane, gbc);
 
         return contentPane;
     }
