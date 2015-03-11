@@ -18,14 +18,12 @@ package org.esa.beam.framework.ui;
 
 import com.bc.ceres.swing.binding.ComponentAdapter;
 import com.jidesoft.combobox.ColorComboBox;
-
 import org.esa.beam.framework.datamodel.ImageInfo;
 
-import java.awt.Color;
+import javax.swing.*;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
-import javax.swing.JComponent;
 
 /**
  * A binding for the JIDE {@link ColorComboBox}.
@@ -33,7 +31,9 @@ import javax.swing.JComponent;
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  * @since BEAM 4.2
+ * @deprecated since SNAP 2.0, use org.esa.snap.rcp.util.ColorComboBoxAdapter
  */
+@Deprecated
 public class ColorComboBoxAdapter extends ComponentAdapter implements PropertyChangeListener {
     private ColorComboBox colorComboBox;
 
