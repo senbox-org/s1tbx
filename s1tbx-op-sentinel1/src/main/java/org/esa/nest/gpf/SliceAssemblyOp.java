@@ -429,7 +429,10 @@ public final class SliceAssemblyOp extends Operator {
 
         final Product firstSliceProduct = sliceProducts[0];
         final Product lastSliceProduct = sliceProducts[sliceProducts.length-1];
-        targetProduct = new Product(firstSliceProduct.getName(), firstSliceProduct.getProductType(), targetWidth, targetHeight);
+        final String lastSliceStopDateAndTime = lastSliceProduct.getName().substring(33, 48);
+        final String newProductName = firstSliceProduct.getName().substring(0, 33) + lastSliceStopDateAndTime +
+                firstSliceProduct.getName().substring(48);
+        targetProduct = new Product(newProductName, firstSliceProduct.getProductType(), targetWidth, targetHeight);
 
         // We are creating each target band based on the source band in the first slice product only.
         final Band[] sourceBands = firstSliceProduct.getBands();
