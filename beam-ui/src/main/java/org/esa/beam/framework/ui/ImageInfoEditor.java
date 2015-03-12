@@ -19,11 +19,11 @@ import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.swing.binding.BindingContext;
-import com.jidesoft.combobox.ColorChooserPanel;
 import com.jidesoft.popup.JidePopup;
 import com.jidesoft.swing.JidePopupMenu;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.ui.color.ColorChooserPanel;
 import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Range;
@@ -85,7 +85,7 @@ public abstract class ImageInfoEditor extends JPanel {
     public static final Dimension PREF_COMPONENT_SIZE
             = new Dimension(PREF_HISTO_WIDTH + 2 * HOR_BORDER_SIZE,
                             PREF_HISTO_HEIGHT + PALETTE_HEIGHT + SLIDER_HEIGHT / 2
-                            + 2 * HOR_BORDER_SIZE + FONT_SIZE);
+                                    + 2 * HOR_BORDER_SIZE + FONT_SIZE);
     public static final BasicStroke STROKE_1 = new BasicStroke(1.0f);
     public static final BasicStroke STROKE_2 = new BasicStroke(2.0f);
     public static final BasicStroke DASHED_STROKE = new BasicStroke(0.75F, BasicStroke.CAP_SQUARE,
@@ -281,9 +281,9 @@ public abstract class ImageInfoEditor extends JPanel {
 
     private boolean isValidModel() {
         return model != null
-               && model.getMinSample() <= model.getMaxSample()
-               && model.getSampleScaling() != null
-               && model.getSampleStx() != null;
+                && model.getMinSample() <= model.getMaxSample()
+                && model.getSampleScaling() != null
+                && model.getSampleStx() != null;
     }
 
     public void computeZoomOutVertical() {
@@ -307,8 +307,8 @@ public abstract class ImageInfoEditor extends JPanel {
     private void drawPalette(Graphics2D g2d) {
 
         if (paletteBackgound == null
-            || paletteBackgound.getWidth() != paletteRect.width
-            || paletteBackgound.getHeight() != paletteRect.height ) {
+                || paletteBackgound.getWidth() != paletteRect.width
+                || paletteBackgound.getHeight() != paletteRect.height) {
             this.paletteBackgound = createAlphaBackground(paletteRect.width, paletteRect.height);
         }
         g2d.drawImage(paletteBackgound, paletteRect.x, paletteRect.y, null);
@@ -751,26 +751,13 @@ public abstract class ImageInfoEditor extends JPanel {
     }
 
     private void editSliderColor(MouseEvent evt, final int sliderIndex) {
-        final ColorChooserPanel panel = new ColorChooserPanel(ColorChooserPanel.PALETTE_COLOR_40,
-                                                              true,     // allow more colors
-                                                              true);    // allow default color
         final Color selectedColor = getSliderColor(sliderIndex);
-        if (selectedColor.equals(ImageInfo.NO_COLOR)) {
-            panel.setSelectedColor(null);
-        } else {
-            panel.setSelectedColor(selectedColor);
-        }
-
-        showPopup(evt, panel);
-
-        panel.addItemListener(e -> {
+        final ColorChooserPanel panel = new ColorChooserPanel(selectedColor);
+        panel.addPropertyChangeListener(ColorChooserPanel.SELECTED_COLOR_PROPERTY, evt1 -> {
+            setSliderColor(sliderIndex, panel.getSelectedColor());
             hidePopup();
-            if (panel.getSelectedColor() != null) {
-                setSliderColor(sliderIndex, panel.getSelectedColor());
-            } else {
-                setSliderColor(sliderIndex, ImageInfo.NO_COLOR);
-            }
         });
+        showPopup(evt, panel);
     }
 
     private boolean isSliderVisible(int sliderIndex) {
@@ -779,7 +766,7 @@ public abstract class ImageInfoEditor extends JPanel {
         }
         ImageInfo.UncertaintyVisualisationMode uvMode = getModel().getImageInfo().getUncertaintyVisualisationMode();
         return uvMode == null
-               || uvMode == ImageInfo.UncertaintyVisualisationMode.None
+                || uvMode == ImageInfo.UncertaintyVisualisationMode.None
                 || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending
                 || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Overlay;
     }
@@ -787,7 +774,7 @@ public abstract class ImageInfoEditor extends JPanel {
     private boolean isSliderEditable(int sliderIndex) {
         ImageInfo.UncertaintyVisualisationMode uvMode = getModel().getImageInfo().getUncertaintyVisualisationMode();
         return uvMode == null
-               || uvMode == ImageInfo.UncertaintyVisualisationMode.None
+                || uvMode == ImageInfo.UncertaintyVisualisationMode.None
                 || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending
                 || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Overlay
                 || (uvMode == ImageInfo.UncertaintyVisualisationMode.Monochromatic_Blending && isLastSliderIndex(sliderIndex));
@@ -796,7 +783,7 @@ public abstract class ImageInfoEditor extends JPanel {
     private boolean canChangeSliderCount() {
         ImageInfo.UncertaintyVisualisationMode uvMode = getModel().getImageInfo().getUncertaintyVisualisationMode();
         return uvMode == null
-               || uvMode == ImageInfo.UncertaintyVisualisationMode.None
+                || uvMode == ImageInfo.UncertaintyVisualisationMode.None
                 || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending
                 || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Overlay;
     }
@@ -991,9 +978,9 @@ public abstract class ImageInfoEditor extends JPanel {
                 }
             }
             if (getSliderCount() > 2
-                && sliderIndex > 0
-                && sliderIndex < getSliderCount() - 1
-                && isSliderEditable(sliderIndex)) {
+                    && sliderIndex > 0
+                    && sliderIndex < getSliderCount() - 1
+                    && isSliderEditable(sliderIndex)) {
                 menuItem = createMenuItemCenterSampleValue(sliderIndex);
                 menu.add(menuItem);
                 menuItem = createMenuItemCenterColorValue(sliderIndex);

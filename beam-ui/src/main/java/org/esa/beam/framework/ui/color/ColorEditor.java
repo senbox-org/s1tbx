@@ -13,16 +13,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.beam.framework.ui;
+package org.esa.beam.framework.ui.color;
 
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.swing.binding.BindingContext;
 import com.bc.ceres.swing.binding.PropertyEditor;
-import com.jidesoft.combobox.ColorComboBox;
-
-import java.awt.Color;
 
 import javax.swing.JComponent;
+import java.awt.Color;
 
 /**
  * A value editor for colors.
@@ -36,17 +34,12 @@ public class ColorEditor extends PropertyEditor {
     @Override
     public boolean isValidFor(PropertyDescriptor propertyDescriptor) {
         Class<?> type = propertyDescriptor.getType();
-        if (type.isAssignableFrom(Color.class)) {
-            return true;
-        }
-        return false;
+        return type.isAssignableFrom(Color.class);
     }
     
     @Override
     public JComponent createEditorComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
         ColorComboBox colorComboBox = new ColorComboBox();
-        colorComboBox.setColorValueVisible(true);
-        colorComboBox.setAllowDefaultColor(true);
         ColorComboBoxAdapter adapter = new ColorComboBoxAdapter(colorComboBox);
         bindingContext.bind(propertyDescriptor.getName(), adapter);
         return colorComboBox;

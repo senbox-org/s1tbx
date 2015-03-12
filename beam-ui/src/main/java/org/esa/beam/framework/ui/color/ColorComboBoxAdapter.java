@@ -14,26 +14,22 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package org.esa.beam.framework.ui;
+package org.esa.beam.framework.ui.color;
 
 import com.bc.ceres.swing.binding.ComponentAdapter;
-import com.jidesoft.combobox.ColorComboBox;
-import org.esa.beam.framework.datamodel.ImageInfo;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 /**
- * A binding for the JIDE {@link ColorComboBox}.
+ * A binding for the SNAP {@link ColorComboBox}.
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  * @since BEAM 4.2
- * @deprecated since SNAP 2.0, use org.esa.snap.rcp.util.ColorComboBoxAdapter
  */
-@Deprecated
 public class ColorComboBoxAdapter extends ComponentAdapter implements PropertyChangeListener {
     private ColorComboBox colorComboBox;
 
@@ -43,7 +39,7 @@ public class ColorComboBoxAdapter extends ComponentAdapter implements PropertyCh
 
     @Override
     public JComponent[] getComponents() {
-        return new JComponent[] {colorComboBox};
+        return new JComponent[]{colorComboBox};
     }
 
     @Override
@@ -59,12 +55,12 @@ public class ColorComboBoxAdapter extends ComponentAdapter implements PropertyCh
     @Override
     public void adjustComponents() {
         final Color color = (Color) getBinding().getPropertyValue();
-        colorComboBox.setSelectedColor(ImageInfo.NO_COLOR.equals(color) ? null : color);
+        colorComboBox.setSelectedColor(color);
     }
 
     private void adjustPropertyValue() {
         final Color color = colorComboBox.getSelectedColor();
-        getBinding().setPropertyValue(color == null ? ImageInfo.NO_COLOR : color);
+        getBinding().setPropertyValue(color);
     }
 
     @Override
