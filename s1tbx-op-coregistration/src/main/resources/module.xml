@@ -189,7 +189,7 @@
             <text>DEM Generation</text>
             <operatorName>DEMGeneration</operatorName>
             <dialogTitle>DEM Generation</dialogTitle>
-            <placeAfter>SubtRefDemOp</placeAfter>
+            <placeAfter>Slant2HeightOp</placeAfter>
             <targetProductNameSuffix>_elev</targetProductNameSuffix>
         </action>
 
