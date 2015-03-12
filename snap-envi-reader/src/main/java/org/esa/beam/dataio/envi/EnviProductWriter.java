@@ -149,8 +149,8 @@ public class EnviProductWriter extends AbstractProductWriter {
     }
 
     private static void checkBufferSize(int sourceWidth, int sourceHeight, ProductData sourceBuffer) {
-        final int expectedBufferSize = sourceWidth * sourceHeight;
-        final int actualBufferSize = sourceBuffer.getNumElems();
+        final long expectedBufferSize = (long) sourceWidth * (long) sourceHeight;
+        final long actualBufferSize = sourceBuffer.getNumElems();
         Guardian.assertEquals("sourceWidth * sourceHeight", actualBufferSize, expectedBufferSize);  /*I18N*/
     }
 
