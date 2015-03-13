@@ -331,7 +331,7 @@ public class CreateCoherenceImageOp extends Operator {
                 final int ntyMax = Math.min(tyMax, lastLineIdx + 1);
                 final int nth = ntyMax - nty0;
                 final Rectangle partialTileRectangle = new Rectangle(ntx0, nty0, ntw, nth);
-                System.out.println("burst = " + burstIndex + ": ntx0 = " + ntx0 + ", nty0 = " + nty0 + ", ntw = " + ntw + ", nth = " + nth);
+                //System.out.println("burst = " + burstIndex + ": ntx0 = " + ntx0 + ", nty0 = " + nty0 + ", ntw = " + ntw + ", nth = " + nth);
 
                 computePartialTile(subSwathIndex, burstIndex, targetBand, targetTile, partialTileRectangle);
             }
