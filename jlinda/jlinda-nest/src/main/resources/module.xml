@@ -139,6 +139,7 @@
             <targetProductNameSuffix>_coh</targetProductNameSuffix>
             <shortDescr>Estimate coherence of stack of images</shortDescr>
             <parent>products</parent>
+            <placeAfter>InterferogramOp</placeAfter>
             <helpId>CoherenceOp</helpId>
         </action>
 

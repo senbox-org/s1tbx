@@ -381,20 +381,20 @@ public class GoldsteinFilterOp extends Operator {
         final int colMax = pwrSpec[0].length;
 
         for (int r = 0; r < rowMax; r++) {
-            final int jMin = FastMath.max(0, r - halfWindowSize);
-            final int jMax = FastMath.min(rowMax - 1, r + halfWindowSize);
+            final int jMin = Math.max(0, r - halfWindowSize);
+            final int jMax = Math.min(rowMax - 1, r + halfWindowSize);
             for (int c = 0; c < colMax; c++) {
                 double sum = 0;
                 int k = 0;
-                final int iMin = FastMath.max(0, c - halfWindowSize);
-                final int iMax = FastMath.min(colMax - 1, c + halfWindowSize);
+                final int iMin = Math.max(0, c - halfWindowSize);
+                final int iMax = Math.min(colMax - 1, c + halfWindowSize);
                 for (int j = jMin; j <= jMax; j++) {
                     for (int i = iMin; i <= iMax; i++) {
                         sum += pwrSpec[j][i];
                         k++;
                     }
                 }
-                fltSpec[r][c] = FastMath.pow(sum / k, alpha);
+                fltSpec[r][c] = Math.pow(sum / k, alpha);
             }
         }
     }

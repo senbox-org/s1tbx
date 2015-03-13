@@ -39,7 +39,6 @@ public class PolyUtils {
     }
 
     public static int degreeFromCoefficients(int numOfCoefficients) {
-//        return (int) (0.5 * (-1 + (int) (Math.sqrt((double) (1 + 8 * numOfCoefficients))))) - 1;
         return (int) (0.5 * (-1 + (int) (Math.sqrt((double) (1 + 8 * numOfCoefficients))))) - 1;
     }
 

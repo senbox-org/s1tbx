@@ -224,7 +224,7 @@
             <shortDescr>Interferogram Formation and Flat Earth Phase Removal</shortDescr>
             <targetProductNameSuffix>_ifg</targetProductNameSuffix>
             <parent>products</parent>
-            <placeAfter>CoherenceOp</placeAfter>
+            <placeFirst>true</placeFirst>
         </action>
 
 
