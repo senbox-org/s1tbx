@@ -156,7 +156,7 @@ public final class EarthGravitationalModel96 {
         }
 
         for (int i = 0; i < 4; i++) {
-            final int ri = r0 + i > MAX_LATS ? FastMath.min(r0 + i, MAX_LATS) : r0 + i;
+            final int ri = r0 + i > MAX_LATS ? MAX_LATS : r0 + i;
 
             //unrolled loop
             v[i][0] = egm[ri][c0];

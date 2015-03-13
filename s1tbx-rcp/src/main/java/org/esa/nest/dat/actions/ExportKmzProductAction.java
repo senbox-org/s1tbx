@@ -99,7 +99,6 @@ public class ExportKmzProductAction extends ExecCommand {
     public void updateState(final CommandEvent event) {
         final Product product = VisatApp.getApp().getSelectedProduct();
         setEnabled(product != null);
-        //setEnabled(false);      // DEMO_CODE
     }
 
     private static String[] getValidBandNames(final Product product) {

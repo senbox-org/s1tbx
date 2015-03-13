@@ -26,11 +26,12 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.toolviews.placemark.PlacemarkNameFactory;
 import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.nest.dataio.dem.ElevationModelDescriptor;
-import org.esa.nest.dataio.dem.ElevationModelRegistry;import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.nest.dataio.dem.ElevationModelRegistry;
+import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.StackUtils;
@@ -61,9 +62,9 @@ public class CoarseFineCoregOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "Number of Correlation Windows", interval = "(10, *)", defaultValue = "200",
+    @Parameter(description = "Number of Correlation Windows", interval = "(10, *)", defaultValue = "2000",
             label = "Number of GCPs")
-    private int numWindows = 200;
+    private int numWindows = 2000;
 
     @Parameter(valueSet = {"32", "64", "128", "256", "512", "1024", "2048"}, defaultValue = "128", label = "Coarse Registration Window Width")
     private String coarseRegistrationWindowWidth = "128";
@@ -108,8 +109,6 @@ public class CoarseFineCoregOp extends Operator {
     private boolean useAllPolarimetricBands = false;
 
     // =========================================================================================
-    @Parameter(defaultValue = "false", label = "Estimate Coarse Offset")
-    private boolean computeOffset = false;
     @Parameter(defaultValue = "false", label = "Test GCPs are on land")
     private boolean onlyGCPsOnLand = false;
 
@@ -140,7 +139,7 @@ public class CoarseFineCoregOp extends Operator {
     private static final int EXTRA_BORDER = 20; // work with slightly smaller search space, used in gcp validation
 
     // Logger
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
     
     /**
      * Default constructor. The graph processing framework
@@ -188,15 +187,12 @@ public class CoarseFineCoregOp extends Operator {
                     Integer.parseInt(fineRegistrationWindowAccRange),
                     Integer.parseInt(fineRegistrationOversampling));
 
-            masterBand1 = sourceProduct.getBandAt(0);
-            if (masterBand1.getUnit() != null && masterBand1.getUnit().equals(Unit.REAL) && sourceProduct.getNumBands() > 1) {
-                masterBand2 = sourceProduct.getBandAt(1);
-                complexCoregistration = true;
-            }
+            getMasterBands();
 
             getCollocatedStackFlag();
             createTargetProduct();
 
+            GCPManager.instance().removeAllGcpGroups();
             masterGcpGroup = GCPManager.instance().getGcpGroup(masterBand1);
             if (masterGcpGroup.getNodeCount() <= 0) {
                 addGCPGrid(sourceImageWidth, sourceImageHeight, numWindows, masterGcpGroup,
@@ -205,6 +201,28 @@ public class CoarseFineCoregOp extends Operator {
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private void getMasterBands() {
+        String mstBandName = sourceProduct.getBandAt(0).getName();
+
+        // find co-pol bands
+        final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
+        for(String bandName : masterBandNames) {
+            final String mstPol = OperatorUtils.getPolarizationFromBandName(bandName);
+            if(mstPol != null && (mstPol.equals("hh") || mstPol.equals("vv"))) {
+                mstBandName = bandName;
+                break;
+            }
+        }
+        masterBand1 = sourceProduct.getBand(mstBandName);
+        if (masterBand1.getUnit() != null && masterBand1.getUnit().equals(Unit.REAL)) {
+            int mstIdx = sourceProduct.getBandIndex(mstBandName);
+            if(sourceProduct.getNumBands() > mstIdx + 1) {
+                masterBand2 = sourceProduct.getBandAt(mstIdx + 1);
+                complexCoregistration = true;
+            }
         }
     }
 
@@ -270,6 +288,23 @@ public class CoarseFineCoregOp extends Operator {
         final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
 
         final int numSrcBands = sourceProduct.getNumBands();
+
+        //find slave band matching master pol
+        Band slvBand1 = null, slvBand2 = null;
+        final String mstPol = OperatorUtils.getPolarizationFromBandName(masterBand1.getName());
+        for(Band slvBand : sourceProduct.getBands()) {
+            if (!StringUtils.contains(masterBandNames, slvBand.getName())) {
+                final String slvPol = OperatorUtils.getPolarizationFromBandName(slvBand.getName());
+                if(mstPol == null || mstPol.equals(slvPol)) {
+                    final String unit = slvBand.getUnit();
+                    if (unit != null && !unit.contains(Unit.IMAGINARY)) {
+                        slvBand1 = slvBand;
+                        break;
+                    }
+                }
+            }
+        }
+
         boolean oneSlaveProcessed = false;          // all other use setSourceImage
         for (int i = 0; i < numSrcBands; ++i) {
             final Band srcBand = sourceProduct.getBandAt(i);
@@ -278,7 +313,7 @@ public class CoarseFineCoregOp extends Operator {
             sourceRasterMap.put(targetBand, srcBand);
             gcpsComputedMap.put(srcBand, false);
 
-            if (srcBand == masterBand1 || srcBand == masterBand2 || oneSlaveProcessed ||
+            if (srcBand == masterBand1 || srcBand == masterBand2 || oneSlaveProcessed || srcBand != slvBand1 ||
                     StringUtils.contains(masterBandNames, srcBand.getName())) {
                 targetBand.setSourceImage(srcBand.getSourceImage());
             } else {

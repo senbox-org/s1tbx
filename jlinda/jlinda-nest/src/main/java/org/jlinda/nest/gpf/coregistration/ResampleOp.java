@@ -74,7 +74,7 @@ public class ResampleOp extends Operator {
     private int cpmMaxIterations = 20;
 
     @Parameter(description = "Confidence level for outlier detection procedure, lower value accepts more outliers",
-            valueSet = {"0.001", "0.05", "0.1"},
+            valueSet = {"0.001", "0.005", "0.05", "0.1"},
             defaultValue = "0.05",
             label = "Significance Level for Outlier Removal")
     private String cpmAlphaValue = "0.05";
@@ -126,6 +126,7 @@ public class ResampleOp extends Operator {
     float demNoDataValue = 0;
     private ElevationModel dem = null;
 
+    private boolean excludeMaster = false;
 
     /**
      * Default constructor. The graph processing framework
@@ -157,11 +158,7 @@ public class ResampleOp extends Operator {
                 residualsFile.delete();
             }
 
-            masterBand = sourceProduct.getBandAt(0);
-            if (masterBand.getUnit() != null && masterBand.getUnit().equals(Unit.REAL) && sourceProduct.getNumBands() > 1) {
-                complexCoregistration = true;
-                masterBand2 = sourceProduct.getBandAt(1);
-            }
+            getMasterBands();
 
             // Set parameter for outlier removal: precomputed in matlab - see pretest.m
             //   alpha0 = 0.05;
@@ -216,6 +213,40 @@ public class ResampleOp extends Operator {
         }
     }
 
+    private void getMasterBands() {
+        String mstBandName = sourceProduct.getBandAt(0).getName();
+
+        // find co-pol bands
+        final String[] masterBandNames = StackUtils.getMasterBandNames(sourceProduct);
+        for(String bandName : masterBandNames) {
+            final String mstPol = OperatorUtils.getPolarizationFromBandName(bandName);
+            if(mstPol != null && (mstPol.equals("hh") || mstPol.equals("vv"))) {
+                mstBandName = bandName;
+                break;
+            }
+        }
+        masterBand = sourceProduct.getBand(mstBandName);
+        if (masterBand.getUnit() != null && masterBand.getUnit().equals(Unit.REAL)) {
+            int mstIdx = sourceProduct.getBandIndex(mstBandName);
+            if(sourceProduct.getNumBands() > mstIdx + 1) {
+                masterBand2 = sourceProduct.getBandAt(mstIdx + 1);
+                complexCoregistration = true;
+            }
+        }
+    }
+
+    private String formatName(final Band srcBand) {
+        String name = srcBand.getName();
+        if(excludeMaster) {  // multi-output without master
+            String newName = StackUtils.getBandNameWithoutDate(name);
+            if(name.equals(processedSlaveBand)) {
+                processedSlaveBand = newName;
+            }
+            return newName;
+        }
+        return name;
+    }
+
     /**
      * Create target product.
      */
@@ -241,7 +272,7 @@ public class ResampleOp extends Operator {
                 targetBand = ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
                 targetBand.setSourceImage(srcBand.getSourceImage());
             } else {
-                targetBand = targetProduct.addBand(srcBand.getName(), ProductData.TYPE_FLOAT32);
+                targetBand = targetProduct.addBand(formatName(srcBand), ProductData.TYPE_FLOAT32);
                 ProductUtils.copyRasterDataNodeProperties(srcBand, targetBand);
             }
             sourceRasterMap.put(targetBand, srcBand);
@@ -254,7 +285,7 @@ public class ResampleOp extends Operator {
                 targetBandQ = ProductUtils.copyBand(srcBandQ.getName(), sourceProduct, targetProduct, false);
                 targetBandQ.setSourceImage(srcBandQ.getSourceImage());
             } else {
-                targetBandQ = targetProduct.addBand(srcBandQ.getName(), ProductData.TYPE_FLOAT32);
+                targetBandQ = targetProduct.addBand(formatName(srcBandQ), ProductData.TYPE_FLOAT32);
                 ProductUtils.copyRasterDataNodeProperties(srcBandQ, targetBandQ);
             }
 
@@ -267,8 +298,6 @@ public class ResampleOp extends Operator {
 
             // virtual bands
             ReaderUtils.createVirtualIntensityBand(targetProduct, targetBand, targetBandQ, suffix);
-            ReaderUtils.createVirtualPhaseBand(targetProduct, targetBand, targetBandQ, suffix);
-
         }
 
         // coregistrated image should have the same geo-coding as the master image
@@ -388,14 +417,15 @@ public class ResampleOp extends Operator {
             return;
         }
 
+        // find first real slave band
         final Band targetBand = targetProduct.getBand(processedSlaveBand);
+        // force getSourceTile to computeTiles on GCPSelection
         final Tile sourceRaster = getSourceTile(sourceRasterMap.get(targetBand), targetRectangle);
 
         // for all slave band pairs compute a CPM
         final int numSrcBands = sourceProduct.getNumBands();
         int inc = 2;
 
-        boolean appendFlag = false;
         final ProductNodeGroup<Placemark> masterGCPGroup = GCPManager.instance().getGcpGroup(masterBand);
         final Window masterWindow = new Window(0, sourceProduct.getSceneRasterHeight(), 0, sourceProduct.getSceneRasterWidth());
 
@@ -408,7 +438,7 @@ public class ResampleOp extends Operator {
             masterOrbit = new Orbit(absRoot,ORBIT_INTERP_DEGREE);
         }
 
-
+        boolean appendFlag = false;
         int slaveMetaCnt = 0;
         for (int i = 0; i < numSrcBands; i += inc) {
 
@@ -418,8 +448,7 @@ public class ResampleOp extends Operator {
                 continue;
 
             ProductNodeGroup<Placemark> slaveGCPGroup = GCPManager.instance().getGcpGroup(srcBand);
-            final int nodeCount = slaveGCPGroup.getNodeCount();
-            if (nodeCount < 3) {
+            if (slaveGCPGroup.getNodeCount() < 3) {
                 // find others for same slave product
                 final String slvProductName = StackUtils.getSlaveProductName(sourceProduct, srcBand, null);
                 for(Band band : sourceProduct.getBands()) {
@@ -427,7 +456,7 @@ public class ResampleOp extends Operator {
                         final String productName = StackUtils.getSlaveProductName(sourceProduct, band, null);
                         if(slvProductName != null && slvProductName.equals(productName)) {
                             slaveGCPGroup = GCPManager.instance().getGcpGroup(band);
-                            if (nodeCount >= 3)
+                            if (slaveGCPGroup.getNodeCount() >= 3)
                                 break;
                         }
                     }
@@ -438,6 +467,7 @@ public class ResampleOp extends Operator {
             final CPM cpm = new CPM(cpmDegree, cpmMaxIterations, cpmWtestCriticalValue, masterWindow, masterGCPGroup, slaveGCPGroup);
             cpmMap.put(srcBand, cpm);
 
+            final int nodeCount = slaveGCPGroup.getNodeCount();
             if (nodeCount < 3) {
                 cpm.noRedundancy = true;
                 continue;
@@ -497,6 +527,8 @@ public class ResampleOp extends Operator {
         }
 
         announceGCPWarning();
+
+        GCPManager.instance().removeAllGcpGroups();
 
         if (openResidualsFile) {
             final File residualsFile = getResidualsFile(sourceProduct);

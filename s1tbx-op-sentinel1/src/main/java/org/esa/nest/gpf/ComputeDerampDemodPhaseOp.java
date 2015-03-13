@@ -36,10 +36,11 @@ import java.util.*;
  * Compute deramp and demodulation phases.
  */
 @OperatorMetadata(alias = "Compute-Deramp-Demod-Phase",
-        category = "SAR Processing/SENTINEL-1",
+        category = "SAR Processing/Sentinel-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Compute Deramp and Demodulation Phases")
+        description = "Compute Deramp and Demodulation Phases",
+        internal = true)
 public final class ComputeDerampDemodPhaseOp extends Operator {
 
     @SourceProduct(alias = "source")

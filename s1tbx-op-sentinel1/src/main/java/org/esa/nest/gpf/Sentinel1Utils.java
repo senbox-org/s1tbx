@@ -73,6 +73,8 @@ public final class Sentinel1Utils {
         getProductSubSwathNames();
 
         getSubSwathParameters();
+
+        this.nearRangeOnLeft = (subSwath[0].incidenceAngle[0][0] < subSwath[0].incidenceAngle[0][1]);
     }
 
     private void getMetadataRoot() {
@@ -125,8 +127,8 @@ public final class Sentinel1Utils {
                     AbstractMetadata.slant_range_to_first_pixel);
         }
 
-        final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
-        this.nearRangeOnLeft = SARGeocoding.isNearRangeOnLeft(incidenceAngle, sourceImageWidth);
+        //final TiePointGrid incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
+        //this.nearRangeOnLeft = SARGeocoding.isNearRangeOnLeft(incidenceAngle, sourceImageWidth);
     }
 
     /**
@@ -587,19 +589,15 @@ public final class Sentinel1Utils {
 
         for (int s = 0; s < numOfSubSwath; s++) {
             final DCPolynomial[] dcEstimateList = getDCEstimateList(subSwath[s].subSwathName);
-            if (dcEstimateList.length != subSwath[s].numOfBursts) {
-                throw new OperatorException("Subswath " + (s+1) + ": The number of dataDCPolynomials in " +
-                        "dcEstimateList is different from the number of bursts");
-            }
-            //final DCPolynomial[] dcBurstList = computeDCForBurstCenters(dcEstimateList, s+1);
+            final DCPolynomial[] dcBurstList = computeDCForBurstCenters(dcEstimateList, s+1);
             subSwath[s].dopplerCentroid = new double[subSwath[s].numOfBursts][subSwath[s].samplesPerBurst];
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
                 for (int x = 0; x < subSwath[s].samplesPerBurst; x++) {
                     final double slrt = getSlantRangeTime(x, s+1)*2; // 1-way to 2-way
-                    final double dt = slrt - dcEstimateList[b].t0;
+                    final double dt = slrt - dcBurstList[b].t0;
                     double dcValue = 0.0;
-                    for (int i = 0; i < dcEstimateList[b].dataDcPolynomial.length; i++) {
-                        dcValue += dcEstimateList[b].dataDcPolynomial[i] * FastMath.pow(dt, i);
+                    for (int i = 0; i < dcBurstList[b].dataDcPolynomial.length; i++) {
+                        dcValue += dcBurstList[b].dataDcPolynomial[i] * FastMath.pow(dt, i);
                     }
                     subSwath[s].dopplerCentroid[b][x] = dcValue;
                 }
@@ -647,12 +645,20 @@ public final class Sentinel1Utils {
 
     private DCPolynomial[] computeDCForBurstCenters(final DCPolynomial[] dcEstimateList, final int subSwathIndex) {
 
+        if (dcEstimateList.length >= subSwath[subSwathIndex - 1].numOfBursts) {
+            return dcEstimateList;
+        }
+
         final DCPolynomial[] dcBurstList = new DCPolynomial[subSwath[subSwathIndex - 1].numOfBursts];
         for (int b = 0; b < subSwath[subSwathIndex - 1].numOfBursts; b++) {
-            final double centerTime = 0.5*(subSwath[subSwathIndex - 1].burstFirstLineTime[b] +
-                    subSwath[subSwathIndex - 1].burstLastLineTime[b]);
+            if (b < dcEstimateList.length) {
+                dcBurstList[b] = dcEstimateList[b];
+            } else {
+                final double centerTime = 0.5*(subSwath[subSwathIndex - 1].burstFirstLineTime[b] +
+                        subSwath[subSwathIndex - 1].burstLastLineTime[b]);
 
-            dcBurstList[b] = computeDC(centerTime, dcEstimateList);
+                dcBurstList[b] = computeDC(centerTime, dcEstimateList);
+            }
         }
 
         return dcBurstList;
@@ -829,6 +835,21 @@ public final class Sentinel1Utils {
             }
         }
         return polList.toArray(new String[polList.size()]);
+    }
+
+    public static String[] getProductSubswaths(final MetadataElement absRoot) {
+
+        final MetadataElement[] elems = absRoot.getElements();
+        final List<String> swathList = new ArrayList<>(4);
+        for (MetadataElement elem : elems) {
+            if (elem.getName().contains("Band_")) {
+                final String swath = elem.getAttributeString("swath", null);
+                if (swath != null && !swathList.contains(swath)) {
+                    swathList.add(swath);
+                }
+            }
+        }
+        return swathList.toArray(new String[swathList.size()]);
     }
 
     public static ProductData.UTC getTime(final MetadataElement elem, final String tag) {

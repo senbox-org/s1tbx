@@ -21,11 +21,10 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.DownloadableArchive;
 import org.esa.snap.datamodel.Orbits;
-import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.Settings;
-import org.esa.snap.util.ZipUtils;
 import org.esa.snap.util.ftpUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -41,11 +40,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -94,19 +89,19 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     public SentinelPODOrbitFile(final String orbitType, final MetadataElement absRoot,
                                 final Product sourceProduct, final int polyDegree) throws Exception {
         super(orbitType, absRoot);
+        this.polyDegree = polyDegree;
+    }
 
-        final InputProductValidator validator = new InputProductValidator(sourceProduct);
-        if(validator.isMultiSwath()) {
-            throw new OperatorException("Multiple swaths are not supported. Apply TOPSAR Split");
-        }
-
+    public File retrieveOrbitFile() throws Exception {
         final double stateVectorTime = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getMJD();
-        final int year = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getAsCalendar().get(Calendar.YEAR);
+        final Calendar calendar = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).getAsCalendar();
+        final int year = calendar.get(Calendar.YEAR);
+        final int month = calendar.get(Calendar.MONTH) + 1; // zero based
 
         this.orbitFile = findOrbitFile(stateVectorTime, year);
-        this.polyDegree = polyDegree;
+
         if(orbitFile == null) {
-            getRemoteFiles(year);
+            getRemoteFiles(year, month);
             this.orbitFile = findOrbitFile(stateVectorTime, year);
             if(orbitFile == null) {
                 String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
@@ -122,6 +117,8 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         readOrbitFile();
 
         checkOrbitFileValidity();
+
+        return orbitFile;
     }
 
     private File findOrbitFile(final double stateVectorTime, final int year) {
@@ -129,10 +126,10 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         final String prefix;
         final File orbitFileFolder;
         if(orbitType.endsWith(RESTITUTED)) {
-            prefix = "S1A_OPER_AUX_RESORB_OPOD_"+year;
+            prefix = "S1A_OPER_AUX_RESORB_OPOD_";
             orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1ResOrbitPath")+File.separator+year);
         } else {
-            prefix = "S1A_OPER_AUX_POEORB_OPOD_"+year;
+            prefix = "S1A_OPER_AUX_POEORB_OPOD_";
             orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath")+File.separator+year);
         }
 
@@ -162,21 +159,18 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return null;
     }
 
-    private void getRemoteFiles(final int year) throws Exception {
+    private void getRemoteFiles(final int year, final int month) throws Exception {
 
         if(orbitType.endsWith(RESTITUTED)) {
             return;
         }
 
-        final File localFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath"));
+        final File localFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath"), String.valueOf(year));
         final URL remotePath = new URL(ftpUtils.getPathFromSettings("OrbitFiles.sentinel1POEOrbit_remotePath"));
-        final File localFile = new File(localFolder, year+".zip");
+        final File localFile = new File(localFolder, year+"-"+month+".zip");
 
         final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
-        final File archiveFile = (File)archive.getContentFile();
-
-        ZipUtils.unzipToFolder(archiveFile, localFolder);
-        archiveFile.delete();
+        archive.getContentFiles();
     }
 
     /**

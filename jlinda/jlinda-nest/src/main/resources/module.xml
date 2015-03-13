@@ -105,7 +105,7 @@
             <dialogTitle>Cross InSAR resampling</dialogTitle>
             <shortDescr>Perform resampling of SAR geometries for Cross-InSAR</shortDescr>
             <parent>CoregistrationGroup</parent>
-            <placeAfter>InSARCoregistrationGraph</placeAfter>
+            <placeAfter>CoregistrationGraph</placeAfter>
             <helpId>CrossResamplingOp</helpId>
         </action>
 
@@ -117,6 +117,8 @@
             <text>Interferometric</text>
             <parent>SAR Processing</parent>
             <placeAfter>CoregistrationGroup</placeAfter>
+            <separatorBefore>true</separatorBefore>
+            <separatorAfter>true</separatorAfter>
         </action>
 
         <action>
@@ -137,6 +139,7 @@
             <targetProductNameSuffix>_coh</targetProductNameSuffix>
             <shortDescr>Estimate coherence of stack of images</shortDescr>
             <parent>products</parent>
+            <placeAfter>InterferogramOp</placeAfter>
             <helpId>CoherenceOp</helpId>
         </action>
 
@@ -196,12 +199,12 @@
             <helpId>Slant2HeightOp</helpId>
         </action>
 
-        <!--/// Tools ///-->
+        <!--/// Filtering ///-->
 
         <action>
-            <id>insar_tools</id>
+            <id>insar_filters</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>Tools</text>
+            <text>Filtering</text>
             <placeAfter>products</placeAfter>
             <parent>insar</parent>
         </action>
@@ -226,7 +229,7 @@
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <text>Spectral Filtering</text>
             <placeFirst>true</placeFirst>
-            <parent>insar_tools</parent>
+            <parent>insar_filters</parent>
         </action>
 
         <action>
@@ -254,7 +257,7 @@
             <helpId>AzimuthFilterOp</helpId>
         </action>
 
-        <action>
+        <!--action>
             <id>PhaseFilterOp</id>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
@@ -263,10 +266,10 @@
             <dialogTitle>Phase Filtering</dialogTitle>
             <targetProductNameSuffix>_flt</targetProductNameSuffix>
             <shortDescr>Phase filter stack of interferograms</shortDescr>
-            <parent>insar_tools</parent>
+            <parent>insar_filters</parent>
             <placeAfter>spectral_filtering</placeAfter>
             <helpId>PhaseFilterOp</helpId>
-        </action>
+        </action-->
 
         <!--/// UNWRAPPING ///-->
 
@@ -280,7 +283,8 @@
         </action>
 
         <!--/// integrated unwrapping ///-->
-        <action>
+
+        <!--action>
             <id>UnwrapOp</id>
             <helpId>Unwrap</helpId>
             <class>org.jlinda.nest.dat.UnwrapAction</class>
@@ -300,16 +304,17 @@
             <parent>unwrapping</parent>
             <placeAfter>UnwrapOp</placeAfter>
             <separatorAfter>true</separatorAfter>
-        </action>
+        </action-->
         
         <!--/// snaphu unwrapping ///-->
+
         <action>
             <id>SnaphuExportOp</id>
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <helpId>Unwrap</helpId>
-            <text>Snaphu data export</text>
-            <dialogTitle>Export data for SNAPHU unwrapping</dialogTitle>
+            <text>Snaphu Export</text>
             <graphFile>SnaphuExportGraph.xml</graphFile>
+            <dialogTitle>Export data for SNAPHU unwrapping</dialogTitle>
             <targetProductNameSuffix>_snaphu</targetProductNameSuffix>
             <shortDescr>Export data and construct conf file for SNAPHU unwrapping</shortDescr>
             <parent>unwrapping</parent>
@@ -319,23 +324,13 @@
         <action>
             <id>SnaphuImportOp</id>
             <helpId>Unwrap</helpId>
-            <class>org.jlinda.nest.dat.snaphu.SnaphuImportAction</class>
-            <text>Snaphu data import</text>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <text>Snaphu Import</text>
+            <graphFile>SnaphuImportGraph.xml</graphFile>
             <shortDescr>Import result of Snaphu to InSAR product</shortDescr>
             <parent>unwrapping</parent>
             <placeAfter>SnaphuExportOp</placeAfter>
         </action>
-
-        <action>
-            <id>exportSnaphuProduct</id>
-            <text>Export Snaphu Product</text>
-            <class>org.esa.beam.visat.actions.ProductExportAction</class>
-            <formatName>Snaphu</formatName>
-            <useAllFileFilter>true</useAllFileFilter>
-            <shortDescr>Export Snaphu Product</shortDescr>
-            <helpId>exportSnaphuProduct</helpId>
-        </action>
-
 
         <action>
             <id>InSARMaster</id>
@@ -343,7 +338,7 @@
             <class>org.jlinda.nest.dat.InSARMasterAction</class>
             <parent>insar</parent>
             <text>InSAR Stack Overview</text>
-            <placeAfter>unwrapping</placeAfter>
+            <placeFirst>true</placeFirst>
         </action>
 
     </extension>

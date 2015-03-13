@@ -143,8 +143,23 @@ public class CalibrationOp extends Operator {
                 createBetaVirtualBand(targetProduct, outputImageScaleInDb);
             }
 
+            updateTargetProductMetadata();
+
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    /**
+     * Update the metadata in the target product.
+     */
+    private void updateTargetProductMetadata() {
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(targetProduct);
+        absRoot.getAttribute(AbstractMetadata.abs_calibration_flag).getData().setElemBoolean(true);
+
+        if(!outputImageInComplex) {
+            absRoot.setAttributeString(AbstractMetadata.SAMPLE_TYPE, "DETECTED");
         }
     }
 

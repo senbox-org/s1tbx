@@ -1,7 +1,7 @@
 package org.jlinda.core.geocode;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 import org.jlinda.core.Orbit;
@@ -22,7 +22,7 @@ import static org.jlinda.core.utils.PolyUtils.polyFit;
 
 public class Slant2Height {
 
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     private final SLCImage master;
     private final Orbit masterOrbit;

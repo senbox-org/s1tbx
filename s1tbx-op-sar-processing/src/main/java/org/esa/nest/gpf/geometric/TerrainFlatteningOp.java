@@ -126,6 +126,9 @@ public final class TerrainFlatteningOp extends Operator {
     private Band[] targetBands = null;
     protected final HashMap<Band, Band> targetBandToSourceBandMap = new HashMap<>(2);
     private boolean nearRangeOnLeft = true;
+    private boolean skipBistaticCorrection = false;
+
+    enum UnitType {AMPLITUDE,INTENSITY,COMPLEX,RATIO}
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -214,6 +217,10 @@ public final class TerrainFlatteningOp extends Operator {
         if (mission.equals("RS2") && pass.contains("DESCENDING")) {
             nearRangeOnLeft = false;
         }
+
+        if (mission.contains("CSKS") || mission.contains("TSX") || mission.equals("RS2") || mission.contains("SENTINEL")) {
+            skipBistaticCorrection = true;
+        }
     }
 
     /**
@@ -286,15 +293,16 @@ public final class TerrainFlatteningOp extends Operator {
      */
     private void addSelectedBands() {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, true);
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
         String tgtBandName;
         String tgtUnit;
         for (final Band srcBand : sourceBands) {
             final String srcBandName = srcBand.getName();
-            if (!srcBandName.contains("Beta")) {
-                throw new OperatorException("Please select beta0 bands only");
+
+            if(!srcBandName.startsWith("Beta0")) {      //beta0 or polsar product
+                continue;
             }
 
             final String unit = srcBand.getUnit();
@@ -323,6 +331,10 @@ public final class TerrainFlatteningOp extends Operator {
                 tgtBand.setUnit(tgtUnit);
                 targetBandToSourceBandMap.put(tgtBand, srcBand);
             }
+        }
+
+        if(targetProduct.getNumBands() == 0) {
+            throw new OperatorException("TerrainFlattening requires beta0 or T3 as input");
         }
 
         if (outputSimulatedImage) {
@@ -440,23 +452,24 @@ public final class TerrainFlatteningOp extends Operator {
 
                     GeoUtils.geo2xyzWGS84(terrainData.latPixels[yy][xx], terrainData.lonPixels[yy][xx], alt, earthPoint);
 
-                    final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
+                    double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
                             firstLineUTC, lineTimeInterval, wavelength, earthPoint,
                             orbit.sensorPosition, orbit.sensorVelocity);
 
                     double slantRange = SARGeocoding.computeSlantRange(zeroDopplerTime, orbit, earthPoint, sensorPos);
 
-                    final double zeroDopplerTimeWithoutBias =
-                            zeroDopplerTime + slantRange / Constants.lightSpeedInMetersPerDay;
+                    if(!skipBistaticCorrection) {
+                        // skip bistatic correction for COSMO, TerraSAR-X and RadarSAT-2 and S-1
+                        zeroDopplerTime += slantRange / Constants.lightSpeedInMetersPerDay;
+                        slantRange = SARGeocoding.computeSlantRange(
+                                zeroDopplerTime, orbit, earthPoint, sensorPos);
+                    }
 
-                    azimuthIndex[i] = (zeroDopplerTimeWithoutBias - firstLineUTC) / lineTimeInterval;
-
-                    slantRange = SARGeocoding.computeSlantRange(
-                            zeroDopplerTimeWithoutBias, orbit, earthPoint, sensorPos);
+                    azimuthIndex[i] = (zeroDopplerTime - firstLineUTC) / lineTimeInterval;
 
                     rangeIndex[i] = SARGeocoding.computeRangeIndex(
                             srgrFlag, sourceImageWidth, firstLineUTC, lastLineUTC, rangeSpacing,
-                            zeroDopplerTimeWithoutBias, slantRange, nearEdgeSlantRange, srgrConvParams);
+                            zeroDopplerTime, slantRange, nearEdgeSlantRange, srgrConvParams);
 
                     if (rangeIndex[i] <= 0.0) {
                         continue;
@@ -466,10 +479,9 @@ public final class TerrainFlatteningOp extends Operator {
                         rangeIndex[i] = sourceImageWidth - 1 - rangeIndex[i];
                     }
 
-                    final LocalGeometry localGeometry = new LocalGeometry(x, y, earthPoint, sensorPos, terrainData, xx, yy);
+                    final LocalGeometry localGeometry = new LocalGeometry(earthPoint, sensorPos, terrainData, xx, yy);
 
-                    illuminatedArea[i] = computeLocalIlluminatedArea(x0, ymin, x, y, localGeometry,
-                            terrainData.localDEM, demNoDataValue);
+                    illuminatedArea[i] = computeLocalIlluminatedArea(localGeometry, demNoDataValue);
 
                     if (illuminatedArea[i] == noDataValue) {
                         savePixel[i] = false;
@@ -544,6 +556,17 @@ public final class TerrainFlatteningOp extends Operator {
                 sourceData = sourceTile.getDataBuffer();
             }
 
+            UnitType unitType = UnitType.AMPLITUDE;
+            if (unit.contains(Unit.AMPLITUDE)) {
+                unitType = UnitType.AMPLITUDE;
+            } else if (unit.contains(Unit.INTENSITY)) {
+                unitType = UnitType.INTENSITY;
+            } else if (unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY)) {
+                unitType = UnitType.COMPLEX;
+            } else if (unit.contains("Ratio")) {
+                unitType = UnitType.RATIO;
+            }
+
             double v;
             for (int y = y0; y < y0 + h; y++) {
                 final int yy = y - y0;
@@ -551,19 +574,25 @@ public final class TerrainFlatteningOp extends Operator {
                 for (int x = x0; x < x0 + w; x++) {
                     final int xx = x - x0;
                     final int idx = trgIndex.getIndex(x);
-                    if (simulatedImage[yy][xx] != noDataValue && simulatedImage[yy][xx] != 0.0) {
+                    double simVal = simulatedImage[yy][xx];
+                    if (simVal != noDataValue && simVal != 0.0) {
 
-                        if (unit.contains(Unit.AMPLITUDE)) {
-                            v = sourceData.getElemDoubleAt(idx);
-                            targetData.setElemDoubleAt(idx, v*v / simulatedImage[yy][xx]);
-                        } else if (unit.contains(Unit.INTENSITY)) {
-                            v = sourceData.getElemDoubleAt(idx);
-                            targetData.setElemDoubleAt(idx, v / simulatedImage[yy][xx]);
-                        } else if (unit.contains(Unit.REAL) || unit.contains(Unit.IMAGINARY)) {
-                            v = sourceData.getElemDoubleAt(idx);
-                            targetData.setElemDoubleAt(idx, v / Math.sqrt(simulatedImage[yy][xx]));
-                        } else if (unit.contains("Ratio")) {
-                            targetData.setElemDoubleAt(idx, simulatedImage[yy][xx]);
+                        switch (unitType) {
+                            case AMPLITUDE :
+                                v = sourceData.getElemDoubleAt(idx);
+                                targetData.setElemDoubleAt(idx, v*v / simVal);
+                                break;
+                            case INTENSITY:
+                                v = sourceData.getElemDoubleAt(idx);
+                                targetData.setElemDoubleAt(idx, v / simVal);
+                                break;
+                            case COMPLEX:
+                                v = sourceData.getElemDoubleAt(idx);
+                                targetData.setElemDoubleAt(idx, v / Math.sqrt(simVal));
+                                break;
+                            case RATIO:
+                                targetData.setElemDoubleAt(idx, simVal);
+                                break;
                         }
 
                     } else {
@@ -773,28 +802,14 @@ public final class TerrainFlatteningOp extends Operator {
     /**
      * Compute local illuminated area for given point.
      *
-     * @param xMin           Start of the simulated area in range direction.
-     * @param yMin           Start of the simulated area in azimuth direction.
-     * @param x              X coordinate of given point.
-     * @param y              Y coordinate of given point.
      * @param lg             Local geometry information.
-     * @param localDEM       The digital elevation model.
      * @param demNoDataValue Invalid DEM value.
      * @return The computed local illuminated area.
      */
-    private double computeLocalIlluminatedArea(final int xMin, final int yMin, final int x, final int y,
-                                               final LocalGeometry lg, final double[][] localDEM,
-                                               final double demNoDataValue) {
+    private double computeLocalIlluminatedArea(final LocalGeometry lg, final double demNoDataValue) {
 
-        final int yy = y - yMin + 1; // add 1 because localDEM is larger than tile by 1 pixel in each direction
-        final int xx = x - xMin + 1;
-
-        final double h00 = localDEM[yy][xx];
-        final double h01 = localDEM[yy - 1][xx];
-        final double h10 = localDEM[yy][xx + 1];
-        final double h11 = localDEM[yy - 1][xx + 1];
-
-        if (h00 == demNoDataValue || h01 == demNoDataValue || h10 == demNoDataValue || h11 == demNoDataValue) {
+        if (lg.t00Height == demNoDataValue || lg.t01Height == demNoDataValue ||
+                lg.t10Height == demNoDataValue || lg.t11Height == demNoDataValue) {
             return noDataValue;
         }
 
@@ -803,10 +818,10 @@ public final class TerrainFlatteningOp extends Operator {
         final double[] t10 = new double[3];
         final double[] t11 = new double[3];
 
-        GeoUtils.geo2xyzWGS84(lg.t00Lat, lg.t00Lon, h00, t00);
-        GeoUtils.geo2xyzWGS84(lg.t01Lat, lg.t01Lon, h01, t01);
-        GeoUtils.geo2xyzWGS84(lg.t10Lat, lg.t10Lon, h10, t10);
-        GeoUtils.geo2xyzWGS84(lg.t11Lat, lg.t11Lon, h11, t11);
+        GeoUtils.geo2xyzWGS84(lg.t00Lat, lg.t00Lon, lg.t00Height, t00);
+        GeoUtils.geo2xyzWGS84(lg.t01Lat, lg.t01Lon, lg.t01Height, t01);
+        GeoUtils.geo2xyzWGS84(lg.t10Lat, lg.t10Lon, lg.t10Height, t10);
+        GeoUtils.geo2xyzWGS84(lg.t11Lat, lg.t11Lon, lg.t11Height, t11);
 
         // compute slant range direction
         final double[] s = {lg.sensorPos[0] - lg.centerPoint[0],
@@ -853,26 +868,34 @@ public final class TerrainFlatteningOp extends Operator {
     public static class LocalGeometry {
         public final double t00Lat;
         public final double t00Lon;
+        public final double t00Height;
         public final double t01Lat;
         public final double t01Lon;
+        public final double t01Height;
         public final double t10Lat;
         public final double t10Lon;
+        public final double t10Height;
         public final double t11Lat;
         public final double t11Lon;
+        public final double t11Height;
         public final double[] sensorPos;
         public final double[] centerPoint;
 
-        public LocalGeometry(final int x, final int y, final double[] earthPoint, final double[] sensPos,
+        public LocalGeometry(final double[] earthPoint, final double[] sensPos,
                              final TerrainData terrainData, final int xx, final int yy) {
 
             t00Lat = terrainData.latPixels[yy][xx];
             t00Lon = terrainData.lonPixels[yy][xx];
+            t00Height = terrainData.localDEM[yy][xx];
             t01Lat = terrainData.latPixels[yy - 1][xx];
             t01Lon = terrainData.lonPixels[yy - 1][xx];
+            t01Height = terrainData.localDEM[yy - 1][xx];
             t10Lat = terrainData.latPixels[yy][xx + 1];
             t10Lon = terrainData.lonPixels[yy][xx + 1];
-            t11Lat = terrainData.latPixels[yy + 1][xx + 1];
-            t11Lon = terrainData.lonPixels[yy + 1][xx + 1];
+            t10Height = terrainData.localDEM[yy][xx + 1];
+            t11Lat = terrainData.latPixels[yy - 1][xx + 1];
+            t11Lon = terrainData.lonPixels[yy - 1][xx + 1];
+            t11Height = terrainData.localDEM[yy - 1][xx + 1];
             centerPoint = earthPoint;
             sensorPos = sensPos;
         }

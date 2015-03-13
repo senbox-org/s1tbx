@@ -3,16 +3,16 @@ package org.jlinda.core.coregistration;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.math3.util.FastMath;
-import org.ejml.alg.dense.linsol.LinearSolver;
-import org.ejml.alg.dense.linsol.LinearSolverFactory;
 import org.ejml.data.DenseMatrix64F;
 import org.ejml.data.RowD1Matrix64F;
+import org.ejml.factory.LinearSolver;
+import org.ejml.factory.LinearSolverFactory;
 import org.ejml.ops.CommonOps;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Placemark;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
 import org.jlinda.core.SLCImage;
@@ -31,7 +31,7 @@ import static org.jlinda.core.coregistration.utils.CPMUtils.*;
 
 public class CPM {
 
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     final public List<Placemark> slaveGCPList = new ArrayList<>();
 

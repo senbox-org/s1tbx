@@ -8,3 +8,5 @@ org.esa.nest.gpf.ComputeDerampedAzimuthSpectrumOp$Spi
 org.esa.nest.gpf.ComputeDerampDemodPhaseOp$Spi
 org.esa.nest.gpf.CreateCoherenceImageOp$Spi
 org.esa.nest.gpf.CreateInterferogramOp$Spi
+org.esa.nest.gpf.TOPSARMergeOp$Spi
+org.esa.nest.gpf.GRDPostProcessOp$Spi

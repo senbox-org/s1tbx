@@ -43,6 +43,7 @@ public final class SLCImage {
     private double tAzi1;
     private double tAzi_original;
     private String azimuthWeightingWindow;
+    private double lineTimeInterval;
 
     // range annotations
     private double rsr2x;
@@ -167,6 +168,7 @@ public final class SLCImage {
         final String t_azi1_UTC = element.getAttributeUTC(AbstractMetadata.first_line_time).toString();
         this.mjd = element.getAttributeUTC(AbstractMetadata.first_line_time).getMJD();
         this.tAzi1 = DateUtils.dateTimeToSecOfDay(t_azi1_UTC);
+        this.lineTimeInterval = element.getAttributeDouble(AbstractMetadata.line_time_interval);
 
         this.rangeBandwidth = element.getAttributeDouble(AbstractMetadata.range_bandwidth);
         this.azimuthBandwidth = element.getAttributeDouble(AbstractMetadata.azimuth_bandwidth);
@@ -310,12 +312,14 @@ public final class SLCImage {
 
     // Convert line number to azimuth time (1 is first line)
     public double line2ta(double line) {
-        return tAzi1 + ((line - 1.0) / PRF);
+        return tAzi1 + (line * lineTimeInterval);
+//        return tAzi1 + ((line - 1.0) / PRF);
     }
 
     // Convert azimuth time to line number (1 is first line)
     public double ta2line(double azitime) {
-        return 1.0 + PRF * (azitime - tAzi1);
+        return (azitime - tAzi1) / lineTimeInterval;
+//        return 1.0 + PRF * (azitime - tAzi1);
     }
 
     public Point lp2t(Point p) {

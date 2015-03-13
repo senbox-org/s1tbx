@@ -60,6 +60,7 @@
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Calibration</parent>
+            <placeFirst>true</placeFirst>
             <text>Calibrate</text>
             <dialogTitle>Calibration</dialogTitle>
             <shortDescr>Invoke the Calibration operator</shortDescr>
@@ -87,7 +88,8 @@
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Calibration</parent>
-            <text>Sentinel-1 Remove Thermal Noise</text>
+            <placeAfter>CalibrationOp</placeAfter>
+            <text>S-1 Thermal Noise Removal</text>
             <dialogTitle>Sentinel-1 Remove Thermal Noise</dialogTitle>
             <shortDescr>Remove thermal noise for Sentinel-1 product</shortDescr>
             <operatorName>ThermalNoiseRemoval</operatorName>

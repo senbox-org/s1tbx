@@ -353,6 +353,11 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             final MetadataElement imageAnnotation = prodElem.getElement("imageAnnotation");
             final MetadataElement imageInformation = imageAnnotation.getElement("imageInformation");
 
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.data_take_id,
+                    Integer.parseInt(adsHeader.getAttributeString("missionDataTakeId")));
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slice_num,
+                    Integer.parseInt(imageInformation.getAttributeString("sliceNumber")));
+
             rangeSpacingTotal += imageInformation.getAttributeDouble("rangePixelSpacing");
             azimuthSpacingTotal += imageInformation.getAttributeDouble("azimuthPixelSpacing");
 
@@ -708,6 +713,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
     private void addTiePointGrids(final Band band, final String imgXMLName, final String tpgPrefix) {
 
+        //System.out.println("S1L1Dir.addTiePointGrids: band = " + band.getName() + " imgXMLName = " + imgXMLName + " tpgPrefix = " + tpgPrefix);
+
         final Product product = band.getProduct();
         String pre = "";
         if (!tpgPrefix.isEmpty())
@@ -716,12 +723,13 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final TiePointGrid existingLatTPG = product.getTiePointGrid(pre + OperatorUtils.TPG_LATITUDE);
         final TiePointGrid existingLonTPG = product.getTiePointGrid(pre + OperatorUtils.TPG_LONGITUDE);
         if (existingLatTPG != null && existingLonTPG != null) {
+            //System.out.println("for band = " + band.getName() + ", use existing TPG");
             // reuse geocoding
             final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(existingLatTPG, existingLonTPG, Datum.WGS_84);
             band.setGeoCoding(tpGeoCoding);
             return;
         }
-
+        //System.out.println("add new TPG for band = " + band.getName());
         final String annotation = FileUtils.exchangeExtension(imgXMLName, ".xml");
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement annotationElem = origProdRoot.getElement("annotation");
@@ -732,6 +740,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
 
         final MetadataElement[] geoGrid = geolocationGridPointList.getElements();
 
+        //System.out.println("geoGrid.length = " + geoGrid.length);
+
         final double[] latList = new double[geoGrid.length];
         final double[] lngList = new double[geoGrid.length];
         final double[] incidenceAngleList = new double[geoGrid.length];
@@ -740,6 +750,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final int[] x = new int[geoGrid.length];
         final int[] y = new int[geoGrid.length];
 
+        // Loop through the list of geolocation grid points, assuming that it represents a row-major rectangular grid.
         int gridWidth = 0, gridHeight = 0;
         int i = 0;
         for (MetadataElement ggPoint : geoGrid) {
@@ -752,12 +763,15 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
             x[i] = (int) ggPoint.getAttributeDouble("pixel", 0);
             y[i] = (int) ggPoint.getAttributeDouble("line", 0);
             if (x[i] == 0) {
-                if (gridWidth == 0)
+                // This means we are at the start of a new line
+                if (gridWidth == 0) // Here we are implicitly assuming that the pixel horizontal spacing is assumed to be the same from line to line.
                     gridWidth = i;
                 ++gridHeight;
             }
             ++i;
         }
+
+        //System.out.println("geoGrid w = " + gridWidth + "; h = " + gridHeight);
 
         final int newGridWidth = gridWidth;
         final int newGridHeight = gridHeight;
@@ -862,7 +876,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         return "Level-1";
     }
 
-    private static void getListInEvenlySpacedGrid(
+    public static void getListInEvenlySpacedGrid(
             final int sceneRasterWidth, final int sceneRasterHeight, final int sourceGridWidth,
             final int sourceGridHeight, final int[] x, final int[] y, final double[] sourcePointList,
             final int targetGridWidth, final int targetGridHeight, final double subSamplingX, final double subSamplingY,

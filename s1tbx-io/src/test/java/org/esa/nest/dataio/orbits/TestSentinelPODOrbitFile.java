@@ -8,6 +8,7 @@ import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -23,11 +24,9 @@ public class TestSentinelPODOrbitFile {
             "S1A_OPER_AUX_RESORB_OPOD_20140611T152302_V20140525T151921_20140525T183641.EOF");
 
     @Test
+    @Ignore
     public void testSentinelPODOrbitFile() throws Exception {
-        if (!orbitFile.exists()) {
-            TestUtils.skipTest(this, orbitFile + " not found");
-            return;
-        }
+
         final File sourceFile = TestData.inputS1_GRD;
         if(!sourceFile.exists()) {
             TestUtils.skipTest(this, sourceFile + " not found");
@@ -38,7 +37,7 @@ public class TestSentinelPODOrbitFile {
         MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
         TestUtils.log.info("testSentinelPODOrbitFile...");
-        final SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile(SentinelPODOrbitFile.RESTITUTED, absRoot, sourceProduct, 3);
+        final SentinelPODOrbitFile podOrbitFile = new SentinelPODOrbitFile(SentinelPODOrbitFile.PRECISE, absRoot, sourceProduct, 3);
 
         // First OSV (exact match)
         String utcStr1 = "UTC=2014-05-25T15:19:21.698661";

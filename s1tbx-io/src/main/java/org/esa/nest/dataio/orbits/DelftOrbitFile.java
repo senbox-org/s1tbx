@@ -33,12 +33,31 @@ public class DelftOrbitFile extends BaseOrbitFile {
     public static final String DELFT_PRECISE = "DELFT Precise";
 
     private OrbitalDataRecordReader delftReader = null;
+    private final Product sourceProduct;
 
     public DelftOrbitFile(final String orbitType, final MetadataElement absRoot,
                           final Product sourceProduct) throws Exception {
         super(orbitType, absRoot);
+        this.sourceProduct = sourceProduct;        
+    }
 
-        init(sourceProduct);
+    public File retrieveOrbitFile() throws Exception {
+        delftReader = OrbitalDataRecordReader.getInstance();
+        // get product start time
+        final Date startDate = sourceProduct.getStartTime().getAsDate();
+
+        // find orbit file in the folder
+        orbitFile = FindDelftOrbitFile(delftReader, startDate);
+
+        if (orbitFile == null) {
+            throw new IOException("Unable to find suitable orbit file.\n" +
+                    "Please refer to http://www.deos.tudelft.nl/ers/precorbs/orbits/ \n" +
+                    "ERS1 orbits are available until 1996\n" +
+                    "ERS2 orbits are available until 2003\n" +
+                    "ENVISAT orbits are available until 2008");
+        }
+
+        return orbitFile;
     }
 
     /**
@@ -55,30 +74,6 @@ public class DelftOrbitFile extends BaseOrbitFile {
         return new Orbits.OrbitVector(utc,
                 orb.xPos, orb.yPos, orb.zPos,
                 orb.xVel, orb.yVel, orb.zVel);
-    }
-
-    /**
-     * Get DELFT orbit file.
-     *
-     * @param sourceProduct the input product
-     * @throws Exception The exceptions.
-     */
-    private void init(final Product sourceProduct) throws Exception {
-
-        delftReader = OrbitalDataRecordReader.getInstance();
-        // get product start time
-        final Date startDate = sourceProduct.getStartTime().getAsDate();
-
-        // find orbit file in the folder
-        orbitFile = FindDelftOrbitFile(delftReader, startDate);
-
-        if (orbitFile == null) {
-            throw new IOException("Unable to find suitable orbit file.\n" +
-                    "Please refer to http://www.deos.tudelft.nl/ers/precorbs/orbits/ \n" +
-                    "ERS1 orbits are available until 1996\n" +
-                    "ERS2 orbits are available until 2003\n" +
-                    "ENVISAT orbits are available until 2008");
-        }
     }
 
     /**

@@ -25,6 +25,13 @@ import java.io.File;
 public interface OrbitFile {
 
     /**
+     * download, find and read orbit file
+     *
+     * @throws Exception The exceptions.
+     */
+    public File retrieveOrbitFile() throws Exception;
+
+    /**
      * Get orbit information for given time.
      *
      * @param utc The UTC in days.

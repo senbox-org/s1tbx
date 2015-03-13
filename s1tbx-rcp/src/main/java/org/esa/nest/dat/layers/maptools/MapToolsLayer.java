@@ -21,7 +21,6 @@ import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.grender.Rendering;
-import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -41,7 +40,7 @@ public class MapToolsLayer extends Layer implements LayerSelection {
     private final RasterDataNode raster;
     private final MapToolsOptions options;
 
-    private final ArrayList<MapToolsComponent> components = new ArrayList<MapToolsComponent>(5);
+    private final ArrayList<MapToolsComponent> components = new ArrayList<>(5);
 
     public MapToolsLayer(LayerType layerType, PropertySet configuration) {
         super(layerType, configuration);
@@ -89,9 +88,7 @@ public class MapToolsLayer extends Layer implements LayerSelection {
         final GeoCoding geoCoding = product.getGeoCoding();
         if (geoCoding == null) return;
 
-        final Viewport vp = rendering.getViewport();
-        final RasterDataNode raster = product.getRasterDataNode(product.getBandAt(0).getName());
-        final ScreenPixelConverter screenPixel = new ScreenPixelConverter(vp, raster);
+        final ScreenPixelConverter screenPixel = new ScreenPixelConverter(rendering.getViewport(), raster);
         if (!screenPixel.withInBounds()) {
             return;
         }
@@ -104,11 +101,9 @@ public class MapToolsLayer extends Layer implements LayerSelection {
     }
 
     public void selectRectangle(final Rectangle rect) {
-
     }
 
     public void selectPoint(final int x, final int y) {
-
     }
 
     public static Layer findMapToolsLayer(final Layer rootLayer) {

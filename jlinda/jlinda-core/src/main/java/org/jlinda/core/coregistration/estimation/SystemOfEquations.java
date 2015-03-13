@@ -3,8 +3,8 @@ package org.jlinda.core.coregistration.estimation;
 import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.lang3.ArrayUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jblas.FloatMatrix;
 import org.jblas.MatrixFunctions;
@@ -17,7 +17,7 @@ import static org.jblas.MatrixFunctions.pow;
 
 public class SystemOfEquations {
 
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     private int nObs;
     private DoubleMatrix data;

@@ -101,7 +101,7 @@
             <description>Wizard for Polarimetric Classification</description>
             <helpId>PolsarWizard</helpId>
         </action>
-        <action>
+        <!--action>
             <id>TerrainFlattenedClassificationWizard</id>
             <class>org.csa.rstb.dat.wizards.TerrainFlattenedClassification.TerrainFlattenedClassificationWizardAction
             </class>
@@ -111,7 +111,7 @@
             <description>Wizard for Polarimetric Terrain Flattened Classification</description>
             <helpId>TerrainFlattenedClassificationWizard</helpId>
             <placeAfter>PolsarWizard</placeAfter>
-        </action>
+        </action-->
     </extension>
 
     <extension point="snap-ui:helpSets">

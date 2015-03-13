@@ -44,7 +44,7 @@ public class SortingDecorator extends AbstractTableModel {
 
     private static final Directive EMPTY_DIRECTIVE = new Directive(-1, NOT_SORTED);
 
-    private final ProductEntryTableModel _tableModel;
+    private final ProductEntryTableModel tableModel;
     private final JTableHeader _tableHeader;
 
     private final List<Directive> sortingColumns = new ArrayList<>();
@@ -60,8 +60,8 @@ public class SortingDecorator extends AbstractTableModel {
         Guardian.assertNotNull("tableModel", tableModel);
         Guardian.assertNotNull("tableHeader", tableHeader);
 
-        _tableModel = tableModel;
-        _tableModel.addTableModelListener(new TableModelListener() {
+        this.tableModel = tableModel;
+        this.tableModel.addTableModelListener(new TableModelListener() {
             public void tableChanged(final TableModelEvent e) {
                 initViewToModel();
                 fireTableChanged(e);
@@ -74,35 +74,35 @@ public class SortingDecorator extends AbstractTableModel {
     }
 
     public int getRowCount() {
-        return _tableModel.getRowCount();
+        return tableModel.getRowCount();
     }
 
     public int getColumnCount() {
-        return _tableModel.getColumnCount();
+        return tableModel.getColumnCount();
     }
 
     public Object getValueAt(final int rowIndex, final int columnIndex) {
-        return _tableModel.getValueAt(getSortedIndex(rowIndex), columnIndex);
+        return tableModel.getValueAt(getSortedIndex(rowIndex), columnIndex);
     }
 
     @Override
     public String getColumnName(final int column) {
-        return _tableModel.getColumnName(column);
+        return tableModel.getColumnName(column);
     }
 
     @Override
     public Class getColumnClass(final int column) {
-        return _tableModel.getColumnClass(column);
+        return tableModel.getColumnClass(column);
     }
 
     @Override
     public boolean isCellEditable(final int row, final int column) {
-        return _tableModel.isCellEditable(getSortedIndex(row), column);
+        return tableModel.isCellEditable(getSortedIndex(row), column);
     }
 
     @Override
     public void setValueAt(final Object aValue, final int row, final int column) {
-        _tableModel.setValueAt(aValue, getSortedIndex(row), column);
+        tableModel.setValueAt(aValue, getSortedIndex(row), column);
     }
 
     public int getSortedIndex(final int rowIndex) {
@@ -123,7 +123,7 @@ public class SortingDecorator extends AbstractTableModel {
     }
 
     private void initViewToModel() {
-        final int tableModelRowCount = _tableModel.getRowCount();
+        final int tableModelRowCount = tableModel.getRowCount();
         viewToModel = new Row[tableModelRowCount];
         for (int row = 0; row < tableModelRowCount; row++) {
             viewToModel[row] = new Row(row);
@@ -260,7 +260,7 @@ public class SortingDecorator extends AbstractTableModel {
 
         public void paintIcon(final Component c, final Graphics g, final int x, int y) {
             final Color color = c == null ? Color.GRAY : c.getBackground();
-            // In a compound sort, make each succesive triangle 20%
+            // In a compound sort, make each successive triangle 20%
             // smaller than the previous one.
             final int dx = (int) (size / 2 * FastMath.pow(0.8, priority));
             final int dy = descending ? dx : -dx;
@@ -313,8 +313,8 @@ public class SortingDecorator extends AbstractTableModel {
             final int idxRow2 = ((Row) o).modelIndex;
 
             if (doSortBy) {
-                final Object o1 = _tableModel.getValueAt(idxRow1, 0);
-                final Object o2 = _tableModel.getValueAt(idxRow2, 0);
+                final Object o1 = tableModel.getValueAt(idxRow1, 0);
+                final Object o2 = tableModel.getValueAt(idxRow2, 0);
 
                 final int comparison = SORTEDBY_COMPARATOR.compare(o1, o2);
                 if (comparison != 0) {
@@ -324,8 +324,8 @@ public class SortingDecorator extends AbstractTableModel {
             for (Object sortingColumn : sortingColumns) {
                 final Directive directive = (Directive) sortingColumn;
                 final int column = directive.column;
-                final Object o1 = _tableModel.getValueAt(idxRow1, column);
-                final Object o2 = _tableModel.getValueAt(idxRow2, column);
+                final Object o1 = tableModel.getValueAt(idxRow1, column);
+                final Object o2 = tableModel.getValueAt(idxRow2, column);
 
                 final int comparison = getComparator(column).compare(o1, o2);
                 if (comparison != 0) {
@@ -395,9 +395,9 @@ public class SortingDecorator extends AbstractTableModel {
     };
 
     private Comparator getComparator(final int column) {
-        final DataProvider dataProvider = _tableModel.getDataProvider(column);
+        final DataProvider dataProvider = tableModel.getDataProvider(column);
 
-        final Class columnType = _tableModel.getColumnClass(column);
+        final Class columnType = tableModel.getColumnClass(column);
         Comparator comparator = dataProvider.getComparator();
         if (comparator == null) {
             if (Comparable.class.isAssignableFrom(columnType)) {

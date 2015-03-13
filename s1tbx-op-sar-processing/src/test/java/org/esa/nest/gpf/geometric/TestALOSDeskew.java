@@ -44,7 +44,7 @@ public class TestALOSDeskew {
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
-        final float[] expected = new float[] { 86331.03f, 36645.12f, 14375.038f };
+        final float[] expected = new float[] { 178303.08f, 33205.94f, -130.6396f };
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), 300, 400, expected);
     }
 

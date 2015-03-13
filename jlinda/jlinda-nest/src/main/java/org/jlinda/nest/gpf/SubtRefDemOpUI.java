@@ -88,18 +88,6 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
         return new JScrollPane(panel);
     }
 
-/*
-    @Override
-    public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
-
-        initializeOperatorUI(operatorName, parameterMap);
-        final JComponent panel = createPanel();
-        initParameters();
-
-        return new JScrollPane(panel);
-    }
-*/
-
     @Override
     public void initParameters() {
         orbitDegree.setText(String.valueOf(paramMap.get("orbitDegree")));
@@ -132,6 +120,7 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
             paramMap.put("externalDEMNoDataValue", Double.parseDouble(externalDEMNoDataValue.getText()));
         }
         paramMap.put("topoPhaseBandName", topoPhaseBandName.getText());
+        paramMap.put("tileExtensionPercent", tileExtensionPercent.getSelectedItem());
     }
 
     private JComponent createPanel() {

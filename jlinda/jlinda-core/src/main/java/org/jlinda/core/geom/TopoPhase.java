@@ -1,6 +1,6 @@
 package org.jlinda.core.geom;
 
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jlinda.core.*;
 import org.jlinda.core.utils.TriangleUtils;
 
@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 public class TopoPhase {
 
     //// logger
-    static Logger logger = BeamLogManager.getSystemLogger();
+    static Logger logger = SystemUtils.LOG;
 
     private Orbit masterOrbit;   // master
     private SLCImage masterMeta; // master
@@ -37,7 +37,8 @@ public class TopoPhase {
         dem = demTile;
     }
 
-    public TopoPhase(SLCImage masterMeta, Orbit masterOrbit, SLCImage slaveMeta, Orbit slaveOrbit, Window window, DemTile demTile) throws Exception {
+    public TopoPhase(SLCImage masterMeta, Orbit masterOrbit, SLCImage slaveMeta, Orbit slaveOrbit, Window window,
+                     DemTile demTile) throws Exception {
         this.masterOrbit = masterOrbit;
         this.masterMeta = masterMeta;
         this.slaveOrbit = slaveOrbit;
@@ -103,11 +104,6 @@ public class TopoPhase {
 
         logger.info("Number of points in DEM: " + nPoints);
 
-//        double[][] demRadarCode_x = new double[nRows][nCols];
-//        double[][] demRadarCode_y = new double[nRows][nCols];
-//        final boolean outH2PH = false;
-//        double[][] h2phArray = new double[nRows][nCols];
-
         double masterMin4piCDivLam = (-4 * Math.PI * Constants.SOL) / masterMeta.getRadarWavelength();
         double slaveMin4piCDivLam = (-4 * Math.PI * Constants.SOL) / slaveMeta.getRadarWavelength();
 
@@ -117,7 +113,6 @@ public class TopoPhase {
         final double upperLeftLambda = dem.lon0 + dem.indexLambda0DEM * dem.longitudeDelta;
 
         Point pointOnDem;
-//        Point masterTime;
         Point slaveTime;
 
         phi = upperLeftPhi;
@@ -146,9 +141,7 @@ public class TopoPhase {
                     demRadarCode_x[i][j] = pix;
 
                     pointOnDem = Ellipsoid.ell2xyz(phi_lam_height);
-//                masterTime = masterOrbit.xyz2t(pointOnDem, masterMeta);
                     slaveTime = slaveOrbit.xyz2t(pointOnDem, slaveMeta);
-
 /*
                 if (outH2PH == true) {
 
@@ -171,21 +164,16 @@ public class TopoPhase {
 */
                     // do not include flat earth phase
                     if (onlyTopoRefPhase) {
-
                         Point masterXYZPos = masterOrbit.lp2xyz(line, pix, masterMeta);
                         Point flatEarthTime = slaveOrbit.xyz2t(masterXYZPos, slaveMeta);
-                        ref_phase = masterMin4piCDivLam * flatEarthTime.x - (slaveMin4piCDivLam * slaveTime.x);
-
+                        ref_phase = slaveMin4piCDivLam * (flatEarthTime.x - slaveTime.x);
                     } else {
-
                         // include flatearth, ref.pha = phi_topo+phi_flatearth
                         ref_phase = masterMin4piCDivLam * masterMeta.pix2tr(pix)
                                 - slaveMin4piCDivLam * slaveTime.x;
-
                     }
 
                     demRadarCode_phase[i][j] = ref_phase;
-
 
                 } else {
 
@@ -198,7 +186,6 @@ public class TopoPhase {
                     demRadarCode_y[i][j] = line;
                     demRadarCode_x[i][j] = pix;
                     demRadarCode_phase[i][j] = 0;
-
                 }
 
                 lambda += dem.longitudeDelta;

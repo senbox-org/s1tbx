@@ -54,6 +54,11 @@
             <class>org.esa.nest.gpf.BackGeocodingOpUI</class>
             <operatorName>Back-Geocoding</operatorName>
         </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.TOPSARMergeOpUI</id>
+            <class>org.esa.nest.gpf.TOPSARMergeOpUI</class>
+            <operatorName>TOPSAR-Merge</operatorName>
+        </OperatorUI>
     </extension>
 
     <extension point="snap-ui:actions">
@@ -61,9 +66,21 @@
         <action>
             <id>Sentinel1</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>SENTINEL-1</text>
+            <text>Sentinel-1 TOPS</text>
             <parent>SAR Processing</parent>
             <placeAfter>ASARWSS</placeAfter>
+        </action>
+
+        <action>
+            <id>SliceAssemblyOp</id>
+            <helpId>SliceAssemblyOp</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>S-1 Slice Assembly</text>
+            <shortDescr>Merge slice products together</shortDescr>
+            <dialogTitle>Slice Assembly</dialogTitle>
+            <graphFile>Sentinel1SliceAssemblyGraph.xml</graphFile>
         </action>
 
         <action>
@@ -72,11 +89,24 @@
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
-            <text>Sentinel-1 TOPSAR Split</text>
+            <text>S-1 TOPS Split</text>
             <operatorName>TOPSAR-Split</operatorName>
             <dialogTitle>Sentinel1 TOPSAR split operator</dialogTitle>
             <shortDescr>Split a Sentinel1 TOPSAR product</shortDescr>
             <targetProductNameSuffix>_split</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>TOPSARMergeOp</id>
+            <helpId>TOPSARMergeOp</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <placeAfter>TOPSARSplitOp</placeAfter>
+            <text>S-1 TOPS Merge</text>
+            <dialogTitle>TOPSAR Merge</dialogTitle>
+            <shortDescr>TOPSAR Merge</shortDescr>
+            <graphFile>TOPSARMergeGraph.xml</graphFile>
         </action>
 
         <action>
@@ -85,7 +115,7 @@
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
-            <text>Sentinel-1 TOPSAR Deburst</text>
+            <text>S-1 TOPS Deburst</text>
             <operatorName>TOPSAR-Deburst</operatorName>
             <dialogTitle>Sentinel1 TOPSAR Deburst operator</dialogTitle>
             <shortDescr>Deburst a Sentinel1 TOPSAR product</shortDescr>
@@ -98,22 +128,35 @@
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
-            <text>Sentinel-1 SLC to GRD</text>
+            <text>S-1 SLC to GRD</text>
             <shortDescr>Convert a Sentinel1 SLC product to a detected ground range product</shortDescr>
             <dialogTitle>Sentinel1 SLC to GRD</dialogTitle>
             <graphFile>Sentinel1SLCtoGRDGraph.xml</graphFile>
         </action>
 
+        <!-- Coregistration -->
+
         <action>
-            <id>SliceAssemblyOp</id>
-            <helpId>SliceAssemblyOp</helpId>
+            <id>TOPSCoregistrationGroup</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>S-1 TOPS Coregistration</text>
+            <parent>CoregistrationGroup</parent>
+            <placeAfter>InSARCoregistrationGraph</placeAfter>
+        </action>
+
+        <action>
+            <id>TOPSCoregistration</id>
+            <helpId>BackGeocodingOp</helpId>
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
-            <parent>Sentinel1</parent>
-            <text>Sentinel-1 Slice Assembly</text>
-            <shortDescr>Merge slice products together</shortDescr>
-            <dialogTitle>Slice Assembly</dialogTitle>
-            <graphFile>Sentinel1SliceAssemblyGraph.xml</graphFile>
+            <parent>TOPSCoregistrationGroup</parent>
+            <placeFirst>true</placeFirst>
+            <separatorAfter>true</separatorAfter>
+            <text>S-1 TOPS Coregistration</text>
+            <dialogTitle>TOPSAR Coregistration</dialogTitle>
+            <shortDescr>TOPSAR Coregistration</shortDescr>
+            <graphFile>Sentinel1-TOPS-Coregistration.xml</graphFile>
+            <enableEditing>true</enableEditing>
         </action>
 
         <action>
@@ -121,9 +164,9 @@
             <helpId>BackGeocodingOp</helpId>
             <class>org.esa.snap.dat.actions.GraphAction</class>
             <icon>esaIcon</icon>
-            <parent>Sentinel1</parent>
-            <placeAfter>TOPSARSplitOp</placeAfter>
-            <text>Sentinel-1 Back Geocoding</text>
+            <parent>TOPSCoregistrationGroup</parent>
+            <placeAfter>TOPSCoregistration</placeAfter>
+            <text>S-1 Back Geocoding</text>
             <dialogTitle>Back Geocoding</dialogTitle>
             <shortDescr>Back Geocoding</shortDescr>
             <graphFile>BackGeocodingGraph.xml</graphFile>
@@ -134,9 +177,9 @@
             <helpId>RangeShiftOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>Sentinel1</parent>
+            <parent>TOPSCoregistrationGroup</parent>
             <placeAfter>BackGeocodingOp</placeAfter>
-            <text>Sentinel-1 Range Shift</text>
+            <text>S-1 Range Shift</text>
             <operatorName>Range-Shift</operatorName>
             <dialogTitle>Constant Range Offset Estimation</dialogTitle>
             <shortDescr>Constant Range Offset Estimation</shortDescr>
@@ -148,9 +191,9 @@
             <helpId>AzimuthShiftOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>Sentinel1</parent>
+            <parent>TOPSCoregistrationGroup</parent>
             <placeAfter>RangeShiftOp</placeAfter>
-            <text>Sentinel-1 Azimuth Shift</text>
+            <text>S-1 Azimuth Shift</text>
             <operatorName>Azimuth-Shift</operatorName>
             <dialogTitle>Azimuth Offset Estimation</dialogTitle>
             <shortDescr>Azimuth Offset Estimation</shortDescr>
@@ -162,25 +205,12 @@
             <helpId>ComputeDerampDemodPhaseOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
-            <parent>Sentinel1</parent>
+            <parent>TOPSCoregistrationGroup</parent>
             <text>Compute Deramp Demodulation Phase</text>
             <operatorName>Compute-Deramp-Demod-Phase</operatorName>
             <dialogTitle>Compute Deramp Demodulation Phase</dialogTitle>
             <shortDescr>Compute Deramp Demodulation Phase</shortDescr>
             <targetProductNameSuffix>_ddp</targetProductNameSuffix>
-        </action-->
-
-        <!--action>
-            <id>CreateCoherenceImageOp</id>
-            <helpId>CreateCoherenceImageOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
-            <icon>esaIcon</icon>
-            <parent>Sentinel1</parent>
-            <text>Create Coherence Image</text>
-            <operatorName>Create-Coherence-Image</operatorName>
-            <dialogTitle>Create Coherence Image</dialogTitle>
-            <shortDescr>Create Coherence Image</shortDescr>
-            <targetProductNameSuffix>_coh</targetProductNameSuffix>
         </action-->
 
         <action>
@@ -194,7 +224,7 @@
             <shortDescr>Interferogram Formation and Flat Earth Phase Removal</shortDescr>
             <targetProductNameSuffix>_ifg</targetProductNameSuffix>
             <parent>products</parent>
-            <placeAfter>CoherenceOp</placeAfter>
+            <placeFirst>true</placeFirst>
         </action>
 
 

@@ -13,6 +13,9 @@ import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileGeoreferencing;
 import org.esa.snap.util.Maths;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Common SAR utilities for Geocoding
  */
@@ -443,7 +446,8 @@ public class SARGeocoding {
 
             final double mid = (lowerBound + upperBound) / 2.0;
             midSlantRange = Maths.computePolynomialValue(mid, srgrCoeff);
-            if (Math.abs(midSlantRange - slantRange) < 0.1) {
+            final double a = midSlantRange - slantRange;
+            if ((a > 0 && a < 0.1) || (a <= 0.0D && 0.0D - a < 0.1)) {
                 return mid;
             } else if (midSlantRange < slantRange) {
                 lowerBound = mid;
@@ -785,12 +789,17 @@ public class SARGeocoding {
     }
 
     public static boolean isValidCell(final double rangeIndex, final double azimuthIndex,
-                                      final double lat, final double lon,
+                                      final double lat, final double lon, final int diffLat,
                                       final TiePointGrid latitude, final TiePointGrid longitude,
                                       final int srcMaxRange, final int srcMaxAzimuth, final double[] sensorPos) {
 
         if (rangeIndex < 0.0 || rangeIndex >= srcMaxRange || azimuthIndex < 0.0 || azimuthIndex >= srcMaxAzimuth) {
             return false;
+        }
+
+        // the rest is only needed for very long images such as GM, WSM or assembled slices
+        if(diffLat < 5) {
+            return true;
         }
 
         final GeoPos sensorGeoPos = new GeoPos();
@@ -864,8 +873,20 @@ public class SARGeocoding {
         public Orbit(OrbitStateVector[] orbitStateVectors,
                      double firstLineUTC, double lineTimeInterval, int sourceImageHeight) {
 
-            this.orbitStateVectors = new OrbitStateVector[orbitStateVectors.length];
-            System.arraycopy(orbitStateVectors, 0, this.orbitStateVectors, 0, orbitStateVectors.length);
+            final List<OrbitStateVector> vectorList = new ArrayList<>();
+            double currentTime = 0.0;
+            for (int i = 0; i < orbitStateVectors.length; i++) {
+                if (i == 0) {
+                    currentTime = orbitStateVectors[i].time_mjd;
+                    vectorList.add(orbitStateVectors[i]);
+                } else if (orbitStateVectors[i].time_mjd > currentTime) {
+                    currentTime = orbitStateVectors[i].time_mjd;
+                    vectorList.add(orbitStateVectors[i]);
+                }
+            }
+            this.orbitStateVectors = vectorList.toArray(new OrbitStateVector[vectorList.size()]);
+            //this.orbitStateVectors = new OrbitStateVector[orbitStateVectors.length];
+            //System.arraycopy(orbitStateVectors, 0, this.orbitStateVectors, 0, orbitStateVectors.length);
 
             this.sensorPosition = new double[sourceImageHeight][3];
             this.sensorVelocity = new double[sourceImageHeight][3];

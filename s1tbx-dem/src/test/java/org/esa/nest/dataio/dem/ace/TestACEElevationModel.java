@@ -37,7 +37,10 @@ public class TestACEElevationModel {
     private final ACEElevationModelDescriptor demDescriptor = new ACEElevationModelDescriptor();
 
     private static double[] expectedValues = {
-            1117.27197265625, 1164.29296875, 1092.7359619140625, 1047.0989990234375
+            1100.0,
+            1149.0,
+            1080.0,
+            1037.0
     };
 
     @Test
@@ -61,7 +64,7 @@ public class TestACEElevationModel {
                 try {
                     demValues[count++] = dem.getElevation(geoPos);
                 } catch (Exception e) {
-                    assertFalse("Get Elevation threw", true);
+                    assertFalse("Get Elevation threw: "+e.getMessage(), true);
                 }
             }
         }

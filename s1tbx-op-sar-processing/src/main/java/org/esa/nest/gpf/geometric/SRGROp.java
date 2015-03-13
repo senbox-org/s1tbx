@@ -478,7 +478,7 @@ public class SRGROp extends Operator {
      */
     private void addSelectedBands() {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
         for (Band srcBand : sourceBands) {
             if (srcBand.getUnit() != null && srcBand.getUnit().contains("phase")) {

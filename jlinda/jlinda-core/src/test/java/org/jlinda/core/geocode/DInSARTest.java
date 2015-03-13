@@ -1,7 +1,6 @@
 package org.jlinda.core.geocode;
 
-import org.esa.beam.util.logging.BeamLogManager;
-import org.perf4j.StopWatch;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
@@ -13,6 +12,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.perf4j.StopWatch;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 
 public class DInSARTest {
 
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     private static final double PHASE2DEFO = (0.056d / (4d * Math.PI));
 

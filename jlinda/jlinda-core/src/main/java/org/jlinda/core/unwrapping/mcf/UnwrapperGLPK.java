@@ -2,7 +2,7 @@ package org.jlinda.core.unwrapping.mcf;
 
 import com.winvector.lp.LPException;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.unwrapping.mcf.utils.JblasUtils;
@@ -27,7 +27,7 @@ import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.intRangeDoubleMatr
  */
 public class UnwrapperGLPK {
 
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     private DoubleMatrix wrappedPhase;
     private DoubleMatrix unwrappedPhase;

@@ -38,7 +38,8 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
 
-    private final JComboBox filter = new JComboBox(new String[]{SpeckleFilterOp.MEAN_SPECKLE_FILTER,
+    private final JComboBox filter = new JComboBox(new String[]{SpeckleFilterOp.NONE,
+            SpeckleFilterOp.MEAN_SPECKLE_FILTER,
             SpeckleFilterOp.MEDIAN_SPECKLE_FILTER,
             SpeckleFilterOp.FROST_SPECKLE_FILTER,
             SpeckleFilterOp.GAMMA_MAP_SPECKLE_FILTER,
@@ -80,7 +81,7 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
             }
         });
 
-        return panel;
+        return new JScrollPane(panel);
     }
 
     @Override
@@ -123,6 +124,7 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
 
         final JPanel contentPane = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH;
 
         DialogUtils.addComponent(contentPane, gbc, "Source Bands:", new JScrollPane(bandList));
         gbc.gridy++;
@@ -133,6 +135,8 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
                 updateFilterSelection();
             }
         });
+
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         gbc.gridy++;
         final int savedY = gbc.gridy;
@@ -152,7 +156,6 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, edgeThresholdLabel, edgeThreshold);
 
         gbc.weightx = 1.0;
-        contentPane.add(new JPanel(), gbc);
 
         DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, true);
         DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, true);
@@ -161,11 +164,14 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         DialogUtils.enableComponents(enlLabel, enl, false);
         DialogUtils.enableComponents(edgeThresholdLabel, edgeThreshold, false);
 
+        DialogUtils.fillPanel(contentPane, gbc);
+
         return contentPane;
     }
 
     private void updateFilterSelection() {
         final String item = (String) filter.getSelectedItem();
+
         if (item.equals(SpeckleFilterOp.FROST_SPECKLE_FILTER)) {
             DialogUtils.enableComponents(dampingFactorLabel, dampingFactor, true);
         } else {
@@ -191,6 +197,11 @@ public class SpeckleFilterOpUI extends BaseOperatorUI {
         } else {
             DialogUtils.enableComponents(estimateENLCheckBoxLabel, estimateENLCheckBox, false);
             DialogUtils.enableComponents(enlLabel, enl, false);
+        }
+
+        if(item.equals(SpeckleFilterOp.NONE)) {
+            DialogUtils.enableComponents(filterSizeXLabel, filterSizeX, false);
+            DialogUtils.enableComponents(filterSizeYLabel, filterSizeY, false);
         }
     }
 }

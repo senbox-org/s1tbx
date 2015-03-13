@@ -39,7 +39,7 @@ import java.awt.*;
 import java.util.Map;
 
 @OperatorMetadata(alias = "GoldsteinPhaseFiltering",
-        category = "SAR Processing/Interferometric/Tools",
+        category = "SAR Processing/Interferometric/Filtering",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Phase Filtering")
@@ -112,8 +112,6 @@ public class GoldsteinFilterOp extends Operator {
         addSelectedBands();
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
-
-        //targetProduct.setPreferredTileSize(512, 512); // 2^n > 256
     }
 
     /**
@@ -122,9 +120,10 @@ public class GoldsteinFilterOp extends Operator {
     private void addSelectedBands() {
 
         String[] sourceBandNames = null;
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
-        for (int i = 0; i < sourceBands.length; i += 2) {
+        int i = 0;
+        while (i < sourceBands.length) {
 
             final Band srcBandI = sourceBands[i];
             final String unit = srcBandI.getUnit();
@@ -146,6 +145,7 @@ public class GoldsteinFilterOp extends Operator {
             } else {
                 // let other bands such as coherence pass through
                 ProductUtils.copyBand(srcBandI.getName(), sourceProduct, targetProduct, true);
+                ++i;
                 continue;
             }
 
@@ -156,9 +156,11 @@ public class GoldsteinFilterOp extends Operator {
             final Band targetBandQ = targetProduct.addBand(srcBandQ.getName(), ProductData.TYPE_FLOAT64);
             targetBandQ.setUnit(nextUnit);
 
-            final String suffix = "";
+            final String suffix = targetBandI.getName().substring(targetBandI.getName().indexOf("_"));
             ReaderUtils.createVirtualIntensityBand(targetProduct, targetBandI, targetBandQ, suffix);
             ReaderUtils.createVirtualPhaseBand(targetProduct, targetBandI, targetBandQ, suffix);
+
+            i += 2;
         }
     }
 
@@ -379,20 +381,20 @@ public class GoldsteinFilterOp extends Operator {
         final int colMax = pwrSpec[0].length;
 
         for (int r = 0; r < rowMax; r++) {
-            final int jMin = FastMath.max(0, r - halfWindowSize);
-            final int jMax = FastMath.min(rowMax - 1, r + halfWindowSize);
+            final int jMin = Math.max(0, r - halfWindowSize);
+            final int jMax = Math.min(rowMax - 1, r + halfWindowSize);
             for (int c = 0; c < colMax; c++) {
                 double sum = 0;
                 int k = 0;
-                final int iMin = FastMath.max(0, c - halfWindowSize);
-                final int iMax = FastMath.min(colMax - 1, c + halfWindowSize);
+                final int iMin = Math.max(0, c - halfWindowSize);
+                final int iMax = Math.min(colMax - 1, c + halfWindowSize);
                 for (int j = jMin; j <= jMax; j++) {
                     for (int i = iMin; i <= iMax; i++) {
                         sum += pwrSpec[j][i];
                         k++;
                     }
                 }
-                fltSpec[r][c] = FastMath.pow(sum / k, alpha);
+                fltSpec[r][c] = Math.pow(sum / k, alpha);
             }
         }
     }

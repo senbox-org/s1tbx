@@ -49,6 +49,7 @@ import java.util.List;
  */
 public final class DatabasePane extends JPanel {
 
+    private final JTextField nameField = new JTextField();
     private final JList missionJList = new JList();
     private final JList productTypeJList = new JList();
     private final JComboBox acquisitionModeCombo = new JComboBox(new String[]{DBQuery.ALL_MODES});
@@ -189,6 +190,9 @@ public final class DatabasePane extends JPanel {
         this.add(new JScrollPane(missionJList), gbc);
         gbc.gridx = 1;
         this.add(new JScrollPane(productTypeJList), gbc);
+        gbc.gridy++;
+        label = DialogUtils.addComponent(this, gbc, "Product Name:", nameField);
+        label.setHorizontalAlignment(JLabel.RIGHT);
         gbc.gridy++;
         label = DialogUtils.addComponent(this, gbc, "Acquisition Mode:", acquisitionModeCombo);
         label.setHorizontalAlignment(JLabel.RIGHT);
@@ -344,14 +348,6 @@ public final class DatabasePane extends JPanel {
         return list.toArray(new String[list.size()]);
     }
 
-    private static String[] toStringArray(Object[] objects) {
-        final String strArray[] = new String[objects.length];
-        for (int i = 0; i < objects.length; ++i) {
-            strArray[i] = (String) objects[i];
-        }
-        return strArray;
-    }
-
     public void setBaseDir(final File dir) {
         dbQuery.setBaseDir(dir);
         if (db != null)
@@ -376,6 +372,7 @@ public final class DatabasePane extends JPanel {
     private void setData() {
         dbQuery.setSelectedMissions(toStringArray(missionJList.getSelectedValuesList()));
         dbQuery.setSelectedProductTypes(toStringArray(productTypeJList.getSelectedValuesList()));
+        dbQuery.setSelectedName(nameField.getText());
         dbQuery.setSelectedAcquisitionMode((String) acquisitionModeCombo.getSelectedItem());
         dbQuery.setSelectedPass((String) passCombo.getSelectedItem());
         dbQuery.setSelectedTrack(trackField.getText());
@@ -429,6 +426,15 @@ public final class DatabasePane extends JPanel {
     public DBQuery getDBQuery() {
         setData();
         return dbQuery;
+    }
+
+    public void findSlices(final int dataTakeId) {
+        metadataArea.setText(AbstractMetadata.data_take_id+"="+dataTakeId);
+
+        dbQuery.setSelectionRect(null);
+        queryDatabase();
+
+        metadataArea.setText("");
     }
 
     public void setDBQuery(final DBQuery query) throws Exception {

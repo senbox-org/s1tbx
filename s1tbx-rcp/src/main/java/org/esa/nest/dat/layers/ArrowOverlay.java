@@ -40,8 +40,8 @@ public class ArrowOverlay {
         double d2 = Math.sqrt(d * d + d1 * d1);
         final double d3;
         final double size = 2.0;
-        //final int headSize = Math.max(5, (int)((xx-x)*0.1));
-        final int headSize = Math.max(3, (int) size);
+        final int headSize = Math.max(25, (int)((xx-x)*0.1));
+        //final int headSize = Math.max(3, (int) size);
         if (d2 > (3.0 * headSize))
             d3 = headSize;
         else
@@ -59,8 +59,8 @@ public class ArrowOverlay {
         ipts[7] = (int) (d7 - d4);
 
         // text point
-        ipts[8] = xx + (d / 10.0);
-        ipts[9] = yy - (d1 / 10.0);
+        ipts[8] = xx + (d / 3.0);
+        ipts[9] = yy - (d1 / 3.0);
     }
 
     public void drawArrow(final Graphics2D g, final ScreenPixelConverter screenPixel) {

@@ -78,7 +78,7 @@ public final class SubtRefDemOp extends Operator {
             label = "Tile Extension [%]",
             description = "Define extension of tile for DEM similuation (optimization parameter).",
             defaultValue = "50")
-    private int tileExtensionPercent = 50;
+    private String tileExtensionPercent = "50";
 
     @Parameter(description = "The topographic phase band name.",
             defaultValue = "topo_phase",
@@ -291,18 +291,12 @@ public final class SubtRefDemOp extends Operator {
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-        for (final Band band : targetProduct.getBands()) {
-            targetProduct.removeBand(band);
-        }
-
         for (String key : targetMap.keySet()) {
 
             String targetBandName_I = targetMap.get(key).targetBandName_I;
             String targetBandName_Q = targetMap.get(key).targetBandName_Q;
-            targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT64);
-            targetProduct.getBand(targetBandName_I).setUnit(Unit.REAL);
-            targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT64);
-            targetProduct.getBand(targetBandName_Q).setUnit(Unit.IMAGINARY);
+            targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT64).setUnit(Unit.REAL);
+            targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT64).setUnit(Unit.IMAGINARY);
 
             final String tag0 = targetMap.get(key).sourceMaster.date;
             final String tag1 = targetMap.get(key).sourceSlave.date;
@@ -319,11 +313,20 @@ public final class SubtRefDemOp extends Operator {
                 targetProduct.getBand(topoBandName).setUnit(Unit.PHASE);
                 targetProduct.getBand(topoBandName).setDescription("topographic_phase");
             }
+
+            // copy other bands through
+            String tagStr = tag0 + "_" + tag1;
+            for(Band srcBand : sourceProduct.getBands()) {
+                if(srcBand instanceof VirtualBand)
+                    continue;
+                String srcBandName = srcBand.getName();
+                if(srcBandName.endsWith(tagStr)) {
+                    if (srcBandName.startsWith("coh")|| srcBandName.startsWith("elev")) {
+                        ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+                    }
+                }
+            }
         }
-
-        // For testing: the optimal results with 1024x1024 pixels tiles, not clear whether it's platform dependent?
-        // targetProduct.setPreferredTileSize(512, 512);
-
     }
 
     /**
@@ -356,20 +359,23 @@ public final class SubtRefDemOp extends Operator {
 
                 ProductContainer product = targetMap.get(ifgKey);
 
-                /// get dem of tile ///
-
                 // compute tile geo-corners ~ work on ellipsoid
-                GeoPoint[] geoCorners = GeoUtils.computeCorners(product.sourceMaster.metaData,
-                        product.sourceMaster.orbit,
-                        tileWindow);
+                GeoPoint[] geoCorners = GeoUtils.computeCorners(
+                        product.sourceMaster.metaData, product.sourceMaster.orbit, tileWindow);
 
                 // get corners as DEM indices
                 PixelPos[] pixelCorners = new PixelPos[2];
                 pixelCorners[0] = dem.getIndex(new GeoPos(geoCorners[0].lat, geoCorners[0].lon));
                 pixelCorners[1] = dem.getIndex(new GeoPos(geoCorners[1].lat, geoCorners[1].lon));
 
+                final int x0DEM = (int)Math.round(pixelCorners[0].x);
+                final int y0DEM = (int)Math.round(pixelCorners[0].y);
+                final int x1DEM = (int)Math.round(pixelCorners[1].x);
+                final int y1DEM = (int)Math.round(pixelCorners[1].y);
+                final Rectangle demTileRect = new Rectangle(x0DEM, y0DEM, x1DEM - x0DEM + 1, y1DEM - y0DEM + 1);
+
                 // get max/min height of tile ~ uses 'fast' GCP based interpolation technique
-                double[] tileHeights = computeMaxHeight(pixelCorners, targetRectangle);
+                double[] tileHeights = computeMaxHeight(pixelCorners, demTileRect);
 
                 // compute extra lat/lon for dem tile
                 GeoPoint geoExtent = GeoUtils.defineExtraPhiLam(tileHeights[0], tileHeights[1],
@@ -382,8 +388,8 @@ public final class SubtRefDemOp extends Operator {
                 pixelCorners[0] = dem.getIndex(new GeoPos(geoCorners[0].lat, geoCorners[0].lon));
                 pixelCorners[1] = dem.getIndex(new GeoPos(geoCorners[1].lat, geoCorners[1].lon));
 
-                pixelCorners[0] = new PixelPos(Math.ceil(pixelCorners[0].x), Math.floor(pixelCorners[0].y));
-                pixelCorners[1] = new PixelPos(Math.floor(pixelCorners[1].x), Math.ceil(pixelCorners[1].y));
+                pixelCorners[0] = new PixelPos(Math.floor(pixelCorners[0].x), Math.floor(pixelCorners[0].y));
+                pixelCorners[1] = new PixelPos(Math.ceil(pixelCorners[1].x), Math.ceil(pixelCorners[1].y));
 
                 GeoPos upperLeftGeo = dem.getGeoPos(pixelCorners[0]);
 
@@ -400,8 +406,9 @@ public final class SubtRefDemOp extends Operator {
                     for (int x = startX, j = 0; x < endX; x++, j++) {
                         try {
                             double elev = dem.getSample(x, y);
-                            if (Double.isNaN(elev))
+                            if (Double.isNaN(elev)) {
                                 elev = demNoDataValue;
+                            }
                             elevation[i][j] = elev;
                         } catch (Exception e) {
                             elevation[i][j] = demNoDataValue;
@@ -410,12 +417,15 @@ public final class SubtRefDemOp extends Operator {
                 }
 
                 DemTile demTile = new DemTile(upperLeftGeo.lat * Constants.DTOR, upperLeftGeo.lon * Constants.DTOR,
-                        nLatPixels, nLonPixels, Math.abs(demSamplingLat), Math.abs(demSamplingLon), (long) demNoDataValue);
+                        nLatPixels, nLonPixels, Math.abs(demSamplingLat), Math.abs(demSamplingLon), (long)demNoDataValue);
+
                 demTile.setData(elevation);
 
                 final TopoPhase topoPhase = new TopoPhase(product.sourceMaster.metaData, product.sourceMaster.orbit,
                         product.sourceSlave.metaData, product.sourceSlave.orbit, tileWindow, demTile);
+
                 topoPhase.radarCode();
+
                 topoPhase.gridData();
 
                 /// check out results from source ///
@@ -449,11 +459,9 @@ public final class SubtRefDemOp extends Operator {
         }
     }
 
-
     private double[] computeMaxHeight(PixelPos[] corners, Rectangle rectangle) throws Exception {
 
         /* Notes:
-
           - The scaling and extensions of extreme values of DEM tiles has to be performed to guarantee the overlap
             between SAR and DEM tiles, and avoid blanks in the simulated Topo phase.
 
@@ -461,12 +469,12 @@ public final class SubtRefDemOp extends Operator {
             in some extreme cases.
 
           - Parameters are defined for the reliability, not(!) the performance.
-
          */
 
-        final float extraTileX = (float) (1 + tileExtensionPercent / 100); // = 1.5f
-        final float extraTileY = (float) (1 + tileExtensionPercent / 100); // = 1.5f
-        final float scaleMaxHeight = (float) (1 + tileExtensionPercent/ 100); // = 1.25f
+        int tileExtPercent = Integer.parseInt(tileExtensionPercent);
+        final float extraTileX = (float) (1 + tileExtPercent / 100.0); // = 1.5f
+        final float extraTileY = (float) (1 + tileExtPercent / 100.0); // = 1.5f
+        final float scaleMaxHeight = (float) (1 + tileExtPercent/ 100.0); // = 1.25f
 
         double[] heightArray = new double[2];
 
@@ -474,12 +482,14 @@ public final class SubtRefDemOp extends Operator {
         final int numberOfPoints = (int) (10 * Math.sqrt(Math.sqrt(rectangle.width * rectangle.height)));
 
         // extend tiles for which statistics is computed
-        int offsetX = (int) (extraTileX * rectangle.width);
-        int offsetY = (int) (extraTileY * rectangle.height);
+        final int offsetX = (int) (extraTileX * rectangle.width);
+        final int offsetY = (int) (extraTileY * rectangle.height);
 
         // define window
-        final Window window = new Window((long) (corners[0].y - offsetY), (long) (corners[1].y + offsetY),
-                (long) (corners[0].x - offsetX), (long) (corners[1].x + offsetX));
+        final Window window = new Window((long)(corners[0].y - offsetY),
+                                         (long)(corners[1].y + offsetY),
+                                         (long)(corners[0].x - offsetX),
+                                         (long)(corners[1].x + offsetX));
 
         // distribute points
         final int[][] points = MathUtils.distributePoints(numberOfPoints, window);
@@ -492,7 +502,6 @@ public final class SubtRefDemOp extends Operator {
                 heights.add(height);
             }
         }
-
 
         // get max/min and add extras ~ just to be sure
         if (heights.size() > 2) {

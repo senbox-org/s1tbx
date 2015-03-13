@@ -1,7 +1,8 @@
 package org.jlinda.core.filtering;
 
-import org.esa.beam.util.logging.BeamLogManager;
-import org.apache.commons.math3.util.FastMath;import org.jblas.ComplexDoubleMatrix;
+import org.apache.commons.math3.util.FastMath;
+import org.esa.beam.util.SystemUtils;
+import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.SLCImage;
@@ -15,7 +16,7 @@ import static org.jlinda.core.utils.LinearAlgebraUtils.*;
 
 public class RangeFilter extends ProductDataFilter {
 
-    static Logger logger = BeamLogManager.getSystemLogger();
+    static Logger logger = SystemUtils.LOG;
 
     //TODO: make template classes for generalInput, operatorInput, and ProductMetadata class
     todo_classes.inputgeneral generalInput;

@@ -44,7 +44,7 @@ import java.util.StringTokenizer;
  * De-Burst a Sentinel-1 TOPSAR product
  */
 @OperatorMetadata(alias = "TOPSAR-Deburst",
-        category = "SAR Processing/SENTINEL-1",
+        category = "SAR Processing/Sentinel-1",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Debursts a Sentinel-1 TOPSAR product")
@@ -134,7 +134,7 @@ public final class TOPSARDeburstOp extends Operator {
             updateTargetProductMetadata();
 
         } catch (Throwable e) {
-            throw new OperatorException(e.getMessage());
+            OperatorUtils.catchOperatorException(getId(), e);
         }
     }
 
@@ -284,6 +284,10 @@ public final class TOPSARDeburstOp extends Operator {
 
     private String getTargetBandNameFromSourceBandName(final String srcBandName) {
 
+        if (numOfSubSwath == 1) {
+            return srcBandName;
+        }
+
         final int firstSeparationIdx = srcBandName.indexOf(acquisitionMode);
         final int secondSeparationIdx = srcBandName.indexOf("_", firstSeparationIdx + 1);
         return srcBandName.substring(0, firstSeparationIdx) + srcBandName.substring(secondSeparationIdx + 1);
@@ -291,6 +295,10 @@ public final class TOPSARDeburstOp extends Operator {
 
     private String getSourceBandNameFromTargetBandName(
             final String tgtBandName, final String acquisitionMode, final String swathIndexStr) {
+
+        if (numOfSubSwath == 1) {
+            return tgtBandName;
+        }
 
         final String[] srcBandNames = sourceProduct.getBandNames();
         for (String srcBandName:srcBandNames) {
@@ -424,6 +432,12 @@ public final class TOPSARDeburstOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_long, lonGrid.getPixelFloat(0, targetHeight));
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_lat, latGrid.getPixelFloat(targetWidth, targetHeight));
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_long, lonGrid.getPixelFloat(targetWidth, targetHeight));
+
+        for(MetadataElement elem : absTgt.getElements()) {
+            if(elem.getName().startsWith(AbstractMetadata.BAND_PREFIX)) {
+                absTgt.removeElement(elem);
+            }
+        }
     }
 
     private void updateOriginalMetadata() {
@@ -610,7 +624,9 @@ public final class TOPSARDeburstOp extends Operator {
                 }
             }
         } catch (Throwable e) {
-            throw new OperatorException(e.getMessage());
+            OperatorUtils.catchOperatorException(getId(), e);
+        } finally {
+            pm.done();
         }
     }
 

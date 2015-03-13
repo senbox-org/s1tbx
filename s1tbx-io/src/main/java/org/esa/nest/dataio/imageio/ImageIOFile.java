@@ -138,6 +138,7 @@ public class ImageIOFile {
         }
         if (reader == null)
             throw new IOException("Unable to open " + stream.toString());
+        reader.setInput(stream, true, true);
         return reader;
     }
 

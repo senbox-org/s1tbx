@@ -390,7 +390,7 @@ public class OversamplingOp extends Operator {
 
     private void addSelectedBands() {
 
-        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames);
+        final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
 
         for (int i = 0; i < sourceBands.length; i++) {
 

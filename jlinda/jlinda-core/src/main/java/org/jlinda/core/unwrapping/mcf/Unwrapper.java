@@ -14,7 +14,7 @@ import com.winvector.lp.LPException;
 import com.winvector.lp.LPSoln;
 import com.winvector.lp.impl.RevisedSimplexSolver;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.unwrapping.mcf.utils.ColtUtils;
@@ -36,7 +36,7 @@ import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.*;
  */
 public class Unwrapper {
 
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     // Parameters for Linear Programming estimation/solution
     final double tol = 1.0e-4;

@@ -1,7 +1,7 @@
 package org.jlinda.core.utils;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 
@@ -16,7 +16,7 @@ public class PolyUtils {
 
     // ToDo: polyfit and polyval are in conflict
     // Description: Polynomial I fit using coeffs=polyfit(x,y), I have to evaluate using polyval(y,x,coeffs)
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     private static void setLoggerLevel() {
         logger.setLevel(Level.WARNING);
@@ -39,7 +39,6 @@ public class PolyUtils {
     }
 
     public static int degreeFromCoefficients(int numOfCoefficients) {
-//        return (int) (0.5 * (-1 + (int) (Math.sqrt((double) (1 + 8 * numOfCoefficients))))) - 1;
         return (int) (0.5 * (-1 + (int) (Math.sqrt((double) (1 + 8 * numOfCoefficients))))) - 1;
     }
 

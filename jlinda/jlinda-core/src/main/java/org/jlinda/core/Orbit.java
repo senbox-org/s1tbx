@@ -3,7 +3,7 @@ package org.jlinda.core;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.util.logging.BeamLogManager;
+import org.esa.beam.util.SystemUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.jblas.DoubleMatrix;
@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 public final class Orbit {
 
-    private static final Logger logger = BeamLogManager.getSystemLogger();
+    private static final Logger logger = SystemUtils.LOG;
 
     private String interpMethod;
 
@@ -445,7 +445,7 @@ public final class Orbit {
         //}
 
         // normalize time
-        double azTimeNormal = (azTime - time[time.length / 2]) / 10;
+        double azTimeNormal = (azTime - time[time.length / 2]) / 10.0;
 
         return new Point(
                 PolyUtils.polyVal1D(azTimeNormal, coeff_X),
@@ -463,7 +463,7 @@ public final class Orbit {
         //TODO: spline support!
 
         // normalize time
-        azTime = (azTime - time[numStateVectors / 2]) / 10;
+        azTime = (azTime - time[numStateVectors / 2]) / 10.0;
 
         int DEGREE = coeff_X.length - 1;
 

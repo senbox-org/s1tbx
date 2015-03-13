@@ -1,7 +1,7 @@
 package org.jlinda.core.coregistration.legacy;
 
-import org.esa.beam.util.logging.BeamLogManager;
 import org.apache.commons.math3.util.FastMath;
+import org.esa.beam.util.SystemUtils;
 import org.jblas.*;
 import org.jlinda.core.*;
 import org.jlinda.core.coregistration.LUT;
@@ -19,7 +19,7 @@ import static org.jlinda.core.utils.PolyUtils.polyval;
 
 public class Coregistration implements ICoregistration {
 
-    static Logger logger = BeamLogManager.getSystemLogger();
+    static Logger logger = SystemUtils.LOG;
 
     @Override
     public void coarseporbit(Ellipsoid ell, SLCImage master, SLCImage slave, Orbit masterorbit, Orbit slaveorbit, Baseline baseline) throws Exception {

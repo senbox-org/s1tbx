@@ -33,7 +33,7 @@ import javax.media.jai.BorderExtender;
 import java.awt.*;
 import java.util.HashMap;
 
-@OperatorMetadata(alias = "Coherence",
+@OperatorMetadata(alias = "CoherencePPO",
         category = "SAR Processing/Interferometric/Products",
         authors = "Petar Marinkovic",
         copyright = "Copyright (C) 2013 by PPO.labs",
