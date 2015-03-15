@@ -16,6 +16,8 @@
     <artifactId>rstb</artifactId>
     <version>6.3.2</version>
 
+    <packaging>pom</packaging>
+        
     <description>RADARSAT-2 Polarimetric Tools</description>
 
     <properties>
@@ -26,8 +28,6 @@
 
         <outputdir>../../../output</outputdir>
     </properties>
-
-    <packaging>pom</packaging>
 
     <organization>
         <name>Array Systems Computing Inc.</name>
@@ -86,9 +86,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.17</version>
                 <configuration>
-                    <!-- <parallel>methods</parallel> -->
-                    <!--<threadCount>4</threadCount>-->
-                    <!--<skip>false</skip>-->
                     <skip>true</skip>
                 </configuration>
             </plugin>
@@ -106,7 +103,18 @@
                     </execution>
                 </executions>
             </plugin>
+            
+            <!--plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin-->
         </plugins>
     </build>
-
 </project>

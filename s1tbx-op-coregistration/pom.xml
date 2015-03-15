@@ -10,8 +10,10 @@
 
     <artifactId>s1tbx-op-coregistration</artifactId>
     <name>S1TBX Coregistration</name>
-    <description>GCP Selection and Warping</description>
+    <description>Coregistration</description>
 
+    <packaging>jar</packaging>
+    
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -65,6 +67,18 @@
                 <groupId>com.bc.maven.plugins</groupId>
                 <artifactId>maven-javahelp-plugin</artifactId>
             </plugin>
+            
+            <!--plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin-->
         </plugins>
     </build>
 </project>
