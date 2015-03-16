@@ -97,7 +97,7 @@ public final class TOPSARSplitOp extends Operator {
             }
 
             if (selectedPolarisations == null || selectedPolarisations.length == 0) {
-                selectedPolarisations = Sentinel1Utils.getProductPolarizations(absRoot);
+                selectedPolarisations = Sentinel1Utils.getProductPolarizations(sourceProduct);
             }
 
             final List<Band> selectedBands = new ArrayList<>();
@@ -234,7 +234,21 @@ public final class TOPSARSplitOp extends Operator {
         if(parentElem != null) {
             final MetadataElement[] elemList = parentElem.getElements();
             for (MetadataElement elem : elemList) {
-                if (!elem.getName().toUpperCase().contains(subswath)) {
+                final String elemName = elem.getName().toUpperCase();
+                if (!elemName.contains(subswath)) {
+                    parentElem.removeElement(elem);
+                    continue;
+                }
+
+                boolean containSelectedPolarisation = false;
+                for (String pol : selectedPolarisations) {
+                    if (elemName.contains(pol)) {
+                        containSelectedPolarisation = true;
+                        break;
+                    }
+                }
+
+                if (!containSelectedPolarisation) {
                     parentElem.removeElement(elem);
                 }
             }
