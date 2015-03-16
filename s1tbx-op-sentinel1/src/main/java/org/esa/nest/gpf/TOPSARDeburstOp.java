@@ -271,7 +271,7 @@ public final class TOPSARDeburstOp extends Operator {
             }
         }
 
-        copyMetaData(sourceProduct.getMetadataRoot(), targetProduct.getMetadataRoot());
+        ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
         targetProduct.setStartTime(new ProductData.UTC(targetFirstLineTime/Constants.secondsInDay));
         targetProduct.setEndTime(new ProductData.UTC(targetLastLineTime/Constants.secondsInDay));
@@ -324,23 +324,6 @@ public final class TOPSARDeburstOp extends Operator {
         }
 
         return false;
-    }
-
-    /**
-     * Copy source product metadata to target product.
-     *
-     * @param source Source product root metadata element.
-     * @param target Target product root metadata element.
-     */
-    private static void copyMetaData(final MetadataElement source, final MetadataElement target) {
-
-        for (final MetadataElement element : source.getElements()) {
-            target.addElement(element.createDeepClone());
-        }
-
-        for (final MetadataAttribute attribute : source.getAttributes()) {
-            target.addAttribute(attribute.createDeepClone());
-        }
     }
 
     /**
@@ -450,7 +433,7 @@ public final class TOPSARDeburstOp extends Operator {
 
     private void updateCalibrationVector() {
 
-        final String[] selectedPols = Sentinel1Utils.getProductPolarizations(absRoot);
+        final String[] selectedPols = Sentinel1Utils.getProductPolarizations(sourceProduct);
         final MetadataElement srcCalibration = AbstractMetadata.getOriginalProductMetadata(sourceProduct).
                 getElement("calibration");
         final MetadataElement bandCalibration = srcCalibration.getElementAt(0).getElement("calibration");
