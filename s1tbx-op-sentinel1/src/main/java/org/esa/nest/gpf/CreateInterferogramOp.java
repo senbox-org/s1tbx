@@ -91,13 +91,13 @@ public class CreateInterferogramOp extends Operator {
     @Parameter(defaultValue="true", label="Include coherence estimation")
     private boolean includeCoherence = true;
 
-    @Parameter(interval = "(1, 40]",
+    @Parameter(interval = "(1, 75]",
             description = "Size of coherence estimation window in Azimuth direction",
             defaultValue = "10",
             label = "Coherence Azimuth Window Size")
     private int cohWinAz = 10;
 
-    @Parameter(interval = "(1, 40]",
+    @Parameter(interval = "(1, 75]",
             description = "Size of coherence estimation window in Range direction",
             defaultValue = "10",
             label = "Coherence Range Window Size")
