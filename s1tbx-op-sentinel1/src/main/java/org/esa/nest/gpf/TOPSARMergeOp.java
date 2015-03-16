@@ -148,7 +148,7 @@ public final class TOPSARMergeOp extends Operator {
         final String product0 = absRoot0.getAttributeString(AbstractMetadata.PRODUCT);
         acquisitionMode = absRoot0.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         productType = absRoot0.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        final String subSwathNames0 = Sentinel1Utils.getProductSubswaths(absRoot0)[0];
+        final String subSwathNames0 = Sentinel1Utils.getProductSubswaths(sourceProduct[0])[0];
         subSwathIndexArray[0] = getSubSwathIndex(subSwathNames0);
         sourceProductToSubSwathNameMap.put(0, subSwathNames0);
 
@@ -169,7 +169,7 @@ public final class TOPSARMergeOp extends Operator {
                 throw new OperatorException("Source products do not have the same number of bands");
             }
 
-            final String subSwathName = Sentinel1Utils.getProductSubswaths(absRoot)[0];
+            final String subSwathName = Sentinel1Utils.getProductSubswaths(sourceProduct[s])[0];
             subSwathIndexArray[s] = getSubSwathIndex(subSwathName);
             sourceProductToSubSwathNameMap.put(s, subSwathName);
         }
