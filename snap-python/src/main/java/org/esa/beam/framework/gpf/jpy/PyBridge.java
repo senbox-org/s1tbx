@@ -2,6 +2,7 @@ package org.esa.beam.framework.gpf.jpy;
 
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.Debug;
+import org.esa.beam.util.io.TreeCopier;
 import org.jpy.PyLib;
 
 import java.io.IOException;
@@ -16,7 +17,7 @@ import java.nio.file.ProviderNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.esa.beam.util.SystemUtils.LOG;
+import static org.esa.beam.util.SystemUtils.*;
 
 /**
  * This class is used to establish the bridge between Java and Python.

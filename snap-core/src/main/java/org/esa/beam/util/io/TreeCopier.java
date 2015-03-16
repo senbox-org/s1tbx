@@ -1,4 +1,4 @@
-package org.esa.beam.framework.gpf.jpy;
+package org.esa.beam.util.io;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -11,20 +11,18 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.EnumSet;
 
-import static java.nio.file.FileVisitResult.CONTINUE;
-import static java.nio.file.FileVisitResult.TERMINATE;
-import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.nio.file.FileVisitResult.*;
+import static java.nio.file.StandardCopyOption.*;
 
 /**
  * A {@code FileVisitor} that copies a file tree.
  */
-class TreeCopier implements FileVisitor<Path> {
+public class TreeCopier implements FileVisitor<Path> {
     private final Path source;
     private final Path target;
     private IOException exception;
 
-    static Path copy(Path source, Path target) throws IOException {
+    public static Path copy(Path source, Path target) throws IOException {
         if (!Files.exists(target)) {
             target = Files.createDirectories(target);
         }
