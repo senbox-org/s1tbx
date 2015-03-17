@@ -28,7 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
-import java.nio.file.ProviderNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -169,44 +168,22 @@ public class ResourceInstaller {
     }
 
     public static Path findModuleCodeBasePath(Class clazz) {
+        URI uri;
         try {
-            URI uri = clazz.getProtectionDomain().getCodeSource().getLocation().toURI();
-            try {
-                Path path = Paths.get(uri);
-                if (Files.isDirectory(path)) {
-                    return path;
-                }
-            } catch (FileSystemNotFoundException e) {
-                // ok
-            }
-
-            try {
-                FileSystem fileSystem = FileSystems.getFileSystem(uri);
-                return fileSystem.getPath("/");
-            } catch (FileSystemNotFoundException e) {
-                // ok
-            }
-
-            try {
-                FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap(), clazz.getClassLoader());
-                return fileSystem.getPath("/");
-            } catch (ProviderNotFoundException e) {
-                // ok
-            }
-
-            Path path = Paths.get(uri);
-            if (Files.isRegularFile(path)) {
-                try {
-                    FileSystem fileSystem = FileSystems.newFileSystem(path, clazz.getClassLoader());
-                    return fileSystem.getPath("/");
-                } catch (ProviderNotFoundException e) {
-                    // ok
-                }
-            }
-            return path;
-        } catch (URISyntaxException | IOException e) {
+            uri = clazz.getProtectionDomain().getCodeSource().getLocation().toURI();
+        } catch (URISyntaxException e) {
             throw new RuntimeException("Failed to detect the module's code base path", e);
         }
-    }
+        try {
+            return Paths.get(uri);
+        } catch (FileSystemNotFoundException exp) {
+            try {
+                FileSystems.newFileSystem(uri, Collections.emptyMap());
+                return Paths.get(uri);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to detect the module's code base path", e);
+            }
 
+        }
+    }
 }
