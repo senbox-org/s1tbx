@@ -18,8 +18,6 @@ package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurationElement;
-
-import org.esa.beam.framework.gpf.ui.DefaultSingleTargetProductDialog;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 
@@ -38,6 +36,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
  * @author Marco Zuehlke
  * @version $Revision$ $Date$
  */
+@Deprecated
 public class DefaultOperatorAction extends AbstractVisatAction {
 
     private ModelessDialog dialog;
@@ -65,11 +64,6 @@ public class DefaultOperatorAction extends AbstractVisatAction {
     }
 
     protected ModelessDialog createOperatorDialog() {
-        DefaultSingleTargetProductDialog productDialog = new DefaultSingleTargetProductDialog(operatorName, getAppContext(),
-                                                    dialogTitle, getHelpId());
-        if (targetProductNameSuffix != null) {
-            productDialog.setTargetProductNameSuffix(targetProductNameSuffix);
-        }
-        return productDialog;
+        throw new RuntimeException("Don't use it anymore");
     }
 }
