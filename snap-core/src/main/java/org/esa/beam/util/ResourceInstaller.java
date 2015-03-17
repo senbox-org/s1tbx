@@ -36,7 +36,6 @@ import java.util.stream.Stream;
 import static java.nio.file.StandardCopyOption.*;
 
 // todo (mp - 20140317) use org.esa.beam.util.io.TreeCopier
-// todo (mp - 20140317) improve implementation of findModuleCodeBasePath(class)
 
 /**
  * Installs resources from a given source to a given target.
