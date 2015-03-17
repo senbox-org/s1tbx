@@ -62,10 +62,4 @@
     <mapID target="pixelGeoCodingSetup" url="visat/PixelGeoCoding.html"/>
     <mapID target="SLCtoPRI" url="visat/SLCtoPRI.html"/>
 
-    <!--Tutorials-->
-    <mapID target="remote_sensing" url="tutorials/remote_sensing.html"/>
-    <mapID target="using_dat" url="tutorials/using_dat.html"/>
-    <mapID target="Coregistration" url="tutorials/coregistering_products.html"/>
-    <mapID target="terrain_correction" url="tutorials/terrain_correction.html"/>
-    <mapID target="commandLineProcessing" url="tutorials/commandLineProcessing.html"/>
 </map>
