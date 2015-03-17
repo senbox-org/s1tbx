@@ -200,7 +200,7 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
                     samples[i][j] = Double.NaN;
                     allValid = false;
                 }
-                ++x;
+                ++j;
             }
             ++i;
         }
