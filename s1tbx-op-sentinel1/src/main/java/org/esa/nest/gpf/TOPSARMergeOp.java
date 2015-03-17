@@ -35,9 +35,7 @@ import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.Maths;
 
 import java.awt.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Merge subswaths of a Sentinel-1 TOPSAR product.
@@ -109,6 +107,8 @@ public final class TOPSARMergeOp extends Operator {
 
             getSubSwathParameters();
 
+            getSelectedPolarizations();
+
             computeTargetStartEndTime();
 
             computeTargetSlantRangeTimeToFirstAndLastPixels();
@@ -148,9 +148,12 @@ public final class TOPSARMergeOp extends Operator {
         final String product0 = absRoot0.getAttributeString(AbstractMetadata.PRODUCT);
         acquisitionMode = absRoot0.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         productType = absRoot0.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        final String subSwathNames0 = Sentinel1Utils.getProductSubswaths(absRoot0)[0];
-        subSwathIndexArray[0] = getSubSwathIndex(subSwathNames0);
-        sourceProductToSubSwathNameMap.put(0, subSwathNames0);
+        final String subSwathName0 = absRoot0.getAttributeString(AbstractMetadata.swath);
+        if (subSwathName0.equals("")) {
+            throw new OperatorException("Cannot get \"swath\" information from source product abstracted metadata");
+        }
+        subSwathIndexArray[0] = getSubSwathIndex(subSwathName0);
+        sourceProductToSubSwathNameMap.put(0, subSwathName0);
 
         for (int s = 1; s < numOfSubSwath; s++) {
             MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[s]);
@@ -169,7 +172,10 @@ public final class TOPSARMergeOp extends Operator {
                 throw new OperatorException("Source products do not have the same number of bands");
             }
 
-            final String subSwathName = Sentinel1Utils.getProductSubswaths(absRoot)[0];
+            final String subSwathName = absRoot.getAttributeString(AbstractMetadata.swath);
+            if (subSwathName.equals("")) {
+                throw new OperatorException("Cannot get \"swath\" information from source product abstracted metadata");
+            }
             subSwathIndexArray[s] = getSubSwathIndex(subSwathName);
             sourceProductToSubSwathNameMap.put(s, subSwathName);
         }
@@ -197,14 +203,34 @@ public final class TOPSARMergeOp extends Operator {
                 final String subSwathName = sourceProductToSubSwathNameMap.get(p);
                 final int s = getSubSwathIndex(subSwathName) - refSubSwathIndex;
                 su[s] = new Sentinel1Utils(sourceProduct[p]);
-
-                if (selectedPolarisations == null || selectedPolarisations.length == 0) {
-                    selectedPolarisations = su[s].getPolarizations();
-                }
                 subSwath[s] = su[s].getSubSwath()[0];
             }
         } catch (Throwable e) {
             throw new OperatorException(e.getMessage());
+        }
+    }
+
+    private void getSelectedPolarizations() {
+
+        if (selectedPolarisations == null || selectedPolarisations.length == 0) {
+            final java.util.List<String> polList = new ArrayList<>(4);
+            String pol = absRoot.getAttributeString(AbstractMetadata.mds1_tx_rx_polar);
+            if (pol != null && !polList.contains(pol)) {
+                polList.add(pol);
+            }
+            pol = absRoot.getAttributeString(AbstractMetadata.mds2_tx_rx_polar);
+            if (pol != null && !polList.contains(pol)) {
+                polList.add(pol);
+            }
+            pol = absRoot.getAttributeString(AbstractMetadata.mds3_tx_rx_polar);
+            if (pol != null && !polList.contains(pol)) {
+                polList.add(pol);
+            }
+            pol = absRoot.getAttributeString(AbstractMetadata.mds4_tx_rx_polar);
+            if (pol != null && !polList.contains(pol)) {
+                polList.add(pol);
+            }
+            selectedPolarisations = polList.toArray(new String[polList.size()]);
         }
     }
 
