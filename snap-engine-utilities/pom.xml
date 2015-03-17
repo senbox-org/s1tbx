@@ -39,10 +39,6 @@
             <artifactId>snap-gpf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-gpf-ui</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <version>10.10.2.0</version>
