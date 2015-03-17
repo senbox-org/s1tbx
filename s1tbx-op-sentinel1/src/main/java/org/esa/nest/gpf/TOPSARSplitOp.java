@@ -227,6 +227,20 @@ public final class TOPSARSplitOp extends Operator {
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long,
                 subSwathInfo[subSwathIndex - 1].longitude[rows - 1][cols - 1]);
 
+        absRoot.setAttributeString(AbstractMetadata.swath, subswath);
+
+        for (int i = 0; i < selectedPolarisations.length; i++) {
+            if (i == 0) {
+                absRoot.setAttributeString(AbstractMetadata.mds1_tx_rx_polar, selectedPolarisations[i]);
+            } else if (i == 1) {
+                absRoot.setAttributeString(AbstractMetadata.mds2_tx_rx_polar, selectedPolarisations[i]);
+            } else if (i == 2) {
+                absRoot.setAttributeString(AbstractMetadata.mds3_tx_rx_polar, selectedPolarisations[i]);
+            } else {
+                absRoot.setAttributeString(AbstractMetadata.mds4_tx_rx_polar, selectedPolarisations[i]);
+            }
+        }
+
         final MetadataElement[] bandMetadataList = AbstractMetadata.getBandAbsMetadataList(absRoot);
         for (MetadataElement bandMeta : bandMetadataList) {
             boolean include = false;
