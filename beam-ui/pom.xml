@@ -74,14 +74,6 @@
             <groupId>com.jidesoft</groupId>
             <artifactId>jide-components</artifactId>
         </dependency>
-        <dependency>
-            <groupId>jfree</groupId>
-            <artifactId>jfreechart</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jfree</groupId>
-            <artifactId>jcommon</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -99,10 +91,6 @@
                         <publicPackage>com.jidesoft.combobox</publicPackage>
                         <publicPackage>com.jidesoft.tree</publicPackage>
                         <publicPackage>com.jidesoft.status</publicPackage>
-                        <publicPackage>org.jfree.chart.*</publicPackage>
-                        <publicPackage>org.jfree.data.*</publicPackage>
-                        <publicPackage>org.jfree.ui</publicPackage>
-                        <publicPackage>org.jfree.util</publicPackage>
                         <publicPackage>com.bc.ceres.swing</publicPackage>
                         <publicPackage>com.bc.ceres.swing.actions</publicPackage>
                         <publicPackage>com.bc.ceres.swing.binding</publicPackage>
