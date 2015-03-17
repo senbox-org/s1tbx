@@ -15,11 +15,13 @@
  */
 package org.esa.nest.gpf;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
@@ -97,7 +99,7 @@ public final class TOPSARSplitOp extends Operator {
             }
 
             if (selectedPolarisations == null || selectedPolarisations.length == 0) {
-                selectedPolarisations = Sentinel1Utils.getProductPolarizations(sourceProduct);
+                selectedPolarisations = Sentinel1Utils.getProductPolarizations(absRoot);
             }
 
             final List<Band> selectedBands = new ArrayList<>();
@@ -113,9 +115,10 @@ public final class TOPSARSplitOp extends Operator {
 
             targetProduct = new Product(sourceProduct.getName() + '_' + subswath,
                     sourceProduct.getProductType(),
-                    selectedBands.get(0).getSceneRasterWidth(),
-                    selectedBands.get(0).getSceneRasterHeight());
+                    selectedBands.get(0).getRasterWidth(),
+                    selectedBands.get(0).getRasterHeight());
 
+            boolean oneBandToProcess = false;
             for (Band srcBand : selectedBands) {
                 if (srcBand instanceof VirtualBand) {
                     final VirtualBand sourceBand = (VirtualBand) srcBand;
@@ -127,7 +130,8 @@ public final class TOPSARSplitOp extends Operator {
                     ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
                     targetProduct.addBand(targetBand);
                 } else {
-                    ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+                    ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
+                    oneBandToProcess = false;
                 }
             }
             for (TiePointGrid srcTPG : sourceProduct.getTiePointGrids()) {
@@ -151,6 +155,25 @@ public final class TOPSARSplitOp extends Operator {
             updateTargetProductMetadata();
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    /**
+     * Called by the framework in order to compute a tile for the given target band.
+     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
+     *
+     * @param targetBand The target band.
+     * @param targetTile The current tile associated with the target band to be computed.
+     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
+     */
+    @Override
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        try {
+            final Tile srcRaster = getSourceTile(sourceProduct.getBand(targetBand.getName()), targetTile.getRectangle());
+            targetTile.setRawSamples(srcRaster.getRawSamples());
+        } catch (Exception e) {
+            OperatorUtils.catchOperatorException(this.getId(), e);
         }
     }
 
@@ -234,21 +257,7 @@ public final class TOPSARSplitOp extends Operator {
         if(parentElem != null) {
             final MetadataElement[] elemList = parentElem.getElements();
             for (MetadataElement elem : elemList) {
-                final String elemName = elem.getName().toUpperCase();
-                if (!elemName.contains(subswath)) {
-                    parentElem.removeElement(elem);
-                    continue;
-                }
-
-                boolean containSelectedPolarisation = false;
-                for (String pol : selectedPolarisations) {
-                    if (elemName.contains(pol)) {
-                        containSelectedPolarisation = true;
-                        break;
-                    }
-                }
-
-                if (!containSelectedPolarisation) {
+                if (!elem.getName().toUpperCase().contains(subswath)) {
                     parentElem.removeElement(elem);
                 }
             }

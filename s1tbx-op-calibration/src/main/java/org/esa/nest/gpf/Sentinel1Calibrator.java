@@ -97,7 +97,8 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
 
         String[] selectedPols = selectedPolarisations;
         if (selectedPols == null || selectedPols.length == 0) {
-            selectedPols = Sentinel1Utils.getProductPolarizations(sourceProduct);
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+            selectedPols = Sentinel1Utils.getProductPolarizations(absRoot);
         }
 
         selectedPolList = new ArrayList<String>(4);

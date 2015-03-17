@@ -47,7 +47,9 @@ public class TOPSARMergeOpUI extends BaseOperatorUI {
     public void initParameters() {
 
         if (sourceProducts != null && sourceProducts.length > 0) {
-            OperatorUIUtils.initParamList(polList, Sentinel1Utils.getProductPolarizations(sourceProducts[0]),
+            final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);
+
+            OperatorUIUtils.initParamList(polList, Sentinel1Utils.getProductPolarizations(absRoot),
                     (String[])paramMap.get("selectedPolarisations"));
         }
     }

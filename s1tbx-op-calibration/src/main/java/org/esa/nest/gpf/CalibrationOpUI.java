@@ -230,7 +230,7 @@ public class CalibrationOpUI extends BaseOperatorUI {
 
                 } else if (mission.startsWith("SENTINEL-1")) {
 
-                    OperatorUIUtils.initParamList(polList, Sentinel1Utils.getProductPolarizations(sourceProducts[0]),
+                    OperatorUIUtils.initParamList(polList, Sentinel1Utils.getProductPolarizations(absRoot),
                             (String[]) paramMap.get("selectedPolarisations"));
 
                     DialogUtils.enableComponents(auxFileLabel, auxFile, false);

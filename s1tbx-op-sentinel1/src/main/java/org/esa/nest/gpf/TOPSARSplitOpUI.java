@@ -69,7 +69,7 @@ public class TOPSARSplitOpUI extends BaseOperatorUI {
             }
             subswathCombo.setSelectedItem(subswath);
 
-            OperatorUIUtils.initParamList(polList, Sentinel1Utils.getProductPolarizations(sourceProducts[0]),
+            OperatorUIUtils.initParamList(polList, Sentinel1Utils.getProductPolarizations(absRoot),
                     (String[])paramMap.get("selectedPolarisations"));
         }
     }

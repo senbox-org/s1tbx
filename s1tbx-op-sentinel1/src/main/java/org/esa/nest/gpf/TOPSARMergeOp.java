@@ -17,17 +17,18 @@ package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
-import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.TileIndex;
@@ -37,7 +38,6 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
  * Merge subswaths of a Sentinel-1 TOPSAR product.
@@ -148,7 +148,7 @@ public final class TOPSARMergeOp extends Operator {
         final String product0 = absRoot0.getAttributeString(AbstractMetadata.PRODUCT);
         acquisitionMode = absRoot0.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         productType = absRoot0.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        final String subSwathNames0 = Sentinel1Utils.getProductSubswaths(sourceProduct[0])[0];
+        final String subSwathNames0 = Sentinel1Utils.getProductSubswaths(absRoot0)[0];
         subSwathIndexArray[0] = getSubSwathIndex(subSwathNames0);
         sourceProductToSubSwathNameMap.put(0, subSwathNames0);
 
@@ -169,7 +169,7 @@ public final class TOPSARMergeOp extends Operator {
                 throw new OperatorException("Source products do not have the same number of bands");
             }
 
-            final String subSwathName = Sentinel1Utils.getProductSubswaths(sourceProduct[s])[0];
+            final String subSwathName = Sentinel1Utils.getProductSubswaths(absRoot)[0];
             subSwathIndexArray[s] = getSubSwathIndex(subSwathName);
             sourceProductToSubSwathNameMap.put(s, subSwathName);
         }

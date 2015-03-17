@@ -23,7 +23,6 @@ import org.esa.nest.gpf.geometric.SARUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.eo.Constants;
-import org.esa.snap.gpf.OperatorUtils;
 
 import java.text.DateFormat;
 import java.util.*;
@@ -144,19 +143,14 @@ public final class Sentinel1Utils {
      */
     private void getProductPolarizations() {
 
-        MetadataElement annotation = origProdRoot.getElement("annotation");
-        if (annotation == null) {
-            throw new OperatorException("Annotation Metadata not found");
-        }
-
+        final MetadataElement[] elems = absRoot.getElements();
         final List<String> polList = new ArrayList<>(4);
-        final MetadataElement[] elems = annotation.getElements();
         for (MetadataElement elem : elems) {
-            final MetadataElement product = elem.getElement("product");
-            final MetadataElement adsHeader = product.getElement("adsHeader");
-            final String polarisation = adsHeader.getAttributeString("polarisation", null);
-            if (polarisation != null && !polList.contains(polarisation)) {
-                polList.add(polarisation);
+            if (elem.getName().contains("Band_")) {
+                final String pol = elem.getAttributeString("polarization");
+                if (!polList.contains(pol)) {
+                    polList.add(pol);
+                }
             }
         }
         polarizations =  polList.toArray(new String[polList.size()]);
@@ -167,22 +161,17 @@ public final class Sentinel1Utils {
      */
     private void getProductSubSwathNames() {
 
-        MetadataElement annotation = origProdRoot.getElement("annotation");
-        if (annotation == null) {
-            throw new OperatorException("Annotation Metadata not found");
-        }
-
-        final List<String> swathList = new ArrayList<>(4);
-        final MetadataElement[] elems = annotation.getElements();
+        final MetadataElement[] elems = absRoot.getElements();
+        final List<String> subSwathNameList = new ArrayList<>(4);
         for (MetadataElement elem : elems) {
-            final MetadataElement product = elem.getElement("product");
-            final MetadataElement adsHeader = product.getElement("adsHeader");
-            final String swath = adsHeader.getAttributeString("swath", null);
-            if (swath != null && !swathList.contains(swath)) {
-                swathList.add(swath);
+            if (elem.getName().contains(acquisitionMode)) {
+                final String swath = elem.getAttributeString("swath");
+                if (!subSwathNameList.contains(swath)) {
+                    subSwathNameList.add(swath);
+                }
             }
         }
-        subSwathNames =  swathList.toArray(new String[swathList.size()]);
+        subSwathNames =  subSwathNameList.toArray(new String[subSwathNameList.size()]);
         numOfSubSwath = subSwathNames.length;
     }
 
@@ -832,7 +821,7 @@ public final class Sentinel1Utils {
     }
 
     //todo: This function is used by Sentinel1CalibratorOp and should be replaced by getPolarizations() function later.
-    /*public static String[] getProductPolarizations(final MetadataElement absRoot) {
+    public static String[] getProductPolarizations(final MetadataElement absRoot) {
 
         final MetadataElement[] elems = absRoot.getElements();
         final List<String> polList = new ArrayList<>(4);
@@ -857,56 +846,6 @@ public final class Sentinel1Utils {
                 if (swath != null && !swathList.contains(swath)) {
                     swathList.add(swath);
                 }
-            }
-        }
-        return swathList.toArray(new String[swathList.size()]);
-    }*/
-
-    public static String[] getProductPolarizations(final Product sourceProduct) {
-
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
-        if (origProdRoot == sourceProduct.getMetadataRoot()) {
-            throw new OperatorException("Original_Product_Metadata not found.");
-        }
-
-        MetadataElement annotation = origProdRoot.getElement("annotation");
-        if (annotation == null) {
-            throw new OperatorException("Annotation Metadata not found");
-        }
-
-        final List<String> polList = new ArrayList<>(4);
-        final MetadataElement[] elems = annotation.getElements();
-        for (MetadataElement elem : elems) {
-            final MetadataElement product = elem.getElement("product");
-            final MetadataElement adsHeader = product.getElement("adsHeader");
-            final String polarisation = adsHeader.getAttributeString("polarisation", null);
-            if (polarisation != null && !polList.contains(polarisation)) {
-                polList.add(polarisation);
-            }
-        }
-        return polList.toArray(new String[polList.size()]);
-    }
-
-    public static String[] getProductSubswaths(final Product sourceProduct) {
-
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
-        if (origProdRoot == sourceProduct.getMetadataRoot()) {
-            throw new OperatorException("Original_Product_Metadata not found.");
-        }
-
-        MetadataElement annotation = origProdRoot.getElement("annotation");
-        if (annotation == null) {
-            throw new OperatorException("Annotation Metadata not found");
-        }
-
-        final List<String> swathList = new ArrayList<>(4);
-        final MetadataElement[] elems = annotation.getElements();
-        for (MetadataElement elem : elems) {
-            final MetadataElement product = elem.getElement("product");
-            final MetadataElement adsHeader = product.getElement("adsHeader");
-            final String swath = adsHeader.getAttributeString("swath", null);
-            if (swath != null && !swathList.contains(swath)) {
-                swathList.add(swath);
             }
         }
         return swathList.toArray(new String[swathList.size()]);

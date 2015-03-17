@@ -754,12 +754,14 @@ public final class BackGeocodingOp extends Operator {
             double[][] lat = new double[numLines][numPixels];
             double[][] lon = new double[numLines][numPixels];
             final PositionData posData = new PositionData();
+            final PixelPos pix = new PixelPos();
 
             boolean noValidSlavePixPos = true;
             for (int l = 0; l < numLines; l++) {
                 for (int p = 0; p < numPixels; p++) {
 
-                    GeoPos gp = dem.getGeoPos(new PixelPos(lonMinIdx + p, latMaxIdx + l));
+                    pix.setLocation(lonMinIdx + p, latMaxIdx + l);
+                    GeoPos gp = dem.getGeoPos(pix);
                     lat[l][p] = gp.lat;
                     lon[l][p] = gp.lon;
                     final double alt = dem.getElevation(gp);
@@ -812,10 +814,14 @@ public final class BackGeocodingOp extends Operator {
 
             boolean allElementsAreNull = true;
             final PixelPos[][] slavePixelPos = new PixelPos[h][w];
+            boolean testForDemNoData = true;
+            double alt = 0;
             for(int yy = 0; yy < h; yy++) {
                 for (int xx = 0; xx < w; xx++) {
-                    final double alt = dem.getElevation(new GeoPos(latArray[yy][xx], lonArray[yy][xx]));
-                    if (rgArray[yy][xx] == invalidIndex || azArray[yy][xx] == invalidIndex || alt == demNoDataValue) {
+                    if(testForDemNoData) {
+                        alt = dem.getElevation(new GeoPos(latArray[yy][xx], lonArray[yy][xx]));
+                    }
+                    if (rgArray[yy][xx] == invalidIndex || azArray[yy][xx] == invalidIndex || (testForDemNoData && alt == demNoDataValue)) {
                         slavePixelPos[yy][xx] = null;
                     } else {
                         slavePixelPos[yy][xx] = new PixelPos(rgArray[yy][xx], azArray[yy][xx]);
