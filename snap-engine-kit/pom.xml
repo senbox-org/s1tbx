@@ -151,18 +151,6 @@
             <artifactId>snap-gpf</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- todo - move to snap-desktop -->
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-gpf-ui</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <!-- todo - move to snap-desktop -->
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-graph-builder</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-hdf5-writer</artifactId>

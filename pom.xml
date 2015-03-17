@@ -57,7 +57,6 @@
         <module>snap-engine-utilities</module>
         <module>snap-gui-utilities</module>
         <module>snap-gpf</module>
-        <module>snap-gpf-ui</module>
 
         <!-- SNAP Extension Modules -->
 
@@ -72,7 +71,6 @@
         <module>snap-envisat-reader</module>
         <module>snap-getasse30-dem</module>
         <module>snap-geotiff</module>
-        <module>snap-graph-builder</module>
         <module>snap-hdf5-writer</module>
         <module>snap-ndvi</module>
         <module>snap-netcdf</module>
@@ -174,12 +172,6 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-gpf</artifactId>
-                <version>${snap.version}</version>
-            </dependency>
-            <!-- todo: move to snap-desktop -->
-            <dependency>
-                <groupId>org.esa.snap</groupId>
-                <artifactId>snap-gpf-ui</artifactId>
                 <version>${snap.version}</version>
             </dependency>
             <!-- todo: move to snap-desktop -->
