@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,26 +44,19 @@ public class DefaultResourceLocator extends ResourceLocator {
 
     /**
      * The default implementation returns the context class loader.
-     * @return the class loader used to located resources.
+     * @return the class loader used to load resources.
      */
     protected ClassLoader getResourceClassLoader() {
         return Thread.currentThread().getContextClassLoader();
     }
 
     protected Path toPath(URI uri) throws IOException {
-        if ("jar".equals(uri.getScheme())) {
-            int pos = uri.getRawSchemeSpecificPart().lastIndexOf('!');
-            if (pos > 0) {
-                String jarPath = uri.getRawSchemeSpecificPart().substring(0, pos);
-                String filePath = uri.getRawSchemeSpecificPart().substring(pos + 1);
-                FileSystem fileSystem = FileSystems.newFileSystem(URI.create("jar:" + jarPath), Collections.emptyMap());
-                return fileSystem.getPath(filePath);
-            } else {
-                FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
-                return fileSystem.getPath("/");
-            }
+        try {
+            return Paths.get(uri);
+        } catch (FileSystemNotFoundException exp) {
+            FileSystems.newFileSystem(uri, Collections.emptyMap());
+            return Paths.get(uri);
         }
-        return Paths.get(uri);
     }
 
     private URI toUri(URL resource) {

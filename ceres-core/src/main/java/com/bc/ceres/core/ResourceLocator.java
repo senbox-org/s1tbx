@@ -1,17 +1,8 @@
 package com.bc.ceres.core;
 
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.ServiceLoader;
-import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * Resource locators are service providers used collect resources across multiple code bases in multi-module environments.
@@ -27,15 +18,20 @@ public abstract class ResourceLocator {
      * @return The collection of all resources found
      */
     public static Collection<Path> getResources(String name) {
-        Set<Path> resources = new HashSet<>();
         ServiceLoader<ResourceLocator> providers = ServiceLoader.load(ResourceLocator.class);
-        providers.forEach(new Consumer<ResourceLocator>() {
-            @Override
-            public void accept(ResourceLocator resourceLocator) {
-                resources.addAll(resourceLocator.locateResources(name));
+        ResourceLocator resourceLocator = null;
+        for (ResourceLocator provider : providers) {
+            if (!(provider instanceof DefaultResourceLocator)) {
+                resourceLocator = provider;
+                        break;
+            } else if (resourceLocator == null) {
+                resourceLocator = provider;
             }
-        });
-        return resources;
+        }
+        if (resourceLocator == null) {
+            resourceLocator = new DefaultResourceLocator();
+        }
+        return resourceLocator.locateResources(name);
     }
 
     /**
