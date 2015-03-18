@@ -84,10 +84,6 @@
         <module>blue-marble-worldmap</module>
         <module>globcover-worldmap</module>
 
-        <!-- BEAM System Modules -->
-
-        <module>beam-ui</module>
-
         <module>lib-hdf</module>
     </modules>
 
@@ -168,12 +164,6 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-gpf</artifactId>
-                <version>${snap.version}</version>
-            </dependency>
-            <!-- todo: move to snap-desktop -->
-            <dependency>
-                <groupId>org.esa.snap</groupId>
-                <artifactId>snap-ui</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 

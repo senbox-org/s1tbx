@@ -1,9 +1,0 @@
-#BEAM Color Palette Definition File
-#Fri Jun 18 11:26:49 CEST 2004
-color0=255,255,255
-color1=255,255,51
-color2=0,102,51
-numPoints=3
-sample0=900.0
-sample1=970.0
-sample2=1040.0

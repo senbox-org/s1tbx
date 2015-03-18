@@ -78,12 +78,6 @@
             <artifactId>snap-engine-utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- todo - move to snap-desktop -->
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-ui</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>ncsa.hdf</groupId>
             <artifactId>lib-hdf</artifactId>
