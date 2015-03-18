@@ -56,7 +56,6 @@ public final class TOPSARMergeOp extends Operator {
     @Parameter(description = "The list of polarisations", label = "Polarisations")
     private String[] selectedPolarisations;
 
-    private MetadataElement absRoot = null;
     private String acquisitionMode = null;
     private String productType = null;
     private int numOfSubSwath = 0;
@@ -213,20 +212,22 @@ public final class TOPSARMergeOp extends Operator {
     private void getSelectedPolarizations() {
 
         if (selectedPolarisations == null || selectedPolarisations.length == 0) {
+            MetadataElement absRoot0 = AbstractMetadata.getAbstractedMetadata(sourceProduct[0]);
+
             final java.util.List<String> polList = new ArrayList<>(4);
-            String pol = absRoot.getAttributeString(AbstractMetadata.mds1_tx_rx_polar);
+            String pol = absRoot0.getAttributeString(AbstractMetadata.mds1_tx_rx_polar);
             if (pol != null && !polList.contains(pol)) {
                 polList.add(pol);
             }
-            pol = absRoot.getAttributeString(AbstractMetadata.mds2_tx_rx_polar);
+            pol = absRoot0.getAttributeString(AbstractMetadata.mds2_tx_rx_polar);
             if (pol != null && !polList.contains(pol)) {
                 polList.add(pol);
             }
-            pol = absRoot.getAttributeString(AbstractMetadata.mds3_tx_rx_polar);
+            pol = absRoot0.getAttributeString(AbstractMetadata.mds3_tx_rx_polar);
             if (pol != null && !polList.contains(pol)) {
                 polList.add(pol);
             }
-            pol = absRoot.getAttributeString(AbstractMetadata.mds4_tx_rx_polar);
+            pol = absRoot0.getAttributeString(AbstractMetadata.mds4_tx_rx_polar);
             if (pol != null && !polList.contains(pol)) {
                 polList.add(pol);
             }
@@ -364,7 +365,6 @@ public final class TOPSARMergeOp extends Operator {
             targetProduct.addTiePointGrid(tiePointGrid);
         }
         */
-        //targetProduct.setPreferredTileSize(500, 50);
     }
 
     private String getTargetBandNameFromSourceBandName(final String srcBandName) {
@@ -647,7 +647,8 @@ public final class TOPSARMergeOp extends Operator {
                 }
             }
         } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId(), e);
+            e.printStackTrace();
+            //OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
         }
