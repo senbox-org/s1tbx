@@ -13,6 +13,7 @@
     <mapID target="Overview" url="general/Overview.html"/>
     <mapID target="SupportedProducts" url="general/SupportedProducts.html"/>
     <mapID target="commandLineReference" url="general/commandLineReference.html"/>
+    <mapID target="commandLineProcessing" url="general/commandLineProcessing.html"/>
 
     <!--Development-->
     <mapID target="general_design" url="development/general_design.html"/>

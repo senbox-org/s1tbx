@@ -68,13 +68,4 @@
 
     </tocitem>
 
-    <tocitem text="Tutorials">
-        <tocitem text="Online Resources">
-            <tocitem text="Remote Sensing" target="remote_sensing"/>
-        </tocitem>
-        <tocitem text="Quick Start With The DAT" target="using_dat"/>
-        <tocitem text="Coregistration" target="Coregistration"/>
-        <tocitem text="Orthorectification" target="terrain_correction"/>
-        <tocitem text="Command Line Processing" target="commandLineProcessing"/>
-    </tocitem>
 </toc>

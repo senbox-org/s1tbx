@@ -100,6 +100,9 @@ public final class BackGeocodingOp extends Operator {
             label = "Resampling Type")
     private String resamplingType = ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME;
 
+    @Parameter(defaultValue = "true", label = "Mask out areas with no elevation")
+    private boolean maskOutAreaWithoutElevation = true;
+
     @Parameter(defaultValue = "false", label = "Output Range and Azimuth Offset")
     private boolean outputRangeAzimuthOffset = false;
 
@@ -751,13 +754,19 @@ public final class BackGeocodingOp extends Operator {
             double[][] masterRg = new double[numLines][numPixels];
             double[][] slaveAz = new double[numLines][numPixels];
             double[][] slaveRg = new double[numLines][numPixels];
+            double[][] lat = new double[numLines][numPixels];
+            double[][] lon = new double[numLines][numPixels];
             final PositionData posData = new PositionData();
+            final PixelPos pix = new PixelPos();
 
             boolean noValidSlavePixPos = true;
             for (int l = 0; l < numLines; l++) {
                 for (int p = 0; p < numPixels; p++) {
 
-                    GeoPos gp = dem.getGeoPos(new PixelPos(lonMinIdx + p, latMaxIdx + l));
+                    pix.setLocation(lonMinIdx + p, latMaxIdx + l);
+                    GeoPos gp = dem.getGeoPos(pix);
+                    lat[l][p] = gp.lat;
+                    lon[l][p] = gp.lon;
                     final double alt = dem.getElevation(gp);
 
                     if (alt != demNoDataValue) {
@@ -791,6 +800,8 @@ public final class BackGeocodingOp extends Operator {
             //final double rgAzRatio = computeRangeAzimuthSpacingRatio(w, h, latLonMinMax);
             final double rgAzRatio = mSU.rangeSpacing / mSU.azimuthSpacing;
 
+            final double[][] latArray = new double[(int)tileWindow.lines()][(int)tileWindow.pixels()];
+            final double[][] lonArray = new double[(int)tileWindow.lines()][(int)tileWindow.pixels()];
             final double[][] azArray = new double[(int)tileWindow.lines()][(int)tileWindow.pixels()];
             final double[][] rgArray = new double[(int)tileWindow.lines()][(int)tileWindow.pixels()];
             for (double[] data : azArray) {
@@ -801,13 +812,19 @@ public final class BackGeocodingOp extends Operator {
             }
 
             TriangleUtils.gridDataLinear(
-                    masterAz, masterRg, slaveAz, slaveRg, azArray, rgArray, tileWindow, rgAzRatio, 1, 1, invalidIndex, 0);
+                    masterAz, masterRg, slaveAz, slaveRg, lat, lon, azArray, rgArray, latArray, lonArray,
+                    tileWindow, rgAzRatio, 1, 1, invalidIndex, 0);
 
             boolean allElementsAreNull = true;
             final PixelPos[][] slavePixelPos = new PixelPos[h][w];
+
+            double alt = 0;
             for(int yy = 0; yy < h; yy++) {
                 for (int xx = 0; xx < w; xx++) {
-                    if (rgArray[yy][xx] == invalidIndex || azArray[yy][xx] == invalidIndex) {
+                    if(maskOutAreaWithoutElevation) {
+                        alt = dem.getElevation(new GeoPos(latArray[yy][xx], lonArray[yy][xx]));
+                    }
+                    if (rgArray[yy][xx] == invalidIndex || azArray[yy][xx] == invalidIndex || (maskOutAreaWithoutElevation && alt == demNoDataValue)) {
                         slavePixelPos[yy][xx] = null;
                     } else {
                         slavePixelPos[yy][xx] = new PixelPos(rgArray[yy][xx], azArray[yy][xx]);
@@ -1299,8 +1316,11 @@ public final class BackGeocodingOp extends Operator {
 
     private static class TriangleUtils {
 
-        public static void gridDataLinear(final double[][] x_in, final double[][] y_in, final double[][] z1_in,
-                                          final double[][] z2_in, final double[][] z1_out, final double[][] z2_out,
+        public static void gridDataLinear(final double[][] x_in, final double[][] y_in,
+                                          final double[][] z1_in, final double[][] z2_in,
+                                          final double[][] z3_in, final double[][] z4_in,
+                                          final double[][] z1_out, final double[][] z2_out,
+                                          final double[][] z3_out, final double[][] z4_out,
                                           final org.jlinda.core.Window window, final double xyRatio,
                                           final int xScale, final int yScale, final double invalidIndex,
                                           final int offset)
@@ -1312,7 +1332,8 @@ public final class BackGeocodingOp extends Operator {
                 return;
             }
 
-            interpolate(xyRatio, window, xScale, yScale, offset, invalidIndex, FDT, z1_in, z2_in, z1_out, z2_out);
+            interpolate(xyRatio, window, xScale, yScale, offset, invalidIndex, FDT,
+                    z1_in, z2_in, z3_in, z4_in, z1_out, z2_out, z3_out, z4_out);
 
         }
 
@@ -1349,7 +1370,9 @@ public final class BackGeocodingOp extends Operator {
                                         final double xScale, final double yScale, final double offset,
                                         final double invalidIndex, FastDelaunayTriangulator FDT,
                                         final double[][] z1_in, final double[][] z2_in,
-                                        final double[][] z1_out, final double[][] z2_out) {
+                                        final double[][] z3_in, final double[][] z4_in,
+                                        final double[][] z1_out, final double[][] z2_out,
+                                        final double[][] z3_out, final double[][] z4_out) {
 
             final double x_min = tileWindow.linelo;
             final double y_min = tileWindow.pixlo;
@@ -1368,6 +1391,8 @@ public final class BackGeocodingOp extends Operator {
             double[] vz = new double[3];
             double[] abc1 = new double[3];
             double[] abc2 = new double[3];
+            double[] abc3 = new double[3];
+            double[] abc4 = new double[3];
 
             // declare demRadarCode_phase
             final int nx = (int) tileWindow.lines();
@@ -1447,6 +1472,8 @@ public final class BackGeocodingOp extends Operator {
 
                 abc1 = getABC(vx, vy, vz, z1_in, f, xkj, ykj, xlj, ylj);
                 abc2 = getABC(vx, vy, vz, z2_in, f, xkj, ykj, xlj, ylj);
+                abc3 = getABC(vx, vy, vz, z3_in, f, xkj, ykj, xlj, ylj);
+                abc4 = getABC(vx, vy, vz, z4_in, f, xkj, ykj, xlj, ylj);
 
                 for (i = (int) i_min; i <= i_max; i++) {
                     xp = indexToCoord(i, x_min, xScale, offset);
@@ -1459,6 +1486,8 @@ public final class BackGeocodingOp extends Operator {
 
                         z1_out[i][j] = abc1[0] * xp + abc1[1] * yp + abc1[2];
                         z2_out[i][j] = abc2[0] * xp + abc2[1] * yp + abc2[2];
+                        z3_out[i][j] = abc3[0] * xp + abc3[1] * yp + abc3[2];
+                        z4_out[i][j] = abc4[0] * xp + abc4[1] * yp + abc4[2];
                     }
                 }
             }
