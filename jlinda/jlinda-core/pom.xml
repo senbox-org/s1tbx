@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-ceres-ui</artifactId>
+            <artifactId>ceres-ui</artifactId>
             <version>${snap.version}</version>
         </dependency>
         <dependency>
