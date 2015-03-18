@@ -372,7 +372,7 @@ public class CreateElevationAction extends ExecCommand {
         @Override
         protected double computeSample(int sourceX, int sourceY) {
             try {
-                return dem.getElevation(geoCoding.getGeoPos(new PixelPos(sourceX + 0.5f, sourceY + 0.5f), null));
+                return dem.getElevation(geoCoding.getGeoPos(new PixelPos(sourceX, sourceY), null));
             } catch (Exception e) {
                 return noDataValue;
             }
