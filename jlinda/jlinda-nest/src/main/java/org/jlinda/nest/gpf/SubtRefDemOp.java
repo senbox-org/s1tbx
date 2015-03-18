@@ -19,6 +19,7 @@ import org.esa.nest.dataio.dem.ElevationModelRegistry;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 import org.jblas.ComplexDoubleMatrix;
@@ -76,7 +77,7 @@ public final class SubtRefDemOp extends Operator {
 
     @Parameter(valueSet = {"10", "20", "30", "40", "50", "60", "70", "80", "90", "100"},
             label = "Tile Extension [%]",
-            description = "Define extension of tile for DEM similuation (optimization parameter).",
+            description = "Define extension of tile for DEM simulation (optimization parameter).",
             defaultValue = "50")
     private String tileExtensionPercent = "50";
 
@@ -100,7 +101,7 @@ public final class SubtRefDemOp extends Operator {
     // operator tags
     private static final boolean CREATE_VIRTUAL_BAND = true;
     private static final String PRODUCT_NAME = "srd_ifgs";
-    public static final String PRODUCT_TAG = "_ifg_srd";
+    private static final String PRODUCT_TAG = "_ifg_srd";
 
 
     /**
@@ -118,19 +119,28 @@ public final class SubtRefDemOp extends Operator {
      */
     @Override
     public void initialize() throws OperatorException {
-        try {
 
+        try {
             checkUserInput();
+
             constructSourceMetadata();
+
             constructTargetMetadata();
+
             createTargetProduct();
 
-            // define DEM
             defineDEM();
 
         } catch (Exception e) {
             throw new OperatorException(e);
         }
+    }
+
+    private void checkUserInput() {
+
+        final InputProductValidator validator = new InputProductValidator(sourceProduct);
+        validator.checkIfCoregisteredStack();
+        validator.checkIfDeburstedProduct();
     }
 
     private void defineDEM() throws IOException {
@@ -153,7 +163,6 @@ public final class SubtRefDemOp extends Operator {
                 }
             }
 
-
             dem = demDescriptor.createDem(resampling);
             if (dem == null) {
                 throw new OperatorException("The DEM '" + demName + "' has not been installed.");
@@ -162,9 +171,7 @@ public final class SubtRefDemOp extends Operator {
             demNoDataValue = demDescriptor.getNoDataValue();
             demSamplingLat = demDescriptor.getDegreeRes() * (1.0f / demDescriptor.getPixelRes()) * Constants.DTOR;
             demSamplingLon = demSamplingLat;
-
         }
-
 
         if (externalDEMFile != null) { // if external DEM file is specified by user
             dem = new FileElevationModel(externalDEMFile, resampling, externalDEMNoDataValue);
@@ -178,14 +185,7 @@ public final class SubtRefDemOp extends Operator {
             } catch (Exception e) {
                 throw new OperatorException("The DEM '" + demName + "' cannot be properly interpreted.");
             }
-
         }
-
-
-    }
-
-    private void checkUserInput() {
-        // TODO: use jlinda input.coherence class to check user input
     }
 
     private void constructSourceMetadata() throws Exception {
@@ -208,7 +208,6 @@ public final class SubtRefDemOp extends Operator {
         for (MetadataElement meta : slaveRoot) {
             metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
         }
-
     }
 
     private void metaMapPut(final String tag,
@@ -276,9 +275,7 @@ public final class SubtRefDemOp extends Operator {
 
                 // put ifg-product bands into map
                 targetMap.put(productName, product);
-
             }
-
         }
     }
 
@@ -302,8 +299,12 @@ public final class SubtRefDemOp extends Operator {
             final String tag1 = targetMap.get(key).sourceSlave.date;
             if (CREATE_VIRTUAL_BAND) {
                 String countStr = PRODUCT_TAG + "_" + tag0 + "_" + tag1;
-                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
-                ReaderUtils.createVirtualPhaseBand(targetProduct, targetProduct.getBand(targetBandName_I), targetProduct.getBand(targetBandName_Q), countStr);
+
+                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I),
+                        targetProduct.getBand(targetBandName_Q), countStr);
+
+                ReaderUtils.createVirtualPhaseBand(targetProduct, targetProduct.getBand(targetBandName_I),
+                        targetProduct.getBand(targetBandName_Q), countStr);
             }
 
             if (targetMap.get(key).subProductsFlag) {
@@ -317,8 +318,10 @@ public final class SubtRefDemOp extends Operator {
             // copy other bands through
             String tagStr = tag0 + "_" + tag1;
             for(Band srcBand : sourceProduct.getBands()) {
-                if(srcBand instanceof VirtualBand)
+                if(srcBand instanceof VirtualBand) {
                     continue;
+                }
+
                 String srcBandName = srcBand.getName();
                 if(srcBandName.endsWith(tagStr)) {
                     if (srcBandName.startsWith("coh")|| srcBandName.startsWith("elev")) {
@@ -340,9 +343,10 @@ public final class SubtRefDemOp extends Operator {
      *          If an error occurs during computation of the target raster.
      */
     @Override
-    public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
-        try {
+    public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm)
+            throws OperatorException {
 
+        try {
             int y0 = targetRectangle.y;
             int yN = y0 + targetRectangle.height - 1;
             int x0 = targetRectangle.x;
@@ -451,7 +455,6 @@ public final class SubtRefDemOp extends Operator {
                 topoPhaseBand = targetProduct.getBand(product.masterSubProduct.targetBandName_I);
                 Tile tileOutTopoPhase = targetTileMap.get(topoPhaseBand);
                 TileUtilsDoris.pushDoubleArray2D(topoPhase.demPhase, tileOutTopoPhase, targetRectangle);
-
             }
 
         } catch (Exception e) {
