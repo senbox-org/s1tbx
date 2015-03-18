@@ -107,8 +107,6 @@ public final class TOPSARMergeOp extends Operator {
 
             getSubSwathParameters();
 
-            getSelectedPolarizations();
-
             computeTargetStartEndTime();
 
             computeTargetSlantRangeTimeToFirstAndLastPixels();
@@ -204,33 +202,12 @@ public final class TOPSARMergeOp extends Operator {
                 final int s = getSubSwathIndex(subSwathName) - refSubSwathIndex;
                 su[s] = new Sentinel1Utils(sourceProduct[p]);
                 subSwath[s] = su[s].getSubSwath()[0];
+                if (selectedPolarisations == null || selectedPolarisations.length == 0) {
+                    selectedPolarisations = su[s].getPolarizations();
+                }
             }
         } catch (Throwable e) {
             throw new OperatorException(e.getMessage());
-        }
-    }
-
-    private void getSelectedPolarizations() {
-
-        if (selectedPolarisations == null || selectedPolarisations.length == 0) {
-            final java.util.List<String> polList = new ArrayList<>(4);
-            String pol = absRoot.getAttributeString(AbstractMetadata.mds1_tx_rx_polar);
-            if (pol != null && !polList.contains(pol)) {
-                polList.add(pol);
-            }
-            pol = absRoot.getAttributeString(AbstractMetadata.mds2_tx_rx_polar);
-            if (pol != null && !polList.contains(pol)) {
-                polList.add(pol);
-            }
-            pol = absRoot.getAttributeString(AbstractMetadata.mds3_tx_rx_polar);
-            if (pol != null && !polList.contains(pol)) {
-                polList.add(pol);
-            }
-            pol = absRoot.getAttributeString(AbstractMetadata.mds4_tx_rx_polar);
-            if (pol != null && !polList.contains(pol)) {
-                polList.add(pol);
-            }
-            selectedPolarisations = polList.toArray(new String[polList.size()]);
         }
     }
 
