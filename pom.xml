@@ -55,7 +55,6 @@
         <!--<module>snap-config</module>-->
         <module>snap-engine-kit</module>
         <module>snap-engine-utilities</module>
-        <module>snap-gui-utilities</module>
         <module>snap-gpf</module>
 
         <!-- SNAP Extension Modules -->
@@ -88,9 +87,6 @@
         <!-- BEAM System Modules -->
 
         <module>beam-ui</module>
-        <module>beam-visat-rcp</module>
-
-        <!-- Former BEAM Extension Modules -->
 
         <module>lib-hdf</module>
     </modules>
@@ -178,12 +174,6 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-ui</artifactId>
-                <version>${snap.version}</version>
-            </dependency>
-            <!-- todo: move to snap-desktop -->
-            <dependency>
-                <groupId>org.esa.snap</groupId>
-                <artifactId>snap-visat-rcp</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 
