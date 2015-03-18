@@ -1218,6 +1218,8 @@ public final class SliceAssemblyOp extends Operator {
 
             final String imageNum = extractImageNumber(e.getName());
             MetadataElement targetSwathTiming = e.getElement("product").getElement("swathTiming");
+            final int linesPerBurst = Integer.parseInt(targetSwathTiming.getAttributeString("linesPerBurst"));
+            int samplesPerBurst = Integer.parseInt(targetSwathTiming.getAttributeString("samplesPerBurst"));
             MetadataElement targetBurstList = targetSwathTiming.getElement("burstList");
             int count = Integer.parseInt(targetBurstList.getAttributeString("count"));
 
@@ -1228,6 +1230,17 @@ public final class SliceAssemblyOp extends Operator {
             for (int i = 1; i < sliceProducts.length; i++) {
 
                 MetadataElement sliceSwathTiming = getAnnotationElement(sliceProducts[i], imageNum, "swathTiming");
+
+                final int sliceLinesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("linesPerBurst"));
+                if (sliceLinesPerBurst != linesPerBurst) {
+                    throw new OperatorException("slice " + i + " has different linesPerBurst " + sliceLinesPerBurst + " " + linesPerBurst);
+                }
+                final int sliceSamplesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("samplesPerBurst"));
+                //System.out.println("sliceSamplesPerBurst = " + sliceSamplesPerBurst + " samplesPerBurst = " + samplesPerBurst);
+                if (sliceSamplesPerBurst > samplesPerBurst) {
+                    samplesPerBurst = sliceSamplesPerBurst;
+                }
+
                 MetadataElement sliceBurstList = sliceSwathTiming.getElement("burstList");
 
                 final int sliceBurstListCount = Integer.parseInt(sliceBurstList.getAttributeString("count"));
@@ -1254,6 +1267,7 @@ public final class SliceAssemblyOp extends Operator {
                 targetByteIncr = getByteIncrementPerBurst(sliceBurstList);
             }
 
+            targetSwathTiming.setAttributeString("samplesPerBurst", Integer.toString(samplesPerBurst));
             targetBurstList.setAttributeString("count", Integer.toString(count));
         }
     }
@@ -1290,6 +1304,22 @@ public final class SliceAssemblyOp extends Operator {
             AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, band.getRasterWidth());
         }
 
+        final ArrayList<MetadataElement> bandMetaToRemove = new ArrayList<>();
+        MetadataElement[] absTgtElems = absTgt.getElements();
+        for (MetadataElement e : absTgtElems) {
+            final String elemName = e.getName();
+            if (elemName.contains("Band")) {
+                for (String pol : selectedPolarisations) {
+                    if (!elemName.contains(pol)) {
+                        bandMetaToRemove.add(e);
+                    }
+                }
+            }
+        }
+        for (MetadataElement e : bandMetaToRemove) {
+            absTgt.removeElement(e);
+        }
+
         final List<OrbitStateVector> orbVectorList = new ArrayList<>();
         final List<AbstractMetadata.SRGRCoefficientList> srgrList = new ArrayList<>();
         final List<AbstractMetadata.DopplerCentroidCoefficientList> dopList = new ArrayList<>();
@@ -1319,7 +1349,6 @@ public final class SliceAssemblyOp extends Operator {
         updateImageInformation();
 
         updateSwathTiming();
-
 
         //System.out.println("DONE updateTargetProductMetadata");
     }
