@@ -171,6 +171,14 @@ public final class Sentinel1Utils {
                 }
             }
         }
+        if(subSwathNameList.size() < 1) {
+            final String subSwathName = absRoot.getAttributeString(AbstractMetadata.swath);
+            if (subSwathName.equals("")) {
+                throw new OperatorException("Cannot get \"swath\" information from source product abstracted metadata");
+            }
+            subSwathNameList.add(subSwathName);
+        }
+
         subSwathNames =  subSwathNameList.toArray(new String[subSwathNameList.size()]);
         numOfSubSwath = subSwathNames.length;
     }
