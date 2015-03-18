@@ -198,18 +198,15 @@ public final class Sentinel1Utils {
             }
         }
 
-        if (subSwathNameList.size() > 0) {
-            subSwathNames =  subSwathNameList.toArray(new String[subSwathNameList.size()]);
-            return;
-        }
-
-        final String[] sourceBandNames = sourceProduct.getBandNames();
-        for (String bandName:sourceBandNames) {
-            if (bandName.contains(acquisitionMode)) {
-                final int idx = bandName.indexOf(acquisitionMode);
-                final String subSwathName = bandName.substring(idx, idx + 3);
-                if (!subSwathNameList.contains(subSwathName)) {
-                    subSwathNameList.add(subSwathName);
+        if (subSwathNameList.size() < 1) {
+            final String[] sourceBandNames = sourceProduct.getBandNames();
+            for (String bandName : sourceBandNames) {
+                if (bandName.contains(acquisitionMode)) {
+                    final int idx = bandName.indexOf(acquisitionMode);
+                    final String subSwathName = bandName.substring(idx, idx + 3);
+                    if (!subSwathNameList.contains(subSwathName)) {
+                        subSwathNameList.add(subSwathName);
+                    }
                 }
             }
         }
