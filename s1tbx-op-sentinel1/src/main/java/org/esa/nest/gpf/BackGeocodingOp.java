@@ -100,6 +100,9 @@ public final class BackGeocodingOp extends Operator {
             label = "Resampling Type")
     private String resamplingType = ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME;
 
+    @Parameter(defaultValue = "true", label = "Mask out areas with no elevation")
+    private boolean maskOutAreaWithoutElevation = true;
+
     @Parameter(defaultValue = "false", label = "Output Range and Azimuth Offset")
     private boolean outputRangeAzimuthOffset = false;
 
@@ -814,14 +817,14 @@ public final class BackGeocodingOp extends Operator {
 
             boolean allElementsAreNull = true;
             final PixelPos[][] slavePixelPos = new PixelPos[h][w];
-            boolean testForDemNoData = true;
+
             double alt = 0;
             for(int yy = 0; yy < h; yy++) {
                 for (int xx = 0; xx < w; xx++) {
-                    if(testForDemNoData) {
+                    if(maskOutAreaWithoutElevation) {
                         alt = dem.getElevation(new GeoPos(latArray[yy][xx], lonArray[yy][xx]));
                     }
-                    if (rgArray[yy][xx] == invalidIndex || azArray[yy][xx] == invalidIndex || (testForDemNoData && alt == demNoDataValue)) {
+                    if (rgArray[yy][xx] == invalidIndex || azArray[yy][xx] == invalidIndex || (maskOutAreaWithoutElevation && alt == demNoDataValue)) {
                         slavePixelPos[yy][xx] = null;
                     } else {
                         slavePixelPos[yy][xx] = new PixelPos(rgArray[yy][xx], azArray[yy][xx]);
