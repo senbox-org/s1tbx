@@ -65,7 +65,7 @@
         <!-- todo - move to snap-desktop -->
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-ceres-ui</artifactId>
+            <artifactId>ceres-ui</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -133,7 +133,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-examples</artifactId>
+            <artifactId>snap-engine-examples</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
