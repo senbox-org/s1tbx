@@ -153,7 +153,33 @@ public final class Sentinel1Utils {
                 }
             }
         }
-        polarizations =  polList.toArray(new String[polList.size()]);
+
+        if (polList.size() > 0) {
+            polarizations =  polList.toArray(new String[polList.size()]);
+            return;
+        }
+
+        final String[] sourceBandNames = sourceProduct.getBandNames();
+        for (String bandName:sourceBandNames) {
+            if (bandName.contains("HH")) {
+                if (!polList.contains("HH")) {
+                    polList.add("HH");
+                }
+            } else if (bandName.contains("HV")) {
+                if (!polList.contains("HV")) {
+                    polList.add("HV");
+                }
+            } else if (bandName.contains("VH")) {
+                if (!polList.contains("VH")) {
+                    polList.add("VH");
+                }
+            } else if (bandName.contains("VV")) {
+                if (!polList.contains("VV")) {
+                    polList.add("VV");
+                }
+            }
+        }
+        polarizations = polList.toArray(new String[polList.size()]);
     }
 
     /**
@@ -171,14 +197,22 @@ public final class Sentinel1Utils {
                 }
             }
         }
-        if(subSwathNameList.size() < 1) {
-            final String subSwathName = absRoot.getAttributeString(AbstractMetadata.swath);
-            if (subSwathName.equals("")) {
-                throw new OperatorException("Cannot get \"swath\" information from source product abstracted metadata");
-            }
-            subSwathNameList.add(subSwathName);
+
+        if (subSwathNameList.size() > 0) {
+            subSwathNames =  subSwathNameList.toArray(new String[subSwathNameList.size()]);
+            return;
         }
 
+        final String[] sourceBandNames = sourceProduct.getBandNames();
+        for (String bandName:sourceBandNames) {
+            if (bandName.contains(acquisitionMode)) {
+                final int idx = bandName.indexOf(acquisitionMode);
+                final String subSwathName = bandName.substring(idx, idx + 3);
+                if (!subSwathNameList.contains(subSwathName)) {
+                    subSwathNameList.add(subSwathName);
+                }
+            }
+        }
         subSwathNames =  subSwathNameList.toArray(new String[subSwathNameList.size()]);
         numOfSubSwath = subSwathNames.length;
     }
@@ -841,6 +875,33 @@ public final class Sentinel1Utils {
                 }
             }
         }
+
+        if (polList.size() > 0) {
+            return  polList.toArray(new String[polList.size()]);
+        }
+
+        final Product sourceProduct = absRoot.getProduct();
+        final String[] sourceBandNames = sourceProduct.getBandNames();
+        for (String bandName:sourceBandNames) {
+            if (bandName.contains("HH")) {
+                if (!polList.contains("HH")) {
+                    polList.add("HH");
+                }
+            } else if (bandName.contains("HV")) {
+                if (!polList.contains("HV")) {
+                    polList.add("HV");
+                }
+            } else if (bandName.contains("VH")) {
+                if (!polList.contains("VH")) {
+                    polList.add("VH");
+                }
+            } else if (bandName.contains("VV")) {
+                if (!polList.contains("VV")) {
+                    polList.add("VV");
+                }
+            }
+        }
+
         return polList.toArray(new String[polList.size()]);
     }
 
@@ -853,6 +914,23 @@ public final class Sentinel1Utils {
                 final String swath = elem.getAttributeString("swath", null);
                 if (swath != null && !swathList.contains(swath)) {
                     swathList.add(swath);
+                }
+            }
+        }
+
+        if (swathList.size() > 0) {
+            return swathList.toArray(new String[swathList.size()]);
+        }
+
+        final Product sourceProduct = absRoot.getProduct();
+        final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+        final String[] sourceBandNames = sourceProduct.getBandNames();
+        for (String bandName:sourceBandNames) {
+            if (bandName.contains(acquisitionMode)) {
+                final int idx = bandName.indexOf(acquisitionMode);
+                final String subSwathName = bandName.substring(idx, idx + 3);
+                if (!swathList.contains(subSwathName)) {
+                    swathList.add(subSwathName);
                 }
             }
         }
