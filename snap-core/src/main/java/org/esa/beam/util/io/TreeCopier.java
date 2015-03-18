@@ -26,7 +26,7 @@ public class TreeCopier implements FileVisitor<Path> {
         if (!Files.exists(target)) {
             target = Files.createDirectories(target);
         }
-        Path dir = target.resolve(source.getFileName());
+        Path dir = target.resolve(source.getFileName().toString());
         TreeCopier treeCopier = new TreeCopier(source, dir);
         Files.walkFileTree(source, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, treeCopier);
         if (treeCopier.exception != null) {
@@ -42,14 +42,14 @@ public class TreeCopier implements FileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
-        Files.copy(file, target.resolve(source.relativize(file)), COPY_ATTRIBUTES, REPLACE_EXISTING);
+        Files.copy(file, target.resolve(source.relativize(file).toString()), COPY_ATTRIBUTES, REPLACE_EXISTING);
         return CONTINUE;
     }
 
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attributes) throws IOException {
         try {
-            Files.copy(dir, target.resolve(source.relativize(dir)), COPY_ATTRIBUTES);
+            Files.copy(dir, target.resolve(source.relativize(dir).toString()), COPY_ATTRIBUTES);
         } catch (FileAlreadyExistsException x) {
             // ignore
         }
@@ -59,7 +59,7 @@ public class TreeCopier implements FileVisitor<Path> {
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exception) throws IOException {
         if (exception == null) {
-            Path newDir = target.resolve(source.relativize(dir));
+            Path newDir = target.resolve(source.relativize(dir).toString());
             FileTime time = Files.getLastModifiedTime(dir);
             Files.setLastModifiedTime(newDir, time);
         }
