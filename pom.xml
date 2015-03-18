@@ -510,15 +510,6 @@
                 <version>1.2-20090918</version>
             </dependency>
 
-            <!-- Java Help Library ############################################# -->
-
-            <dependency>
-                <groupId>javax.help</groupId>
-                <artifactId>javahelp</artifactId>
-                <version>${javahelp.version}</version>
-                <scope>provided</scope>
-            </dependency>
-
             <!-- BC Neural Network Library ############################################# -->
 
             <dependency>
