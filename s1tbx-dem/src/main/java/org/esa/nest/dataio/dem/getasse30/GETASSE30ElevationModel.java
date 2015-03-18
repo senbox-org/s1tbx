@@ -39,7 +39,7 @@ public class GETASSE30ElevationModel extends BaseElevationModel {
 
     @Override
     public double getIndexY(final GeoPos geoPos) {
-        return (90.0 - geoPos.lat) * DEGREE_RES_BY_NUM_PIXELS_PER_TILEinv;
+        return RASTER_HEIGHT - (geoPos.lat + 90.0f) * DEGREE_RES_BY_NUM_PIXELS_PER_TILEinv;
     }
 
     @Override

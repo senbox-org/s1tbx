@@ -3,14 +3,25 @@
 
     <modelVersion>4.0.0</modelVersion>
 	
+    <groupId>org.esa.s1tbx</groupId>
+    <artifactId>s1tbx</artifactId>
+    <version>1.1.0</version>
+    <name>Sentinel-1 Toolbox</name>
+    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
+    <description>Tools for SAR Earth Observation</description>
+    
+    <packaging>pom</packaging>
+    
 	<properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>				
-		<context>s1tbx</context>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>		
+        <netbeans.version>RELEASE802</netbeans.version>
+        <javahelp.version>2.0.05</javahelp.version>
+        <brandingToken>s1tbx</brandingToken>		
 		
 		<skipTests>false</skipTests>
         <test.jvm.maxheapsize>5024m</test.jvm.maxheapsize>
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
-        <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${context}</surefire.jvm.args>
+        <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${brandingToken}</surefire.jvm.args>
 
 		<jlinda.version>0.8.1</jlinda.version>
 		<rstb.version>6.3.2</rstb.version>
@@ -23,32 +34,14 @@
         <netcdf.version>4.3.22</netcdf.version>	
 		
 		<outputdir>../../output</outputdir>
-		<pacakgedir>../package</pacakgedir>
+		<packagedir>../package</packagedir>
 	</properties>
-	
-	<prerequisites>
-       <maven>3.1.0</maven>
-    </prerequisites>
-	
-    <name>Sentinel-1 Toolbox</name>
-    <url>https://earth.esa.int/web/sentinel-tbx/home</url>
-    <groupId>org.esa.s1tbx</groupId>
-    <artifactId>s1tbx</artifactId>
-    <version>1.1.0</version>
-
-	<issueManagement>
-        <system>JIRA</system>
-        <url>https://senbox.atlassian.net/</url>
-    </issueManagement>
-	
-    <packaging>pom</packaging>
   
-	    <modules>
+	<modules>
 		<module>jlinda</module>
 		<module>rstb</module>
 		<module>s1tbx-benchmark</module>
 		<module>s1tbx-bootstrap</module>
-		<module>s1tbx-cli</module>
 		<module>s1tbx-config</module>
 		<module>s1tbx-dem</module>				
 		<module>s1tbx-help</module>
@@ -73,6 +66,10 @@
 
     <inceptionYear>2007</inceptionYear>
 
+    <prerequisites>
+       <maven>3.1.0</maven>
+    </prerequisites>
+    
     <licenses>
         <license>
             <name>GNU General Public License (GPL)</name>
@@ -81,9 +78,14 @@
         </license>
     </licenses>
 
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://senbox.atlassian.net/</url>
+    </issueManagement>
+    
     <scm>
 	 <connection>scm:git:git://github.com/senbox-org/s1tbx.git</connection>
-     <url>https://earth.esa.int/web/sentinel-tbx</url>
+     <url>https://github.com/senbox-org/s1tbx.git</url>
     </scm>
 
 	<repositories>
@@ -139,22 +141,6 @@
                 <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
-		<!--pluginRepository>
-          <id>mojo</id>
-          <name>Mojo repository</name>
-          <url>https://nexus.codehaus.org/content/groups/snapshots-group</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>apache.org</id>
-            <name>Maven Plugin Snapshots</name>
-            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository-->
     </pluginRepositories>
 
 	<distributionManagement>
@@ -302,7 +288,6 @@
 				</exclusions>
             </dependency>
 
-
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
@@ -321,6 +306,34 @@
                 <version>1.4.1.1</version>
             </dependency>
 			
+            <!-- NetBeans Modules -->
+
+            <!--dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-openide-awt</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-openide-util</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-openide-util-lookup</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-netbeans-api-annotations-common</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-netbeans-modules-javahelp</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency-->
+            
 	        <!-- jlinda Modules ############################################# -->
 			
 			<dependency>
@@ -633,7 +646,7 @@
             <dependency>
                 <groupId>javax.help</groupId>
                 <artifactId>javahelp</artifactId>
-                <version>2.0.05</version>
+                <version>${javahelp.version}</version>
             </dependency>
 
             <!-- JDOM Library ############################################# -->
@@ -1008,7 +1021,7 @@
 	                    <source>1.8</source>
 	                    <target>1.8</target>
 	                    <debug>true</debug>
-	                    <encoding>ISO-8859-1</encoding>
+	                    <encoding>UTF-8</encoding>
 						<optimize>true</optimize>
 	                </configuration>
 	            </plugin>
@@ -1106,24 +1119,41 @@
 			        <artifactId>versions-maven-plugin</artifactId>
 			        <version>2.1</version>
 			     </plugin>
-			  
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>osxappbundle-maven-plugin</artifactId>
-					<version>1.0-alpha-2</version>
-					<configuration>
-						<mainClass>com.example.Main</mainClass>
-						<javaApplicationStub>c:\Build\5.0\NEST\nest\s1tbx-config\main\bin\macosx\NEST.app\Contents\MacOS\JavaApplicationStub</javaApplicationStub>
-					</configuration>
-					<executions>
-						<execution>
-							<phase>package</phase>
-							<goals>
-								<goal>bundle</goal>
-							</goals>
-						</execution>
-				   </executions>
-			   </plugin>
+              
+                <!--plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>nbm-maven-plugin</artifactId>
+                    <version>3.14</version>
+                    <extensions>true</extensions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>javax.help</groupId>
+                            <artifactId>javahelp</artifactId>
+                            <version>${javahelp.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <moduleType>normal</moduleType>
+                        <licenseName>GPL 3</licenseName>
+                        <licenseFile>${project.basedir}/../LICENSE.html</licenseFile>
+                        <cluster>${brandingToken}</cluster>
+                        <nbmBuildDir>${project.basedir}/../target/nbmCluster</nbmBuildDir>
+                        <brandingToken>${brandingToken}</brandingToken>
+                        <useOSGiDependencies>false</useOSGiDependencies>
+                        <requiresRestart>false</requiresRestart>
+                        <keystore>${project.basedir}/../keystore/s1tbx.ks</keystore>
+                        <keystorealias>s1tbx</keystorealias>
+                        <keystorepassword>snap-123</keystorepassword>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.5</version>
+                    <configuration>
+                        <useDefaultManifestFile>true</useDefaultManifestFile>
+                    </configuration>
+                </plugin-->
             </plugins>
         </pluginManagement>
 
@@ -1131,7 +1161,7 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-					<outputDirectory>${pacakgedir}</outputDirectory>
+					<outputDirectory>${packagedir}</outputDirectory>
 					<finalName>s1tbx</finalName>
                     <descriptors>
 						<descriptor>s1tbx-config/main/assembly/bin-windows64.xml</descriptor>
@@ -1156,7 +1186,7 @@
                             </includes>
                         </fileset>
 						<fileset>
-                            <directory>${pacakgedir}</directory>
+                            <directory>${packagedir}</directory>
                             <includes>
                                 <include>**/*</include>
                             </includes>
@@ -1239,6 +1269,24 @@
             <organization>Array Systems Computing Inc</organization>
             <roles>
 				<role>SAR Scientist</role>
+                <role>Software Engineering</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>cecilia</id>
+            <name>Cecilia Wong</name>
+            <email>cecilia@array.ca</email>
+            <organization>Array Systems Computing Inc</organization>
+            <roles>
+                <role>Software Engineering</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>serge</id>
+            <name>Serge Stankovic</name>
+            <email>sstankovic@array.ca</email>
+            <organization>Array Systems Computing Inc</organization>
+            <roles>
                 <role>Software Engineering</role>
             </roles>
         </developer>

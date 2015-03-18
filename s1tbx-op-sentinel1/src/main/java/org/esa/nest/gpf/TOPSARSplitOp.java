@@ -15,11 +15,13 @@
  */
 package org.esa.nest.gpf;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
@@ -113,9 +115,10 @@ public final class TOPSARSplitOp extends Operator {
 
             targetProduct = new Product(sourceProduct.getName() + '_' + subswath,
                     sourceProduct.getProductType(),
-                    selectedBands.get(0).getSceneRasterWidth(),
-                    selectedBands.get(0).getSceneRasterHeight());
+                    selectedBands.get(0).getRasterWidth(),
+                    selectedBands.get(0).getRasterHeight());
 
+            boolean oneBandToProcess = false;
             for (Band srcBand : selectedBands) {
                 if (srcBand instanceof VirtualBand) {
                     final VirtualBand sourceBand = (VirtualBand) srcBand;
@@ -127,7 +130,8 @@ public final class TOPSARSplitOp extends Operator {
                     ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
                     targetProduct.addBand(targetBand);
                 } else {
-                    ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
+                    ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, false);
+                    oneBandToProcess = false;
                 }
             }
             for (TiePointGrid srcTPG : sourceProduct.getTiePointGrids()) {
@@ -151,6 +155,25 @@ public final class TOPSARSplitOp extends Operator {
             updateTargetProductMetadata();
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    /**
+     * Called by the framework in order to compute a tile for the given target band.
+     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
+     *
+     * @param targetBand The target band.
+     * @param targetTile The current tile associated with the target band to be computed.
+     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
+     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
+     */
+    @Override
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        try {
+            final Tile srcRaster = getSourceTile(sourceProduct.getBand(targetBand.getName()), targetTile.getRectangle());
+            targetTile.setRawSamples(srcRaster.getRawSamples());
+        } catch (Exception e) {
+            OperatorUtils.catchOperatorException(this.getId(), e);
         }
     }
 
@@ -203,6 +226,20 @@ public final class TOPSARSplitOp extends Operator {
                 subSwathInfo[subSwathIndex - 1].latitude[rows - 1][cols - 1]);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.last_far_long,
                 subSwathInfo[subSwathIndex - 1].longitude[rows - 1][cols - 1]);
+
+        absRoot.setAttributeString(AbstractMetadata.swath, subswath);
+
+        for (int i = 0; i < selectedPolarisations.length; i++) {
+            if (i == 0) {
+                absRoot.setAttributeString(AbstractMetadata.mds1_tx_rx_polar, selectedPolarisations[i]);
+            } else if (i == 1) {
+                absRoot.setAttributeString(AbstractMetadata.mds2_tx_rx_polar, selectedPolarisations[i]);
+            } else if (i == 2) {
+                absRoot.setAttributeString(AbstractMetadata.mds3_tx_rx_polar, selectedPolarisations[i]);
+            } else {
+                absRoot.setAttributeString(AbstractMetadata.mds4_tx_rx_polar, selectedPolarisations[i]);
+            }
+        }
 
         final MetadataElement[] bandMetadataList = AbstractMetadata.getBandAbsMetadataList(absRoot);
         for (MetadataElement bandMeta : bandMetadataList) {

@@ -232,8 +232,8 @@ public class BaseCalibrator {
             if (targetProduct.getBand(targetBandName) == null) {
                 final Band targetBand = new Band(targetBandName,
                         targetType,
-                        sourceProduct.getSceneRasterWidth(),
-                        sourceProduct.getSceneRasterHeight());
+                        srcBand.getRasterWidth(),
+                        srcBand.getRasterHeight());
 
                 if (outputImageScaleInDb && !targetUnit.equals(Unit.PHASE)) {
                     targetUnit = Unit.INTENSITY_DB;

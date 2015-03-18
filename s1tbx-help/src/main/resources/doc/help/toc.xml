@@ -20,6 +20,7 @@
         <tocitem text="Graph Tools">
             <tocitem text="Graph Processing Tool" target="gpt"/>
             <tocitem text="Command Line Reference" target="commandLineReference"/>
+            <tocitem text="Command Line Processing" target="commandLineProcessing"/>
         </tocitem>
     </tocitem>
 

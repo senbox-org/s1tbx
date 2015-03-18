@@ -41,6 +41,7 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
     private final JComboBox<String> demName = new JComboBox<>(DEMFactory.getDEMNameList());
     private final JComboBox demResamplingMethod = new JComboBox<>(ResamplingFactory.resamplingNames);
     private final JComboBox resamplingType = new JComboBox(ResamplingFactory.resamplingNames);
+    final JCheckBox maskOutAreaWithoutElevationCheckBox = new JCheckBox("Mask out areas with no elevation");
     final JCheckBox outputRangeAzimuthOffsetCheckBox = new JCheckBox("Output Range and Azimuth Offset");
     final JCheckBox outputDerampPhaseCheckBox = new JCheckBox("Output Deramp Phase");
 
@@ -51,6 +52,7 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
     private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
     private static final String externalDEMStr = "External DEM";
     private Double extNoDataValue = 0.0;
+    private boolean maskOutAreaWithoutElevation = false;
     private boolean outputRangeAzimuthOffset = false;
     private boolean outputDerampPhase = false;
 
@@ -88,6 +90,12 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
 
         externalDEMNoDataValue.addKeyListener(textAreaKeyListener);
 
+        maskOutAreaWithoutElevationCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                maskOutAreaWithoutElevation = (e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+
         outputRangeAzimuthOffsetCheckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 outputRangeAzimuthOffset = (e.getStateChange() == ItemEvent.SELECTED);
@@ -122,6 +130,9 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
 
         resamplingType.setSelectedItem(paramMap.get("resamplingType"));
 
+        maskOutAreaWithoutElevation = (Boolean)paramMap.get("maskOutAreaWithoutElevation");
+
+        maskOutAreaWithoutElevationCheckBox.setSelected(maskOutAreaWithoutElevation);
         outputRangeAzimuthOffsetCheckBox.setSelected(outputRangeAzimuthOffset);
         outputDerampPhaseCheckBox.setSelected(outputDerampPhase);
     }
@@ -145,6 +156,7 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
 
         paramMap.put("resamplingType", resamplingType.getSelectedItem());
 
+        paramMap.put("maskOutAreaWithoutElevation", maskOutAreaWithoutElevation);
         paramMap.put("outputRangeAzimuthOffset", outputRangeAzimuthOffset);
         paramMap.put("outputDerampPhase", outputDerampPhase);
     }
@@ -168,6 +180,8 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "DEM Resampling Method:", demResamplingMethod);
         gbc.gridy++;
         DialogUtils.addComponent(contentPane, gbc, "Resampling Type:", resamplingType);
+        gbc.gridy++;
+        contentPane.add(maskOutAreaWithoutElevationCheckBox, gbc);
         gbc.gridy++;
         contentPane.add(outputRangeAzimuthOffsetCheckBox, gbc);
         gbc.gridy++;

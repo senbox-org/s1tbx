@@ -17,27 +17,25 @@ package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
-import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.Maths;
 
 import java.awt.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  * Merge subswaths of a Sentinel-1 TOPSAR product.
@@ -58,7 +56,6 @@ public final class TOPSARMergeOp extends Operator {
     @Parameter(description = "The list of polarisations", label = "Polarisations")
     private String[] selectedPolarisations;
 
-    private MetadataElement absRoot = null;
     private String acquisitionMode = null;
     private String productType = null;
     private int numOfSubSwath = 0;
@@ -148,9 +145,12 @@ public final class TOPSARMergeOp extends Operator {
         final String product0 = absRoot0.getAttributeString(AbstractMetadata.PRODUCT);
         acquisitionMode = absRoot0.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         productType = absRoot0.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        final String subSwathNames0 = Sentinel1Utils.getProductSubswaths(absRoot0)[0];
-        subSwathIndexArray[0] = getSubSwathIndex(subSwathNames0);
-        sourceProductToSubSwathNameMap.put(0, subSwathNames0);
+        final String subSwathName0 = absRoot0.getAttributeString(AbstractMetadata.swath);
+        if (subSwathName0.equals("")) {
+            throw new OperatorException("Cannot get \"swath\" information from source product abstracted metadata");
+        }
+        subSwathIndexArray[0] = getSubSwathIndex(subSwathName0);
+        sourceProductToSubSwathNameMap.put(0, subSwathName0);
 
         for (int s = 1; s < numOfSubSwath; s++) {
             MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[s]);
@@ -169,7 +169,10 @@ public final class TOPSARMergeOp extends Operator {
                 throw new OperatorException("Source products do not have the same number of bands");
             }
 
-            final String subSwathName = Sentinel1Utils.getProductSubswaths(absRoot)[0];
+            final String subSwathName = absRoot.getAttributeString(AbstractMetadata.swath);
+            if (subSwathName.equals("")) {
+                throw new OperatorException("Cannot get \"swath\" information from source product abstracted metadata");
+            }
             subSwathIndexArray[s] = getSubSwathIndex(subSwathName);
             sourceProductToSubSwathNameMap.put(s, subSwathName);
         }
@@ -197,11 +200,10 @@ public final class TOPSARMergeOp extends Operator {
                 final String subSwathName = sourceProductToSubSwathNameMap.get(p);
                 final int s = getSubSwathIndex(subSwathName) - refSubSwathIndex;
                 su[s] = new Sentinel1Utils(sourceProduct[p]);
-
+                subSwath[s] = su[s].getSubSwath()[0];
                 if (selectedPolarisations == null || selectedPolarisations.length == 0) {
                     selectedPolarisations = su[s].getPolarizations();
                 }
-                subSwath[s] = su[s].getSubSwath()[0];
             }
         } catch (Throwable e) {
             throw new OperatorException(e.getMessage());
@@ -338,7 +340,6 @@ public final class TOPSARMergeOp extends Operator {
             targetProduct.addTiePointGrid(tiePointGrid);
         }
         */
-        //targetProduct.setPreferredTileSize(500, 50);
     }
 
     private String getTargetBandNameFromSourceBandName(final String srcBandName) {
@@ -621,7 +622,8 @@ public final class TOPSARMergeOp extends Operator {
                 }
             }
         } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId(), e);
+            e.printStackTrace();
+            //OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
         }

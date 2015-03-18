@@ -177,14 +177,16 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
         return (ProductReaderPlugIn) readerPlugIns.next();
     }
 
-    public final boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception {
+    public final boolean getSamples(final int[] xArray, final int[] yArray, final double[][] samples) throws Exception {
         boolean allValid = true;
-        for (int i = 0; i < y.length; i++) {
-            final int tileYIndex = (int) (y[i] * NUM_PIXELS_PER_TILEinv);
-            final int pixelY = y[i] - tileYIndex * NUM_PIXELS_PER_TILE;
+        int i = 0;
+        for (int y : yArray) {
+            final int tileYIndex = (int) (y * NUM_PIXELS_PER_TILEinv);
+            final int pixelY = y - tileYIndex * NUM_PIXELS_PER_TILE;
 
-            for (int j = 0; j < x.length; j++) {
-                final int tileXIndex = (int) (x[j] * NUM_PIXELS_PER_TILEinv);
+            int j = 0;
+            for (int x : xArray) {
+                final int tileXIndex = (int) (x * NUM_PIXELS_PER_TILEinv);
 
                 final ElevationTile tile = elevationFiles[tileXIndex][tileYIndex].getTile();
                 if (tile == null) {
@@ -193,12 +195,14 @@ public abstract class BaseElevationModel implements ElevationModel, Resampling.R
                     continue;
                 }
 
-                samples[i][j] = tile.getSample(x[j] - tileXIndex * NUM_PIXELS_PER_TILE, pixelY);
+                samples[i][j] = tile.getSample(x - tileXIndex * NUM_PIXELS_PER_TILE, pixelY);
                 if (samples[i][j] == NO_DATA_VALUE) {
                     samples[i][j] = Double.NaN;
                     allValid = false;
                 }
+                ++j;
             }
+            ++i;
         }
         return allValid;
     }
