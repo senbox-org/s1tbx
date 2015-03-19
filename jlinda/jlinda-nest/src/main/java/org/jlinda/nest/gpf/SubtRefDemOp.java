@@ -44,7 +44,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-@OperatorMetadata(alias = "SubtRefDem",
+@OperatorMetadata(alias = "TopoPhaseRemoval",
         category = "SAR Processing/Interferometric/Products",
         authors = "Petar Marinkovic",
         copyright = "Copyright (C) 2013 by PPO.labs",
@@ -78,8 +78,8 @@ public final class SubtRefDemOp extends Operator {
     @Parameter(valueSet = {"10", "20", "30", "40", "50", "60", "70", "80", "90", "100"},
             label = "Tile Extension [%]",
             description = "Define extension of tile for DEM simulation (optimization parameter).",
-            defaultValue = "50")
-    private String tileExtensionPercent = "50";
+            defaultValue = "100")
+    private String tileExtensionPercent = "100";
 
     @Parameter(description = "The topographic phase band name.",
             defaultValue = "topo_phase",

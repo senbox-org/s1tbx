@@ -162,7 +162,7 @@
             <class>org.esa.snap.dat.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Topographic Phase Removal</text>
-            <operatorName>SubtRefDem</operatorName>
+            <operatorName>TopoPhaseRemoval</operatorName>
             <dialogTitle>Topographic Phase Removal</dialogTitle>
             <targetProductNameSuffix>_dinsar</targetProductNameSuffix>
             <shortDescr>Compute and subtract topographic phase</shortDescr>
