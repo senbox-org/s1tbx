@@ -20,8 +20,9 @@ import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
 import javax.media.jai.JAI;
 import javax.media.jai.OperationRegistry;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.UIManager;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -116,7 +117,7 @@ public class SystemUtils {
      * @return the current working directory, never <code>null</code>
      */
     public static File getUserHomeDir() {
-        return new File(System.getProperty("user.home", "."));
+        return new File(System.getProperty("netbeans.user", System.getProperty("user.home", ".")));
     }
 
     /**
