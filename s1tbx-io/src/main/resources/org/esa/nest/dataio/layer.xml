@@ -1,0 +1,57 @@
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Readers">
+            <file name="org-esa-s1tbx-dataio-ceos-importERSProduct.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName"
+                      stringvalue="ERS 1/2 CEOS"/>
+                <attr name="formatName"
+                      stringvalue="ERS CEOS"/>
+                <attr name="useAllFileFilter"
+                      boolvalue="true"/>
+                <attr name="helpId"
+                      stringvalue="importERSProduct"/>
+                <attr name="ShortDescription"
+                      stringvalue="Open ERS 1/2 CEOS (VMP and PGS) data product."/>
+            </file>
+            <file name="org-esa-s1tbx-dataio-ceos-importJERSCEOSProduct.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName"
+                      stringvalue="JERS CEOS"/>
+                <attr name="formatName"
+                      stringvalue="JERS CEOS"/>
+                <attr name="useAllFileFilter"
+                      boolvalue="true"/>
+                <attr name="helpId"
+                      stringvalue="importJERSProduct"/>
+                <attr name="ShortDescription"
+                      stringvalue="Open JERS CEOS data product."/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="File">
+            <folder name="Import">
+                <folder name="SAR Sensors">
+                    <file name="org-esa-s1tbx-dataio-ceos-importERSProduct.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Readers/org-esa-s1tbx-dataio-ceos-importERSProduct.instance"/>
+                    </file>
+                    <file name="org-esa-s1tbx-dataio-ceos-importJERSCEOSProduct.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Readers/org-esa-s1tbx-dataio-ceos-importJERSCEOSProduct.instance"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
+</filesystem>

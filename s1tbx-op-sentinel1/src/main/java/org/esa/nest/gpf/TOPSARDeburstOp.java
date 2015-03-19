@@ -279,7 +279,7 @@ public final class TOPSARDeburstOp extends Operator {
 
         createTiePointGrids();
 
-        targetProduct.setPreferredTileSize(500, 50);
+        //targetProduct.setPreferredTileSize(500, 50);
     }
 
     private String getTargetBandNameFromSourceBandName(final String srcBandName) {
@@ -425,9 +425,35 @@ public final class TOPSARDeburstOp extends Operator {
 
     private void updateOriginalMetadata() {
 
+        updateSwathTiming();
+
         if (su.getSubSwathNames().length > 1) {
             updateCalibrationVector();
             //updateNoiseVector(); //todo: not implemented yet
+        }
+    }
+
+    private void updateSwathTiming() {
+
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
+        MetadataElement annotation = origProdRoot.getElement("annotation");
+        if (annotation == null) {
+            throw new OperatorException("Annotation Metadata not found");
+        }
+
+        final MetadataElement[] elems = annotation.getElements();
+        for (MetadataElement elem : elems) {
+            final MetadataElement product = elem.getElement("product");
+            final MetadataElement swathTiming = product.getElement("swathTiming");
+            swathTiming.setAttributeString("linesPerBurst", "0");
+            swathTiming.setAttributeString("samplesPerBurst", "0");
+
+            final MetadataElement burstList = swathTiming.getElement("burstList");
+            burstList.setAttributeString("count", "0");
+            final MetadataElement[] burstListElem = burstList.getElements();
+            for (int i = 0; i < burstListElem.length; i++) {
+                burstList.removeElement(burstListElem[i]);
+            }
         }
     }
 
