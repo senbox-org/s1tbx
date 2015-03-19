@@ -103,7 +103,7 @@ public class ResourceInstaller {
             try {
                 for (Path basePath : sourceBasePaths) {
                     for (Path resource : resources) {
-                        Path relFilePath = basePath.relativize(resource);
+                        Path relFilePath = basePath.resolve(sourceRelPath).relativize(resource);
                         String relPathString = relFilePath.toString();
                         Path targetFile = targetDirPath.resolve(relPathString);
                         if (!Files.exists(targetFile) && !Files.isDirectory(resource)) {
