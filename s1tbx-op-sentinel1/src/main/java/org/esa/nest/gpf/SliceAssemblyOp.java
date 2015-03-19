@@ -1187,8 +1187,10 @@ public final class SliceAssemblyOp extends Operator {
             imageInformationElem.setAttributeString("productLastLineUtcTime",
                     getProductLastLineUtcTime(sliceProducts[sliceProducts.length-1],
                             extractImageNumber(target.getName())));
-            imageInformationElem.setAttributeString("numberOfSamples", Integer.toString(targetProduct.getSceneRasterWidth()));
-            imageInformationElem.setAttributeString("numberOfLines", Integer.toString(targetProduct.getSceneRasterHeight()));
+
+            final String swathID = extractSwathIdentifier(target.getName());
+            imageInformationElem.setAttributeString("numberOfSamples", Integer.toString(swathAssembledImageDimMap.get(swathID.toUpperCase())[1]));
+            imageInformationElem.setAttributeString("numberOfLines", Integer.toString(swathAssembledImageDimMap.get(swathID.toUpperCase())[0]));
         }
     }
 
