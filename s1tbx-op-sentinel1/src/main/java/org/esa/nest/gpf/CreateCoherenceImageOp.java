@@ -304,6 +304,71 @@ public class CreateCoherenceImageOp extends Operator {
         }
     }
 
+    private void computeTileForNormalProduct2(Band targetBand, Tile targetTile, ProgressMonitor pm)
+            throws OperatorException {
+
+        try {
+            final Rectangle rect = targetTile.getRectangle();
+            final int x0 = rect.x - (cohWinRg - 1) / 2;
+            final int y0 = rect.y - (cohWinAz - 1) / 2;
+            final int w = rect.width + cohWinRg - 1;
+            final int h = rect.height + cohWinAz - 1;
+            rect.x = x0;
+            rect.y = y0;
+            rect.width = w;
+            rect.height = h;
+
+            final BorderExtender border = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
+
+            for (String cohKey : targetMap.keySet()) {
+
+                final ProductContainer product = targetMap.get(cohKey);
+
+                if (targetBand.getName().equals(product.targetBandName_I)) {
+
+                    final Tile tileRealMaster = getSourceTile(product.sourceMaster.realBand, rect, border);
+                    final Tile tileImagMaster = getSourceTile(product.sourceMaster.imagBand, rect, border);
+
+                    final Tile tileRealSlave = getSourceTile(product.sourceSlave.realBand, rect, border);
+                    final Tile tileImagSlave = getSourceTile(product.sourceSlave.imagBand, rect, border);
+
+                    final ProductData iMstDB = tileRealMaster.getDataBuffer();
+                    final ProductData qMstDB = tileImagMaster.getDataBuffer();
+                    final ProductData iSlvDB = tileRealSlave.getDataBuffer();
+                    final ProductData qSlvDB = tileImagSlave.getDataBuffer();
+
+                    final int numElems = iMstDB.getNumElems();
+                    final double[] iMst = new double[numElems];
+                    final double[] qMst = new double[numElems];
+                    final double[] iSlv = new double[numElems];
+                    final double[] qSlv = new double[numElems];
+                    for (int i = 0; i < numElems; i++) {
+                        double iM = iMstDB.getElemDoubleAt(i);
+                        double qM = qMstDB.getElemDoubleAt(i);
+                        double iS = iSlvDB.getElemDoubleAt(i);
+                        double qS = qSlvDB.getElemDoubleAt(i);
+                        double tmp = norm(iM, qM);
+                        iMst[i] = iM * iS - qM * -qS;
+                        qMst[i] = iM * -qS + qM * iS;
+
+                        iSlv[i] = norm(iS, qS);
+                        qSlv[i] = tmp;
+                    }
+
+                    DoubleMatrix cohMatrix = coherence(iMst, qMst, iSlv, qSlv, cohWinAz, cohWinRg,
+                            tileRealMaster.getWidth(), tileRealMaster.getHeight());
+
+                    TileUtilsDoris.pushDoubleMatrix(cohMatrix, targetTile, targetTile.getRectangle());
+                }
+            }
+
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
+        } finally {
+            pm.done();
+        }
+    }
+
     private void computeTileForTOPSARProduct(final Band targetBand, final Tile targetTile, final ProgressMonitor pm)
             throws OperatorException {
 
@@ -399,6 +464,84 @@ public class CreateCoherenceImageOp extends Operator {
 
     private static double norm(final ComplexDouble number) {
         return number.real()*number.real() + number.imag()*number.imag();
+    }
+
+    private static double norm(final double real, final double imag) {
+        return real*real + imag*imag;
+    }
+
+    public static DoubleMatrix coherence(final double[] iMst, final double[] qMst, final double[] iSlv, final double[] qSlv,
+                                         final int winL, final int winP, int w, int h) {
+
+        final ComplexDoubleMatrix input = new ComplexDoubleMatrix(h, w);
+        final ComplexDoubleMatrix norms = new ComplexDoubleMatrix(h, w);
+        for (int y = 0; y < h; y++) {
+            final int stride = y * w;
+            for (int x = 0; x < w; x++) {
+                input.put(y, x, new ComplexDouble(iMst[stride + x],
+                        qMst[stride + x]));
+                norms.put(y, x, new ComplexDouble(iSlv[stride + x], qSlv[stride + x]));
+            }
+        }
+
+        if (input.rows != norms.rows) {
+            throw new IllegalArgumentException("coherence: not the same dimensions.");
+        }
+
+        // allocate output :: account for window overlap
+        final int extent_RG = input.columns;
+        final int extent_AZ = input.rows - winL + 1;
+        final DoubleMatrix result = new DoubleMatrix(input.rows - winL + 1, input.columns - winP + 1);
+
+        // temp variables
+        int i, j, k, l;
+        ComplexDouble sum;
+        ComplexDouble power;
+        final int leadingZeros = (winP - 1) / 2;  // number of pixels=0 floor...
+        final int trailingZeros = (winP) / 2;     // floor...
+
+        for (j = leadingZeros; j < extent_RG - trailingZeros; j++) {
+
+            sum = new ComplexDouble(0);
+            power = new ComplexDouble(0);
+
+            //// Compute sum over first data block ////
+            int minL = j - leadingZeros;
+            int maxL = minL + winP;
+            for (k = 0; k < winL; k++) {
+                for (l = minL; l < maxL; l++) {
+                    //sum.addi(input.get(k, l));
+                    //power.addi(norms.get(k, l));
+                    int inI = 2 * input.index(k, l);
+                    sum.set(sum.real()+input.data[inI], sum.imag()+input.data[inI+1]);
+                    power.set(power.real()+norms.data[inI], power.imag()+norms.data[inI+1]);
+                }
+            }
+            result.put(0, minL, coherenceProduct(sum, power));
+
+            //// Compute (relatively) sum over rest of data blocks ////
+            final int maxI = extent_AZ - 1;
+            for (i = 0; i < maxI; i++) {
+                final int iwinL = i + winL;
+                for (l = minL; l < maxL; l++) {
+                    //sum.addi(input.get(iwinL, l).sub(input.get(i, l)));
+                    //power.addi(norms.get(iwinL, l).sub(norms.get(i, l)));
+
+                    int inI = 2 * input.index(i, l);
+                    int inWinL = 2 * input.index(iwinL, l);
+                    sum.set(sum.real()+(input.data[inWinL]-input.data[inI]), sum.imag()+(input.data[inWinL+1]-input.data[inI+1]));
+                    power.set(power.real()+(norms.data[inWinL]-norms.data[inI]), power.imag()+(norms.data[inWinL+1]-norms.data[inI+1]));
+                }
+                result.put(i + 1, j - leadingZeros, coherenceProduct(sum, power));
+            }
+        }
+        return result;
+    }
+
+    static double coherenceProduct(final ComplexDouble sum, final ComplexDouble power) {
+        final double product = power.real() * power.imag();
+//        return (product > 0.0) ? Math.sqrt(Math.pow(sum.abs(),2) / product) : 0.0;
+        return (product > 0.0) ? sum.abs() / Math.sqrt(product) : 0.0;
     }
 
     /**
