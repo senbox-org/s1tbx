@@ -950,9 +950,64 @@ public final class SliceAssemblyOp extends Operator {
         targetVectorList.setAttributeString("count", Integer.toString(idx));
     }
 
+    private int[] getPixelSpacings(MetadataElement pixel, final String msg) {
+
+        final String pixelsStr = pixel.getAttributeString("pixel");
+        final String[] pixelsArrayOfStr = pixelsStr.split(" ");
+        final int numPixels = pixelsArrayOfStr.length;
+        if (numPixels < 2) {
+            throw new OperatorException("Too few pixels " + numPixels + " for " + msg);
+        }
+
+        final int pixelCount = Integer.parseInt(pixel.getAttributeString("count"));
+        if (pixelCount != numPixels) {
+            throw new OperatorException("wrong pixel count " + pixelCount + " " + numPixels + " for " + msg);
+        }
+
+        final int[] pixelSpacings = new int[numPixels-1];
+        for (int i = 0; i < numPixels-1; i++) {
+            final int pixel0 = Integer.parseInt(pixelsArrayOfStr[i]);
+            final int pixel1 = Integer.parseInt(pixelsArrayOfStr[i+1]);
+            pixelSpacings[i] = pixel1 - pixel0;
+        }
+
+        return pixelSpacings;
+    }
+
     private void checkCalibrationOrNoisePixelSpacing(final Product product, final String dataName) {
 
-        // TODO check that the pixels are evenly spaced except for may the last pair among other things
+        // TODO
+
+        // We are NOT going to assume that the pixels are evenly spaced except for may be the last pair
+        // even though that is most likely the case.
+        // We will only check that the pixels are the same for each line.
+
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+        final MetadataElement data = origProdRoot.getElement(dataName);
+        final MetadataElement[] dataElems = data.getElements();
+
+        for (MetadataElement e : dataElems) {
+
+            final MetadataElement dat = e.getElement(dataName);
+            final MetadataElement vectorList = dat.getElement(dataName + "VectorList");
+
+            // Check the 1st vector (i.e. 1st line)
+            final MetadataElement firstVector = vectorList.getElementAt(0);
+            final MetadataElement firstVectorPixel = firstVector.getElement("pixel");
+            final int[] firstVectorPixelSpacings = getPixelSpacings(firstVectorPixel, product.getName() + " " + e.getName() + " " + dataName);
+
+
+            // Check that the pixels are the same for the rest of the lines
+            for (int i = 1; i < vectorList.getNumElements(); i++) {
+                final MetadataElement vector = vectorList.getElementAt(i);
+                final MetadataElement pixel = vector.getElement("pixel");
+
+
+                // TODO !!!!
+            }
+        }
+
+
     }
 
     private int getLastPixel(final MetadataElement vector) {
@@ -1017,7 +1072,7 @@ public final class SliceAssemblyOp extends Operator {
             final MetadataElement targetVectorList = targetDat.getElement(dataName + "VectorList");
 
             int numLines = Integer.parseInt(targetVectorList.getAttribute("count").getData().getElemString());
-            final int pixelSpacing = getCalibrationOrNoisePixelSpacing(targetProduct, imageNum, dataName);
+            final int pixelSpacing = getCalibrationOrNoisePixelSpacing(targetProduct, imageNum, dataName);  // TODO
 
             int height = productType.equals("GRD") ?
                     sliceProducts[0].getSceneRasterHeight() :
@@ -1413,6 +1468,9 @@ public final class SliceAssemblyOp extends Operator {
                         // should never get here
                         throw new OperatorException("line "+y+" not found in slice products");
                     }
+                }
+                if (tx0 > line.band.getSceneRasterWidth()-1) {
+                    return;
                 }
 
                 final int yy = y-line.start;
