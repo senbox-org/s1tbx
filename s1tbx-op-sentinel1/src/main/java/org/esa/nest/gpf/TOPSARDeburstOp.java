@@ -575,8 +575,8 @@ public final class TOPSARDeburstOp extends Operator {
             int firstSubSwathIndex = -1;
             int lastSubSwathIndex = -1;
             for (int i = 0; i < numOfSubSwath; i++) {
-                if (tileSlrtToFirstPixel >= subSwath[i].slrTimeToFirstPixel &&
-                        tileSlrtToFirstPixel <= subSwath[i].slrTimeToLastPixel) {
+                if (tileSlrtToFirstPixel >= subSwath[i].slrTimeToFirstValidPixel &&
+                        tileSlrtToFirstPixel <= subSwath[i].slrTimeToLastValidPixel) {
 
                     if (tileFirstLineTime >= subSwath[i].burstFirstLineTime[0] &&
                             tileFirstLineTime < subSwath[i].burstLastLineTime[subSwath[i].numOfBursts - 1] ||
@@ -593,8 +593,8 @@ public final class TOPSARDeburstOp extends Operator {
                 lastSubSwathIndex = firstSubSwathIndex;
             } else {
                 for (int i = 0; i < numOfSubSwath; i++) {
-                    if (tileSlrtToLastPixel >= subSwath[i].slrTimeToFirstPixel &&
-                            tileSlrtToLastPixel <= subSwath[i].slrTimeToLastPixel) {
+                    if (tileSlrtToLastPixel >= subSwath[i].slrTimeToFirstValidPixel &&
+                            tileSlrtToLastPixel <= subSwath[i].slrTimeToLastValidPixel) {
 
                         if (tileFirstLineTime >= subSwath[i].burstFirstLineTime[0] &&
                                 tileFirstLineTime < subSwath[i].burstLastLineTime[subSwath[i].numOfBursts - 1] ||
@@ -1043,8 +1043,8 @@ public final class TOPSARDeburstOp extends Operator {
             info = subSwath[i_1];
             if (targetLineTime >= info.firstLineTime &&
                     targetLineTime <= info.lastLineTime &&
-                    targetSampleSlrTime >= info.slrTimeToFirstPixel &&
-                    targetSampleSlrTime <= info.slrTimeToLastPixel) {
+                    targetSampleSlrTime >= info.slrTimeToFirstValidPixel &&
+                    targetSampleSlrTime <= info.slrTimeToLastValidPixel) {
 
                 if (cnt == 0) {
                     burstInfo.swath0 = i;
@@ -1058,8 +1058,8 @@ public final class TOPSARDeburstOp extends Operator {
 
         if (burstInfo.swath1 != -1) {
 
-            final double middleTime = (subSwath[burstInfo.swath0 - 1].slrTimeToLastPixel +
-                    subSwath[burstInfo.swath1 - 1].slrTimeToFirstPixel) / 2.0;
+            final double middleTime = (subSwath[burstInfo.swath0 - 1].slrTimeToLastValidPixel +
+                    subSwath[burstInfo.swath1 - 1].slrTimeToFirstValidPixel) / 2.0;
 
             if (targetSampleSlrTime > middleTime) {
                 return burstInfo.swath1;
