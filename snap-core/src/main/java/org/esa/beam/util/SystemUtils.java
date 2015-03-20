@@ -34,9 +34,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 import java.util.StringTokenizer;
@@ -45,7 +51,7 @@ import java.util.logging.Logger;
 
 /**
  * A collection of (BEAM-) system level functions.
- * <p/>
+ * <p>
  * <p> All functions have been implemented with extreme caution in order to provide a maximum performance.
  *
  * @author Norman Fomferra
@@ -147,7 +153,6 @@ public class SystemUtils {
      * Optionally creates and returns the current user's application data directory.
      *
      * @param force if true, the directory will be created if it didn't exist before
-     *
      * @return the current user's application data directory
      *
      * @since BEAM 4.2
@@ -209,7 +214,7 @@ public class SystemUtils {
     /**
      * Gets all files (class directory & JAR file pathes) given in the current class path of the Java runtime which
      * loaded this class.
-     * <p/>
+     * <p>
      * <p> The files pathes returned are either relative or absolute, just as they where defined for the runtime's class
      * path.
      *
@@ -256,14 +261,13 @@ public class SystemUtils {
 
     /**
      * Extracts an application's home directory from the given URL.
-     * <p/>
+     * <p>
      * The URL is than scanned for the last occurence of the string <code>&quot;/modules/&quot;</code>.
      * If this succeeds the method returns the absolute
      * (parent) path to the directory which contains <code>modules</code>, which is
      * then assumed to be the requested home directory.
      *
      * @param url the URL
-     *
      * @return an assumption of an application's home directory, never <code>null</code>
      *
      * @throws IllegalArgumentException if the given url is <code>null</code>.
@@ -297,7 +301,6 @@ public class SystemUtils {
      * class <code>java.util.Date</code>.
      *
      * @param aClass The class.
-     *
      * @return the file name of the given class
      *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
@@ -385,7 +388,6 @@ public class SystemUtils {
      * Replace the separator character '/' with the system-dependent path-separator character.
      *
      * @param urlPath an URL path or any other string containing the forward slash '/' as directory separator.
-     *
      * @return a path string with all occurrences of '/'
      *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
@@ -403,12 +405,11 @@ public class SystemUtils {
     /**
      * Creates a (more) human readable exception message text for the given exception. This method should be used when
      * exception messages are to be presented to the user in a GUI.
-     * <p/>
+     * <p>
      * <p>Currently the only modifications are<br> 1. the first letter is turned into upper case <br> 2. the message is
      * suffixed with a dot ('.') character.
      *
      * @param e the exception
-     *
      * @return a modified message text, or <code>null</code> if <code>e</code> was null.
      */
     public static String createHumanReadableExceptionMessage(final Exception e) {
@@ -487,7 +488,6 @@ public class SystemUtils {
      * Loads services from all <code>META-INF/services/</code> resources.
      *
      * @param serviceType the type of the service to be loaded.
-     *
      * @return the services of type <code>serviceType</code> found.
      */
     public static <S> Iterable<S> loadServices(Class<S> serviceType) {
@@ -499,7 +499,6 @@ public class SystemUtils {
      *
      * @param serviceType the type of the service to be loaded.
      * @param classLoader the class loader.
-     *
      * @return the services of type <code>serviceType</code> found.
      */
     public static <S> Iterable<S> loadServices(Class<S> serviceType, ClassLoader classLoader) {
@@ -566,7 +565,6 @@ public class SystemUtils {
      * Initialize third party libraries of BEAM.
      *
      * @param cl The most useful class loader.
-     *
      * @since BEAM 4.8
      */
     public static void init3rdPartyLibs(ClassLoader cl) {
@@ -621,10 +619,28 @@ public class SystemUtils {
     public static String getApplicationRemoteVersionUrl() {
         final String key = getApplicationContextId() + ".remoteVersion.url";
         String applicationHomepageUrl = getApplicationHomepageUrl();
-        if(!applicationHomepageUrl.endsWith("/")){
+        if (!applicationHomepageUrl.endsWith("/")) {
             applicationHomepageUrl = applicationHomepageUrl + "/";
         }
         return System.getProperty(key, applicationHomepageUrl + "software/version.txt");
+    }
+
+    /**
+     * Try to create a {@link Path} from the given {@link URI}.
+     *
+     *
+     * @param uri The {@link URI} to create the {@link Path} from.
+     * @return The converted {@link Path}.
+     * @throws IOException If the {@link Path} could not be created
+     * @throws IllegalArgumentException If {@link URI} is not valid
+     */
+    public static Path getPathFromURI(URI uri) throws IOException {
+        try {
+            return Paths.get(uri);
+        } catch (FileSystemNotFoundException exp) {
+            FileSystems.newFileSystem(uri, Collections.emptyMap());
+            return Paths.get(uri);
+        }
     }
 
     /**
