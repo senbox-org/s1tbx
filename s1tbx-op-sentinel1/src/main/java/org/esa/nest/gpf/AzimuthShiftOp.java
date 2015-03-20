@@ -20,6 +20,7 @@ import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -29,6 +30,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.StatusProgressMonitor;
 import org.esa.snap.gpf.ThreadManager;
 
@@ -36,6 +38,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Estimate global azimuth offset using Enhanced Spectral Diversity (ESD) approach.
@@ -133,18 +136,28 @@ public class AzimuthShiftOp extends Operator {
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
         final String[] bandNames = sourceProduct.getBandNames();
-        for (String bandName : bandNames) {
-            if (bandName.contains("_mst")) {
-                ProductUtils.copyBand(bandName, sourceProduct, bandName, targetProduct, true);
+        for (String srcBandName : bandNames) {
+            final Band band = sourceProduct.getBand(srcBandName);
+            if (band instanceof VirtualBand) {
+                continue;
+            }
+
+            Band targetBand;
+            if (srcBandName.contains("_mst")) {
+                targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
             } else {
-                final Band band = sourceProduct.getBand(bandName);
-                final Band targetBand = new Band(bandName,
+                targetBand = new Band(srcBandName,
                         band.getDataType(),
-                        targetProduct.getSceneRasterWidth(),
-                        targetProduct.getSceneRasterHeight());
+                        band.getRasterWidth(),
+                        band.getRasterHeight());
 
                 targetBand.setUnit(band.getUnit());
                 targetProduct.addBand(targetBand);
+            }
+
+            if(targetBand != null && srcBandName.startsWith("q_")) {
+                final String suffix = srcBandName.substring(1);
+                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand("i" + suffix), targetBand, suffix);
             }
         }
 
@@ -177,8 +190,9 @@ public class AzimuthShiftOp extends Operator {
             }
 
             // perform azimuth shift using FFT
-            final String[] bandNames = sourceProduct.getBandNames();
-            for (String bandName : bandNames) {
+            Set<Band> targetBands = targetTileMap.keySet();
+            for (Band trgband : targetBands) {
+                final String bandName = trgband.getName();
                 if (!bandName.contains("_slv")) {
                     continue;
                 }

@@ -11,6 +11,8 @@
     <mapID target="doc" url="images/HelpDoc.jpg"/>
 
     <mapID target="Overview" url="general/Overview.html"/>
+    <mapID target="Sentinel1" url="general/Sentinel1.html"/>
+	<mapID target="Sentinel1Functionality" url="general/Sentinel1_Functionality.html"/>
     <mapID target="SupportedProducts" url="general/SupportedProducts.html"/>
     <mapID target="commandLineReference" url="general/commandLineReference.html"/>
     <mapID target="commandLineProcessing" url="general/commandLineProcessing.html"/>

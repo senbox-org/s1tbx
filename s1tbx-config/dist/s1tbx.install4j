@@ -157,6 +157,7 @@
           <entry location="modules/ceres-ui-1.1.0.jar" fileType="regular" />
           <entry location="modules/lib-hdf-2.7" fileType="regular" />
           <entry location="modules/snap-arcbingrid-reader-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-bigtiff-1.1.0.jar" fileType="regular" />
           <entry location="modules/snap-cluster-analysis-1.1.0.jar" fileType="regular" />
           <entry location="modules/snap-core-1.1.0.jar" fileType="regular" />
           <entry location="modules/snap-csv-dataio-1.1.0.jar" fileType="regular" />
@@ -175,9 +176,7 @@
           <entry location="modules/snap-python-1.1.0" fileType="regular" />
           <entry location="modules/snap-statistics-op-1.1.0.jar" fileType="regular" />
           <entry location="modules/snap-temporal-percentile-op-1.1.0.jar" fileType="regular" />
-          <entry location="modules/snap-time-series-tool-1.1.0.jar" fileType="regular" />
           <entry location="modules/snap-ui-1.1.0.jar" fileType="regular" />
-          <entry location="modules/snap-unmix-1.1.0.jar" fileType="regular" />
           <entry location="modules/snap-visat-rcp-1.1.0.jar" fileType="regular" />
         </include>
         <dependencies />
@@ -1466,9 +1465,6 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                     <object class="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
                       <void property="checkboxText">
                         <string>Remove S1TBX application data</string>
-                      </void>
-                      <void property="initiallySelected">
-                        <boolean>true</boolean>
                       </void>
                       <void property="variableName">
                         <string>removeAppData</string>
