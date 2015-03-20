@@ -326,6 +326,10 @@ public final class Sentinel1Utils {
             subSwath.firstValidPixel = firstValidPixel;
             subSwath.lastValidPixel = lastValidPixel;
         }
+        subSwath.slrTimeToFirstValidPixel = subSwath.slrTimeToFirstPixel +
+                subSwath.firstValidPixel * subSwath.rangePixelSpacing / Constants.lightSpeed;
+        subSwath.slrTimeToLastValidPixel = subSwath.slrTimeToFirstPixel +
+                subSwath.lastValidPixel * subSwath.rangePixelSpacing / Constants.lightSpeed;
 
         // get geolocation grid points
         final MetadataElement geolocationGrid = product.getElement("geolocationGrid");
@@ -1259,6 +1263,8 @@ public final class Sentinel1Utils {
         public double lastLineTime;
         public double slrTimeToFirstPixel;
         public double slrTimeToLastPixel;
+        public double slrTimeToFirstValidPixel;
+        public double slrTimeToLastValidPixel;
         public double azimuthTimeInterval;
         public double rangePixelSpacing;
         public double azimuthPixelSpacing;
