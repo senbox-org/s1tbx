@@ -17,15 +17,17 @@
 package org.esa.beam.jai;
 
 import com.bc.ceres.core.VirtualDir;
+import com.sun.media.jai.codec.SeekableStream;
+import org.esa.beam.util.SystemUtils;
 
 import javax.imageio.stream.FileCacheImageInputStream;
-import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
+import javax.imageio.stream.MemoryCacheImageInputStream;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.SourcelessOpImage;
-import javax.media.jai.operator.FileLoadDescriptor;
+import javax.media.jai.operator.StreamDescriptor;
 import java.awt.Point;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
@@ -40,32 +42,37 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.Enumeration;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.stream.Stream;
 
 
 public class TiledFileOpImage extends SourcelessOpImage {
 
-    private VirtualDir imageDir;
+    private Path imageDir;
     private ImageInputStreamFactory inputStreamFactory;
     private boolean disposed;
     private ImageHeader imageHeader;
 
     public static TiledFileOpImage create(File imageDir, Properties defaultImageProperties) throws IOException {
-        final VirtualDir dir = VirtualDir.create(imageDir);
-        File file = new File(dir.getBasePath());
-        final ImageHeader imageHeader = ImageHeader.load(file, defaultImageProperties);
-        return new TiledFileOpImage(imageHeader, null, dir);
+        return create(imageDir.toPath(), defaultImageProperties);
     }
 
     public static TiledFileOpImage create(VirtualDir imageDir, Properties defaultImageProperties) throws IOException {
-        return create(new File(imageDir.getBasePath()), defaultImageProperties);
+        return create(Paths.get(imageDir.getBasePath()), defaultImageProperties);
     }
 
-    private TiledFileOpImage(ImageHeader imageHeader, Map configuration, VirtualDir imageDir) throws IOException {
+    public static TiledFileOpImage create(Path imageDir, Properties defaultImageProperties) throws IOException {
+        final ImageHeader imageHeader = ImageHeader.load(imageDir, defaultImageProperties);
+        return new TiledFileOpImage(imageHeader, null, imageDir);
+    }
+
+    private TiledFileOpImage(ImageHeader imageHeader, Map configuration, Path imageDir) throws IOException {
         super(imageHeader.getImageLayout(),
               configuration,
               imageHeader.getImageLayout().getSampleModel(null),
@@ -103,35 +110,32 @@ public class TiledFileOpImage extends SourcelessOpImage {
         // System.out.println("TiledFileOpImage.computeTile: >> '" + getTileFilename(tileX, tileY) + "'...");
         final Point location = new Point(tileXToX(tileX), tileYToY(tileY));
         final Raster raster;
-        if (imageHeader.getTileFormat().startsWith("raw")) {
-            final WritableRaster targetRaster = createWritableRaster(sampleModel, location);
-            try {
+        try {
+            if (imageHeader.getTileFormat().startsWith("raw")) {
+                final WritableRaster targetRaster = createWritableRaster(sampleModel, location);
                 readRawDataTile(tileX, tileY, targetRaster);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to read image tile.", e);
+                raster = targetRaster;
+            } else {
+                raster = readImageTile(tileX, tileY, location);
             }
-            raster = targetRaster;
-        } else {
-            raster = readImageTile(tileX, tileY, location);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read image tile.", e);
         }
 
         // System.out.println("TiledFileOpImage.computeTile: << '" + getTileFilename(tileX, tileY) + "'");
         return raster;
     }
 
-    private Raster readImageTile(int tileX, int tileY, Point location) {
-        File imageFile = new File(imageDir.getBasePath(), getTileFilename(tileX, tileY));
-        final RenderedOp renderedOp = FileLoadDescriptor.create(imageFile.getPath(), null, true, null);
+    private Raster readImageTile(int tileX, int tileY, Point location) throws IOException {
+        SeekableStream inputStream = SeekableStream.wrapInputStream(Files.newInputStream(imageDir.resolve(getTileFilename(tileX, tileY))), true);
+        RenderedOp renderedOp = StreamDescriptor.create(inputStream, null, null);
         final Raster data = renderedOp.getData();
         return WritableRaster.createRaster(data.getSampleModel(), data.getDataBuffer(), location);
     }
 
     private void readRawDataTile(int tileX, int tileY, WritableRaster targetRaster) throws IOException {
-        final ImageInputStream imageInputStream = inputStreamFactory.createImageInputStream(tileX, tileY);
-        try {
+        try (ImageInputStream imageInputStream = inputStreamFactory.createImageInputStream(tileX, tileY)) {
             readRawDataTile(imageInputStream, targetRaster);
-        } finally {
-            imageInputStream.close();
         }
     }
 
@@ -271,7 +275,7 @@ public class TiledFileOpImage extends SourcelessOpImage {
     private class RawImageInputStreamFactory implements ImageInputStreamFactory {
 
         public ImageInputStream createImageInputStream(int tileX, int tileY) throws IOException {
-            return new FileImageInputStream(new File(imageDir.getBasePath(), getTileFilename(tileX, tileY)));
+            return new MemoryCacheImageInputStream(Files.newInputStream(imageDir.resolve(getTileFilename(tileX, tileY))));
         }
     }
 
@@ -286,11 +290,10 @@ public class TiledFileOpImage extends SourcelessOpImage {
 
         public ImageInputStream createImageInputStream(int tileX, int tileY) throws IOException {
             final String entryName = getTileBasename(tileX, tileY) + ".raw";
-            final File file = new File(imageDir.getBasePath(), entryName + ".zip");
-            final ZipFile zipFile = new ZipFile(file);
-            final ZipEntry zipEntry = zipFile.getEntry(entryName);
-            final InputStream inputStream = zipFile.getInputStream(zipEntry);
-            return new FileCacheImageInputStream(inputStream, tmpDir);
+            final URI uri = URI.create("jar:file:" + imageDir.resolve(entryName + ".zip").toUri().getPath() + "!/");
+            Path entryZip = SystemUtils.getPathFromURI(uri);
+            InputStream stream = Files.newInputStream(entryZip.resolve(entryName));
+            return new FileCacheImageInputStream(stream, tmpDir);
         }
     }
 
@@ -305,17 +308,13 @@ public class TiledFileOpImage extends SourcelessOpImage {
 
         public ImageInputStream createImageInputStream(int tileX, int tileY) throws IOException {
             final String entryName = getTileBasename(tileX, tileY);
-            final File file = new File(imageDir.getBasePath());
-            final ZipFile zipFile = new ZipFile(file);
-            final Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            while (entries.hasMoreElements()) {
-                final ZipEntry zipEntry = entries.nextElement();
-                if (zipEntry.getName().startsWith(entryName)) {
-                    final InputStream inputStream = zipFile.getInputStream(zipEntry);
-                    return new FileCacheImageInputStream(inputStream, tmpDir);
-                }
+            Stream<Path> list = Files.list(imageDir);
+            Optional<Path> first = list.filter(path -> path.getFileName().startsWith(entryName)).findFirst();
+            if(first.isPresent()) {
+                return new FileCacheImageInputStream(Files.newInputStream(first.get()), tmpDir);
+            } else {
+                throw new IOException("No tile for coordinates " + tileX + ", " + tileY + ".");
             }
-            throw new IOException("No tile for coordinates " + tileX + ", " + tileY + ".");
         }
     }
 }

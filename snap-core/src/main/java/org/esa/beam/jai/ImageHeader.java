@@ -16,20 +16,21 @@
 
 package org.esa.beam.jai;
 
+import com.sun.media.jai.codec.SeekableStream;
 import org.esa.beam.util.ImageUtils;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.RenderedOp;
-import javax.media.jai.operator.FileLoadDescriptor;
+import javax.media.jai.operator.StreamDescriptor;
 import java.awt.image.ColorModel;
 import java.awt.image.MultiPixelPackedSampleModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 public class ImageHeader {
@@ -51,22 +52,19 @@ public class ImageHeader {
         this.tileFormat = tileFormat;
     }
 
-    public static ImageHeader load(File imageDir, Properties defaultImageProperties) throws IOException {
-        final FileReader reader = new FileReader(new File(imageDir, "image.properties"));
-        try {
+    public static ImageHeader load(Path imageDir, Properties defaultImageProperties) throws IOException {
+        try (Reader reader = Files.newBufferedReader(imageDir.resolve("image.properties"))) {
             return load(reader, defaultImageProperties, imageDir);
-        } finally {
-            reader.close();
         }
     }
 
-    public static ImageHeader load(Reader reader, Properties defaultImageProperties, File imageDir) throws IOException {
+    public static ImageHeader load(Reader reader, Properties defaultImageProperties, Path imageDir) throws IOException {
         Properties imageProperties = new Properties(defaultImageProperties);
         imageProperties.load(reader);
         return load(imageProperties, imageDir);
     }
 
-    public static ImageHeader load(Properties imageProperties, File imageDir) throws IOException {
+    public static ImageHeader load(Properties imageProperties, Path imageDir) throws IOException {
         int dataType = Integer.parseInt(imageProperties.getProperty("dataType"));
         int minX = Integer.parseInt(imageProperties.getProperty("minX", "0"));
         int minY = Integer.parseInt(imageProperties.getProperty("minY", "0"));
@@ -88,8 +86,9 @@ public class ImageHeader {
             }
             colorModel = null;
         } else {
-            RenderedOp tile00 = FileLoadDescriptor.create(new File(imageDir, "0-0." + tileFormat).getPath(), null, true,
-                                                          null);
+            Path path = imageDir.resolve("0-0." + tileFormat);
+            SeekableStream inputStream = SeekableStream.wrapInputStream(Files.newInputStream(path), true);
+            RenderedOp tile00 = StreamDescriptor.create(inputStream, null, null);
             sampleModel = tile00.getSampleModel().createCompatibleSampleModel(tileWidth, tileHeight);
             colorModel = tile00.getColorModel();
         }
@@ -112,7 +111,7 @@ public class ImageHeader {
 
     public void store(Writer writer, Properties defaultProperties) throws IOException {
         final Properties properties = getAsProperties(defaultProperties);
-        properties.store(writer, "BEAM tiled image header");
+        properties.store(writer, "SNAP tiled image header");
     }
 
     public Properties getAsProperties(Properties defaultProperties) {

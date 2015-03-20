@@ -30,6 +30,7 @@ import org.esa.beam.glevel.TiledFileMultiLevelSource;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class RawTiledPyramidsProductReader extends AbstractProductReader {
     public RawTiledPyramidsProductReader(RawTiledPyramidsProductCodecSpi spi) {
@@ -40,12 +41,12 @@ public class RawTiledPyramidsProductReader extends AbstractProductReader {
 
         final File headerFile = RawTiledPyramidsProductCodecSpi.getHeaderFile(getInput());
         final XStream xStream = RawTiledPyramidsProductCodecSpi.createXStream();
-        final FileReader reader = new FileReader(headerFile);
-        try {
+        try (FileReader reader = new FileReader(headerFile)) {
             final ProductDescriptor productDescriptor = new ProductDescriptor();
             xStream.fromXML(reader, productDescriptor);
 
-            final Product product = new Product(productDescriptor.getName(), productDescriptor.getType(), productDescriptor.getWidth(), productDescriptor.getHeight());
+            final Product product = new Product(productDescriptor.getName(), productDescriptor.getType(), productDescriptor.getWidth(),
+                                                productDescriptor.getHeight());
             product.setDescription(productDescriptor.getDescription());
 
             final BandDescriptor[] bandDescriptors = productDescriptor.getBandDescriptors();
@@ -62,7 +63,8 @@ public class RawTiledPyramidsProductReader extends AbstractProductReader {
                                     ProductData.getType(bandDescriptor.getDataType()),
                                     product.getSceneRasterWidth(),
                                     product.getSceneRasterHeight());
-                    band.setSourceImage(new DefaultMultiLevelImage(TiledFileMultiLevelSource.create(new File(headerFile.getParent(), bandDescriptor.getName()))));
+                    Path imageDir = headerFile.toPath().getParent().resolve(bandDescriptor.getName());
+                    band.setSourceImage(new DefaultMultiLevelImage(TiledFileMultiLevelSource.create(imageDir)));
                 }
                 band.setDescription(bandDescriptor.getDescription());
                 band.setScalingFactor(bandDescriptor.getScalingFactor());
@@ -73,8 +75,6 @@ public class RawTiledPyramidsProductReader extends AbstractProductReader {
             return product;
         } catch (XStreamException e) {
             throw new IOException("Failed to read product header.", e);
-        } finally {
-            reader.close();
         }
     }
 

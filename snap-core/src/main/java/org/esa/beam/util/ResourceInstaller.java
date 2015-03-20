@@ -19,18 +19,13 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.*;
@@ -167,22 +162,10 @@ public class ResourceInstaller {
     }
 
     public static Path findModuleCodeBasePath(Class clazz) {
-        URI uri;
         try {
-            uri = clazz.getProtectionDomain().getCodeSource().getLocation().toURI();
-        } catch (URISyntaxException e) {
+            return SystemUtils.getPathFromURI(clazz.getProtectionDomain().getCodeSource().getLocation().toURI());
+        } catch (URISyntaxException | IOException e) {
             throw new RuntimeException("Failed to detect the module's code base path", e);
-        }
-        try {
-            return Paths.get(uri);
-        } catch (FileSystemNotFoundException exp) {
-            try {
-                FileSystems.newFileSystem(uri, Collections.emptyMap());
-                return Paths.get(uri);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to detect the module's code base path", e);
-            }
-
         }
     }
 }

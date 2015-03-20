@@ -25,13 +25,14 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.beam.glayer.WorldMapLayerType;
 import org.esa.beam.glevel.TiledFileMultiLevelSource;
+import org.esa.beam.util.SystemUtils;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * @author Thomas Storm
@@ -85,27 +86,34 @@ public class GlobCoverLayerType extends WorldMapLayerType {
     }
 
     private static MultiLevelSource createMultiLevelSource() {
-        String dirPath = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
-        if (dirPath == null || dirPath.isEmpty()) {
-            dirPath = getDirPathFromModule();
-        }
+        String dirString = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
+        Path dirPath = getDirPath(dirString);
         if (dirPath == null) {
             throw new IllegalStateException("World image directory not found.");
         }
         final MultiLevelSource multiLevelSource;
         try {
-            multiLevelSource = TiledFileMultiLevelSource.create(new File(dirPath));
+            multiLevelSource = TiledFileMultiLevelSource.create(dirPath);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
         return multiLevelSource;
     }
 
-    private static String getDirPathFromModule() {
-        final URL resource = GlobCoverLayerType.class.getResource("image.properties");
+    private static Path getDirPath(String dirString) {
+        Path dirPath;
+        if (dirString == null || dirString.isEmpty()) {
+            dirPath = getDirPathFromModule();
+        }else {
+            dirPath = Paths.get(dirString);
+        }
+        return dirPath;
+    }
+
+    private static Path getDirPathFromModule() {
         try {
-            return new File(resource.toURI()).getParent();
-        } catch (URISyntaxException e) {
+            return SystemUtils.getPathFromURI(GlobCoverLayerType.class.getResource("image.properties").toURI()).getParent();
+        } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
         }
         return null;

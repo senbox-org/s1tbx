@@ -27,20 +27,25 @@ import javax.media.jai.PlanarImage;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 
 public class TiledFileMultiLevelSource extends AbstractMultiLevelSource {
 
-    private final File imageDir;
+    private final Path imageDir;
     private final Properties imageProperties;
 
     public static TiledFileMultiLevelSource create(File imageDir) throws IOException {
+        return create(imageDir.toPath());
+    }
+
+    public static TiledFileMultiLevelSource create(Path imageDir) throws IOException {
         Assert.notNull(imageDir);
         final Properties imageProperties = new Properties();
-        imageProperties.load(new FileReader(new File(imageDir, "image.properties")));
+        imageProperties.load(Files.newBufferedReader(imageDir.resolve("image.properties")));
         int levelCount = Integer.parseInt(imageProperties.getProperty("numLevels"));
         int sourceWidth = Integer.parseInt(imageProperties.getProperty("width"));
         int sourceHeight = Integer.parseInt(imageProperties.getProperty("height"));
@@ -60,7 +65,7 @@ public class TiledFileMultiLevelSource extends AbstractMultiLevelSource {
         return new TiledFileMultiLevelSource(model, imageDir, imageProperties);
     }
 
-    public TiledFileMultiLevelSource(MultiLevelModel model, File imageDir, Properties imageProperties) {
+    public TiledFileMultiLevelSource(MultiLevelModel model, Path imageDir, Properties imageProperties) {
         super(model);
         this.imageDir = imageDir;
         this.imageProperties = imageProperties;
@@ -70,7 +75,7 @@ public class TiledFileMultiLevelSource extends AbstractMultiLevelSource {
     public RenderedImage createImage(int level) {
         PlanarImage image;
         try {
-            image = TiledFileOpImage.create(new File(imageDir, level + ""), imageProperties);
+            image = TiledFileOpImage.create(imageDir.resolve(String.valueOf(level)), imageProperties);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -77,7 +77,7 @@ public class PyramidBuilder {
         if (raw) {
             // Raw data images
             interpolation = Interpolation.getInstance(Interpolation.INTERP_NEAREST);
-            image0 = TiledFileOpImage.create(imageFile, new Properties());
+            image0 = TiledFileOpImage.create(imageFile.toPath(), new Properties());
         } else {
             // Visual RGB images
             interpolation = Interpolation.getInstance(Interpolation.INTERP_BICUBIC);
