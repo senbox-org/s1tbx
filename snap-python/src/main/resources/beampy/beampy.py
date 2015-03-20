@@ -6,7 +6,8 @@ In order to use beampy the module 'jpy' must be installed first.
 You can configure beampy by using a file named beampy.ini as follows:
 
     [DEFAULT]
-    beam_home: C:\Program Files\beam-5
+    snap_home: C:\Program Files\snap-2.0
+    snap_user: C:\Users\Norman\.snap-2.0
     extra_classpath: target/classes
     extra_options: -Djava.awt.headless=false
     max_mem: 4G
@@ -20,8 +21,10 @@ import os
 import sys
 
 if sys.version_info >= (3, 0, 0,):
+    # noinspection PyUnresolvedReferences
     import configparser as cp
 else:
+    # noinspection PyUnresolvedReferences
     import ConfigParser as cp
 
 module_dir = os.path.dirname(os.path.realpath(__file__))
@@ -41,14 +44,13 @@ if debug:
 
 
 def _get_beam_jar_locations():
-
     beam_bin = os.path.join(beam_home, 'bin')
     beam_lib = os.path.join(beam_home, 'lib')
     beam_mod = os.path.join(beam_home, 'modules')
 
-    #print('beam_bin =', beam_bin, os.path.exists(beam_bin))
-    #print('beam_lib =', beam_lib, os.path.exists(beam_lib))
-    #print('beam_mod =', beam_mod, os.path.exists(beam_mod))
+    # print('beam_bin =', beam_bin, os.path.exists(beam_bin))
+    # print('beam_lib =', beam_lib, os.path.exists(beam_lib))
+    # print('beam_mod =', beam_mod, os.path.exists(beam_mod))
 
     if not (os.path.exists(beam_bin)
             and os.path.exists(beam_lib)
@@ -60,13 +62,12 @@ def _get_beam_jar_locations():
 
 def _collect_classpath(path, classpath):
     for name in os.listdir(path):
-        file = os.path.join(path, name)
-        if name.endswith('.jar') or name.endswith('.zip') or os.path.isdir(file):
-            classpath.append(file)
+        f = os.path.join(path, name)
+        if name.endswith('.jar') or name.endswith('.zip') or os.path.isdir(f):
+            classpath.append(f)
 
 
 def _create_classpath(searchpath):
-
     classpath = []
     for path in searchpath:
         _collect_classpath(path, classpath)
@@ -74,57 +75,80 @@ def _create_classpath(searchpath):
 
 
 def _get_jvm_options():
-    global beam_home, searchpath, classpath, extra_classpath, max_mem, options, extra_options
+    global beam_home, extra_classpath, max_mem, options, extra_options
 
-    if config.has_option('DEFAULT', 'beam_home'):
-        beam_home = config.get('DEFAULT', 'beam_home')
+    # TODO Norman stopped developing here on 20.03.2015 - must finalise this for SNAP 2.0!
+    # Here we assume, we have SNAP Desktop installed. But we also have to deal with the case that
+    # only SNAP Engine is used in a headless environment.
+
+    if config.has_option('DEFAULT', 'snap_home'):
+        beam_home = config.get('DEFAULT', 'snap_home')
     else:
-        beam_home = os.getenv('BEAM_HOME', os.getenv('BEAM4_HOME', os.getenv('BEAM5_HOME')))
+        beam_home = os.getenv('SNAP_HOME')
 
     if beam_home is None or not os.path.isdir(beam_home):
-        raise IOError('environment variable "BEAM_HOME" must be set to a valid BEAM installation directory')
+        raise IOError("Can't find SNAP installation directory. Either configure variable 'snap_home' " +
+                      "in file './beampy.ini' or set environment variable 'SNAP_HOME' to an " +
+                      "existing SNAP installation directory.")
 
-    module_prefix = 'beam-python-'
-    module_glob_path = os.path.join(beam_home, 'modules', module_prefix + "*")
+    if config.has_option('DEFAULT', 'snap_user'):
+        snap_user = config.get('DEFAULT', 'snap_user')
+    else:
+        snap_user = os.getenv('SNAP_USER')
+
+    if snap_user is None:
+        snap_user = os.path.join(os.path.expanduser('~'), '.snap')
+
+    if not os.path.isdir(snap_user):
+        raise IOError("Can't find SNAP user directory. Either configure variable 'snap_user' " +
+                      "in file './beampy.ini' or set environment variable 'SNAP_USER' to an " +
+                      "existing SNAP user directory.")
+
+    module_glob_path = os.path.join(beam_home, 'snap', 'modules', '*snap-python.jar')
 
     import glob
 
-    module_dirs = glob.glob(module_glob_path)
+    jar_dirs = glob.glob(module_glob_path)
 
-    if len(module_dirs) == 0:
+    if len(jar_dirs) == 0:
         raise IOError("got no results for '%s'" % module_glob_path)
 
-    if len(module_dirs) == 1:
-        module_dir = module_dirs[0]
+    if len(jar_dirs) == 1:
+        jar_file = jar_dirs[0]
     else:
-        versions = [(os.path.basename(module_dir)[len(module_prefix):].upper().split('-'), module_dir) for module_dir in module_dirs]
-        max_parts = max([len(v) for (v,p) in versions])
-        versions = [(v + (max_parts - len(v)) * ['~'], p) for (v,p) in versions]
-        module_dir = max(versions, key=lambda x: x[0])[1]
+        raise IOError("got multiple results for '%s': %s" % module_glob_path, str(jar_dirs))
 
-    beampy_module_dir = os.path.join(module_dir, 'beampy')
-    #pprint("beampy_module_dir = '%s'" % beampy_module_dir)
+    # TODO Norman stopped developing here on 20.03.2015 - must finalise this for SNAP 2.0!
+    # What the following Python code should do:
+    # 1) Look for existing $snap_user/snap-python/beampy. If it does not exists, then Python has not yet been
+    #    called from Java.
+    # 2) Run a tiny Java program from Python which extracts and configures beampy from used JRE and
+    #    snap-python.jar. This is what is already done from Java (PyBridge). We have to extract this code so
+    #    in order to write a Java executable that does the job.
+
+    beampy_module_dir = os.path.join(jar_file, 'beampy')
+    # pprint("beampy_module_dir = '%s'" % beampy_module_dir)
 
     sys.path = [beampy_module_dir] + sys.path
 
-    #import pprint
-    searchpath = _get_beam_jar_locations()
-    #pprint.pprint(searchpath)
+    # import pprint
+    search_path = _get_beam_jar_locations()
+    # pprint.pprint(search_path)
 
-    classpath = _create_classpath(searchpath)
+    classpath = _create_classpath(search_path)
 
     if config.has_option('DEFAULT', 'extra_classpath'):
         extra_classpath = config.get('DEFAULT', 'extra_classpath')
         classpath += extra_classpath.split(os.pathsep)
 
-    #pprint.pprint(classpath)
+    # pprint.pprint(classpath)
 
     max_mem = '512M'
     if config.has_option('DEFAULT', 'extra_options'):
         max_mem = config.get('DEFAULT', 'max_mem')
 
     options = ['-Djava.awt.headless=true',
-               '-Djava.class.path=' + os.pathsep.join(classpath), 
+               '-Djava.class.path=' + os.pathsep.join(classpath),
                '-Xmx' + max_mem]
 
     if config.has_option('DEFAULT', 'extra_options'):
@@ -145,9 +169,10 @@ del _create_classpath
 del _collect_classpath
 
 
-def annotate_RasterDataNode_methods(type, method):
+# noinspection PyUnusedLocal
+def annotate_RasterDataNode_methods(type_name, method):
     index = -1
-    
+
     if sys.version_info >= (3, 0, 0,):
         arr_z_type_str = "<class '[Z'>"
         arr_i_type_str = "<class '[I'>"
@@ -163,23 +188,24 @@ def annotate_RasterDataNode_methods(type, method):
         index = 4
         param_type_str = str(method.get_param_type(index))
         if param_type_str == arr_i_type_str \
-            or param_type_str == arr_f_type_str \
-            or param_type_str == arr_d_type_str:
+                or param_type_str == arr_f_type_str \
+                or param_type_str == arr_d_type_str:
             method.set_param_mutable(index, True)
             method.set_param_output(index, True)
             method.set_param_return(index, True)
 
     if method.name == 'readValidMask' and method.param_count == 5:
         index = 4
-        param_type_str = str(method.get_param_type(index))   
+        param_type_str = str(method.get_param_type(index))
         if param_type_str == arr_z_type_str:
             method.set_param_mutable(index, True)
             method.set_param_output(index, True)
             method.set_param_return(index, True)
 
     if index >= 0 and debug:
-        print('annotate_RasterDataNode_methods: Method "{0}": modified parameter {1:d}: mutable = {2}, return = {3}'.format(
-              method.name, index, method.is_param_mutable(index), method.is_param_return(index)))
+        print(
+            'annotate_RasterDataNode_methods: Method "{0}": modified parameter {1:d}: mutable = {2}, return = {3}'
+            .format(method.name, index, method.is_param_mutable(index), method.is_param_return(index)))
 
     return True
 
@@ -188,7 +214,6 @@ jpy.type_callbacks['org.esa.beam.framework.datamodel.RasterDataNode'] = annotate
 jpy.type_callbacks['org.esa.beam.framework.datamodel.AbstractBand'] = annotate_RasterDataNode_methods
 jpy.type_callbacks['org.esa.beam.framework.datamodel.Band'] = annotate_RasterDataNode_methods
 jpy.type_callbacks['org.esa.beam.framework.datamodel.VirtualBand'] = annotate_RasterDataNode_methods
-
 
 try:
     # Note we may later want to read pre-defined types from a configuration file (beampy.ini)
