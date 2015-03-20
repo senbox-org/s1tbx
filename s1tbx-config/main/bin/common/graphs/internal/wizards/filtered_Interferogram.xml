@@ -76,8 +76,8 @@
       <orbitDegree>3</orbitDegree>
     </parameters>
   </node>
-  <node id="7-SubtRefDem">
-    <operator>SubtRefDem</operator>
+  <node id="7-TopoPhaseRemoval">
+    <operator>TopoPhaseRemoval</operator>
     <sources>
       <sourceProduct refid="6-Interferogram"/>
     </sources>
@@ -90,7 +90,7 @@
   <node id="8-GoldsteinPhaseFiltering">
     <operator>GoldsteinPhaseFiltering</operator>
     <sources>
-      <sourceProduct refid="7-SubtRefDem"/>
+      <sourceProduct refid="7-TopoPhaseRemoval"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <alpha>1.0</alpha>
@@ -126,7 +126,7 @@
     <node id="6-Interferogram">
       <displayPosition y="224.0" x="107.0"/>
     </node>
-    <node id="7-SubtRefDem">
+    <node id="7-TopoPhaseRemoval">
       <displayPosition y="224.0" x="226.0"/>
     </node>
     <node id="8-GoldsteinPhaseFiltering">
