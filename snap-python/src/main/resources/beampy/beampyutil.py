@@ -54,7 +54,6 @@ def _configure_beampy(java_module=None,
     else:
         jpy_archive_file = os.path.join(java_module, 'lib', jpy_distr_name + '.zip')
 
-
     #
     # Extract a matching jpy binary distribution from ../lib/jpy.<platform>-<python-version>.zip
     #
@@ -79,7 +78,7 @@ def _configure_beampy(java_module=None,
     # - jpyconfig.py - Configuration for Python about Java (JVM)
     #
 
-    retcode = 0
+    ret_code = 0
 
     if force or \
             not os.path.exists(jpyconfig_java_file) or \
@@ -97,16 +96,16 @@ def _configure_beampy(java_module=None,
                 if os.path.exists(jre_dir):
                     java_home = os.path.normpath(jre_dir)
 
-            retcode = jpyutil.write_config_files(out_dir=beampy_dir,
-                                                 java_home_dir=java_home,
-                                                 req_java_api_conf=req_java,
-                                                 req_py_api_conf=req_py)
+            ret_code = jpyutil.write_config_files(out_dir=beampy_dir,
+                                                  java_home_dir=java_home,
+                                                  req_java_api_conf=req_java,
+                                                  req_py_api_conf=req_py)
         else:
             logging.error("Missing Python module '" + jpyutil_file + "' required to complete the configuration.")
             logging.error("This file should have been part of binary distribution '" + jpy_archive_file + "'.")
-            retcode = 20
+            ret_code = 20
 
-    return retcode
+    return ret_code
 
 
 def _main():
@@ -127,7 +126,7 @@ def _main():
     parser.add_argument("-p", "--req_py", action='store_true', default=False,
                         help="require that Python API configuration succeeds")
     parser.add_argument('-f', '--force', action='store_true', default=False,
-                        help='force overwriting of existing files.')
+                        help='force overwriting of existing files')
     args = parser.parse_args()
 
     log_level = getattr(logging, args.log_level.upper(), None)
@@ -142,17 +141,17 @@ def _main():
         logging.basicConfig(format=log_format, level=log_level)
 
     try:
-        retcode = _configure_beampy(java_module=args.java_module,
-                                    java_home=args.java_home,
-                                    req_arch=args.req_arch,
-                                    req_java=args.req_java,
-                                    req_py=args.req_py,
-                                    force=args.force)
+        ret_code = _configure_beampy(java_module=args.java_module,
+                                     java_home=args.java_home,
+                                     req_arch=args.req_arch,
+                                     req_java=args.req_java,
+                                     req_py=args.req_py,
+                                     force=args.force)
     except:
         logging.exception("Configuration failed")
-        retcode = 10
+        ret_code = 10
 
-    exit(retcode)
+    exit(ret_code)
 
 
 if __name__ == '__main__':
