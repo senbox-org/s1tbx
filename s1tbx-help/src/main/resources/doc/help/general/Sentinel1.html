@@ -2,8 +2,7 @@
 <html><head><title>S1TBX Help</title>
 
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<link rel="stylesheet" href="../style.css">
-</head>
+<link rel="stylesheet" href="../style.css"></head>
 <body>
 <table class="header" width="100%">
 <tbody>
@@ -13,8 +12,273 @@
 </tr>
 </tbody>
 </table>
-<h3>SENTINEL-1</h3>
-<h4>Overview</h4>
+<h2>SENTINEL-1 Mission</h2>
+<p class="MsoNormal">The Sentinel-1 mission is the European Radar Observatory for
+the Copernicus joint initiative of the European Commission (EC) and the
+European Space Agency (ESA). The mission is composed of a constellation of two
+satellites, Sentinel-1A and Sentinel-1B, sharing the same orbital plane with a
+180° orbital phasing difference. The mission provides an independent
+operational capability for continuous radar mapping of the Earth with enhanced
+revisit frequency, coverage, timeliness and reliability for operational
+services and applications requiring long time series.<o:p></o:p></p>
+
+<p class="MsoNormal">Sentinel-1 carries a single C-band synthetic aperture radar
+instrument operating at a centre frequency of 5.405 GHz. It includes an active
+phased array antenna providing fast scanning in elevation and azimuth. The
+C-SAR instrument supports operation in dual polarisation (HH+HV, VV+VH)
+implemented through one transmit chain (switchable to H or V) and two parallel
+receive chains for H and V polarisation.<o:p></o:p></p>
+
+<p class="MsoNormal">A single Sentinel-1 satellite is able to map the entire
+world once every 12 days. The two-satellite constellation offers a six day
+exact repeat cycle. The constellation will have a repeat frequency
+(ascending/descending) of 3 days at the equator, less than 1 day at the Arctic
+and is expected to provide coverage over Europe, Canada and main shipping
+routes in 1-3 days, regardless of weather conditions. <o:p></o:p></p><h2>Modes<a name="_Toc367790370"><span style="color: rgb(0, 74, 130);"><span style=""><span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;"></span></span></span><strong><span style=""></span></strong></a></h2><h4><a name="_Toc367790370"><strong><span style="">Stripmap
+</span>Mode</strong></a><o:p></o:p></h4>
+
+<p class="MsoNormal">Stripmap (SM) imaging mode is provided for continuity with
+ERS and ENVISAT missions. Stripmap provides coverage with a 5 m by 5 m
+resolution over a narrow swath width of 80 km. <o:p></o:p></p>
+
+<p class="MsoNormal">The ground swath is illuminated by a continuous sequence of
+pulses while the antenna beam is pointing to a fixed azimuth angle and an
+approximately fixed off-nadir angle. SM images have continuous along track
+image quality at an approximately constant incidence angle. The incidence angle
+is the angle between the incident SAR beam and the axis perpendicular to the
+local geodetic ground surface. One of six imaging swaths can be selected by
+changing the beam incidence angle and the elevation beamwidth.<o:p></o:p></p>
+
+<h4><a name="_Toc367790371"><!--[if !supportLists]--><strong><span style="color: rgb(0, 74, 130);"><span style=""><span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;">
+</span></span></span></strong><!--[endif]--><strong>Interferometric Wide Swath Mode</strong></a><strong><o:p></o:p></strong></h4>
+
+<p class="MsoNormal">The Interferometric Wide (IW) swath mode is the main
+acquisition mode over land and satisfies the majority of service requirements.
+It acquires data with a 250 km swath at 5 m by 20 m spatial resolution (single
+look). IW mode captures three sub-swaths using Terrain Observation with
+Progressive Scans SAR (TOPSAR). With the TOPSAR technique, in addition to
+steering the beam in range as in ScanSAR, the beam is also electronically
+steered from backward to forward in the azimuth direction for each burst,
+avoiding scalloping and resulting in homogeneous image quality throughout the
+swath <!--[if supportFields]><span style='mso-element:field-begin'></span><span
+style='mso-spacerun:yes'> </span>REF _Ref365372077 \r \h <span
+style='mso-element:field-separator'></span><![endif]-->[R11]<!--[if gte mso 9]><xml>
+ <w:data>08D0C9EA79F9BACE118C8200AA004BA90B02000000080000000E0000005F005200650066003300360035003300370032003000370037000000</w:data>
+</xml><![endif]--><!--[if supportFields]><span style='mso-element:field-end'></span><![endif]-->.<o:p></o:p></p>
+
+<p class="MsoNormal">TOPSAR mode is intended to replace the conventional ScanSAR
+mode, achieving the same coverage and resolution as ScanSAR, but with a nearly
+uniform SNR (Signal-to-Noise Ratio) and DTAR (Distributed Target Ambiguity
+Ratio).<o:p></o:p></p>
+
+<p class="MsoNormal">Azimuth resolution is reduced compared to SM due to the
+shorter target illumination time of the burst. Using the sweeping azimuth
+pattern, each target is seen under the same antenna pattern, independently from
+its azimuth position in the burst image. By shrinking the azimuth antenna
+pattern, as seen by a target on the ground, scalloping effects on the image can
+be reduced. Bursts are synchronised from pass to pass to ensure the alignment
+of interferometric pairs.<o:p></o:p></p>
+
+<p class="MsoNormal">IW SLC products contain one image per sub-swath and one per
+polarisation channel, for a total of three (single polarisation) or six (dual
+polarisation) images in an IW product.<o:p></o:p></p>
+
+<p class="MsoNormal">Each sub-swath image consists of a series of bursts, where
+each burst has been processed as a separate SLC image. The individually focused
+complex burst images are included, in azimuth-time order, into a single
+sub-swath image with black-fill demarcation in between, similar to ENVISAT ASAR
+Wide ScanSAR SLC products.<o:p></o:p></p>
+
+<p class="MsoNormal">Due to the one natural azimuth look inherent in the data,
+the imaged ground area of adjacent bursts will only marginally overlap in
+azimuth by just enough to provide contiguous coverage of the ground. The images
+for all bursts in all sub-swaths are resampled to a common pixel spacing grid
+in range and azimuth while preserving the phase information.<o:p></o:p></p>
+
+<h4><a name="_Toc367790372"><!--[if !supportLists]--><strong><span style="color: rgb(0, 74, 130);"><span style=""><span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;">
+</span></span></span></strong><!--[endif]--><strong>Extra Wide Swath Mode</strong></a><strong><o:p></o:p></strong></h4>
+
+<p class="MsoNormal">The Extra Wide (EW) swath imaging mode is intended for
+maritime, ice and polar zone operational services where wide coverage and short
+revisit times are demanded. The EW mode works similarly to the IW mode
+employing a TOPSAR technique using five sub-swaths instead of three, resulting
+in a lower resolution (20 m&nbsp;by 40 m). <o:p></o:p></p>
+
+<p class="MsoNormal">EW SLC products contain one image per sub-swath and one per
+polarisation channel, for a total of five (single polarisation) or 10 (dual
+polarisation) images in an EW product.<span style="">&nbsp;
+</span>Like IW, EW mode can also be used for interferometry since it shares the
+same characteristics for burst synchronisation, baseline and Doppler stability.<o:p></o:p></p>
+
+<h4><a name="_Toc367790373"><!--[if !supportLists]--><strong><span style="color: rgb(0, 74, 130);"><span style=""><span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;"></span></span></span></strong><strong>Wave Mode</strong></a><strong><o:p></o:p></strong></h4>
+
+<p class="MsoNormal">SENTINEL-1 Wave mode in conjunction with global ocean wave
+models, can help determine the direction, wavelength and heights of waves on
+the open oceans.<o:p></o:p></p>
+
+<p class="MsoNormal">SENTINEL-1 Wave mode is similar to ERS and ENVISAT wave mode
+imaging but with improved resolution, larger vignettes and a new 'leap frog'
+acquisition pattern. WV acquisitions consist of several vignettes exclusively
+in either VV or HH polarisation, with each vignette processed as a separate
+image. WV mode products can contain any number of vignettes, potentially
+amounting to an entire data-take. Each vignette will be contained in an
+independent image within the product.<o:p></o:p></p>
+
+<p class="MsoNormal">Wave mode acquires data in 20 km by 20 km vignettes, at 5 m
+by 5 m spatial resolution, every 100 km along the orbit, acquired alternately
+on two different incidence angles. Vignettes on the same incidence angle are
+separated by 200 km. Swaths alternate incidence angles between near range and
+far range (23° and 36.5° respectively).<o:p></o:p></p>
+
+
+
+
+
+<p class="MsoNormal">The Wave mode at VV polarisation is the default mode for
+acquiring data over open ocean. WV mode is acquired at the same bit rate as SM
+however, due to the small vignettes, single polarisation and sensing at 100 km
+intervals, the data volume is much lower.<o:p></o:p></p>
+<h2>Products</h2><p class="MsoNormal">SENTINEL data products are made available systematically and
+free of charge to all data users including the general public, scientific and
+commercial users. Radar data will be delivered within an hour of reception for
+Near Real-Time (NRT) emergency response, within three hours for NRT priority
+areas and within 24 hours for systematically archived data.<o:p></o:p></p>
+
+<p class="MsoNormal">All data products are distributed in the SENTINEL Standard
+Archive Format for Europe (SAFE) format.<o:p></o:p></p>
+
+<p class="MsoNormal">Each mode can potentially produce products at SAR Level-0,
+Level-1 SLC, Level-1 GRD, and Level-2 OCN.<o:p></o:p></p>
+
+<p class="MsoNormal">Data products are available in single polarisation (VV or
+HH) for Wave mode and dual polarisation (VV+VH or HH+HV) and single polarisation
+(HH or VV) for SM, IW and EW modes.<o:p></o:p></p>
+
+<h4><a name="_Toc367790375"><!--[if !supportLists]--><span style="color: rgb(0, 74, 130);"><span style=""><span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;"></span></span></span>Level-0</a><o:p></o:p></h4>
+
+<p class="MsoNormal">The SAR Level-0 products consist of the sequence of Flexible
+Dynamic Block Adaptive Quantization (FDBAQ) compressed unfocused SAR raw data.
+For the data to be usable, it will need to be decompressed and processed using
+focusing software.<o:p></o:p></p>
+
+<p class="MsoNormal">Level-0 data includes noise, internal calibration and echo
+source packets as well as orbit and attitude information.<o:p></o:p></p>
+
+<h4><a name="_Toc367790376"><!--[if !supportLists]--><span style="color: rgb(0, 74, 130);"><span style=""><span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;">
+</span></span></span><!--[endif]-->Level-1</a><o:p></o:p></h4>
+
+<p class="MsoNormal">Level-1 data is the generally available products intended
+for most data users. Level-1 products are produced as Single Look Complex (SLC)
+and Ground Range Detected (GRD).<o:p></o:p></p>
+
+<h5><strong><span style="font-size: 11pt;" lang="X-NONE">Level-1 Single Look Complex<o:p></o:p></span></strong></h5>
+
+<p class="MsoNormal">Level-1 Single Look Complex (SLC) products consist of
+focused SAR data geo-referenced using orbit and attitude data from the
+satellite and provided in zero-Doppler slant-range geometry. The products
+include a single look in each dimension using the full TX signal bandwidth and
+consist of complex samples preserving the phase information.<o:p></o:p></p>
+
+<p class="MsoNormal">The products include a single look in each dimension using
+the full available signal bandwidth and complex samples (real and imaginary)
+preserving the phase information. The products have been geo-referenced using
+the orbit and attitude data from the satellite and have been corrected for
+azimuth bi-static delay, elevation antenna pattern and range spreading loss.<o:p></o:p></p>
+
+<p class="MsoNormal">Stripmap SLCs contain one image for its single swath per
+polarisation band. IW, having three swaths, has three images in single
+polarisation and six images for dual polarisation. EW, having five swaths, has
+five images for single polarisation and ten images for dual polarisation.<o:p></o:p></p>
+
+<p class="MsoNormal">For IW and EW, each sub-swath consists of a series of
+bursts. Each burst has been processed as a separate SLC image. The individually
+focused complex burst images are included, in azimuth-time order, into a single
+sub-swath image, with black-fill demarcation in between, similar to the ENVISAT
+ASAR Wide ScanSAR SLC products.<o:p></o:p></p>
+
+<p class="MsoNormal">For IW, a focused burst has a duration of ~2.75 seconds and
+a burst overlap of approximately ~0.4 seconds. For EW, a focused burst has a
+duration of ~3.19 seconds with an overlap of ~0.1 seconds. The overlap slightly
+increases in range within a sub-swath. Unlike ASAR WSS which contains a large
+overlap between beams, for SENTINEL-1 TOPSAR products, the imaged ground area
+of adjacent bursts only marginally overlap in azimuth just enough to provide
+contiguous coverage of the ground. This is due to the one natural azimuth look
+inherent in the data.<o:p></o:p></p>
+
+<p class="MsoNormal">Images for all bursts in all sub-swaths of an IW SLC product
+are re-sampled to a common pixel spacing grid in range and azimuth. Burst
+synchronisation is ensured for both IW and EW products.<o:p></o:p></p>
+
+<p class="MsoNormal">The Swath Timing data set record in SLC products contains
+information about the bursts including dimensions, timing and location that can
+be used to merge the bursts and swaths together.<o:p></o:p></p>
+
+
+
+<h5><strong><span style="font-size: 11pt;" lang="X-NONE">Level-1 Ground Range Detected<o:p></o:p></span></strong></h5>
+
+<p class="MsoNormal">Level-1 Ground Range Detected (GRD) products consist of
+focused SAR data that has been detected, multi-looked and projected to ground
+range using an Earth ellipsoid model. <o:p></o:p></p>
+
+<p class="MsoNormal">The ellipsoid projection of the GRD products is corrected
+using the terrain height specified in the product general annotation. The
+terrain height used varies in azimuth but is constant in range.<o:p></o:p></p>
+
+<p class="MsoNormal">Ground range coordinates are the slant range coordinates
+projected onto the ellipsoid of the Earth. Pixel values represent detected
+magnitude. Phase information is lost. The resulting product has approximately
+square resolution pixels and square pixel spacing with reduced speckle at a
+cost of reduced geometric resolution.<o:p></o:p></p>
+
+<p class="MsoNormal">In addition to the corrections applied to Level-1 SLC
+products, GRD products have thermal noise removed to improve the quality of the
+detected image.<o:p></o:p></p>
+
+<p class="MsoNormal">For the IW and EW GRD products, multi-looking is performed
+on each burst individually. All bursts in all sub-swaths are then seamlessly
+merged to form a single, contiguous, ground range, detected image per
+polarisation channel<o:p></o:p></p>
+
+<p class="MsoNormal">GRD products can be in one of three resolutions:<o:p></o:p></p>
+
+<p class="MsoListParagraphCxSpFirst" style="text-indent: -18pt;"><!--[if !supportLists]--><span style="font-family: Symbol;"><span style="">·<span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><!--[endif]-->Full Resolution (FR)<o:p></o:p></p>
+
+<p class="MsoListParagraphCxSpMiddle" style="text-indent: -18pt;"><!--[if !supportLists]--><span style="font-family: Symbol;"><span style="">·<span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><!--[endif]-->High Resolution (HR)<o:p></o:p></p>
+
+<p class="MsoListParagraphCxSpLast" style="text-indent: -18pt;"><!--[if !supportLists]--><span style="font-family: Symbol;"><span style="">·<span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><!--[endif]-->Medium Resolution (MR).<o:p></o:p></p>
+
+<p class="MsoNormal">The resolution is dependent upon the amount of multi-looking
+performed. Level-1 GRD products come in MR and HR for IW and EW modes, MR for
+WV mode and MR, HR and FR for SM mode.<o:p></o:p></p>
+
+<h4><a name="_Toc367790377"><!--[if !supportLists]--><span style="color: rgb(0, 74, 130);"><span style=""><span style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;">
+</span></span></span><!--[endif]-->Level-2</a><o:p></o:p></h4>
+
+<p class="MsoNormal">Level-2 Ocean (OCN) products include components for Ocean
+Swell spectra (OSW) providing continuity with ERS and <st1:place w:st="on"><st1:City w:st="on">ASAR</st1:City> <st1:State w:st="on">WV</st1:State></st1:place> and
+two new components, Ocean Wind Fields (OWI) and Surface Radial Velocities
+(RVL).<o:p></o:p></p>
+
+<p class="MsoNormal">The OSW is a two-dimensional ocean surface swell spectrum
+and also includes an estimate of the wind speed and direction per swell
+spectrum. The OSW is generated from Stripmap and Wave modes only. For Stripmap
+mode, there are multiple spectra derived from internally generated Level-1 SLC
+image. For Wave mode, there is one spectrum per vignette.<o:p></o:p></p>
+
+<p class="MsoNormal">The OWI is a ground range gridded estimate of the surface
+wind speed and direction at 10 m above the surface derived from internally
+generated Level-1 GRD images of SM, IW or EW modes.<o:p></o:p></p>
+
+<p class="MsoNormal">The RVL is a ground range gridded difference between the
+measured Level-2 Doppler grid and the Level-1 calculated geometrical Doppler.<o:p></o:p></p>
+
+
+<p class="MsoNormal"><span style="" lang="EN-GB"><o:p></o:p></span></p>
+
 
 
 </body></html>
