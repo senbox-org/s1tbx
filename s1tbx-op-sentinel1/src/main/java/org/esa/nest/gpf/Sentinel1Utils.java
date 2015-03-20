@@ -286,6 +286,8 @@ public final class Sentinel1Utils {
 
         subSwath.burstFirstLineTime = new double[subSwath.numOfBursts];
         subSwath.burstLastLineTime = new double[subSwath.numOfBursts];
+        subSwath.burstFirstValidLineTime = new double[subSwath.numOfBursts];
+        subSwath.burstLastValidLineTime = new double[subSwath.numOfBursts];
         subSwath.firstValidSample = new int[subSwath.numOfBursts][];
         subSwath.lastValidSample = new int[subSwath.numOfBursts][];
 
@@ -298,19 +300,31 @@ public final class Sentinel1Utils {
             int lastValidPixel = 0;
             final MetadataElement[] burstListElem = burstList.getElements();
             for (MetadataElement listElem : burstListElem) {
+
                 subSwath.burstFirstLineTime[k] =
                         Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD()*Constants.secondsInDay;
+
                 subSwath.burstLastLineTime[k] = subSwath.burstFirstLineTime[k] +
                         (subSwath.linesPerBurst - 1) * subSwath.azimuthTimeInterval;
+
                 final MetadataElement firstValidSampleElem = listElem.getElement("firstValidSample");
                 final MetadataElement lastValidSampleElem = listElem.getElement("lastValidSample");
                 subSwath.firstValidSample[k] = Sentinel1Utils.getIntArray(firstValidSampleElem, "firstValidSample");
                 subSwath.lastValidSample[k] = Sentinel1Utils.getIntArray(lastValidSampleElem, "lastValidSample");
 
+                int firstValidLineIdx = -1;
+                int lastValidLineIdx = -1;
                 for (int lineIdx = 0; lineIdx < subSwath.firstValidSample[k].length; lineIdx++) {
                     if (subSwath.firstValidSample[k][lineIdx] != -1 &&
                             subSwath.firstValidSample[k][lineIdx] < firstValidPixel) {
                         firstValidPixel = subSwath.firstValidSample[k][lineIdx];
+
+                        if (firstValidLineIdx == -1) {
+                            firstValidLineIdx = lineIdx;
+                            lastValidLineIdx = lineIdx;
+                        } else {
+                            lastValidLineIdx++;
+                        }
                     }
                 }
 
@@ -321,13 +335,21 @@ public final class Sentinel1Utils {
                     }
                 }
 
+                subSwath.burstFirstValidLineTime[k] = subSwath.burstFirstLineTime[k] +
+                        firstValidLineIdx * subSwath.azimuthTimeInterval;
+
+                subSwath.burstLastValidLineTime[k] = subSwath.burstFirstLineTime[k] +
+                        lastValidLineIdx * subSwath.azimuthTimeInterval;
+
                 k++;
             }
             subSwath.firstValidPixel = firstValidPixel;
             subSwath.lastValidPixel = lastValidPixel;
         }
+
         subSwath.slrTimeToFirstValidPixel = subSwath.slrTimeToFirstPixel +
                 subSwath.firstValidPixel * subSwath.rangePixelSpacing / Constants.lightSpeed;
+
         subSwath.slrTimeToLastValidPixel = subSwath.slrTimeToFirstPixel +
                 subSwath.lastValidPixel * subSwath.rangePixelSpacing / Constants.lightSpeed;
 
@@ -1279,6 +1301,8 @@ public final class Sentinel1Utils {
         public int samplesPerBurst;
         public double[] burstFirstLineTime;
         public double[] burstLastLineTime;
+        public double[] burstFirstValidLineTime;
+        public double[] burstLastValidLineTime;
         public int[][] firstValidSample;
         public int[][] lastValidSample;
         public double[][] rangeDependDopplerRate;
