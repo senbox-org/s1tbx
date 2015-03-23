@@ -18,15 +18,12 @@ package com.bc.ceres.swing.binding.internal;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.swing.binding.BindingContext;
-import com.bc.ceres.swing.binding.internal.FileEditor;
-
-import java.io.File;
+import junit.framework.TestCase;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
-import junit.framework.TestCase;
+import java.io.File;
 
 public class FileEditorTest extends TestCase {
 
