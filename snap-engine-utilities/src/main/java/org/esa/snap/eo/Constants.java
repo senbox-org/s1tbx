@@ -49,6 +49,8 @@ public final class Constants {
     public static final String USE_LOCAL_INCIDENCE_ANGLE_FROM_DEM = "Use local incidence angle from DEM";
     public static final String USE_INCIDENCE_ANGLE_FROM_ELLIPSOID = "Use incidence angle from Ellipsoid";
 
+    public static final double NO_DATA_VALUE = -99999.0;
+
     private Constants() {
     }
 }

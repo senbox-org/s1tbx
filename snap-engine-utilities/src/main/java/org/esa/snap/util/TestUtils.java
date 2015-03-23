@@ -19,19 +19,8 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeConfig;
 import com.bc.ceres.core.runtime.support.DefaultRuntimeConfig;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.dataio.DecodeQualification;
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.dataio.ProductSubsetBuilder;
-import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.dataio.*;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -498,26 +487,29 @@ public class TestUtils {
 
 
         final File[] folderList = origFolder.listFiles(ProductFunctions.directoryFileFilter);
-        for (File folder : folderList) {
-            if (!folder.getName().contains(SKIPTEST)) {
-                recurseFindReadableProducts(folder, productList, maxCount);
+        if(folderList != null) {
+            for (File folder : folderList) {
+                if (!folder.getName().contains(SKIPTEST)) {
+                    recurseFindReadableProducts(folder, productList, maxCount);
+                }
             }
         }
 
         final File[] fileList = origFolder.listFiles(new ProductFunctions.ValidProductFileFilter());
-        for (File file : fileList) {
-            if (maxCount > 0 && productList.size() >= maxCount)
-                return;
+        if(fileList != null) {
+            for (File file : fileList) {
+                if (maxCount > 0 && productList.size() >= maxCount)
+                    return;
 
-            try {
-                final ProductReader reader = ProductIO.getProductReaderForInput(file);
-                if (reader != null) {
-                    productList.add(file);
-                } else {
-                    log.warning(file.getAbsolutePath() + " is non valid");
-                }
-            } catch (Exception e) {
-                boolean ok = false;
+                try {
+                    final ProductReader reader = ProductIO.getProductReaderForInput(file);
+                    if (reader != null) {
+                        productList.add(file);
+                    } else {
+                        log.warning(file.getAbsolutePath() + " is non valid");
+                    }
+                } catch (Exception e) {
+                    boolean ok = false;
                /* if(exceptionExemptions != null) {
                     for(String exemption : exceptionExemptions) {
                         if(e.getMessage().contains(exemption)) {
@@ -527,9 +519,10 @@ public class TestUtils {
                         }
                     }
                 }    */
-                if (!ok) {
-                    log.severe("Failed to process " + file.toString());
-                    throw e;
+                    if (!ok) {
+                        log.severe("Failed to process " + file.toString());
+                        throw e;
+                    }
                 }
             }
         }
@@ -541,11 +534,13 @@ public class TestUtils {
                                             final String[] exceptionExemptions) throws Exception {
 
         final File[] folderList = origFolder.listFiles(ProductFunctions.directoryFileFilter);
-        for (File folder : folderList) {
-            if (maxIteration > 0 && iterations >= maxIteration)
-                break;
-            if (!folder.getName().contains(SKIPTEST)) {
-                iterations = recurseProcessFolder(spi, folder, format, iterations, productTypeExemptions, exceptionExemptions);
+        if(folderList != null) {
+            for (File folder : folderList) {
+                if (maxIteration > 0 && iterations >= maxIteration)
+                    break;
+                if (!folder.getName().contains(SKIPTEST)) {
+                    iterations = recurseProcessFolder(spi, folder, format, iterations, productTypeExemptions, exceptionExemptions);
+                }
             }
         }
 
@@ -555,55 +550,57 @@ public class TestUtils {
         }
 
         final File[] fileList = origFolder.listFiles(new ProductFunctions.ValidProductFileFilter());
-        for (File file : fileList) {
-            if (maxIteration > 0 && iterations >= maxIteration)
-                break;
+        if(fileList != null) {
+            for (File file : fileList) {
+                if (maxIteration > 0 && iterations >= maxIteration)
+                    break;
 
-            try {
-                if(reader != null) {
-                    if(reader.getReaderPlugIn().getDecodeQualification(file) != DecodeQualification.INTENDED) {
-                        continue;
+                try {
+                    if (reader != null) {
+                        if (reader.getReaderPlugIn().getDecodeQualification(file) != DecodeQualification.INTENDED) {
+                            continue;
+                        }
+                    } else {
+                        reader = CommonReaders.findCommonProductReader(file);
+                        if (reader == null)
+                            reader = ProductIO.getProductReaderForInput(file);
                     }
-                } else {
-                    reader = CommonReaders.findCommonProductReader(file);
-                    if(reader == null)
-                        reader = ProductIO.getProductReaderForInput(file);
-                }
-                if (reader != null) {
-                    final Product sourceProduct = reader.readProductNodes(file, null);
-                    if (productTypeExemptions != null && containsProductType(productTypeExemptions, sourceProduct.getProductType()))
-                        continue;
+                    if (reader != null) {
+                        final Product sourceProduct = reader.readProductNodes(file, null);
+                        if (productTypeExemptions != null && containsProductType(productTypeExemptions, sourceProduct.getProductType()))
+                            continue;
 
-                    verifyProduct(sourceProduct, true, true, false);
+                        verifyProduct(sourceProduct, true, true, false);
 
-                    final Product subsetProduct = createSubsetProduct(sourceProduct);
+                        final Product subsetProduct = createSubsetProduct(sourceProduct);
 
-                    final Operator op = spi.createOperator();
-                    op.setSourceProduct(subsetProduct);
+                        final Operator op = spi.createOperator();
+                        op.setSourceProduct(subsetProduct);
 
-                    TestUtils.log.info(spi.getOperatorAlias() + " Processing [" + iterations + "] " + file.toString());
-                    TestUtils.executeOperator(op);
+                        TestUtils.log.info(spi.getOperatorAlias() + " Processing [" + iterations + "] " + file.toString());
+                        TestUtils.executeOperator(op);
 
-                    MemUtils.freeAllMemory();
+                        MemUtils.freeAllMemory();
 
-                    ++iterations;
-                } else {
-                    TestUtils.log.warning(file.getAbsolutePath() + " is non valid");
-                }
-            } catch (Exception e) {
-                boolean ok = false;
-                if (exceptionExemptions != null) {
-                    for (String exemption : exceptionExemptions) {
-                        if (e.getMessage() != null && e.getMessage().contains(exemption)) {
-                            ok = true;
-                            TestUtils.log.info("Exemption for " + e.getMessage());
-                            break;
+                        ++iterations;
+                    } else {
+                        TestUtils.log.warning(file.getAbsolutePath() + " is non valid");
+                    }
+                } catch (Exception e) {
+                    boolean ok = false;
+                    if (exceptionExemptions != null) {
+                        for (String exemption : exceptionExemptions) {
+                            if (e.getMessage() != null && e.getMessage().contains(exemption)) {
+                                ok = true;
+                                TestUtils.log.info("Exemption for " + e.getMessage());
+                                break;
+                            }
                         }
                     }
-                }
-                if (!ok) {
-                    TestUtils.log.severe("Failed to process " + file.toString());
-                    throw e;
+                    if (!ok) {
+                        TestUtils.log.severe("Failed to process " + file.toString());
+                        throw e;
+                    }
                 }
             }
         }
@@ -688,43 +685,47 @@ public class TestUtils {
                                          final String[] exceptionExemptions,
                                          int iterations) throws Exception {
         final File[] folderList = origFolder.listFiles(ProductFunctions.directoryFileFilter);
-        for (File folder : folderList) {
-            if (!folder.getName().contains(SKIPTEST)) {
-                iterations = recurseReadFolder(folder, readerPlugin, reader, productTypeExemptions, exceptionExemptions, iterations);
-                if (maxIteration > 0 && iterations >= maxIteration)
-                    return iterations;
+        if(folderList != null) {
+            for (File folder : folderList) {
+                if (!folder.getName().contains(SKIPTEST)) {
+                    iterations = recurseReadFolder(folder, readerPlugin, reader, productTypeExemptions, exceptionExemptions, iterations);
+                    if (maxIteration > 0 && iterations >= maxIteration)
+                        return iterations;
+                }
             }
         }
 
         final File[] files = origFolder.listFiles(fileFilter);
-        for (File file : files) {
-            if (readerPlugin.getDecodeQualification(file) == DecodeQualification.INTENDED) {
+        if(files != null) {
+            for (File file : files) {
+                if (readerPlugin.getDecodeQualification(file) == DecodeQualification.INTENDED) {
 
-                try {
-                    log.info("Reading [" + iterations + "] " + file.toString());
+                    try {
+                        log.info("Reading [" + iterations + "] " + file.toString());
 
-                    final Product product = reader.readProductNodes(file, null);
-                    if (productTypeExemptions != null && containsProductType(productTypeExemptions, product.getProductType()))
-                        continue;
-                    verifyProduct(product, true, true, false);
-                    ++iterations;
+                        final Product product = reader.readProductNodes(file, null);
+                        if (productTypeExemptions != null && containsProductType(productTypeExemptions, product.getProductType()))
+                            continue;
+                        verifyProduct(product, true, true, false);
+                        ++iterations;
 
-                    if (maxIteration > 0 && iterations >= maxIteration)
-                        break;
-                } catch (Exception e) {
-                    boolean ok = false;
-                    if (exceptionExemptions != null) {
-                        for (String exemption : exceptionExemptions) {
-                            if (e.getMessage() != null && e.getMessage().contains(exemption)) {
-                                ok = true;
-                                log.info("Exemption for " + e.getMessage());
-                                break;
+                        if (maxIteration > 0 && iterations >= maxIteration)
+                            break;
+                    } catch (Exception e) {
+                        boolean ok = false;
+                        if (exceptionExemptions != null) {
+                            for (String exemption : exceptionExemptions) {
+                                if (e.getMessage() != null && e.getMessage().contains(exemption)) {
+                                    ok = true;
+                                    log.info("Exemption for " + e.getMessage());
+                                    break;
+                                }
                             }
                         }
-                    }
-                    if (!ok) {
-                        log.severe("Failed to read " + file.toString());
-                        throw e;
+                        if (!ok) {
+                            log.severe("Failed to read " + file.toString());
+                            throw e;
+                        }
                     }
                 }
             }

@@ -15,6 +15,8 @@
  */
 package org.esa.snap.datamodel;
 
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.snap.gpf.StatusProgressMonitor;
 import org.esa.snap.util.ResourceUtils;
@@ -44,6 +46,10 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
     private boolean unrecoverableError = false;
 
     private final URL remoteURL;
+
+    private int remoteVersion = 0;
+
+    private final static String versionFileName = "contentVersion.txt";
 
     public DownloadableContentImpl(final File localFile,
                                    final URL remoteURL, final String archiveExt) {
@@ -85,15 +91,74 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
     }
 
     private boolean getRemoteFile() throws IOException {
-        if (remoteURL.getProtocol().contains("http"))
-            return getRemoteHttpFile(remoteURL.toString());
-        else
+        if (remoteURL.getProtocol().contains("http")) {
+            try {
+                boolean newVersionAvailable = checkForNewRemoteHttpFile(remoteURL, localZipFile);
+                if(newVersionAvailable) {
+                    getRemoteHttpFile(remoteURL, localZipFile);
+
+                    saveNewVersion(localZipFile);
+                    return true;
+                }
+            } catch (Exception e) {
+                SystemUtils.LOG.warning("http error:" + e.getMessage() + " on " + remoteURL.toString() + localZipFile.getName());
+                remoteFileExists = false;
+                return false;
+            }
+        } else {
             return getRemoteFTPFile(remoteURL);
+        }
+        return false;
+    }
+
+    private boolean checkForNewRemoteHttpFile(final URL remoteURL, final File localZipFile) throws IOException {
+
+        final File remoteVersionFile = new File(localZipFile.getParent(), "remote_"+versionFileName);
+        downloadFile(new URL(remoteURL.toString() + remoteVersionFile.getName()), remoteVersionFile);
+
+        boolean newVersion = true;
+        if(remoteVersionFile.exists()) {
+            final PropertyMap remoteVersionMap = new PropertyMap();
+            remoteVersionMap.load(remoteVersionFile);
+
+            remoteVersion = remoteVersionMap.getPropertyInt(localZipFile.getName());
+
+            final File localVersionFile = new File(localZipFile.getParent(), versionFileName);
+            if(localVersionFile.exists()) {
+
+                final PropertyMap localVersionMap = new PropertyMap();
+                localVersionMap.load(localVersionFile);
+
+                int localVersion = localVersionMap.getPropertyInt(localZipFile.getName());
+
+                if(remoteVersion != 0 && localVersion != 0 && remoteVersion == localVersion) {
+                    newVersion = false;
+                }
+            }
+        }
+        remoteVersionFile.delete();
+
+        return newVersion;
+    }
+
+    private void saveNewVersion(final File localZipFile) throws IOException {
+        if(remoteVersion == 0)
+            return;
+
+        final File localVersionFile = new File(localZipFile.getParent(), versionFileName);
+        final PropertyMap localVersionMap = new PropertyMap();
+        if(localVersionFile.exists()) {
+            localVersionMap.load(localVersionFile);
+        }
+
+        localVersionMap.setPropertyInt(localZipFile.getName(), remoteVersion);
+        localVersionMap.store(localVersionFile, "");
     }
 
     private synchronized void findFile() throws IOException {
         try {
             if (contentFile != null) return;
+
             if (!localFileExists && !errorInLocalFile) {
                 localFileExists = findLocalFile();
             }
@@ -108,13 +173,13 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
                 errorInLocalFile = false;
             } else {
                 if (!remoteFileExists && localFileExists) {
-                    System.out.println("Unable to read product " + localFile.getAbsolutePath());
+                    SystemUtils.LOG.warning("Unable to read product " + localFile.getAbsolutePath());
                 }
                 localFileExists = false;
                 errorInLocalFile = true;
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            SystemUtils.LOG.warning(e.getMessage());
             contentFile = null;
             localFileExists = false;
             errorInLocalFile = true;
@@ -133,17 +198,11 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
         }
     }
 
-    private boolean getRemoteHttpFile(final String baseUrl) throws IOException {
-        final String remotePath = baseUrl + localZipFile.getName();
-        System.out.println("http retrieving " + remotePath);
-        try {
-            downloadFile(new URL(remotePath), localZipFile);
-            return true;
-        } catch (Exception e) {
-            System.out.println("http error:" + e.getMessage() + " on " + remotePath);
-            remoteFileExists = false;
-        }
-        return false;
+    private static File getRemoteHttpFile(final URL remoteURL, final File localZipFile) throws IOException {
+        final String remotePath = remoteURL.toString() + localZipFile.getName();
+        SystemUtils.LOG.info("http retrieving " + remotePath);
+
+        return downloadFile(new URL(remotePath), localZipFile);
     }
 
     /**
@@ -232,7 +291,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
             unrecoverableError = true;
             throw e;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            SystemUtils.LOG.warning(e.getMessage());
             if (ftp == null) {
                 unrecoverableError = false;      // allow to continue
                 remoteFileExists = false;
@@ -280,7 +339,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
 
                 return newFile;
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                SystemUtils.LOG.warning(e.getMessage());
                 dataFile.delete();
                 return null;
             } finally {

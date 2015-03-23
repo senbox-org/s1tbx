@@ -19,22 +19,14 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.SystemUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.util.XMLSupport;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 
 import java.awt.*;
 import java.io.File;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
 
@@ -67,6 +59,7 @@ public class DBQuery {
     private String selectedProductTypes[] = {};
     private String selectedAcquisitionMode = "";
     private String selectedPass = "";
+    private String selectedName = "";
     private String selectedTrack = "";
     private String selectedSampleType = "";
     private String selectedPolarization = ANY;
@@ -119,6 +112,11 @@ public class DBQuery {
 
     public String getSelectedPass() {
         return selectedPass;
+    }
+
+    public void setSelectedName(final String name) {
+        if (name != null)
+            selectedName = name;
     }
 
     public void setSelectedTrack(final String track) {
@@ -239,6 +237,10 @@ public class DBQuery {
         if (!selectedPass.isEmpty() && !selectedPass.equals(ALL_PASSES)) {
             SQLUtils.addAND(queryStr);
             queryStr.append(ProductTable.TABLE + '.' + AbstractMetadata.PASS + "='" + selectedPass + '\'');
+        }
+        if (!selectedName.isEmpty()) {
+            SQLUtils.addAND(queryStr);
+            queryStr.append("( " + MetadataTable.TABLE + '.' + AbstractMetadata.PRODUCT + " LIKE '%" + selectedName + "%' )");
         }
         if (!selectedTrack.isEmpty()) {
             SQLUtils.addAND(queryStr);
@@ -409,7 +411,11 @@ public class DBQuery {
     }
 
     public void setSelectionRect(final GeoPos[] selectionBox) {
-        selectionRectangle = getBoundingRect(selectionBox);
+        if(selectionBox == null) {
+            selectionRectangle = null;
+        } else {
+            selectionRectangle = getBoundingRect(selectionBox);
+        }
     }
 
     private ProductEntry[] intersectMapSelection(final ProductEntry[] resultsList, final boolean returnAllIfNoIntersection) {
@@ -517,90 +523,6 @@ public class DBQuery {
         }
 
         return new Rectangle.Double(minX, minY, maxX - minX, maxY - minY);
-    }
-
-    public Element toXML() {
-        final Element elem = new Element(DB_QUERY);
-        final Element missionsElem = new Element("selectedMissions");
-        elem.addContent(missionsElem);
-        for (String m : selectedMissions) {
-            missionsElem.addContent(new Element(m));
-        }
-        final Element productTypesElem = new Element("selectedProductTypes");
-        elem.addContent(productTypesElem);
-        for (String p : selectedProductTypes) {
-            productTypesElem.addContent(new Element(p));
-        }
-        if (selectionRectangle != null) {
-            final Element rectElem = new Element("selectionRectangle");
-            elem.addContent(rectElem);
-            rectElem.setAttribute("x", String.valueOf(selectionRectangle.getX()));
-            rectElem.setAttribute("y", String.valueOf(selectionRectangle.getY()));
-            rectElem.setAttribute("w", String.valueOf(selectionRectangle.getWidth()));
-            rectElem.setAttribute("h", String.valueOf(selectionRectangle.getHeight()));
-        }
-
-        elem.setAttribute("selectedAcquisitionMode", selectedAcquisitionMode);
-        elem.setAttribute("selectedPass", selectedPass);
-        if (baseDir != null)
-            elem.setAttribute("baseDir", baseDir.getAbsolutePath());
-        if (startDate != null) {
-            final Element startDateElem = new Element("startDate");
-            elem.addContent(startDateElem);
-            startDateElem.setAttribute("year", String.valueOf(startDate.get(Calendar.YEAR)));
-            startDateElem.setAttribute("month", String.valueOf(startDate.get(Calendar.MONTH)));
-            startDateElem.setAttribute("day", String.valueOf(startDate.get(Calendar.DAY_OF_MONTH)));
-        }
-        if (endDate != null) {
-            final Element endDateElem = new Element("endDate");
-            elem.addContent(endDateElem);
-            endDateElem.setAttribute("year", String.valueOf(endDate.get(Calendar.YEAR)));
-            endDateElem.setAttribute("month", String.valueOf(endDate.get(Calendar.MONTH)));
-            endDateElem.setAttribute("day", String.valueOf(endDate.get(Calendar.DAY_OF_MONTH)));
-        }
-        elem.setAttribute("freeQuery", freeQuery);
-        return elem;
-    }
-
-    public void fromXML(final Element dbQueryElem) {
-
-        final Element missionsElem = dbQueryElem.getChild("selectedMissions");
-        if (missionsElem != null) {
-            selectedMissions = XMLSupport.getStringList(missionsElem);
-        }
-        final Element productTypesElem = dbQueryElem.getChild("selectedProductTypes");
-        if (productTypesElem != null) {
-            selectedProductTypes = XMLSupport.getStringList(productTypesElem);
-        }
-        final Element rectElem = dbQueryElem.getChild("selectionRectangle");
-        if (rectElem != null) {
-            final Attribute x = rectElem.getAttribute("x");
-            final Attribute y = rectElem.getAttribute("y");
-            final Attribute w = rectElem.getAttribute("w");
-            final Attribute h = rectElem.getAttribute("h");
-            if (x != null && y != null && w != null && h != null) {
-                selectionRectangle = new Rectangle.Double(
-                        Double.parseDouble(x.getValue()),
-                        Double.parseDouble(y.getValue()),
-                        Double.parseDouble(w.getValue()),
-                        Double.parseDouble(h.getValue()));
-            }
-        }
-
-        selectedAcquisitionMode = XMLSupport.getAttrib(dbQueryElem, "selectedAcquisitionMode");
-        selectedPass = XMLSupport.getAttrib(dbQueryElem, "selectedPass");
-        final String baseDirStr = XMLSupport.getAttrib(dbQueryElem, "baseDir");
-        if (!baseDirStr.isEmpty())
-            baseDir = new File(baseDirStr);
-        final Element startDateElem = dbQueryElem.getChild("startDate");
-        if (startDateElem != null) {
-            startDate = getCalendarDate(startDateElem);
-        }
-        final Element endDateElem = dbQueryElem.getChild("endDate");
-        if (endDateElem != null) {
-            endDate = getCalendarDate(endDateElem);
-        }
-        freeQuery = XMLSupport.getAttrib(dbQueryElem, "freeQuery");
     }
 
     private static GregorianCalendar getCalendarDate(final Element elem) {

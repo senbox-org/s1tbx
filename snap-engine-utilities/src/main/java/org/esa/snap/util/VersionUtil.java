@@ -23,11 +23,6 @@ import org.esa.beam.util.VersionChecker;
 public class VersionUtil {
 
     public static String getContextID() {
-        // todo RuntimeActivator can not be used any more. Find a replacement.
-//        if (RuntimeActivator.getInstance() != null
-//                && RuntimeActivator.getInstance().getModuleContext() != null) {
-//            return RuntimeActivator.getInstance().getModuleContext().getRuntimeConfig().getContextId();
-//        }
         return System.getProperty("ceres.context", "nest");
     }
 

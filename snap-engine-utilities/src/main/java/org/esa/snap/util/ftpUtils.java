@@ -213,11 +213,12 @@ public final class ftpUtils {
         if (!useCachedListing) {
             try {
                 final FTPFile[] remoteFileList = ftp.getRemoteFileList(remotePath);
+                if(remoteFileList != null) {
+                    writeRemoteFileList(remoteFileList, server, remotePath, listingFile);
 
-                writeRemoteFileList(remoteFileList, server, remotePath, listingFile);
-
-                for (FTPFile ftpFile : remoteFileList) {
-                    fileSizeMap.put(ftpFile.getName(), ftpFile.getSize());
+                    for (FTPFile ftpFile : remoteFileList) {
+                        fileSizeMap.put(ftpFile.getName(), ftpFile.getSize());
+                    }
                 }
             } catch (Exception e) {
                 System.out.println("Unable to get remote file list " + e.getMessage());

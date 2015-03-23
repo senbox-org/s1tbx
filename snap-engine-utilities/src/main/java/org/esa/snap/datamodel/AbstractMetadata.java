@@ -74,7 +74,8 @@ public final class AbstractMetadata {
     public static final String VECTOR_SOURCE = "VECTOR_SOURCE";
 
     // SPH
-    private static final String NUM_SLICES = "NUM_SLICES";
+    public static final String slice_num = "slice_num";
+    public static final String data_take_id = "data_take_id";
     public static final String first_line_time = "first_line_time";
     public static final String last_line_time = "last_line_time";
     public static final String first_near_lat = "first_near_lat";
@@ -227,7 +228,8 @@ public final class AbstractMetadata {
         addAbstractedAttribute(absRoot, incidence_far, ProductData.TYPE_FLOAT64, "deg", "");
 
         // SPH
-        addAbstractedAttribute(absRoot, NUM_SLICES, ProductData.TYPE_INT32, "", "Number of slices");
+        addAbstractedAttribute(absRoot, slice_num, ProductData.TYPE_INT32, "", "Slice number");
+        addAbstractedAttribute(absRoot, data_take_id, ProductData.TYPE_INT32, "", "Data take identifier");
         addAbstractedAttribute(absRoot, first_line_time, ProductData.TYPE_UTC, "utc", "First zero doppler azimuth time");
         addAbstractedAttribute(absRoot, last_line_time, ProductData.TYPE_UTC, "utc", "Last zero doppler azimuth time");
         addAbstractedAttribute(absRoot, first_near_lat, ProductData.TYPE_FLOAT64, "deg", "");
@@ -350,6 +352,8 @@ public final class AbstractMetadata {
 
     public static void addBandToBandMap(final MetadataElement bandAbsRoot, final String name) {
         String bandNames = bandAbsRoot.getAttributeString(band_names);
+        if(bandNames.equals(NO_METADATA_STRING))
+            bandNames = "";
         if (!bandNames.isEmpty())
             bandNames += ' ';
         bandNames += name;
@@ -649,7 +653,9 @@ public final class AbstractMetadata {
         setAttribute(abstractedMetadata, first_line_time, product.getStartTime());
         setAttribute(abstractedMetadata, last_line_time, product.getEndTime());
 
-        setAttribute(abstractedMetadata, MISSION, product.getProductReader().getReaderPlugIn().getFormatNames()[0]);
+        if(product.getProductReader() != null) {
+            setAttribute(abstractedMetadata, MISSION, product.getProductReader().getReaderPlugIn().getFormatNames()[0]);
+        }
     }
 
     private static void migrateToCurrentVersion(final MetadataElement abstractedMetadata) {

@@ -49,9 +49,13 @@ public class InputProductValidator {
                 (contains(bandNames, "EW1") && contains(bandNames, "EW2"));
     }
 
-    public void checkIfSentinel1Product() throws OperatorException {
+    public boolean isSentinel1Product() throws OperatorException {
         final String mission = absRoot.getAttributeString(AbstractMetadata.MISSION);
-        if (!mission.startsWith("SENTINEL-1")) {
+        return mission.startsWith("SENTINEL-1");
+    }
+
+    public void checkIfSentinel1Product() throws OperatorException {
+        if (!isSentinel1Product()) {
             throw new OperatorException("Input should be a Sentinel-1 product.");
         }
     }
@@ -74,23 +78,57 @@ public class InputProductValidator {
         throw new OperatorException(acquisitionMode + " is not a valid acquisition mode from: " + StringUtils.arrayToString(validModes, ","));
     }
 
+    public boolean isTOPSARProduct() {
+        final String[] bandNames = product.getBandNames();
+        return (contains(bandNames, "IW1") || contains(bandNames, "IW2") || contains(bandNames, "IW3") ||
+                contains(bandNames, "EW1") || contains(bandNames, "EW2") || contains(bandNames, "EW3") ||
+                contains(bandNames, "EW4") || contains(bandNames, "EW5"));
+    }
+
     public void checkIfTOPSARBurstProduct(final boolean shouldbe) throws OperatorException {
-        final boolean isMultiSwath = isMultiSwath();
-        if (shouldbe && !isMultiSwath) {
+        final boolean isTOPSARProduct = isTOPSARProduct();
+        if (shouldbe && !isTOPSARProduct) {
             throw new OperatorException("Source product should be an SLC burst product");
-        } else if (!shouldbe && isMultiSwath) {
+        } else if (!shouldbe && isTOPSARProduct) {
             throw new OperatorException("Source product should first be deburst");
         }
-        if(!shouldbe) {
-            for (Band band : product.getBands()) {
-                final String name = band.getName();
-                if (name.startsWith("i_IW1") || name.startsWith("i_EW1") ||
-                        name.startsWith("i_IW2") || name.startsWith("i_EW2") ||
-                        name.startsWith("i_IW3") || name.startsWith("i_EW3")) {
-                    throw new OperatorException("Source product should first be deburst");
-                }
+    }
+
+    public void checkIfMultiSwathTOPSARProduct() throws OperatorException {
+        if (!isMultiSwath()) {
+            throw new OperatorException("Source product should be multi sub-swath SLC burst product");
+        }
+    }
+
+    public void checkIfDeburstedProduct() throws OperatorException {
+        if (!isDebursted()) {
+            throw new OperatorException("Source product should be a debursted product");
+        }
+    }
+
+    public boolean isDebursted() {
+        if(!isSentinel1Product())
+            return true;
+
+        boolean isDebursted = true;
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
+        MetadataElement annotation = origProdRoot.getElement("annotation");
+        if (annotation == null) {
+            return true;
+        }
+
+        final MetadataElement[] elems = annotation.getElements();
+        for (MetadataElement elem : elems) {
+            final MetadataElement product = elem.getElement("product");
+            final MetadataElement swathTiming = product.getElement("swathTiming");
+            final MetadataElement burstList = swathTiming.getElement("burstList");
+            final int count = Integer.parseInt(burstList.getAttributeString("count"));
+            if (count != 0) {
+                isDebursted = false;
+                break;
             }
         }
+        return isDebursted;
     }
 
     public void checkIfSentinel1DeburstProduct() throws OperatorException {

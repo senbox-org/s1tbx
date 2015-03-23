@@ -54,6 +54,12 @@ public final class Maths {
         return ((-0.5 * y0 + 1.5 * y1 - 1.5 * y2 + 0.5 * y3) * mu * (mu * mu) + (y0 - 2.5 * y1 + 2 * y2 - 0.5 * y3) * (mu * mu) + (-0.5 * y0 + 0.5 * y2) * mu + y1);
     }
 
+    public static double interpolationCubic(
+            final double y0, final double y1, final double y2, final double y3, final double mu, final double mu2, final double mu3) {
+
+        return ((-0.5 * y0 + 1.5 * y1 - 1.5 * y2 + 0.5 * y3) * mu3 + (y0 - 2.5 * y1 + 2 * y2 - 0.5 * y3) * mu2 + (-0.5 * y0 + 0.5 * y2) * mu + y1);
+    }
+
     /**
      * Perform cubic2 interpolation.
      *
@@ -135,10 +141,12 @@ public final class Maths {
         //if (v.length != 4 || v[0].length != 4 || v[1].length != 4 || v[2].length != 4 || v[3].length != 4) {
         //    throw new OperatorException("Incorrect sample array length");
         //}
-        return interpolationCubic(interpolationCubic(v[0][0], v[0][1], v[0][2], v[0][3], muX),
-                interpolationCubic(v[1][0], v[1][1], v[1][2], v[1][3], muX),
-                interpolationCubic(v[2][0], v[2][1], v[2][2], v[2][3], muX),
-                interpolationCubic(v[3][0], v[3][1], v[3][2], v[3][3], muX),
+        final double muX2 = muX*muX;
+        final double muX3 = muX*muX2;
+        return interpolationCubic(interpolationCubic(v[0][0], v[0][1], v[0][2], v[0][3], muX, muX2, muX3),
+                interpolationCubic(v[1][0], v[1][1], v[1][2], v[1][3], muX, muX2, muX3),
+                interpolationCubic(v[2][0], v[2][1], v[2][2], v[2][3], muX, muX2, muX3),
+                interpolationCubic(v[3][0], v[3][1], v[3][2], v[3][3], muX, muX2, muX3),
                 muY);
     }
 
