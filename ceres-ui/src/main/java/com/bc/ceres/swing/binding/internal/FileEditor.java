@@ -28,8 +28,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 
 /**
@@ -58,17 +56,22 @@ public class FileEditor extends PropertyEditor {
         final Dimension size = new Dimension(26, 16);
         etcButton.setPreferredSize(size);
         etcButton.setMinimumSize(size);
-        etcButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final JFileChooser fileChooser = new JFileChooser();
-                int i = fileChooser.showDialog(editorPanel, "Select");
-                if (i == JFileChooser.APPROVE_OPTION && fileChooser.getSelectedFile() != null) {
-                    binding.setPropertyValue(fileChooser.getSelectedFile());
-                }
+        etcButton.addActionListener(e -> {
+            final JFileChooser fileChooser = new JFileChooser();
+            File currentFile = (File) binding.getPropertyValue();
+            if (currentFile != null) {
+                fileChooser.setSelectedFile(currentFile);
+            } else {
+                File selectedFile = (File) propertyDescriptor.getDefaultValue();
+                fileChooser.setSelectedFile(selectedFile);
+            }
+            int i = fileChooser.showDialog(editorPanel, "Select");
+            if (i == JFileChooser.APPROVE_OPTION && fileChooser.getSelectedFile() != null) {
+                binding.setPropertyValue(fileChooser.getSelectedFile());
             }
         });
         editorPanel.add(etcButton, BorderLayout.EAST);
         return editorPanel;
     }
+
 }
