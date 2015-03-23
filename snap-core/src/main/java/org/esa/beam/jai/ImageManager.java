@@ -451,7 +451,7 @@ public class ImageManager {
      * be broken (repeatedly) as the API evolves.</p>
      */
     public static RasterDataNode getUncertaintyBand(RasterDataNode valueBand) {
-        final String[] roleNames = {"uncertainty", "error", "variance", "confidence"};
+        final String[] roleNames = {"uncertainty", "error", "variance", "standard_deviation", "confidence"};
         RasterDataNode uncertaintyBand = null;
         for (String roleName : roleNames) {
             uncertaintyBand = valueBand.getAncillaryBand(roleName);
