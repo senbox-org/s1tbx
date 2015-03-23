@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>org.jlinda</groupId>
-            <artifactId>jlinda-nest</artifactId>
+            <artifactId>jlinda-nest-ui</artifactId>
             <version>${jlinda.version}</version>
         </dependency>
         <dependency>

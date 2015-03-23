@@ -211,7 +211,7 @@ public class MosaicOp extends Operator {
             wkt = srcCRS.toString();
         }
 
-        final CoordinateReferenceSystem targetCRS = MapProjectionHandler.getCRS(wkt);
+        final CoordinateReferenceSystem targetCRS = CRSGeoCodingHandler.getCRS(wkt);
         final double pixelSpacingInDegree = pixelSize / Constants.semiMajorAxis * Constants.RTOD;
 
         double pixelSizeX = pixelSize;

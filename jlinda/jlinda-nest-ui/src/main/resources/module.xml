@@ -1,0 +1,351 @@
+<module>
+
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>jlinda-nest-ui</symbolicName>
+    <version>0.8.1</version>
+    <name>NEST InSAR Operators UI</name>
+    <description>NEST InSAR operators</description>
+
+    <vendor>PPO.labs</vendor>
+    <copyright>(C) 2012 by PPO.labs</copyright>
+    <url>https://github.com/ppolabs/jlinda</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <funding>European Space Agency</funding>
+
+    <dependency>
+        <module>jlinda-core</module>
+    </dependency>
+    <dependency>
+        <module>jlinda-nest</module>
+    </dependency>
+    <dependency>
+        <module>snap-core</module>
+    </dependency>
+    <dependency>
+        <module>snap-ui</module>
+    </dependency>
+    <dependency>
+        <module>snap-visat-rcp</module>
+    </dependency>
+    <dependency>
+        <module>snap-engine-utilities</module>
+    </dependency>
+    <dependency>
+        <module>snap-graph-builder</module>
+    </dependency>
+
+    <extension point="snap-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.jlinda.nest.dat.coregistration.CreateInSARStackOpUI</id>
+            <class>org.jlinda.nest.dat.coregistration.CreateInSARStackOpUI</class>
+            <operatorName>CreateInSARStack</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.jlinda.nest.dat.coregistration.CoarseFineCoregOpUI</id>
+            <class>org.jlinda.nest.dat.coregistration.CoarseFineCoregOpUI</class>
+            <operatorName>CoarseFine-Coregistration2</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.jlinda.nest.dat.coregistration.ResampleOpUI</id>
+            <class>org.jlinda.nest.dat.coregistration.ResampleOpUI</class>
+            <operatorName>Resample2</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.jlinda.nest.gpf.CrossResamplingOpUI</id>
+            <class>org.jlinda.nest.gpf.CrossResamplingOpUI</class>
+            <operatorName>CrossResampling</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.jlinda.nest.gpf.SimulateAmplitudeOpUI</id>
+            <class>org.jlinda.nest.gpf.SimulateAmplitudeOpUI</class>
+            <operatorName>SimulateAmplitude</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.jlinda.nest.gpf.SubtRefDemOpUI</id>
+            <class>org.jlinda.nest.gpf.SubtRefDemOpUI</class>
+            <operatorName>SubtRefDem</operatorName>
+        </OperatorUI>
+    </extension>
+    
+    <extension point="snap-ui:actions">
+
+        <!--/// COREGISTRATION ///-->
+
+        <action>
+            <id>CoregistrationGroup</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Coregistration</text>
+            <parent>SAR Processing</parent>
+            <placeAfter>SpeckleFiltering</placeAfter>
+        </action>
+
+        <action>
+            <id>InSARCoregistrationGraph</id>
+            <helpId>InSARCoregistration</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>CoregistrationGroup</parent>
+            <placeFirst>true</placeFirst>
+            <text>InSAR Optimized Coregistration</text>
+            <shortDescr>Perform InSAR Optimized Automatic Coregistration</shortDescr>
+            <dialogTitle>InSAR Coregistration</dialogTitle>
+            <graphFile>InSARCoregistrationGraph.xml</graphFile>
+        </action>
+
+        <action>
+            <id>CrossResamplingOp</id>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Cross InSAR resampling</text>
+            <operatorName>CrossResampling</operatorName>
+            <dialogTitle>Cross InSAR resampling</dialogTitle>
+            <shortDescr>Perform resampling of SAR geometries for Cross-InSAR</shortDescr>
+            <parent>CoregistrationGroup</parent>
+            <placeAfter>CoregistrationGraph</placeAfter>
+            <helpId>CrossResamplingOp</helpId>
+        </action>
+
+        <!--/// PRODUCTS ///-->
+
+        <action>
+            <id>insar</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Interferometric</text>
+            <parent>SAR Processing</parent>
+            <placeAfter>CoregistrationGroup</placeAfter>
+            <separatorBefore>true</separatorBefore>
+            <separatorAfter>true</separatorAfter>
+        </action>
+
+        <action>
+            <id>products</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Products</text>
+            <placeAfter>CoregistrationGroup</placeAfter>
+            <parent>insar</parent>
+        </action>
+
+        <action>
+            <id>CoherenceOp</id>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Coherence Estimation</text>
+            <operatorName>Coherence</operatorName>
+            <dialogTitle>Coherence</dialogTitle>
+            <targetProductNameSuffix>_coh</targetProductNameSuffix>
+            <shortDescr>Estimate coherence of stack of images</shortDescr>
+            <parent>products</parent>
+            <placeAfter>InterferogramOp</placeAfter>
+            <helpId>CoherenceOp</helpId>
+        </action>
+
+        <action>
+            <id>InterferogramOp</id>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Interferogram Formation</text>
+            <operatorName>Interferogram</operatorName>
+            <dialogTitle>Interferogram</dialogTitle>
+            <targetProductNameSuffix>_ifg</targetProductNameSuffix>
+            <shortDescr>Interferogram Formation and Flat Earth Phase Removal</shortDescr>
+            <parent>products</parent>
+            <placeAfter>CoherenceOp</placeAfter>
+            <helpId>InterferogramOp</helpId>
+        </action>
+
+        <action>
+            <id>SubtRefDemOp</id>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Topographic Phase Removal</text>
+            <operatorName>TopoPhaseRemoval</operatorName>
+            <dialogTitle>Topographic Phase Removal</dialogTitle>
+            <targetProductNameSuffix>_dinsar</targetProductNameSuffix>
+            <shortDescr>Compute and subtract topographic phase</shortDescr>
+            <parent>products</parent>
+            <placeAfter>InterferogramOp</placeAfter>
+            <helpId>SubtRefDemOp</helpId>
+        </action>
+
+        <action>
+            <id>DInSAROp</id>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Three-pass Differential InSAR</text>
+            <operatorName>Three-passDInSAR</operatorName>
+            <dialogTitle>Three-Pass differential InSAR</dialogTitle>
+            <targetProductNameSuffix>_dinsar</targetProductNameSuffix>
+            <shortDescr>Three-Pass differential InSAR</shortDescr>
+            <parent>products</parent>
+            <placeAfter>SubtRefDemOp</placeAfter>
+            <helpId>DInSAROp</helpId>
+        </action>
+
+        <action>
+            <id>Slant2HeightOp</id>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Phase to Height</text>
+            <operatorName>Phase2Height</operatorName>
+            <dialogTitle>Phase to height conversion</dialogTitle>
+            <targetProductNameSuffix>_hgt</targetProductNameSuffix>
+            <shortDescr>Phase to height conversion</shortDescr>
+            <parent>products</parent>
+            <placeAfter>DInSAROp</placeAfter>
+            <helpId>Slant2HeightOp</helpId>
+        </action>
+
+        <!--/// Filtering ///-->
+
+        <action>
+            <id>insar_filters</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Filtering</text>
+            <placeAfter>products</placeAfter>
+            <parent>insar</parent>
+        </action>
+
+        <!--action>
+            <id>SimulateAmplitudeOp</id>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Simulate Amplitude</text>
+            <operatorName>SimulateAmplitude</operatorName>
+            <dialogTitle>Simulate Amplitude</dialogTitle>
+            <targetProductNameSuffix>_sim</targetProductNameSuffix>
+            <shortDescr>Simulate Amplitude</shortDescr>
+            <parent>insar_tools</parent>
+            <helpId>CoherenceOp</helpId>
+        </action-->
+
+        <!--/// FILTERING ///-->
+
+        <action>
+            <id>spectral_filtering</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Spectral Filtering</text>
+            <placeFirst>true</placeFirst>
+            <parent>insar_filters</parent>
+        </action>
+
+        <action>
+            <id>RangeFilterOp</id>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Range Filtering</text>
+            <operatorName>RangeFilter</operatorName>
+            <dialogTitle>Range Filtering</dialogTitle>
+            <shortDescr>Filter stack of SAR images in RANGE direction</shortDescr>
+            <parent>spectral_filtering</parent>
+            <helpId>RangeFilterOp</helpId>
+        </action>
+
+        <action>
+            <id>AzimuthFilterOp</id>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Azimuth Filtering</text>
+            <operatorName>AzimuthFilter</operatorName>
+            <dialogTitle>Azimuth Filtering</dialogTitle>
+            <shortDescr>Filter stack of SAR images in AZIMUTH direction</shortDescr>
+            <parent>spectral_filtering</parent>
+            <placeAfter>RangeFilterOp</placeAfter>
+            <helpId>AzimuthFilterOp</helpId>
+        </action>
+
+        <!--action>
+            <id>PhaseFilterOp</id>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Phase Filtering</text>
+            <operatorName>PhaseFilter</operatorName>
+            <dialogTitle>Phase Filtering</dialogTitle>
+            <targetProductNameSuffix>_flt</targetProductNameSuffix>
+            <shortDescr>Phase filter stack of interferograms</shortDescr>
+            <parent>insar_filters</parent>
+            <placeAfter>spectral_filtering</placeAfter>
+            <helpId>PhaseFilterOp</helpId>
+        </action-->
+
+        <!--/// UNWRAPPING ///-->
+
+        <action>
+            <id>unwrapping</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Unwrapping</text>
+            <placeAfter>insar_tools</placeAfter>
+            <separatorAfter>true</separatorAfter>
+            <parent>insar</parent>
+        </action>
+
+        <!--/// integrated unwrapping ///-->
+
+        <!--action>
+            <id>UnwrapOp</id>
+            <helpId>Unwrap</helpId>
+            <class>org.jlinda.nest.dat.UnwrapAction</class>
+            <text>Unwrap tiles</text>
+            <dialogTitle>Unwrap input per tile</dialogTitle>
+            <shortDescr>Perform independent tile unwrapping of input interferogram</shortDescr>
+            <parent>unwrapping</parent>
+        </action>
+
+        <action>
+            <id>StitchOp</id>
+            <helpId>Unwrap</helpId>
+            <class>org.jlinda.nest.dat.StitchAction</class>
+            <text>Stitch unwrapped tiles</text>
+            <dialogTitle>Stitch unwrapped tiles</dialogTitle>
+            <shortDescr>Perform stitching of independently unwrapped interferogram tiles</shortDescr>
+            <parent>unwrapping</parent>
+            <placeAfter>UnwrapOp</placeAfter>
+            <separatorAfter>true</separatorAfter>
+        </action-->
+        
+        <!--/// snaphu unwrapping ///-->
+
+        <action>
+            <id>SnaphuExportOp</id>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <helpId>Unwrap</helpId>
+            <text>Snaphu Export</text>
+            <graphFile>SnaphuExportGraph.xml</graphFile>
+            <dialogTitle>Export data for SNAPHU unwrapping</dialogTitle>
+            <targetProductNameSuffix>_snaphu</targetProductNameSuffix>
+            <shortDescr>Export data and construct conf file for SNAPHU unwrapping</shortDescr>
+            <parent>unwrapping</parent>
+            <placeAfter>StitchOp</placeAfter>
+        </action>
+
+        <action>
+            <id>SnaphuImportOp</id>
+            <helpId>Unwrap</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <text>Snaphu Import</text>
+            <graphFile>SnaphuImportGraph.xml</graphFile>
+            <shortDescr>Import result of Snaphu to InSAR product</shortDescr>
+            <parent>unwrapping</parent>
+            <placeAfter>SnaphuExportOp</placeAfter>
+        </action>
+
+        <action>
+            <id>InSARMaster</id>
+            <helpId>InSARMaster</helpId>
+            <class>org.jlinda.nest.dat.InSARMasterAction</class>
+            <parent>insar</parent>
+            <text>InSAR Stack Overview</text>
+            <placeFirst>true</placeFirst>
+        </action>
+
+    </extension>
+
+    <extension point="snap-ui:helpSets">
+        <helpSet>
+            <parent>snap-help</parent>
+            <id>jLindaHelp</id>
+            <path>doc/help/jlinda.hs</path>
+        </helpSet>
+    </extension>
+
+</module>

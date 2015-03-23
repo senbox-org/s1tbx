@@ -31,11 +31,11 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.dialogs.AutoCloseOptionPane;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.*;
+import org.esa.nest.gpf.coregistration.GCPManager;
+import org.esa.nest.gpf.coregistration.WarpOp;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.Unit;
@@ -307,9 +307,9 @@ public class SARSimTerrainCorrectionOp extends Operator {
         if (!orthoDataProduced && processingStarted) {
             final String errMsg = getId() + " error: no valid output was produced. Please verify the DEM";
             System.out.println(errMsg);
-            if (VisatApp.getApp() != null) {
-                VisatApp.getApp().setStatusBarMessage(errMsg);
-            }
+            //if (VisatApp.getApp() != null) {
+            //    VisatApp.getApp().setStatusBarMessage(errMsg);
+            //}
         }
     }
 
@@ -761,9 +761,9 @@ public class SARSimTerrainCorrectionOp extends Operator {
         }
         if (!msg.isEmpty()) {
             System.out.println(msg);
-            if (VisatApp.getApp() != null) {
-                AutoCloseOptionPane.showWarningDialog("Some bands did not coregister", msg);
-            }
+            //if (VisatApp.getApp() != null) {
+            //    AutoCloseOptionPane.showWarningDialog("Some bands did not coregister", msg);
+            //}
         }
     }
 

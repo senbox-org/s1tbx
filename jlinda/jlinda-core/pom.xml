@@ -9,7 +9,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>jLinda Core Libs</name>
-    <groupId>org.jlinda</groupId>
     <artifactId>jlinda-core</artifactId>
     <version>0.8.1</version>
 
@@ -21,27 +20,12 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-gui-utilities</artifactId>
-            <version>${snap.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
             <artifactId>snap-core</artifactId>
             <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-gpf</artifactId>
-            <version>${snap.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-visat-rcp</artifactId>
-            <version>${snap.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>ceres-ui</artifactId>
             <version>${snap.version}</version>
         </dependency>
         <dependency>

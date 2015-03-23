@@ -12,3 +12,6 @@ org.esa.nest.gpf.oceantools.OilSpillDetectionOp$Spi
 org.esa.nest.gpf.oceantools.OilSpillClusteringOp$Spi
 org.esa.nest.gpf.oceantools.WindFieldEstimationOp$Spi
 org.esa.nest.gpf.ChangeDetectionOp$Spi
+org.esa.nest.gpf.FindImagePairOp$Spi
+org.esa.nest.gpf.SubGraphOp$Spi
+

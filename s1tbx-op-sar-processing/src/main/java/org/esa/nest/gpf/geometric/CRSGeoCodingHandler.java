@@ -19,6 +19,7 @@ import org.esa.beam.framework.datamodel.CrsGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.snap.gpf.OperatorUtils;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -38,7 +39,7 @@ public class CRSGeoCodingHandler {
     public CRSGeoCodingHandler(final Product sourceProduct, final String mapProjection,
                                final double pixelSpacingInDegree, final double pixelSpacingInMeter) throws Exception {
 
-        targetCRS = MapProjectionHandler.getCRS(mapProjection);
+        targetCRS = getCRS(mapProjection);
 
         srcImageBoundary = OperatorUtils.computeImageGeoBoundary(sourceProduct);
 
@@ -69,6 +70,17 @@ public class CRSGeoCodingHandler {
                 targetEnvelope.getMinimum(0),
                 targetEnvelope.getMaximum(1),
                 pixelSizeX, pixelSizeY);
+    }
+
+    public static CoordinateReferenceSystem getCRS(String mapProjection) throws Exception {
+        try {
+            if (mapProjection == null || mapProjection.isEmpty() || mapProjection.equals("WGS84(DD)")) {
+                return DefaultGeographicCRS.WGS84;
+            }
+            return CRS.parseWKT(mapProjection);
+        } catch (Exception e) {
+            return CRS.decode(mapProjection, true);
+        }
     }
 
     public int getTargetWidth() {

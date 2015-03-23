@@ -21,11 +21,5 @@
     <dependency>
       <module>snap-engine-utilities</module>
     </dependency>
-    <dependency>
-      <module>snap-visat-rcp</module>
-    </dependency>
-    <dependency>
-      <module>ceres-ui</module>
-    </dependency>
 
 </module>

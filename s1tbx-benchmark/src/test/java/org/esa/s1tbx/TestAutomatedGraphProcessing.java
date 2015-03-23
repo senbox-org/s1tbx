@@ -20,7 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.snap.dat.graphbuilder.GPFProcessor;
+import org.esa.snap.gpf.GPFProcessor;
 import org.esa.snap.util.MemUtils;
 import org.esa.snap.gpf.ProcessTimeMonitor;
 import org.esa.snap.util.TestUtils;

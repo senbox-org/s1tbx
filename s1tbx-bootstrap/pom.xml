@@ -36,7 +36,7 @@
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-binio</artifactId>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-dem</artifactId>
         </dependency>
@@ -47,7 +47,7 @@
         <dependency>
             <groupId>org.jlinda</groupId>
             <artifactId>jlinda-core</artifactId>
-        </dependency>
+        </dependency-->
 
 
         <dependency>

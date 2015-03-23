@@ -40,19 +40,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-visat-rcp</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-graph-builder</artifactId>
-        </dependency>
-		<dependency>
-            <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-rcp</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
@@ -60,7 +48,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-op-coregistration</artifactId>
+            <artifactId>s1tbx-op-insar</artifactId>
             <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
@@ -75,11 +63,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>com.bc.maven.plugins</groupId>
-                <artifactId>maven-javahelp-plugin</artifactId>
-            </plugin>
-            
             <!--plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>

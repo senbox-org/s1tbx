@@ -115,10 +115,12 @@ public class LaunchPolsarProAction extends ExecCommand {
             progFiles = new File("C:\\TCL\\bin");
         if (progFiles.exists()) {
             final File[] files = progFiles.listFiles();
-            for (File file : files) {
-                final String name = file.getName().toLowerCase();
-                if (name.equals("wish.exe")) {
-                    return file;
+            if(files != null) {
+                for (File file : files) {
+                    final String name = file.getName().toLowerCase();
+                    if (name.equals("wish.exe")) {
+                        return file;
+                    }
                 }
             }
         }
@@ -131,11 +133,15 @@ public class LaunchPolsarProAction extends ExecCommand {
             progFiles = new File("C:\\Program Files");
         if (progFiles.exists()) {
             final File[] progs = progFiles.listFiles(new PolsarFileFilter());
-            for (File prog : progs) {
-                final File[] fileList = prog.listFiles(new PolsarFileFilter());
-                for (File file : fileList) {
-                    if (file.getName().toLowerCase().endsWith("tcl")) {
-                        return file;
+            if(progs != null) {
+                for (File prog : progs) {
+                    final File[] fileList = prog.listFiles(new PolsarFileFilter());
+                    if(fileList != null) {
+                        for (File file : fileList) {
+                            if (file.getName().toLowerCase().endsWith("tcl")) {
+                                return file;
+                            }
+                        }
                     }
                 }
             }

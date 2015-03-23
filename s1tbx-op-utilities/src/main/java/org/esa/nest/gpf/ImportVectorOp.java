@@ -33,7 +33,6 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.FeatureUtils;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.visat.toolviews.layermanager.layersrc.shapefile.SLDUtils;
 import org.esa.snap.gpf.OperatorUtils;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.FeatureCollection;

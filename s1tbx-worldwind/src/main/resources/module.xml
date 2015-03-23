@@ -17,7 +17,7 @@
         <module>snap-visat-rcp</module>
     </dependency>
     <dependency>
-        <module>snap-ui</module>
+        <module>snap-core</module>
     </dependency>
     <dependency>
         <module>snap-engine-utilities</module>

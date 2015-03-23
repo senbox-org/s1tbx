@@ -31,10 +31,6 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-graph-builder</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-io</artifactId>
         </dependency>
@@ -50,12 +46,7 @@
     </dependencies>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>com.bc.maven.plugins</groupId>
-                <artifactId>maven-javahelp-plugin</artifactId>
-            </plugin>
-            
+        <plugins>            
             <!--plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>

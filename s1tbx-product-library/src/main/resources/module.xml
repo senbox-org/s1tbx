@@ -26,7 +26,7 @@
         <module>snap-gui-utilities</module>
     </dependency>
     <dependency>
-        <module>jlinda-nest</module>
+        <module>jlinda-nest-ui</module>
     </dependency>
 
     <categories>Application,DAT</categories>

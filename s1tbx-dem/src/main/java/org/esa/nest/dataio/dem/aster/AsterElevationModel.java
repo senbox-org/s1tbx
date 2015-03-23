@@ -70,7 +70,8 @@ public final class AsterElevationModel extends BaseElevationModel {
 
         final File parentFolder = descriptor.getDemInstallDir();
         final File[] files = parentFolder.listFiles();
-
+        if(files == null)
+            return;
         try {
             for (File f : files) {
                 final String name = f.getName().toLowerCase();

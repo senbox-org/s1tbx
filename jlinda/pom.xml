@@ -42,6 +42,7 @@
     <modules>
         <module>jlinda-core</module>
         <module>jlinda-nest</module>
+        <module>jlinda-nest-ui</module>
     </modules>
 
     <repositories>

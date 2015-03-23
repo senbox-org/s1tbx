@@ -65,11 +65,13 @@ public class CeosHelper {
 
     public static File getCEOSFile(final File baseDir, final String[] prefixList) throws IOException {
         final File[] fileList = baseDir.listFiles();
-        for (File file : fileList) {
-            final String name = file.getName().toUpperCase();
-            for (String prefix : prefixList) {
-                if (name.startsWith(prefix) || name.endsWith('.' + prefix))
-                    return file;
+        if(fileList != null) {
+            for (File file : fileList) {
+                final String name = file.getName().toUpperCase();
+                for (String prefix : prefixList) {
+                    if (name.startsWith(prefix) || name.endsWith('.' + prefix))
+                        return file;
+                }
             }
         }
         return null;
