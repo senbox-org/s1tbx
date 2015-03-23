@@ -12,23 +12,9 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
     <funding>European Space Agency</funding>
 
-    <dependency>
-        <module>jlinda-core</module>
-    </dependency>
+
     <dependency>
         <module>jlinda-nest</module>
-    </dependency>
-    <dependency>
-        <module>snap-core</module>
-    </dependency>
-    <dependency>
-        <module>snap-ui</module>
-    </dependency>
-    <dependency>
-        <module>snap-visat-rcp</module>
-    </dependency>
-    <dependency>
-        <module>snap-engine-utilities</module>
     </dependency>
     <dependency>
         <module>snap-graph-builder</module>

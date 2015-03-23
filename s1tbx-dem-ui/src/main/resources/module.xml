@@ -17,16 +17,7 @@
         <module>s1tbx-dem</module>
     </dependency>
     <dependency>
-        <module>snap-engine-utilities</module>
-    </dependency>
-    <dependency>
         <module>snap-graph-builder</module>
-    </dependency>
-    <dependency>
-        <module>snap-ui</module>
-    </dependency>
-    <dependency>
-        <module>snap-visat-rcp</module>
     </dependency>
 
     <categories>Reader,DEM</categories>

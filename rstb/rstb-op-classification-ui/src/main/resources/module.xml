@@ -17,13 +17,10 @@
         <module>rstb-op-classification</module>
     </dependency>
     <dependency>
-        <module>snap-visat-rcp</module>
+        <module>snap-graph-builder</module>
     </dependency>
     <dependency>
         <module>s1tbx-rcp</module>
-    </dependency>
-    <dependency>
-        <module>snap-graph-builder</module>
     </dependency>
 
     <categories>processor</categories>

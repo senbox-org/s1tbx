@@ -14,16 +14,7 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>snap-core</module>
-    </dependency>
-    <dependency>
-        <module>snap-engine-utilities</module>
-    </dependency>
-    <dependency>
         <module>s1tbx-op-insar</module>
-    </dependency>
-    <dependency>
-        <module>jlinda-nest</module>
     </dependency>
 
     <categories>Processor</categories>

@@ -13,12 +13,6 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>snap-core</module>
-    </dependency>
-    <dependency>
-        <module>snap-gpf</module>
-    </dependency>
-    <dependency>
         <module>snap-engine-utilities</module>
     </dependency>
 

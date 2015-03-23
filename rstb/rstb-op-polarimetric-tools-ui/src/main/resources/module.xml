@@ -17,9 +17,6 @@
         <module>rstb-op-polarimetric-tools</module>
     </dependency>
     <dependency>
-        <module>snap-visat-rcp</module>
-    </dependency>
-    <dependency>
         <module>snap-graph-builder</module>
     </dependency>
     <dependency>
@@ -71,7 +68,7 @@
         <action>
             <id>launchPolsarPro</id>
             <parent>polarimetrictools</parent>
-            <class>org.esa.nest.dat.actions.LaunchPolsarProAction</class>
+            <class>org.csa.rstb.dat.actions.LaunchPolsarProAction</class>
             <text>Launch PolSARPro</text>
             <shortDescr>Start PolSARPro</shortDescr>
             <separatorBefore>true</separatorBefore>

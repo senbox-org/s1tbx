@@ -14,23 +14,12 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>snap-core</module>
-    </dependency>
-    <dependency>
-        <module>snap-gpf</module>
-    </dependency>
-    <dependency>
         <module>snap-engine-utilities</module>
     </dependency>
     <dependency>
         <module>s1tbx-rcp</module>
     </dependency>
-    <dependency>
-        <module>s1tbx-dem</module>
-    </dependency>
-    <dependency>
-        <module>s1tbx-io</module>
-    </dependency>
+
 
     <categories>Processor</categories>
 

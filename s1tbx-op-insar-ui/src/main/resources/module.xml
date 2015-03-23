@@ -16,15 +16,6 @@
         <module>s1tbx-op-insar</module>
     </dependency>
     <dependency>
-        <module>snap-graph-builder</module>
-    </dependency>
-    <dependency>
-        <module>s1tbx-rcp</module>
-    </dependency>
-    <dependency>
-        <module>jlinda-nest</module>
-    </dependency>
-    <dependency>
         <module>jlinda-nest-ui</module>
     </dependency>
 

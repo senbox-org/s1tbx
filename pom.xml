@@ -39,27 +39,27 @@
   
 	<modules>
 		<module>jlinda</module>
-		<!--module>rstb</module>
-		<module>s1tbx-benchmark</module-->
+		<module>rstb</module>
+		<!--module>s1tbx-benchmark</module-->
 		<module>s1tbx-bootstrap</module>
 		<module>s1tbx-config</module>
 		<module>s1tbx-dem</module>	
         <module>s1tbx-dem-ui</module>
 		<module>s1tbx-help</module>
 		<module>s1tbx-io</module>
-		<!--module>s1tbx-op-calibration</module>
-        <module>s1tbx-op-calibration-ui</module-->
-		<!--module>s1tbx-op-feature-extraction</module>
-        <module>s1tbx-op-feature-extraction-ui</module-->	
-        <!--module>s1tbx-op-insar</module-->
-        <!--module>s1tbx-op-insar-ui</module>
+		<module>s1tbx-op-calibration</module>
+        <module>s1tbx-op-calibration-ui</module>
+		<module>s1tbx-op-feature-extraction</module>
+        <module>s1tbx-op-feature-extraction-ui</module>
+        <module>s1tbx-op-insar</module>
+        <module>s1tbx-op-insar-ui</module>
 		<module>s1tbx-op-sar-processing</module>
-        <module>s1tbx-op-sar-processing-ui</module-->
-		<!--module>s1tbx-op-sentinel1</module-->
-        <!--module>s1tbx-op-sentinel1-ui</module-->
+        <module>s1tbx-op-sar-processing-ui</module>
+		<module>s1tbx-op-sentinel1</module>
+        <module>s1tbx-op-sentinel1-ui</module>
 		<module>s1tbx-op-utilities</module>
         <module>s1tbx-op-utilities-ui</module>
-		<!--module>s1tbx-product-library</module-->
+		<module>s1tbx-product-library</module>
 		<module>s1tbx-rcp</module>
 		<module>s1tbx-worldwind</module>
 		

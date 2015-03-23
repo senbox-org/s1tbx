@@ -13,22 +13,10 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>snap-core</module>
-    </dependency>
-    <dependency>
-        <module>snap-gpf</module>
-    </dependency>
-    <dependency>
         <module>s1tbx-op-calibration</module>
     </dependency>
     <dependency>
         <module>s1tbx-op-insar</module>
-    </dependency>
-    <dependency>
-        <module>s1tbx-dem</module>
-    </dependency>
-    <dependency>
-        <module>jlinda-core</module>
     </dependency>
 
     <categories>Processing</categories>
