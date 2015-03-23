@@ -52,7 +52,7 @@ public class ResourceInstaller {
      * @param targetDirPath  the target directory
      */
     public ResourceInstaller(Path sourceBasePath, String sourceRelPath, Path targetDirPath) {
-        this(new Path[]{sourceBasePath}, sourceBasePath.getFileSystem().getPath(sourceRelPath), targetDirPath);
+        this(new Path[]{sourceBasePath}, sourceBasePath.resolve(sourceRelPath), targetDirPath);
     }
 
     /**
