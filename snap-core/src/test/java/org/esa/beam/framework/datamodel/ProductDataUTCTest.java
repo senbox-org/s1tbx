@@ -15,8 +15,9 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,9 +25,12 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import static org.junit.Assert.*;
 
-public class ProductDataUTCTest extends TestCase {
 
+public class ProductDataUTCTest {
+
+    @Test
     public void testParse() throws ParseException {
         final ProductData.UTC utc = ProductData.UTC.parse("05-Jan-2000 00:00:06.000007");
         assertEquals(4, utc.getElemIntAt(0));
@@ -34,6 +38,7 @@ public class ProductDataUTCTest extends TestCase {
         assertEquals(7, utc.getElemIntAt(2));
     }
 
+    @Test
     public void testFormat() {
         final ProductData.UTC utc = new ProductData.UTC(4, 6, 7);
         assertEquals(4, utc.getElemIntAt(0));
@@ -45,6 +50,24 @@ public class ProductDataUTCTest extends TestCase {
         assertEquals("05-JAN-2000 00:00:06.000007", utc.format());
     }
 
+    @Test
+    public void testProductDataTimeZone() {
+        final ProductData.UTC data = ProductData.UTC.create(new Date(), 0);
+        assertEquals(TimeZone.getTimeZone("UTC"), data.getAsCalendar().getTimeZone());
+    }
+
+    @Test
+    public void testCreateDateFormatTimeZone() {
+        final DateFormat format = ProductData.UTC.createDateFormat();
+        assertEquals(TimeZone.getTimeZone("UTC"), format.getTimeZone());
+    }
+    @Test
+    public void testCreateDateFormatTimeZoneWithPattern() {
+        final DateFormat format = ProductData.UTC.createDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        assertEquals(TimeZone.getTimeZone("UTC"), format.getTimeZone());
+    }
+
+    @Test
     public void testMjdToUTCConversion() throws Exception {
         // these dates represent 3 consecutive scanline-times of a MERIS RR orbit
         ProductData.UTC utc1 = new ProductData.UTC(2923.999998208953);
@@ -65,6 +88,7 @@ public class ProductDataUTCTest extends TestCase {
 
     }
 
+    @Test
     public void testMjdAfter2000() throws Exception {
         final ProductData.UTC utc = ProductData.UTC.parse("02 Jul 2001 13:10:11", "dd MMM yyyy hh:mm:ss");
         final double mjd = utc.getMJD();
@@ -72,6 +96,7 @@ public class ProductDataUTCTest extends TestCase {
         assertEquals(utc1.getAsDate().getTime(), utc.getAsDate().getTime());
     }
 
+    @Test
     public void testMjdBefore2000() throws Exception {
         final ProductData.UTC utc = ProductData.UTC.parse("02 Jul 1999 13:10:11", "dd MMM yyyy hh:mm:ss");
         final double mjd = utc.getMJD();
@@ -79,19 +104,17 @@ public class ProductDataUTCTest extends TestCase {
         assertEquals(utc1.getAsDate().getTime(), utc.getAsDate().getTime());
     }
 
-    public void testMerisDateParsingErrors() throws ParseException {
-        try {
-            ProductData.UTC.parse(null);
-            fail();
-        } catch (IllegalArgumentException expected) {
-        }
-        try {
-            assertNull(ProductData.UTC.parse(""));
-            fail();
-        } catch (IllegalArgumentException expected) {
-        }
+    @Test(expected = IllegalArgumentException.class)
+    public void testDateParsingNull() throws ParseException {
+        ProductData.UTC.parse(null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testDateParsingEmptyString() throws ParseException {
+        ProductData.UTC.parse("");
+    }
+
+    @Test
     public void testMerisDateParsing() throws ParseException {
         String _jan = "03-JAN-2003 01:02:03.3456";
         String _feb = "05-FEB-2002 02:03:04.67890";
@@ -170,12 +193,14 @@ public class ProductDataUTCTest extends TestCase {
         assertEquals(557, calendar.get(Calendar.MILLISECOND));
     }
 
+    @Test
     public void testGetCalendar() {
         Calendar calendar = ProductData.UTC.createCalendar();
         assertEquals(ProductData.UTC.UTC_TIME_ZONE, calendar.getTimeZone());
         assertEquals(946684800000L, calendar.getTimeInMillis());
     }
 
+    @Test
     public void testGetAsDate() throws ParseException {
         Date date = ProductData.UTC.parse("23-DEC-2004 22:16:43.556677").getAsDate();
         Calendar calendar = ProductData.UTC.createCalendar();
@@ -189,12 +214,14 @@ public class ProductDataUTCTest extends TestCase {
         assertEquals(557, calendar.get(Calendar.MILLISECOND));
     }
 
+    @Test
     public void testParseAndFormat() throws ParseException {
         final String expected = "23-DEC-2004 22:16:43.556677";
         final ProductData.UTC utc = ProductData.UTC.parse(expected);
         assertEquals(expected, utc.format());
     }
 
+    @Test
     public void testDoubleConstructor() throws ParseException {
         final String expected = "23-DEC-2004 22:16:43.556677";
         final ProductData.UTC utc = ProductData.UTC.parse(expected);
