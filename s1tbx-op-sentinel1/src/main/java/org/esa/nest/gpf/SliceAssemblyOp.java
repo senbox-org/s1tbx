@@ -488,6 +488,7 @@ public final class SliceAssemblyOp extends Operator {
         final String productType = absRoot.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
         if (productType.equals("GRD")) {
             createTiePointGrids("");
+            addGeocoding();
         } else {
             final ArrayList<String> swaths = getSwaths(firstSliceProduct);
             for (String swath : swaths) {
@@ -495,8 +496,6 @@ public final class SliceAssemblyOp extends Operator {
             }
             createLatLonTiePointGridsForSLC();
         }
-
-        addGeocoding();
     }
 
     private Term createTerm(final String expression, final Product[] availableProducts) {
@@ -589,7 +588,7 @@ public final class SliceAssemblyOp extends Operator {
         final ArrayList<MetadataElement[]> geoGrids = new ArrayList<>();
         int i = 0;
         for (Product product : sliceProducts) {
-            MetadataElement[]  geoGrid = getGeoGridForSwath(product, swath);
+            MetadataElement[] geoGrid = getGeoGridForSwath(product, swath);
             geoGridLen += geoGrid.length;
             geoGrids.add(i, geoGrid);
             i++;
@@ -728,12 +727,9 @@ public final class SliceAssemblyOp extends Operator {
         targetProduct.addTiePointGrid(slantRangeGrid);
 
         if (!swath.equals("")) {
-            // This is SLC
-            final String swathNum = swath.substring(swath.length() - 1, swath.length());
-            if (swathNum.equals("1") || swathNum.equals(Integer.toString(swathAssembledImageDimMap.size()))) {
-                final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
-                swathGeocodingMap.put(swath, tpGeoCoding);
-            }
+            // This is for SLC
+            final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+            swathGeocodingMap.put(swath, tpGeoCoding);
         }
 
         //System.out.println("SliceAssemblyOp.createTiePointGrids: DONE " + swath);
@@ -744,13 +740,24 @@ public final class SliceAssemblyOp extends Operator {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sliceProducts[0]);
         final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
 
-        final String firstSwath = acquisitionMode + "1";
-        final String lastSwath = acquisitionMode + Integer.toString(swathAssembledImageDimMap.size());
+        int firstSwathNum = 9999, lastSwathNum = 0;
+        for(String key : swathAssembledImageDimMap.keySet()) {
+            int subnum = Integer.parseInt(key.substring(2));
+            if(subnum < firstSwathNum) {
+                firstSwathNum = subnum;
+            }
+            if(subnum > lastSwathNum) {
+                lastSwathNum = subnum;
+            }
+        }
 
-        final GeoCoding firstSWBandGeoCoding = swathGeocodingMap.get(firstSwath);
+        final String firstSwath = acquisitionMode + firstSwathNum;
+        final String lastSwath = acquisitionMode + lastSwathNum;
+
+        final GeoCoding firstSwathGeoCoding = swathGeocodingMap.get(firstSwath);
         final int firstSWBandHeight = swathAssembledImageDimMap.get(firstSwath)[0];
 
-        final GeoCoding lastSWBandGeoCoding = swathGeocodingMap.get(lastSwath);
+        final GeoCoding lastSwathGeoCoding = swathGeocodingMap.get(lastSwath);
         final int lastSWBandWidth = swathAssembledImageDimMap.get(lastSwath)[1];
         final int lastSWBandHeight = swathAssembledImageDimMap.get(lastSwath)[0];
 
@@ -758,15 +765,15 @@ public final class SliceAssemblyOp extends Operator {
         final PixelPos llPix = new PixelPos(0, firstSWBandHeight - 1);
         final GeoPos ulGeo = new GeoPos();
         final GeoPos llGeo = new GeoPos();
-        firstSWBandGeoCoding.getGeoPos(ulPix, ulGeo);
-        firstSWBandGeoCoding.getGeoPos(llPix, llGeo);
+        firstSwathGeoCoding.getGeoPos(ulPix, ulGeo);
+        firstSwathGeoCoding.getGeoPos(llPix, llGeo);
 
         final PixelPos urPix = new PixelPos(lastSWBandWidth - 1, 0);
         final PixelPos lrPix = new PixelPos(lastSWBandWidth - 1, lastSWBandHeight - 1);
         final GeoPos urGeo = new GeoPos();
         final GeoPos lrGeo = new GeoPos();
-        lastSWBandGeoCoding.getGeoPos(urPix, urGeo);
-        lastSWBandGeoCoding.getGeoPos(lrPix, lrGeo);
+        lastSwathGeoCoding.getGeoPos(urPix, urGeo);
+        lastSwathGeoCoding.getGeoPos(lrPix, lrGeo);
 
         final float[] latCorners = {(float)ulGeo.getLat(), (float)urGeo.getLat(), (float)llGeo.getLat(), (float)lrGeo.getLat()};
         final float[] lonCorners = {(float)ulGeo.getLon(), (float)urGeo.getLon(), (float)llGeo.getLon(), (float)lrGeo.getLon()};
@@ -931,7 +938,7 @@ public final class SliceAssemblyOp extends Operator {
         int idx = Integer.parseInt(targetVectorList.getAttribute("count").getData().getElemString());
         final int numSliceLines = Integer.parseInt(sliceVectorList.getAttribute("count").getData().getElemString());
 
-        final int topLastLine = Integer.parseInt(targetVectorList.getElementAt(idx-1).getAttributeString("line"));
+        final int topLastLine = Integer.parseInt(targetVectorList.getElementAt(idx - 1).getAttributeString("line"));
         final int bottom1stLine = lineOffset + Integer.parseInt(sliceVectorList.getElementAt(startVectorIdx).getAttributeString("line"));
         if (topLastLine >= bottom1stLine) {
             throw new OperatorException("last vector line of stop slice = " + topLastLine + " >= first vector line of bottom slice = " + bottom1stLine);
@@ -1006,8 +1013,6 @@ public final class SliceAssemblyOp extends Operator {
                 // TODO !!!!
             }
         }
-
-
     }
 
     private int getLastPixel(final MetadataElement vector) {
@@ -1310,8 +1315,7 @@ public final class SliceAssemblyOp extends Operator {
                 long newByteOffset = 0;
                 final long sliceFirstByteOffset = Long.parseLong(sliceBurstListElems[0].getAttributeString("byteOffset"));
 
-                for (int j = 0; j < sliceBurstListElems.length; j++ ) {
-                    MetadataElement b = sliceBurstListElems[j];
+                for (MetadataElement b : sliceBurstListElems) {
                     MetadataElement newB = b.createDeepClone();
                     final long sliceByteOffset = Long.parseLong(b.getAttributeString("byteOffset"));
                     newByteOffset = sliceByteOffset + targetLastByteOffset + targetByteIncr - sliceFirstByteOffset;
@@ -1357,8 +1361,8 @@ public final class SliceAssemblyOp extends Operator {
             AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.last_line_time,
                     absLast.getAttributeUTC(AbstractMetadata.last_line_time));
 
-            AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_output_lines, band.getRasterHeight());
-            AbstractMetadata.setAttribute(absTgt, AbstractMetadata.num_samples_per_line, band.getRasterWidth());
+            AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.num_output_lines, band.getRasterHeight());
+            AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.num_samples_per_line, band.getRasterWidth());
         }
 
         final ArrayList<MetadataElement> bandMetaToRemove = new ArrayList<>();
@@ -1455,26 +1459,25 @@ public final class SliceAssemblyOp extends Operator {
             BandLines line = lines[0];
             for(int y=ty0; y < maxY; ++y) {
 
-                boolean validLine = y >= line.start && y < line.end;
-                if(!validLine) {
-                    for(BandLines l : lines) {
-                        if(y >= l.start && y < l.end) {
-                            line = l;
-                            validLine = true;
-                            break;
-                        }
-                    }
-                    if(!validLine) {
-                        // should never get here
-                        throw new OperatorException("line "+y+" not found in slice products");
+                //boolean validLine = false;
+                for (BandLines l : lines) {
+                    if (y >= l.start && y < l.end) {
+                        line = l;
+                        //validLine = true;
+                        break;
                     }
                 }
-                if (tx0 > line.band.getSceneRasterWidth()-1) {
-                    return;
-                }
+                //if (!validLine) {
+                //    // should never get here
+                //    throw new OperatorException("line " + y + " not found in slice products");
+                //}
+                //if (tx0 > line.band.getRasterWidth() - 1) {
+                //    return;
+                //}
 
                 final int yy = y-line.start;
                 srcRect.setBounds(targetTileRectangle.x, yy, targetTileRectangle.width, 1);
+
                 final Tile sourceRaster = getSourceTile(line.band, srcRect);
                 final ProductData srcData = sourceRaster.getDataBuffer();
                 final TileIndex srcIndex = new TileIndex(sourceRaster);
