@@ -2,6 +2,7 @@ package org.esa.beam.framework.gpf.jpy;
 
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.Debug;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.TreeCopier;
 import org.jpy.PyLib;
 
@@ -17,7 +18,7 @@ import java.nio.file.ProviderNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.esa.beam.util.SystemUtils.*;
+import static org.esa.beam.util.SystemUtils.LOG;
 
 /**
  * This class is used to establish the bridge between Java and Python.
@@ -63,14 +64,13 @@ class PyBridge {
         }
 
         try {
-            Path userModuleDir = Paths.get(System.getProperty("user.home"), ".snap", "snap-python");
+            Path userModuleDir = Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "snap-python");
             TreeCopier.copy(getResourcePath("beampy-examples"), userModuleDir);
             beampyDir = TreeCopier.copy(getResourcePath("beampy"), userModuleDir);
             LOG.info("BEAM-Python module directory: " + beampyDir);
         } catch (IOException e) {
             throw new OperatorException("Failed to unpack BEAM-Python resources: " + e.getMessage(), e);
         }
-
 
         boolean forcePythonConfig = System.getProperty("beam.forcePythonConfig", "true").equalsIgnoreCase("true");
         Path jpyConfigFile = beampyDir.resolve(JPY_JAVA_API_CONFIG_FILENAME);

@@ -6,8 +6,8 @@ In order to use beampy the module 'jpy' must be installed first.
 You can configure beampy by using a file named beampy.ini as follows:
 
     [DEFAULT]
-    snap_home: C:\Program Files\snap-2.0
-    snap_user: C:\Users\Norman\.snap-2.0
+    snap_home: C:/Program Files/snap-2.0
+    snap_user: C:/Users/Norman/.snap
     extra_classpath: target/classes
     extra_options: -Djava.awt.headless=false
     max_mem: 4G
