@@ -9,3 +9,4 @@ org.esa.nest.gpf.BandSelectOp$Spi
 org.esa.nest.gpf.ImportVectorOp$Spi
 org.esa.nest.gpf.FlipOp$Spi
 org.esa.nest.gpf.TileWriterOp$Spi
+org.esa.nest.gpf.TestPatternOp$Spi
