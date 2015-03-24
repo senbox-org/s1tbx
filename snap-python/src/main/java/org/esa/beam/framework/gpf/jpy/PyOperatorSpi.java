@@ -7,6 +7,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.descriptor.DefaultOperatorDescriptor;
 import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.beam.util.SystemUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,8 +36,8 @@ public class PyOperatorSpi extends OperatorSpi {
     }
 
     static {
-        scanDir(Paths.get(System.getProperty("user.home"), ".snap", "snappy", "ext"));
-        scanDirs(System.getProperty("snap.snappy.ext", "").split(File.pathSeparator));
+        scanDir(Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "beampy", "ext"));
+        scanDirs(System.getProperty("snap.beampy.ext", "").split(File.pathSeparator));
         scanClassPath();
     }
 
@@ -68,13 +69,13 @@ public class PyOperatorSpi extends OperatorSpi {
     }
 
     private static void registerPythonModule(Path resourcePath) {
-        Path resourceRelPath = Paths.get(PY_OP_RESOURCE_NAME);
-        if (!Files.exists(resourcePath) || !resourcePath.endsWith(resourceRelPath)) {
+        System.out.println("resourcePath = " + resourcePath);
+        if (!Files.exists(resourcePath) || !resourcePath.endsWith(PY_OP_RESOURCE_NAME)) {
             return;
         }
 
-        Path moduleRoot = subtract(resourcePath, resourceRelPath);
-        LOG.info("Python module root found: " + moduleRoot);
+        Path moduleRoot = subtract(resourcePath, Paths.get(PY_OP_RESOURCE_NAME).getNameCount());
+        LOG.info("Python module root found: " + moduleRoot.toUri());
 
         try {
             Files.lines(resourcePath).forEach(line -> {
@@ -97,9 +98,9 @@ public class PyOperatorSpi extends OperatorSpi {
         }
     }
 
-    private static Path subtract(Path resourcePath, Path resourceRelPath) {
+    private static Path subtract(Path resourcePath, int nameCount) {
         Path moduleRoot = resourcePath;
-        for (Path path : resourceRelPath) {
+        for (int i = 0; i < nameCount; i++) {
             moduleRoot = moduleRoot.resolve("..");
         }
         moduleRoot = moduleRoot.normalize();
