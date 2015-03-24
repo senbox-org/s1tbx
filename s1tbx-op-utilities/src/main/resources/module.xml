@@ -180,6 +180,18 @@
             <targetProductNameSuffix>_Filt</targetProductNameSuffix>
         </action>
 
+        <action>
+            <id>TestPattern</id>
+            <helpId>TestPattern</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>tools</parent>
+            <text>TestPattern</text>
+            <operatorName>TestPattern</operatorName>
+            <dialogTitle>TestPattern</dialogTitle>
+            <targetProductNameSuffix>_test</targetProductNameSuffix>
+        </action>
+
     </extension>
 
     <extension point="snap-ui:helpSets">
