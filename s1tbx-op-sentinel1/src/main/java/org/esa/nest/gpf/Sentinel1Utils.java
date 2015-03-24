@@ -23,7 +23,6 @@ import org.esa.nest.gpf.geometric.SARUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.eo.Constants;
-import org.esa.snap.gpf.OperatorUtils;
 
 import java.text.DateFormat;
 import java.util.*;
@@ -154,7 +153,33 @@ public final class Sentinel1Utils {
                 }
             }
         }
-        polarizations =  polList.toArray(new String[polList.size()]);
+
+        if (polList.size() > 0) {
+            polarizations =  polList.toArray(new String[polList.size()]);
+            return;
+        }
+
+        final String[] sourceBandNames = sourceProduct.getBandNames();
+        for (String bandName:sourceBandNames) {
+            if (bandName.contains("HH")) {
+                if (!polList.contains("HH")) {
+                    polList.add("HH");
+                }
+            } else if (bandName.contains("HV")) {
+                if (!polList.contains("HV")) {
+                    polList.add("HV");
+                }
+            } else if (bandName.contains("VH")) {
+                if (!polList.contains("VH")) {
+                    polList.add("VH");
+                }
+            } else if (bandName.contains("VV")) {
+                if (!polList.contains("VV")) {
+                    polList.add("VV");
+                }
+            }
+        }
+        polarizations = polList.toArray(new String[polList.size()]);
     }
 
     /**
@@ -169,6 +194,19 @@ public final class Sentinel1Utils {
                 final String swath = elem.getAttributeString("swath");
                 if (!subSwathNameList.contains(swath)) {
                     subSwathNameList.add(swath);
+                }
+            }
+        }
+
+        if (subSwathNameList.size() < 1) {
+            final String[] sourceBandNames = sourceProduct.getBandNames();
+            for (String bandName : sourceBandNames) {
+                if (bandName.contains(acquisitionMode)) {
+                    final int idx = bandName.indexOf(acquisitionMode);
+                    final String subSwathName = bandName.substring(idx, idx + 3);
+                    if (!subSwathNameList.contains(subSwathName)) {
+                        subSwathNameList.add(subSwathName);
+                    }
                 }
             }
         }
@@ -248,6 +286,8 @@ public final class Sentinel1Utils {
 
         subSwath.burstFirstLineTime = new double[subSwath.numOfBursts];
         subSwath.burstLastLineTime = new double[subSwath.numOfBursts];
+        subSwath.burstFirstValidLineTime = new double[subSwath.numOfBursts];
+        subSwath.burstLastValidLineTime = new double[subSwath.numOfBursts];
         subSwath.firstValidSample = new int[subSwath.numOfBursts][];
         subSwath.lastValidSample = new int[subSwath.numOfBursts][];
 
@@ -260,19 +300,31 @@ public final class Sentinel1Utils {
             int lastValidPixel = 0;
             final MetadataElement[] burstListElem = burstList.getElements();
             for (MetadataElement listElem : burstListElem) {
+
                 subSwath.burstFirstLineTime[k] =
                         Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD()*Constants.secondsInDay;
+
                 subSwath.burstLastLineTime[k] = subSwath.burstFirstLineTime[k] +
                         (subSwath.linesPerBurst - 1) * subSwath.azimuthTimeInterval;
+
                 final MetadataElement firstValidSampleElem = listElem.getElement("firstValidSample");
                 final MetadataElement lastValidSampleElem = listElem.getElement("lastValidSample");
                 subSwath.firstValidSample[k] = Sentinel1Utils.getIntArray(firstValidSampleElem, "firstValidSample");
                 subSwath.lastValidSample[k] = Sentinel1Utils.getIntArray(lastValidSampleElem, "lastValidSample");
 
+                int firstValidLineIdx = -1;
+                int lastValidLineIdx = -1;
                 for (int lineIdx = 0; lineIdx < subSwath.firstValidSample[k].length; lineIdx++) {
                     if (subSwath.firstValidSample[k][lineIdx] != -1 &&
                             subSwath.firstValidSample[k][lineIdx] < firstValidPixel) {
                         firstValidPixel = subSwath.firstValidSample[k][lineIdx];
+
+                        if (firstValidLineIdx == -1) {
+                            firstValidLineIdx = lineIdx;
+                            lastValidLineIdx = lineIdx;
+                        } else {
+                            lastValidLineIdx++;
+                        }
                     }
                 }
 
@@ -283,11 +335,23 @@ public final class Sentinel1Utils {
                     }
                 }
 
+                subSwath.burstFirstValidLineTime[k] = subSwath.burstFirstLineTime[k] +
+                        firstValidLineIdx * subSwath.azimuthTimeInterval;
+
+                subSwath.burstLastValidLineTime[k] = subSwath.burstFirstLineTime[k] +
+                        lastValidLineIdx * subSwath.azimuthTimeInterval;
+
                 k++;
             }
             subSwath.firstValidPixel = firstValidPixel;
             subSwath.lastValidPixel = lastValidPixel;
         }
+
+        subSwath.slrTimeToFirstValidPixel = subSwath.slrTimeToFirstPixel +
+                subSwath.firstValidPixel * subSwath.rangePixelSpacing / Constants.lightSpeed;
+
+        subSwath.slrTimeToLastValidPixel = subSwath.slrTimeToFirstPixel +
+                subSwath.lastValidPixel * subSwath.rangePixelSpacing / Constants.lightSpeed;
 
         // get geolocation grid points
         final MetadataElement geolocationGrid = product.getElement("geolocationGrid");
@@ -834,6 +898,33 @@ public final class Sentinel1Utils {
                 }
             }
         }
+
+        if (polList.size() > 0) {
+            return  polList.toArray(new String[polList.size()]);
+        }
+
+        final Product sourceProduct = absRoot.getProduct();
+        final String[] sourceBandNames = sourceProduct.getBandNames();
+        for (String bandName:sourceBandNames) {
+            if (bandName.contains("HH")) {
+                if (!polList.contains("HH")) {
+                    polList.add("HH");
+                }
+            } else if (bandName.contains("HV")) {
+                if (!polList.contains("HV")) {
+                    polList.add("HV");
+                }
+            } else if (bandName.contains("VH")) {
+                if (!polList.contains("VH")) {
+                    polList.add("VH");
+                }
+            } else if (bandName.contains("VV")) {
+                if (!polList.contains("VV")) {
+                    polList.add("VV");
+                }
+            }
+        }
+
         return polList.toArray(new String[polList.size()]);
     }
 
@@ -846,6 +937,23 @@ public final class Sentinel1Utils {
                 final String swath = elem.getAttributeString("swath", null);
                 if (swath != null && !swathList.contains(swath)) {
                     swathList.add(swath);
+                }
+            }
+        }
+
+        if (swathList.size() > 0) {
+            return swathList.toArray(new String[swathList.size()]);
+        }
+
+        final Product sourceProduct = absRoot.getProduct();
+        final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+        final String[] sourceBandNames = sourceProduct.getBandNames();
+        for (String bandName:sourceBandNames) {
+            if (bandName.contains(acquisitionMode)) {
+                final int idx = bandName.indexOf(acquisitionMode);
+                final String subSwathName = bandName.substring(idx, idx + 3);
+                if (!swathList.contains(subSwathName)) {
+                    swathList.add(subSwathName);
                 }
             }
         }
@@ -1177,6 +1285,8 @@ public final class Sentinel1Utils {
         public double lastLineTime;
         public double slrTimeToFirstPixel;
         public double slrTimeToLastPixel;
+        public double slrTimeToFirstValidPixel;
+        public double slrTimeToLastValidPixel;
         public double azimuthTimeInterval;
         public double rangePixelSpacing;
         public double azimuthPixelSpacing;
@@ -1191,6 +1301,8 @@ public final class Sentinel1Utils {
         public int samplesPerBurst;
         public double[] burstFirstLineTime;
         public double[] burstLastLineTime;
+        public double[] burstFirstValidLineTime;
+        public double[] burstLastValidLineTime;
         public int[][] firstValidSample;
         public int[][] lastValidSample;
         public double[][] rangeDependDopplerRate;

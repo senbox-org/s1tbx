@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import java.io.File;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -56,6 +57,7 @@ public class TestProject {
         project.initProject(projectFile);
 
         final File[] files = projectFolder.listFiles();
+        assertNotNull(files);
         assertEquals(files.length, 4);
 
         boolean foundGraphs=false, foundImport=false, foundProcessed=false, foundProductSets=false;

@@ -486,10 +486,10 @@ public final class MultilookOp extends Operator {
         return incidenceAngle.getPixelDouble(x, y);
     }
 
-    static class DerivedParams {
-        int nAzLooks = 0;
-        int nRgLooks = 0;
-        float meanGRSqaurePixel = 0;
+    public static class DerivedParams {
+        public int nAzLooks = 0;
+        public int nRgLooks = 0;
+        public float meanGRSqaurePixel = 0;
     }
 
     /**

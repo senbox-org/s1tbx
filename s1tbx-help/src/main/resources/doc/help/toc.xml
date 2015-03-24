@@ -9,6 +9,8 @@
 
     <tocitem text="General">
         <tocitem text="Overview" target="Overview"/>
+        <tocitem text="Sentinel-1" target="Sentinel1"/>
+		<tocitem text="Sentinel-1 Functionality" target="Sentinel1Functionality"/>		
         <tocitem text="Supported Products" target="SupportedProducts"/>
     </tocitem>
 
@@ -20,6 +22,7 @@
         <tocitem text="Graph Tools">
             <tocitem text="Graph Processing Tool" target="gpt"/>
             <tocitem text="Command Line Reference" target="commandLineReference"/>
+            <tocitem text="Command Line Processing" target="commandLineProcessing"/>
         </tocitem>
     </tocitem>
 

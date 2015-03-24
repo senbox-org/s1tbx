@@ -29,7 +29,6 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.EarthGravitationalModel96;
 import org.esa.nest.dataio.dem.FileElevationModel;
@@ -315,9 +314,9 @@ public class RangeDopplerGeocodingOp extends Operator {
         if (!orthoDataProduced && processingStarted) {
             final String errMsg = getId() + " error: no valid output was produced. Please verify the DEM";
             System.out.println(errMsg);
-            if (VisatApp.getApp() != null) {
-                VisatApp.getApp().setStatusBarMessage(errMsg);
-            }
+            //if (VisatApp.getApp() != null) {
+            //    VisatApp.getApp().setStatusBarMessage(errMsg);
+            //}
         }
     }
 

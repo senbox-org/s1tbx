@@ -28,8 +28,10 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.nest.gpf.coregistration.CoarseRegistration;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.StatusProgressMonitor;
 import org.esa.snap.gpf.ThreadManager;
 
@@ -160,16 +162,22 @@ public class RangeShiftOp extends Operator {
                 continue;
             }
 
+            Band targetBand;
             if (srcBandName.contains("_mst")) {
-                ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
-            } else if (srcBandName.contains("_slv") && (srcBandName.contains("i_") || srcBandName.contains("q_"))) {
-                final Band targetBand = new Band(srcBandName,
+                targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
+            } else {
+                targetBand = new Band(srcBandName,
                         band.getDataType(),
-                        band.getSceneRasterWidth(),
-                        band.getSceneRasterHeight());
+                        band.getRasterWidth(),
+                        band.getRasterHeight());
 
                 targetBand.setUnit(band.getUnit());
                 targetProduct.addBand(targetBand);
+            }
+
+            if(targetBand != null && srcBandName.startsWith("q_")) {
+                final String suffix = srcBandName.substring(1);
+                ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand("i"+suffix), targetBand, suffix);
             }
         }
 

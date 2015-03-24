@@ -14,25 +14,13 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>snap-visat-rcp</module>
-    </dependency>
-    <dependency>
-        <module>snap-gpf</module>
-    </dependency>
-    <dependency>
-        <module>snap-core</module>
-    </dependency>
-    <dependency>
-        <module>snap-engine-utilities</module>
-    </dependency>
-    <dependency>
         <module>snap-graph-builder</module>
     </dependency>
     <dependency>
-        <module>snap-gui-utilities</module>
+        <module>s1tbx-io</module>
     </dependency>
     <dependency>
-        <module>s1tbx-io</module>
+        <module>s1tbx-dem</module>
     </dependency>
 
     <categories>Application,DAT</categories>
@@ -595,7 +583,305 @@
             <helpId>exportGenericBinary</helpId>
         </action>
 
+        <action>
+            <id>createElevationAction</id>
+            <class>org.esa.nest.dat.actions.CreateElevationAction</class>
+            <text>Add Elevation Band</text>
+            <shortDescr>Creates an elevation band from a selected DEM</shortDescr>
+            <description>Creates an elevation band from a selected Digital Elevation Model (DEM)</description>
+            <context>product</context>
+            <helpId>createElevationBand</helpId>
+            <parent>DEMTools</parent>
+        </action>
+
+
+
+        <!-- SAR Formats -->
+
+        <action>
+            <id>importERSCEOSProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ERS CEOS</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>ERS 1 / 2 CEOS</text>
+            <shortDescr>Open ERS 1/2 CEOS (VMP and PGS) data product or subset.</shortDescr>
+            <description>Open ERS 1/2 CEOS (VMP and PGS) data product or subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <helpId>importERSProduct</helpId>
+            <parent>importSAR</parent>
+            <placeAfter>importErsSARProduct</placeAfter>
+        </action>
+        <action>
+            <id>importJERSCEOSProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>JERS CEOS</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Import a JERS CEOS data product or subset.</shortDescr>
+            <description>Import a JERS CEOS data product or subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <helpId>importJERSProduct</helpId>
+            <parent>importSAR</parent>
+            <placeAfter>importERSCEOSProduct</placeAfter>
+        </action>
+        <action>
+            <id>importAlosPalsarProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ALOS PALSAR CEOS</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Import an ALOS PALSAR CEOS data product or subset.</shortDescr>
+            <description>Import an ALOS PALSAR CEOS data product or subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <helpId>importAlosPalsarProduct</helpId>
+            <parent>importSAR</parent>
+            <placeAfter>importJERSCEOSProduct</placeAfter>
+        </action>
+        <action>
+            <id>importAlos2Product</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ALOS 2 CEOS</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Import an ALOS 2 CEOS data product or subset.</shortDescr>
+            <description>Import an ALOS 2 CEOS data product or subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <helpId>importAlos2Product</helpId>
+            <parent>importSAR</parent>
+            <placeAfter>importAlosPalsarProduct</placeAfter>
+        </action>
+        <action>
+            <id>importRadarsatProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>RADARSAT-1 CEOS</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Import a RADARSAT-1 CEOS data product or subset.</shortDescr>
+            <description>Import a RADARSAT-1 CEOS data product or subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <helpId>importRadarsatProduct</helpId>
+            <parent>importSAR</parent>
+            <placeAfter>importAlos2Product</placeAfter>
+        </action>
+
+        <action>
+            <id>importPolsarPro</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <readerPlugin>org.esa.nest.dataio.polsarpro.PolsarProProductReaderPlugIn</readerPlugin>
+            <formatName>PolSARPro</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <useFilesAndFolders>true</useFilesAndFolders>
+            <shortDescr>Import a PolsarPro data product.</shortDescr>
+            <parent>importSAR</parent>
+            <placeAfter>importCosmoSkymed</placeAfter>
+            <helpId>importPolsarPro</helpId>
+        </action>
+
+        <action>
+            <id>importRadarsat2Product</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>RADARSAT-2</formatName>
+            <shortDescr>Import a RADARSAT-2 data product or subset.</shortDescr>
+            <description>Import a RADARSAT-2 data product or subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <parent>importSAR</parent>
+            <placeAfter>importRadarsatProduct</placeAfter>
+            <helpId>importRadarsat2</helpId>
+        </action>
+        <action>
+            <id>importTerraSarXProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>TerraSarX</formatName>
+            <text>TerraSAR-X</text>
+            <shortDescr>Import a TerraSarX data product or subset.</shortDescr>
+            <description>Import a TerraSarX data product or subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <parent>importSAR</parent>
+            <placeAfter>importRadarsat2Product</placeAfter>
+            <helpId>importTerraSarX</helpId>
+        </action>
+
+        <action>
+            <id>importCosmoSkymed</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>CosmoSkymed</formatName>
+            <text>Cosmo-Skymed</text>
+            <readerPlugin>org.esa.nest.dataio.cosmo.CosmoSkymedReaderPlugIn</readerPlugin>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Import a CosmoSkymed file format</shortDescr>
+            <description>Import a CosmoSkymed file format</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <parent>importSAR</parent>
+            <placeAfter>importTerraSarXProduct</placeAfter>
+            <helpId>importCosmoSkymed</helpId>
+        </action>
+
+        <action>
+            <id>importS1Product</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>SENTINEL-1</formatName>
+            <shortDescr>Import a SENTINEL-1 product</shortDescr>
+            <description>Import a SENTINEL-1 product</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <helpId>importS1Product</helpId>
+            <parent>importSAR</parent>
+        </action>
+
+        <!-- Common EO File Formats -->
+
+        <action>
+            <id>importImageIO</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>jp2</formatName>
+            <text>ImageIO (bmp, jpg, png)</text>
+            <readerPlugin>org.esa.nest.dataio.imageio.ImageIOReaderPlugIn</readerPlugin>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Import an ImageIO supported file formats</shortDescr>
+            <description>Import an ImageIO supported file formats</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <helpId>importImageIO</helpId>
+            <parent>importFileFormats</parent>
+        </action>
+        <action>
+            <id>importGeoTIFFProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <readerPlugin>org.esa.nest.dataio.geotiff.NestGeoTiffProductReaderPlugIn</readerPlugin>
+            <formatName>GeoTIFF</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>O</mnemonic>
+            <shortDescr>Import a GeoTIFF data product or subset.</shortDescr>
+            <description>Import a GeoTIFF data product or product subset.</description>
+            <helpId>importGeoTIFFProduct</helpId>
+            <parent>importFileFormats</parent>
+        </action>
+
+        <action>
+            <id>importRAT</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <readerPlugin>org.esa.nest.dataio.TAXI.RATProductReaderPlugIn</readerPlugin>
+            <formatName>RAT</formatName>
+            <shortDescr>Import DLR RAT data product or subset.</shortDescr>
+            <description>Import DLR RAT data product or product subset.</description>
+            <helpId>importRAT</helpId>
+            <parent>importFileFormats</parent>
+        </action>
+
+        <action>
+            <id>importGTOPO30</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>GTOPO30</formatName>
+            <parent>importDEM</parent>
+            <readerPlugin>org.esa.nest.dataio.gtopo30.GTOPO30ReaderPlugIn</readerPlugin>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>GTOPO30 DEM Tile</text>
+            <shortDescr>Import a GTOPO30 tile</shortDescr>
+            <description>Import a GTOPO30 tile</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <helpId>importGTOPO30</helpId>
+        </action>
+
+        <!-- Exports -->
+
+        <action>
+            <id>exportPolsarPro</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <formatName>PolSARPro</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Export PolSARPro</shortDescr>
+            <helpId>exportPolsarPro</helpId>
+        </action>
+        <action>
+            <id>exportGeoTiffXML</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <formatName>GeoTIFF+XML</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Export GeoTIFF+XML</shortDescr>
+            <helpId>exportGeoTiffXML</helpId>
+        </action>
+        <action>
+            <id>exportBTF</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <formatName>BTF</formatName>
+            <text>BigTIFF</text>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Export BigTIFF</shortDescr>
+            <helpId>exportGeoTiff</helpId>
+        </action>
+
+
+        <!--action>
+            <id>importNetCDF</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>NetCDF</formatName>
+            <readerPlugin>org.esa.nest.dataio.netcdf.NetCDFReaderPlugIn</readerPlugin>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Import a NetCDF file or file subset.</shortDescr>
+            <description>Import a NetCDF file or file subset.</description>
+            <helpId>importNetCDF</helpId>
+            <parent>importFileFormats</parent>
+        </action>
+
+        <action>
+            <id>exportNetCDF</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <formatName>NetCDF</formatName>
+            <shortDescr>Export product to NetCDF format.</shortDescr>
+            <description>Export the selected product to NetCDF format.</description>
+            <helpId>exportNetCDF</helpId>
+        </action>
+
+		<action>
+            <id>importHDF</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>HDF</formatName>
+            <readerPlugin>org.esa.nest.dataio.hdf.HDFReaderPlugIn</readerPlugin>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Import a HDF file format</shortDescr>
+            <description>Import a HDF file format</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <placeAfter>importNetCDF</placeAfter>
+            <helpId>importHDF</helpId>
+            <parent>importFileFormats</parent>
+        </action-->
+
+            <action>
+                <id>importBigGeoTIFFProduct</id>
+                <class>org.esa.beam.visat.actions.ProductImportAction</class>
+                <formatName>GeoTIFF-BigTIFF</formatName>
+                <useAllFileFilter>true</useAllFileFilter>
+                <mnemonic>O</mnemonic>
+                <shortDescr>Import a GeoTIFF/BigGeoTIFF data product or product subset.</shortDescr>
+                <parent>importFileFormats</parent>
+                <!--<helpId>importBigGeoTIFFProduct</helpId>-->
+            </action>
+            <action>
+                <id>exportBigGeoTIFFProduct</id>
+                <class>org.esa.beam.visat.actions.ProductExportAction</class>
+                <formatName>GeoTIFF-BigTIFF</formatName>
+                <useAllFileFilter>true</useAllFileFilter>
+                <mnemonic>O</mnemonic>
+                <shortDescr>Export a BigGeoTiff/GeoTIFF data product or product subset.</shortDescr>
+                <!--<helpId>exportBigGeoTIFFProduct</helpId>-->
+            </action>
+
+        <action>
+            <id>importCsvProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>CSV</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <largeIcon>icons/Import24.gif</largeIcon>
+            <shortDescr>Import a CSV data product.</shortDescr>
+            <helpId>importCsvProduct</helpId>
+            <parent>importFileFormats</parent>
+        </action>
+        <action>
+            <id>exportCsvProduct</id>
+            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <text>CSV</text>
+            <formatName>CSV</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <shortDescr>Writes a product in CSV format</shortDescr>
+            <helpId>exportCsvProduct</helpId>
+        </action>
+
     </extension>
+
 
     <extension point="snap-ui:helpSets">
         <helpSet>

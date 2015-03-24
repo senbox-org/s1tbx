@@ -222,11 +222,14 @@ public class CosmoSkymedReader extends SARReader {
         try {
             final File folder = product.getFileLocation().getParentFile();
             File dnFile = null;
-            for (File f : folder.listFiles()) {
-                final String name = f.getName().toLowerCase();
-                if (name.startsWith("dfdn") && name.endsWith("xml")) {
-                    dnFile = f;
-                    break;
+            final File[] files = folder.listFiles();
+            if(files != null) {
+                for (File f : files) {
+                    final String name = f.getName().toLowerCase();
+                    if (name.startsWith("dfdn") && name.endsWith("xml")) {
+                        dnFile = f;
+                        break;
+                    }
                 }
             }
             if (dnFile != null) {

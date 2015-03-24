@@ -1,0 +1,9 @@
+org.esa.nest.gpf.coregistration.CreateStackOp$Spi
+org.esa.nest.gpf.coregistration.GCPSelectionOp$Spi
+org.esa.nest.gpf.coregistration.WarpOp$Spi
+org.esa.nest.gpf.coregistration.DEMBasedCoregistrationOp$Spi
+org.esa.nest.gpf.insar.GoldsteinFilterOp$Spi
+org.esa.nest.gpf.insar.DEMGenerationOp$Spi
+org.esa.nest.gpf.PCAOp$Spi
+org.esa.nest.gpf.StackAveragingOp$Spi
+org.esa.nest.gpf.StackSplitWriter$Spi

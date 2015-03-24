@@ -176,8 +176,8 @@ public final class TOPSARDeburstOp extends Operator {
      */
     private void computeTargetSlantRangeTimeToFirstAndLastPixels() {
 
-            targetSlantRangeTimeToFirstPixel = subSwath[0].slrTimeToFirstPixel;
-            targetSlantRangeTimeToLastPixel = subSwath[numOfSubSwath - 1].slrTimeToLastPixel;
+            targetSlantRangeTimeToFirstPixel = subSwath[0].slrTimeToFirstValidPixel;
+            targetSlantRangeTimeToLastPixel = subSwath[numOfSubSwath - 1].slrTimeToLastValidPixel;
             targetDeltaSlantRangeTime = subSwath[0].rangePixelSpacing / Constants.lightSpeed;
     }
 
@@ -199,22 +199,25 @@ public final class TOPSARDeburstOp extends Operator {
             subSwathEffectStartEndPixels[i] = new SubSwathEffectStartEndPixels();
 
             if (i == 0) {
-                subSwathEffectStartEndPixels[i].xMin = 0;
+                subSwathEffectStartEndPixels[i].xMin = (int)Math.round((subSwath[i].slrTimeToFirstValidPixel -
+                        subSwath[i].slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
             } else {
-                final double midTime = (subSwath[i - 1].slrTimeToLastPixel + subSwath[i].slrTimeToFirstPixel) / 2.0;
+                final double midTime = (subSwath[i - 1].slrTimeToLastValidPixel +
+                        subSwath[i].slrTimeToFirstValidPixel) / 2.0;
 
-                subSwathEffectStartEndPixels[i].xMin = (int)Math.round((midTime - subSwath[i].slrTimeToFirstPixel) /
-                        targetDeltaSlantRangeTime);
+                subSwathEffectStartEndPixels[i].xMin = (int)Math.round((midTime -
+                        subSwath[i].slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
             }
 
             if (i < numOfSubSwath - 1) {
-                final double midTime = (subSwath[i].slrTimeToLastPixel + subSwath[i + 1].slrTimeToFirstPixel) / 2.0;
+                final double midTime = (subSwath[i].slrTimeToLastValidPixel +
+                        subSwath[i + 1].slrTimeToFirstValidPixel) / 2.0;
 
-                subSwathEffectStartEndPixels[i].xMax = (int)Math.round((midTime - subSwath[i].slrTimeToFirstPixel) /
-                        targetDeltaSlantRangeTime);
+                subSwathEffectStartEndPixels[i].xMax = (int)Math.round((midTime -
+                        subSwath[i].slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
             } else {
-                subSwathEffectStartEndPixels[i].xMax = (int)Math.round(
-                        (subSwath[i].slrTimeToLastPixel - subSwath[i].slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
+                subSwathEffectStartEndPixels[i].xMax = (int)Math.round((subSwath[i].slrTimeToLastValidPixel -
+                        subSwath[i].slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
             }
         }
     }
@@ -271,7 +274,7 @@ public final class TOPSARDeburstOp extends Operator {
             }
         }
 
-        copyMetaData(sourceProduct.getMetadataRoot(), targetProduct.getMetadataRoot());
+        ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyFlagCodings(sourceProduct, targetProduct);
         targetProduct.setStartTime(new ProductData.UTC(targetFirstLineTime/Constants.secondsInDay));
         targetProduct.setEndTime(new ProductData.UTC(targetLastLineTime/Constants.secondsInDay));
@@ -279,7 +282,7 @@ public final class TOPSARDeburstOp extends Operator {
 
         createTiePointGrids();
 
-        targetProduct.setPreferredTileSize(500, 50);
+        //targetProduct.setPreferredTileSize(500, 50);
     }
 
     private String getTargetBandNameFromSourceBandName(final String srcBandName) {
@@ -324,23 +327,6 @@ public final class TOPSARDeburstOp extends Operator {
         }
 
         return false;
-    }
-
-    /**
-     * Copy source product metadata to target product.
-     *
-     * @param source Source product root metadata element.
-     * @param target Target product root metadata element.
-     */
-    private static void copyMetaData(final MetadataElement source, final MetadataElement target) {
-
-        for (final MetadataElement element : source.getElements()) {
-            target.addElement(element.createDeepClone());
-        }
-
-        for (final MetadataAttribute attribute : source.getAttributes()) {
-            target.addAttribute(attribute.createDeepClone());
-        }
     }
 
     /**
@@ -442,9 +428,35 @@ public final class TOPSARDeburstOp extends Operator {
 
     private void updateOriginalMetadata() {
 
+        updateSwathTiming();
+
         if (su.getSubSwathNames().length > 1) {
             updateCalibrationVector();
             //updateNoiseVector(); //todo: not implemented yet
+        }
+    }
+
+    private void updateSwathTiming() {
+
+        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
+        MetadataElement annotation = origProdRoot.getElement("annotation");
+        if (annotation == null) {
+            throw new OperatorException("Annotation Metadata not found");
+        }
+
+        final MetadataElement[] elems = annotation.getElements();
+        for (MetadataElement elem : elems) {
+            final MetadataElement product = elem.getElement("product");
+            final MetadataElement swathTiming = product.getElement("swathTiming");
+            swathTiming.setAttributeString("linesPerBurst", "0");
+            swathTiming.setAttributeString("samplesPerBurst", "0");
+
+            final MetadataElement burstList = swathTiming.getElement("burstList");
+            burstList.setAttributeString("count", "0");
+            final MetadataElement[] burstListElem = burstList.getElements();
+            for (int i = 0; i < burstListElem.length; i++) {
+                burstList.removeElement(burstListElem[i]);
+            }
         }
     }
 
@@ -510,7 +522,7 @@ public final class TOPSARDeburstOp extends Operator {
                 if (p >= subSwathEffectStartEndPixels[s].xMin && p < subSwathEffectStartEndPixels[s].xMax) {
                     final double slrt = subSwath[s].slrTimeToFirstPixel + p * targetDeltaSlantRangeTime;
 
-                    final int targetPixelIdx = (int)((slrt - targetSlantRangeTimeToFirstPixel) /
+                    final int targetPixelIdx = (int)Math.round((slrt - targetSlantRangeTimeToFirstPixel) /
                             targetDeltaSlantRangeTime);
 
                     mergedPixelStr += targetPixelIdx + " ";
@@ -555,19 +567,28 @@ public final class TOPSARDeburstOp extends Operator {
             final int ty0 = targetRectangle.y;
             final int tw = targetRectangle.width;
             final int th = targetRectangle.height;
-            final double tileSlrtToFirstPixel = targetSlantRangeTimeToFirstPixel + tx0 * targetDeltaSlantRangeTime;
-            final double tileSlrtToLastPixel = targetSlantRangeTimeToFirstPixel + (tx0 + tw - 1) * targetDeltaSlantRangeTime;
             //System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
             // determine subswaths covered by the tile
-            int firstSubSwathIndex = 0;
-            int lastSubSwathIndex = 0;
+            final double tileSlrtToFirstPixel = targetSlantRangeTimeToFirstPixel + tx0 * targetDeltaSlantRangeTime;
+            final double tileSlrtToLastPixel = targetSlantRangeTimeToFirstPixel + (tx0 + tw - 1) * targetDeltaSlantRangeTime;
+            final double tileFirstLineTime = targetFirstLineTime + ty0 * targetLineTimeInterval;
+            final double tileLastLineTime = targetFirstLineTime + (ty0 + th - 1) * targetLineTimeInterval;
 
+            int firstSubSwathIndex = -1;
+            int lastSubSwathIndex = -1;
             for (int i = 0; i < numOfSubSwath; i++) {
-                if (tileSlrtToFirstPixel >= subSwath[i].slrTimeToFirstPixel &&
-                        tileSlrtToFirstPixel <= subSwath[i].slrTimeToLastPixel) {
-                    firstSubSwathIndex = i + 1;
-                    break;
+                if (tileSlrtToFirstPixel >= subSwath[i].slrTimeToFirstValidPixel &&
+                        tileSlrtToFirstPixel <= subSwath[i].slrTimeToLastValidPixel) {
+
+                    if (tileFirstLineTime >= subSwath[i].burstFirstValidLineTime[0] &&
+                            tileFirstLineTime < subSwath[i].burstLastLineTime[subSwath[i].numOfBursts - 1] ||
+                            tileLastLineTime >= subSwath[i].burstFirstValidLineTime[0] &&
+                                    tileLastLineTime < subSwath[i].burstLastLineTime[subSwath[i].numOfBursts - 1]) {
+
+                        firstSubSwathIndex = i + 1;
+                        break;
+                    }
                 }
             }
 
@@ -575,11 +596,30 @@ public final class TOPSARDeburstOp extends Operator {
                 lastSubSwathIndex = firstSubSwathIndex;
             } else {
                 for (int i = 0; i < numOfSubSwath; i++) {
-                    if (tileSlrtToLastPixel >= subSwath[i].slrTimeToFirstPixel &&
-                            tileSlrtToLastPixel <= subSwath[i].slrTimeToLastPixel) {
-                        lastSubSwathIndex = i + 1;
+                    if (tileSlrtToLastPixel >= subSwath[i].slrTimeToFirstValidPixel &&
+                            tileSlrtToLastPixel <= subSwath[i].slrTimeToLastValidPixel) {
+
+                        if (tileFirstLineTime >= subSwath[i].burstFirstValidLineTime[0] &&
+                                tileFirstLineTime < subSwath[i].burstLastLineTime[subSwath[i].numOfBursts - 1] ||
+                                tileLastLineTime >= subSwath[i].burstFirstValidLineTime[0] &&
+                                tileLastLineTime < subSwath[i].burstLastLineTime[subSwath[i].numOfBursts - 1]) {
+
+                            lastSubSwathIndex = i + 1;
+                        }
                     }
                 }
+            }
+
+            if (firstSubSwathIndex == -1 && lastSubSwathIndex == -1) {
+                return;
+            }
+
+            if (firstSubSwathIndex != -1 && lastSubSwathIndex == -1) {
+                lastSubSwathIndex = firstSubSwathIndex;
+            }
+
+            if (firstSubSwathIndex == -1 && lastSubSwathIndex != -1) {
+                firstSubSwathIndex = lastSubSwathIndex;
             }
 
             final int numOfSourceTiles = lastSubSwathIndex - firstSubSwathIndex + 1;
@@ -636,10 +676,15 @@ public final class TOPSARDeburstOp extends Operator {
 
         final int yMin = computeYMin(subSwath[firstSubSwathIndex - 1]);
         final int yMax = computeYMax(subSwath[firstSubSwathIndex - 1]);
+        final int xMin = computeXMin(subSwath[firstSubSwathIndex - 1]);
+        final int xMax = computeXMax(subSwath[firstSubSwathIndex - 1]);
+
         final int firstY = Math.max(ty0, yMin);
         final int lastY = Math.min(tyMax, yMax + 1);
+        final int firstX = Math.max(tx0, xMin);
+        final int lastX = Math.min(txMax, xMax + 1);
 
-        if (firstY >= lastY) {
+        if (firstY >= lastY || firstX >= lastX) {
             return;
         }
         final String swathIndexStr = numOfSubSwath == 1 ? su.getSubSwathNames()[0].substring(2) :
@@ -668,10 +713,10 @@ public final class TOPSARDeburstOp extends Operator {
                 offset = srcTileIndex.calculateStride(burstInfo.sy0);
             }
 
-            final int sx = (int) Math.round(((targetSlantRangeTimeToFirstPixel + tx0 * targetDeltaSlantRangeTime)
+            final int sx = (int) Math.round(((targetSlantRangeTimeToFirstPixel + firstX * targetDeltaSlantRangeTime)
                     - firstSubSwath.slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
 
-            System.arraycopy(srcArray, sx - offset, tgtArray, tx0 - tgtOffset, txMax - tx0);
+            System.arraycopy(srcArray, sx - offset, tgtArray, firstX - tgtOffset, lastX - firstX);
         }
     }
 
@@ -681,10 +726,15 @@ public final class TOPSARDeburstOp extends Operator {
 
         final int yMin = computeYMin(subSwath[firstSubSwathIndex - 1]);
         final int yMax = computeYMax(subSwath[firstSubSwathIndex - 1]);
+        final int xMin = computeXMin(subSwath[firstSubSwathIndex - 1]);
+        final int xMax = computeXMax(subSwath[firstSubSwathIndex - 1]);
+
         final int firstY = Math.max(ty0, yMin);
         final int lastY = Math.min(tyMax, yMax + 1);
+        final int firstX = Math.max(tx0, xMin);
+        final int lastX = Math.min(txMax, xMax + 1);
 
-        if (firstY >= lastY) {
+        if (firstY >= lastY || firstX >= lastX) {
             return;
         }
         final String swathIndexStr = numOfSubSwath == 1 ? su.getSubSwathNames()[0].substring(2) :
@@ -713,10 +763,10 @@ public final class TOPSARDeburstOp extends Operator {
                 offset = srcTileIndex.calculateStride(burstInfo.sy0);
             }
 
-            final int sx = (int) Math.round(((targetSlantRangeTimeToFirstPixel + tx0 * targetDeltaSlantRangeTime)
+            final int sx = (int) Math.round(((targetSlantRangeTimeToFirstPixel + firstX * targetDeltaSlantRangeTime)
                     - firstSubSwath.slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
 
-            System.arraycopy(srcArray, sx - offset, tgtArray, tx0 - tgtOffset, txMax - tx0);
+            System.arraycopy(srcArray, sx - offset, tgtArray, firstX - tgtOffset, lastX - firstX);
         }
     }
 
@@ -971,6 +1021,16 @@ public final class TOPSARDeburstOp extends Operator {
         return (int) ((subSwath.lastLineTime - targetFirstLineTime) / targetLineTimeInterval);
     }
 
+    private int computeXMin(final Sentinel1Utils.SubSwathInfo subSwath) {
+
+        return (int) ((subSwath.slrTimeToFirstValidPixel - targetSlantRangeTimeToFirstPixel) / targetDeltaSlantRangeTime);
+    }
+
+    private int computeXMax(final Sentinel1Utils.SubSwathInfo subSwath) {
+
+        return (int) ((subSwath.slrTimeToLastValidPixel - targetSlantRangeTimeToFirstPixel) / targetDeltaSlantRangeTime);
+    }
+
     private int getSubSwathIndex(final int tx, final int ty, final int firstSubSwathIndex, final int lastSubSwathIndex,
                                  final BurstInfo burstInfo) {
 
@@ -986,8 +1046,8 @@ public final class TOPSARDeburstOp extends Operator {
             info = subSwath[i_1];
             if (targetLineTime >= info.firstLineTime &&
                     targetLineTime <= info.lastLineTime &&
-                    targetSampleSlrTime >= info.slrTimeToFirstPixel &&
-                    targetSampleSlrTime <= info.slrTimeToLastPixel) {
+                    targetSampleSlrTime >= info.slrTimeToFirstValidPixel &&
+                    targetSampleSlrTime <= info.slrTimeToLastValidPixel) {
 
                 if (cnt == 0) {
                     burstInfo.swath0 = i;
@@ -1001,8 +1061,8 @@ public final class TOPSARDeburstOp extends Operator {
 
         if (burstInfo.swath1 != -1) {
 
-            final double middleTime = (subSwath[burstInfo.swath0 - 1].slrTimeToLastPixel +
-                    subSwath[burstInfo.swath1 - 1].slrTimeToFirstPixel) / 2.0;
+            final double middleTime = (subSwath[burstInfo.swath0 - 1].slrTimeToLastValidPixel +
+                    subSwath[burstInfo.swath1 - 1].slrTimeToFirstValidPixel) / 2.0;
 
             if (targetSampleSlrTime > middleTime) {
                 return burstInfo.swath1;

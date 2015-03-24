@@ -91,13 +91,13 @@ public class CreateInterferogramOp extends Operator {
     @Parameter(defaultValue="true", label="Include coherence estimation")
     private boolean includeCoherence = true;
 
-    @Parameter(interval = "(1, 40]",
+    @Parameter(interval = "(1, 75]",
             description = "Size of coherence estimation window in Azimuth direction",
             defaultValue = "10",
             label = "Coherence Azimuth Window Size")
     private int cohWinAz = 10;
 
-    @Parameter(interval = "(1, 40]",
+    @Parameter(interval = "(1, 75]",
             description = "Size of coherence estimation window in Range direction",
             defaultValue = "10",
             label = "Coherence Range Window Size")
@@ -802,8 +802,6 @@ public class CreateInterferogramOp extends Operator {
                 final ComplexDoubleMatrix dataSlave = TileUtilsDoris.pullComplexDoubleMatrix(slvTileReal, slvTileImag);
 
                 final double srcNoDataValue = product.sourceMaster.realBand.getNoDataValue();
-                final ProductData mstSamples = mstTileReal.getRawSamples();
-                final ProductData slvSamples = slvTileReal.getRawSamples();
 
                 ComplexDoubleMatrix dataMaster2 = null, dataSlave2 = null;
                 if(includeCoherence) {
@@ -868,35 +866,35 @@ public class CreateInterferogramOp extends Operator {
                 // push all
                 final ProductData samplesReal = tileOutReal.getDataBuffer();
                 final ProductData samplesImag = tileOutImag.getDataBuffer();
+                final ProductData srcSlvData = slvTileReal.getDataBuffer();
                 final DoubleMatrix dataReal = dataMaster.real();
                 final DoubleMatrix dataImag = dataMaster.imag();
 
                 final int maxX = targetRectangle.x + targetRectangle.width;
                 final int maxY = targetRectangle.y + targetRectangle.height;
                 final TileIndex tgtIndex = new TileIndex(tileOutReal);
-                final TileIndex srcIndex = new TileIndex(mstTileReal);
+                final TileIndex srcSlvIndex = new TileIndex(slvTileReal);
+
                 for (int y = targetRectangle.y; y < maxY; y++) {
                     tgtIndex.calculateStride(y);
-                    srcIndex.calculateStride(y);
+                    srcSlvIndex.calculateStride(y);
                     final int yy = y - targetRectangle.y;
                     final int yy2 = yy+azOffset;
                     for (int x = targetRectangle.x; x < maxX; x++) {
-                        final int trgIndex = tgtIndex.getIndex(x);
-                        final int srcIdx = srcIndex.getIndex(x);
+                        final int trgIdx = tgtIndex.getIndex(x);
                         final int xx = x - targetRectangle.x;
 
-                        if (mstSamples.getElemDoubleAt(srcIdx) == srcNoDataValue ||
-                                slvSamples.getElemDoubleAt(srcIdx) == srcNoDataValue) {
-                            samplesReal.setElemFloatAt(trgIndex, (float)srcNoDataValue);
-                            samplesImag.setElemFloatAt(trgIndex, (float)srcNoDataValue);
+                        if (srcSlvData.getElemDoubleAt(srcSlvIndex.getIndex(x)) == srcNoDataValue) {
+                            samplesReal.setElemFloatAt(trgIdx, (float)srcNoDataValue);
+                            samplesImag.setElemFloatAt(trgIdx, (float)srcNoDataValue);
                             if(samplesCoh != null) {
-                                samplesCoh.setElemFloatAt(trgIndex, (float)srcNoDataValue);
+                                samplesCoh.setElemFloatAt(trgIdx, (float)srcNoDataValue);
                             }
                         } else {
-                            samplesReal.setElemFloatAt(trgIndex, (float)dataReal.get(yy2, xx+rgOffset));
-                            samplesImag.setElemFloatAt(trgIndex, (float)dataImag.get(yy2, xx+rgOffset));
+                            samplesReal.setElemFloatAt(trgIdx, (float)dataReal.get(yy2, xx+rgOffset));
+                            samplesImag.setElemFloatAt(trgIdx, (float)dataImag.get(yy2, xx+rgOffset));
                             if(samplesCoh != null) {
-                                samplesCoh.setElemFloatAt(trgIndex, (float) cohMatrix.get(yy, xx));
+                                samplesCoh.setElemFloatAt(trgIdx, (float) cohMatrix.get(yy, xx));
                             }
                         }
                     }

@@ -16,28 +16,29 @@
 package org.esa.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
-import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.Maths;
 
 import java.awt.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  * Merge subswaths of a Sentinel-1 TOPSAR product.
@@ -58,7 +59,6 @@ public final class TOPSARMergeOp extends Operator {
     @Parameter(description = "The list of polarisations", label = "Polarisations")
     private String[] selectedPolarisations;
 
-    private MetadataElement absRoot = null;
     private String acquisitionMode = null;
     private String productType = null;
     private int numOfSubSwath = 0;
@@ -76,7 +76,7 @@ public final class TOPSARMergeOp extends Operator {
 
     private Sentinel1Utils[] su = null;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
-    private HashMap<Integer, String> sourceProductToSubSwathNameMap = new HashMap<Integer, String>();
+    private BiMap<Integer, Integer> sourceProductIndexToSubSwathIndexMap = HashBiMap.create();
 
     /**
      * Default constructor. The graph processing framework
@@ -119,7 +119,7 @@ public final class TOPSARMergeOp extends Operator {
 
             computeSubSwathEffectStartEndPixels();
 
-            //updateTargetProductMetadata();
+            updateTargetProductMetadata();
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
@@ -148,12 +148,15 @@ public final class TOPSARMergeOp extends Operator {
         final String product0 = absRoot0.getAttributeString(AbstractMetadata.PRODUCT);
         acquisitionMode = absRoot0.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
         productType = absRoot0.getAttributeString(AbstractMetadata.PRODUCT_TYPE);
-        final String subSwathNames0 = Sentinel1Utils.getProductSubswaths(absRoot0)[0];
-        subSwathIndexArray[0] = getSubSwathIndex(subSwathNames0);
-        sourceProductToSubSwathNameMap.put(0, subSwathNames0);
+        final String subSwathName0 = absRoot0.getAttributeString(AbstractMetadata.swath);
+        if (subSwathName0.equals("")) {
+            throw new OperatorException("Cannot get \"swath\" information from source product abstracted metadata");
+        }
+        subSwathIndexArray[0] = getSubSwathIndex(subSwathName0);
+        sourceProductIndexToSubSwathIndexMap.put(0, subSwathIndexArray[0]);
 
-        for (int s = 1; s < numOfSubSwath; s++) {
-            MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[s]);
+        for (int p = 1; p < numOfSubSwath; p++) {
+            MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[p]);
             final String product = absRoot.getAttributeString(AbstractMetadata.PRODUCT);
             if (!product.equals(product0)) {
                 throw new OperatorException("Source products are not from the same Sentinel-1 product");
@@ -164,14 +167,17 @@ public final class TOPSARMergeOp extends Operator {
                 throw new OperatorException("Source products do not have the same acquisition mode");
             }
 
-            final int numOfBands = sourceProduct[s].getNumBands();
+            final int numOfBands = sourceProduct[p].getNumBands();
             if (numOfBands != numOfBands0) {
                 throw new OperatorException("Source products do not have the same number of bands");
             }
 
-            final String subSwathName = Sentinel1Utils.getProductSubswaths(absRoot)[0];
-            subSwathIndexArray[s] = getSubSwathIndex(subSwathName);
-            sourceProductToSubSwathNameMap.put(s, subSwathName);
+            final String subSwathName = absRoot.getAttributeString(AbstractMetadata.swath);
+            if (subSwathName.equals("")) {
+                throw new OperatorException("Cannot get \"swath\" information from source product abstracted metadata");
+            }
+            subSwathIndexArray[p] = getSubSwathIndex(subSwathName);
+            sourceProductIndexToSubSwathIndexMap.put(p, subSwathIndexArray[p]);
         }
 
         Arrays.sort(subSwathIndexArray);
@@ -194,14 +200,12 @@ public final class TOPSARMergeOp extends Operator {
             su = new Sentinel1Utils[numOfSubSwath];
             subSwath = new Sentinel1Utils.SubSwathInfo[numOfSubSwath];
             for (int p = 0; p < numOfSubSwath; p++) {
-                final String subSwathName = sourceProductToSubSwathNameMap.get(p);
-                final int s = getSubSwathIndex(subSwathName) - refSubSwathIndex;
+                final int s = sourceProductIndexToSubSwathIndexMap.get(p) - refSubSwathIndex;
                 su[s] = new Sentinel1Utils(sourceProduct[p]);
-
+                subSwath[s] = su[s].getSubSwath()[0];
                 if (selectedPolarisations == null || selectedPolarisations.length == 0) {
                     selectedPolarisations = su[s].getPolarizations();
                 }
-                subSwath[s] = su[s].getSubSwath()[0];
             }
         } catch (Throwable e) {
             throw new OperatorException(e.getMessage());
@@ -280,9 +284,11 @@ public final class TOPSARMergeOp extends Operator {
      */
     private void createTargetProduct() {
 
-        targetProduct = new Product(sourceProduct[0].getName(), productType, targetWidth, targetHeight);
+        final int prodIdx = sourceProductIndexToSubSwathIndexMap.inverse().get(refSubSwathIndex);
 
-        final Band[] sourceBands = sourceProduct[0].getBands();
+        targetProduct = new Product(sourceProduct[prodIdx].getName(), productType, targetWidth, targetHeight);
+
+        final Band[] sourceBands = sourceProduct[prodIdx].getBands();
 
         // source band name is assumed in format: name_acquisitionModeAndSubSwathIndex_polarization_prefix
         // target band name is then in format: name_polarization_prefix
@@ -327,18 +333,14 @@ public final class TOPSARMergeOp extends Operator {
             }
         }
 
-        copyMetaData();
-        ProductUtils.copyFlagCodings(sourceProduct[0], targetProduct);
+
+        ProductUtils.copyMetadata(sourceProduct[prodIdx], targetProduct);
+        ProductUtils.copyFlagCodings(sourceProduct[prodIdx], targetProduct);
         targetProduct.setStartTime(new ProductData.UTC(targetFirstLineTime/Constants.secondsInDay));
         targetProduct.setEndTime(new ProductData.UTC(targetLastLineTime/Constants.secondsInDay));
-        targetProduct.setDescription(sourceProduct[0].getDescription());
-        /*
-        final TiePointGrid[] tiePointGrids = sourceProduct[0].getTiePointGrids();
-        for (TiePointGrid tiePointGrid : tiePointGrids) {
-            targetProduct.addTiePointGrid(tiePointGrid);
-        }
-        */
-        //targetProduct.setPreferredTileSize(500, 50);
+        targetProduct.setDescription(sourceProduct[prodIdx].getDescription());
+
+        createTiePointGrids();
     }
 
     private String getTargetBandNameFromSourceBandName(final String srcBandName) {
@@ -350,6 +352,86 @@ public final class TOPSARMergeOp extends Operator {
         final int firstSeparationIdx = srcBandName.indexOf(acquisitionMode);
         final int secondSeparationIdx = srcBandName.indexOf("_", firstSeparationIdx + 1);
         return srcBandName.substring(0, firstSeparationIdx) + srcBandName.substring(secondSeparationIdx + 1);
+    }
+
+    private void createTiePointGrids() {
+
+        final int gridWidth = 20;
+        final int gridHeight = 5;
+
+        final int subSamplingX = targetWidth / gridWidth;
+        final int subSamplingY = targetHeight / gridHeight;
+
+        final float[] latList = new float[gridWidth * gridHeight];
+        final float[] lonList = new float[gridWidth * gridHeight];
+        final float[] slrtList = new float[gridWidth * gridHeight];
+        final float[] incList = new float[gridWidth * gridHeight];
+
+        int k = 0;
+        for (int i = 0; i < gridHeight; i++) {
+            final int y = i * subSamplingY;
+            final double azTime = targetFirstLineTime + y * targetLineTimeInterval;
+            for (int j = 0; j < gridWidth; j++) {
+                final int x = j * subSamplingX;
+                final double slrTime = targetSlantRangeTimeToFirstPixel + x * targetDeltaSlantRangeTime;
+                final int s = getSubSwathIndex(slrTime);
+                latList[k] = (float)su[s].getLatitude(azTime, slrTime);
+                lonList[k] = (float)su[s].getLongitude(azTime, slrTime);
+                slrtList[k] = (float)(su[s].getSlantRangeTime(azTime, slrTime) * 2 * Constants.oneBillion); // 2-way ns
+                incList[k] = (float)su[s].getIncidenceAngle(azTime, slrTime);
+                k++;
+            }
+        }
+
+        final TiePointGrid latGrid = new TiePointGrid(
+                OperatorUtils.TPG_LATITUDE, gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, latList);
+
+        final TiePointGrid lonGrid = new TiePointGrid(
+                OperatorUtils.TPG_LONGITUDE, gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, lonList);
+
+        final TiePointGrid slrtGrid = new TiePointGrid(
+                OperatorUtils.TPG_SLANT_RANGE_TIME, gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, slrtList);
+
+        final TiePointGrid incGrid = new TiePointGrid(
+                OperatorUtils.TPG_INCIDENT_ANGLE, gridWidth, gridHeight, 0, 0, subSamplingX, subSamplingY, incList);
+
+        latGrid.setUnit(Unit.DEGREES);
+        lonGrid.setUnit(Unit.DEGREES);
+        slrtGrid.setUnit(Unit.NANOSECONDS);
+        incGrid.setUnit(Unit.DEGREES);
+
+        targetProduct.addTiePointGrid(latGrid);
+        targetProduct.addTiePointGrid(lonGrid);
+        targetProduct.addTiePointGrid(slrtGrid);
+        targetProduct.addTiePointGrid(incGrid);
+
+        final TiePointGeoCoding tpGeoCoding = new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84);
+        targetProduct.setGeoCoding(tpGeoCoding);
+    }
+
+    private int getSubSwathIndex(final double slrTime) {
+
+        double startTime, endTime;
+        for (int i = 0; i < numOfSubSwath; i++) {
+
+            if (i == 0) {
+                startTime = subSwath[i].slrTimeToFirstPixel;
+            } else {
+                startTime = 0.5 * (subSwath[i].slrTimeToFirstPixel + subSwath[i - 1].slrTimeToLastPixel);
+            }
+
+            if (i == numOfSubSwath - 1) {
+                endTime = subSwath[i].slrTimeToLastPixel;
+            } else {
+                endTime = 0.5 * (subSwath[i].slrTimeToLastPixel + subSwath[i + 1].slrTimeToFirstPixel);
+            }
+
+            if (slrTime >= startTime && slrTime < endTime) {
+                return i;
+            }
+        }
+
+        return 0;
     }
 
     private Band getSourceBandFromTargetBandName(
@@ -381,28 +463,6 @@ public final class TOPSARMergeOp extends Operator {
         }
 
         return false;
-    }
-
-    /**
-     * Copy source product metadata to target product.
-     */
-    private void copyMetaData() {
-
-        MetadataElement srcRoot0 = sourceProduct[0].getMetadataRoot();
-        MetadataElement tgtRoot = targetProduct.getMetadataRoot();
-
-        for (final MetadataElement element : srcRoot0.getElements()) {
-            tgtRoot.addElement(element.createDeepClone());
-        }
-
-        for (final MetadataAttribute attribute : srcRoot0.getAttributes()) {
-            tgtRoot.addAttribute(attribute.createDeepClone());
-        }
-
-        // todo add elements from other subswaths to target product
-        for (int s = 1; s < numOfSubSwath; s++) {
-            ;
-        }
     }
 
     /**
@@ -621,7 +681,8 @@ public final class TOPSARMergeOp extends Operator {
                 }
             }
         } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId(), e);
+            e.printStackTrace();
+            //OperatorUtils.catchOperatorException(getId(), e);
         } finally {
             pm.done();
         }

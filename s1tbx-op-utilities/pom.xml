@@ -1,4 +1,19 @@
 <?xml version="1.0"?>
+<!--
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+  -->
 <project>
     <modelVersion>4.0.0</modelVersion>
 
@@ -12,6 +27,8 @@
     <name>S1TBX Utility Operators</name>
     <description>Provides various operators for general processing of EO data</description>
 
+    <packaging>jar</packaging>
+    
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -20,10 +37,6 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-graph-builder</artifactId>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -36,11 +49,18 @@
     </dependencies>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>com.bc.maven.plugins</groupId>
-                <artifactId>maven-javahelp-plugin</artifactId>
+        <plugins>           
+            <!--plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin-->
         </plugins>
     </build>
 

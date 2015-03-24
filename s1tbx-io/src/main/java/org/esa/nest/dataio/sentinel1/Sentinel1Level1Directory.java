@@ -322,107 +322,109 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         int numBands = 0;
         final String annotFolder = getRootFolder() + "annotation";
         final String[] filenames = listFiles(annotFolder);
-        for (String metadataFile : filenames) {
+        if(filenames != null) {
+            for (String metadataFile : filenames) {
 
-            final Document xmlDoc = XMLSupport.LoadXML(getInputStream(annotFolder+'/'+metadataFile));
-            final Element rootElement = xmlDoc.getRootElement();
-            final MetadataElement nameElem = new MetadataElement(metadataFile);
-            annotationElement.addElement(nameElem);
-            AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
+                final Document xmlDoc = XMLSupport.LoadXML(getInputStream(annotFolder + '/' + metadataFile));
+                final Element rootElement = xmlDoc.getRootElement();
+                final MetadataElement nameElem = new MetadataElement(metadataFile);
+                annotationElement.addElement(nameElem);
+                AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
 
-            final MetadataElement prodElem = nameElem.getElement("product");
-            final MetadataElement adsHeader = prodElem.getElement("adsHeader");
+                final MetadataElement prodElem = nameElem.getElement("product");
+                final MetadataElement adsHeader = prodElem.getElement("adsHeader");
 
-            final String swath = adsHeader.getAttributeString("swath");
-            final String pol = adsHeader.getAttributeString("polarisation");
+                final String swath = adsHeader.getAttributeString("swath");
+                final String pol = adsHeader.getAttributeString("polarisation");
 
-            final ProductData.UTC startTime = getTime(adsHeader, "startTime");
-            final ProductData.UTC stopTime = getTime(adsHeader, "stopTime");
+                final ProductData.UTC startTime = getTime(adsHeader, "startTime");
+                final ProductData.UTC stopTime = getTime(adsHeader, "stopTime");
 
-            final String bandRootName = AbstractMetadata.BAND_PREFIX + swath + '_' + pol;
-            final MetadataElement bandAbsRoot = AbstractMetadata.addBandAbstractedMetadata(absRoot, bandRootName);
-            final String imgName = FileUtils.exchangeExtension(metadataFile, ".tiff");
-            imgBandMetadataMap.put(imgName, bandRootName);
+                final String bandRootName = AbstractMetadata.BAND_PREFIX + swath + '_' + pol;
+                final MetadataElement bandAbsRoot = AbstractMetadata.addBandAbstractedMetadata(absRoot, bandRootName);
+                final String imgName = FileUtils.exchangeExtension(metadataFile, ".tiff");
+                imgBandMetadataMap.put(imgName, bandRootName);
 
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.SWATH, swath);
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.polarization, pol);
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.annotation, metadataFile);
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.first_line_time, startTime);
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.last_line_time, stopTime);
+                AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.SWATH, swath);
+                AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.polarization, pol);
+                AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.annotation, metadataFile);
+                AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.first_line_time, startTime);
+                AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.last_line_time, stopTime);
 
-            final MetadataElement imageAnnotation = prodElem.getElement("imageAnnotation");
-            final MetadataElement imageInformation = imageAnnotation.getElement("imageInformation");
+                final MetadataElement imageAnnotation = prodElem.getElement("imageAnnotation");
+                final MetadataElement imageInformation = imageAnnotation.getElement("imageInformation");
 
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.data_take_id,
-                    Integer.parseInt(adsHeader.getAttributeString("missionDataTakeId")));
-            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slice_num,
-                    Integer.parseInt(imageInformation.getAttributeString("sliceNumber")));
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.data_take_id,
+                        Integer.parseInt(adsHeader.getAttributeString("missionDataTakeId")));
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slice_num,
+                        Integer.parseInt(imageInformation.getAttributeString("sliceNumber")));
 
-            rangeSpacingTotal += imageInformation.getAttributeDouble("rangePixelSpacing");
-            azimuthSpacingTotal += imageInformation.getAttributeDouble("azimuthPixelSpacing");
+                rangeSpacingTotal += imageInformation.getAttributeDouble("rangePixelSpacing");
+                azimuthSpacingTotal += imageInformation.getAttributeDouble("azimuthPixelSpacing");
 
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.line_time_interval,
-                    imageInformation.getAttributeDouble("azimuthTimeInterval"));
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.num_samples_per_line,
-                    imageInformation.getAttributeInt("numberOfSamples"));
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.num_output_lines,
-                    imageInformation.getAttributeInt("numberOfLines"));
-            AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.sample_type,
-                    imageInformation.getAttributeString("pixelValue").toUpperCase());
-
-            if (!commonMetadataRetrieved) {
-                // these should be the same for all swaths
-                // set to absRoot
-
-                final MetadataElement generalAnnotation = prodElem.getElement("generalAnnotation");
-                final MetadataElement productInformation = generalAnnotation.getElement("productInformation");
-                final MetadataElement processingInformation = imageAnnotation.getElement("processingInformation");
-                final MetadataElement swathProcParamsList = processingInformation.getElement("swathProcParamsList");
-                final MetadataElement swathProcParams = swathProcParamsList.getElement("swathProcParams");
-                final MetadataElement rangeProcessing = swathProcParams.getElement("rangeProcessing");
-                final MetadataElement azimuthProcessing = swathProcParams.getElement("azimuthProcessing");
-
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
-                        productInformation.getAttributeDouble("rangeSamplingRate")/ Constants.oneMillion);
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
-                        productInformation.getAttributeDouble("radarFrequency")/Constants.oneMillion);
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
+                AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.line_time_interval,
                         imageInformation.getAttributeDouble("azimuthTimeInterval"));
+                AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.num_samples_per_line,
+                        imageInformation.getAttributeInt("numberOfSamples"));
+                AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.num_output_lines,
+                        imageInformation.getAttributeInt("numberOfLines"));
+                AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.sample_type,
+                        imageInformation.getAttributeString("pixelValue").toUpperCase());
 
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
-                        imageInformation.getAttributeDouble("slantRangeTime") * Constants.halfLightSpeed);
+                if (!commonMetadataRetrieved) {
+                    // these should be the same for all swaths
+                    // set to absRoot
 
-                final MetadataElement downlinkInformationList = generalAnnotation.getElement("downlinkInformationList");
-                final MetadataElement downlinkInformation = downlinkInformationList.getElement("downlinkInformation");
+                    final MetadataElement generalAnnotation = prodElem.getElement("generalAnnotation");
+                    final MetadataElement productInformation = generalAnnotation.getElement("productInformation");
+                    final MetadataElement processingInformation = imageAnnotation.getElement("processingInformation");
+                    final MetadataElement swathProcParamsList = processingInformation.getElement("swathProcParamsList");
+                    final MetadataElement swathProcParams = swathProcParamsList.getElement("swathProcParams");
+                    final MetadataElement rangeProcessing = swathProcParams.getElement("rangeProcessing");
+                    final MetadataElement azimuthProcessing = swathProcParams.getElement("azimuthProcessing");
 
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
-                        downlinkInformation.getAttributeDouble("prf"));
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_sampling_rate,
+                            productInformation.getAttributeDouble("rangeSamplingRate") / Constants.oneMillion);
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.radar_frequency,
+                            productInformation.getAttributeDouble("radarFrequency") / Constants.oneMillion);
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.line_time_interval,
+                            imageInformation.getAttributeDouble("azimuthTimeInterval"));
 
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_bandwidth,
-                        rangeProcessing.getAttributeDouble("processingBandwidth")/Constants.oneMillion);
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_bandwidth,
-                        azimuthProcessing.getAttributeDouble("processingBandwidth"));
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.slant_range_to_first_pixel,
+                            imageInformation.getAttributeDouble("slantRangeTime") * Constants.halfLightSpeed);
 
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
-                        rangeProcessing.getAttributeDouble("numberOfLooks"));
-                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
-                        azimuthProcessing.getAttributeDouble("numberOfLooks"));
+                    final MetadataElement downlinkInformationList = generalAnnotation.getElement("downlinkInformationList");
+                    final MetadataElement downlinkInformation = downlinkInformationList.getElement("downlinkInformation");
 
-                if (!isTOPSAR() || !isSLC()) {
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
-                            imageInformation.getAttributeInt("numberOfLines"));
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
-                            imageInformation.getAttributeInt("numberOfSamples"));
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.pulse_repetition_frequency,
+                            downlinkInformation.getAttributeDouble("prf"));
+
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_bandwidth,
+                            rangeProcessing.getAttributeDouble("processingBandwidth") / Constants.oneMillion);
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_bandwidth,
+                            azimuthProcessing.getAttributeDouble("processingBandwidth"));
+
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
+                            rangeProcessing.getAttributeDouble("numberOfLooks"));
+                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
+                            azimuthProcessing.getAttributeDouble("numberOfLooks"));
+
+                    if (!isTOPSAR() || !isSLC()) {
+                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
+                                imageInformation.getAttributeInt("numberOfLines"));
+                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line,
+                                imageInformation.getAttributeInt("numberOfSamples"));
+                    }
+
+                    addOrbitStateVectors(absRoot, generalAnnotation.getElement("orbitList"));
+                    addSRGRCoefficients(absRoot, prodElem.getElement("coordinateConversion"));
+                    addDopplerCentroidCoefficients(absRoot, prodElem.getElement("dopplerCentroid"));
+
+                    commonMetadataRetrieved = true;
                 }
 
-                addOrbitStateVectors(absRoot, generalAnnotation.getElement("orbitList"));
-                addSRGRCoefficients(absRoot, prodElem.getElement("coordinateConversion"));
-                addDopplerCentroidCoefficients(absRoot, prodElem.getElement("dopplerCentroid"));
-
-                commonMetadataRetrieved = true;
+                ++numBands;
             }
-
-            ++numBands;
         }
 
         // set average to absRoot
@@ -442,15 +444,17 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final String calibFolder = getRootFolder() + "annotation" +'/'+"calibration";
         final String[] filenames = listFiles(calibFolder);
 
-        for (String metadataFile : filenames) {
-            if (metadataFile.startsWith("calibration")) {
+        if(filenames != null) {
+            for (String metadataFile : filenames) {
+                if (metadataFile.startsWith("calibration")) {
 
-                final Document xmlDoc = XMLSupport.LoadXML(getInputStream(calibFolder+'/'+metadataFile));
-                final Element rootElement = xmlDoc.getRootElement();
-                final String name = metadataFile.replace("calibration-", "");
-                final MetadataElement nameElem = new MetadataElement(name);
-                calibrationElement.addElement(nameElem);
-                AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
+                    final Document xmlDoc = XMLSupport.LoadXML(getInputStream(calibFolder + '/' + metadataFile));
+                    final Element rootElement = xmlDoc.getRootElement();
+                    final String name = metadataFile.replace("calibration-", "");
+                    final MetadataElement nameElem = new MetadataElement(name);
+                    calibrationElement.addElement(nameElem);
+                    AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
+                }
             }
         }
     }
@@ -465,15 +469,17 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         final String calibFolder = getRootFolder() + "annotation" +'/'+"calibration";
         final String[] filenames = listFiles(calibFolder);
 
-        for (String metadataFile : filenames) {
-            if (metadataFile.startsWith("noise")) {
+        if(filenames != null) {
+            for (String metadataFile : filenames) {
+                if (metadataFile.startsWith("noise")) {
 
-                final Document xmlDoc = XMLSupport.LoadXML(getInputStream(calibFolder+'/'+metadataFile));
-                final Element rootElement = xmlDoc.getRootElement();
-                final String name = metadataFile.replace("noise-", "");
-                final MetadataElement nameElem = new MetadataElement(name);
-                noiseElement.addElement(nameElem);
-                AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
+                    final Document xmlDoc = XMLSupport.LoadXML(getInputStream(calibFolder + '/' + metadataFile));
+                    final Element rootElement = xmlDoc.getRootElement();
+                    final String name = metadataFile.replace("noise-", "");
+                    final MetadataElement nameElem = new MetadataElement(name);
+                    noiseElement.addElement(nameElem);
+                    AbstractMetadataIO.AddXMLMetadata(rootElement, nameElem);
+                }
             }
         }
     }

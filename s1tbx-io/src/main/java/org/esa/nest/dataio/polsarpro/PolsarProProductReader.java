@@ -43,6 +43,10 @@ public class PolsarProProductReader extends EnviProductReader {
         final File folder = inputFile.getParentFile();
         final File[] fileList = folder.listFiles();
 
+        if(fileList == null) {
+            throw new IOException("no files found in "+folder.toString());
+        }
+
         final List<Header> headerList = new ArrayList<>(fileList.length);
         final HashMap<Header, File> headerFileMap = new HashMap<>(fileList.length);
         Header mainHeader = null;

@@ -14,6 +14,9 @@
     <funding>European Space Agency</funding>
 
     <dependency>
+        <module>snap-graph-builder</module>
+    </dependency>
+    <dependency>
         <module>snap-gpf</module>
     </dependency>
     <dependency>

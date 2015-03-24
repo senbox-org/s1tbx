@@ -1,0 +1,198 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>s1tbx-op-utilities-ui</symbolicName>
+    <version>1.1.0</version>
+    <name>S1TBX Utility Operators UI</name>
+    <description>S1TBX Utility Operators UI</description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <funding>European Space Agency</funding>
+
+    <dependency>
+        <module>s1tbx-op-utilities</module>
+    </dependency>
+    <dependency>
+        <module>snap-graph-builder</module>
+    </dependency>
+
+    <categories>Processing</categories>
+
+    <extension point="snap-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.esa.nest.gpf.BandMathsOpUI</id>
+            <class>org.esa.nest.gpf.BandMathsOpUI</class>
+            <operatorName>BandMaths</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.BandSelectOpUI</id>
+            <class>org.esa.nest.gpf.BandSelectOpUI</class>
+            <operatorName>BandSelect</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.FilterOpUI</id>
+            <class>org.esa.nest.gpf.FilterOpUI</class>
+            <operatorName>Image-Filter</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.OversamplingOpUI</id>
+            <class>org.esa.nest.gpf.OversamplingOpUI</class>
+            <operatorName>Oversample</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.TileWriterUI</id>
+            <class>org.esa.nest.gpf.TileWriterUI</class>
+            <operatorName>TileWriter</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.UndersamplingOpUI</id>
+            <class>org.esa.nest.gpf.UndersamplingOpUI</class>
+            <operatorName>Undersample</operatorName>
+        </OperatorUI>
+    </extension>
+
+    <extension point="snap-ui:actions">
+
+        <action>
+            <id>Resampling</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Resampling</text>
+            <parent>tools</parent>
+            <placeAfter>DatasetConversion</placeAfter>
+        </action>
+
+        <action>
+            <id>OverSampleOp</id>
+            <helpId>OverSampleOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Resampling</parent>
+            <text>Oversample</text>
+            <operatorName>Oversample</operatorName>
+            <dialogTitle>Oversample an image</dialogTitle>
+            <targetProductNameSuffix>_OvrS</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>UnderSampleOp</id>
+            <helpId>UnderSampleOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Resampling</parent>
+            <text>Undersample</text>
+            <operatorName>Undersample</operatorName>
+            <dialogTitle>Undersample an image</dialogTitle>
+            <targetProductNameSuffix>_UndS</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>DatasetConversion</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Dataset Conversion</text>
+            <parent>tools</parent>
+            <placeAfter>createSubsetFromView</placeAfter>
+        </action>
+
+        <action>
+            <id>ConvertDatatypeOp</id>
+            <helpId>ConvertDatatypeOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>DatasetConversion</parent>
+            <text>Convert Datatype</text>
+            <operatorName>Convert-Datatype</operatorName>
+            <dialogTitle>Change the datatype of the product</dialogTitle>
+            <targetProductNameSuffix>_Cnv</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>AmplitudeToIntensityOp</id>
+            <class>org.esa.nest.dat.AmplitudeToIntensityOpAction</class>
+            <text>Amplitude to/from Intensity</text>
+            <shortDescr>Change the data Amplitude to/from Intensity</shortDescr>
+            <parent>DatasetConversion</parent>
+            <context>band</context>
+            <helpId>AmplitudeToIntensityOp</helpId>
+        </action>
+
+        <action>
+            <id>LinearTodBOp</id>
+            <class>org.esa.nest.dat.LinearTodBOpAction</class>
+            <text>Linear to/from dB</text>
+            <shortDescr>Change the data Linear to/from dB</shortDescr>
+            <parent>DatasetConversion</parent>
+            <context>band</context>
+            <helpId>LinearTodBOp</helpId>
+        </action>
+
+        <action>
+            <id>ScaleData</id>
+            <class>org.esa.nest.dat.ScaleDataAction</class>
+            <text>Scale Data</text>
+            <shortDescr>Scale data using a virtual band</shortDescr>
+            <parent>DatasetConversion</parent>
+            <context>band</context>
+            <helpId>ScaleData</helpId>
+        </action>
+
+        <action>
+            <id>replaceMetadata</id>
+            <class>org.esa.nest.dat.ReplaceMetadataAction</class>
+            <text>Replace Metadata</text>
+            <shortDescr>Replace product metadata with that of another product</shortDescr>
+            <description>Replace product metadata with that of another product</description>
+            <parent>MetadataTools</parent>
+            <context>metadataNode</context>
+        </action>
+
+        <action>
+            <id>BandSelectOp</id>
+            <helpId>BandSelectOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>csaIcon</icon>
+            <parent>tools</parent>
+            <text>Band Select</text>
+            <shortDescr>Select a subset of bands</shortDescr>
+            <operatorName>BandSelect</operatorName>
+            <dialogTitle>Band Select</dialogTitle>
+        </action>
+
+        <action>
+            <id>ImageFilterOp</id>
+            <helpId>FilterOperator</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>tools</parent>
+            <text>Image Filtering</text>
+            <operatorName>Image-Filter</operatorName>
+            <dialogTitle>Image filtering</dialogTitle>
+            <shortDescr>Apply an image filter</shortDescr>
+            <targetProductNameSuffix>_Filt</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>TestPattern</id>
+            <helpId>TestPattern</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>tools</parent>
+            <text>TestPattern</text>
+            <operatorName>TestPattern</operatorName>
+            <dialogTitle>TestPattern</dialogTitle>
+            <targetProductNameSuffix>_test</targetProductNameSuffix>
+        </action>
+        
+    </extension>
+
+    <extension point="snap-ui:helpSets">
+        <helpSet>
+            <parent>snap-help</parent>
+            <id>sartoolsHelp</id>
+            <path>doc/help/sartools.hs</path>
+        </helpSet>
+    </extension>
+</module>

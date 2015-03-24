@@ -1,0 +1,229 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>s1tbx-op-sentinel1-ui</symbolicName>
+    <version>1.1.0</version>
+    <name>S1TBX Sentinel-1 Tools UI</name>
+
+    <description>Tools for Sentinel-1 products</description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <funding>European Space Agency</funding>
+
+    <dependency>
+        <module>s1tbx-op-sentinel1</module>
+    </dependency>
+    <dependency>
+        <module>snap-graph-builder</module>
+    </dependency>
+
+    <categories>Processor</categories>
+
+    <extension point="snap-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.esa.nest.gpf.TOPSARDeburstOpUI</id>
+            <class>org.esa.nest.gpf.TOPSARDeburstOpUI</class>
+            <operatorName>TOPSAR-Deburst</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.SliceAssemblyOpUI</id>
+            <class>org.esa.nest.gpf.SliceAssemblyOpUI</class>
+            <operatorName>SliceAssembly</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.TOPSARSplitOpUI</id>
+            <class>org.esa.nest.gpf.TOPSARSplitOpUI</class>
+            <operatorName>TOPSAR-Split</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.BackGeocodingOpUI</id>
+            <class>org.esa.nest.gpf.BackGeocodingOpUI</class>
+            <operatorName>Back-Geocoding</operatorName>
+        </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.TOPSARMergeOpUI</id>
+            <class>org.esa.nest.gpf.TOPSARMergeOpUI</class>
+            <operatorName>TOPSAR-Merge</operatorName>
+        </OperatorUI>
+    </extension>
+
+    <extension point="snap-ui:actions">
+
+        <action>
+            <id>Sentinel1</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Sentinel-1 TOPS</text>
+            <parent>SAR Processing</parent>
+            <placeAfter>ASARWSS</placeAfter>
+        </action>
+
+        <action>
+            <id>SliceAssemblyOp</id>
+            <helpId>SliceAssemblyOp</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>S-1 Slice Assembly</text>
+            <shortDescr>Merge slice products together</shortDescr>
+            <dialogTitle>Slice Assembly</dialogTitle>
+            <graphFile>Sentinel1SliceAssemblyGraph.xml</graphFile>
+        </action>
+
+        <action>
+            <id>TOPSARSplitOp</id>
+            <helpId>TOPSARSplitOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>S-1 TOPS Split</text>
+            <operatorName>TOPSAR-Split</operatorName>
+            <dialogTitle>Sentinel1 TOPSAR split operator</dialogTitle>
+            <shortDescr>Split a Sentinel1 TOPSAR product</shortDescr>
+            <targetProductNameSuffix>_split</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>TOPSARMergeOp</id>
+            <helpId>TOPSARMergeOp</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <placeAfter>TOPSARSplitOp</placeAfter>
+            <text>S-1 TOPS Merge</text>
+            <dialogTitle>TOPSAR Merge</dialogTitle>
+            <shortDescr>TOPSAR Merge</shortDescr>
+            <graphFile>TOPSARMergeGraph.xml</graphFile>
+        </action>
+
+        <action>
+            <id>TOPSARDeburstOp</id>
+            <helpId>TOPSARDeburstOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>S-1 TOPS Deburst</text>
+            <operatorName>TOPSAR-Deburst</operatorName>
+            <dialogTitle>Sentinel1 TOPSAR Deburst operator</dialogTitle>
+            <shortDescr>Deburst a Sentinel1 TOPSAR product</shortDescr>
+            <targetProductNameSuffix>_Deburst</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>Sentinel1SLCtoGRD</id>
+            <helpId>Sentinel1SLCtoGRD</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>Sentinel1</parent>
+            <text>S-1 SLC to GRD</text>
+            <shortDescr>Convert a Sentinel1 SLC product to a detected ground range product</shortDescr>
+            <dialogTitle>Sentinel1 SLC to GRD</dialogTitle>
+            <graphFile>Sentinel1SLCtoGRDGraph.xml</graphFile>
+        </action>
+
+        <!-- Coregistration -->
+
+        <action>
+            <id>TOPSCoregistrationGroup</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>S-1 TOPS Coregistration</text>
+            <parent>CoregistrationGroup</parent>
+            <placeAfter>InSARCoregistrationGraph</placeAfter>
+        </action>
+
+        <action>
+            <id>TOPSCoregistration</id>
+            <helpId>BackGeocodingOp</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>TOPSCoregistrationGroup</parent>
+            <placeFirst>true</placeFirst>
+            <separatorAfter>true</separatorAfter>
+            <text>S-1 TOPS Coregistration</text>
+            <dialogTitle>TOPSAR Coregistration</dialogTitle>
+            <shortDescr>TOPSAR Coregistration</shortDescr>
+            <graphFile>Sentinel1-TOPS-Coregistration.xml</graphFile>
+            <enableEditing>true</enableEditing>
+        </action>
+
+        <action>
+            <id>BackGeocodingOp</id>
+            <helpId>BackGeocodingOp</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>TOPSCoregistrationGroup</parent>
+            <placeAfter>TOPSCoregistration</placeAfter>
+            <text>S-1 Back Geocoding</text>
+            <dialogTitle>Back Geocoding</dialogTitle>
+            <shortDescr>Back Geocoding</shortDescr>
+            <graphFile>BackGeocodingGraph.xml</graphFile>
+        </action>
+
+        <action>
+            <id>RangeShiftOp</id>
+            <helpId>RangeShiftOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>TOPSCoregistrationGroup</parent>
+            <placeAfter>BackGeocodingOp</placeAfter>
+            <text>S-1 Range Shift</text>
+            <operatorName>Range-Shift</operatorName>
+            <dialogTitle>Constant Range Offset Estimation</dialogTitle>
+            <shortDescr>Constant Range Offset Estimation</shortDescr>
+            <targetProductNameSuffix>_rg</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>AzimuthShiftOp</id>
+            <helpId>AzimuthShiftOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>TOPSCoregistrationGroup</parent>
+            <placeAfter>RangeShiftOp</placeAfter>
+            <text>S-1 Azimuth Shift</text>
+            <operatorName>Azimuth-Shift</operatorName>
+            <dialogTitle>Azimuth Offset Estimation</dialogTitle>
+            <shortDescr>Azimuth Offset Estimation</shortDescr>
+            <targetProductNameSuffix>_az</targetProductNameSuffix>
+        </action>
+
+        <!--action>
+            <id>ComputeDerampDemodPhaseOp</id>
+            <helpId>ComputeDerampDemodPhaseOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>TOPSCoregistrationGroup</parent>
+            <text>Compute Deramp Demodulation Phase</text>
+            <operatorName>Compute-Deramp-Demod-Phase</operatorName>
+            <dialogTitle>Compute Deramp Demodulation Phase</dialogTitle>
+            <shortDescr>Compute Deramp Demodulation Phase</shortDescr>
+            <targetProductNameSuffix>_ddp</targetProductNameSuffix>
+        </action-->
+
+        <action>
+            <id>InterferogramOp</id>
+            <helpId>InterferogramOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Interferogram Formation</text>
+            <operatorName>Interferogram</operatorName>
+            <dialogTitle>Interferogram Formation</dialogTitle>
+            <shortDescr>Interferogram Formation and Flat Earth Phase Removal</shortDescr>
+            <targetProductNameSuffix>_ifg</targetProductNameSuffix>
+            <parent>products</parent>
+            <placeFirst>true</placeFirst>
+        </action>
+
+    </extension>
+
+	<extension point="snap-ui:helpSets">
+        <helpSet>
+            <parent>snap-help</parent>
+            <id>s1tbx-op-sentinel1-help</id>
+            <path>doc/help/s1tbx-op-sentinel1.hs</path>
+        </helpSet>
+    </extension>
+</module>

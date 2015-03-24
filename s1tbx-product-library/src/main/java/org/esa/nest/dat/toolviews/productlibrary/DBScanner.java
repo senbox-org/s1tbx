@@ -83,7 +83,10 @@ public final class DBScanner extends SwingWorker {
         final ProductFunctions.ValidProductFileFilter fileFilter = new ProductFunctions.ValidProductFileFilter(false);
         final List<File> fileList = new ArrayList<>(dirList.size());
         for (File file : dirList) {
-            fileList.addAll(Arrays.asList(file.listFiles(fileFilter)));
+            final File[] files = file.listFiles(fileFilter);
+            if(files != null) {
+                fileList.addAll(Arrays.asList(files));
+            }
             pm.setTaskName("Collecting "+fileList.size()+" files...");
         }
 
@@ -202,13 +205,15 @@ public final class DBScanner extends SwingWorker {
         final ProductFunctions.DirectoryFileFilter dirFilter = new ProductFunctions.DirectoryFileFilter();
 
         final File[] subDirs = dir.listFiles(dirFilter);
-        count += subDirs.length;
-        pm.setTaskName("Collecting "+count+" folders...");
+        if(subDirs != null) {
+            count += subDirs.length;
+            pm.setTaskName("Collecting " + count + " folders...");
 
-        for (final File subDir : subDirs) {
-            dirList.add(subDir);
-            final File[] dirs = collectAllSubDirs(subDir, count, pm);
-            dirList.addAll(Arrays.asList(dirs));
+            for (final File subDir : subDirs) {
+                dirList.add(subDir);
+                final File[] dirs = collectAllSubDirs(subDir, count, pm);
+                dirList.addAll(Arrays.asList(dirs));
+            }
         }
         return dirList.toArray(new File[dirList.size()]);
     }

@@ -3,15 +3,26 @@
 
     <modelVersion>4.0.0</modelVersion>
 	
+    <groupId>org.esa.s1tbx</groupId>
+    <artifactId>s1tbx</artifactId>
+    <version>1.1.0</version>
+    <name>Sentinel-1 Toolbox</name>
+    <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
+    <description>Tools for SAR Earth Observation</description>
+    
+    <packaging>pom</packaging>
+    
 	<properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>				
-		<context>s1tbx</context>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>		
+        <netbeans.version>RELEASE802</netbeans.version>
+        <javahelp.version>2.0.05</javahelp.version>
+        <brandingToken>s1tbx</brandingToken>		
 		<user.language>en</user.language>
 		
 		<skipTests>false</skipTests>
         <test.jvm.maxheapsize>5024m</test.jvm.maxheapsize>
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
-        <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${context}</surefire.jvm.args>
+        <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${brandingToken}</surefire.jvm.args>
 
 		<jlinda.version>0.8.1</jlinda.version>
 		<rstb.version>6.3.2</rstb.version>
@@ -28,7 +39,7 @@
         <netcdf.version>4.3.22</netcdf.version>	
 		
 		<outputdir>../../output</outputdir>
-		<pacakgedir>../package</pacakgedir>
+		<packagedir>../package</packagedir>
 	</properties>
 	
 	<prerequisites>
@@ -48,22 +59,28 @@
 	
     <packaging>pom</packaging>
   
-	    <modules>
+	<modules>
 		<module>jlinda</module>
 		<module>rstb</module>
-		<module>s1tbx-benchmark</module>
+		<!--module>s1tbx-benchmark</module-->
 		<module>s1tbx-bootstrap</module>
-		<module>s1tbx-cli</module>
 		<module>s1tbx-config</module>
-		<module>s1tbx-dem</module>				
+		<module>s1tbx-dem</module>	
+        <module>s1tbx-dem-ui</module>
 		<module>s1tbx-help</module>
 		<module>s1tbx-io</module>
 		<module>s1tbx-op-calibration</module>
-		<module>s1tbx-op-coregistration</module>
-		<module>s1tbx-op-feature-extraction</module>		
+        <module>s1tbx-op-calibration-ui</module>
+		<module>s1tbx-op-feature-extraction</module>
+        <module>s1tbx-op-feature-extraction-ui</module>
+        <module>s1tbx-op-insar</module>
+        <module>s1tbx-op-insar-ui</module>
 		<module>s1tbx-op-sar-processing</module>
+        <module>s1tbx-op-sar-processing-ui</module>
 		<module>s1tbx-op-sentinel1</module>
+        <module>s1tbx-op-sentinel1-ui</module>
 		<module>s1tbx-op-utilities</module>
+        <module>s1tbx-op-utilities-ui</module>
 		<module>s1tbx-product-library</module>
 		<module>s1tbx-rcp</module>
 		<module>s1tbx-worldwind</module>
@@ -78,6 +95,10 @@
 
     <inceptionYear>2007</inceptionYear>
 
+    <prerequisites>
+       <maven>3.1.0</maven>
+    </prerequisites>
+    
     <licenses>
         <license>
             <name>GNU General Public License (GPL)</name>
@@ -86,9 +107,14 @@
         </license>
     </licenses>
 
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://senbox.atlassian.net/</url>
+    </issueManagement>
+    
     <scm>
 	 <connection>scm:git:git://github.com/senbox-org/s1tbx.git</connection>
-     <url>https://earth.esa.int/web/sentinel-tbx</url>
+     <url>https://github.com/senbox-org/s1tbx.git</url>
     </scm>
 
 	<repositories>
@@ -148,22 +174,6 @@
                 <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
-		<!--pluginRepository>
-          <id>mojo</id>
-          <name>Mojo repository</name>
-          <url>https://nexus.codehaus.org/content/groups/snapshots-group</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>apache.org</id>
-            <name>Maven Plugin Snapshots</name>
-            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository-->
     </pluginRepositories>
 
 	<distributionManagement>
@@ -305,7 +315,6 @@
 				</exclusions>
             </dependency>
 
-
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
@@ -324,6 +333,34 @@
                 <version>1.4.1.1</version>
             </dependency>
 			
+            <!-- NetBeans Modules -->
+
+            <!--dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-openide-awt</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-openide-util</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-openide-util-lookup</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-netbeans-api-annotations-common</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-netbeans-modules-javahelp</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency-->
+            
 	        <!-- jlinda Modules ############################################# -->
 			
 			<dependency>
@@ -636,7 +673,7 @@
             <dependency>
                 <groupId>javax.help</groupId>
                 <artifactId>javahelp</artifactId>
-                <version>2.0.05</version>
+                <version>${javahelp.version}</version>
             </dependency>
 
             <!-- JDOM Library ############################################# -->
@@ -1011,7 +1048,7 @@
 	                    <source>1.8</source>
 	                    <target>1.8</target>
 	                    <debug>true</debug>
-	                    <encoding>ISO-8859-1</encoding>
+	                    <encoding>UTF-8</encoding>
 						<optimize>true</optimize>
 	                </configuration>
 	            </plugin>
@@ -1126,7 +1163,7 @@
                         <useOSGiDependencies>false</useOSGiDependencies>
                         <requiresRestart>false</requiresRestart>
                         <keystore>${project.basedir}/../keystore/s1tbx.ks</keystore>
-                        <keystorealias>snap</keystorealias>
+                        <keystorealias>s1tbx</keystorealias>
                         <keystorepassword>snap-123</keystorepassword>
                     </configuration>
                 </plugin>
@@ -1146,7 +1183,7 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-					<outputDirectory>${pacakgedir}</outputDirectory>
+					<outputDirectory>${packagedir}</outputDirectory>
 					<finalName>s1tbx</finalName>
                     <descriptors>
 						<descriptor>s1tbx-config/main/assembly/bin-windows64.xml</descriptor>
@@ -1171,7 +1208,7 @@
                             </includes>
                         </fileset>
 						<fileset>
-                            <directory>${pacakgedir}</directory>
+                            <directory>${packagedir}</directory>
                             <includes>
                                 <include>**/*</include>
                             </includes>
@@ -1257,6 +1294,24 @@
                 <role>Software Engineering</role>
             </roles>
         </developer>
+        <developer>
+            <id>cecilia</id>
+            <name>Cecilia Wong</name>
+            <email>cecilia@array.ca</email>
+            <organization>Array Systems Computing Inc</organization>
+            <roles>
+                <role>Software Engineering</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>serge</id>
+            <name>Serge Stankovic</name>
+            <email>sstankovic@array.ca</email>
+            <organization>Array Systems Computing Inc</organization>
+            <roles>
+                <role>Software Engineering</role>
+            </roles>
+        </developer>
 		<developer>
 			<id>pmar</id>
 			<name>Petar Marinkovic</name>
@@ -1327,6 +1382,7 @@
             <id>withbeam</id>
             <modules>
 				<module>../snap-engine</module>
+                <module>../snap-desktop</module>
             </modules>
 		</profile>
 		<profile>

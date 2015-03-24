@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="6.0.1" transformSequenceNumber="5">
   <directoryPresets config="../main/bin/common/resource/images" />
-  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="s1tbx" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="1.0.8" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" macVolumeId="9979cf145cd6c9cb" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
+  <application name="Sentinel-1 Toolbox" distributionSourceDir="" applicationId="7940-7190-5695-4776" mediaDir="../../../package" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="true" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="true" createMd5Sums="true" shrinkRuntime="true" shortName="s1tbx" publisher="ESA" publisherWeb="https://earth.esa.int/web/sentinel-tbx" version="1.1.0" allPathsRelative="true" backupOnSave="false" autoSave="true" convertDotsToUnderscores="false" macSignature="????" macVolumeId="9979cf145cd6c9cb" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -157,6 +157,7 @@
           <entry location="modules/ceres-ui-1.1.0.jar" fileType="regular" />
           <entry location="modules/lib-hdf-2.7" fileType="regular" />
           <entry location="modules/snap-arcbingrid-reader-1.1.0.jar" fileType="regular" />
+          <entry location="modules/snap-bigtiff-1.1.0.jar" fileType="regular" />
           <entry location="modules/snap-cluster-analysis-1.1.0.jar" fileType="regular" />
           <entry location="modules/snap-core-1.1.0.jar" fileType="regular" />
           <entry location="modules/snap-csv-dataio-1.1.0.jar" fileType="regular" />
@@ -175,9 +176,7 @@
           <entry location="modules/snap-python-1.1.0" fileType="regular" />
           <entry location="modules/snap-statistics-op-1.1.0.jar" fileType="regular" />
           <entry location="modules/snap-temporal-percentile-op-1.1.0.jar" fileType="regular" />
-          <entry location="modules/snap-time-series-tool-1.1.0.jar" fileType="regular" />
           <entry location="modules/snap-ui-1.1.0.jar" fileType="regular" />
-          <entry location="modules/snap-unmix-1.1.0.jar" fileType="regular" />
           <entry location="modules/snap-visat-rcp-1.1.0.jar" fileType="regular" />
         </include>
         <dependencies />
@@ -1467,9 +1466,6 @@ if (isS3tbxInstallation &amp;&amp; !context.getBooleanVariable("sys.confirmedUpd
                       <void property="checkboxText">
                         <string>Remove S1TBX application data</string>
                       </void>
-                      <void property="initiallySelected">
-                        <boolean>true</boolean>
-                      </void>
                       <void property="variableName">
                         <string>removeAppData</string>
                       </void>
@@ -2410,8 +2406,8 @@ if (wizardContext != null) {
       </installerScript>
     </unixInstaller>
   </mediaSets>
-  <buildIds buildAll="false">
+  <buildIds buildAll="true">
     <mediaSet refId="4707" />
   </buildIds>
-  <buildOptions verbose="false" faster="true" disableSigning="false" disableJreBundling="false" debug="false" />
+  <buildOptions verbose="false" faster="false" disableSigning="false" disableJreBundling="false" debug="false" />
 </install4j>

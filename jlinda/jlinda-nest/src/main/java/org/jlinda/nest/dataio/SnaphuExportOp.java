@@ -18,7 +18,10 @@ package org.jlinda.nest.dataio;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -37,8 +40,6 @@ import org.esa.snap.gpf.OperatorUtils;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-import java.util.List;
 
 /**
  * Split a stack product into individual products
@@ -110,7 +111,7 @@ public class SnaphuExportOp extends Operator implements Output {
             }
 
             for(Band srcBand : sourceProduct.getBands()) {
-                if(srcBand.getUnit().contains(Unit.COHERENCE) || srcBand.getUnit().contains(Unit.PHASE)) {
+                if(srcBand.getUnit().contains(Unit.COHERENCE) || (srcBand.getUnit().contains(Unit.PHASE) && !srcBand.getName().toLowerCase().contains("topo"))) {
                     ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
                 }
             }

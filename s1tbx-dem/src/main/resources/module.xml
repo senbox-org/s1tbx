@@ -14,13 +14,7 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>snap-graph-builder</module>
-    </dependency>
-    <dependency>
         <module>s1tbx-io</module>
-    </dependency>
-    <dependency>
-        <module>snap-geotiff</module>
     </dependency>
     <dependency>
         <module>jlinda-core</module>
@@ -30,103 +24,6 @@
 
     <extension point="ceres-core:serviceProviders">
         <serviceProvider>org.esa.nest.dataio.dem.ElevationModelDescriptor</serviceProvider>
-    </extension>
-
-    <extension point="snap-ui:actions">
-
-        <action>
-            <id>DEMTools</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>DEM Tools</text>
-            <parent>tools</parent>
-            <placeAfter>Masks</placeAfter>
-        </action>
-
-        <action>
-            <id>createElevationAction</id>
-            <class>org.esa.nest.dat.CreateElevationAction</class>
-            <text>Add Elevation Band</text>
-            <shortDescr>Creates an elevation band from a selected DEM</shortDescr>
-            <description>Creates an elevation band from a selected Digital Elevation Model (DEM)</description>
-            <context>product</context>
-            <helpId>createElevationBand</helpId>
-            <parent>DEMTools</parent>
-        </action>
-
-        <action>
-            <id>FillHoleOp</id>
-            <helpId>FillHoleOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
-            <icon>esaIcon</icon>
-            <parent>DEMTools</parent>
-            <text>Fill DEM Hole</text>
-            <operatorName>Fill-Hole</operatorName>
-            <dialogTitle>Fill holes in DEM product</dialogTitle>
-            <shortDescr>Fill holes in a DEM product</shortDescr>
-            <targetProductNameSuffix>_Filled</targetProductNameSuffix>
-        </action>
-
-        <action>
-            <id>importDEM</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
-            <text>DEM</text>
-            <parent>importRasterData</parent>
-        </action>
-
-        <action>
-            <id>importACEDEMProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <formatName>ACE</formatName>
-            <text>ACE DEM Tile</text>
-            <parent>importDEM</parent>
-            <shortDescr>Import a ACE DEM tile or tile subset.</shortDescr>
-            <description>Import a ACE DEM tile or tile subset.</description>
-            <helpId>importACEProduct</helpId>
-        </action>
-
-        <action>
-            <id>importGETASSE30Product</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <formatName>GETASSE30</formatName>
-            <text>GETASSE30 DEM Tile</text>
-            <parent>importDEM</parent>
-            <shortDescr>Import a GETASSE30 DEM tile or tile subset.</shortDescr>
-            <description>Import a GETASSE30 DEM tile or tile subset.</description>
-            <helpId>importGETASSE30Product</helpId>
-        </action>
-
-        <action>
-            <id>importSRTMGeoTIFFDEMProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <formatName>GeoTIFF</formatName>
-            <text>SRTM GeoTIFF DEM Tile</text>
-            <parent>importDEM</parent>
-            <shortDescr>Import a SRTM DEM tile or tile subset.</shortDescr>
-            <description>Import a SRTM DEM tile or tile subset.</description>
-            <helpId>importSRTMProduct</helpId>
-        </action>
-
-        <action>
-            <id>importSRTMArcGridDEMProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <formatName>ARC_INFO_BIN_GRID</formatName>
-            <text>SRTM ArcGrid DEM Tile</text>
-            <parent>importDEM</parent>
-            <shortDescr>Import a SRTM DEM tile or tile subset.</shortDescr>
-            <description>Import a SRTM DEM tile or tile subset.</description>
-            <helpId>importSRTMProduct</helpId>
-        </action>
-
-        <action>
-            <id>importAsterDEMProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <formatName>GeoTIFF</formatName>
-            <text>ASTER GeoTIFF DEM Tile</text>
-            <parent>importDEM</parent>
-            <shortDescr>Import a ASTER DEM tile or tile subset.</shortDescr>
-            <description>Import a ASTER DEM tile or tile subset.</description>
-            <helpId>importASTERProduct</helpId>
-        </action>
     </extension>
 
 </module>

@@ -8,6 +8,8 @@
     <artifactId>jlinda</artifactId>
     <version>0.8.1</version>
 
+    <packaging>pom</packaging>
+        
     <description>Java Library for Interferometric Data Analysis (jLinda)</description>
 
     <properties>
@@ -22,8 +24,6 @@
 		
 		<outputdir>../../../output</outputdir>
     </properties>
-
-    <packaging>pom</packaging>
 
     <organization>
         <name>PPO.labs</name>
@@ -42,6 +42,7 @@
     <modules>
         <module>jlinda-core</module>
         <module>jlinda-nest</module>
+        <module>jlinda-nest-ui</module>
     </modules>
 
     <repositories>
@@ -110,6 +111,18 @@
                 <!--<tagNameFormat>v@{project.version}</tagNameFormat>-->
                 <!--</configuration>-->
             </plugin>
+            
+            <!--plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin-->
         </plugins>
     </build>
 
@@ -139,5 +152,4 @@
         <developerConnection>scm:git:ppolabs/jlinda.git</developerConnection>
         <url>https://github.com/ppolabs/jlinda</url>
     </scm>
-
 </project>

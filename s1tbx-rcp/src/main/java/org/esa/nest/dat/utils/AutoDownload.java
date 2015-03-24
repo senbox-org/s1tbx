@@ -24,7 +24,7 @@ public class AutoDownload {
      */
     public static String getDownloadedDirPath(final String message, final File installDir, final String ARCHIVE_URL_PATH) {
 
-        if (!installDir.canRead() || installDir.listFiles().length == 0) {
+        if (!installDir.canRead() || installDir.listFiles()==null || installDir.listFiles().length == 0) {
             if (!installDir.canRead() && !installDir.mkdirs())
                 return null;
             try {

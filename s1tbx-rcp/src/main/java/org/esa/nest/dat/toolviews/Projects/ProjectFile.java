@@ -17,7 +17,7 @@ package org.esa.nest.dat.toolviews.Projects;
 
 import com.thoughtworks.xstream.io.xml.xppdom.XppDom;
 import org.esa.beam.framework.gpf.graph.Graph;
-import org.esa.snap.gpf.GPFProcessor;
+import org.esa.snap.dat.graphbuilder.GPFProcessor;
 
 import java.io.File;
 import java.io.FileReader;

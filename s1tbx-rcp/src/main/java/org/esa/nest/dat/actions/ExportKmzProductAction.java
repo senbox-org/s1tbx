@@ -31,7 +31,7 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 import org.esa.snap.dat.dialogs.StringSelectorDialog;
 import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
-import org.esa.snap.gpf.GPFProcessor;
+import org.esa.snap.dat.graphbuilder.GPFProcessor;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 

@@ -1,0 +1,325 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>s1tbx-op-feature-extraction-ui</symbolicName>
+    <version>1.1.0</version>
+    <name>S1TBX Feature ExtractionTools UI</name>
+
+    <description>S1TBX Feature Extraction Tools</description>
+
+    <vendor>Array Systems Computing Inc</vendor>
+    <contactAddress>1120 Finch Ave W. Toronto (Canada)</contactAddress>
+    <copyright>(C) 2014 by Array Systems Computing Inc</copyright>
+    <url>http://www.array.ca</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    <funding>European Space Agency</funding>
+
+    <dependency>
+        <module>s1tbx-op-feature-extraction</module>
+    </dependency>
+	<dependency>
+        <module>snap-graph-builder</module>
+    </dependency>
+
+    <categories>Processor</categories>
+
+    <extension point="snap-graph-builder:OperatorUIs">
+
+        <OperatorUI>
+            <id>org.esa.nest.gpf.oceantools.CreateLandMaskOpUI</id>
+            <class>org.esa.nest.gpf.oceantools.CreateLandMaskOpUI</class>
+            <operatorName>Land-Sea-Mask</operatorName>
+        </OperatorUI>
+    </extension>
+
+    <extension point="snap-ui:layerSources">
+        <layerSource>
+            <id>object-detection-layer-source</id>
+            <name>Object Detection Results</name>
+            <description>Shows detected objects</description>
+            <class>org.esa.nest.dat.layersrc.ObjectDetectionLayerSource</class>
+        </layerSource>
+        <layerSource>
+            <id>wind-field-estimation-layer-source</id>
+            <name>Wind Field Estimation Results</name>
+            <description>Shows wind field</description>
+            <class>org.esa.nest.dat.layersrc.WindFieldEstimationLayerSource</class>
+        </layerSource>
+    </extension>
+
+    <extension point="snap-ui:actions">
+
+        <action>
+            <id>Masks</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Masks</text>
+            <parent>tools</parent>
+            <placeBefore>FeatureExtraction</placeBefore>
+        </action>
+
+        <action>
+            <id>TerrainMaskGeneration</id>
+            <helpId>TerrainMaskGeneration</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Masks</parent>
+            <text>Terrain Mask</text>
+            <shortDescr>Terrain Mask Generation</shortDescr>
+            <operatorName>Terrain-Mask</operatorName>
+            <dialogTitle>Terrain Mask Generation</dialogTitle>
+            <targetProductNameSuffix>_terr_msk</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>createLandMaskOp</id>
+            <helpId>CreateLandMask</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>Masks</parent>
+            <text>Land/Sea Mask</text>
+            <shortDescr>Create a Land/Sea Mask</shortDescr>
+            <dialogTitle>Create a Land/Sea Mask</dialogTitle>
+            <operatorName>Land-Sea-Mask</operatorName>
+            <targetProductNameSuffix>_msk</targetProductNameSuffix>
+        </action>
+
+        <!--action>
+            <id>PrimitiveFeatureGroup</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Primitive Features</text>
+            <parent>processing.imageAnalysis</parent>
+            <placeAfter>Masks</placeAfter>
+        </action-->
+
+        <!--action>
+            <id>FeatureExtractionGroup</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Feature Extraction</text>
+            <parent>Classification</parent>
+            <placeAfter>PrimitiveFeatureGroup</placeAfter>
+        </action-->
+
+        <action>
+            <id>SpeckleDivergence</id>
+            <helpId>SpeckleDivergence</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>processing.imageAnalysis</parent>
+            <text>Speckle Divergence</text>
+            <shortDescr>Speckle Divergence</shortDescr>
+            <operatorName>Speckle-Divergence</operatorName>
+            <dialogTitle>Urban Area Detection</dialogTitle>
+            <targetProductNameSuffix>_urb</targetProductNameSuffix>
+        </action>
+
+        <!--action>
+	        <id>ForestAreaDetection</id>
+	        <helpId>ForestAreaDetection</helpId>
+	        <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>PrimitiveFeatureGroup</parent>
+	        <text>Forest Area Detection</text>
+            <shortDescr>Forest Area Detection</shortDescr>
+	        <operatorName>Forest-Area-Detection</operatorName>
+	        <dialogTitle>Forest Area Detection</dialogTitle>
+            <targetProductNameSuffix>_forest</targetProductNameSuffix>
+        </action-->
+
+        <!--action>
+	        <id>ForestAreaClassification</id>
+	        <helpId>ForestAreaClassification</helpId>
+	        <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>PrimitiveFeatureGroup</parent>
+	        <text>Forest Area Classification</text>
+            <shortDescr>Forest Area Classification</shortDescr>
+	        <operatorName>Forest-Area-Classification</operatorName>
+	        <dialogTitle>Forest Area Classification</dialogTitle>
+            <targetProductNameSuffix>_cls</targetProductNameSuffix>
+        </action-->
+
+        <!--action>
+            <id>FloodDetection</id>
+            <helpId>FloodDetection</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>PrimitiveFeatureGroup</parent>
+            <text>Flood Detection</text>
+            <shortDescr>Flood Detection</shortDescr>
+            <operatorName>Flood-Detection</operatorName>
+            <dialogTitle>Flood Detection</dialogTitle>
+            <targetProductNameSuffix>_flood</targetProductNameSuffix>
+        </action-->
+
+        <action>
+            <id>TextureAnalysisGroup</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Texture Analysis</text>
+            <parent>processing.imageAnalysis</parent>
+            <placeBefore>PrimitiveFeatureGroup</placeBefore>
+        </action>
+
+        <action>
+            <id>GLCMOp</id>
+            <helpId>GLCMOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>TextureAnalysisGroup</parent>
+            <text>GLCM</text>
+            <shortDescr>Extract Texture Features</shortDescr>
+            <operatorName>GLCM</operatorName>
+            <dialogTitle>GLCM</dialogTitle>
+            <targetProductNameSuffix>_glcm</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>GaborFilterOp</id>
+            <helpId>GaborFilterOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>TextureAnalysisGroup</parent>
+            <text>Gabor Filter</text>
+            <shortDescr>Extract Texture Features</shortDescr>
+            <operatorName>GaborFilter</operatorName>
+            <dialogTitle>Gabor Filter</dialogTitle>
+            <targetProductNameSuffix>_gab</targetProductNameSuffix>
+        </action>
+
+        <!--action>
+            <id>UrbanAreaDetectionGraph</id>
+            <helpId>UrbanAreaDetectionGraph</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>FeatureExtractionGroup</parent>
+            <text>Urban Area Detection</text>
+            <shortDescr>Urban Area Detection</shortDescr>
+            <dialogTitle>Urban Area Detection</dialogTitle>
+            <graphFile>FeatureExtractors\UrbanDetectionGraph.xml</graphFile>
+            <targetProductNameSuffix>_urb</targetProductNameSuffix>
+        </action-->
+
+        <!--action>
+            <id>FloodDetectionGraph</id>
+            <helpId>FloodDetectionGraph</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>FeatureExtractionGroup</parent>
+            <text>Flood Detection</text>
+            <shortDescr>Flood Detection</shortDescr>
+            <dialogTitle>Flood Detection</dialogTitle>
+            <graphFile>FeatureExtractors\FloodDetectionGraph.xml</graphFile>
+            <enableEditing>true</enableEditing>
+            <targetProductNameSuffix>_flood</targetProductNameSuffix>
+        </action-->
+
+        <action>
+            <id>ChangeDetection</id>
+            <helpId>ChangeDetectionOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <parent>processing.imageAnalysis</parent>
+            <text>Change Detection</text>
+            <shortDescr>Change Detection</shortDescr>
+	        <operatorName>Change-Detection</operatorName>
+            <dialogTitle>Change Detection</dialogTitle>
+            <targetProductNameSuffix>_change</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>oceanTools</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Ocean Tools</text>
+            <parent>SAR Processing</parent>
+            <placeAfter>SpeckleFiltering</placeAfter>
+        </action>
+
+        <action>
+            <id>ObjectDetection</id>
+            <helpId>ObjectDetection</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>oceanTools</parent>
+            <text>Object Detection</text>
+            <shortDescr>Ocean Object Detection</shortDescr>
+            <dialogTitle>Ocean Object Detection</dialogTitle>
+            <graphFile>ShipDetectionGraph.xml</graphFile>
+            <targetProductNameSuffix>_obj</targetProductNameSuffix>
+        </action>
+
+        <action>
+            <id>OilSpillDetectionOp</id>
+            <helpId>OilSpillDetection</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>oceanTools</parent>
+            <text>Oil Spill Detection</text>
+            <shortDescr>Oil Spill Detection</shortDescr>
+            <dialogTitle>Oil Spill Detection</dialogTitle>
+            <graphFile>OilSpillDetectionGraph.xml</graphFile>
+            <targetProductNameSuffix>_oil</targetProductNameSuffix>
+            <placeAfter>ObjectDetection</placeAfter>
+        </action>
+
+        <action>
+            <id>WindFieldEstimation</id>
+            <helpId>WindFieldEstimation</helpId>
+            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <icon>esaIcon</icon>
+            <parent>oceanTools</parent>
+            <text>Wind Field Estimation</text>
+            <shortDescr>Wind Field Estimation</shortDescr>
+            <dialogTitle>Wind Field Estimation</dialogTitle>
+            <graphFile>WindFieldEstimationGraph.xml</graphFile>
+            <targetProductNameSuffix>_wind</targetProductNameSuffix>
+            <placeAfter>OilSpillDetectionOp</placeAfter>
+        </action>
+
+
+        <action>
+            <id>ClusteringGroup</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Clustering</text>
+            <parent>processing.imageAnalysis</parent>
+        </action>
+
+        <action>
+            <parent>ClusteringGroup</parent>
+            <id>emClusterAnalysis</id>
+            <text>EM Cluster Analysis...</text>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <mnemonic>C</mnemonic>
+            <operatorName>EMClusterAnalysis</operatorName>
+            <dialogTitle>EM Cluster Analysis</dialogTitle>
+            <targetProductNameSuffix>_em</targetProductNameSuffix>
+            <helpId>clusterAnalysisEM</helpId>
+        </action>
+        <action>
+            <parent>ClusteringGroup</parent>
+            <id>kmeansClusterAnalysis</id>
+            <text>K-Means Cluster Analysis...</text>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <mnemonic>C</mnemonic>
+            <operatorName>KMeansClusterAnalysis</operatorName>
+            <dialogTitle>K-Means Cluster Analysis</dialogTitle>
+            <targetProductNameSuffix>_kmeans</targetProductNameSuffix>
+            <helpId>clusterAnalysisKMeans</helpId>
+        </action>
+        <!--action>
+            <parent>ClusteringGroup</parent>
+            <id>principleComponentAnalysis</id>
+            <text>Principle Component Analysis...</text>
+            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <operatorName>PCA</operatorName>
+            <dialogTitle>Principle Component Analysis</dialogTitle>
+            <targetProductNameSuffix>_pca</targetProductNameSuffix>
+            <helpId>principleComponentAnalysis</helpId>
+        </action-->
+    </extension>
+
+    <extension point="snap-ui:helpSets">
+        <helpSet>
+            <parent>snap-help</parent>
+            <id>featureExtractionHelp</id>
+            <path>doc/help/feature-extraction.hs</path>
+        </helpSet>
+    </extension>
+</module>

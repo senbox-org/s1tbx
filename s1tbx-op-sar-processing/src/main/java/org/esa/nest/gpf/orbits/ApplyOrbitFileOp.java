@@ -179,6 +179,10 @@ public final class ApplyOrbitFileOp extends Operator {
 
             createTargetProduct();
 
+            if(!productUpdated) {
+                updateOrbits();
+            }
+
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -230,7 +234,7 @@ public final class ApplyOrbitFileOp extends Operator {
             if (srcBand instanceof VirtualBand) {
                 OperatorUtils.copyVirtualBand(targetProduct, (VirtualBand) srcBand, srcBand.getName());
             } else {
-                ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, oneBandToProcess);
+                ProductUtils.copyBand(srcBand.getName(), sourceProduct, targetProduct, true);
                 oneBandToProcess = true;
             }
         }

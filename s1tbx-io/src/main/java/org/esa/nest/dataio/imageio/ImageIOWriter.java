@@ -19,7 +19,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductWriter;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.visat.VisatApp;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.gpf.ReaderUtils;
@@ -136,11 +135,8 @@ public class ImageIOWriter extends AbstractProductWriter {
             }
             //    }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            if (VisatApp.getApp() != null) {
-                VisatApp.getApp().showErrorDialog(e.getMessage() +
+            throw new IOException(e.getMessage()+
                         "\nTry using convertDataType to convert to UInt8 or a data type supported by the image format");
-            }
         }
     }
 
