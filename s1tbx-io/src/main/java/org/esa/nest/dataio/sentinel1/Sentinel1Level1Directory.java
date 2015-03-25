@@ -282,16 +282,24 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
     }
 
     private void determineProductDimensions(final MetadataElement absRoot) throws IOException {
-        int totalWidth = 0, maxHeight = 0;
-
+        int totalWidth = 0, maxHeight = 0, k = 0;
+        String pol = null;
         for (Map.Entry<String, ImageIOFile> stringImageIOFileEntry : bandImageFileMap.entrySet()) {
             final ImageIOFile img = stringImageIOFileEntry.getValue();
             final String imgName = img.getName().toLowerCase();
             final String bandMetadataName = imgBandMetadataMap.get(imgName);
-            if (bandMetadataName == null)
+            if (bandMetadataName == null) {
                 throw new IOException("Metadata for measurement dataset " + imgName + " not found");
-            final MetadataElement bandMetadata = absRoot.getElement(bandMetadataName);
+            }
 
+            if (k == 0) {
+                pol = bandMetadataName.substring(bandMetadataName.lastIndexOf("_") + 1);
+            } else if (!bandMetadataName.substring(bandMetadataName.lastIndexOf("_") + 1).equals(pol)) {
+                continue;
+            }
+            k++;
+
+            final MetadataElement bandMetadata = absRoot.getElement(bandMetadataName);
             int width = bandMetadata.getAttributeInt(AbstractMetadata.num_samples_per_line);
             int height = bandMetadata.getAttributeInt(AbstractMetadata.num_output_lines);
             totalWidth += width;
@@ -299,6 +307,7 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 maxHeight = height;
             }
         }
+
         if (isSLC() && isTOPSAR()) {  // approximate does not account for overlap
             absRoot.setAttributeInt(AbstractMetadata.num_samples_per_line, totalWidth);
             absRoot.setAttributeInt(AbstractMetadata.num_output_lines, maxHeight);
