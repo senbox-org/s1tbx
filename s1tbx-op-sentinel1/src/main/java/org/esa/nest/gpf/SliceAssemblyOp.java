@@ -1333,6 +1333,39 @@ public final class SliceAssemblyOp extends Operator {
         }
     }
 
+    private MetadataElement getAzimuthFmRateList(final Product product, String imageNum) {
+
+        final MetadataElement generalAnnotation = getAnnotationElement(product, imageNum, "generalAnnotation");
+        return generalAnnotation.getElement("azimuthFmRateList");
+    }
+
+    private void updateAzimuthFmRateList() {
+
+        final MetadataElement targetOrigProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
+        final MetadataElement[] elements = getElementsToUpdate(targetOrigProdRoot, "annotation");
+
+        for (MetadataElement e : elements) {
+
+            final String imageNum = extractImageNumber(e.getName());
+            final MetadataElement targetAzimuthFmRateList = e.getElement("product").getElement("generalAnnotation").getElement("azimuthFmRateList");
+            int targetNewCount = Integer.parseInt(targetAzimuthFmRateList.getAttributeString("count"));
+
+            for (int i = 1; i < sliceProducts.length; i++) {
+
+                final MetadataElement sliceAzimuthFmRateList = getAzimuthFmRateList(sliceProducts[i], imageNum);
+                final int sliceCount = Integer.parseInt(sliceAzimuthFmRateList.getAttributeString("count"));
+
+                for (int j = 0; j < sliceCount; j++) {
+                    final MetadataElement azimuthFmRate = sliceAzimuthFmRateList.getElementAt(j).createDeepClone();
+                    targetAzimuthFmRateList.addElementAt(azimuthFmRate, targetNewCount+j);
+                }
+
+                targetNewCount += sliceCount;
+            }
+
+            targetAzimuthFmRateList.setAttributeString("count", Integer.toString(targetNewCount));
+        }
+    }
 
     private void updateTargetProductMetadata() throws Exception {
 
@@ -1410,6 +1443,8 @@ public final class SliceAssemblyOp extends Operator {
         updateImageInformation();
 
         updateSwathTiming();
+
+        updateAzimuthFmRateList();
 
         //System.out.println("DONE updateTargetProductMetadata");
     }
