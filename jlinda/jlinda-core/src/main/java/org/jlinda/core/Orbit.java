@@ -237,7 +237,7 @@ public final class Orbit {
 
         Point satellitePosition;
         Point satelliteVelocity;
-        Point ellipsoidPosition; // returned
+        Point ellipsoidPosition = new Point(approxXYZCentre); // returned
 
         // allocate matrices
         double[] equationSet = new double[3];
@@ -245,9 +245,6 @@ public final class Orbit {
 
         satellitePosition = getXYZ(azTime);
         satelliteVelocity = getXYZDot(azTime);
-
-        // initial value
-        ellipsoidPosition = approxXYZCentre;
 
         // iterate for the solution
         for (int iter = 0; iter <= MAXITER; iter++) {
@@ -300,7 +297,7 @@ public final class Orbit {
             }
         }
 
-        return new Point(ellipsoidPosition);
+        return ellipsoidPosition;
     }
 
     public Point lp2xyz(final Point sarPixel, final SLCImage slcimage) throws Exception {

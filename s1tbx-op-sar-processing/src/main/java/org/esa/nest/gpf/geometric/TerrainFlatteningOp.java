@@ -33,6 +33,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
+import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.datamodel.AbstractMetadata;
@@ -429,8 +430,8 @@ public final class TerrainFlatteningOp extends Operator {
                 return false;
             }
 
-            final double[] earthPoint = new double[3];
-            final double[] sensorPos = new double[3];
+            final PosVector earthPoint = new PosVector();
+            final PosVector sensorPos = new PosVector();
             for (int y = ymin; y < ymax; y++) {
 
                 final double[] azimuthIndex = new double[w];
@@ -652,8 +653,8 @@ public final class TerrainFlatteningOp extends Operator {
         }
 
         final int x = sourceImageWidth / 2;
-        final double[] earthPoint = new double[3];
-        final double[] sensorPos = new double[3];
+        final PosVector earthPoint = new PosVector();
+        final PosVector sensorPos = new PosVector();
         final GeoPos geoPos = new GeoPos();
         int y;
         double alt = 0.0;
@@ -791,10 +792,10 @@ public final class TerrainFlatteningOp extends Operator {
      * @return The elevation angle in degree.
      */
     private static double computeElevationAngle(
-            final double slantRange, final double[] earthPoint, final double[] sensorPos) {
+            final double slantRange, final PosVector earthPoint, final PosVector sensorPos) {
 
-        final double H2 = sensorPos[0] * sensorPos[0] + sensorPos[1] * sensorPos[1] + sensorPos[2] * sensorPos[2];
-        final double R2 = earthPoint[0] * earthPoint[0] + earthPoint[1] * earthPoint[1] + earthPoint[2] * earthPoint[2];
+        final double H2 = sensorPos.x * sensorPos.x + sensorPos.y * sensorPos.y + sensorPos.z * sensorPos.z;
+        final double R2 = earthPoint.x * earthPoint.x + earthPoint.y * earthPoint.y + earthPoint.z * earthPoint.z;
 
         return FastMath.acos((slantRange * slantRange + H2 - R2) / (2 * slantRange * Math.sqrt(H2))) * Constants.RTOD;
     }
@@ -813,10 +814,10 @@ public final class TerrainFlatteningOp extends Operator {
             return noDataValue;
         }
 
-        final double[] t00 = new double[3];
-        final double[] t01 = new double[3];
-        final double[] t10 = new double[3];
-        final double[] t11 = new double[3];
+        final PosVector t00 = new PosVector();
+        final PosVector t01 = new PosVector();
+        final PosVector t10 = new PosVector();
+        final PosVector t11 = new PosVector();
 
         GeoUtils.geo2xyzWGS84(lg.t00Lat, lg.t00Lon, lg.t00Height, t00);
         GeoUtils.geo2xyzWGS84(lg.t01Lat, lg.t01Lon, lg.t01Height, t01);
@@ -824,9 +825,10 @@ public final class TerrainFlatteningOp extends Operator {
         GeoUtils.geo2xyzWGS84(lg.t11Lat, lg.t11Lon, lg.t11Height, t11);
 
         // compute slant range direction
-        final double[] s = {lg.sensorPos[0] - lg.centerPoint[0],
-                lg.sensorPos[1] - lg.centerPoint[1],
-                lg.sensorPos[2] - lg.centerPoint[2]};
+        final PosVector s = new PosVector(
+                lg.sensorPos.x - lg.centerPoint.x,
+                lg.sensorPos.y - lg.centerPoint.y,
+                lg.sensorPos.z - lg.centerPoint.z);
 
         Maths.normalizeVector(s);
 
@@ -836,10 +838,10 @@ public final class TerrainFlatteningOp extends Operator {
         final double t10s = Maths.innerProduct(t10, s);
         final double t11s = Maths.innerProduct(t11, s);
 
-        final double[] p00 = {t00[0] - t00s * s[0], t00[1] - t00s * s[1], t00[2] - t00s * s[2]};
-        final double[] p01 = {t01[0] - t01s * s[0], t01[1] - t01s * s[1], t01[2] - t01s * s[2]};
-        final double[] p10 = {t10[0] - t10s * s[0], t10[1] - t10s * s[1], t10[2] - t10s * s[2]};
-        final double[] p11 = {t11[0] - t11s * s[0], t11[1] - t11s * s[1], t11[2] - t11s * s[2]};
+        final double[] p00 = {t00.x - t00s * s.x, t00.y - t00s * s.y, t00.z - t00s * s.z};
+        final double[] p01 = {t01.x - t01s * s.x, t01.y - t01s * s.y, t01.z - t01s * s.z};
+        final double[] p10 = {t10.x - t10s * s.x, t10.y - t10s * s.y, t10.z - t10s * s.z};
+        final double[] p11 = {t11.x - t11s * s.x, t11.y - t11s * s.y, t11.z - t11s * s.z};
 
         // compute distances between projected points
         final double p00p01 = distance(p00, p01);
@@ -878,10 +880,10 @@ public final class TerrainFlatteningOp extends Operator {
         public final double t11Lat;
         public final double t11Lon;
         public final double t11Height;
-        public final double[] sensorPos;
-        public final double[] centerPoint;
+        public final PosVector sensorPos;
+        public final PosVector centerPoint;
 
-        public LocalGeometry(final double[] earthPoint, final double[] sensPos,
+        public LocalGeometry(final PosVector earthPoint, final PosVector sensPos,
                              final TerrainData terrainData, final int xx, final int yy) {
 
             t00Lat = terrainData.latPixels[yy][xx];

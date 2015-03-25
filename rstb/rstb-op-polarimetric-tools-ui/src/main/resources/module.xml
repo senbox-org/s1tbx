@@ -17,9 +17,6 @@
         <module>rstb-op-polarimetric-tools</module>
     </dependency>
     <dependency>
-        <module>snap-graph-builder</module>
-    </dependency>
-    <dependency>
         <module>s1tbx-rcp</module>
     </dependency>
 
