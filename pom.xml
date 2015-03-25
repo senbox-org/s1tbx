@@ -5,7 +5,7 @@
 	
     <groupId>org.esa.s1tbx</groupId>
     <artifactId>s1tbx</artifactId>
-    <version>1.1.0</version>
+    <version>2.0.0-SNAPSHOT</version>
     <name>Sentinel-1 Toolbox</name>
     <url>https://sentinel.esa.int/web/sentinel/toolboxes</url>
     <description>Tools for SAR Earth Observation</description>
@@ -41,35 +41,19 @@
 		<outputdir>../../output</outputdir>
 		<packagedir>../package</packagedir>
 	</properties>
-	
-	<prerequisites>
-       <maven>3.1.0</maven>
-    </prerequisites>
-	
-    <name>Sentinel-1 Toolbox</name>
-    <url>https://earth.esa.int/web/sentinel-tbx/home</url>
-    <groupId>org.esa.s1tbx</groupId>
-    <artifactId>s1tbx</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
-
-	<issueManagement>
-        <system>JIRA</system>
-        <url>https://senbox.atlassian.net/</url>
-    </issueManagement>
-	
-    <packaging>pom</packaging>
   
 	<modules>
 		<module>jlinda</module>
-		<module>rstb</module>
+		<!--module>rstb</module-->
 		<!--module>s1tbx-benchmark</module-->
-		<module>s1tbx-bootstrap</module>
+		<!--module>s1tbx-bootstrap</module-->
 		<module>s1tbx-config</module>
-		<module>s1tbx-dem</module>	
-        <module>s1tbx-dem-ui</module>
-		<module>s1tbx-help</module>
+		<!--module>s1tbx-dem</module>	
+        <module>s1tbx-dem-ui</module-->
+		<!--module>s1tbx-help</module-->
 		<module>s1tbx-io</module>
-		<module>s1tbx-op-calibration</module>
+        <module>s1tbx-kit</module>
+		<!--module>s1tbx-op-calibration</module>
         <module>s1tbx-op-calibration-ui</module>
 		<module>s1tbx-op-feature-extraction</module>
         <module>s1tbx-op-feature-extraction-ui</module>
@@ -81,8 +65,8 @@
         <module>s1tbx-op-sentinel1-ui</module>
 		<module>s1tbx-op-utilities</module>
         <module>s1tbx-op-utilities-ui</module>
-		<module>s1tbx-product-library</module>
-		<module>s1tbx-rcp</module>
+		<module>s1tbx-product-library</module-->
+		<!--module>s1tbx-rcp</module-->
 		<module>s1tbx-worldwind</module>
 		
 		<!--module>../esa-pfa</module-->
@@ -335,7 +319,7 @@
 			
             <!-- NetBeans Modules -->
 
-            <!--dependency>
+            <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-openide-awt</artifactId>
                 <version>${netbeans.version}</version>
@@ -359,7 +343,7 @@
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-netbeans-modules-javahelp</artifactId>
                 <version>${netbeans.version}</version>
-            </dependency-->
+            </dependency>
             
 	        <!-- jlinda Modules ############################################# -->
 			

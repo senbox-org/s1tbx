@@ -29,7 +29,7 @@
     <name>RSTB Classification Tools UI</name>
     <artifactId>rstb-op-classification-ui</artifactId>
 
-    <packaging>jar</packaging>
+    <packaging>nbm</packaging>
 
     <dependencies>
         <dependency>

@@ -29,7 +29,7 @@
     <name>RSTB Polarimetric SAR Tools</name>
     <artifactId>rstb-op-polarimetric-tools</artifactId>
 
-    <packaging>jar</packaging>
+    <packaging>nbm</packaging>
 
     <dependencies>
         <dependency>

@@ -2,7 +2,7 @@
 
     <folder name="Actions">
         <folder name="Readers">
-            <file name="org-esa-s1tbx-dataio-ceos-importERSProduct.instance">
+            <file name="org-esa-nest-dataio-ceos-importERSProduct.instance">
                 <attr name="instanceCreate"
                       methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate"
@@ -18,7 +18,7 @@
                 <attr name="ShortDescription"
                       stringvalue="Open ERS 1/2 CEOS (VMP and PGS) data product."/>
             </file>
-            <file name="org-esa-s1tbx-dataio-ceos-importJERSCEOSProduct.instance">
+            <file name="org-esa-nest-dataio-ceos-importJERSCEOSProduct.instance">
                 <attr name="instanceCreate"
                       methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate"
@@ -41,13 +41,13 @@
         <folder name="File">
             <folder name="Import">
                 <folder name="SAR Sensors">
-                    <file name="org-esa-s1tbx-dataio-ceos-importERSProduct.shadow">
+                    <file name="org-esa-nest-dataio-ceos-importERSProduct.shadow">
                         <attr name="originalFile"
-                              stringvalue="Actions/Readers/org-esa-s1tbx-dataio-ceos-importERSProduct.instance"/>
+                              stringvalue="Actions/Readers/org-esa-nest-dataio-ceos-importERSProduct.instance"/>
                     </file>
-                    <file name="org-esa-s1tbx-dataio-ceos-importJERSCEOSProduct.shadow">
+                    <file name="org-esa-nest-dataio-ceos-importJERSCEOSProduct.shadow">
                         <attr name="originalFile"
-                              stringvalue="Actions/Readers/org-esa-s1tbx-dataio-ceos-importJERSCEOSProduct.instance"/>
+                              stringvalue="Actions/Readers/org-esa-nest-dataio-ceos-importJERSCEOSProduct.instance"/>
                     </file>
                 </folder>
             </folder>

@@ -18,7 +18,6 @@ package org.esa.nest.dataio.orbits;
 import com.bc.ceres.core.NullProgressMonitor;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.visat.VisatApp;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.DownloadableArchive;
 import org.esa.snap.datamodel.Orbits;
@@ -160,14 +159,14 @@ public class PrareOrbitFile extends BaseOrbitFile {
             if (!localPath.exists())
                 localPath.mkdirs();
 
-            if (VisatApp.getApp() != null) {
+           /* if (VisatApp.getApp() != null) {
                 final DownloadOrbitWorker worker = new DownloadOrbitWorker(VisatApp.getApp(), "Download Orbit Files",
                         ftp, fileSizeMap, remotePath, localPath);
                 worker.executeWithBlocking();
 
-            } else {
+            } else {*/
                 getRemoteFiles(ftp, fileSizeMap, remotePath, localPath, new NullProgressMonitor());
-            }
+            //}
 
         } catch (Exception e) {
             System.out.println(e.getMessage());

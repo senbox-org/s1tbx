@@ -28,7 +28,7 @@
     <artifactId>s1tbx-op-feature-extraction</artifactId>
     <name>S1TBX Feature Extraction Tools</name>
 
-    <packaging>jar</packaging>
+    <packaging>nbm</packaging>
 
     <dependencies>
         <dependency>
@@ -68,7 +68,7 @@
 
     <build>
         <plugins>
-            <!--plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
             </plugin>
@@ -78,7 +78,7 @@
                 <configuration>
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
-            </plugin-->
+            </plugin>
         </plugins>
     </build>
 </project>

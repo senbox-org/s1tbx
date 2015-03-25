@@ -14,6 +14,8 @@
 
     <description>NEST utilities and operators</description>
 
+    <packaging>nbm</packaging>
+    
     <dependencies>
         <dependency>
             <groupId>org.jlinda</groupId>
@@ -55,11 +57,22 @@
 
     <build>
         <plugins>
-            <!--<plugin>-->
-            <!--<groupId>com.bc.maven.plugins</groupId>-->
-            <!--<artifactId>maven-javahelp-plugin</artifactId>-->
-            <!--</plugin>-->
-
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <publicPackages>
+                        <publicPackage>org.jlinda.*</publicPackage>
+                    </publicPackages>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

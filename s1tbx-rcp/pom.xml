@@ -29,7 +29,7 @@
     <name>S1TBX Rich Client Platform</name>
     <artifactId>s1tbx-rcp</artifactId>
 
-    <packaging>jar</packaging>
+    <packaging>nbm</packaging>
 
     <dependencies>
         <dependency>
@@ -86,7 +86,7 @@
                 <artifactId>maven-javahelp-plugin</artifactId>
             </plugin>
             
-            <!--plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
             </plugin>
@@ -96,7 +96,7 @@
                 <configuration>
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
-            </plugin-->
+            </plugin>
         </plugins>
     </build>
 </project>

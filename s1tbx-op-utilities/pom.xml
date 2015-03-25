@@ -27,7 +27,7 @@
     <name>S1TBX Utility Operators</name>
     <description>Provides various operators for general processing of EO data</description>
 
-    <packaging>jar</packaging>
+    <packaging>nbm</packaging>
     
     <dependencies>
         <dependency>
@@ -50,7 +50,7 @@
 
     <build>
         <plugins>           
-            <!--plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
             </plugin>
@@ -60,7 +60,7 @@
                 <configuration>
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
-            </plugin-->
+            </plugin>
         </plugins>
     </build>
 

@@ -16,9 +16,7 @@
 package org.esa.nest.dataio.orbits;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.visat.VisatApp;
 import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.util.ftpUtils;
 
@@ -106,7 +104,7 @@ public abstract class BaseOrbitFile implements OrbitFile {
         return false;
     }
 
-    protected static class DownloadOrbitWorker extends ProgressMonitorSwingWorker {
+   /* protected static class DownloadOrbitWorker extends ProgressMonitorSwingWorker {
 
         private final String remotePath;
         private final File localPath;
@@ -128,6 +126,6 @@ public abstract class BaseOrbitFile implements OrbitFile {
             getRemoteFiles(ftp, fileSizeMap, remotePath, localPath, pm);
             return 0;
         }
-    }
+    }*/
 
 }

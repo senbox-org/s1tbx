@@ -27,7 +27,7 @@
     <name>S1TBX Calibration Operator</name>
     <description>Calibrates Sentinel-1, Radarsat-2, ENVISAT ASAR, ERS 1/2, ALOS Palsar, TerraSAR-X products</description>
 
-    <packaging>jar</packaging>
+    <packaging>nbm</packaging>
     
     <dependencies>
         <dependency>
@@ -47,7 +47,7 @@
 
     <build>
         <plugins>            
-            <!--plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
             </plugin>
@@ -57,7 +57,7 @@
                 <configuration>
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
-            </plugin-->
+            </plugin>
         </plugins>
     </build>
 </project>

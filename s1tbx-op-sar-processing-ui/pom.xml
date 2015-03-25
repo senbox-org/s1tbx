@@ -20,14 +20,14 @@
     <parent>
         <groupId>org.esa.s1tbx</groupId>
         <artifactId>s1tbx</artifactId>
-        <version>1.1.0</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>s1tbx-op-sar-processing-ui</artifactId>
     <name>S1TBX SAR Processing UI</name>
     <description>SAR Processing Tools</description>
 
-    <packaging>jar</packaging>
+    <packaging>nbm</packaging>
     
     <dependencies>
         <dependency>
@@ -60,7 +60,7 @@
                 <artifactId>maven-javahelp-plugin</artifactId>
             </plugin>
             
-            <!--plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
             </plugin>
@@ -70,7 +70,7 @@
                 <configuration>
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
-            </plugin-->
+            </plugin>
         </plugins>
     </build>
 </project>

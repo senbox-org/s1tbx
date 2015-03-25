@@ -27,7 +27,7 @@
     <artifactId>s1tbx-dem</artifactId>
     <name>S1TBX Digital Elevation Models</name>
 
-    <packaging>jar</packaging>
+    <packaging>nbm</packaging>
 
     <dependencies>
 		<dependency>
@@ -58,7 +58,7 @@
     
     <build>
         <plugins>
-            <!--plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
             </plugin>
@@ -68,7 +68,7 @@
                 <configuration>
                     <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
-            </plugin-->
+            </plugin>
         </plugins>
     </build>
 </project>
