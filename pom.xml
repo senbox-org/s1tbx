@@ -48,8 +48,8 @@
 		<!--module>s1tbx-benchmark</module-->
 		<!--module>s1tbx-bootstrap</module-->
 		<module>s1tbx-config</module>
-		<!--module>s1tbx-dem</module>	
-        <module>s1tbx-dem-ui</module-->
+		<module>s1tbx-dem</module>	
+        <module>s1tbx-dem-ui</module>
 		<!--module>s1tbx-help</module-->
 		<module>s1tbx-io</module>
         <module>s1tbx-kit</module>
