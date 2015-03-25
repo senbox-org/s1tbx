@@ -31,10 +31,7 @@ import org.esa.beam.framework.gpf.annotations.*;
 import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
-import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.datamodel.OrbitStateVector;
-import org.esa.snap.datamodel.ProductInformation;
-import org.esa.snap.datamodel.Unit;
+import org.esa.snap.datamodel.*;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
 import org.esa.nest.gpf.geometric.SARGeocoding;
@@ -742,10 +739,10 @@ public class DEMBasedCoregistrationOp extends Operator {
         final double latMax = latLonMinMax[1];
         final double lonMin = latLonMinMax[2];
         final double lonMax = latLonMinMax[3];
-        double[] uL = new double[3];
-        double[] uR = new double[3];
-        double[] lL = new double[3];
-        double[] lR = new double[3];
+        final PosVector uL = new PosVector();
+        final PosVector uR = new PosVector();
+        final PosVector lL = new PosVector();
+        final PosVector lR = new PosVector();
         GeoUtils.geo2xyzWGS84(latMax, lonMin, 0.0, uL);
         GeoUtils.geo2xyzWGS84(latMax, lonMax, 0.0, uR);
         GeoUtils.geo2xyzWGS84(latMin, lonMin, 0.0, lL);
@@ -757,10 +754,10 @@ public class DEMBasedCoregistrationOp extends Operator {
         return rangeSpacing / aziSpacing;
     }
 
-    private double norm(final double[] p1, final double[] p2) {
-        return Math.sqrt((p1[0] - p2[0])*(p1[0] - p2[0]) +
-                (p1[1] - p2[1])*(p1[1] - p2[1]) +
-                (p1[2] - p2[2])*(p1[2] - p2[2]));
+    private double norm(final PosVector p1, final PosVector p2) {
+        return Math.sqrt((p1.x - p2.x)*(p1.x - p2.x) +
+                (p1.y - p2.y)*(p1.y - p2.y) +
+                (p1.z - p2.z)*(p1.z - p2.z));
     }
 
     private static Rectangle getBoundingBox(final PixelPos[] slavePixPos, final int maxWidth, final int maxHeight) {
@@ -929,8 +926,8 @@ public class DEMBasedCoregistrationOp extends Operator {
     }
 
     private static class PositionData {
-        final double[] earthPoint = new double[3];
-        final double[] sensorPos = new double[3];
+        final PosVector earthPoint = new PosVector();
+        final PosVector sensorPos = new PosVector();
         double azimuthIndex;
         double rangeIndex;
         double azimuthTime;
