@@ -388,8 +388,8 @@ public class ALOSDeskewingOp extends Operator {
                 continue;
             }
 
-            final double[] earthPoint = new double[3];
-            final double[] sensorPos = new double[3];
+            final PosVector earthPoint = new PosVector();
+            final PosVector sensorPos = new PosVector();
             GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, earthPoint);
 
             final double zeroDopplerTime = SARGeocoding.getEarthPointZeroDopplerTime(
@@ -421,17 +421,7 @@ public class ALOSDeskewingOp extends Operator {
 
         final PosVector pos = new PosVector();
         final PosVector vel = new PosVector();
-
-        final double[] position = new double[3];
-        final double[] velocity = new double[3];
-        orbit.getPositionVelocity(time, position, velocity);
-
-        pos.x = position[0];
-        pos.y = position[1];
-        pos.z = position[2];
-        vel.x = velocity[0];
-        vel.y = velocity[1];
-        vel.z = velocity[2];
+        orbit.getPositionVelocity(time, pos, vel);
 
         return new stateVector(time, pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
     }
@@ -593,29 +583,28 @@ public class ALOSDeskewingOp extends Operator {
 
     private static void getRotationMatrix(final stateVector v, double[][] rM) {
 
-        final double[] ax = new double[3];
-        final double[] ay = new double[3];
-        final double[] az = {v.xPos, v.yPos, v.zPos};
-        final double[] vl = {v.xVel, v.yVel, v.zVel};
+        final PosVector az = new PosVector(v.xPos, v.yPos, v.zPos);
+        final PosVector vl = new PosVector(v.xVel, v.yVel, v.zVel);
 
         Maths.normalizeVector(az);
         Maths.normalizeVector(vl);
 
-        crossProduct(az, vl, ay);
-        crossProduct(ay, az, ax);
+        final PosVector ay = new PosVector();
+        final PosVector ax = new PosVector();
+        Maths.crossProduct(az, vl, ay);
+        Maths.crossProduct(ay, az, ax);
 
-        for (int i = 0; i < 3; i++) {
-            rM[0][i] = ax[i];
-            rM[1][i] = ay[i];
-            rM[2][i] = az[i];
-        }
-    }
+        rM[0][0] = ax.x;
+        rM[1][0] = ay.x;
+        rM[2][0] = az.x;
 
-    private static void crossProduct(final double[] a, final double[] b, final double[] c) {
+        rM[0][1] = ax.y;
+        rM[1][1] = ay.y;
+        rM[2][1] = az.y;
 
-        c[0] = a[1] * b[2] - a[2] * b[1];
-        c[1] = a[2] * b[0] - a[0] * b[2];
-        c[2] = a[0] * b[1] - a[1] * b[0];
+        rM[0][2] = ax.z;
+        rM[1][2] = ay.z;
+        rM[2][2] = az.z;
     }
 
     private static double getDoppler(final stateVector v, final double look, final double yaw, final double[] relVel,

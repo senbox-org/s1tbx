@@ -34,6 +34,7 @@ import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.EarthGravitationalModel96;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.nest.datamodel.*;
+import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.nest.gpf.Sentinel1Calibrator;
 import org.esa.snap.datamodel.AbstractMetadata;
@@ -822,8 +823,8 @@ public class RangeDopplerGeocodingOp extends Operator {
             }
 
             final GeoPos geoPos = new GeoPos();
-            final double[] earthPoint = new double[3];
-            final double[] sensorPos = new double[3];
+            final PosVector earthPoint = new PosVector();
+            final PosVector sensorPos = new PosVector();
             final int srcMaxRange = sourceImageWidth - 1;
             final int srcMaxAzimuth = sourceImageHeight - 1;
             ProductData demBuffer = null;
@@ -881,6 +882,8 @@ public class RangeDopplerGeocodingOp extends Operator {
             final int maxX = x0 + w;
             final TileData[] trgTiles = trgTileList.toArray(new TileData[trgTileList.size()]);
 
+            final EarthGravitationalModel96 egm = EarthGravitationalModel96.instance();
+
             int diffLat = Math.abs(latitude.getPixelInt(0,0) - latitude.getPixelInt(0,targetImageHeight));
 
             for (int y = y0; y < maxY; y++) {
@@ -908,7 +911,7 @@ public class RangeDopplerGeocodingOp extends Operator {
 
                     if (alt == demNoDataValue && !nodataValueAtSea) {
                         // get corrected elevation for 0
-                        alt = EarthGravitationalModel96.instance().getEGM(lat, lon);
+                        alt = egm.getEGM(lat, lon);
                     }
 
                     GeoUtils.geo2xyzWGS84(lat, lon, alt, earthPoint);
@@ -989,10 +992,10 @@ public class RangeDopplerGeocodingOp extends Operator {
                         double sceneToEarthCentre = 0;
                         if (saveSigmaNought) {
                             satelliteHeight = Math.sqrt(
-                                    sensorPos[0] * sensorPos[0] + sensorPos[1] * sensorPos[1] + sensorPos[2] * sensorPos[2]);
+                                    sensorPos.x * sensorPos.x + sensorPos.y * sensorPos.y + sensorPos.z * sensorPos.z);
 
                             sceneToEarthCentre = Math.sqrt(
-                                    earthPoint[0] * earthPoint[0] + earthPoint[1] * earthPoint[1] + earthPoint[2] * earthPoint[2]);
+                                    earthPoint.x * earthPoint.x + earthPoint.y * earthPoint.y + earthPoint.z * earthPoint.z);
                         }
 
                         for (TileData tileData : trgTiles) {

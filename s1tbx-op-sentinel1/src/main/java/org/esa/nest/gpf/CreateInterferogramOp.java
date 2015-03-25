@@ -30,6 +30,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
@@ -229,9 +230,9 @@ public class CreateInterferogramOp extends Operator {
         final double lat = (firstNearLat + firstFarLat + lastNearLat + lastFarLat) / 4.0;
         final double lon = (firstNearLon + firstFarLon + lastNearLon + lastFarLon) / 4.0;
 
-        final double[] mstSceneCenter = new double[3];
+        final PosVector mstSceneCenter = new PosVector();
         GeoUtils.geo2xyzWGS84(lat, lon, 0.0, mstSceneCenter);
-        mstSceneCentreXYZ = new Point(mstSceneCenter);
+        mstSceneCentreXYZ = new Point(mstSceneCenter.toArray());
     }
 
     private void getSlvApproxSceneCentreAzimuthTime() throws Exception {

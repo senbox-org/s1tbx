@@ -6,6 +6,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
+import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
 import org.esa.snap.eo.LocalGeometry;
@@ -19,7 +20,7 @@ import java.util.List;
 /**
  * Common SAR utilities for Geocoding
  */
-public class SARGeocoding {
+public final class SARGeocoding {
 
     public static final double NonValidZeroDopplerTime = -99999.0;
     public static final double NonValidIncidenceAngle = -99999.0;
@@ -47,8 +48,8 @@ public class SARGeocoding {
      */
     public static double getEarthPointZeroDopplerTime(final double firstLineUTC,
                                                       final double lineTimeInterval, final double wavelength,
-                                                      final double[] earthPoint, final double[][] sensorPosition,
-                                                      final double[][] sensorVelocity) throws OperatorException {
+                                                      final PosVector earthPoint, final PosVector[] sensorPosition,
+                                                      final PosVector[] sensorVelocity) throws OperatorException {
 
         // binary search is used in finding the zero doppler time
         int lowerBound = 0;
@@ -71,9 +72,9 @@ public class SARGeocoding {
         while (upperBound - lowerBound > 1) {
 
             final int mid = (int) ((lowerBound + upperBound) / 2.0);
-            midFreq = sensorVelocity[mid][0] * (earthPoint[0] - sensorPosition[mid][0]) +
-                    sensorVelocity[mid][1] * (earthPoint[1] - sensorPosition[mid][1]) +
-                    sensorVelocity[mid][2] * (earthPoint[2] - sensorPosition[mid][2]);
+            midFreq = sensorVelocity[mid].x * (earthPoint.x - sensorPosition[mid].x) +
+                    sensorVelocity[mid].y * (earthPoint.y - sensorPosition[mid].y) +
+                    sensorVelocity[mid].z * (earthPoint.z - sensorPosition[mid].z);
 
             if (midFreq * lowerBoundFreq > 0.0) {
                 lowerBound = mid;
@@ -104,8 +105,8 @@ public class SARGeocoding {
      */
     public static double getEarthPointZeroDopplerTimeNewton(final double firstLineUTC,
                                                             final double lineTimeInterval, final double wavelength,
-                                                            final double[] earthPoint, final double[][] sensorPosition,
-                                                            final double[][] sensorVelocity) throws OperatorException {
+                                                            final PosVector earthPoint, final PosVector[] sensorPosition,
+                                                            final PosVector[] sensorVelocity) throws OperatorException {
         final int lowerBound = 0;
         final int upperBound = sensorPosition.length - 1;
         final double lowerBoundFreq = getDopplerFrequency(earthPoint, sensorPosition[lowerBound],
@@ -152,27 +153,27 @@ public class SARGeocoding {
 
     public static double getEarthPointZeroDopplerTimeNewton(
             final double firstLineUTC, final double lineTimeInterval, final double wavelength,
-            final double[] earthPoint, final SARGeocoding.Orbit orbit) throws OperatorException {
+            final PosVector earthPoint, final SARGeocoding.Orbit orbit) throws OperatorException {
 
         final int numOrbitVec = orbit.orbitStateVectors.length;
-        double[] sensorPosition = new double[3];
-        double[] sensorVelocity = new double[3];
+        final PosVector sensorPosition = new PosVector(
+                orbit.orbitStateVectors[0].x_pos,
+                orbit.orbitStateVectors[0].y_pos,
+                orbit.orbitStateVectors[0].z_pos);
+        final PosVector sensorVelocity = new PosVector(
+                orbit.orbitStateVectors[0].x_vel,
+                orbit.orbitStateVectors[0].y_vel,
+                orbit.orbitStateVectors[0].z_vel);
 
-        sensorPosition[0] = orbit.orbitStateVectors[0].x_pos;
-        sensorPosition[1] = orbit.orbitStateVectors[0].y_pos;
-        sensorPosition[2] = orbit.orbitStateVectors[0].z_pos;
-        sensorVelocity[0] = orbit.orbitStateVectors[0].x_vel;
-        sensorVelocity[1] = orbit.orbitStateVectors[0].y_vel;
-        sensorVelocity[2] = orbit.orbitStateVectors[0].z_vel;
         final double firstVecFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
         final double firstVecTime = orbit.orbitStateVectors[0].time_mjd;
 
-        sensorPosition[0] = orbit.orbitStateVectors[numOrbitVec - 1].x_pos;
-        sensorPosition[1] = orbit.orbitStateVectors[numOrbitVec - 1].y_pos;
-        sensorPosition[2] = orbit.orbitStateVectors[numOrbitVec - 1].z_pos;
-        sensorVelocity[0] = orbit.orbitStateVectors[numOrbitVec - 1].x_vel;
-        sensorVelocity[1] = orbit.orbitStateVectors[numOrbitVec - 1].y_vel;
-        sensorVelocity[2] = orbit.orbitStateVectors[numOrbitVec - 1].z_vel;
+        sensorPosition.x = orbit.orbitStateVectors[numOrbitVec - 1].x_pos;
+        sensorPosition.y = orbit.orbitStateVectors[numOrbitVec - 1].y_pos;
+        sensorPosition.z = orbit.orbitStateVectors[numOrbitVec - 1].z_pos;
+        sensorVelocity.x = orbit.orbitStateVectors[numOrbitVec - 1].x_vel;
+        sensorVelocity.y = orbit.orbitStateVectors[numOrbitVec - 1].y_vel;
+        sensorVelocity.z = orbit.orbitStateVectors[numOrbitVec - 1].z_vel;
         final double lastVecFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
         final double lastVecTime = orbit.orbitStateVectors[numOrbitVec - 1].time_mjd;
 
@@ -228,33 +229,29 @@ public class SARGeocoding {
      * @throws OperatorException The operator exception.
      */
     public static double getZeroDopplerTime(final double firstLineUTC, final double lineTimeInterval,
-                                            final double wavelength, final double[] earthPoint,
+                                            final double wavelength, final PosVector earthPoint,
                                             final SARGeocoding.Orbit orbit) throws OperatorException {
 
         // loop through all orbit state vectors to find the adjacent two vectors
         final int numOrbitVec = orbit.orbitStateVectors.length;
-        double[] sensorPosition = new double[3];
-        double[] sensorVelocity = new double[3];
+        final PosVector sensorPosition = new PosVector();
+        final PosVector sensorVelocity = new PosVector();
         double firstVecTime = 0.0;
         double secondVecTime = 0.0;
         double firstVecFreq = 0.0;
         double secondVecFreq = 0.0;
 
         for (int i = 0; i < numOrbitVec; i++) {
-            sensorPosition[0] = orbit.orbitStateVectors[i].x_pos;
-            sensorPosition[1] = orbit.orbitStateVectors[i].y_pos;
-            sensorPosition[2] = orbit.orbitStateVectors[i].z_pos;
-
-            sensorVelocity[0] = orbit.orbitStateVectors[i].x_vel;
-            sensorVelocity[1] = orbit.orbitStateVectors[i].y_vel;
-            sensorVelocity[2] = orbit.orbitStateVectors[i].z_vel;
+            final OrbitStateVector orb = orbit.orbitStateVectors[i];
+            sensorPosition.set(orb.x_pos, orb.y_pos, orb.z_pos);
+            sensorVelocity.set(orb.x_vel, orb.y_vel, orb.z_vel);
 
             final double currentFreq = getDopplerFrequency(earthPoint, sensorPosition, sensorVelocity, wavelength);
             if (i == 0 || firstVecFreq * currentFreq > 0) {
-                firstVecTime = orbit.orbitStateVectors[i].time_mjd;
+                firstVecTime = orb.time_mjd;
                 firstVecFreq = currentFreq;
             } else {
-                secondVecTime = orbit.orbitStateVectors[i].time_mjd;
+                secondVecTime = orb.time_mjd;
                 secondVecFreq = currentFreq;
                 break;
             }
@@ -306,8 +303,7 @@ public class SARGeocoding {
             return 0.5*(1 - t2)*lowerBoundTime + 0.5*(1 + t2)*upperBoundTime;//return t2;
         }*/
 
-        double time = lowerBoundTime - lowerBoundFreq * (upperBoundTime - lowerBoundTime) / (upperBoundFreq - lowerBoundFreq);
-        return time;
+        return lowerBoundTime - lowerBoundFreq * (upperBoundTime - lowerBoundTime) / (upperBoundFreq - lowerBoundFreq);
     }
 
     /**
@@ -320,15 +316,15 @@ public class SARGeocoding {
      * @return The Doppler frequency in Hz.
      */
     private static double getDopplerFrequency(
-            final double[] earthPoint, final double[] sensorPosition,
-            final double[] sensorVelocity, final double wavelength) {
+            final PosVector earthPoint, final PosVector sensorPosition,
+            final PosVector sensorVelocity, final double wavelength) {
 
-        final double xDiff = earthPoint[0] - sensorPosition[0];
-        final double yDiff = earthPoint[1] - sensorPosition[1];
-        final double zDiff = earthPoint[2] - sensorPosition[2];
+        final double xDiff = earthPoint.x - sensorPosition.x;
+        final double yDiff = earthPoint.y - sensorPosition.y;
+        final double zDiff = earthPoint.z - sensorPosition.z;
         final double distance = Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
 
-        return 2.0 * (sensorVelocity[0] * xDiff + sensorVelocity[1] * yDiff + sensorVelocity[2] * zDiff) / (distance * wavelength);
+        return 2.0 * (sensorVelocity.x * xDiff + sensorVelocity.y * yDiff + sensorVelocity.z * zDiff) / (distance * wavelength);
     }
 
     /**
@@ -341,14 +337,13 @@ public class SARGeocoding {
      * @return The slant range distance in meters.
      */
     public static double computeSlantRange(
-            final double time, final SARGeocoding.Orbit orbit, final double[] earthPoint, final double[] sensorPos) {
+            final double time, final SARGeocoding.Orbit orbit, final PosVector earthPoint, final PosVector sensorPos) {
 
-        final double[] sensorVel = new double[3];
-        orbit.getPositionVelocity(time, sensorPos, sensorVel);
+        orbit.getPositionVelocity(time, sensorPos, null);
 
-        final double xDiff = sensorPos[0] - earthPoint[0];
-        final double yDiff = sensorPos[1] - earthPoint[1];
-        final double zDiff = sensorPos[2] - earthPoint[2];
+        final double xDiff = sensorPos.x - earthPoint.x;
+        final double yDiff = sensorPos.y - earthPoint.y;
+        final double zDiff = sensorPos.z - earthPoint.z;
 
         return Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
     }
@@ -511,34 +506,36 @@ public class SARGeocoding {
                 localDEM[yy + 2][xx + 1] +
                 localDEM[yy + 2][xx + 2]) / 3.0;
 
-        final double[] rightPoint = new double[3];
-        final double[] leftPoint = new double[3];
-        final double[] upPoint = new double[3];
-        final double[] downPoint = new double[3];
+        final PosVector rightPoint = new PosVector();
+        final PosVector leftPoint = new PosVector();
+        final PosVector upPoint = new PosVector();
+        final PosVector downPoint = new PosVector();
 
         GeoUtils.geo2xyzWGS84(lg.rightPointLat, lg.rightPointLon, rightPointHeight, rightPoint);
         GeoUtils.geo2xyzWGS84(lg.leftPointLat, lg.leftPointLon, leftPointHeight, leftPoint);
         GeoUtils.geo2xyzWGS84(lg.upPointLat, lg.upPointLon, upPointHeight, upPoint);
         GeoUtils.geo2xyzWGS84(lg.downPointLat, lg.downPointLon, downPointHeight, downPoint);
 
-        final double[] a = {rightPoint[0] - leftPoint[0], rightPoint[1] - leftPoint[1], rightPoint[2] - leftPoint[2]};
-        final double[] b = {downPoint[0] - upPoint[0], downPoint[1] - upPoint[1], downPoint[2] - upPoint[2]};
-        final double[] c = {lg.centrePoint[0], lg.centrePoint[1], lg.centrePoint[2]};
+        final PosVector a = new PosVector(rightPoint.x - leftPoint.x, rightPoint.y - leftPoint.y, rightPoint.z - leftPoint.z);
+        final PosVector b = new PosVector(downPoint.x - upPoint.x, downPoint.y - upPoint.y, downPoint.z - upPoint.z);
+        final PosVector c = new PosVector(lg.centrePoint.x, lg.centrePoint.y, lg.centrePoint.z);
 
-        final double[] n = {a[1] * b[2] - a[2] * b[1],
-                a[2] * b[0] - a[0] * b[2],
-                a[0] * b[1] - a[1] * b[0]}; // ground plane normal
+        final PosVector n = new PosVector(
+                a.y * b.z - a.z * b.y,
+                a.z * b.x - a.x * b.z,
+                a.x * b.y - a.y * b.x); // ground plane normal
 
         Maths.normalizeVector(n);
         if (Maths.innerProduct(n, c) < 0) {
-            n[0] = -n[0];
-            n[1] = -n[1];
-            n[2] = -n[2];
+            n.x = -n.x;
+            n.y = -n.y;
+            n.z = -n.z;
         }
 
-        final double[] s = {lg.sensorPos[0] - lg.centrePoint[0],
-                lg.sensorPos[1] - lg.centrePoint[1],
-                lg.sensorPos[2] - lg.centrePoint[2]};
+        final PosVector s = new PosVector(
+                lg.sensorPos.x - lg.centrePoint.x,
+                lg.sensorPos.y - lg.centrePoint.y,
+                lg.sensorPos.z - lg.centrePoint.z);
         Maths.normalizeVector(s);
 
         if (saveLocalIncidenceAngle) { // local incidence angle
@@ -547,10 +544,10 @@ public class SARGeocoding {
         }
 
         if (saveProjectedLocalIncidenceAngle || saveSigmaNought) { // projected local incidence angle
-            final double[] m = {s[1] * c[2] - s[2] * c[1], s[2] * c[0] - s[0] * c[2], s[0] * c[1] - s[1] * c[0]}; // range plane normal
+            final PosVector m = new PosVector(s.y * c.z - s.z * c.y, s.z * c.x - s.x * c.z, s.x * c.y - s.y * c.x); // range plane normal
             Maths.normalizeVector(m);
             final double mnInnerProduct = Maths.innerProduct(m, n);
-            final double[] n1 = {n[0] - m[0] * mnInnerProduct, n[1] - m[1] * mnInnerProduct, n[2] - m[2] * mnInnerProduct};
+            final PosVector n1 = new PosVector(n.x - m.x * mnInnerProduct, n.y - m.y * mnInnerProduct, n.z - m.z * mnInnerProduct);
             Maths.normalizeVector(n1);
             localIncidenceAngles[1] = FastMath.acos(Maths.innerProduct(n1, s)) * Constants.RTOD;
         }
@@ -643,11 +640,11 @@ public class SARGeocoding {
             if (cnt == 0) return;
             downPointHeight /= (double) cnt;
 
-            final double[] rightPoint = new double[3];
-            final double[] leftPoint = new double[3];
-            final double[] upPoint = new double[3];
-            final double[] downPoint = new double[3];
-            final double[] centrePoint = new double[3];
+            final PosVector rightPoint = new PosVector();
+            final PosVector leftPoint = new PosVector();
+            final PosVector upPoint = new PosVector();
+            final PosVector downPoint = new PosVector();
+            final PosVector centrePoint = new PosVector();
 
             GeoUtils.geo2xyzWGS84(lg.rightPointLat, lg.rightPointLon, rightPointHeight, rightPoint);
             GeoUtils.geo2xyzWGS84(lg.leftPointLat, lg.leftPointLon, leftPointHeight, leftPoint);
@@ -658,25 +655,27 @@ public class SARGeocoding {
             final double centerHeight = localDEM[yy][xx];
             GeoUtils.geo2xyzWGS84(geo.getLat(), geo.lon, centerHeight, centrePoint);
 
-            final double[] a = {rightPoint[0] - leftPoint[0], rightPoint[1] - leftPoint[1], rightPoint[2] - leftPoint[2]};
-            final double[] b = {downPoint[0] - upPoint[0], downPoint[1] - upPoint[1], downPoint[2] - upPoint[2]};
-            //final double[] c = {lg.centrePoint[0], lg.centrePoint[1], lg.centrePoint[2]};
-            final double[] c = {centrePoint[0], centrePoint[1], centrePoint[2]};
+            final PosVector a = new PosVector(rightPoint.x - leftPoint.x, rightPoint.y - leftPoint.y, rightPoint.z - leftPoint.z);
+            final PosVector b = new PosVector(downPoint.x - upPoint.x, downPoint.y - upPoint.y, downPoint.z - upPoint.z);
+            //final PosVector c = new PosVector(lg.centrePoint.x, lg.centrePoint.y, lg.centrePoint.z);
+            final PosVector c = new PosVector(centrePoint.x, centrePoint.y, centrePoint.z);
 
-            final double[] n = {a[1] * b[2] - a[2] * b[1],
-                    a[2] * b[0] - a[0] * b[2],
-                    a[0] * b[1] - a[1] * b[0]}; // ground plane normal
+            final PosVector n = new PosVector(
+                    a.y * b.z - a.z * b.y,
+                    a.z * b.x - a.x * b.z,
+                    a.x * b.y - a.y * b.x); // ground plane normal
 
             Maths.normalizeVector(n);
             if (Maths.innerProduct(n, c) < 0) {
-                n[0] = -n[0];
-                n[1] = -n[1];
-                n[2] = -n[2];
+                n.x = -n.x;
+                n.y = -n.y;
+                n.z = -n.z;
             }
 
-            final double[] s = {lg.sensorPos[0] - centrePoint[0],
-                    lg.sensorPos[1] - centrePoint[1],
-                    lg.sensorPos[2] - centrePoint[2]};
+            final PosVector s = new PosVector(
+                    lg.sensorPos.x - centrePoint.x,
+                    lg.sensorPos.y - centrePoint.y,
+                    lg.sensorPos.z - centrePoint.z);
             Maths.normalizeVector(s);
 
             if (saveLocalIncidenceAngle) { // local incidence angle
@@ -685,10 +684,10 @@ public class SARGeocoding {
             }
 
             if (saveProjectedLocalIncidenceAngle || saveSigmaNought) { // projected local incidence angle
-                final double[] m = {s[1] * c[2] - s[2] * c[1], s[2] * c[0] - s[0] * c[2], s[0] * c[1] - s[1] * c[0]}; // range plane normal
+                final PosVector m = new PosVector(s.y * c.z - s.z * c.y, s.z * c.x - s.x * c.z, s.x * c.y - s.y * c.x); // range plane normal
                 Maths.normalizeVector(m);
                 final double mnInnerProduct = Maths.innerProduct(m, n);
-                final double[] n1 = {n[0] - m[0] * mnInnerProduct, n[1] - m[1] * mnInnerProduct, n[2] - m[2] * mnInnerProduct};
+                final PosVector n1 = new PosVector(n.x - m.x * mnInnerProduct, n.y - m.y * mnInnerProduct, n.z - m.z * mnInnerProduct);
                 Maths.normalizeVector(n1);
                 localIncidenceAngles[1] = FastMath.acos(Maths.innerProduct(n1, s)) * Constants.RTOD;
             }
@@ -791,7 +790,7 @@ public class SARGeocoding {
     public static boolean isValidCell(final double rangeIndex, final double azimuthIndex,
                                       final double lat, final double lon, final int diffLat,
                                       final TiePointGrid latitude, final TiePointGrid longitude,
-                                      final int srcMaxRange, final int srcMaxAzimuth, final double[] sensorPos) {
+                                      final int srcMaxRange, final int srcMaxAzimuth, final PosVector sensorPos) {
 
         if (rangeIndex < 0.0 || rangeIndex >= srcMaxRange || azimuthIndex < 0.0 || azimuthIndex >= srcMaxAzimuth) {
             return false;
@@ -803,7 +802,7 @@ public class SARGeocoding {
         }
 
         final GeoPos sensorGeoPos = new GeoPos();
-        GeoUtils.xyz2geo(sensorPos, sensorGeoPos, GeoUtils.EarthModel.WGS84);
+        GeoUtils.xyz2geo(sensorPos.toArray(), sensorGeoPos, GeoUtils.EarthModel.WGS84);
         final double delLatMax = Math.abs(lat - sensorGeoPos.lat);
         double delLonMax;
         if (lon < 0 && sensorGeoPos.lon > 0) {
@@ -864,11 +863,11 @@ public class SARGeocoding {
     }
 
 
-    public static class Orbit {
+    public final static class Orbit {
 
         public OrbitStateVector[] orbitStateVectors = null;
-        public double[][] sensorPosition = null; // sensor position for all range lines
-        public double[][] sensorVelocity = null; // sensor velocity for all range lines
+        public PosVector[] sensorPosition = null; // sensor position for all range lines
+        public PosVector[] sensorVelocity = null; // sensor velocity for all range lines
 
         public Orbit(OrbitStateVector[] orbitStateVectors,
                      double firstLineUTC, double lineTimeInterval, int sourceImageHeight) {
@@ -888,8 +887,8 @@ public class SARGeocoding {
             //this.orbitStateVectors = new OrbitStateVector[orbitStateVectors.length];
             //System.arraycopy(orbitStateVectors, 0, this.orbitStateVectors, 0, orbitStateVectors.length);
 
-            this.sensorPosition = new double[sourceImageHeight][3];
-            this.sensorVelocity = new double[sourceImageHeight][3];
+            this.sensorPosition = new PosVector[sourceImageHeight];
+            this.sensorVelocity = new PosVector[sourceImageHeight];
             for (int i = 0; i < sourceImageHeight; i++) {
                 final double time = firstLineUTC + i * lineTimeInterval;
                 getPositionVelocity(time, sensorPosition[i], sensorVelocity[i]);
@@ -902,58 +901,52 @@ public class SARGeocoding {
             System.arraycopy(orbitStateVectors, 0, this.orbitStateVectors, 0, orbitStateVectors.length);
         }
 
-        public void getPositionVelocity(final double time, double[] position, double[] velocity) {
+        public void getPositionVelocity(final double time, final PosVector position, final PosVector velocity) {
 
             final int[] adjVecIndices = findAdjacentVectors(time);
 
             final int numVectors = adjVecIndices.length;
-            double[] timeArray = new double[numVectors];
-            double[] xPosArray = new double[numVectors];
-            double[] yPosArray = new double[numVectors];
-            double[] zPosArray = new double[numVectors];
-            double[] xVelArray = new double[numVectors];
-            double[] yVelArray = new double[numVectors];
-            double[] zVelArray = new double[numVectors];
-
-            for (int j = 0; j < numVectors; j++) {
-                timeArray[j] = orbitStateVectors[adjVecIndices[j]].time_mjd;
-                xPosArray[j] = orbitStateVectors[adjVecIndices[j]].x_pos;
-                yPosArray[j] = orbitStateVectors[adjVecIndices[j]].y_pos;
-                zPosArray[j] = orbitStateVectors[adjVecIndices[j]].z_pos;
-                xVelArray[j] = orbitStateVectors[adjVecIndices[j]].x_vel;
-                yVelArray[j] = orbitStateVectors[adjVecIndices[j]].y_vel;
-                zVelArray[j] = orbitStateVectors[adjVecIndices[j]].z_vel;
-            }
 
             //lagrangeInterpolatingPolynomial
-            position[0] = 0;
-            position[1] = 0;
-            position[2] = 0;
-            velocity[0] = 0;
-            velocity[1] = 0;
-            velocity[2] = 0;
+            if(position != null) {
+                position.x = 0;
+                position.y = 0;
+                position.z = 0;
+            }
+            if(velocity != null) {
+                velocity.x = 0;
+                velocity.y = 0;
+                velocity.z = 0;
+            }
+
             for (int i = 0; i < numVectors; ++i) {
+                final OrbitStateVector orbI = orbitStateVectors[adjVecIndices[i]];
+
                 double weight = 1;
                 for (int j = 0; j < numVectors; ++j) {
                     if (j != i) {
-                        weight *= (time - timeArray[j]) / (timeArray[i] - timeArray[j]);
+                        final double time2 = orbitStateVectors[adjVecIndices[j]].time_mjd;
+                        weight *= (time - time2) / (orbI.time_mjd - time2);
                     }
                 }
-                position[0] += weight * xPosArray[i];
-                position[1] += weight * yPosArray[i];
-                position[2] += weight * zPosArray[i];
-                velocity[0] += weight * xVelArray[i];
-                velocity[1] += weight * yVelArray[i];
-                velocity[2] += weight * zVelArray[i];
+                if(position != null) {
+                    position.x += weight * orbI.x_pos;
+                    position.y += weight * orbI.y_pos;
+                    position.z += weight * orbI.z_pos;
+                }
+                if(velocity != null) {
+                    velocity.x += weight * orbI.x_vel;
+                    velocity.y += weight * orbI.y_vel;
+                    velocity.z += weight * orbI.z_vel;
+                }
             }
         }
 
         public double getVelocity(final double time) {
 
-            final double[] position = new double[3];
-            final double[] velocity = new double[3];
-            getPositionVelocity(time, position, velocity);
-            return Math.sqrt(velocity[0]*velocity[0] + velocity[1]*velocity[1] + velocity[2]*velocity[2]);
+            final PosVector velocity = new PosVector();
+            getPositionVelocity(time, null, velocity);
+            return Math.sqrt(velocity.x*velocity.x + velocity.y*velocity.y + velocity.z*velocity.z);
         }
 
         private int[] findAdjacentVectors(final double time) {
