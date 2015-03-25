@@ -1,6 +1,13 @@
 package org.esa.beam.dataio.placemark;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GcpDescriptor;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Placemark;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.io.CsvReader;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.junit.BeforeClass;
@@ -8,14 +15,18 @@ import org.junit.Test;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import static org.junit.Assert.*;
 
@@ -124,7 +135,8 @@ public class PlacemarkIOTest {
         List<Placemark> expectedPlacemarks = createPlacemarks(pinDescriptor, GEO_CODING, DATA_BOUNDS);
         String[] stdColumnName = {"X", "Y", "Lon", "Lat", "Label"};
         String[] addColumnName = {"DateTime"};
-        List<Object[]> valuesList = new ArrayList<Object[]>();
+        List<Object[]> valuesList = new ArrayList<>();
+        Calendar utc = ProductData.UTC.createCalendar();
         for (Placemark expectedPlacemark : expectedPlacemarks) {
             Object[] values = new Object[stdColumnName.length + addColumnName.length];
             values[0] = expectedPlacemark.getPixelPos().x;
@@ -132,23 +144,21 @@ public class PlacemarkIOTest {
             values[2] = expectedPlacemark.getGeoPos().lon;
             values[3] = expectedPlacemark.getGeoPos().lat;
             values[4] = expectedPlacemark.getLabel();
-            long dateInMillis = (long) (Math.random() * Long.MAX_VALUE);
-            dateInMillis -= dateInMillis % 1000; // only second accuracy
-            values[5] = new Date(dateInMillis);
-
+            utc.setTimeInMillis(new Date().getTime() + valuesList.size() * (60 * 60 * 1000));
+            utc.set(Calendar.MILLISECOND, 0); // set millis to zero because it is not written; just second accuracy
+            values[5] = utc.getTime();
             valuesList.add(values);
         }
         PlacemarkIO.writePlacemarksWithAdditionalData(writer, pinDescriptor.getRoleLabel(), "ProductName",
                                                       expectedPlacemarks, valuesList, stdColumnName, addColumnName);
         String output = writer.toString();
 
-        List<Placemark> actualPlacemarks = PlacemarkIO.readPlacemarks(new StringReader(output), GEO_CODING,
-                                                                      pinDescriptor);
+        List<Placemark> actualPlacemarks = PlacemarkIO.readPlacemarks(new StringReader(output), GEO_CODING, pinDescriptor);
 
         for (int i = 0; i < actualPlacemarks.size(); i++) {
             final Placemark actualPlacemark = actualPlacemarks.get(i);
-            final Object expectedDateTimeAttribute = valuesList.get(i)[5];
-            final Object actualDateTimeAttribute = actualPlacemark.getFeature().getAttribute("dateTime");
+            final Date expectedDateTimeAttribute = (Date) valuesList.get(i)[5];
+            final Date actualDateTimeAttribute = (Date) actualPlacemark.getFeature().getAttribute("dateTime");
             assertEquals(expectedDateTimeAttribute, actualDateTimeAttribute);
         }
     }
