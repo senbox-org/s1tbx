@@ -31,8 +31,7 @@
     <properties>
         <brandingToken>snap</brandingToken>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <snap.version>[2.0.0-SNAPSHOT,2.1.0-SNAPSHOT)</snap.version>
+        <snap.version>2.0.0-SNAPSHOT</snap.version>
         <javahelp.version>2.0.05</javahelp.version>
         <hdf.version>2.7</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>
@@ -532,6 +531,7 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.11</version>
+                <scope>test</scope>
             </dependency>
 
             <dependency>
@@ -539,6 +539,14 @@
                 <artifactId>mockito-all</artifactId>
                 <version>1.9.5</version>
                 <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-core</artifactId>
+                <version>${snap.version}</version>
+                <scope>test</scope>
+                <type>test-jar</type>
             </dependency>
 
             <!-- JIDE Swing Libraries ############################################# -->
@@ -606,14 +614,6 @@
 
         </dependencies>
     </dependencyManagement>
-
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
     <repositories>
         <repository>

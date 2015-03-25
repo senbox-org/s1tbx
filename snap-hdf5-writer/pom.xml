@@ -41,6 +41,10 @@
             <groupId>ncsa.hdf</groupId>
             <artifactId>lib-hdf</artifactId>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

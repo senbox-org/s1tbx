@@ -36,6 +36,10 @@
             <version>0.8-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-envisat-reader</artifactId>
             <version>${snap.version}</version>
