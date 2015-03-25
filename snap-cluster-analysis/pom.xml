@@ -59,6 +59,10 @@
             <artifactId>ejml</artifactId>
             <version>0.21</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

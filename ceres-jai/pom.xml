@@ -53,6 +53,10 @@
             <artifactId>js</artifactId>
             <version>1.7R1</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

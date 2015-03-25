@@ -20,7 +20,7 @@ import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 
-import java.awt.GraphicsEnvironment;
+import java.awt.*;
 
 /**
  * Test runner to disable tests if they are executed in headless mode.

@@ -30,6 +30,10 @@
             <groupId>com.jidesoft</groupId>
             <artifactId>jide-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
