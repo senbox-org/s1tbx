@@ -30,6 +30,7 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
+                    <appendAssemblyId>false</appendAssemblyId>
                     <finalName>snap-engine-${snap.version}</finalName>
                     <descriptors>
                         <descriptor>src/main/assembly/bin.xml</descriptor>
