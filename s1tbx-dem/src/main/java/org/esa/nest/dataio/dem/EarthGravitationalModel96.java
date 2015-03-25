@@ -137,11 +137,15 @@ public final class EarthGravitationalModel96 {
     }
 
     public float getEGM(final double lat, final double lon) {
+        final double[][] v = new double[4][4];
+        return getEGM(lat, lon, v);
+    }
+
+    public float getEGM(final double lat, final double lon, final double[][] v) {
 
         final double r = (90 - lat) / 0.25;
         final double c = (lon < 0 ? lon + 360 : lon) / 0.25;
 
-        final double[][] v = new double[4][4];
         final int r0 = FastMath.max(((int) r - 1), 0);
         int c0 = FastMath.max(((int) c - 1), 0);
 
@@ -149,10 +153,10 @@ public final class EarthGravitationalModel96 {
         int ci2 = c0 + 2;
         int ci3 = c0 + 3;
         if (ci3 > MAX_LONS) {
-            c0 = FastMath.min(c0, MAX_LONS);
-            ci1 = FastMath.min(ci1, MAX_LONS);
-            ci2 = FastMath.min(ci2, MAX_LONS);
-            ci3 = FastMath.min(ci3, MAX_LONS);
+            c0 = Math.min(c0, MAX_LONS);
+            ci1 = Math.min(ci1, MAX_LONS);
+            ci2 = Math.min(ci2, MAX_LONS);
+            ci3 = Math.min(ci3, MAX_LONS);
         }
 
         for (int i = 0; i < 4; i++) {

@@ -170,6 +170,7 @@ public class DEMFactory {
 
         double alt;
         boolean valid = false;
+        final double[][] v = new double[4][4];
         for (int y = y0 - 1; y < maxY; y++) {
             final int yy = y - y0 + 1;
 
@@ -188,7 +189,7 @@ public class DEMFactory {
                 alt = dem.getElevation(geoPos);
 
                 if (alt == demNoDataValue && !nodataValueAtSea) {
-                    alt = EarthGravitationalModel96.instance().getEGM(geoPos.lat, geoPos.lon);
+                    alt = EarthGravitationalModel96.instance().getEGM(geoPos.lat, geoPos.lon, v);
                 }
 
                 if (!valid && alt != demNoDataValue) {

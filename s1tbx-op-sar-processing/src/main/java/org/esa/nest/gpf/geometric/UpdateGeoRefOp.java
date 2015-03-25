@@ -33,6 +33,7 @@ import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
+import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
@@ -323,8 +324,8 @@ public final class UpdateGeoRefOp extends Operator {
 
         final PixelPos pixPos = new PixelPos();
         final GeoPos geoPos = new GeoPos();
-        final double[] earthPoint = new double[3];
-        final double[] sensorPos = new double[3];
+        final PosVector earthPoint = new PosVector();
+        final PosVector sensorPos = new PosVector();
         double tileOverlapPercentageMax = -Double.MAX_VALUE;
         double tileOverlapPercentageMin = Double.MAX_VALUE;
         for (int y = y0; y < y0 + h; y += 20) {
@@ -627,8 +628,8 @@ public final class UpdateGeoRefOp extends Operator {
     }
 
     private static class PositionData {
-        final double[] earthPoint = new double[3];
-        final double[] sensorPos = new double[3];
+        final PosVector earthPoint = new PosVector();
+        final PosVector sensorPos = new PosVector();
         double azimuthIndex;
         double rangeIndex;
         double slantRange;

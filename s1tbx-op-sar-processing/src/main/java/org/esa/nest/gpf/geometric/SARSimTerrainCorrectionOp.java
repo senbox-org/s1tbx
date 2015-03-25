@@ -38,6 +38,7 @@ import org.esa.nest.gpf.coregistration.GCPManager;
 import org.esa.nest.gpf.coregistration.WarpOp;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
+import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.*;
 import org.esa.nest.gpf.*;
@@ -821,8 +822,8 @@ public class SARSimTerrainCorrectionOp extends Operator {
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
         final GeoPos geoPos = new GeoPos();
-        final double[] earthPoint = new double[3];
-        final double[] sensorPos = new double[3];
+        final PosVector earthPoint = new PosVector();
+        final PosVector sensorPos = new PosVector();
         final int srcMaxRange = sourceImageWidth - 1;
         final int srcMaxAzimuth = sourceImageHeight - 1;
         ProductData demBuffer = null;
@@ -1034,10 +1035,10 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
                                 if (localIncidenceAngles[1] != SARGeocoding.NonValidIncidenceAngle) {
                                     final double satelliteHeight = Math.sqrt(
-                                            sensorPos[0] * sensorPos[0] + sensorPos[1] * sensorPos[1] + sensorPos[2] * sensorPos[2]);
+                                            sensorPos.x * sensorPos.x + sensorPos.y * sensorPos.y + sensorPos.z * sensorPos.z);
 
                                     final double sceneToEarthCentre = Math.sqrt(
-                                            earthPoint[0] * earthPoint[0] + earthPoint[1] * earthPoint[1] + earthPoint[2] * earthPoint[2]);
+                                            earthPoint.x * earthPoint.x + earthPoint.y * earthPoint.y + earthPoint.z * earthPoint.z);
 
                                     v = calibrator.applyCalibration(
                                             v, rangeIndex, azimuthIndex, slantRange, satelliteHeight, sceneToEarthCentre,
@@ -1078,7 +1079,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
      * @return The zero Doppler time in days if it is found, -1 otherwise.
      * @throws OperatorException The operator exception.
      */
-    private double getEarthPointZeroDopplerTime(final double[] earthPoint) throws OperatorException {
+    private double getEarthPointZeroDopplerTime(final PosVector earthPoint) throws OperatorException {
 
         // binary search is used in finding the zero doppler time
         int lowerBound = 0;
@@ -1122,18 +1123,18 @@ public class SARSimTerrainCorrectionOp extends Operator {
      * @param earthPoint The earth point in xyz coordinate.
      * @return The Doppler frequency in Hz.
      */
-    private double getDopplerFrequency(final int y, final double[] earthPoint) {
+    private double getDopplerFrequency(final int y, final PosVector earthPoint) {
 
         if (y < 0 || y > sourceImageHeight - 1) {
             throw new OperatorException("Invalid range line index: " + y);
         }
 
-        final double xVel = orbit.sensorVelocity[y][0];
-        final double yVel = orbit.sensorVelocity[y][1];
-        final double zVel = orbit.sensorVelocity[y][2];
-        final double xDiff = earthPoint[0] - orbit.sensorPosition[y][0];
-        final double yDiff = earthPoint[1] - orbit.sensorPosition[y][1];
-        final double zDiff = earthPoint[2] - orbit.sensorPosition[y][2];
+        final double xVel = orbit.sensorVelocity[y].x;
+        final double yVel = orbit.sensorVelocity[y].y;
+        final double zVel = orbit.sensorVelocity[y].z;
+        final double xDiff = earthPoint.x - orbit.sensorPosition[y].x;
+        final double yDiff = earthPoint.y - orbit.sensorPosition[y].y;
+        final double zDiff = earthPoint.z - orbit.sensorPosition[y].z;
         final double distance = Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
 
         return 2.0 * (xVel * xDiff + yVel * yDiff + zVel * zDiff) / (distance * wavelength);

@@ -33,6 +33,7 @@ import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
+import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
@@ -428,8 +429,8 @@ public final class SARSimulationOp extends Operator {
 
         final PixelPos pixPos = new PixelPos();
         final GeoPos geoPos = new GeoPos();
-        final double[] earthPoint = new double[3];
-        final double[] sensorPos = new double[3];
+        final PosVector earthPoint = new PosVector();
+        final PosVector sensorPos = new PosVector();
         double tileOverlapPercentageMax = -Double.MAX_VALUE;
         double tileOverlapPercentageMin = Double.MAX_VALUE;
         for (int y = y0; y < y0 + h; y += 20) {
@@ -754,8 +755,8 @@ public final class SARSimulationOp extends Operator {
     }
 
     private static class PositionData {
-        final double[] earthPoint = new double[3];
-        final double[] sensorPos = new double[3];
+        final PosVector earthPoint = new PosVector();
+        final PosVector sensorPos = new PosVector();
         double azimuthIndex;
         double rangeIndex;
         double slantRange;
@@ -998,10 +999,10 @@ public final class SARSimulationOp extends Operator {
      * @return The elevation angle in degree.
      */
     private static double computeElevationAngle(
-            final double slantRange, final double[] earthPoint, final double[] sensorPos) {
+            final double slantRange, final PosVector earthPoint, final PosVector sensorPos) {
 
-        final double H2 = sensorPos[0] * sensorPos[0] + sensorPos[1] * sensorPos[1] + sensorPos[2] * sensorPos[2];
-        final double R2 = earthPoint[0] * earthPoint[0] + earthPoint[1] * earthPoint[1] + earthPoint[2] * earthPoint[2];
+        final double H2 = sensorPos.x * sensorPos.x + sensorPos.y * sensorPos.y + sensorPos.z * sensorPos.z;
+        final double R2 = earthPoint.x * earthPoint.x + earthPoint.y * earthPoint.y + earthPoint.z * earthPoint.z;
 
         return FastMath.acos((slantRange * slantRange + H2 - R2) / (2 * slantRange * Math.sqrt(H2))) * Constants.RTOD;
     }

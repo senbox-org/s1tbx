@@ -33,6 +33,7 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.dataio.dem.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.datamodel.ProductInformation;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
@@ -524,7 +525,7 @@ public final class BackGeocodingOp extends Operator {
         try {
             final int h = mSubSwath[subSwathIndex - 1].latitude.length;
             final int w = mSubSwath[subSwathIndex - 1].latitude[0].length;
-            double[] earthPoint = new double[3];
+            final PosVector earthPoint = new PosVector();
             for (int i = 0; i < h; i++) {
                 for (int j = 0; j < w; j++) {
                     final double lat = mSubSwath[subSwathIndex - 1].latitude[i][j];
@@ -555,7 +556,7 @@ public final class BackGeocodingOp extends Operator {
     }
 
     private int[] getBurstIndices(final int subSwathIndex, final Sentinel1Utils su,
-                                  final SARGeocoding.Orbit orbit, final double[] earthPoint) {
+                                  final SARGeocoding.Orbit orbit, final PosVector earthPoint) {
 
         try {
             Sentinel1Utils.SubSwathInfo subSwath = su.getSubSwath()[subSwathIndex - 1];
@@ -596,7 +597,7 @@ public final class BackGeocodingOp extends Operator {
 
         final PixelPos pixPos = new PixelPos();
         final GeoPos geoPos = new GeoPos();
-        final double[] earthPoint = new double[3];
+        final PosVector earthPoint = new PosVector();
         double tileOverlapPercentageMax = -Double.MAX_VALUE;
         double tileOverlapPercentageMin = Double.MAX_VALUE;
         for (int y = y0; y < y0 + h; y += 20) {
@@ -1236,24 +1237,10 @@ public final class BackGeocodingOp extends Operator {
     }
 
     private static class PositionData {
-        final double[] earthPoint = new double[3];
-        final double[] sensorPos = new double[3];
+        final PosVector earthPoint = new PosVector();
+        final PosVector sensorPos = new PosVector();
         double azimuthIndex;
         double rangeIndex;
-        double azimuthTime;
-        double slantRangeTime;
-    }
-
-    private static class Index {
-        public int i0;
-        public int i1;
-        public int j0;
-        public int j1;
-        public double muX;
-        public double muY;
-
-        public Index() {
-        }
     }
 
     private static class ResamplingRaster implements Resampling.Raster {
