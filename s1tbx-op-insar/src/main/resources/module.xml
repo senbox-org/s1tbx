@@ -13,12 +13,6 @@
     <funding>European Space Agency</funding>
 
     <dependency>
-        <module>snap-envisat-reader</module>
-    </dependency>
-    <dependency>
-        <module>snap-engine-utilities</module>
-    </dependency>
-    <dependency>
         <module>s1tbx-dem</module>
     </dependency>
     <dependency>

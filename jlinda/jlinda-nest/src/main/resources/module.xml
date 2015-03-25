@@ -12,9 +12,6 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
     <funding>European Space Agency</funding>
 
-    <dependency>
-        <module>s1tbx-io</module>
-    </dependency>
 	<dependency>
         <module>s1tbx-dem</module>
     </dependency>

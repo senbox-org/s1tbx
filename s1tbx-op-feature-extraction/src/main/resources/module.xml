@@ -16,9 +16,6 @@
     <dependency>
         <module>snap-engine-utilities</module>
     </dependency>
-    <dependency>
-        <module>s1tbx-rcp</module>
-    </dependency>
 
 
     <categories>Processor</categories>
