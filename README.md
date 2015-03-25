@@ -13,17 +13,17 @@ Building S1TBX from the source
 
 	git clone https://github.com/senbox-org/s1tbx.git
 	
-	git clone https://github.com/arraydev/snap-engine.git
+	git clone https://github.com/senbox-org/snap-engine.git
 	
-4. For the stable release branch of the software, check out the snap-1.0.x branch in the repositories
+4. For the stable release branch of the software, check out the snap-1.1.x branch in the repositories
 
 	CD into MY_PROJECTS/snap-engine
 	
-	git checkout snap-1.0.x
+	git checkout snap-1.1.x
 	
 	CD into MY_PROJECTS/s1tbx
 	
-	git checkout snap-1.0.x
+	git checkout snap-1.1.x
 	
 5. CD into MY_PROJECTS/s1tbx and build S1TBX from source: 
 
@@ -34,7 +34,7 @@ Building S1TBX from the source
 8. Use the following configuration to run DAT:
 
     * Main class: com.bc.ceres.launcher.Launcher
-    * VM parameters: -Xmx4G -Dceres.context=s1tbx
+    * VM parameters: -Xmx8G -Dceres.context=s1tbx
     * Program parameters: none
     * Working directory: MY_PROJECTS\output
     * Use classpath of module: s1tbx-bootstrap
