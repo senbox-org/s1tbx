@@ -10,6 +10,11 @@ import org.junit.Test;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
 
 import static org.esa.beam.framework.gpf.jpy.PyOperatorSpi.EXT_PROPERTY_NAME;
 import static org.junit.Assert.assertEquals;
@@ -47,5 +52,17 @@ public class PyOperatorSpiTest {
         assertNotNull(ndviOpSpi.getOperatorDescriptor());
         assertEquals("org.esa.beam.python.example.NdviOp", ndviOpSpi.getOperatorDescriptor().getName());
         assertSame(PyOperator.class, ndviOpSpi.getOperatorDescriptor().getOperatorClass());
+    }
+
+    @Test
+    public void testGetPythonModulePath() throws Exception {
+
+        URI fileUri = PyOperatorSpiTest.class.getResource("test.zip").toURI();
+        FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + fileUri), Collections.emptyMap());
+        Path zipFsPath = fs.getPath("/");
+        assertEquals(fileUri, PyOperatorSpi.getPythonModulePath(zipFsPath, "").toUri());
+
+        Path dirPath = Paths.get(".");
+        assertEquals(dirPath.resolve("bibo"), PyOperatorSpi.getPythonModulePath(dirPath, "bibo"));
     }
 }
