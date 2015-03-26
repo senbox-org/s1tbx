@@ -129,6 +129,8 @@ public class CreateInterferogramOp extends Operator {
     private double slvScenseCentreAzimuthTime = 0.0;
     private int subSwathIndex = 0;
 
+    private boolean outputFlatEarthPhase = false;
+
     /**
      * Initializes this operator and sets the one and only target product.
      * <p>The target product can be either defined by a field of type {@link org.esa.beam.framework.datamodel.Product} annotated with the
@@ -322,6 +324,15 @@ public class CreateInterferogramOp extends Operator {
                     product.addBand(Unit.COHERENCE, cohTag + "_" + master.date + "_" + slave.date);
                 }
 
+                if(subtractFlatEarthPhase && outputFlatEarthPhase) {
+                    String fepTag = "fep";
+                    if (isTOPSARBurstProduct) {
+                        final String topsarTag = getTOPSARTag(sourceProduct);
+                        fepTag += "_" + topsarTag;
+                    }
+                    product.addBand(Unit.PHASE, fepTag + "_" + master.date + "_" + slave.date);
+                }
+
                 // put ifg-product bands into map
                 targetMap.put(productName, product);
             }
@@ -428,6 +439,12 @@ public class CreateInterferogramOp extends Operator {
                 final String targetBandCoh = targetMap.get(key).getBandName(Unit.COHERENCE);
                 final Band cohBand = targetProduct.addBand(targetBandCoh, ProductData.TYPE_FLOAT32);
                 cohBand.setUnit(Unit.COHERENCE);
+            }
+
+            if(subtractFlatEarthPhase && outputFlatEarthPhase) {
+                final String targetBandFep = targetMap.get(key).getBandName(Unit.PHASE);
+                final Band fepBand = targetProduct.addBand(targetBandFep, ProductData.TYPE_FLOAT32);
+                fepBand.setUnit(Unit.PHASE);
             }
         }
     }
@@ -772,13 +789,12 @@ public class CreateInterferogramOp extends Operator {
             final int cohw = targetRectangle.width + cohWinRg - 1;
             final int cohh = targetRectangle.height + cohWinAz - 1;
             final Rectangle rect = new Rectangle(cohx0, cohy0, cohw, cohh);
-
             final BorderExtender border = BorderExtender.createInstance(BorderExtender.BORDER_ZERO);
 
-            final int y0 = rect.y;
-            final int yN = y0 + rect.height - 1;
-            final int x0 = rect.x;
-            final int xN = rect.x + rect.width - 1;
+            final int y0 = targetRectangle.y;
+            final int yN = y0 + targetRectangle.height - 1;
+            final int x0 = targetRectangle.x;
+            final int xN = x0 + targetRectangle.width - 1;
 
             final long minLine = burstIndex*subSwath[subSwathIndex - 1].linesPerBurst;
             final long maxLine = minLine + subSwath[subSwathIndex - 1].linesPerBurst - 1;
@@ -793,43 +809,41 @@ public class CreateInterferogramOp extends Operator {
                 final ProductContainer product = targetMap.get(ifgKey);
 
                 /// check out results from source ///
-                final Tile mstTileReal = getSourceTile(product.sourceMaster.realBand, rect, border);
-                final Tile mstTileImag = getSourceTile(product.sourceMaster.imagBand, rect, border);
+                final Tile mstTileReal = getSourceTile(product.sourceMaster.realBand, targetRectangle);
+                final Tile mstTileImag = getSourceTile(product.sourceMaster.imagBand, targetRectangle);
                 final ComplexDoubleMatrix dataMaster = TileUtilsDoris.pullComplexDoubleMatrix(mstTileReal, mstTileImag);
 
                 /// check out results from source ///
-                final Tile slvTileReal = getSourceTile(product.sourceSlave.realBand, rect, border);
-                final Tile slvTileImag = getSourceTile(product.sourceSlave.imagBand, rect, border);
+                final Tile slvTileReal = getSourceTile(product.sourceSlave.realBand, targetRectangle);
+                final Tile slvTileImag = getSourceTile(product.sourceSlave.imagBand, targetRectangle);
                 final ComplexDoubleMatrix dataSlave = TileUtilsDoris.pullComplexDoubleMatrix(slvTileReal, slvTileImag);
 
                 final double srcNoDataValue = product.sourceMaster.realBand.getNoDataValue();
 
                 ComplexDoubleMatrix dataMaster2 = null, dataSlave2 = null;
                 if(includeCoherence) {
-                    dataMaster2 = new ComplexDoubleMatrix(mstTileReal.getHeight(), mstTileReal.getWidth());
-                    dataSlave2 = new ComplexDoubleMatrix(slvTileReal.getHeight(), slvTileReal.getWidth());
-                    dataMaster2.copy(dataMaster);
-                    dataSlave2.copy(dataSlave);
+                    final Tile mstTileReal2 = getSourceTile(product.sourceMaster.realBand, rect, border);
+                    final Tile mstTileImag2 = getSourceTile(product.sourceMaster.imagBand, rect, border);
+                    final Tile slvTileReal2 = getSourceTile(product.sourceSlave.realBand, rect, border);
+                    final Tile slvTileImag2 = getSourceTile(product.sourceSlave.imagBand, rect, border);
+                    dataMaster2 = TileUtilsDoris.pullComplexDoubleMatrix(mstTileReal2, mstTileImag2);
+                    dataSlave2 = TileUtilsDoris.pullComplexDoubleMatrix(slvTileReal2, slvTileImag2);
                 }
 
+                DoubleMatrix realReferencePhase = null;
                 if (subtractFlatEarthPhase) {
-                    // normalize range and azimuth axis
                     DoubleMatrix rangeAxisNormalized = DoubleMatrix.linspace(x0, xN, dataMaster.columns);
                     rangeAxisNormalized = normalizeDoubleMatrix(rangeAxisNormalized, minPixel, maxPixel);
 
                     DoubleMatrix azimuthAxisNormalized = DoubleMatrix.linspace(y0, yN, dataMaster.rows);
                     azimuthAxisNormalized = normalizeDoubleMatrix(azimuthAxisNormalized, minLine, maxLine);
 
-                    // pull polynomial from the map
                     final String polynomialName = product.sourceSlave.name + "_" + (subSwathIndex - 1) + "_" + burstIndex;
                     final DoubleMatrix polyCoeffs = flatEarthPolyMap.get(polynomialName);
 
-                    // estimate the phase on the grid
-                    final DoubleMatrix realReferencePhase =
-                            PolyUtils.polyval(azimuthAxisNormalized, rangeAxisNormalized,
+                    realReferencePhase = PolyUtils.polyval(azimuthAxisNormalized, rangeAxisNormalized,
                                     polyCoeffs, PolyUtils.degreeFromCoefficients(polyCoeffs.length));
 
-                    // compute the reference phase
                     final ComplexDoubleMatrix complexReferencePhase =
                             new ComplexDoubleMatrix(MatrixFunctions.cos(realReferencePhase),
                                     MatrixFunctions.sin(realReferencePhase));
@@ -850,7 +864,7 @@ public class CreateInterferogramOp extends Operator {
                 DoubleMatrix cohMatrix = null;
                 ProductData samplesCoh = null;
                 if(includeCoherence) {
-                    for (int i = 0; i < dataMaster.length; i++) {
+                    for (int i = 0; i < dataMaster2.length; i++) {
                         double tmp = norm(dataMaster2.get(i));
                         dataMaster2.put(i, dataMaster2.get(i).mul(dataSlave2.get(i).conj()));
                         dataSlave2.put(i, new ComplexDouble(norm(dataSlave2.get(i)), tmp));
@@ -864,6 +878,13 @@ public class CreateInterferogramOp extends Operator {
                     samplesCoh = tileOutCoh.getDataBuffer();
                 }
 
+                ProductData samplesFep = null;
+                if (subtractFlatEarthPhase && outputFlatEarthPhase) {
+                    final Band targetBandFep = targetProduct.getBand(product.getBandName(Unit.PHASE));
+                    final Tile tileOutFep = targetTileMap.get(targetBandFep);
+                    samplesFep = tileOutFep.getDataBuffer();
+                }
+
                 // push all
                 final ProductData samplesReal = tileOutReal.getDataBuffer();
                 final ProductData samplesImag = tileOutImag.getDataBuffer();
@@ -871,19 +892,16 @@ public class CreateInterferogramOp extends Operator {
                 final DoubleMatrix dataReal = dataMaster.real();
                 final DoubleMatrix dataImag = dataMaster.imag();
 
-                final int maxX = targetRectangle.x + targetRectangle.width;
-                final int maxY = targetRectangle.y + targetRectangle.height;
                 final TileIndex tgtIndex = new TileIndex(tileOutReal);
                 final TileIndex srcSlvIndex = new TileIndex(slvTileReal);
 
-                for (int y = targetRectangle.y; y < maxY; y++) {
+                for (int y = y0; y <= yN; y++) {
                     tgtIndex.calculateStride(y);
                     srcSlvIndex.calculateStride(y);
-                    final int yy = y - targetRectangle.y;
-                    final int yy2 = yy+azOffset;
-                    for (int x = targetRectangle.x; x < maxX; x++) {
+                    final int yy = y - y0;
+                    for (int x = x0; x <= xN; x++) {
                         final int trgIdx = tgtIndex.getIndex(x);
-                        final int xx = x - targetRectangle.x;
+                        final int xx = x - x0;
 
                         if (srcSlvData.getElemDoubleAt(srcSlvIndex.getIndex(x)) == srcNoDataValue) {
                             samplesReal.setElemFloatAt(trgIdx, (float)srcNoDataValue);
@@ -891,11 +909,17 @@ public class CreateInterferogramOp extends Operator {
                             if(samplesCoh != null) {
                                 samplesCoh.setElemFloatAt(trgIdx, (float)srcNoDataValue);
                             }
+                            if (samplesFep != null) {
+                                samplesFep.setElemFloatAt(trgIdx, (float)srcNoDataValue);
+                            }
                         } else {
-                            samplesReal.setElemFloatAt(trgIdx, (float)dataReal.get(yy2, xx+rgOffset));
-                            samplesImag.setElemFloatAt(trgIdx, (float)dataImag.get(yy2, xx+rgOffset));
+                            samplesReal.setElemFloatAt(trgIdx, (float)dataReal.get(yy, xx));
+                            samplesImag.setElemFloatAt(trgIdx, (float)dataImag.get(yy, xx));
                             if(samplesCoh != null) {
-                                samplesCoh.setElemFloatAt(trgIdx, (float) cohMatrix.get(yy, xx));
+                                samplesCoh.setElemFloatAt(trgIdx, (float)cohMatrix.get(yy, xx));
+                            }
+                            if (samplesFep != null && realReferencePhase != null) {
+                                samplesFep.setElemFloatAt(trgIdx, (float)realReferencePhase.get(yy, xx));
                             }
                         }
                     }
