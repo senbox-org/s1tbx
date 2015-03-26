@@ -26,7 +26,7 @@
     <artifactId>snap-netcdf</artifactId>
     <packaging>nbm</packaging>
 
-    <name>NetCDF Product Reader and Writer</name>
+    <name>SNAP NetCDF Product Reader/Writer</name>
     <description>A product reader and writer for NetCDF files. It supports metadata profiles for CF, BEAM, HDF-EOS,
         ODESA.
     </description>

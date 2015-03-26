@@ -10,7 +10,7 @@
     <artifactId>snap-binning</artifactId>
     <packaging>nbm</packaging>
 
-    <name>Level-3 Binning Processor (GPF)</name>
+    <name>SNAP Level-3 Binning Processor (GPF)</name>
     <description>The Level-3 Binning Operator performs a spatial and temporal aggregation of a number of input (Level-2) products using the NASA SeaDAS binning scheme. This module has replaced the module 'snap-binning'.</description>
 
     <dependencies>

@@ -10,7 +10,7 @@
     <artifactId>snap-csv-dataio</artifactId>
     <packaging>nbm</packaging>
 
-    <name>CSV Product Reader/Writer</name>
+    <name>SNAP CSV Product Reader/Writer</name>
     <description>Enables SNAP to read and write data products in CSV format.</description>
 
     <dependencies>

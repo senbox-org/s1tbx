@@ -10,7 +10,7 @@
     <artifactId>snap-envisat-reader</artifactId>
     <packaging>nbm</packaging>
 
-    <name>Envisat Product Reader</name>
+    <name>SNAP Envisat Product Reader</name>
     <description>Enables SNAP to read ENVISAT data products.</description>
 
     <dependencies>

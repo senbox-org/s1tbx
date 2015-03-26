@@ -11,7 +11,7 @@
     <artifactId>snap-arcbingrid-reader</artifactId>
     <packaging>nbm</packaging>
 
-    <name>ArcInfo Binary Grid Reader</name>
+    <name>SNAP ArcInfo Binary Grid Reader</name>
     <description>Imports ESRI ArcInfo Binary Grid data products into SNAP.</description>
 
     <dependencies>
