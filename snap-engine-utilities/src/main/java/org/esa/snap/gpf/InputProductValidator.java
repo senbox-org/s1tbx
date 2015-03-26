@@ -86,10 +86,16 @@ public class InputProductValidator {
     }
 
     public void checkIfTOPSARBurstProduct(final boolean shouldbe) throws OperatorException {
+
         final boolean isTOPSARProduct = isTOPSARProduct();
         if (shouldbe && !isTOPSARProduct) {
+            // It should be a TOP SAR Burst product but it is not even a TOP SAR Product
             throw new OperatorException("Source product should be an SLC burst product");
-        } else if (!shouldbe && isTOPSARProduct) {
+        } else if (shouldbe && isTOPSARProduct && isDebursted()) {
+            // It should be a TOP SAR Burst product and it is a TOP SAR product but it has been deburst
+            throw new OperatorException("Source product should NOT be a deburst product");
+        } else if (!shouldbe && isTOPSARProduct && !isDebursted()) {
+            // It should not be a TOP SAR burst product but it is.
             throw new OperatorException("Source product should first be deburst");
         }
     }

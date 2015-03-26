@@ -35,4 +35,8 @@ public final class PosVector {
         this.y = y;
         this.z = z;
     }
+
+    public double[] toArray() {
+        return new double[] {x,y,z};
+    }
 }

@@ -372,15 +372,22 @@ public final class Maths {
         return v + coeff[0];
     }
 
-    public static void normalizeVector(final double[] v) {
+    public static void normalizeVector(final PosVector v) {
         final double norm = Math.sqrt(innerProduct(v, v));
-        v[0] /= norm;
-        v[1] /= norm;
-        v[2] /= norm;
+        v.x /= norm;
+        v.y /= norm;
+        v.z /= norm;
     }
 
-    public static double innerProduct(final double[] a, final double[] b) {
-        return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    public static double innerProduct(final PosVector a, final PosVector b) {
+        return a.x * b.x + a.y * b.y + a.z * b.z;
+    }
+
+    public static void crossProduct(final PosVector a, final PosVector b, final PosVector c) {
+
+        c.x = a.y * b.z - a.z * b.y;
+        c.y = a.z * b.x - a.x * b.z;
+        c.z = a.x * b.y - a.y * b.x;
     }
 
     public static double[] polyFit(final Matrix A, final double[] y) {
