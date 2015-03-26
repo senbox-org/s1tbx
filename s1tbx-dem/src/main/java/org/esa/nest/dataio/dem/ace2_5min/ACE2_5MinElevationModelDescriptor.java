@@ -21,7 +21,6 @@ import com.bc.io.FileUnpacker;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.resamp.Resampling;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.dem.AbstractElevationModelDescriptor;
 import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.snap.util.Settings;
@@ -165,50 +164,12 @@ public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDes
         }
 
         try {
-            final VisatApp visatApp = VisatApp.getApp();
-            if (visatApp != null) {
-                visatApp.setStatusBarMessage("Downloading ACE2 5Min DEM...");
-            }
-
             final File archiveFile = FileDownloader.downloadFile(getDemArchiveUrl(), demInstallDir, parent);
             FileUnpacker.unpackZip(archiveFile, demInstallDir, parent);
             archiveFile.delete();
-
-            if (visatApp != null) {
-                visatApp.setStatusBarMessage("");
-            }
         } catch (Exception e) {
             return false;
         }
         return true;
-    }
-
-    private void installWithProgressMonitor(final Component parent) {
-        final ProgressMonitorSwingWorker worker = new ProgressMonitorSwingWorker(VisatApp.getApp().getMainFrame(),
-                "Installing Ace2 5min DEM...") {
-            @Override
-            protected Object doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
-
-                pm.beginTask("Installing Ace2 5min DEM", 3);
-                try {
-                    final URL archiveUrl = getDemArchiveUrl();
-                    final File demInstallDir = getDemInstallDir();
-
-                    final File archiveFile = FileDownloader.downloadFile(archiveUrl, demInstallDir, parent);
-                    pm.worked(1);
-                    FileUnpacker.unpackZip(archiveFile, demInstallDir, parent);
-                    pm.worked(1);
-                    archiveFile.delete();
-                    pm.worked(1);
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                    return false;
-                } finally {
-                    pm.done();
-                }
-                return true;
-            }
-        };
-        worker.executeWithBlocking();
     }
 }

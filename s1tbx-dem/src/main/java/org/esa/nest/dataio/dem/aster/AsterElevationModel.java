@@ -20,7 +20,6 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.dataop.resamp.Resampling;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.dem.BaseElevationModel;
 import org.esa.nest.dataio.dem.ElevationFile;
 
@@ -36,7 +35,7 @@ public final class AsterElevationModel extends BaseElevationModel {
 
         unpackTileBundles();
 
-        setMaxCacheSize(12);
+        setMaxCacheSize(6);
     }
 
     @Override
@@ -76,11 +75,7 @@ public final class AsterElevationModel extends BaseElevationModel {
             for (File f : files) {
                 final String name = f.getName().toLowerCase();
                 if (name.startsWith("tiles_") && name.endsWith(".zip")) {
-                    Component component = null;
-                    if (VisatApp.getApp() != null) {
-                        component = VisatApp.getApp().getApplicationWindow();
-                    }
-                    FileUnpacker.unpackZip(f, parentFolder, component);
+                    FileUnpacker.unpackZip(f, parentFolder, null);
                     f.delete();
                 }
             }

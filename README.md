@@ -39,5 +39,10 @@ Building S1TBX from the source
     * Working directory: MY_PROJECTS\output
     * Use classpath of module: s1tbx-bootstrap
 
+To package for all platforms
+
+mvn package assembly:assembly -Dmaven.test.skip=true -P withbeam
+
+you will then need to supply a jre for each platform.
 
 Enjoy!
