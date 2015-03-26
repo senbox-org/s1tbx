@@ -868,6 +868,7 @@ public final class SARGeocoding {
         public OrbitStateVector[] orbitStateVectors = null;
         public PosVector[] sensorPosition = null; // sensor position for all range lines
         public PosVector[] sensorVelocity = null; // sensor velocity for all range lines
+        private double dt = 0.0;
 
         public Orbit(OrbitStateVector[] orbitStateVectors,
                      double firstLineUTC, double lineTimeInterval, int sourceImageHeight) {
@@ -884,8 +885,8 @@ public final class SARGeocoding {
                 }
             }
             this.orbitStateVectors = vectorList.toArray(new OrbitStateVector[vectorList.size()]);
-            //this.orbitStateVectors = new OrbitStateVector[orbitStateVectors.length];
-            //System.arraycopy(orbitStateVectors, 0, this.orbitStateVectors, 0, orbitStateVectors.length);
+            this.dt = (orbitStateVectors[orbitStateVectors.length-1].time_mjd - orbitStateVectors[0].time_mjd) /
+                    (orbitStateVectors.length-1);
 
             this.sensorPosition = new PosVector[sourceImageHeight];
             this.sensorVelocity = new PosVector[sourceImageHeight];
@@ -903,9 +904,8 @@ public final class SARGeocoding {
 
         public void getPositionVelocity(final double time, final PosVector position, final PosVector velocity) {
 
-            final int[] adjVecIndices = findAdjacentVectors(time);
-
-            final int numVectors = adjVecIndices.length;
+            final int i0 = Math.max((int)((time - orbitStateVectors[0].time_mjd) / dt) - 3, 0);
+            final int iN = Math.min(i0 + 7, orbitStateVectors.length - 1);
 
             //lagrangeInterpolatingPolynomial
             if(position != null) {
@@ -919,13 +919,13 @@ public final class SARGeocoding {
                 velocity.z = 0;
             }
 
-            for (int i = 0; i < numVectors; ++i) {
-                final OrbitStateVector orbI = orbitStateVectors[adjVecIndices[i]];
+            for (int i = i0; i < iN; ++i) {
+                final OrbitStateVector orbI = orbitStateVectors[i];
 
                 double weight = 1;
-                for (int j = 0; j < numVectors; ++j) {
+                for (int j = i0; j < iN; ++j) {
                     if (j != i) {
-                        final double time2 = orbitStateVectors[adjVecIndices[j]].time_mjd;
+                        final double time2 = orbitStateVectors[j].time_mjd;
                         weight *= (time - time2) / (orbI.time_mjd - time2);
                     }
                 }
