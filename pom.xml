@@ -680,6 +680,16 @@
                 <artifactId>commons-codec</artifactId>
                 <version>1.4</version>
             </dependency>
+			<dependency>
+	            <groupId>commons-net</groupId>
+	            <artifactId>commons-net</artifactId>
+	            <version>3.3</version>
+	        </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.4</version>
+            </dependency>
             
             <dependency>
                 <groupId>commons-logging</groupId>
@@ -794,22 +804,6 @@
 				<artifactId>derby</artifactId>
 				<version>10.10.2.0</version>
 			</dependency>
-			
-			<dependency>
-	            <groupId>commons-net</groupId>
-	            <artifactId>commons-net</artifactId>
-	            <version>3.3</version>
-	        </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>2.4</version>
-            </dependency>
-			<dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-math3</artifactId>
-                <version>3.2</version>
-            </dependency>
 			
 			<dependency>
 				<groupId>edu.emory.mathcs</groupId>
