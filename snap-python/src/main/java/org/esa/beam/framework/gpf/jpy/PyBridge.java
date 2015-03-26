@@ -37,8 +37,8 @@ import static org.esa.beam.util.SystemUtils.LOG;
  * The following system properties can be used to configure this class:
  * <p>
  * <ol>
- * <li>{@code beam.pythonExecutable}: The python executable to be used with BEAM. The default value is {@code "python"}.</li>
- * <li>{@code beam.forcePythonConfig}: Forces reconfiguration of the bridge for each BEAM run. The default value is {@code "true"}</li>
+ * <li>{@code snap.pythonExecutable}: The python executable to be used with BEAM. The default value is {@code "python"}.</li>
+ * <li>{@code snap.forcePythonConfig}: Forces reconfiguration of the bridge for each BEAM run. The default value is {@code "true"}</li>
  * </ol>
  *
  * @author Norman Fomferra
@@ -47,7 +47,11 @@ class PyBridge {
 
     public static final String BEAMPYUTIL_PY_FILENAME = "beampyutil.py";
     public static final String BEAMPYUTIL_LOG_FILENAME = "beampyutil.log";
+    public static final String FORCE_PYTHON_CONFIG_PROPERTY = "snap.forcePythonConfig";
+    public static final String PYTHON_EXECUTABLE_PROPERTY = "snap.pythonExecutable";
     public static final String JPY_JAVA_API_CONFIG_FILENAME = "jpyconfig.properties";
+    public static final String JPY_DEBUG_PROPERTY = "jpy.debug";
+    public static final String JPY_CONFIG_PROPERTY = "jpy.config";
 
     private static final Path MODULE_CODE_BASE_PATH = findModuleCodeBasePath();
 
@@ -72,7 +76,7 @@ class PyBridge {
             throw new OperatorException("Failed to unpack BEAM-Python resources: " + e.getMessage(), e);
         }
 
-        boolean forcePythonConfig = System.getProperty("beam.forcePythonConfig", "true").equalsIgnoreCase("true");
+        boolean forcePythonConfig = System.getProperty(FORCE_PYTHON_CONFIG_PROPERTY, "true").equalsIgnoreCase("true");
         Path jpyConfigFile = beampyDir.resolve(JPY_JAVA_API_CONFIG_FILENAME);
         if (forcePythonConfig || !Files.exists(jpyConfigFile)) {
             configureJpy();
@@ -85,9 +89,9 @@ class PyBridge {
                                                       beampyDir.resolve(BEAMPYUTIL_LOG_FILENAME)));
         }
 
-        System.setProperty("jpy.config", jpyConfigFile.toString());
-        if (Debug.isEnabled() && System.getProperty("jpy.debug") == null) {
-            System.setProperty("jpy.debug", "true");
+        System.setProperty(JPY_CONFIG_PROPERTY, jpyConfigFile.toString());
+        if (Debug.isEnabled() && System.getProperty(JPY_DEBUG_PROPERTY) == null) {
+            System.setProperty(JPY_DEBUG_PROPERTY, "true");
         }
 
         synchronized (PyLib.class) {
@@ -124,7 +128,7 @@ class PyBridge {
     private static void configureJpy() {
         LOG.info("Configuring BEAM-Python bridge...");
 
-        String pythonExecutable = System.getProperty("beam.pythonExecutable", "python");
+        String pythonExecutable = System.getProperty(PYTHON_EXECUTABLE_PROPERTY, "python");
 
         // "java.home" is always present
         List<String> command = new ArrayList<>();

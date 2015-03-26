@@ -35,9 +35,11 @@ public class PyOperatorSpi extends OperatorSpi {
         super(operatorDescriptor);
     }
 
+    static final String EXT_PROPERTY_NAME = "snap.beampy.ext";
+
     static {
         scanDir(Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "beampy", "ext"));
-        scanDirs(System.getProperty("snap.beampy.ext", "").split(File.pathSeparator));
+        scanDirs(System.getProperty(EXT_PROPERTY_NAME, "").split(File.pathSeparator));
         scanClassPath();
     }
 
@@ -69,7 +71,6 @@ public class PyOperatorSpi extends OperatorSpi {
     }
 
     private static void registerPythonModule(Path resourcePath) {
-        System.out.println("resourcePath = " + resourcePath);
         if (!Files.exists(resourcePath) || !resourcePath.endsWith(PY_OP_RESOURCE_NAME)) {
             return;
         }
@@ -162,8 +163,8 @@ public class PyOperatorSpi extends OperatorSpi {
 
         String operatorName = operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorName, operatorSpi);
-        LOG.info(String.format("Python operator '%s' registered (Python module '%s', class '%s', path '%s')",
-                               operatorName, pythonModuleName, pythonClassName, pythonModuleDir));
+        LOG.info(String.format("Python operator '%s' registered (Python module: '%s', class: '%s', URI: '%s')",
+                               operatorName, pythonModuleName, pythonClassName, pythonModuleDir.toUri()));
         return true;
     }
 }
