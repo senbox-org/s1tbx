@@ -368,6 +368,7 @@ public class SpeckleFilterOp extends Operator {
                              final TileIndex srcIndex, final TileIndex trgIndex,
                              final int tx0, final int ty0, final int tw, final int th) {
 
+        final boolean isComplex = unit == Unit.UnitType.REAL || unit == Unit.UnitType.IMAGINARY;
         final int maxY = ty0 + th;
         final int maxX = tx0 + tw;
         for (int y = ty0; y < maxY; ++y) {
@@ -376,7 +377,7 @@ public class SpeckleFilterOp extends Operator {
                 final int idx = trgIndex.getIndex(x);
 
                 final int numSamples = getNeighborValues(
-                        x, y, srcData1, srcData2, srcIndex, noDataValue, unit, neighborValues);
+                        x, y, srcData1, srcData2, srcIndex, noDataValue, isComplex, neighborValues);
 
                 if (numSamples > 0) {
                     trgData.setElemDoubleAt(idx, getMeanValue(neighborValues, numSamples, noDataValue));
@@ -409,6 +410,7 @@ public class SpeckleFilterOp extends Operator {
                                final TileIndex srcIndex, final TileIndex trgIndex,
                                final int x0, final int y0, final int w, final int h) {
 
+        final boolean isComplex = unit == Unit.UnitType.REAL || unit == Unit.UnitType.IMAGINARY;
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
@@ -417,7 +419,7 @@ public class SpeckleFilterOp extends Operator {
                 final int idx = trgIndex.getIndex(x);
 
                 final int numSamples = getNeighborValues(
-                        x, y, srcData1, srcData2, srcIndex, noDataValue, unit, neighborValues);
+                        x, y, srcData1, srcData2, srcIndex, noDataValue, isComplex, neighborValues);
 
                 if (numSamples > 0) {
                     trgData.setElemDoubleAt(idx, getMedianValue(neighborValues, numSamples, noDataValue));
@@ -450,6 +452,7 @@ public class SpeckleFilterOp extends Operator {
                               final TileIndex srcIndex, final TileIndex trgIndex,
                               final int x0, final int y0, final int w, final int h) {
 
+        final boolean isComplex = unit == Unit.UnitType.REAL || unit == Unit.UnitType.IMAGINARY;
         final double[] mask = new double[filterSizeX * filterSizeY];
         getFrostMask(mask);
 
@@ -461,7 +464,7 @@ public class SpeckleFilterOp extends Operator {
                 final int idx = trgIndex.getIndex(x);
 
                 final int numSamples = getNeighborValues(
-                        x, y, srcData1, srcData2, srcIndex, noDataValue, unit, neighborValues);
+                        x, y, srcData1, srcData2, srcIndex, noDataValue, isComplex, neighborValues);
 
                 if (numSamples > 0) {
                     trgData.setElemDoubleAt(idx, getFrostValue(neighborValues, numSamples, noDataValue, mask));
@@ -495,6 +498,7 @@ public class SpeckleFilterOp extends Operator {
                                  final int x0, final int y0, final int w, final int h,
                                  final double cu, final double cu2, final double enl) {
 
+        final boolean isComplex = unit == Unit.UnitType.REAL || unit == Unit.UnitType.IMAGINARY;
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
@@ -503,7 +507,7 @@ public class SpeckleFilterOp extends Operator {
                 final int idx = trgIndex.getIndex(x);
 
                 final int numSamples = getNeighborValues(
-                        x, y, srcData1, srcData2, srcIndex, noDataValue, unit, neighborValues);
+                        x, y, srcData1, srcData2, srcIndex, noDataValue, isComplex, neighborValues);
 
                 if (numSamples > 0) {
                     trgData.setElemDoubleAt(idx, getGammaMapValue(neighborValues, numSamples, noDataValue, cu, cu2, enl));
@@ -537,6 +541,7 @@ public class SpeckleFilterOp extends Operator {
                             final int x0, final int y0, final int w, final int h,
                             final double cu, final double cu2) {
 
+        final boolean isComplex = unit == Unit.UnitType.REAL || unit == Unit.UnitType.IMAGINARY;
         final int maxY = y0 + h;
         final int maxX = x0 + w;
         for (int y = y0; y < maxY; ++y) {
@@ -545,7 +550,7 @@ public class SpeckleFilterOp extends Operator {
                 final int idx = trgIndex.getIndex(x);
 
                 final int numSamples = getNeighborValues(
-                        x, y, srcData1, srcData2, srcIndex, noDataValue, unit, neighborValues);
+                        x, y, srcData1, srcData2, srcIndex, noDataValue, isComplex, neighborValues);
 
                 if (numSamples > 0) {
                     trgData.setElemDoubleAt(idx, getLeeValue(neighborValues, numSamples, noDataValue, cu, cu2));
@@ -565,28 +570,34 @@ public class SpeckleFilterOp extends Operator {
      * @param srcData2       The source ProductData for 2nd band.
      * @param srcIndex       The source tile index.
      * @param noDataValue    Place holder for no data value.
-     * @param bandUnit       Unit for the 1st band.
+     * @param isComplex      has i and q or not
      * @param neighborValues Array holding the pixel values.
      * @return The number of valid samples.
      * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs in obtaining the pixel values.
      */
     private int getNeighborValues(final int tx, final int ty, final ProductData srcData1, final ProductData srcData2,
-                                  final TileIndex srcIndex, final double noDataValue, final Unit.UnitType bandUnit,
+                                  final TileIndex srcIndex, final double noDataValue, final boolean isComplex,
                                   final double[] neighborValues) {
+        final int minX = tx - halfSizeX;
+        final int maxX = tx + halfSizeX;
+        final int minY = ty - halfSizeY;
+        final int maxY = ty + halfSizeY;
+        final int height = sourceImageHeight - 1;
+        final int width = sourceImageWidth - 1;
 
         int numValidSamples = 0;
         int k = 0;
-        if (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY) {
+        if (isComplex) {
 
-            for (int y = ty - halfSizeY; y <= ty + halfSizeY; y++) {
-                if (y < 0 || y > sourceImageHeight - 1) {
-                    for (int x = tx - halfSizeX; x <= tx + halfSizeX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                if (y < 0 || y > height) {
+                    for (int x = minX; x <= maxX; x++) {
                         neighborValues[k++] = noDataValue;
                     }
                 } else {
                     srcIndex.calculateStride(y);
-                    for (int x = tx - halfSizeX; x <= tx + halfSizeX; x++) {
-                        if (x < 0 || x > sourceImageWidth - 1) {
+                    for (int x = minX; x <= maxX; x++) {
+                        if (x < 0 || x > width) {
                             neighborValues[k++] = noDataValue;
                         } else {
                             final int idx = srcIndex.getIndex(x);
@@ -605,19 +616,18 @@ public class SpeckleFilterOp extends Operator {
 
         } else {
 
-            for (int y = ty - halfSizeY; y <= ty + halfSizeY; y++) {
-                if (y < 0 || y > sourceImageHeight - 1) {
-                    for (int x = tx - halfSizeX; x <= tx + halfSizeX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                if (y < 0 || y > height) {
+                    for (int x = minX; x <= maxX; x++) {
                         neighborValues[k++] = noDataValue;
                     }
                 } else {
                     srcIndex.calculateStride(y);
-                    for (int x = tx - halfSizeX; x <= tx + halfSizeX; x++) {
-                        if (x < 0 || x > sourceImageWidth - 1) {
+                    for (int x = minX; x <= maxX; x++) {
+                        if (x < 0 || x > width) {
                             neighborValues[k++] = noDataValue;
                         } else {
-                            final int idx = srcIndex.getIndex(x);
-                            final double v = srcData1.getElemDoubleAt(idx);
+                            final double v = srcData1.getElemDoubleAt(srcIndex.getIndex(x));
                             if (v != noDataValue) {
                                 neighborValues[k++] = v;
                                 numValidSamples++;

@@ -36,7 +36,7 @@ public final class AsterElevationModel extends BaseElevationModel {
 
         unpackTileBundles();
 
-        setMaxCacheSize(12);
+        setMaxCacheSize(6);
     }
 
     @Override

@@ -640,7 +640,7 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
     private static void computeTileNoiseLUT(final int y, final int x0, final int y0, final int w,
                                      final ThermalNoiseInfo noiseInfo, final double[] lut) {
         try {
-            double v00, v01, v10, v11, muX, muY;
+            double muX, muY;
             final int noiseVecIdx = getNoiseVectorIndex(y0, noiseInfo);
             int pixelIdx = getPixelIndex(x0, noiseVecIdx, noiseInfo);
 
@@ -652,9 +652,11 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
             final double azT1 = noiseVector1.timeMJD;
             muY = (azTime - azT0) / (azT1 - azT0);
 
-            for (int x = x0; x < x0 + w; x++) {
+            final int maxLength = noiseVector.pixels.length - 2;
+            final int maxX = x0 + w;
+            for (int x = x0; x < maxX; x++) {
 
-                if (x > noiseVector.pixels[pixelIdx + 1] && pixelIdx < noiseVector.pixels.length - 2) {
+                if (x > noiseVector.pixels[pixelIdx + 1] && pixelIdx < maxLength) {
                     pixelIdx++;
                 }
 
@@ -662,12 +664,12 @@ public final class Sentinel1RemoveThermalNoiseOp extends Operator {
                 final int xx1 = noiseVector.pixels[pixelIdx + 1];
                 muX = (double) (x - xx0) / (double) (xx1 - xx0);
 
-                v00 = noiseVector.noiseLUT[pixelIdx];
-                v01 = noiseVector.noiseLUT[pixelIdx + 1];
-                v10 = noiseVector1.noiseLUT[pixelIdx];
-                v11 = noiseVector1.noiseLUT[pixelIdx + 1];
-
-                lut[x - x0] = Maths.interpolationBiLinear(v00, v01, v10, v11, muX, muY);
+                lut[x - x0] = Maths.interpolationBiLinear(
+                        noiseVector.noiseLUT[pixelIdx],
+                        noiseVector.noiseLUT[pixelIdx + 1],
+                        noiseVector1.noiseLUT[pixelIdx],
+                        noiseVector1.noiseLUT[pixelIdx + 1],
+                        muX, muY);
             }
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException("computeTileNoiseLUT", e);

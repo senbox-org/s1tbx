@@ -9,7 +9,7 @@ import java.util.*;
  * Fast Delaunay Triangulator.
  */
 
-public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
+public final class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
 
     /**
      * A phantom Triangle located out of the convex hull and having HORIZON as
@@ -175,7 +175,7 @@ public class FastDelaunayTriangulator extends AbstractInMemoryTriangulator {
     * </ul>
     * @param t triangle to check and to modify (if needed)
     */
-    private static void delaunay (final Triangle t, final int side) {
+    private static void delaunay(final Triangle t, final int side) {
 
         if (t.getEdgeType(side)==Triangle.EdgeType.HARDBREAK) return;
 
