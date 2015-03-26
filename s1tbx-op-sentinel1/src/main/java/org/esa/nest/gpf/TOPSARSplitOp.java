@@ -273,6 +273,17 @@ public final class TOPSARSplitOp extends Operator {
             for (MetadataElement elem : elemList) {
                 if (!elem.getName().toUpperCase().contains(subswath)) {
                     parentElem.removeElement(elem);
+                } else {
+                    boolean isSelected = false;
+                    for (String pol : selectedPolarisations) {
+                        if (elem.getName().toUpperCase().contains(pol)) {
+                            isSelected = true;
+                            break;
+                        }
+                    }
+                    if (!isSelected) {
+                        parentElem.removeElement(elem);
+                    }
                 }
             }
         }

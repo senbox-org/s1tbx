@@ -18,7 +18,6 @@ package org.esa.nest.dataio.dem;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.visat.VisatApp;
 import org.esa.snap.gpf.StatusProgressMonitor;
 import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.ftpUtils;
@@ -139,17 +138,11 @@ public abstract class ElevationFile {
     protected abstract boolean getRemoteFile() throws IOException;
 
     protected boolean getRemoteHttpFile(final String baseUrl) throws IOException {
-        final VisatApp visatApp = VisatApp.getApp();
         final String remotePath = baseUrl + localZipFile.getName();
         System.out.println("http retrieving " + remotePath);
         try {
-            if (visatApp != null)
-                visatApp.setStatusBarMessage("Downloading " + localZipFile.getName());
-
             downloadFile(new URL(remotePath), localZipFile);
 
-            if (visatApp != null)
-                visatApp.setStatusBarMessage("");
             return true;
         } catch (Exception e) {
             System.out.println("http error:" + e.getMessage() + " on " + remotePath);

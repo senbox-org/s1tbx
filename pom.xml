@@ -48,8 +48,8 @@
 		<!--module>s1tbx-benchmark</module-->
 		<!--module>s1tbx-bootstrap</module-->
 		<module>s1tbx-config</module>
-		<!--module>s1tbx-dem</module>	
-        <module>s1tbx-dem-ui</module-->
+		<module>s1tbx-dem</module>	
+        <module>s1tbx-dem-ui</module>
 		<!--module>s1tbx-help</module-->
 		<module>s1tbx-io</module>
         <module>s1tbx-kit</module>
@@ -691,6 +691,16 @@
                 <artifactId>commons-codec</artifactId>
                 <version>1.4</version>
             </dependency>
+			<dependency>
+	            <groupId>commons-net</groupId>
+	            <artifactId>commons-net</artifactId>
+	            <version>3.3</version>
+	        </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.4</version>
+            </dependency>
             
             <dependency>
                 <groupId>commons-logging</groupId>
@@ -805,17 +815,6 @@
 				<artifactId>derby</artifactId>
 				<version>10.10.2.0</version>
 			</dependency>
-			
-			<dependency>
-	            <groupId>commons-net</groupId>
-	            <artifactId>commons-net</artifactId>
-	            <version>3.3</version>
-	        </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>2.4</version>
-            </dependency>
 			
 			<dependency>
 				<groupId>edu.emory.mathcs</groupId>
