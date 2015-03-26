@@ -46,7 +46,7 @@ public class GPT {
 
     public static void run(String[] args) throws Exception {
         if (System.getProperty("ceres.context") == null) {
-            System.setProperty("ceres.context", "beam");
+            System.setProperty("ceres.context", "snap");
         }
         Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
         SystemUtils.init3rdPartyLibs(GPT.class.getClassLoader());

@@ -1,4 +1,13 @@
-# In order to introduce the python operator implementations to BEAM they need to be listed in this file. On each
-# line an operator is specified by its relative Python module path and its Python class name. Both elements need
-# to be separated by one or more whitespaces.
-ndvi_op                NdviOp
+# In order to introduce the python operator implementations to SNAP, they need to be listed in this file. On each
+# line an operator is specified by its module name (fully qualified = may contain package names) and its Python class
+# name: <module> <class>, where <module> <class> need to be separated by one or more whitespaces.
+# For example:
+#
+# cloud_mask_op   CloudMaskOp
+# water.mci_op    MciOp
+# land.nvdi_op    NdviOp
+# land.fapar_op   FaparOp
+#
+# Thus, latter means, the Python file '<this-directory>/land/fapar_op.py' exists and defines a class named 'FaparOp'.
+
+ndvi_op    NdviOp

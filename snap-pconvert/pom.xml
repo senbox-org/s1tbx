@@ -25,7 +25,7 @@
     <artifactId>snap-pconvert</artifactId>
     <packaging>nbm</packaging>
 
-    <name>Product Conversion Tool</name>
+    <name>SNAP Product Conversion Tool</name>
     <description>A tool for converting data products from one to an other format.</description>
 
     <dependencies>

@@ -25,7 +25,7 @@
     <artifactId>snap-ndvi</artifactId>
     <packaging>nbm</packaging>
 
-    <name>NDVI Processor</name>
+    <name>SNAP NDVI Processor</name>
     <description>The SNAP NDVI Processor calculates the Normalized Difference Vegetation Index.</description>
 
     <dependencies>

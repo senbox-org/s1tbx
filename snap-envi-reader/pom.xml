@@ -25,7 +25,7 @@
     <artifactId>snap-envi-reader</artifactId>
     <packaging>nbm</packaging>
 
-    <name>ENVI Product Reader</name>
+    <name>SNAP ENVI Product Reader</name>
     <description>Enables SNAP to read data products in ESRI-ENVI format including products of HICO.</description>
 
     <dependencies>

@@ -12,6 +12,7 @@ import org.esa.beam.util.SystemUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,9 +36,11 @@ public class PyOperatorSpi extends OperatorSpi {
         super(operatorDescriptor);
     }
 
+    static final String EXT_PROPERTY_NAME = "snap.beampy.ext";
+
     static {
         scanDir(Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "beampy", "ext"));
-        scanDirs(System.getProperty("snap.beampy.ext", "").split(File.pathSeparator));
+        scanDirs(System.getProperty(EXT_PROPERTY_NAME, "").split(File.pathSeparator));
         scanClassPath();
     }
 
@@ -69,7 +72,6 @@ public class PyOperatorSpi extends OperatorSpi {
     }
 
     private static void registerPythonModule(Path resourcePath) {
-        System.out.println("resourcePath = " + resourcePath);
         if (!Files.exists(resourcePath) || !resourcePath.endsWith(PY_OP_RESOURCE_NAME)) {
             return;
         }
@@ -107,44 +109,23 @@ public class PyOperatorSpi extends OperatorSpi {
         return moduleRoot;
     }
 
-    private static boolean registerModule(Path moduleRoot, String moduleRelPath, final String pythonClassName) {
-        String pythonModuleRelSubPath;
-        final String pythonModuleName;
-        int i1 = moduleRelPath.lastIndexOf('/');
-        if (i1 == 0) {
-            pythonModuleRelSubPath = "";
-            pythonModuleName = moduleRelPath.substring(1);
-        } else if (i1 > 0) {
-            pythonModuleRelSubPath = moduleRelPath.substring(0, i1);
-            pythonModuleName = moduleRelPath.substring(i1 + 1);
-        } else {
-            pythonModuleRelSubPath = "";
-            pythonModuleName = moduleRelPath;
-        }
+    private static boolean registerModule(Path pythonModuleRoot, String pythonModuleName, final String pythonClassName) {
 
-        Path pythonModuleDir = moduleRoot.resolve(pythonModuleRelSubPath);
+        String pythonModuleRelPath = pythonModuleName.replace('.', '/');
 
-        Path pythonModuleFile = pythonModuleDir.resolve(pythonModuleName + ".py");
+        Path pythonModuleFile = pythonModuleRoot.resolve(pythonModuleRelPath + ".py");
         if (!Files.exists(pythonModuleFile)) {
-            LOG.severe(String.format("Missing Python module '%s'", pythonModuleFile));
+            LOG.severe(String.format("Missing Python module '%s'", pythonModuleFile.toUri()));
             return false;
         }
 
-        Path pythonInfoXmlFile = pythonModuleDir.resolve(pythonModuleName + "-info.xml");
-        DefaultOperatorDescriptor operatorDescriptor;
-        if (Files.exists(pythonInfoXmlFile)) {
-            try {
-                try (BufferedReader reader = Files.newBufferedReader(pythonInfoXmlFile)) {
-                    operatorDescriptor = DefaultOperatorDescriptor.fromXml(reader, pythonInfoXmlFile.toString(), PyOperatorSpi.class.getClassLoader());
-                }
-            } catch (IOException e) {
-                LOG.severe(String.format("Failed to read from '%s'", pythonInfoXmlFile));
-                return false;
-            }
-        } else {
-            operatorDescriptor = new DefaultOperatorDescriptor(pythonModuleName, PyOperator.class);
-            LOG.warning(String.format("Missing operator metadata file '%s'", pythonInfoXmlFile));
+        Path pythonInfoXmlFile = pythonModuleRoot.resolve(pythonModuleRelPath + "-info.xml");
+        if (!Files.exists(pythonInfoXmlFile)) {
+            LOG.warning(String.format("Missing operator metadata file '%s'. Using defaults.", pythonInfoXmlFile.toUri()));
         }
+
+        DefaultOperatorDescriptor operatorDescriptor = createOperatorDescriptor(pythonInfoXmlFile, pythonModuleName);
+        File pythonModuleRootFile = getPythonModuleRootFile(pythonModuleRoot);
 
         PyOperatorSpi operatorSpi = new PyOperatorSpi(operatorDescriptor) {
 
@@ -153,7 +134,7 @@ public class PyOperatorSpi extends OperatorSpi {
                 PyOperator pyOperator = (PyOperator) super.createOperator();
 
                 pyOperator.setParameterDefaultValues();
-                pyOperator.setPythonModulePath(pythonModuleDir.toString());
+                pyOperator.setPythonModulePath(pythonModuleRootFile.getPath());
                 pyOperator.setPythonModuleName(pythonModuleName);
                 pyOperator.setPythonClassName(pythonClassName);
                 return pyOperator;
@@ -162,8 +143,47 @@ public class PyOperatorSpi extends OperatorSpi {
 
         String operatorName = operatorDescriptor.getAlias() != null ? operatorDescriptor.getAlias() : operatorDescriptor.getName();
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorName, operatorSpi);
-        LOG.info(String.format("Python operator '%s' registered (Python module '%s', class '%s', path '%s')",
-                               operatorName, pythonModuleName, pythonClassName, pythonModuleDir));
+        LOG.info(String.format("Python operator '%s' registered (Python module: '%s', class: '%s', root: '%s')",
+                               operatorName, pythonModuleName, pythonClassName, pythonModuleRootFile));
         return true;
+    }
+
+    private static DefaultOperatorDescriptor createOperatorDescriptor(Path pythonInfoXmlFile, String pythonModuleName) {
+        DefaultOperatorDescriptor operatorDescriptor;
+        if (Files.exists(pythonInfoXmlFile)) {
+            try {
+                try (BufferedReader reader = Files.newBufferedReader(pythonInfoXmlFile)) {
+                    operatorDescriptor = DefaultOperatorDescriptor.fromXml(reader, pythonInfoXmlFile.toUri().toString(), PyOperatorSpi.class.getClassLoader());
+                }
+            } catch (IOException e) {
+                LOG.severe(String.format("Failed to read from '%s'", pythonInfoXmlFile));
+                operatorDescriptor = null;
+            }
+        } else {
+            operatorDescriptor = new DefaultOperatorDescriptor(pythonModuleName, PyOperator.class);
+        }
+        return operatorDescriptor;
+    }
+
+    static File getPythonModuleRootFile(Path moduleRoot) {
+        URI uri = moduleRoot.toUri();
+        if ("jar".equals(uri.getScheme())) {
+            // get the ZIP file from URI of form "jar:file:<path>!/"
+            String schemeSpecificPart = uri.getSchemeSpecificPart();
+            if (schemeSpecificPart != null && schemeSpecificPart.startsWith("file:")) {
+                int pos = schemeSpecificPart.lastIndexOf('!');
+                if (pos > 0) {
+                    if ("/".equals(schemeSpecificPart.substring(pos + 1))) {
+                        String fileUriString = schemeSpecificPart.substring(0, pos);
+                        if (fileUriString.startsWith("file:")) {
+                            return new File(URI.create(fileUriString));
+                        }
+                    }
+                } else {
+                    return new File(URI.create(schemeSpecificPart));
+                }
+            }
+        }
+        return moduleRoot.toFile();
     }
 }
