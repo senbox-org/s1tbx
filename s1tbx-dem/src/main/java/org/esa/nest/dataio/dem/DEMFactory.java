@@ -19,7 +19,6 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.visat.VisatApp;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.gpf.TileGeoreferencing;
 import org.jlinda.core.Orbit;
@@ -96,7 +95,7 @@ public class DEMFactory {
         }
 
         if (!demDescriptor.isInstallingDem() && !demDescriptor.isDemInstalled()) {
-            if (!demDescriptor.installDemFiles(VisatApp.getApp())) {
+            if (!demDescriptor.installDemFiles(null)) {
                 throw new OperatorException("DEM " + demName + " must be installed first");
             }
         }
