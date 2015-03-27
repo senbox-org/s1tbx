@@ -60,9 +60,9 @@ public class PyOperatorSpiTest {
         URI fileUri = PyOperatorSpiTest.class.getResource("test.zip").toURI();
         FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + fileUri), Collections.emptyMap());
         Path zipFsPath = fs.getPath("/");
-        assertEquals(fileUri, PyOperatorSpi.getPythonModulePath(zipFsPath, "").toUri());
+        assertEquals(new File(fileUri), PyOperatorSpi.getPythonModuleRootFile(zipFsPath));
 
-        Path dirPath = Paths.get(".");
-        assertEquals(dirPath.resolve("bibo"), PyOperatorSpi.getPythonModulePath(dirPath, "bibo"));
+        Path dirPath = Paths.get(".").toAbsolutePath().normalize();
+        assertEquals(dirPath.toFile(), PyOperatorSpi.getPythonModuleRootFile(dirPath));
     }
 }
