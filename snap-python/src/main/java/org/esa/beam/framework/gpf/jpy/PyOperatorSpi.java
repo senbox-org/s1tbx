@@ -111,6 +111,10 @@ public class PyOperatorSpi extends OperatorSpi {
 
     private static boolean registerModule(Path pythonModuleRoot, String pythonModuleName, final String pythonClassName) {
 
+        Path path = Paths.get(".").toAbsolutePath().normalize();
+        System.out.println("CWD = " + path);
+
+
         String pythonModuleRelPath = pythonModuleName.replace('.', '/');
 
         Path pythonModuleFile = pythonModuleRoot.resolve(pythonModuleRelPath + ".py");

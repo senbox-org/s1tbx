@@ -7,7 +7,6 @@ You can configure beampy by using a file named beampy.ini as follows:
 
     [DEFAULT]
     snap_home: C:/Program Files/snap-2.0
-    snap_user: C:/Users/Norman/.snap
     extra_classpath: target/classes
     extra_options: -Djava.awt.headless=false
     max_mem: 4G
@@ -43,43 +42,52 @@ if debug:
     jpy.diag.flags = jpy.diag.F_ALL
 
 
-def _get_beam_jar_locations():
-    beam_bin = os.path.join(beam_home, 'bin')
-    beam_lib = os.path.join(beam_home, 'lib')
-    beam_mod = os.path.join(beam_home, 'modules')
-
-    # print('beam_bin =', beam_bin, os.path.exists(beam_bin))
-    # print('beam_lib =', beam_lib, os.path.exists(beam_lib))
-    # print('beam_mod =', beam_mod, os.path.exists(beam_mod))
-
-    if not (os.path.exists(beam_bin)
-            and os.path.exists(beam_lib)
-            and os.path.exists(beam_mod)):
-        raise RuntimeError('does not seem to be a valid BEAM installation path: ' + beam_home)
-
-    return [beam_bin, beam_lib, beam_mod]
+def _collect_snap_jvm_classpath(dir_path, classpath):
+    for name in os.listdir(dir_path):
+        path = os.path.join(dir_path, name)
+        if os.path.isfile(path) and name.endswith('.jar') and \
+                not (name.endswith('-ui.jar') or name.endswith('-examples.jar')):
+            classpath.append(path)
+        elif os.path.isdir(path) and not (name == 'locale' or name == 'docs'):
+            _collect_snap_jvm_classpath(path, classpath)
 
 
-def _collect_classpath(path, classpath):
-    for name in os.listdir(path):
-        f = os.path.join(path, name)
-        if name.endswith('.jar') or name.endswith('.zip') or os.path.isdir(f):
-            classpath.append(f)
+def _get_snap_jvm_classpath():
 
+    dir_names = []
+    for name in os.listdir(beam_home):
+        if os.path.isdir(os.path.join(beam_home, name)):
+            dir_names.append(name)
 
-def _create_classpath(searchpath):
+    module_dirs = []
+
+    if 'bin' in dir_names and 'etc' in dir_names and 'snap' in dir_names:
+        # SNAP Desktop Distribution Directory
+        for dir_name in dir_names:
+            if not (dir_name == 'platform' or dir_name == 'ide'):
+                dir_path = os.path.join(beam_home, dir_name, 'modules')
+                if os.path.isdir(dir_path):
+                    module_dirs.append(dir_path)
+    elif 'lib' in dir_names and 'modules' in dir_names:
+        # SNAP Engine Distribution Directory
+        module_dirs = [os.path.join(beam_home, 'modules'), os.path.join(beam_home, 'lib')]
+    else:
+        raise RuntimeError('does not seem to be a valid SNAP distribution directory: ' + beam_home)
+
+    import pprint
+    pprint.pprint(module_dirs)
+
     classpath = []
-    for path in searchpath:
-        _collect_classpath(path, classpath)
+    for path in module_dirs:
+        _collect_snap_jvm_classpath(path, classpath)
+
+    pprint.pprint(classpath)
+
     return classpath
 
 
-def _get_jvm_options():
+def _get_snap_jvm_options():
     global beam_home, extra_classpath, max_mem, options, extra_options
-
-    # TODO Norman stopped developing here on 20.03.2015 - must finalise this for SNAP 2.0!
-    # Here we assume, we have SNAP Desktop installed. But we also have to deal with the case that
-    # only SNAP Engine is used in a headless environment.
 
     if config.has_option('DEFAULT', 'snap_home'):
         beam_home = config.get('DEFAULT', 'snap_home')
@@ -87,61 +95,15 @@ def _get_jvm_options():
         beam_home = os.getenv('SNAP_HOME')
 
     if beam_home is None or not os.path.isdir(beam_home):
-        raise IOError("Can't find SNAP installation directory. Either configure variable 'snap_home' " +
+        raise IOError("Can't find SNAP distribution directory. Either configure variable 'snap_home' " +
                       "in file './beampy.ini' or set environment variable 'SNAP_HOME' to an " +
-                      "existing SNAP installation directory.")
+                      "existing SNAP distribution directory.")
 
-    if config.has_option('DEFAULT', 'snap_user'):
-        snap_user = config.get('DEFAULT', 'snap_user')
-    else:
-        snap_user = os.getenv('SNAP_USER')
-
-    if snap_user is None:
-        snap_user = os.path.join(os.path.expanduser('~'), '.snap')
-
-    if not os.path.isdir(snap_user):
-        raise IOError("Can't find SNAP user directory. Either configure variable 'snap_user' " +
-                      "in file './beampy.ini' or set environment variable 'SNAP_USER' to an " +
-                      "existing SNAP user directory.")
-
-    module_glob_path = os.path.join(beam_home, 'snap', 'modules', '*snap-python.jar')
-
-    import glob
-
-    jar_dirs = glob.glob(module_glob_path)
-
-    if len(jar_dirs) == 0:
-        raise IOError("got no results for '%s'" % module_glob_path)
-
-    if len(jar_dirs) == 1:
-        jar_file = jar_dirs[0]
-    else:
-        raise IOError("got multiple results for '%s': %s" % module_glob_path, str(jar_dirs))
-
-    # TODO Norman stopped developing here on 20.03.2015 - must finalise this for SNAP 2.0!
-    # What the following Python code should do:
-    # 1) Look for existing $snap_user/snap-python/beampy. If it does not exists, then Python has not yet been
-    #    called from Java.
-    # 2) Run a tiny Java program from Python which extracts and configures beampy from used JRE and
-    #    snap-python.jar. This is what is already done from Java (PyBridge). We have to extract this code so
-    #    in order to write a Java executable that does the job.
-
-    beampy_module_dir = os.path.join(jar_file, 'beampy')
-    # pprint("beampy_module_dir = '%s'" % beampy_module_dir)
-
-    sys.path = [beampy_module_dir] + sys.path
-
-    # import pprint
-    search_path = _get_beam_jar_locations()
-    # pprint.pprint(search_path)
-
-    classpath = _create_classpath(search_path)
+    classpath = _get_snap_jvm_classpath()
 
     if config.has_option('DEFAULT', 'extra_classpath'):
         extra_classpath = config.get('DEFAULT', 'extra_classpath')
         classpath += extra_classpath.split(os.pathsep)
-
-    # pprint.pprint(classpath)
 
     max_mem = '512M'
     if config.has_option('DEFAULT', 'extra_options'):
@@ -159,14 +121,13 @@ def _get_jvm_options():
 
 
 if not jpy.has_jvm():
-    jpy.create_jvm(options=_get_jvm_options())
+    jpy.create_jvm(options=_get_snap_jvm_options())
 
 
 # Don't need these functions anymore
-del _get_jvm_options
-del _get_beam_jar_locations
-del _create_classpath
-del _collect_classpath
+del _get_snap_jvm_options
+del _get_snap_jvm_classpath
+del _collect_snap_jvm_classpath
 
 
 # noinspection PyUnusedLocal

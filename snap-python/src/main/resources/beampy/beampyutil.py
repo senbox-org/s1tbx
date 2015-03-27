@@ -8,7 +8,8 @@ import zipfile
 import logging
 
 
-def _configure_beampy(java_module=None,
+def _configure_beampy(snap_home=None,
+                      java_module=None,
                       java_home=None,
                       req_arch=None,
                       req_java=False,
@@ -18,13 +19,16 @@ def _configure_beampy(java_module=None,
     Unzips matching jpy binary distribution from ../lib/jpy.<platform>-<python-version>.zip,
     imports unpacked 'jpyutil' and configures jpy for BEAM.
 
+    :param snap_home: SNAP distribution directory.
     :param java_home: Java home directory. See also Java system property "java.home".
-    :param req_arch: Required JVM architecture (amd64, ia86, x86, etc). See Java system property "os.arch".
-    :param req_java: Fail, if configuration of jpy's Java API fails.
-    :param req_py:   Fail, if configuration of jpy's Python API fails.
-    :param force:    Force overwriting of existing files.
+    :param req_arch:  Required JVM architecture (amd64, ia86, x86, etc). See Java system property "os.arch".
+    :param req_java:  Fail, if configuration of jpy's Java API fails.
+    :param req_py:    Fail, if configuration of jpy's Python API fails.
+    :param force:     Force overwriting of existing files.
     :return:
     """
+
+    ret_code = 0
 
     logging.info("installing from Java module '" + java_module + "'")
 
@@ -40,12 +44,30 @@ def _configure_beampy(java_module=None,
                             "Python is 64 bit but JVM requires " + req_arch)
 
     beampy_dir = os.path.dirname(os.path.abspath(__file__))
+    beampy_ini_file = os.path.join(beampy_dir, 'beampy.ini')
     jpy_distr_name = 'jpy.' + sysconfig.get_platform() + '-' + sysconfig.get_python_version()
     jpy_info_file = os.path.join(beampy_dir, jpy_distr_name + '.info')
     jpyutil_file = os.path.join(beampy_dir, 'jpyutil.py')
     jpyconfig_java_file = os.path.join(beampy_dir, 'jpyconfig.properties')
     jpyconfig_py_file = os.path.join(beampy_dir, 'jpyconfig.py')
 
+    #
+    # Write initial beampy.ini. Note, this file is only used if you use SNAP from Python, i.e. importing
+    # the beampy module in your Python programs.
+    #
+    if force or not os.path.exists(beampy_ini_file):
+        with open(beampy_ini_file, 'w') as file:
+            file.writelines(['[DEFAULT]\n',
+                             'snap_home = %s\n' % snap_home,
+                             '# extra_classpath: target/classes',
+                             '# extra_options: -Djava.awt.headless=false\n',
+                             '# max_mem: 4G\n',
+                             '# debug: False\n'])
+
+
+    #
+    # Extract a matching jpy binary distribution ..snap-python.jar!/lib/jpy.<platform>-<python-version>.zip
+    #
     if os.path.isfile(java_module):
         member = 'lib/' + jpy_distr_name + '.zip'
         logging.info("extracting '" + member + "' from '" + java_module + "'")
@@ -54,10 +76,10 @@ def _configure_beampy(java_module=None,
     else:
         jpy_archive_file = os.path.join(java_module, 'lib', jpy_distr_name + '.zip')
 
-    #
-    # Extract a matching jpy binary distribution from ../lib/jpy.<platform>-<python-version>.zip
-    #
 
+    #
+    # Unpack jpy.<platform>-<python-version>.zip
+    #
     if force or not os.path.exists(jpy_info_file):
         if not os.path.exists(jpy_archive_file):
             logging.error("Can't find binary distribution '" + jpy_archive_file + "'")
@@ -77,9 +99,6 @@ def _configure_beampy(java_module=None,
     # - jpyconfig.properties - Configuration for Java about Python (jpy extension module)
     # - jpyconfig.py - Configuration for Python about Java (JVM)
     #
-
-    ret_code = 0
-
     if force or \
             not os.path.exists(jpyconfig_java_file) or \
             not os.path.exists(jpyconfig_py_file):
@@ -110,6 +129,8 @@ def _configure_beampy(java_module=None,
 
 def _main():
     parser = argparse.ArgumentParser(description='Configures beampy, the BEAM Python interface.')
+    parser.add_argument('--snap_home', default=None,
+                        help='SNAP distribution directory')
     parser.add_argument('--req_arch', default=None,
                         help='required JVM architecture, e.g. "amd64", '
                              'may be taken from Java system property "os.arch"')
@@ -141,7 +162,8 @@ def _main():
         logging.basicConfig(format=log_format, level=log_level)
 
     try:
-        ret_code = _configure_beampy(java_module=args.java_module,
+        ret_code = _configure_beampy(snap_home=args.snap_home,
+                                     java_module=args.java_module,
                                      java_home=args.java_home,
                                      req_arch=args.req_arch,
                                      req_java=args.req_java,

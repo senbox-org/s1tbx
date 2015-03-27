@@ -49,6 +49,7 @@ class PyBridge {
     public static final String BEAMPYUTIL_LOG_FILENAME = "beampyutil.log";
     public static final String FORCE_PYTHON_CONFIG_PROPERTY = "snap.forcePythonConfig";
     public static final String PYTHON_EXECUTABLE_PROPERTY = "snap.pythonExecutable";
+    public static final String PYTHON_MODULE_DIR_PROPERTY = "snap.pythonModuleDir";
     public static final String JPY_JAVA_API_CONFIG_FILENAME = "jpyconfig.properties";
     public static final String JPY_DEBUG_PROPERTY = "jpy.debug";
     public static final String JPY_CONFIG_PROPERTY = "jpy.config";
@@ -68,12 +69,9 @@ class PyBridge {
         }
 
         try {
-            Path userModuleDir = Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "snap-python");
-            TreeCopier.copy(getResourcePath("beampy-examples"), userModuleDir);
-            beampyDir = TreeCopier.copy(getResourcePath("beampy"), userModuleDir);
-            LOG.info("BEAM-Python module directory: " + beampyDir);
+            unpackPythonModuleDir();
         } catch (IOException e) {
-            throw new OperatorException("Failed to unpack BEAM-Python resources: " + e.getMessage(), e);
+            throw new OperatorException("Failed to unpack SNAP-Python resources: " + e.getMessage(), e);
         }
 
         boolean forcePythonConfig = System.getProperty(FORCE_PYTHON_CONFIG_PROPERTY, "true").equalsIgnoreCase("true");
@@ -109,6 +107,19 @@ class PyBridge {
         }
     }
 
+    private static void unpackPythonModuleDir() throws IOException {
+        Path pythonModuleDir;
+        String pythonModuleDirStr = System.getProperty(PYTHON_MODULE_DIR_PROPERTY);
+        if (pythonModuleDirStr != null) {
+            pythonModuleDir = Paths.get(pythonModuleDirStr);
+        } else {
+            pythonModuleDir = Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "snap-python");
+        }
+        TreeCopier.copy(getResourcePath("beampy-examples"), pythonModuleDir);
+        beampyDir = TreeCopier.copy(getResourcePath("beampy"), pythonModuleDir);
+        LOG.info("SNAP-Python module directory: " + beampyDir);
+    }
+
     /**
      * Extends Python's system path (it's global {@code sys.path} variable) by the given path, if not already present.
      *
@@ -134,6 +145,9 @@ class PyBridge {
         List<String> command = new ArrayList<>();
         command.add(pythonExecutable);
         command.add(BEAMPYUTIL_PY_FILENAME);
+        command.add("--snap_home");
+        command.add(System.getProperty("snap.home", Paths.get(".").toAbsolutePath().normalize().toString()));
+        //command.add(SystemUtils.getApplicationHomeDir().getPath());
         command.add("--java_module");
         command.add(MODULE_CODE_BASE_PATH.toFile().getPath());
         command.add("--force");
