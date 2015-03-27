@@ -280,18 +280,6 @@
                 <groupId>edu.ucar</groupId>
                 <artifactId>netcdf</artifactId>
                 <version>${netcdf.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.slf4j</groupId>
-						<artifactId>slf4j-api</artifactId>
-					</exclusion>
-				</exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>1.6.1</version>
             </dependency>
 
 			<dependency>
