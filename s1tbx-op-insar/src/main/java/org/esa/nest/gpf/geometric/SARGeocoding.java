@@ -892,6 +892,8 @@ public final class SARGeocoding {
             this.sensorVelocity = new PosVector[sourceImageHeight];
             for (int i = 0; i < sourceImageHeight; i++) {
                 final double time = firstLineUTC + i * lineTimeInterval;
+                sensorPosition[i] = new PosVector();
+                sensorVelocity[i] = new PosVector();
                 getPositionVelocity(time, sensorPosition[i], sensorVelocity[i]);
             }
         }
