@@ -24,14 +24,10 @@
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${brandingToken}</surefire.jvm.args>
 
-		<jlinda.version>0.8.1</jlinda.version>
+		<jlinda.version>2.0.0-SNAPSHOT</jlinda.version>
 		<rstb.version>6.3.2</rstb.version>
 		<s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
 		<snap.version>2.0.0-SNAPSHOT</snap.version>
-		
-        <netbeans.version>RELEASE802</netbeans.version>
-        <javahelp.version>2.0.05</javahelp.version>
-        <brandingToken>s1tbx</brandingToken>
         
 		<geotools.version>2.7.4</geotools.version>
 		<jide.version>3.6.1</jide.version>
@@ -44,7 +40,7 @@
   
 	<modules>
 		<module>jlinda</module>
-		<!--module>rstb</module-->
+		<module>rstb</module>
 		<!--module>s1tbx-benchmark</module-->
 		<!--module>s1tbx-bootstrap</module-->
 		<module>s1tbx-config</module>
@@ -53,7 +49,7 @@
 		<!--module>s1tbx-help</module-->
 		<module>s1tbx-io</module>
         <module>s1tbx-kit</module>
-		<!--module>s1tbx-op-calibration</module>
+		<module>s1tbx-op-calibration</module>
         <module>s1tbx-op-calibration-ui</module>
 		<module>s1tbx-op-feature-extraction</module>
         <module>s1tbx-op-feature-extraction-ui</module>
@@ -65,8 +61,8 @@
         <module>s1tbx-op-sentinel1-ui</module>
 		<module>s1tbx-op-utilities</module>
         <module>s1tbx-op-utilities-ui</module>
-		<module>s1tbx-product-library</module-->
-		<!--module>s1tbx-rcp</module-->
+		<module>s1tbx-product-library</module>
+		<module>s1tbx-rcp</module>
 		<module>s1tbx-worldwind</module>
 		
 		<!--module>../esa-pfa</module-->
@@ -232,6 +228,11 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-gpf</artifactId>
+				<version>${snap.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-gpf-ui</artifactId>
 				<version>${snap.version}</version>
             </dependency>
             <dependency>

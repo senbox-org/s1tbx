@@ -36,65 +36,84 @@
 
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-dem</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-dem-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-io</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--dependency>
+        <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s3tbx-alos-reader</artifactId>
+            <artifactId>s1tbx-op-feature-extraction</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s3tbx-atsr-reader</artifactId>
+            <artifactId>s1tbx-op-feature-extraction-ui</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s3tbx-chris-reader</artifactId>
+            <artifactId>s1tbx-op-insar</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s3tbx-aatsr-sst</artifactId>
+            <artifactId>s1tbx-op-insar-ui</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s3tbx-aatsr-sst-ui</artifactId>
+            <artifactId>s1tbx-op-sar-processing</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s3tbx-flhmci</artifactId>
+            <artifactId>s1tbx-op-sar-processing-ui</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s3tbx-flhmci-ui</artifactId>
+            <artifactId>s1tbx-op-sentinel1</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s3tbx-meris-cloud</artifactId>
+            <artifactId>s1tbx-op-sentinel1-ui</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s3tbx-meris-radiometry</artifactId>
+            <artifactId>s1tbx-op-utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s3tbx-meris-radiometry-ui</artifactId>
+            <artifactId>s1tbx-op-utilities-ui</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s3tbx-modis-reader</artifactId>
+            <artifactId>s1tbx-product-library</artifactId>
             <version>${project.version}</version>
-        </dependency-->
-
+        </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-rcp</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-worldwind</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <properties>

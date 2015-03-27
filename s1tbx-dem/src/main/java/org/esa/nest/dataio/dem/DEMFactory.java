@@ -15,15 +15,14 @@
  */
 package org.esa.nest.dataio.dem;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.gpf.TileGeoreferencing;
-import org.jlinda.core.Orbit;
-import org.jlinda.core.Point;
-import org.jlinda.core.SLCImage;
 
 import java.util.Arrays;
 
@@ -156,8 +155,8 @@ public class DEMFactory {
                                       final double[][] localDEM) throws Exception {
 
         if (demResamplingMethod != null && demResamplingMethod.equals(DELAUNAY_INTERPOLATION)) {
-            return getLocalDEMUsingDelaunayInterpolation(
-                    dem, demNoDataValue, tileGeoRef, x0, y0, tileWidth, tileHeight, sourceProduct, localDEM);
+            //return getLocalDEMUsingDelaunayInterpolation(
+            //        dem, demNoDataValue, tileGeoRef, x0, y0, tileWidth, tileHeight, sourceProduct, localDEM);
         }
 
         // Note: the localDEM covers current tile with 1 extra row above, 1 extra row below, 1 extra column to
@@ -201,7 +200,7 @@ public class DEMFactory {
         return valid;
     }
 
-    public synchronized static boolean getLocalDEMUsingDelaunayInterpolation(
+  /*  public synchronized static boolean getLocalDEMUsingDelaunayInterpolation(
             final ElevationModel dem, final double demNoDataValue, final TileGeoreferencing tileGeoRef, final int x0,
             final int y0, final int tileWidth, final int tileHeight, final Product sourceProduct,
             final double[][] localDEM) throws Exception {
@@ -235,7 +234,7 @@ public class DEMFactory {
         GeoPos[] geoCorners = {upperLeftCorner, lowerRightCorner};
         final GeoPos geoExtent = new GeoPos(0.25 * (latMax - latMin), 0.25 * (lonMax - lonMin));
 
-        /* inline of extendCorners call: avoiding ambiguous dependencies GeoPos vs GeoPoint */
+        // inline of extendCorners call: avoiding ambiguous dependencies GeoPos vs GeoPoint //
         // geoCorners = extendCorners(geoExtent, geoCorners);
 
         geoCorners[0].lat = geoCorners[0].lat + geoExtent.lat;
@@ -372,7 +371,7 @@ public class DEMFactory {
             }
         }
         return valid;
-    }
+    }*/
 
     private static GeoPos[] extendCorners(final GeoPos extraGeo, final GeoPos[] inGeo) {
 

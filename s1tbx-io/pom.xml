@@ -56,31 +56,17 @@
             <artifactId>snap-netcdf</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>17.0</version>
+            <groupId>org.jlinda</groupId>
+            <artifactId>jlinda-core</artifactId>
+            <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
             <groupId>it.geosolutions.imageio-ext</groupId>
             <artifactId>imageio-ext-tiff</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jdom</groupId>
-            <artifactId>jdom2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>Jama</groupId>
-            <artifactId>Jama</artifactId>
-            <version>1.0.3</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.media.jai</groupId>
-            <artifactId>jai-core</artifactId>
-            <version>1.1.3</version>
         </dependency>
     </dependencies>
     
@@ -92,6 +78,7 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>org.esa.nest.*</publicPackage>
+                        <!--publicPackage>org.joda.*</publicPackage-->
                     </publicPackages>
                 </configuration>
             </plugin>

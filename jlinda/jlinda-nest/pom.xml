@@ -5,12 +5,11 @@
     <parent>
         <artifactId>jlinda</artifactId>
         <groupId>org.jlinda</groupId>
-        <version>0.8.1</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
 
     <name>jLinda NEST Support</name>
     <artifactId>jlinda-nest</artifactId>
-    <version>0.8.1</version>
 
     <description>NEST utilities and operators</description>
 
@@ -21,6 +20,16 @@
             <groupId>org.jlinda</groupId>
             <artifactId>jlinda-core</artifactId>
             <version>${jlinda.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>ceres-core</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>ceres-jai</artifactId>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
@@ -35,6 +44,11 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-rcp</artifactId>
             <version>${snap.version}</version>
         </dependency>
         <dependency>

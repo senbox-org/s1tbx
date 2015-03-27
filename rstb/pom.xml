@@ -36,8 +36,13 @@
     <description>RADARSAT-2 Polarimetric Tools</description>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>		
+        <netbeans.version>RELEASE802</netbeans.version>
+        <javahelp.version>2.0.05</javahelp.version>
+        <brandingToken>s1tbx</brandingToken>		
+		<user.language>en</user.language>
 
+        <snap.version>2.0.0-SNAPSHOT</snap.version>
         <s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
         <rstb.version>6.3.2</rstb.version>
 
@@ -122,16 +127,40 @@
             </plugin>
             
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <useDefaultManifestFile>true</useDefaultManifestFile>
-                </configuration>
-            </plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>nbm-maven-plugin</artifactId>
+                    <version>3.14</version>
+                    <extensions>true</extensions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>javax.help</groupId>
+                            <artifactId>javahelp</artifactId>
+                            <version>${javahelp.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <moduleType>normal</moduleType>
+                        <licenseName>GPL 3</licenseName>
+                        <licenseFile>${project.basedir}/../../LICENSE.html</licenseFile>
+                        <cluster>${brandingToken}</cluster>
+                        <nbmBuildDir>${project.basedir}/../../target/nbm</nbmBuildDir>
+                        <brandingToken>${brandingToken}</brandingToken>
+                        <useOSGiDependencies>false</useOSGiDependencies>
+                        <requiresRestart>false</requiresRestart>
+                        <keystore>${project.basedir}/../../keystore/s1tbx.ks</keystore>
+                        <keystorealias>s1tbx</keystorealias>
+                        <keystorepassword>snap-123</keystorepassword>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.5</version>
+                    <configuration>
+                        <!-- to have the jar plugin pickup the nbm generated manifest -->
+                        <useDefaultManifestFile>true</useDefaultManifestFile>
+                    </configuration>
+                </plugin>
         </plugins>
     </build>
 </project>

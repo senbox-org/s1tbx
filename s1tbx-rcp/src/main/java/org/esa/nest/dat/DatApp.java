@@ -34,8 +34,8 @@ import org.esa.beam.util.ResourceInstaller;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.actions.LoadTabbedLayoutAction;
-import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
 import org.esa.nest.dat.views.polarview.PolarView;
+import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.db.ProductDB;
 import org.esa.snap.util.MemUtils;
@@ -48,7 +48,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -141,9 +141,9 @@ public class DatApp extends VisatApp {
     }
 
     private void installDefaultColorPalettes() {
-        final URL codeSourceUrl = this.getClass().getProtectionDomain().getCodeSource().getLocation();
-        final File auxdataDir = new File(SystemUtils.getApplicationDataDir(), "snap-ui/auxdata/color-palettes");
-        final ResourceInstaller resourceInstaller = new ResourceInstaller(codeSourceUrl, "auxdata/color_palettes/",
+        Path sourceBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
+        final Path auxdataDir = getColorPalettesDir();
+        final ResourceInstaller resourceInstaller = new ResourceInstaller(sourceBasePath, "auxdata/color_palettes/",
                 auxdataDir);
         ProgressMonitorSwingWorker swingWorker = new ProgressMonitorSwingWorker(getMainFrame(),
                 "Installing Auxdata...") {
@@ -163,6 +163,10 @@ public class DatApp extends VisatApp {
             }
         };
         swingWorker.executeWithBlocking();
+    }
+
+    private Path getColorPalettesDir() {
+        return SystemUtils.getApplicationDataDir().toPath().resolve("snap-rcp/auxdata/color_palettes");
     }
 
     protected void disableOperatorPlugins() {

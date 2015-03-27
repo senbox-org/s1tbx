@@ -32,6 +32,14 @@
     <dependencies>
         <dependency>
             <groupId>org.esa.snap</groupId>
+            <artifactId>ceres-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>ceres-jai</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
             <artifactId>snap-core</artifactId>
         </dependency>
         <dependency>
@@ -59,12 +67,9 @@
             <artifactId>jlinda-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jblas</groupId>
-            <artifactId>jblas</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>edu.emory.mathcs</groupId>
-            <artifactId>jtransforms</artifactId>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-rcp</artifactId>
+            <version>${snap.version}</version>
         </dependency>
     </dependencies>
 
@@ -73,6 +78,11 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
+                <configuration>
+                    <publicPackages>
+                        <publicPackage>org.esa.nest.*</publicPackage>
+                    </publicPackages>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

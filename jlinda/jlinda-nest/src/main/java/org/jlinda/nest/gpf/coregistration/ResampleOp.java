@@ -2,9 +2,6 @@ package org.jlinda.nest.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.nest.dataio.dem.ElevationModel;
-import org.esa.nest.dataio.dem.ElevationModelDescriptor;
-import org.esa.nest.dataio.dem.ElevationModelRegistry;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.Operator;
@@ -17,7 +14,9 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.visat.VisatApp;
+import org.esa.nest.dataio.dem.ElevationModel;
+import org.esa.nest.dataio.dem.ElevationModelDescriptor;
+import org.esa.nest.dataio.dem.ElevationModelRegistry;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
@@ -395,7 +394,7 @@ public class ResampleOp extends Operator {
         }
 
         if (!demDescriptor.isInstallingDem() && !demDescriptor.isDemInstalled()) {
-            if (!demDescriptor.installDemFiles(VisatApp.getApp())) {
+            if (!demDescriptor.installDemFiles(null)) {
                 throw new OperatorException("DEM " + demName + " must be installed first");
             }
         }
@@ -681,9 +680,9 @@ public class ResampleOp extends Operator {
         }
         if(!msg.isEmpty()) {
             System.out.println(msg);
-            if(VisatApp.getApp() != null) {
-                VisatApp.getApp().showWarningDialog("Some bands did not coregister", msg);
-            }
+            //if(VisatApp.getApp() != null) {
+            //    VisatApp.getApp().showWarningDialog("Some bands did not coregister", msg);
+            //}
         }
     }
 

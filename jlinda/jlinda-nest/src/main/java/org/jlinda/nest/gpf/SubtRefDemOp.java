@@ -12,7 +12,6 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.nest.dataio.dem.ElevationModelDescriptor;
 import org.esa.nest.dataio.dem.ElevationModelRegistry;
@@ -158,7 +157,7 @@ public final class SubtRefDemOp extends Operator {
             }
 
             if (!demDescriptor.isInstallingDem() && !demDescriptor.isDemInstalled()) {
-                if(!demDescriptor.installDemFiles(VisatApp.getApp())) {
+                if(!demDescriptor.installDemFiles(null)) {
                     throw new OperatorException("DEM "+ demName +" must be installed first");
                 }
             }
