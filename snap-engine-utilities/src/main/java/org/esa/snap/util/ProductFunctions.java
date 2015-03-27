@@ -104,11 +104,13 @@ public class ProductFunctions {
     public static void scanForValidProducts(final File inputFolder, final ArrayList<String> pathList) {
         final ValidProductFileFilter dirFilter = new ValidProductFileFilter();
         final File[] files = inputFolder.listFiles(dirFilter);
-        for (File file : files) {
-            if (file.isDirectory()) {
-                scanForValidProducts(file, pathList);
-            } else if (isValidProduct(file)) {
-                pathList.add(file.getAbsolutePath());
+        if(files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    scanForValidProducts(file, pathList);
+                } else if (isValidProduct(file)) {
+                    pathList.add(file.getAbsolutePath());
+                }
             }
         }
     }
@@ -182,8 +184,10 @@ public class ProductFunctions {
      */
     public static long getRawStorageSize(final Product product) {
         long size = 0;
-        for (Band band : product.getBands()) {
-            size += band.getRawStorageSize(null);
+        if(product != null) {
+            for (Band band : product.getBands()) {
+                size += band.getRawStorageSize(null);
+            }
         }
         return size;
     }
@@ -213,7 +217,7 @@ public class ProductFunctions {
         }
 
         String throughPutStr = "";
-        if(totalBytes != null && totalBytes > 0) {
+        if(totalBytes != null && totalBytes > 0 && totalSeconds > 0) {
             final long BperSec = totalBytes / totalSeconds;
             if(BperSec > Constants.oneBillion) {
                 final long GiBperSec = Math.round(totalBytes / (1024.0 * 1024.0 * 1024.0)) / totalSeconds;
@@ -227,7 +231,7 @@ public class ProductFunctions {
         }
 
         String pixelsRateStr = "";
-        if(totalPixels != null && totalPixels > 0) {
+        if(totalPixels != null && totalPixels > 0 && totalSeconds > 0) {
             final long PperSec = totalPixels / totalSeconds;
             if(PperSec > Constants.oneBillion) {
                 final long GiBperSec = Math.round(totalPixels / (1000 * 1000 * 1000)) / totalSeconds;

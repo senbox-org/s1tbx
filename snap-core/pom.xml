@@ -125,6 +125,8 @@
                         <publicPackage>com.sun.medialib.mlib.*</publicPackage>
                         <publicPackage>javax.media.jai.*</publicPackage>
                         <publicPackage>javax.measure.*</publicPackage>
+                        <publicPackage>javax.imageio.*</publicPackage>
+                        <publicPackage>javax.vecmath.*</publicPackage>
                         <publicPackage>org.jdom.*</publicPackage>
                         <publicPackage>org.geotools.*</publicPackage>
                         <publicPackage>org.opengis.*</publicPackage>

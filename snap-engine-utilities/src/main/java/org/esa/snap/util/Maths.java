@@ -54,6 +54,12 @@ public final class Maths {
         return ((-0.5 * y0 + 1.5 * y1 - 1.5 * y2 + 0.5 * y3) * mu * (mu * mu) + (y0 - 2.5 * y1 + 2 * y2 - 0.5 * y3) * (mu * mu) + (-0.5 * y0 + 0.5 * y2) * mu + y1);
     }
 
+    public static double interpolationCubic(
+            final double y0, final double y1, final double y2, final double y3, final double mu, final double mu2, final double mu3) {
+
+        return ((-0.5 * y0 + 1.5 * y1 - 1.5 * y2 + 0.5 * y3) * mu3 + (y0 - 2.5 * y1 + 2 * y2 - 0.5 * y3) * mu2 + (-0.5 * y0 + 0.5 * y2) * mu + y1);
+    }
+
     /**
      * Perform cubic2 interpolation.
      *
@@ -135,10 +141,12 @@ public final class Maths {
         //if (v.length != 4 || v[0].length != 4 || v[1].length != 4 || v[2].length != 4 || v[3].length != 4) {
         //    throw new OperatorException("Incorrect sample array length");
         //}
-        return interpolationCubic(interpolationCubic(v[0][0], v[0][1], v[0][2], v[0][3], muX),
-                interpolationCubic(v[1][0], v[1][1], v[1][2], v[1][3], muX),
-                interpolationCubic(v[2][0], v[2][1], v[2][2], v[2][3], muX),
-                interpolationCubic(v[3][0], v[3][1], v[3][2], v[3][3], muX),
+        final double muX2 = muX*muX;
+        final double muX3 = muX*muX2;
+        return interpolationCubic(interpolationCubic(v[0][0], v[0][1], v[0][2], v[0][3], muX, muX2, muX3),
+                interpolationCubic(v[1][0], v[1][1], v[1][2], v[1][3], muX, muX2, muX3),
+                interpolationCubic(v[2][0], v[2][1], v[2][2], v[2][3], muX, muX2, muX3),
+                interpolationCubic(v[3][0], v[3][1], v[3][2], v[3][3], muX, muX2, muX3),
                 muY);
     }
 
@@ -364,15 +372,22 @@ public final class Maths {
         return v + coeff[0];
     }
 
-    public static void normalizeVector(final double[] v) {
+    public static void normalizeVector(final PosVector v) {
         final double norm = Math.sqrt(innerProduct(v, v));
-        v[0] /= norm;
-        v[1] /= norm;
-        v[2] /= norm;
+        v.x /= norm;
+        v.y /= norm;
+        v.z /= norm;
     }
 
-    public static double innerProduct(final double[] a, final double[] b) {
-        return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    public static double innerProduct(final PosVector a, final PosVector b) {
+        return a.x * b.x + a.y * b.y + a.z * b.z;
+    }
+
+    public static void crossProduct(final PosVector a, final PosVector b, final PosVector c) {
+
+        c.x = a.y * b.z - a.z * b.y;
+        c.y = a.z * b.x - a.x * b.z;
+        c.z = a.x * b.y - a.y * b.x;
     }
 
     public static double[] polyFit(final Matrix A, final double[] y) {

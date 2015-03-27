@@ -44,6 +44,7 @@ public final class ReaderUtils {
         virtBand.setUnit(Unit.PHASE);
         virtBand.setDescription("Phase from complex data");
         virtBand.setNoDataValueUsed(true);
+        virtBand.setOwner(product);
         product.addBand(virtBand);
     }
 
@@ -64,6 +65,7 @@ public final class ReaderUtils {
         virtBand.setUnit(Unit.INTENSITY);
         virtBand.setDescription("Intensity from complex data");
         virtBand.setNoDataValueUsed(true);
+        virtBand.setOwner(product);
         product.addBand(virtBand);
 
         if (bandI.getGeoCoding() != product.getGeoCoding()) {

@@ -16,6 +16,7 @@
 package org.esa.snap.eo;
 
 import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.gpf.TileGeoreferencing;
 
 /**
@@ -35,11 +36,11 @@ public class LocalGeometry {
     public double upPointLon;
     public double downPointLat;
     public double downPointLon;
-    public double[] sensorPos;
-    public double[] centrePoint;
+    public PosVector sensorPos;
+    public PosVector centrePoint;
 
     public LocalGeometry(final int x, final int y, final TileGeoreferencing tileGeoRef,
-                         final double[] earthPoint, final double[] sensorPos) {
+                         final PosVector earthPoint, final PosVector sensorPos) {
         final GeoPos geo = new GeoPos();
 
         tileGeoRef.getGeoPos(x - 1, y, geo);
@@ -62,7 +63,7 @@ public class LocalGeometry {
     }
 
     public LocalGeometry(final double lat, final double lon, final double delLat, final double delLon,
-                         final double[] earthPoint, final double[] sensorPos) {
+                         final PosVector earthPoint, final PosVector sensorPos) {
 
         this.leftPointLat = lat;
         this.leftPointLon = lon - delLon;

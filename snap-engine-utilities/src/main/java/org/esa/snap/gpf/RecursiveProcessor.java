@@ -15,7 +15,6 @@
  */
 package org.esa.snap.gpf;
 
-import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.snap.db.CommonReaders;
 import org.esa.snap.util.ProductFunctions;
@@ -34,6 +33,9 @@ public abstract class RecursiveProcessor {
                                     final String[] exceptionExemptions) throws Exception {
         final int maxIteration = TestUtils.getMaxIterations();
         final File[] fileList = folder.listFiles(new ProductFunctions.ValidProductFileFilter(true));
+        if(fileList == null)
+            return iterations;
+
         for (File file : fileList) {
             if (maxIteration > 0 && iterations >= maxIteration)
                 break;

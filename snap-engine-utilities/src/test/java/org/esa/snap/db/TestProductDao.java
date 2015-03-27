@@ -59,6 +59,8 @@ public class TestProductDao {
 
     public static void recurseProcessFolder(final File folder, final ProductDB db) throws SQLException {
         final File[] fileList = folder.listFiles(new ProductFunctions.ValidProductFileFilter(true));
+        if(fileList == null)
+            return;
         for (File file : fileList) {
 
             if (file.isDirectory()) {

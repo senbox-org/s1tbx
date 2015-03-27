@@ -20,6 +20,7 @@ import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.snap.datamodel.Orbits;
+import org.esa.snap.datamodel.PosVector;
 
 public final class GeoUtils {
     private static final double EPS5 = 1e-5;
@@ -90,7 +91,7 @@ public final class GeoUtils {
      * @param xyz       The xyz coordinates of the given pixel.
      */
     public static void geo2xyzWGS84(final double latitude, final double longitude, final double altitude,
-                                    final double xyz[]) {
+                                    final PosVector xyz) {
 
         final double lat = latitude * Constants.DTOR;
         final double lon = longitude * Constants.DTOR;
@@ -99,10 +100,10 @@ public final class GeoUtils {
         final double N = (WGS84.a / Math.sqrt(1.0 - WGS84.e2 * sinLat * sinLat));
         final double NcosLat = (N + altitude) * FastMath.cos(lat);
 
-        xyz[0] = NcosLat * FastMath.cos(lon); // in m
-        xyz[1] = NcosLat * FastMath.sin(lon); // in m
-        xyz[2] = (N + altitude - WGS84.e2 * N) * sinLat;
-        //xyz[2] = (WGS84.e2inv * N  + altitude) * sinLat;    // in m
+        xyz.x = NcosLat * FastMath.cos(lon); // in m
+        xyz.y = NcosLat * FastMath.sin(lon); // in m
+        xyz.z = (N + altitude - WGS84.e2 * N) * sinLat;
+        //xyz.z = (WGS84.e2inv * N  + altitude) * sinLat;    // in m
     }
 
     /**
