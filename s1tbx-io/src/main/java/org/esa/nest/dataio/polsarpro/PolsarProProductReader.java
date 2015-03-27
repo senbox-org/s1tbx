@@ -21,6 +21,7 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.ResourceUtils;
 
@@ -110,11 +111,27 @@ public class PolsarProProductReader extends EnviProductReader {
 
         product.setFileLocation(mainHeaderFile);
 
+        addMetadata(product, inputFile);
+
+        return product;
+    }
+
+    private void addMetadata(final Product product, final File inputFile) throws IOException {
+        if (!AbstractMetadata.hasAbstractedMetadata(product)) {
+            final MetadataElement root = product.getMetadataRoot();
+            final MetadataElement absRoot = AbstractMetadata.addAbstractedMetadataHeader(root);
+
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT, product.getName());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PRODUCT_TYPE, product.getProductType());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_samples_per_line, product.getSceneRasterWidth());
+            AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines, product.getSceneRasterHeight());
+
+            AbstractMetadataIO.loadExternalMetadata(product, absRoot, inputFile);
+        }
+
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
         absRoot.setAttributeInt(AbstractMetadata.polsarData, 1);
         // polsarpro data automatically calibrated for Radarsat2 only
         //absRoot.setAttributeInt(AbstractMetadata.abs_calibration_flag, 1);
-
-        return product;
     }
 }
