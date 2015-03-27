@@ -15,50 +15,10 @@
  */
 package org.csa.rstb.dat.toolviews;
 
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
-import com.bc.ceres.swing.binding.BindingContext;
-import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.csa.rstb.gpf.HaAlphaDescriptor;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.barithm.BandArithmetic;
-import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.application.ToolView;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.math.MathUtils;
-import org.esa.beam.visat.toolviews.stat.*;
-import org.esa.nest.dat.graphics.Palette;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.annotations.XYAnnotation;
-import org.jfree.chart.annotations.XYLineAnnotation;
-import org.jfree.chart.annotations.XYTextAnnotation;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.ui.RectangleInsets;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.IndexColorModel;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-
-
 /**
  * The H-a Alpha plot pane within the statistics window.
  */
-public class HaAlphaPlotPanel extends ChartPagePanel {
+/*public class HaAlphaPlotPanel extends ChartPagePanel {
 
     private static final String NO_DATA_MESSAGE = "This plot requires an H-a Alpha decomposition as input\n" +
             "The plot will be computed when you hit the 'Refresh View' button.\n" +
@@ -402,8 +362,8 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                 "Failed to compute plot.\n" +
                                         "No Pixels considered..",
-                                /*I18N*/
-                                CHART_TITLE, /*I18N*/
+
+                                CHART_TITLE,
                                 JOptionPane.ERROR_MESSAGE
                         );
                         plot.setDataset(null);
@@ -445,8 +405,8 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
                             "Failed to compute plot.\n" +
                                     "Calculation canceled.",
-                            /*I18N*/
-                            CHART_TITLE, /*I18N*/
+
+                            CHART_TITLE,
                             JOptionPane.ERROR_MESSAGE
                     );
                 } catch (ExecutionException | IllegalArgumentException e) {
@@ -455,7 +415,7 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
                             "Failed to compute plot.\n" +
                                     "An error occurred:\n" +
                                     e.getCause().getMessage(),
-                            CHART_TITLE, /*I18N*/
+                            CHART_TITLE,
                             JOptionPane.ERROR_MESSAGE
                     );
                 }
@@ -547,7 +507,7 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
             String excelNote = "";
             if (numNonEmptyBins > excelLimit - 100) {
                 excelNote = "Note that e.g., Microsoft® Excel 2002 only supports a total of "
-                        + excelLimit + " rows in a sheet.\n";   /*I18N*/
+                        + excelLimit + " rows in a sheet.\n";
             }
             final String message = MessageFormat.format(
                     "This scatter plot contains {0} non-empty bins.\n" +
@@ -556,8 +516,8 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
                     numNonEmptyBins, excelNote
             );
             final int status = JOptionPane.showConfirmDialog(this,
-                    message, /*I18N*/
-                    "Copy Data to Clipboard", /*I18N*/
+                    message,
+                    "Copy Data to Clipboard",
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.WARNING_MESSAGE);
             if (status != JOptionPane.YES_OPTION) {
@@ -676,5 +636,5 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
         private Property yBandProperty;
     }
 
-}
+}*/
 

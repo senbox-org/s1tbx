@@ -374,7 +374,7 @@ public class DatApp extends VisatApp {
         menuBar.add(createJMenu("file", "File", 'F'));
         menuBar.add(createJMenu("edit", "Edit", 'E'));
         menuBar.add(createJMenu("view", "View", 'V'));
-        menuBar.add(createAnalysisMenu());
+        //menuBar.add(createAnalysisMenu());
         menuBar.add(createJMenu("tools", "Utilities", 'U'));
         //menuBar.add(createJMenu("processing", "Optical Processing", 'O'));
         menuBar.add(createJMenu("SAR Processing", "SAR Processing", 'S'));
@@ -427,13 +427,13 @@ public class DatApp extends VisatApp {
         }
     }
 
-    @Override
-    protected JMenu createAnalysisMenu() {
-        final JMenu menu = super.createAnalysisMenu();
-
-        addCommandToMenu(menu, "org.csa.rstb.dat.toolviews.HaAlphaPlotToolView" + SHOW_TOOLVIEW_CMD_POSTFIX);
-        return menu;
-    }
+//    @Override
+//    protected JMenu createAnalysisMenu() {
+//        final JMenu menu = super.createAnalysisMenu();
+//
+//        addCommandToMenu(menu, "org.csa.rstb.dat.toolviews.HaAlphaPlotToolView" + SHOW_TOOLVIEW_CMD_POSTFIX);
+//        return menu;
+//    }
 
     protected void addCommandToMenu(final JMenu menu, final String cmdID) {
         final Command command = getCommandManager().getCommand(cmdID);
@@ -442,15 +442,15 @@ public class DatApp extends VisatApp {
         }
     }
 
-    @Override
-    protected CommandBar createAnalysisToolBar() {
-        final CommandBar toolBar = super.createAnalysisToolBar();
-
-        addCommandsToToolBar(toolBar, new String[]{
-                "org.csa.rstb.dat.toolviews.HaAlphaPlotToolView" + SHOW_TOOLVIEW_CMD_POSTFIX
-        });
-        return toolBar;
-    }
+   // @Override
+//    protected CommandBar createAnalysisToolBar() {
+//        final CommandBar toolBar = super.createAnalysisToolBar();
+//
+//        addCommandsToToolBar(toolBar, new String[]{
+//                "org.csa.rstb.dat.toolviews.HaAlphaPlotToolView" + SHOW_TOOLVIEW_CMD_POSTFIX
+//        });
+//        return toolBar;
+//    }
 
     protected CommandBar createProcessorToolBar() {
         // context of action in module.xml used as key

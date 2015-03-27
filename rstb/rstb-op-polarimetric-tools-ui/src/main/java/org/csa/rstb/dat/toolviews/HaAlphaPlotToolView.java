@@ -15,18 +15,22 @@
  */
 package org.csa.rstb.dat.toolviews;
 
-import org.esa.beam.visat.toolviews.stat.AbstractStatisticsToolView;
-import org.esa.beam.visat.toolviews.stat.PagePanel;
 
 /**
  * A window which displays the H-a alpha plane plot.
- */
-public class HaAlphaPlotToolView extends AbstractStatisticsToolView {
+ *//*
+public class HaAlphaPlotToolView extends AbstractStatisticsTopComponent {
 
     public static final String ID = HaAlphaPlotToolView.class.getName();
 
     @Override
     protected PagePanel createPagePanel() {
-        return new HaAlphaPlotPanel(this, getDescriptor().getHelpId());
+        return new HaAlphaPlotPanel(this, getHelpId());
     }
-}
+
+    @Override
+    protected String getHelpId() {
+        return org.openide.util.NbBundle.getMessage(HaAlphaPlotToolView.class, "CTL_StatisticsTopComponent_HelpId");
+    }
+
+}*/
