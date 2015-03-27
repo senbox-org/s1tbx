@@ -902,6 +902,9 @@ public final class SARGeocoding {
 
             this.orbitStateVectors = new OrbitStateVector[orbitStateVectors.length];
             System.arraycopy(orbitStateVectors, 0, this.orbitStateVectors, 0, orbitStateVectors.length);
+
+			this.dt = (orbitStateVectors[orbitStateVectors.length-1].time_mjd - orbitStateVectors[0].time_mjd) /
+                    (orbitStateVectors.length-1);
         }
 
         public void getPositionVelocity(final double time, final PosVector position, final PosVector velocity) {
