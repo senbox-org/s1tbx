@@ -408,11 +408,11 @@ public final class SliceAssemblyOp extends Operator {
         }
     }
 
-    private void computeTargetBandWidthAndHeight(final String bandName, final Dimension dim) throws OperatorException {
+    private Dimension computeTargetBandWidthAndHeight(final String bandName) throws OperatorException {
 
         // See comments in computeTargetWidthAndHeight().
         // For band width, we take the max for that band among all slice products.
-
+        final Dimension dim = new Dimension(0, 0);
         for (Product srcProduct : sliceProducts) {
             final Band srcBand = srcProduct.getBand(bandName);
             if(srcBand == null) {
@@ -421,6 +421,7 @@ public final class SliceAssemblyOp extends Operator {
 
             dim.setSize(Math.max(dim.width, srcBand.getRasterWidth()), dim.height + srcBand.getRasterHeight());
         }
+        return dim;
     }
 
     private void createTargetProduct() {
@@ -451,6 +452,7 @@ public final class SliceAssemblyOp extends Operator {
 
                 final Term term = createTerm(sourceBand.getExpression(), sliceProducts);
                 final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
+                // find new width and height used by corresponding target bands
                 for (RasterDataSymbol symbol : refRasterDataSymbols) {
                     String name = symbol.getName();
                     final Band trgBand = targetProduct.getBand(name);
@@ -467,8 +469,8 @@ public final class SliceAssemblyOp extends Operator {
                 ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
                 targetProduct.addBand(targetBand);
             } else {
-                final Dimension dim = new Dimension(0, 0);
-                computeTargetBandWidthAndHeight(srcBand.getName(), dim);
+
+                final Dimension dim = computeTargetBandWidthAndHeight(srcBand.getName());
                 final Band newBand = new Band(srcBand.getName(), srcBand.getDataType(), dim.width, dim.height);
                 ProductUtils.copyRasterDataNodeProperties(srcBand, newBand);
 
@@ -496,6 +498,8 @@ public final class SliceAssemblyOp extends Operator {
             }
             createLatLonTiePointGridsForSLC();
         }
+
+        //targetProduct.setPreferredTileSize(targetWidth, 10);
     }
 
     private Term createTerm(final String expression, final Product[] availableProducts) {
@@ -1248,7 +1252,12 @@ public final class SliceAssemblyOp extends Operator {
                     getProductLastLineUtcTime(sliceProducts[sliceProducts.length-1],
                             extractImageNumber(target.getName())));
 
-            final String swathID = extractSwathIdentifier(target.getName());
+            final String swathID;
+            if(sliceProducts[0].getProductType().equals("GRD")) {
+                swathID = "";
+            } else {
+                swathID = extractSwathIdentifier(target.getName());
+            }
             imageInformationElem.setAttributeString("numberOfSamples", Integer.toString(swathAssembledImageDimMap.get(swathID.toUpperCase())[1]));
             imageInformationElem.setAttributeString("numberOfLines", Integer.toString(swathAssembledImageDimMap.get(swathID.toUpperCase())[0]));
         }
@@ -1389,13 +1398,15 @@ public final class SliceAssemblyOp extends Operator {
         for(Band band : targetProduct.getBands()) {
             MetadataElement bandMeta = AbstractMetadata.getBandAbsMetadata(absTgt, band);
 
-            AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.first_line_time,
-                    absFirst.getAttributeUTC(AbstractMetadata.first_line_time));
-            AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.last_line_time,
-                    absLast.getAttributeUTC(AbstractMetadata.last_line_time));
+            if(bandMeta != null) {
+                AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.first_line_time,
+                                              absFirst.getAttributeUTC(AbstractMetadata.first_line_time));
+                AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.last_line_time,
+                                              absLast.getAttributeUTC(AbstractMetadata.last_line_time));
 
-            AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.num_output_lines, band.getRasterHeight());
-            AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.num_samples_per_line, band.getRasterWidth());
+                AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.num_output_lines, band.getRasterHeight());
+                AbstractMetadata.setAttribute(bandMeta, AbstractMetadata.num_samples_per_line, band.getRasterWidth());
+            }
         }
 
         final ArrayList<MetadataElement> bandMetaToRemove = new ArrayList<>();
