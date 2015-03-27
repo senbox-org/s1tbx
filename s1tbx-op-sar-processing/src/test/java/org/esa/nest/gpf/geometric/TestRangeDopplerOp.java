@@ -73,7 +73,7 @@ public class TestRangeDopplerOp {
         final Product targetProduct = op.getTargetProduct();
         TestUtils.verifyProduct(targetProduct, true, true, true);
 
-        final float[] expected = new float[] { 0.28094792f, 0.10850047f, 0.095417984f };
+        final float[] expected = new float[] { 0.211352f, 0.2079482f, 0.24199635f };
         TestUtils.comparePixels(targetProduct, targetProduct.getBandAt(0).getName(), 500, 500, expected);
     }
 
