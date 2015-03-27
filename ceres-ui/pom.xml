@@ -34,6 +34,10 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.swinglabs.swingx</groupId>
+            <artifactId>swingx-all</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -58,6 +62,7 @@
                         <publicPackage>com.jidesoft.spinner</publicPackage>
                         <publicPackage>com.jidesoft.dialog</publicPackage>
                         <publicPackage>com.jidesoft.list</publicPackage>
+                        <publicPackage>org.jdesktop.*</publicPackage>
                         <publicPackage>com.bc.ceres.swing</publicPackage>
                         <publicPackage>com.bc.ceres.swing.actions</publicPackage>
                         <publicPackage>com.bc.ceres.swing.binding</publicPackage>
