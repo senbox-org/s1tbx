@@ -42,7 +42,6 @@
 		<module>jlinda</module>
 		<module>rstb</module>
 		<!--module>s1tbx-benchmark</module-->
-		<!--module>s1tbx-bootstrap</module-->
 		<module>s1tbx-config</module>
 		<module>s1tbx-dem</module>	
         <module>s1tbx-dem-ui</module>
