@@ -283,6 +283,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-rcp</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>ncsa.hdf</groupId>
                 <artifactId>lib-hdf</artifactId>
                 <version>${hdf.version}</version>
@@ -343,6 +349,11 @@
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-netbeans-modules-javahelp</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-openide-windows</artifactId>
                 <version>${netbeans.version}</version>
             </dependency>
             

@@ -71,12 +71,10 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-rcp</artifactId>
-            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-rcp</artifactId>
-            <version>${s1tbx.version}</version>
         </dependency>
     </dependencies>
 
