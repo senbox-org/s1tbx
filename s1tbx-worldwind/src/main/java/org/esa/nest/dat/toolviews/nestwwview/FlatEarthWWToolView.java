@@ -22,7 +22,6 @@ import gov.nasa.worldwind.View;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
-import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.globes.EarthFlat;
 import gov.nasa.worldwind.layers.*;
@@ -30,24 +29,54 @@ import gov.nasa.worldwind.layers.Earth.LandsatI3WMSLayer;
 import gov.nasa.worldwind.layers.Earth.MSVirtualEarthLayer;
 import gov.nasa.worldwind.util.StatusBar;
 import gov.nasa.worldwind.view.orbit.FlatOrbitView;
+import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.windows.ToolTopComponent;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.util.NbBundle;
+import org.openide.windows.TopComponent;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import java.awt.*;
 
+@TopComponent.Description(
+        preferredID = "WorldWindTopComponent",
+        //iconBase = "org/esa/snap/rcp/icons/xxx.gif",
+        persistenceType = TopComponent.PERSISTENCE_ALWAYS
+)
+@TopComponent.Registration(
+        mode = "navigator",
+        openAtStartup = true,
+        position = 3
+)
+@ActionID(category = "Window", id = "org.esa.nest.dat.toolviews.nestwwview.FlatEarthWWToolView")
+@ActionReferences({
+        @ActionReference(path = "Menu/Window/Tool Windows"),
+        @ActionReference(path = "Toolbars/Views")
+})
+@TopComponent.OpenActionRegistration(
+        displayName = "#CTL_SpectrumTopComponent_Name",
+        preferredID = "SpectrumTopComponent"
+)
+@NbBundle.Messages({
+        "CTL_SpectrumTopComponent_Name=Spectrum View",
+        "CTL_SpectrumTopComponent_HelpId=showSpectrumWnd"
+})
 /**
  * The window displaying the world map.
  */
-public class FlatEarthWWToolView extends AbstractToolView implements WWView {
+public class FlatEarthWWToolView extends ToolTopComponent implements WWView {
 
     private final VisatApp datApp = VisatApp.getApp();
     private final Dimension canvasSize = new Dimension(800, 600);
@@ -63,12 +92,18 @@ public class FlatEarthWWToolView extends AbstractToolView implements WWView {
     private final static boolean flatWorld = !(useflatWorld != null && useflatWorld.equals("false"));
 
     public FlatEarthWWToolView() {
+        initComponents();
     }
 
-    @Override
+    private void initComponents() {
+        setLayout(new BorderLayout(4, 4));
+        setBorder(new EmptyBorder(4, 4, 4, 4));
+        add(createControl(), BorderLayout.CENTER);
+    }
+
     public JComponent createControl() {
 
-        final Window windowPane = getPaneWindow();
+        final Window windowPane = SwingUtilities.getWindowAncestor(this);
         if (windowPane != null)
             windowPane.setSize(300, 300);
         final JPanel mainPane = new JPanel(new BorderLayout(4, 4));
