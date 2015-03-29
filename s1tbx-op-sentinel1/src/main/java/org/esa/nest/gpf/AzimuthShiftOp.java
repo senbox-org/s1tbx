@@ -20,6 +20,7 @@ import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -288,6 +289,7 @@ public class AzimuthShiftOp extends Operator {
 
                             final double azOffset = estimateAzOffsets(mBandI, mBandQ, sBandI, sBandQ,
                                     backwardRectangle, forwardRectangle, spectralSeparation);
+                            System.out.println("azOffset = " + azOffset);
 
                             synchronized(azOffsetArray) {
                                 azOffsetArray.add(azOffset);
@@ -341,23 +343,82 @@ public class AzimuthShiftOp extends Operator {
                                        final Rectangle backwardRectangle, final Rectangle forwardRectangle,
                                        final double spectralSeparation) {
 
+        final int mDataType = mBandI.getDataType();
+
         final Tile mTileIBack = getSourceTile(mBandI, backwardRectangle);
         final Tile mTileQBack = getSourceTile(mBandQ, backwardRectangle);
         final Tile sTileIBack = getSourceTile(sBandI, backwardRectangle);
         final Tile sTileQBack = getSourceTile(sBandQ, backwardRectangle);
-        final double[] mIBackArray = (double[]) mTileIBack.getDataBuffer().getElems();
-        final double[] mQBackArray = (double[]) mTileQBack.getDataBuffer().getElems();
-        final double[] sIBackArray = (double[]) sTileIBack.getDataBuffer().getElems();
-        final double[] sQBackArray = (double[]) sTileQBack.getDataBuffer().getElems();
+
+        double[] mIBackArray = null;
+        double[] mQBackArray = null;
+        if (mDataType == ProductData.TYPE_INT16) {
+            final short[] mIBackArrayShort = (short[]) mTileIBack.getDataBuffer().getElems();
+            final short[] mQBackArrayShort = (short[]) mTileQBack.getDataBuffer().getElems();
+            mIBackArray = new double[mIBackArrayShort.length];
+            mQBackArray = new double[mQBackArrayShort.length];
+            for (int i = 0; i < mIBackArrayShort.length; i++) {
+                mIBackArray[i] = (double)mIBackArrayShort[i];
+                mQBackArray[i] = (double)mQBackArrayShort[i];
+            }
+        } else {
+            mIBackArray = (double[]) mTileIBack.getDataBuffer().getElems();
+            mQBackArray = (double[]) mTileQBack.getDataBuffer().getElems();
+        }
+
+        double[] sIBackArray = null;
+        double[] sQBackArray = null;
+        final int sDataType = sBandI.getDataType();
+        if (sDataType == ProductData.TYPE_FLOAT32) {
+            final float[] sIBackArrayFloat = (float[])sTileIBack.getDataBuffer().getElems();
+            final float[] sQBackArrayFloat = (float[])sTileQBack.getDataBuffer().getElems();
+            sIBackArray = new double[sIBackArrayFloat.length];
+            sQBackArray = new double[sQBackArrayFloat.length];
+            for (int i = 0; i < sIBackArrayFloat.length; i++) {
+                sIBackArray[i] = (double)sIBackArrayFloat[i];
+                sQBackArray[i] = (double)sQBackArrayFloat[i];
+            }
+        } else {
+            sIBackArray = (double[]) sTileIBack.getDataBuffer().getElems();
+            sQBackArray = (double[]) sTileQBack.getDataBuffer().getElems();
+        }
 
         final Tile mTileIFor = getSourceTile(mBandI, forwardRectangle);
         final Tile mTileQFor = getSourceTile(mBandQ, forwardRectangle);
         final Tile sTileIFor = getSourceTile(sBandI, forwardRectangle);
         final Tile sTileQFor = getSourceTile(sBandQ, forwardRectangle);
-        final double[] mIForArray = (double[]) mTileIFor.getDataBuffer().getElems();
-        final double[] mQForArray = (double[]) mTileQFor.getDataBuffer().getElems();
-        final double[] sIForArray = (double[]) sTileIFor.getDataBuffer().getElems();
-        final double[] sQForArray = (double[]) sTileQFor.getDataBuffer().getElems();
+
+        double[] mIForArray = null;
+        double[] mQForArray = null;
+        if (mDataType == ProductData.TYPE_INT16) {
+            final short[] mIForArrayShort = (short[]) mTileIFor.getDataBuffer().getElems();
+            final short[] mQForArrayShort = (short[]) mTileQFor.getDataBuffer().getElems();
+            mIForArray = new double[mIForArrayShort.length];
+            mQForArray = new double[mQForArrayShort.length];
+            for (int i = 0; i < mIForArrayShort.length; i++) {
+                mIForArray[i] = (double)mIForArrayShort[i];
+                mQForArray[i] = (double)mQForArrayShort[i];
+            }
+        } else {
+            mIForArray = (double[]) mTileIFor.getDataBuffer().getElems();
+            mQForArray = (double[]) mTileQFor.getDataBuffer().getElems();
+        }
+
+        double[] sIForArray = null;
+        double[] sQForArray = null;
+        if (sDataType == ProductData.TYPE_FLOAT32) {
+            final float[] sIForArrayFloat = (float[])sTileIFor.getDataBuffer().getElems();
+            final float[] sQForArrayFloat = (float[])sTileQFor.getDataBuffer().getElems();
+            sIForArray = new double[sIForArrayFloat.length];
+            sQForArray = new double[sQForArrayFloat.length];
+            for (int i = 0; i < sIForArrayFloat.length; i++) {
+                sIForArray[i] = (double)sIForArrayFloat[i];
+                sQForArray[i] = (double)sQForArrayFloat[i];
+            }
+        } else {
+            sIForArray = (double[]) sTileIFor.getDataBuffer().getElems();
+            sQForArray = (double[]) sTileQFor.getDataBuffer().getElems();
+        }
 
         final int arrayLength = mIBackArray.length;
         final double[] backIntReal = new double[arrayLength];
@@ -386,6 +447,22 @@ public class AzimuthShiftOp extends Operator {
                 phase / (2 * Math.PI * spectralSeparation * subSwath[subSwathIndex - 1].azimuthTimeInterval);
 
         return offset;
+    }
+
+    private void complexArrayMultiplication(final short[] realArray1, final short[] imagArray1,
+                                            final double[] realArray2, final double[] imagArray2,
+                                            final double[] realOutput, final double[] imagOutput) {
+
+        final int arrayLength = realArray1.length;
+        if (imagArray1.length != arrayLength || realArray2.length != arrayLength || imagArray2.length != arrayLength ||
+                realOutput.length != arrayLength || imagOutput.length != arrayLength) {
+            throw new OperatorException("Arrays of the same length are expected.");
+        }
+
+        for (int i = 0; i < arrayLength; i++) {
+            realOutput[i] = realArray1[i] * realArray2[i] + imagArray1[i] * imagArray2[i];
+            imagOutput[i] = imagArray1[i] * realArray2[i] - realArray1[i] * imagArray2[i];
+        }
     }
 
     private void complexArrayMultiplication(final double[] realArray1, final double[] imagArray1,
