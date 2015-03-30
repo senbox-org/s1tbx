@@ -6,13 +6,17 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.EnumSet;
 
-import static java.nio.file.FileVisitResult.*;
-import static java.nio.file.StandardCopyOption.*;
+import static java.nio.file.FileVisitResult.CONTINUE;
+import static java.nio.file.FileVisitResult.TERMINATE;
+import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * A {@code FileVisitor} that copies a file tree.
@@ -22,17 +26,45 @@ public class TreeCopier implements FileVisitor<Path> {
     private final Path target;
     private IOException exception;
 
-    public static Path copy(Path source, Path target) throws IOException {
+    /**
+     * Deeply copies the directory given by {@code source} into a directory with the same name located in an existing
+     * parent directory given by {@code targetParent}. A new directory will be created if it does not exists yet,
+     * otherwise its contents will be overwritten.
+     *
+     * @param source       The source directory.
+     * @param targetParent The target's parent directory. Must already exist.
+     * @throws IOException
+     */
+    public static Path copyDir(Path source, Path targetParent) throws IOException {
+        Path target = targetParent.resolve(source.getFileName().toString());
         if (!Files.exists(target)) {
-            target = Files.createDirectories(target);
+            target = Files.createDirectory(target);
         }
-        Path dir = target.resolve(source.getFileName().toString());
-        TreeCopier treeCopier = new TreeCopier(source, dir);
+        copy(source, target);
+        return target;
+    }
+
+    /**
+     * Deeply copies the contents of the directory given by {@code source} into the existing
+     * directory given by {@code target}. The method overwrites any existing content.
+     *
+     * @param source The source directory.
+     * @param target The target directory. Must already exist.
+     * @throws IOException
+     */
+    public static void copy(Path source, Path target) throws IOException {
+        if (!Files.exists(target)) {
+            throw new NoSuchFileException(target.toString());
+        }
+        if (!Files.isDirectory(target)) {
+            throw new NotDirectoryException(target.toString());
+        }
+        //Path dir = target.resolve(source.getFileName().toString());
+        TreeCopier treeCopier = new TreeCopier(source, target);
         Files.walkFileTree(source, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, treeCopier);
         if (treeCopier.exception != null) {
             throw treeCopier.exception;
         }
-        return dir;
     }
 
     TreeCopier(Path source, Path target) {

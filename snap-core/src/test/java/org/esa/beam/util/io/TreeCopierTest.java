@@ -33,12 +33,23 @@ public class TreeCopierTest {
     }
 
     @Test
-    public void testResultingDirectory() throws Exception {
-        Path targetDir = TreeCopier.copy(testZip.resolve("dir2"), tempDirectory);
-        assertEquals(tempDirectory.resolve("dir2"), targetDir);
-        assertTrue(Files.exists(targetDir.resolve("dir2_1")));
-        assertTrue(Files.exists(targetDir.resolve("text1.txt")));
-        assertTrue(Files.exists(targetDir.resolve("text2.txt")));
-        assertTrue(Files.exists(targetDir.resolve("dir2_1/text1.txt")));
+    public void testCopy() throws Exception {
+        Path dir2 = tempDirectory.resolve("dir2");
+        Files.createDirectory(dir2);
+        TreeCopier.copy(testZip.resolve("dir2"), dir2);
+        assertTrue(Files.exists(dir2.resolve("dir2_1")));
+        assertTrue(Files.exists(dir2.resolve("text1.txt")));
+        assertTrue(Files.exists(dir2.resolve("text2.txt")));
+        assertTrue(Files.exists(dir2.resolve("dir2_1/text1.txt")));
+    }
+
+    @Test
+    public void testCopyDir() throws Exception {
+        Path dir2 = TreeCopier.copyDir(testZip.resolve("dir2"), tempDirectory);
+        assertEquals(tempDirectory.resolve("dir2"), dir2);
+        assertTrue(Files.exists(dir2.resolve("dir2_1")));
+        assertTrue(Files.exists(dir2.resolve("text1.txt")));
+        assertTrue(Files.exists(dir2.resolve("text2.txt")));
+        assertTrue(Files.exists(dir2.resolve("dir2_1/text1.txt")));
     }
 }
