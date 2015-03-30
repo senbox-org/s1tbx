@@ -97,6 +97,11 @@
             <groupId>org.geotools</groupId>
             <artifactId>gt-render</artifactId>
         </dependency>
+        <dependency>
+            <groupId>it.geosolutions.imageio-ext</groupId>
+            <artifactId>imageio-ext-tiff</artifactId>
+        </dependency>
+
         <!-- JUnit dependency is needed because it is used in production code -->
         <dependency>
             <groupId>junit</groupId>
@@ -123,6 +128,8 @@
                         <publicPackage>com.sun.media.*</publicPackage>
                         <publicPackage>com.sun.medialib.codec.*</publicPackage>
                         <publicPackage>com.sun.medialib.mlib.*</publicPackage>
+                        <publicPackage>it.geosolutions.imageio.plugins.tiff</publicPackage>
+                        <publicPackage>it.geosolutions.imageioimpl.plugins.tiff</publicPackage>
                         <publicPackage>javax.media.jai.*</publicPackage>
                         <publicPackage>javax.measure.*</publicPackage>
                         <publicPackage>javax.imageio.*</publicPackage>
