@@ -873,20 +873,10 @@ public final class SARGeocoding {
         public Orbit(OrbitStateVector[] orbitStateVectors,
                      double firstLineUTC, double lineTimeInterval, int sourceImageHeight) {
 
-            final List<OrbitStateVector> vectorList = new ArrayList<>();
-            double currentTime = 0.0;
-            for (int i = 0; i < orbitStateVectors.length; i++) {
-                if (i == 0) {
-                    currentTime = orbitStateVectors[i].time_mjd;
-                    vectorList.add(orbitStateVectors[i]);
-                } else if (orbitStateVectors[i].time_mjd > currentTime) {
-                    currentTime = orbitStateVectors[i].time_mjd;
-                    vectorList.add(orbitStateVectors[i]);
-                }
-            }
-            this.orbitStateVectors = vectorList.toArray(new OrbitStateVector[vectorList.size()]);
-            this.dt = (orbitStateVectors[orbitStateVectors.length-1].time_mjd - orbitStateVectors[0].time_mjd) /
-                    (orbitStateVectors.length-1);
+            this.orbitStateVectors = removeRedundantVectors(orbitStateVectors);
+
+            this.dt = (this.orbitStateVectors[this.orbitStateVectors.length-1].time_mjd -
+                    this.orbitStateVectors[0].time_mjd) / (this.orbitStateVectors.length-1);
 
             this.sensorPosition = new PosVector[sourceImageHeight];
             this.sensorVelocity = new PosVector[sourceImageHeight];
@@ -900,17 +890,41 @@ public final class SARGeocoding {
 
         public Orbit(OrbitStateVector[] orbitStateVectors) {
 
-            this.orbitStateVectors = new OrbitStateVector[orbitStateVectors.length];
-            System.arraycopy(orbitStateVectors, 0, this.orbitStateVectors, 0, orbitStateVectors.length);
+            this.orbitStateVectors = removeRedundantVectors(orbitStateVectors);
 
-			this.dt = (orbitStateVectors[orbitStateVectors.length-1].time_mjd - orbitStateVectors[0].time_mjd) /
-                    (orbitStateVectors.length-1);
+			this.dt = (this.orbitStateVectors[orbitStateVectors.length-1].time_mjd -
+                    this.orbitStateVectors[0].time_mjd) / (this.orbitStateVectors.length-1);
+        }
+
+        private static OrbitStateVector[] removeRedundantVectors(OrbitStateVector[] orbitStateVectors) {
+
+            final List<OrbitStateVector> vectorList = new ArrayList<>();
+            double currentTime = 0.0;
+            for (int i = 0; i < orbitStateVectors.length; i++) {
+                if (i == 0) {
+                    currentTime = orbitStateVectors[i].time_mjd;
+                    vectorList.add(orbitStateVectors[i]);
+                } else if (orbitStateVectors[i].time_mjd > currentTime) {
+                    currentTime = orbitStateVectors[i].time_mjd;
+                    vectorList.add(orbitStateVectors[i]);
+                }
+            }
+
+            return vectorList.toArray(new OrbitStateVector[vectorList.size()]);
         }
 
         public void getPositionVelocity(final double time, final PosVector position, final PosVector velocity) {
 
-            final int i0 = Math.max((int)((time - orbitStateVectors[0].time_mjd) / dt) - 3, 0);
-            final int iN = Math.min(i0 + 7, orbitStateVectors.length - 1);
+            final int nv = 8;
+            int i0, iN;
+            if (orbitStateVectors.length <= nv) {
+                i0 = 0;
+                iN = orbitStateVectors.length - 1;
+            } else {
+                i0 = Math.max((int)((time - orbitStateVectors[0].time_mjd) / dt) - nv/2 + 1, 0);
+                iN = Math.min(i0 + nv - 1, orbitStateVectors.length - 1);
+                i0 = (iN < orbitStateVectors.length - 1? i0:iN - nv + 1);
+            }
 
             //lagrangeInterpolatingPolynomial
             if(position != null) {
@@ -924,11 +938,11 @@ public final class SARGeocoding {
                 velocity.z = 0;
             }
 
-            for (int i = i0; i < iN; ++i) {
+            for (int i = i0; i <= iN; ++i) {
                 final OrbitStateVector orbI = orbitStateVectors[i];
 
                 double weight = 1;
-                for (int j = i0; j < iN; ++j) {
+                for (int j = i0; j <= iN; ++j) {
                     if (j != i) {
                         final double time2 = orbitStateVectors[j].time_mjd;
                         weight *= (time - time2) / (orbI.time_mjd - time2);
