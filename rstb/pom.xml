@@ -85,7 +85,6 @@
     </repositories>
 
     <build>
-        <outputDirectory>${outputdir}/modules/${project.artifactId}-${rstb.version}</outputDirectory>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>

@@ -63,7 +63,6 @@
     </repositories>
 
     <build>
-        <outputDirectory>${outputdir}/modules/${project.artifactId}-${jlinda.version}</outputDirectory>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
