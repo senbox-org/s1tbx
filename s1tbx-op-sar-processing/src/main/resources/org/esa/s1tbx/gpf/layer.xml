@@ -8,7 +8,7 @@
                     <attr name="instanceCreate"
                           methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                     <attr name="delegate"
-                          methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
+                          methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
                     <attr name="displayName"
                           stringvalue="Geolocation-Grid"/>
                     <attr name="operatorName"
@@ -26,7 +26,7 @@
                     <attr name="instanceCreate"
                           methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                     <attr name="delegate"
-                          methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
+                          methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
                     <attr name="displayName"
                           stringvalue="Average Height Range-Doppler"/>
                     <attr name="operatorName"
@@ -44,7 +44,7 @@
                     <attr name="instanceCreate"
                           methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                     <attr name="delegate"
-                          methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
+                          methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
                     <attr name="displayName"
                           stringvalue="Range-Doppler Terrain Correction"/>
                     <attr name="operatorName"
@@ -62,7 +62,7 @@
                     <attr name="instanceCreate"
                           methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                     <attr name="delegate"
-                          methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
+                          methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
                     <attr name="displayName"
                           stringvalue="SAR Simulation"/>
                     <attr name="operatorName"
@@ -80,7 +80,7 @@
                     <attr name="instanceCreate"
                           methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                     <attr name="delegate"
-                          methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
+                          methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
                     <attr name="displayName"
                           stringvalue="ALOS Deskewing"/>
                     <attr name="operatorName"
@@ -98,7 +98,7 @@
                     <attr name="instanceCreate"
                           methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                     <attr name="delegate"
-                          methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
+                          methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
                     <attr name="displayName"
                           stringvalue="Slant Range to Ground Range"/>
                     <attr name="operatorName"
@@ -116,7 +116,7 @@
                     <attr name="instanceCreate"
                           methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                     <attr name="delegate"
-                          methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
+                          methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
                     <attr name="displayName"
                           stringvalue="Update Geo Reference"/>
                     <attr name="operatorName"
@@ -131,6 +131,24 @@
                           stringvalue="rstbIcon"/>
                 </file>
             </folder>
+            <file name="org-esa-s1tbx-gpf-MultilookOp.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="displayName"
+                      stringvalue="Multilooking"/>
+                <attr name="operatorName"
+                      stringvalue="Multilook"/>
+                <attr name="dialogTitle"
+                      stringvalue="Multilooking"/>
+                <attr name="targetProductNameSuffix"
+                      stringvalue="_ML"/>
+                <attr name="ShortDescription"
+                      stringvalue="Multilook average an image"/>
+                <attr name="icon"
+                      stringvalue="esaIcon"/>
+            </file>
         </folder>
     </folder>
 
@@ -187,7 +205,19 @@
                     <attr name="position" intvalue="400"/>
                 </file>
             </folder>
+            <file name="org-esa-s1tbx-gpf-MultilookOp.shadow">
+                <attr name="originalFile"
+                      stringvalue="Actions/Operators/org-esa-s1tbx-gpf-MultilookOp.instance"/>
+                <attr name="position" intvalue="600"/>
+            </file>
         </folder>
+    </folder>
+
+    <folder name="OperatorUIs">
+        <file name="org.esa.nest.gpf.MultilookOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.MultilookOpUI"/>
+            <attr name="operatorName" stringvalue="Multilook"/>
+        </file>
     </folder>
 
     <!--folder name="Services">
