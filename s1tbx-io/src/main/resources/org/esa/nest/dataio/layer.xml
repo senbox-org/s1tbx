@@ -2,37 +2,119 @@
 
     <folder name="Actions">
         <folder name="Readers">
-            <file name="org-esa-s1tbx-dataio-ceos-importERSProduct.instance">
+            <folder name="Ceos">
+                <file name="org-esa-nest-dataio-ceos-importERSProduct.instance">
+                    <attr name="instanceCreate"
+                          methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                    <attr name="delegate"
+                          methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                    <attr name="displayName"
+                          stringvalue="ERS 1/2 CEOS"/>
+                    <attr name="formatName"
+                          stringvalue="ERS CEOS"/>
+                    <attr name="useAllFileFilter"
+                          boolvalue="true"/>
+                    <attr name="helpId"
+                          stringvalue="importERSProduct"/>
+                    <attr name="ShortDescription"
+                          stringvalue="Open ERS 1/2 CEOS (VMP and PGS) data product."/>
+                </file>
+                <file name="org-esa-nest-dataio-ceos-importJERSCEOSProduct.instance">
+                    <attr name="instanceCreate"
+                          methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                    <attr name="delegate"
+                          methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                    <attr name="displayName"
+                          stringvalue="JERS CEOS"/>
+                    <attr name="formatName"
+                          stringvalue="JERS CEOS"/>
+                    <attr name="useAllFileFilter"
+                          boolvalue="true"/>
+                    <attr name="helpId"
+                          stringvalue="importJERSProduct"/>
+                    <attr name="ShortDescription"
+                          stringvalue="Open JERS CEOS data product."/>
+                </file>
+                <file name="org-esa-nest-dataio-ceos-importAlosPalsarProduct.instance">
+                    <attr name="instanceCreate"
+                          methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                    <attr name="delegate"
+                          methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                    <attr name="displayName"
+                          stringvalue="ALOS PALSAR CEOS"/>
+                    <attr name="formatName"
+                          stringvalue="ALOS PALSAR CEOS"/>
+                    <attr name="useAllFileFilter"
+                          boolvalue="true"/>
+                    <attr name="helpId"
+                          stringvalue="importAlosPalsarProduct"/>
+                    <attr name="ShortDescription"
+                          stringvalue="Open ALOS PALSAR CEOS data product."/>
+                </file>
+                <file name="org-esa-nest-dataio-ceos-importAlos2Product.instance">
+                    <attr name="instanceCreate"
+                          methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                    <attr name="delegate"
+                          methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                    <attr name="displayName"
+                          stringvalue="ALOS 2 CEOS"/>
+                    <attr name="formatName"
+                          stringvalue="ALOS 2 CEOS"/>
+                    <attr name="useAllFileFilter"
+                          boolvalue="true"/>
+                    <attr name="helpId"
+                          stringvalue="importAlos2Product"/>
+                    <attr name="ShortDescription"
+                          stringvalue="Open ALOS 2 CEOS data product."/>
+                </file>
+                <file name="org-esa-nest-dataio-ceos-importRadarsatProduct.instance">
+                    <attr name="instanceCreate"
+                          methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                    <attr name="delegate"
+                          methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                    <attr name="displayName"
+                          stringvalue="RADARSAT-1 CEOS"/>
+                    <attr name="formatName"
+                          stringvalue="RADARSAT-1 CEOS"/>
+                    <attr name="useAllFileFilter"
+                          boolvalue="true"/>
+                    <attr name="helpId"
+                          stringvalue="importRadarsatProduct"/>
+                    <attr name="ShortDescription"
+                          stringvalue="Open RADARSAT-1 CEOS data product."/>
+                </file>
+            </folder>
+            <file name="org-esa-nest-dataio-importPolsarPro.instance">
                 <attr name="instanceCreate"
                       methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate"
                       methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName"
-                      stringvalue="ERS 1/2 CEOS"/>
+                      stringvalue="PolSARPro"/>
                 <attr name="formatName"
-                      stringvalue="ERS CEOS"/>
+                      stringvalue="PolSARPro"/>
                 <attr name="useAllFileFilter"
                       boolvalue="true"/>
                 <attr name="helpId"
-                      stringvalue="importERSProduct"/>
+                      stringvalue="importPolsarPro"/>
                 <attr name="ShortDescription"
-                      stringvalue="Open ERS 1/2 CEOS (VMP and PGS) data product."/>
+                      stringvalue="Open PolsarPro data product."/>
             </file>
-            <file name="org-esa-s1tbx-dataio-ceos-importJERSCEOSProduct.instance">
+            <file name="org-esa-nest-dataio-importRadarsat2Product.instance">
                 <attr name="instanceCreate"
                       methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate"
                       methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName"
-                      stringvalue="JERS CEOS"/>
+                      stringvalue="RADARSAT-2"/>
                 <attr name="formatName"
-                      stringvalue="JERS CEOS"/>
+                      stringvalue="RADARSAT-2"/>
                 <attr name="useAllFileFilter"
                       boolvalue="true"/>
                 <attr name="helpId"
-                      stringvalue="importJERSProduct"/>
+                      stringvalue="importRadarsat2Product"/>
                 <attr name="ShortDescription"
-                      stringvalue="Open JERS CEOS data product."/>
+                      stringvalue="Open RADARSAT-2 data product."/>
             </file>
         </folder>
     </folder>
@@ -41,13 +123,33 @@
         <folder name="File">
             <folder name="Import">
                 <folder name="SAR Sensors">
-                    <file name="org-esa-s1tbx-dataio-ceos-importERSProduct.shadow">
+                    <file name="org-esa-nest-dataio-ceos-importERSProduct.shadow">
                         <attr name="originalFile"
-                              stringvalue="Actions/Readers/org-esa-s1tbx-dataio-ceos-importERSProduct.instance"/>
+                              stringvalue="Actions/Readers/Ceos/org-esa-nest-dataio-ceos-importERSProduct.instance"/>
                     </file>
-                    <file name="org-esa-s1tbx-dataio-ceos-importJERSCEOSProduct.shadow">
+                    <file name="org-esa-nest-dataio-ceos-importJERSCEOSProduct.shadow">
                         <attr name="originalFile"
-                              stringvalue="Actions/Readers/org-esa-s1tbx-dataio-ceos-importJERSCEOSProduct.instance"/>
+                              stringvalue="Actions/Readers/Ceos/org-esa-nest-dataio-ceos-importJERSCEOSProduct.instance"/>
+                    </file>
+                    <file name="org-esa-nest-dataio-ceos-importAlosPalsarProduct.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Readers/Ceos/org-esa-nest-dataio-ceos-importAlosPalsarProduct.instance"/>
+                    </file>
+                    <file name="org-esa-nest-dataio-ceos-importAlos2Product.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Readers/Ceos/org-esa-nest-dataio-ceos-importAlos2Product.instance"/>
+                    </file>
+                    <file name="org-esa-nest-dataio-ceos-importRadarsatProduct.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Readers/Ceos/org-esa-nest-dataio-ceos-importRadarsatProduct.instance"/>
+                    </file>
+                    <file name="org-esa-nest-dataio-ceos-importRadarsatProduct.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Readers/Ceos/org-esa-nest-dataio-ceos-importRadarsatProduct.instance"/>
+                    </file>
+                    <file name="org-esa-nest-dataio-importRadarsat2Product.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Readers/org-esa-nest-dataio-importRadarsat2Product.instance"/>
                     </file>
                 </folder>
             </folder>

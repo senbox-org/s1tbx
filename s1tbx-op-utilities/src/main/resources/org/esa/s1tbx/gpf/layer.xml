@@ -1,0 +1,94 @@
+
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Operators">
+            <file name="org-esa-s1tbx-gpf-OversampleAction.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
+                <attr name="displayName"
+                      stringvalue="Oversample"/>
+                <attr name="operatorName"
+                      stringvalue="Oversample"/>
+                <attr name="dialogTitle"
+                      stringvalue="Oversample"/>
+                <attr name="targetProductNameSuffix"
+                      stringvalue="_ovr"/>
+                <attr name="ShortDescription"
+                      stringvalue="Oversamples an image"/>
+            </file>
+            <file name="org-esa-s1tbx-gpf-UndersampleAction.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
+                <attr name="displayName"
+                      stringvalue="Undersample"/>
+                <attr name="operatorName"
+                      stringvalue="Undersample"/>
+                <attr name="dialogTitle"
+                      stringvalue="Undersample"/>
+                <attr name="targetProductNameSuffix"
+                      stringvalue="_und"/>
+                <attr name="ShortDescription"
+                      stringvalue="Undersamples an image"/>
+            </file>
+            <file name="org-esa-s1tbx-gpf-ConvertDatatypeOp.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
+                <attr name="displayName"
+                      stringvalue="Convert Datatype"/>
+                <attr name="operatorName"
+                      stringvalue="Convert-Datatype"/>
+                <attr name="dialogTitle"
+                      stringvalue="Convert Datatype"/>
+                <attr name="targetProductNameSuffix"
+                      stringvalue="_Cnv"/>
+                <attr name="ShortDescription"
+                      stringvalue="Change the datatype of the product"/>
+                <attr name="icon"
+                      stringvalue="esaIcon"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="Tools">
+            <folder name="Resampling">
+                <file name="org-esa-s1tbx-gpf-OversampleAction.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-OversampleAction.instance"/>
+                    <attr name="position"
+                          intvalue="0"/>
+                </file>
+                <file name="org-esa-s1tbx-gpf-UndersampleAction.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-UndersampleAction.instance"/>
+                    <attr name="position"
+                          intvalue="0"/>
+                </file>
+            </folder>
+            <folder name="Data Conversion">
+                <file name="org-esa-s1tbx-gpf-ConvertDatatypeOp.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-ConvertDatatypeOp.instance"/>
+                    <attr name="position"
+                          intvalue="0"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+
+    <!--folder name="Services">
+        <folder name="JavaHelp">
+            <file name="helpset.xml" url="helpset.xml">
+                <attr name="position" intvalue="4600"/>
+            </file>
+        </folder>
+    </folder-->
+
+</filesystem>
