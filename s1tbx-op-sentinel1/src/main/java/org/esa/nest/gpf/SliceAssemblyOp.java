@@ -978,7 +978,7 @@ public final class SliceAssemblyOp extends Operator {
         final int[] pixelSpacings = new int[numPixels-1];
         for (int i = 0; i < numPixels-1; i++) {
             final int pixel0 = Integer.parseInt(pixelsArrayOfStr[i]);
-            final int pixel1 = Integer.parseInt(pixelsArrayOfStr[i+1]);
+            final int pixel1 = Integer.parseInt(pixelsArrayOfStr[i + 1]);
             pixelSpacings[i] = pixel1 - pixel0;
         }
 
@@ -1376,6 +1376,24 @@ public final class SliceAssemblyOp extends Operator {
         }
     }
 
+    private void concatenateOrbitStateVectors(final List<OrbitStateVector> orbVectorList, final OrbitStateVector[] orbs) {
+
+        // concatenate orbs to orbVectorList
+        // orbVectorList may be empty
+
+        if (orbVectorList.size() == 0) {
+            orbVectorList.addAll(Arrays.asList(orbs));
+        } else {
+            // We assume that "orbs" are in chronological order
+            final double lastTime = orbVectorList.get(orbVectorList.size()-1).time_mjd;
+            for (int i = 0; i < orbs.length; i++) {
+                if (orbs[i].time_mjd > lastTime) {
+                    orbVectorList.add(orbs[i]);
+                }
+            }
+        }
+    }
+
     private void updateTargetProductMetadata() throws Exception {
 
         // All the metadata has been copied from the 1st slice product to the assembled target product.
@@ -1433,7 +1451,7 @@ public final class SliceAssemblyOp extends Operator {
 
             // update orbit state vectors
             final OrbitStateVector[] orbs = AbstractMetadata.getOrbitStateVectors(absSrc);
-            orbVectorList.addAll(Arrays.asList(orbs));
+            concatenateOrbitStateVectors(orbVectorList, orbs);
 
             // update srgr coeffs
             final AbstractMetadata.SRGRCoefficientList[] srgr = AbstractMetadata.getSRGRCoefficients(absSrc);
