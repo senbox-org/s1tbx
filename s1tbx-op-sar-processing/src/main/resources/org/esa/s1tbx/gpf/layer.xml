@@ -76,6 +76,24 @@
                     <attr name="icon"
                           stringvalue="esaIcon"/>
                 </file>
+                <file name="org-esa-s1tbx-gpf-SARSimGeocodingOp.instance">
+                    <attr name="instanceCreate"
+                          methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                    <attr name="delegate"
+                          methodvalue="org.esa.snap.dat.actions.GraphAction.create"/>
+                    <attr name="displayName"
+                          stringvalue="SAR-Simulation Terrain Correction"/>
+                    <attr name="graphFile"
+                          stringvalue="SARSimTCGraph.xml"/>
+                    <attr name="dialogTitle"
+                          stringvalue="SAR-Simulation Terrain Correction"/>
+                    <attr name="targetProductNameSuffix"
+                          stringvalue="_TC"/>
+                    <attr name="ShortDescription"
+                          stringvalue="Perform Orthorectification using a simulated SAR image based on a DEM"/>
+                    <attr name="icon"
+                          stringvalue="esaIcon"/>
+                </file>
                 <file name="org-esa-s1tbx-gpf-ALOSDeskewingOp.instance">
                     <attr name="instanceCreate"
                           methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -175,6 +193,11 @@
                               stringvalue="Actions/Operators/Geometric/org-esa-s1tbx-gpf-SARSimulationOp.instance"/>
                         <attr name="position" intvalue="200"/>
                     </file>
+                    <file name="org-esa-s1tbx-gpf-SARSimGeocodingOp.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/Geometric/org-esa-s1tbx-gpf-SARSimGeocodingOp.instance"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>
                 </folder>
                 <folder name="Ellipsoid Correction">
                     <attr name="position" intvalue="200"/>
@@ -217,6 +240,38 @@
         <file name="org.esa.nest.gpf.MultilookOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.MultilookOpUI"/>
             <attr name="operatorName" stringvalue="Multilook"/>
+        </file>
+        <file name="org.esa.nest.gpf.filtering.SpeckleFilterOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.filtering.SpeckleFilterOpUI"/>
+            <attr name="operatorName" stringvalue="Speckle-Filter"/>
+        </file>
+        <file name="org.esa.nest.gpf.geometric.ALOSDeskewingUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.geometric.ALOSDeskewingUI"/>
+            <attr name="operatorName" stringvalue="ALOS-Deskewing"/>
+        </file>
+        <file name="org.esa.nest.gpf.geometric.EllipsoidCorrectionRDOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.geometric.EllipsoidCorrectionRDOpUI"/>
+            <attr name="operatorName" stringvalue="Ellipsoid-Correction-GG"/>
+        </file>
+        <file name="org.esa.nest.gpf.geometric.RangeDopplerGeocodingOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.geometric.RangeDopplerGeocodingOpUI"/>
+            <attr name="operatorName" stringvalue="Terrain-Correction"/>
+        </file>
+        <file name="org.esa.nest.gpf.geometric.SARSimTerrainCorrectionOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.geometric.SARSimTerrainCorrectionOpUI"/>
+            <attr name="operatorName" stringvalue="SARSim-Terrain-Correction"/>
+        </file>
+        <file name="org.esa.nest.gpf.geometric.MosaicOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.geometric.MosaicOpUI"/>
+            <attr name="operatorName" stringvalue="SAR-Mosaic"/>
+        </file>
+        <file name="org.esa.nest.gpf.geometric.SARSimulationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.geometric.SARSimulationOpUI"/>
+            <attr name="operatorName" stringvalue="SAR-Simulation"/>
+        </file>
+        <file name="org.esa.nest.gpf.geometric.TerrainFlatteningOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.geometric.TerrainFlatteningOpUI"/>
+            <attr name="operatorName" stringvalue="Terrain-Flattening"/>
         </file>
     </folder>
 
