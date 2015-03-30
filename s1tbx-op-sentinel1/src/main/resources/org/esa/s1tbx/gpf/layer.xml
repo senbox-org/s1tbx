@@ -3,7 +3,7 @@
 
     <folder name="Actions">
         <folder name="Operators">
-            <file name="org-esa-s1tbx-gpf-OversampleAction.instance">
+            <!--file name="org-esa-s1tbx-gpf-OversampleAction.instance">
                 <attr name="instanceCreate"
                       methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate"
@@ -52,13 +52,13 @@
                       stringvalue="Change the datatype of the product"/>
                 <attr name="icon"
                       stringvalue="esaIcon"/>
-            </file>
+            </file-->
         </folder>
     </folder>
 
     <folder name="Menu">
         <folder name="Tools">
-            <folder name="Resampling">
+            <!--folder name="Resampling">
                 <file name="org-esa-s1tbx-gpf-OversampleAction.shadow">
                     <attr name="originalFile"
                           stringvalue="Actions/Operators/org-esa-s1tbx-gpf-OversampleAction.instance"/>
@@ -79,7 +79,7 @@
                     <attr name="position"
                           intvalue="0"/>
                 </file>
-            </folder>
+            </folder-->
         </folder>
     </folder>
 
