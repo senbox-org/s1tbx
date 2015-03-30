@@ -24,9 +24,13 @@ import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.globes.EarthFlat;
-import gov.nasa.worldwind.layers.*;
+import gov.nasa.worldwind.layers.CompassLayer;
 import gov.nasa.worldwind.layers.Earth.LandsatI3WMSLayer;
 import gov.nasa.worldwind.layers.Earth.MSVirtualEarthLayer;
+import gov.nasa.worldwind.layers.Layer;
+import gov.nasa.worldwind.layers.LayerList;
+import gov.nasa.worldwind.layers.SkyGradientLayer;
+import gov.nasa.worldwind.layers.WorldMapLayer;
 import gov.nasa.worldwind.util.StatusBar;
 import gov.nasa.worldwind.view.orbit.FlatOrbitView;
 import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
@@ -36,7 +40,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.windows.ToolTopComponent;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -66,19 +70,19 @@ import java.awt.*;
         @ActionReference(path = "Toolbars/Views")
 })
 @TopComponent.OpenActionRegistration(
-        displayName = "#CTL_SpectrumTopComponent_Name",
-        preferredID = "SpectrumTopComponent"
+        displayName = "#CTL_WorldWindTopComponentName",
+        preferredID = "WorldWindTopComponent"
 )
 @NbBundle.Messages({
-        "CTL_SpectrumTopComponent_Name=Spectrum View",
-        "CTL_SpectrumTopComponent_HelpId=showSpectrumWnd"
+        "CTL_WorldWindTopComponentName=WorldWind View",
+        "CTL_WorldWindTopComponentDescription=WorldWind World Map",
 })
 /**
  * The window displaying the world map.
  */
 public class FlatEarthWWToolView extends ToolTopComponent implements WWView {
 
-    private final VisatApp datApp = VisatApp.getApp();
+    private final SnapApp datApp = SnapApp.getDefault();
     private final Dimension canvasSize = new Dimension(800, 600);
     private AppPanel wwjPanel = null;
 
@@ -89,10 +93,11 @@ public class FlatEarthWWToolView extends ToolTopComponent implements WWView {
 
     private static final boolean includeStatusBar = true;
     private final static String useflatWorld = System.getProperty(SystemUtils.getApplicationContextId() + ".use.flat.worldmap");
-    private final static boolean flatWorld = !(useflatWorld != null && useflatWorld.equals("false"));
+    private final static boolean flatWorld = false;//!(useflatWorld != null && useflatWorld.equals("false"));
 
     public FlatEarthWWToolView() {
         initComponents();
+        SnapApp.getDefault().getSelectionSupport(ProductSceneView.class).addHandler((oldValue, newValue) -> setCurrentView(newValue));
     }
 
     private void initComponents() {
@@ -154,8 +159,8 @@ public class FlatEarthWWToolView extends ToolTopComponent implements WWView {
 
                     // Add an internal frame listener to VISAT so that we can update our
                     // world map window with the information of the currently activated  product scene view.
-                    datApp.addInternalFrameListener(new FlatEarthWWToolView.WWIFL());
-                    datApp.addProductTreeListener(new WWProductTreeListener(toolView));
+                   // datApp.addInternalFrameListener(new FlatEarthWWToolView.WWIFL());
+                  //  datApp.addProductTreeListener(new WWProductTreeListener(toolView));
                     setProducts(datApp.getProductManager().getProducts());
                     setSelectedProduct(datApp.getSelectedProduct());
                 } catch (Throwable e) {
@@ -225,7 +230,7 @@ public class FlatEarthWWToolView extends ToolTopComponent implements WWView {
                 try {
                     productLayer.addProduct(prod, false, getWwd());
                 } catch (Exception e) {
-                    datApp.showErrorDialog("WorldWind unable to add product " + prod.getName() + '\n' + e.getMessage());
+                    datApp.handleError("WorldWind unable to add product " + prod.getName(), e);
                 }
             }
         }
