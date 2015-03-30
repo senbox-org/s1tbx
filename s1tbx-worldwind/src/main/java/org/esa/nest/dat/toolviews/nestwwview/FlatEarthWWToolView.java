@@ -38,10 +38,13 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.SystemUtils;
 import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.util.SelectionSupport;
 import org.esa.snap.rcp.windows.ToolTopComponent;
+import org.netbeans.api.annotations.common.NullAllowed;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -96,6 +99,7 @@ public class FlatEarthWWToolView extends ToolTopComponent implements WWView {
     private final static boolean flatWorld = false;//!(useflatWorld != null && useflatWorld.equals("false"));
 
     public FlatEarthWWToolView() {
+        setDisplayName("WorldWind");
         initComponents();
         SnapApp.getDefault().getSelectionSupport(ProductSceneView.class).addHandler((oldValue, newValue) -> setCurrentView(newValue));
     }
@@ -157,10 +161,17 @@ public class FlatEarthWWToolView extends ToolTopComponent implements WWView {
                     final Layer placeNameLayer = layerList.getLayerByName("Place Names");
                     placeNameLayer.setEnabled(true);
 
-                    // Add an internal frame listener to VISAT so that we can update our
-                    // world map window with the information of the currently activated  product scene view.
-                   // datApp.addInternalFrameListener(new FlatEarthWWToolView.WWIFL());
-                  //  datApp.addProductTreeListener(new WWProductTreeListener(toolView));
+                    final SnapApp snapApp = SnapApp.getDefault();
+                    snapApp.getProductManager().addListener(new WWProductManagerListener(toolView));
+                    snapApp.getSelectionSupport(ProductNode.class).addHandler(new SelectionSupport.Handler<ProductNode>() {
+                        @Override
+                        public void selectionChange(@NullAllowed ProductNode oldValue, @NullAllowed ProductNode newValue) {
+                            setSelectedProduct(newValue.getProduct());
+                        }
+                    });
+                    setProducts(snapApp.getProductManager().getProducts());
+                    setSelectedProduct(snapApp.getSelectedProduct());
+
                     setProducts(datApp.getProductManager().getProducts());
                     setSelectedProduct(datApp.getSelectedProduct());
                 } catch (Throwable e) {

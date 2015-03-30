@@ -22,10 +22,11 @@ import org.esa.beam.framework.datamodel.Product;
  */
 public interface WWView {
 
+    Product getSelectedProduct();
 
-    public void setSelectedProduct(final Product product);
+    void setSelectedProduct(final Product product);
 
-    public void setProducts(Product[] products);
+    void setProducts(Product[] products);
 
-    public void removeProduct(Product product);
+    void removeProduct(Product product);
 }
