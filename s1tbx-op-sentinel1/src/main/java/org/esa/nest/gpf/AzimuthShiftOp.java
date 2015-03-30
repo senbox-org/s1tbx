@@ -306,8 +306,8 @@ public class AzimuthShiftOp extends Operator {
 
             // todo The following simple average should be replaced by weighted average using coherence as weight
             double sumAzOffset = 0.0;
-            for (Double anAzOffsetArray : azOffsetArray) {
-                sumAzOffset += anAzOffsetArray;
+            for (Double anAzOffset : azOffsetArray) {
+                sumAzOffset += anAzOffset;
             }
             azOffset = sumAzOffset / numOverlaps;
 
@@ -340,10 +340,11 @@ public class AzimuthShiftOp extends Operator {
     }
 
     private double estimateAzOffsets(final Band mBandI, final Band mBandQ, final Band sBandI, final Band sBandQ,
-                                       final Rectangle backwardRectangle, final Rectangle forwardRectangle,
-                                       final double spectralSeparation) {
+                                     final Rectangle backwardRectangle, final Rectangle forwardRectangle,
+                                     final double spectralSeparation) {
 
         final int mDataType = mBandI.getDataType();
+        final int sDataType = sBandI.getDataType();
 
         final Tile mTileIBack = getSourceTile(mBandI, backwardRectangle);
         final Tile mTileQBack = getSourceTile(mBandQ, backwardRectangle);
@@ -368,7 +369,6 @@ public class AzimuthShiftOp extends Operator {
 
         double[] sIBackArray = null;
         double[] sQBackArray = null;
-        final int sDataType = sBandI.getDataType();
         if (sDataType == ProductData.TYPE_FLOAT32) {
             final float[] sIBackArrayFloat = (float[])sTileIBack.getDataBuffer().getElems();
             final float[] sQBackArrayFloat = (float[])sTileQBack.getDataBuffer().getElems();
@@ -447,22 +447,6 @@ public class AzimuthShiftOp extends Operator {
                 phase / (2 * Math.PI * spectralSeparation * subSwath[subSwathIndex - 1].azimuthTimeInterval);
 
         return offset;
-    }
-
-    private void complexArrayMultiplication(final short[] realArray1, final short[] imagArray1,
-                                            final double[] realArray2, final double[] imagArray2,
-                                            final double[] realOutput, final double[] imagOutput) {
-
-        final int arrayLength = realArray1.length;
-        if (imagArray1.length != arrayLength || realArray2.length != arrayLength || imagArray2.length != arrayLength ||
-                realOutput.length != arrayLength || imagOutput.length != arrayLength) {
-            throw new OperatorException("Arrays of the same length are expected.");
-        }
-
-        for (int i = 0; i < arrayLength; i++) {
-            realOutput[i] = realArray1[i] * realArray2[i] + imagArray1[i] * imagArray2[i];
-            imagOutput[i] = imagArray1[i] * realArray2[i] - realArray1[i] * imagArray2[i];
-        }
     }
 
     private void complexArrayMultiplication(final double[] realArray1, final double[] imagArray1,
