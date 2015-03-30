@@ -15,13 +15,12 @@
  */
 package org.esa.nest.dat.wizards;
 
-import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.runtime.ConfigurationElement;
 import org.esa.beam.framework.ui.ModelessDialog;
-import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.visat.VisatApp;
 import org.esa.snap.dat.actions.OperatorAction;
-import org.esa.snap.util.ImageUtils;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <p>An action which creates a default dialog for an operator given by the
@@ -32,34 +31,28 @@ import org.esa.snap.util.ImageUtils;
  * file name suffix for the target product can be given via the {@code targetProductNameSuffix} property.</p>
  */
 public class WizardAction extends OperatorAction {
-    ConfigurationElement config;
-    String wizardClassStr;
-
-    @Override
-    public void configure(ConfigurationElement config) throws CoreException {
-        super.configure(config);
-        this.config = config;
-        wizardClassStr = getConfigString(config, "wizardPanelClass");
+    protected static final Set<String> KNOWN_KEYS = new HashSet<>(Arrays.asList("wizardPanelClass"));
+    static {
+        KNOWN_KEYS.addAll(OperatorAction.KNOWN_KEYS);
     }
 
-    @Override
-    public void actionPerformed(CommandEvent event) {
-        createOperatorDialog();
+    public String getWizardPanelClass() {
+        return getPropertyString("wizardPanelClass");
     }
 
     @Override
     protected ModelessDialog createOperatorDialog() {
-        try {
-            final Class wizardClass = config.getDeclaringExtension().getDeclaringModule().loadClass(wizardClassStr);
+      /*  try {
+            final Class wizardClass = config.getDeclaringExtension().getDeclaringModule().loadClass(getWizardPanelClass());
             final WizardPanel wizardPanel = (WizardPanel) wizardClass.newInstance();
 
-            final WizardDialog dialog = new WizardDialog(VisatApp.getApp().getMainFrame(), false,
-                    dialogTitle, getHelpId(), wizardPanel);
+            final WizardDialog dialog = new WizardDialog((JFrame)SnapApp.getDefault().getMainFrame(), false,
+                                                         getDialogTitle(), getHelpId(), wizardPanel);
             dialog.setIcon(ImageUtils.rstbIcon);
             dialog.setVisible(true);
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
         return null;
     }
 }
