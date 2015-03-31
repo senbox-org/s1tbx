@@ -13,6 +13,7 @@ import org.jpy.PyModule;
 import org.jpy.PyObject;
 
 import java.awt.Rectangle;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -78,7 +79,11 @@ public class PyOperator extends Operator {
             throw new OperatorException("Missing value for parameter 'pythonClassName'");
         }
 
-        PyBridge.establish();
+        try {
+            PyBridge.establish();
+        } catch (IOException e) {
+            throw new OperatorException("Failed to establish Python bridge", e);
+        }
 
         synchronized (PyLib.class) {
             PyBridge.extendSysPath(pythonModulePath);

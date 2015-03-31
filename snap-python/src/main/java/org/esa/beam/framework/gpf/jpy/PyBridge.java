@@ -1,6 +1,5 @@
 package org.esa.beam.framework.gpf.jpy;
 
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.TreeCopier;
@@ -18,7 +17,7 @@ import java.nio.file.ProviderNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.esa.beam.util.SystemUtils.*;
+import static org.esa.beam.util.SystemUtils.LOG;
 
 /**
  * This class is used to establish the bridge between Java and Python.
@@ -45,52 +44,42 @@ import static org.esa.beam.util.SystemUtils.*;
  */
 class PyBridge {
 
+    public static final String BEAMPY_PY_FILENAME = "beampy.py";
     public static final String BEAMPYUTIL_PY_FILENAME = "beampyutil.py";
     public static final String BEAMPYUTIL_LOG_FILENAME = "beampyutil.log";
     public static final String FORCE_PYTHON_CONFIG_PROPERTY = "snap.forcePythonConfig";
     public static final String PYTHON_EXECUTABLE_PROPERTY = "snap.pythonExecutable";
-    public static final String PYTHON_MODULE_DIR_PROPERTY = "snap.pythonModuleDir";
+    public static final String PYTHON_MODULE_INSTALL_DIR_PROPERTY = "snap.pythonModuleDir";
     public static final String JPY_JAVA_API_CONFIG_FILENAME = "jpyconfig.properties";
     public static final String JPY_DEBUG_PROPERTY = "jpy.debug";
     public static final String JPY_CONFIG_PROPERTY = "jpy.config";
 
     private static final Path MODULE_CODE_BASE_PATH = findModuleCodeBasePath();
+    public static final String BEAMPY_DIR_NAME = "beampy";
 
     private static boolean established;
-    private static Path beampyDir;
 
     /**
      * Establishes the BEAM-Python bridge.
      */
-    public synchronized static void establish() {
-
+    public synchronized static void establish() throws IOException {
         if (established) {
             return;
         }
 
-        try {
-            unpackPythonModuleDir();
-        } catch (IOException e) {
-            throw new OperatorException("Failed to unpack SNAP-Python resources: " + e.getMessage(), e);
+        String pythonExecutable = System.getProperty(PYTHON_EXECUTABLE_PROPERTY, "python");
+
+        Path pythonModuleInstallDir;
+        String pythonModuleDirStr = System.getProperty(PYTHON_MODULE_INSTALL_DIR_PROPERTY);
+        if (pythonModuleDirStr != null) {
+            pythonModuleInstallDir = Paths.get(pythonModuleDirStr);
+        } else {
+            pythonModuleInstallDir = Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "snap-python");
         }
 
         boolean forcePythonConfig = System.getProperty(FORCE_PYTHON_CONFIG_PROPERTY, "true").equalsIgnoreCase("true");
-        Path jpyConfigFile = beampyDir.resolve(JPY_JAVA_API_CONFIG_FILENAME);
-        if (forcePythonConfig || !Files.exists(jpyConfigFile)) {
-            configureJpy();
-        }
-        if (!Files.exists(jpyConfigFile)) {
-            throw new OperatorException(String.format("Python configuration incomplete.\n" +
-                                                              "Missing file '%s'.\n" +
-                                                              "Please check '%s'.",
-                                                      jpyConfigFile,
-                                                      beampyDir.resolve(BEAMPYUTIL_LOG_FILENAME)));
-        }
 
-        System.setProperty(JPY_CONFIG_PROPERTY, jpyConfigFile.toString());
-        if (Debug.isEnabled() && System.getProperty(JPY_DEBUG_PROPERTY) == null) {
-            System.setProperty(JPY_DEBUG_PROPERTY, "true");
-        }
+        Path beampyDir = installPythonModule(pythonExecutable, pythonModuleInstallDir, forcePythonConfig);
 
         synchronized (PyLib.class) {
             if (!established) {
@@ -107,17 +96,41 @@ class PyBridge {
         }
     }
 
-    private static void unpackPythonModuleDir() throws IOException {
-        Path pythonModuleDir;
-        String pythonModuleDirStr = System.getProperty(PYTHON_MODULE_DIR_PROPERTY);
-        if (pythonModuleDirStr != null) {
-            pythonModuleDir = Paths.get(pythonModuleDirStr);
-        } else {
-            pythonModuleDir = Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "snap-python");
+    public static Path installPythonModule(String pythonExecutable,
+                                           Path pythonModuleInstallDir,
+                                           boolean forcePythonConfig) throws IOException {
+        Path beampyDir = pythonModuleInstallDir.resolve(BEAMPY_DIR_NAME);
+        if (forcePythonConfig || !Files.isDirectory(beampyDir)) {
+            unpackPythonModuleDir(beampyDir);
         }
-        TreeCopier.copy(getResourcePath("beampy-examples"), pythonModuleDir);
-        beampyDir = TreeCopier.copyDir(getResourcePath("beampy"), pythonModuleDir);
-        LOG.info("SNAP-Python module directory: " + beampyDir);
+
+        Path jpyConfigFile = beampyDir.resolve(JPY_JAVA_API_CONFIG_FILENAME);
+        if (forcePythonConfig || !Files.exists(jpyConfigFile)) {
+            // Configure jpy Python-side
+            configureJpy(pythonExecutable, beampyDir);
+        }
+        if (!Files.exists(jpyConfigFile)) {
+            throw new IOException(String.format("Python configuration incomplete.\n" +
+                                                        "Missing file '%s'.\n" +
+                                                        "Please check log file '%s'.",
+                                                jpyConfigFile,
+                                                beampyDir.resolve(BEAMPYUTIL_LOG_FILENAME)));
+        }
+
+        // Configure jpy Java-side
+        System.setProperty(JPY_CONFIG_PROPERTY, jpyConfigFile.toString());
+        if (Debug.isEnabled() && System.getProperty(JPY_DEBUG_PROPERTY) == null) {
+            System.setProperty(JPY_DEBUG_PROPERTY, "true");
+        }
+
+        return beampyDir;
+    }
+
+    private static void unpackPythonModuleDir(Path pythonModuleDir) throws IOException {
+        TreeCopier.copyDir(getResourcePath("beampy-examples"), pythonModuleDir.resolve("examples"));
+        TreeCopier.copyDir(getResourcePath("beampy-tests"), pythonModuleDir.resolve("tests"));
+        TreeCopier.copy(getResourcePath(BEAMPY_DIR_NAME), pythonModuleDir);
+        LOG.info("SNAP-Python module directory: " + pythonModuleDir);
     }
 
     /**
@@ -136,10 +149,8 @@ class PyBridge {
         }
     }
 
-    private static void configureJpy() {
+    private static void configureJpy(String pythonExecutable, Path beampyDir) throws IOException {
         LOG.info("Configuring BEAM-Python bridge...");
-
-        String pythonExecutable = System.getProperty(PYTHON_EXECUTABLE_PROPERTY, "python");
 
         // "java.home" is always present
         List<String> command = new ArrayList<>();
@@ -175,10 +186,10 @@ class PyBridge {
                     .directory(beampyDir.toFile()).start();
             int exitCode = process.waitFor();
             if (exitCode != 0) {
-                throw new OperatorException(String.format("Python configuration failed.\nCommand [%s]\nfailed with return code %s.", commandLine, exitCode));
+                throw new IOException(String.format("Python configuration failed.\nCommand [%s]\nfailed with return code %s.", commandLine, exitCode));
             }
-        } catch (IOException | InterruptedException e) {
-            throw new OperatorException(String.format("Python configuration failed.\nCommand [%s]\nfailed with exception %s.", commandLine, e.getMessage()), e);
+        } catch (InterruptedException e) {
+            throw new IOException(String.format("Python configuration failed.\nCommand [%s]\nfailed with exception %s.", commandLine, e.getMessage()), e);
         }
     }
 
