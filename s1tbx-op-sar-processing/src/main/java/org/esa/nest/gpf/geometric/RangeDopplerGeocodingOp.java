@@ -397,7 +397,7 @@ public class RangeDopplerGeocodingOp extends Operator {
         firstLineUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.first_line_time)).getMJD(); // in days
         lastLineUTC = AbstractMetadata.parseUTC(absRoot.getAttributeString(AbstractMetadata.last_line_time)).getMJD(); // in days
         lineTimeInterval = (lastLineUTC - firstLineUTC) / (sourceImageHeight - 1); // in days
-        if (lastLineUTC == 0.0) {
+        if (lineTimeInterval == 0.0) {
             throw new OperatorException("Invalid input for Line Time Interval: " + lineTimeInterval);
         }
 
