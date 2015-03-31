@@ -15,6 +15,7 @@
  */
 package org.esa.snap.util;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -22,6 +23,7 @@ import org.junit.Test;
  *
  * @author lveci
  */
+@Ignore
 public class TestSettings {
 
     @Test
