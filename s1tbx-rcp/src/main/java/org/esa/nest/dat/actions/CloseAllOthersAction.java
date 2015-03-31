@@ -19,6 +19,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.util.MemUtils;
 
 /**
@@ -29,7 +30,7 @@ public class CloseAllOthersAction extends ExecCommand {
     @Override
     public void actionPerformed(final CommandEvent event) {
         final Product selectedProduct = VisatApp.getApp().getSelectedProduct();
-        final Product[] products = VisatApp.getApp().getProductManager().getProducts();
+        final Product[] products = SnapApp.getDefault().getProductManager().getProducts();
         for (int i = products.length - 1; i >= 0; i--) {
             if (products[i] != selectedProduct)
                 VisatApp.getApp().closeProduct(products[i]);
@@ -40,7 +41,7 @@ public class CloseAllOthersAction extends ExecCommand {
 
     @Override
     public void updateState(final CommandEvent event) {
-        setEnabled(VisatApp.getApp().getProductManager().getProductCount() > 1 &&
+        setEnabled(SnapApp.getDefault().getProductManager().getProductCount() > 1 &&
                 VisatApp.getApp().getSelectedProduct() != null);
     }
 }

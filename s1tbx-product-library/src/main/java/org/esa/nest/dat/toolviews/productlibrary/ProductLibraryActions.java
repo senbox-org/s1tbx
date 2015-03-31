@@ -7,6 +7,8 @@ import org.esa.nest.dat.toolviews.productlibrary.model.SortingDecorator;
 import org.esa.snap.dat.dialogs.BatchGraphDialog;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.db.ProductEntry;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.ClipboardUtils;
 import org.esa.snap.util.DialogUtils;
 import org.esa.snap.util.ProductOpener;
@@ -48,7 +50,7 @@ public class ProductLibraryActions {
     public ProductLibraryActions(final JTable productEntryTable, final ProductLibraryToolView toolView) {
         this.productEntryTable = productEntryTable;
         this.toolView = toolView;
-        this.openHandler = new ProductOpener(VisatApp.getApp());
+        this.openHandler = new ProductOpener();
     }
 
     public JPanel createCommandPanel() {
@@ -207,7 +209,7 @@ public class ProductLibraryActions {
     public File promptForRepositoryBaseDir() {
         final JFileChooser fileChooser = createDirectoryChooser();
         fileChooser.setCurrentDirectory(currentDirectory);
-        final int response = fileChooser.showOpenDialog(VisatApp.getApp().getMainFrame());
+        final int response = fileChooser.showOpenDialog(SnapApp.getDefault().getMainFrame());
         currentDirectory = fileChooser.getCurrentDirectory();
         File selectedDir = fileChooser.getSelectedFile();
         if (selectedDir != null && selectedDir.isFile())
@@ -290,8 +292,10 @@ public class ProductLibraryActions {
         deleteItem = new JMenuItem("Delete Selected Files");
         deleteItem.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
-                final int status = VisatApp.getApp().showQuestionDialog("Are you sure you want to delete these products", "");
-                if (status == JOptionPane.YES_OPTION)
+                final SnapDialogs.Answer status = SnapDialogs.requestDecision("Deleting selected files",
+                                                                              "Are you sure you want to delete these products",
+                                                                              true, null);
+                if (status == SnapDialogs.Answer.YES)
                     performFileAction(ProductFileHandler.TYPE.DELETE);
             }
         });

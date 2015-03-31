@@ -20,7 +20,7 @@ import com.bc.ceres.glayer.LayerFilter;
 import com.bc.ceres.glayer.support.LayerUtils;
 import com.bc.ceres.swing.figure.interactions.SelectionInteractor;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.SnapApp;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -51,7 +51,7 @@ public class SelectLayerInteractor extends SelectionInteractor {
         public void end(MouseEvent event) {
             super.end(event);
 
-            final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
+            final ProductSceneView view = SnapApp.getDefault().getSelectedProductSceneView();
             final List<Layer> layers = findLayerSelections(view);
 
             for (Layer layer : layers) {
@@ -80,7 +80,7 @@ public class SelectLayerInteractor extends SelectionInteractor {
                 y -= height;
             }
 
-            final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
+            final ProductSceneView view = SnapApp.getDefault().getSelectedProductSceneView();
             final List<Layer> layers = findLayerSelections(view);
 
             for (Layer layer : layers) {
@@ -92,7 +92,7 @@ public class SelectLayerInteractor extends SelectionInteractor {
         @Override
         public void end(MouseEvent event) {
             super.end(event);
-            final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
+            final ProductSceneView view = SnapApp.getDefault().getSelectedProductSceneView();
             view.repaint();
         }
     }

@@ -18,10 +18,10 @@ package org.esa.nest.dat;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 import org.esa.nest.gpf.CalibrationOp;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.rcp.SnapApp;
 
 /**
  * Sigma0toGamma0Action action.
@@ -31,12 +31,12 @@ public class Sigma0toGamma0Action extends AbstractVisatAction {
     @Override
     public void actionPerformed(CommandEvent event) {
 
-        CalibrationOp.createGammaVirtualBand(VisatApp.getApp().getSelectedProduct(), false);
+        CalibrationOp.createGammaVirtualBand(SnapApp.getDefault().getSelectedProduct(), false);
     }
 
     @Override
     public void updateState(CommandEvent event) {
-        final ProductNode node = VisatApp.getApp().getSelectedProductNode();
+        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
         if (node instanceof Band) {
             final Band band = (Band) node;
             final String unit = band.getUnit();

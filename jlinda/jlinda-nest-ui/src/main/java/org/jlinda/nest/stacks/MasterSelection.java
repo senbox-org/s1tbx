@@ -5,10 +5,13 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.Debug;
-import org.esa.beam.visat.VisatApp;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.jlinda.core.*;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
+import org.jlinda.core.Baseline;
+import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
+import org.jlinda.core.SLCImage;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -163,13 +166,13 @@ public class MasterSelection implements OptimalMaster {
                 imgList.add(img);
                 orbList.add(orb);
             } catch(Exception e) {
-                VisatApp.getApp().showErrorDialog("Error: "+product.getName()+'\n'+e.getMessage());
+                SnapDialogs.showError("Error: " + product.getName() + '\n' + e.getMessage());
             }
         }
 
         try {
-            if(VisatApp.getApp() != null) {
-                final Worker worker = new Worker(VisatApp.getApp().getMainFrame(), "Computing Optimal InSAR Master",
+            if(SnapApp.getDefault() != null) {
+                final Worker worker = new Worker(SnapApp.getDefault().getMainFrame(), "Computing Optimal InSAR Master",
                         imgList.toArray(new SLCImage[size]), orbList.toArray(new Orbit[size]));
                 worker.executeWithBlocking();
 

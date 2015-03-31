@@ -16,6 +16,7 @@ import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;
@@ -59,7 +60,7 @@ public class GenericComplexReader extends GenericReader {
     protected Product readProductNodesImpl() throws IOException {
         if (VisatApp.getApp() != null) {
             //if in DAT then open options dialog
-            final ComplexBinaryDialog dialog = new ComplexBinaryDialog(VisatApp.getApp().getMainFrame(), "importGenericBinary");
+            final ComplexBinaryDialog dialog = new ComplexBinaryDialog(SnapApp.getDefault().getMainFrame(), "importGenericBinary");
             if (dialog.show() == ModalDialog.ID_OK) {
                 rasterWidth = dialog.getRasterWidth();
                 rasterHeight = dialog.getRasterHeight();

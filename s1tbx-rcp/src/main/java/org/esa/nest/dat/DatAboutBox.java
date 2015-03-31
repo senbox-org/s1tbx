@@ -20,6 +20,7 @@ import com.alee.extended.panel.WebAccordionStyle;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.util.ResourceUtils;
 
 import javax.swing.*;
@@ -43,7 +44,7 @@ class DatAboutBox extends ModalDialog {
     }
 
     private DatAboutBox(JButton[] others) {
-        super(VisatApp.getApp().getMainFrame(), "About " + VisatApp.getApp().getAppName(),
+        super(SnapApp.getDefault().getMainFrame(), "About " + VisatApp.getApp().getAppName(),
                 ModalDialog.ID_OK, others, null);    /*I18N*/
 
         final JButton creditsButton = others[0];

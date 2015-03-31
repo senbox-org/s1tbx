@@ -23,6 +23,7 @@ import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.ShowMetadataViewAction;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.rcp.SnapApp;
 
 /**
  * This action to edit Metadata
@@ -48,7 +49,7 @@ public class EditMetadataAction extends ExecCommand {
 
     @Override
     public void updateState(final CommandEvent event) {
-        final int n = VisatApp.getApp().getProductManager().getProductCount();
+        final int n = SnapApp.getDefault().getProductManager().getProductCount();
         setEnabled(n > 0);
     }
 

@@ -25,6 +25,8 @@ import org.esa.nest.dat.toolviews.productlibrary.timeline.TimelinePanel;
 import org.esa.snap.dat.dialogs.CheckListDialog;
 import org.esa.snap.db.DBQuery;
 import org.esa.snap.db.ProductEntry;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.DialogUtils;
 import org.esa.snap.util.FileFolderUtils;
 
@@ -78,7 +80,7 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
 
     public JComponent createControl() {
 
-        libConfig = new ProductLibraryConfig(VisatApp.getApp().getPreferences());
+        libConfig = new ProductLibraryConfig(SnapApp.getDefault().getCompatiblePreferences());
 
         dbPane = new DatabasePane();
         dbPane.addListener(this);
@@ -448,7 +450,7 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
             try {
                 writeErrors(errorList, file);
             } catch (Exception e) {
-                VisatApp.getApp().showErrorDialog("Unable to save to " + file.getAbsolutePath());
+                SnapDialogs.showError("Unable to save to " + file.getAbsolutePath());
                 file = FileFolderUtils.GetSaveFilePath("Save as...", "Text", "txt",
                         "ProductErrorList", "Products with errors");
                 try {

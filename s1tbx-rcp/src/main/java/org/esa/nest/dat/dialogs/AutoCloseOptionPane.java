@@ -15,7 +15,7 @@
  */
 package org.esa.nest.dat.dialogs;
 
-import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,7 +31,7 @@ public class AutoCloseOptionPane {
     public static void showWarningDialog(final String title, final String message) {
 
         final int timeout = 120;
-        showMessageDialog(VisatApp.getApp().getMainFrame(), title, message, timeout,
+        showMessageDialog(SnapApp.getDefault().getMainFrame(), title, message, timeout,
                 JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, null);
     }
 

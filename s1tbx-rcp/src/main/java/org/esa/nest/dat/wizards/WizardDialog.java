@@ -149,7 +149,7 @@ public class WizardDialog extends JDialog implements ActionListener {
      * @param helpID     the help id
      * @param firstPanel the first panel.
      */
-    public WizardDialog(final JFrame owner, final boolean modal,
+    public WizardDialog(final Frame owner, final boolean modal,
                         final String title, final String helpID, final WizardPanel firstPanel) {
 
         super(owner, title, modal);

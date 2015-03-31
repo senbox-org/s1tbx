@@ -15,8 +15,8 @@
  */
 package org.esa.nest.dat.toolviews.Projects;
 
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.ProductSetDialog;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.XMLSupport;
 import org.jdom2.Attribute;
@@ -106,7 +106,7 @@ public final class ProductSet {
         try {
             doc = XMLSupport.LoadXML(file.getAbsolutePath());
         } catch (IOException e) {
-            VisatApp.getApp().showErrorDialog(e.getMessage());
+            SnapDialogs.showError("Unable to load " + file.toString() + ": " + e.getMessage());
             return false;
         }
 

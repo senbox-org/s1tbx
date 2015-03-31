@@ -32,6 +32,7 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.snap.dat.dialogs.StringSelectorDialog;
 import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
 import org.esa.snap.dat.graphbuilder.GPFProcessor;
+import org.esa.snap.rcp.SnapApp;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
@@ -111,8 +112,8 @@ public class ExportKmzProductAction extends ExecCommand {
     }
 
     private void exportImage(final Product product, final String selectedBandName) {
-        final VisatApp visatApp = VisatApp.getApp();
-        final String lastDir = visatApp.getPreferences().getPropertyString(
+
+        final String lastDir = SnapApp.getDefault().getPreferences().get(
                 IMAGE_EXPORT_DIR_PREFERENCES_KEY, SystemUtils.getUserHomeDir().getPath());
         final File currentDir = new File(lastDir);
 
@@ -122,7 +123,7 @@ public class ExportKmzProductAction extends ExecCommand {
         fileChooser.addChoosableFileFilter(kmzFileFilter);
         fileChooser.setAcceptAllFileFilterUsed(false);
 
-        fileChooser.setDialogTitle(visatApp.getAppName() + " - " + "Export KMZ"); /* I18N */
+        fileChooser.setDialogTitle("Export KMZ"); /* I18N */
         fileChooser.setCurrentFilename(product.getName());
 
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -134,12 +135,12 @@ public class ExportKmzProductAction extends ExecCommand {
             fileChooser.setPreferredSize(new Dimension(512, 256));
         }
 
-        final int result = fileChooser.showSaveDialog(visatApp.getMainFrame());
+        final int result = fileChooser.showSaveDialog(SnapApp.getDefault().getMainFrame());
         final File file = fileChooser.getSelectedFile();
 
         final File currentDirectory = fileChooser.getCurrentDirectory();
         if (currentDirectory != null) {
-            visatApp.getPreferences().setPropertyString(
+            SnapApp.getDefault().getPreferences().put(
                     IMAGE_EXPORT_DIR_PREFERENCES_KEY, currentDirectory.getPath());
         }
         if (result != JFileChooser.APPROVE_OPTION) {
@@ -149,11 +150,11 @@ public class ExportKmzProductAction extends ExecCommand {
             return;
         }
 
-        if (!visatApp.promptForOverwrite(file)) {
+        if (!VisatApp.getApp().promptForOverwrite(file)) {
             return;
         }
 
-        final SaveKMLSwingWorker worker = new SaveKMLSwingWorker(visatApp, "Save KMZ",
+        final SaveKMLSwingWorker worker = new SaveKMLSwingWorker(VisatApp.getApp(), "Save KMZ",
                 product, selectedBandName, file);
         worker.executeWithBlocking();
     }
@@ -256,7 +257,7 @@ public class ExportKmzProductAction extends ExecCommand {
 
         SaveKMLSwingWorker(final VisatApp visatApp, final String message,
                            final Product product, final String selectedBandName, final File file) {
-            super(visatApp.getMainFrame(), message);
+            super(SnapApp.getDefault().getMainFrame(), message);
             this.visatApp = visatApp;
             this.product = product;
             this.selectedBandName = selectedBandName;
@@ -271,7 +272,7 @@ public class ExportKmzProductAction extends ExecCommand {
                 final String message = String.format("Saving image as %s...", file.getPath());
                 pm.beginTask(message, 4);
                 visatApp.setStatusBarMessage(message);
-                visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                SnapApp.getDefault().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
                 final ZipOutputStream outStream = new ZipOutputStream(new FileOutputStream(file));
                 try {
@@ -321,7 +322,7 @@ public class ExportKmzProductAction extends ExecCommand {
             } catch (Throwable e) {
                 visatApp.handleUnknownException(e);
             } finally {
-                visatApp.getMainFrame().setCursor(Cursor.getDefaultCursor());
+                SnapApp.getDefault().getMainFrame().setCursor(Cursor.getDefaultCursor());
                 visatApp.clearStatusBarMessage();
                 pm.done();
             }

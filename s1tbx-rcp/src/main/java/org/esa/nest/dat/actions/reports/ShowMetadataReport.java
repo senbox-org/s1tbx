@@ -18,9 +18,9 @@ package org.esa.nest.dat.actions.reports;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.ReportDialog;
 import org.esa.nest.dat.reports.MetadataReport;
+import org.esa.snap.rcp.SnapApp;
 
 /**
  * This Action shows the report dialog
@@ -29,12 +29,12 @@ public class ShowMetadataReport extends ExecCommand {
 
     @Override
     public void updateState(final CommandEvent event) {
-        setEnabled(VisatApp.getApp().getSelectedProduct() != null);
+        setEnabled(SnapApp.getDefault().getSelectedProduct() != null);
     }
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        final ModalDialog dlg = new ReportDialog(new MetadataReport(VisatApp.getApp().getSelectedProduct()));
+        final ModalDialog dlg = new ReportDialog(new MetadataReport(SnapApp.getDefault().getSelectedProduct()));
         dlg.show();
     }
 }

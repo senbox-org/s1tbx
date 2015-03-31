@@ -29,6 +29,8 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 import org.esa.nest.dataio.PolBandUtils;
 import org.esa.snap.gpf.ProcessTimeMonitor;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 
@@ -73,7 +75,7 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
                 PolBandUtils.MATRIX sourceProductType = PolBandUtils.getSourceProductType(quadPolProduct);
                 if (sourceProductType != PolBandUtils.MATRIX.T3 && sourceProductType != PolBandUtils.MATRIX.C3 &&
                         sourceProductType != PolBandUtils.MATRIX.FULL) {
-                    VisatApp.getApp().showErrorDialog("Quad pol product is expected");
+                    SnapDialogs.showError("Quad pol product is expected");
                     return;
                 }
 
@@ -89,7 +91,7 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
                 worker.executeWithBlocking();
             }
         } catch (Exception e) {
-            VisatApp.getApp().showErrorDialog(e.getMessage());
+            SnapDialogs.showError(e.getMessage());
         }
     }
 
@@ -103,7 +105,7 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
      */
     @Override
     public void updateState(CommandEvent event) {
-        setEnabled(VisatApp.getApp().getProductManager().getProductCount() > 0);
+        setEnabled(SnapApp.getDefault().getProductManager().getProductCount() > 0);
     }
 
     private static class TrainingSwingWorker extends ProgressMonitorSwingWorker {
@@ -120,7 +122,7 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
         private TrainingSwingWorker(final Product quadPolProduct, final Product roiProduct,
                                     final String[] geometries, final File file,
                                     final Band[] sourceBands, final PolBandUtils.MATRIX sourceProductType) {
-            super(VisatApp.getApp().getMainFrame(), "Training...");
+            super(SnapApp.getDefault().getMainFrame(), "Training...");
             this.quadPolProduct = quadPolProduct;
             this.roiProduct = roiProduct;
             this.geometries = geometries;
@@ -303,10 +305,10 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
                             JOptionPane.INFORMATION_MESSAGE, null
                     );
                 } else {
-                    VisatApp.getApp().showErrorDialog("An error occurred\n" + error.getMessage());
+                    SnapDialogs.showError("An error occurred\n" + error.getMessage());
                 }
             } catch (Exception e) {
-                VisatApp.getApp().showErrorDialog("An error occurred\n" + e.getMessage());
+                SnapDialogs.showError("An error occurred\n" + e.getMessage());
             }
         }
     }

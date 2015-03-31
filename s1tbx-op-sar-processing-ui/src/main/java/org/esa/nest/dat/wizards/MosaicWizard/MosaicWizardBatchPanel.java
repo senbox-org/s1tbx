@@ -15,9 +15,9 @@
  */
 package org.esa.nest.dat.wizards.MosaicWizard;
 
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.wizards.WizardPanel;
 import org.esa.snap.dat.dialogs.BatchGraphDialog;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import java.awt.*;
@@ -78,7 +78,7 @@ public class MosaicWizardBatchPanel extends WizardPanel {
                         "At the end of the processing, press Next to mosaic them together.");
         this.add(textPanel, BorderLayout.NORTH);
 
-        batchDlg = new BatchGraphDialog(VisatApp.getApp(),
+        batchDlg = new BatchGraphDialog(new SnapApp.SnapContext(),
                 "Batch Processing", "batchProcessing", false);
 
         final JPanel batchPanel = new JPanel(new BorderLayout());

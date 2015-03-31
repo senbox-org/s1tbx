@@ -36,6 +36,7 @@ import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.nest.dataio.dem.ElevationModelDescriptor;
 import org.esa.nest.dataio.dem.ElevationModelRegistry;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -75,7 +76,7 @@ public class CreateElevationAction extends ExecCommand {
             return;
         }
         if (!demDescriptor.isDemInstalled()) {
-            demDescriptor.installDemFiles(VisatApp.getApp().getMainFrame());
+            demDescriptor.installDemFiles(SnapApp.getDefault().getMainFrame());
             return;
         }
 
@@ -217,7 +218,7 @@ public class CreateElevationAction extends ExecCommand {
             outputDemCorrectedBandsChecker.setEnabled(ortorectifiable);
         }
 
-        final ModalDialog dialog = new ModalDialog(VisatApp.getApp().getMainFrame(), DIALOG_TITLE, ModalDialog.ID_OK_CANCEL, getHelpId());
+        final ModalDialog dialog = new ModalDialog(SnapApp.getDefault().getMainFrame(), DIALOG_TITLE, ModalDialog.ID_OK_CANCEL, getHelpId());
         dialog.setContent(parameterPanel);
         if (dialog.show() == ModalDialog.ID_OK) {
             return dialogData;

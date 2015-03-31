@@ -15,9 +15,9 @@
  */
 package org.esa.nest.dat.wizards.CoregisterWizard;
 
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.wizards.WizardPanel;
 import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,7 +33,7 @@ public class CoregisterWizardProcessPanel extends WizardPanel {
     public CoregisterWizardProcessPanel(final File[] productFileList) {
         super("Coregistration");
 
-        graphDialog = new GraphBuilderDialog(VisatApp.getApp(),
+        graphDialog = new GraphBuilderDialog(new SnapApp.SnapContext(),
                 "Coregistration", "Coregistration", false);
 
         final File graphPath = GraphBuilderDialog.getInternalGraphFolder();

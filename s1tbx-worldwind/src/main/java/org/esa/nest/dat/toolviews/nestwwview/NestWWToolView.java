@@ -23,31 +23,34 @@ import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.avlist.AVList;
 import gov.nasa.worldwind.avlist.AVListImpl;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
-import gov.nasa.worldwind.render.*;
-import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
-import gov.nasa.worldwindx.examples.WMSLayersPanel;
+import gov.nasa.worldwind.event.SelectEvent;
+import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.globes.Earth;
 import gov.nasa.worldwind.globes.ElevationModel;
 import gov.nasa.worldwind.layers.Earth.MSVirtualEarthLayer;
-// CHANGED
-//import gov.nasa.worldwind.layers.Earth.OpenStreetMapLayer;
 import gov.nasa.worldwind.layers.Earth.OSMMapnikLayer;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.WorldMapLayer;
 import gov.nasa.worldwind.layers.placename.PlaceNameLayer;
+import gov.nasa.worldwind.ogc.wms.WMSCapabilities;
 import gov.nasa.worldwind.terrain.CompoundElevationModel;
 import gov.nasa.worldwind.terrain.WMSBasicElevationModel;
 import gov.nasa.worldwind.util.Logging;
 import gov.nasa.worldwind.util.StatusBar;
 import gov.nasa.worldwind.view.orbit.BasicOrbitView;
 import gov.nasa.worldwind.wms.CapabilitiesRequest;
+import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
+import gov.nasa.worldwindx.examples.WMSLayersPanel;
 import gov.nasa.worldwindx.examples.util.DirectedPath;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.util.SelectionSupport;
+import org.netbeans.api.annotations.common.NullAllowed;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -68,13 +71,10 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
 
-import gov.nasa.worldwind.event.SelectEvent;
-import gov.nasa.worldwind.event.SelectListener;
-
+// CHANGED
+//import gov.nasa.worldwind.layers.Earth.OpenStreetMapLayer;
 // ADDED
-import gov.nasa.worldwind.ogc.wms.WMSCapabilities;
 
 /**
  * The window displaying the world map.
@@ -86,7 +86,6 @@ public class NestWWToolView extends AbstractToolView implements WWView {
     //private static final String loadDEMCommand = "loadDEM";
     //private static final ImageIcon loadDEMIcon = ResourceUtils.LoadIcon("org/esa/snap/icons/dem24.gif");
 
-    private final VisatApp datApp = VisatApp.getApp();
     private final Dimension canvasSize = new Dimension(800, 600);
 
     private AppPanel wwjPanel = null;
@@ -246,10 +245,16 @@ public class NestWWToolView extends AbstractToolView implements WWView {
 
         // Add an internal frame listener to VISAT so that we can update our
         // world map window with the information of the currently activated  product scene view.
-        datApp.addInternalFrameListener(new NestWWToolView.WWIFL());
-        datApp.addProductTreeListener(new WWProductTreeListener(this));
-        setProducts(datApp.getProductManager().getProducts());
-        setSelectedProduct(datApp.getSelectedProduct());
+        final SnapApp snapApp = SnapApp.getDefault();
+        snapApp.getProductManager().addListener(new WWProductManagerListener(this));
+        snapApp.getSelectionSupport(ProductNode.class).addHandler(new SelectionSupport.Handler<ProductNode>() {
+            @Override
+            public void selectionChange(@NullAllowed ProductNode oldValue, @NullAllowed ProductNode newValue) {
+                setSelectedProduct(newValue.getProduct());
+            }
+        });
+        setProducts(snapApp.getProductManager().getProducts());
+        setSelectedProduct(snapApp.getSelectedProduct());
 
         return mainPane;
     }
@@ -619,8 +624,7 @@ public class NestWWToolView extends AbstractToolView implements WWView {
                 try {
                     productLayer.addProduct(prod, true, getWwd());
                 } catch (Exception e) {
-                    datApp.showErrorDialog("WorldWind unable to add product " + prod.getName() +
-                            "\n" + e.getMessage());
+                    SnapApp.getDefault().handleError("WorldWind unable to add product " + prod.getName(), e);
                 }
             }
         }

@@ -17,12 +17,17 @@ package org.csa.rstb.dat.actions;
 
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.util.ResourceUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.prefs.Preferences;
 
 /**
  * This action launches PolSARPro
@@ -40,19 +45,19 @@ public class LaunchPolsarProAction extends ExecCommand {
      */
     @Override
     public void actionPerformed(CommandEvent event) {
-        final PropertyMap pref = VisatApp.getApp().getPreferences();
+        final Preferences pref = SnapApp.getDefault().getPreferences();
 
         // find tcl wish
-        File tclFile = new File(pref.getPropertyString(TCLPathStr));
+        File tclFile = new File(pref.get(TCLPathStr, ""));
 
         if (!tclFile.exists()) {
             tclFile = findTCLWish();
             if (tclFile.exists())
-                pref.setPropertyString(TCLPathStr, tclFile.getAbsolutePath());
+                pref.put(TCLPathStr, tclFile.getAbsolutePath());
         }
 
         // find polsar pro
-        File polsarProFile = new File(pref.getPropertyString(PolsarProPathStr));
+        File polsarProFile = new File(pref.get(PolsarProPathStr, ""));
 
         if (!polsarProFile.exists()) {
             polsarProFile = findPolsarPro();
@@ -65,8 +70,7 @@ public class LaunchPolsarProAction extends ExecCommand {
             externalExecute(polsarProFile, tclFile);
 
             // save location
-            pref.setPropertyString(PolsarProPathStr, polsarProFile.getAbsolutePath());
-            VisatApp.getApp().savePreferences();
+            pref.put(PolsarProPathStr, polsarProFile.getAbsolutePath());
         }
     }
 
@@ -100,7 +104,7 @@ public class LaunchPolsarProAction extends ExecCommand {
                         outputTextBuffers(new BufferedReader(new InputStreamReader(proc2.getErrorStream())));
                     }
                 } catch (Exception e) {
-                    VisatApp.getApp().showErrorDialog(e.getMessage());
+                    SnapDialogs.showError("Unable to launch PolSARPro:"+e.getMessage());
                 }
             }
         };

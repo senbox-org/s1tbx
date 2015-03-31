@@ -16,7 +16,7 @@
 package org.esa.nest.dat.views.polarview;
 
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
@@ -34,7 +34,7 @@ class ColourScaleDialog extends ModalDialog {
     private final Axis colourAxis;
 
     public ColourScaleDialog(Axis colourAxis) {
-        super(VisatApp.getApp().getMainFrame(), "Colour Scale", ModalDialog.ID_OK_CANCEL, null);
+        super(SnapApp.getDefault().getMainFrame(), "Colour Scale", ModalDialog.ID_OK_CANCEL, null);
 
         this.colourAxis = colourAxis;
         final double[] range = colourAxis.getRange();

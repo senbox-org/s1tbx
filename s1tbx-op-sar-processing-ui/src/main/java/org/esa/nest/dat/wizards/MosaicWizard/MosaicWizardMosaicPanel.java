@@ -15,9 +15,9 @@
  */
 package org.esa.nest.dat.wizards.MosaicWizard;
 
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.wizards.WizardPanel;
 import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,7 +33,7 @@ public class MosaicWizardMosaicPanel extends WizardPanel {
     public MosaicWizardMosaicPanel(final File[] productFileList) {
         super("Mosaic");
 
-        graphDialog = new GraphBuilderDialog(VisatApp.getApp(), "Mosaic", "MosaicOp", false);
+        graphDialog = new GraphBuilderDialog(new SnapApp.SnapContext(), "Mosaic", "MosaicOp", false);
 
         final File graphPath = GraphBuilderDialog.getInternalGraphFolder();
         final File graphFile = new File(graphPath, "MosaicGraph.xml");

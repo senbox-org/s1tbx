@@ -16,20 +16,28 @@
 package org.esa.nest.dat.views.polarview;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.BasicView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
-import org.esa.beam.visat.VisatApp;
-import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.util.FileFolderUtils;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -509,7 +517,7 @@ public final class PolarView extends BasicView implements ProductNodeView, Actio
         try {
             polarPanel.exportReadout(file);
         } catch (Exception e) {
-            VisatApp.getApp().showErrorDialog(e.getMessage());
+            SnapDialogs.showError("Unable to export file "+file.toString()+": "+e.getMessage());
         }
     }
 

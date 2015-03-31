@@ -24,6 +24,8 @@ import org.esa.beam.framework.ui.crs.CustomCrsForm;
 import org.esa.beam.framework.ui.crs.PredefinedCrsForm;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -43,9 +45,9 @@ public class MapProjectionHandler {
     }
 
     private static CrsSelectionPanel createCRSPanel() {
-        final VisatApp visatApp = VisatApp.getApp();
-        final CustomCrsForm customCrsForm = new CustomCrsForm(visatApp);
-        final PredefinedCrsForm predefinedCrsForm = new PredefinedCrsForm(visatApp);
+        final SnapApp.SnapContext appContext = new SnapApp.SnapContext();
+        final CustomCrsForm customCrsForm = new CustomCrsForm(appContext);
+        final PredefinedCrsForm predefinedCrsForm = new PredefinedCrsForm(appContext);
 
         return new CrsSelectionPanel(customCrsForm, predefinedCrsForm);
     }
@@ -92,7 +94,7 @@ public class MapProjectionHandler {
                 return crsSelectionPanel.getCrs(new GeoPos(0, 0));
             return crsSelectionPanel.getCrs(ProductUtils.getCenterGeoPos(sourceProducts[0]));
         } catch (Exception e) {
-            VisatApp.getApp().showErrorDialog("Unable to create coodinate reference system");
+            SnapDialogs.showError("Unable to create coodinate reference system");
         }
         return null;
     }

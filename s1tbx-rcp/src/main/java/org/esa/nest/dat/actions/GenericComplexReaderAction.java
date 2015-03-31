@@ -18,6 +18,8 @@ import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dataio.generic.GenericComplexReaderPlugIn;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
 
 import javax.swing.*;
 import java.awt.*;
@@ -72,8 +74,7 @@ public class GenericComplexReaderAction extends ExecCommand {
             // was opened.
             product = visatApp.getOpenProduct(selectedFile);
             if (product != null) {
-                visatApp.showErrorDialog("The product is already open.\n"
-                        + "A product can only be opened once.");
+                SnapDialogs.showError("The product is already open.\n" + "A product can only be opened once.");
                 visatApp.setSelectedProductNode(product);
                 return;
             }
@@ -100,8 +101,8 @@ public class GenericComplexReaderAction extends ExecCommand {
 
         File currentDir = null;
         final VisatApp visatApp = VisatApp.getApp();
-        final String currentDirPath = visatApp.getPreferences().getPropertyString(lastDirKey,
-                SystemUtils.getUserHomeDir().getPath());
+        final String currentDirPath = SnapApp.getDefault().getPreferences().get(lastDirKey,
+                                                                                SystemUtils.getUserHomeDir().getPath());
         if (currentDirPath != null) {
             currentDir = new File(currentDirPath);
         }
@@ -123,10 +124,10 @@ public class GenericComplexReaderAction extends ExecCommand {
         File file = null;
         boolean canceled = false;
         while (file == null && !canceled) {
-            final int result = fileChooser.showOpenDialog(visatApp.getMainFrame());
+            final int result = fileChooser.showOpenDialog(SnapApp.getDefault().getMainFrame());
             file = fileChooser.getSelectedFile();
             if (file != null && file.getParent() != null) {
-                visatApp.getPreferences().setPropertyString(lastDirKey, file.getParent());
+                SnapApp.getDefault().getPreferences().put(lastDirKey, file.getParent());
             }
             if (result == JFileChooser.APPROVE_OPTION) {
                 if (file != null && file.getName().trim().length() != 0) {
@@ -134,13 +135,13 @@ public class GenericComplexReaderAction extends ExecCommand {
                         return file;
                     }
                     if (!file.exists()) {
-                        visatApp.showErrorDialog("File not found:\n" + file.getPath());
+                        SnapDialogs.showError("File not found:\n" + file.getPath());
                         file = null;
                     } else {
 
                         final double fileSize = file.length() / (1024.0 * 1024.0);
                         if (fileSize == 0.0) {
-                            visatApp.showErrorDialog("File is empty:\n" + file.getPath());
+                            SnapDialogs.showError("File is empty:\n" + file.getPath());
                             file = null;
                         }
                     }
@@ -159,12 +160,12 @@ public class GenericComplexReaderAction extends ExecCommand {
         final VisatApp visatApp = VisatApp.getApp();
         try {
             visatApp.setStatusBarMessage("Reading from '" + file + "'..."); /*I18N*/
-            visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            SnapApp.getDefault().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
             final ProductReader reader = readerPlugIn.createReaderInstance();
             product = reader.readProductNodes(file, null);
 
-            visatApp.getMainFrame().setCursor(Cursor.getDefaultCursor());
+            SnapApp.getDefault().getMainFrame().setCursor(Cursor.getDefaultCursor());
             visatApp.clearStatusBarMessage();
         } catch (Exception e) {
             visatApp.handleUnknownException(e);
@@ -314,21 +315,19 @@ public class GenericComplexReaderAction extends ExecCommand {
             _subsetProduct = null;
             boolean approve = false;
             if (product != null) {
-                VisatApp visatApp = VisatApp.getApp();
-                JFrame mainFrame = visatApp.getMainFrame();
-                ProductSubsetDialog productSubsetDialog = new ProductSubsetDialog(mainFrame, product);
+                ProductSubsetDialog productSubsetDialog = new ProductSubsetDialog(SnapApp.getDefault().getMainFrame(), product);
                 if (productSubsetDialog.show() == ProductSubsetDialog.ID_OK) {
                     ProductNodeList<Product> products = new ProductNodeList<Product>();
                     products.add(product);
-                    NewProductDialog newProductDialog = new NewProductDialog(visatApp.getMainFrame(), products, 0,
+                    NewProductDialog newProductDialog = new NewProductDialog(SnapApp.getDefault().getMainFrame(), products, 0,
                             true);
                     newProductDialog.setSubsetDef(productSubsetDialog.getProductSubsetDef());
                     if (newProductDialog.show() == NewProductDialog.ID_OK) {
                         _subsetProduct = newProductDialog.getResultProduct();
                         approve = _subsetProduct != null;
                         if (!approve && newProductDialog.getException() != null) {
-                            visatApp.showErrorDialog("The product subset could not be created:\n" +
-                                    newProductDialog.getException().getMessage());
+                            SnapDialogs.showError("The product subset could not be created:\n" +
+                                                          newProductDialog.getException().getMessage());
                         }
                     }
                 }
