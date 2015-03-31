@@ -18,7 +18,7 @@ import java.nio.file.ProviderNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.esa.beam.util.SystemUtils.LOG;
+import static org.esa.beam.util.SystemUtils.*;
 
 /**
  * This class is used to establish the bridge between Java and Python.
@@ -116,7 +116,7 @@ class PyBridge {
             pythonModuleDir = Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "snap-python");
         }
         TreeCopier.copy(getResourcePath("beampy-examples"), pythonModuleDir);
-        beampyDir = TreeCopier.copy(getResourcePath("beampy"), pythonModuleDir);
+        beampyDir = TreeCopier.copyDir(getResourcePath("beampy"), pythonModuleDir);
         LOG.info("SNAP-Python module directory: " + beampyDir);
     }
 
