@@ -16,6 +16,9 @@
     <dependency>
         <module>snap-engine-utilities</module>
     </dependency>
+    <dependency>
+        <module>s1tbx-dem</module>
+    </dependency>
 
 
     <categories>Processor</categories>
