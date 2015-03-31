@@ -28,6 +28,7 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.ShowImageViewRGBAction;
 import org.esa.nest.dat.dialogs.HSVImageProfilePane;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import java.awt.*;
@@ -59,13 +60,13 @@ public class ShowImageViewHSVAction extends ExecCommand {
     }
 
     public void openProductSceneViewHSV(final Product product, final String helpId) {
-        final VisatApp visatApp = VisatApp.getApp();
-        final Product[] openedProducts = visatApp.getProductManager().getProducts();
+
+        final Product[] openedProducts = SnapApp.getDefault().getProductManager().getProducts();
         final int[] defaultBandIndices = ShowImageViewRGBAction.getDefaultBandIndices(product);
-        final HSVImageProfilePane profilePane = new HSVImageProfilePane(visatApp.getPreferences(), product,
+        final HSVImageProfilePane profilePane = new HSVImageProfilePane(SnapApp.getDefault().getCompatiblePreferences(), product,
                 openedProducts, defaultBandIndices);
         final String title = "Select HSV-Image Channels";
-        final boolean ok = profilePane.showDialog(visatApp.getMainFrame(), title, helpId);
+        final boolean ok = profilePane.showDialog(SnapApp.getDefault().getMainFrame(), title, helpId);
         if (!ok) {
             return;
         }
@@ -85,8 +86,8 @@ public class ShowImageViewHSVAction extends ExecCommand {
     public void openProductSceneViewHSV(final String name, final Product product, final String[] hsvExpressions) {
         final VisatApp visatApp = VisatApp.getApp();
         final SwingWorker<ProductSceneImage, Object> worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(
-                visatApp.getMainFrame(),
-                visatApp.getAppName() + " - Creating image for '" + name + '\'') {
+                SnapApp.getDefault().getMainFrame(),
+                SnapApp.getDefault().getAppName() + " - Creating image for '" + name + '\'') {
 
             @Override
             protected ProductSceneImage doInBackground(ProgressMonitor pm) throws Exception {
@@ -95,11 +96,11 @@ public class ShowImageViewHSVAction extends ExecCommand {
 
             @Override
             protected void done() {
-                visatApp.getMainFrame().setCursor(Cursor.getDefaultCursor());
+                SnapApp.getDefault().getMainFrame().setCursor(Cursor.getDefaultCursor());
 
                 try {
                     final ProductSceneView productSceneView = new ProductSceneView(get());
-                    productSceneView.setLayerProperties(visatApp.getPreferences());
+                    productSceneView.setLayerProperties(SnapApp.getDefault().getCompatiblePreferences());
                     openInternalFrame(productSceneView, true);
                 } catch (OutOfMemoryError e) {
                     visatApp.showOutOfMemoryErrorDialog("The HSV image view could not be created."); /*I18N*/
@@ -119,7 +120,7 @@ public class ShowImageViewHSVAction extends ExecCommand {
         final VisatApp visatApp = VisatApp.getApp();
         view.setCommandUIFactory(visatApp.getCommandUIFactory());
         if (configureByPreferences) {
-            view.setLayerProperties(visatApp.getPreferences());
+            view.setLayerProperties(SnapApp.getDefault().getCompatiblePreferences());
         }
 
         final String title = ShowImageViewRGBAction.createUniqueInternalFrameTitle(view.getSceneName());
@@ -134,8 +135,7 @@ public class ShowImageViewHSVAction extends ExecCommand {
     private static ProductSceneImage createProductSceneImageHSV(final String name, final Product product,
                                                                 final String[] hsvExpressions,
                                                                 final ProgressMonitor pm) throws Exception {
-        final VisatApp visatApp = VisatApp.getApp();
-        UIUtils.setRootFrameWaitCursor(visatApp.getMainFrame());
+        UIUtils.setRootFrameWaitCursor(SnapApp.getDefault().getMainFrame());
         ShowImageViewRGBAction.RGBBand[] rgbBands = null;
         boolean errorOccured = false;
         ProductSceneImage productSceneImage = null;
@@ -147,7 +147,7 @@ public class ShowImageViewHSVAction extends ExecCommand {
             productSceneImage = new ProductSceneImage(name, rgbBands[0].band,
                     rgbBands[1].band,
                     rgbBands[2].band,
-                    visatApp.getPreferences(),
+                    SnapApp.getDefault().getCompatiblePreferences(),
                     SubProgressMonitor.create(pm, 1));
             productSceneImage.initVectorDataCollectionLayer();
             productSceneImage.initMaskCollectionLayer();

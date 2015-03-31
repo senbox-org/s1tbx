@@ -24,6 +24,8 @@ import org.esa.snap.dat.dialogs.StringSelectorDialog;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.nest.gpf.ReplaceMetadataOp;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.ResourceUtils;
 
 import java.io.File;
@@ -44,7 +46,7 @@ public class ReplaceMetadataAction extends ExecCommand {
         final Product destProduct = VisatApp.getApp().getSelectedProduct();
         final String[] compatibleProductNames = getCompatibleProducts(destProduct);
         if (compatibleProductNames.length == 0) {
-            VisatApp.getApp().showErrorDialog("There are not any compatible products currently opened\nDimensions must be the same");
+            SnapDialogs.showError("There are not any compatible products currently opened\nDimensions must be the same");
             return;
         }
 
@@ -57,7 +59,7 @@ public class ReplaceMetadataAction extends ExecCommand {
                 final int isCalibrated = origAbsRoot.getAttributeInt(AbstractMetadata.abs_calibration_flag, 0);
 
                 final String srcProductName = dlg.getSelectedItem();
-                final Product[] products = VisatApp.getApp().getProductManager().getProducts();
+                final Product[] products = SnapApp.getDefault().getProductManager().getProducts();
 
                 Product srcProduct = null;
                 for (Product prod : products) {
@@ -85,7 +87,7 @@ public class ReplaceMetadataAction extends ExecCommand {
 
                 tmpMetadataFile.delete();
             } catch (Exception e) {
-                VisatApp.getApp().showErrorDialog("Unable to save or load metadata\n" + e.getMessage());
+                SnapDialogs.showError("Unable to save or load metadata\n" + e.getMessage());
             }
         }
     }
@@ -99,7 +101,7 @@ public class ReplaceMetadataAction extends ExecCommand {
     private static String[] getCompatibleProducts(final Product destProduct) {
         final List<String> prodList = new ArrayList<String>();
 
-        final Product[] products = VisatApp.getApp().getProductManager().getProducts();
+        final Product[] products = SnapApp.getDefault().getProductManager().getProducts();
         for (Product p : products) {
             if (p != destProduct &&
                     p.getSceneRasterWidth() == destProduct.getSceneRasterWidth() &&

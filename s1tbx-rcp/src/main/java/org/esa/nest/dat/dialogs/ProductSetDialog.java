@@ -21,6 +21,7 @@ import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.toolviews.Projects.ProductSet;
 import org.esa.snap.dat.dialogs.FileTable;
 import org.esa.snap.dat.dialogs.ProductSetPanel;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,7 +41,7 @@ public class ProductSetDialog extends ModelessDialog {
     private boolean ok = false;
 
     public ProductSetDialog(final String title, final ProductSet prodSet) {
-        super(VisatApp.getApp().getMainFrame(), title, ModalDialog.ID_OK_CANCEL, null);
+        super(SnapApp.getDefault().getMainFrame(), title, ModalDialog.ID_OK_CANCEL, null);
         productSet = prodSet;
 
         productSetTable.setFiles(productSet.getFileList());

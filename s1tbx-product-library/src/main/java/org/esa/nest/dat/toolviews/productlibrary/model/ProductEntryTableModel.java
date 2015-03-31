@@ -15,12 +15,12 @@
  */
 package org.esa.nest.dat.toolviews.productlibrary.model;
 
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.toolviews.productlibrary.model.dataprovider.DataProvider;
 import org.esa.nest.dat.toolviews.productlibrary.model.dataprovider.IDProvider;
 import org.esa.nest.dat.toolviews.productlibrary.model.dataprovider.PropertiesProvider;
 import org.esa.nest.dat.toolviews.productlibrary.model.dataprovider.QuicklookProvider;
 import org.esa.snap.db.ProductEntry;
+import org.esa.snap.rcp.SnapDialogs;
 
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;
@@ -43,9 +43,7 @@ public class ProductEntryTableModel extends AbstractTableModel {
             dataProviders.add(new QuicklookProvider());
         } catch (Exception e) {
             e.printStackTrace();
-            if (VisatApp.getApp() != null) {
-                VisatApp.getApp().showErrorDialog(e.getMessage());
-            }
+            SnapDialogs.showError(e.getMessage());
         }
         for (final DataProvider provider : dataProviders) {
             final TableColumn tableColumn = provider.getTableColumn();

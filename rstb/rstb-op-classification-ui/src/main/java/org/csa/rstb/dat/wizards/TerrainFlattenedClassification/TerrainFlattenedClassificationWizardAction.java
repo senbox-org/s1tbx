@@ -16,16 +16,16 @@
 package org.csa.rstb.dat.wizards.TerrainFlattenedClassification;
 
 import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 import org.esa.nest.dat.wizards.WizardDialog;
+import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.util.ImageUtils;
 
 public class TerrainFlattenedClassificationWizardAction extends AbstractVisatAction {
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        final WizardDialog dialog = new WizardDialog(VisatApp.getApp().getMainFrame(), false,
+        final WizardDialog dialog = new WizardDialog(SnapApp.getDefault().getMainFrame(), false,
                 TerrainFlattenedWizardInstructPanel.title, "TerrainFlattenedClassificationWizard",
                 new TerrainFlattenedWizardInstructPanel());
         dialog.setIcon(ImageUtils.rstbIcon);

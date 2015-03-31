@@ -19,6 +19,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.util.DialogUtils;
 import org.esa.snap.util.Settings;
@@ -48,10 +50,9 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
     private boolean ok = false;
 
     public ProductGeometrySelectorDialog(final String title) {
-        super(VisatApp.getApp().getMainFrame(), title, ModalDialog.ID_OK_CANCEL, null);
+        super(SnapApp.getDefault().getMainFrame(), title, ModalDialog.ID_OK_CANCEL, null);
 
-        final VisatApp app = VisatApp.getApp();
-        final String[] productNames = app.getProductManager().getProductDisplayNames();
+        final String[] productNames = SnapApp.getDefault().getProductManager().getProductDisplayNames();
 
         productList = new JComboBox(productNames);
 
@@ -67,7 +68,7 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
         geometries.setVisibleRowCount(6);
 
         // set default selection to selected product
-        final Product selectedProduct = app.getSelectedProduct();
+        final Product selectedProduct = SnapApp.getDefault().getSelectedProduct();
         if (selectedProduct != null) {
             productList.setSelectedItem(selectedProduct.getDisplayName());
             roiProductList.setSelectedItem(selectedProduct.getDisplayName());
@@ -94,7 +95,7 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
 
     private void updateGeometryList() {
         final String name = (String) roiProductList.getSelectedItem();
-        final Product product = VisatApp.getApp().getProductManager().getProductByDisplayName(name);
+        final Product product = SnapApp.getDefault().getProductManager().getProductByDisplayName(name);
         final String[] geometryNames = product.getMaskGroup().getNodeNames();
         geometries.removeAll();
         geometries.setListData(geometryNames);
@@ -133,12 +134,12 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
     }
 
     public Product getProduct() {
-        return VisatApp.getApp().getProductManager().getProductByDisplayName(
+        return SnapApp.getDefault().getProductManager().getProductByDisplayName(
                 (String) productList.getSelectedItem());
     }
 
     public Product getRoiProduct() {
-        return VisatApp.getApp().getProductManager().getProductByDisplayName(
+        return SnapApp.getDefault().getProductManager().getProductByDisplayName(
                 (String) roiProductList.getSelectedItem());
     }
 
@@ -163,7 +164,7 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
     private boolean validate() {
         final String[] geometries = getSelectedGeometries();
         if (geometries == null || geometries.length < 1) {
-            VisatApp.getApp().showErrorDialog("Please select the product geometries to use");
+            SnapDialogs.showError("Please select the product geometries to use");
             return false;
         }
 

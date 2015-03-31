@@ -38,6 +38,8 @@ import org.esa.nest.dat.views.polarview.PolarView;
 import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.db.ProductDB;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.MemUtils;
 import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.Settings;
@@ -106,13 +108,13 @@ public class DatApp extends VisatApp {
     }
 
     protected void loadLayout() {
-        final String getStarted = VisatApp.getApp().getPreferences().getPropertyString("visat.showGettingStarted", "true");
+        final String getStarted = SnapApp.getDefault().getPreferences().get("visat.showGettingStarted", "true");
         getMainFrame().setMinimumSize(new Dimension(1200, 800));
         if (getStarted == null || getStarted.equals("true")) {
             LoadTabbedLayoutAction.loadTabbedLayout();
 
             HelpSys.showTheme("top");
-            VisatApp.getApp().getPreferences().setPropertyString("visat.showGettingStarted", "false");
+            SnapApp.getDefault().getPreferences().put("visat.showGettingStarted", "false");
 
             getMainFrame().setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
         } else {
@@ -136,7 +138,7 @@ public class DatApp extends VisatApp {
 
             //backgroundInitTasks();
         } catch (Throwable t) {
-            VisatApp.getApp().showErrorDialog("PostInit failed. " + t.toString());
+            SnapDialogs.showError("PostInit failed. " + t.toString());
         }
     }
 
@@ -238,7 +240,7 @@ public class DatApp extends VisatApp {
      */
     @Override
     public synchronized void closeAllProducts() {
-        final Product[] products = getProductManager().getProducts();
+        final Product[] products = SnapApp.getDefault().getProductManager().getProducts();
         for (int i = products.length - 1; i >= 0; i--) {
             final Product product = products[i];
             closeProduct(product);

@@ -33,6 +33,7 @@ import org.esa.nest.dataio.binary.IllegalBinaryFormatException;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.imageio.stream.ImageInputStream;
 import java.io.File;
@@ -79,7 +80,7 @@ public class GenericReader extends AbstractProductReader {
     protected Product readProductNodesImpl() throws IOException {
         if (VisatApp.getApp() != null) {
             //if in DAT then open options dialog
-            final GenericBinaryDialog dialog = new GenericBinaryDialog(VisatApp.getApp().getMainFrame(), "importGenericBinary");
+            final GenericBinaryDialog dialog = new GenericBinaryDialog(SnapApp.getDefault().getMainFrame(), "importGenericBinary");
             if (dialog.show() == ModalDialog.ID_OK) {
                 rasterWidth = dialog.getRasterWidth();
                 rasterHeight = dialog.getRasterHeight();

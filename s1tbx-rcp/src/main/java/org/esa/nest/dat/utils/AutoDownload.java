@@ -3,6 +3,7 @@ package org.esa.nest.dat.utils;
 import com.bc.io.FileDownloader;
 import com.bc.io.FileUnpacker;
 import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.SnapApp;
 
 import java.awt.*;
 import java.io.File;
@@ -42,7 +43,7 @@ public class AutoDownload {
         if (visatApp != null) {
             visatApp.setStatusBarMessage(message);
         }
-        final Component parent = visatApp != null ? visatApp.getMainFrame() : null;
+        final Component parent = SnapApp.getDefault() != null ? SnapApp.getDefault().getMainFrame() : null;
 
         final File archiveFile = FileDownloader.downloadFile(new URL(ARCHIVE_URL_PATH), installDir, parent);
         FileUnpacker.unpackZip(archiveFile, installDir, parent);

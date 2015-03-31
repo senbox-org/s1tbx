@@ -6,12 +6,13 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.ModelessDialog;
-import org.esa.beam.visat.VisatApp;
 import org.esa.snap.dat.dialogs.ProductSetPanel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.db.CommonReaders;
 import org.esa.snap.db.ProductEntry;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.DialogUtils;
 import org.esa.snap.util.ProductOpener;
 import org.jlinda.core.Orbit;
@@ -41,8 +42,9 @@ public class InSARMasterDialog extends ModelessDialog {
     private boolean ok = false;
 
     private final InSARFileModel outputFileModel = new InSARFileModel();
-    private final ProductSetPanel inputProductListPanel = new ProductSetPanel(VisatApp.getApp(), "Input stack");
-    private final ProductSetPanel outputProductListPanel = new ProductSetPanel(VisatApp.getApp(), "Overview", outputFileModel);
+    private final SnapApp.SnapContext appContext = new SnapApp.SnapContext();
+    private final ProductSetPanel inputProductListPanel = new ProductSetPanel(appContext, "Input stack");
+    private final ProductSetPanel outputProductListPanel = new ProductSetPanel(appContext, "Overview", outputFileModel);
 
     private final Map<SLCImage, File> slcFileMap = new HashMap<SLCImage, File>(10);
 
@@ -50,7 +52,7 @@ public class InSARMasterDialog extends ModelessDialog {
     private final JCheckBox searchDBCheckBox = new JCheckBox("Search Product Library");
 
     public InSARMasterDialog() {
-        super(VisatApp.getApp().getMainFrame(), "Stack Overview and Optimal InSAR Master Selection", ModalDialog.ID_OK_CANCEL_HELP, "InSARMaster");
+        super(SnapApp.getDefault().getMainFrame(), "Stack Overview and Optimal InSAR Master Selection", ModalDialog.ID_OK_CANCEL_HELP, "InSARMaster");
 
         getButton(ID_OK).setText("Overview");
         getButton(ID_CANCEL).setText("Close");
@@ -66,7 +68,7 @@ public class InSARMasterDialog extends ModelessDialog {
         addAllBtn.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                final Product[] products = VisatApp.getApp().getProductManager().getProducts();
+                final Product[] products = SnapApp.getDefault().getProductManager().getProducts();
                 final List<File> fileList = new ArrayList<File>(products.length);
                 for (Product prod : products) {
                     final File file = prod.getFileLocation();
@@ -110,7 +112,7 @@ public class InSARMasterDialog extends ModelessDialog {
                 File[] files = outputProductListPanel.getSelectedFiles();
                 if (files.length == 0)                      // default to get all files
                     files = outputProductListPanel.getFileList();
-                final ProductOpener opener = new ProductOpener(VisatApp.getApp());
+                final ProductOpener opener = new ProductOpener();
                 opener.openProducts(files);
             }
         });
@@ -143,7 +145,7 @@ public class InSARMasterDialog extends ModelessDialog {
 
             if (ifgStack == null) {
                 openBtn.setEnabled(false);
-                VisatApp.getApp().showWarningDialog("Optimal master not found");
+                SnapDialogs.showWarning("Optimal master not found");
             } else {
                 final OptimalMaster dataStack = new MasterSelection();
                 final int masterIndex = dataStack.findOptimalMaster(ifgStack);
@@ -155,7 +157,7 @@ public class InSARMasterDialog extends ModelessDialog {
                 ok = true;
             }
         } catch (Exception e) {
-            VisatApp.getApp().showErrorDialog("Error: " + e.getMessage());
+            SnapDialogs.showError("Error: " + e.getMessage());
         }
     }
 
@@ -188,7 +190,7 @@ public class InSARMasterDialog extends ModelessDialog {
             };
             outputFileModel.addFile(mstFile, mstValues);
         } catch (Exception e) {
-            VisatApp.getApp().showErrorDialog("Unable to read " + mstFile.getName() + '\n' + e.getMessage());
+            SnapDialogs.showError("Unable to read " + mstFile.getName() + '\n' + e.getMessage());
         }
 
         for (MasterSelection.IfgPair slave : slaveList) {
@@ -212,7 +214,7 @@ public class InSARMasterDialog extends ModelessDialog {
                     };
                     outputFileModel.addFile(slvFile, slvValues);
                 } catch (Exception e) {
-                    VisatApp.getApp().showErrorDialog("Unable to read " + slvFile.getName() + '\n' + e.getMessage());
+                    SnapDialogs.showError("Unable to read " + slvFile.getName() + '\n' + e.getMessage());
                 }
             }
         }
@@ -235,9 +237,9 @@ public class InSARMasterDialog extends ModelessDialog {
                 imgList.add(img);
                 orbList.add(orb);
             } catch (IOException e) {
-                VisatApp.getApp().showErrorDialog("Error: unable to read " + file.getPath() + '\n' + e.getMessage());
+                SnapDialogs.showError("Error: unable to read " + file.getPath() + '\n' + e.getMessage());
             } catch (Exception e) {
-                VisatApp.getApp().showErrorDialog("Error: " + file.getPath() + '\n' + e.getMessage());
+                SnapDialogs.showError("Error: " + file.getPath() + '\n' + e.getMessage());
             }
         }
 
@@ -245,14 +247,14 @@ public class InSARMasterDialog extends ModelessDialog {
             final OptimalMaster dataStack = new MasterSelection();
             dataStack.setInput(imgList.toArray(new SLCImage[size]), orbList.toArray(new Orbit[size]));
 
-            final Worker worker = new Worker(VisatApp.getApp().getMainFrame(), "Computing Optimal InSAR Master",
+            final Worker worker = new Worker(SnapApp.getDefault().getMainFrame(), "Computing Optimal InSAR Master",
                     dataStack);
             worker.executeWithBlocking();
 
             return (MasterSelection.IfgStack[]) worker.get();
 
         } catch (Throwable t) {
-            VisatApp.getApp().showErrorDialog("Error:" + t.getMessage());
+            SnapDialogs.showError("Error:" + t.getMessage());
             return null;
         }
     }

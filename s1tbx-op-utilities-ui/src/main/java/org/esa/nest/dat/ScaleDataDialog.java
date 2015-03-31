@@ -21,7 +21,8 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.ModelessDialog;
-import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
@@ -41,7 +42,7 @@ class ScaleDataDialog extends ModelessDialog {
     private final Band _band;
 
     public ScaleDataDialog(final String title, final Product product, final Band band) {
-        super(VisatApp.getApp().getMainFrame(), title, ModalDialog.ID_OK_CANCEL, null);
+        super(SnapApp.getDefault().getMainFrame(), title, ModalDialog.ID_OK_CANCEL, null);
 
         this._product = product;
         this._band = band;
@@ -84,7 +85,7 @@ class ScaleDataDialog extends ModelessDialog {
             applyScaling(_product, _band, gain, bias, exp, isLog);
             hide();
         } catch (Exception e) {
-            VisatApp.getApp().showErrorDialog(e.getMessage());
+            SnapDialogs.showError(e.getMessage());
         }
     }
 

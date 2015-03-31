@@ -21,14 +21,15 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.db.DBQuery;
 import org.esa.snap.db.ProductDB;
 import org.esa.snap.db.ProductEntry;
-import org.esa.snap.util.DialogUtils;
 import org.esa.snap.db.SQLUtils;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -168,9 +169,9 @@ public final class DatabasePane extends JPanel {
 
     private static void handleException(Throwable t) {
         t.printStackTrace();
-        final VisatApp app = VisatApp.getApp();
+        final SnapApp app = SnapApp.getDefault();
         if (app != null) {
-            app.showErrorDialog(t.getMessage());
+            SnapDialogs.showError(t.getMessage());
         }
     }
 

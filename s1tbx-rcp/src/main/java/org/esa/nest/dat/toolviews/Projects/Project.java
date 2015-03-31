@@ -19,7 +19,12 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.datamodel.ProductNodeList;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.framework.ui.NewProductDialog;
@@ -27,11 +32,13 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSubsetDialog;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
 import org.esa.beam.visat.VisatApp;
-import org.esa.snap.dat.dialogs.PromptDialog;
 import org.esa.nest.dat.dialogs.ProductSetDialog;
+import org.esa.snap.dat.dialogs.PromptDialog;
 import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
-import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.db.CommonReaders;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.XMLSupport;
@@ -40,10 +47,17 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Observable;
+import java.util.StringTokenizer;
 import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Vector;
 
 /**
  * A Project helps to organize your data by storing all your work in one folder.
@@ -107,7 +121,7 @@ public class Project extends Observable {
     }
 
     private void addExistingOpenedProducts() {
-        final ProductManager prodman = VisatApp.getApp().getProductManager();
+        final ProductManager prodman = SnapApp.getDefault().getProductManager();
         final int numProducts = prodman.getProductCount();
         for (int i = 0; i < numProducts; ++i) {
             addProductLink(prodman.getProduct(i));
@@ -216,7 +230,7 @@ public class Project extends Observable {
         }
 
         if (VisatApp.getApp() != null) {
-            VisatApp.getApp().getPreferences().setPropertyString(
+            SnapApp.getDefault().getPreferences().put(
                     BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR, processedFolder.getPath().getAbsolutePath());
             VisatApp.getApp().updateState();
         }
@@ -336,7 +350,7 @@ public class Project extends Observable {
     }
 
     public static void createNewGraph(final ProjectSubFolder subFolder) {
-        final ModelessDialog dialog = new GraphBuilderDialog(VisatApp.getApp(), "Graph Builder", "graph_builder");
+        final ModelessDialog dialog = new GraphBuilderDialog(new SnapApp.SnapContext(), "Graph Builder", "graph_builder");
         dialog.show();
     }
 
@@ -359,10 +373,10 @@ public class Project extends Observable {
             if (product != null) {
                 final Product subsetProduct = getProductSubset(product);
                 if (subsetProduct != null)
-                    VisatApp.getApp().getProductManager().addProduct(subsetProduct);
+                    SnapApp.getDefault().getProductManager().addProduct(subsetProduct);
             }
         } catch (Exception e) {
-            VisatApp.getApp().showErrorDialog(e.getMessage());
+            SnapDialogs.showError(e.getMessage());
         }
     }
 
@@ -379,14 +393,14 @@ public class Project extends Observable {
                     writeProduct(subsetProduct, destFile);
                 }
             } catch (Exception e) {
-                VisatApp.getApp().showErrorDialog(e.getMessage());
+                SnapDialogs.showError("Unable to import product:" + e.getMessage());
             }
         }
     }
 
     private static Product getProductSubset(final Product product) {
         if (product != null) {
-            final JFrame mainFrame = VisatApp.getApp().getMainFrame();
+            final Frame mainFrame = SnapApp.getDefault().getMainFrame();
             final ProductSubsetDialog productSubsetDialog = new ProductSubsetDialog(mainFrame, product);
             if (productSubsetDialog.show() == ProductSubsetDialog.ID_OK) {
                 final ProductNodeList<Product> products = new ProductNodeList<Product>();
@@ -396,8 +410,8 @@ public class Project extends Observable {
                 if (newProductDialog.show() == NewProductDialog.ID_OK) {
                     final Product subsetProduct = newProductDialog.getResultProduct();
                     if (subsetProduct == null || newProductDialog.getException() != null) {
-                        VisatApp.getApp().showErrorDialog("The product subset could not be created:\n" +
-                                newProductDialog.getException().getMessage());
+                        SnapDialogs.showError("The product subset could not be created:\n" +
+                                                      newProductDialog.getException().getMessage());
                     } else {
                         return subsetProduct;
                     }
@@ -412,7 +426,7 @@ public class Project extends Observable {
         final ProjectSubFolder importedFolder;
 
         ImportProducts(final File[] productFilesToOpen, final ProjectSubFolder importedFolder) {
-            super(VisatApp.getApp().getMainFrame(), "Writing...");
+            super(SnapApp.getDefault().getMainFrame(), "Writing...");
             this.productFilesToOpen = productFilesToOpen;
             this.importedFolder = importedFolder;
         }
@@ -436,7 +450,7 @@ public class Project extends Observable {
                                 VisatApp.getApp().writeProductImpl(product, destFile, "BEAM-DIMAP", false);
                             }
                         } catch (Exception e) {
-                            VisatApp.getApp().showErrorDialog(e.getMessage());
+                            SnapDialogs.showError(e.getMessage());
                         }
                     }
                     pm.worked(1);
@@ -524,10 +538,6 @@ public class Project extends Observable {
     public void CloseProject() {
         projectSubFolders = null;
         notifyEvent(false);
-
-        if (VisatApp.getApp() != null) {
-            VisatApp.getApp().updateState();
-        }
     }
 
     public boolean IsProjectOpen() {
@@ -578,7 +588,7 @@ public class Project extends Observable {
         try {
             doc = XMLSupport.LoadXML(file.getAbsolutePath());
         } catch (IOException e) {
-            VisatApp.getApp().showErrorDialog(e.getMessage());
+            SnapDialogs.showError("Unable to load "+file.toString()+": "+e.getMessage());
             return;
         }
 
@@ -608,7 +618,7 @@ public class Project extends Observable {
     private static void loadProducts(final Vector<ProjectSubFolder> folderList,
                                      final Vector<ProjectFile> prodList) {
 
-        final ProgressMonitorSwingWorker worker = new ProgressMonitorSwingWorker(VisatApp.getApp().getMainFrame(), "Opening Project") {
+        final ProgressMonitorSwingWorker worker = new ProgressMonitorSwingWorker(SnapApp.getDefault().getMainFrame(), "Opening Project") {
             @Override
             protected Object doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
                 pm.beginTask("Opening Project...", prodList.size());

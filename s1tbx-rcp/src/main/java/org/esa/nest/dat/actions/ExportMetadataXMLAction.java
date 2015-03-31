@@ -23,6 +23,7 @@ import org.esa.beam.framework.ui.product.ProductMetadataTable;
 import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 
@@ -55,7 +56,7 @@ public class ExportMetadataXMLAction extends ExecCommand {
 
             AbstractMetadataIO.Save(srcProduct, root, file);
         } catch (Exception e) {
-            VisatApp.getApp().showErrorDialog("Unable to save metadata\n" + e.getMessage());
+            SnapDialogs.showError("Unable to save metadata\n" + e.getMessage());
         }
     }
 

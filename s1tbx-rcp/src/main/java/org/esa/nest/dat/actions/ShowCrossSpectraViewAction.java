@@ -27,6 +27,7 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.views.polarview.PolarView;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
@@ -47,11 +48,11 @@ public class ShowCrossSpectraViewAction extends ExecCommand {
     void openProductSceneView(final RasterDataNode selectedProductNode) {
         final VisatApp visatApp = VisatApp.getApp();
         visatApp.setStatusBarMessage("Creating polar view...");
-        UIUtils.setRootFrameWaitCursor(visatApp.getMainFrame());
+        UIUtils.setRootFrameWaitCursor(SnapApp.getDefault().getMainFrame());
         final Product product = VisatApp.getApp().getSelectedProduct();
 
-        final SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(visatApp.getMainFrame(),
-                visatApp.getAppName() + " - Creating image for '" + selectedProductNode.getName() + "'") {
+        final SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(SnapApp.getDefault().getMainFrame(),
+                 SnapApp.getDefault().getAppName() + " - Creating image for '" + selectedProductNode.getName() + "'") {
 
             @Override
             protected ProductSceneImage doInBackground(ProgressMonitor pm) throws Exception {
@@ -66,7 +67,7 @@ public class ShowCrossSpectraViewAction extends ExecCommand {
 
             @Override
             public void done() {
-                UIUtils.setRootFrameDefaultCursor(visatApp.getMainFrame());
+                UIUtils.setRootFrameDefaultCursor(SnapApp.getDefault().getMainFrame());
                 visatApp.clearStatusBarMessage();
 
                 final ProductSceneImage productSceneImage;
@@ -132,7 +133,7 @@ public class ShowCrossSpectraViewAction extends ExecCommand {
                 final ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
                 sceneImage = new ProductSceneImage(raster, view);
             } else {
-                sceneImage = new ProductSceneImage(raster, app.getPreferences(), SubProgressMonitor.create(pm, 1));
+                sceneImage = new ProductSceneImage(raster, SnapApp.getDefault().getCompatiblePreferences(), SubProgressMonitor.create(pm, 1));
             }
         } finally {
             pm.done();

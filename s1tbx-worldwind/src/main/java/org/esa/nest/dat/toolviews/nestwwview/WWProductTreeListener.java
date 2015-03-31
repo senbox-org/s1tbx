@@ -20,7 +20,7 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
-import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.SnapApp;
 
 /**
  * listens for events from product tree
@@ -34,7 +34,7 @@ public class WWProductTreeListener implements ProductTreeListener {
 
     public void productAdded(final Product product) {
         wwView.setSelectedProduct(product);
-        wwView.setProducts(VisatApp.getApp().getProductManager().getProducts());
+        wwView.setProducts(SnapApp.getDefault().getProductManager().getProducts());
     }
 
     public void productRemoved(final Product product) {

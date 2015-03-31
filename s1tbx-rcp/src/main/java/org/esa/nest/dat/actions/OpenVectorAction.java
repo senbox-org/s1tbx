@@ -22,6 +22,7 @@ import org.esa.beam.framework.ui.layer.LayerSourceDescriptor;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 import org.esa.beam.visat.toolviews.layermanager.layersrc.SelectLayerSourceAssistantPage;
+import org.esa.snap.rcp.SnapApp;
 
 /**
  * This action opens a vector dataset
@@ -43,6 +44,6 @@ public class OpenVectorAction extends AbstractVisatAction {
 
     @Override
     public void updateState(final CommandEvent event) {
-        event.getCommand().setEnabled(VisatApp.getApp().getSelectedProductSceneView() != null);
+        event.getCommand().setEnabled(SnapApp.getDefault().getSelectedProductSceneView() != null);
     }
 }

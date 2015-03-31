@@ -22,6 +22,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
 import org.esa.snap.dat.dialogs.PromptDialog;
+import org.esa.snap.rcp.SnapApp;
 
 /**
  * This action to searches the Metadata
@@ -59,7 +60,7 @@ public class SearchMetadataAction extends ExecCommand {
 
     @Override
     public void updateState(final CommandEvent event) {
-        final int n = VisatApp.getApp().getProductManager().getProductCount();
+        final int n = SnapApp.getDefault().getProductManager().getProductCount();
         setEnabled(n > 0);
     }
 
