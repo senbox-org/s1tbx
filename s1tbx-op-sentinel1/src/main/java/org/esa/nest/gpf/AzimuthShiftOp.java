@@ -433,20 +433,16 @@ public class AzimuthShiftOp extends Operator {
         final double[] diffIntImag = new double[arrayLength];
         complexArrayMultiplication(backIntReal, backIntImag, forIntReal, forIntImag, diffIntReal, diffIntImag);
 
-        double meanReal = 0.0;
-        double meanImag = 0.0;
+        double sumReal = 0.0;
+        double sumImag = 0.0;
         for (int i = 0; i < arrayLength; i++) {
-            meanReal += diffIntReal[i];
-            meanImag += diffIntImag[i];
+            final double theta = Math.atan2(diffIntImag[i], diffIntReal[i]);
+            sumReal += Math.cos(theta);
+            sumImag += Math.sin(theta);
         }
-        meanReal /= arrayLength;
-        meanImag /= arrayLength;
 
-        final double phase = Math.atan2(meanImag, meanReal);
-        final double offset =
-                phase / (2 * Math.PI * spectralSeparation * subSwath[subSwathIndex - 1].azimuthTimeInterval);
-
-        return offset;
+        final double phase = Math.atan2(sumImag, sumReal);
+        return phase / (2 * Math.PI * spectralSeparation * subSwath[subSwathIndex - 1].azimuthTimeInterval);
     }
 
     private void complexArrayMultiplication(final double[] realArray1, final double[] imagArray1,
