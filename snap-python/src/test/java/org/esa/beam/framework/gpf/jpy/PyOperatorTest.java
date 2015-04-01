@@ -36,8 +36,7 @@ public class PyOperatorTest {
                  "-Ssource=C:\\Users\\Norman\\EOData\\MER_FRS_1PNMAP20070709_111419_000001722059_00395_28004_0001.N1");
     }
 
-    @Ignore
-    //@Test
+    @Test
     public void testOpInstantiationAndInvocation() throws Exception {
         // e.g. use -Dsnap.pythonExecutable=C:/Python34/python.exe
         assumeTrue(String.format("Please set '%s' to execute this test", PyBridge.PYTHON_EXECUTABLE_PROPERTY),

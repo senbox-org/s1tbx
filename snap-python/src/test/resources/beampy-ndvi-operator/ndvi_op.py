@@ -16,9 +16,7 @@ class NdviOp:
 
 
     def initialize(self, operator):
-        print('operator =', operator.getId())
-        jpy.diag.flags = jpy.diag.F_ALL
-        source_product = operator.getSourceProduct(1, 4.7, 'source')
+        source_product = operator.getSourceProduct('source')
         print('initialize: source product location is', source_product.getFileLocation())
 
         width = source_product.getSceneRasterWidth()
@@ -75,5 +73,3 @@ class NdviOp:
         if not band:
             raise RuntimeError('Product does not contain a band named', name)
         return band
-
-

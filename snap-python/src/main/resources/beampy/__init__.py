@@ -31,16 +31,18 @@ else:
 
 module_dir = os.path.dirname(os.path.realpath(__file__))
 config = cp.ConfigParser()
-config.read(['beampy.ini', os.path.join(module_dir, 'beampy.ini')])
+config.read(['beampy.ini', os.path.join(module_dir, 'beampy.ini'), os.path.join(module_dir, '../beampy.ini')])
 
 debug = False
 if config.has_option('DEFAULT', 'debug'):
     debug = config.getboolean('DEFAULT', 'debug')
 
-import beampy.jpyutil as jpyutil
+sys.path.append(module_dir)
+
+import jpyutil
 print(jpyutil.__file__)
 jpyutil.preload_jvm_dll()
-import beampy.jpy as jpy
+import jpy
 
 
 if debug:

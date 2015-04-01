@@ -244,7 +244,7 @@ class PyBridge {
     private static void startPython(Path pythonModuleInstallDir) {
         //PyLib.Diag.setFlags(PyLib.Diag.F_ALL);
         String pythonVersion = PyLib.getPythonVersion();
-        LOG.info("Running Python " + pythonVersion);
+        LOG.info("Starting Python " + pythonVersion);
         if (!PyLib.isPythonRunning()) {
             PyLib.startPython(pythonModuleInstallDir.toString());
         } else {
