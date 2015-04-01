@@ -1,18 +1,21 @@
 """
-The beampy module provides access to the BEAM Java APIs.
+The beampy module provides access to the SNAP Java APIs.
 
-In order to use beampy the module 'jpy' must be installed first.
+'beampy' uses a bundled 'jpy' module, see documentation at http://jpy.readthedocs.org/en/latest
+and source code at https://github.com/bcdev/jpy
 
 You can configure beampy by using a file named beampy.ini as follows:
 
     [DEFAULT]
     snap_home: C:/Program Files/snap-2.0
-    extra_classpath: target/classes
-    extra_options: -Djava.awt.headless=false
-    max_mem: 4G
+    java_classpath: target/classes
+    java_options: -Djava.awt.headless=false
+    java_max_mem: 4G
     debug: False
 
 You can place beampy.ini next to <python3>/site-packages/beampy.py or put it in your current working directory.
+The options starting with 'java_' are only used if you use the SNAP API from Python and a new Java Virtual Machine
+is created. They are ignored if the SNAP API is called from SNAP itself (e.g. SNAP command-line or GUI).
 
 """
 
@@ -34,9 +37,11 @@ debug = False
 if config.has_option('DEFAULT', 'debug'):
     debug = config.getboolean('DEFAULT', 'debug')
 
-import jpyutil
+import beampy.jpyutil as jpyutil
+print(jpyutil.__file__)
 jpyutil.preload_jvm_dll()
-import jpy
+import beampy.jpy as jpy
+
 
 if debug:
     jpy.diag.flags = jpy.diag.F_ALL
@@ -101,26 +106,27 @@ def _get_snap_jvm_options():
 
     classpath = _get_snap_jvm_classpath()
 
-    if config.has_option('DEFAULT', 'extra_classpath'):
-        extra_classpath = config.get('DEFAULT', 'extra_classpath')
+    if config.has_option('DEFAULT', 'java_classpath'):
+        extra_classpath = config.get('DEFAULT', 'java_classpath')
         classpath += extra_classpath.split(os.pathsep)
 
     max_mem = '512M'
-    if config.has_option('DEFAULT', 'extra_options'):
-        max_mem = config.get('DEFAULT', 'max_mem')
+    if config.has_option('DEFAULT', 'java_max_mem'):
+        max_mem = config.get('DEFAULT', 'java_max_mem')
 
     options = ['-Djava.awt.headless=true',
                '-Djava.class.path=' + os.pathsep.join(classpath),
                '-Xmx' + max_mem]
 
-    if config.has_option('DEFAULT', 'extra_options'):
-        extra_options = config.get('DEFAULT', 'extra_options')
+    if config.has_option('DEFAULT', 'java_options'):
+        extra_options = config.get('DEFAULT', 'java_options')
         options += extra_options.split('|')
 
     return options
 
 
-if not jpy.has_jvm():
+called_from_java = jpy.has_jvm()
+if not called_from_java:
     jpy.create_jvm(options=_get_snap_jvm_options())
 
 
@@ -166,7 +172,7 @@ def annotate_RasterDataNode_methods(type_name, method):
     if index >= 0 and debug:
         print(
             'annotate_RasterDataNode_methods: Method "{0}": modified parameter {1:d}: mutable = {2}, return = {3}'
-            .format(method.name, index, method.is_param_mutable(index), method.is_param_return(index)))
+                .format(method.name, index, method.is_param_mutable(index), method.is_param_return(index)))
 
     return True
 
@@ -210,6 +216,6 @@ except Exception:
 
 
 # Note: use the following code to initialise BEAM's 3rd party libraries, JAI and GeoTools.
-# This is only needed, if you use the BEAM API from Python.
-# Don use it, if you are extending BEAM by writing your own GPF Operator.
-#  SystemUtils.init3rdPartyLibs(None)
+# Only needed, if SNAP Python API is not called from Java (e.g. from SNAP gpt or SNAP desktop).
+if not called_from_java:
+    SystemUtils.init3rdPartyLibs(None)

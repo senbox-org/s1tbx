@@ -9,6 +9,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
+import java.net.URL;
 
 import static org.esa.beam.framework.gpf.jpy.PyOperatorSpi.EXT_PROPERTY_NAME;
 import static org.junit.Assert.assertNotNull;
@@ -35,7 +36,8 @@ public class PyOperatorTest {
                  "-Ssource=C:\\Users\\Norman\\EOData\\MER_FRS_1PNMAP20070709_111419_000001722059_00395_28004_0001.N1");
     }
 
-    @Test
+    @Ignore
+    //@Test
     public void testOpInstantiationAndInvocation() throws Exception {
         // e.g. use -Dsnap.pythonExecutable=C:/Python34/python.exe
         assumeTrue(String.format("Please set '%s' to execute this test", PyBridge.PYTHON_EXECUTABLE_PROPERTY),
@@ -45,7 +47,8 @@ public class PyOperatorTest {
         source.addBand("radiance_7", "80.0");
         source.addBand("radiance_13", "120.0");
 
-        DefaultOperatorDescriptor descriptor = DefaultOperatorDescriptor.fromXml(PyOperatorSpi.class.getResource("/beampy-examples/beampy-ndvi-operator/ndvi_op-info.xml"), getClass().getClassLoader());
+        URL infoXmlFile = PyOperatorSpi.class.getResource("/beampy-ndvi-operator/ndvi_op-info.xml");
+        DefaultOperatorDescriptor descriptor = DefaultOperatorDescriptor.fromXml(infoXmlFile, getClass().getClassLoader());
         PyOperatorSpi spi = new PyOperatorSpi(descriptor);
 
         PyOperator operator = new PyOperator();

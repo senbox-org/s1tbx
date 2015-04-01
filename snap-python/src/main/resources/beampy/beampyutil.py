@@ -44,7 +44,8 @@ def _configure_beampy(snap_home=None,
                             "Python is 64 bit but JVM requires " + req_arch)
 
     beampy_dir = os.path.dirname(os.path.abspath(__file__))
-    beampy_ini_file = os.path.join(beampy_dir, 'beampy.ini')
+    beampy_install_dir = os.path.join(beampy_dir, '..')
+    beampy_ini_file = os.path.join(beampy_install_dir, 'beampy.ini')
     jpy_distr_name = 'jpy.' + sysconfig.get_platform() + '-' + sysconfig.get_python_version()
     jpy_info_file = os.path.join(beampy_dir, jpy_distr_name + '.info')
     jpyutil_file = os.path.join(beampy_dir, 'jpyutil.py')
@@ -59,9 +60,9 @@ def _configure_beampy(snap_home=None,
         with open(beampy_ini_file, 'w') as file:
             file.writelines(['[DEFAULT]\n',
                              'snap_home = %s\n' % snap_home,
-                             '# extra_classpath: target/classes',
-                             '# extra_options: -Djava.awt.headless=false\n',
-                             '# max_mem: 4G\n',
+                             '# java_classpath: target/classes\n',
+                             '# java_options: -Djava.awt.headless=false\n',
+                             '# java_max_mem: 4G\n',
                              '# debug: False\n'])
 
 

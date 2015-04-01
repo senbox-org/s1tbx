@@ -29,7 +29,7 @@ public class PyOperatorSpiTest {
 
     @BeforeClass
     public static void init() {
-        URL resource = PyOperatorSpi.class.getResource("/beampy-examples");
+        URL resource = PyOperatorSpi.class.getResource("/");
         assertNotNull(resource);
         File file = new File(URI.create(resource.toString()));
         assertTrue(file.isDirectory());

@@ -16,7 +16,9 @@ class NdviOp:
 
 
     def initialize(self, operator):
-        source_product = operator.getSourceProduct('source')
+        print('operator =', operator.getId())
+        jpy.diag.flags = jpy.diag.F_ALL
+        source_product = operator.getSourceProduct(1, 4.7, 'source')
         print('initialize: source product location is', source_product.getFileLocation())
 
         width = source_product.getSceneRasterWidth()

@@ -44,7 +44,6 @@ import static org.esa.beam.util.SystemUtils.LOG;
  */
 class PyBridge {
 
-    public static final String BEAMPY_PY_FILENAME = "beampy.py";
     public static final String BEAMPYUTIL_PY_FILENAME = "beampyutil.py";
     public static final String BEAMPYUTIL_LOG_FILENAME = "beampyutil.log";
     public static final String FORCE_PYTHON_CONFIG_PROPERTY = "snap.forcePythonConfig";
@@ -67,36 +66,23 @@ class PyBridge {
             return;
         }
 
-        String pythonExecutable = System.getProperty(PYTHON_EXECUTABLE_PROPERTY, "python");
+        String pythonExecutable = getPythonExecutable();
+        Path pythonModuleInstallDir = getPythonModuleInstallDir();
+        boolean forcePythonConfig = isForcePythonConfig();
 
-        Path pythonModuleInstallDir;
-        String pythonModuleDirStr = System.getProperty(PYTHON_MODULE_INSTALL_DIR_PROPERTY);
-        if (pythonModuleDirStr != null) {
-            pythonModuleInstallDir = Paths.get(pythonModuleDirStr);
-        } else {
-            pythonModuleInstallDir = Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "snap-python");
-        }
-
-        boolean forcePythonConfig = System.getProperty(FORCE_PYTHON_CONFIG_PROPERTY, "true").equalsIgnoreCase("true");
-
-        Path beampyDir = installPythonModule(pythonExecutable, pythonModuleInstallDir, forcePythonConfig);
+        installPythonModule(pythonExecutable,
+                            pythonModuleInstallDir,
+                            forcePythonConfig);
 
         synchronized (PyLib.class) {
             if (!established) {
-                //PyLib.Diag.setFlags(PyLib.Diag.F_ALL);
-                String pythonVersion = PyLib.getPythonVersion();
-                LOG.info("Running Python " + pythonVersion);
-                if (!PyLib.isPythonRunning()) {
-                    PyLib.startPython(beampyDir.toString());
-                } else {
-                    extendSysPath(beampyDir.toString());
-                }
+                startPython(pythonModuleInstallDir);
                 established = true;
             }
         }
     }
 
-    public static Path installPythonModule(String pythonExecutable,
+    public static void installPythonModule(String pythonExecutable,
                                            Path pythonModuleInstallDir,
                                            boolean forcePythonConfig) throws IOException {
         Path beampyDir = pythonModuleInstallDir.resolve(BEAMPY_DIR_NAME);
@@ -122,8 +108,6 @@ class PyBridge {
         if (Debug.isEnabled() && System.getProperty(JPY_DEBUG_PROPERTY) == null) {
             System.setProperty(JPY_DEBUG_PROPERTY, "true");
         }
-
-        return beampyDir;
     }
 
     /**
@@ -234,6 +218,37 @@ class PyBridge {
             TreeCopier.copy(getResourcePath(sourceName), testsDir);
         } catch (IOException e) {
             LOG.warning("Failed to unpack SNAP-Python resources to: " + testsDir);
+        }
+    }
+
+    private static boolean isForcePythonConfig() {
+        return System.getProperty(FORCE_PYTHON_CONFIG_PROPERTY, "true").equalsIgnoreCase("true");
+    }
+
+    private static String getPythonExecutable() {
+        return System.getProperty(PYTHON_EXECUTABLE_PROPERTY, "python");
+    }
+
+    private static Path getPythonModuleInstallDir() {
+        Path pythonModuleInstallDir;
+        String pythonModuleDirStr = System.getProperty(PYTHON_MODULE_INSTALL_DIR_PROPERTY);
+        if (pythonModuleDirStr != null) {
+            pythonModuleInstallDir = Paths.get(pythonModuleDirStr);
+        } else {
+            pythonModuleInstallDir = Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "snap-python");
+        }
+        return pythonModuleInstallDir.toAbsolutePath().normalize();
+    }
+
+
+    private static void startPython(Path pythonModuleInstallDir) {
+        //PyLib.Diag.setFlags(PyLib.Diag.F_ALL);
+        String pythonVersion = PyLib.getPythonVersion();
+        LOG.info("Running Python " + pythonVersion);
+        if (!PyLib.isPythonRunning()) {
+            PyLib.startPython(pythonModuleInstallDir.toString());
+        } else {
+            extendSysPath(pythonModuleInstallDir.toString());
         }
     }
 
