@@ -126,13 +126,6 @@ class PyBridge {
         return beampyDir;
     }
 
-    private static void unpackPythonModuleDir(Path pythonModuleDir) throws IOException {
-        TreeCopier.copyDir(getResourcePath("beampy-examples"), pythonModuleDir.resolve("examples"));
-        TreeCopier.copyDir(getResourcePath("beampy-tests"), pythonModuleDir.resolve("tests"));
-        TreeCopier.copy(getResourcePath(BEAMPY_DIR_NAME), pythonModuleDir);
-        LOG.info("SNAP-Python module directory: " + pythonModuleDir);
-    }
-
     /**
      * Extends Python's system path (it's global {@code sys.path} variable) by the given path, if not already present.
      *
@@ -225,4 +218,23 @@ class PyBridge {
             throw new RuntimeException("Failed to detect the module's code base path", e);
         }
     }
+
+    private static void unpackPythonModuleDir(Path pythonModuleDir) throws IOException {
+        Files.createDirectories(pythonModuleDir);
+        TreeCopier.copy(getResourcePath(BEAMPY_DIR_NAME), pythonModuleDir);
+        LOG.info("SNAP-Python module directory: " + pythonModuleDir);
+        unpackPythonResources(pythonModuleDir, "beampy-tests", "tests");
+        unpackPythonResources(pythonModuleDir, "beampy-examples", "examples");
+    }
+
+    private static void unpackPythonResources(Path pythonModuleDir, String sourceName, String targetName) {
+        Path testsDir = pythonModuleDir.resolve(targetName);
+        try {
+            Files.createDirectories(testsDir);
+            TreeCopier.copy(getResourcePath(sourceName), testsDir);
+        } catch (IOException e) {
+            LOG.warning("Failed to unpack SNAP-Python resources to: " + testsDir);
+        }
+    }
+
 }
