@@ -24,7 +24,6 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.GenericBinaryDialog;
 import org.esa.nest.dataio.FileImageInputStreamExtImpl;
 import org.esa.nest.dataio.binary.ArrayCopy;
@@ -78,7 +77,7 @@ public class GenericReader extends AbstractProductReader {
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        if (VisatApp.getApp() != null) {
+        if (SnapApp.getDefault() != null) {
             //if in DAT then open options dialog
             final GenericBinaryDialog dialog = new GenericBinaryDialog(SnapApp.getDefault().getMainFrame(), "importGenericBinary");
             if (dialog.show() == ModalDialog.ID_OK) {

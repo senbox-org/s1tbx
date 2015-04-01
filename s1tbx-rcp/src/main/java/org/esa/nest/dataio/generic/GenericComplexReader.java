@@ -8,7 +8,6 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.ComplexBinaryDialog;
 import org.esa.nest.dataio.FileImageInputStreamExtImpl;
 import org.esa.nest.dataio.binary.BinaryFileReader;
@@ -58,7 +57,7 @@ public class GenericComplexReader extends GenericReader {
      */
     @Override
     protected Product readProductNodesImpl() throws IOException {
-        if (VisatApp.getApp() != null) {
+        if (SnapApp.getDefault() != null) {
             //if in DAT then open options dialog
             final ComplexBinaryDialog dialog = new ComplexBinaryDialog(SnapApp.getDefault().getMainFrame(), "importGenericBinary");
             if (dialog.show() == ModalDialog.ID_OK) {

@@ -2,7 +2,6 @@ package org.esa.nest.dat.utils;
 
 import com.bc.io.FileDownloader;
 import com.bc.io.FileUnpacker;
-import org.esa.beam.visat.VisatApp;
 import org.esa.snap.rcp.SnapApp;
 
 import java.awt.*;
@@ -39,9 +38,8 @@ public class AutoDownload {
 
     private synchronized static void downloadDGGTiles(final String message, final File installDir,
                                                       final String ARCHIVE_URL_PATH) throws IOException {
-        final VisatApp visatApp = VisatApp.getApp();
-        if (visatApp != null) {
-            visatApp.setStatusBarMessage(message);
+        if (SnapApp.getDefault() != null) {
+            SnapApp.getDefault().setStatusBarMessage(message);
         }
         final Component parent = SnapApp.getDefault() != null ? SnapApp.getDefault().getMainFrame() : null;
 
@@ -49,8 +47,8 @@ public class AutoDownload {
         FileUnpacker.unpackZip(archiveFile, installDir, parent);
         archiveFile.delete();
 
-        if (visatApp != null) {
-            visatApp.setStatusBarMessage("");
+        if (SnapApp.getDefault() != null) {
+            SnapApp.getDefault().setStatusBarMessage("");
         }
     }
 }

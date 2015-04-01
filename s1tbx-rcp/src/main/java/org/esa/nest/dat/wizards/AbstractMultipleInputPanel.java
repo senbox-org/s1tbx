@@ -15,9 +15,9 @@
  */
 package org.esa.nest.dat.wizards;
 
-import org.esa.beam.visat.VisatApp;
 import org.esa.snap.dat.dialogs.FileTable;
 import org.esa.snap.dat.dialogs.ProductSetPanel;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import java.awt.*;
@@ -73,7 +73,7 @@ public abstract class AbstractMultipleInputPanel extends WizardPanel {
         final JPanel textPanel = createTextPanel("Instructions", getInstructions());
         this.add(textPanel, BorderLayout.NORTH);
 
-        productSetPanel = new ProductSetPanel(VisatApp.getApp(), null, new FileTable(), true, true);
+        productSetPanel = new ProductSetPanel(new SnapApp.SnapContext(), null, new FileTable(), true, true);
         this.add(productSetPanel, BorderLayout.CENTER);
     }
 }

@@ -57,7 +57,7 @@ public class CreateElevationAction extends ExecCommand {
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        final Product product = VisatApp.getApp().getSelectedProduct();
+        final Product product = SnapApp.getDefault().getSelectedProduct();
         final DialogData dialogData = requestDialogData(product);
         if (dialogData == null) {
             return;
@@ -93,7 +93,7 @@ public class CreateElevationAction extends ExecCommand {
 
     @Override
     public void updateState(CommandEvent event) {
-        final Product product = VisatApp.getApp().getSelectedProduct();
+        final Product product = SnapApp.getDefault().getSelectedProduct();
         setEnabled(product != null && product.getGeoCoding() != null);
     }
 

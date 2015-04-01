@@ -418,7 +418,7 @@ public class DatApp extends VisatApp {
                 item.addActionListener(new ActionListener() {
 
                     public void actionPerformed(final ActionEvent e) {
-                        final GraphBuilderDialog dialog = new GraphBuilderDialog(VisatApp.getApp(),
+                        final GraphBuilderDialog dialog = new GraphBuilderDialog(new SnapApp.SnapContext(),
                                 "Graph Builder", "graph_builder");
                         dialog.show();
                         dialog.LoadGraph(file);

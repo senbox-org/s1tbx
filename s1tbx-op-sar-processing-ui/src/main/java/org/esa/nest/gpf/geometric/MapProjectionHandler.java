@@ -23,7 +23,6 @@ import org.esa.beam.framework.ui.crs.CrsSelectionPanel;
 import org.esa.beam.framework.ui.crs.CustomCrsForm;
 import org.esa.beam.framework.ui.crs.PredefinedCrsForm;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.visat.VisatApp;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.geotools.referencing.CRS;
@@ -101,7 +100,7 @@ public class MapProjectionHandler {
 
     public void promptForFeatureCrs(final Product[] sourceProducts) {
 
-        final ModalDialog dialog = new ModalDialog(VisatApp.getApp().getApplicationWindow(),
+        final ModalDialog dialog = new ModalDialog(null,
                 "Map Projection",
                 ModalDialog.ID_OK_CANCEL_HELP, "mapProjection");
 

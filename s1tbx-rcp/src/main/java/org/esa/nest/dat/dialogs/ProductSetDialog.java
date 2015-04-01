@@ -17,7 +17,6 @@ package org.esa.nest.dat.dialogs;
 
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.ModelessDialog;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.toolviews.Projects.ProductSet;
 import org.esa.snap.dat.dialogs.FileTable;
 import org.esa.snap.dat.dialogs.ProductSetPanel;
@@ -46,7 +45,7 @@ public class ProductSetDialog extends ModelessDialog {
 
         productSetTable.setFiles(productSet.getFileList());
 
-        final ProductSetPanel content = new ProductSetPanel(VisatApp.getApp(), "", productSetTable, false, true);
+        final ProductSetPanel content = new ProductSetPanel(new SnapApp.SnapContext(), "", productSetTable, false, true);
 
         final JPanel topPanel = new JPanel(new BorderLayout(4, 4));
         final JLabel nameLabel = new JLabel("Name:");

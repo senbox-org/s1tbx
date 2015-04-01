@@ -15,11 +15,16 @@
  */
 package org.esa.nest.dat;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
 
 /**
  * LinearTodB action.
@@ -31,24 +36,22 @@ public class LinearTodBOpAction extends AbstractVisatAction {
     @Override
     public void actionPerformed(CommandEvent event) {
 
-        final VisatApp visatApp = VisatApp.getApp();
-
-        final ProductNode node = visatApp.getSelectedProductNode();
+        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
         if (node instanceof Band) {
-            final Product product = visatApp.getSelectedProduct();
+            final Product product = SnapApp.getDefault().getSelectedProduct();
             final Band band = (Band) node;
             final String unit = band.getUnit();
 
             if (!unit.contains(Unit.DB)) {
 
-                if (visatApp.showQuestionDialog("Convert to dB", "Would you like to convert band "
-                        + band.getName() + " into dB in a new virtual band?", true, null) == 0) {
+                if (SnapDialogs.requestDecision("Convert to dB", "Would you like to convert band "
+                        + band.getName() + " into dB in a new virtual band?", true, null) == SnapDialogs.Answer.YES) {
                     convert(product, band, true);
                 }
             } else {
 
-                if (visatApp.showQuestionDialog("Convert to linear", "Would you like to convert band "
-                        + band.getName() + " into linear in a new virtual band?", true, null) == 0) {
+                if (SnapDialogs.requestDecision("Convert to linear", "Would you like to convert band "
+                        + band.getName() + " into linear in a new virtual band?", true, null) == SnapDialogs.Answer.YES) {
                     convert(product, band, false);
                 }
             }
@@ -57,7 +60,7 @@ public class LinearTodBOpAction extends AbstractVisatAction {
 
     @Override
     public void updateState(CommandEvent event) {
-        final ProductNode node = VisatApp.getApp().getSelectedProductNode();
+        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
         if (node instanceof Band) {
             final Band band = (Band) node;
             final String unit = band.getUnit();

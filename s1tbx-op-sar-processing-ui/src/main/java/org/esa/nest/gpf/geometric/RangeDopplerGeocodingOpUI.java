@@ -17,24 +17,29 @@ package org.esa.nest.gpf.geometric;
 
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
+import org.esa.beam.framework.ui.AppContext;
+import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.nest.datamodel.CalibrationFactory;
 import org.esa.nest.datamodel.Calibrator;
-import org.esa.snap.gpf.ui.BaseOperatorUI;
-import org.esa.snap.gpf.ui.UIValidation;
-import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dataio.dem.DEMFactory;
+import org.esa.nest.gpf.CalibrationOp;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.eo.Constants;
-import org.esa.nest.gpf.CalibrationOp;
+import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.snap.gpf.ui.OperatorUIUtils;
+import org.esa.snap.gpf.ui.UIValidation;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.DialogUtils;
 import org.geotools.referencing.wkt.UnformattableObjectException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.Map;
 
@@ -157,7 +162,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
         externalDEMBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final File file = VisatApp.getApp().showFileOpenDialog("External DEM File", false, null);
+                final File file = SnapDialogs.requestFileForOpen("External DEM File", false, null, null);
                 externalDEMFile.setText(file.getAbsolutePath());
                 extNoDataValue = OperatorUIUtils.getNoDataValue(file);
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));
@@ -265,7 +270,7 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
 
         externalAuxFileBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final File file = VisatApp.getApp().showFileOpenDialog("External Aux File", false, null);
+                final File file = SnapDialogs.requestFileForOpen("External Aux File", false, null, null);
                 externalAuxFile.setText(file.getAbsolutePath());
             }
         });

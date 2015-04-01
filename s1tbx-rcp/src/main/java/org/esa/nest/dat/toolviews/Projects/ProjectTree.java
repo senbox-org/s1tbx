@@ -18,10 +18,15 @@ package org.esa.nest.dat.toolviews.Projects;
 import org.esa.beam.framework.ui.PopupMenuFactory;
 import org.esa.beam.framework.ui.PopupMenuHandler;
 import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.visat.VisatApp;
+import org.esa.snap.rcp.SnapDialogs;
 
 import javax.swing.*;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -207,10 +212,11 @@ class ProjectTree extends JTree implements PopupMenuFactory, ActionListener {
             final ProjectSubFolder parentFolder = (ProjectSubFolder) parentNode.getUserObject();
             if (parentNode != null && parentFolder != null) {
                 final ProjectFile file = (ProjectFile) menuContext;
-                final int status = VisatApp.getApp().showQuestionDialog("Are you sure you want to delete "
-                        + file.getFile().toString(), "");
-                if (status == JOptionPane.YES_OPTION)
+                final SnapDialogs.Answer status = SnapDialogs.requestDecision("Delete","Are you sure you want to delete "
+                                                       + file.getFile().toString(), true, null);
+                if (status == SnapDialogs.Answer.YES) {
                     project.removeFile(parentFolder, file.getFile());
+                }
             }
         } else if (actionCmd.equals("Open")) {
             final ProjectSubFolder parentFolder = (ProjectSubFolder) parentNode.getUserObject();

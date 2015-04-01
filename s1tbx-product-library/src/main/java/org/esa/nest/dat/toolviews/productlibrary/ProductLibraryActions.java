@@ -2,7 +2,6 @@ package org.esa.nest.dat.toolviews.productlibrary;
 
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.io.BeamFileChooser;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.toolviews.productlibrary.model.SortingDecorator;
 import org.esa.snap.dat.dialogs.BatchGraphDialog;
 import org.esa.snap.datamodel.AbstractMetadata;
@@ -14,7 +13,6 @@ import org.esa.snap.util.DialogUtils;
 import org.esa.snap.util.ProductOpener;
 import org.esa.snap.util.ResourceUtils;
 import org.jlinda.nest.dat.dialogs.InSARMasterDialog;
-
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -114,7 +112,7 @@ public class ProductLibraryActions {
     }
 
     private static void batchProcess(final ProductEntry[] productEntryList, final File graphFile) {
-        final BatchGraphDialog batchDlg = new BatchGraphDialog(VisatApp.getApp(),
+        final BatchGraphDialog batchDlg = new BatchGraphDialog(new SnapApp.SnapContext(),
                 "Batch Processing", "batchProcessing", false);
         batchDlg.setInputFiles(productEntryList);
         if (graphFile != null) {

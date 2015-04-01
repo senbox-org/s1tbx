@@ -16,8 +16,8 @@
 package org.esa.nest.dat.wizards;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.visat.VisatApp;
 import org.esa.snap.dat.dialogs.SourceProductPanel;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import java.awt.*;
@@ -68,7 +68,7 @@ public abstract class AbstractInputPanel extends WizardPanel {
         final JPanel textPanel = createTextPanel("Instructions", getInstructions());
         this.add(textPanel, BorderLayout.NORTH);
 
-        sourcePanel = new SourceProductPanel(VisatApp.getApp());
+        sourcePanel = new SourceProductPanel(new SnapApp.SnapContext());
         sourcePanel.initProducts();
         this.add(sourcePanel, BorderLayout.CENTER);
     }

@@ -19,8 +19,11 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dat.toolviews.productlibrary.model.*;
+import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseQueryListener;
+import org.esa.nest.dat.toolviews.productlibrary.model.DatabaseStatistics;
+import org.esa.nest.dat.toolviews.productlibrary.model.ProductEntryTableModel;
+import org.esa.nest.dat.toolviews.productlibrary.model.ProductLibraryConfig;
+import org.esa.nest.dat.toolviews.productlibrary.model.SortingDecorator;
 import org.esa.nest.dat.toolviews.productlibrary.timeline.TimelinePanel;
 import org.esa.snap.dat.dialogs.CheckListDialog;
 import org.esa.snap.db.DBQuery;
@@ -32,7 +35,14 @@ import org.esa.snap.util.FileFolderUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -339,27 +349,29 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         final Object selectedItem = repositoryListCombo.getSelectedItem();
         final int index = repositoryListCombo.getSelectedIndex();
         if (index == 0) {
-            final int status = VisatApp.getApp().showQuestionDialog("This will remove all folders and products from the database.\n" +
-                    "Are you sure you wish to continue?", null);
-            if (status == JOptionPane.NO_OPTION)
-                return;
-            while (repositoryListCombo.getItemCount() > 1) {
-                final File baseDir = (File) repositoryListCombo.getItemAt(1);
-                libConfig.removeBaseDir(baseDir);
-                repositoryListCombo.removeItemAt(1);
-            }
-            removeProducts(null); // remove all
+            final SnapDialogs.Answer status = SnapDialogs.requestDecision("Remove folders",
+                                                              "This will remove all folders and products from the database.\n" +
+                                                                      "Are you sure you wish to continue?", true, null);
+            if (status == SnapDialogs.Answer.YES) {
 
+                while (repositoryListCombo.getItemCount() > 1) {
+                    final File baseDir = (File) repositoryListCombo.getItemAt(1);
+                    libConfig.removeBaseDir(baseDir);
+                    repositoryListCombo.removeItemAt(1);
+                }
+                removeProducts(null); // remove all
+            }
         } else if (selectedItem instanceof File) {
             final File baseDir = (File) selectedItem;
-            final int status = VisatApp.getApp().showQuestionDialog("This will remove all products within " +
-                    baseDir.getAbsolutePath() + " from the database\n" +
-                    "Are you sure you wish to continue?", null);
-            if (status == JOptionPane.NO_OPTION)
-                return;
-            libConfig.removeBaseDir(baseDir);
-            repositoryListCombo.removeItemAt(index);
-            removeProducts(baseDir);
+            final SnapDialogs.Answer status = SnapDialogs.requestDecision("Remove products",
+                                                           "This will remove all products within " +
+                                                                   baseDir.getAbsolutePath() + " from the database\n" +
+                                                                   "Are you sure you wish to continue?", true, null);
+            if (status == SnapDialogs.Answer.YES) {
+                libConfig.removeBaseDir(baseDir);
+                repositoryListCombo.removeItemAt(index);
+                removeProducts(baseDir);
+            }
         }
     }
 
@@ -441,9 +453,9 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
             ++cnt;
         }
         final String question = "\nWould you like to save the list to a text file?";
-        if (VisatApp.getApp().showQuestionDialog("Product Errors",
-                "The follow files have errors:\n" + str.toString() + question,
-                null) == 0) {
+        if (SnapDialogs.requestDecision("Product Errors",
+                                         "The follow files have errors:\n" + str.toString() + question,
+                                         false, null) == SnapDialogs.Answer.YES) {
 
             File file = FileFolderUtils.GetSaveFilePath("Save as...", "Text", "txt",
                                                         "ProductErrorList", "Products with errors");

@@ -16,9 +16,9 @@
 package org.csa.rstb.dat.wizards.TerrainFlattenedClassification;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.wizards.WizardPanel;
 import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,7 +34,7 @@ public class TerrainFlattenedWizardProcessPanel extends WizardPanel {
     public TerrainFlattenedWizardProcessPanel(final Product srcProduct) {
         super("Terrain Flattened Terrain Correction");
 
-        graphDialog = new GraphBuilderDialog(VisatApp.getApp(), "TerrainFlatten", "Terrain Flattened Terrain Correction", false);
+        graphDialog = new GraphBuilderDialog(new SnapApp.SnapContext(), "TerrainFlatten", "Terrain Flattened Terrain Correction", false);
 
         final File graphFile = new File(wizardGraphPath, "TerrainFlattenedT3.xml");
 
