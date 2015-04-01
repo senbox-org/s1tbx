@@ -76,10 +76,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.google.jimfs</groupId>
-            <artifactId>jimfs</artifactId>
-        </dependency>
 
     </dependencies>
 
@@ -93,8 +89,6 @@
                         <publicPackage>org.xmlpull.*</publicPackage>
                         <publicPackage>org.jdom2.*</publicPackage>
                         <publicPackage>com.thoughtworks.xstream.*</publicPackage>
-
-                        <publicPackage>com.google.common.jimfs</publicPackage>
 
                         <publicPackage>org.apache.commons.lang.*</publicPackage>
                         <publicPackage>org.apache.commons.logging.*</publicPackage>
