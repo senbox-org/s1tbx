@@ -18,6 +18,7 @@ package org.esa.nest.dataio.binary;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.SystemUtils;
 import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.XMLSupport;
 import org.jdom2.Attribute;
@@ -25,6 +26,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 
 import java.io.File;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -200,9 +202,9 @@ public final class BinaryDBReader {
 
         } catch (Exception e) {
             if (e.getCause() != null)
-                System.out.println(' ' + e.toString() + ':' + e.getCause().toString() + " for " + name);
+                SystemUtils.LOG.severe(' ' + e.toString() + ':' + e.getCause().toString() + " for " + name);
             else
-                System.out.println(' ' + e.toString() + ':' + " for " + name);
+                SystemUtils.LOG.severe(' ' + e.toString() + ':' + " for " + name);
         }
     }
 
@@ -306,9 +308,9 @@ public final class BinaryDBReader {
 
         } catch (Exception e) {
             if (e.getCause() != null)
-                System.out.println(' ' + e.toString() + ':' + e.getCause().toString() + " for " + name);
+                SystemUtils.LOG.severe(' ' + e.toString() + ':' + e.getCause().toString() + " for " + name);
             else
-                System.out.println(' ' + e.toString() + ':' + " for " + name);
+                SystemUtils.LOG.severe(' ' + e.toString() + ':' + " for " + name);
             //throw new IllegalBinaryFormatException(e.toString(), reader.getCurrentPos());
         }
     }
@@ -316,7 +318,7 @@ public final class BinaryDBReader {
     private Object get(final String name) {
         final Object obj = metaMap.get(name);
         if (obj == null && DEBUG_MODE) {
-            System.out.println("metadata " + name + " is null");
+            SystemUtils.LOG.info("metadata " + name + " is null");
         }
         return obj;
     }
@@ -346,15 +348,23 @@ public final class BinaryDBReader {
      */
     public static Document loadDefinitionFile(final String mission, final String fileName) {
         try {
-            final File defFile = getResFile(mission, fileName);
-            return XMLSupport.LoadXML(defFile.getAbsolutePath());
+            final URL defFile = getResURL(mission, fileName);
+            return XMLSupport.LoadXML(defFile.openStream());
         } catch (Exception e) {
-            System.out.println(e.toString());
+            SystemUtils.LOG.severe("Unable to open "+fileName+": "+e.getMessage());
         }
         return null;
     }
 
+    private static URL getResURL(final String mission, final String fileName) {
+
+        final String base = "/org/esa/nest/dataio/";
+        final String path = base + "ceos_db" + File.separator + mission + File.separator + fileName;
+        return BinaryDBReader.class.getResource(path);
+    }
+
     private static File getResFile(final String mission, final String fileName) {
+
         final String homeUrl = ResourceUtils.findHomeFolder().getAbsolutePath();
         final String path = homeUrl + File.separator + "resource" + File.separator + "ceos_db" +
                 File.separator + mission + File.separator + fileName;
