@@ -19,6 +19,9 @@
 	<dependency>
         <module>snap-graph-builder</module>
     </dependency>
+    <dependency>
+        <module>snap-gpf-ui</module>
+    </dependency>
 
     <categories>Processor</categories>
 
@@ -285,7 +288,7 @@
             <parent>ClusteringGroup</parent>
             <id>emClusterAnalysis</id>
             <text>EM Cluster Analysis...</text>
-            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <mnemonic>C</mnemonic>
             <operatorName>EMClusterAnalysis</operatorName>
             <dialogTitle>EM Cluster Analysis</dialogTitle>
@@ -296,7 +299,7 @@
             <parent>ClusteringGroup</parent>
             <id>kmeansClusterAnalysis</id>
             <text>K-Means Cluster Analysis...</text>
-            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
             <mnemonic>C</mnemonic>
             <operatorName>KMeansClusterAnalysis</operatorName>
             <dialogTitle>K-Means Cluster Analysis</dialogTitle>
