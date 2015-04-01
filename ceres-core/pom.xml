@@ -17,20 +17,18 @@
     </description>
 
     <dependencies>
+        <!--
+            The following libraries are used in and out we let ceres-core export the API,
+            although we don't use it directly here.
+        -->
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
         </dependency>
         <dependency>
             <groupId>xpp3</groupId>
-            <artifactId>xpp3</artifactId>
+            <artifactId>xpp3_min</artifactId>
         </dependency>
-
-        <!--
-            The following libraries are used in and out we let ceres-core export the API,
-            although we don't use it directly here.
-        -->
-
         <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom2</artifactId>
@@ -78,6 +76,10 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+        </dependency>
 
     </dependencies>
 
@@ -88,15 +90,11 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
-                        <!--
-                        todo - fix this export, without it we get for module ceres-jai:
-                        [INFO] Private classes referenced in module: [javax.xml.namespace.QName]
-                        [ERROR] Project depends on packages not accessible at runtime in module org.esa.snap:ceres-core:jar:2.0.0-SNAPSHOT
-                         -->
-                        <publicPackage>javax.xml.*</publicPackage>
                         <publicPackage>org.xmlpull.*</publicPackage>
                         <publicPackage>org.jdom2.*</publicPackage>
                         <publicPackage>com.thoughtworks.xstream.*</publicPackage>
+
+                        <publicPackage>com.google.common.jimfs</publicPackage>
 
                         <publicPackage>org.apache.commons.lang.*</publicPackage>
                         <publicPackage>org.apache.commons.logging.*</publicPackage>

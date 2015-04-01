@@ -541,6 +541,15 @@
                 <scope>test</scope>
             </dependency>
 
+            <!-- Jimfs - Ram Disk File System ############################################# -->
+
+            <dependency>
+                <groupId>com.google.jimfs</groupId>
+                <artifactId>jimfs</artifactId>
+                <version>1.0</version>
+                <scope>test</scope>
+            </dependency>
+
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-core</artifactId>
@@ -593,7 +602,7 @@
             </dependency>
             <dependency>
                 <groupId>xpp3</groupId>
-                <artifactId>xpp3</artifactId>
+                <artifactId>xpp3_min</artifactId>
                 <version>1.1.4c</version>
             </dependency>
 
