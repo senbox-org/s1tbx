@@ -419,6 +419,9 @@ public final class TOPSARDeburstOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_lat, latGrid.getPixelFloat(targetWidth, targetHeight));
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_long, lonGrid.getPixelFloat(targetWidth, targetHeight));
 
+        AbstractMetadata.setAttribute(absTgt, AbstractMetadata.slant_range_to_first_pixel,
+                targetSlantRangeTimeToFirstPixel * Constants.lightSpeed);
+
         for(MetadataElement elem : absTgt.getElements()) {
             if(elem.getName().startsWith(AbstractMetadata.BAND_PREFIX)) {
                 absTgt.removeElement(elem);
