@@ -130,9 +130,6 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
-                        <publicPackage>com.sun.media.*</publicPackage>
-                        <publicPackage>com.sun.medialib.codec.*</publicPackage>
-                        <publicPackage>com.sun.medialib.mlib.*</publicPackage>
                         <publicPackage>it.geosolutions.imageio.plugins.tiff</publicPackage>
                         <publicPackage>it.geosolutions.imageioimpl.plugins.tiff</publicPackage>
                         <publicPackage>javax.measure.*</publicPackage>
