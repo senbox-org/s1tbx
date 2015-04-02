@@ -1,4 +1,4 @@
-package org.esa.beam.framework.gpf.jpy;
+package org.esa.snap.gpf.python;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;

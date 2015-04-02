@@ -1,4 +1,4 @@
-package org.esa.beam.framework.gpf.jpy;
+package org.esa.snap.python;
 
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
@@ -21,28 +21,30 @@ import static org.esa.beam.util.SystemUtils.LOG;
 
 /**
  * This class is used to establish the bridge between Java and Python.
- * It basically let's a given Python interpreter execute the file 'snappyutil.py' found in the 'snappy'
- * folder of the unpacked SNAP-Python module.
+ * It unpacks the Python module 'snappy' to a user configurable location
+ * and executes the script 'snappy/snappyutil.py' with appropriate parameters.
  * <p>
  * 'snappyutil.py' again configures 'jpy' by selecting and unpacking appropriate
- * jpy tools and binaries found as 'jpy.&lt;platform&gt;-&lt;python-version&gt;.zip' in the 'lib' folder of the unpacked SNAP-Python module.
- * 'snappyutil.py' will then call 'jpyutil.py' to write the Java- and Python-side configuration files 'jpyutil.properties'
- * and 'jpyconfig.py'.
+ * jpy tools and binaries found as 'jpy.&lt;platform&gt;-&lt;python-version&gt;.zip' in the 'lib' resources folder
+ * of this Java module.
+ * 'snappyutil.py' will then call 'jpyutil.py' to write the Java- and Python-side configuration files
+ * 'jpyutil.properties' and 'jpyconfig.py'.
  * <p>
  * Then, 'jpyutil.properties' will be used by jpy's {@code PyLib} class to identify its correct binaries.
- * {@code PyLib} is finally used to start an embedded Python interpreter using the shared Python library that belongs to the Python
- * interpreter that was used to execute 'snappyutil.py'.
+ * {@code PyLib} is finally used to start an embedded Python interpreter using the shared Python library that belongs
+ * to the Python interpreter that was used to execute 'snappyutil.py'.
  * <p>
  * The following system properties can be used to configure this class:
  * <p>
  * <ol>
- * <li>{@code snap.pythonExecutable}: The python executable to be used with SNAP. The default value is {@code "python"}.</li>
+ * <li>{@code snap.pythonModuleDir}: The directory in which the Python module 'snappy' will be installed. The default value is {@code "~/modules/snap-python"}.</li>
+ * <li>{@code snap.pythonExecutable}: The Python executable to be used with SNAP. The default value is {@code "python"}.</li>
  * <li>{@code snap.forcePythonConfig}: Forces reconfiguration of the bridge for each SNAP run. The default value is {@code "true"}</li>
  * </ol>
  *
  * @author Norman Fomferra
  */
-class PyBridge {
+public class PyBridge {
 
     public static final String SNAPPYUTIL_PY_FILENAME = "snappyutil.py";
     public static final String SNAPPYUTIL_LOG_FILENAME = "snappyutil.log";
@@ -82,9 +84,9 @@ class PyBridge {
         }
     }
 
-    public static void installPythonModule(String pythonExecutable,
-                                           Path pythonModuleInstallDir,
-                                           boolean forcePythonConfig) throws IOException {
+    public synchronized static void installPythonModule(String pythonExecutable,
+                                                        Path pythonModuleInstallDir,
+                                                        boolean forcePythonConfig) throws IOException {
         Path snappyDir = pythonModuleInstallDir.resolve(SNAPPY_DIR_NAME);
         if (forcePythonConfig || !Files.isDirectory(snappyDir)) {
             unpackPythonModuleDir(snappyDir);

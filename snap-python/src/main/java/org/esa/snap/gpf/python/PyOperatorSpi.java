@@ -1,4 +1,4 @@
-package org.esa.beam.framework.gpf.jpy;
+package org.esa.snap.gpf.python;
 
 import com.bc.ceres.core.ResourceLocator;
 import org.esa.beam.framework.gpf.GPF;
@@ -22,7 +22,10 @@ import java.util.logging.Level;
 import static org.esa.beam.util.SystemUtils.LOG;
 
 /**
+ * The service provider interface (SPI) for the SNAP Python operator.
+ *
  * @author Norman Fomferra
+ * @since SNAP 2.0
  */
 public class PyOperatorSpi extends OperatorSpi {
 

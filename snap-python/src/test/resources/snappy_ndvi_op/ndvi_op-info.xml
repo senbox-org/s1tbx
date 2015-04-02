@@ -7,7 +7,7 @@
     <name>org.esa.snap.python.NdviOp</name>
     <!-- The alias is a more user-friendly name, e.g. to be used on the command line -->
     <alias>py_ndvi_op</alias>
-    <operatorClass>org.esa.beam.framework.gpf.jpy.PyOperator</operatorClass>
+    <operatorClass>org.esa.snap.gpf.python.PyOperator</operatorClass>
 
     <version>1.0</version>
     <authors>Brockmann Consult GmbH</authors>

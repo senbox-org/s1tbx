@@ -1,4 +1,4 @@
-package org.esa.beam.framework.gpf.jpy;
+package org.esa.snap.gpf.python;
 
 
 import com.bc.ceres.core.ProgressMonitor;
@@ -8,6 +8,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.snap.python.PyBridge;
 import org.jpy.PyLib;
 import org.jpy.PyModule;
 import org.jpy.PyObject;
@@ -36,13 +37,13 @@ public class PyOperator extends Operator {
     private String pythonModuleName;
 
     /**
-     * Name of the Python class which implements the {@link org.esa.beam.framework.gpf.jpy.PyOperator.PythonProcessor} interface.
+     * Name of the Python class which implements the {@link PyOperatorDelegate} interface.
      */
     @Parameter(description = "Name of the Python class which implements the operator. Please refer to the SNAP help for details.")
     private String pythonClassName;
 
     private transient PyModule pyModule;
-    private transient PythonProcessor pythonProcessor;
+    private transient PyOperatorDelegate pythonProcessor;
 
 
     public String getPythonModulePath() {
@@ -93,7 +94,7 @@ public class PyOperator extends Operator {
 
             pyModule = PyModule.importModule(pythonModuleName);
             PyObject pythonProcessorImpl = pyModule.call(pythonClassName);
-            pythonProcessor = pythonProcessorImpl.createProxy(PythonProcessor.class);
+            pythonProcessor = pythonProcessorImpl.createProxy(PyOperatorDelegate.class);
             pythonProcessor.initialize(this);
         }
     }
@@ -114,34 +115,6 @@ public class PyOperator extends Operator {
             //System.out.println("dispose: thread = " + Thread.currentThread());
             pythonProcessor.dispose(this);
         }
-    }
-
-    /**
-     * The interface that the given Python class must implement.
-     */
-    public interface PythonProcessor {
-        /**
-         * Initialize the operator.
-         *
-         * @param operator The GPF operator which called the Python code.
-         */
-        void initialize(Operator operator);
-
-        /**
-         * Compute the tiles associated with the given bands.
-         *
-         * @param operator        The GPF operator which called the Python code.
-         * @param targetTiles     a mapping from {@link Band} objects to {@link Tile} objects.
-         * @param targetRectangle the target rectangle to process in pixel coordinates.
-         */
-        void compute(Operator operator, Map<Band, Tile> targetTiles, Rectangle targetRectangle);
-
-        /**
-         * Disposes the operator and all the resources associated with it.
-         *
-         * @param operator The GPF operator which called the Python code.
-         */
-        void dispose(Operator operator);
     }
 
 }

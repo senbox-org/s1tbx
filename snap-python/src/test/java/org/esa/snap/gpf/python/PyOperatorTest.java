@@ -1,10 +1,11 @@
-package org.esa.beam.framework.gpf.jpy;
+package org.esa.snap.gpf.python;
 
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.descriptor.DefaultOperatorDescriptor;
 import org.esa.beam.framework.gpf.main.GPT;
 import org.esa.beam.util.io.TreeDeleter;
+import org.esa.snap.python.PyBridge;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -15,7 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.esa.beam.framework.gpf.jpy.PyOperatorSpi.EXT_PROPERTY_NAME;
+import static org.esa.snap.gpf.python.PyOperatorSpi.EXT_PROPERTY_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
