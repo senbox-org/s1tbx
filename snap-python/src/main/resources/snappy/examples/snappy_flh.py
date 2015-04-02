@@ -1,20 +1,16 @@
 import sys
 
 import numpy
-from beampy import String
-from beampy import Product
-from beampy import ProductData
-from beampy import ProductIO
-from beampy import ProductUtils
+from snappy import String
+from snappy import Product
+from snappy import ProductData
+from snappy import ProductIO
+from snappy import ProductUtils
 
 
 if len(sys.argv) != 2:
     print("usage: %s <file>" % sys.argv[0]);
     sys.exit(1)
-
-# Uncomment if you receive errors of type com.sun.media.jai.util.ServiceConfigurationError, see
-# http://www.brockmann-consult.de/beam-jira/browse/BEAM-1699
-#beampy.SystemUtils.init3rdPartyLibs(None)  # Initialise BEAM's third party Java libraries JAI and GeoTools.
 
 print("Reading...")
 sourceProduct = ProductIO.readProduct(sys.argv[1])
@@ -34,7 +30,7 @@ targetBand = targetProduct.addBand('FLH', ProductData.TYPE_FLOAT32)
 ProductUtils.copyGeoCoding(sourceProduct, targetProduct)
 targetProduct.setProductWriter(ProductIO.getProductWriter('GeoTIFF'))
 
-targetProduct.writeHeader(String('beampy_flh_output.tif'))
+targetProduct.writeHeader(String('snappy_flh_output.tif'))
 
 r1 = numpy.zeros(width, dtype=numpy.float32)
 r2 = numpy.zeros(width, dtype=numpy.float32)

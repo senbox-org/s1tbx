@@ -1,11 +1,11 @@
-import beampy
+import snappy
 import numpy
 
 
 class NdviOp:
 
     def __init__(self):
-        #jpy = beampy.jpy
+        #jpy = snappy.jpy
         #jpy.diag.flags = jpy.diag.F_ALL
         self.lower_band = None
         self.upper_band = None
@@ -36,9 +36,9 @@ class NdviOp:
         print('initialize: lower_band =', self.lower_band, ', upper_band =', self.upper_band)
         print('initialize: lower_factor =', self.lower_factor, ', upper_factor =', self.upper_factor)
 
-        ndvi_product = beampy.Product('py_NDVI', 'py_NDVI', width, height)
-        self.ndvi_band = ndvi_product.addBand('ndvi', beampy.ProductData.TYPE_FLOAT32)
-        self.ndvi_flags_band = ndvi_product.addBand('ndvi_flags', beampy.ProductData.TYPE_UINT8)
+        ndvi_product = snappy.Product('py_NDVI', 'py_NDVI', width, height)
+        self.ndvi_band = ndvi_product.addBand('ndvi', snappy.ProductData.TYPE_FLOAT32)
+        self.ndvi_flags_band = ndvi_product.addBand('ndvi_flags', snappy.ProductData.TYPE_UINT8)
 
         operator.setTargetProduct(ndvi_product)
 

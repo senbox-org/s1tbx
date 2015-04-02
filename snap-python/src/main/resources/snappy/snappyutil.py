@@ -8,7 +8,7 @@ import zipfile
 import logging
 
 
-def _configure_beampy(snap_home=None,
+def _configure_snappy(snap_home=None,
                       java_module=None,
                       java_home=None,
                       req_arch=None,
@@ -17,7 +17,7 @@ def _configure_beampy(snap_home=None,
                       force=False):
     """
     Unzips matching jpy binary distribution from ../lib/jpy.<platform>-<python-version>.zip,
-    imports unpacked 'jpyutil' and configures jpy for BEAM.
+    imports unpacked 'jpyutil' and configures jpy for SNAP.
 
     :param snap_home: SNAP distribution directory.
     :param java_home: Java home directory. See also Java system property "java.home".
@@ -43,21 +43,21 @@ def _configure_beampy(snap_home=None,
             logging.warning("architecture requirement possibly not met: "
                             "Python is 64 bit but JVM requires " + req_arch)
 
-    beampy_dir = os.path.dirname(os.path.abspath(__file__))
-    beampy_install_dir = os.path.join(beampy_dir, '..')
-    beampy_ini_file = os.path.join(beampy_install_dir, 'beampy.ini')
+    snappy_dir = os.path.dirname(os.path.abspath(__file__))
+    snappy_install_dir = os.path.join(snappy_dir, '..')
+    snappy_ini_file = os.path.join(snappy_install_dir, 'snappy.ini')
     jpy_distr_name = 'jpy.' + sysconfig.get_platform() + '-' + sysconfig.get_python_version()
-    jpy_info_file = os.path.join(beampy_dir, jpy_distr_name + '.info')
-    jpyutil_file = os.path.join(beampy_dir, 'jpyutil.py')
-    jpyconfig_java_file = os.path.join(beampy_dir, 'jpyconfig.properties')
-    jpyconfig_py_file = os.path.join(beampy_dir, 'jpyconfig.py')
+    jpy_info_file = os.path.join(snappy_dir, jpy_distr_name + '.info')
+    jpyutil_file = os.path.join(snappy_dir, 'jpyutil.py')
+    jpyconfig_java_file = os.path.join(snappy_dir, 'jpyconfig.properties')
+    jpyconfig_py_file = os.path.join(snappy_dir, 'jpyconfig.py')
 
     #
-    # Write initial beampy.ini. Note, this file is only used if you use SNAP from Python, i.e. importing
-    # the beampy module in your Python programs.
+    # Write initial snappy.ini. Note, this file is only used if you use SNAP from Python, i.e. importing
+    # the snappy module in your Python programs.
     #
-    if force or not os.path.exists(beampy_ini_file):
-        with open(beampy_ini_file, 'w') as file:
+    if force or not os.path.exists(snappy_ini_file):
+        with open(snappy_ini_file, 'w') as file:
             file.writelines(['[DEFAULT]\n',
                              'snap_home = %s\n' % snap_home,
                              '# java_classpath: target/classes\n',
@@ -73,7 +73,7 @@ def _configure_beampy(snap_home=None,
         member = 'lib/' + jpy_distr_name + '.zip'
         logging.info("extracting '" + member + "' from '" + java_module + "'")
         with zipfile.ZipFile(java_module) as zf:
-            jpy_archive_file = zf.extract(member, beampy_dir)
+            jpy_archive_file = zf.extract(member, snappy_dir)
     else:
         jpy_archive_file = os.path.join(java_module, 'lib', jpy_distr_name + '.zip')
 
@@ -93,7 +93,7 @@ def _configure_beampy(snap_home=None,
         # os.mkdir(os.path.join(basename)
         logging.info("unzipping '" + jpy_archive_file + "'")
         with zipfile.ZipFile(jpy_archive_file) as zf:
-            zf.extractall(beampy_dir)
+            zf.extractall(snappy_dir)
 
     #
     # Execute jpyutil.py to write runtime configuration:
@@ -108,15 +108,18 @@ def _configure_beampy(snap_home=None,
             import jpyutil
 
             if not java_home:
-                jre_dir = os.path.join(beampy_dir,
-                                       '..',  # --> beam-python-<version>/
-                                       '..',  # --> modules/
-                                       '..',  # --> ${beam.home}
-                                       'jre')  # --> ${beam.home}/jre
+                jre_dir = os.path.join(snap_home, 'jre')
+                if not os.path.exists(jre_dir):
+                    parent = os.path.dirname(jpyutil_file)
+                    while parent:
+                        jre_dir = os.path.join(parent, 'jre')
+                        if os.path.exists(jre_dir):
+                            break
+                        parent = os.path.dirname(parent)
                 if os.path.exists(jre_dir):
                     java_home = os.path.normpath(jre_dir)
 
-            ret_code = jpyutil.write_config_files(out_dir=beampy_dir,
+            ret_code = jpyutil.write_config_files(out_dir=snappy_dir,
                                                   java_home_dir=java_home,
                                                   req_java_api_conf=req_java,
                                                   req_py_api_conf=req_py)
@@ -129,7 +132,7 @@ def _configure_beampy(snap_home=None,
 
 
 def _main():
-    parser = argparse.ArgumentParser(description='Configures beampy, the BEAM Python interface.')
+    parser = argparse.ArgumentParser(description='Configures snappy, the BEAM Python interface.')
     parser.add_argument('--snap_home', default=None,
                         help='SNAP distribution directory')
     parser.add_argument('--req_arch', default=None,
@@ -163,7 +166,7 @@ def _main():
         logging.basicConfig(format=log_format, level=log_level)
 
     try:
-        ret_code = _configure_beampy(snap_home=args.snap_home,
+        ret_code = _configure_snappy(snap_home=args.snap_home,
                                      java_module=args.java_module,
                                      java_home=args.java_home,
                                      req_arch=args.req_arch,

@@ -4,9 +4,9 @@ import sys
 
 import numpy as np
 
-import beampy
+import snappy
 
-JAI = beampy.jpy.get_type('javax.media.jai.JAI')
+JAI = snappy.jpy.get_type('javax.media.jai.JAI')
 JAI.getDefaultInstance().getTileCache().setMemoryCapacity(128 * 1000 * 1000)
 
 test_product_file = './MER_RR__1P.N1'
@@ -14,7 +14,7 @@ test_product_file = './MER_RR__1P.N1'
 class TestBeamIO(unittest.TestCase):
 
     def setUp(self):
-        self.product = beampy.ProductIO.readProduct(test_product_file)
+        self.product = snappy.ProductIO.readProduct(test_product_file)
         self.assertIsNotNone(self.product)
 
 
@@ -23,7 +23,7 @@ class TestBeamIO(unittest.TestCase):
 
 
     def test_getProductReader(self):
-        #print('Band.mro =', beampy.Band.mro())
+        #print('Band.mro =', snappy.Band.mro())
         reader = self.product.getProductReader()
         self.assertIsNotNone(reader)
         # TODO: fix me: AttributeError: 'org.esa.beam.framework.dataio.ProductReader' object has no attribute 'getClass'
@@ -52,7 +52,7 @@ class TestBeamIO(unittest.TestCase):
         w = self.product.getSceneRasterWidth()
         h = self.product.getSceneRasterHeight()
         b = self.product.getBand('radiance_13')
-        a = beampy.jpy.array('float', w)
+        a = snappy.jpy.array('float', w)
         b.readPixels(0, 0, w, 1, a)
         self.assertTrue(a[0] == 0.0)
         self.assertTrue(0 < a[100] < 200)
@@ -87,9 +87,9 @@ class TestBeamIO(unittest.TestCase):
         h = self.product.getSceneRasterHeight()
         b = self.product.getBand('radiance_13')
         a = np.zeros(w, dtype=np.int8)
-        #beampy.jpy.diag.flags = beampy.jpy.diag.F_ALL
+        #snappy.jpy.diag.flags = snappy.jpy.diag.F_ALL
         b.readValidMask(0, 0, w, 1, a)
-        #beampy.jpy.diag.flags = beampy.jpy.diag.F_OFF
+        #snappy.jpy.diag.flags = snappy.jpy.diag.F_OFF
         self.assertEqual(a[0], 0)
         self.assertEqual(a[100], 1)
 

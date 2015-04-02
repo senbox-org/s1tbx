@@ -1,7 +1,7 @@
 """
-The beampy module provides access to the Java SE APIs and SNAP Java APIs.
+The snappy module provides access to the Java SE APIs and SNAP Java APIs.
 
-You can configure beampy by using a file named beampy.ini as follows:
+You can configure snappy by using a file named snappy.ini as follows:
 
     [DEFAULT]
     snap_home: C:/Program Files/snap-2.0
@@ -10,12 +10,12 @@ You can configure beampy by using a file named beampy.ini as follows:
     java_max_mem: 4G
     debug: False
 
-You can place beampy.ini next to <python3>/site-packages/beampy.py or put it in your current working directory.
+You can place snappy.ini next to <python3>/site-packages/snappy.py or put it in your current working directory.
 The 'snap_home' options and all options starting with 'java_' are only used if you use the SNAP API from Python
 and a new Java Virtual Machine is created. They are ignored if the SNAP API is called from SNAP itself
 (e.g. SNAP command-line or GUI).
 
-'beampy' uses a bundled 'jpy' module, see documentation at http://jpy.readthedocs.org/en/latest
+'snappy' uses a bundled 'jpy' module, see documentation at http://jpy.readthedocs.org/en/latest
 and source code at https://github.com/bcdev/jpy
 """
 
@@ -132,7 +132,7 @@ def _get_snap_jvm_options():
 
     if snap_home is None or not os.path.isdir(snap_home):
         raise IOError("Can't find SNAP distribution directory. Either configure variable 'snap_home' " +
-                      "in file './beampy.ini' or set environment variable 'SNAP_HOME' to an " +
+                      "in file './snappy.ini' or set environment variable 'SNAP_HOME' to an " +
                       "existing SNAP distribution directory.")
 
     classpath = _get_snap_jvm_classpath()
@@ -219,7 +219,7 @@ jpy.type_callbacks['org.esa.beam.framework.datamodel.VirtualBand'] = annotate_Ra
 #
 
 try:
-    # Note we may later want to read pre-defined types from a configuration file (beampy.ini)
+    # Note we may later want to read pre-defined types from a configuration file (snappy.ini)
 
     String = jpy.get_type('java.lang.String')
     File = jpy.get_type('java.io.File')
@@ -251,7 +251,7 @@ except Exception:
     raise
 
 
-# Note: use the following code to initialise BEAM's 3rd party libraries, JAI and GeoTools.
+# Note: use the following code to initialise SNAP's 3rd party libraries, JAI and GeoTools.
 # Only needed, if SNAP Python API is not called from Java (e.g. from SNAP gpt or SNAP desktop).
 if not called_from_java:
     SystemUtils.init3rdPartyLibs(None)

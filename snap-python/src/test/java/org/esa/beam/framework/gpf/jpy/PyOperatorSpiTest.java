@@ -48,7 +48,7 @@ public class PyOperatorSpiTest {
         assertEquals("py_ndvi_op", ndviOpSpi.getOperatorAlias());
         assertSame(PyOperator.class, ndviOpSpi.getOperatorClass());
         assertNotNull(ndviOpSpi.getOperatorDescriptor());
-        assertEquals("org.esa.beam.python.example.NdviOp", ndviOpSpi.getOperatorDescriptor().getName());
+        assertEquals("org.esa.snap.python.NdviOp", ndviOpSpi.getOperatorDescriptor().getName());
         assertSame(PyOperator.class, ndviOpSpi.getOperatorDescriptor().getOperatorClass());
     }
 

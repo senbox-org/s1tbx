@@ -21,31 +21,31 @@ import static org.esa.beam.util.SystemUtils.LOG;
 
 /**
  * This class is used to establish the bridge between Java and Python.
- * It basically let's a given Python interpreter execute the file 'beampyutil.py' found in the 'beampy'
- * folder of the unpacked BEAM-Python module.
+ * It basically let's a given Python interpreter execute the file 'snappyutil.py' found in the 'snappy'
+ * folder of the unpacked SNAP-Python module.
  * <p>
- * 'beampyutil.py' again configures 'jpy' by selecting and unpacking appropriate
- * jpy tools and binaries found as 'jpy.&lt;platform&gt;-&lt;python-version&gt;.zip' in the 'lib' folder of the unpacked BEAM-Python module.
- * 'beampyutil.py' will then call 'jpyutil.py' to write the Java- and Python-side configuration files 'jpyutil.properties'
+ * 'snappyutil.py' again configures 'jpy' by selecting and unpacking appropriate
+ * jpy tools and binaries found as 'jpy.&lt;platform&gt;-&lt;python-version&gt;.zip' in the 'lib' folder of the unpacked SNAP-Python module.
+ * 'snappyutil.py' will then call 'jpyutil.py' to write the Java- and Python-side configuration files 'jpyutil.properties'
  * and 'jpyconfig.py'.
  * <p>
  * Then, 'jpyutil.properties' will be used by jpy's {@code PyLib} class to identify its correct binaries.
  * {@code PyLib} is finally used to start an embedded Python interpreter using the shared Python library that belongs to the Python
- * interpreter that was used to execute 'beampyutil.py'.
+ * interpreter that was used to execute 'snappyutil.py'.
  * <p>
  * The following system properties can be used to configure this class:
  * <p>
  * <ol>
- * <li>{@code snap.pythonExecutable}: The python executable to be used with BEAM. The default value is {@code "python"}.</li>
- * <li>{@code snap.forcePythonConfig}: Forces reconfiguration of the bridge for each BEAM run. The default value is {@code "true"}</li>
+ * <li>{@code snap.pythonExecutable}: The python executable to be used with SNAP. The default value is {@code "python"}.</li>
+ * <li>{@code snap.forcePythonConfig}: Forces reconfiguration of the bridge for each SNAP run. The default value is {@code "true"}</li>
  * </ol>
  *
  * @author Norman Fomferra
  */
 class PyBridge {
 
-    public static final String BEAMPYUTIL_PY_FILENAME = "beampyutil.py";
-    public static final String BEAMPYUTIL_LOG_FILENAME = "beampyutil.log";
+    public static final String SNAPPYUTIL_PY_FILENAME = "snappyutil.py";
+    public static final String SNAPPYUTIL_LOG_FILENAME = "snappyutil.log";
     public static final String FORCE_PYTHON_CONFIG_PROPERTY = "snap.forcePythonConfig";
     public static final String PYTHON_EXECUTABLE_PROPERTY = "snap.pythonExecutable";
     public static final String PYTHON_MODULE_INSTALL_DIR_PROPERTY = "snap.pythonModuleDir";
@@ -54,12 +54,12 @@ class PyBridge {
     public static final String JPY_CONFIG_PROPERTY = "jpy.config";
 
     private static final Path MODULE_CODE_BASE_PATH = findModuleCodeBasePath();
-    public static final String BEAMPY_DIR_NAME = "beampy";
+    public static final String SNAPPY_DIR_NAME = "snappy";
 
     private static boolean established;
 
     /**
-     * Establishes the BEAM-Python bridge.
+     * Establishes the SNAP-Python bridge.
      */
     public synchronized static void establish() throws IOException {
         if (established) {
@@ -85,22 +85,22 @@ class PyBridge {
     public static void installPythonModule(String pythonExecutable,
                                            Path pythonModuleInstallDir,
                                            boolean forcePythonConfig) throws IOException {
-        Path beampyDir = pythonModuleInstallDir.resolve(BEAMPY_DIR_NAME);
-        if (forcePythonConfig || !Files.isDirectory(beampyDir)) {
-            unpackPythonModuleDir(beampyDir);
+        Path snappyDir = pythonModuleInstallDir.resolve(SNAPPY_DIR_NAME);
+        if (forcePythonConfig || !Files.isDirectory(snappyDir)) {
+            unpackPythonModuleDir(snappyDir);
         }
 
-        Path jpyConfigFile = beampyDir.resolve(JPY_JAVA_API_CONFIG_FILENAME);
+        Path jpyConfigFile = snappyDir.resolve(JPY_JAVA_API_CONFIG_FILENAME);
         if (forcePythonConfig || !Files.exists(jpyConfigFile)) {
             // Configure jpy Python-side
-            configureJpy(pythonExecutable, beampyDir);
+            configureJpy(pythonExecutable, snappyDir);
         }
         if (!Files.exists(jpyConfigFile)) {
             throw new IOException(String.format("Python configuration incomplete.\n" +
                                                         "Missing file '%s'.\n" +
                                                         "Please check log file '%s'.",
                                                 jpyConfigFile,
-                                                beampyDir.resolve(BEAMPYUTIL_LOG_FILENAME)));
+                                                snappyDir.resolve(SNAPPYUTIL_LOG_FILENAME)));
         }
 
         // Configure jpy Java-side
@@ -126,13 +126,13 @@ class PyBridge {
         }
     }
 
-    private static void configureJpy(String pythonExecutable, Path beampyDir) throws IOException {
-        LOG.info("Configuring BEAM-Python bridge...");
+    private static void configureJpy(String pythonExecutable, Path snappyDir) throws IOException {
+        LOG.info("Configuring SNAP-Python bridge...");
 
         // "java.home" is always present
         List<String> command = new ArrayList<>();
         command.add(pythonExecutable);
-        command.add(BEAMPYUTIL_PY_FILENAME);
+        command.add(SNAPPYUTIL_PY_FILENAME);
         command.add("--snap_home");
         command.add(System.getProperty("snap.home", Paths.get(".").toAbsolutePath().normalize().toString()));
         //command.add(SystemUtils.getApplicationHomeDir().getPath());
@@ -140,7 +140,7 @@ class PyBridge {
         command.add(MODULE_CODE_BASE_PATH.toFile().getPath());
         command.add("--force");
         command.add("--log_file");
-        command.add(BEAMPYUTIL_LOG_FILENAME);
+        command.add(SNAPPYUTIL_LOG_FILENAME);
         if (Debug.isEnabled()) {
             command.add("--log_level");
             command.add("DEBUG");
@@ -160,7 +160,7 @@ class PyBridge {
         try {
             Process process = new ProcessBuilder()
                     .command(command)
-                    .directory(beampyDir.toFile()).start();
+                    .directory(snappyDir.toFile()).start();
             int exitCode = process.waitFor();
             if (exitCode != 0) {
                 throw new IOException(String.format("Python configuration failed.\nCommand [%s]\nfailed with return code %s.", commandLine, exitCode));
@@ -205,21 +205,8 @@ class PyBridge {
 
     private static void unpackPythonModuleDir(Path pythonModuleDir) throws IOException {
         Files.createDirectories(pythonModuleDir);
-        TreeCopier.copy(getResourcePath(BEAMPY_DIR_NAME), pythonModuleDir);
+        TreeCopier.copy(getResourcePath(SNAPPY_DIR_NAME), pythonModuleDir);
         LOG.info("SNAP-Python module directory: " + pythonModuleDir);
-        unpackPythonResources(pythonModuleDir, "beampy-tests", "tests");
-        unpackPythonResources(pythonModuleDir, "beampy-testdata", "testdata");
-        unpackPythonResources(pythonModuleDir, "beampy-examples", "examples");
-    }
-
-    private static void unpackPythonResources(Path pythonModuleDir, String sourceName, String targetName) {
-        Path testsDir = pythonModuleDir.resolve(targetName);
-        try {
-            Files.createDirectories(testsDir);
-            TreeCopier.copy(getResourcePath(sourceName), testsDir);
-        } catch (IOException e) {
-            LOG.warning("Failed to unpack SNAP-Python resources to: " + testsDir);
-        }
     }
 
     private static boolean isForcePythonConfig() {

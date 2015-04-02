@@ -1,8 +1,8 @@
 import sys
 
-from beampy import ProductIO
-from beampy import GPF
-from beampy import jpy
+from snappy import ProductIO
+from snappy import GPF
+from snappy import jpy
 
 
 if len(sys.argv) != 2:
@@ -10,11 +10,6 @@ if len(sys.argv) != 2:
     sys.exit(1)
 
 file = sys.argv[1]
-
-
-# Uncomment if you receive errors of type com.sun.media.jai.util.ServiceConfigurationError, see
-# http://www.brockmann-consult.de/beam-jira/browse/BEAM-1699
-#beampy.SystemUtils.init3rdPartyLibs(None)  # Initialise BEAM's third party Java libraries JAI and GeoTools.
 
 print("Reading...")
 product = ProductIO.readProduct(file)
@@ -53,13 +48,13 @@ result = GPF.createProduct('BandMaths', parameters, product)
 
 print("Writing...")
 
-ProductIO.writeProduct(result, 'beampy_bmaths_output.dim', 'BEAM-DIMAP')
+ProductIO.writeProduct(result, 'snappy_bmaths_output.dim', 'BEAM-DIMAP')
 
 print("Done.")
 
 
 """
-   Please note: the next major version of beampy/jpy will be more pythonic in the sense that implicit data type
+   Please note: the next major version of snappy/jpy will be more pythonic in the sense that implicit data type
    conversions are performed. The 'parameters' from above variable could then be given as a Python dict object:
 
     parameters = {

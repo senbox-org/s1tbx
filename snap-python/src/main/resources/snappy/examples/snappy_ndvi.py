@@ -1,21 +1,17 @@
 import sys
 
 import numpy
-from beampy import Product
-from beampy import ProductData
-from beampy import ProductIO
-from beampy import ProductUtils
-from beampy import FlagCoding
+from snappy import Product
+from snappy import ProductData
+from snappy import ProductIO
+from snappy import ProductUtils
+from snappy import FlagCoding
 
 if len(sys.argv) != 2:
     print("usage: %s <file>" % sys.argv[0])
     sys.exit(1)
 
 file = sys.argv[1]
-
-# Uncomment if you receive errors of type com.sun.media.jai.util.ServiceConfigurationError, see
-# http://www.brockmann-consult.de/beam-jira/browse/BEAM-1699
-#beampy.SystemUtils.init3rdPartyLibs(None)  # Initialise BEAM's third party Java libraries JAI and GeoTools.
 
 print("Reading...")
 product = ProductIO.readProduct(file)
@@ -51,7 +47,7 @@ group.add(ndviFlagCoding)
 ndviFlagsBand.setSampleCoding(ndviFlagCoding)
 
 ndviProduct.setProductWriter(writer)
-ndviProduct.writeHeader('beampy_ndvi_output.dim')
+ndviProduct.writeHeader('snappy_ndvi_output.dim')
 
 r7 = numpy.zeros(width, dtype=numpy.float32)
 r10 = numpy.zeros(width, dtype=numpy.float32)

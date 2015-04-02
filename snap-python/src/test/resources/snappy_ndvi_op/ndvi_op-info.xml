@@ -3,18 +3,18 @@
      the help on the command line is derived from the information provided here.
 -->
 <operator>
-    <!-- The name uniquely identifies the operator within BEAM -->
-    <name>org.esa.beam.python.example.NdviOp</name>
+    <!-- The name uniquely identifies the operator within SNAP -->
+    <name>org.esa.snap.python.NdviOp</name>
     <!-- The alias is a more user-friendly name, e.g. to be used on the command line -->
     <alias>py_ndvi_op</alias>
     <operatorClass>org.esa.beam.framework.gpf.jpy.PyOperator</operatorClass>
 
     <version>1.0</version>
     <authors>Brockmann Consult GmbH</authors>
-    <copyright>(C) 2014 Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2015 Brockmann Consult GmbH</copyright>
 
     <description>
-        This is an example for the BEAM Python API.
+        This is an example for the SNAP Python API.
         It demonstrates the development of a a Python processor plug-in
         taking the optical NDVI 'algorithm' as an example.
     </description>

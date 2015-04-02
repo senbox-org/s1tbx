@@ -49,7 +49,7 @@ public class PyOperatorTest {
                      "-t", targetDim.toString(),
                      "-PlowerName=radiance_13",
                      "-PupperName=radiance_7",
-                     "-Ssource=" + getResourceFile("/beampy-testdata/MER_FRS_L1B_SUBSET.dim"));
+                     "-Ssource=" + getResourceFile("/snappy/testdata/MER_FRS_L1B_SUBSET.dim"));
 
             assertTrue(Files.isRegularFile(targetDim));
             assertTrue(Files.isDirectory(targetData));
@@ -76,14 +76,14 @@ public class PyOperatorTest {
         source.addBand("radiance_7", "120.0");  // upper wavelength
         source.addBand("radiance_13", "50.0"); // lower wavelength
 
-        URL infoXmlFile = PyOperatorSpi.class.getResource("/beampy-ndvi-operator/ndvi_op-info.xml");
+        URL infoXmlFile = PyOperatorSpi.class.getResource("/snappy_ndvi_op/ndvi_op-info.xml");
         DefaultOperatorDescriptor descriptor = DefaultOperatorDescriptor.fromXml(infoXmlFile, getClass().getClassLoader());
         PyOperatorSpi spi = new PyOperatorSpi(descriptor);
 
         PyOperator operator = new PyOperator();
         operator.setSpi(spi);
         operator.setParameterDefaultValues();
-        operator.setPythonModulePath(new File(System.getProperty(EXT_PROPERTY_NAME), "beampy-ndvi-operator").getPath());
+        operator.setPythonModulePath(new File(System.getProperty(EXT_PROPERTY_NAME), "snappy_ndvi_op").getPath());
         operator.setPythonModuleName("ndvi_op");
         operator.setPythonClassName("NdviOp");
         operator.setParameter("lowerName", "radiance_13");

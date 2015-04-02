@@ -2,10 +2,10 @@ import unittest
 
 import numpy as np
 
-import beampy
+import snappy
 
 
-#JAI = beampy.jpy.get_type('javax.media.jai.JAI')
+#JAI = snappy.jpy.get_type('javax.media.jai.JAI')
 #JAI.getDefaultInstance().getTileCache().setMemoryCapacity(256 * 1000 * 1000)
 
 test_product_file = './MER_RR__1P.N1'
@@ -17,7 +17,7 @@ class TestBeamIO(unittest.TestCase):
         print('test_readProduct_and_readPixels_mem')
         for i in range(N):
             print('i = ', i)
-            product = beampy.ProductIO.readProduct(test_product_file)
+            product = snappy.ProductIO.readProduct(test_product_file)
             band = product.getBand('radiance_9')
             w = band.getRasterWidth()
             h = band.getRasterHeight()

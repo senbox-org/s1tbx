@@ -1,38 +1,38 @@
-beam-python
+snap-python
 ===========
 
-The `beam-python` module enables Python developers to
+The `snap-python` module enables Python developers to
 
-1. use the BEAM Java API from Python, and to
-2. extend BEAM by *operator plug-ins* for EO data processing written in the Python programming language.
+1. use the SNAP Java API from Python, and to
+2. extend SNAP by *operator plug-ins* for EO data processing written in the Python programming language.
 
-It is worth mentioning that the `beam-python` module works with the standard *CPython*, so that any native
+It is worth mentioning that the `snap-python` module works with the standard *CPython*, so that any native
 Python extension modules such as `numpy` and `scipy` can be used. Before you read further you may have a look at the
 example code in
 
-1. `beampy-examples/*.py` for using the BEAM Java API from Python, and
-2. `beampy-examples/beampy-ndvi-operator` for extending BEAM by an (NDVI) operator plugin.
+1. `snappy-examples/*.py` for using the SNAP Java API from Python, and
+2. `snappy-examples/snappy-ndvi-operator` for extending SNAP by an (NDVI) operator plugin.
 
-The link from Python to the BEAM Java API is established via a Python module named *beampy*. The beampy module
+The link from Python to the SNAP Java API is established via a Python module named *snappy*. The snappy module
 depends on a *bi-directional* Java-Python bridge *jpy* that enables calls from Python into a Java virtual machine
 and, at the same time, the other way round. This bridge is implemented by the [jpy Project](https://github.com/bcdev/jpy)
-and is independent from the beampy module.
+and is independent from the snappy module.
 
-beampy has been tested with Python 2.7, 3.3 and 3.4 with Java 7 and 8 JDKs. 
+snappy has been tested with Python 2.7, 3.3 and 3.4 with Java 7 and 8 JDKs. 
 
-Since `beam-python` version 5.0.5, BEAM configures itself for a given Python executable. If not already done
-by the installer, set the configuration property `beam.pythonExecutable` in file `${beam-home}/config/beam.config`
+Since `snap-python` version 5.0.5, SNAP configures itself for a given Python executable. If not already done
+by the installer, set the configuration property `snap.pythonExecutable` in file `${snap-home}/config/snap.config`
 to your desired Python executable.
 
 
 ////////////////////////////// To following text is outdated - MUST UPDATE SOON ////////////////////////////// 
 
 
-Before you can start using the BEAM API or developing BEAM operator plugins with Python you need configure 
-BEAM for the desired Python version. 
+Before you can start using the SNAP API or developing SNAP operator plugins with Python you need configure 
+SNAP for the desired Python version. 
 
 If there is no matching binary distribution, you will have to build `jpy` on your own and then copy your binary 
-distribution to the `${beam-home}/modules/${beam-python}/lib` directory.
+distribution to the `${snap-home}/modules/${snap-python}/lib` directory.
 
 Unfortunately this has to be done manually, so be 
 prepared to invest at least half an hour for setting up things correctly.
@@ -41,75 +41,75 @@ Installation
 ------------
 
 The first step is to properly install `jpy` as described in the [jpy documentation](http://jpy.readthedocs.org/en/latest/install.html).
-(Be sure use `jpy` version 0.7.3 or higher.) After successful installation of `jpy`, make sure that you have run VISAT at least once so that all modules are unpacked. Afterwards, you will be able to install `beampy` as follows:
+(Be sure use `jpy` version 0.7.3 or higher.) After successful installation of `jpy`, make sure that you have run VISAT at least once so that all modules are unpacked. Afterwards, you will be able to install `snappy` as follows:
 
 On Darwin / Linux type:
 
-    export BEAM_HOME=<path to your BEAM 5 installation>
-    cd $BEAM_HOME/modules/beam-python-5.0/beampy
+    export SNAP_HOME=<path to your SNAP 5 installation>
+    cd $SNAP_HOME/modules/snap-python-5.0/snappy
     python3 setup.py install --user
 
 On Windows type:
 
-    SET BEAM_HOME=<path to your BEAM 5 installation>
-    cd %BEAM_HOME%\modules\beam-python-5.0\beampy
+    SET SNAP_HOME=<path to your SNAP 5 installation>
+    cd %SNAP_HOME%\modules\snap-python-5.0\snappy
     python setup.py install
 
-If you encounter any problems during the `jpy` or `beampy` setup please do not hesitate to contact the
-[BEAM user forum](http://www.brockmann-consult.de/cms/web/beam/forum).
+If you encounter any problems during the `jpy` or `snappy` setup please do not hesitate to contact the
+[SNAP user forum](http://www.brockmann-consult.de/cms/web/snap/forum).
 
 Testing
 -------
 
-When beampy is imported into your Python script or module, it will scan a BEAM installation for the available
-BEAM API components. For this purpose, beampy needs to know where the BEAM installation is located. It can either be
-configured via the environment variables `BEAM_HOME` or `BEAM5_HOME` or by using a dedicated *INI file* as described
+When snappy is imported into your Python script or module, it will scan a SNAP installation for the available
+SNAP API components. For this purpose, snappy needs to know where the SNAP installation is located. It can either be
+configured via the environment variables `SNAP_HOME` or `SNAP2_HOME` or by using a dedicated *INI file* as described
 below.
 
 On Darwin / Linux type:
 
-    set BEAM_HOME=<path to your BEAM 5 installation>
+    set SNAP_HOME=<path to your SNAP 2.0 installation>
     python3
-    >>> import beampy
+    >>> import snappy
 
 On Windows type:
 
-    export BEAM_HOME=<path to your BEAM 5 installation>
+    export SNAP_HOME=<path to your SNAP 5 installation>
     python
-    >>> import beampy
+    >>> import snappy
 
-If the import is successful (no errors are raised) you can exit the Python interpreter and perform the test cases in the `beampy` directory.
+If the import is successful (no errors are raised) you can exit the Python interpreter and perform the test cases in the `snappy` directory.
 They all require an EO data product file as input named `MER_RR__1P.N1`, which is an Envisat MERIS L1b product.
 You can download an Envisat MERIS L1b test file from the
-[BEAM home page](http://www.brockmann-consult.de/cms/web/beam/meris-products)
+[SNAP home page](http://www.brockmann-consult.de/cms/web/snap/meris-products)
 and rename it to `MER_RR__1P.N1` in order to run the tests. The tests expect [numpy](http://www.numpy.org/) to be installed. 
 
-    python beampy_mem_test.py
-    python beampy_perf_test.py
-    python beampy_product_test.py
+    python test_snappy_mem.py
+    python test_snappy_perf.py
+    python test_snappy_product.py
 
-Please note that the BEAM API is actually independent of specific data formats, the MERIS file in this case
+Please note that the SNAP API is actually independent of specific data formats, the MERIS file in this case
 is only used as an example and for testing.
 
 Configuration
 -------------
 
-`beampy` can be configured by an *INI file* `beampy.ini`. This file is read from the current working directory
-or from the system-dependent location from which the installed Python `beampy` module is loaded from.
+`snappy` can be configured by an *INI file* `snappy.ini`. This file is read from the current working directory
+or from the system-dependent location from which the installed Python `snappy` module is loaded from.
 
 Given here is an example of its content (Windows):
 
     [DEFAULT]
-    beam_home: C:\Program Files\beam-5.0
+    snap_home: C:\Program Files\snap-5.0
     extra_classpath: target/classes
     max_mem: 8G
     debug: True
 
 
-Running beampy in an Apache webserver
+Running snappy in an Apache webserver
 -------------------------------------
 
-Using the [mod_wsgi](https://code.google.com/p/modwsgi/)-module within an [Apache HTTP Server](http://httpd.apache.org/) environment allows to use `beampy` within web applications. However, there are a number of common pitfalls, which are listed in the sections below.
+Using the [mod_wsgi](https://code.google.com/p/modwsgi/)-module within an [Apache HTTP Server](http://httpd.apache.org/) environment allows to use `snappy` within web applications. However, there are a number of common pitfalls, which are listed in the sections below.
 
 ### Cannot open shared object
 
@@ -125,14 +125,14 @@ When doing `import jpy`, you might get an error similar to `ImportError: libjvm.
 
 ### Environment variables not set
 
-No matter if you have set all required environment variables in your shell, you might nonetheless receive the following error when doing `import beampy`: `RuntimeError: environment variable "BEAM_HOME" must be set to a valid BEAM installation directory`.
+No matter if you have set all required environment variables in your shell, you might nonetheless receive the following error when doing `import snappy`: `RuntimeError: environment variable "SNAP_HOME" must be set to a valid SNAP installation directory`.
 The reason for this is that the environment needs to be preserved for the Apache. A possible solution is to set the environment within the startup routine of the web application, such as
 
     os.environ['JAVA_HOME'] = settings.JAVA_HOME
     os.environ['JDK_HOME'] = settings.JDK_HOME
     os.environ['PATH'] = settings.PATH_extension + ':' + os.getenv('PATH', '')
     os.environ['LD_LIBRARY_PATH'] = settings.LD_LIBRARY_PATH_extension + ':' + os.getenv('LD_LIBRARY_PATH', '')
-    os.environ['BEAM_HOME'] = settings.BEAM_HOME
+    os.environ['SNAP_HOME'] = settings.SNAP_HOME
 
 , where `settings` contains the respective values.
 
@@ -140,7 +140,7 @@ The reason for this is that the environment needs to be preserved for the Apache
 
 When using JAI classes, you might get the following error: `RuntimeError: java.lang.NoClassDefFoundError: Could not initialize class javax.media.jai.JAI`. This can be resolved by calling
 
-    SystemUtils = jpy.get_type('org.esa.beam.util.SystemUtils')
+    SystemUtils = jpy.get_type('org.esa.snap.util.SystemUtils')
     SystemUtils.init3rdPartyLibs(None)
 
 in the startup routine of the web application.
@@ -149,89 +149,89 @@ Examples
 --------
 
 
-### BEAM Java API Usage
+### SNAP Java API Usage
 
 The examples for the API usage are simple tools that compute an output product from an input product.
 You can download an Envisat MERIS test files used as input from the
-[BEAM home page](http://www.brockmann-consult.de/cms/web/beam/meris-products)
+[SNAP home page](http://www.brockmann-consult.de/cms/web/snap/meris-products)
 and rename it to `MER_RR__1P.N1` and `MER_RR__2P.N1` in order to run the example code.
 All examples expect [numpy](http://www.numpy.org/) to be installed. 
 
 Computing a Fluorescence Line Height (FLH) product from water-leaving reflectances:
 
-    python beampy_flh.py MER_RR__2P.N1
+    python snappy_flh.py MER_RR__2P.N1
 
 Computing a Normalized Difference Vegetation Index (NDVI) product from top-of-atmosphere radiances:
 
-    python beampy_ndvi.py MER_RR__1P.N1
-    python beampy_ndvi_with_masks.py MER_RR__1P.N1
+    python snappy_ndvi.py MER_RR__1P.N1
+    python snappy_ndvi_with_masks.py MER_RR__1P.N1
 
 Performing arbitrary band maths:
 
-    python beampy_bmaths.py MER_RR__1P.N1
+    python snappy_bmaths.py MER_RR__1P.N1
 
 Tailoring any input product to a spatial subset:
 
-    python beampy_subset.py MER_RR__2P.N1 "POLYGON((15.786082 45.30223, 11.798364 46.118263, 10.878688 43.61961, 14.722727 42.85818, 15.786082 45.30223))"
+    python snappy_subset.py MER_RR__2P.N1 "POLYGON((15.786082 45.30223, 11.798364 46.118263, 10.878688 43.61961, 14.722727 42.85818, 15.786082 45.30223))"
 
 
-There are many more possibilities using the BEAM API. Actually all Java classes of the BEAM API can be used.
-As the BEAM API can be used from Python in a similar way as from Java, all of the Java API documentation applies as well.
+There are many more possibilities using the SNAP API. Actually all Java classes of the SNAP API can be used.
+As the SNAP API can be used from Python in a similar way as from Java, all of the Java API documentation applies as well.
 Please check:
 
-* [BEAM API Documentation](http://www.brockmann-consult.de/beam/doc/apidocs/index.html)
+* [SNAP API Documentation](http://www.brockmann-consult.de/snap/doc/apidocs/index.html)
 
-beampy imports the most frequently used Java API classes by default
+snappy imports the most frequently used Java API classes by default
  
-* `org.esa.beam.framework.dataio.ProductIO`
-* `org.esa.beam.framework.datamodel.Product`
-* `org.esa.beam.framework.datamodel.RasterDataNode`
-* `org.esa.beam.framework.datamodel.AbstractBand`
-* `org.esa.beam.framework.datamodel.Band`
-* `org.esa.beam.framework.datamodel.VirtualBand`
-* `org.esa.beam.framework.datamodel.GeoCoding`
-* `org.esa.beam.framework.datamodel.PixelPos`
-* `org.esa.beam.framework.datamodel.PixelPos`
-* `org.esa.beam.util.ProductUtils`
-* `org.esa.beam.framework.gpf.GPF`
-* `org.esa.beam.framework.gpf.Operator`
-* `org.esa.beam.framework.gpf.Tile`
+* `org.esa.snap.framework.dataio.ProductIO`
+* `org.esa.snap.framework.datamodel.Product`
+* `org.esa.snap.framework.datamodel.RasterDataNode`
+* `org.esa.snap.framework.datamodel.AbstractBand`
+* `org.esa.snap.framework.datamodel.Band`
+* `org.esa.snap.framework.datamodel.VirtualBand`
+* `org.esa.snap.framework.datamodel.GeoCoding`
+* `org.esa.snap.framework.datamodel.PixelPos`
+* `org.esa.snap.framework.datamodel.PixelPos`
+* `org.esa.snap.util.ProductUtils`
+* `org.esa.snap.framework.gpf.GPF`
+* `org.esa.snap.framework.gpf.Operator`
+* `org.esa.snap.framework.gpf.Tile`
 
 To import other Java API classes, get the fully qualified type name from the API reference and import it using jpy. 
 For example:
 
-    jpy = beampy.jpy
+    jpy = snappy.jpy
     Color = jpy.get_type('java.awt.Color')
-    ColorPoint = jpy.get_type('org.esa.beam.framework.datamodel.ColorPaletteDef$Point')
-    ColorPaletteDef = jpy.get_type('org.esa.beam.framework.datamodel.ColorPaletteDef')
-    ImageInfo = jpy.get_type('org.esa.beam.framework.datamodel.ImageInfo')
-    ImageManager = jpy.get_type('org.esa.beam.jai.ImageManager')
+    ColorPoint = jpy.get_type('org.esa.snap.framework.datamodel.ColorPaletteDef$Point')
+    ColorPaletteDef = jpy.get_type('org.esa.snap.framework.datamodel.ColorPaletteDef')
+    ImageInfo = jpy.get_type('org.esa.snap.framework.datamodel.ImageInfo')
+    ImageManager = jpy.get_type('org.esa.snap.jai.ImageManager')
     JAI = jpy.get_type('javax.media.jai.JAI')
     
 Due to the 1:1 translation of Java to Python, a lot of code in the Java programming tutorial applies to 
 Python as well:
 
-* [BEAM Programming Tutorial](http://www.brockmann-consult.de/beam-wiki/display/BEAM/BEAM+4+Programming+Tutorial)
+* [SNAP Programming Tutorial](http://www.brockmann-consult.de/snap-wiki/display/SNAP/SNAP+4+Programming+Tutorial)
 
-### BEAM Operator Plugin
+### SNAP Operator Plugin
 
-The directory `beampy-operator-example` represents an NDVI operator plugin for BEAM. In order to activate it in BEAM
-copy it to the BEAM `modules` directory and start VISAT. You will find a new entry *Python NDVI Operator...*
-in VISAT's Processing menu. It will also be available from BEAM's `gpt` command-line tool.
+The directory `snappy-operator-example` represents an NDVI operator plugin for SNAP. In order to activate it in SNAP
+copy it to the SNAP `modules` directory and start VISAT. You will find a new entry *Python NDVI Operator...*
+in VISAT's Processing menu. It will also be available from SNAP's `gpt` command-line tool.
 
-Note that running Python operator plugins requires the environment variable `BEAM_HOME` to be accessible by VISAT
+Note that running Python operator plugins requires the environment variable `SNAP_HOME` to be accessible by VISAT
 and the `gpt` command-line tool.
 
-You can use the directory `beampy-operator-example` as a template for new Python data processors. You can also
+You can use the directory `snappy-operator-example` as a template for new Python data processors. You can also
 add new Python code directly to it. In this case
 
-* create a new `beampy-operator-example/<your_operator>.py` (e.g. by copying the existing `ndvi_op.py`),
-* create a new `beampy-operator-example/<your_operator>-info.xml` (e.g. by copying the existing `ndvi_op-info.py`) and
-* register *<your_operator>* in `beampy-operator-example/META-INF/services/beampy-operators`.
+* create a new `snappy-operator-example/<your_operator>.py` (e.g. by copying the existing `ndvi_op.py`),
+* create a new `snappy-operator-example/<your_operator>-info.xml` (e.g. by copying the existing `ndvi_op-info.py`) and
+* register *<your_operator>* in `snappy-operator-example/META-INF/services/snappy-operators`.
 
 Of course you will need to adapt the contents of the files accordingly.
 
 Again, please don't hesitate to contact the
-[BEAM user forum](http://www.brockmann-consult.de/cms/web/beam/forum).
+[SNAP user forum](http://www.brockmann-consult.de/cms/web/snap/forum).
 
 *Have fun!*

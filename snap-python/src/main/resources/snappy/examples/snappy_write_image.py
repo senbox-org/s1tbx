@@ -1,8 +1,8 @@
 import sys
-import beampy
-from beampy import ProductIO
-from beampy import Product
-from beampy import Band
+import snappy
+from snappy import ProductIO
+from snappy import Product
+from snappy import Band
 
 if len(sys.argv) != 2:
     print("usage: %s <file>" % sys.argv[0])
@@ -10,11 +10,7 @@ if len(sys.argv) != 2:
 
 file = sys.argv[1]
 
-jpy = beampy.jpy
-
-# Uncomment if you receive errors of type com.sun.media.jai.util.ServiceConfigurationError, see
-# http://www.brockmann-consult.de/beam-jira/browse/BEAM-1699
-#beampy.SystemUtils.init3rdPartyLibs(None)  # Initialise BEAM's third party Java libraries JAI and GeoTools.
+jpy = snappy.jpy
 
 # More Java type definitions required for image generation
 Color = jpy.get_type('java.awt.Color')
@@ -31,8 +27,7 @@ System.setProperty('com.sun.media.jai.disableMediaLib', 'true')
 def write_image(band, points, filename, format):
     cpd = ColorPaletteDef(points)
     ii = ImageInfo(cpd)
-    # this following line is actually superfluous, but due to a bug in BEAM is must be like that
-    band.setImageInfo(ii) 
+    band.setImageInfo(ii)
     im = ImageManager.getInstance().createColoredBandImage([band], band.getImageInfo(), 0)
     JAI.create("filestore", im, filename, format)
 
@@ -44,4 +39,4 @@ points = [ColorPoint(0.0, Color.YELLOW),
           ColorPoint(50.0, Color.RED), 
           ColorPoint(100.0, Color.BLUE)]
 
-write_image(band, points, 'beampy_write_image.png', 'PNG')
+write_image(band, points, 'snappy_write_image.png', 'PNG')

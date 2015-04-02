@@ -26,7 +26,7 @@ import static org.esa.beam.util.SystemUtils.LOG;
  */
 public class PyOperatorSpi extends OperatorSpi {
 
-    public static final String PY_OP_RESOURCE_NAME = "META-INF/services/beampy-operators";
+    public static final String PY_OP_RESOURCE_NAME = "META-INF/services/snappy-operators";
 
     public PyOperatorSpi() {
         super(PyOperator.class);
@@ -36,10 +36,10 @@ public class PyOperatorSpi extends OperatorSpi {
         super(operatorDescriptor);
     }
 
-    static final String EXT_PROPERTY_NAME = "snap.beampy.ext";
+    static final String EXT_PROPERTY_NAME = "snap.snappy.ext";
 
     static {
-        scanDir(Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "beampy", "ext"));
+        scanDir(Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "snappy", "ext"));
         scanDirs(System.getProperty(EXT_PROPERTY_NAME, "").split(File.pathSeparator));
         scanClassPath();
     }

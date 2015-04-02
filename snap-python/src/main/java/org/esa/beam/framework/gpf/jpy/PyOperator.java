@@ -20,12 +20,12 @@ import java.util.Map;
  * An operator which uses Python code to process data products.
  *
  * @author Norman Fomferra
- * @since BEAM 5
+ * @since SNAP 2.0
  */
 @OperatorMetadata(alias = "PyOp",
                   description = "Uses Python code to process data products",
-                  version = "0.8",
-                  authors = "N. Fomferra",
+                  version = "1.0",
+                  authors = "Norman Fomferra",
                   internal = true)
 public class PyOperator extends Operator {
 
@@ -38,7 +38,7 @@ public class PyOperator extends Operator {
     /**
      * Name of the Python class which implements the {@link org.esa.beam.framework.gpf.jpy.PyOperator.PythonProcessor} interface.
      */
-    @Parameter(description = "Name of the Python class which implements the operator. Please refer to the BEAM help for details.")
+    @Parameter(description = "Name of the Python class which implements the operator. Please refer to the SNAP help for details.")
     private String pythonClassName;
 
     private transient PyModule pyModule;
