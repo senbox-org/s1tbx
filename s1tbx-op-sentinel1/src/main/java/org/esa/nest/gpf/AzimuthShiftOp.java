@@ -30,10 +30,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.gpf.StatusProgressMonitor;
-import org.esa.snap.gpf.ThreadManager;
+import org.esa.snap.gpf.*;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -77,6 +74,8 @@ public class AzimuthShiftOp extends Operator {
     private int cWindowWidth = 11;
     private int cWindowHeight = 11;
 
+    static final String DerampDemodPhase = "drampDemodPhase";
+
     /**
      * Default constructor. The graph processing framework
      * requires that an operator has a default constructor.
@@ -100,6 +99,8 @@ public class AzimuthShiftOp extends Operator {
     public void initialize() throws OperatorException {
 
         try {
+            checkDerampDemodPhaseBand();
+
             cHalfWindowWidth = cWindowWidth / 2;
             cHalfWindowHeight = cWindowHeight / 2;
 
@@ -121,6 +122,23 @@ public class AzimuthShiftOp extends Operator {
 
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
+        }
+    }
+
+    private void checkDerampDemodPhaseBand() {
+
+        boolean hasDerampDemodPhaseBand = false;
+        final Band[] sourceBands = sourceProduct.getBands();
+        for (Band band:sourceBands) {
+            if (band.getName().equals(DerampDemodPhase)) {
+                hasDerampDemodPhaseBand = true;
+                break;
+            }
+        }
+
+        if (!hasDerampDemodPhaseBand) {
+            throw new OperatorException("Cannot find derampDemodPhase band in source product. " +
+                    "Please run Backgeocoding and select \"Output Deramp and Demod Phase\".");
         }
     }
 
@@ -183,6 +201,8 @@ public class AzimuthShiftOp extends Operator {
         final int y0 = targetRectangle.y;
         final int w = targetRectangle.width;
         final int h = targetRectangle.height;
+        final int xMax = x0 + w;
+        final int yMax = y0 + h;
         //System.out.println("x0 = " + x0 + ", y0 = " + y0 + ", w = " + w + ", h = " + h);
 
         try {
@@ -190,42 +210,85 @@ public class AzimuthShiftOp extends Operator {
                 estimateOffset();
             }
 
-            // perform azimuth shift using FFT
-            Set<Band> targetBands = targetTileMap.keySet();
-            for (Band trgband : targetBands) {
-                final String bandName = trgband.getName();
-                if (!bandName.contains("_slv")) {
-                    continue;
+            Band slvBandI = null, slvBandQ = null;
+            Band tgtBandI = null, tgtBandQ = null;
+            Band derampDemodPhaseBand = null;
+            final Band[] sourceBands = sourceProduct.getBands();
+            for (Band band:sourceBands) {
+                final String bandName = band.getName();
+                if (bandName.contains("i_") && bandName.contains("_slv")) {
+                    slvBandI = band;
+                    tgtBandI = targetProduct.getBand(bandName);
                 }
 
-                final Band srcBand = sourceProduct.getBand(bandName);
-                final Band tgtBand = targetProduct.getBand(bandName);
-                final Tile srcTile = getSourceTile(srcBand, targetRectangle);
-                final Tile tgtTile = targetTileMap.get(tgtBand);
-                final float[] srcArray = (float[]) srcTile.getDataBuffer().getElems();
-                final float[] tgtArray = (float[]) tgtTile.getDataBuffer().getElems();
+                if (bandName.contains("q_") && bandName.contains("_slv")) {
+                    slvBandQ = band;
+                    tgtBandQ = targetProduct.getBand(bandName);
+                }
 
-                final double[] col = new double[2*h];
-                final double[] phase = new double[2*h];
-                final DoubleFFT_1D col_fft = new DoubleFFT_1D(h);
+                if (bandName.equals(DerampDemodPhase)) {
+                    derampDemodPhaseBand = band;
+                }
+            }
 
-                computeShiftPhaseArray(azOffset, h, phase);
+            // get deramp/demodulation phase
+            final Tile derampDemodPhaseTile = getSourceTile(derampDemodPhaseBand, targetRectangle);
+            final ProductData derampDemodPhaseData = derampDemodPhaseTile.getDataBuffer();
+            final TileIndex index = new TileIndex(derampDemodPhaseTile);
+            final double[][] derampDemodPhase = new double[h][w];
+            for (int y = y0; y < yMax; y++) {
+                index.calculateStride(y);
+                final int yy = y - y0;
+                for (int x = x0; x < xMax; x++) {
+                    final int idx = index.getIndex(x);
+                    derampDemodPhase[yy][x - x0] = derampDemodPhaseData.getElemDoubleAt(idx);
+                }
+            }
 
-                for (int c = 0; c < w; c++) {
-                    for (int r = 0; r < h; r++) {
-                        col[2 * r] = srcArray[r * w + c];
-                        col[2 * r + 1] = 0.0;
-                    }
+            // perform deramp and demodulation
+            final Tile slvTileI = getSourceTile(slvBandI, targetRectangle);
+            final Tile slvTileQ = getSourceTile(slvBandQ, targetRectangle);
+            final double[][] derampDemodI = new double[h][w];
+            final double[][] derampDemodQ = new double[h][w];
+            BackGeocodingOp.performDerampDemod(
+                    slvTileI, slvTileQ, targetRectangle, derampDemodPhase, derampDemodI, derampDemodQ);
 
-                    col_fft.complexForward(col);
+            // compute shift phase
+            final double[] phase = new double[2*h];
+            computeShiftPhaseArray(azOffset, h, phase);
 
-                    multiplySpectrumByShiftFactor(col, phase);
+            // perform azimuth shift using FFT, and perform reramp and remodulation
+            final Tile tgtTileI = targetTileMap.get(tgtBandI);
+            final Tile tgtTileQ = targetTileMap.get(tgtBandQ);
+            final float[] tgtArrayI = (float[]) tgtTileI.getDataBuffer().getElems();
+            final float[] tgtArrayQ = (float[]) tgtTileQ.getDataBuffer().getElems();
 
-                    col_fft.complexInverse(col, true);
+            final double[] col1 = new double[2 * h];
+            final double[] col2 = new double[2 * h];
+            final DoubleFFT_1D col_fft = new DoubleFFT_1D(h);
+            for (int c = 0; c < w; c++) {
+                for (int r = 0; r < h; r++) {
+                    col1[2 * r] = derampDemodI[r][c];
+                    col1[2 * r + 1] = derampDemodQ[r][c];
 
-                    for (int r = 0; r < h; r++) {
-                        tgtArray[r * w + c] = (float)col[2 * r];
-                    }
+                    col2[2 * r] = derampDemodPhase[r][c];
+                    col2[2 * r + 1] = 0.0;
+                }
+
+                col_fft.complexForward(col1);
+                col_fft.complexForward(col2);
+
+                multiplySpectrumByShiftFactor(col1, phase);
+                multiplySpectrumByShiftFactor(col2, phase);
+
+                col_fft.complexInverse(col1, true);
+                col_fft.complexInverse(col2, true);
+
+                for (int r = 0; r < h; r++) {
+                    final double cosPhase = Math.cos(col2[2 * r]);
+                    final double sinPhase = Math.sin(col2[2 * r]);
+                    tgtArrayI[r * w + c] = (float)(col1[2 * r] * cosPhase + col1[2 * r + 1] * sinPhase);
+                    tgtArrayQ[r * w + c] = (float)(-col1[2 * r] * sinPhase + col1[2 * r + 1] * cosPhase);
                 }
             }
 
