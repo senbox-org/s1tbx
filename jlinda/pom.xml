@@ -48,7 +48,7 @@
 		<repository>
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>
-            <url>http://www.array.ca/nest-web/mavenrepo</url>
+            <url>http://corp.array.ca/nest-web/mavenrepo</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
