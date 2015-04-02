@@ -64,6 +64,7 @@
     </licenses>
 
     <modules>
+        <module>rstb-kit</module>
         <module>rstb-op-classification</module>
         <module>rstb-op-classification-ui</module>
         <module>rstb-op-polarimetric-tools</module>

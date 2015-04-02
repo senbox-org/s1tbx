@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.csa.rstb</groupId>
+        <artifactId>rstb</artifactId>
+        <version>6.3.2</version>
+    </parent>
+
+    <artifactId>rstb-kit</artifactId>
+    <packaging>nbm</packaging>
+
+    <name>Radarsat-2 Toolbox Kit Module</name>
+    <description>
+        The Radarsat-2 Toolbox is a SNAP extension dedicated to polarimetric SAR processing developed via the Canadian Space Agency EOADP.
+    </description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.csa.rstb</groupId>
+            <artifactId>rstb-op-classification</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.csa.rstb</groupId>
+            <artifactId>rstb-op-classification-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.csa.rstb</groupId>
+            <artifactId>rstb-op-polarimetric-tools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.csa.rstb</groupId>
+            <artifactId>rstb-op-polarimetric-tools-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+</project>
