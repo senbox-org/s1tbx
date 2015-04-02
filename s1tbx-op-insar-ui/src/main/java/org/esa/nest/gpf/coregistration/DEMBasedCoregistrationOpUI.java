@@ -19,13 +19,13 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
-import org.esa.beam.visat.VisatApp;
-import org.esa.nest.dataio.dem.DEMFactory;
-import org.esa.snap.gpf.ui.OperatorUIUtils;
-import org.esa.snap.gpf.ui.BaseOperatorUI;
-import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.nest.dataio.dem.DEMFactory;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.gpf.ui.BaseOperatorUI;
+import org.esa.snap.gpf.ui.OperatorUIUtils;
+import org.esa.snap.gpf.ui.UIValidation;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
@@ -90,7 +90,7 @@ public class DEMBasedCoregistrationOpUI extends BaseOperatorUI {
 
         externalDEMBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final File file = VisatApp.getApp().showFileOpenDialog("External DEM File", false, null);
+                final File file = SnapDialogs.requestFileForOpen("External DEM File", false, null, null);
                 externalDEMFile.setText(file.getAbsolutePath());
                 extNoDataValue = OperatorUIUtils.getNoDataValue(file);
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));

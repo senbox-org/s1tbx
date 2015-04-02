@@ -19,11 +19,10 @@ import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.visat.VisatApp;
+import org.esa.nest.gpf.ReplaceMetadataOp;
 import org.esa.snap.dat.dialogs.StringSelectorDialog;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
-import org.esa.nest.gpf.ReplaceMetadataOp;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.ResourceUtils;
@@ -43,7 +42,7 @@ public class ReplaceMetadataAction extends ExecCommand {
     @Override
     public void actionPerformed(final CommandEvent event) {
 
-        final Product destProduct = VisatApp.getApp().getSelectedProduct();
+        final Product destProduct = SnapApp.getDefault().getSelectedProduct();
         final String[] compatibleProductNames = getCompatibleProducts(destProduct);
         if (compatibleProductNames.length == 0) {
             SnapDialogs.showError("There are not any compatible products currently opened\nDimensions must be the same");
@@ -74,13 +73,12 @@ public class ReplaceMetadataAction extends ExecCommand {
                         srcProduct.getName() + "_metadata.xml");
                 AbstractMetadataIO.Save(srcProduct, srcAbsRoot, tmpMetadataFile);
 
-                VisatApp.getApp().closeAllAssociatedFrames(destProduct);
                 clearProductMetadata(destProduct);
-                VisatApp.getApp().removeProduct(destProduct);
+                SnapApp.getDefault().getProductManager().removeProduct(destProduct);
 
                 final MetadataElement destAbsRoot = AbstractMetadata.getAbstractedMetadata(destProduct);
                 AbstractMetadataIO.Load(destProduct, destAbsRoot, tmpMetadataFile);
-                VisatApp.getApp().addProduct(destProduct);
+                SnapApp.getDefault().getProductManager().addProduct(destProduct);
 
                 ReplaceMetadataOp.resetPolarizations(AbstractMetadata.getAbstractedMetadata(destProduct),
                         isPolsar, isCalibrated);
@@ -94,7 +92,7 @@ public class ReplaceMetadataAction extends ExecCommand {
 
     @Override
     public void updateState(final CommandEvent event) {
-        final Product product = VisatApp.getApp().getSelectedProduct();
+        final Product product = SnapApp.getDefault().getSelectedProduct();
         setEnabled(product != null);
     }
 

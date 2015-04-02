@@ -67,7 +67,7 @@ public class ExportKmzProductAction extends ExecCommand {
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        final Product product = VisatApp.getApp().getSelectedProduct();
+        final Product product = SnapApp.getDefault().getSelectedProduct();
         final GeoCoding geoCoding = product.getGeoCoding();
         boolean isGeographic = false;
         if (geoCoding instanceof MapGeoCoding) {
@@ -98,7 +98,7 @@ public class ExportKmzProductAction extends ExecCommand {
 
     @Override
     public void updateState(final CommandEvent event) {
-        final Product product = VisatApp.getApp().getSelectedProduct();
+        final Product product = SnapApp.getDefault().getSelectedProduct();
         setEnabled(product != null);
     }
 

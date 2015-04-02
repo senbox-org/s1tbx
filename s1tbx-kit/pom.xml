@@ -35,6 +35,21 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.jlinda</groupId>
+            <artifactId>jlinda-core</artifactId>
+            <version>${jlinda.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jlinda</groupId>
+            <artifactId>jlinda-nest</artifactId>
+            <version>${jlinda.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jlinda</groupId>
+            <artifactId>jlinda-nest-ui</artifactId>
+            <version>${jlinda.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-dem</artifactId>
             <version>${project.version}</version>
@@ -47,6 +62,16 @@
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-io</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-op-calibration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-op-calibration-ui</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

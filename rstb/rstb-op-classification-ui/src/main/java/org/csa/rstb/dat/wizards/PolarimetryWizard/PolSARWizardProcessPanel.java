@@ -16,9 +16,9 @@
 package org.csa.rstb.dat.wizards.PolarimetryWizard;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.wizards.WizardPanel;
 import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
+import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,7 +35,7 @@ public class PolSARWizardProcessPanel extends WizardPanel {
     public PolSARWizardProcessPanel(final Product srcProduct) {
         super("Classification");
 
-        graphDialog = new GraphBuilderDialog(VisatApp.getApp(), "Classification", "Classification", false);
+        graphDialog = new GraphBuilderDialog(new SnapApp.SnapContext(), "Classification", "Classification", false);
 
         final File graphFile = new File(wizardGraphPath, wishartGraph);
 

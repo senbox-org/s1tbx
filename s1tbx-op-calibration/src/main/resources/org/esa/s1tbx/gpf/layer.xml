@@ -1,0 +1,131 @@
+
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Operators">
+            <file name="org-esa-s1tbx-gpf-CalibrationOp.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="displayName"
+                      stringvalue="Calibrate"/>
+                <attr name="operatorName"
+                      stringvalue="Calibration"/>
+                <attr name="dialogTitle"
+                      stringvalue="Calibration"/>
+                <attr name="targetProductNameSuffix"
+                      stringvalue="_Cal"/>
+                <attr name="ShortDescription"
+                      stringvalue="Apply radiometric calibration"/>
+                <attr name="icon"
+                      stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-gpf-RemoveAntennaPatternOp.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="displayName"
+                      stringvalue="Remove Antenna Pattern"/>
+                <attr name="operatorName"
+                      stringvalue="RemoveAntennaPattern"/>
+                <attr name="dialogTitle"
+                      stringvalue="Remove Antenna Pattern"/>
+                <attr name="targetProductNameSuffix"
+                      stringvalue="_-AntPat"/>
+                <attr name="ShortDescription"
+                      stringvalue="Remove the Antenna Pattern for ASAR and ERS products"/>
+                <attr name="icon"
+                      stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-gpf-Sentinel1RemoveThermalNoiseOp.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="displayName"
+                      stringvalue="S-1 Thermal Noise Removal"/>
+                <attr name="operatorName"
+                      stringvalue="ThermalNoiseRemoval"/>
+                <attr name="dialogTitle"
+                      stringvalue="S-1 Thermal Noise Removal"/>
+                <attr name="targetProductNameSuffix"
+                      stringvalue="_Noise-Cor"/>
+                <attr name="ShortDescription"
+                      stringvalue="Apply radiometric calibration"/>
+                <attr name="icon"
+                      stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-gpf-importXCAProduct.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName"
+                      stringvalue="View ASAR XCA Product"/>
+                <attr name="formatName"
+                      stringvalue="ENVISAT"/>
+                <attr name="useAllFileFilter"
+                      boolvalue="true"/>
+                <attr name="helpId"
+                      stringvalue="importXCAProduct"/>
+                <attr name="ShortDescription"
+                      stringvalue="Import an ENVISAT External Calibration."/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="SAR Processing">
+            <attr name="position" intvalue="510"/>
+            <folder name="Radiometric">
+                <attr name="position" intvalue="100"/>
+                <file name="org-esa-s1tbx-gpf-CalibrationOp.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-CalibrationOp.instance"/>
+                    <attr name="position" intvalue="100"/>
+                </file>
+                <file name="org-esa-s1tbx-gpf-RemoveAntennaPatternOp.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-RemoveAntennaPatternOp.instance"/>
+                    <attr name="position" intvalue="200"/>
+                </file>
+                <file name="org-esa-s1tbx-gpf-Sentinel1RemoveThermalNoiseOp.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-Sentinel1RemoveThermalNoiseOp.instance"/>
+                    <attr name="position" intvalue="300"/>
+                </file>
+                <file name="org-esa-s1tbx-gpf-importXCAProduct.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-importXCAProduct.instance"/>
+                    <attr name="position" intvalue="400"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="OperatorUIs">
+        <file name="org.esa.nest.gpf.CalibrationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.CalibrationOpUI"/>
+            <attr name="operatorName" stringvalue="Calibration"/>
+        </file>
+        <file name="org.esa.nest.gpf.RemoveAntennaPatternOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.RemoveAntennaPatternOpUI"/>
+            <attr name="operatorName" stringvalue="RemoveAntennaPattern"/>
+        </file>
+        <file name="org.esa.nest.gpf.Sentinel1RemoveThermalNoiseOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.Sentinel1RemoveThermalNoiseOpUI"/>
+            <attr name="operatorName" stringvalue="ThermalNoiseRemoval"/>
+        </file>
+    </folder>
+
+    <!--folder name="Services">
+        <folder name="JavaHelp">
+            <file name="helpset.xml" url="helpset.xml">
+                <attr name="position" intvalue="4600"/>
+            </file>
+        </folder>
+    </folder-->
+
+</filesystem>

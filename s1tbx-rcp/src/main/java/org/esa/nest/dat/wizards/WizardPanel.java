@@ -42,9 +42,9 @@
  */
 package org.esa.nest.dat.wizards;
 
-import org.esa.beam.visat.VisatApp;
 import org.esa.snap.dat.dialogs.BatchGraphDialog;
 import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
+import org.esa.snap.rcp.SnapDialogs;
 
 import javax.swing.*;
 import java.awt.*;
@@ -107,7 +107,7 @@ public abstract class WizardPanel extends JPanel {
     }
 
     protected static void showErrorMsg(String msg) {
-        VisatApp.getApp().showErrorDialog("Oops!", msg);
+        SnapDialogs.showError("Oops!", msg);
     }
 
     protected static JPanel createTextPanel(final String title, final String text) {

@@ -19,7 +19,6 @@ import com.alee.extended.panel.WebAccordion;
 import com.alee.extended.panel.WebAccordionStyle;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.visat.VisatApp;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.util.ResourceUtils;
 
@@ -28,8 +27,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * This class pertains to the "about" dialog box for the VISAT application.
@@ -44,7 +46,7 @@ class DatAboutBox extends ModalDialog {
     }
 
     private DatAboutBox(JButton[] others) {
-        super(SnapApp.getDefault().getMainFrame(), "About " + VisatApp.getApp().getAppName(),
+        super(SnapApp.getDefault().getMainFrame(), "About " + SnapApp.getDefault().getAppName(),
                 ModalDialog.ID_OK, others, null);    /*I18N*/
 
         final JButton creditsButton = others[0];

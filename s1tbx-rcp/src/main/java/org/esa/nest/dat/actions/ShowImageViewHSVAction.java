@@ -48,7 +48,7 @@ public class ShowImageViewHSVAction extends ExecCommand {
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        final Product product = VisatApp.getApp().getSelectedProduct();
+        final Product product = SnapApp.getDefault().getSelectedProduct();
         if (product != null) {
             openProductSceneViewHSV(product, getHelpId());
         }
@@ -56,7 +56,7 @@ public class ShowImageViewHSVAction extends ExecCommand {
 
     @Override
     public void updateState(final CommandEvent event) {
-        setEnabled(VisatApp.getApp().getSelectedProduct() != null);
+        setEnabled(SnapApp.getDefault().getSelectedProduct() != null);
     }
 
     public void openProductSceneViewHSV(final Product product, final String helpId) {

@@ -29,7 +29,7 @@ public class CloseAllOthersAction extends ExecCommand {
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        final Product selectedProduct = VisatApp.getApp().getSelectedProduct();
+        final Product selectedProduct = SnapApp.getDefault().getSelectedProduct();
         final Product[] products = SnapApp.getDefault().getProductManager().getProducts();
         for (int i = products.length - 1; i >= 0; i--) {
             if (products[i] != selectedProduct)
@@ -42,6 +42,6 @@ public class CloseAllOthersAction extends ExecCommand {
     @Override
     public void updateState(final CommandEvent event) {
         setEnabled(SnapApp.getDefault().getProductManager().getProductCount() > 1 &&
-                VisatApp.getApp().getSelectedProduct() != null);
+                           SnapApp.getDefault().getSelectedProduct() != null);
     }
 }

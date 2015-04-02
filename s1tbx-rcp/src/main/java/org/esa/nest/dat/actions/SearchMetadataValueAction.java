@@ -41,7 +41,7 @@ public class SearchMetadataValueAction extends ExecCommand {
             final String value = dlg.getValue().toUpperCase();
             final MetadataElement resultElem = new MetadataElement("Search result (" + dlg.getValue() + ')');
 
-            final Product product = VisatApp.getApp().getSelectedProduct();
+            final Product product = SnapApp.getDefault().getSelectedProduct();
             final boolean isModified = product.isModified();
             final MetadataElement root = product.getMetadataRoot();
             resultElem.setOwner(product);

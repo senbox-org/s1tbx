@@ -83,6 +83,33 @@
         </folder>
     </folder>
 
+    <folder name="OperatorUIs">
+        <file name="org.esa.nest.gpf.BandMathsOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.BandMathsOpUI"/>
+            <attr name="operatorName" stringvalue="BandMaths"/>
+        </file>
+        <file name="org.esa.nest.gpf.BandSelectOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.BandSelectOpUI"/>
+            <attr name="operatorName" stringvalue="BandSelect"/>
+        </file>
+        <file name="org.esa.nest.gpf.FilterOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.FilterOpUI"/>
+            <attr name="operatorName" stringvalue="Image-Filter"/>
+        </file>
+        <file name="org.esa.nest.gpf.OversamplingOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.OversamplingOpUI"/>
+            <attr name="operatorName" stringvalue="Oversample"/>
+        </file>
+        <file name="org.esa.nest.gpf.TileWriterUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.TileWriterUI"/>
+            <attr name="operatorName" stringvalue="TileWriter"/>
+        </file>
+        <file name="org.esa.nest.gpf.UndersamplingOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.UndersamplingOpUI"/>
+            <attr name="operatorName" stringvalue="Undersample"/>
+        </file>
+    </folder>
+
     <!--folder name="Services">
         <folder name="JavaHelp">
             <file name="helpset.xml" url="helpset.xml">

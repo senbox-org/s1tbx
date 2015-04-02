@@ -18,11 +18,11 @@ package org.esa.nest.gpf;
 import com.jidesoft.swing.JideLabel;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.visat.VisatApp;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.gpf.ui.OperatorUIUtils;
 import org.esa.snap.gpf.ui.BaseOperatorUI;
+import org.esa.snap.gpf.ui.OperatorUIUtils;
 import org.esa.snap.gpf.ui.UIValidation;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
@@ -97,7 +97,7 @@ public class CalibrationOpUI extends BaseOperatorUI {
 
         externalAuxFileBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final File file = VisatApp.getApp().showFileOpenDialog("External Auxiliary File", false, null);
+                final File file = SnapDialogs.requestFileForOpen("External Auxiliary File", false, null, null);
                 externalAuxFile.setText(file.getAbsolutePath());
             }
         });

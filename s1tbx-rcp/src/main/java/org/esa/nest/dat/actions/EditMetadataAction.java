@@ -36,7 +36,7 @@ public class EditMetadataAction extends ExecCommand {
     @Override
     public void actionPerformed(final CommandEvent event) {
 
-        final Product product = VisatApp.getApp().getSelectedProduct();
+        final Product product = SnapApp.getDefault().getSelectedProduct();
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 
         if (absRoot != null) {

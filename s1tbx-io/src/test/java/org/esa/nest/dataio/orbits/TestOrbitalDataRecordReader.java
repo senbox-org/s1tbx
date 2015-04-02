@@ -26,9 +26,9 @@ import org.junit.Assert;
  */
 public class TestOrbitalDataRecordReader {
 
-    private final static String envisatOrbitFilePath = "org/esa/nest/data/envisat_ODR.051";
-    private final static String ers1OrbitFilePath = "org/esa/nest/data/ers1_ODR.079";
-    private final static String ers2OrbitFilePath = "org/esa/nest/data/ers2_ODR.015";
+    private final static String envisatOrbitFilePath = "org/esa/nest/dataio/orbits/envisat_ODR.051";
+    private final static String ers1OrbitFilePath = "org/esa/nest/dataio/orbits/ers1_ODR.079";
+    private final static String ers2OrbitFilePath = "org/esa/nest/dataio/orbits/ers2_ODR.015";
 
     @Test
     public void testOpenFile() {

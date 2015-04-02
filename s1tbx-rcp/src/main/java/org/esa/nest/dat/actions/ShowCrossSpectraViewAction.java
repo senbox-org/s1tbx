@@ -49,7 +49,7 @@ public class ShowCrossSpectraViewAction extends ExecCommand {
         final VisatApp visatApp = VisatApp.getApp();
         visatApp.setStatusBarMessage("Creating polar view...");
         UIUtils.setRootFrameWaitCursor(SnapApp.getDefault().getMainFrame());
-        final Product product = VisatApp.getApp().getSelectedProduct();
+        final Product product = SnapApp.getDefault().getSelectedProduct();
 
         final SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(SnapApp.getDefault().getMainFrame(),
                  SnapApp.getDefault().getAppName() + " - Creating image for '" + selectedProductNode.getName() + "'") {
@@ -144,11 +144,11 @@ public class ShowCrossSpectraViewAction extends ExecCommand {
 
     @Override
     public void updateState(final CommandEvent event) {
-        final Product product = VisatApp.getApp().getSelectedProduct();
+        final Product product = SnapApp.getDefault().getSelectedProduct();
         if (product != null) {
-            final String productType = VisatApp.getApp().getSelectedProduct().getProductType();
+            final String productType = SnapApp.getDefault().getSelectedProduct().getProductType();
             setEnabled(productType.startsWith("ASA_WV") &&
-                    VisatApp.getApp().getSelectedProductNode() instanceof RasterDataNode);
+                               SnapApp.getDefault().getSelectedProductNode() instanceof RasterDataNode);
         } else
             setEnabled(false);
     }

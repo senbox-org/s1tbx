@@ -19,9 +19,9 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.rcp.SnapApp;
 
 /**
  * ScaleData action.
@@ -31,11 +31,9 @@ public class ScaleDataAction extends AbstractVisatAction {
     @Override
     public void actionPerformed(CommandEvent event) {
 
-        final VisatApp visatApp = VisatApp.getApp();
-
-        final ProductNode node = visatApp.getSelectedProductNode();
+        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
         if (node instanceof Band) {
-            final Product product = visatApp.getSelectedProduct();
+            final Product product = SnapApp.getDefault().getSelectedProduct();
             final Band band = (Band) node;
 
             ScaleDataDialog dlg = new ScaleDataDialog("Scaling Data", product, band);
@@ -45,7 +43,7 @@ public class ScaleDataAction extends AbstractVisatAction {
 
     @Override
     public void updateState(CommandEvent event) {
-        final ProductNode node = VisatApp.getApp().getSelectedProductNode();
+        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
         if (node instanceof Band) {
             final Band band = (Band) node;
             final String unit = band.getUnit();

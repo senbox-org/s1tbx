@@ -15,11 +15,16 @@
  */
 package org.esa.nest.dat;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.SnapDialogs;
 
 /**
  * AmplitudeToIntensityOp action.
@@ -29,17 +34,15 @@ public class AmplitudeToIntensityOpAction extends AbstractVisatAction {
     @Override
     public void actionPerformed(CommandEvent event) {
 
-        final VisatApp visatApp = VisatApp.getApp();
-
-        final ProductNode node = visatApp.getSelectedProductNode();
+        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
         if (node instanceof Band) {
-            final Product product = visatApp.getSelectedProduct();
+            final Product product = SnapApp.getDefault().getSelectedProduct();
             final Band band = (Band) node;
             String bandName = band.getName();
             final String unit = band.getUnit();
 
             if (unit != null && unit.contains(Unit.DB)) {
-                visatApp.showWarningDialog("Please convert band " + bandName + " from dB to linear first");
+                SnapDialogs.showWarning("Please convert band " + bandName + " from dB to linear first");
                 return;
             }
 
@@ -47,25 +50,25 @@ public class AmplitudeToIntensityOpAction extends AbstractVisatAction {
 
                 bandName = replaceName(bandName, "Amplitude", "Intensity");
                 if (product.getBand(bandName) != null) {
-                    visatApp.showWarningDialog(product.getName() + " already contains an "
-                            + bandName + " band");
+                    SnapDialogs.showWarning(product.getName() + " already contains an "
+                                                    + bandName + " band");
                     return;
                 }
 
-                if (visatApp.showQuestionDialog("Convert to Intensity", "Would you like to convert band "
-                        + band.getName() + " into Intensity in a new virtual band?", true, null) == 0) {
+                if (SnapDialogs.requestDecision("Convert to Intensity", "Would you like to convert band "
+                        + band.getName() + " into Intensity in a new virtual band?", true, null) == SnapDialogs.Answer.YES) {
                     convert(product, band, false);
                 }
             } else if (unit != null && unit.contains(Unit.INTENSITY)) {
 
                 bandName = replaceName(bandName, "Intensity", "Amplitude");
                 if (product.getBand(bandName) != null) {
-                    visatApp.showWarningDialog(product.getName() + " already contains an "
-                            + bandName + " band");
+                    SnapDialogs.showWarning(product.getName() + " already contains an "
+                                                    + bandName + " band");
                     return;
                 }
-                if (visatApp.showQuestionDialog("Convert to Amplitude", "Would you like to convert band "
-                        + band.getName() + " into Amplitude in a new virtual band?", true, null) == 0) {
+                if (SnapDialogs.requestDecision("Convert to Amplitude", "Would you like to convert band "
+                        + band.getName() + " into Amplitude in a new virtual band?", true, null) == SnapDialogs.Answer.YES) {
                     convert(product, band, true);
                 }
             }
@@ -74,7 +77,7 @@ public class AmplitudeToIntensityOpAction extends AbstractVisatAction {
 
     @Override
     public void updateState(CommandEvent event) {
-        final ProductNode node = VisatApp.getApp().getSelectedProductNode();
+        final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
         if (node instanceof Band) {
             final Band band = (Band) node;
             final String unit = band.getUnit();
