@@ -38,7 +38,6 @@ import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.*;
-import org.esa.snap.rcp.placemark.PlacemarkNameFactory;
 import org.esa.snap.util.MemUtils;
 
 import javax.media.jai.*;

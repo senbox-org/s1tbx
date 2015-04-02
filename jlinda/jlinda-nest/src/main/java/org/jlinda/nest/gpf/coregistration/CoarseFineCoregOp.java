@@ -36,7 +36,6 @@ import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.StackUtils;
 import org.esa.snap.gpf.StatusProgressMonitor;
 import org.esa.snap.gpf.ThreadManager;
-import org.esa.snap.rcp.placemark.PlacemarkNameFactory;
 import org.esa.snap.util.MemUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jlinda.core.Window;
