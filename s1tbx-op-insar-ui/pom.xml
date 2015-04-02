@@ -53,6 +53,10 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
+            <artifactId>snap-rcp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
         </dependency>
         <dependency>
