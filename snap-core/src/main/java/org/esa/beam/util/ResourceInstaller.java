@@ -79,7 +79,7 @@ public class ResourceInstaller {
      * @see FileSystem#getPathMatcher(String)
      */
     public void install(String patternString, ProgressMonitor pm) throws IOException {
-        if (!patternString.startsWith("glob:") || !patternString.startsWith("regex:")) {
+        if (!patternString.startsWith("glob:") && !patternString.startsWith("regex:")) {
             patternString = "regex:" + patternString;
         }
 
