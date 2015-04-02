@@ -1,8 +1,5 @@
 """
-The beampy module provides access to the SNAP Java APIs.
-
-'beampy' uses a bundled 'jpy' module, see documentation at http://jpy.readthedocs.org/en/latest
-and source code at https://github.com/bcdev/jpy
+The beampy module provides access to the Java SE APIs and SNAP Java APIs.
 
 You can configure beampy by using a file named beampy.ini as follows:
 
@@ -14,9 +11,12 @@ You can configure beampy by using a file named beampy.ini as follows:
     debug: False
 
 You can place beampy.ini next to <python3>/site-packages/beampy.py or put it in your current working directory.
-The options starting with 'java_' are only used if you use the SNAP API from Python and a new Java Virtual Machine
-is created. They are ignored if the SNAP API is called from SNAP itself (e.g. SNAP command-line or GUI).
+The 'snap_home' options and all options starting with 'java_' are only used if you use the SNAP API from Python
+and a new Java Virtual Machine is created. They are ignored if the SNAP API is called from SNAP itself
+(e.g. SNAP command-line or GUI).
 
+'beampy' uses a bundled 'jpy' module, see documentation at http://jpy.readthedocs.org/en/latest
+and source code at https://github.com/bcdev/jpy
 """
 
 import os
@@ -30,25 +30,43 @@ else:
     import ConfigParser as cp
 
 module_dir = os.path.dirname(os.path.realpath(__file__))
+module_ini = os.path.basename(module_dir) + '.ini'
+
+# Read configuration *.ini file from either '.', '<module_dir>/..', '<module_dir>' in this order
 config = cp.ConfigParser()
-config.read(['beampy.ini', os.path.join(module_dir, 'beampy.ini'), os.path.join(module_dir, '../beampy.ini')])
+config.read([module_ini,
+             os.path.join(module_dir, os.path.join('..', module_ini)),
+             os.path.join(module_dir, module_ini)
+             ])
 
 debug = False
 if config.has_option('DEFAULT', 'debug'):
     debug = config.getboolean('DEFAULT', 'debug')
 
-sys.path.append(module_dir)
-
+# Pre-load Java VM shared library and import 'jpy' the Java-Python bridge
+if module_dir not in sys.path:
+    sys.path.append(module_dir)
 import jpyutil
-print(jpyutil.__file__)
 jpyutil.preload_jvm_dll()
 import jpy
 
-
 if debug:
-    jpy.diag.flags = jpy.diag.F_ALL
+    # jpy.diag.F_OFF    0x00
+    # jpy.diag.F_TYPE   0x01
+    # jpy.diag.F_METH   0x02
+    # jpy.diag.F_EXEC   0x04
+    # jpy.diag.F_MEM    0x08
+    # jpy.diag.F_JVM    0x10
+    # jpy.diag.F_ERR    0x20
+    # jpy.diag.F_ALL    0xff
+    jpy.diag.flags = jpy.diag.F_EXEC + jpy.diag.F_ERR
 
 
+# Recursively searches for JAR files in 'dir_path' and appends them to 'classpath'.
+# Note: Sub-directories named 'locale' or 'docs' are not searched and
+#       JAR files ending with '-ui.jar' or '-examples.jar' are excluded.
+# Only used if this module is not imported from Java.
+#
 def _collect_snap_jvm_classpath(dir_path, classpath):
     for name in os.listdir(dir_path):
         path = os.path.join(dir_path, name)
@@ -59,11 +77,14 @@ def _collect_snap_jvm_classpath(dir_path, classpath):
             _collect_snap_jvm_classpath(path, classpath)
 
 
+# Searches for *.jar files in directory given by global 'snap_home' variable and returns them as a list.
+# Only used if this module is not imported from Java.
+#
 def _get_snap_jvm_classpath():
 
     dir_names = []
-    for name in os.listdir(beam_home):
-        if os.path.isdir(os.path.join(beam_home, name)):
+    for name in os.listdir(snap_home):
+        if os.path.isdir(os.path.join(snap_home, name)):
             dir_names.append(name)
 
     module_dirs = []
@@ -72,36 +93,44 @@ def _get_snap_jvm_classpath():
         # SNAP Desktop Distribution Directory
         for dir_name in dir_names:
             if not (dir_name == 'platform' or dir_name == 'ide'):
-                dir_path = os.path.join(beam_home, dir_name, 'modules')
+                dir_path = os.path.join(snap_home, dir_name, 'modules')
                 if os.path.isdir(dir_path):
                     module_dirs.append(dir_path)
     elif 'lib' in dir_names and 'modules' in dir_names:
         # SNAP Engine Distribution Directory
-        module_dirs = [os.path.join(beam_home, 'modules'), os.path.join(beam_home, 'lib')]
+        module_dirs = [os.path.join(snap_home, 'modules'), os.path.join(snap_home, 'lib')]
     else:
-        raise RuntimeError('does not seem to be a valid SNAP distribution directory: ' + beam_home)
+        raise RuntimeError('does not seem to be a valid SNAP distribution directory: ' + snap_home)
 
-    import pprint
-    pprint.pprint(module_dirs)
+    if debug:
+        import pprint
+        print(module_dir + ': module_dirs = ')
+        pprint.pprint(module_dirs)
 
     classpath = []
     for path in module_dirs:
         _collect_snap_jvm_classpath(path, classpath)
 
-    pprint.pprint(classpath)
+    if debug:
+        import pprint
+        print(module_dir + ': classpath =')
+        pprint.pprint(classpath)
 
     return classpath
 
 
+# Creates a list of Java JVM options, including the Java classpath derived from the global 'snap_home' variable.
+# Only used if this module is not imported from Java.
+#
 def _get_snap_jvm_options():
-    global beam_home, extra_classpath, max_mem, options, extra_options
+    global snap_home, extra_classpath, max_mem, options, extra_options
 
     if config.has_option('DEFAULT', 'snap_home'):
-        beam_home = config.get('DEFAULT', 'snap_home')
+        snap_home = config.get('DEFAULT', 'snap_home')
     else:
-        beam_home = os.getenv('SNAP_HOME')
+        snap_home = os.getenv('SNAP_HOME')
 
-    if beam_home is None or not os.path.isdir(beam_home):
+    if snap_home is None or not os.path.isdir(snap_home):
         raise IOError("Can't find SNAP distribution directory. Either configure variable 'snap_home' " +
                       "in file './beampy.ini' or set environment variable 'SNAP_HOME' to an " +
                       "existing SNAP distribution directory.")
@@ -127,6 +156,7 @@ def _get_snap_jvm_options():
     return options
 
 
+# Figure out if this module is called from a Java VM. If not, derive a list of Java VM options and create the Java VM.
 called_from_java = jpy.has_jvm()
 if not called_from_java:
     jpy.create_jvm(options=_get_snap_jvm_options())
@@ -183,6 +213,10 @@ jpy.type_callbacks['org.esa.beam.framework.datamodel.RasterDataNode'] = annotate
 jpy.type_callbacks['org.esa.beam.framework.datamodel.AbstractBand'] = annotate_RasterDataNode_methods
 jpy.type_callbacks['org.esa.beam.framework.datamodel.Band'] = annotate_RasterDataNode_methods
 jpy.type_callbacks['org.esa.beam.framework.datamodel.VirtualBand'] = annotate_RasterDataNode_methods
+
+#
+# Preload and assign frequently used Java classes from the Java SE and SNAP Java API.
+#
 
 try:
     # Note we may later want to read pre-defined types from a configuration file (beampy.ini)
