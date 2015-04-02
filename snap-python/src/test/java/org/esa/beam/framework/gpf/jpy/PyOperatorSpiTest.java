@@ -29,9 +29,7 @@ public class PyOperatorSpiTest {
 
     @BeforeClass
     public static void init() {
-        URL resource = PyOperatorSpi.class.getResource("/");
-        assertNotNull(resource);
-        File file = new File(URI.create(resource.toString()));
+        File file = PyOperatorTest.getResourceFile("/");
         assertTrue(file.isDirectory());
         System.setProperty(EXT_PROPERTY_NAME, file.getPath());
         //System.out.printf("%s = %s%n", EXT_PROPERTY_NAME, System.getProperty(EXT_PROPERTY_NAME));
@@ -65,4 +63,5 @@ public class PyOperatorSpiTest {
         Path dirPath = Paths.get(".").toAbsolutePath().normalize();
         assertEquals(dirPath.toFile(), PyOperatorSpi.getPythonModuleRootFile(dirPath));
     }
+
 }

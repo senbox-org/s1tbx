@@ -8,7 +8,5 @@ jpy.jar
 *.class
 *.war
 *.ear
-*.dim
-*.data
 __py_cache__/
 

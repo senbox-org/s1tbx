@@ -208,6 +208,7 @@ class PyBridge {
         TreeCopier.copy(getResourcePath(BEAMPY_DIR_NAME), pythonModuleDir);
         LOG.info("SNAP-Python module directory: " + pythonModuleDir);
         unpackPythonResources(pythonModuleDir, "beampy-tests", "tests");
+        unpackPythonResources(pythonModuleDir, "beampy-testdata", "testdata");
         unpackPythonResources(pythonModuleDir, "beampy-examples", "examples");
     }
 

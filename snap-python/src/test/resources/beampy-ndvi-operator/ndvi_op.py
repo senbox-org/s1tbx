@@ -1,19 +1,18 @@
 import beampy
 import numpy
 
-jpy = beampy.jpy
-
 
 class NdviOp:
 
     def __init__(self):
+        #jpy = beampy.jpy
+        #jpy.diag.flags = jpy.diag.F_ALL
         self.lower_band = None
         self.upper_band = None
         self.ndvi_band = None
         self.ndvi_flags_band = None
         self.lower_factor = 0.0
         self.upper_factor = 0.0
-
 
     def initialize(self, operator):
         source_product = operator.getSourceProduct('source')
@@ -34,12 +33,14 @@ class NdviOp:
         self.upper_band = self._get_band(source_product, upper_band_name)
         self.upper_factor = operator.getParameter('upperFactor')
 
+        print('initialize: lower_band =', self.lower_band, ', upper_band =', self.upper_band)
+        print('initialize: lower_factor =', self.lower_factor, ', upper_factor =', self.upper_factor)
+
         ndvi_product = beampy.Product('py_NDVI', 'py_NDVI', width, height)
         self.ndvi_band = ndvi_product.addBand('ndvi', beampy.ProductData.TYPE_FLOAT32)
         self.ndvi_flags_band = ndvi_product.addBand('ndvi_flags', beampy.ProductData.TYPE_UINT8)
 
         operator.setTargetProduct(ndvi_product)
-
 
     def compute(self, operator, target_tiles, target_rectangle):
         lower_tile = operator.getSourceTile(self.lower_band, target_rectangle)
@@ -51,8 +52,12 @@ class NdviOp:
         lower_samples = lower_tile.getSamplesFloat()
         upper_samples = upper_tile.getSamplesFloat()
 
+        print('compute: lower_samples =', lower_samples[0], ', upper_samples =', upper_samples[0])
+
         lower_data = numpy.array(lower_samples, dtype=numpy.float32) * self.lower_factor
         upper_data = numpy.array(upper_samples, dtype=numpy.float32) * self.upper_factor
+
+        print('compute: lower_data =', lower_data[0], ', upper_data =', upper_data[0])
 
         ndvi = (upper_data - lower_data ) / (upper_data + lower_data )
 
@@ -63,10 +68,8 @@ class NdviOp:
         ndvi_tile.setSamples(ndvi)
         ndvi_flags_tile.setSamples(ndvi_flags)
 
-
     def dispose(self, operator):
         pass
-
 
     def _get_band(self, product, name):
         band = product.getBand(name)
