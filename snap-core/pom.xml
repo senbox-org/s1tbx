@@ -135,9 +135,7 @@
                         <publicPackage>com.sun.medialib.mlib.*</publicPackage>
                         <publicPackage>it.geosolutions.imageio.plugins.tiff</publicPackage>
                         <publicPackage>it.geosolutions.imageioimpl.plugins.tiff</publicPackage>
-                        <publicPackage>javax.media.jai.*</publicPackage>
                         <publicPackage>javax.measure.*</publicPackage>
-                        <publicPackage>javax.imageio.*</publicPackage>
                         <publicPackage>javax.vecmath.*</publicPackage>
                         <publicPackage>org.jdom.*</publicPackage>
                         <publicPackage>org.geotools.*</publicPackage>
