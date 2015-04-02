@@ -45,7 +45,7 @@ def _configure_snappy(snap_home=None,
 
     snappy_dir = os.path.dirname(os.path.abspath(__file__))
     snappy_install_dir = os.path.join(snappy_dir, '..')
-    snappy_ini_file = os.path.join(snappy_install_dir, 'snappy.ini')
+    snappy_ini_file = os.path.join(snappy_dir, 'snappy.ini')
     jpy_distr_name = 'jpy.' + sysconfig.get_platform() + '-' + sysconfig.get_python_version()
     jpy_info_file = os.path.join(snappy_dir, jpy_distr_name + '.info')
     jpyutil_file = os.path.join(snappy_dir, 'jpyutil.py')

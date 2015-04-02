@@ -34,9 +34,9 @@ module_ini = os.path.basename(module_dir) + '.ini'
 
 # Read configuration *.ini file from either '.', '<module_dir>/..', '<module_dir>' in this order
 config = cp.ConfigParser()
-config.read([module_ini,
-             os.path.join(module_dir, os.path.join('..', module_ini)),
-             os.path.join(module_dir, module_ini)
+config.read([os.path.join(module_dir, module_ini),
+             os.path.join(os.path.join(module_dir, '..'), module_ini),
+             module_ini
              ])
 
 debug = False
