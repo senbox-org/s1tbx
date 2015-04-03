@@ -107,8 +107,8 @@ public final class BackGeocodingOp extends Operator {
     @Parameter(defaultValue = "false", label = "Output Range and Azimuth Offset")
     private boolean outputRangeAzimuthOffset = false;
 
-    @Parameter(defaultValue = "false", label = "Output Deramp Phase")
-    private boolean outputDerampPhase = false;
+    @Parameter(defaultValue = "false", label = "Output Deramp and Demod Phase")
+    private boolean outputDerampDemodPhase = false;
 
     private Resampling selectedResampling = null;
 
@@ -382,9 +382,9 @@ public final class BackGeocodingOp extends Operator {
             targetProduct.addBand(rgOffsetBand);
         }
 
-        if (outputDerampPhase) {
+        if (outputDerampDemodPhase) {
             final Band phaseBand = new Band(
-                    "phase",
+                    "drampDemodPhase",
                     ProductData.TYPE_FLOAT32,
                     masterBandWidth,
                     masterBandHeight);
@@ -1022,9 +1022,9 @@ public final class BackGeocodingOp extends Operator {
         return null;
     }
 
-    private void performDerampDemod(final Tile slaveTileI, final Tile slaveTileQ,
-                                    final Rectangle slaveRectangle, final double[][] derampDemodPhase,
-                                    final double[][] derampDemodI, final double[][] derampDemodQ) {
+    public static void performDerampDemod(final Tile slaveTileI, final Tile slaveTileQ,
+                                          final Rectangle slaveRectangle, final double[][] derampDemodPhase,
+                                          final double[][] derampDemodI, final double[][] derampDemodQ) {
 
         try {
             final int x0 = slaveRectangle.x;
@@ -1076,7 +1076,7 @@ public final class BackGeocodingOp extends Operator {
                     iBand = band;
                 } else if (bandName.contains("q_") && bandName.contains("_slv")) {
                     qBand = band;
-                } else if (bandName.contains("phase")) {
+                } else if (bandName.contains("drampDemodPhase")) {
                     phaseBand = band;
                 }
             }
@@ -1093,7 +1093,7 @@ public final class BackGeocodingOp extends Operator {
 
             Tile tgtTilePhase;
             ProductData tgtBufferPhase = null;
-            if (outputDerampPhase) {
+            if (outputDerampDemodPhase) {
                 tgtTilePhase = targetTileMap.get(phaseBand);
                 tgtBufferPhase = tgtTilePhase.getDataBuffer();
             }
@@ -1111,7 +1111,7 @@ public final class BackGeocodingOp extends Operator {
                         tgtBufferI.setElemDoubleAt(tgtIdx, noDataValue);
                         tgtBufferQ.setElemDoubleAt(tgtIdx, noDataValue);
 
-                        if (outputDerampPhase) {
+                        if (outputDerampDemodPhase) {
                             tgtBufferPhase.setElemFloatAt(tgtIdx, (float)noDataValue);
                         }
                         continue;
@@ -1142,14 +1142,14 @@ public final class BackGeocodingOp extends Operator {
                         tgtBufferI.setElemDoubleAt(tgtIdx, rerampRemodI);
                         tgtBufferQ.setElemDoubleAt(tgtIdx, rerampRemodQ);
 
-                        if (outputDerampPhase) {
+                        if (outputDerampDemodPhase) {
                             tgtBufferPhase.setElemFloatAt(tgtIdx, (float)samplePhase);
                         }
 
                     } else {
                         tgtBufferI.setElemDoubleAt(tgtIdx, noDataValue);
                         tgtBufferQ.setElemDoubleAt(tgtIdx, noDataValue);
-                        if (outputDerampPhase) {
+                        if (outputDerampDemodPhase) {
                             tgtBufferPhase.setElemFloatAt(tgtIdx, (float)noDataValue);
                         }
                     }
