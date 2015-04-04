@@ -42,6 +42,7 @@
 		<module>jlinda</module>
 		<module>rstb</module>
 		<!--module>s1tbx-benchmark</module-->
+        <module>s1tbx-commons</module>
 		<module>s1tbx-config</module>
 		<module>s1tbx-dem</module>	
         <module>s1tbx-dem-ui</module>
@@ -353,7 +354,13 @@
             </dependency>
 			
             <!-- S1TBX Modules ############################################# -->
-			
+
+            <dependency>
+                <groupId>org.esa.s1tbx</groupId>
+                <artifactId>s1tbx-commons</artifactId>
+                <version>${s1tbx.version}</version>
+            </dependency>
+
 			<dependency>
                 <groupId>org.esa.s1tbx</groupId>
                 <artifactId>s1tbx-rcp</artifactId>
