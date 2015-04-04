@@ -79,6 +79,7 @@
                     <publicPackages>
                         <publicPackage>org.esa.nest.*</publicPackage>
                         <publicPackage>org.joda.*</publicPackage>
+                        <publicPackage>org.slf4j.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

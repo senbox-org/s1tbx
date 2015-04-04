@@ -44,7 +44,6 @@
 package org.esa.nest.dat.wizards;
 
 import org.esa.beam.framework.help.HelpSys;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
 import org.jfree.ui.L1R3ButtonPanel;
 
@@ -58,7 +57,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * A dialog that presents the user with a sequence of steps for completing a task.  The dialog
@@ -217,12 +215,7 @@ public class WizardDialog extends JDialog implements ActionListener {
         try {
             helpBroker.setCurrentID(helpId);
         } catch (BadIDException e) {
-            Logger systemLogger = SystemUtils.LOG;
-            if (systemLogger != null) {
-                systemLogger.severe("ModalDialog: '" + helpId + "' is not a valid helpID");
-            } else {
-                Debug.trace(e);
-            }
+            SystemUtils.LOG.severe("ModalDialog: '" + helpId + "' is not a valid helpID");
         }
         if (helpSet == null) {
             return;

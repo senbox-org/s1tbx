@@ -16,12 +16,16 @@
 package org.esa.nest.dat;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.action.DockableBarContext;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.MapGeoCoding;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
@@ -30,8 +34,6 @@ import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.framework.ui.command.CommandManager;
-import org.esa.beam.util.ResourceInstaller;
-import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.actions.LoadTabbedLayoutAction;
 import org.esa.nest.dat.views.polarview.PolarView;
@@ -50,12 +52,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
 
 public class DatApp extends VisatApp {
 
@@ -134,41 +139,10 @@ public class DatApp extends VisatApp {
 
             //UIManager.put("List.lockToPositionOnScroll", Boolean.FALSE);
 
-            installDefaultColorPalettes();
-
             //backgroundInitTasks();
         } catch (Throwable t) {
             SnapDialogs.showError("PostInit failed. " + t.toString());
         }
-    }
-
-    private void installDefaultColorPalettes() {
-        Path sourceBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
-        final Path auxdataDir = getColorPalettesDir();
-        final ResourceInstaller resourceInstaller = new ResourceInstaller(sourceBasePath, "auxdata/color_palettes/",
-                auxdataDir);
-        ProgressMonitorSwingWorker swingWorker = new ProgressMonitorSwingWorker(getMainFrame(),
-                "Installing Auxdata...") {
-            @Override
-            protected Object doInBackground(ProgressMonitor progressMonitor) throws Exception {
-                resourceInstaller.install(".*.cpd", progressMonitor);
-                return Boolean.TRUE;
-            }
-
-            @Override
-            protected void done() {
-                try {
-                    get();
-                } catch (Exception e) {
-                    getLogger().log(Level.SEVERE, "Could not install auxdata", e);
-                }
-            }
-        };
-        swingWorker.executeWithBlocking();
-    }
-
-    private Path getColorPalettesDir() {
-        return SystemUtils.getApplicationDataDir().toPath().resolve("snap-rcp/auxdata/color_palettes");
     }
 
     protected void disableOperatorPlugins() {
