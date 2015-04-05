@@ -26,28 +26,28 @@
         <dependency>
             <groupId>javax.media.jai</groupId>
             <artifactId>jai-core</artifactId>
-            <version>1.1.3</version>
         </dependency>
         <dependency>
             <groupId>javax.media.jai</groupId>
             <artifactId>jai-codec</artifactId>
-            <version>1.1.3</version>
         </dependency>
         <dependency>
             <groupId>javax.media.jai</groupId>
             <artifactId>mlibwrapper-jai</artifactId>
-            <version>1.1.3</version>
         </dependency>
         <dependency>
             <groupId>com.sun.media</groupId>
             <artifactId>clibwrapper-jiio</artifactId>
-            <version>1.2-20090918</version>
         </dependency>
         <dependency>
             <groupId>com.sun.media</groupId>
             <artifactId>jai-imageio</artifactId>
-            <version>1.2-20090918</version>
         </dependency>
+        <dependency>
+            <groupId>it.geosolutions.imageio-ext</groupId>
+            <artifactId>imageio-ext-tiff</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>rhino</groupId>
             <artifactId>js</artifactId>
@@ -73,6 +73,8 @@
                         <publicPackage>com.sun.medialib.mlib.*</publicPackage>
                         <publicPackage>com.bc.ceres.compiler</publicPackage>
                         <publicPackage>com.bc.ceres.jai.*</publicPackage>
+                        <publicPackage>it.geosolutions.imageio.plugins.tiff</publicPackage>
+                        <publicPackage>it.geosolutions.imageioimpl.plugins.tiff</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

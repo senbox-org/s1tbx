@@ -1,0 +1,1209 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Dimap_Document name="MER_FRS_L1B_SUBSET.dim">
+    <Metadata_Id>
+        <METADATA_FORMAT version="2.11.0">DIMAP</METADATA_FORMAT>
+        <METADATA_PROFILE>BEAM-DATAMODEL-V1</METADATA_PROFILE>
+    </Metadata_Id>
+    <Dataset_Id>
+        <DATASET_SERIES>BEAM-PRODUCT</DATASET_SERIES>
+        <DATASET_NAME>MER_FRS_L1B_SUBSET</DATASET_NAME>
+    </Dataset_Id>
+    <Dataset_Use>
+        <DATASET_COMMENTS>MERIS Full Resolution Geolocated and Calibrated TOA Radiance</DATASET_COMMENTS>
+        <DATASET_AUTO_GROUPING>radiance</DATASET_AUTO_GROUPING>
+    </Dataset_Use>
+    <Production>
+        <DATASET_PRODUCER_NAME />
+        <PRODUCT_TYPE>MER_FRS_1P</PRODUCT_TYPE>
+        <PRODUCT_SCENE_RASTER_START_TIME>09-JUL-2007 11:14:55.493954</PRODUCT_SCENE_RASTER_START_TIME>
+        <PRODUCT_SCENE_RASTER_STOP_TIME>09-JUL-2007 11:15:03.545405</PRODUCT_SCENE_RASTER_STOP_TIME>
+    </Production>
+    <Coordinate_Reference_System>
+        <Horizontal_CS>
+            <HORIZONTAL_CS_TYPE>GEOGRAPHIC</HORIZONTAL_CS_TYPE>
+            <Geographic_CS>
+                <Horizontal_Datum>
+                    <HORIZONTAL_DATUM_NAME>WGS-84</HORIZONTAL_DATUM_NAME>
+                    <Ellipsoid>
+                        <ELLIPSOID_NAME>WGS-84</ELLIPSOID_NAME>
+                        <Ellipsoid_Parameters>
+                            <ELLIPSOID_MAJ_AXIS unit="M">6378137.0</ELLIPSOID_MAJ_AXIS>
+                            <ELLIPSOID_MIN_AXIS unit="M">6356752.3</ELLIPSOID_MIN_AXIS>
+                        </Ellipsoid_Parameters>
+                    </Ellipsoid>
+                </Horizontal_Datum>
+            </Geographic_CS>
+        </Horizontal_CS>
+    </Coordinate_Reference_System>
+    <Geoposition>
+        <Geoposition_Points>
+            <TIE_POINT_GRID_NAME_LAT>latitude</TIE_POINT_GRID_NAME_LAT>
+            <TIE_POINT_GRID_NAME_LON>longitude</TIE_POINT_GRID_NAME_LON>
+        </Geoposition_Points>
+    </Geoposition>
+    <Flag_Coding name="l1_flags">
+        <Flag>
+            <Flag_Name>COSMETIC</Flag_Name>
+            <Flag_Index>1</Flag_Index>
+            <Flag_description>Pixel is cosmetic</Flag_description>
+        </Flag>
+        <Flag>
+            <Flag_Name>DUPLICATED</Flag_Name>
+            <Flag_Index>2</Flag_Index>
+            <Flag_description>Pixel has been duplicated (filled in)</Flag_description>
+        </Flag>
+        <Flag>
+            <Flag_Name>GLINT_RISK</Flag_Name>
+            <Flag_Index>4</Flag_Index>
+            <Flag_description>Pixel has glint risk</Flag_description>
+        </Flag>
+        <Flag>
+            <Flag_Name>SUSPECT</Flag_Name>
+            <Flag_Index>8</Flag_Index>
+            <Flag_description>Pixel is suspect</Flag_description>
+        </Flag>
+        <Flag>
+            <Flag_Name>LAND_OCEAN</Flag_Name>
+            <Flag_Index>16</Flag_Index>
+            <Flag_description>Pixel is over land, not ocean</Flag_description>
+        </Flag>
+        <Flag>
+            <Flag_Name>BRIGHT</Flag_Name>
+            <Flag_Index>32</Flag_Index>
+            <Flag_description>Pixel is bright</Flag_description>
+        </Flag>
+        <Flag>
+            <Flag_Name>COASTLINE</Flag_Name>
+            <Flag_Index>64</Flag_Index>
+            <Flag_description>Pixel is part of a coastline</Flag_description>
+        </Flag>
+        <Flag>
+            <Flag_Name>INVALID</Flag_Name>
+            <Flag_Index>128</Flag_Index>
+            <Flag_description>Pixel is invalid</Flag_description>
+        </Flag>
+    </Flag_Coding>
+    <Raster_Dimensions>
+        <NCOLS>221</NCOLS>
+        <NROWS>184</NROWS>
+        <NBANDS>17</NBANDS>
+    </Raster_Dimensions>
+    <Data_Access>
+        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>
+        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>
+        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/radiance_1.hdr" />
+            <BAND_INDEX>0</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/radiance_2.hdr" />
+            <BAND_INDEX>1</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/radiance_3.hdr" />
+            <BAND_INDEX>2</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/radiance_4.hdr" />
+            <BAND_INDEX>3</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/radiance_5.hdr" />
+            <BAND_INDEX>4</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/radiance_6.hdr" />
+            <BAND_INDEX>5</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/radiance_7.hdr" />
+            <BAND_INDEX>6</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/radiance_8.hdr" />
+            <BAND_INDEX>7</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/radiance_9.hdr" />
+            <BAND_INDEX>8</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/radiance_10.hdr" />
+            <BAND_INDEX>9</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/radiance_11.hdr" />
+            <BAND_INDEX>10</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/radiance_12.hdr" />
+            <BAND_INDEX>11</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/radiance_13.hdr" />
+            <BAND_INDEX>12</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/radiance_14.hdr" />
+            <BAND_INDEX>13</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/radiance_15.hdr" />
+            <BAND_INDEX>14</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/l1_flags.hdr" />
+            <BAND_INDEX>15</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="MER_FRS_L1B_SUBSET.data/detector_index.hdr" />
+            <BAND_INDEX>16</BAND_INDEX>
+        </Data_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="MER_FRS_L1B_SUBSET.data/tie_point_grids/latitude.hdr" />
+            <TIE_POINT_GRID_INDEX>0</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="MER_FRS_L1B_SUBSET.data/tie_point_grids/longitude.hdr" />
+            <TIE_POINT_GRID_INDEX>1</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="MER_FRS_L1B_SUBSET.data/tie_point_grids/dem_alt.hdr" />
+            <TIE_POINT_GRID_INDEX>2</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="MER_FRS_L1B_SUBSET.data/tie_point_grids/dem_rough.hdr" />
+            <TIE_POINT_GRID_INDEX>3</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="MER_FRS_L1B_SUBSET.data/tie_point_grids/lat_corr.hdr" />
+            <TIE_POINT_GRID_INDEX>4</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="MER_FRS_L1B_SUBSET.data/tie_point_grids/lon_corr.hdr" />
+            <TIE_POINT_GRID_INDEX>5</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="MER_FRS_L1B_SUBSET.data/tie_point_grids/sun_zenith.hdr" />
+            <TIE_POINT_GRID_INDEX>6</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="MER_FRS_L1B_SUBSET.data/tie_point_grids/sun_azimuth.hdr" />
+            <TIE_POINT_GRID_INDEX>7</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="MER_FRS_L1B_SUBSET.data/tie_point_grids/view_zenith.hdr" />
+            <TIE_POINT_GRID_INDEX>8</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="MER_FRS_L1B_SUBSET.data/tie_point_grids/view_azimuth.hdr" />
+            <TIE_POINT_GRID_INDEX>9</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="MER_FRS_L1B_SUBSET.data/tie_point_grids/zonal_wind.hdr" />
+            <TIE_POINT_GRID_INDEX>10</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="MER_FRS_L1B_SUBSET.data/tie_point_grids/merid_wind.hdr" />
+            <TIE_POINT_GRID_INDEX>11</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="MER_FRS_L1B_SUBSET.data/tie_point_grids/atm_press.hdr" />
+            <TIE_POINT_GRID_INDEX>12</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="MER_FRS_L1B_SUBSET.data/tie_point_grids/ozone.hdr" />
+            <TIE_POINT_GRID_INDEX>13</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="MER_FRS_L1B_SUBSET.data/tie_point_grids/rel_hum.hdr" />
+            <TIE_POINT_GRID_INDEX>14</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+    </Data_Access>
+    <Tie_Point_Grids>
+        <NUM_TIE_POINT_GRIDS>15</NUM_TIE_POINT_GRIDS>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>0</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Latitude of the tie points (WGS-84), positive N</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>deg</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>latitude</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>6</NCOLS>
+            <NROWS>5</NROWS>
+            <OFFSET_X>-16.5</OFFSET_X>
+            <OFFSET_Y>-51.5</OFFSET_Y>
+            <STEP_X>64.0</STEP_X>
+            <STEP_Y>64.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>1</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Longitude of the tie points (WGS-84), Greenwich origin, positive E</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>deg</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>longitude</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>6</NCOLS>
+            <NROWS>5</NROWS>
+            <OFFSET_X>-16.5</OFFSET_X>
+            <OFFSET_Y>-51.5</OFFSET_Y>
+            <STEP_X>64.0</STEP_X>
+            <STEP_Y>64.0</STEP_Y>
+            <CYCLIC>true</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>2</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Digital elevation model altitude</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>m</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>dem_alt</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>6</NCOLS>
+            <NROWS>5</NROWS>
+            <OFFSET_X>-16.5</OFFSET_X>
+            <OFFSET_Y>-51.5</OFFSET_Y>
+            <STEP_X>64.0</STEP_X>
+            <STEP_Y>64.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>3</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Digital elevation model roughness</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>m</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>dem_rough</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>6</NCOLS>
+            <NROWS>5</NROWS>
+            <OFFSET_X>-16.5</OFFSET_X>
+            <OFFSET_Y>-51.5</OFFSET_Y>
+            <STEP_X>64.0</STEP_X>
+            <STEP_Y>64.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>4</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Digital elevation model latitude corrections</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>deg</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>lat_corr</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>6</NCOLS>
+            <NROWS>5</NROWS>
+            <OFFSET_X>-16.5</OFFSET_X>
+            <OFFSET_Y>-51.5</OFFSET_Y>
+            <STEP_X>64.0</STEP_X>
+            <STEP_Y>64.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>5</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Digital elevation model longitude corrections</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>deg</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>lon_corr</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>6</NCOLS>
+            <NROWS>5</NROWS>
+            <OFFSET_X>-16.5</OFFSET_X>
+            <OFFSET_Y>-51.5</OFFSET_Y>
+            <STEP_X>64.0</STEP_X>
+            <STEP_Y>64.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>6</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Sun zenith angle</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>deg</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>sun_zenith</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>6</NCOLS>
+            <NROWS>5</NROWS>
+            <OFFSET_X>-16.5</OFFSET_X>
+            <OFFSET_Y>-51.5</OFFSET_Y>
+            <STEP_X>64.0</STEP_X>
+            <STEP_Y>64.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>7</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Sun azimuth angles</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>deg</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>sun_azimuth</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>6</NCOLS>
+            <NROWS>5</NROWS>
+            <OFFSET_X>-16.5</OFFSET_X>
+            <OFFSET_Y>-51.5</OFFSET_Y>
+            <STEP_X>64.0</STEP_X>
+            <STEP_Y>64.0</STEP_Y>
+            <CYCLIC>true</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>8</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Viewing zenith angles</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>deg</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>view_zenith</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>6</NCOLS>
+            <NROWS>5</NROWS>
+            <OFFSET_X>-16.5</OFFSET_X>
+            <OFFSET_Y>-51.5</OFFSET_Y>
+            <STEP_X>64.0</STEP_X>
+            <STEP_Y>64.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>9</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Viewing azimuth angles</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>deg</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>view_azimuth</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>6</NCOLS>
+            <NROWS>5</NROWS>
+            <OFFSET_X>-16.5</OFFSET_X>
+            <OFFSET_Y>-51.5</OFFSET_Y>
+            <STEP_X>64.0</STEP_X>
+            <STEP_Y>64.0</STEP_Y>
+            <CYCLIC>true</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>10</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Zonal wind</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>m/s</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>zonal_wind</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>6</NCOLS>
+            <NROWS>5</NROWS>
+            <OFFSET_X>-16.5</OFFSET_X>
+            <OFFSET_Y>-51.5</OFFSET_Y>
+            <STEP_X>64.0</STEP_X>
+            <STEP_Y>64.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>11</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Meridional wind</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>m/s</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>merid_wind</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>6</NCOLS>
+            <NROWS>5</NROWS>
+            <OFFSET_X>-16.5</OFFSET_X>
+            <OFFSET_Y>-51.5</OFFSET_Y>
+            <STEP_X>64.0</STEP_X>
+            <STEP_Y>64.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>12</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Mean sea level pressure</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>hPa</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>atm_press</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>6</NCOLS>
+            <NROWS>5</NROWS>
+            <OFFSET_X>-16.5</OFFSET_X>
+            <OFFSET_Y>-51.5</OFFSET_Y>
+            <STEP_X>64.0</STEP_X>
+            <STEP_Y>64.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>13</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Total ozone</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>DU</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>ozone</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>6</NCOLS>
+            <NROWS>5</NROWS>
+            <OFFSET_X>-16.5</OFFSET_X>
+            <OFFSET_Y>-51.5</OFFSET_Y>
+            <STEP_X>64.0</STEP_X>
+            <STEP_Y>64.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>14</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Relative humidity</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>%</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>rel_hum</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>6</NCOLS>
+            <NROWS>5</NROWS>
+            <OFFSET_X>-16.5</OFFSET_X>
+            <OFFSET_Y>-51.5</OFFSET_Y>
+            <STEP_X>64.0</STEP_X>
+            <STEP_Y>64.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+    </Tie_Point_Grids>
+    <Image_Display>
+        <Band_Statistics>
+            <BAND_INDEX>12</BAND_INDEX>
+            <NUM_COLORS>256</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>3.110048770904541</SAMPLE>
+                <COLOR red="0" green="0" blue="0" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>51.364050975535065</SAMPLE>
+                <COLOR red="128" green="128" blue="128" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>99.61805318016559</SAMPLE>
+                <COLOR red="255" green="255" blue="255" alpha="255" />
+            </Color_Palette_Point>
+            <NO_DATA_COLOR red="0" green="0" blue="0" alpha="0" />
+            <HISTOGRAM_MATCHING>None</HISTOGRAM_MATCHING>
+        </Band_Statistics>
+    </Image_Display>
+    <Masks>
+        <Mask type="Maths">
+            <NAME value="coastline" />
+            <DESCRIPTION value="Pixel is part of a coastline" />
+            <COLOR red="0" green="255" blue="0" alpha="255" />
+            <TRANSPARENCY value="0.0" />
+            <EXPRESSION value="l1_flags.COASTLINE" />
+        </Mask>
+        <Mask type="Maths">
+            <NAME value="land" />
+            <DESCRIPTION value="Pixel is over land, not ocean" />
+            <COLOR red="51" green="153" blue="0" alpha="255" />
+            <TRANSPARENCY value="0.75" />
+            <EXPRESSION value="l1_flags.LAND_OCEAN" />
+        </Mask>
+        <Mask type="Maths">
+            <NAME value="water" />
+            <DESCRIPTION value="Not Pixel is over land, not ocean" />
+            <COLOR red="153" green="153" blue="255" alpha="255" />
+            <TRANSPARENCY value="0.75" />
+            <EXPRESSION value="NOT l1_flags.LAND_OCEAN" />
+        </Mask>
+        <Mask type="Maths">
+            <NAME value="cosmetic" />
+            <DESCRIPTION value="Pixel is cosmetic" />
+            <COLOR red="204" green="153" blue="255" alpha="255" />
+            <TRANSPARENCY value="0.5" />
+            <EXPRESSION value="l1_flags.COSMETIC" />
+        </Mask>
+        <Mask type="Maths">
+            <NAME value="duplicated" />
+            <DESCRIPTION value="Pixel has been duplicated (filled in)" />
+            <COLOR red="255" green="200" blue="0" alpha="255" />
+            <TRANSPARENCY value="0.5" />
+            <EXPRESSION value="l1_flags.DUPLICATED" />
+        </Mask>
+        <Mask type="Maths">
+            <NAME value="glint_risk" />
+            <DESCRIPTION value="Pixel has glint risk" />
+            <COLOR red="255" green="0" blue="255" alpha="255" />
+            <TRANSPARENCY value="0.5" />
+            <EXPRESSION value="l1_flags.GLINT_RISK" />
+        </Mask>
+        <Mask type="Maths">
+            <NAME value="suspect" />
+            <DESCRIPTION value="Pixel is suspect" />
+            <COLOR red="204" green="102" blue="255" alpha="255" />
+            <TRANSPARENCY value="0.5" />
+            <EXPRESSION value="l1_flags.SUSPECT" />
+        </Mask>
+        <Mask type="Maths">
+            <NAME value="bright" />
+            <DESCRIPTION value="Pixel is bright" />
+            <COLOR red="255" green="255" blue="0" alpha="255" />
+            <TRANSPARENCY value="0.5" />
+            <EXPRESSION value="l1_flags.BRIGHT" />
+        </Mask>
+        <Mask type="Maths">
+            <NAME value="invalid" />
+            <DESCRIPTION value="Pixel is invalid" />
+            <COLOR red="255" green="0" blue="0" alpha="255" />
+            <TRANSPARENCY value="0.0" />
+            <EXPRESSION value="l1_flags.INVALID" />
+        </Mask>
+    </Masks>
+    <Image_Interpretation>
+        <Spectral_Band_Info>
+            <BAND_INDEX>0</BAND_INDEX>
+            <BAND_DESCRIPTION>TOA radiance band 1</BAND_DESCRIPTION>
+            <BAND_NAME>radiance_1</BAND_NAME>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>mW/(m^2*sr*nm)</PHYSICAL_UNIT>
+            <SOLAR_FLUX>1660.5662</SOLAR_FLUX>
+            <SPECTRAL_BAND_INDEX>0</SPECTRAL_BAND_INDEX>
+            <BAND_WAVELEN>412.691</BAND_WAVELEN>
+            <BANDWIDTH>9.937</BANDWIDTH>
+            <SCALING_FACTOR>0.009474839083850384</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VALID_MASK_TERM>!l1_flags.INVALID</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>1</BAND_INDEX>
+            <BAND_DESCRIPTION>TOA radiance band 2</BAND_DESCRIPTION>
+            <BAND_NAME>radiance_2</BAND_NAME>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>mW/(m^2*sr*nm)</PHYSICAL_UNIT>
+            <SOLAR_FLUX>1819.504</SOLAR_FLUX>
+            <SPECTRAL_BAND_INDEX>1</SPECTRAL_BAND_INDEX>
+            <BAND_WAVELEN>442.55902</BAND_WAVELEN>
+            <BANDWIDTH>9.946</BANDWIDTH>
+            <SCALING_FACTOR>0.010603477247059345</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VALID_MASK_TERM>!l1_flags.INVALID</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>2</BAND_INDEX>
+            <BAND_DESCRIPTION>TOA radiance band 3</BAND_DESCRIPTION>
+            <BAND_NAME>radiance_3</BAND_NAME>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>mW/(m^2*sr*nm)</PHYSICAL_UNIT>
+            <SOLAR_FLUX>1867.3854</SOLAR_FLUX>
+            <SPECTRAL_BAND_INDEX>2</SPECTRAL_BAND_INDEX>
+            <BAND_WAVELEN>489.88202</BAND_WAVELEN>
+            <BANDWIDTH>9.957001</BANDWIDTH>
+            <SCALING_FACTOR>0.011584330350160599</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VALID_MASK_TERM>!l1_flags.INVALID</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>3</BAND_INDEX>
+            <BAND_DESCRIPTION>TOA radiance band 4</BAND_DESCRIPTION>
+            <BAND_NAME>radiance_4</BAND_NAME>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>mW/(m^2*sr*nm)</PHYSICAL_UNIT>
+            <SOLAR_FLUX>1867.9656</SOLAR_FLUX>
+            <SPECTRAL_BAND_INDEX>3</SPECTRAL_BAND_INDEX>
+            <BAND_WAVELEN>509.81903</BAND_WAVELEN>
+            <BANDWIDTH>9.961</BANDWIDTH>
+            <SCALING_FACTOR>0.010705679655075073</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VALID_MASK_TERM>!l1_flags.INVALID</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>4</BAND_INDEX>
+            <BAND_DESCRIPTION>TOA radiance band 5</BAND_DESCRIPTION>
+            <BAND_NAME>radiance_5</BAND_NAME>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>mW/(m^2*sr*nm)</PHYSICAL_UNIT>
+            <SOLAR_FLUX>1746.0837</SOLAR_FLUX>
+            <SPECTRAL_BAND_INDEX>4</SPECTRAL_BAND_INDEX>
+            <BAND_WAVELEN>559.69403</BAND_WAVELEN>
+            <BANDWIDTH>9.97</BANDWIDTH>
+            <SCALING_FACTOR>0.009329340420663357</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VALID_MASK_TERM>!l1_flags.INVALID</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>5</BAND_INDEX>
+            <BAND_DESCRIPTION>TOA radiance band 6</BAND_DESCRIPTION>
+            <BAND_NAME>radiance_6</BAND_NAME>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>mW/(m^2*sr*nm)</PHYSICAL_UNIT>
+            <SOLAR_FLUX>1598.5953</SOLAR_FLUX>
+            <SPECTRAL_BAND_INDEX>5</SPECTRAL_BAND_INDEX>
+            <BAND_WAVELEN>619.601</BAND_WAVELEN>
+            <BANDWIDTH>9.979</BANDWIDTH>
+            <SCALING_FACTOR>0.008188123814761639</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VALID_MASK_TERM>!l1_flags.INVALID</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>6</BAND_INDEX>
+            <BAND_DESCRIPTION>TOA radiance band 7</BAND_DESCRIPTION>
+            <BAND_NAME>radiance_7</BAND_NAME>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>mW/(m^2*sr*nm)</PHYSICAL_UNIT>
+            <SOLAR_FLUX>1483.2141</SOLAR_FLUX>
+            <SPECTRAL_BAND_INDEX>6</SPECTRAL_BAND_INDEX>
+            <BAND_WAVELEN>664.57306</BAND_WAVELEN>
+            <BANDWIDTH>9.985001</BANDWIDTH>
+            <SCALING_FACTOR>0.006848074495792389</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VALID_MASK_TERM>!l1_flags.INVALID</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>7</BAND_INDEX>
+            <BAND_DESCRIPTION>TOA radiance band 8</BAND_DESCRIPTION>
+            <BAND_NAME>radiance_8</BAND_NAME>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>mW/(m^2*sr*nm)</PHYSICAL_UNIT>
+            <SOLAR_FLUX>1425.6351</SOLAR_FLUX>
+            <SPECTRAL_BAND_INDEX>7</SPECTRAL_BAND_INDEX>
+            <BAND_WAVELEN>680.82104</BAND_WAVELEN>
+            <BANDWIDTH>7.4880004</BANDWIDTH>
+            <SCALING_FACTOR>0.006937971338629723</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VALID_MASK_TERM>!l1_flags.INVALID</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>8</BAND_INDEX>
+            <BAND_DESCRIPTION>TOA radiance band 9</BAND_DESCRIPTION>
+            <BAND_NAME>radiance_9</BAND_NAME>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>mW/(m^2*sr*nm)</PHYSICAL_UNIT>
+            <SOLAR_FLUX>1363.4397</SOLAR_FLUX>
+            <SPECTRAL_BAND_INDEX>8</SPECTRAL_BAND_INDEX>
+            <BAND_WAVELEN>708.32904</BAND_WAVELEN>
+            <BANDWIDTH>9.992001</BANDWIDTH>
+            <SCALING_FACTOR>0.006308972369879484</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VALID_MASK_TERM>!l1_flags.INVALID</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>9</BAND_INDEX>
+            <BAND_DESCRIPTION>TOA radiance band 10</BAND_DESCRIPTION>
+            <BAND_NAME>radiance_10</BAND_NAME>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>mW/(m^2*sr*nm)</PHYSICAL_UNIT>
+            <SOLAR_FLUX>1226.0251</SOLAR_FLUX>
+            <SPECTRAL_BAND_INDEX>9</SPECTRAL_BAND_INDEX>
+            <BAND_WAVELEN>753.37103</BAND_WAVELEN>
+            <BANDWIDTH>7.4950004</BANDWIDTH>
+            <SCALING_FACTOR>0.008664634078741074</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VALID_MASK_TERM>!l1_flags.INVALID</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>10</BAND_INDEX>
+            <BAND_DESCRIPTION>TOA radiance band 11</BAND_DESCRIPTION>
+            <BAND_NAME>radiance_11</BAND_NAME>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>mW/(m^2*sr*nm)</PHYSICAL_UNIT>
+            <SOLAR_FLUX>1214.9258</SOLAR_FLUX>
+            <SPECTRAL_BAND_INDEX>10</SPECTRAL_BAND_INDEX>
+            <BAND_WAVELEN>761.50806</BAND_WAVELEN>
+            <BANDWIDTH>3.7440002</BANDWIDTH>
+            <SCALING_FACTOR>0.00887294951826334</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VALID_MASK_TERM>!l1_flags.INVALID</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>11</BAND_INDEX>
+            <BAND_DESCRIPTION>TOA radiance band 12</BAND_DESCRIPTION>
+            <BAND_NAME>radiance_12</BAND_NAME>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>mW/(m^2*sr*nm)</PHYSICAL_UNIT>
+            <SOLAR_FLUX>1140.0481</SOLAR_FLUX>
+            <SPECTRAL_BAND_INDEX>11</SPECTRAL_BAND_INDEX>
+            <BAND_WAVELEN>778.40906</BAND_WAVELEN>
+            <BANDWIDTH>15.010001</BANDWIDTH>
+            <SCALING_FACTOR>0.0036326132249087095</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VALID_MASK_TERM>!l1_flags.INVALID</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>12</BAND_INDEX>
+            <BAND_DESCRIPTION>TOA radiance band 13</BAND_DESCRIPTION>
+            <BAND_NAME>radiance_13</BAND_NAME>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>mW/(m^2*sr*nm)</PHYSICAL_UNIT>
+            <SOLAR_FLUX>928.0921</SOLAR_FLUX>
+            <SPECTRAL_BAND_INDEX>12</SPECTRAL_BAND_INDEX>
+            <BAND_WAVELEN>864.87604</BAND_WAVELEN>
+            <BANDWIDTH>20.047</BANDWIDTH>
+            <SCALING_FACTOR>0.00355434138327837</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VALID_MASK_TERM>!l1_flags.INVALID</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>13</BAND_INDEX>
+            <BAND_DESCRIPTION>TOA radiance band 14</BAND_DESCRIPTION>
+            <BAND_NAME>radiance_14</BAND_NAME>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>mW/(m^2*sr*nm)</PHYSICAL_UNIT>
+            <SOLAR_FLUX>900.44727</SOLAR_FLUX>
+            <SPECTRAL_BAND_INDEX>13</SPECTRAL_BAND_INDEX>
+            <BAND_WAVELEN>884.94403</BAND_WAVELEN>
+            <BANDWIDTH>10.018001</BANDWIDTH>
+            <SCALING_FACTOR>0.00610371632501483</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VALID_MASK_TERM>!l1_flags.INVALID</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>14</BAND_INDEX>
+            <BAND_DESCRIPTION>TOA radiance band 15</BAND_DESCRIPTION>
+            <BAND_NAME>radiance_15</BAND_NAME>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>mW/(m^2*sr*nm)</PHYSICAL_UNIT>
+            <SOLAR_FLUX>867.15546</SOLAR_FLUX>
+            <SPECTRAL_BAND_INDEX>14</SPECTRAL_BAND_INDEX>
+            <BAND_WAVELEN>900.00006</BAND_WAVELEN>
+            <BANDWIDTH>10.02</BANDWIDTH>
+            <SCALING_FACTOR>0.005430559162050486</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <VALID_MASK_TERM>!l1_flags.INVALID</VALID_MASK_TERM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>15</BAND_INDEX>
+            <BAND_DESCRIPTION>Level 1b classification and quality flags</BAND_DESCRIPTION>
+            <BAND_NAME>l1_flags</BAND_NAME>
+            <DATA_TYPE>uint8</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <FLAG_CODING_NAME>l1_flags</FLAG_CODING_NAME>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>16</BAND_INDEX>
+            <BAND_DESCRIPTION>Detector index</BAND_DESCRIPTION>
+            <BAND_NAME>detector_index</BAND_NAME>
+            <DATA_TYPE>int16</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+        </Spectral_Band_Info>
+    </Image_Interpretation>
+    <Dataset_Sources>
+        <MDElem name="metadata">
+            <MDElem name="MPH">
+                <MDATTR name="PRODUCT" type="ascii">MER_FRS_1PNMAP20070709_111419_000001722059_00395_28004_0001.N1</MDATTR>
+                <MDATTR name="PROC_STAGE" type="ascii">N</MDATTR>
+                <MDATTR name="REF_DOC" type="ascii">PO-RS-MDA-GS-2009_11_5A</MDATTR>
+                <MDATTR name="ACQUISITION_STATION" type="ascii">PDHS-E</MDATTR>
+                <MDATTR name="PROC_CENTER" type="ascii">PDHS-E</MDATTR>
+                <MDATTR name="PROC_TIME" type="ascii">09-JUL-2007 12:01:24.421338</MDATTR>
+                <MDATTR name="SOFTWARE_VER" type="ascii">MERIS/5.04</MDATTR>
+                <MDATTR name="SENSING_START" type="ascii">09-JUL-2007 11:14:19.416414</MDATTR>
+                <MDATTR name="SENSING_STOP" type="ascii">09-JUL-2007 11:17:11.180702</MDATTR>
+                <MDATTR name="PHASE" type="ascii">2</MDATTR>
+                <MDATTR name="CYCLE" type="int32">59</MDATTR>
+                <MDATTR name="REL_ORBIT" type="int32">395</MDATTR>
+                <MDATTR name="ABS_ORBIT" type="int32">28004</MDATTR>
+                <MDATTR name="STATE_VECTOR_TIME" type="ascii">09-JUL-2007 10:35:32.940092</MDATTR>
+                <MDATTR name="DELTA_UT1" unit="s" type="float64">-0.162321</MDATTR>
+                <MDATTR name="X_POSITION" unit="m" type="float64">-7079911.063</MDATTR>
+                <MDATTR name="Y_POSITION" unit="m" type="float64">1101708.019</MDATTR>
+                <MDATTR name="Z_POSITION" unit="m" type="float64">-1463.129</MDATTR>
+                <MDATTR name="X_VELOCITY" unit="m/s" type="float64">257.75425</MDATTR>
+                <MDATTR name="Y_VELOCITY" unit="m/s" type="float64">1610.231381</MDATTR>
+                <MDATTR name="Z_VELOCITY" unit="m/s" type="float64">7377.612861</MDATTR>
+                <MDATTR name="VECTOR_SOURCE" type="ascii">FP</MDATTR>
+                <MDATTR name="UTC_SBT_TIME" type="ascii">09-JUL-2007 09:18:32.800207</MDATTR>
+                <MDATTR name="SAT_BINARY_TIME" type="int32">326987776</MDATTR>
+                <MDATTR name="CLOCK_STEP" unit="ps" type="uint32">3906249773</MDATTR>
+                <MDATTR name="LEAP_UTC" type="ascii">31-DEC-2005 23:59:59.000000</MDATTR>
+                <MDATTR name="LEAP_SIGN" type="int32">1</MDATTR>
+                <MDATTR name="LEAP_ERR" type="int8">0</MDATTR>
+                <MDATTR name="PRODUCT_ERR" type="int8">1</MDATTR>
+                <MDATTR name="TOT_SIZE" unit="bytes" type="uint32">578490738</MDATTR>
+                <MDATTR name="SPH_SIZE" unit="bytes" type="int32">9942</MDATTR>
+                <MDATTR name="NUM_DSD" type="int32">30</MDATTR>
+                <MDATTR name="DSD_SIZE" unit="bytes" type="int32">280</MDATTR>
+                <MDATTR name="NUM_DATA_SETS" type="int32">19</MDATTR>
+            </MDElem>
+            <MDElem name="SPH">
+                <MDATTR name="SPH_DESCRIPTOR" type="ascii">MER_FRS_1P SPECIFIC HEADER</MDATTR>
+                <MDATTR name="STRIPLINE_CONTINUITY_INDICATOR" type="int32">0</MDATTR>
+                <MDATTR name="SLICE_POSITION" type="int32">1</MDATTR>
+                <MDATTR name="NUM_SLICES" type="int32">1</MDATTR>
+                <MDATTR name="FIRST_LINE_TIME" type="ascii">09-JUL-2007 11:14:19.416414</MDATTR>
+                <MDATTR name="LAST_LINE_TIME" type="ascii">09-JUL-2007 11:17:11.180702</MDATTR>
+                <MDATTR name="FIRST_FIRST_LAT" unit="10-6degN" type="int32">39167232</MDATTR>
+                <MDATTR name="FIRST_FIRST_LONG" unit="10-6degE" type="int32">40679372</MDATTR>
+                <MDATTR name="FIRST_MID_LAT" unit="10-6degN" type="int32">39972188</MDATTR>
+                <MDATTR name="FIRST_MID_LONG" unit="10-6degE" type="int32">41284253</MDATTR>
+                <MDATTR name="FIRST_LAST_LAT" unit="10-6degN" type="int32">40642728</MDATTR>
+                <MDATTR name="FIRST_LAST_LONG" unit="10-6degE" type="int32">-4628621</MDATTR>
+                <MDATTR name="LAST_FIRST_LAT" unit="10-6degN" type="int32">29200645</MDATTR>
+                <MDATTR name="LAST_FIRST_LONG" unit="10-6degE" type="int32">30572322</MDATTR>
+                <MDATTR name="LAST_MID_LAT" unit="10-6degN" type="int32">29920643</MDATTR>
+                <MDATTR name="LAST_MID_LONG" unit="10-6degE" type="int32">31152976</MDATTR>
+                <MDATTR name="LAST_LAST_LAT" unit="10-6degN" type="int32">30537957</MDATTR>
+                <MDATTR name="LAST_LAST_LONG" unit="10-6degE" type="int32">-8365126</MDATTR>
+                <MDATTR name="TRANS_ERR_FLAG" type="int8">1</MDATTR>
+                <MDATTR name="FORMAT_ERR_FLAG" type="int8">0</MDATTR>
+                <MDATTR name="DATABASE_FLAG" type="int8">0</MDATTR>
+                <MDATTR name="COARSE_ERR_FLAG" type="int8">1</MDATTR>
+                <MDATTR name="ECMWF_TYPE" type="int8">0</MDATTR>
+                <MDATTR name="NUM_TRANS_ERR" type="int32">1</MDATTR>
+                <MDATTR name="NUM_FORMAT_ERR" type="int32">0</MDATTR>
+                <MDATTR name="TRANS_ERR_THRESH" unit="%" type="float64">0.0</MDATTR>
+                <MDATTR name="FORMAT_ERR_THRESH" unit="%" type="float64">0.0</MDATTR>
+                <MDATTR name="NUM_BANDS" type="int32">15</MDATTR>
+                <MDATTR name="BAND_WAVELEN" unit="10-3nm" type="int32" elems="15">412691,442559,489882,509819,559694,619601,664573,680821,708329,753371,761508,778409,864876,884944,900000</MDATTR>
+                <MDATTR name="BANDWIDTH" unit="10-3nm" type="int32" elems="15">9937,9946,9957,9961,9970,9979,9985,7488,9992,7495,3744,15010,20047,10018,10020</MDATTR>
+                <MDATTR name="INST_FOV" unit="10-6deg" type="int32">19159</MDATTR>
+                <MDATTR name="PROC_MODE" type="int8">1</MDATTR>
+                <MDATTR name="OFFSET_COMP" type="int8">1</MDATTR>
+                <MDATTR name="LINE_TIME_INTERVAL" unit="10-6s" type="int32">43997</MDATTR>
+                <MDATTR name="LINE_LENGTH" unit="samples" type="int32">4481</MDATTR>
+                <MDATTR name="LINES_PER_TIE_PT" type="int32">64</MDATTR>
+                <MDATTR name="SAMPLES_PER_TIE_PT" type="int32">64</MDATTR>
+                <MDATTR name="COLUMN_SPACING" unit="m" type="float64">260.0</MDATTR>
+            </MDElem>
+            <MDElem name="DSD">
+                <MDElem name="DSD.1">
+                    <MDATTR name="DATASET_NAME" type="ascii">Quality ADS</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">A</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">11189</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">2046</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">62</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">33</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.2">
+                    <MDATTR name="DATASET_NAME" type="ascii">Scaling Factor GADS</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">G</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">13235</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">292</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">1</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">292</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.3">
+                    <MDATTR name="DATASET_NAME" type="ascii">Tie points ADS</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">A</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">13527</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">220906</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">62</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">3563</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.4">
+                    <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(1)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">234433</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">35047375</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">8975</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.5">
+                    <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(2)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">35281808</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">35047375</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">8975</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.6">
+                    <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(3)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">70329183</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">35047375</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">8975</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.7">
+                    <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(4)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">105376558</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">35047375</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">8975</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.8">
+                    <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(5)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">140423933</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">35047375</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">8975</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.9">
+                    <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(6)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">175471308</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">35047375</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">8975</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.10">
+                    <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(7)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">210518683</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">35047375</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">8975</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.11">
+                    <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(8)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">245566058</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">35047375</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">8975</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.12">
+                    <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(9)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">280613433</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">35047375</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">8975</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.13">
+                    <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(10)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">315660808</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">35047375</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">8975</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.14">
+                    <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(11)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">350708183</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">35047375</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">8975</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.15">
+                    <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(12)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">385755558</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">35047375</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">8975</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.16">
+                    <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(13)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">420802933</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">35047375</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">8975</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.17">
+                    <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(14)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">455850308</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">35047375</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">8975</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.18">
+                    <MDATTR name="DATASET_NAME" type="ascii">Radiance MDS(15)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">490897683</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">35047375</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">8975</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.19">
+                    <MDATTR name="DATASET_NAME" type="ascii">Flags MDS(16)</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">M</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">525945058</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">52545680</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">3905</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">13456</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.20">
+                    <MDATTR name="DATASET_NAME" type="ascii">MERIS_SOURCE_PACKETS</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">R</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii">MER_FR__0CNPDE20070709_111419_000001692059_00395_28004_3242.N1</MDATTR>
+                    <MDATTR name="OFFSET" type="uint32">0</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">0</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">0</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">0</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.21">
+                    <MDATTR name="DATASET_NAME" type="ascii">INSTRUMENT_DATA_FILE</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">R</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii">MER_INS_AXVIEC20050708_134312_20050101_000000_20150101_000000</MDATTR>
+                    <MDATTR name="OFFSET" type="uint32">0</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">0</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">0</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">0</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.22">
+                    <MDATTR name="DATASET_NAME" type="ascii">PROCESSING_PARAMS_L1B_FILE</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">R</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii">MER_CP1_AXVIEC20050607_065745_20020321_193100_20120321_193100</MDATTR>
+                    <MDATTR name="OFFSET" type="uint32">0</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">0</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">0</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">0</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.23">
+                    <MDATTR name="DATASET_NAME" type="ascii">RADIOMETRIC_CALIBRATION_FILE</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">R</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii">MER_RAC_AXVIEC20061009_084736_20061009_220000_20161009_220000</MDATTR>
+                    <MDATTR name="OFFSET" type="uint32">0</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">0</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">0</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">0</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.24">
+                    <MDATTR name="DATASET_NAME" type="ascii">DIGITAL_ELEVATION_MODEL_FILE</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">R</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii">AUX_DEM_AXVIEC20031201_000000_20031201_000000_20200101_000000</MDATTR>
+                    <MDATTR name="OFFSET" type="uint32">0</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">0</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">0</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">0</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.25">
+                    <MDATTR name="DATASET_NAME" type="ascii">DIGITAL_ROUGHNESS_MODEL_FILE</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">R</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii">MER_DRM_AXVIEC20020122_083343_20020101_000000_20200101_000000</MDATTR>
+                    <MDATTR name="OFFSET" type="uint32">0</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">0</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">0</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">0</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.26">
+                    <MDATTR name="DATASET_NAME" type="ascii">LAND_SEA_MASK_DATA_FILE</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">R</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii">AUX_LSM_AXVIEC20020123_141228_20020101_000000_20200101_000000</MDATTR>
+                    <MDATTR name="OFFSET" type="uint32">0</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">0</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">0</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">0</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.27">
+                    <MDATTR name="DATASET_NAME" type="ascii">ECMWF_DATA_FILE</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">R</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii">AUX_ECF_AXNECM20070709_061110_20070709_090000_20070709_210000</MDATTR>
+                    <MDATTR name="OFFSET" type="uint32">0</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">0</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">0</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">0</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.28">
+                    <MDATTR name="DATASET_NAME" type="ascii">ORBIT_STATE_VECTOR_FILE</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">R</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii">AUX_FPO_AXVPDS20070708_224111_20070708_193009_20070718_205623</MDATTR>
+                    <MDATTR name="OFFSET" type="uint32">0</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">0</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">0</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">0</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.29">
+                    <MDATTR name="DATASET_NAME" type="ascii">ATTITUDE_DATA_FILE</MDATTR>
+                    <MDATTR name="DATASET_TYPE" type="ascii">R</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii">AUX_ATT_AXVIEC20020924_131534_20020703_120000_20781231_235959</MDATTR>
+                    <MDATTR name="OFFSET" type="uint32">0</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">0</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">0</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">0</MDATTR>
+                </MDElem>
+                <MDElem name="DSD.30">
+                    <MDATTR name="DATASET_NAME" type="ascii" />
+                    <MDATTR name="DATASET_TYPE" type="ascii">?</MDATTR>
+                    <MDATTR name="FILE_NAME" type="ascii" />
+                    <MDATTR name="OFFSET" type="uint32">0</MDATTR>
+                    <MDATTR name="SIZE" type="uint32">0</MDATTR>
+                    <MDATTR name="NUM_RECORDS" type="int32">0</MDATTR>
+                    <MDATTR name="RECORD_SIZE" type="int32">0</MDATTR>
+                </MDElem>
+            </MDElem>
+            <MDElem name="history">
+                <MDElem name="SubsetInfo">
+                    <MDATTR name="SourceProduct.name" type="ascii">MER_FRS_1PNMAP20070709_111419_000001722059_00395_28004_0001.N1</MDATTR>
+                    <MDATTR name="SubSampling.x" type="int32" mode="rw">1</MDATTR>
+                    <MDATTR name="SubSampling.y" type="int32" mode="rw">1</MDATTR>
+                    <MDATTR name="SubRegion.x" type="int32" mode="rw">3793</MDATTR>
+                    <MDATTR name="SubRegion.y" type="int32" mode="rw">820</MDATTR>
+                    <MDATTR name="SubRegion.width" type="int32" mode="rw">221</MDATTR>
+                    <MDATTR name="SubRegion.height" type="int32" mode="rw">184</MDATTR>
+                    <MDATTR name="ProductNodeName.1" type="ascii">radiance_1</MDATTR>
+                    <MDATTR name="ProductNodeName.2" type="ascii">radiance_2</MDATTR>
+                    <MDATTR name="ProductNodeName.3" type="ascii">radiance_3</MDATTR>
+                    <MDATTR name="ProductNodeName.4" type="ascii">radiance_4</MDATTR>
+                    <MDATTR name="ProductNodeName.5" type="ascii">radiance_5</MDATTR>
+                    <MDATTR name="ProductNodeName.6" type="ascii">radiance_6</MDATTR>
+                    <MDATTR name="ProductNodeName.7" type="ascii">radiance_7</MDATTR>
+                    <MDATTR name="ProductNodeName.8" type="ascii">radiance_8</MDATTR>
+                    <MDATTR name="ProductNodeName.9" type="ascii">radiance_9</MDATTR>
+                    <MDATTR name="ProductNodeName.10" type="ascii">radiance_10</MDATTR>
+                    <MDATTR name="ProductNodeName.11" type="ascii">radiance_11</MDATTR>
+                    <MDATTR name="ProductNodeName.12" type="ascii">radiance_12</MDATTR>
+                    <MDATTR name="ProductNodeName.13" type="ascii">radiance_13</MDATTR>
+                    <MDATTR name="ProductNodeName.14" type="ascii">radiance_14</MDATTR>
+                    <MDATTR name="ProductNodeName.15" type="ascii">radiance_15</MDATTR>
+                    <MDATTR name="ProductNodeName.16" type="ascii">l1_flags</MDATTR>
+                    <MDATTR name="ProductNodeName.17" type="ascii">detector_index</MDATTR>
+                    <MDATTR name="ProductNodeName.18" type="ascii">latitude</MDATTR>
+                    <MDATTR name="ProductNodeName.19" type="ascii">longitude</MDATTR>
+                    <MDATTR name="ProductNodeName.20" type="ascii">dem_alt</MDATTR>
+                    <MDATTR name="ProductNodeName.21" type="ascii">dem_rough</MDATTR>
+                    <MDATTR name="ProductNodeName.22" type="ascii">lat_corr</MDATTR>
+                    <MDATTR name="ProductNodeName.23" type="ascii">lon_corr</MDATTR>
+                    <MDATTR name="ProductNodeName.24" type="ascii">sun_zenith</MDATTR>
+                    <MDATTR name="ProductNodeName.25" type="ascii">sun_azimuth</MDATTR>
+                    <MDATTR name="ProductNodeName.26" type="ascii">view_zenith</MDATTR>
+                    <MDATTR name="ProductNodeName.27" type="ascii">view_azimuth</MDATTR>
+                    <MDATTR name="ProductNodeName.28" type="ascii">zonal_wind</MDATTR>
+                    <MDATTR name="ProductNodeName.29" type="ascii">merid_wind</MDATTR>
+                    <MDATTR name="ProductNodeName.30" type="ascii">atm_press</MDATTR>
+                    <MDATTR name="ProductNodeName.31" type="ascii">ozone</MDATTR>
+                    <MDATTR name="ProductNodeName.32" type="ascii">rel_hum</MDATTR>
+                    <MDATTR name="ProductNodeName.33" type="ascii">MPH</MDATTR>
+                    <MDATTR name="ProductNodeName.34" type="ascii">SPH</MDATTR>
+                    <MDATTR name="ProductNodeName.35" type="ascii">DSD</MDATTR>
+                    <MDATTR name="ProductNodeName.36" type="ascii">Quality_ADS</MDATTR>
+                    <MDATTR name="ProductNodeName.37" type="ascii">Scaling_Factor_GADS</MDATTR>
+                    <MDATTR name="ProductNodeName.38" type="ascii">Tie_points_ADS</MDATTR>
+                </MDElem>
+            </MDElem>
+        </MDElem>
+    </Dataset_Sources>
+</Dimap_Document>

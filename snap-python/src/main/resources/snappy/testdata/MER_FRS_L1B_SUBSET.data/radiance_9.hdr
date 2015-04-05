@@ -1,0 +1,14 @@
+ENVI
+description = {TOA radiance band 9 - Unit: mW/(m^2*sr*nm) - Wavelength: 708.32904nm}
+samples = 221
+lines = 184
+bands = 1
+header offset = 0
+file type = ENVI Standard
+data type = 12
+interleave = bsq
+byte order = 1
+band names = { radiance_9 }
+wavelength = {708.32904}
+data gain values = {0.006308972369879484}
+data offset values = {0.0}

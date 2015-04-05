@@ -1,0 +1,14 @@
+ENVI
+description = {TOA radiance band 5 - Unit: mW/(m^2*sr*nm) - Wavelength: 559.69403nm}
+samples = 221
+lines = 184
+bands = 1
+header offset = 0
+file type = ENVI Standard
+data type = 12
+interleave = bsq
+byte order = 1
+band names = { radiance_5 }
+wavelength = {559.69403}
+data gain values = {0.009329340420663357}
+data offset values = {0.0}

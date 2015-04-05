@@ -1,14 +1,11 @@
 target
 build
 local.txt
-beampy.ini
-jpy.jar
+snappy.ini
 .idea
 *.iml
 *.class
 *.war
 *.ear
-*.dim
-*.data
 __py_cache__/
 
