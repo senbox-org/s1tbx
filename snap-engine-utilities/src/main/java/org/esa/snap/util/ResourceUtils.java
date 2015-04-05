@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Properties;
@@ -104,8 +105,8 @@ public final class ResourceUtils {
         return tmpDir;
     }
 
-    public static File getGraphFolder(final String subFolder) {
-        return new File(getHomeUrl(), File.separator + "graphs" + File.separator + subFolder);
+    public static Path getGraphFolder(final String subFolder) {
+        return SystemUtils.getApplicationDataDir().toPath().resolve("graphs").resolve(subFolder);
     }
 
     public static File getResFolder() {
