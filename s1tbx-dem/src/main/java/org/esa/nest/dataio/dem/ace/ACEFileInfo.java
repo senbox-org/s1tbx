@@ -35,13 +35,10 @@ public class ACEFileInfo {
     private static final EastingNorthingParser PARSER = new EastingNorthingParser();
 
     private String _fileName;
-    private long _fileSize;
     private float _easting;
     private float _northing;
     private float _pixelSizeX;
     private float _pixelSizeY;
-    private int _width;
-    private int _height;
     private float _noDataValue;
 
     private ACEFileInfo() {
@@ -49,10 +46,6 @@ public class ACEFileInfo {
 
     public String getFileName() {
         return _fileName;
-    }
-
-    public long getFileSize() {
-        return _fileSize;
     }
 
     public float getEasting() {
@@ -72,11 +65,11 @@ public class ACEFileInfo {
     }
 
     public int getWidth() {
-        return _width;
+        return 1800;
     }
 
     public int getHeight() {
-        return _height;
+        return 1800;
     }
 
     public float getNoDataValue() {
@@ -84,12 +77,8 @@ public class ACEFileInfo {
     }
 
     public static ACEFileInfo create(final File file) throws IOException {
-        return createFromDataFile(file);
-    }
-
-    private static ACEFileInfo createFromDataFile(final File dataFile) throws IOException {
         final ACEFileInfo fileInfo = new ACEFileInfo();
-        fileInfo.setFromData(dataFile);
+        fileInfo.setFromData(file);
         return fileInfo;
     }
 
@@ -107,25 +96,24 @@ public class ACEFileInfo {
     private void setFromData(final File dataFile) throws IOException {
         final String ext = FileUtils.getExtension(dataFile.getName());
         if (ext.equalsIgnoreCase(".zip")) {
-            final String baseName = FileUtils.getFilenameWithoutExtension(dataFile.getName());
+            final String baseName = FileUtils.getFilenameWithoutExtension(dataFile.getName()) + ".ACE";
             final ZipFile zipFile = new ZipFile(dataFile);
             try {
                 final ZipEntry zipEntry = getZipEntryIgnoreCase(zipFile, baseName);
                 if (zipEntry == null) {
                     throw new IOException("Entry '" + baseName + "' not found in zip file.");
                 }
-                setFromData(baseName, zipEntry.getSize());
+                setFromData(baseName);
             } finally {
                 zipFile.close();
             }
         } else {
-            setFromData(dataFile.getName(), dataFile.length());
+            setFromData(dataFile.getName());
         }
     }
 
-    void setFromData(final String fileName, final long fileSize) throws IOException {
+    void setFromData(final String fileName) throws IOException {
         _fileName = fileName;
-        _fileSize = fileSize;
 
         final int[] eastingNorthing;
         try {
@@ -135,12 +123,6 @@ public class ACEFileInfo {
         }
         _easting = eastingNorthing[0];
         _northing = eastingNorthing[1];
-
-        _width = (int) Math.sqrt(fileSize / 2);
-        _height = _width;
-        if (_width * _height * 2L != fileSize) {
-            throw new IOException("Illegal file size: " + fileSize);
-        }
 
         _pixelSizeX = 30.0F / (60.0F * 60.0F);  // 30 arcsecond product
         _pixelSizeY = _pixelSizeX;

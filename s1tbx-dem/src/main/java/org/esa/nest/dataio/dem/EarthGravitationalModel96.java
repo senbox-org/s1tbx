@@ -17,10 +17,15 @@ package org.esa.nest.dataio.dem;
 
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.util.ResourceInstaller;
 import org.esa.snap.util.Maths;
-import org.esa.snap.util.Settings;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Path;
 import java.util.StringTokenizer;
 
 /**
@@ -75,16 +80,15 @@ public final class EarthGravitationalModel96 {
 
     private EarthGravitationalModel96() {
 
-        // get absolute file path
-        final String filePath = Settings.instance().get("AuxData.egm96AuxDataPath");
-        final String fileName = filePath + File.separator + NAME;
+        final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
+        final Path egmDataPath = moduleBasePath.resolve("org/esa/s1tbx/auxdata/egm96/" + NAME);
 
         // get reader
         FileInputStream stream;
         try {
-            stream = new FileInputStream(fileName);
+            stream = new FileInputStream(egmDataPath.toFile());
         } catch (FileNotFoundException e) {
-            throw new OperatorException("File not found: " + fileName);
+            throw new OperatorException("File not found: " + egmDataPath);
         }
 
         final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));

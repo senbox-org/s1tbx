@@ -19,10 +19,15 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.snap.gpf.StatusProgressMonitor;
-import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.ftpUtils;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -121,13 +126,15 @@ public abstract class ElevationFile {
 
     private void getLocalFile() throws IOException {
         File dataFile = localFile;
-        if (!dataFile.exists())
-            dataFile = getFileFromZip(localZipFile);
-        if (dataFile != null) {
-            final Product product = productReader.readProductNodes(dataFile, null);
-            if (product != null) {
-                tile = createTile(product);
-            }
+        Product product = null;
+        if (dataFile.exists()) {
+            product = productReader.readProductNodes(dataFile, null);
+        } else if(localZipFile.exists()) {
+            product = productReader.readProductNodes(localZipFile, null);
+        }
+
+        if (product != null) {
+            tile = createTile(product);
         }
     }
 
@@ -247,20 +254,14 @@ public abstract class ElevationFile {
         return false;
     }
 
-    protected File getFileFromZip(final File dataFile) throws IOException {
+    protected InputStream getZipInputStream(final File dataFile) throws IOException {
         final String ext = FileUtils.getExtension(dataFile.getName());
-        if (ext.equalsIgnoreCase(".zip")) {
+        if (ext != null && ext.equalsIgnoreCase(".zip")) {
             final String baseName = localFile.getName();
-            final File newFile = new File(ResourceUtils.getApplicationUserTempDataDir(), baseName);
-            if (newFile.exists())
-                return newFile;
 
             ZipFile zipFile = null;
-            BufferedOutputStream fileoutputstream = null;
             try {
                 zipFile = new ZipFile(dataFile);
-                fileoutputstream = new BufferedOutputStream(new FileOutputStream(newFile));
-
                 ZipEntry zipEntry = zipFile.getEntry(baseName);
                 if (zipEntry == null) {
                     zipEntry = zipFile.getEntry(baseName.toLowerCase());
@@ -274,26 +275,12 @@ public abstract class ElevationFile {
                     }
                 }
 
-                final int size = 8192;
-                final byte[] buf = new byte[size];
-                InputStream zipinputstream = zipFile.getInputStream(zipEntry);
-
-                int n;
-                while ((n = zipinputstream.read(buf, 0, size)) > -1)
-                    fileoutputstream.write(buf, 0, n);
-
-                return newFile;
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                dataFile.delete();
-                return null;
+                return zipFile.getInputStream(zipEntry);
             } finally {
                 if (zipFile != null)
                     zipFile.close();
-                if (fileoutputstream != null)
-                    fileoutputstream.close();
             }
         }
-        return dataFile;
+        return null;
     }
 }

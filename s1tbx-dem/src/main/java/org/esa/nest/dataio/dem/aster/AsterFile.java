@@ -23,6 +23,7 @@ import org.esa.nest.dataio.dem.ElevationTile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Holds information about a dem file.
@@ -84,11 +85,11 @@ public final class AsterFile extends ElevationFile {
         return false;
     }
 
-    protected File getFileFromZip(File dataFile) throws IOException {
+    protected InputStream getZipInputStream(File dataFile) throws IOException {
         if (!dataFile.exists()) {
             final String v2Name = dataFile.getName().replace("ASTGTM", "ASTGTM2");
             dataFile = new File(dataFile.getParentFile(), v2Name);
         }
-        return super.getFileFromZip(dataFile);
+        return super.getZipInputStream(dataFile);
     }
 }
