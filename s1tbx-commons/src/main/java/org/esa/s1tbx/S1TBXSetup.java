@@ -6,6 +6,7 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.TreeCopier;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -39,10 +40,13 @@ public class S1TBXSetup {
         final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(callingClass);
         final Path srcGraphPath = moduleBasePath.resolve("org/esa/s1tbx/graphs/");
         final Path dstGraphPath = getGraphsDir();
-        final ResourceInstaller resourceInstaller = new ResourceInstaller(moduleBasePath, "org/esa/s1tbx/graphs/",
-                                                                          dstGraphPath);
+        //final ResourceInstaller resourceInstaller = new ResourceInstaller(moduleBasePath, "org/esa/s1tbx/graphs/",
+        //                                                                  dstGraphPath);
 
         try {
+            if (!Files.exists(dstGraphPath)) {
+                Files.createDirectories(dstGraphPath);
+            }
             TreeCopier.copy(srcGraphPath, dstGraphPath);
         } catch (IOException e) {
             SystemUtils.LOG.severe("Unable to install graphs "+srcGraphPath+" to "+dstGraphPath+" "+e.getMessage());

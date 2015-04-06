@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.util.ResourceInstaller;
 import org.esa.nest.datamodel.BaseCalibrator;
 import org.esa.nest.datamodel.Calibrator;
 import org.esa.snap.datamodel.AbstractMetadata;
@@ -37,6 +38,7 @@ import org.esa.snap.util.Settings;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -444,14 +446,13 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
             final Date startDate = sourceProduct.getStartTime().getAsDate();
             final Date endDate = sourceProduct.getEndTime().getAsDate();
-            final File xcaFileDir = new File(Settings.instance().get("AuxData.envisatAuxDataPath"));
-            newXCAFileName = findXCAFile(xcaFileDir, startDate, endDate);
+
+            final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
+            final Path xcaFileDir = moduleBasePath.resolve("org/esa/s1tbx/auxdata/envisat");
+
+            newXCAFileName = findXCAFile(xcaFileDir.toFile(), startDate, endDate);
             newXCAFilePath = xcaFileDir.toString() + File.separator + newXCAFileName;
         }
-
-//        if (newXCAFileName == null) {
-//            throw new OperatorException("No proper XCA file has been found");
-//        }
     }
 
     /**

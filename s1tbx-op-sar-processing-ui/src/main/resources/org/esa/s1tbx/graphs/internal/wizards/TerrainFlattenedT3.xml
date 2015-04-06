@@ -1,0 +1,97 @@
+<graph id="Graph">
+    <version>1.0</version>
+    <node id="1-Read">
+        <operator>Read</operator>
+        <sources/>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <file></file>
+        </parameters>
+    </node>
+    <node id="2-Polarimetric-Matrices">
+        <operator>Polarimetric-Matrices</operator>
+        <sources>
+            <sourceProduct refid="1-Read"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <matrix>T3</matrix>
+        </parameters>
+    </node>
+    <node id="3-Terrain-Flattening">
+        <operator>Terrain-Flattening</operator>
+        <sources>
+            <sourceProduct refid="2-Polarimetric-Matrices"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <sourceBands/>
+            <demName>SRTM 3Sec</demName>
+            <demResamplingMethod>BILINEAR_INTERPOLATION</demResamplingMethod>
+            <externalDEMFile/>
+            <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+        </parameters>
+    </node>
+    <node id="4-Terrain-Correction">
+        <operator>Terrain-Correction</operator>
+        <sources>
+            <sourceProduct refid="3-Terrain-Flattening"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <sourceBands/>
+            <demName>SRTM 3Sec</demName>
+            <externalDEMFile/>
+            <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
+            <demResamplingMethod>BILINEAR_INTERPOLATION</demResamplingMethod>
+            <imgResamplingMethod>BILINEAR_INTERPOLATION</imgResamplingMethod>
+            <pixelSpacingInMeter>7.61</pixelSpacingInMeter>
+            <pixelSpacingInDegree>6.83617931214956E-5</pixelSpacingInDegree>
+            <mapProjection>GEOGCS[&quot;WGS84(DD)&quot;, &#xd;
+                DATUM[&quot;WGS84&quot;, &#xd;
+                SPHEROID[&quot;WGS84&quot;, 6378137.0, 298.257223563]], &#xd;
+                PRIMEM[&quot;Greenwich&quot;, 0.0], &#xd;
+                UNIT[&quot;degree&quot;, 0.017453292519943295], &#xd;
+                AXIS[&quot;Geodetic longitude&quot;, EAST], &#xd;
+                AXIS[&quot;Geodetic latitude&quot;, NORTH]]
+            </mapProjection>
+            <nodataValueAtSea>true</nodataValueAtSea>
+            <saveDEM>false</saveDEM>
+            <saveLocalIncidenceAngle>false</saveLocalIncidenceAngle>
+            <saveProjectedLocalIncidenceAngle>false</saveProjectedLocalIncidenceAngle>
+            <saveSelectedSourceBand>true</saveSelectedSourceBand>
+            <applyRadiometricNormalization>false</applyRadiometricNormalization>
+            <saveSigmaNought>false</saveSigmaNought>
+            <saveGammaNought>false</saveGammaNought>
+            <saveBetaNought>false</saveBetaNought>
+            <incidenceAngleForSigma0>Use projected local incidence angle from DEM</incidenceAngleForSigma0>
+            <incidenceAngleForGamma0>Use projected local incidence angle from DEM</incidenceAngleForGamma0>
+            <auxFile>Latest Auxiliary File</auxFile>
+            <externalAuxFile/>
+        </parameters>
+    </node>
+    <node id="5-Write">
+        <operator>Write</operator>
+        <sources>
+            <sourceProduct refid="4-Terrain-Correction"/>
+        </sources>
+        <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+            <formatName>BEAM-DIMAP</formatName>
+            <file>terrainflattened_TC.dim</file>
+        </parameters>
+    </node>
+    <applicationData id="Presentation">
+        <Description/>
+        <node id="1-Read">
+            <displayPosition y="134.0" x="37.0"/>
+        </node>
+        <node id="2-Polarimetric-Matrices">
+            <displayPosition y="134.0" x="133.0"/>
+        </node>
+        <node id="3-Terrain-Flattening">
+            <displayPosition y="194.0" x="136.0"/>
+        </node>
+        <node id="4-Terrain-Correction">
+            <displayPosition y="237.0" x="136.0"/>
+        </node>
+        <node id="5-Write">
+            <displayPosition y="237.0" x="286.0"/>
+        </node>
+    </applicationData>
+</graph>

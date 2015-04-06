@@ -52,6 +52,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -370,11 +372,11 @@ public class DatApp extends VisatApp {
             return;
         }
 
-        final File graphPath = ResourceUtils.getGraphFolder("");
-        if (!graphPath.exists()) return;
+        final Path graphPath = ResourceUtils.getGraphFolder("");
+        if (!Files.exists(graphPath)) return;
 
         menu.add(new JSeparator());
-        createGraphMenu(menu, graphPath);
+        createGraphMenu(menu, graphPath.toFile());
     }
 
     private static void createGraphMenu(final JMenu menu, final File path) {

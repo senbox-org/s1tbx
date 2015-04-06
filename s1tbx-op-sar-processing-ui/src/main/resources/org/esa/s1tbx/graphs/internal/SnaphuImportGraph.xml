@@ -1,0 +1,52 @@
+<graph id="Graph">
+    <version>1.0</version>
+    <node id="1-Read-Phase">
+        <operator>Read</operator>
+        <sources/>
+        <parameters>
+            <file>phase</file>
+        </parameters>
+    </node>
+    <node id="2-Read-Unwrapped-Phase">
+        <operator>Read</operator>
+        <sources/>
+        <parameters>
+            <file>unwrapped_phase</file>
+        </parameters>
+    </node>
+    <node id="3-SnaphuImport">
+        <operator>SnaphuImport</operator>
+        <sources>
+            <sourceProduct refid="1-Read-Phase"/>
+            <sourceProduct refid="2-Read-Unwrapped-Phase"/>
+        </sources>
+        <parameters>
+            <doNotKeepWrapped>false</doNotKeepWrapped>
+        </parameters>
+    </node>
+    <node id="4-Write">
+        <operator>Write</operator>
+        <sources>
+            <sourceProduct refid="3-SnaphuImport"/>
+        </sources>
+        <parameters>
+            <formatName>BEAM-DIMAP</formatName>
+            <file>target.dim</file>
+        </parameters>
+    </node>
+    <applicationData id="Presentation">
+        <Description/>
+        <node id="1-Read-Phase">
+            <displayPosition y="82.0" x="55.0"/>
+        </node>
+        <node id="2-Read-Unwrapped-Phase">
+            <displayPosition y="185.0" x="57.0"/>
+        </node>
+        <node id="3-SnaphuImport">
+            <displayPosition y="131.0" x="217.0"/>
+        </node>
+        <node id="4-Write">
+            <displayPosition y="131.0" x="401.0"/>
+        </node>
+    </applicationData>
+</graph>

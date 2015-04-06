@@ -39,7 +39,7 @@
     <folder name="Menu">
         <folder name="Tools">
             <folder name="Resampling">
-                <attr name="position" intvalue="100"/>
+                <attr name="position" intvalue="150"/>
                 <file name="org-esa-s1tbx-gpf-OversampleOp-Action.shadow">
                     <attr name="originalFile"
                           stringvalue="Actions/Operators/org-esa-s1tbx-gpf-OversampleOp-Action.instance"/>

@@ -21,6 +21,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 /**
@@ -348,11 +350,11 @@ public class ProductLibraryActions {
     }
 
     public JPopupMenu createGraphPopup() {
-        final File graphPath = ResourceUtils.getGraphFolder("");
+        final Path graphPath = ResourceUtils.getGraphFolder("");
 
         final JPopupMenu popup = new JPopupMenu();
-        if (graphPath.exists()) {
-            createGraphMenu(popup, graphPath);
+        if (Files.exists(graphPath)) {
+            createGraphMenu(popup, graphPath.toFile());
         }
         return popup;
     }
