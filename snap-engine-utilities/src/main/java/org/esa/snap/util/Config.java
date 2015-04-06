@@ -41,7 +41,7 @@ public class Config {
     }
 
     private Config() {
-        load(appConfig, new File(SystemUtils.getApplicationHomeDir(), "config" + File.separator + SystemUtils.getApplicationContextId() + ".config"));
+        load(appConfig, new File(SystemUtils.getApplicationDataDir(), "config" + File.separator + SystemUtils.getApplicationContextId() + ".config"));
     }
 
     public static void load(final PropertiesMap propMap, final File file) {
@@ -58,7 +58,7 @@ public class Config {
 
     private void loadTestConfigs() {
 
-        final File[] testFiles = getTestFiles(new File(SystemUtils.getApplicationHomeDir(), "config"));
+        final File[] testFiles = getTestFiles(new File(SystemUtils.getApplicationDataDir(), "config"));
         for (File testFile : testFiles) {
             try {
                 final PropertiesMap testPref = new PropertiesMap();

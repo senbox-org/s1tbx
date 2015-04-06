@@ -42,7 +42,7 @@ public final class Settings {
     }
 
     private Settings() {
-        Config.load(auxdataConfig, new File(SystemUtils.getApplicationHomeDir(), "config" +
+        Config.load(auxdataConfig, new File(SystemUtils.getApplicationDataDir(), "config" +
                 File.separator + SystemUtils.getApplicationContextId() + ".auxdata.config"));
     }
 
