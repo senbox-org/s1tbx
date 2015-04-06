@@ -19,7 +19,6 @@ import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.SystemUtils;
-import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.XMLSupport;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
@@ -361,13 +360,5 @@ public final class BinaryDBReader {
         final String base = "/org/esa/nest/dataio/";
         final String path = base + "ceos_db" + File.separator + mission + File.separator + fileName;
         return BinaryDBReader.class.getResource(path);
-    }
-
-    private static File getResFile(final String mission, final String fileName) {
-
-        final String homeUrl = ResourceUtils.findHomeFolder().getAbsolutePath();
-        final String path = homeUrl + File.separator + "resource" + File.separator + "ceos_db" +
-                File.separator + mission + File.separator + fileName;
-        return new File(path);
     }
 }

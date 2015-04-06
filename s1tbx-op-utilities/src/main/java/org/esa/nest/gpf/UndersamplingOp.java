@@ -20,7 +20,14 @@ import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.CrsGeoCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -30,13 +37,19 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.ResourceInstaller;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.util.ResourceUtils;
 
 import java.awt.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -417,10 +430,10 @@ public class UndersamplingOp extends Operator {
         }
     }
 
-    private static File getResFile(String fileName) {
-        final String homeUrl = ResourceUtils.findHomeFolder().getAbsolutePath();
-        final String path = homeUrl + File.separator + "resource" + File.separator + "kernels" + File.separator + fileName;
-        return new File(path);
+    private File getResFile(String fileName) {
+        final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
+        final Path kernelPath = moduleBasePath.resolve("org/esa/s1tbx/kernels/"+ fileName);
+        return kernelPath.toFile();
     }
 
     /**

@@ -16,12 +16,13 @@
 package org.esa.nest.dat.toolviews.Projects;
 
 import org.apache.commons.io.FileUtils;
-import org.esa.snap.util.ResourceUtils;
+import org.esa.beam.util.SystemUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -35,10 +36,8 @@ import static org.junit.Assert.assertTrue;
 public class TestProject {
 
     private Project project = Project.instance();
-    private final static File projectFolder = new File(ResourceUtils.findHomeFolder().getAbsolutePath()
-            + File.separator + "testProject");
-    private final static File projectFile = new File(projectFolder.getAbsolutePath()
-            + File.separator + "TestProjectFile.xml");
+    private final static File projectFolder = new File(SystemUtils.getApplicationDataDir(), "testProject");
+    private final static File projectFile = new File(projectFolder, "TestProjectFile.xml");
 
     @Before
     public void setUp() throws Exception {

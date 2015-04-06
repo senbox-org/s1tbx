@@ -183,7 +183,7 @@ public class Project extends Observable {
     }
 
     protected void initProject(final File file) {
-        if (productTreeListener == null && VisatApp.getApp() != null) {
+        if (productTreeListener == null) {
             productTreeListener = new Project.ProjectPTL();
             VisatApp.getApp().addProductTreeListener(productTreeListener);
         }
