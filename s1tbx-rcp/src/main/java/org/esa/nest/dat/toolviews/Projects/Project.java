@@ -19,18 +19,14 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNodeList;
-import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.framework.ui.NewProductDialog;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSubsetDialog;
-import org.esa.beam.framework.ui.product.ProductTreeListener;
 import org.esa.beam.visat.VisatApp;
 import org.esa.nest.dat.dialogs.ProductSetDialog;
 import org.esa.snap.dat.dialogs.PromptDialog;
@@ -70,7 +66,7 @@ public class Project extends Observable {
 
     private File projectFolder = null;
     private File projectFile = null;
-    private ProjectPTL productTreeListener = null;
+    private ProductManager.Listener productManagerListener = null;
     private ProjectSubFolder projectSubFolders = null;
     private final static boolean SAVE_PROJECT = true;
     private final Timer timer = new Timer();
@@ -183,9 +179,25 @@ public class Project extends Observable {
     }
 
     protected void initProject(final File file) {
-        if (productTreeListener == null) {
-            productTreeListener = new Project.ProjectPTL();
-            VisatApp.getApp().addProductTreeListener(productTreeListener);
+        if (productManagerListener == null) {
+            productManagerListener = new ProductManager.Listener() {
+                @Override
+                public void productAdded(ProductManager.Event event) {
+                    if (projectSubFolders == null) return;
+                    addProductLink(event.getProduct());
+                    notifyEvent(SAVE_PROJECT);
+                }
+
+                @Override
+                public void productRemoved(ProductManager.Event event) {
+                    Product product = event.getProduct();
+                    //if (getSelectedProduct() == product) {
+                        //    setSelectedProduct(product);
+                    //}
+                    //setProducts(VisatApp.getApp());
+                }
+            };
+            SnapApp.getDefault().getProductManager().addListener(productManagerListener);
         }
 
         projectFile = file;
@@ -641,43 +653,5 @@ public class Project extends Observable {
             }
         };
         worker.executeWithBlocking();
-    }
-
-    private class ProjectPTL implements ProductTreeListener {
-
-        public ProjectPTL() {
-        }
-
-        public void productAdded(final Product product) {
-            if (projectSubFolders == null) return;
-            addProductLink(product);
-            notifyEvent(SAVE_PROJECT);
-        }
-
-        public void productRemoved(final Product product) {
-            //if (getSelectedProduct() == product) {
-            //    setSelectedProduct(product);
-            //}
-            // setProducts(VisatApp.getApp());
-        }
-
-        public void productSelected(final Product product, final int clickCount) {
-            //setSelectedProduct(product);
-        }
-
-        public void metadataElementSelected(final MetadataElement group, final int clickCount) {
-            //final Product product = group.getProduct();
-            //setSelectedProduct(product);
-        }
-
-        public void tiePointGridSelected(final TiePointGrid tiePointGrid, final int clickCount) {
-            //final Product product = tiePointGrid.getProduct();
-            //setSelectedProduct(product);
-        }
-
-        public void bandSelected(final Band band, final int clickCount) {
-            //final Product product = band.getProduct();
-            //setSelectedProduct(product);
-        }
     }
 }
