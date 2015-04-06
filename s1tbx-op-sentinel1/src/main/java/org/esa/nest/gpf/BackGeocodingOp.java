@@ -140,7 +140,6 @@ public final class BackGeocodingOp extends Operator {
     private SARGeocoding.Orbit sOrbit = null;
 
     private final double invalidIndex = -9999.0;
-    private int tileSize = 100;
 
     /**
      * Default constructor. The graph processing framework
@@ -350,18 +349,6 @@ public final class BackGeocodingOp extends Operator {
         ProductUtils.copyProductNodes(masterProduct, targetProduct);
         copySlaveMetadata();
 
-        int nt = mSubSwath[subSwathIndex - 1].linesPerBurst / tileSize;
-        int rsd = mSubSwath[subSwathIndex - 1].linesPerBurst - nt*tileSize;
-        while (rsd > 0 && rsd < 50 && tileSize >= rsd + 1) {
-            tileSize--;
-            nt = mSubSwath[subSwathIndex - 1].linesPerBurst / tileSize;
-            rsd = mSubSwath[subSwathIndex - 1].linesPerBurst - nt*tileSize;
-        }
-        targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(), tileSize);
-        //todo change this line, looking at all swath
-        //targetProduct.setPreferredTileSize(targetProduct.getSceneRasterWidth(),
-        //        mSubSwath[subSwathIndex - 1].linesPerBurst);
-
         if (outputRangeAzimuthOffset) {
             final Band azOffsetBand = new Band(
                     "azOffset",
@@ -474,11 +461,11 @@ public final class BackGeocodingOp extends Operator {
                 final int nth = ntyMax - nty0;
                 System.out.println("burstIndex = " + burstIndex + ": ntx0 = " + ntx0 + ", nty0 = " + nty0 + ", ntw = " + ntw + ", nth = " + nth);
 
-                double[] tileOverlapPercentage = {0.0, 0.0};
-                computeTileOverlapPercentage(ntx0, nty0, ntw, nth, tileOverlapPercentage);
+                double[] extendedAmount = {0.0, 0.0, 0.0, 0.0};
+                computeExtendedAmount(ntx0, nty0, ntw, nth, extendedAmount);
 
                 computePartialTile(subSwathIndex, burstIndex, ntx0, nty0, ntw, nth, targetTileMap,
-                        tileOverlapPercentage, pm);
+                        extendedAmount, pm);
             }
 
         } catch (Throwable e) {
@@ -591,22 +578,23 @@ public final class BackGeocodingOp extends Operator {
         return null;
     }
 
-    private void computeTileOverlapPercentage(final int x0, final int y0, final int w, final int h,
-                                              double[] overlapPercentages)
+    private void computeExtendedAmount(final int x0, final int y0, final int w, final int h,
+                                       final double[] extendedAmount)
             throws Exception {
 
         final PixelPos pixPos = new PixelPos();
         final GeoPos geoPos = new GeoPos();
-        final PosVector earthPoint = new PosVector();
-        double tileOverlapPercentageMax = -Double.MAX_VALUE;
-        double tileOverlapPercentageMin = Double.MAX_VALUE;
-        for (int y = y0; y < y0 + h; y += 20) {
+        final PositionData posData = new PositionData();
+        double azExtendedAmountMax = -Double.MAX_VALUE;
+        double azExtendedAmountMin = Double.MAX_VALUE;
+        double rgExtendedAmountMax = -Double.MAX_VALUE;
+        double rgExtendedAmountMin = Double.MAX_VALUE;
 
+        for (int y = y0; y < y0 + h; y += 20) {
             int burstIndex = 0;
             for (burstIndex = 0; burstIndex < mSubSwath[subSwathIndex - 1].numOfBursts; burstIndex++) {
                 final int firstLineIdx = burstIndex*mSubSwath[subSwathIndex - 1].linesPerBurst;
                 final int lastLineIdx = firstLineIdx + mSubSwath[subSwathIndex - 1].linesPerBurst - 1;
-
                 if (y >= firstLineIdx && y <= lastLineIdx) {
                     break;
                 }
@@ -620,49 +608,56 @@ public final class BackGeocodingOp extends Operator {
                     continue;
                 }
 
-                GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, earthPoint);
+                GeoUtils.geo2xyzWGS84(geoPos.getLat(), geoPos.getLon(), alt, posData.earthPoint);
 
-                final double zeroDopplerTimeInDays = SARGeocoding.getZeroDopplerTime(
-                        mSU.firstLineUTC, mSU.lineTimeInterval, mSU.wavelength, earthPoint, mOrbit);
-
-                if (zeroDopplerTimeInDays == SARGeocoding.NonValidZeroDopplerTime) {
-                    continue;
-                }
-
-                final double zeroDopplerTime = zeroDopplerTimeInDays * Constants.secondsInDay;
-
-                final double azimuthIndex = burstIndex * mSubSwath[subSwathIndex - 1].linesPerBurst +
-                        (zeroDopplerTime - mSubSwath[subSwathIndex - 1].burstFirstLineTime[burstIndex]) /
-                                mSubSwath[subSwathIndex - 1].azimuthTimeInterval;
-
-                double tileOverlapPercentage = (azimuthIndex - y) / (double) tileSize;
-
-                if (tileOverlapPercentage > tileOverlapPercentageMax) {
-                    tileOverlapPercentageMax = tileOverlapPercentage;
-                }
-                if (tileOverlapPercentage < tileOverlapPercentageMin) {
-                    tileOverlapPercentageMin = tileOverlapPercentage;
+                if (getPosition(subSwathIndex, burstIndex, mSU, mOrbit, posData)) {
+                    double azExtendedAmount = posData.azimuthIndex - y;
+                    double rgExtendedAmount = posData.rangeIndex - x;
+                    if (azExtendedAmount > azExtendedAmountMax) {
+                        azExtendedAmountMax = azExtendedAmount;
+                    }
+                    if (azExtendedAmount < azExtendedAmountMin) {
+                        azExtendedAmountMin = azExtendedAmount;
+                    }
+                    if (rgExtendedAmount > rgExtendedAmountMax) {
+                        rgExtendedAmountMax = rgExtendedAmount;
+                    }
+                    if (rgExtendedAmount < rgExtendedAmountMin) {
+                        rgExtendedAmountMin = rgExtendedAmount;
+                    }
                 }
             }
         }
 
-        if (tileOverlapPercentageMin != Double.MAX_VALUE && tileOverlapPercentageMin < 0.0) {
-            overlapPercentages[0] = tileOverlapPercentageMin - 0.1;
+        if (azExtendedAmountMin != Double.MAX_VALUE && azExtendedAmountMin < 0.0) {
+            extendedAmount[0] = azExtendedAmountMin;
         } else {
-            overlapPercentages[0] = 0.0;
+            extendedAmount[0] = 0.0;
         }
 
-        if (tileOverlapPercentageMax != -Double.MAX_VALUE && tileOverlapPercentageMax > 0.0) {
-            overlapPercentages[1] = tileOverlapPercentageMax + 0.1;
+        if (azExtendedAmountMax != -Double.MAX_VALUE && azExtendedAmountMax > 0.0) {
+            extendedAmount[1] = azExtendedAmountMax;
         } else {
-            overlapPercentages[1] = 0.0;
+            extendedAmount[1] = 0.0;
+        }
+
+        if (rgExtendedAmountMin != Double.MAX_VALUE && rgExtendedAmountMin < 0.0) {
+            extendedAmount[2] = rgExtendedAmountMin;
+        } else {
+            extendedAmount[2] = 0.0;
+        }
+
+        if (rgExtendedAmountMax != -Double.MAX_VALUE && rgExtendedAmountMax > 0.0) {
+            extendedAmount[3] = rgExtendedAmountMax;
+        } else {
+            extendedAmount[3] = 0.0;
         }
     }
 
     private void computePartialTile(final int subSwathIndex, final int mBurstIndex,
                                     final int x0, final int y0, final int w, final int h,
                                     final Map<Band, Tile> targetTileMap,
-                                    final double[] tileOverlapPercentage,
+                                    final double[] extendedAmount,
                                     ProgressMonitor pm)
             throws Exception {
 
@@ -672,7 +667,7 @@ public final class BackGeocodingOp extends Operator {
         }
 
         final PixelPos[][] slavePixPos = computeSlavePixPos(
-                subSwathIndex, mBurstIndex, sBurstIndex, x0, y0, w, h, tileOverlapPercentage, pm);
+                subSwathIndex, mBurstIndex, sBurstIndex, x0, y0, w, h, extendedAmount, pm);
 
         if (slavePixPos == null) {
             return;
@@ -715,25 +710,25 @@ public final class BackGeocodingOp extends Operator {
 
     private PixelPos[][] computeSlavePixPos(final int subSwathIndex, final int mBurstIndex, final int sBurstIndex,
                                             final int x0, final int y0, final int w, final int h,
-                                            final double[] tileOverlapPercentage, ProgressMonitor pm)
+                                            final double[] extendedAmount, ProgressMonitor pm)
             throws Exception {
 
         try {
-            final int xmin = x0;
-            final int ymin = Math.max(y0 - (int) (tileSize * tileOverlapPercentage[1]), 0);
-            final int ymax = y0 + h + (int) (tileSize * Math.abs(tileOverlapPercentage[0]));
-            final int xmax = x0 + w;
+            final int xmin = Math.max(x0 - (int)extendedAmount[3], 0);
+            final int ymin = Math.max(y0 - (int)extendedAmount[1], 0);
+            final int ymax = y0 + h + (int)Math.abs(extendedAmount[0]);
+            final int xmax = x0 + w + (int)Math.abs(extendedAmount[2]);
 
             // Compute lat/lon boundaries (with extensions) for target tile
             final double[] latLonMinMax = new double[4];
 
-            computeImageGeoBoundary(xmin, xmax, ymin, ymax, latLonMinMax);
+            computeImageGeoBoundary(subSwathIndex, mBurstIndex, xmin, xmax, ymin, ymax, latLonMinMax);
 
             final double delta = (double)dem.getDescriptor().getDegreeRes() / (double)dem.getDescriptor().getPixelRes();
 //            final double extralat = 1.5*delta + 4.0/25.0;
 //            final double extralon = 1.5*delta + 4.0/25.0;
-            final double extralat = 2*delta;
-            final double extralon = 2*delta + 4.0/25.0;
+            final double extralat = 20*delta;
+            final double extralon = 20*delta;
             final double latMin = latLonMinMax[0] - extralat;
             final double latMax = latLonMinMax[1] + extralat;
             final double lonMin = latLonMinMax[2] - extralon;
@@ -853,19 +848,33 @@ public final class BackGeocodingOp extends Operator {
      *
      * @throws Exception The exceptions.
      */
-    private void computeImageGeoBoundary(final int xMin, final int xMax, final int yMin, final int yMax,
+    private void computeImageGeoBoundary(final int subSwathIndex, final int burstIndex,
+                                         final int xMin, final int xMax, final int yMin, final int yMax,
                                          double[] latLonMinMax) throws Exception {
 
-        final GeoPos geoPosFirstNear = bandGeoCoding.getGeoPos(new PixelPos(xMin, yMin), null);
-        final GeoPos geoPosFirstFar = bandGeoCoding.getGeoPos(new PixelPos(xMax, yMin), null);
-        final GeoPos geoPosLastNear = bandGeoCoding.getGeoPos(new PixelPos(xMin, yMax), null);
-        final GeoPos geoPosLastFar = bandGeoCoding.getGeoPos(new PixelPos(xMax, yMax), null);
+        final Sentinel1Utils.SubSwathInfo subSwath = mSubSwath[subSwathIndex - 1];
 
-        final double[] lats =
-                {geoPosFirstNear.getLat(), geoPosFirstFar.getLat(), geoPosLastNear.getLat(), geoPosLastFar.getLat()};
+        final double azTimeMin = subSwath.burstFirstLineTime[burstIndex] +
+                (yMin - burstIndex * subSwath.linesPerBurst) * subSwath.azimuthTimeInterval;
 
-        final double[] lons =
-                {geoPosFirstNear.getLon(), geoPosFirstFar.getLon(), geoPosLastNear.getLon(), geoPosLastFar.getLon()};
+        final double azTimeMax = subSwath.burstFirstLineTime[burstIndex] +
+                (yMax - burstIndex * subSwath.linesPerBurst) * subSwath.azimuthTimeInterval;
+
+        final double rgTimeMin = subSwath.slrTimeToFirstPixel + xMin * mSU.rangeSpacing / Constants.lightSpeed;
+
+        final double rgTimeMax = subSwath.slrTimeToFirstPixel + xMax * mSU.rangeSpacing / Constants.lightSpeed;
+
+        final double latUL = mSU.getLatitude(azTimeMin, rgTimeMin, subSwathIndex);
+        final double lonUL = mSU.getLongitude(azTimeMin, rgTimeMin, subSwathIndex);
+        final double latUR = mSU.getLatitude(azTimeMin, rgTimeMax, subSwathIndex);
+        final double lonUR = mSU.getLongitude(azTimeMin, rgTimeMax, subSwathIndex);
+        final double latLL = mSU.getLatitude(azTimeMax, rgTimeMin, subSwathIndex);
+        final double lonLL = mSU.getLongitude(azTimeMax, rgTimeMin, subSwathIndex);
+        final double latLR = mSU.getLatitude(azTimeMax, rgTimeMax, subSwathIndex);
+        final double lonLR = mSU.getLongitude(azTimeMax, rgTimeMax, subSwathIndex);
+
+        final double[] lats = {latUL, latUR, latLL, latLR};
+        final double[] lons = {lonUL, lonUR, lonLL, lonLR};
 
         double latMin = 90.0;
         double latMax = -90.0;
@@ -895,6 +904,9 @@ public final class BackGeocodingOp extends Operator {
         latLonMinMax[3] = lonMax;
     }
 
+    /**
+     * Compute azimuth and range indices in SAR image for a given target point on the Earth's surface.
+     */
     private boolean getPosition(final int subSwathIndex, final int burstIndex, final Sentinel1Utils su,
                                 final SARGeocoding.Orbit orbit, final PositionData data) {
 
@@ -934,6 +946,9 @@ public final class BackGeocodingOp extends Operator {
         return false;
     }
 
+    /**
+     * Get the source rectangle in slave image that contains all the given pixels.
+     */
     private Rectangle getBoundingBox(
             final PixelPos[][] slavePixPos, final int margin, final int subSwathIndex, final int sBurstIndex) {
 
@@ -1321,7 +1336,6 @@ public final class BackGeocodingOp extends Operator {
 
             interpolate(xyRatio, window, xScale, yScale, offset, invalidIndex, FDT,
                     z1_in, z2_in, z3_in, z4_in, z1_out, z2_out, z3_out, z4_out);
-
         }
 
         private static FastDelaunayTriangulator triangulate(final double[][] x_in, final double[][] y_in,
