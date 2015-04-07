@@ -99,9 +99,10 @@ public final class SubtRefDemOp extends Operator {
     private HashMap<String, ProductContainer> targetMap = new HashMap<String, ProductContainer>();
 
     // operator tags
+    private String productName;
+    public String productTag;
+
     private static final boolean CREATE_VIRTUAL_BAND = true;
-    private static final String PRODUCT_NAME = "srd_ifgs";
-    private static final String PRODUCT_TAG = "_ifg_srd";
 
 
     /**
@@ -141,6 +142,28 @@ public final class SubtRefDemOp extends Operator {
         final InputProductValidator validator = new InputProductValidator(sourceProduct);
         validator.checkIfCoregisteredStack();
         validator.checkIfDeburstedProduct();
+
+        productName = "srd_ifgs";
+        productTag = "_ifg_srd";
+        if (validator.isSentinel1Product()) {
+            final String topsarTag = getTOPSARTag(sourceProduct);
+            productTag = productTag + "_" + topsarTag;
+        }
+    }
+
+    private static String getTOPSARTag(final Product sourceProduct) {
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+        final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+        final Band[] bands = sourceProduct.getBands();
+        for (Band band:bands) {
+            final String bandName = band.getName();
+            if (bandName.contains(acquisitionMode)) {
+                final int idx = bandName.indexOf(acquisitionMode);
+                return bandName.substring(idx, idx + 6);
+            }
+        }
+        return "";
     }
 
     private void defineDEM() throws IOException {
@@ -267,8 +290,8 @@ public final class SubtRefDemOp extends Operator {
                 final CplxContainer slave = slaveMap.get(keySlave);
                 final ProductContainer product = new ProductContainer(productName, master, slave, true);
 
-                product.targetBandName_I = "i" + PRODUCT_TAG + "_" + master.date + "_" + slave.date;
-                product.targetBandName_Q = "q" + PRODUCT_TAG + "_" + master.date + "_" + slave.date;
+                product.targetBandName_I = "i" + productTag + "_" + master.date + "_" + slave.date;
+                product.targetBandName_Q = "q" + productTag + "_" + master.date + "_" + slave.date;
 
                 product.masterSubProduct.name = topoPhaseBandName;
                 product.masterSubProduct.targetBandName_I = topoPhaseBandName + "_" + master.date + "_" + slave.date;
@@ -281,7 +304,7 @@ public final class SubtRefDemOp extends Operator {
 
     private void createTargetProduct() {
 
-        targetProduct = new Product(PRODUCT_NAME,
+        targetProduct = new Product(productName,
                 sourceProduct.getProductType(),
                 sourceProduct.getSceneRasterWidth(),
                 sourceProduct.getSceneRasterHeight());
@@ -292,13 +315,13 @@ public final class SubtRefDemOp extends Operator {
 
             String targetBandName_I = targetMap.get(key).targetBandName_I;
             String targetBandName_Q = targetMap.get(key).targetBandName_Q;
-            targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT64).setUnit(Unit.REAL);
-            targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT64).setUnit(Unit.IMAGINARY);
+            targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT32).setUnit(Unit.REAL);
+            targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT32).setUnit(Unit.IMAGINARY);
 
             final String tag0 = targetMap.get(key).sourceMaster.date;
             final String tag1 = targetMap.get(key).sourceSlave.date;
             if (CREATE_VIRTUAL_BAND) {
-                String countStr = PRODUCT_TAG + "_" + tag0 + "_" + tag1;
+                String countStr = productTag + "_" + tag0 + "_" + tag1;
 
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I),
                         targetProduct.getBand(targetBandName_Q), countStr);
