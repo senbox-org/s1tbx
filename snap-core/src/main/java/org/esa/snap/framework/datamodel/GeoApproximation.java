@@ -1,9 +1,27 @@
+/*
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
+
 package org.esa.snap.framework.datamodel;
 
+import org.esa.snap.util.jai.JAIUtils;
 import org.esa.snap.util.math.CosineDistance;
 import org.esa.snap.util.math.DistanceMeasure;
 
 import javax.media.jai.PlanarImage;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -55,11 +73,11 @@ public final class GeoApproximation {
                 }
             };
         }
-
-        final ArrayList<Rectangle> rectangleList = new ArrayList<>();
-        for (int y = 0; y < lonImage.getNumYTiles(); y++) {
-            for (int x = 0; x < lonImage.getNumXTiles(); x++) {
-                rectangleList.add(lonImage.getTileRect(x, y));
+        Tiling tiling = new Tiling(lonImage.getWidth(), lonImage.getHeight());
+        final ArrayList<Rectangle> rectangleList = new ArrayList<>(tiling.getNumXTiles() * tiling.getNumYTiles());
+        for (int tileY = 0; tileY < tiling.getNumYTiles(); tileY++) {
+            for (int tileX = 0; tileX < tiling.getNumXTiles(); tileX++) {
+                rectangleList.add(tiling.getTileRect(tileX, tileY));
             }
         }
         final Rectangle[] rectangles = rectangleList.toArray(new Rectangle[rectangleList.size()]);
@@ -405,4 +423,53 @@ public final class GeoApproximation {
         return lon;
     }
 
+
+    private static class Tiling {
+        private final int width;
+        private final int height;
+        private final int tileWidth;
+        private final int tileHeight;
+        private final Rectangle bounds;
+
+        public Tiling(int width, int height) {
+            this.width = width;
+            this.height = height;
+            this.bounds = new Rectangle(width, height);
+            Dimension tileSize = JAIUtils.computePreferredTileSize(width, height, 1);
+            this.tileWidth = tileSize.width;
+            this.tileHeight = tileSize.height;
+        }
+
+        public int getNumXTiles() {
+            return XToTileX(width - 1) - XToTileX(0) + 1;
+        }
+
+        public int getNumYTiles() {
+            return YToTileY(height - 1) - YToTileY(0) + 1;
+        }
+
+        public Rectangle getTileRect(int tileX, int tileY) {
+            return bounds.intersection(createRectangle(tileX, tileY));
+        }
+
+        private Rectangle createRectangle(int tileX, int tileY) {
+            return new Rectangle(tileXToX(tileX), tileYToY(tileY), tileWidth, tileHeight);
+        }
+
+        private int tileXToX(int tx) {
+            return tx * tileWidth;
+        }
+
+        private int tileYToY(int ty) {
+            return ty * tileHeight;
+        }
+
+        private int XToTileX(int x) {
+            return x / tileWidth;
+        }
+
+        private int YToTileY(int y) {
+            return y / tileHeight;
+        }
+    }
 }
