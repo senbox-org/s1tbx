@@ -61,12 +61,6 @@ public class HaAlphaPlotToolView extends AbstractStatisticsTopComponent {
 
     @Override
     public HelpCtx getHelpCtx() {
-        return new HelpCtx(getHelpId());
+        return new HelpCtx(org.openide.util.NbBundle.getMessage(HaAlphaPlotToolView.class, "CTL_HaAlphaPlotTopComponent_HelpId"));
     }
-
-    @Override
-    protected String getHelpId() {
-        return org.openide.util.NbBundle.getMessage(HaAlphaPlotToolView.class, "CTL_HaAlphaPlotTopComponent_HelpId");
-    }
-
 }
