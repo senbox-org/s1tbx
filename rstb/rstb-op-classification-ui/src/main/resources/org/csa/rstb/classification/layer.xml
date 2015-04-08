@@ -26,13 +26,13 @@
     </folder>
 
     <folder name="OperatorUIs">
-        <file name="org.csa.rstb.gpf.PolarimetricDecompositionOpUI">
-            <attr name="operatorUIClass" stringvalue="org.csa.rstb.gpf.PolarimetricDecompositionOpUI"/>
-            <attr name="operatorName" stringvalue="Polarimetric-Decomposition"/>
+        <file name="org.csa.rstb.gpf.PolarimetricClassificationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.csa.rstb.gpf.PolarimetricClassificationOpUI"/>
+            <attr name="operatorName" stringvalue="Polarimetric-Classification"/>
         </file>
-        <file name="org.csa.rstb.gpf.PolarimetricSpeckleFilterOpUI">
-            <attr name="operatorUIClass" stringvalue="org.csa.rstb.gpf.PolarimetricSpeckleFilterOpUI"/>
-            <attr name="operatorName" stringvalue="Polarimetric-Speckle-Filter"/>
+        <file name="org.csa.rstb.gpf.SupervisedWishartClassificationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.csa.rstb.gpf.SupervisedWishartClassificationOpUI"/>
+            <attr name="operatorName" stringvalue="Supervised-Wishart-Classification"/>
         </file>
     </folder>
 
