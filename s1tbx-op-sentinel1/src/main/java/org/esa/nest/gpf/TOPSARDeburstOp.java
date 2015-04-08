@@ -427,6 +427,17 @@ public final class TOPSARDeburstOp extends Operator {
                 absTgt.removeElement(elem);
             }
         }
+
+        if (numOfSubSwath == 1) {
+            absTgt.addAttribute(new MetadataAttribute("firstValidPixel", ProductData.TYPE_INT16));
+            absTgt.setAttributeInt("firstValidPixel", subSwath[0].firstValidPixel);
+            absTgt.addAttribute(new MetadataAttribute("lastValidPixel", ProductData.TYPE_INT16));
+            absTgt.setAttributeInt("lastValidPixel", subSwath[0].lastValidPixel);
+            absTgt.addAttribute(new MetadataAttribute("slrTimeToFirstValidPixel", ProductData.TYPE_FLOAT32));
+            absTgt.setAttributeDouble("slrTimeToFirstValidPixel", subSwath[0].slrTimeToFirstValidPixel);
+            absTgt.addAttribute(new MetadataAttribute("slrTimeToLastValidPixel", ProductData.TYPE_FLOAT32));
+            absTgt.setAttributeDouble("slrTimeToLastValidPixel", subSwath[0].slrTimeToLastValidPixel);
+        }
     }
 
     private void updateOriginalMetadata() {
