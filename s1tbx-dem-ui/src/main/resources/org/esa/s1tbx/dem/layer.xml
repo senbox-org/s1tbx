@@ -77,12 +77,4 @@
         </folder>
     </folder>
 
-    <!--folder name="Services">
-        <folder name="JavaHelp">
-            <file name="helpset.xml" url="helpset.xml">
-                <attr name="position" intvalue="4600"/>
-            </file>
-        </folder>
-    </folder-->
-
 </filesystem>

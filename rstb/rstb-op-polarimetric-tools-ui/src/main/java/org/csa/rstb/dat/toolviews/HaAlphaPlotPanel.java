@@ -14,11 +14,63 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 package org.csa.rstb.dat.toolviews;
+/*
+import com.bc.ceres.binding.Property;
+import com.bc.ceres.binding.PropertyContainer;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.swing.binding.BindingContext;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import org.csa.rstb.gpf.HaAlphaDescriptor;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Mask;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Stx;
+import org.esa.beam.framework.datamodel.StxFactory;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.math.MathUtils;
+import org.esa.nest.dat.graphics.Palette;
+import org.esa.snap.rcp.statistics.AxisRangeControl;
+import org.esa.snap.rcp.statistics.ChartPagePanel;
+import org.esa.snap.rcp.statistics.MaskSelectionToolSupport;
+import org.esa.snap.rcp.statistics.PlotAreaSelectionTool;
+import org.esa.snap.rcp.statistics.RefreshActionEnabler;
+import org.esa.snap.rcp.statistics.XYImagePlot;
+import org.esa.snap.rcp.statistics.XYPlotToolTipGenerator;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYAnnotation;
+import org.jfree.chart.annotations.XYLineAnnotation;
+import org.jfree.chart.annotations.XYTextAnnotation;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.ui.RectangleInsets;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.IndexColorModel;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+*/
 /**
  * The H-a Alpha plot pane within the statistics window.
  */
-/*public class HaAlphaPlotPanel extends ChartPagePanel {
+/*
+public class HaAlphaPlotPanel extends ChartPagePanel {
 
     private static final String NO_DATA_MESSAGE = "This plot requires an H-a Alpha decomposition as input\n" +
             "The plot will be computed when you hit the 'Refresh View' button.\n" +
@@ -328,17 +380,17 @@ package org.csa.rstb.dat.toolviews;
                     setRange(X_VAR, rasterX, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
                     setRange(Y_VAR, rasterY, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
                     BufferedImage densityPlotImage = ProductUtils.createDensityPlotImage(rasterX,
-                            axisRangeControls[X_VAR].getMin().floatValue(),
-                            axisRangeControls[X_VAR].getMax().floatValue(),
-                            rasterY,
-                            axisRangeControls[Y_VAR].getMin().floatValue(),
-                            axisRangeControls[Y_VAR].getMax().floatValue(),
-                            dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null,
-                            512,
-                            512,
-                            backgroundColor,
-                            null,
-                            SubProgressMonitor.create(pm, 70));
+                                                                                         axisRangeControls[X_VAR].getMin().floatValue(),
+                                                                                         axisRangeControls[X_VAR].getMax().floatValue(),
+                                                                                         rasterY,
+                                                                                         axisRangeControls[Y_VAR].getMin().floatValue(),
+                                                                                         axisRangeControls[Y_VAR].getMax().floatValue(),
+                                                                                         dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null,
+                                                                                         512,
+                                                                                         512,
+                                                                                         backgroundColor,
+                                                                                         null,
+                                                                                         SubProgressMonitor.create(pm, 70));
 
                     densityPlotImage = new BufferedImage(untoggledColorModel, densityPlotImage.getRaster(), densityPlotImage.isAlphaPremultiplied(), null);
 

@@ -15,22 +15,58 @@
  */
 package org.csa.rstb.dat.toolviews;
 
+import org.esa.snap.rcp.statistics.AbstractStatisticsTopComponent;
+import org.esa.snap.rcp.statistics.PagePanel;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
+import org.openide.windows.TopComponent;
 
+@TopComponent.Description(
+        preferredID = "HaAlphaPlotTopComponent",
+        //iconBase = "org/esa/snap/rcp/icons/ScatterPlot24.gif",
+        persistenceType = TopComponent.PERSISTENCE_ALWAYS //todo define
+)
+@TopComponent.Registration(
+        mode = "navigator",
+        openAtStartup = false,
+        position = 1
+)
+@ActionID(category = "Window", id = "org.csa.rstb.dat.toolviews.HaAlphaPlotTopComponent")
+@ActionReferences({
+        @ActionReference(path = "Menu/Window/Tool Windows"),
+        @ActionReference(path = "Toolbars/Analysis")
+})
+@TopComponent.OpenActionRegistration(
+        displayName = "#CTL_HaAlphaPlotTopComponent_Name",
+        preferredID = "HaAlphaPlotTopComponent"
+)
+@NbBundle.Messages({
+        "CTL_HaAlphaPlotTopComponent_Name=H-a Alpha Plot",
+        "CTL_HaAlphaPlotTopComponent_HelpId=correlativePlotDialog"
+})
 /**
  * A window which displays the H-a alpha plane plot.
- *//*
+ */
 public class HaAlphaPlotToolView extends AbstractStatisticsTopComponent {
 
     public static final String ID = HaAlphaPlotToolView.class.getName();
 
     @Override
     protected PagePanel createPagePanel() {
-        return new HaAlphaPlotPanel(this, getHelpId());
+        return null;//new HaAlphaPlotPanel(this, getHelpId());
+    }
+
+    @Override
+    public HelpCtx getHelpCtx() {
+        return new HelpCtx(getHelpId());
     }
 
     @Override
     protected String getHelpId() {
-        return org.openide.util.NbBundle.getMessage(HaAlphaPlotToolView.class, "CTL_StatisticsTopComponent_HelpId");
+        return org.openide.util.NbBundle.getMessage(HaAlphaPlotToolView.class, "CTL_HaAlphaPlotTopComponent_HelpId");
     }
 
-}*/
+}
