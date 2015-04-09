@@ -22,6 +22,9 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.snap.util.DialogUtils;
 
 import javax.swing.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Map;
@@ -120,7 +123,7 @@ public class MultilookOpUI extends BaseOperatorUI {
                     param.nRgLooks = Integer.parseInt(nRgLooks.getText());
                     MultilookOp.getDerivedParameters(sourceProducts[0], param);
                     nAzLooks.setText(String.valueOf(param.nAzLooks));
-                    nRgLooks.setText(String.valueOf(param.nRgLooks));
+                    //nRgLooks.setText(String.valueOf(param.nRgLooks));
 
                     final float meanSqaurePixel = param.meanGRSqaurePixel;
                     meanGRSqaurePixel.setText(String.valueOf(meanSqaurePixel));
@@ -190,23 +193,7 @@ public class MultilookOpUI extends BaseOperatorUI {
 
         nAzLooks.setEditable(false);
         meanGRSqaurePixel.setEditable(false);
-
-        nRgLooks.addFocusListener(new FocusListener() {
-
-            public void focusGained(final FocusEvent e) {
-            }
-
-            public void focusLost(final FocusEvent e) {
-                setAzimuthLooks();
-            }
-        });
-
-        nRgLooks.addActionListener(new ActionListener() {
-
-            public void actionPerformed(final ActionEvent e) {
-                setAzimuthLooks();
-            }
-        });
+        nRgLooks.setDocument(new RgLooksDocument());
 
         gbc.gridy++;
         contentPane.add(outputIntensityCheckBox, gbc);
@@ -220,4 +207,14 @@ public class MultilookOpUI extends BaseOperatorUI {
         return contentPane;
     }
 
+    @SuppressWarnings("serial")
+    private class RgLooksDocument extends PlainDocument {
+
+        @Override
+        public void replace(int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+            super.replace(offset, length, text, attrs);
+
+            setAzimuthLooks();
+        }
+    }
 }
