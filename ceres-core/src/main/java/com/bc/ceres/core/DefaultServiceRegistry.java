@@ -51,7 +51,7 @@ public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
      */
     @Override
     public Set<T> getServices() {
-        return new HashSet<T>(services.values());
+        return new HashSet<>(services.values());
     }
 
     /**
@@ -69,7 +69,7 @@ public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
     public boolean addService(T service) {
         Assert.notNull(service, "service");
         final T existingService = services.put(service.getClass().getName(), service);
-        if (existingService == service) {
+        if (existingService != null && existingService.getClass().equals(service.getClass())) {
             return false;
         }
         for (ServiceRegistryListener<T> listener : listeners) {
