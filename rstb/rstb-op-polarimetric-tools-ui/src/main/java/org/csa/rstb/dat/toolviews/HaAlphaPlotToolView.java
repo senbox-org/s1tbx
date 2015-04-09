@@ -25,7 +25,7 @@ import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 
 @TopComponent.Description(
-        preferredID = "HaAlphaPlotTopComponent",
+        preferredID = "HaAlphaPlotToolView",
         //iconBase = "org/esa/snap/rcp/icons/ScatterPlot24.gif",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS //todo define
 )
@@ -34,18 +34,18 @@ import org.openide.windows.TopComponent;
         openAtStartup = false,
         position = 1
 )
-@ActionID(category = "Window", id = "org.csa.rstb.dat.toolviews.HaAlphaPlotTopComponent")
+@ActionID(category = "Window", id = "org.csa.rstb.dat.toolviews.HaAlphaPlotToolView")
 @ActionReferences({
         @ActionReference(path = "Menu/Window/Tool Windows"),
         @ActionReference(path = "Toolbars/Analysis")
 })
 @TopComponent.OpenActionRegistration(
-        displayName = "#CTL_HaAlphaPlotTopComponent_Name",
-        preferredID = "HaAlphaPlotTopComponent"
+        displayName = "#CTL_HaAlphaPlotToolView_Name",
+        preferredID = "HaAlphaPlotToolView"
 )
 @NbBundle.Messages({
-        "CTL_HaAlphaPlotTopComponent_Name=H-a Alpha Plot",
-        "CTL_HaAlphaPlotTopComponent_HelpId=correlativePlotDialog"
+        "CTL_HaAlphaPlotToolView_Name=H-a Alpha Plot",
+        "CTL_HaAlphaPlotToolView_HelpId=correlativePlotDialog"
 })
 /**
  * A window which displays the H-a alpha plane plot.
