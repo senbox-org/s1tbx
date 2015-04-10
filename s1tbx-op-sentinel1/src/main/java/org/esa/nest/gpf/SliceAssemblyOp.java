@@ -218,20 +218,20 @@ public final class SliceAssemblyOp extends Operator {
         return swathID;
     }
 
-    private String getSlantRangeTime(final Product product, final String sss) {
+    private double getSlantRangeTime(final Product product, final String sss) {
 
         final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(product);
         final MetadataElement annotation = origProdRoot.getElement("annotation");
         final MetadataElement[] annotationElems = annotation.getElements();
 
-        String slantRangeTime = "";
+        double slantRangeTime = 0;
 
         for (MetadataElement e : annotationElems) {
             if (extractSwathIdentifier(e.getName()).equals(sss)) {
                 MetadataElement prod = e.getElement("product");
                 MetadataElement imgAnno = prod.getElement("imageAnnotation");
                 MetadataElement imgInfo = imgAnno.getElement("imageInformation");
-                slantRangeTime = imgInfo.getAttributeString("slantRangeTime");
+                slantRangeTime = imgInfo.getAttributeDouble("slantRangeTime");
                 break;
             }
         }
@@ -252,12 +252,13 @@ public final class SliceAssemblyOp extends Operator {
         // s1a-iw-grd-vh-20140920t050131-20140920t050156-002471-002aec-002.xml and
         // s1a-iw-grd-vv-20140920t050131-20140920t050156-002471-002aec-001.xml
         for (MetadataElement e : annotationElems) {
-            final String sss = extractSwathIdentifier(e.getName());
-            final String slantRangeTime = getSlantRangeTime(firstSliceProduct, sss);
+            final String swathID = extractSwathIdentifier(e.getName());
+            final double slantRangeTime = getSlantRangeTime(firstSliceProduct, swathID);
             //System.out.println("Check slant range time for " + e.getName() + " " + sss + " = " + slantRangeTime);
             for (int i = 1; i < sliceProducts.length; i++) {
-                if (!slantRangeTime.equals(getSlantRangeTime(sliceProducts[i], sss))) {
-                     throw new OperatorException("Slant range time don't agree: " + i + " " + sss);
+                double srt = getSlantRangeTime(sliceProducts[i], swathID);
+                if (slantRangeTime - srt > 1e-12) {
+                     throw new OperatorException("Slant range time don't agree: " + i + " " + swathID);
                 }
             }
         }

@@ -328,6 +328,8 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
         double azimuthSpacingTotal = 0;
         boolean commonMetadataRetrieved = false;
 
+        double heightSum = 0.0;
+
         int numBands = 0;
         final String annotFolder = getRootFolder() + "annotation";
         final String[] filenames = listFiles(annotFolder);
@@ -380,9 +382,11 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 AbstractMetadata.setAttribute(bandAbsRoot, AbstractMetadata.sample_type,
                         imageInformation.getAttributeString("pixelValue").toUpperCase());
 
-                if (!commonMetadataRetrieved) {
-                    // these should be the same for all swaths
-                    // set to absRoot
+            heightSum += getBandTerrainHeight(prodElem);
+
+            if (!commonMetadataRetrieved) {
+                // these should be the same for all swaths
+                // set to absRoot
 
                     final MetadataElement generalAnnotation = prodElem.getElement("generalAnnotation");
                     final MetadataElement productInformation = generalAnnotation.getElement("productInformation");
@@ -413,10 +417,10 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                     AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_bandwidth,
                             azimuthProcessing.getAttributeDouble("processingBandwidth"));
 
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
-                            rangeProcessing.getAttributeDouble("numberOfLooks"));
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
-                            azimuthProcessing.getAttributeDouble("numberOfLooks"));
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.range_looks,
+                        rangeProcessing.getAttributeDouble("numberOfLooks"));
+                AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_looks,
+                                              azimuthProcessing.getAttributeDouble("numberOfLooks"));
 
                     if (!isTOPSAR() || !isSLC()) {
                         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.num_output_lines,
@@ -441,6 +445,23 @@ public class Sentinel1Level1Directory extends XMLProductDirectory implements Sen
                 rangeSpacingTotal / (double) numBands);
         AbstractMetadata.setAttribute(absRoot, AbstractMetadata.azimuth_spacing,
                 azimuthSpacingTotal / (double) numBands);
+
+        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.avg_scene_height, heightSum / filenames.length);
+    }
+
+    private double getBandTerrainHeight(final MetadataElement prodElem) {
+        final MetadataElement generalAnnotation = prodElem.getElement("generalAnnotation");
+        final MetadataElement terrainHeightList = generalAnnotation.getElement("terrainHeightList");
+
+        double heightSum = 0.0;
+
+        final MetadataElement[] heightList = terrainHeightList.getElements();
+        int cnt = 0;
+        for(MetadataElement terrainHeight : heightList) {
+            heightSum += terrainHeight.getAttributeDouble("value");
+            ++cnt;
+        }
+        return heightSum / cnt;
     }
 
     private void addCalibrationAbstractedMetadata(final MetadataElement origProdRoot) throws IOException {

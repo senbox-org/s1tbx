@@ -108,7 +108,8 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
     private Double pixMSaved = 0.0;
     private Double pixDSaved = 0.0;
 
-    private String savedProductName = null;
+    private Double savedAzimuthPixelSpacing = 0.0;
+    private Double savedRangePixelSpacing = 0.0;
 
     protected boolean useAvgSceneHeight = false;
     protected final JButton crsButton = new JButton();
@@ -318,21 +319,22 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         }
 
         if (sourceProducts != null) {
-            final String productName = sourceProducts[0].getName();
-            if (!productName.equals(savedProductName)) {
-                savedProductName = productName;
+            try {
+                azimuthPixelSpacing = SARGeocoding.getAzimuthPixelSpacing(sourceProducts[0]);
+                rangePixelSpacing = SARGeocoding.getRangePixelSpacing(sourceProducts[0]);
+                azimuthPixelSpacing = (double) ((int) (azimuthPixelSpacing * 100 + 0.5)) / 100.0;
+                rangePixelSpacing = (double) ((int) (rangePixelSpacing * 100 + 0.5)) / 100.0;
+            } catch (Exception e) {
+                azimuthPixelSpacing = 0.0;
+                rangePixelSpacing = 0.0;
+            }
+            final String text = Double.toString(azimuthPixelSpacing) + "(m) x " + Double.toString(rangePixelSpacing) + "(m)";
+            sourcePixelSpacingsLabelPart2.setText(text);
 
-                try {
-                    azimuthPixelSpacing = SARGeocoding.getAzimuthPixelSpacing(sourceProducts[0]);
-                    rangePixelSpacing = SARGeocoding.getRangePixelSpacing(sourceProducts[0]);
-                    azimuthPixelSpacing = (double) ((int) (azimuthPixelSpacing * 100 + 0.5)) / 100.0;
-                    rangePixelSpacing = (double) ((int) (rangePixelSpacing * 100 + 0.5)) / 100.0;
-                } catch (Exception e) {
-                    azimuthPixelSpacing = 0.0;
-                    rangePixelSpacing = 0.0;
+            if(savedAzimuthPixelSpacing != 0 && savedRangePixelSpacing != 0) {
+                if(savedAzimuthPixelSpacing != azimuthPixelSpacing || savedRangePixelSpacing != rangePixelSpacing) {
+                    pixDSaved = null;
                 }
-                final String text = Double.toString(azimuthPixelSpacing) + "(m) x " + Double.toString(rangePixelSpacing) + "(m)";
-                sourcePixelSpacingsLabelPart2.setText(text);
             }
 
             if (pixDSaved == null || pixDSaved == 0.0) {
@@ -348,6 +350,8 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
                 pixelSpacingInDegree.setText(String.valueOf(pixD));
                 pixMSaved = pixM;
                 pixDSaved = pixD;
+                savedAzimuthPixelSpacing = azimuthPixelSpacing;
+                savedRangePixelSpacing = rangePixelSpacing;
             }
         }
 
