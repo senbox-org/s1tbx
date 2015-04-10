@@ -1071,20 +1071,27 @@ public final class Sentinel1Utils {
 
         int j0 = -1, j1 = -1;
         double muX = 0;
-        for (int j = 0; j < subSwath[subSwathIndex - 1].numOfGeoPointsPerLine - 1; j++) {
-            if (subSwath[subSwathIndex - 1].slantRangeTime[0][j] <= slrTime &&
-                    subSwath[subSwathIndex - 1].slantRangeTime[0][j + 1] > slrTime) {
-                j0 = j;
-                j1 = j + 1;
-                muX = (slrTime - subSwath[subSwathIndex - 1].slantRangeTime[0][j]) /
-                        (subSwath[subSwathIndex - 1].slantRangeTime[0][j + 1] -
-                                subSwath[subSwathIndex - 1].slantRangeTime[0][j]);
+        if (slrTime < subSwath[subSwathIndex - 1].slantRangeTime[0][0]) {
+            j0 = 0;
+            j1 = 1;
+        } else if (slrTime >
+                subSwath[subSwathIndex - 1].slantRangeTime[0][subSwath[subSwathIndex - 1].numOfGeoPointsPerLine - 1]) {
+            j0 = subSwath[subSwathIndex - 1].numOfGeoPointsPerLine - 2;
+            j1 = subSwath[subSwathIndex - 1].numOfGeoPointsPerLine - 1;
+        } else {
+            for (int j = 0; j < subSwath[subSwathIndex - 1].numOfGeoPointsPerLine - 1; j++) {
+                if (subSwath[subSwathIndex - 1].slantRangeTime[0][j] <= slrTime &&
+                        subSwath[subSwathIndex - 1].slantRangeTime[0][j + 1] > slrTime) {
+                    j0 = j;
+                    j1 = j + 1;
+                    break;
+                }
             }
         }
 
-        if (j0 == -1 || j1 == -1) {
-            throw new OperatorException("Invalid subswath index");
-        }
+        muX = (slrTime - subSwath[subSwathIndex - 1].slantRangeTime[0][j0]) /
+                (subSwath[subSwathIndex - 1].slantRangeTime[0][j1] -
+                        subSwath[subSwathIndex - 1].slantRangeTime[0][j0]);
 
         int i0 = -1, i1 = -1;
         double muY = 0;
@@ -1095,9 +1102,9 @@ public final class Sentinel1Utils {
             final double i1AzTime = (1 - muX) * subSwath[subSwathIndex - 1].azimuthTime[i + 1][j0] +
                     muX * subSwath[subSwathIndex - 1].azimuthTime[i + 1][j1];
 
-            if (i == 0 && azTime < i0AzTime ||
-                    i == subSwath[subSwathIndex - 1].numOfGeoLines - 2 && azTime >= i1AzTime ||
-                    i0AzTime <= azTime && i1AzTime > azTime) {
+            if ((i == 0 && azTime < i0AzTime) ||
+                    (i == subSwath[subSwathIndex - 1].numOfGeoLines - 2 && azTime >= i1AzTime) ||
+                    (i0AzTime <= azTime && i1AzTime > azTime)) {
 
                 i0 = i;
                 i1 = i + 1;
@@ -1121,9 +1128,21 @@ public final class Sentinel1Utils {
         return getLatitudeValue(index, subSwathIndex);
     }
 
+    public double getLatitude(final double azimuthTime, final double slantRangeTime, final int subSwathIndex) {
+        Index index = new Index();
+        computeIndex(azimuthTime, slantRangeTime, subSwathIndex, index);
+        return getLatitudeValue(index, subSwathIndex);
+    }
+
     public double getLongitude(final double azimuthTime, final double slantRangeTime) {
         Index index = new Index();
         final int subSwathIndex = getSubSwathIndex(slantRangeTime);
+        computeIndex(azimuthTime, slantRangeTime, subSwathIndex, index);
+        return getLongitudeValue(index, subSwathIndex);
+    }
+
+    public double getLongitude(final double azimuthTime, final double slantRangeTime, final int subSwathIndex) {
+        Index index = new Index();
         computeIndex(azimuthTime, slantRangeTime, subSwathIndex, index);
         return getLongitudeValue(index, subSwathIndex);
     }

@@ -117,8 +117,6 @@ public final class TOPSARMergeOp extends Operator {
 
             createTargetProduct();
 
-            computeSubSwathEffectStartEndPixels();
-
             updateTargetProductMetadata();
 
         } catch (Throwable e) {
@@ -206,6 +204,12 @@ public final class TOPSARMergeOp extends Operator {
                 if (selectedPolarisations == null || selectedPolarisations.length == 0) {
                     selectedPolarisations = su[s].getPolarizations();
                 }
+
+                final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[p]);
+                subSwath[s].firstValidPixel = AbstractMetadata.getAttributeInt(absRoot, "firstValidPixel");
+                subSwath[s].lastValidPixel = AbstractMetadata.getAttributeInt(absRoot, "lastValidPixel");
+                subSwath[s].slrTimeToFirstValidPixel = AbstractMetadata.getAttributeDouble(absRoot, "slrTimeToFirstValidPixel");
+                subSwath[s].slrTimeToLastValidPixel = AbstractMetadata.getAttributeDouble(absRoot, "slrTimeToLastValidPixel");
             }
         } catch (Throwable e) {
             throw new OperatorException(e.getMessage());
@@ -236,8 +240,8 @@ public final class TOPSARMergeOp extends Operator {
      */
     private void computeTargetSlantRangeTimeToFirstAndLastPixels() {
 
-            targetSlantRangeTimeToFirstPixel = subSwath[0].slrTimeToFirstPixel;
-            targetSlantRangeTimeToLastPixel = subSwath[numOfSubSwath - 1].slrTimeToLastPixel;
+            targetSlantRangeTimeToFirstPixel = subSwath[0].slrTimeToFirstValidPixel;
+            targetSlantRangeTimeToLastPixel = subSwath[numOfSubSwath - 1].slrTimeToLastValidPixel;
             targetDeltaSlantRangeTime = subSwath[0].rangePixelSpacing / Constants.lightSpeed;
     }
 
@@ -250,33 +254,6 @@ public final class TOPSARMergeOp extends Operator {
 
         targetWidth = (int)((targetSlantRangeTimeToLastPixel - targetSlantRangeTimeToFirstPixel) /
                 targetDeltaSlantRangeTime);
-    }
-
-    private void computeSubSwathEffectStartEndPixels() {
-
-        subSwathEffectStartEndPixels = new SubSwathEffectStartEndPixels[numOfSubSwath];
-        for (int i = 0; i < numOfSubSwath; i++) {
-            subSwathEffectStartEndPixels[i] = new SubSwathEffectStartEndPixels();
-
-            if (i == 0) {
-                subSwathEffectStartEndPixels[i].xMin = 0;
-            } else {
-                final double midTime = (subSwath[i - 1].slrTimeToLastPixel + subSwath[i].slrTimeToFirstPixel) / 2.0;
-
-                subSwathEffectStartEndPixels[i].xMin = (int)Math.round((midTime - subSwath[i].slrTimeToFirstPixel) /
-                        targetDeltaSlantRangeTime);
-            }
-
-            if (i < numOfSubSwath - 1) {
-                final double midTime = (subSwath[i].slrTimeToLastPixel + subSwath[i + 1].slrTimeToFirstPixel) / 2.0;
-
-                subSwathEffectStartEndPixels[i].xMax = (int)Math.round((midTime - subSwath[i].slrTimeToFirstPixel) /
-                        targetDeltaSlantRangeTime);
-            } else {
-                subSwathEffectStartEndPixels[i].xMax = (int)Math.round(
-                        (subSwath[i].slrTimeToLastPixel - subSwath[i].slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
-            }
-        }
     }
 
     /**
@@ -415,15 +392,15 @@ public final class TOPSARMergeOp extends Operator {
         for (int i = 0; i < numOfSubSwath; i++) {
 
             if (i == 0) {
-                startTime = subSwath[i].slrTimeToFirstPixel;
+                startTime = subSwath[i].slrTimeToFirstValidPixel;
             } else {
-                startTime = 0.5 * (subSwath[i].slrTimeToFirstPixel + subSwath[i - 1].slrTimeToLastPixel);
+                startTime = 0.5 * (subSwath[i].slrTimeToFirstValidPixel + subSwath[i - 1].slrTimeToLastPixel);
             }
 
             if (i == numOfSubSwath - 1) {
                 endTime = subSwath[i].slrTimeToLastPixel;
             } else {
-                endTime = 0.5 * (subSwath[i].slrTimeToLastPixel + subSwath[i + 1].slrTimeToFirstPixel);
+                endTime = 0.5 * (subSwath[i].slrTimeToLastPixel + subSwath[i + 1].slrTimeToFirstValidPixel);
             }
 
             if (slrTime >= startTime && slrTime < endTime) {
@@ -497,6 +474,11 @@ public final class TOPSARMergeOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_near_long, lonGrid.getPixelFloat(0, targetHeight));
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_lat, latGrid.getPixelFloat(targetWidth, targetHeight));
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.last_far_long, lonGrid.getPixelFloat(targetWidth, targetHeight));
+
+        absTgt.removeAttribute(absTgt.getAttribute("firstValidPixel"));
+        absTgt.removeAttribute(absTgt.getAttribute("lastValidPixel"));
+        absTgt.removeAttribute(absTgt.getAttribute("slrTimeToFirstValidPixel"));
+        absTgt.removeAttribute(absTgt.getAttribute("slrTimeToLastValidPixel"));
     }
 
     private void updateOriginalMetadata() {
@@ -506,99 +488,6 @@ public final class TOPSARMergeOp extends Operator {
             //updateNoiseVector(); //todo: to be implemented
         }
     }
-    /*
-    private void updateCalibrationVector() {
-
-        // todo: to be implemented
-
-        final String[] selectedPols = Sentinel1Utils.getProductPolarizations(absRoot);
-        final MetadataElement srcCalibration = AbstractMetadata.getOriginalProductMetadata(sourceProduct).
-                getElement("calibration");
-        final MetadataElement bandCalibration = srcCalibration.getElementAt(0).getElement("calibration");
-
-        final MetadataElement origProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
-        origProdRoot.removeElement(origProdRoot.getElement("calibration"));
-        final MetadataElement calibration = new MetadataElement("calibration");
-        for (String pol : selectedPols) {
-            final String elemName = "s1a-" + acquisitionMode + "-" + productType + "-" + pol;
-            final MetadataElement elem = new MetadataElement(elemName);
-            final MetadataElement calElem = bandCalibration.createDeepClone();
-            final MetadataElement calibrationVectorListElem = calElem.getElement("calibrationVectorList");
-            final MetadataElement[] list = calibrationVectorListElem.getElements();
-            int vectorIndex = 0;
-            final String mergedPixelStr = getMergedPixels(pol);
-            final StringTokenizer tokenizer = new StringTokenizer(mergedPixelStr, " ");
-            final int count = tokenizer.countTokens();
-            for (MetadataElement calibrationVectorElem : list) {
-
-                final MetadataElement pixelElem = calibrationVectorElem.getElement("pixel");
-                pixelElem.setAttributeString("pixel", mergedPixelStr);
-                pixelElem.setAttributeString("count", Integer.toString(count));
-
-                final MetadataElement sigmaNoughtElem = calibrationVectorElem.getElement("sigmaNought");
-                final String mergedSigmaNoughtStr = getMergedVector("SigmaNought", pol, vectorIndex);
-                sigmaNoughtElem.setAttributeString("sigmaNought", mergedSigmaNoughtStr);
-                sigmaNoughtElem.setAttributeString("count", Integer.toString(count));
-
-                final MetadataElement betaNoughtElem = calibrationVectorElem.getElement("betaNought");
-                final String mergedBetaNoughtStr = getMergedVector("betaNought", pol, vectorIndex);
-                betaNoughtElem.setAttributeString("betaNought", mergedBetaNoughtStr);
-                betaNoughtElem.setAttributeString("count", Integer.toString(count));
-
-                final MetadataElement gammaNoughtElem = calibrationVectorElem.getElement("gamma");
-                final String mergedGammaNoughtStr = getMergedVector("gamma", pol, vectorIndex);
-                gammaNoughtElem.setAttributeString("gamma", mergedGammaNoughtStr);
-                gammaNoughtElem.setAttributeString("count", Integer.toString(count));
-
-                final MetadataElement dnElem = calibrationVectorElem.getElement("dn");
-                final String mergedDNStr = getMergedVector("dn", pol, vectorIndex);
-                dnElem.setAttributeString("dn", mergedDNStr);
-                dnElem.setAttributeString("count", Integer.toString(count));
-                vectorIndex++;
-            }
-            elem.addElement(calElem);
-            calibration.addElement(elem);
-        }
-        origProdRoot.addElement(calibration);
-    }
-
-
-    private String getMergedPixels(final String pol) {
-
-        String mergedPixelStr = "";
-        for (int s = 0; s < numOfSubSwath; s++) {
-            final int[] pixelArray = su.getCalibrationPixel(s+1, pol, 0);
-            for (int p:pixelArray) {
-                if (p >= subSwathEffectStartEndPixels[s].xMin && p < subSwathEffectStartEndPixels[s].xMax) {
-                    final double slrt = subSwath[s].slrTimeToFirstPixel + p * targetDeltaSlantRangeTime;
-
-                    final int targetPixelIdx = (int)((slrt - targetSlantRangeTimeToFirstPixel) /
-                            targetDeltaSlantRangeTime);
-
-                    mergedPixelStr += targetPixelIdx + " ";
-                }
-            }
-        }
-        return mergedPixelStr;
-    }
-
-    private String getMergedVector(final String vectorName, final String pol, final int vectorIndex) {
-
-        final StringBuilder mergedVectorStr = new StringBuilder();
-        for (int s = 0; s < numOfSubSwath; s++) {
-            final int[] pixelArray = su.getCalibrationPixel(s+1, pol, vectorIndex);
-            final float[] vectorArray = su.getCalibrationVector(s+1, pol, vectorIndex, vectorName);
-            for (int i = 0; i < pixelArray.length; i++) {
-                if (pixelArray[i] >= subSwathEffectStartEndPixels[s].xMin &&
-                        pixelArray[i] < subSwathEffectStartEndPixels[s].xMax) {
-
-                    mergedVectorStr.append(vectorArray[i]).append(" ");
-                }
-            }
-        }
-        return mergedVectorStr.toString();
-    }
-    */
 
     /**
      * Called by the framework in order to compute the stack of tiles for the given target bands.
@@ -617,27 +506,58 @@ public final class TOPSARMergeOp extends Operator {
             final int ty0 = targetRectangle.y;
             final int tw = targetRectangle.width;
             final int th = targetRectangle.height;
-            final double tileSlrtToFirstPixel = targetSlantRangeTimeToFirstPixel + tx0 * targetDeltaSlantRangeTime;
-            final double tileSlrtToLastPixel = targetSlantRangeTimeToFirstPixel + (tx0 + tw - 1) * targetDeltaSlantRangeTime;
-            System.out.println("tx0 = " + tx0 + ", ty0 = " + ty0 + ", tw = " + tw + ", th = " + th);
 
             // determine subswaths covered by the tile
-            int firstSubSwathIndex = 0;
-            int lastSubSwathIndex = 0;
+            final double tileSlrtToFirstPixel = targetSlantRangeTimeToFirstPixel + tx0 * targetDeltaSlantRangeTime;
+            final double tileSlrtToLastPixel = targetSlantRangeTimeToFirstPixel + (tx0 + tw - 1) * targetDeltaSlantRangeTime;
+            final double tileFirstLineTime = targetFirstLineTime + ty0 * targetLineTimeInterval;
+            final double tileLastLineTime = targetFirstLineTime + (ty0 + th - 1) * targetLineTimeInterval;
 
+            int firstSubSwathIndex = -1;
+            int lastSubSwathIndex = -1;
             for (int i = 0; i < numOfSubSwath; i++) {
-                if (tileSlrtToFirstPixel >= subSwath[i].slrTimeToFirstPixel &&
-                        tileSlrtToFirstPixel <= subSwath[i].slrTimeToLastPixel) {
-                    firstSubSwathIndex = i;
-                    break;
+                if (tileSlrtToFirstPixel >= subSwath[i].slrTimeToFirstValidPixel &&
+                        tileSlrtToFirstPixel <= subSwath[i].slrTimeToLastValidPixel) {
+
+                    if (tileFirstLineTime >= subSwath[i].firstLineTime &&
+                            tileFirstLineTime < subSwath[i].lastLineTime ||
+                            tileLastLineTime >= subSwath[i].firstLineTime &&
+                            tileLastLineTime < subSwath[i].lastLineTime) {
+
+                        firstSubSwathIndex = i;
+                        break;
+                    }
                 }
             }
 
-            for (int i = 0; i < numOfSubSwath; i++) {
-                if (tileSlrtToLastPixel >= subSwath[i].slrTimeToFirstPixel &&
-                        tileSlrtToLastPixel <= subSwath[i].slrTimeToLastPixel) {
-                    lastSubSwathIndex = i;
+            if (firstSubSwathIndex == numOfSubSwath) {
+                lastSubSwathIndex = firstSubSwathIndex;
+            } else {
+                for (int i = 0; i < numOfSubSwath; i++) {
+                    if (tileSlrtToLastPixel >= subSwath[i].slrTimeToFirstValidPixel &&
+                            tileSlrtToLastPixel <= subSwath[i].slrTimeToLastValidPixel) {
+
+                        if (tileFirstLineTime >= subSwath[i].firstLineTime &&
+                                tileFirstLineTime < subSwath[i].lastLineTime ||
+                                tileLastLineTime >= subSwath[i].firstLineTime &&
+                                tileLastLineTime < subSwath[i].lastLineTime) {
+
+                            lastSubSwathIndex = i;
+                        }
+                    }
                 }
+            }
+
+            if (firstSubSwathIndex == -1 && lastSubSwathIndex == -1) {
+                return;
+            }
+
+            if (firstSubSwathIndex != -1 && lastSubSwathIndex == -1) {
+                lastSubSwathIndex = firstSubSwathIndex;
+            }
+
+            if (firstSubSwathIndex == -1 && lastSubSwathIndex != -1) {
+                firstSubSwathIndex = lastSubSwathIndex;
             }
 
             final int numOfSourceTiles = lastSubSwathIndex - firstSubSwathIndex + 1;
@@ -694,10 +614,15 @@ public final class TOPSARMergeOp extends Operator {
 
         final int yMin = computeYMin(subSwath[firstSubSwathIndex]);
         final int yMax = computeYMax(subSwath[firstSubSwathIndex]);
+        final int xMin = computeXMin(subSwath[firstSubSwathIndex]);
+        final int xMax = computeXMax(subSwath[firstSubSwathIndex]);
+
         final int firstY = Math.max(ty0, yMin);
         final int lastY = Math.min(tyMax, yMax + 1);
+        final int firstX = Math.max(tx0, xMin);
+        final int lastX = Math.min(txMax, xMax + 1);
 
-        if (firstY >= lastY) {
+        if (firstY >= lastY || firstX >= lastX) {
             return;
         }
 
@@ -717,10 +642,10 @@ public final class TOPSARMergeOp extends Operator {
             final Sentinel1Utils.SubSwathInfo firstSubSwath = subSwath[firstSubSwathIndex];
             final int offset = srcTileIndex.calculateStride(sy0);
 
-            final int sx0 = (int) Math.round(((targetSlantRangeTimeToFirstPixel + tx0 * targetDeltaSlantRangeTime)
-                    - firstSubSwath.slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
+            final int sx0 = (int) Math.round(((targetSlantRangeTimeToFirstPixel + firstX * targetDeltaSlantRangeTime)
+                    - firstSubSwath.slrTimeToFirstValidPixel) / targetDeltaSlantRangeTime);
 
-            System.arraycopy(srcArray, sx0 - offset, tgtArray, tx0 - tgtOffset, txMax - tx0);
+            System.arraycopy(srcArray, sx0 - offset, tgtArray, firstX - tgtOffset, lastX - firstX);
         }
     }
 
@@ -730,10 +655,15 @@ public final class TOPSARMergeOp extends Operator {
 
         final int yMin = computeYMin(subSwath[firstSubSwathIndex]);
         final int yMax = computeYMax(subSwath[firstSubSwathIndex]);
+        final int xMin = computeXMin(subSwath[firstSubSwathIndex]);
+        final int xMax = computeXMax(subSwath[firstSubSwathIndex]);
+
         final int firstY = Math.max(ty0, yMin);
         final int lastY = Math.min(tyMax, yMax + 1);
+        final int firstX = Math.max(tx0, xMin);
+        final int lastX = Math.min(txMax, xMax + 1);
 
-        if (firstY >= lastY) {
+        if (firstY >= lastY || firstX >= lastX) {
             return;
         }
 
@@ -753,10 +683,10 @@ public final class TOPSARMergeOp extends Operator {
             final Sentinel1Utils.SubSwathInfo firstSubSwath = subSwath[firstSubSwathIndex];
             int offset = srcTileIndex.calculateStride(sy0);
 
-            final int sx0 = (int) Math.round(((targetSlantRangeTimeToFirstPixel + tx0 * targetDeltaSlantRangeTime)
-                    - firstSubSwath.slrTimeToFirstPixel) / targetDeltaSlantRangeTime);
+            final int sx0 = (int) Math.round(((targetSlantRangeTimeToFirstPixel + firstX * targetDeltaSlantRangeTime)
+                    - firstSubSwath.slrTimeToFirstValidPixel) / targetDeltaSlantRangeTime);
 
-            System.arraycopy(srcArray, sx0 - offset, tgtArray, tx0 - tgtOffset, txMax - tx0);
+            System.arraycopy(srcArray, sx0 - offset, tgtArray, firstX - tgtOffset, lastX - firstX);
         }
     }
 
@@ -884,9 +814,10 @@ public final class TOPSARMergeOp extends Operator {
     private int getSampleIndexInSourceProduct(final int tx, final Sentinel1Utils.SubSwathInfo subSwath) {
 
         final int sx = (int)((((targetSlantRangeTimeToFirstPixel + tx * targetDeltaSlantRangeTime)
-                - subSwath.slrTimeToFirstPixel) / targetDeltaSlantRangeTime) + 0.5);
+                - subSwath.slrTimeToFirstValidPixel) / targetDeltaSlantRangeTime) + 0.5);
 
-        return sx < 0 ? 0 : sx > subSwath.numOfSamples - 1 ? subSwath.numOfSamples - 1 : sx;
+        final int numOfValidSamples = subSwath.lastValidPixel - subSwath.firstValidPixel + 1;
+        return sx < 0 ? 0 : sx > numOfValidSamples - 1 ? numOfValidSamples - 1 : sx;
     }
 
     private int getLineIndexInSourceProduct(final int ty, final Sentinel1Utils.SubSwathInfo subSwath) {
@@ -900,12 +831,22 @@ public final class TOPSARMergeOp extends Operator {
 
     private int computeYMin(final Sentinel1Utils.SubSwathInfo subSwath) {
 
-        return (int) ((subSwath.firstLineTime - targetFirstLineTime) / targetLineTimeInterval);
+        return (int)Math.round((subSwath.firstLineTime - targetFirstLineTime) / targetLineTimeInterval);
     }
 
     private int computeYMax(final Sentinel1Utils.SubSwathInfo subSwath) {
 
-        return (int) ((subSwath.lastLineTime - targetFirstLineTime) / targetLineTimeInterval);
+        return (int)Math.round((subSwath.lastLineTime - targetFirstLineTime) / targetLineTimeInterval);
+    }
+
+    private int computeXMin(final Sentinel1Utils.SubSwathInfo subSwath) {
+
+        return (int)Math.round((subSwath.slrTimeToFirstValidPixel - targetSlantRangeTimeToFirstPixel) / targetDeltaSlantRangeTime);
+    }
+
+    private int computeXMax(final Sentinel1Utils.SubSwathInfo subSwath) {
+
+        return (int)Math.round((subSwath.slrTimeToLastValidPixel - targetSlantRangeTimeToFirstPixel) / targetDeltaSlantRangeTime);
     }
 
     private int getSubSwathIndex(
@@ -919,8 +860,10 @@ public final class TOPSARMergeOp extends Operator {
         Sentinel1Utils.SubSwathInfo info;
         for (int i = firstSubSwathIndex; i <= lastSubSwathIndex; i++) {
             info = subSwath[i];
-            if (targetLineTime >= info.firstLineTime && targetLineTime <= info.lastLineTime &&
-                targetSampleSlrTime >= info.slrTimeToFirstPixel && targetSampleSlrTime <= info.slrTimeToLastPixel) {
+            if (targetLineTime >= info.firstLineTime &&
+                    targetLineTime <= info.lastLineTime &&
+                    targetSampleSlrTime >= info.slrTimeToFirstValidPixel &&
+                    targetSampleSlrTime <= info.slrTimeToLastValidPixel) {
 
                 if (cnt == 0) {
                     swath0 = i;
@@ -933,7 +876,8 @@ public final class TOPSARMergeOp extends Operator {
         }
 
         if (swath1 != -1) {
-            final double middleTime = (subSwath[swath0].slrTimeToLastPixel + subSwath[swath1].slrTimeToFirstPixel)/2.0;
+            final double middleTime = (subSwath[swath0].slrTimeToLastValidPixel +
+                    subSwath[swath1].slrTimeToFirstValidPixel)/2.0;
 
             if (targetSampleSlrTime > middleTime) {
                 return swath1;
