@@ -1343,6 +1343,36 @@ public final class SliceAssemblyOp extends Operator {
         }
     }
 
+    private void updateGeolocationGrid() {
+
+        final MetadataElement targetOrigProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
+        MetadataElement[] elements = getElementsToUpdate(targetOrigProdRoot, "annotation");
+
+        for (MetadataElement e : elements) {
+
+            final String imageNum = extractImageNumber(e.getName());
+            MetadataElement targetGeolocationGrid = e.getElement("product").getElement("geolocationGrid");
+            MetadataElement targetGeolocationGridPointList = targetGeolocationGrid.getElement("geolocationGridPointList");
+            int count = Integer.parseInt(targetGeolocationGridPointList.getAttributeString("count"));
+
+            for (int i = 1; i < sliceProducts.length; i++) {
+
+                MetadataElement sliceGeolocationGrid = getAnnotationElement(sliceProducts[i], imageNum, "geolocationGrid");
+                MetadataElement sliceGeolocationGridPointList = sliceGeolocationGrid.getElement("geolocationGridPointList");
+                final int sliceCount = Integer.parseInt(sliceGeolocationGridPointList.getAttributeString("count"));
+                if (sliceCount < 1) {
+                    continue;
+                }
+
+                MetadataElement [] sliceGeolocationGridPoints = sliceGeolocationGridPointList.getElements();
+                for (MetadataElement p : sliceGeolocationGridPoints) {
+                    targetGeolocationGridPointList.addElementAt(p.createDeepClone(), count++);
+                }
+            }
+            targetGeolocationGridPointList.setAttributeString("count", Integer.toString(count));
+        }
+    }
+
     private MetadataElement getAzimuthFmRateList(final Product product, String imageNum) {
 
         final MetadataElement generalAnnotation = getAnnotationElement(product, imageNum, "generalAnnotation");
@@ -1473,6 +1503,8 @@ public final class SliceAssemblyOp extends Operator {
         updateImageInformation();
 
         updateSwathTiming();
+
+        updateGeolocationGrid();
 
         updateAzimuthFmRateList();
 
