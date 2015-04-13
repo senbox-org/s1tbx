@@ -500,7 +500,7 @@ public final class SliceAssemblyOp extends Operator {
             createLatLonTiePointGridsForSLC();
         }
 
-        //targetProduct.setPreferredTileSize(targetWidth, 10);
+        //targetProduct.setPreferredTileSize(targetWidth, 1);
     }
 
     private Term createTerm(final String expression, final Product[] availableProducts) {
@@ -1513,6 +1513,9 @@ public final class SliceAssemblyOp extends Operator {
             final int maxY = ty0 + targetTileRectangle.height;
             final int maxX = tx0 + targetTileRectangle.width;
 
+            if(targetTileRectangle.width < 2)
+                return;
+
             final BandLines[] lines = bandLineMap.get(targetBand);
             final ProductData trgData = targetTile.getDataBuffer();
 
@@ -1543,14 +1546,18 @@ public final class SliceAssemblyOp extends Operator {
                 final int yy = y-line.start;
                 srcRect.setBounds(targetTileRectangle.x, yy, targetTileRectangle.width, 1);
 
-                final Tile sourceRaster = getSourceTile(line.band, srcRect);
-                final ProductData srcData = sourceRaster.getDataBuffer();
-                final TileIndex srcIndex = new TileIndex(sourceRaster);
-                trgIndex.calculateStride(y);
-                srcIndex.calculateStride(yy);
+                try {
+                    final Tile sourceRaster = getSourceTile(line.band, srcRect);
+                    final ProductData srcData = sourceRaster.getDataBuffer();
+                    final TileIndex srcIndex = new TileIndex(sourceRaster);
+                    trgIndex.calculateStride(y);
+                    srcIndex.calculateStride(yy);
 
-                for (int x = tx0; x < maxX; ++x) {
-                    trgData.setElemDoubleAt(trgIndex.getIndex(x), srcData.getElemDoubleAt(srcIndex.getIndex(x)));
+                    for (int x = tx0; x < maxX; ++x) {
+                        trgData.setElemDoubleAt(trgIndex.getIndex(x), srcData.getElemDoubleAt(srcIndex.getIndex(x)));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
 
