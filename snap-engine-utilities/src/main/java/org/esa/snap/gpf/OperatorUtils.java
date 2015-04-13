@@ -679,6 +679,10 @@ public final class OperatorUtils {
                 targetProduct.addBand(targetBand);
             }
         }
+
+        if(targetProduct.getNumBands() == 0) {
+            throw new OperatorException("Target product has no bands");
+        }
     }
 
     /**
