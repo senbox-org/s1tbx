@@ -128,6 +128,7 @@ public class CreateInterferogramOp extends Operator {
     private org.jlinda.core.Point mstSceneCentreXYZ = null;
     private double slvScenseCentreAzimuthTime = 0.0;
     private int subSwathIndex = 0;
+    private double avgSceneHeight = 0.0;
 
     private boolean outputFlatEarthPhase = false;
 
@@ -167,6 +168,7 @@ public class CreateInterferogramOp extends Operator {
 
             if (subtractFlatEarthPhase) {
 
+                getMeanTerrainElevation();
                 if (isTOPSARBurstProduct) {
 
                     getMstApproxSceneCentreXYZ();
@@ -254,6 +256,12 @@ public class CreateInterferogramOp extends Operator {
     private void getSourceImageDimension() {
         sourceImageWidth = sourceProduct.getSceneRasterWidth();
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
+    }
+
+    private void getMeanTerrainElevation() throws Exception {
+
+        final MetadataElement mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+        avgSceneHeight = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.avg_scene_height);
     }
 
     private void constructFlatEarthPolynomials() throws Exception {
@@ -478,7 +486,7 @@ public class CreateInterferogramOp extends Operator {
             final double masterTimeRange = masterMetadata.pix2tr(pixel + 1);
 
             // compute xyz of this point : sourceMaster
-            org.jlinda.core.Point xyzMaster = masterOrbit.lp2xyz(line + 1, pixel + 1, masterMetadata);
+            org.jlinda.core.Point xyzMaster = masterOrbit.lph2xyz(line + 1, pixel + 1, avgSceneHeight, masterMetadata);
             org.jlinda.core.Point slaveTimeVector = slaveOrbit.xyz2t(xyzMaster, slaveMetadata);
 
             final double slaveTimeRange = slaveTimeVector.x;
@@ -545,7 +553,7 @@ public class CreateInterferogramOp extends Operator {
             final double mstAzTime = line2AzimuthTime(line, subSwathIndex, burstIndex);
 
             // compute xyz of this point : sourceMaster
-            org.jlinda.core.Point xyzMaster = masterOrbit.lph2xyz(mstAzTime, mstRgTime, 0.0, mstSceneCentreXYZ);
+            org.jlinda.core.Point xyzMaster = masterOrbit.lph2xyz(mstAzTime, mstRgTime, avgSceneHeight, mstSceneCentreXYZ);
             org.jlinda.core.Point slaveTimeVector = slaveOrbit.xyz2t(xyzMaster, slvScenseCentreAzimuthTime);
 
             final double slaveTimeRange = slaveTimeVector.x;

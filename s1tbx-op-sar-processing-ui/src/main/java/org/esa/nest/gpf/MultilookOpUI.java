@@ -46,6 +46,7 @@ public class MultilookOpUI extends BaseOperatorUI {
 
     private Boolean outputIntensity = true;
     private Boolean grSquarePixel = true;
+    private final MultilookOp.DerivedParams param = new MultilookOp.DerivedParams();
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
@@ -69,6 +70,7 @@ public class MultilookOpUI extends BaseOperatorUI {
                     nAzLooks.setEditable(false);
                 }
                 setAzimuthLooks();
+                setRangeLooks();
             }
         });
 
@@ -80,6 +82,7 @@ public class MultilookOpUI extends BaseOperatorUI {
                     nAzLooks.setEditable(true);
                 }
                 setAzimuthLooks();
+                setRangeLooks();
             }
         });
 
@@ -113,17 +116,16 @@ public class MultilookOpUI extends BaseOperatorUI {
         }
 
         setAzimuthLooks();
+        setRangeLooks();
     }
 
-    private void setAzimuthLooks() {
+    private synchronized void setAzimuthLooks() {
         if (sourceProducts != null && sourceProducts.length > 0) {
             try {
                 if (grSquarePixelCheckBox.isSelected()) {
-                    final MultilookOp.DerivedParams param = new MultilookOp.DerivedParams();
                     param.nRgLooks = Integer.parseInt(nRgLooks.getText());
                     MultilookOp.getDerivedParameters(sourceProducts[0], param);
                     nAzLooks.setText(String.valueOf(param.nAzLooks));
-                    //nRgLooks.setText(String.valueOf(param.nRgLooks));
 
                     final float meanSqaurePixel = param.meanGRSqaurePixel;
                     meanGRSqaurePixel.setText(String.valueOf(meanSqaurePixel));
@@ -132,6 +134,14 @@ public class MultilookOpUI extends BaseOperatorUI {
                 }
             } catch (Exception e) {
                 meanGRSqaurePixel.setText("");
+            }
+        }
+    }
+
+    private void setRangeLooks() {
+        if (sourceProducts != null && sourceProducts.length > 0) {
+            if (grSquarePixelCheckBox.isSelected()) {
+                nRgLooks.setText(String.valueOf(param.nRgLooks));
             }
         }
     }

@@ -500,7 +500,7 @@ public final class SliceAssemblyOp extends Operator {
             createLatLonTiePointGridsForSLC();
         }
 
-        //targetProduct.setPreferredTileSize(targetWidth, 10);
+        //targetProduct.setPreferredTileSize(targetWidth, 1);
     }
 
     private Term createTerm(final String expression, final Product[] availableProducts) {
@@ -1343,6 +1343,36 @@ public final class SliceAssemblyOp extends Operator {
         }
     }
 
+    private void updateGeolocationGrid() {
+
+        final MetadataElement targetOrigProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
+        MetadataElement[] elements = getElementsToUpdate(targetOrigProdRoot, "annotation");
+
+        for (MetadataElement e : elements) {
+
+            final String imageNum = extractImageNumber(e.getName());
+            MetadataElement targetGeolocationGrid = e.getElement("product").getElement("geolocationGrid");
+            MetadataElement targetGeolocationGridPointList = targetGeolocationGrid.getElement("geolocationGridPointList");
+            int count = Integer.parseInt(targetGeolocationGridPointList.getAttributeString("count"));
+
+            for (int i = 1; i < sliceProducts.length; i++) {
+
+                MetadataElement sliceGeolocationGrid = getAnnotationElement(sliceProducts[i], imageNum, "geolocationGrid");
+                MetadataElement sliceGeolocationGridPointList = sliceGeolocationGrid.getElement("geolocationGridPointList");
+                final int sliceCount = Integer.parseInt(sliceGeolocationGridPointList.getAttributeString("count"));
+                if (sliceCount < 1) {
+                    continue;
+                }
+
+                MetadataElement [] sliceGeolocationGridPoints = sliceGeolocationGridPointList.getElements();
+                for (MetadataElement p : sliceGeolocationGridPoints) {
+                    targetGeolocationGridPointList.addElementAt(p.createDeepClone(), count++);
+                }
+            }
+            targetGeolocationGridPointList.setAttributeString("count", Integer.toString(count));
+        }
+    }
+
     private MetadataElement getAzimuthFmRateList(final Product product, String imageNum) {
 
         final MetadataElement generalAnnotation = getAnnotationElement(product, imageNum, "generalAnnotation");
@@ -1474,6 +1504,8 @@ public final class SliceAssemblyOp extends Operator {
 
         updateSwathTiming();
 
+        updateGeolocationGrid();
+
         updateAzimuthFmRateList();
 
         //System.out.println("DONE updateTargetProductMetadata");
@@ -1513,6 +1545,9 @@ public final class SliceAssemblyOp extends Operator {
             final int maxY = ty0 + targetTileRectangle.height;
             final int maxX = tx0 + targetTileRectangle.width;
 
+            if(targetTileRectangle.width < 2)
+                return;
+
             final BandLines[] lines = bandLineMap.get(targetBand);
             final ProductData trgData = targetTile.getDataBuffer();
 
@@ -1543,14 +1578,18 @@ public final class SliceAssemblyOp extends Operator {
                 final int yy = y-line.start;
                 srcRect.setBounds(targetTileRectangle.x, yy, targetTileRectangle.width, 1);
 
-                final Tile sourceRaster = getSourceTile(line.band, srcRect);
-                final ProductData srcData = sourceRaster.getDataBuffer();
-                final TileIndex srcIndex = new TileIndex(sourceRaster);
-                trgIndex.calculateStride(y);
-                srcIndex.calculateStride(yy);
+                try {
+                    final Tile sourceRaster = getSourceTile(line.band, srcRect);
+                    final ProductData srcData = sourceRaster.getDataBuffer();
+                    final TileIndex srcIndex = new TileIndex(sourceRaster);
+                    trgIndex.calculateStride(y);
+                    srcIndex.calculateStride(yy);
 
-                for (int x = tx0; x < maxX; ++x) {
-                    trgData.setElemDoubleAt(trgIndex.getIndex(x), srcData.getElemDoubleAt(srcIndex.getIndex(x)));
+                    for (int x = tx0; x < maxX; ++x) {
+                        trgData.setElemDoubleAt(trgIndex.getIndex(x), srcData.getElemDoubleAt(srcIndex.getIndex(x)));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
 
