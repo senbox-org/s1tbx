@@ -371,7 +371,7 @@ public final class BackGeocodingOp extends Operator {
 
         if (outputDerampDemodPhase) {
             final Band phaseBand = new Band(
-                    "drampDemodPhase",
+                    "derampDemodPhase",
                     ProductData.TYPE_FLOAT32,
                     masterBandWidth,
                     masterBandHeight);
@@ -1091,7 +1091,7 @@ public final class BackGeocodingOp extends Operator {
                     iBand = band;
                 } else if (bandName.contains("q_") && bandName.contains("_slv")) {
                     qBand = band;
-                } else if (bandName.contains("drampDemodPhase")) {
+                } else if (bandName.contains("derampDemodPhase")) {
                     phaseBand = band;
                 }
             }
