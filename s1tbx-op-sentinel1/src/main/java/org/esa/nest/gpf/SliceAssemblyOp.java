@@ -1354,9 +1354,12 @@ public final class SliceAssemblyOp extends Operator {
             MetadataElement targetGeolocationGrid = e.getElement("product").getElement("geolocationGrid");
             MetadataElement targetGeolocationGridPointList = targetGeolocationGrid.getElement("geolocationGridPointList");
             int count = Integer.parseInt(targetGeolocationGridPointList.getAttributeString("count"));
-
+            int numberOfLines = 0;
             for (int i = 1; i < sliceProducts.length; i++) {
 
+                MetadataElement sliceImageAnnotation = getAnnotationElement(sliceProducts[i], imageNum, "imageAnnotation");
+                MetadataElement sliceImageInformation = sliceImageAnnotation.getElement("imageInformation");
+                numberOfLines += Integer.parseInt(sliceImageInformation.getAttributeString("numberOfLines"));
                 MetadataElement sliceGeolocationGrid = getAnnotationElement(sliceProducts[i], imageNum, "geolocationGrid");
                 MetadataElement sliceGeolocationGridPointList = sliceGeolocationGrid.getElement("geolocationGridPointList");
                 final int sliceCount = Integer.parseInt(sliceGeolocationGridPointList.getAttributeString("count"));
@@ -1366,7 +1369,10 @@ public final class SliceAssemblyOp extends Operator {
 
                 MetadataElement [] sliceGeolocationGridPoints = sliceGeolocationGridPointList.getElements();
                 for (MetadataElement p : sliceGeolocationGridPoints) {
-                    targetGeolocationGridPointList.addElementAt(p.createDeepClone(), count++);
+                    MetadataElement newP = p.createDeepClone();
+                    final long sliceLine = Long.parseLong(p.getAttributeString("line"));
+                    newP.setAttributeString("line", Long.toString(sliceLine + numberOfLines));
+                    targetGeolocationGridPointList.addElementAt(newP, count++);
                 }
             }
             targetGeolocationGridPointList.setAttributeString("count", Integer.toString(count));

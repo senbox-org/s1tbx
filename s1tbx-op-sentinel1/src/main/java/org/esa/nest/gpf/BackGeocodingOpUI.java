@@ -56,6 +56,8 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
     private Boolean outputRangeAzimuthOffset = false;
     private Boolean outputDerampDemodPhase = false;
 
+    private final boolean includeOutputRangeAzimuthOffset = false;
+
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
 
     @Override
@@ -190,8 +192,10 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "Resampling Type:", resamplingType);
         gbc.gridy++;
         contentPane.add(maskOutAreaWithoutElevationCheckBox, gbc);
-        gbc.gridy++;
-        contentPane.add(outputRangeAzimuthOffsetCheckBox, gbc);
+        if(includeOutputRangeAzimuthOffset) {
+            gbc.gridy++;
+            contentPane.add(outputRangeAzimuthOffsetCheckBox, gbc);
+        }
         gbc.gridy++;
         contentPane.add(outputDerampDemodPhaseCheckBox, gbc);
         gbc.gridy++;

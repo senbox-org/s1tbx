@@ -162,8 +162,10 @@ public class RangeShiftOp extends Operator {
             }
 
             Band targetBand;
-            if (srcBandName.contains("_mst")) {
+            if (srcBandName.contains("_mst") || srcBandName.contains("derampDemod")) {
                 targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
+            } else if (srcBandName.contains("azOffset") || srcBandName.contains("rgOffset")) {
+                continue;
             } else {
                 targetBand = new Band(srcBandName,
                         band.getDataType(),
