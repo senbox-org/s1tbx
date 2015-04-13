@@ -156,26 +156,21 @@ public class Sentinel1ProductReader extends SARReader {
         int length;
         int[] srcArray;
 
+        //System.out.println(cache.stats()+", size="+cache.size());
+
         final Rectangle destRect = new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight);
         final DataCache.DataKey datakey = new DataCache.DataKey(bandInfo.img, destRect);
-        final DataCache.Data cachedData = cache.get(datakey);
+        DataCache.Data cachedData = cache.get(datakey);
         if (cachedData != null && cachedData.valid) {
             srcArray = cachedData.intArray;
             length = srcArray.length;
         } else {
-            final Raster data = readRect(bandInfo.img.getReader(),
+            cachedData = readRect(datakey, bandInfo,
                                          sourceOffsetX, sourceOffsetY, sourceStepX, sourceStepY,
                                          destRect);
 
-            final SampleModel sampleModel = data.getSampleModel();
-            destWidth = Math.min(destWidth, sampleModel.getWidth());
-            destHeight = Math.min(destHeight, sampleModel.getHeight());
-
-            length = destWidth * destHeight;
-            srcArray = new int[length];
-            sampleModel.getSamples(0, 0, destWidth, destHeight, bandInfo.bandSampleOffset, srcArray, data.getDataBuffer());
-
-            cache.put(datakey, new DataCache.Data(srcArray));
+            srcArray = cachedData.intArray;
+            length = srcArray.length;
         }
 
         final short[] destArray = (short[]) destBuffer.getElems();
@@ -205,9 +200,11 @@ public class Sentinel1ProductReader extends SARReader {
         }
     }
 
-    private synchronized Raster readRect(final ImageReader imageReader,
+    private synchronized DataCache.Data readRect(final DataCache.DataKey datakey, final ImageIOFile.BandInfo bandInfo,
                                          int sourceOffsetX, int sourceOffsetY, int sourceStepX, int sourceStepY,
                                          final Rectangle destRect) throws IOException {
+
+        final ImageReader imageReader = bandInfo.img.getReader();
         final ImageReadParam readParam = imageReader.getDefaultReadParam();
         if(sourceStepX == 1 && sourceStepY == 1) {
             readParam.setSourceRegion(destRect);
@@ -215,6 +212,19 @@ public class Sentinel1ProductReader extends SARReader {
         readParam.setSourceSubsampling(sourceStepX, sourceStepY, sourceOffsetX % sourceStepX, sourceOffsetY % sourceStepY);
         final RenderedImage subsampledImage = imageReader.readAsRenderedImage(0, readParam);
 
-        return subsampledImage.getData(destRect);
+        final Raster data = subsampledImage.getData(destRect);
+
+        final SampleModel sampleModel = data.getSampleModel();
+        final int destWidth = Math.min((int) destRect.getWidth(), sampleModel.getWidth());
+        final int destHeight = Math.min((int)destRect.getHeight(), sampleModel.getHeight());
+
+        final int length = destWidth * destHeight;
+        final int[] srcArray = new int[length];
+        sampleModel.getSamples(0, 0, destWidth, destHeight, bandInfo.bandSampleOffset, srcArray, data.getDataBuffer());
+
+        DataCache.Data cachedData = new DataCache.Data(srcArray);
+        cache.put(datakey, cachedData);
+
+        return cachedData;
     }
 }
