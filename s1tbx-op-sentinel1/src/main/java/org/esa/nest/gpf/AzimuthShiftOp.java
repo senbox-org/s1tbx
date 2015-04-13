@@ -74,7 +74,7 @@ public class AzimuthShiftOp extends Operator {
     private int cWindowWidth = 11;
     private int cWindowHeight = 11;
 
-    static final String DerampDemodPhase = "drampDemodPhase";
+    static final String DerampDemodPhase = "derampDemodPhase";
 
     /**
      * Default constructor. The graph processing framework
@@ -162,8 +162,10 @@ public class AzimuthShiftOp extends Operator {
             }
 
             Band targetBand;
-            if (srcBandName.contains("_mst")) {
+            if (srcBandName.contains("_mst") || srcBandName.contains("derampDemod")) {
                 targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
+            } else if (srcBandName.contains("azOffset") || srcBandName.contains("rgOffset")) {
+                continue;
             } else {
                 targetBand = new Band(srcBandName,
                         band.getDataType(),
