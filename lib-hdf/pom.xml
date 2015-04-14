@@ -60,30 +60,6 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>copy-jars</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <stripVersion>true</stripVersion>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>ncsa.hdf</groupId>
-                                    <artifactId>jhdf</artifactId>
-                                    <version>${hdf.version}</version>
-                                    <outputDirectory>src/main/resources/lib</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>ncsa.hdf</groupId>
-                                    <artifactId>jhdf5</artifactId>
-                                    <version>${hdf.version}</version>
-                                    <outputDirectory>src/main/resources/lib</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>unpack-natives</id>
                         <phase>generate-resources</phase>
                         <goals>
@@ -94,7 +70,7 @@
                                 <artifactItem>
                                     <groupId>ncsa.hdf</groupId>
                                     <artifactId>hdf-natives</artifactId>
-                                    <version>${hdf.version}</version>
+                                    <version>${hdfNatives.version}</version>
                                     <type>zip</type>
                                     <outputDirectory>src/main/resources/lib</outputDirectory>
                                 </artifactItem>
@@ -104,12 +80,39 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.6.1</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>src/main/resources/lib</directory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
                         <publicPackage>ncsa.hdf.*</publicPackage>
                     </publicPackages>
+                    <nbmResources>
+                        <nbmResource>
+                            <directory>src/main/resources/lib/</directory>
+                            <targetPath>modules/lib/</targetPath>
+                            <includes>
+                                <include>**/*.dll</include>
+                                <include>**/*.so</include>
+                                <include>**/*.jnilib</include>
+                            </includes>
+                        </nbmResource>
+                    </nbmResources>
                 </configuration>
             </plugin>
             <plugin>

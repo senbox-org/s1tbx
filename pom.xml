@@ -34,6 +34,7 @@
         <snap.version>2.0.0-SNAPSHOT</snap.version>
         <javahelp.version>2.0.05</javahelp.version>
         <hdf.version>2.7</hdf.version>
+        <hdfNatives.version>2.7.1</hdfNatives.version>
         <netcdf.version>4.3.22</netcdf.version>
         <geotools.version>2.7.4</geotools.version>
         <jide.version>3.6.1</jide.version>
