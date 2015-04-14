@@ -126,7 +126,7 @@ public class FeatureUtils {
     public static String createFeatureTypeName(String defaultGeometry) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ddMMMyyyy'T'HH.mm.ss");
         String currentTime = simpleDateFormat.format(Calendar.getInstance().getTime());
-        return String.format("org.esa.beam_%s_%s", defaultGeometry, currentTime);
+        return String.format("org.esa.snap_%s_%s", defaultGeometry, currentTime);
     }
 
     public static String createFeatureId(int base) {

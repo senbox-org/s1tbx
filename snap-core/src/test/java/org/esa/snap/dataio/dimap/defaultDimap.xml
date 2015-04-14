@@ -36,7 +36,7 @@
                 <Parameter name="surf_press" value="1008"/>
                 <Parameter name="bands" value="radiance_1,radiance_2,radiance_3"/>
                 <InputProduct path="E:\data\MERIS\L1b\MER_FR__1PTACR20000620_104323_00000099X000_00000_00000_0000.N1"/>
-                <OutputProduct path="D:\org.esa.beam-out\MER_FR__1P_AC"/>
+                <OutputProduct path="D:\org.esa.snap-out\MER_FR__1P_AC"/>
             </Request>
         </PROCESSING_REQUEST>
     </Production>
