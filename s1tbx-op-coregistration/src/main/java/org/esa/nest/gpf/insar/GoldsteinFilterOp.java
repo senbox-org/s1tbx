@@ -216,7 +216,6 @@ public class GoldsteinFilterOp extends Operator {
 
             // get target tiles
             final Band[] targetBands = targetProduct.getBands();
-            final int numBands = targetBands.length;
             Tile iTargetTile = null;
             Tile qTargetTile = null;
             for (Band targetBand : targetBands) {
@@ -231,6 +230,11 @@ public class GoldsteinFilterOp extends Operator {
                 }
             }
 
+            final ProductData iBandData = iBandRaster.getDataBuffer();
+            final ProductData qBandData = qBandRaster.getDataBuffer();
+            final TileIndex srcIndex = new TileIndex(iBandRaster);
+            final double iNoDataValue = iBand.getNoDataValue();
+
             // perform filtering with a sliding window
             final double[][] I = new double[FFTSize][FFTSize];
             final double[][] Q = new double[FFTSize][FFTSize];
@@ -244,7 +248,12 @@ public class GoldsteinFilterOp extends Operator {
             for (int y = sy0; y <= yMax; y += stepSize) {
                 for (int x = sx0; x <= xMax; x += stepSize) {
 
-                    getComplexImagettes(x, y, iBandRaster, qBandRaster, I, Q);
+                    double val = iBandData.getElemDoubleAt(iBandRaster.getDataBufferIndex(x, y));
+                    if(val == iNoDataValue) {
+                        continue;
+                    }
+
+                    getComplexImagettes(x, y, iBandData, qBandData, srcIndex, I, Q);
 
                     perform2DFFT(I, Q, specI, specQ);
 
@@ -293,18 +302,15 @@ public class GoldsteinFilterOp extends Operator {
      *
      * @param x           The x coordinate of the upper left pixel in the sliding window
      * @param y           The y coordinate of the upper left pixel in the sliding window
-     * @param iBandRaster The source tile for I band
-     * @param qBandRaster The source tile for Q band
+     * @param iBandData The source tile for I band
+     * @param qBandData The source tile for Q band
      * @param I           Real parts of the retrieved data
      * @param Q           Imaginary parts of the retrieved data
      */
-    private void getComplexImagettes(final int x, final int y, final Tile iBandRaster, final Tile qBandRaster,
+    private void getComplexImagettes(final int x, final int y,
+                                     final ProductData iBandData, final ProductData qBandData,
+                                     final TileIndex srcIndex,
                                      final double[][] I, final double[][] Q) {
-
-        final ProductData iBandData = iBandRaster.getDataBuffer();
-        final ProductData qBandData = qBandRaster.getDataBuffer();
-        final TileIndex srcIndex = new TileIndex(iBandRaster);
-
         int index;
         final int maxY = y + FFTSize;
         final int maxX = x + FFTSize;

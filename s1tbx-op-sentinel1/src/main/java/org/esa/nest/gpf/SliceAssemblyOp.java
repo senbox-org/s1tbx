@@ -1305,7 +1305,7 @@ public final class SliceAssemblyOp extends Operator {
 
                 final int sliceLinesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("linesPerBurst"));
                 if (sliceLinesPerBurst != linesPerBurst) {
-                    throw new OperatorException("slice " + i + " has different linesPerBurst " + sliceLinesPerBurst + " " + linesPerBurst);
+                    throw new OperatorException("slice " + i + " has different linesPerBurst " + sliceLinesPerBurst + " vs. " + linesPerBurst);
                 }
                 final int sliceSamplesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("samplesPerBurst"));
                 //System.out.println("sliceSamplesPerBurst = " + sliceSamplesPerBurst + " samplesPerBurst = " + samplesPerBurst);
