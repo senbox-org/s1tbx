@@ -120,7 +120,7 @@ public class PolBandUtils {
      * @param srcProduct        the input product
      * @param sourceProductType The source product type
      * @return QuadSourceBand[]
-     * @throws org.esa.beam.framework.gpf.OperatorException if sourceProduct is not quad-pol
+     * @throws org.esa.snap.framework.gpf.OperatorException if sourceProduct is not quad-pol
      */
     public static PolSourceBand[] getSourceBands(final Product srcProduct,
                                                   final MATRIX sourceProductType) throws Exception {

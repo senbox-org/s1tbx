@@ -69,7 +69,7 @@ public class ImageIOWriterPlugIn implements ProductWriterPlugIn {
      * <code>InvalidArgumentException</code> in this case).
      *
      * @return an array containing valid output types, never <code>null</code>
-     * @see org.esa.beam.framework.dataio.AbstractProductWriter#writeProductNodes
+     * @see org.esa.snap.framework.dataio.AbstractProductWriter#writeProductNodes
      */
     public Class[] getOutputTypes() {
         return new Class[]{

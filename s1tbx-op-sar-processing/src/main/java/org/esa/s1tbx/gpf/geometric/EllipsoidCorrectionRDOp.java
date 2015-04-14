@@ -43,8 +43,8 @@ public final class EllipsoidCorrectionRDOp extends RangeDopplerGeocodingOp {
      * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
-     * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
-     * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
+     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator()
+     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */
     public static class Spi extends OperatorSpi {
         public Spi() {

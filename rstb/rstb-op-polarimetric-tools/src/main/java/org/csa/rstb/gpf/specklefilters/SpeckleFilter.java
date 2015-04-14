@@ -44,7 +44,7 @@ public interface SpeckleFilter {
      *
      * @param neighborValues The pixel values in the given rectangular region.
      * @return mean The mean value.
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs in computation of the mean value.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs in computation of the mean value.
      */
     default double getMeanValue(final double[] neighborValues) {
 
@@ -63,7 +63,7 @@ public interface SpeckleFilter {
      * @param neighborValues The pixel values in the given rectanglar region.
      * @param mean           of neighbourhood
      * @return var The variance value.
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs in computation of the variance.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs in computation of the variance.
      */
     default  double getVarianceValue(final double[] neighborValues, final double mean) {
 

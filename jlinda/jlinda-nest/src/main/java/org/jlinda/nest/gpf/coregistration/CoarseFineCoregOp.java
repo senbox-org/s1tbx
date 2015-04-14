@@ -161,14 +161,14 @@ public class CoarseFineCoregOp extends Operator {
 
     /**
      * Initializes this operator and sets the one and only target product.
-     * <p>The target product can be either defined by a field of type {@link org.esa.beam.framework.datamodel.Product} annotated with the
-     * {@link org.esa.beam.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
+     * <p>The target product can be either defined by a field of type {@link org.esa.snap.framework.datamodel.Product} annotated with the
+     * {@link org.esa.snap.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
      * by calling {@link #setTargetProduct} method.</p>
      * <p>The framework calls this method after it has created this operator.
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
+     * @throws org.esa.snap.framework.gpf.OperatorException
      *          If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
@@ -362,7 +362,7 @@ public class CoarseFineCoregOp extends Operator {
      * @param targetTileMap   The target tiles associated with all target bands to be computed.
      * @param targetRectangle The rectangle of target tile.
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
+     * @throws org.esa.snap.framework.gpf.OperatorException
      *          If an error occurs during computation of the target raster.
      */
     @Override
@@ -724,8 +724,8 @@ public class CoarseFineCoregOp extends Operator {
      * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
-     * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
-     * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
+     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator()
+     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */
     public static class Spi extends OperatorSpi {
         public Spi() {

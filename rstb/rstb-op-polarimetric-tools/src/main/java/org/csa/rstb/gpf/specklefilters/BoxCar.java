@@ -70,7 +70,7 @@ public class BoxCar implements SpeckleFilter {
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
      * @param sourceRectangle The area in the source product
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     private void boxcarFilterC2(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
                                 final Rectangle sourceRectangle) {
@@ -127,7 +127,7 @@ public class BoxCar implements SpeckleFilter {
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
      * @param sourceRectangle The area in the source product
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     private void boxcarFilterFullPol(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
                                      final Rectangle sourceRectangle) {
@@ -196,7 +196,7 @@ public class BoxCar implements SpeckleFilter {
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
      * @param sourceRectangle The area in the source product
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     private void boxcarFilterC3T3C4T4(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
                                       final Rectangle sourceRectangle) {
@@ -245,7 +245,7 @@ public class BoxCar implements SpeckleFilter {
      * @param sh             Source tile height.
      * @param sourceTile     The source tile.
      * @param neighborValues Array holding the pixel values.
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs in obtaining the pixel values.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs in obtaining the pixel values.
      */
     private void getNeighborValues(final int x, final int y, final int sx0, final int sy0, final int sw, final int sh,
                                    final Tile sourceTile, final double[] neighborValues) {

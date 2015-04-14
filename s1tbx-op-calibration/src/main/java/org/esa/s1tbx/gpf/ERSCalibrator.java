@@ -2418,8 +2418,8 @@ public final class ERSCalibrator extends BaseCalibrator implements Calibrator {
      * Gets a {@link Tile} for a given band and rectangle.
      *
      * @param rasterDataNode the raster data node of a data product,
-     *                       e.g. a {@link org.esa.beam.framework.datamodel.Band Band} or
-     *                       {@link org.esa.beam.framework.datamodel.TiePointGrid TiePointGrid}.
+     *                       e.g. a {@link org.esa.snap.framework.datamodel.Band Band} or
+     *                       {@link org.esa.snap.framework.datamodel.TiePointGrid TiePointGrid}.
      * @param rectangle      the raster rectangle in pixel coordinates
      * @return a tile.
      * @throws OperatorException if the tile request cannot be processed

@@ -181,7 +181,7 @@ public class ChangeDetectionOp extends Operator {
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException if an error occurs during computation of the target rasters.
+     * @throws org.esa.snap.framework.gpf.OperatorException if an error occurs during computation of the target rasters.
      */
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {

@@ -516,7 +516,7 @@ public class NetCDFUtils {
 
     /**
      * Return type of the {@link NetCDFUtils#createMapInfoX}()
-     * method. Comprises a {@link org.esa.beam.framework.dataop.maptransf.MapInfo} and a boolean indicating that the reader
+     * method. Comprises a {@link org.esa.snap.framework.dataop.maptransf.MapInfo} and a boolean indicating that the reader
      * should flip data along the Y-axis.
      */
     public static class MapInfoX {

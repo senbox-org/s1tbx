@@ -38,10 +38,10 @@ public class ProductLibraryConfig {
     private final PropertyMap properties;
 
     /**
-     * Creates a new instance with the given {@link org.esa.beam.util.PropertyMap}.
+     * Creates a new instance with the given {@link org.esa.snap.util.PropertyMap}.
      * The property map which is used to load and store the configuration.
      *
-     * @param configuration the {@link org.esa.beam.util.PropertyMap}.
+     * @param configuration the {@link org.esa.snap.util.PropertyMap}.
      */
     public ProductLibraryConfig(final PropertyMap configuration) {
         Guardian.assertNotNull("configuration", configuration);

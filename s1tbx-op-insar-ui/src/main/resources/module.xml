@@ -117,7 +117,7 @@
 
         <action>
             <id>StackGroup</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Stack Tools</text>
             <parent>CoregistrationGroup</parent>
             <placeLast>CoregistrationGraph</placeLast>

@@ -97,7 +97,7 @@ public class FloodDetectionOp extends Operator {
     /**
      * Add the user selected bands to target product.
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException The exceptions.
+     * @throws org.esa.snap.framework.gpf.OperatorException The exceptions.
      */
     private void addSelectedBands() throws OperatorException {
 

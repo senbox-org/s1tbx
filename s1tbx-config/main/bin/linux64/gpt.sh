@@ -5,7 +5,7 @@ ${installer:sys.installationDir}/jre/bin/java \
     -Xverify:none -XX:+AggressiveOpts -XX:+UseFastAccessorMethods \
     -XX:+UseParallelGC -XX:+UseNUMA -XX:+UseLoopPredicate \
     -Dceres.context=${installer:context} \
-    "-D${installer:context}.mainClass=org.esa.beam.framework.gpf.main.GPT" \
+    "-D${installer:context}.mainClass=org.esa.snap.framework.gpf.main.GPT" \
     "-D${installer:context}.home=${installer:sys.installationDir}" \
 	"-D${installer:context}.debug=false" \
     "-Dncsa.hdf.hdflib.HDFLibrary.hdflib=${installer:sys.installationDir}/libjhdf.so" \

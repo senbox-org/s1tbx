@@ -704,7 +704,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param numOfGains   The number of gains for given swath and polarization (201).
      * @param refElevAngle The reference elevation angle array.
      * @param antPatArray  The antenna pattern array.
-     * @throws org.esa.beam.framework.gpf.OperatorException The IO exception.
+     * @throws org.esa.snap.framework.gpf.OperatorException The IO exception.
      */
     public static void getSingleSwathAntennaPatternGainFromAuxData(
             String fileName, String swath, String[] pol, int numOfGains, double[] refElevAngle, float[][] antPatArray)
@@ -769,7 +769,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param numOfGains   The number of gains for given swath and polarization (201).
      * @param refElevAngle The reference elevation angle array.
      * @param antPatArray  The antenna pattern array.
-     * @throws org.esa.beam.framework.gpf.OperatorException The IO exception.
+     * @throws org.esa.snap.framework.gpf.OperatorException The IO exception.
      */
     public static void getWideSwathAntennaPatternGainFromAuxData(
             String fileName, String pol, int numOfGains, double[] refElevAngle, float[][] antPatArray)
@@ -851,7 +851,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
 

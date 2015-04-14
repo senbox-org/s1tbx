@@ -1082,7 +1082,7 @@
 	                            <link>http://docs.oracle.com/javase/7/docs/api/</link>
 	                    </links>
 	                    <subpackages>
-	                        org.esa.nest:org.csa.rstb:org.esa.snap:org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
+	                        org.esa.nest:org.csa.rstb:org.esa.snap:org.esa.snap.framework:org.esa.snap.util:org.esa.snap.visat:com.bc.jexp
 	                    </subpackages>
 	                    <quiet>false</quiet>
 					</configuration>
@@ -1104,7 +1104,7 @@
                         </excludes>
                         <systemProperties>
                             <property>
-                                <name>org.esa.beam.testdata.out</name>
+                                <name>org.esa.snap.testdata.out</name>
                                 <value>target/test-data</value>
                             </property>
                         </systemProperties>
@@ -1240,7 +1240,7 @@
                             <link>http://java.sun.com/javase/6/docs/api/</link>
                     </links>
                     <subpackages>
-                        org.esa.nest:org.esa.snap:org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
+                        org.esa.nest:org.esa.snap:org.esa.snap.framework:org.esa.snap.util:org.esa.snap.visat:com.bc.jexp
                     </subpackages>
                     <quiet>false</quiet>
 				</configuration>

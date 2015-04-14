@@ -80,7 +80,7 @@ public class HAlphaWishart extends PolClassifierBase implements PolClassifier {
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Band targetBand, final Tile targetTile) {
 

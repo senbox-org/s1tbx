@@ -82,7 +82,7 @@ public class DecompositionBase {
      * @param op       the decomposition operator
      * @param bandList the src band list
      * @return min max values
-     * @throws org.esa.beam.framework.gpf.OperatorException when thread fails
+     * @throws org.esa.snap.framework.gpf.OperatorException when thread fails
      */
     public MinMax computeSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
             throws OperatorException {
@@ -199,7 +199,7 @@ public class DecompositionBase {
      *
      * @param op       the decomposition operator
      * @param bandList the src band list
-     * @throws org.esa.beam.framework.gpf.OperatorException when thread fails
+     * @throws org.esa.snap.framework.gpf.OperatorException when thread fails
      */
     protected synchronized void setSpanMinMax(final Operator op, final PolBandUtils.PolSourceBand bandList)
             throws OperatorException {

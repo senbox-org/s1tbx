@@ -91,7 +91,7 @@ folder.:<br>
 </code></blockquote>
 <h3>Publishing a Reader</h3>Reader implementations are published via the Java service
 provider interface (SPI). A JAR publishes its readers in the resource
-file <tt>META-INF/services/</tt>org.esa.beam.framework.dataio.ProductReaderPlugIn.
+file <tt>META-INF/services/</tt>org.esa.snap.framework.dataio.ProductReaderPlugIn.
 In this file add your reader SPI eg:
 org.esa.nest.dataio.radarsat2.Radarsat2ProductReaderPlugIn<br><br>
 
@@ -105,7 +105,7 @@ menu item. &nbsp; <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &lt;id&gt;importRadarsat2Product&lt;/id&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&lt;class&gt;org.esa.beam.visat.actions.ProductImportAction&lt;/class&gt;<br>
+&lt;class&gt;org.esa.snap.visat.actions.ProductImportAction&lt;/class&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &lt;formatName&gt;Radarsat 2&lt;/formatName&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

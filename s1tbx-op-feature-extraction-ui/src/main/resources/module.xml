@@ -53,7 +53,7 @@
 
         <action>
             <id>Masks</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Masks</text>
             <parent>tools</parent>
             <placeBefore>FeatureExtraction</placeBefore>
@@ -87,7 +87,7 @@
 
         <!--action>
             <id>PrimitiveFeatureGroup</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Primitive Features</text>
             <parent>processing.imageAnalysis</parent>
             <placeAfter>Masks</placeAfter>
@@ -95,7 +95,7 @@
 
         <!--action>
             <id>FeatureExtractionGroup</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Feature Extraction</text>
             <parent>Classification</parent>
             <placeAfter>PrimitiveFeatureGroup</placeAfter>
@@ -155,7 +155,7 @@
 
         <action>
             <id>TextureAnalysisGroup</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Texture Analysis</text>
             <parent>processing.imageAnalysis</parent>
             <placeBefore>PrimitiveFeatureGroup</placeBefore>
@@ -229,7 +229,7 @@
 
         <action>
             <id>oceanTools</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Ocean Tools</text>
             <parent>SAR Processing</parent>
             <placeAfter>SpeckleFiltering</placeAfter>
@@ -279,7 +279,7 @@
 
         <action>
             <id>ClusteringGroup</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Clustering</text>
             <parent>processing.imageAnalysis</parent>
         </action>
@@ -310,7 +310,7 @@
             <parent>ClusteringGroup</parent>
             <id>principleComponentAnalysis</id>
             <text>Principle Component Analysis...</text>
-            <class>org.esa.beam.visat.actions.DefaultOperatorAction</class>
+            <class>org.esa.snap.visat.actions.DefaultOperatorAction</class>
             <operatorName>PCA</operatorName>
             <dialogTitle>Principle Component Analysis</dialogTitle>
             <targetProductNameSuffix>_pca</targetProductNameSuffix>

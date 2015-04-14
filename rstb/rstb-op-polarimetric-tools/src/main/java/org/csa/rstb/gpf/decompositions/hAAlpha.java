@@ -137,7 +137,7 @@ public class hAAlpha extends DecompositionBase implements Decomposition {
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
      * @param op              the polarimetric decomposition operator
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle, final Operator op) {
 

@@ -773,7 +773,7 @@ public class RefinedLee implements SpeckleFilter {
      * @param span                The span image.
      * @param neighborSpanValues  2-D array holding the span image pixel valuse.
      * @return The number of valid pixels.
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs in obtaining the pixel values.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs in obtaining the pixel values.
      */
     private int getNeighborValuesWithoutBorderExt(
             final int xhalf, final int yhalf, final int sx0, final int sy0, final int syMax, final int sxMax,

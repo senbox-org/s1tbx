@@ -81,7 +81,7 @@
 
         <action>
             <id>geometry</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Geometric</text>
             <parent>SAR Processing</parent>
             <placeAfter>insar</placeAfter>
@@ -89,7 +89,7 @@
 
         <action>
             <id>EllipsoidCorrection</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Ellipsoid Correction</text>
             <parent>geometry</parent>
         </action>
@@ -122,7 +122,7 @@
 
         <action>
             <id>TerrainCorrection</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Terrain Correction</text>
             <parent>geometry</parent>
             <placeAfter>EllipsoidCorrection</placeAfter>
@@ -172,7 +172,7 @@
         <!--action>
             <id>reprojection2</id>
             <helpId>reprojectionAction</helpId>
-            <class>org.esa.beam.gpf.operators.reproject.ReprojectionAction</class>
+            <class>org.esa.snap.gpf.operators.reproject.ReprojectionAction</class>
             <text>Reprojection...</text>
             <shortDescr>Apply a reprojection.</shortDescr>
             <parent>geometry</parent>
@@ -251,7 +251,7 @@
 
         <action>
             <id>SpeckleFiltering</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Speckle Filtering</text>
             <parent>SAR Processing</parent>
             <placeAfter>Calibration</placeAfter>
@@ -315,7 +315,7 @@
 
         <action>
             <id>ASARWSS</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>ASAR WSS</text>
             <parent>SAR Processing</parent>
             <placeAfter>SpeckleFiltering</placeAfter>

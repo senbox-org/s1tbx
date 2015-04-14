@@ -153,15 +153,15 @@ public class DatApp extends VisatApp {
 
     protected void disableOperatorPlugins() {
 
-        removeOperator("org.esa.beam.gpf.operators.standard.MergeOp$Spi");
-        removeOperator("org.esa.beam.pixex.PixExOp$Spi");
-        removeOperator("org.esa.beam.statistics.StatisticsOp$Spi");
-        removeOperator("org.esa.beam.gpf.operators.meris.N1PatcherOp$Spi");
+        removeOperator("org.esa.snap.gpf.operators.standard.MergeOp$Spi");
+        removeOperator("org.esa.snap.pixex.PixExOp$Spi");
+        removeOperator("org.esa.snap.statistics.StatisticsOp$Spi");
+        removeOperator("org.esa.snap.gpf.operators.meris.N1PatcherOp$Spi");
     }
 
     protected void disableIOPlugins() {
 
-        removeReaderPlugIn("org.esa.beam.dataio.geotiff.GeoTiffProductReaderPlugIn");
+        removeReaderPlugIn("org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn");
     }
 
     protected void removeOperator(final String spi) {
@@ -291,10 +291,10 @@ public class DatApp extends VisatApp {
     protected HashSet<String> getExcludedToolbars() {
         final HashSet<String> excludedIds = super.getExcludedToolbars();
 
-        //excludedIds.add("org.esa.beam.visat.toolviews.spectrum.SpectrumToolView");
-        //excludedIds.add("org.esa.beam.visat.toolviews.placemark.pin.PinManagerToolView");
-        //excludedIds.add("org.esa.beam.visat.toolviews.placemark.gcp.GcpManagerToolView");
-        //excludedIds.add("org.esa.nest.dat.toolviews.worldmap.NestWorldMapToolView");
+        //excludedIds.add("org.esa.snap.visat.toolviews.spectrum.SpectrumToolView");
+        //excludedIds.add("org.esa.snap.visat.toolviews.placemark.pin.PinManagerToolView");
+        //excludedIds.add("org.esa.snap.visat.toolviews.placemark.gcp.GcpManagerToolView");
+        //excludedIds.add("org.esa.s1tbx.dat.toolviews.worldmap.NestWorldMapToolView");
         excludedIds.add("org.csa.rstb.dat.toolviews.HaAlphaPlotToolView");
 
         return excludedIds;
@@ -303,13 +303,13 @@ public class DatApp extends VisatApp {
     @Override
     protected void addDefaultToolViewCommands(final List<String> commandIds) {
         // add default views grouped
-        commandIds.add("org.esa.nest.dat.toolviews.Projects.ProjectsToolView.showCmd");
-        commandIds.add("org.esa.beam.visat.ProductsToolView.showCmd");
-        commandIds.add("org.esa.beam.visat.toolviews.pixelinfo.PixelInfoToolView.showCmd");
+        commandIds.add("org.esa.s1tbx.dat.toolviews.Projects.ProjectsToolView.showCmd");
+        commandIds.add("org.esa.snap.visat.ProductsToolView.showCmd");
+        commandIds.add("org.esa.snap.visat.toolviews.pixelinfo.PixelInfoToolView.showCmd");
         commandIds.add(null);
-        commandIds.add("org.esa.beam.visat.toolviews.nav.NavigationToolView.showCmd");
-        commandIds.add("org.esa.beam.visat.toolviews.imageinfo.ColorManipulationToolView.showCmd");
-        commandIds.add("org.esa.beam.visat.toolviews.layermanager.LayerManagerToolView.showCmd");
+        commandIds.add("org.esa.snap.visat.toolviews.nav.NavigationToolView.showCmd");
+        commandIds.add("org.esa.snap.visat.toolviews.imageinfo.ColorManipulationToolView.showCmd");
+        commandIds.add("org.esa.snap.visat.toolviews.layermanager.LayerManagerToolView.showCmd");
         commandIds.add(null);
     }
 

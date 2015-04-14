@@ -269,7 +269,7 @@ public class WindFieldEstimationOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {

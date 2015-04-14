@@ -45,7 +45,7 @@ public interface ElevationModelDescriptor {
     /**
      * Gets the datum for geographical coordinates interpreted by this elevation source, e.g. WGS-84.
      *
-     * @return the datum, e.g. {@link org.esa.beam.framework.dataop.maptransf.Datum#WGS_84}
+     * @return the datum, e.g. {@link org.esa.snap.framework.dataop.maptransf.Datum#WGS_84}
      */
     Datum getDatum();
 
@@ -110,7 +110,7 @@ public interface ElevationModelDescriptor {
      *
      * @return a DEM instance, can be null e.g. if related DEM files are not installed
      * @since BEAM 4.6 (resampling parameter)
-     * @deprecated since BEAM 4.6, use {@link #createDem(org.esa.beam.framework.dataop.resamp.Resampling)} instead
+     * @deprecated since BEAM 4.6, use {@link #createDem(org.esa.snap.framework.dataop.resamp.Resampling)} instead
      */
     @Deprecated
     ElevationModel createDem();
