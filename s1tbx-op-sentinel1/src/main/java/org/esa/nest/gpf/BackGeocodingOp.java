@@ -135,7 +135,6 @@ public final class BackGeocodingOp extends Operator {
     private String subSwathName = null;
     private String polarization = null;
 
-    private GeoCoding bandGeoCoding = null;
     private SARGeocoding.Orbit mOrbit = null;
     private SARGeocoding.Orbit sOrbit = null;
 
@@ -225,11 +224,6 @@ public final class BackGeocodingOp extends Operator {
 
             final Band masterBandI = getBand(masterProduct, "i_", swathIndexStr, polarization);
             noDataValue = masterBandI.getNoDataValue();
-            bandGeoCoding = masterBandI.getGeoCoding();
-            if (bandGeoCoding == null) {
-                throw new OperatorException("Master product does not have a geocoding");
-            }
-
         } catch (Throwable e) {
             OperatorUtils.catchOperatorException(getId(), e);
         }
@@ -582,7 +576,6 @@ public final class BackGeocodingOp extends Operator {
                                        final double[] extendedAmount)
             throws Exception {
 
-        final PixelPos pixPos = new PixelPos();
         final GeoPos geoPos = new GeoPos();
         final PositionData posData = new PositionData();
         double azExtendedAmountMax = -Double.MAX_VALUE;
@@ -591,18 +584,14 @@ public final class BackGeocodingOp extends Operator {
         double rgExtendedAmountMin = Double.MAX_VALUE;
 
         for (int y = y0; y < y0 + h; y += 20) {
-            int burstIndex = 0;
-            for (burstIndex = 0; burstIndex < mSubSwath[subSwathIndex - 1].numOfBursts; burstIndex++) {
-                final int firstLineIdx = burstIndex*mSubSwath[subSwathIndex - 1].linesPerBurst;
-                final int lastLineIdx = firstLineIdx + mSubSwath[subSwathIndex - 1].linesPerBurst - 1;
-                if (y >= firstLineIdx && y <= lastLineIdx) {
-                    break;
-                }
-            }
+            final int burstIndex = getBurstIndex(y);
 
             for (int x = x0; x < x0 + w; x += 20) {
-                pixPos.setLocation(x, y);
-                bandGeoCoding.getGeoPos(pixPos, geoPos);
+                final double azTime = getAzimuthTime(y, burstIndex);
+                final double rgTime = getSlantRangeTime(x);
+                final double lat = mSU.getLatitude(azTime, rgTime, subSwathIndex);
+                final double lon = mSU.getLongitude(azTime, rgTime, subSwathIndex);
+                geoPos.setLocation(lat, lon);
                 final double alt = dem.getElevation(geoPos);
                 if (alt == demNoDataValue) {
                     continue;
@@ -652,6 +641,27 @@ public final class BackGeocodingOp extends Operator {
         } else {
             extendedAmount[3] = 0.0;
         }
+    }
+
+    private int getBurstIndex(final int y) {
+        for (int burstIndex = 0; burstIndex < mSubSwath[subSwathIndex - 1].numOfBursts; burstIndex++) {
+            final int firstLineIdx = burstIndex*mSubSwath[subSwathIndex - 1].linesPerBurst;
+            final int lastLineIdx = firstLineIdx + mSubSwath[subSwathIndex - 1].linesPerBurst - 1;
+            if (y >= firstLineIdx && y <= lastLineIdx) {
+                return burstIndex;
+            }
+        }
+        return -1;
+    }
+
+    private double getAzimuthTime(final int y, final int burstIndex) {
+        final Sentinel1Utils.SubSwathInfo subSwath = mSubSwath[subSwathIndex - 1];
+        return subSwath.burstFirstLineTime[burstIndex] +
+                (y - burstIndex * subSwath.linesPerBurst) * subSwath.azimuthTimeInterval;
+    }
+
+    private double getSlantRangeTime(final int x) {
+        return mSubSwath[subSwathIndex - 1].slrTimeToFirstPixel + x * mSU.rangeSpacing / Constants.lightSpeed;
     }
 
     private void computePartialTile(final int subSwathIndex, final int mBurstIndex,
