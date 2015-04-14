@@ -41,7 +41,7 @@
     <extension point="snap-ui:actions">
 		 <action>
             <id>importEnvisatASARProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>ENVISAT</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>ENVISAT ASAR</text>
@@ -51,7 +51,7 @@
         </action>
         <action>
             <id>importEnvisatProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>ENVISAT</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>ENVISAT MERIS,AATSR</text>
@@ -62,7 +62,7 @@
         </action>
 		 <action>
             <id>importErsSARProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>ENVISAT</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>ERS 1 / 2 SAR (.E1, .E2)</text>
@@ -73,7 +73,7 @@
         </action>
         <action>
             <id>importErsProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>ENVISAT</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>ERS 1 / 2 ATSR (.E1, .E2)</text>

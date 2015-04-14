@@ -1,9 +1,9 @@
 package org.esa.snap.gpf.python;
 
 
-import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.snap.framework.gpf.GPF;
+import org.esa.snap.framework.gpf.OperatorSpi;
+import org.esa.snap.framework.gpf.OperatorSpiRegistry;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -16,11 +16,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 
-import static org.esa.snap.gpf.python.PyOperatorSpi.EXT_PROPERTY_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.esa.snap.gpf.python.PyOperatorSpi.*;
+import static org.junit.Assert.*;
 
 /**
  * @author Norman Fomferra

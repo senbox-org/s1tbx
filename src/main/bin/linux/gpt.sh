@@ -16,7 +16,7 @@ fi
 "$app_java_home/bin/java" \
     -Xmx${installer:maxHeapSize} \
     -Dceres.context=s3tbx \
-    "-Ds3tbx.mainClass=org.esa.beam.framework.gpf.main.GPT" \
+    "-Ds3tbx.mainClass=org.esa.snap.framework.gpf.main.GPT" \
     "-Ds3tbx.home=$S3TBX_HOME" \
     "-Dncsa.hdf.hdflib.HDFLibrary.hdflib=$S3TBX_HOME/modules/lib-hdf-${hdf.version}/lib/libjhdf.so" \
     "-Dncsa.hdf.hdf5lib.H5.hdf5lib=$S3TBX_HOME/modules/lib-hdf-${hdf.version}/lib/libjhdf5.so" \

@@ -15,7 +15,7 @@
  */
 package org.esa.snap.datamodel;
 
-import org.esa.beam.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.Band;
 
 /**
  * Valid unit values

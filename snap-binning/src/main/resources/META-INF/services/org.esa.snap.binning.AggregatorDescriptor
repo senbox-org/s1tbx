@@ -1,0 +1,4 @@
+org.esa.snap.binning.aggregators.AggregatorAverage$Descriptor
+org.esa.snap.binning.aggregators.AggregatorMinMax$Descriptor
+org.esa.snap.binning.aggregators.AggregatorOnMaxSet$Descriptor
+org.esa.snap.binning.aggregators.AggregatorPercentile$Descriptor

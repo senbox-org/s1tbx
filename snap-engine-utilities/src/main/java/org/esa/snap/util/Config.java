@@ -15,8 +15,6 @@
  */
 package org.esa.snap.util;
 
-import org.esa.beam.util.SystemUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

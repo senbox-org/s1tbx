@@ -62,7 +62,7 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
-                        <publicPackage>org.esa.beam.unmixing</publicPackage>
+                        <publicPackage>org.esa.snap.unmixing</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

@@ -1,0 +1,6 @@
+org.esa.snap.framework.dataop.maptransf.IdentityTransformDescriptor
+org.esa.snap.framework.dataop.maptransf.AffineTransformDescriptor
+org.esa.snap.framework.dataop.maptransf.TransverseMercatorDescriptor
+org.esa.snap.framework.dataop.maptransf.StereographicDescriptor
+org.esa.snap.framework.dataop.maptransf.LambertConformalConicDescriptor
+org.esa.snap.framework.dataop.maptransf.AlbersEqualAreaConicDescriptor

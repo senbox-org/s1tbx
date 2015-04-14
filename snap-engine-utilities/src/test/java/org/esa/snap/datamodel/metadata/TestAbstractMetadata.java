@@ -15,13 +15,13 @@
  */
 package org.esa.snap.datamodel.metadata;
 
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * Created by lveci on 22/07/2014.

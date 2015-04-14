@@ -50,7 +50,7 @@
     <categories>System,Application,Processing</categories>
 
     <extension point="snap-ceres-core:serviceProviders">
-        <serviceProvider>org.esa.beam.framework.gpf.OperatorSpi</serviceProvider>
+        <serviceProvider>org.esa.snap.framework.gpf.OperatorSpi</serviceProvider>
     </extension>
 
     <extension point="snap-ui:helpSets">

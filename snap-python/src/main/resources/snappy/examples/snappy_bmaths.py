@@ -25,7 +25,7 @@ print("Bands:   %s" % (list(band_names)))
 GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis()
 
 HashMap = jpy.get_type('java.util.HashMap')
-BandDescriptor = jpy.get_type('org.esa.beam.gpf.operators.standard.BandMathsOp$BandDescriptor')
+BandDescriptor = jpy.get_type('org.esa.snap.gpf.operators.standard.BandMathsOp$BandDescriptor')
 
 targetBand1 = BandDescriptor()
 targetBand1.name = 'band_1'
@@ -37,7 +37,7 @@ targetBand2.name = 'band_2'
 targetBand2.type = 'float32'
 targetBand2.expression = '(radiance_9 - radiance_6) / (radiance_9 + radiance_6)'
 
-targetBands = jpy.array('org.esa.beam.gpf.operators.standard.BandMathsOp$BandDescriptor', 2)
+targetBands = jpy.array('org.esa.snap.gpf.operators.standard.BandMathsOp$BandDescriptor', 2)
 targetBands[0] = targetBand1
 targetBands[1] = targetBand2
 

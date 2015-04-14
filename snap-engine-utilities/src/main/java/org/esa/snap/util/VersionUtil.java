@@ -15,8 +15,6 @@
  */
 package org.esa.snap.util;
 
-import org.esa.beam.util.VersionChecker;
-
 /**
  * check if version of the software is up to date
  */

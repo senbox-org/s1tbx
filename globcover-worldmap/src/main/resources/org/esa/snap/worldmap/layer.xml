@@ -1,0 +1,14 @@
+<filesystem>
+
+    <folder name="LayerSources">
+        <file name="GlobCoverLayerSource">
+            <attr name="displayName"
+                  stringvalue="ESA GlobCover Worldmap"/>
+            <attr name="description"
+                  stringvalue="Adds the ESA GlobCover RGB image layer to the background."/>
+            <attr name="layerTypeClass"
+                  stringvalue="org.esa.snap.worldmap.GlobCoverLayerType"/>
+        </file>
+    </folder>
+
+</filesystem>

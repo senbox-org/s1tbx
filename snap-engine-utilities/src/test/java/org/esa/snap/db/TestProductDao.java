@@ -15,15 +15,15 @@
  */
 package org.esa.snap.db;
 
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.snap.framework.dataio.ProductIO;
+import org.esa.snap.framework.dataio.ProductReader;
+import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
 import java.net.URL;
 import java.sql.ResultSet;

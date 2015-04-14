@@ -1,13 +1,13 @@
 package org.esa.snap.gpf.python;
 
 import com.bc.ceres.core.ResourceLocator;
-import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.descriptor.DefaultOperatorDescriptor;
-import org.esa.beam.framework.gpf.descriptor.OperatorDescriptor;
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.framework.gpf.GPF;
+import org.esa.snap.framework.gpf.Operator;
+import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.framework.gpf.OperatorSpi;
+import org.esa.snap.framework.gpf.descriptor.DefaultOperatorDescriptor;
+import org.esa.snap.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.snap.util.SystemUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,7 +19,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.logging.Level;
 
-import static org.esa.beam.util.SystemUtils.LOG;
+import static org.esa.snap.util.SystemUtils.*;
 
 /**
  * The service provider interface (SPI) for the SNAP Python operator.

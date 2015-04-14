@@ -16,7 +16,12 @@
 package org.esa.snap.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.snap.framework.datamodel.CrsGeoCoding;
+import org.esa.snap.framework.datamodel.GeoCoding;
+import org.esa.snap.framework.datamodel.GeoPos;
+import org.esa.snap.framework.datamodel.PixelPos;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.TiePointGrid;
 
 /**
  * Handle getting the georefereing for the tile

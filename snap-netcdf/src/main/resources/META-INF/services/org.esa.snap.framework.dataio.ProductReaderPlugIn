@@ -1,0 +1,4 @@
+org.esa.snap.dataio.netcdf.GenericNetCdfReaderPlugIn
+org.esa.snap.dataio.netcdf.metadata.profiles.cf.CfNetCdfReaderPlugIn
+org.esa.snap.dataio.netcdf.metadata.profiles.hdfeos.HdfEosNetCdfReaderPlugIn
+org.esa.snap.dataio.netcdf.metadata.profiles.beam.BeamNetCdfReaderPlugIn

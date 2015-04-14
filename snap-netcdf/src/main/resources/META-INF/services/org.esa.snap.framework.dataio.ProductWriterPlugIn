@@ -1,0 +1,4 @@
+org.esa.snap.dataio.netcdf.metadata.profiles.cf.CfNetCdfWriterPlugIn
+org.esa.snap.dataio.netcdf.metadata.profiles.cf.CfNetCdf4WriterPlugIn
+org.esa.snap.dataio.netcdf.metadata.profiles.beam.BeamNetCdfWriterPlugIn
+org.esa.snap.dataio.netcdf.metadata.profiles.beam.BeamNetCdf4WriterPlugIn

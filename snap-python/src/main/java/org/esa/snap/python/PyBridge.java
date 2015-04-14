@@ -1,8 +1,8 @@
 package org.esa.snap.python;
 
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.io.TreeCopier;
+import org.esa.snap.util.Debug;
+import org.esa.snap.util.SystemUtils;
+import org.esa.snap.util.io.TreeCopier;
 import org.jpy.PyLib;
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ import java.nio.file.ProviderNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.esa.beam.util.SystemUtils.LOG;
+import static org.esa.snap.util.SystemUtils.*;
 
 /**
  * This class is used to establish the bridge between Java and Python.

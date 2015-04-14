@@ -113,7 +113,7 @@
                         <publicPackage>ucar.unidata.util</publicPackage>
                         <publicPackage>thredds.catalog</publicPackage>
                         <publicPackage>org.slf4j</publicPackage>
-                        <publicPackage>org.esa.beam.dataio.netcdf.*</publicPackage>
+                        <publicPackage>org.esa.snap.dataio.netcdf.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

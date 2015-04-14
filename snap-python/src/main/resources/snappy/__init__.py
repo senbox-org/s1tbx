@@ -209,10 +209,10 @@ def annotate_RasterDataNode_methods(type_name, method):
     return True
 
 
-jpy.type_callbacks['org.esa.beam.framework.datamodel.RasterDataNode'] = annotate_RasterDataNode_methods
-jpy.type_callbacks['org.esa.beam.framework.datamodel.AbstractBand'] = annotate_RasterDataNode_methods
-jpy.type_callbacks['org.esa.beam.framework.datamodel.Band'] = annotate_RasterDataNode_methods
-jpy.type_callbacks['org.esa.beam.framework.datamodel.VirtualBand'] = annotate_RasterDataNode_methods
+jpy.type_callbacks['org.esa.snap.framework.datamodel.RasterDataNode'] = annotate_RasterDataNode_methods
+jpy.type_callbacks['org.esa.snap.framework.datamodel.AbstractBand'] = annotate_RasterDataNode_methods
+jpy.type_callbacks['org.esa.snap.framework.datamodel.Band'] = annotate_RasterDataNode_methods
+jpy.type_callbacks['org.esa.snap.framework.datamodel.VirtualBand'] = annotate_RasterDataNode_methods
 
 #
 # Preload and assign frequently used Java classes from the Java SE and SNAP Java API.
@@ -225,26 +225,26 @@ try:
     File = jpy.get_type('java.io.File')
     Rectangle = jpy.get_type('java.awt.Rectangle')
 
-    SystemUtils = jpy.get_type('org.esa.beam.util.SystemUtils')
-    ProductIO = jpy.get_type('org.esa.beam.framework.dataio.ProductIO')
+    SystemUtils = jpy.get_type('org.esa.snap.util.SystemUtils')
+    ProductIO = jpy.get_type('org.esa.snap.framework.dataio.ProductIO')
 
-    Product = jpy.get_type('org.esa.beam.framework.datamodel.Product')
-    ProductData = jpy.get_type('org.esa.beam.framework.datamodel.ProductData')
-    RasterDataNode = jpy.get_type('org.esa.beam.framework.datamodel.RasterDataNode')
-    AbstractBand = jpy.get_type('org.esa.beam.framework.datamodel.AbstractBand')
-    Band = jpy.get_type('org.esa.beam.framework.datamodel.Band')
-    VirtualBand = jpy.get_type('org.esa.beam.framework.datamodel.VirtualBand')
-    GeoCoding = jpy.get_type('org.esa.beam.framework.datamodel.GeoCoding')
-    GeoPos = jpy.get_type('org.esa.beam.framework.datamodel.GeoPos')
-    PixelPos = jpy.get_type('org.esa.beam.framework.datamodel.PixelPos')
-    FlagCoding = jpy.get_type('org.esa.beam.framework.datamodel.FlagCoding')
-    ProductNodeGroup = jpy.get_type('org.esa.beam.framework.datamodel.ProductNodeGroup')
+    Product = jpy.get_type('org.esa.snap.framework.datamodel.Product')
+    ProductData = jpy.get_type('org.esa.snap.framework.datamodel.ProductData')
+    RasterDataNode = jpy.get_type('org.esa.snap.framework.datamodel.RasterDataNode')
+    AbstractBand = jpy.get_type('org.esa.snap.framework.datamodel.AbstractBand')
+    Band = jpy.get_type('org.esa.snap.framework.datamodel.Band')
+    VirtualBand = jpy.get_type('org.esa.snap.framework.datamodel.VirtualBand')
+    GeoCoding = jpy.get_type('org.esa.snap.framework.datamodel.GeoCoding')
+    GeoPos = jpy.get_type('org.esa.snap.framework.datamodel.GeoPos')
+    PixelPos = jpy.get_type('org.esa.snap.framework.datamodel.PixelPos')
+    FlagCoding = jpy.get_type('org.esa.snap.framework.datamodel.FlagCoding')
+    ProductNodeGroup = jpy.get_type('org.esa.snap.framework.datamodel.ProductNodeGroup')
 
-    ProductUtils = jpy.get_type('org.esa.beam.util.ProductUtils')
+    ProductUtils = jpy.get_type('org.esa.snap.util.ProductUtils')
 
-    GPF = jpy.get_type('org.esa.beam.framework.gpf.GPF')
-    Operator = jpy.get_type('org.esa.beam.framework.gpf.Operator')
-    Tile = jpy.get_type('org.esa.beam.framework.gpf.Tile')
+    GPF = jpy.get_type('org.esa.snap.framework.gpf.GPF')
+    Operator = jpy.get_type('org.esa.snap.framework.gpf.Operator')
+    Tile = jpy.get_type('org.esa.snap.framework.gpf.Tile')
 
 except Exception:
     jpy.destroy_jvm()

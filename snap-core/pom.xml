@@ -138,15 +138,15 @@
                         <publicPackage>com.bc.jexp.impl</publicPackage>
                         <publicPackage>com.bc.util</publicPackage>
                         <publicPackage>com.bc.jnn</publicPackage>
-                        <publicPackage>org.esa.beam</publicPackage>
-                        <publicPackage>org.esa.beam.dataio.*</publicPackage>
-                        <publicPackage>org.esa.beam.framework.*</publicPackage>
-                        <publicPackage>org.esa.beam.glayer.*</publicPackage>
-                        <publicPackage>org.esa.beam.glevel.*</publicPackage>
-                        <publicPackage>org.esa.beam.jai.*</publicPackage>
-                        <publicPackage>org.esa.beam.nn.*</publicPackage>
-                        <publicPackage>org.esa.beam.util.*</publicPackage>
-                        <publicPackage>org.esa.beam.examples.*</publicPackage>
+                        <publicPackage>org.esa.snap</publicPackage>
+                        <publicPackage>org.esa.snap.dataio.*</publicPackage>
+                        <publicPackage>org.esa.snap.framework.*</publicPackage>
+                        <publicPackage>org.esa.snap.glayer.*</publicPackage>
+                        <publicPackage>org.esa.snap.glevel.*</publicPackage>
+                        <publicPackage>org.esa.snap.jai.*</publicPackage>
+                        <publicPackage>org.esa.snap.nn.*</publicPackage>
+                        <publicPackage>org.esa.snap.util.*</publicPackage>
+                        <publicPackage>org.esa.snap.examples.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

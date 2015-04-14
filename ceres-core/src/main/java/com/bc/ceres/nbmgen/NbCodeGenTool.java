@@ -226,7 +226,7 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
             String dialogTitle = extensionElement.getChildTextTrim("dialogTitle");
             String targetProductNameSuffix = extensionElement.getChildTextTrim("targetProductNameSuffix");
 
-            if ("org.esa.beam.visat.actions.ActionGroup".equals(actionClassName)) {
+            if ("org.esa.snap.visat.actions.ActionGroup".equals(actionClassName)) {
                 warnModuleDetail("ActionGroup not converted: id = " + id);
                 return;
             }
@@ -239,36 +239,36 @@ public class NbCodeGenTool implements CeresModuleProject.Processor {
             int position = 100;
 
             switch (actionClassName) {
-                case "org.esa.beam.visat.actions.ProductImportAction":
+                case "org.esa.snap.visat.actions.ProductImportAction":
                     packageName += ".file.pimp";
                     classNameBase = "Import_" + formatName.replace('-', '_').replace(' ', '_').replace('.', '_').replace('/', '_') + "_";
                     baseClassName = packageName + ".ProductImportAction";
                     // check - do something with formatName
                     // check - do something with useAllFileFilter
                     break;
-                case "org.esa.beam.visat.actions.ProductExportAction":
+                case "org.esa.snap.visat.actions.ProductExportAction":
                     packageName += ".file.pexp";
                     classNameBase = "Export_" + formatName.replace('-', '_').replace(' ', '_').replace('.', '_').replace('/', '_') + "_";
                     baseClassName = packageName + ".ProductExportAction";
                     // check - do something with formatName
                     // check - do something with useAllFileFilter
                     break;
-                case "org.esa.beam.visat.actions.DefaultOperatorAction":
+                case "org.esa.snap.visat.actions.DefaultOperatorAction":
                     packageName += ".op";
                     classNameBase = "Invoke_" + operatorName + "_";
                     baseClassName = packageName + ".DefaultOperatorAction";
                     break;
-                case "org.esa.beam.visat.actions.ShowToolBarAction":
+                case "org.esa.snap.visat.actions.ShowToolBarAction":
                     packageName += ".view";
                     classNameBase = Character.toUpperCase(id.charAt(0)) + id.substring(1);
                     baseClassName = packageName + ".ShowToolBarAction";
                     break;
-                case "org.esa.beam.visat.actions.ToolAction":
+                case "org.esa.snap.visat.actions.ToolAction":
                     packageName += ".tool";
                     classNameBase = Character.toUpperCase(id.charAt(0)) + id.substring(1);
                     baseClassName = packageName + ".ToolAction";
                     break;
-                case "org.esa.beam.visat.actions.PlacemarkToolAction":
+                case "org.esa.snap.visat.actions.PlacemarkToolAction":
                     packageName += ".tool";
                     classNameBase = Character.toUpperCase(id.charAt(0)) + id.substring(1);
                     baseClassName = packageName + ".PlacemarkToolAction";

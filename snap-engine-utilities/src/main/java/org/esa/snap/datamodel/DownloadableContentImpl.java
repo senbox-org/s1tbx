@@ -15,14 +15,20 @@
  */
 package org.esa.snap.datamodel;
 
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.io.FileUtils;
 import org.esa.snap.gpf.StatusProgressMonitor;
+import org.esa.snap.util.PropertyMap;
 import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.ftpUtils;
+import org.esa.snap.util.io.FileUtils;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;

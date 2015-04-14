@@ -1,0 +1,3 @@
+org.esa.snap.cluster.EMClusterOp$Spi
+org.esa.snap.cluster.KMeansClusterOp$Spi
+org.esa.snap.cluster.PrincipleComponentAnalysisOp$Spi

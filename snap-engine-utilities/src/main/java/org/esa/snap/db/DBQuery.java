@@ -15,18 +15,26 @@
  */
 package org.esa.snap.db;
 
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.framework.datamodel.GeoPos;
+import org.esa.snap.util.StringUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 
-import java.awt.*;
+import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.io.File;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
 

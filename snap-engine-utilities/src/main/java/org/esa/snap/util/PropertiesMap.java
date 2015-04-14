@@ -1,8 +1,5 @@
 package org.esa.snap.util;
 
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.SystemUtils;
-
 import java.io.File;
 import java.util.regex.Matcher;
 

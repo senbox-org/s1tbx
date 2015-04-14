@@ -15,8 +15,8 @@
  */
 package org.esa.snap.gpf;
 
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.snap.db.CommonReaders;
+import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.TestUtils;
 

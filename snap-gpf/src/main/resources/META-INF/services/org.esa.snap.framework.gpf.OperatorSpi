@@ -1,0 +1,12 @@
+org.esa.snap.gpf.operators.standard.ReadOp$Spi
+org.esa.snap.gpf.operators.standard.MergeOp$Spi
+org.esa.snap.gpf.operators.standard.WriteOp$Spi
+org.esa.snap.gpf.operators.standard.MosaicOp$Spi
+org.esa.snap.gpf.operators.standard.SubsetOp$Spi
+org.esa.snap.gpf.operators.standard.WriteRGBOp$Spi
+org.esa.snap.gpf.operators.standard.PassThroughOp$Spi
+org.esa.snap.gpf.operators.standard.BandMathsOp$Spi
+org.esa.snap.gpf.operators.standard.reproject.ReprojectionOp$Spi
+org.esa.snap.gpf.operators.meris.N1PatcherOp$Spi
+org.esa.snap.gpf.operators.meris.L3ToL1Op$Spi
+org.esa.snap.gpf.operators.meris.RRToFRSOp$Spi

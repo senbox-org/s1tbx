@@ -3,7 +3,7 @@ import sys
 import snappy
 from snappy import ProductIO
 
-SubsetOp = snappy.jpy.get_type('org.esa.beam.gpf.operators.standard.SubsetOp')
+SubsetOp = snappy.jpy.get_type('org.esa.snap.gpf.operators.standard.SubsetOp')
 WKTReader = snappy.jpy.get_type('com.vividsolutions.jts.io.WKTReader')
 
 if len(sys.argv) != 3:

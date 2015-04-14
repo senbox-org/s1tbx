@@ -15,8 +15,12 @@
  */
 package org.esa.snap.datamodel;
 
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.util.StringUtils;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.MetadataAttribute;
+import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.util.StringUtils;
 
 import java.text.DateFormat;
 import java.text.ParseException;

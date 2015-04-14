@@ -17,10 +17,10 @@ package org.esa.snap.util;
 
 //import org.jaitools.tilecache.DiskMemTileCache;
 
-import org.esa.beam.util.jai.JAIUtils;
+import org.esa.snap.util.jai.JAIUtils;
 
 import javax.media.jai.JAI;
-import java.awt.*;
+import java.awt.Dimension;
 
 
 /**

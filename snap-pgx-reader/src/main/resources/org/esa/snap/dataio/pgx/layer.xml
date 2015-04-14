@@ -1,0 +1,28 @@
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Readers">
+            <file name="org-esa-snap-dataio-pgx-ImportPgxImage.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="PGX Image"/>
+                <attr name="formatName" stringvalue="PGX"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="File">
+            <folder name="Import">
+                <folder name="Generic Formats">
+                    <file name="org-esa-snap-dataio-pgx-ImportPgxImage.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Readers/org-esa-snap-dataio-pgx-ImportPgxImage.instance"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
+</filesystem>

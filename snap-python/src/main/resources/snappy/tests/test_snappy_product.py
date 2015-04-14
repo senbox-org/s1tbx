@@ -26,7 +26,7 @@ class TestBeamIO(unittest.TestCase):
         #print('Band.mro =', snappy.Band.mro())
         reader = self.product.getProductReader()
         self.assertIsNotNone(reader)
-        # TODO: fix me: AttributeError: 'org.esa.beam.framework.dataio.ProductReader' object has no attribute 'getClass'
+        # TODO: fix me: AttributeError: 'org.esa.snap.framework.dataio.ProductReader' object has no attribute 'getClass'
         #print('ProductReader.mro =', type(reader).mro())
         #readerClass = reader.getClass()
         #self.assertEqual(readerClass.getName(), '??')

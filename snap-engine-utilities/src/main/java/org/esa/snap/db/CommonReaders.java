@@ -1,10 +1,10 @@
 package org.esa.snap.db;
 
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductIOPlugInManager;
-import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.snap.framework.dataio.ProductIO;
+import org.esa.snap.framework.dataio.ProductIOPlugInManager;
+import org.esa.snap.framework.dataio.ProductReader;
+import org.esa.snap.framework.dataio.ProductReaderPlugIn;
+import org.esa.snap.framework.datamodel.Product;
 
 import java.io.File;
 import java.io.IOException;

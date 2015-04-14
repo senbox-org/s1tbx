@@ -1,11 +1,11 @@
 package org.esa.snap.gpf.python;
 
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.descriptor.DefaultOperatorDescriptor;
-import org.esa.beam.framework.gpf.main.GPT;
-import org.esa.beam.util.io.TreeDeleter;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.gpf.descriptor.DefaultOperatorDescriptor;
+import org.esa.snap.framework.gpf.main.GPT;
 import org.esa.snap.python.PyBridge;
+import org.esa.snap.util.io.TreeDeleter;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -16,11 +16,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.esa.snap.gpf.python.PyOperatorSpi.EXT_PROPERTY_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
+import static org.esa.snap.gpf.python.PyOperatorSpi.*;
+import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 
 /**
  * @author Norman Fomferra

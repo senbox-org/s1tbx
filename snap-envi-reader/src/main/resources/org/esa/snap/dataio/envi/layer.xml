@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Readers">
+            <file name="org-esa-snap-dataio-envi-ImportEnviProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="ENVI"/>
+                <attr name="formatName" stringvalue="ENVI"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+            </file>
+        </folder>
+        <folder name="Readers">
+            <file name="org-esa-snap-dataio-hico-ImportHicoProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="HICO (ENVI format)"/>
+                <attr name="formatName" stringvalue="HICO"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+            </file>
+        </folder>
+        <folder name="Writers">
+            <file name="org-esa-snap-dataio-envi-ExportEnviProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
+                <attr name="type" stringvalue="org.esa.snap.framework.datamodel.ProductNode"/>
+                <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ExportProductAction.create"/>
+                <attr name="displayName" stringvalue="ENVI"/>
+                <attr name="formatName" stringvalue="ENVI"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="File">
+            <folder name="Import">
+                <folder name="Generic Formats">
+                    <file name="org-esa-snap-dataio-envi-ImportEnviProduct.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Readers/org-esa-snap-dataio-envi-ImportEnviProduct.instance"/>
+                    </file>
+                </folder>
+                <folder name="Optical Sensors">
+                    <file name="org-esa-snap-dataio-hico-ImportHicoProduct.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Readers/org-esa-snap-dataio-hico-ImportHicoProduct.instance"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="Export">
+                <file name="org-esa-snap-dataio-envi-ExportEnviProduct.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Writers/org-esa-snap-dataio-envi-ExportEnviProduct.instance"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="org-esa-snap-snap-envi-reader-helpset.xml" url="helpset.xml">
+                <attr name="position" intvalue="4800"/>
+            </file>
+        </folder>
+    </folder>
+
+</filesystem>

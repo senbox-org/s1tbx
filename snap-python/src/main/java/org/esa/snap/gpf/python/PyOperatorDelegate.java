@@ -1,8 +1,8 @@
 package org.esa.snap.gpf.python;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.Tile;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.gpf.Operator;
+import org.esa.snap.framework.gpf.Tile;
 
 import java.awt.Rectangle;
 import java.util.Map;

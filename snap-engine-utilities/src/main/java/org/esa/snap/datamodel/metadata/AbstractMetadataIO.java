@@ -15,9 +15,14 @@
  */
 package org.esa.snap.datamodel.metadata;
 
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.framework.datamodel.MetadataAttribute;
+import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.TiePointGeoCoding;
+import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.XMLSupport;
 import org.jdom2.Attribute;

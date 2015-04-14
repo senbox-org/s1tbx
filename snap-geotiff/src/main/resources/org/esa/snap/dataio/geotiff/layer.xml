@@ -1,0 +1,53 @@
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Readers">
+            <file name="org-esa-snap-dataio-geotiff-ImportGeoTIFFProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="GeoTIFF"/>
+                <attr name="formatName" stringvalue="GeoTIFF"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+            </file>
+        </folder>
+        <folder name="Writers">
+            <file name="org-esa-snap-dataio-geotiff-ExportGeoTIFFProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ExportProductAction.create"/>
+                <attr name="type" stringvalue="org.esa.snap.framework.datamodel.ProductNode"/>
+                <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
+                <attr name="displayName" stringvalue="GeoTIFF"/>
+                <attr name="formatName" stringvalue="GeoTIFF"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="File">
+            <folder name="Import">
+                <folder name="Generic Formats">
+                    <file name="org-esa-snap-dataio-geotiff-ImportGeoTIFFProduct.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Readers/org-esa-snap-dataio-geotiff-ImportGeoTIFFProduct.instance"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="Export">
+                <file name="org-esa-snap-dataio-geotiff-ExportGeoTIFFProduct.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Writers/org-esa-snap-dataio-geotiff-ExportGeoTIFFProduct.instance"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="org-esa-snap-snap-geotiff-helpset.xml" url="helpset.xml">
+                <attr name="position" intvalue="4700"/>
+            </file>
+        </folder>
+    </folder>
+
+</filesystem>

@@ -48,7 +48,7 @@
     </dependency>
 
 
-    <activator>org.esa.beam.BeamCoreActivator</activator>
+    <activator>org.esa.snap.BeamCoreActivator</activator>
 
     <categories>System,Library</categories>
 
@@ -70,13 +70,13 @@
 
 
     <extension point="snap-ceres-core:serviceProviders">
-        <serviceProvider>org.esa.beam.dataio.dimap.spi.DimapPersistableSpi</serviceProvider>
-        <serviceProvider>org.esa.beam.framework.dataio.ProductReaderPlugIn</serviceProvider>
-        <serviceProvider>org.esa.beam.framework.dataio.ProductWriterPlugIn</serviceProvider>
-        <serviceProvider>org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor</serviceProvider>
-        <serviceProvider>org.esa.beam.framework.dataop.dem.ElevationModelDescriptor</serviceProvider>
-        <serviceProvider>org.esa.beam.framework.datamodel.PointingFactory</serviceProvider>
-        <serviceProvider>org.esa.beam.framework.datamodel.PlacemarkDescriptor</serviceProvider>
+        <serviceProvider>org.esa.snap.dataio.dimap.spi.DimapPersistableSpi</serviceProvider>
+        <serviceProvider>org.esa.snap.framework.dataio.ProductReaderPlugIn</serviceProvider>
+        <serviceProvider>org.esa.snap.framework.dataio.ProductWriterPlugIn</serviceProvider>
+        <serviceProvider>org.esa.snap.framework.dataop.maptransf.MapTransformDescriptor</serviceProvider>
+        <serviceProvider>org.esa.snap.framework.dataop.dem.ElevationModelDescriptor</serviceProvider>
+        <serviceProvider>org.esa.snap.framework.datamodel.PointingFactory</serviceProvider>
+        <serviceProvider>org.esa.snap.framework.datamodel.PlacemarkDescriptor</serviceProvider>
         <serviceProvider>org.geotools.referencing.operation.MathTransformProvider</serviceProvider>
     </extension>
 

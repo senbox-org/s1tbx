@@ -1,0 +1,4 @@
+org.esa.snap.dataio.dimap.spi.GeneralFilterBandPersistableSpi
+org.esa.snap.dataio.dimap.spi.ConvolutionFilterBandPersistableSpi
+org.esa.snap.dataio.dimap.spi.BandMathsMaskPersistableSpi
+org.esa.snap.dataio.dimap.spi.RangeTypeMaskPersistableSpi

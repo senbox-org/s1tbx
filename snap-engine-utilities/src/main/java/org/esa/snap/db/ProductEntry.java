@@ -16,10 +16,16 @@
 package org.esa.snap.db;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.util.ProductUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.GeoCoding;
+import org.esa.snap.framework.datamodel.GeoPos;
+import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.framework.datamodel.PixelPos;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.util.ProductFunctions;
+import org.esa.snap.util.ProductUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

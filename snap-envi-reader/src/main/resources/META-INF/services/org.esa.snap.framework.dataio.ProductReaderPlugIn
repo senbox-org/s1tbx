@@ -1,0 +1,2 @@
+org.esa.snap.dataio.envi.EnviProductReaderPlugIn
+org.esa.snap.dataio.hico.HicoProductReaderPlugin

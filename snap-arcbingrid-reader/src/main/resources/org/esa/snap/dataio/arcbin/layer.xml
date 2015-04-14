@@ -1,0 +1,35 @@
+<filesystem>
+    <folder name="Actions">
+        <folder name="Readers">
+            <file name="org-esa-snap-dataio-arcbin-ImportArcbinGridProduct.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"
+                      methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName"
+                      stringvalue="ArcInfo Binary Grid"/>
+                <attr name="formatName"
+                      stringvalue="ARC_INFO_BIN_GRID"/>
+                <attr name="useAllFileFilter"
+                      boolvalue="false"/>
+                <attr name="helpId"
+                      stringvalue="importArcBinGrid"/>
+                <attr name="ShortDescription"
+                      stringvalue="Import a Arc/Info Binary Grids data product."/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="File">
+            <folder name="Import">
+                <folder name="Generic Formats">
+                    <file name="org-esa-snap-dataio-arcbin-ImportArcbinGridProduct.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Readers/org-esa-snap-dataio-arcbin-ImportArcbinGridProduct.instance"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
+</filesystem>

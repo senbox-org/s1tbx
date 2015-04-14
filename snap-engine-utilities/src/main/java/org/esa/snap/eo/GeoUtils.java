@@ -17,10 +17,10 @@ package org.esa.snap.eo;
 
 import Jama.Matrix;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.datamodel.PosVector;
+import org.esa.snap.framework.datamodel.GeoPos;
+import org.esa.snap.framework.gpf.OperatorException;
 
 public final class GeoUtils {
     private static final double EPS5 = 1e-5;

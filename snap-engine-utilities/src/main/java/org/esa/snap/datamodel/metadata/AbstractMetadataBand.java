@@ -15,9 +15,9 @@
  */
 package org.esa.snap.datamodel.metadata;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.framework.datamodel.ProductData;
 
 import java.text.DateFormat;
 

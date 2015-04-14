@@ -2,12 +2,12 @@ package org.esa.snap.gpf.python;
 
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.gpf.Operator;
+import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.framework.gpf.Tile;
+import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
+import org.esa.snap.framework.gpf.annotations.Parameter;
 import org.esa.snap.python.PyBridge;
 import org.jpy.PyLib;
 import org.jpy.PyModule;

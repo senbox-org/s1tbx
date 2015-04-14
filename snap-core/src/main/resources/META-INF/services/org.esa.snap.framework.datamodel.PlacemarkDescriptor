@@ -1,0 +1,6 @@
+org.esa.snap.framework.datamodel.PinDescriptor
+org.esa.snap.framework.datamodel.GcpDescriptor
+org.esa.snap.framework.datamodel.GeometryDescriptor
+org.esa.snap.framework.datamodel.TrackPointDescriptor
+org.esa.snap.framework.datamodel.PointDescriptor
+

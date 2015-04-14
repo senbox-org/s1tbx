@@ -15,14 +15,20 @@
  */
 package org.esa.snap.gpf;
 
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductWriter;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.framework.dataio.ProductIO;
+import org.esa.snap.framework.dataio.ProductWriter;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.TiePointGeoCoding;
+import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.framework.datamodel.VirtualBand;
+import org.esa.snap.framework.dataop.maptransf.Datum;
+import org.esa.snap.util.Guardian;
+import org.esa.snap.util.math.MathUtils;
 
 import java.io.File;
 import java.text.DateFormat;

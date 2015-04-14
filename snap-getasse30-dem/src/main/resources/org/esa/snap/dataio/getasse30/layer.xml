@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN"
+        "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Readers">
+            <file name="org-esa-snap-dataio-getasse30-ImportGetasse30Product.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="GETASSE30 DEM Tile"/>
+                <attr name="formatName" stringvalue="GETASSE30"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importGETASSE30Product"/>
+                <attr name="ShortDescription" stringvalue="Import a GETASSE30 DEM tile."/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="File">
+            <folder name="Import">
+                <file name="org-esa-snap-dataio-getasse30-ImportGetasse30Product.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Readers/org-esa-snap-dataio-getasse30-ImportGetasse30Product.instance"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

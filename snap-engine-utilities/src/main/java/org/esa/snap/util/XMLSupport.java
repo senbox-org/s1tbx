@@ -15,9 +15,9 @@
  */
 package org.esa.snap.util;
 
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.MetadataAttribute;
+import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.framework.datamodel.ProductData;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;

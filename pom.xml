@@ -754,7 +754,7 @@
                             <include>**/*TestCase.java</include>
                         </includes>
                         <systemPropertyVariables>
-                            <org.esa.beam.testdata.out>target/test-data</org.esa.beam.testdata.out>
+                            <org.esa.snap.testdata.out>target/test-data</org.esa.snap.testdata.out>
                         </systemPropertyVariables>
                         <argLine>-Xmx1024M -Dfile.encoding=UTF-8</argLine>
                     </configuration>
@@ -769,10 +769,10 @@
                         </links>
                         <aggregate>true</aggregate>
                         <subpackages>
-                            com.bc.ceres:org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
+                            com.bc.ceres:org.esa.snap.framework:org.esa.snap.util:org.esa.snap.visat:com.bc.jexp
                         </subpackages>
                         <excludePackageNames>
-                            *.internal:com.bc.ceres.site:org.esa.beam.visat.toolviews:org.esa.beam.visat.actions:org.esa.beam.visat.dialogs:org.esa.beam.visat.plugins
+                            *.internal:com.bc.ceres.site:org.esa.snap.visat.toolviews:org.esa.snap.visat.actions:org.esa.snap.visat.dialogs:org.esa.snap.visat.plugins
                         </excludePackageNames>
                         <maxmemory>256m</maxmemory>
                         <quiet>false</quiet>

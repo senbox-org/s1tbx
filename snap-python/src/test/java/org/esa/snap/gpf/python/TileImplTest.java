@@ -1,8 +1,8 @@
 package org.esa.snap.gpf.python;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.internal.TileImpl;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.gpf.internal.TileImpl;
 import org.junit.Test;
 
 import javax.media.jai.ImageLayout;

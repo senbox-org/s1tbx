@@ -3,7 +3,7 @@ AutoUpdate-Show-In-Client: false
 AutoUpdate-Essential-Module: true
 OpenIDE-Module-Java-Dependencies: Java > 1.8
 OpenIDE-Module-Display-Category: SNAP
-OpenIDE-Module-Layer: org/esa/beam/ndvi/layer.xml
+OpenIDE-Module-Layer: org/esa/snap/ndvi/layer.xml
 OpenIDE-Module-Long-Description: <p>The SNAP NDVI Processor calculates
   the Normalized Difference Vegetation Index.</p><p><b>Vendor:</b> Bro
  ckmann Consult GmbH</p><p><b>Contact address:</b> Max-Planck-Str. 2, 

@@ -1,0 +1,8 @@
+# This is a test comment
+# separator=TAB
+# styleCss=color:0,0,255
+
+org.esa.snap.FT1	name:String	geom:Geometry	pixel:Integer	description:String
+ID65	mark1	POINT (12.3 45.6)	0	This is mark1.
+ID66	mark2	POINT (78.9 10.1)	1	[null]
+ID67	mark3	POINT (23.4 56.7)	2	This is mark3.

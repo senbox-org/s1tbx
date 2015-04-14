@@ -1,0 +1,14 @@
+<filesystem>
+
+    <folder name="LayerSources">
+        <file name="BlueMarbleLayerSource">
+            <attr name="displayName"
+                  stringvalue="NASA Blue Marble Worldmap"/>
+            <attr name="description"
+                  stringvalue="Adds the NASA Blue Marble RGB image layer to the background."/>
+            <attr name="layerTypeClass"
+                  stringvalue="org.esa.snap.worldmap.BlueMarbleLayerType"/>
+        </file>
+    </folder>
+
+</filesystem>

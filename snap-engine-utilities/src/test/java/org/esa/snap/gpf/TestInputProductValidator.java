@@ -1,13 +1,12 @@
 package org.esa.snap.gpf;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
