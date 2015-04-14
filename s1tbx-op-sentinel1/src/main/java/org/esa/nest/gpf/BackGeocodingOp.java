@@ -524,14 +524,14 @@ public final class BackGeocodingOp extends Operator {
                     GeoUtils.geo2xyzWGS84(lat, lon, alt, earthPoint);
                     final int[] mBurstIndices = getBurstIndices(subSwathIndex, mSU, mOrbit, earthPoint);
                     final int[] sBurstIndices = getBurstIndices(subSwathIndex, sSU, sOrbit, earthPoint);
-                    if (mBurstIndices != null && sBurstIndices != null) {
-                        if (mBurstIndices[1] != -1 && sBurstIndices[1] != -1) {
-                            burstOffset = sBurstIndices[0] - mBurstIndices[0];
-                        } else if (mBurstIndices[1] == -1 && sBurstIndices[1] != -1) {
-                            burstOffset = sBurstIndices[1] - mBurstIndices[0];
-                        } else if (mBurstIndices[1] != -1 && sBurstIndices[1] == -1) {
-                            burstOffset = sBurstIndices[0] - mBurstIndices[1];
-                        }
+                    if (mBurstIndices == null || (mBurstIndices[0] == -1 && mBurstIndices[1] == -1) ||
+                            sBurstIndices == null || (sBurstIndices[0] == -1 || sBurstIndices[1] == -1 )) {
+                        continue;
+                    }
+
+                    if (mBurstIndices[1] == -1 && sBurstIndices[1] == -1 ||
+                            mBurstIndices[1] != -1 && sBurstIndices[1] != -1) {
+                        burstOffset = sBurstIndices[0] - mBurstIndices[0];
                         burstOffsetComputed = true;
                         return;
                     }
@@ -1225,7 +1225,7 @@ public final class BackGeocodingOp extends Operator {
                         tgtBufferAzOffset.setElemFloatAt(tgtIdx, (float) noDataValue);
                         tgtBufferRgOffset.setElemFloatAt(tgtIdx, (float) noDataValue);
                     } else {
-
+/*
                         final double mta = mSubSwath.burstFirstLineTime[mBurstIndex] +
                                 (y - mBurstIndex*mSubSwath.linesPerBurst)*mSubSwath.azimuthTimeInterval;
 
@@ -1240,9 +1240,11 @@ public final class BackGeocodingOp extends Operator {
 
                         tgtBufferAzOffset.setElemFloatAt(tgtIdx, yOffset);
                         tgtBufferRgOffset.setElemFloatAt(tgtIdx, (float)(x - slavePixPos[yy][xx].x));
-
+*/
                         //tgtBufferAzOffset.setElemFloatAt(tgtIdx, (float)(y - slavePixPos[yy][xx].y));
                         //tgtBufferRgOffset.setElemFloatAt(tgtIdx, (float)(x - slavePixPos[yy][xx].x));
+                        tgtBufferAzOffset.setElemFloatAt(tgtIdx, (float)(slavePixPos[yy][xx].y));
+                        tgtBufferRgOffset.setElemFloatAt(tgtIdx, (float)(slavePixPos[yy][xx].x));
                     }
                 }
             }
