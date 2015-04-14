@@ -7,7 +7,7 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jlinda.core.coregistration.estimation.utils.JamaUtils;
 import org.jlinda.core.coregistration.estimation.utils.SimpleAsciiFileParser;
 import org.jlinda.core.utils.PolyUtils;

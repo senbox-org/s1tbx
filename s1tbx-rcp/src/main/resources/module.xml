@@ -82,8 +82,8 @@
             <tabTitle>Project</tabTitle>
             <mnemonic>P</mnemonic>
             <accelerator>ctrl alt P</accelerator>
-            <smallIcon>/org/esa/nest/icons/project_view22.png</smallIcon>
-            <largeIcon>/org/esa/nest/icons/project_view30.png</largeIcon>
+            <smallIcon>/org/esa/s1tbx/icons/project_view22.png</smallIcon>
+            <largeIcon>/org/esa/s1tbx/icons/project_view30.png</largeIcon>
             <description>Project View.</description>
             <initState>DOCKED</initState>
             <initSide>WEST</initSide>
@@ -98,8 +98,8 @@
             <mnemonic>t</mnemonic>
             <accelerator>ctrl alt T</accelerator>
             <description>Display statistics for a selected band.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/Statistics16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/Statistics24.gif</largeIcon>
+            <smallIcon>/org/esa/s1tbx/resources/images/icons/Statistics16.gif</smallIcon>
+            <largeIcon>/org/esa/s1tbx/resources/images/icons/Statistics24.gif</largeIcon>
             <helpId>statisticsToolView</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
@@ -167,8 +167,8 @@
             <accelerator>control P</accelerator>
             <shortDescr>Create a new project</shortDescr>
             <description>Create a new project</description>
-            <smallIcon>/org/esa/nest/icons/project-new.png</smallIcon>
-            <largeIcon>/org/esa/nest/icons/project-new.png</largeIcon>
+            <smallIcon>/org/esa/s1tbx/icons/project-new.png</smallIcon>
+            <largeIcon>/org/esa/s1tbx/icons/project-new.png</largeIcon>
             <helpId>newProject</helpId>
         </action>
 
@@ -181,8 +181,8 @@
             <placeAfter>newProject</placeAfter>
             <shortDescr>Load a project</shortDescr>
             <description>Load a project</description>
-            <smallIcon>/org/esa/nest/icons/project_sm.png</smallIcon>
-            <largeIcon>/org/esa/nest/icons/project.png</largeIcon>
+            <smallIcon>/org/esa/s1tbx/icons/project_sm.png</smallIcon>
+            <largeIcon>/org/esa/s1tbx/icons/project.png</largeIcon>
             <helpId>loadProject</helpId>
         </action>
 

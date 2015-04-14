@@ -1,16 +1,23 @@
 package org.jlinda.nest.gpf;
 
-import org.esa.beam.framework.ui.AppContext;
-import org.esa.nest.dataio.dem.ElevationModelDescriptor;
-import org.esa.nest.dataio.dem.ElevationModelRegistry;
+import org.esa.s1tbx.dataio.dem.ElevationModelDescriptor;
+import org.esa.s1tbx.dataio.dem.ElevationModelRegistry;
+import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.snap.gpf.ui.OperatorUIUtils;
 import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.DialogUtils;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;

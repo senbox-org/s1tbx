@@ -14,21 +14,28 @@ package org.jlinda.nest.dat.coregistration;
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.snap.gpf.ui.BaseOperatorUI;
-import org.esa.snap.gpf.ui.UIValidation;
-import org.esa.beam.framework.ui.AppContext;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.gpf.ui.OperatorUIUtils;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.VirtualBand;
+import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ui.BaseOperatorUI;
+import org.esa.snap.gpf.ui.OperatorUIUtils;
+import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.snap.util.DialogUtils;
-import org.jlinda.nest.stacks.MasterSelection;
 import org.jlinda.nest.gpf.coregistration.CreateInSARStackOp;
+import org.jlinda.nest.stacks.MasterSelection;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;

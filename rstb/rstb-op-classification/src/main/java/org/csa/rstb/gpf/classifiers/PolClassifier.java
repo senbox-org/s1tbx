@@ -15,9 +15,9 @@
  */
 package org.csa.rstb.gpf.classifiers;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.gpf.Tile;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.IndexCoding;
+import org.esa.snap.framework.gpf.Tile;
 
 /**
  * Polarimetric Classifiers

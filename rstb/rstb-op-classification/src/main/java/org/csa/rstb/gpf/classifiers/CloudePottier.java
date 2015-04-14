@@ -19,14 +19,14 @@ import org.csa.rstb.gpf.HaAlphaDescriptor;
 import org.csa.rstb.gpf.PolOpUtils;
 import org.csa.rstb.gpf.PolarimetricClassificationOp;
 import org.csa.rstb.gpf.decompositions.hAAlpha;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.util.SystemUtils;
-import org.esa.nest.dataio.PolBandUtils;
+import org.esa.s1tbx.dataio.PolBandUtils;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.gpf.TileIndex;
+import org.esa.snap.util.SystemUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.Map;
 
 /**

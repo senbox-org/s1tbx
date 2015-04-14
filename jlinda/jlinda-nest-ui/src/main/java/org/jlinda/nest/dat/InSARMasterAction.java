@@ -15,9 +15,9 @@
  */
 package org.jlinda.nest.dat;
 
+import org.esa.snap.framework.ui.command.CommandEvent;
+import org.esa.snap.visat.actions.AbstractVisatAction;
 import org.jlinda.nest.dat.dialogs.InSARMasterDialog;
-import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.visat.actions.AbstractVisatAction;
 
 public class InSARMasterAction extends AbstractVisatAction {
 

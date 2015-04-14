@@ -15,8 +15,8 @@
  */
 package org.csa.rstb.dat.actions;
 
-import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.snap.framework.ui.command.CommandEvent;
+import org.esa.snap.framework.ui.command.ExecCommand;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.FileFolderUtils;

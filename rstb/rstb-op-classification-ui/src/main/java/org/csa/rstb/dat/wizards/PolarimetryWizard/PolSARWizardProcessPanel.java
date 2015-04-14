@@ -15,13 +15,13 @@
  */
 package org.csa.rstb.dat.wizards.PolarimetryWizard;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.nest.dat.wizards.WizardPanel;
+import org.esa.s1tbx.dat.wizards.WizardPanel;
 import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
+import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.rcp.SnapApp;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.io.File;
 
 /**

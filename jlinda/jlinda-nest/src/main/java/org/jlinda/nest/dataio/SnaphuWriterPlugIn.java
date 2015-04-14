@@ -1,10 +1,10 @@
 package org.jlinda.nest.dataio;
 
-import org.esa.beam.framework.dataio.EncodeQualification;
-import org.esa.beam.framework.dataio.ProductWriter;
-import org.esa.beam.framework.dataio.ProductWriterPlugIn;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.snap.framework.dataio.EncodeQualification;
+import org.esa.snap.framework.dataio.ProductWriter;
+import org.esa.snap.framework.dataio.ProductWriterPlugIn;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.util.io.BeamFileFilter;
 
 import java.io.File;
 import java.util.Locale;

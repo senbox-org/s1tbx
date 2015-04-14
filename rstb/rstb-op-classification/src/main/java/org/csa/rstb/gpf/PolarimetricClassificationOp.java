@@ -16,21 +16,29 @@
 package org.csa.rstb.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.csa.rstb.gpf.classifiers.*;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.util.ProductUtils;
-import org.esa.nest.dataio.PolBandUtils;
+import org.csa.rstb.gpf.classifiers.CloudePottier;
+import org.csa.rstb.gpf.classifiers.FreemanDurdenWishart;
+import org.csa.rstb.gpf.classifiers.HAlphaWishart;
+import org.csa.rstb.gpf.classifiers.HAlphaWishartC2;
+import org.csa.rstb.gpf.classifiers.PolClassifier;
+import org.esa.s1tbx.dataio.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.IndexCoding;
+import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.gpf.Operator;
+import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.framework.gpf.OperatorSpi;
+import org.esa.snap.framework.gpf.Tile;
+import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
+import org.esa.snap.framework.gpf.annotations.Parameter;
+import org.esa.snap.framework.gpf.annotations.SourceProduct;
+import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.util.ProductUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -269,7 +277,7 @@ public class PolarimetricClassificationOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()

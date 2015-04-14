@@ -1,0 +1,16 @@
+org.esa.s1tbx.dataio.ceos.ers.ERSProductReaderPlugIn
+org.esa.s1tbx.dataio.ceos.jers.JERSProductReaderPlugIn
+org.esa.s1tbx.dataio.ceos.radarsat.RadarsatProductReaderPlugIn
+org.esa.s1tbx.dataio.ceos.alos.AlosPalsarProductReaderPlugIn
+org.esa.s1tbx.dataio.ceos.alos2.Alos2ProductReaderPlugIn
+org.esa.s1tbx.dataio.ceos.basic.BasicCeosProductReaderPlugIn
+org.esa.s1tbx.dataio.cosmo.CosmoSkymedReaderPlugIn
+org.esa.s1tbx.dataio.geotiff.NestGeoTiffProductReaderPlugIn
+org.esa.s1tbx.dataio.gtopo30.GTOPO30ReaderPlugIn
+org.esa.s1tbx.dataio.imageio.ImageIOReaderPlugIn
+org.esa.s1tbx.dataio.polsarpro.PolsarProProductReaderPlugIn
+org.esa.s1tbx.dataio.radarsat2.Radarsat2ProductReaderPlugIn
+org.esa.s1tbx.dataio.sentinel1.Sentinel1ProductReaderPlugIn
+org.esa.s1tbx.dataio.terrasarx.TerraSarXProductReaderPlugIn
+org.esa.s1tbx.dataio.TAXI.RATProductReaderPlugIn
+org.esa.s1tbx.dataio.snaphu.SNAPHUProductReaderPlugIn

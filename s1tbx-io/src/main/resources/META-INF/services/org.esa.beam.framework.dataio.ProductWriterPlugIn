@@ -1,3 +1,0 @@
-org.esa.nest.dataio.imageio.ImageIOWriterPlugIn
-org.esa.nest.dataio.polsarpro.PolsarProProductWriterPlugIn
-org.esa.nest.dataio.geotiffxml.GeoTiffXMLProductWriterPlugIn

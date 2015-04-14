@@ -1,14 +1,14 @@
 package org.jlinda.nest.utils;
 
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.Tile;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.gpf.TileIndex;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jblas.FloatMatrix;
 
-import java.awt.*;
+import java.awt.Rectangle;
 
 /**
 * User: pmar@ppolabs.com

@@ -1,0 +1,6 @@
+org.esa.s1tbx.dataio.dem.ace.ACEElevationModelDescriptor
+org.esa.s1tbx.dataio.dem.ace2_5min.ACE2_5MinElevationModelDescriptor
+org.esa.s1tbx.dataio.dem.srtm3_geotiff.SRTM3GeoTiffElevationModelDescriptor
+org.esa.s1tbx.dataio.dem.srtm1_esrigrid.SRTM1GridElevationModelDescriptor
+org.esa.s1tbx.dataio.dem.aster.AsterElevationModelDescriptor
+org.esa.s1tbx.dataio.dem.getasse30.GETASSE30ElevationModelDescriptor

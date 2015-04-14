@@ -1,7 +1,7 @@
 package org.jlinda.core;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jblas.Decompose;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
@@ -9,11 +9,10 @@ import org.jlinda.core.utils.LinearAlgebraUtils;
 
 import java.util.logging.Logger;
 
-import static org.jblas.MatrixFunctions.abs;
-import static org.jlinda.core.utils.LinearAlgebraUtils.matTxmat;
-import static org.jlinda.core.utils.MathUtils.rad2deg;
-import static org.jlinda.core.utils.MathUtils.sqr;
-import static org.jlinda.core.utils.PolyUtils.normalize2;
+import static org.jblas.MatrixFunctions.*;
+import static org.jlinda.core.utils.LinearAlgebraUtils.*;
+import static org.jlinda.core.utils.MathUtils.*;
+import static org.jlinda.core.utils.PolyUtils.*;
 
 /**
  * User: pmar@ppolabs.com

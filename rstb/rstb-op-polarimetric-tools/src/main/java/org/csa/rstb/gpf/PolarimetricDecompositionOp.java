@@ -16,26 +16,35 @@
 package org.csa.rstb.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.csa.rstb.gpf.decompositions.*;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.util.ProductUtils;
-import org.esa.nest.dataio.PolBandUtils;
+import org.csa.rstb.gpf.decompositions.Cloude;
+import org.csa.rstb.gpf.decompositions.Decomposition;
+import org.csa.rstb.gpf.decompositions.FreemanDurden;
+import org.csa.rstb.gpf.decompositions.HAlphaC2;
+import org.csa.rstb.gpf.decompositions.Pauli;
+import org.csa.rstb.gpf.decompositions.Sinclair;
+import org.csa.rstb.gpf.decompositions.Touzi;
+import org.csa.rstb.gpf.decompositions.Yamaguchi;
+import org.csa.rstb.gpf.decompositions.hAAlpha;
+import org.csa.rstb.gpf.decompositions.vanZyl;
+import org.esa.s1tbx.dataio.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.gpf.Operator;
+import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.framework.gpf.OperatorSpi;
+import org.esa.snap.framework.gpf.Tile;
+import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
+import org.esa.snap.framework.gpf.annotations.Parameter;
+import org.esa.snap.framework.gpf.annotations.SourceProduct;
+import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.util.ProductUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.Map;
 
 /**
@@ -321,7 +330,7 @@ public final class PolarimetricDecompositionOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
      * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()

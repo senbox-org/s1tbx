@@ -3,7 +3,7 @@
 
     <folder name="Actions">
         <folder name="Readers">
-            <file name="org-esa-nest-dataio-importACEDEMProduct.instance">
+            <file name="org-esa-s1tbx-dataio-importACEDEMProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName" stringvalue="ACE DEM Tile"/>
@@ -11,7 +11,7 @@
                 <attr name="helpId" stringvalue="importACEProduct"/>
                 <attr name="ShortDescription" stringvalue="Import a ACE DEM tile"/>
             </file>
-            <file name="org-esa-nest-dataio-importSRTMGeoTIFFDEMProduct.instance">
+            <file name="org-esa-s1tbx-dataio-importSRTMGeoTIFFDEMProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName" stringvalue="SRTM GeoTIFF DEM Tile"/>
@@ -19,7 +19,7 @@
                 <attr name="helpId" stringvalue="importSRTMProduct"/>
                 <attr name="ShortDescription" stringvalue="Import a SRTM DEM tile"/>
             </file>
-            <file name="org-esa-nest-dataio-importSRTMArcGridDEMProduct.instance">
+            <file name="org-esa-s1tbx-dataio-importSRTMArcGridDEMProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName" stringvalue="SRTM ArcGrid DEM Tile"/>
@@ -27,7 +27,7 @@
                 <attr name="helpId" stringvalue="importSRTMProduct"/>
                 <attr name="ShortDescription" stringvalue="Import a SRTM ArcInfo Grid DEM tile"/>
             </file>
-            <file name="org-esa-nest-dataio-importAsterDEMProduct.instance">
+            <file name="org-esa-s1tbx-dataio-importAsterDEMProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName" stringvalue="ASTER GeoTIFF DEM Tile"/>
@@ -54,17 +54,17 @@
         <folder name="File">
             <folder name="Import">
                 <folder name="DEM">
-                    <file name="org-esa-nest-dataio-importACEDEMProduct.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-nest-dataio-importACEDEMProduct.instance"/>
+                    <file name="org-esa-s1tbx-dataio-importACEDEMProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-dataio-importACEDEMProduct.instance"/>
                     </file>
-                    <file name="org-esa-nest-dataio-importSRTMGeoTIFFDEMProduct.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-nest-dataio-importSRTMGeoTIFFDEMProduct.instance"/>
+                    <file name="org-esa-s1tbx-dataio-importSRTMGeoTIFFDEMProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-dataio-importSRTMGeoTIFFDEMProduct.instance"/>
                     </file>
-                    <file name="org-esa-nest-dataio-importSRTMArcGridDEMProduct.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-nest-dataio-importSRTMArcGridDEMProduct.instance"/>
+                    <file name="org-esa-s1tbx-dataio-importSRTMArcGridDEMProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-dataio-importSRTMArcGridDEMProduct.instance"/>
                     </file>
-                    <file name="org-esa-nest-dataio-importAsterDEMProduct.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-nest-dataio-importAsterDEMProduct.instance"/>
+                    <file name="org-esa-s1tbx-dataio-importAsterDEMProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-dataio-importAsterDEMProduct.instance"/>
                     </file>
                 </folder>
             </folder>

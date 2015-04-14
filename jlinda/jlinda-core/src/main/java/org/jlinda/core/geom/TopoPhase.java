@@ -1,7 +1,12 @@
 package org.jlinda.core.geom;
 
-import org.esa.beam.util.SystemUtils;
-import org.jlinda.core.*;
+import org.esa.snap.util.SystemUtils;
+import org.jlinda.core.Constants;
+import org.jlinda.core.Ellipsoid;
+import org.jlinda.core.Orbit;
+import org.jlinda.core.Point;
+import org.jlinda.core.SLCImage;
+import org.jlinda.core.Window;
 import org.jlinda.core.utils.TriangleUtils;
 
 import java.util.logging.Logger;

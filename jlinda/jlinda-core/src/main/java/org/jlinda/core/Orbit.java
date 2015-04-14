@@ -2,10 +2,10 @@ package org.jlinda.core;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.util.SystemUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
+import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.io.ResFile;
 import org.jlinda.core.utils.DateUtils;

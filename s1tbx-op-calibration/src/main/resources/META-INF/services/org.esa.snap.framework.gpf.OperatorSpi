@@ -1,0 +1,3 @@
+org.esa.s1tbx.gpf.CalibrationOp$Spi
+org.esa.s1tbx.gpf.RemoveAntennaPatternOp$Spi
+org.esa.s1tbx.gpf.Sentinel1RemoveThermalNoiseOp$Spi

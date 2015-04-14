@@ -77,7 +77,7 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
-                        <publicPackage>org.esa.nest.*</publicPackage>
+                        <publicPackage>org.esa.s1tbx.*</publicPackage>
                         <publicPackage>org.joda.*</publicPackage>
                         <publicPackage>org.slf4j.*</publicPackage>
                     </publicPackages>

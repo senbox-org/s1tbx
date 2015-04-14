@@ -4,7 +4,7 @@ import gnu.trove.list.array.TFloatArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jblas.FloatMatrix;
 import org.jblas.MatrixFunctions;
@@ -13,7 +13,7 @@ import org.jlinda.core.utils.PolyUtils;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.jblas.MatrixFunctions.pow;
+import static org.jblas.MatrixFunctions.*;
 
 public class SystemOfEquations {
 

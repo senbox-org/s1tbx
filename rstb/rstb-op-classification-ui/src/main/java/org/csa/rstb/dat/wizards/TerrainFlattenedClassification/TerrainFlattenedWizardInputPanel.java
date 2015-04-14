@@ -15,9 +15,9 @@
  */
 package org.csa.rstb.dat.wizards.TerrainFlattenedClassification;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.nest.dat.wizards.AbstractInputPanel;
-import org.esa.nest.dat.wizards.WizardPanel;
+import org.esa.s1tbx.dat.wizards.AbstractInputPanel;
+import org.esa.s1tbx.dat.wizards.WizardPanel;
+import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.gpf.InputProductValidator;
 
 /**

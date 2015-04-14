@@ -15,15 +15,15 @@
  */
 package org.csa.rstb.gpf;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
 import java.io.File;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * Unit test for PolarimetricClassification.

@@ -1,7 +1,7 @@
 package org.jlinda.core.coregistration.cross;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
