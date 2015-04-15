@@ -1379,6 +1379,35 @@ public final class SliceAssemblyOp extends Operator {
         }
     }
 
+    private void updateDopplerCentroid() {
+
+        final MetadataElement targetOrigProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
+        MetadataElement[] elements = getElementsToUpdate(targetOrigProdRoot, "annotation");
+
+        for (MetadataElement e : elements) {
+
+            final String imageNum = extractImageNumber(e.getName());
+            MetadataElement targetDopplerCentroid = e.getElement("product").getElement("dopplerCentroid");
+            MetadataElement targetDCEstimateList = targetDopplerCentroid.getElement("dcEstimateList");
+            int count = Integer.parseInt(targetDCEstimateList.getAttributeString("count"));
+            for (int i = 1; i < sliceProducts.length; i++) {
+
+                MetadataElement sliceDopplerCentroid = getAnnotationElement(sliceProducts[i], imageNum, "dopplerCentroid");
+                MetadataElement sliceDCEstimateList = sliceDopplerCentroid.getElement("dcEstimateList");
+                final int sliceCount = Integer.parseInt(sliceDCEstimateList.getAttributeString("count"));
+                if (sliceCount < 1) {
+                    continue;
+                }
+
+                MetadataElement [] sliceDCEstimates = sliceDCEstimateList.getElements();
+                for (MetadataElement dc : sliceDCEstimates) {
+                    targetDCEstimateList.addElementAt(dc.createDeepClone(), count++);
+                }
+            }
+            targetDCEstimateList.setAttributeString("count", Integer.toString(count));
+        }
+    }
+
     private MetadataElement getAzimuthFmRateList(final Product product, String imageNum) {
 
         final MetadataElement generalAnnotation = getAnnotationElement(product, imageNum, "generalAnnotation");
@@ -1511,6 +1540,8 @@ public final class SliceAssemblyOp extends Operator {
         updateSwathTiming();
 
         updateGeolocationGrid();
+
+        updateDopplerCentroid();
 
         updateAzimuthFmRateList();
 
