@@ -30,8 +30,6 @@ import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.*;
 
-// todo (mp - 20140317) use org.esa.snap.util.io.TreeCopier
-
 /**
  * Installs resources from a given source to a given target.
  *
@@ -40,31 +38,17 @@ import static java.nio.file.StandardCopyOption.*;
  */
 public class ResourceInstaller {
 
-    private final Path[] sourceBasePaths;
-    private final Path sourceRelPath;
+    private final Path sourceBasePath;
     private final Path targetDirPath;
 
     /**
      * Creates an instance with a given source to a given target.
      *
-     * @param sourceBasePath the source's base path
-     * @param sourceRelPath  the source's relative path
-     * @param targetDirPath  the target directory
+     * @param sourceDirPath the source directory path
+     * @param targetDirPath the target directory
      */
-    public ResourceInstaller(Path sourceBasePath, String sourceRelPath, Path targetDirPath) {
-        this(new Path[]{sourceBasePath}, sourceBasePath.resolve(sourceRelPath), targetDirPath);
-    }
-
-    /**
-     * Creates an instance with a given source to a given target.
-     *
-     * @param sourceBasePaths the source's base paths
-     * @param sourceRelPath   the source's relative path
-     * @param targetDirPath   the target directory
-     */
-    public ResourceInstaller(Path[] sourceBasePaths, Path sourceRelPath, Path targetDirPath) {
-        this.sourceBasePaths = sourceBasePaths;
-        this.sourceRelPath = sourceRelPath;
+    public ResourceInstaller(Path sourceDirPath, Path targetDirPath) {
+        this.sourceBasePath = sourceDirPath;
         this.targetDirPath = targetDirPath;
     }
 
@@ -85,7 +69,8 @@ public class ResourceInstaller {
 
         pm.beginTask("Installing resources...", 100);
         try {
-            Collection<Path> resources = collectResources(patternString, new SubProgressMonitor(pm, 20));
+            Collection<Path> resources = collectResources(patternString);
+            pm.worked(20);
             copyResources(resources, new SubProgressMonitor(pm, 80));
         } finally {
             pm.done();
@@ -94,11 +79,10 @@ public class ResourceInstaller {
 
     private void copyResources(Collection<Path> resources, ProgressMonitor pm) throws IOException {
         synchronized (ResourceInstaller.class) {
-            pm.beginTask("Copying resources...", sourceBasePaths.length * resources.size());
+            pm.beginTask("Copying resources...", resources.size());
             try {
-                for (Path basePath : sourceBasePaths) {
                     for (Path resource : resources) {
-                        Path relFilePath = basePath.resolve(sourceRelPath).relativize(resource);
+                        Path relFilePath = sourceBasePath.relativize(resource);
                         String relPathString = relFilePath.toString();
                         Path targetFile = targetDirPath.resolve(relPathString);
                         if (!Files.exists(targetFile) && !Files.isDirectory(resource)) {
@@ -110,7 +94,6 @@ public class ResourceInstaller {
                             Files.copy(resource, targetFile, REPLACE_EXISTING, COPY_ATTRIBUTES);
                         }
                         pm.worked(1);
-                    }
                 }
             } finally {
                 pm.done();
@@ -118,17 +101,9 @@ public class ResourceInstaller {
         }
     }
 
-    private Collection<Path> collectResources(String patternString, ProgressMonitor pm) throws IOException {
-        pm.beginTask("Copying resources...", sourceBasePaths.length);
+    private Collection<Path> collectResources(String patternString) throws IOException {
         Collection<Path> resources = new ArrayList<>();
-        try {
-            for (Path basePath : sourceBasePaths) {
-                collectResources(basePath.resolve(sourceRelPath), resources, patternString);
-                pm.worked(1);
-            }
-        } finally {
-            pm.done();
-        }
+        collectResources(sourceBasePath, resources, patternString);
         return resources;
     }
 

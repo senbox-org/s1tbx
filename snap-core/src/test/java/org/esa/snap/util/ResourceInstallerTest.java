@@ -35,18 +35,9 @@ public class ResourceInstallerTest {
         targetDir.getFileSystem().close();
     }
 
-    @Test
-    public void testInstall_withRelativePath() throws Exception {
-        ResourceInstaller resourceInstaller = new ResourceInstaller(sourceDir, "org/esa/snap/dataio/dimap", targetDir);
-        resourceInstaller.install(".*xml", ProgressMonitor.NULL);
-        assertEquals(1, Files.list(targetDir).toArray().length);
-        Stream<Path> targetFileList = Files.list(targetDir.resolve("spi"));
-        assertEquals(4, targetFileList.toArray().length);
-    }
-
    @Test
-    public void testInstall_withoutRelativePath() throws Exception {
-        ResourceInstaller resourceInstaller = new ResourceInstaller(sourceDir.resolve("org/esa/snap/dataio/dimap"), "", targetDir);
+    public void testInstall() throws Exception {
+        ResourceInstaller resourceInstaller = new ResourceInstaller(sourceDir.resolve("org/esa/snap/dataio/dimap"), targetDir);
         resourceInstaller.install(".*xml", ProgressMonitor.NULL);
         assertEquals(1, Files.list(targetDir).toArray().length);
         Stream<Path> targetFileList = Files.list(targetDir.resolve("spi"));
@@ -55,7 +46,7 @@ public class ResourceInstallerTest {
 
    @Test
     public void testInstall_withGlob() throws Exception {
-        ResourceInstaller resourceInstaller = new ResourceInstaller(sourceDir, "", targetDir);
+        ResourceInstaller resourceInstaller = new ResourceInstaller(sourceDir, targetDir);
         resourceInstaller.install("glob:**/*xml", ProgressMonitor.NULL);
         assertEquals(1, Files.list(targetDir).toArray().length);
         Stream<Path> targetFileList = Files.list(targetDir.resolve("org/esa/snap/dataio/dimap/spi"));
