@@ -334,9 +334,9 @@ public class BinnedProductReader extends AbstractProductReader {
         double binIndexInRow = binIndexInGrid - firstBinIndex;
         final double longitudeExtent = 360.0 / numberOfBinsInRow;
         final double smallestLongitude = binIndexInRow * longitudeExtent;
-        final double largestLongitude = smallestLongitude + longitudeExtent;
-        final int startX = (int) Math.floor(smallestLongitude / pixelSizeX);
-        final int endX = (int) Math.ceil(largestLongitude / pixelSizeX);
+        final double largestLongitude = (binIndexInRow + 1) * longitudeExtent;
+        final int startX = (int) Math.round(smallestLongitude / pixelSizeX);
+        final int endX = (int) Math.round(largestLongitude / pixelSizeX);
         return new int[]{startX, endX};
     }
 
