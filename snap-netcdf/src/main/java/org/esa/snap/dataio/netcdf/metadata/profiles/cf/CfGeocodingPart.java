@@ -124,7 +124,7 @@ public class CfGeocodingPart extends ProfilePartIO {
     @Override
     public void encode(ProfileWriteContext ctx, Product product) throws IOException {
         NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
-        if (!isLatLonPresent(ncFile)) {
+        if (isLatLonPresent(ncFile)) {
             return;
         }
         final int h = product.getSceneRasterHeight();
