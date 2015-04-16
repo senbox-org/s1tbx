@@ -33,7 +33,7 @@ public class N3FileWriteable implements NFileWriteable {
     private final NetcdfFileWriteable netcdfFileWriteable;
 
     public static NFileWriteable create(String filename) throws IOException {
-        NetcdfFileWriteable writeable = NetcdfFileWriteable.createNew(filename);
+        NetcdfFileWriteable writeable = NetcdfFileWriteable.createNew(filename, false);
         writeable.setLargeFile(true);
         return new N3FileWriteable(writeable);
     }
