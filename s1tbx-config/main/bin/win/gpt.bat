@@ -7,7 +7,7 @@ set S1TBX_HOME=${installer:sys.installationDir}
     -Xverify:none -XX:+AggressiveOpts -XX:+UseFastAccessorMethods ^
     -XX:+UseParallelGC -XX:+UseNUMA -XX:+UseLoopPredicate ^
     -Dceres.context=${installer:context} ^
-    "-D${installer:context}.mainClass=org.esa.beam.framework.gpf.main.GPT" ^
+    "-D${installer:context}.mainClass=org.esa.snap.framework.gpf.main.GPT" ^
     "-D${installer:context}.home=%S1TBX_HOME%" ^
     "-D${installer:context}.debug=false" ^
 	"-D${installer:context}.consoleLog=false" ^

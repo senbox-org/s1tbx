@@ -1,9 +1,9 @@
 package org.esa.s1tbx;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.util.ResourceInstaller;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.io.TreeCopier;
+import org.esa.snap.util.ResourceInstaller;
+import org.esa.snap.util.SystemUtils;
+import org.esa.snap.util.io.TreeCopier;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,8 +18,8 @@ public class S1TBXSetup {
     public static void installColorPalettes(final Class callingClass) {
         final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(callingClass);
         final Path auxdataDir = getColorPalettesDir();
-        final ResourceInstaller resourceInstaller = new ResourceInstaller(moduleBasePath, "org/esa/s1tbx/auxdata/color_palettes/",
-                                                                          auxdataDir);
+        Path sourcePath = moduleBasePath.resolve("org/esa/s1tbx/auxdata/color_palettes/");
+        final ResourceInstaller resourceInstaller = new ResourceInstaller(sourcePath, auxdataDir);
 
         try {
             resourceInstaller.install(".*.cpd", ProgressMonitor.NULL);

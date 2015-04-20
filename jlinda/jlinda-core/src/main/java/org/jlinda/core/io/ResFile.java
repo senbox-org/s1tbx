@@ -1,10 +1,16 @@
 package org.jlinda.core.io;
 
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.util.SystemUtils;
 import org.jlinda.core.utils.DateUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;

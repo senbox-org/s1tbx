@@ -1,14 +1,14 @@
 package org.jlinda.nest.utils;
 
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.Tile;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.gpf.TileIndex;
 import org.jblas.ComplexDouble;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jblas.FloatMatrix;
 
-import java.awt.*;
+import java.awt.Rectangle;
 
 /**
 * User: pmar@ppolabs.com
@@ -17,7 +17,7 @@ import java.awt.*;
 */
 public class TileUtilsDoris {
 
-    // see javadoc for org.esa.beam.framework.gpf.Tile (interface)
+    // see javadoc for org.esa.snap.framework.gpf.Tile (interface)
     public static ComplexDoubleMatrix pullComplexDoubleMatrix(final Tile tile1, final Tile tile2) {
 
         final int height = tile1.getHeight();
@@ -40,7 +40,7 @@ public class TileUtilsDoris {
         return result;
     }
 
-    // see javadoc for org.esa.beam.framework.gpf.Tile (interface)
+    // see javadoc for org.esa.snap.framework.gpf.Tile (interface)
     public static DoubleMatrix pullDoubleMatrix(final Tile tile) {
 
         final int height = tile.getHeight();

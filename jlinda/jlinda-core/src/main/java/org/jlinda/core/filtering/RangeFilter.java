@@ -1,14 +1,18 @@
 package org.jlinda.core.filtering;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.jlinda.core.todo_classes.todo_classes;
-import org.jlinda.core.utils.*;
+import org.jlinda.core.utils.LinearAlgebraUtils;
+import org.jlinda.core.utils.MathUtils;
+import org.jlinda.core.utils.SarUtils;
+import org.jlinda.core.utils.SpectralUtils;
+import org.jlinda.core.utils.WeightWindows;
 
 import java.util.logging.Logger;
 

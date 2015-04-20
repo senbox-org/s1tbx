@@ -1,7 +1,7 @@
 package org.jlinda.core.coregistration.estimation;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jblas.Decompose;
 import org.jblas.DoubleMatrix;
 import org.jblas.MatrixFunctions;
@@ -13,7 +13,7 @@ import org.jlinda.core.utils.PolyUtils;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import static org.jblas.MatrixFunctions.abs;
+import static org.jblas.MatrixFunctions.*;
 
 /**
  * Stub for estimation in Java

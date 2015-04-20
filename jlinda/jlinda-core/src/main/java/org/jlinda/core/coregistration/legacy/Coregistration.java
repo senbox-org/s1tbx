@@ -1,21 +1,34 @@
 package org.jlinda.core.coregistration.legacy;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.SystemUtils;
-import org.jblas.*;
-import org.jlinda.core.*;
+import org.esa.snap.util.SystemUtils;
+import org.jblas.ComplexDouble;
+import org.jblas.ComplexDoubleMatrix;
+import org.jblas.DoubleMatrix;
+import org.jblas.Geometry;
+import org.jblas.MatrixFunctions;
+import org.jlinda.core.Baseline;
+import org.jlinda.core.Constants;
+import org.jlinda.core.Ellipsoid;
+import org.jlinda.core.Orbit;
+import org.jlinda.core.Point;
+import org.jlinda.core.SLCImage;
+import org.jlinda.core.Window;
 import org.jlinda.core.coregistration.LUT;
 import org.jlinda.core.todo_classes.Input;
 import org.jlinda.core.todo_classes.todo_classes;
-import org.jlinda.core.utils.*;
+import org.jlinda.core.utils.LinearAlgebraUtils;
+import org.jlinda.core.utils.MathUtils;
+import org.jlinda.core.utils.PolyUtils;
+import org.jlinda.core.utils.SarUtils;
+import org.jlinda.core.utils.SpectralUtils;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.logging.Logger;
 
 import static java.lang.Math.*;
-import static org.jlinda.core.utils.PolyUtils.normalize2;
-import static org.jlinda.core.utils.PolyUtils.polyval;
+import static org.jlinda.core.utils.PolyUtils.*;
 
 public class Coregistration implements ICoregistration {
 

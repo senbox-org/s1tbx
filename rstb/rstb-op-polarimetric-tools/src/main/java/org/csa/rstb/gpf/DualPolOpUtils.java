@@ -16,11 +16,11 @@
 package org.csa.rstb.gpf;
 
 import Jama.Matrix;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.nest.dataio.PolBandUtils;
+import org.esa.s1tbx.dataio.PolBandUtils;
 import org.esa.snap.eo.Constants;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.gpf.TileIndex;
 
 

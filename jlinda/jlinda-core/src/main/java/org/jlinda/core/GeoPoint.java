@@ -2,7 +2,7 @@ package org.jlinda.core;
 
 /**
  * The <code>GeoPoint</code> class represents a geographical position measured in longitudes and latitudes.
- * <p>Adapted from org.esa.beam.framework.datamodel.GeoPoint(), refactoring to doubles.<p/>
+ * <p>Adapted from org.esa.snap.framework.datamodel.GeoPoint(), refactoring to doubles.<p/>
  * @author Norman Fomferra, and adapted by Petar Marinkovic
  * @version $Revision$ $Date$
  */

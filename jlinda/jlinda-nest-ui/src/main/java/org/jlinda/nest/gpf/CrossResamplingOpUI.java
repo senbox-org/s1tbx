@@ -1,14 +1,18 @@
 package org.jlinda.nest.gpf;
 
+import org.esa.snap.framework.ui.AppContext;
+import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.snap.gpf.ui.UIValidation;
-import org.esa.beam.framework.ui.AppContext;
-import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.DialogUtils;
 import org.jlinda.core.coregistration.LUT;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.Map;
 
 public class CrossResamplingOpUI extends BaseOperatorUI {

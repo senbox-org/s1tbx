@@ -2,7 +2,7 @@ package org.jlinda.core.utils;
 
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_2D;
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 

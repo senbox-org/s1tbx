@@ -15,9 +15,9 @@
  */
 package org.csa.rstb.gpf.classifiers;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.gpf.Tile;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.IndexCoding;
+import org.esa.snap.framework.gpf.Tile;
 
 /**
  * Polarimetric Classifiers
@@ -47,7 +47,7 @@ public interface PolClassifier {
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Band targetBand, final Tile targetTile);
 }

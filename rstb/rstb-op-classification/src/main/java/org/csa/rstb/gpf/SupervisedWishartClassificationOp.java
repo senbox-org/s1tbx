@@ -18,26 +18,26 @@ package org.csa.rstb.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import org.csa.rstb.gpf.classifiers.HAlphaWishart;
 import org.csa.rstb.gpf.classifiers.PolClassifierBase;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.util.ProductUtils;
-import org.esa.nest.dataio.PolBandUtils;
+import org.esa.s1tbx.dataio.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.IndexCoding;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.gpf.Operator;
+import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.framework.gpf.OperatorSpi;
+import org.esa.snap.framework.gpf.Tile;
+import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
+import org.esa.snap.framework.gpf.annotations.Parameter;
+import org.esa.snap.framework.gpf.annotations.SourceProduct;
+import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
+import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.ResourceUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
@@ -77,14 +77,14 @@ public final class SupervisedWishartClassificationOp extends Operator {
 
     /**
      * Initializes this operator and sets the one and only target product.
-     * <p>The target product can be either defined by a field of type {@link org.esa.beam.framework.datamodel.Product} annotated with the
-     * {@link org.esa.beam.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
+     * <p>The target product can be either defined by a field of type {@link org.esa.snap.framework.datamodel.Product} annotated with the
+     * {@link org.esa.snap.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
      * by calling {@link #setTargetProduct} method.</p>
      * <p>The framework calls this method after it has created this operator.
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -194,7 +194,7 @@ public final class SupervisedWishartClassificationOp extends Operator {
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
      * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the target raster.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the target raster.
      */
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -269,11 +269,11 @@ public final class SupervisedWishartClassificationOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
-     * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
-     * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
+     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator()
+     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */
     public static class Spi extends OperatorSpi {
         public Spi() {

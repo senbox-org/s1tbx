@@ -17,11 +17,11 @@ package org.csa.rstb.gpf.classifiers;
 
 import org.csa.rstb.gpf.PolOpUtils;
 import org.csa.rstb.gpf.PolarimetricClassificationOp;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.nest.dataio.PolBandUtils;
+import org.esa.s1tbx.dataio.PolBandUtils;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.IndexCoding;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.Map;
 
 /**

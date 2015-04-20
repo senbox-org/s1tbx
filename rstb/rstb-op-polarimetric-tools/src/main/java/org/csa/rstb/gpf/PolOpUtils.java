@@ -19,10 +19,10 @@ import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import org.apache.commons.math3.util.FastMath;
 import org.csa.rstb.gpf.decompositions.hAAlpha;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.nest.dataio.PolBandUtils;
+import org.esa.s1tbx.dataio.PolBandUtils;
 import org.esa.snap.eo.Constants;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.gpf.TileIndex;
 import org.jblas.DoubleMatrix;
 

@@ -1,8 +1,8 @@
 package org.jlinda.nest.gpf.coregistration;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Placemark;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.Placemark;
+import org.esa.snap.framework.datamodel.ProductNodeGroup;
 
 import java.util.HashMap;
 import java.util.Map;

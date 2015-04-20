@@ -18,17 +18,18 @@ package org.csa.rstb.gpf.classifiers;
 import org.csa.rstb.gpf.PolOpUtils;
 import org.csa.rstb.gpf.PolarimetricClassificationOp;
 import org.csa.rstb.gpf.decompositions.FreemanDurden;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.nest.dataio.PolBandUtils;
+import org.esa.s1tbx.dataio.PolBandUtils;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.IndexCoding;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.StatusProgressMonitor;
 import org.esa.snap.gpf.ThreadManager;
 import org.esa.snap.gpf.TileIndex;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -115,7 +116,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Band targetBand, final Tile targetTile) {
         PolBandUtils.PolSourceBand srcBandList = bandMap.get(targetBand);

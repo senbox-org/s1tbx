@@ -21,24 +21,24 @@ import org.csa.rstb.gpf.specklefilters.IDAN;
 import org.csa.rstb.gpf.specklefilters.LeeSigma;
 import org.csa.rstb.gpf.specklefilters.RefinedLee;
 import org.csa.rstb.gpf.specklefilters.SpeckleFilter;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.util.ProductUtils;
-import org.esa.nest.dataio.PolBandUtils;
+import org.esa.s1tbx.dataio.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.gpf.Operator;
+import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.framework.gpf.OperatorSpi;
+import org.esa.snap.framework.gpf.Tile;
+import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
+import org.esa.snap.framework.gpf.annotations.Parameter;
+import org.esa.snap.framework.gpf.annotations.SourceProduct;
+import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.util.ProductUtils;
 
-import java.awt.*;
-import java.util.*;
+import java.awt.Rectangle;
+import java.util.Map;
 
 /**
  * Applies a Polarimetric Speckle Filter to the data (covariance/coherency matrix data)
@@ -130,14 +130,14 @@ public class PolarimetricSpeckleFilterOp extends Operator {
 
     /**
      * Initializes this operator and sets the one and only target product.
-     * <p>The target product can be either defined by a field of type {@link org.esa.beam.framework.datamodel.Product} annotated with the
-     * {@link org.esa.beam.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
+     * <p>The target product can be either defined by a field of type {@link org.esa.snap.framework.datamodel.Product} annotated with the
+     * {@link org.esa.snap.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
      * by calling {@link #setTargetProduct} method.</p>
      * <p>The framework calls this method after it has created this operator.
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during operator initialisation.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     @Override
@@ -271,7 +271,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException if an error occurs during computation of the target rasters.
+     * @throws org.esa.snap.framework.gpf.OperatorException if an error occurs during computation of the target rasters.
      */
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm)
@@ -322,7 +322,7 @@ public class PolarimetricSpeckleFilterOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
      * @see OperatorSpi#createOperator()

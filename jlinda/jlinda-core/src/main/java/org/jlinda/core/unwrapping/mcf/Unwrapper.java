@@ -14,7 +14,7 @@ import com.winvector.lp.LPException;
 import com.winvector.lp.LPSoln;
 import com.winvector.lp.impl.RevisedSimplexSolver;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.unwrapping.mcf.utils.ColtUtils;
@@ -26,9 +26,9 @@ import org.perf4j.StopWatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static cern.jet.math.Functions.bindArg2;
-import static org.jblas.DoubleMatrix.concatHorizontally;
-import static org.jlinda.core.unwrapping.mcf.utils.ColtUtils.setUpSparseMatrixFromIdx;
+import static cern.jet.math.Functions.*;
+import static org.jblas.DoubleMatrix.*;
+import static org.jlinda.core.unwrapping.mcf.utils.ColtUtils.*;
 import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.*;
 
 /**

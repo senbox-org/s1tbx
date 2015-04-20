@@ -55,7 +55,7 @@
 
         <action>
             <id>Sentinel1</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Sentinel-1 TOPS</text>
             <parent>SAR Processing</parent>
             <placeAfter>ASARWSS</placeAfter>
@@ -128,7 +128,7 @@
 
         <action>
             <id>TOPSCoregistrationGroup</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>S-1 TOPS Coregistration</text>
             <parent>CoregistrationGroup</parent>
             <placeAfter>InSARCoregistrationGraph</placeAfter>

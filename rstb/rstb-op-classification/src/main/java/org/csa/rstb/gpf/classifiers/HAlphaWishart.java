@@ -19,17 +19,18 @@ import org.csa.rstb.gpf.HaAlphaDescriptor;
 import org.csa.rstb.gpf.PolOpUtils;
 import org.csa.rstb.gpf.PolarimetricClassificationOp;
 import org.csa.rstb.gpf.decompositions.hAAlpha;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.util.SystemUtils;
-import org.esa.nest.dataio.PolBandUtils;
+import org.esa.s1tbx.dataio.PolBandUtils;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.StatusProgressMonitor;
 import org.esa.snap.gpf.ThreadManager;
 import org.esa.snap.gpf.TileIndex;
+import org.esa.snap.util.SystemUtils;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -79,7 +80,7 @@ public class HAlphaWishart extends PolClassifierBase implements PolClassifier {
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Band targetBand, final Tile targetTile) {
 

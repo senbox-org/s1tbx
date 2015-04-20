@@ -5,7 +5,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 import org.jlinda.core.coregistration.estimation.utils.SimpleAsciiFileParser;
@@ -16,8 +16,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.jblas.MatrixFunctions.abs;
-import static org.jblas.MatrixFunctions.pow;
+import static org.jblas.MatrixFunctions.*;
 
 
 public class TestEstimation_DoubleMatrix {

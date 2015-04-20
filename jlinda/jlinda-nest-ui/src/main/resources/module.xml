@@ -60,7 +60,7 @@
 
         <action>
             <id>CoregistrationGroup</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Coregistration</text>
             <parent>SAR Processing</parent>
             <placeAfter>SpeckleFiltering</placeAfter>
@@ -96,7 +96,7 @@
 
         <action>
             <id>insar</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Interferometric</text>
             <parent>SAR Processing</parent>
             <placeAfter>CoregistrationGroup</placeAfter>
@@ -106,7 +106,7 @@
 
         <action>
             <id>products</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Products</text>
             <placeAfter>CoregistrationGroup</placeAfter>
             <parent>insar</parent>
@@ -186,7 +186,7 @@
 
         <action>
             <id>insar_filters</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Filtering</text>
             <placeAfter>products</placeAfter>
             <parent>insar</parent>
@@ -209,7 +209,7 @@
 
         <action>
             <id>spectral_filtering</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Spectral Filtering</text>
             <placeFirst>true</placeFirst>
             <parent>insar_filters</parent>
@@ -258,7 +258,7 @@
 
         <action>
             <id>unwrapping</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Unwrapping</text>
             <placeAfter>insar_tools</placeAfter>
             <separatorAfter>true</separatorAfter>

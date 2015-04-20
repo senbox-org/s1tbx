@@ -1,6 +1,6 @@
 package org.jlinda.nest.utils;
 
-import org.esa.beam.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.Band;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.SLCImage;
 
