@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  *
@@ -47,18 +48,22 @@ public class ProductDB extends DAO {
 
     public static ProductDB instance() throws Exception {
         if (_instance == null) {
-            _instance = new ProductDB();
+            _instance = createDefaultInstance();
             initializeInstance();
         }
         return _instance;
     }
 
-    public static ProductDB testInstance(final File dbPropertiesFile) throws Exception {
-        if (_instance == null) {
-            _instance = new ProductDB(dbPropertiesFile);
-            initializeInstance();
-        }
-        return _instance;
+    private static ProductDB createDefaultInstance() throws IOException {
+        final Properties properties = new Properties();
+        properties.put("user","nestuser");
+        properties.put("password","snapuser");
+        properties.put("derby.driver","org.apache.derby.jdbc.EmbeddedDriver");
+        properties.put("derby.url","jdbc:derby:");
+        properties.put("db.table","PRODUCTS");
+        properties.put("db.schema","APP");
+
+        return new ProductDB(properties);
     }
 
     private static void initializeInstance() throws Exception {
@@ -72,7 +77,7 @@ public class ProductDB extends DAO {
             boolean deleted = FileDeleteStrategy.FORCE.deleteQuietly(dbFolder);
             deleted = FileDeleteStrategy.FORCE.deleteQuietly(qlFolder);
 
-            _instance = new ProductDB();
+            _instance = createDefaultInstance();
             connected = _instance.connect();
             if (!connected) {
                 throw new Exception("Unable to connect to database\n" + _instance.getLastSQLException().getMessage());
@@ -85,12 +90,8 @@ public class ProductDB extends DAO {
         _instance = null;
     }
 
-    private ProductDB() throws IOException {
-        super(DEFAULT_PRODUCT_DATABASE_NAME);
-    }
-
-    private ProductDB(final File dbPropertiesFile) throws IOException {
-        super(DEFAULT_PRODUCT_DATABASE_NAME, dbPropertiesFile);
+    private ProductDB(final Properties dbProperties) throws IOException {
+        super(DEFAULT_PRODUCT_DATABASE_NAME, dbProperties);
     }
 
     public boolean isReady() {

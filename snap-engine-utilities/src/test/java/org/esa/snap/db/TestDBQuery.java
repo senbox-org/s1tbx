@@ -19,22 +19,17 @@ import org.esa.snap.datamodel.AbstractMetadata;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.net.URL;
-
 
 /**
  * Test db query
  */
 public class TestDBQuery {
 
-    private static String dbPropertiesPath = "org/esa/snap/config/productDB.properties";
     private ProductDB db;
 
     @Before
     public void setUp() throws Exception {
-        final URL fileUrl = this.getClass().getClassLoader().getResource(dbPropertiesPath);
-        db = ProductDB.testInstance(new File(fileUrl.getFile()));
+        db = ProductDB.instance();
     }
 
     @Test

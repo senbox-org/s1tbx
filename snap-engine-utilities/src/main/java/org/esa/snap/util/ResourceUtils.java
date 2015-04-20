@@ -46,6 +46,10 @@ public final class ResourceUtils {
 
     public static Properties loadProperties(final String filename) throws IOException {
         final InputStream dbPropInputStream = getResourceAsStream(filename);
+        return loadProperties(dbPropInputStream);
+    }
+
+    public static Properties loadProperties(final InputStream dbPropInputStream) throws IOException {
         final Properties dbProperties = new Properties();
         try {
             dbProperties.load(dbPropInputStream);

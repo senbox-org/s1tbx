@@ -23,9 +23,8 @@ import org.esa.snap.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
-import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -35,13 +34,11 @@ import java.sql.Statement;
  */
 public class TestProductDao {
 
-    private static String dbPropertiesPath = "org/esa/snap/config/productDB.properties";
     private ProductDB db;
 
     @Before
     public void setUp() throws Exception {
-        final URL fileUrl = this.getClass().getClassLoader().getResource(dbPropertiesPath);
-        db = ProductDB.testInstance(new File(fileUrl.getFile()));
+        db = ProductDB.instance();
     }
 
     @Test

@@ -35,19 +35,12 @@ public abstract class DAO {
     private Connection dbConnect = null;
     protected SQLException lastSQLException = null;
 
-    public DAO(final String name) throws IOException {
-        this(name, null);
-    }
-
-    public DAO(final String name, final File dbPropertiesFile) throws IOException {
+    public DAO(final String name, final Properties dbProperties) throws IOException {
         this.dbName = name;
+        this.dbProperties = dbProperties;
 
         setDBSystemDir();
-        final File dbPropFile = dbPropertiesFile != null ? dbPropertiesFile : ResourceUtils.findConfigFile(dbName + ".properties");
-        if (dbPropFile == null || !dbPropFile.exists()) {
-            throw new IOException(dbName + ".properties does not exist");
-        }
-        dbProperties = ResourceUtils.loadProperties(dbPropFile.getAbsolutePath());
+
         loadDatabaseDriver(dbProperties.getProperty("derby.driver"));
         if (!dbExists()) {
             if (!createDatabase()) {
