@@ -24,33 +24,21 @@ import org.esa.s1tbx.dat.toolviews.productlibrary.timeline.TimelinePanel;
 import org.esa.snap.dat.dialogs.CheckListDialog;
 import org.esa.snap.db.DBQuery;
 import org.esa.snap.db.ProductEntry;
-import org.esa.snap.framework.help.HelpSys;
 import org.esa.snap.framework.ui.UIUtils;
-import org.esa.snap.framework.ui.application.support.AbstractToolView;
 import org.esa.snap.framework.ui.tool.ToolButtonFactory;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.windows.ToolTopComponent;
 import org.esa.snap.util.DialogUtils;
 import org.esa.snap.util.FileFolderUtils;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.util.NbBundle;
+import org.openide.windows.TopComponent;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import java.awt.BorderLayout;
-import java.awt.Cursor;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -65,7 +53,30 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ProductLibraryToolView extends AbstractToolView implements LabelBarProgressMonitor.ProgressBarListener,
+@TopComponent.Description(
+        preferredID = "ProductLibraryTopComponent",
+        //iconBase = "org/esa/snap/rcp/icons/xxx.gif",
+        persistenceType = TopComponent.PERSISTENCE_ALWAYS
+)
+@TopComponent.Registration(
+        mode = "rightSlidingSide",
+        openAtStartup = true,
+        position = 0
+)
+@ActionID(category = "Window", id = "org.esa.s1tbx.dat.toolviews.productlibrary.ProductLibraryToolView")
+@ActionReferences({
+        @ActionReference(path = "Menu/Window/Tool Windows"),
+        @ActionReference(path = "Toolbars/Views")
+})
+@TopComponent.OpenActionRegistration(
+        displayName = "#CTL_ProductLibraryTopComponentName",
+        preferredID = "ProductLibraryTopComponent"
+)
+@NbBundle.Messages({
+        "CTL_ProductLibraryTopComponentName=Product Library",
+        "CTL_ProductLibraryTopComponentDescription=Product Library",
+})
+public class ProductLibraryToolView extends ToolTopComponent implements LabelBarProgressMonitor.ProgressBarListener,
         DatabaseQueryListener, ProductLibraryActions.ProductLibraryActionListener {
 
     private static final ImageIcon updateIcon = UIUtils.loadImageIcon("/org/esa/s1tbx/icons/refresh24.png", ProductLibraryToolView.class);
@@ -97,6 +108,9 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
     private ProductLibraryActions productLibraryActions;
 
     public ProductLibraryToolView() {
+        setDisplayName("Product Library");
+        initDatabase();
+        initUI();
     }
 
     @Override
@@ -104,8 +118,7 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         dbPane.getDB();
     }
 
-    public JComponent createControl() {
-
+    private void initDatabase() {
         libConfig = new ProductLibraryConfig(SnapApp.getDefault().getCompatiblePreferences());
 
         dbPane = new DatabasePane();
@@ -113,8 +126,27 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
 
         productLibraryActions = new ProductLibraryActions(productEntryTable, this);
         productLibraryActions.addListener(this);
+    }
 
-        initUI();
+    public void initUI() {
+
+        final JPanel northPanel = createHeaderPanel();
+        final JPanel centrePanel = createCentrePanel();
+        final JPanel southPanel = createStatusPanel();
+
+        final DatabaseStatistics stats = new DatabaseStatistics(dbPane);
+        final TimelinePanel timeLinePanel = new TimelinePanel(stats);
+        dbPane.addListener(timeLinePanel);
+        final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                                                    centrePanel, timeLinePanel);
+        splitPane.setOneTouchExpandable(true);
+        splitPane.setResizeWeight(0.99);
+
+        mainPanel = new JPanel(new BorderLayout(4, 4));
+        mainPanel.add(northPanel, BorderLayout.NORTH);
+        mainPanel.add(splitPane, BorderLayout.CENTER);
+        mainPanel.add(southPanel, BorderLayout.SOUTH);
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
         mainPanel.addComponentListener(new ComponentAdapter() {
 
@@ -140,28 +172,8 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         });
         setUIComponentsEnabled(repositoryListCombo.getItemCount() > 1);
 
-        return mainPanel;
-    }
-
-    private void initUI() {
-
-        final JPanel northPanel = createHeaderPanel();
-        final JPanel centrePanel = createCentrePanel();
-        final JPanel southPanel = createStatusPanel();
-
-        final DatabaseStatistics stats = new DatabaseStatistics(dbPane);
-        final TimelinePanel timeLinePanel = new TimelinePanel(stats);
-        dbPane.addListener(timeLinePanel);
-        final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-                centrePanel, timeLinePanel);
-        splitPane.setOneTouchExpandable(true);
-        splitPane.setResizeWeight(0.99);
-
-        mainPanel = new JPanel(new BorderLayout(4, 4));
-        mainPanel.add(northPanel, BorderLayout.NORTH);
-        mainPanel.add(splitPane, BorderLayout.CENTER);
-        mainPanel.add(southPanel, BorderLayout.SOUTH);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+        setLayout(new BorderLayout());
+        add(mainPanel, BorderLayout.CENTER);
     }
 
     private JPanel createHeaderPanel() {
@@ -228,9 +240,9 @@ public class ProductLibraryToolView extends AbstractToolView implements LabelBar
         });
         headerBar.add(removeButton, gbc);
 
-        final JButton helpButton = DialogUtils.createButton("helpButton", "Help", helpButtonIcon, headerBar, DialogUtils.ButtonStyle.Icon);
-        HelpSys.enableHelpOnButton(helpButton, helpId);
-        headerBar.add(helpButton, gbc);
+        //final JButton helpButton = DialogUtils.createButton("helpButton", "Help", helpButtonIcon, headerBar, DialogUtils.ButtonStyle.Icon);
+        //HelpSys.enableHelpOnButton(helpButton, helpId);
+       // headerBar.add(helpButton, gbc);
 
         return headerBar;
     }

@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.dat.toolviews.productlibrary;
 
-import com.jidesoft.combobox.DateComboBox;
+import com.alee.extended.date.WebDateField;
 import org.esa.s1tbx.dat.toolviews.productlibrary.model.DatabaseQueryListener;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.db.DBQuery;
@@ -31,22 +31,11 @@ import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.DialogUtils;
 import org.esa.snap.util.StringUtils;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -54,6 +43,8 @@ import java.awt.event.ItemListener;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -68,8 +59,9 @@ public final class DatabasePane extends JPanel {
     private final JComboBox passCombo = new JComboBox(new String[]{
             DBQuery.ALL_PASSES, DBQuery.ASCENDING_PASS, DBQuery.DESCENDING_PASS});
     private final JTextField trackField = new JTextField();
-    private final DateComboBox startDateBox = new DateComboBox();
-    private final DateComboBox endDateBox = new DateComboBox();
+
+    private final WebDateField startDateBox = new WebDateField(new Date());
+    private final WebDateField endDateBox = new WebDateField(new Date());
     private final JComboBox polarizationCombo = new JComboBox(new String[]{
             DBQuery.ANY, DBQuery.QUADPOL, DBQuery.DUALPOL, DBQuery.HHVV, DBQuery.HHHV, DBQuery.VVVH, "HH", "VV", "HV", "VH"});
     private final JComboBox calibrationCombo = new JComboBox(new String[]{
@@ -116,7 +108,7 @@ public final class DatabasePane extends JPanel {
             addComboListener(calibrationCombo);
             addComboListener(orbitCorrectionCombo);
 
-            startDateBox.addItemListener(new ItemListener() {
+          /*  startDateBox.addItemListener(new ItemListener() {
                 public void itemStateChanged(ItemEvent event) {
                     if (modifyingCombos || event.getStateChange() == ItemEvent.DESELECTED) return;
                     queryDatabase();
@@ -127,7 +119,7 @@ public final class DatabasePane extends JPanel {
                     if (modifyingCombos || event.getStateChange() == ItemEvent.DESELECTED) return;
                     queryDatabase();
                 }
-            });
+            });*/
             addMetadataButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     addMetadataText();
@@ -381,6 +373,15 @@ public final class DatabasePane extends JPanel {
         }
     }
 
+    private Calendar getDate(final WebDateField dateField) {
+        final Date date = dateField.getDate();
+        if(date == null)
+            return null;
+        final Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar;
+    }
+
     private void setData() {
         dbQuery.setSelectedMissions(toStringArray(missionJList.getSelectedValuesList()));
         dbQuery.setSelectedProductTypes(toStringArray(productTypeJList.getSelectedValuesList()));
@@ -388,7 +389,8 @@ public final class DatabasePane extends JPanel {
         dbQuery.setSelectedAcquisitionMode((String) acquisitionModeCombo.getSelectedItem());
         dbQuery.setSelectedPass((String) passCombo.getSelectedItem());
         dbQuery.setSelectedTrack(trackField.getText());
-        dbQuery.setStartEndDate(startDateBox.getCalendar(), endDateBox.getCalendar());
+
+        dbQuery.setStartEndDate(getDate(startDateBox), getDate(endDateBox));
 
         dbQuery.setSelectedPolarization((String) polarizationCombo.getSelectedItem());
         dbQuery.setSelectedCalibration((String) calibrationCombo.getSelectedItem());
@@ -462,8 +464,8 @@ public final class DatabasePane extends JPanel {
             productTypeJList.setSelectedIndices(findIndices(productTypeJList, dbQuery.getSelectedProductTypes()));
             acquisitionModeCombo.setSelectedItem(dbQuery.getSelectedAcquisitionMode());
             passCombo.setSelectedItem(dbQuery.getSelectedPass());
-            startDateBox.setCalendar(dbQuery.getStartDate());
-            endDateBox.setCalendar(dbQuery.getEndDate());
+            startDateBox.setDate(dbQuery.getStartDate().getTime());
+            endDateBox.setDate(dbQuery.getEndDate().getTime());
 
             polarizationCombo.setSelectedItem(dbQuery.getSelectedPolarization());
             calibrationCombo.setSelectedItem(dbQuery.getSelectedCalibration());

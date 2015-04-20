@@ -81,6 +81,19 @@
             <groupId>com.alee</groupId>
             <artifactId>weblaf</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-annotations-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-windows</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -91,6 +104,7 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>org.esa.s1tbx.*</publicPackage>
+                        <publicPackage>com.alee.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

@@ -1,25 +1,18 @@
 package org.esa.s1tbx.dat.toolviews.productlibrary.timeline;
 
-import com.alee.laf.panel.WebPanel;
 import org.esa.s1tbx.dat.toolviews.productlibrary.model.DatabaseQueryListener;
 import org.esa.s1tbx.dat.toolviews.productlibrary.model.DatabaseStatistics;
 import org.esa.snap.util.DialogUtils;
 
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
  * shows products on a time line
  */
-public class TimelinePanel extends WebPanel implements DatabaseQueryListener {
+public class TimelinePanel extends JPanel implements DatabaseQueryListener {
 
     private final DatabaseStatistics stats;
     private JPanel currentPanel = null;
@@ -35,7 +28,6 @@ public class TimelinePanel extends WebPanel implements DatabaseQueryListener {
 
     private void createPanel() {
         setLayout(new BorderLayout());
-        setUndecorated(false);
 
         final JPanel centrePanel = new JPanel(new GridBagLayout());
         final GridBagConstraints gbc = DialogUtils.createGridBagConstraints();
@@ -55,7 +47,7 @@ public class TimelinePanel extends WebPanel implements DatabaseQueryListener {
     }
 
     private JPanel createControlPanel() {
-        final WebPanel controlPanel = new WebPanel();
+        final JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.PAGE_AXIS));
         final JRadioButton timelineButton = new JRadioButton("Timeline", true);
         final JRadioButton yearsButton = new JRadioButton("Years", false);
