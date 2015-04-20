@@ -30,13 +30,16 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-import org.esa.snap.gpf.*;
+import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.gpf.StatusProgressMonitor;
+import org.esa.snap.gpf.ThreadManager;
+import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Estimate global azimuth offset using Enhanced Spectral Diversity (ESD) approach.
@@ -74,7 +77,7 @@ public class AzimuthShiftOp extends Operator {
     private int cWindowWidth = 11;
     private int cWindowHeight = 11;
 
-    static final String DerampDemodPhase = "drampDemodPhase";
+    static final String DerampDemodPhase = "derampDemodPhase";
 
     /**
      * Default constructor. The graph processing framework
@@ -162,8 +165,10 @@ public class AzimuthShiftOp extends Operator {
             }
 
             Band targetBand;
-            if (srcBandName.contains("_mst")) {
+            if (srcBandName.contains("_mst") || srcBandName.contains("derampDemod")) {
                 targetBand = ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
+            } else if (srcBandName.contains("azOffset") || srcBandName.contains("rgOffset")) {
+                continue;
             } else {
                 targetBand = new Band(srcBandName,
                         band.getDataType(),

@@ -113,6 +113,21 @@ public final class TOPSARSplitOp extends Operator {
                 }
             }
 
+            if(selectedBands.size() < 1) {
+                // try again
+                selectedPolarisations = Sentinel1Utils.getProductPolarizations(absRoot);
+
+                for (Band srcBand : sourceProduct.getBands()) {
+                    if (srcBand.getName().contains(subswath)) {
+                        for (String pol : selectedPolarisations) {
+                            if (srcBand.getName().contains(pol)) {
+                                selectedBands.add(srcBand);
+                            }
+                        }
+                    }
+                }
+            }
+
             targetProduct = new Product(sourceProduct.getName() + '_' + subswath,
                     sourceProduct.getProductType(),
                     selectedBands.get(0).getRasterWidth(),
