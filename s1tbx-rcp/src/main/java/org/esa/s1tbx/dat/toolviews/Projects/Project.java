@@ -94,7 +94,7 @@ public class Project extends Observable {
 
     private static void showProjectsView() {
         final ExecCommand command = VisatApp.getApp().getCommandManager().
-                getExecCommand("org.esa.nest.dat.toolviews.Projects.ProjectsToolView.showCmd");
+                getExecCommand("org.esa.s1tbx.dat.toolviews.Projects.ProjectsToolView.showCmd");
         command.execute();
     }
 

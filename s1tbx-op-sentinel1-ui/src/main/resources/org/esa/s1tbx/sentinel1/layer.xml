@@ -176,24 +176,24 @@
     </folder>
 
     <folder name="OperatorUIs">
-        <file name="org.esa.nest.gpf.TOPSARDeburstOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.TOPSARDeburstOpUI"/>
+        <file name="org.esa.s1tbx.gpf.TOPSARDeburstOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.TOPSARDeburstOpUI"/>
             <attr name="operatorName" stringvalue="TOPSAR-Deburst"/>
         </file>
-        <file name="org.esa.nest.gpf.SliceAssemblyOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.SliceAssemblyOpUI"/>
+        <file name="org.esa.s1tbx.gpf.SliceAssemblyOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.SliceAssemblyOpUI"/>
             <attr name="operatorName" stringvalue="SliceAssembly"/>
         </file>
-        <file name="org.esa.nest.gpf.TOPSARSplitOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.TOPSARSplitOpUI"/>
+        <file name="org.esa.s1tbx.gpf.TOPSARSplitOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.TOPSARSplitOpUI"/>
             <attr name="operatorName" stringvalue="TOPSAR-Split"/>
         </file>
-        <file name="org.esa.nest.gpf.BackGeocodingOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.BackGeocodingOpUI"/>
+        <file name="org.esa.s1tbx.gpf.BackGeocodingOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.BackGeocodingOpUI"/>
             <attr name="operatorName" stringvalue="Back-Geocoding"/>
         </file>
-        <file name="org.esa.nest.gpf.TOPSARMergeOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.TOPSARMergeOpUI"/>
+        <file name="org.esa.s1tbx.gpf.TOPSARMergeOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.TOPSARMergeOpUI"/>
             <attr name="operatorName" stringvalue="TOPSAR-Merge"/>
         </file>
     </folder>

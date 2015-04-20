@@ -28,7 +28,7 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 
 /**
- * The type descriptor of the {@link org.esa.nest.dat.layersrc.ObjectDetectionLayer}.
+ * The type descriptor of the {@link org.esa.s1tbx.dat.layersrc.ObjectDetectionLayer}.
  */
 public class ObjectDetectionLayerType extends LayerType {
 

@@ -73,7 +73,7 @@ import java.awt.Window;
         openAtStartup = true,
         position = 3
 )
-@ActionID(category = "Window", id = "org.esa.nest.dat.toolviews.nestwwview.FlatEarthWWToolView")
+@ActionID(category = "Window", id = "org.esa.s1tbx.dat.toolviews.nestwwview.FlatEarthWWToolView")
 @ActionReferences({
         @ActionReference(path = "Menu/Window/Tool Windows"),
         @ActionReference(path = "Toolbars/Views")

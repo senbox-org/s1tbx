@@ -31,11 +31,11 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
 
  */
 @LayerTypeMetadata(name = "MapToolsLayerType",
-        aliasNames = {"org.esa.nest.dat.layers.maptools.MapToolsLayerType"})
+        aliasNames = {"org.esa.s1tbx.dat.layers.maptools.MapToolsLayerType"})
 public class MapToolsLayerType extends LayerType {
 
     private static final String TYPE_NAME = "GeoTagLayerType";
-    private static final String[] ALIASES = {"org.esa.nest.dat.layers.maptools.MapToolsLayerType"};
+    private static final String[] ALIASES = {"org.esa.s1tbx.dat.layers.maptools.MapToolsLayerType"};
 
     public static MapToolsLayer createLayer(final RasterDataNode raster, final MapToolsOptions options) {
         final LayerType type = LayerTypeRegistry.getLayerType(MapToolsLayerType.class);

@@ -63,28 +63,28 @@
     </folder>
 
     <folder name="OperatorUIs">
-        <file name="org.esa.nest.gpf.BandMathsOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.BandMathsOpUI"/>
+        <file name="org.esa.s1tbx.gpf.BandMathsOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.BandMathsOpUI"/>
             <attr name="operatorName" stringvalue="BandMaths"/>
         </file>
-        <file name="org.esa.nest.gpf.BandSelectOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.BandSelectOpUI"/>
+        <file name="org.esa.s1tbx.gpf.BandSelectOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.BandSelectOpUI"/>
             <attr name="operatorName" stringvalue="BandSelect"/>
         </file>
-        <file name="org.esa.nest.gpf.FilterOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.FilterOpUI"/>
+        <file name="org.esa.s1tbx.gpf.FilterOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.FilterOpUI"/>
             <attr name="operatorName" stringvalue="Image-Filter"/>
         </file>
-        <file name="org.esa.nest.gpf.OversamplingOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.OversamplingOpUI"/>
+        <file name="org.esa.s1tbx.gpf.OversamplingOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.OversamplingOpUI"/>
             <attr name="operatorName" stringvalue="Oversample"/>
         </file>
-        <file name="org.esa.nest.gpf.TileWriterUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.TileWriterUI"/>
+        <file name="org.esa.s1tbx.gpf.TileWriterUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.TileWriterUI"/>
             <attr name="operatorName" stringvalue="TileWriter"/>
         </file>
-        <file name="org.esa.nest.gpf.UndersamplingOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.UndersamplingOpUI"/>
+        <file name="org.esa.s1tbx.gpf.UndersamplingOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.UndersamplingOpUI"/>
             <attr name="operatorName" stringvalue="Undersample"/>
         </file>
     </folder>

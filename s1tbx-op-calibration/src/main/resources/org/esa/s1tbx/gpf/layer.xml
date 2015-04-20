@@ -75,16 +75,16 @@
     </folder>
 
     <folder name="OperatorUIs">
-        <file name="org.esa.nest.gpf.CalibrationOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.CalibrationOpUI"/>
+        <file name="org.esa.s1tbx.gpf.CalibrationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.CalibrationOpUI"/>
             <attr name="operatorName" stringvalue="Calibration"/>
         </file>
-        <file name="org.esa.nest.gpf.RemoveAntennaPatternOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.RemoveAntennaPatternOpUI"/>
+        <file name="org.esa.s1tbx.gpf.RemoveAntennaPatternOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.RemoveAntennaPatternOpUI"/>
             <attr name="operatorName" stringvalue="RemoveAntennaPattern"/>
         </file>
-        <file name="org.esa.nest.gpf.Sentinel1RemoveThermalNoiseOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.nest.gpf.Sentinel1RemoveThermalNoiseOpUI"/>
+        <file name="org.esa.s1tbx.gpf.Sentinel1RemoveThermalNoiseOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.Sentinel1RemoveThermalNoiseOpUI"/>
             <attr name="operatorName" stringvalue="ThermalNoiseRemoval"/>
         </file>
     </folder>

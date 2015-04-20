@@ -28,7 +28,7 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 
 /**
- * The type descriptor of the {@link org.esa.nest.dat.layersrc.WindFieldEstimationLayer}.
+ * The type descriptor of the {@link org.esa.s1tbx.dat.layersrc.WindFieldEstimationLayer}.
  */
 public class WindFieldEstimationLayerType extends LayerType {
 
