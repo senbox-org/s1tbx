@@ -15,7 +15,6 @@
  */
 package org.esa.s1tbx.gpf;
 
-import com.jidesoft.swing.JideLabel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.ui.AppContext;
@@ -25,17 +24,8 @@ import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.DialogUtils;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -50,7 +40,7 @@ public class CalibrationOpUI extends BaseOperatorUI {
 
     private final JList bandList = new JList();
     private final JScrollPane bandListPane = new JScrollPane(bandList);
-    private final JLabel bandListLabel = new JideLabel("Source Bands:");
+    private final JLabel bandListLabel = new JLabel("Source Bands:");
     private final JComboBox auxFile = new JComboBox(new String[]{CalibrationOp.LATEST_AUX,
             CalibrationOp.PRODUCT_AUX,
             CalibrationOp.EXTERNAL_AUX});
