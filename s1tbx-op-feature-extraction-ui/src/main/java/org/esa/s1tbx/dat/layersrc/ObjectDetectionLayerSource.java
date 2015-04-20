@@ -20,17 +20,18 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.ui.layer.AbstractLayerSourceAssistantPage;
 import org.esa.snap.framework.ui.layer.LayerSource;
 import org.esa.snap.framework.ui.layer.LayerSourcePageContext;
+import org.esa.snap.rcp.SnapApp;
 
 import java.io.File;
 
 /**
- * A source for {@link org.esa.nest.dat.layersrc.ObjectDetectionLayer}s.
+ * A source for ObjectDetection
  */
 public class ObjectDetectionLayerSource implements LayerSource {
 
     @Override
     public boolean isApplicable(LayerSourcePageContext pageContext) {
-        final Product product = pageContext.getAppContext().getSelectedProduct();
+        final Product product = SnapApp.getDefault().getSelectedProductSceneView().getProduct();
 
         final File targetFile = ObjectDetectionLayer.getTargetFile(product);
         return targetFile != null;
@@ -53,8 +54,8 @@ public class ObjectDetectionLayerSource implements LayerSource {
 
     @Override
     public boolean performFinish(LayerSourcePageContext pageContext) {
-        final Product product = pageContext.getAppContext().getSelectedProduct();
-        final Band band = product.getBand(pageContext.getAppContext().getSelectedProductSceneView().getRaster().getName());
+        final Product product = SnapApp.getDefault().getSelectedProductSceneView().getProduct();
+        final Band band = product.getBand(SnapApp.getDefault().getSelectedProductSceneView().getRaster().getName());
 
         final ObjectDetectionLayer fieldLayer = ObjectDetectionLayerType.createLayer(product, band);
         pageContext.getLayerContext().getRootLayer().getChildren().add(0, fieldLayer);

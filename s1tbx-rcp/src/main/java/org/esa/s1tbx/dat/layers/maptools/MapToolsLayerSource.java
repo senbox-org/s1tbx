@@ -19,6 +19,7 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.ui.layer.AbstractLayerSourceAssistantPage;
 import org.esa.snap.framework.ui.layer.LayerSource;
 import org.esa.snap.framework.ui.layer.LayerSourcePageContext;
+import org.esa.snap.rcp.SnapApp;
 
 /**
 
@@ -49,7 +50,7 @@ public class MapToolsLayerSource implements LayerSource {
     }
 
     public static void createLayer(final LayerSourcePageContext pageContext, final MapToolsOptions options) {
-        final RasterDataNode raster = pageContext.getAppContext().getSelectedProductSceneView().getRaster();
+        final RasterDataNode raster = SnapApp.getDefault().getSelectedProductSceneView().getRaster();
         final MapToolsLayer geoLayer = MapToolsLayerType.createLayer(raster, options);
         pageContext.getLayerContext().getRootLayer().getChildren().add(0, geoLayer);
     }
