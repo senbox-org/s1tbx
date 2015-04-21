@@ -18,7 +18,7 @@ package org.esa.snap.jai;
 
 import com.bc.ceres.core.VirtualDir;
 import com.sun.media.jai.codec.SeekableStream;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.util.io.FileUtils;
 
 import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.ImageInputStream;
@@ -290,7 +290,7 @@ public class TiledFileOpImage extends SourcelessOpImage {
         public ImageInputStream createImageInputStream(int tileX, int tileY) throws IOException {
             final String entryName = getTileBasename(tileX, tileY) + ".raw";
             final URI uri = URI.create("jar:file:" + imageDir.resolve(entryName + ".zip").toUri().getPath() + "!/");
-            Path entryZip = SystemUtils.getPathFromURI(uri);
+            Path entryZip = FileUtils.getPathFromURI(uri);
             InputStream stream = Files.newInputStream(entryZip.resolve(entryName));
             return new FileCacheImageInputStream(stream, tmpDir);
         }

@@ -17,6 +17,7 @@ package org.esa.snap.util;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import org.esa.snap.util.io.FileUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -138,7 +139,7 @@ public class ResourceInstaller {
 
     public static Path findModuleCodeBasePath(Class clazz) {
         try {
-            return SystemUtils.getPathFromURI(clazz.getProtectionDomain().getCodeSource().getLocation().toURI());
+            return FileUtils.getPathFromURI(clazz.getProtectionDomain().getCodeSource().getLocation().toURI());
         } catch (URISyntaxException | IOException e) {
             throw new RuntimeException("Failed to detect the module's code base path", e);
         }

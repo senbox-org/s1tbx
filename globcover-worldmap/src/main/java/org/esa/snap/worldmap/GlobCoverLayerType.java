@@ -25,7 +25,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.snap.glayer.WorldMapLayerType;
 import org.esa.snap.glevel.TiledFileMultiLevelSource;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.util.io.FileUtils;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 
@@ -112,7 +112,7 @@ public class GlobCoverLayerType extends WorldMapLayerType {
 
     private static Path getDirPathFromModule() {
         try {
-            return SystemUtils.getPathFromURI(GlobCoverLayerType.class.getResource("image.properties").toURI()).getParent();
+            return FileUtils.getPathFromURI(GlobCoverLayerType.class.getResource("image.properties").toURI()).getParent();
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
         }

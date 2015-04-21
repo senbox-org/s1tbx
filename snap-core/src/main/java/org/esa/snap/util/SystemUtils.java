@@ -34,15 +34,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 import java.util.StringTokenizer;
@@ -623,24 +617,6 @@ public class SystemUtils {
             applicationHomepageUrl = applicationHomepageUrl + "/";
         }
         return System.getProperty(key, applicationHomepageUrl + "software/version.txt");
-    }
-
-    /**
-     * Try to create a {@link Path} from the given {@link URI}.
-     *
-     *
-     * @param uri The {@link URI} to create the {@link Path} from.
-     * @return The converted {@link Path}.
-     * @throws IOException If the {@link Path} could not be created
-     * @throws IllegalArgumentException If {@link URI} is not valid
-     */
-    public static Path getPathFromURI(URI uri) throws IOException {
-        try {
-            return Paths.get(uri);
-        } catch (FileSystemNotFoundException exp) {
-            FileSystems.newFileSystem(uri, Collections.emptyMap());
-            return Paths.get(uri);
-        }
     }
 
     /**

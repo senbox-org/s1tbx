@@ -29,6 +29,11 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
 
 /**
  * This class provides additional functionality in handling with files. All methods in this class dealing with
@@ -479,5 +484,22 @@ public class FileUtils {
             return uri;
         }
         return rootURI.relativize(uri);
+    }
+
+    /**
+     * Tries to create a {@link Path} from the given {@link URI}.
+     *
+     * @param uri The {@link URI} to create the {@link Path} from.
+     * @return The converted {@link Path}.
+     * @throws IOException If the {@link Path} could not be created
+     * @throws IllegalArgumentException If {@link URI} is not valid
+     */
+    public static Path getPathFromURI(URI uri) throws IOException {
+        try {
+            return Paths.get(uri);
+        } catch (FileSystemNotFoundException exp) {
+            FileSystems.newFileSystem(uri, Collections.emptyMap());
+            return Paths.get(uri);
+        }
     }
 }
