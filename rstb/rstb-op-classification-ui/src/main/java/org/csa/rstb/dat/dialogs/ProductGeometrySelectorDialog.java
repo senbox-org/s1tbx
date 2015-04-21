@@ -15,19 +15,28 @@
  */
 package org.csa.rstb.dat.dialogs;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.visat.VisatApp;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.ui.ModalDialog;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
-import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.util.DialogUtils;
+import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.util.Settings;
+import org.esa.snap.util.StringUtils;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.filechooser.FileSystemView;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -170,8 +179,8 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
 
         final File file = getSaveFile();
         if (file.exists()) {
-            return VisatApp.getApp().showQuestionDialog("File exists", "File " + file.getAbsolutePath() +
-                    "\nalready exists. Would you like to overwrite it?", false, null) == 0;
+            return SnapDialogs.requestDecision("File exists", "File " + file.getAbsolutePath() +
+                    "\nalready exists. Would you like to overwrite it?", false, null) == SnapDialogs.Answer.YES;
         }
         if (!file.getParentFile().exists())
             file.getParentFile().mkdirs();

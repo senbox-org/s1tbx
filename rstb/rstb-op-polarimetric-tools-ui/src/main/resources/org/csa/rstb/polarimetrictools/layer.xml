@@ -1,0 +1,39 @@
+
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Operators">
+            <!--file name="org-esa-s1tbx-gpf-FillHoleOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Fill DEM Hole"/>
+                <attr name="operatorName" stringvalue="Fill-Hole"/>
+                <attr name="dialogTitle" stringvalue="Fill DEM Hole"/>
+                <attr name="ShortDescription" stringvalue="Fill holes in a DEM product"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file-->
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="SAR Processing">
+            <folder name="Polarimetric">
+                <!--file name="org-esa-s1tbx-gpf-FillHoleOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-FillHoleOp-Action.instance"/>
+                </file-->
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="OperatorUIs">
+        <file name="org.csa.rstb.gpf.PolarimetricDecompositionOpUI">
+            <attr name="operatorUIClass" stringvalue="org.csa.rstb.gpf.PolarimetricDecompositionOpUI"/>
+            <attr name="operatorName" stringvalue="Polarimetric-Decomposition"/>
+        </file>
+        <file name="org.csa.rstb.gpf.PolarimetricSpeckleFilterOpUI">
+            <attr name="operatorUIClass" stringvalue="org.csa.rstb.gpf.PolarimetricSpeckleFilterOpUI"/>
+            <attr name="operatorName" stringvalue="Polarimetric-Speckle-Filter"/>
+        </file>
+    </folder>
+
+</filesystem>

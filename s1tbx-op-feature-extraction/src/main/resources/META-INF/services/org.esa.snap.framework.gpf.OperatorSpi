@@ -1,0 +1,17 @@
+org.esa.s1tbx.gpf.SpeckleDivergenceOp$Spi
+org.esa.s1tbx.gpf.TerrainMaskOp$Spi
+org.esa.s1tbx.gpf.ForestAreaDetectionOp$Spi
+org.esa.s1tbx.gpf.FloodDetectionOp$Spi
+org.esa.s1tbx.gpf.GLCMOp$Spi
+org.esa.s1tbx.gpf.GaborFilterOp$Spi
+org.esa.s1tbx.gpf.ForestAreaClassificationOp$Spi
+org.esa.s1tbx.gpf.oceantools.CreateLandMaskOp$Spi
+org.esa.s1tbx.gpf.oceantools.AdaptiveThresholdingOp$Spi
+org.esa.s1tbx.gpf.oceantools.ObjectDiscriminationOp$Spi
+org.esa.s1tbx.gpf.oceantools.OilSpillDetectionOp$Spi
+org.esa.s1tbx.gpf.oceantools.OilSpillClusteringOp$Spi
+org.esa.s1tbx.gpf.oceantools.WindFieldEstimationOp$Spi
+org.esa.s1tbx.gpf.ChangeDetectionOp$Spi
+org.esa.s1tbx.gpf.FindImagePairOp$Spi
+org.esa.s1tbx.gpf.SubGraphOp$Spi
+

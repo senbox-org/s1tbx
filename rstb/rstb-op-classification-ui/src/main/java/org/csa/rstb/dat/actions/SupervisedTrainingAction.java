@@ -20,22 +20,20 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.csa.rstb.dat.dialogs.ProductGeometrySelectorDialog;
 import org.csa.rstb.gpf.PolOpUtils;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Mask;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.VectorDataNode;
-import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.visat.VisatApp;
-import org.esa.beam.visat.actions.AbstractVisatAction;
-import org.esa.nest.dataio.PolBandUtils;
+import org.esa.s1tbx.dataio.PolBandUtils;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.Mask;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.VectorDataNode;
+import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.gpf.ProcessTimeMonitor;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.visat.actions.AbstractVisatAction;
 import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -298,12 +296,8 @@ public class SupervisedTrainingAction extends AbstractVisatAction {
                 final Boolean isOk = (Boolean) this.get();
                 if (isOk) {
                     final String durationStr = "Processing completed in " + ProcessTimeMonitor.formatDuration(duration);
-                    VisatApp.getApp().showMessageDialog("Done",
-                            "Supervised Training Dataset Completed\n" +
-                                    file.getAbsolutePath() + "\n\n" +
-                                    durationStr,
-                            JOptionPane.INFORMATION_MESSAGE, null
-                    );
+                    SnapDialogs.showInformation("Done",
+                                "Supervised Training Dataset Completed\n" + file.getAbsolutePath() + "\n\n" + durationStr, null);
                 } else {
                     SnapDialogs.showError("An error occurred\n" + error.getMessage());
                 }

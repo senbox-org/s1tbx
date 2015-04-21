@@ -14,37 +14,47 @@
 package org.jlinda.nest.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
-import org.esa.nest.dataio.dem.ElevationModel;
-import org.esa.nest.dataio.dem.ElevationModelDescriptor;
-import org.esa.nest.dataio.dem.ElevationModelRegistry;
+import org.esa.s1tbx.dataio.dem.ElevationModel;
+import org.esa.s1tbx.dataio.dem.ElevationModelDescriptor;
+import org.esa.s1tbx.dataio.dem.ElevationModelRegistry;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.GcpDescriptor;
+import org.esa.snap.framework.datamodel.GeoCoding;
+import org.esa.snap.framework.datamodel.GeoPos;
+import org.esa.snap.framework.datamodel.MetadataAttribute;
+import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.framework.datamodel.PixelPos;
+import org.esa.snap.framework.datamodel.Placemark;
+import org.esa.snap.framework.datamodel.PlacemarkNameFactory;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.ProductNodeGroup;
+import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
+import org.esa.snap.framework.gpf.Operator;
+import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.framework.gpf.OperatorSpi;
+import org.esa.snap.framework.gpf.Tile;
+import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
+import org.esa.snap.framework.gpf.annotations.Parameter;
+import org.esa.snap.framework.gpf.annotations.SourceProduct;
+import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.StackUtils;
 import org.esa.snap.gpf.StatusProgressMonitor;
 import org.esa.snap.gpf.ThreadManager;
-import org.esa.snap.rcp.placemark.PlacemarkNameFactory;
 import org.esa.snap.util.MemUtils;
+import org.esa.snap.util.ProductUtils;
+import org.esa.snap.util.StringUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jlinda.core.Window;
 import org.jlinda.core.coregistration.utils.CoregistrationUtils;
 import org.jlinda.core.utils.MathUtils;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -151,14 +161,14 @@ public class CoarseFineCoregOp extends Operator {
 
     /**
      * Initializes this operator and sets the one and only target product.
-     * <p>The target product can be either defined by a field of type {@link org.esa.beam.framework.datamodel.Product} annotated with the
-     * {@link org.esa.beam.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
+     * <p>The target product can be either defined by a field of type {@link org.esa.snap.framework.datamodel.Product} annotated with the
+     * {@link org.esa.snap.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
      * by calling {@link #setTargetProduct} method.</p>
      * <p>The framework calls this method after it has created this operator.
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
+     * @throws org.esa.snap.framework.gpf.OperatorException
      *          If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
@@ -352,7 +362,7 @@ public class CoarseFineCoregOp extends Operator {
      * @param targetTileMap   The target tiles associated with all target bands to be computed.
      * @param targetRectangle The rectangle of target tile.
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
+     * @throws org.esa.snap.framework.gpf.OperatorException
      *          If an error occurs during computation of the target raster.
      */
     @Override
@@ -711,11 +721,11 @@ public class CoarseFineCoregOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
-     * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
-     * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
+     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator()
+     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */
     public static class Spi extends OperatorSpi {
         public Spi() {

@@ -1,15 +1,14 @@
 package org.jlinda.core.utils;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Window;
 
 import java.util.logging.Logger;
 
-import static org.jblas.MatrixFunctions.abs;
-import static org.jblas.MatrixFunctions.pow;
+import static org.jblas.MatrixFunctions.*;
 
 public class LinearAlgebraUtils {
 

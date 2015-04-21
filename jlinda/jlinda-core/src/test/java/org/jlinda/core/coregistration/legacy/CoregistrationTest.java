@@ -1,8 +1,13 @@
 package org.jlinda.core.coregistration.legacy;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.SystemUtils;
-import org.jblas.*;
+import org.esa.snap.util.SystemUtils;
+import org.jblas.ComplexDouble;
+import org.jblas.ComplexDoubleMatrix;
+import org.jblas.ComplexFloat;
+import org.jblas.ComplexFloatMatrix;
+import org.jblas.DoubleMatrix;
+import org.jblas.FloatMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
@@ -27,11 +32,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.lang.Math.ceil;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 import static org.jblas.MatrixFunctions.pow;
 import static org.jblas.MatrixFunctions.sqrt;
-import static org.jlinda.core.utils.PolyUtils.normalize2;
-import static org.jlinda.core.utils.PolyUtils.polyval;
+import static org.jlinda.core.utils.PolyUtils.*;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CoregistrationTest {

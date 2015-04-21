@@ -1,0 +1,209 @@
+
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Operators">
+            <file name="org-esa-s1tbx-gpf-SliceAssemblyOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="S-1 Slice Assembly"/>
+                <attr name="graphFile"  stringvalue="Sentinel1SliceAssemblyGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="S-1 Slice Assembly"/>
+                <attr name="targetProductNameSuffix" stringvalue="_asm"/>
+                <attr name="ShortDescription" stringvalue="Merge slice products together"/>
+            </file>
+            <file name="org-esa-s1tbx-gpf-TOPSARSplitOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="S-1 TOPS Split"/>
+                <attr name="operatorName" stringvalue="TOPSAR-Split"/>
+                <attr name="dialogTitle" stringvalue="S-1 TOPS Split"/>
+                <attr name="ShortDescription" stringvalue="Split a Sentinel1 TOPSAR product into subswaths"/>
+            </file>
+            <file name="org-esa-s1tbx-gpf-TOPSARMergeOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="S-1 TOPS Merge"/>
+                <attr name="graphFile" stringvalue="TOPSARMergeGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="S-1 TOPS Merge"/>
+                <attr name="ShortDescription" stringvalue="Merge TOPSAR subswaths together"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-gpf-TOPSARDeburstOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="S-1 TOPS Deburst"/>
+                <attr name="operatorName" stringvalue="TOPSAR-Deburst"/>
+                <attr name="dialogTitle" stringvalue="S-1 TOPS Deburst"/>
+                <attr name="ShortDescription" stringvalue="Deburst a Sentinel1 TOPSAR product"/>
+                <attr name="targetProductNameSuffix" stringvalue="_deb"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-gpf-Sentinel1SLCtoGRD-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="S-1 SLC to GRD"/>
+                <attr name="graphFile" stringvalue="Sentinel1SLCtoGRDGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="S-1 SLC to GRD"/>
+                <attr name="ShortDescription" stringvalue="Convert a Sentinel1 SLC product to a detected ground range product"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+
+            <file name="org-esa-s1tbx-gpf-TOPSCoregistration-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="S1 TOPS Coregistration"/>
+                <attr name="graphFile" stringvalue="Sentinel1SLCtoGRDGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="S1 TOPS Coregistration"/>
+                <attr name="ShortDescription" stringvalue="S1 TOPS Coregistration"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-gpf-BackGeocodingOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="S-1 Back Geocoding"/>
+                <attr name="graphFile" stringvalue="BackGeocodingGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="S-1 Back Geocoding"/>
+                <attr name="ShortDescription" stringvalue="Back Geocoding"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-gpf-RangeShiftOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="S-1 Range Shift"/>
+                <attr name="operatorName" stringvalue="Range-Shift"/>
+                <attr name="dialogTitle" stringvalue="S-1 Range Shift"/>
+                <attr name="ShortDescription" stringvalue="Constant Range Offset Estimation"/>
+                <attr name="targetProductNameSuffix" stringvalue="_rg"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-gpf-AzimuthShiftOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="S-1 Azimuth Shift"/>
+                <attr name="operatorName" stringvalue="Azimuth-Shift"/>
+                <attr name="dialogTitle" stringvalue="S-1 Azimuth Shift"/>
+                <attr name="ShortDescription" stringvalue="Azimuth Offset Estimation"/>
+                <attr name="targetProductNameSuffix" stringvalue="_az"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-gpf-ComputeDerampDemodPhaseOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Compute Deramp Demodulation Phase"/>
+                <attr name="operatorName" stringvalue="Compute-Deramp-Demod-Phase"/>
+                <attr name="dialogTitle" stringvalue="Compute Deramp Demodulation Phase"/>
+                <attr name="ShortDescription" stringvalue="Compute Deramp Demodulation Phase"/>
+                <attr name="targetProductNameSuffix" stringvalue="_ddp"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-gpf-InterferogramOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Interferogram Formation"/>
+                <attr name="operatorName" stringvalue="Interferogram"/>
+                <attr name="dialogTitle" stringvalue="Interferogram Formation"/>
+                <attr name="ShortDescription" stringvalue="Interferogram Formation and Flat Earth Phase Removal"/>
+                <attr name="targetProductNameSuffix" stringvalue="_ifg"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="SAR Processing">
+            <attr name="position" intvalue="510"/>
+            <folder name="Coregistration">
+                <attr name="position" intvalue="300"/>
+                <folder name="S1 TOPS Coregistration">
+                    <attr name="position" intvalue="200"/>
+                    <file name="org-esa-s1tbx-gpf-TOPSCoregistration-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-s1tbx-gpf-TOPSCoregistration-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="separator.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="125"/>
+                    </file>
+                    <file name="org-esa-s1tbx-gpf-BackGeocodingOp-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-s1tbx-gpf-BackGeocodingOp-Action.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="org-esa-s1tbx-gpf-RangeShiftOp-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-s1tbx-gpf-RangeShiftOp-Action.instance"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                    <file name="org-esa-s1tbx-gpf-AzimuthShiftOp-Action.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-s1tbx-gpf-AzimuthShiftOp-Action.instance"/>
+                        <attr name="position" intvalue="400"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="Sentinel-1 TOPS">
+                <attr name="position" intvalue="900"/>
+                <file name="org-esa-s1tbx-gpf-Sentinel1SLCtoGRD-Action.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-Sentinel1SLCtoGRD-Action.instance"/>
+                    <attr name="position" intvalue="100"/>
+                </file>
+                <file name="org-esa-s1tbx-gpf-SliceAssemblyOp-Action.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-SliceAssemblyOp-Action.instance"/>
+                    <attr name="position" intvalue="200"/>
+                </file>
+                <file name="org-esa-s1tbx-gpf-TOPSARSplitOp-Action.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-TOPSARSplitOp-Action.instance"/>
+                    <attr name="position" intvalue="300"/>
+                </file>
+                <file name="org-esa-s1tbx-gpf-TOPSARDeburstOp-Action.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-TOPSARDeburstOp-Action.instance"/>
+                    <attr name="position" intvalue="400"/>
+                </file>
+                <file name="org-esa-s1tbx-gpf-TOPSARMergeOp-Action.shadow">
+                    <attr name="originalFile"
+                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-TOPSARMergeOp-Action.instance"/>
+                    <attr name="position" intvalue="500"/>
+                </file>
+            </folder>
+
+        </folder>
+    </folder>
+
+    <folder name="OperatorUIs">
+        <file name="org.esa.s1tbx.gpf.TOPSARDeburstOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.TOPSARDeburstOpUI"/>
+            <attr name="operatorName" stringvalue="TOPSAR-Deburst"/>
+        </file>
+        <file name="org.esa.s1tbx.gpf.SliceAssemblyOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.SliceAssemblyOpUI"/>
+            <attr name="operatorName" stringvalue="SliceAssembly"/>
+        </file>
+        <file name="org.esa.s1tbx.gpf.TOPSARSplitOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.TOPSARSplitOpUI"/>
+            <attr name="operatorName" stringvalue="TOPSAR-Split"/>
+        </file>
+        <file name="org.esa.s1tbx.gpf.BackGeocodingOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.BackGeocodingOpUI"/>
+            <attr name="operatorName" stringvalue="Back-Geocoding"/>
+        </file>
+        <file name="org.esa.s1tbx.gpf.TOPSARMergeOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.TOPSARMergeOpUI"/>
+            <attr name="operatorName" stringvalue="TOPSAR-Merge"/>
+        </file>
+    </folder>
+
+    <!--folder name="Services">
+        <folder name="JavaHelp">
+            <file name="helpset.xml" url="helpset.xml">
+                <attr name="position" intvalue="4600"/>
+            </file>
+        </folder>
+    </folder-->
+
+</filesystem>

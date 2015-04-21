@@ -1,30 +1,39 @@
 package org.jlinda.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.resamp.Resampling;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.util.ProductUtils;
-import org.esa.nest.dataio.dem.ElevationModel;
-import org.esa.nest.dataio.dem.ElevationModelDescriptor;
-import org.esa.nest.dataio.dem.ElevationModelRegistry;
-import org.esa.nest.dataio.dem.FileElevationModel;
+import org.esa.s1tbx.dataio.dem.ElevationModel;
+import org.esa.s1tbx.dataio.dem.ElevationModelDescriptor;
+import org.esa.s1tbx.dataio.dem.ElevationModelRegistry;
+import org.esa.s1tbx.dataio.dem.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.GeoPos;
+import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.framework.datamodel.PixelPos;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.datamodel.VirtualBand;
+import org.esa.snap.framework.dataop.resamp.Resampling;
+import org.esa.snap.framework.gpf.Operator;
+import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.framework.gpf.OperatorSpi;
+import org.esa.snap.framework.gpf.Tile;
+import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
+import org.esa.snap.framework.gpf.annotations.Parameter;
+import org.esa.snap.framework.gpf.annotations.SourceProduct;
+import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.util.ProductUtils;
 import org.jblas.ComplexDoubleMatrix;
 import org.jblas.DoubleMatrix;
 import org.jblas.MatrixFunctions;
-import org.jlinda.core.*;
+import org.jlinda.core.Constants;
+import org.jlinda.core.GeoPoint;
+import org.jlinda.core.Orbit;
+import org.jlinda.core.SLCImage;
 import org.jlinda.core.Window;
 import org.jlinda.core.geom.DemTile;
 import org.jlinda.core.geom.TopoPhase;
@@ -35,7 +44,7 @@ import org.jlinda.nest.utils.CplxContainer;
 import org.jlinda.nest.utils.ProductContainer;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -98,21 +107,22 @@ public final class SubtRefDemOp extends Operator {
     private HashMap<String, ProductContainer> targetMap = new HashMap<String, ProductContainer>();
 
     // operator tags
+    private String productName;
+    public String productTag;
+
     private static final boolean CREATE_VIRTUAL_BAND = true;
-    private static final String PRODUCT_NAME = "srd_ifgs";
-    private static final String PRODUCT_TAG = "_ifg_srd";
 
 
     /**
      * Initializes this operator and sets the one and only target product.
-     * <p>The target product can be either defined by a field of type {@link org.esa.beam.framework.datamodel.Product} annotated with the
-     * {@link org.esa.beam.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
+     * <p>The target product can be either defined by a field of type {@link org.esa.snap.framework.datamodel.Product} annotated with the
+     * {@link org.esa.snap.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
      * by calling {@link #setTargetProduct} method.</p>
      * <p>The framework calls this method after it has created this operator.
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws org.esa.beam.framework.gpf.OperatorException
+     * @throws org.esa.snap.framework.gpf.OperatorException
      *          If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
@@ -140,6 +150,28 @@ public final class SubtRefDemOp extends Operator {
         final InputProductValidator validator = new InputProductValidator(sourceProduct);
         validator.checkIfCoregisteredStack();
         validator.checkIfDeburstedProduct();
+
+        productName = "srd_ifgs";
+        productTag = "_ifg_srd";
+        if (validator.isSentinel1Product()) {
+            final String topsarTag = getTOPSARTag(sourceProduct);
+            productTag = productTag + "_" + topsarTag;
+        }
+    }
+
+    private static String getTOPSARTag(final Product sourceProduct) {
+
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
+        final String acquisitionMode = absRoot.getAttributeString(AbstractMetadata.ACQUISITION_MODE);
+        final Band[] bands = sourceProduct.getBands();
+        for (Band band:bands) {
+            final String bandName = band.getName();
+            if (bandName.contains(acquisitionMode)) {
+                final int idx = bandName.indexOf(acquisitionMode);
+                return bandName.substring(idx, idx + 6);
+            }
+        }
+        return "";
     }
 
     private void defineDEM() throws IOException {
@@ -266,8 +298,8 @@ public final class SubtRefDemOp extends Operator {
                 final CplxContainer slave = slaveMap.get(keySlave);
                 final ProductContainer product = new ProductContainer(productName, master, slave, true);
 
-                product.targetBandName_I = "i" + PRODUCT_TAG + "_" + master.date + "_" + slave.date;
-                product.targetBandName_Q = "q" + PRODUCT_TAG + "_" + master.date + "_" + slave.date;
+                product.targetBandName_I = "i" + productTag + "_" + master.date + "_" + slave.date;
+                product.targetBandName_Q = "q" + productTag + "_" + master.date + "_" + slave.date;
 
                 product.masterSubProduct.name = topoPhaseBandName;
                 product.masterSubProduct.targetBandName_I = topoPhaseBandName + "_" + master.date + "_" + slave.date;
@@ -280,7 +312,7 @@ public final class SubtRefDemOp extends Operator {
 
     private void createTargetProduct() {
 
-        targetProduct = new Product(PRODUCT_NAME,
+        targetProduct = new Product(productName,
                 sourceProduct.getProductType(),
                 sourceProduct.getSceneRasterWidth(),
                 sourceProduct.getSceneRasterHeight());
@@ -291,13 +323,13 @@ public final class SubtRefDemOp extends Operator {
 
             String targetBandName_I = targetMap.get(key).targetBandName_I;
             String targetBandName_Q = targetMap.get(key).targetBandName_Q;
-            targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT64).setUnit(Unit.REAL);
-            targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT64).setUnit(Unit.IMAGINARY);
+            targetProduct.addBand(targetBandName_I, ProductData.TYPE_FLOAT32).setUnit(Unit.REAL);
+            targetProduct.addBand(targetBandName_Q, ProductData.TYPE_FLOAT32).setUnit(Unit.IMAGINARY);
 
             final String tag0 = targetMap.get(key).sourceMaster.date;
             final String tag1 = targetMap.get(key).sourceSlave.date;
             if (CREATE_VIRTUAL_BAND) {
-                String countStr = PRODUCT_TAG + "_" + tag0 + "_" + tag1;
+                String countStr = productTag + "_" + tag0 + "_" + tag1;
 
                 ReaderUtils.createVirtualIntensityBand(targetProduct, targetProduct.getBand(targetBandName_I),
                         targetProduct.getBand(targetBandName_Q), countStr);
@@ -338,7 +370,7 @@ public final class SubtRefDemOp extends Operator {
      * @param targetTileMap   The target tiles associated with all target bands to be computed.
      * @param targetRectangle The rectangle of target tile.
      * @param pm              A progress monitor which should be used to determine computation cancelation requests.
-     * @throws org.esa.beam.framework.gpf.OperatorException
+     * @throws org.esa.snap.framework.gpf.OperatorException
      *          If an error occurs during computation of the target raster.
      */
     @Override
@@ -522,11 +554,11 @@ public final class SubtRefDemOp extends Operator {
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file
-     * {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}.
+     * {@code META-INF/services/org.esa.snap.framework.gpf.OperatorSpi}.
      * This class may also serve as a factory for new operator instances.
      *
-     * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator()
-     * @see org.esa.beam.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
+     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator()
+     * @see org.esa.snap.framework.gpf.OperatorSpi#createOperator(java.util.Map, java.util.Map)
      */
     public static class Spi extends OperatorSpi {
         public Spi() {

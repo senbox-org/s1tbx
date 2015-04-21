@@ -1,11 +1,11 @@
 package org.jlinda.core;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.util.SystemUtils;
 
 import java.util.logging.Logger;
 
-import static org.jlinda.core.Constants.DTOR;
+import static org.jlinda.core.Constants.*;
 
 public class Ellipsoid {
 

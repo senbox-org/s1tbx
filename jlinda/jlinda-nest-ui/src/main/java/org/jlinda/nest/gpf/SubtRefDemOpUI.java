@@ -1,16 +1,23 @@
 package org.jlinda.nest.gpf;
 
-import org.esa.nest.dataio.dem.ElevationModelDescriptor;
-import org.esa.nest.dataio.dem.ElevationModelRegistry;
-import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.visat.VisatApp;
-import org.esa.snap.gpf.ui.OperatorUIUtils;
+import org.esa.s1tbx.dataio.dem.ElevationModelDescriptor;
+import org.esa.s1tbx.dataio.dem.ElevationModelRegistry;
+import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.gpf.ui.BaseOperatorUI;
+import org.esa.snap.gpf.ui.OperatorUIUtils;
 import org.esa.snap.gpf.ui.UIValidation;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.DialogUtils;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -76,7 +83,7 @@ public class SubtRefDemOpUI extends BaseOperatorUI {
 
         externalDEMBrowseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final File file = VisatApp.getApp().showFileOpenDialog("External DEM File", false, null);
+                final File file = SnapDialogs.requestFileForOpen("External DEM File", false, null, null);
                 externalDEMFile.setText(file.getAbsolutePath());
                 extNoDataValue = OperatorUIUtils.getNoDataValue(file);
                 externalDEMNoDataValue.setText(String.valueOf(extNoDataValue));

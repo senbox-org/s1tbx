@@ -2,7 +2,7 @@ package org.jlinda.core.unwrapping.mcf;
 
 import com.winvector.lp.LPException;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 import org.jlinda.core.Constants;
 import org.jlinda.core.unwrapping.mcf.utils.JblasUtils;
@@ -17,9 +17,8 @@ import scpsolver.problems.LinearProgram;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.jblas.DoubleMatrix.concatHorizontally;
-import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.grid2D;
-import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.intRangeDoubleMatrix;
+import static org.jblas.DoubleMatrix.*;
+import static org.jlinda.core.unwrapping.mcf.utils.JblasUtils.*;
 
 /**
  * Description: Implementation of Linear Programming Unwrapping. Heavily based on Matlab package

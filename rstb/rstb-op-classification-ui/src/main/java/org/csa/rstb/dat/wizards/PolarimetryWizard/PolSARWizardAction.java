@@ -15,12 +15,11 @@
  */
 package org.csa.rstb.dat.wizards.PolarimetryWizard;
 
-import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.visat.VisatApp;
-import org.esa.beam.visat.actions.AbstractVisatAction;
-import org.esa.nest.dat.wizards.WizardDialog;
+import org.esa.s1tbx.dat.wizards.WizardDialog;
+import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.util.ImageUtils;
+import org.esa.snap.util.IconUtils;
+import org.esa.snap.visat.actions.AbstractVisatAction;
 
 public class PolSARWizardAction extends AbstractVisatAction {
 
@@ -28,7 +27,7 @@ public class PolSARWizardAction extends AbstractVisatAction {
     public void actionPerformed(final CommandEvent event) {
         final WizardDialog dialog = new WizardDialog(SnapApp.getDefault().getMainFrame(), false,
                 PolSARWizardInstructPanel.title, "PolSARWizard", new PolSARWizardInstructPanel());
-        dialog.setIcon(ImageUtils.rstbIcon);
+        dialog.setIcon(IconUtils.rstbIcon);
         dialog.setVisible(true);
     }
 

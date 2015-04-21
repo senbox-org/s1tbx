@@ -1,6 +1,6 @@
 package org.jlinda.core.coregistration;
 
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.util.SystemUtils;
 import org.jblas.DoubleMatrix;
 
 import java.util.logging.Logger;

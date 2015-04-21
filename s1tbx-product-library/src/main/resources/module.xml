@@ -31,8 +31,8 @@
             <tabTitle>Product Library</tabTitle>
             <mnemonic>D</mnemonic>
             <accelerator>ctrl alt D</accelerator>
-            <smallIcon>/org/esa/nest/icons/product_library16.png</smallIcon>
-            <largeIcon>/org/esa/nest/icons/product_library24.png</largeIcon>
+            <smallIcon>/org/esa/s1tbx/icons/product_library16.png</smallIcon>
+            <largeIcon>/org/esa/s1tbx/icons/product_library24.png</largeIcon>
             <initState>ICONIFIED</initState>
             <initSide>EAST</initSide>
             <initIndex>0</initIndex>

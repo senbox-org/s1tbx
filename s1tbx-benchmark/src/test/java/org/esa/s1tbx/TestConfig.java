@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx;
 
-import org.esa.beam.util.SystemUtils;
+import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.Config;
 import org.esa.snap.util.PropertiesMap;
 

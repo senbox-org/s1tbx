@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Display-Category: Radarsat-2 Toolbox
+AutoUpdate-Show-In-Client: true
+AutoUpdate-Essential-Module: false

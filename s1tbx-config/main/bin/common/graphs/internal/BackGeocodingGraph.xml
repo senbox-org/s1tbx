@@ -19,8 +19,8 @@
       <externalDEMNoDataValue>0.0</externalDEMNoDataValue>
       <resamplingType>BISINC_5_POINT_INTERPOLATION</resamplingType>
       <maskOutAreaWithoutElevation>true</maskOutAreaWithoutElevation>
-      <outputRangeAzimuthOffset>false</outputRangeAzimuthOffset>
-      <outputDerampPhase>false</outputDerampPhase>
+      <!--outputRangeAzimuthOffset>false</outputRangeAzimuthOffset-->
+      <outputDerampDemodPhase>false</outputDerampDemodPhase>
     </parameters>
   </node>
   <node id="Write">

@@ -83,6 +83,33 @@
         </folder>
     </folder>
 
+    <folder name="OperatorUIs">
+        <file name="org.esa.s1tbx.gpf.CreateStackOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.coregistration.CreateStackOpUI"/>
+            <attr name="operatorName" stringvalue="CreateStack"/>
+        </file>
+        <file name="org.esa.s1tbx.gpf.GCPSelectionOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.coregistration.GCPSelectionOpUI"/>
+            <attr name="operatorName" stringvalue="GCP-Selection"/>
+        </file>
+        <file name="org.esa.s1tbx.gpf.PCAOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.PCAOpUI"/>
+            <attr name="operatorName" stringvalue="Principle-Components"/>
+        </file>
+        <file name="org.esa.s1tbx.gpf.WarpOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.coregistration.WarpOpUI"/>
+            <attr name="operatorName" stringvalue="Warp"/>
+        </file>
+        <file name="org.esa.s1tbx.gpf.DEMBasedCoregistrationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.coregistration.DEMBasedCoregistrationOpUI"/>
+            <attr name="operatorName" stringvalue="DEM-Based-Coregistration"/>
+        </file>
+        <file name="org.esa.s1tbx.gpf.DEMGenerationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.insar.DEMGenerationOpUI"/>
+            <attr name="operatorName" stringvalue="DEMGeneration"/>
+        </file>
+    </folder>
+
     <!--folder name="Services">
         <folder name="JavaHelp">
             <file name="helpset.xml" url="helpset.xml">

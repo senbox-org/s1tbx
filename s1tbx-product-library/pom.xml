@@ -54,10 +54,6 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>snap-visat-rcp</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.snap</groupId>
             <artifactId>snap-engine-utilities</artifactId>
         </dependency>
         <dependency>
@@ -81,6 +77,19 @@
             <groupId>com.alee</groupId>
             <artifactId>weblaf</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-annotations-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-windows</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -90,7 +99,8 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
-                        <publicPackage>org.esa.nest.*</publicPackage>
+                        <publicPackage>org.esa.s1tbx.*</publicPackage>
+                        <publicPackage>com.alee.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>

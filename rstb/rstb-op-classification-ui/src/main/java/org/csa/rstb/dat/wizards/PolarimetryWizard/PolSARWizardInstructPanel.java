@@ -15,8 +15,8 @@
  */
 package org.csa.rstb.dat.wizards.PolarimetryWizard;
 
-import org.esa.nest.dat.wizards.AbstractInstructPanel;
-import org.esa.nest.dat.wizards.WizardPanel;
+import org.esa.s1tbx.dat.wizards.AbstractInstructPanel;
+import org.esa.s1tbx.dat.wizards.WizardPanel;
 
 /**
  * Instructions Panel

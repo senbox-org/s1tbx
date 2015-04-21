@@ -1,0 +1,46 @@
+<graph id="Graph">
+    <version>1.0</version>
+    <node id="1-Read">
+        <operator>Read</operator>
+        <sources/>
+        <parameters>
+            <file></file>
+        </parameters>
+    </node>
+    <node id="2-Polarimetric-Classification">
+        <operator>Polarimetric-Classification</operator>
+        <sources>
+            <sourceProduct refid="1-Read"/>
+        </sources>
+        <parameters>
+            <classification>Unsupervised Wishart Classification</classification>
+            <windowSize>5</windowSize>
+            <maxIterations>3</maxIterations>
+            <numInitialClasses>90</numInitialClasses>
+            <numFinalClasses>15</numFinalClasses>
+            <mixedCategoryThreshold>0.5</mixedCategoryThreshold>
+        </parameters>
+    </node>
+    <node id="3-Write">
+        <operator>Write</operator>
+        <sources>
+            <sourceProduct refid="2-Polarimetric-Classification"/>
+        </sources>
+        <parameters>
+            <formatName>BEAM-DIMAP</formatName>
+            <file>wishart_classified.dim</file>
+        </parameters>
+    </node>
+    <applicationData id="Presentation">
+        <Description/>
+        <node id="1-Read">
+            <displayPosition y="134.0" x="37.0"/>
+        </node>
+        <node id="2-Polarimetric-Classification">
+            <displayPosition y="133.0" x="127.0"/>
+        </node>
+        <node id="3-Write">
+            <displayPosition y="134.0" x="298.0"/>
+        </node>
+    </applicationData>
+</graph>

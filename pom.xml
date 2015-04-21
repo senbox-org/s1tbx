@@ -22,7 +22,7 @@
 		<skipTests>false</skipTests>
         <test.jvm.maxheapsize>5024m</test.jvm.maxheapsize>
         <test.jvm.arguments>-Xmx${test.jvm.maxheapsize}</test.jvm.arguments>
-        <surefire.jvm.args>${test.jvm.arguments} -enableassertions -Dceres.context=${brandingToken}</surefire.jvm.args>
+        <surefire.jvm.args>${test.jvm.arguments} -enableassertions</surefire.jvm.args>
 
 		<jlinda.version>2.0.0-SNAPSHOT</jlinda.version>
 		<rstb.version>6.3.2</rstb.version>
@@ -42,6 +42,7 @@
 		<module>jlinda</module>
 		<module>rstb</module>
 		<!--module>s1tbx-benchmark</module-->
+        <module>s1tbx-commons</module>
 		<module>s1tbx-config</module>
 		<module>s1tbx-dem</module>	
         <module>s1tbx-dem-ui</module>
@@ -145,7 +146,7 @@
 		<pluginRepository>
             <id>array-mvn-repo</id>
             <name>Public Maven Repository at Array Systems Computing Inc</name>
-            <url>http://www.array.ca/nest-web/mavenrepo</url>
+            <url>http://corp.array.ca/nest-web/mavenrepo</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -297,18 +298,6 @@
                 <groupId>edu.ucar</groupId>
                 <artifactId>netcdf</artifactId>
                 <version>${netcdf.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.slf4j</groupId>
-						<artifactId>slf4j-api</artifactId>
-					</exclusion>
-				</exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>1.6.1</version>
             </dependency>
 
 			<dependency>
@@ -365,7 +354,13 @@
             </dependency>
 			
             <!-- S1TBX Modules ############################################# -->
-			
+
+            <dependency>
+                <groupId>org.esa.s1tbx</groupId>
+                <artifactId>s1tbx-commons</artifactId>
+                <version>${s1tbx.version}</version>
+            </dependency>
+
 			<dependency>
                 <groupId>org.esa.s1tbx</groupId>
                 <artifactId>s1tbx-rcp</artifactId>
@@ -1087,7 +1082,7 @@
 	                            <link>http://docs.oracle.com/javase/7/docs/api/</link>
 	                    </links>
 	                    <subpackages>
-	                        org.esa.nest:org.csa.rstb:org.esa.snap:org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
+	                        org.esa.s1tbx:org.csa.rstb:org.esa.snap:org.esa.snap.framework:org.esa.snap.util:org.esa.snap.visat:com.bc.jexp
 	                    </subpackages>
 	                    <quiet>false</quiet>
 					</configuration>
@@ -1109,7 +1104,7 @@
                         </excludes>
                         <systemProperties>
                             <property>
-                                <name>org.esa.beam.testdata.out</name>
+                                <name>org.esa.snap.testdata.out</name>
                                 <value>target/test-data</value>
                             </property>
                         </systemProperties>
@@ -1245,7 +1240,7 @@
                             <link>http://java.sun.com/javase/6/docs/api/</link>
                     </links>
                     <subpackages>
-                        org.esa.nest:org.esa.snap:org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
+                        org.esa.s1tbx:org.esa.snap:org.esa.snap.framework:org.esa.snap.util:org.esa.snap.visat:com.bc.jexp
                     </subpackages>
                     <quiet>false</quiet>
 				</configuration>
@@ -1366,21 +1361,6 @@
     </developers>
 
     <profiles>
-		<profile>
-            <id>withbeam</id>
-            <modules>
-				<module>../snap-engine</module>
-                <module>../snap-desktop</module>
-            </modules>
-		</profile>
-		<profile>
-            <id>all</id>
-            <modules>
-				<module>../snap-engine</module>
-				<module>../s2tbx</module>
-				<module>../s3tbx</module>
-            </modules>
-		</profile>
 		<profile>
             <id>benchmark</id>
             <modules>

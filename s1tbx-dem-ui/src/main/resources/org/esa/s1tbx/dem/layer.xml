@@ -1,0 +1,80 @@
+
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Readers">
+            <file name="org-esa-s1tbx-dataio-importACEDEMProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="ACE DEM Tile"/>
+                <attr name="formatName" stringvalue="ACE"/>
+                <attr name="helpId" stringvalue="importACEProduct"/>
+                <attr name="ShortDescription" stringvalue="Import a ACE DEM tile"/>
+            </file>
+            <file name="org-esa-s1tbx-dataio-importSRTMGeoTIFFDEMProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="SRTM GeoTIFF DEM Tile"/>
+                <attr name="formatName" stringvalue="GeoTIFF"/>
+                <attr name="helpId" stringvalue="importSRTMProduct"/>
+                <attr name="ShortDescription" stringvalue="Import a SRTM DEM tile"/>
+            </file>
+            <file name="org-esa-s1tbx-dataio-importSRTMArcGridDEMProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="SRTM ArcGrid DEM Tile"/>
+                <attr name="formatName" stringvalue="ARC_INFO_BIN_GRID"/>
+                <attr name="helpId" stringvalue="importSRTMProduct"/>
+                <attr name="ShortDescription" stringvalue="Import a SRTM ArcInfo Grid DEM tile"/>
+            </file>
+            <file name="org-esa-s1tbx-dataio-importAsterDEMProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="ASTER GeoTIFF DEM Tile"/>
+                <attr name="formatName" stringvalue="GeoTIFF"/>
+                <attr name="helpId" stringvalue="importASTERProduct"/>
+                <attr name="ShortDescription" stringvalue="Import a ASTER DEM tile"/>
+            </file>
+        </folder>
+
+        <folder name="Operators">
+            <file name="org-esa-s1tbx-gpf-FillHoleOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Fill DEM Hole"/>
+                <attr name="operatorName" stringvalue="Fill-Hole"/>
+                <attr name="dialogTitle" stringvalue="Fill DEM Hole"/>
+                <attr name="ShortDescription" stringvalue="Fill holes in a DEM product"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="File">
+            <folder name="Import">
+                <folder name="DEM">
+                    <file name="org-esa-s1tbx-dataio-importACEDEMProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-dataio-importACEDEMProduct.instance"/>
+                    </file>
+                    <file name="org-esa-s1tbx-dataio-importSRTMGeoTIFFDEMProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-dataio-importSRTMGeoTIFFDEMProduct.instance"/>
+                    </file>
+                    <file name="org-esa-s1tbx-dataio-importSRTMArcGridDEMProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-dataio-importSRTMArcGridDEMProduct.instance"/>
+                    </file>
+                    <file name="org-esa-s1tbx-dataio-importAsterDEMProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-dataio-importAsterDEMProduct.instance"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+
+        <folder name="Tools">
+            <file name="org-esa-s1tbx-gpf-FillHoleOp-Action.shadow">
+                <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-FillHoleOp-Action.instance"/>
+            </file>
+        </folder>
+    </folder>
+
+</filesystem>

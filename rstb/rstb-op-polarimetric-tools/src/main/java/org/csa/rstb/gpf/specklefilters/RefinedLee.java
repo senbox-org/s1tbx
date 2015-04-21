@@ -16,15 +16,15 @@
 package org.csa.rstb.gpf.specklefilters;
 
 import org.csa.rstb.gpf.PolarimetricSpeckleFilterOp;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.nest.dataio.PolBandUtils;
+import org.esa.s1tbx.dataio.PolBandUtils;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.gpf.TileIndex;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.Map;
 
 /**
@@ -773,7 +773,7 @@ public class RefinedLee implements SpeckleFilter {
      * @param span                The span image.
      * @param neighborSpanValues  2-D array holding the span image pixel valuse.
      * @return The number of valid pixels.
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs in obtaining the pixel values.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs in obtaining the pixel values.
      */
     private int getNeighborValuesWithoutBorderExt(
             final int xhalf, final int yhalf, final int sx0, final int sy0, final int syMax, final int sxMax,

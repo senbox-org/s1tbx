@@ -51,7 +51,7 @@
 
             </excludedActions>
             <excludedToolViews>
-                <!--id>org.esa.beam.visat.toolviews.worldmap.WorldMapToolView</id-->
+                <!--id>org.esa.snap.visat.toolviews.worldmap.WorldMapToolView</id-->
             </excludedToolViews>
         </applicationDescriptor>
     </extension>
@@ -82,8 +82,8 @@
             <tabTitle>Project</tabTitle>
             <mnemonic>P</mnemonic>
             <accelerator>ctrl alt P</accelerator>
-            <smallIcon>/org/esa/nest/icons/project_view22.png</smallIcon>
-            <largeIcon>/org/esa/nest/icons/project_view30.png</largeIcon>
+            <smallIcon>/org/esa/s1tbx/icons/project_view22.png</smallIcon>
+            <largeIcon>/org/esa/s1tbx/icons/project_view30.png</largeIcon>
             <description>Project View.</description>
             <initState>DOCKED</initState>
             <initSide>WEST</initSide>
@@ -91,15 +91,15 @@
         </toolView>
 
         <toolView>
-            <id>org.esa.beam.visat.toolviews.stat.StatisticsToolView</id>
-            <class>org.esa.beam.visat.toolviews.stat.StatisticsToolView</class>
+            <id>org.esa.snap.visat.toolviews.stat.StatisticsToolView</id>
+            <class>org.esa.snap.visat.toolviews.stat.StatisticsToolView</class>
             <title>Analysis View</title>
             <tabTitle>Statistics</tabTitle>
             <mnemonic>t</mnemonic>
             <accelerator>ctrl alt T</accelerator>
             <description>Display statistics for a selected band.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/Statistics16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/Statistics24.gif</largeIcon>
+            <smallIcon>/org/esa/s1tbx/resources/images/icons/Statistics16.gif</smallIcon>
+            <largeIcon>/org/esa/s1tbx/resources/images/icons/Statistics24.gif</largeIcon>
             <helpId>statisticsToolView</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
@@ -112,7 +112,7 @@
 
         <action>
             <id>showProcessorsToolBar</id>
-            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
+            <class>org.esa.snap.visat.actions.ShowToolBarAction</class>
             <context>processorsToolBar</context>
             <parent>toolBars</parent>
             <text>Processor Tool Bar</text>
@@ -124,7 +124,7 @@
 
         <action>
             <id>showLabelsToolBar</id>
-            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
+            <class>org.esa.snap.visat.actions.ShowToolBarAction</class>
             <context>labelsToolBar</context>
             <parent>toolBars</parent>
             <text>Labels Tool Bar</text>
@@ -152,7 +152,7 @@
 
         <action>
             <id>Projects</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Projects</text>
             <placeBefore>Session</placeBefore>
             <parent>file</parent>
@@ -167,8 +167,8 @@
             <accelerator>control P</accelerator>
             <shortDescr>Create a new project</shortDescr>
             <description>Create a new project</description>
-            <smallIcon>/org/esa/nest/icons/project-new.png</smallIcon>
-            <largeIcon>/org/esa/nest/icons/project-new.png</largeIcon>
+            <smallIcon>/org/esa/s1tbx/icons/project-new.png</smallIcon>
+            <largeIcon>/org/esa/s1tbx/icons/project-new.png</largeIcon>
             <helpId>newProject</helpId>
         </action>
 
@@ -181,8 +181,8 @@
             <placeAfter>newProject</placeAfter>
             <shortDescr>Load a project</shortDescr>
             <description>Load a project</description>
-            <smallIcon>/org/esa/nest/icons/project_sm.png</smallIcon>
-            <largeIcon>/org/esa/nest/icons/project.png</largeIcon>
+            <smallIcon>/org/esa/s1tbx/icons/project_sm.png</smallIcon>
+            <largeIcon>/org/esa/s1tbx/icons/project.png</largeIcon>
             <helpId>loadProject</helpId>
         </action>
 
@@ -223,7 +223,7 @@
         <action>
             <parent>file</parent>
             <id>createSubset</id>
-            <class>org.esa.beam.visat.actions.NewAction</class>
+            <class>org.esa.snap.visat.actions.NewAction</class>
             <text>Create Subset</text>
             <shortDescr>Create a new Subset data product.</shortDescr>
             <description>Create a new Subset data product.</description>
@@ -236,7 +236,7 @@
 
         <action>
             <id>reopen</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <parent>file</parent>
             <text>Reopen</text>
             <mnemonic>R</mnemonic>
@@ -250,7 +250,7 @@
 
         <action>
             <id>save</id>
-            <class>org.esa.beam.visat.actions.SaveAction</class>
+            <class>org.esa.snap.visat.actions.SaveAction</class>
             <parent>file</parent>
             <text>Save</text>
             <mnemonic>S</mnemonic>
@@ -266,7 +266,7 @@
 
         <action>
             <id>saveAs</id>
-            <class>org.esa.beam.visat.actions.SaveAsAction</class>
+            <class>org.esa.snap.visat.actions.SaveAsAction</class>
             <parent>file</parent>
             <text>Save As...</text>
             <mnemonic>A</mnemonic>
@@ -282,7 +282,7 @@
 
         <action>
             <id>close</id>
-            <class>org.esa.beam.visat.actions.CloseAction</class>
+            <class>org.esa.snap.visat.actions.CloseAction</class>
             <parent>file</parent>
             <text>Close</text>
             <mnemonic>C</mnemonic>
@@ -298,7 +298,7 @@
 
         <action>
             <id>closeAll</id>
-            <class>org.esa.beam.visat.actions.CloseAllAction</class>
+            <class>org.esa.snap.visat.actions.CloseAllAction</class>
             <parent>file</parent>
             <text>Close All</text>
             <placeAfter>close</placeAfter>
@@ -352,7 +352,7 @@
         <action>
             <id>aboutDAT</id>
             <parent>help</parent>
-            <class>org.esa.beam.visat.actions.AboutAction</class>
+            <class>org.esa.snap.visat.actions.AboutAction</class>
             <text>About the Toolbox</text>
             <mnemonic>A</mnemonic>
             <accelerator>ctrl alt A</accelerator>
@@ -367,7 +367,7 @@
 
         <action>
             <id>Wizards</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Wizards</text>
             <parent>help</parent>
             <smallIcon>/org/esa/snap/icons/wizard-16.png</smallIcon>
@@ -376,7 +376,7 @@
 
         <action>
             <id>MetadataTools</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Metadata</text>
             <parent>tools</parent>
             <placeAfter>Resampling</placeAfter>
@@ -420,7 +420,7 @@
 
         <action>
             <id>exportProductMetadata</id>
-            <class>org.esa.beam.visat.actions.ExportMetadataAction</class>
+            <class>org.esa.snap.visat.actions.ExportMetadataAction</class>
             <text>Export Metadata as Text</text>
             <shortDescr>Export the currently displayed metadata.</shortDescr>
             <description>Export the currently displayed metadata as tab-separated text.</description>
@@ -440,9 +440,9 @@
 
         <action>
             <id>selectLayerTool</id>
-            <class>org.esa.beam.visat.actions.ToolAction</class>
+            <class>org.esa.snap.visat.actions.ToolAction</class>
             <interactor>org.esa.nest.dat.layers.SelectLayerInteractor</interactor>
-            <interactorListener>org.esa.beam.visat.actions.SelectionInteractorInterceptor</interactorListener>
+            <interactorListener>org.esa.snap.visat.actions.SelectionInteractorInterceptor</interactorListener>
             <parent>tools</parent>
             <text>Select</text>
             <shortDescr>Select Layer Tool</shortDescr>
@@ -453,7 +453,7 @@
 
         <action>
             <id>showLayersToolBar</id>
-            <class>org.esa.beam.visat.actions.ShowToolBarAction</class>
+            <class>org.esa.snap.visat.actions.ShowToolBarAction</class>
             <context>layersToolBar</context>
             <parent>toolBars</parent>
             <text>Layers Tool Bar</text>
@@ -508,7 +508,7 @@
             <id>createSubsetFromView2</id>
             <placeAfter>mosaicAction</placeAfter>
             <text>Spatial Subset from View...</text>
-            <class>org.esa.beam.visat.actions.CreateSubsetFromViewAction</class>
+            <class>org.esa.snap.visat.actions.CreateSubsetFromViewAction</class>
             <shortDescr>Creates a product subset from the selected view.</shortDescr>
             <context>image</context>
             <helpId>subsetFromView</helpId>
@@ -519,14 +519,14 @@
             <id>flipping2</id>
             <placeAfter>createSubsetFromView</placeAfter>
             <text>Flipping...</text>
-            <class>org.esa.beam.visat.actions.FlippingAction</class>
+            <class>org.esa.snap.visat.actions.FlippingAction</class>
             <shortDescr>Apply Data Flip</shortDescr>
             <helpId>flipDialog</helpId>
         </action>
 
         <!--action>
             <id>Reports</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>Reports</text>
             <parent>data</parent>
             <context>image</context>
@@ -576,7 +576,7 @@
         <action>
             <id>exportGenericBinary</id>
             <text>Generic Binary</text>
-            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <class>org.esa.snap.visat.actions.ProductExportAction</class>
             <formatName>Generic Binary</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Export Generic Binary</shortDescr>
@@ -600,7 +600,7 @@
 
         <action>
             <id>importERSCEOSProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>ERS CEOS</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <text>ERS 1 / 2 CEOS</text>
@@ -613,7 +613,7 @@
         </action>
         <action>
             <id>importJERSCEOSProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>JERS CEOS</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Import a JERS CEOS data product or subset.</shortDescr>
@@ -625,7 +625,7 @@
         </action>
         <action>
             <id>importAlosPalsarProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>ALOS PALSAR CEOS</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Import an ALOS PALSAR CEOS data product or subset.</shortDescr>
@@ -637,7 +637,7 @@
         </action>
         <action>
             <id>importAlos2Product</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>ALOS 2 CEOS</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Import an ALOS 2 CEOS data product or subset.</shortDescr>
@@ -649,7 +649,7 @@
         </action>
         <action>
             <id>importRadarsatProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>RADARSAT-1 CEOS</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Import a RADARSAT-1 CEOS data product or subset.</shortDescr>
@@ -662,7 +662,7 @@
 
         <action>
             <id>importPolsarPro</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <readerPlugin>org.esa.nest.dataio.polsarpro.PolsarProProductReaderPlugIn</readerPlugin>
             <formatName>PolSARPro</formatName>
             <useAllFileFilter>true</useAllFileFilter>
@@ -675,7 +675,7 @@
 
         <action>
             <id>importRadarsat2Product</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>RADARSAT-2</formatName>
             <shortDescr>Import a RADARSAT-2 data product or subset.</shortDescr>
             <description>Import a RADARSAT-2 data product or subset.</description>
@@ -686,7 +686,7 @@
         </action>
         <action>
             <id>importTerraSarXProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>TerraSarX</formatName>
             <text>TerraSAR-X</text>
             <shortDescr>Import a TerraSarX data product or subset.</shortDescr>
@@ -699,7 +699,7 @@
 
         <action>
             <id>importCosmoSkymed</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>CosmoSkymed</formatName>
             <text>Cosmo-Skymed</text>
             <readerPlugin>org.esa.nest.dataio.cosmo.CosmoSkymedReaderPlugIn</readerPlugin>
@@ -714,7 +714,7 @@
 
         <action>
             <id>importS1Product</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>SENTINEL-1</formatName>
             <shortDescr>Import a SENTINEL-1 product</shortDescr>
             <description>Import a SENTINEL-1 product</description>
@@ -727,7 +727,7 @@
 
         <action>
             <id>importImageIO</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>jp2</formatName>
             <text>ImageIO (bmp, jpg, png)</text>
             <readerPlugin>org.esa.nest.dataio.imageio.ImageIOReaderPlugIn</readerPlugin>
@@ -740,7 +740,7 @@
         </action>
         <action>
             <id>importGeoTIFFProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <readerPlugin>org.esa.nest.dataio.geotiff.NestGeoTiffProductReaderPlugIn</readerPlugin>
             <formatName>GeoTIFF</formatName>
             <useAllFileFilter>true</useAllFileFilter>
@@ -753,7 +753,7 @@
 
         <action>
             <id>importRAT</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <readerPlugin>org.esa.nest.dataio.TAXI.RATProductReaderPlugIn</readerPlugin>
             <formatName>RAT</formatName>
             <shortDescr>Import DLR RAT data product or subset.</shortDescr>
@@ -764,7 +764,7 @@
 
         <action>
             <id>importGTOPO30</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>GTOPO30</formatName>
             <parent>importDEM</parent>
             <readerPlugin>org.esa.nest.dataio.gtopo30.GTOPO30ReaderPlugIn</readerPlugin>
@@ -780,7 +780,7 @@
 
         <action>
             <id>exportPolsarPro</id>
-            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <class>org.esa.snap.visat.actions.ProductExportAction</class>
             <formatName>PolSARPro</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Export PolSARPro</shortDescr>
@@ -788,7 +788,7 @@
         </action>
         <action>
             <id>exportGeoTiffXML</id>
-            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <class>org.esa.snap.visat.actions.ProductExportAction</class>
             <formatName>GeoTIFF+XML</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <shortDescr>Export GeoTIFF+XML</shortDescr>
@@ -796,7 +796,7 @@
         </action>
         <action>
             <id>exportBTF</id>
-            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <class>org.esa.snap.visat.actions.ProductExportAction</class>
             <formatName>BTF</formatName>
             <text>BigTIFF</text>
             <useAllFileFilter>true</useAllFileFilter>
@@ -807,7 +807,7 @@
 
         <!--action>
             <id>importNetCDF</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>NetCDF</formatName>
             <readerPlugin>org.esa.nest.dataio.netcdf.NetCDFReaderPlugIn</readerPlugin>
             <useAllFileFilter>true</useAllFileFilter>
@@ -819,7 +819,7 @@
 
         <action>
             <id>exportNetCDF</id>
-            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <class>org.esa.snap.visat.actions.ProductExportAction</class>
             <formatName>NetCDF</formatName>
             <shortDescr>Export product to NetCDF format.</shortDescr>
             <description>Export the selected product to NetCDF format.</description>
@@ -828,7 +828,7 @@
 
 		<action>
             <id>importHDF</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>HDF</formatName>
             <readerPlugin>org.esa.nest.dataio.hdf.HDFReaderPlugIn</readerPlugin>
             <useAllFileFilter>true</useAllFileFilter>
@@ -842,7 +842,7 @@
 
             <action>
                 <id>importBigGeoTIFFProduct</id>
-                <class>org.esa.beam.visat.actions.ProductImportAction</class>
+                <class>org.esa.snap.visat.actions.ProductImportAction</class>
                 <formatName>GeoTIFF-BigTIFF</formatName>
                 <useAllFileFilter>true</useAllFileFilter>
                 <mnemonic>O</mnemonic>
@@ -852,7 +852,7 @@
             </action>
             <action>
                 <id>exportBigGeoTIFFProduct</id>
-                <class>org.esa.beam.visat.actions.ProductExportAction</class>
+                <class>org.esa.snap.visat.actions.ProductExportAction</class>
                 <formatName>GeoTIFF-BigTIFF</formatName>
                 <useAllFileFilter>true</useAllFileFilter>
                 <mnemonic>O</mnemonic>
@@ -862,7 +862,7 @@
 
         <action>
             <id>importCsvProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>CSV</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <largeIcon>icons/Import24.gif</largeIcon>
@@ -872,7 +872,7 @@
         </action>
         <action>
             <id>exportCsvProduct</id>
-            <class>org.esa.beam.visat.actions.ProductExportAction</class>
+            <class>org.esa.snap.visat.actions.ProductExportAction</class>
             <text>CSV</text>
             <formatName>CSV</formatName>
             <useAllFileFilter>true</useAllFileFilter>

@@ -1,9 +1,14 @@
 package org.jlinda.core.io;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.util.SystemUtils;
-import org.junit.*;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.util.SystemUtils;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.BufferedWriter;
 import java.io.File;

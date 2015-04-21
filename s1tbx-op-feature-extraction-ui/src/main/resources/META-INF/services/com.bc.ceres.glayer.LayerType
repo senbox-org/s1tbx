@@ -1,2 +1,2 @@
-org.esa.nest.dat.layersrc.ObjectDetectionLayerType
-org.esa.nest.dat.layersrc.WindFieldEstimationLayerType
+org.esa.s1tbx.dat.layersrc.ObjectDetectionLayerType
+org.esa.s1tbx.dat.layersrc.WindFieldEstimationLayerType

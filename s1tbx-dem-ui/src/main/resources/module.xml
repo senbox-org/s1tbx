@@ -26,7 +26,7 @@
 
         <action>
             <id>DEMTools</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>DEM Tools</text>
             <parent>tools</parent>
             <placeAfter>Masks</placeAfter>
@@ -47,14 +47,14 @@
 
         <action>
             <id>importDEM</id>
-            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <class>org.esa.snap.visat.actions.ActionGroup</class>
             <text>DEM</text>
             <parent>importRasterData</parent>
         </action>
 
         <action>
             <id>importACEDEMProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>ACE</formatName>
             <text>ACE DEM Tile</text>
             <parent>importDEM</parent>
@@ -65,7 +65,7 @@
 
         <action>
             <id>importGETASSE30Product</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>GETASSE30</formatName>
             <text>GETASSE30 DEM Tile</text>
             <parent>importDEM</parent>
@@ -76,7 +76,7 @@
 
         <action>
             <id>importSRTMGeoTIFFDEMProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>GeoTIFF</formatName>
             <text>SRTM GeoTIFF DEM Tile</text>
             <parent>importDEM</parent>
@@ -87,7 +87,7 @@
 
         <action>
             <id>importSRTMArcGridDEMProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>ARC_INFO_BIN_GRID</formatName>
             <text>SRTM ArcGrid DEM Tile</text>
             <parent>importDEM</parent>
@@ -98,7 +98,7 @@
 
         <action>
             <id>importAsterDEMProduct</id>
-            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <class>org.esa.snap.visat.actions.ProductImportAction</class>
             <formatName>GeoTIFF</formatName>
             <text>ASTER GeoTIFF DEM Tile</text>
             <parent>importDEM</parent>
