@@ -586,9 +586,19 @@ public final class Sentinel1Utils {
                 azFmRateList[k] = new AzimuthFmRate();
                 azFmRateList[k].time = Sentinel1Utils.getTime(listElem, "azimuthTime").getMJD()*Constants.secondsInDay;
                 azFmRateList[k].t0 = Double.parseDouble(listElem.getAttributeString("t0"));
-                azFmRateList[k].c0 = Double.parseDouble(listElem.getAttributeString("c0"));
-                azFmRateList[k].c1 = Double.parseDouble(listElem.getAttributeString("c1"));
-                azFmRateList[k].c2 = Double.parseDouble(listElem.getAttributeString("c2"));
+
+                final MetadataElement azimuthFmRatePolynomialElem = listElem.getElement("azimuthFmRatePolynomial");
+                if (azimuthFmRatePolynomialElem != null) {
+                    final double[] coeffs = Sentinel1Utils.getDoubleArray(
+                            azimuthFmRatePolynomialElem, "azimuthFmRatePolynomial");
+                    azFmRateList[k].c0 =  coeffs[0];
+                    azFmRateList[k].c1 =  coeffs[1];
+                    azFmRateList[k].c2 =  coeffs[2];
+                } else {
+                    azFmRateList[k].c0 = Double.parseDouble(listElem.getAttributeString("c0"));
+                    azFmRateList[k].c1 = Double.parseDouble(listElem.getAttributeString("c1"));
+                    azFmRateList[k].c2 = Double.parseDouble(listElem.getAttributeString("c2"));
+                }
                 k++;
             }
         }
