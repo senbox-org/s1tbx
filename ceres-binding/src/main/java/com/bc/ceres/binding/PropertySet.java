@@ -19,7 +19,7 @@ package com.bc.ceres.binding;
 /**
  * A loose aggregation of properties. Properties can be added to and removed from this set.
  * Property change events are fired whenever property values change.
- * <p/>
+ * <p>
  * The {@link PropertySet} interface is based on the well-known <i>Property List</i> design pattern.
  *
  * @author Norman Fomferra

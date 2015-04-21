@@ -21,7 +21,6 @@ import java.util.Vector;
 
 /**
  * The <code>RecordInfo</code> class contains the information about the structure of a particular record.
- * <p/>
  * <p> A <code>RecordInfo</code> instance has a record name and contains a list of <code>FieldInfo</code> instances
  * describing each field of a record.
  *

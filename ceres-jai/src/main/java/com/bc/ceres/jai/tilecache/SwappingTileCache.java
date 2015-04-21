@@ -21,7 +21,6 @@ import com.sun.media.jai.util.ImageUtil;
 
 import javax.media.jai.EnumeratedParameter;
 import javax.media.jai.TileCache;
-import javax.media.jai.JAI;
 import javax.media.jai.util.ImagingListener;
 import java.awt.Point;
 import java.awt.RenderingHints;
@@ -38,7 +37,6 @@ import java.util.Iterator;
 import java.util.Observable;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.logging.Logger;
 
 
 /**
@@ -213,7 +211,6 @@ public final class SwappingTileCache extends Observable implements TileCache, Ca
 
     /**
      * Adds a tile to the cache.
-     * <p/>
      * <p> If the specified tile is already in the cache, it will not be
      * cached again.  If by adding this tile, the cache exceeds the memory
      * capacity, older tiles in the cache are removed to keep the cache
@@ -233,7 +230,6 @@ public final class SwappingTileCache extends Observable implements TileCache, Ca
 
     /**
      * Adds a tile to the cache with an associated tile compute cost.
-     * <p/>
      * <p> If the specified tile is already in the cache, it will not be
      * cached again.  If by adding this tile, the cache exceeds the memory
      * capacity, older tiles in the cache are removed to keep the cache
@@ -368,7 +364,6 @@ public final class SwappingTileCache extends Observable implements TileCache, Ca
 
     /**
      * Removes a tile from the cache.
-     * <p/>
      * <p> If the specified tile is not in the cache, this method
      * does nothing.
      */
@@ -473,7 +468,6 @@ public final class SwappingTileCache extends Observable implements TileCache, Ca
 
     /**
      * Retrieves a tile from the cache.
-     * <p/>
      * <p> If the specified tile is not in the cache, this method
      * returns <code>null</code>.  If the specified tile is in the
      * cache, its last-access time is updated.
@@ -678,7 +672,6 @@ public final class SwappingTileCache extends Observable implements TileCache, Ca
 
     /**
      * Returns the cache's tile capacity.
-     * <p/>
      * <p> This implementation of <code>TileCache</code> does not use
      * the tile capacity.  This method always returns 0.
      */
@@ -688,7 +681,6 @@ public final class SwappingTileCache extends Observable implements TileCache, Ca
 
     /**
      * Sets the cache's tile capacity to the desired number of tiles.
-     * <p/>
      * <p> This implementation of <code>TileCache</code> does not use
      * the tile capacity.  The cache size is limited by the memory
      * capacity only.  This method does nothing and has no effect on

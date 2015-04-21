@@ -30,12 +30,10 @@ import java.io.IOException;
  * automatically interpolated to product scene pixels which are written as a raw data file - interpolated tie-point
  * pixels are always stored as 4-byte IEEE float. A message line is printed to the console containing some information
  * about the image file beeing written.
- * <p/>
  * <p>The program expects three input arguments: <ol> <li><i>input-file</i> - the file path to an ENVISAT input data
  * product</li> <li><i>output-file</i> - the file path to the band image file to be written</li> <li><i>grid-name</i> -
  * the name of the tie-point grid to be extracted</li> </ol>
- * <p/>
- * <p>The valid grid names for MERIS L1b and L2 reduced and full resolution products are:<ld> <li><code>"latitude"
+ * <p>The valid grid names for MERIS L1b and L2 reduced and full resolution products are:<ul> <li><code>"latitude"
  * </code> type float in deg - Latitude of the tie points (WGS-84), positive N, negative W</li> <li><code>"longitude"
  * </code> type float in deg - Longitude of the tie points (WGS-84), Greenwich</li> <li><code>"dem_alt"        </code>
  * type float in m   - Digital elevation model altitude               </li> <li><code>"dem_rough"      </code> type
@@ -50,9 +48,8 @@ import java.io.IOException;
  * </li> <li><code>"atm_press"      </code> type float in hPa - Mean sea level pressure                        </li>
  * <li><code>"ozone"          </code> type float in DU  - Total ozone                                    </li>
  * <li><code>"rel_hum"        </code> type float in %   - Relative humidity                              </li>
- * </ld></p>
- * <p/>
- * <p>The valid grid names for AATSR TOA L1b products are:<ld> <li><code>"latitude"          </code> type float in deg -
+ * </ul>
+ * <p>The valid grid names for AATSR TOA L1b products are:<ul> <li><code>"latitude"          </code> type float in deg -
  * Latitudes                           </li> <li><code>"longitude"         </code> type float in deg - Longitudes
  * </li> <li><code>"lat_corr_nadir"    </code> type float in deg - Latitude corrections, nadir view
  * </li> <li><code>"lon_corr_nadir"    </code> type float in deg - Longitude corrections, nadir view   </li>
@@ -66,8 +63,7 @@ import java.io.IOException;
  * <li><code>"sun_elev_fward"    </code> type float in deg - Solar elevation, forward view       </li>
  * <li><code>"view_elev_fward"   </code> type float in deg - Satellite elevation, forward view   </li>
  * <li><code>"sun_azimuth_fward" </code> type float in deg - Solar azimuth, forward view         </li>
- * <li><code>"view_azimuth_fward"</code> type float in deg - Satellite azimuth, forward view     </li> </ld></p>
- * <p/>
+ * <li><code>"view_azimuth_fward"</code> type float in deg - Satellite azimuth, forward view     </li> </ld>
  * <p>The valid grid names for AATSR NR L2 products are:<ld> <li><code>"latitude"          </code> type float in deg -
  * Latitudes                          </li> <li><code>"longitude"         </code> type float in deg - Longitudes
  * </li> <li><code>"lat_corr_nadir"    </code> type float in deg - Latitude corrections, nadir view
@@ -82,8 +78,7 @@ import java.io.IOException;
  * <li><code>"sun_elev_fward"    </code> type float in deg - Solar elevation forward view       </li>
  * <li><code>"view_elev_fward"   </code> type float in deg - Satellite elevation forward view   </li>
  * <li><code>"sun_azimuth_fward" </code> type float in deg - Solar azimuth forward view         </li>
- * <li><code>"view_azimuth_fward"</code> type float in deg - Satellite azimuth forward view     </li> </ld></p>
- * <p/>
+ * <li><code>"view_azimuth_fward"</code> type float in deg - Satellite azimuth forward view     </li> </ul>
  * <i><b>Note:</b> If you want to work with product subsets, you can use the {@link
  * org.esa.snap.framework.dataio.ProductSubsetBuilder} class. It has a static method which lets you create a subset of a
  * given product and subset definition.</i>

@@ -27,7 +27,6 @@ import java.util.StringTokenizer;
 /**
  * The <code>StringUtils</code> class provides frequently used utility methods dealing with <code>String</code> values
  * and which are not found in the <code>java.lang.String</code> class.
- * <p/>
  * <p> All functions have been implemented with extreme caution in order to provide a maximum performance.
  *
  * @author Tom Block
@@ -200,9 +199,7 @@ public class StringUtils {
 
     /**
      * Converts the given text into an <code>int</code> array.
-     * <p/>
      * <p>The number values are expected to be separated by one of the characters given in the delimiter string.
-     * <p/>
      * <p>If the delimiter string is null or empty, the default delimiter "," will be used.
      *
      * @param text  the text to be converted
@@ -226,9 +223,7 @@ public class StringUtils {
 
     /**
      * Converts the given text into an <code>float</code> array.
-     * <p/>
      * <p>The number values are expected to be separated by one of the characters given in the delimiter string.
-     * <p/>
      * <p>If the delimiter string is null or empty, the default delimiter "," will be used.
      *
      * @param text  the text to be converted
@@ -252,9 +247,7 @@ public class StringUtils {
 
     /**
      * Converts the given text into an <code>double</code> array.
-     * <p/>
      * <p>The number values are expected to be separated by one of the characters given in the delimiter string.
-     * <p/>
      * <p>If the delimiter string is null or empty, the default delimiter "," will be used.
      *
      * @param text  the text to be converted
@@ -278,9 +271,7 @@ public class StringUtils {
 
     /**
      * Converts the given text into an array of <code>String</code> tokens.
-     * <p/>
      * <p>The number values are expected to be separated by one of the characters given in the delimiter string.
-     * <p/>
      * <p>If the delimiter string is null or empty, the default delimiter "," will be used.
      *
      * @param text   the text to be converted

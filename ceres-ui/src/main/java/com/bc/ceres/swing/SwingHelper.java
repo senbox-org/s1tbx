@@ -29,7 +29,6 @@ public class SwingHelper {
 
     /**
      * Centers the given component over another component.
-     * <p/>
      * <p> The method performs the alignment by setting a newly computed location for the component. It does not alter
      * the component's size.
      *

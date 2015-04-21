@@ -36,7 +36,6 @@ import java.util.logging.Logger;
  * class.<code>PropertyMap</code> provides a generally more useful interface by adding a couple type conversion methods
  * for a set of most frequently used data types, such as <code>Boolean</code>, <code>Integer</code>,
  * <code>Double</code>, <code>Color</code> and <code>Font</code>.
- * <p/>
  * <p>Additionally the class provides property change support.
  *
  * @author Norman Fomferra

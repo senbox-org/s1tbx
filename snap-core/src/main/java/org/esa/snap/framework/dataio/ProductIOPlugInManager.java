@@ -28,7 +28,6 @@ import java.util.Set;
 
 /**
  * The <code>ProductIOPlugInManager</code> class is used to manage all registered reader and writer plug-ins.
- * <p/>
  * <p> This class implements the singleton design pattern, since only one manager instance is required in the system.
  *
  * @author Norman Fomferra

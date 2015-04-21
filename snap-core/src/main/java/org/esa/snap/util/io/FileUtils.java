@@ -96,12 +96,12 @@ public class FileUtils {
     /**
      * Returns the file string with the given new extension. If the given file string have no extension, the given
      * extension will be added.
-     * <p/>
+     * <p>
      * Example1:
      * <pre> "tie.point.grids\tpg1.hdr" </pre>
      * results to
      * <pre> "tie.point.grids\tpg1.raw" </pre>
-     * <p/>
+     * <p>
      * Example2:
      * <pre> "tie.point.grids\tpg1" </pre>
      * results to
@@ -131,12 +131,12 @@ public class FileUtils {
     /**
      * Returns a file with the given new extension. If the given file have no extension, the given extension will be
      * added.
-     * <p/>
+     * <p>
      * Example1:
      * <pre> "tie.point.grids\tpg1.hdr" </pre>
      * results to
      * <pre> "tie.point.grids\tpg1.raw" </pre>
-     * <p/>
+     * <p>
      * Example2:
      * <pre> "tie.point.grids\tpg1" </pre>
      * results to
@@ -159,17 +159,17 @@ public class FileUtils {
     /**
      * Returns a file with the given extension. If the given path have no extension or the extension are not equal to
      * the given extension, the given extension will be added.
-     * <p/>
+     * <p>
      * Example1: param path = example.dim param extension = ".dim"
      * <pre> "example.dim" </pre>
      * results to
      * <pre> "example.dim" </pre>
-     * <p/>
+     * <p>
      * Example2: param path = example param extension = ".dim"
      * <pre> "example" </pre>
      * results to
      * <pre> "example.dim" </pre>
-     * <p/>
+     * <p>
      * Example3: param path = example.lem param extension = ".dim"
      * <pre> "example.lem" </pre>
      * results to
@@ -197,17 +197,17 @@ public class FileUtils {
     /**
      * Returns a file with the given extension. If the given file has no extension or the extension is not equal to
      * the given extension, the given extension will be added.
-     * <p/>
+     * <p>
      * Example1: param file = example.dim param extension = ".dim"
      * <pre> "example.dim" </pre>
      * results to
      * <pre> "example.dim" </pre>
-     * <p/>
+     * <p>
      * Example2: param file = example param extension = ".dim"
      * <pre> "example" </pre>
      * results to
      * <pre> "example.dim" </pre>
-     * <p/>
+     * <p>
      * Example3: param file = example.lem param extension = ".dim"
      * <pre> "example.lem" </pre>
      * results to
@@ -381,7 +381,6 @@ public class FileUtils {
 
     /**
      * Gets a normalized URL representation for the given file.
-     * <p/>
      * <p>Unlike the  {@link java.io.File#toURL() File.toURL()} method,
      * this method automatically escapes characters that are illegal in URLs.
      * It converts the given abstract pathname into a URL by first converting it into a

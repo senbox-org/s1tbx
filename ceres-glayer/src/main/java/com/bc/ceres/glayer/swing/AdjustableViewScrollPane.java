@@ -37,7 +37,7 @@ import java.awt.geom.Rectangle2D;
 /**
  * A <code>ViewPane</code> is an alternative to {@link javax.swing.JScrollPane}
  * when you need to scroll an infinite area given in floating-point coordinates.
- * <p/>
+ * <p>
  * In opposite to {@link javax.swing.JScrollPane}, we don't scroll a view  given
  * by a {@link javax.swing.JComponent} but it's {@link Viewport}. For this reason
  * the view component must implement the {@link AdjustableView} interface.

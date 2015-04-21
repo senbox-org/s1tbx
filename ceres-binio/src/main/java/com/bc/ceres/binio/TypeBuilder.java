@@ -26,7 +26,6 @@ import com.bc.ceres.binio.internal.VarElementCountSequenceTypeImpl;
  * A utility class which fosters the construction of complex type defintions.
  * Its usage should be self-explaining, e.g.:
  * <pre>
- * <p/>
  * import static binio.util.TypeBuilder.*;
  * ...
  * CompoundType scanlineType =
@@ -35,7 +34,6 @@ import com.bc.ceres.binio.internal.VarElementCountSequenceTypeImpl;
  *        MEMBER("samples", SEQUENCE(DOUBLE, 512))
  *     );
  * };
- * <p/>
  * CompoundType datasetType =
  *     COMPOUND("Dataset",
  *        MEMBER("lineCount", UINT),

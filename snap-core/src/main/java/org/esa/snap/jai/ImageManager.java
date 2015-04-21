@@ -101,7 +101,7 @@ import java.util.Set;
 /**
  * This class provides most of the new imaging features introduced in BEAM 4.5.
  * <p><i>WARNING:</i> Although {@code ImageManager} is intended to belong to the public BEAM API you should use it
- * with care, since it is still under development and may change slightly in forthcoming versions.</p>
+ * with care, since it is still under development and may change slightly in forthcoming versions.
  */
 public class ImageManager {
 
@@ -448,7 +448,7 @@ public class ImageManager {
      * <p><b>Note:</b> This class/interface is part of an interim API that is still under development and expected to
      * change significantly before reaching stability. It is being made available at this early stage to solicit
      * feedback from pioneering adopters on the understanding that any code that uses this API will almost certainly
-     * be broken (repeatedly) as the API evolves.</p>
+     * be broken (repeatedly) as the API evolves.
      */
     public static RasterDataNode getUncertaintyBand(RasterDataNode valueBand) {
         final String[] roleNames = {"uncertainty", "error", "variance", "standard_deviation", "confidence"};

@@ -37,7 +37,7 @@ import java.util.Map;
 
 /**
  * Instances of <code>FeatureStatisticsWriter</code> enrich shapefiles or features with statistics.
- * <p/>
+ * <p>
  * This is done like this:<br/>
  * <ol>
  * <li>the original shapefile is being opened and its features are loaded</li>
@@ -190,7 +190,7 @@ public class FeatureStatisticsWriter implements StatisticsOutputter {
      * {@inheritDoc}
      * <p>
      * This implementation writes the enriched features to the specified target shapefile.
-     * </p>
+     *
      *
      * @throws IOException If writing fails.
      */

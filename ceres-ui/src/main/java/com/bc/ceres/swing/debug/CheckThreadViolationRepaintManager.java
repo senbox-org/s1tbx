@@ -16,20 +16,24 @@
 
 package com.bc.ceres.swing.debug;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.RepaintManager;
+import javax.swing.SwingUtilities;
 import java.lang.ref.WeakReference;
 
 /**
  * <p>This class is used to detect Event Dispatch Thread rule violations<br>
  * See <a href="http://java.sun.com/docs/books/tutorial/uiswing/misc/threads.html">How to Use Threads</a>
- * for more info</p>
- * <p/>
+ * for more info
  * <p>This is a modification of original idea of Scott Delap<br>
  * Initial version of ThreadCheckingRepaintManager can be found here<br>
  * <a href="http://www.clientjava.com/blog/2004/08/20/1093059428000.html">Easily Find Swing Threading Mistakes</a>
- * </p>
+ *
  * <p>Also see <a href="https://weblogs.java.net/blog/alexfromsun/archive/2006/02/debugging_swing.html">Debugging Swing, the final summary</a>
- * </p>
+ *
  *
  * @author Scott Delap
  * @author Alexander Potochkin

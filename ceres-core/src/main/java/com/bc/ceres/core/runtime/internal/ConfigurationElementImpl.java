@@ -17,7 +17,11 @@
 package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.runtime.*;
+import com.bc.ceres.core.runtime.ConfigurableExtension;
+import com.bc.ceres.core.runtime.ConfigurationElement;
+import com.bc.ceres.core.runtime.ConfigurationSchemaElement;
+import com.bc.ceres.core.runtime.Extension;
+import com.bc.ceres.core.runtime.Module;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.extended.JavaClassConverter;
 import com.thoughtworks.xstream.core.util.ClassLoaderReference;
@@ -32,9 +36,8 @@ import java.text.MessageFormat;
  * A configuration element, with its attributes and children,
  * directly reflects the content and structure of the extension
  * section within the declaring plug-in's manifest (plugin.xml) file.
- * <p/>
  * <p>This interface also provides a way to create executable extension objects.
- * This interface is not intended to be implemented by clients.</p>
+ * This interface is not intended to be implemented by clients.
  */
 public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<ConfigurationElement>
         implements ConfigurationElement {

@@ -17,13 +17,13 @@
 package com.bc.ceres.core;
 
 /**
- * A default progress monitor implementation suitable for
- * subclassing.
- * <p/>
- * This implementation supports cancelation. The default
- * implementations of the other methods do nothing.
- * </p>
- * <p>This class has been more or less directly taken over from the <a href="http://www.eclipse.org/">Eclipse</a> Core API.</p>
+ * A default progress monitor implementation suitable for subclassing.
+ * <p>
+ * This implementation supports cancellation. The default implementations of
+ * the other methods do nothing.
+ * <p>
+ * This class has been more or less directly taken over from the
+ * <a href="http://www.eclipse.org/">Eclipse</a> Core API.
  */
 public class NullProgressMonitor implements ProgressMonitor {
 

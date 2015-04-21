@@ -51,7 +51,7 @@ import java.util.Map;
  * This band maths operator can be used to create a product with multiple bands based on mathematical expression.<br/>
  * All products specified as source must have the same width and height, otherwise the operator will fail.
  * The geo-coding information and metadata for the target product is taken from the first source product.
- * </p>
+ *
  * <p>
  * To reference a band of one of the source products within an expression use the following syntax:<br/>
  * <br/>
@@ -60,12 +60,12 @@ import java.util.Map;
  * Where <b>#</b> means the index of the source product. The index is zero based.<br/>
  * The bands of the first source product (<code>$sourceProducts<b>0</b></code>) can be referenced without this
  * product identifier. The band name is sufficient.
- * </p>
+ *
  * <p>
  * When using this operator from the command-line Graph XML file must be provided in order to
  * specify all parameters. Here is some sample XML of how to use a <code>BandMaths</code> node within
  * a graph:
- * </p>
+ *
  * <pre>
  *      &lt;node id="bandMathsNode"&gt;
  *        &lt;operator&gt;BandMaths&lt;/operator&gt;
@@ -120,7 +120,7 @@ import java.util.Map;
  * <li>Changed type of BandDescriptor.noDataValue from String to Double</li>
  * <li>Deprecated API method 'createBooleanExpressionBand'</li>
  * </ol>
- * </p>
+ *
  *
  * @author Marco Zuehlke
  * @author Norman Fomferra

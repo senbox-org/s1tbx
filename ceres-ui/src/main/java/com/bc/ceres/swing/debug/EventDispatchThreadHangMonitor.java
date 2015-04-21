@@ -16,33 +16,45 @@
 
 package com.bc.ceres.swing.debug;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.lang.management.*;
-import java.util.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
+import java.awt.AWTEvent;
+import java.awt.EventQueue;
+import java.awt.FlowLayout;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
+import java.util.LinkedList;
 import java.util.Timer;
-
-import javax.swing.*;
+import java.util.TimerTask;
 
 /**
  * Monitors the AWT event dispatch thread for events that take longer than
  * a certain time to be dispatched.
- * <p/>
+ * <p>
  * The principle is to record the time at which we start processing an event,
  * and have another thread check frequently to see if we're still processing.
  * If the other thread notices that we've been processing a single event for
  * too long, it prints a stack trace showing what the event dispatch thread
  * is doing, and continues to time it until it finally finishes.
- * <p/>
+ * <p>
  * This is useful in determining what code is causing your Java application's
  * GUI to be unresponsive.
  * 
  * <p>The original blog can be found here<br>  
  * <a href="http://elliotth.blogspot.com/2005/05/automatically-detecting-awt-event.html">
  * Automatically detecting AWT event dispatch thread hangs</a>
- * </p>
  *
- * @author Elliott Hughes <enh@jessies.org>
+ *
+ * @author Elliott Hughes &lt;enh@jessies.org&gt;
  * 
  * Advice, bug fixes, and test cases from
  * Alexander Potochkin and Oleg Sukhodolsky.

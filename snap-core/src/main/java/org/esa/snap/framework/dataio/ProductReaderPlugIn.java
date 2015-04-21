@@ -17,10 +17,8 @@ package org.esa.snap.framework.dataio;
 
 /**
  * The <code>ProductReaderPlugIn</code> interface is implemented by data product reader plug-ins.
- * <p/>
  * <p>XMLDecoder plug-ins are used to provide meta-information about a particular data format and to create instances of
  * the actual reader objects.
- * <p/>
  * <p> A plug-in can register itself in the <code>ProductIO</code> plug-in registry or it is automatically found during
  * a classpath scan.
  *
@@ -40,7 +38,6 @@ public interface ProductReaderPlugIn extends ProductIOPlugIn {
 
     /**
      * Returns an array containing the classes that represent valid input types for this reader.
-     * <p/>
      * <p> Instances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
      * <code>ProductReader</code> interface (the method will not throw an <code>InvalidArgumentException</code> in this
      * case).

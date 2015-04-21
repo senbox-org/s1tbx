@@ -270,7 +270,6 @@ public abstract class AbstractBand extends RasterDataNode {
     /**
      * Gets a raster data holding this band's pixel data for an entire product scene. If the data has'nt been loaded so
      * far the method returns <code>null</code>.
-     * <p/>
      * <p>In opposite to the <code>getRasterData</code> method, this method returns raster data that has at least
      * <code>getBandOutputRasterWidth()*getBandOutputRasterHeight()</code> elements of the given data type to store the
      * scene's pixels.
@@ -795,11 +794,9 @@ public abstract class AbstractBand extends RasterDataNode {
 
     /**
      * Loads the complete underlying raster data.
-     * <p/>
      * <p>After this method has been called successfully, <code>hasRasterData()</code> should always return
      * <code>true</code> and <code>getRasterData()</code> should always return a valid <code>ProductData</code> instance
      * with at least <code>getRasterWidth()*getRasterHeight()</code> elements (samples).
-     * <p/>
      * <p> In opposite to the <code>readRasterDataFully</code> method, <code>loadRasterData</code> will only read data
      * if this has not already been done.
      *
@@ -818,10 +815,8 @@ public abstract class AbstractBand extends RasterDataNode {
 
     /**
      * Un-loads the raster data for this band.
-     * <p/>
      * <p>After this method has been called successfully, the <code>hasRasterData()</code> method returns
      * <code>false</code> and <code>getRasterData()</code> returns <code>null</code>.
-     * <p/>
      *
      * @see #loadRasterData()
      * @deprecated since BEAM 4.11. No replacement.

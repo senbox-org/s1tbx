@@ -20,7 +20,7 @@ package com.bc.ceres.swing.undo;
 /**
  * An object implementing this interface can create a memento by which it's
  * state can be restored after the object has been changed.
- * <p/>
+ * <p>
  * The interface is used to realize the GoF Memento Design Pattern.
  *
  * @author Norman Fomferra
@@ -37,7 +37,7 @@ public interface Restorable {
 
     /**
      * Restores this object's state from the given memento object.
-     * <p/>
+     * <p>
      * This method will always (at least) accept the memento objects
      * created by the {@link #createMemento()} method.
      *

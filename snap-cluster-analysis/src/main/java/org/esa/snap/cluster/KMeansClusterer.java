@@ -142,7 +142,7 @@ class KMeansClusterer {
     
     /**
      * Cluster comparator.
-     * <p/>
+     * <p>
      * Compares two clusters according to their membership counts.
      */
     private static class ClusterComparator implements Comparator<KMeansCluster> {

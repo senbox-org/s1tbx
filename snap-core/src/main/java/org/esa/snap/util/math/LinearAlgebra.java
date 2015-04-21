@@ -18,7 +18,7 @@ package org.esa.snap.util.math;
 
 /**
  * Linear algebra - calculations and utilities for vectors and matrixes.
- * <p/>
+ * <p>
  * Note that for the purpose of performance the calculation functions do
  * no argument checking.
  *

@@ -34,7 +34,6 @@ import org.opengis.referencing.operation.MathTransform;
 /**
  * An <code>Orthorectifier</code> is a {@link org.esa.snap.framework.datamodel.GeoCoding} which performs an orthorectification algorithm on a base {@link
  * GeoCoding}.
- * <p/>
  * <p><i>IMPORTANT NOTE: This class is not thread save. In order to use it safely, make sure to create a new instance of
  * this class for each orthorectifying thread.</i>
  *
@@ -153,10 +152,10 @@ public class Orthorectifier implements GeoCoding {
 
     /**
      * Returns the source pixel coordinate for a <i>true (corrected)</i> geographical coordinate.
-     * <p/>
+     * <p>
      * Implements the prediction/correction algorithm from the MERIS Geometry Handbook, VT-P194-DOC-001-E, iss 1, rev 4,
      * page 29, figure 23.
-     * <p/>
+     * <p>
      * Scope of the prediction/correction algorithm is to retrieve the pixel x,y
      * that matches the <i>true</i> lat,lon by the direct location model f(x,y) = lat,lon.
      *
@@ -259,7 +258,6 @@ public class Orthorectifier implements GeoCoding {
     /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
-     * <p/>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
      */
@@ -310,7 +308,7 @@ public class Orthorectifier implements GeoCoding {
 
     /**
      * Gets the geodetically corrected latitude and longitude value for a given pixel co-ordinate.
-     * <p/>
+     * <p>
      * Implements the geodetic correction algorithm from the MERIS Geometry Handbook, VT-P194-DOC-001-E, iss 1, rev 4,
      * page 39, equations 6a and 6b.
      *

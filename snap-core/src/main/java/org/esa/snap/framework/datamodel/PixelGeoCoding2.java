@@ -58,7 +58,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
     /**
      * Constructs a new pixel-based geo-coding.
-     * <p/>
+     * <p>
      * <i>Use with care: In contrast to the other constructor this one loads the data not until first access to
      * {@link #getPixelPos(org.esa.snap.framework.datamodel.GeoPos, org.esa.snap.framework.datamodel.PixelPos)} or {@link #getGeoPos(org.esa.snap.framework.datamodel.PixelPos, org.esa.snap.framework.datamodel.GeoPos)}. </i>
      *

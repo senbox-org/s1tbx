@@ -27,11 +27,10 @@ import java.io.IOException;
 /**
  * This is an example program which writes out an NDVI value in the range 0 to 255 computed from the MERIS L1b bands
  * "radiance_6" and "radiance_10".
- * <p/>
  * <p>The program expects two input arguments: <ol> <li><i>input-file</i> - the file path to an input data product
  * containing the bands "radiance_6" and "radiance_10". The format can be either ENVISAT or BEAM-DIMAP</li>
  * <li><i>output-file</i> - the file path to the NDVI image file to be written</li> </ol>
- * <p/>
+ * <p>
  * <i><b>Note:</b> If you want to work with product subsets, you can use the {@link
  * org.esa.snap.framework.dataio.ProductSubsetBuilder} class. It has a static method which lets you create a subset of a
  * given product and subset definition.</i>

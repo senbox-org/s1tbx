@@ -38,9 +38,8 @@ public interface MapTransform {
      * Gets the array of parameter values. The order in which the parameters are returned must exactly match the
      * order in which the corresponding {@link org.esa.snap.framework.param.Parameter} array is returned by the
      * <code>{@link MapTransformDescriptor#getParameters()}</code> method.
-     * <p/>
      * <p>Important: Implementors of this method shall ensure that an element-wise copy of the given parameter array is
-     * created and returned.</p>
+     * created and returned.
      *
      * @return the array of parameter values.
      */

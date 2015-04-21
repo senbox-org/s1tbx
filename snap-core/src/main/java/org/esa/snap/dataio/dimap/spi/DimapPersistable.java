@@ -22,7 +22,7 @@ import org.jdom.Element;
  * Interface to implemented by clients who know how to read objects from
  * and write object to BEAM-DIMAP XML.
  *
- * <p><i>Note that this class is not yet public API. Interface may change in future releases.</i></p>
+ * <p><i>Note that this class is not yet public API. Interface may change in future releases.</i>
  * 
  * @author Marco Peters
  * @version $Revision$ $Date$

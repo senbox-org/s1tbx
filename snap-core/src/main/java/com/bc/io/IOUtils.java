@@ -23,7 +23,6 @@ import java.io.OutputStream;
 /**
  * A utility class for I/O related functionality.
  * @author Norman Fomferra
- * @version
  */
 public class IOUtils {
 

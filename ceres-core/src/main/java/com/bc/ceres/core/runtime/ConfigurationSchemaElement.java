@@ -17,8 +17,8 @@ package com.bc.ceres.core.runtime;
 
 /**
  * A configuration element of an extension point (schema).
- * <p/>
- * This interface is not intended to be implemented by clients.</p>
+ * <p>
+ * This interface is not intended to be implemented by clients.
  */
 public interface ConfigurationSchemaElement extends ConfigurationElementBase<ConfigurationSchemaElement> {
 

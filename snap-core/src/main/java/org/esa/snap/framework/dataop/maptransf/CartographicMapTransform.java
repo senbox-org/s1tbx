@@ -179,9 +179,7 @@ public abstract class CartographicMapTransform implements MapTransform {
     /**
      * Worker method to be overridden by derived class. Performs the pure transformation. Prescaling, northing, easting
      * etc is calculated in this class.
-     * <p/>
      * <p>Should be overridden in order to perform transformation in 64-bit accuracy.
-     * <p/>
      * <p>The default implementation simple returns <code>inverse_impl((float)x, (float)y, geoPoint)</code>.
      *
      * @param geoPoint point on the earth's surface

@@ -74,12 +74,9 @@ public class AsarXCAProductFile extends ForwardingProductFile {
 
     /**
      * This method is called after the main product header has been read in successfully.
-     * <p/>
      * <p> Sub-classes should set product specific parameters in the <code>parameters</code> argument. The parameters
      * can be referenced in DDDB in order to implement dynamic field length, such as 'LINE_WIDTH'.
-     * <p/>
      * <p> When this method is called, the <code>getMPH()</code> method returns a non-null value.
-     * <p/>
      * <p> The default implementation is empty.
      *
      * @param parameters product specific parameters (possibly referenced within in the DDDB
@@ -92,12 +89,9 @@ public class AsarXCAProductFile extends ForwardingProductFile {
 
     /**
      * This method is called after the main product header has been read in successfully.
-     * <p/>
      * <p> Sub-classes should set product specific parameters in the <code>parameters</code> argument. The parameters
      * can be referenced in DDDB in order to implement dynamic field length, such as 'LINE_WIDTH'.
-     * <p/>
      * <p> When this method is called, the <code>getMPH()</code> method returns a non-null value.
-     * <p/>
      * <p> The default implementation is empty.
      *
      * @param parameters product specific parameters (possibly referenced within in the DDDB
@@ -133,10 +127,10 @@ public class AsarXCAProductFile extends ForwardingProductFile {
 
     /**
      * Sets the IODD version which is an indicator for the product format.
-     * <p/>
+     * <p>
      * REF_DOC from version 3H on end with 3H, 3K, 4A, 4B
      * Software can be at least ASAR, NORUT, KSPT_L1B
-     * <p/>
+     * <p>
      * 3H ASAR/3.05, ASAR/3.06, ASAR/3.08
      * 4A ASAR/4.01, ASAR/4.02, ASAR/4.04
      * 4B ASAR/4.05

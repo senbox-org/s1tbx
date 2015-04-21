@@ -51,9 +51,8 @@ import java.util.Locale;
 /**
  * This class represents the BEAM Product Converter Tool. It is designed as a simple command line tool. The executable
  * is called <code>pconvert</code>. Please use the help option in order to find out all possibilities of this tool.
- * <p/>
  * <p>In the following cases <code>pconvert</code> prints a usage help text to the console:
- * <p/>
+ * <p>
  * <pre>
  *    pconvert
  *    pconvert -?

@@ -27,7 +27,7 @@ public class MetadataWriter implements StatisticsOutputter {
      * {@inheritDoc}
      * <p>
      * This implementation writes the complete metadata.
-     * </p>
+     *
      *
      * @param statisticsOutputContext A context providing meta-information about the statistics.
      */
@@ -66,10 +66,9 @@ public class MetadataWriter implements StatisticsOutputter {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>
      * This implementation does nothing.
-     * </p>
+     *
      *
      * @param bandName   The name of the band the statistics have been computed for.
      * @param regionId   The id of the region the statistics have been computed for.
@@ -81,10 +80,9 @@ public class MetadataWriter implements StatisticsOutputter {
 
     /**
      * {@inheritDoc}
-     * <p/>
      * <p>
      * This implementation does nothing.
-     * </p>
+     *
      *
      * @throws IOException Never.
      */

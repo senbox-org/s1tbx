@@ -45,8 +45,8 @@ public interface RuntimeConfig {
 
     /**
      * Gets the value of a configuration property with the name <code>${ceres.context}.<i>key</i></code>.
-     *
-     * <p/>The method also substitues all occurences of <code>${<i>someKey</i>}</code> in the property value
+     * <p>
+     * The method also substitues all occurences of <code>${<i>someKey</i>}</code> in the property value
      * with the value of <code><i>someKey</i></code>.
      *
      * @param key the context key
@@ -56,8 +56,8 @@ public interface RuntimeConfig {
 
     /**
      * Gets the value of a configuration property with the name <code>${ceres.context}.<i>key</i></code>.
-     *
-     * <p/>The method also substitues all occurences of <code>${<i>someKey</i>}</code> in the property value
+     * <p>
+     * The method also substitues all occurences of <code>${<i>someKey</i>}</code> in the property value
      * with the value of <code><i>someKey</i></code>.
      *
      * @param key the context key
@@ -77,10 +77,10 @@ public interface RuntimeConfig {
     /**
      * An optional classpath containing the paths of additional application directories and ZIPs/JARs.
      * Path entries are separated by the system-specific path separator.
-     * <p/>
+     * <p>
      * This classpath can be used to specify classes (e.g. the {@link #getMainClassName() main class}), that are neither contained in one of the {@link #getLibDirPaths() lib}
      * directories nor in the {@link #getModulesDirPath() modules} directory.
-     * <p/>
+     * <p>
      * If specified, the main classpath will be the top-level classpath.
      *
      * @return the home directory path, may be {@code null}.

@@ -47,7 +47,7 @@ class VectorDataMultiLevelImage extends DefaultMultiLevelImage implements Produc
     /**
      * Creates a new mask {@link MultiLevelImage} computed from vector data. The mask image
      * created is reset whenever the referred vector data have changed.
-     * <p/>
+     * <p>
      * A 'node data changed' event is fired from the associated {@link RasterDataNode} whenever
      * the mask image is reset.
      *

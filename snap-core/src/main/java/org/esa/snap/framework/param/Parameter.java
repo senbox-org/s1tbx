@@ -24,11 +24,9 @@ import java.beans.PropertyChangeListener;
 
 /**
  * A <code>Parameter</code> is a named item which has a value of type <code>Object</code>.
- * <p/>
  * <p>Every parameter has an associated <code>ParamProperties</code> reference assigned to it which stores the
  * properties such as type, value range and more. A single <code>ParamProperties</code> instance can be shared over
  * multiple <code>Parameter</code> instances.
- * <p/>
  * <p>Parameters also have an <code>ParamEditor</code> to let a user modify the value in a GUI and a
  * <code>ParamValidator</code> to parse, format and validate it.
  *
@@ -162,7 +160,6 @@ public class Parameter {
     /**
      * Sets the given value as text. The method first validates the given value before sets it to this parameter's
      * value.
-     * <p/>
      * <p>Any <code>ParamValidateException</code> occurring while performing the validation are delegated to the given
      * exception handler (if any).
      *
@@ -208,7 +205,7 @@ public class Parameter {
 
     /**
      * Tests if this parameter's value type is a, is derived from or implements the given value type.
-     * <p/>
+     * <p>
      * The method should be used instead of the <code>instanceof</code> operator in order to determine whether this
      * parameter's value is compatible with a given class (or interface). That is, if the parameter's value is
      * <code>null</code>, the <code>instanceof</code> operator would simply return <code>false</code>.
@@ -263,7 +260,6 @@ public class Parameter {
 
     /**
      * Sets the value given as text.
-     * <p/>
      * <p>The method first parses the given text then validates the resulting object and finally sets this parameter to
      * the validated object.
      *
@@ -279,10 +275,8 @@ public class Parameter {
 
     /**
      * Sets the value given as text.
-     * <p/>
      * <p>The method first parses the given text then validates the resulting object and finally sets this parameter to
      * the validated object.
-     * <p/>
      * <p>Any <code>ParamParseException</code> or <code>ParamValidateException</code> occurring during parsing and
      * validation are delegated to the given exception handler (if any).
      *

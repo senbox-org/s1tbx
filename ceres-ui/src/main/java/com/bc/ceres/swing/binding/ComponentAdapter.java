@@ -23,9 +23,9 @@ import javax.swing.JComponent;
 
 /**
  * A component adapter provides the GUI components used to edit a bound property value.
- * <p/>
+ * <p>
  * Clients may derive their own component adapters by implementing this abstract class.
- * <p/>
+ * <p>
  * The actual binding is established by calling {@link BindingContext#bind(String, ComponentAdapter)}.
  * The returned binding may be undone later by calling {@link BindingContext#unbind(Binding)}.
  *
@@ -47,7 +47,7 @@ public abstract class ComponentAdapter {
 
     /**
      * Sets the binding which is using this adapter.
-     * <p/>
+     * <p>
      * Clients shall never call this method directly, it is called by the framework.
      *
      * @param binding The binding.
@@ -68,10 +68,10 @@ public abstract class ComponentAdapter {
 
     /**
      * Called by the framework in order to bind the GUI components to the bound property.
-     * <p/>
+     * <p>
      * The frameworks called this method immediately after
      * {@link #setBinding(Binding)} has been called.
-     * <p/>
+     * <p>
      * Most implementations will register a change listener in the editor component which
      * convert the input value and set the bound property by calling
      * {@link Binding#setPropertyValue(Object) getBinding().setPropertyValue(value)}.
@@ -83,7 +83,7 @@ public abstract class ComponentAdapter {
 
     /**
      * Called by the framework in order to unbind the GUI components from the bound property.
-     * <p/>
+     * <p>
      * Most implementations will deregister any registered change listeners from the editor component.
      *
      * @see #bindComponents()
@@ -98,7 +98,7 @@ public abstract class ComponentAdapter {
      * <li>if {@link BindingContext#adjustComponents()} is called, or</li>
      * <li>if a property-change event occurs in the associated {@code PropertyContainer} of the {@link BindingContext}.</li>
      * </ol>
-     * <p/>
+     * <p>
      * Most implementations adjusts the editor component with the value retrieved by
      * {@link Binding#getPropertyValue() getBinding().getPropertyValue()}. Note that changes to the UI component shall be made on the EDT.
      * Consider using {@link javax.swing.SwingUtilities#invokeLater(Runnable) SwingUtilities.invokeLater()}.

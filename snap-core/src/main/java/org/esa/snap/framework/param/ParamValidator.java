@@ -18,11 +18,9 @@ package org.esa.snap.framework.param;
 /**
  * A <code>ParamValidator</code> is an interface for parameter type specific value-to-text and text-to-value
  * conversions, data validation and comparision.
- * <p/>
  * <p> This interface strictly defines algorithms, implementors of this interface should refrain from defining any data
  * in their implementing classes. Any information required to correctly perform the operations defined in
  * <code>ParamValidator</code> shall be supplied by the given <code>Parameter</code>.
- * <p/>
  * <p> Parameter validators for a given Java class can be permanently registered in <code>ParamValidator</code>
  *
  * @author Norman Fomferra

@@ -25,7 +25,7 @@ import java.util.Iterator;
 /**
  * A registry for dimap service provider instances.
  *
- * <p><i>Note that this class is not yet public API. Interface may change in future releases.</i></p>
+ * <p><i>Note that this class is not yet public API. Interface may change in future releases.</i>
  *
  */
 

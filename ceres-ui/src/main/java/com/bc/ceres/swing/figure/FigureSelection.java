@@ -20,10 +20,10 @@ import com.bc.ceres.swing.selection.Selection;
 
 /**
  * A selection of figures.
- * <p/>
+ * <p>
  * Figures added to this collection will automatically be {@link #isSelected() selected}.
  * When removed, they become deselected.
- * <p/>
+ * <p>
  * A figure selection can have a certain {@link #getSelectionStage() selection stage}.
  * When displayed, a figure selections asks its figures for its {@link Figure#createHandles(int) Handle}s
  * at the given stage.

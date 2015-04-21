@@ -21,7 +21,7 @@ import org.esa.snap.util.Guardian;
 /**
  * The DSD structure represents a data set descriptor (DSD) found in the specific product header (SPH) of MERIS level 1b
  * and level 2 products.
- * <p/>
+ * <p>
  * This class serves as a data holder for DSD information, its only functionality is provided by the <code>adjust</code>
  * method, which corrects a DSD instance created from a defective SPH.
  *
@@ -155,7 +155,6 @@ public class DSD {
     /**
      * Sets the dataset offset in bytes within the data product file and the size in bytes of each record contained in
      * the dataset. The method then adjusts the dataset size accordingly.
-     * <p/>
      * <p> The primary use of this method is to correct defective DSD entries found in the SPH.
      *
      * @param datasetOffset the dataset offset in bytes within the data product file.

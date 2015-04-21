@@ -418,7 +418,6 @@ public class ProductUtils {
 
     /**
      * Creates a greyscale image from the given <code>{@link RasterDataNode}</code>.
-     * <p/>
      * <p>The method uses the given raster data node's image information (an instance of <code>{@link
      * ImageInfo}</code>) to create the image.
      *
@@ -768,7 +767,7 @@ public class ProductUtils {
      * Converts the geographic boundary entire product into one, two or three shape objects. If the product does not
      * intersect the 180 degree meridian, a single general path is returned. Otherwise two or three shapes are created
      * and returned in the order from west to east.
-     * <p/>
+     * <p>
      * The geographic boundary of the given product are returned as shapes comprising (longitude,latitude) pairs.
      *
      * @param product the input product
@@ -788,10 +787,10 @@ public class ProductUtils {
      * Converts the geographic boundary of the region within the given product into one, two or three shape objects. If
      * the product does not intersect the 180 degree meridian, a single general path is returned. Otherwise two or three
      * shapes are created and returned in the order from west to east.
-     * <p/>
+     * <p>
      * This method delegates to {@link #createGeoBoundaryPaths(org.esa.snap.framework.datamodel.Product, java.awt.Rectangle, int, boolean) createGeoBoundaryPaths(Product, Rectangle, int, boolean)}
      * and the additional parameter <code>usePixelCenter</code> is <code>true</code>.
-     * <p/>
+     * <p>
      * The geographic boundary of the given product are returned as shapes comprising (longitude,latitude) pairs.
      *
      * @param product the input product
@@ -812,7 +811,7 @@ public class ProductUtils {
      * Converts the geographic boundary of the region within the given product into one, two or three shape objects. If
      * the product does not intersect the 180 degree meridian, a single general path is returned. Otherwise two or three
      * shapes are created and returned in the order from west to east.
-     * <p/>
+     * <p>
      * The geographic boundary of the given product are returned as shapes comprising (longitude,latitude) pairs.
      *
      * @param product        the input product
@@ -844,7 +843,6 @@ public class ProductUtils {
      * Creates a rectangular boundary expressed in pixel positions for the given source rectangle. If the source
      * <code>rect</code> is 100 x 50 pixels and <code>step</code> is 10 the returned array will countain exactly 2 * 10
      * + 2 * (5 - 2) = 26 pixel positions.
-     * <p/>
      * <p>This method is used for an intermediate step when determining a product boundary expressed in geographical
      * co-ordinates.
      * <p> This method delegates to {@link #createPixelBoundary(org.esa.snap.framework.datamodel.Product, java.awt.Rectangle, int, boolean) createPixelBoundary(Product, Rectangle, int, boolean)}
@@ -865,7 +863,6 @@ public class ProductUtils {
      * Creates a rectangular boundary expressed in pixel positions for the given source rectangle. If the source
      * <code>rect</code> is 100 x 50 pixels and <code>step</code> is 10 the returned array will countain exactly 2 * 10
      * + 2 * (5 - 2) = 26 pixel positions.
-     * <p/>
      * <p>This method is used for an intermediate step when determining a product boundary expressed in geographical
      * co-ordinates.
      *
@@ -891,7 +888,6 @@ public class ProductUtils {
      * Creates a rectangular boundary expressed in pixel positions for the given source rectangle. If the source
      * <code>rect</code> is 100 x 50 pixels and <code>step</code> is 10 the returned array will countain exactly 2 * 10
      * + 2 * (5 - 2) = 26 pixel positions.
-     * <p/>
      * <p>This method is used for an intermediate step when determining a raster boundary expressed in geographical
      * co-ordinates.
      *
@@ -934,10 +930,10 @@ public class ProductUtils {
      * Creates a rectangular boundary expressed in pixel positions for the given source rectangle. If the source
      * <code>rect</code> is 100 x 50 pixels and <code>step</code> is 10 the returned array will countain exactly 2 * 10
      * + 2 * (5 - 2) = 26 pixel positions.
-     * <p/>
+     * <p>
      * This method is used for an intermediate step when determining a product boundary expressed in geographical
      * co-ordinates.
-     * <p/>
+     * <p>
      *
      * @param rect           the source rectangle
      * @param step           the mean distance from one pixel position to the other in the returned array
@@ -1063,7 +1059,7 @@ public class ProductUtils {
 
     /**
      * Copies the {@link Mask}s from the source product to the target product.
-     * <p/>
+     * <p>
      * IMPORTANT NOTE: This method should only be used, if it is known that all masks
      * in the source product will also be valid in the target product. This method does
      * <em>not</em> copy overlay masks from the source bands to the target bands. Also
@@ -1087,7 +1083,7 @@ public class ProductUtils {
     /**
      * Copies the overlay {@link Mask}s from the source product's raster data nodes to
      * the target product's raster data nodes.
-     * <p/>
+     * <p>
      * IMPORTANT NOTE: This method should only be used, if it is known that all masks
      * in the source product will also be valid in the target product. This method does
      * <em>not</em> copy overlay masks, which are not contained in the target product's
@@ -1108,7 +1104,7 @@ public class ProductUtils {
     /**
      * Copies the ROI {@link Mask}s from the source product's raster data nodes to
      * the target product's raster data nodes.
-     * <p/>
+     * <p>
      * IMPORTANT NOTE: This method should only be used, if it is known that all masks
      * in the source product will also be valid in the target product. This method does
      * <em>not</em> copy ROI masks, which are not contained in the target product's
@@ -2296,7 +2292,6 @@ public class ProductUtils {
      * {@link RasterDataNode#isLog10Scaled() targetBand.log10Scaled} will be taken from the source band.
      * This ensures that source pixel resampling methods operating on floating point
      * data can be stored without loss in accuracy in the target band.
-     * <p/>
      * <p>Furthermore, the
      * {@link RasterDataNode#isNoDataValueSet() targetBands.noDataValueSet}
      * and {@link RasterDataNode#isNoDataValueUsed() targetBands.noDataValueUsed}

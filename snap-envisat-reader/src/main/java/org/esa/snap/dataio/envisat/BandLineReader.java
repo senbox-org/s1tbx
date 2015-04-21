@@ -23,14 +23,12 @@ import java.io.IOException;
 /**
  * A <code>BandLineReader</code> instance is used read and decode single lines of the geophysical raster data stored in
  * ENVISAT product files.
- * <p/>
  * <p> Band line reader instances are obtained through the <code>getBandLineReader</code> method of the
  * <code>ProductFile</code> class:
  * <pre>
  *    ProductFile file = ProductFile.open("MERIS_L2.prd");
  *    BandLineReader reader = file.getBandLineReader("radiance_9");
  * </pre>
- * <p/>
  * <p> Band readers internally use a <code>RecordReader</code> to read the raw data records providing the pixel data for
  * a certain geophysical parameter.
  *
@@ -242,11 +240,9 @@ public class BandLineReader {
 
     /**
      * Reads a geophysical band from a measurement dataset (MDS).
-     * <p/>
      * <p>The method reads the sample values of the line <code>sourceY</code> from column <code>sourceMinX</code> to
      * <code>sourceMaxX</code> inclusively with a sub-sampling of <code>sourceStepX</code> pixels into the specified
      * raster data buffer <code>destRaster</code> beginning at offset <code>destRasterPos</code>.
-     * <p/>
      * <p> The maximum number of samples read is therefore given by the formula <code>1+(sourceMaxX-sourceMinX)/sourceStepX</code>.
      *
      * @param sourceMinX    the minimum X offset in source raster co-ordinates

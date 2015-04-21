@@ -18,11 +18,11 @@ package com.bc.ceres.glevel;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.PlanarImage;
-import java.util.Map;
-import java.util.Vector;
+import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
-import java.awt.*;
+import java.util.Map;
+import java.util.Vector;
 
 /**
  * A {@link javax.media.jai.PlanarImage PlanarImage} which can act as a {@link MultiLevelSource}.
@@ -76,11 +76,9 @@ public abstract class MultiLevelImage extends PlanarImage implements MultiLevelS
      * image, the garbage collector discovers this, and finalize is
      * called.  This can be used as a hint in situations where waiting
      * for garbage collection would be overly conservative.
-     * <p/>
      * <p> The results of referencing an image after a call to
-     * <code>dispose()</code> are undefined.</p>
-     * <p/>
-     * <p>Overrides shall call {@code super.dispose()} in a final step.</p>
+     * <code>dispose()</code> are undefined.
+     * <p>Overrides shall call {@code super.dispose()} in a final step.
      */
     @Override
     public void dispose() {

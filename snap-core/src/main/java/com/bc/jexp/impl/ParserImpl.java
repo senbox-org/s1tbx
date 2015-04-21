@@ -25,7 +25,7 @@ import com.bc.jexp.WritableNamespace;
 
 
 /**
- * A default implementation for the {@link <code>com.bc.jexp.Parser</code>} interface.
+ * A default implementation for the {@link com.bc.jexp.Parser} interface.
  *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
  * @version $Revision$ $Date$

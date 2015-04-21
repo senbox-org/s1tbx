@@ -24,8 +24,7 @@ import java.awt.image.RenderedImage;
 /**
  * A band that obtains its input data from an underlying source band and filters
  * the raster data using a {@link Kernel}.
- * <p/>
- * <p><i>Note that this class is not yet public API. Interface may chhange in future releases.</i></p>
+ * <p><i>Note that this class is not yet public API. Interface may chhange in future releases.</i>
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$

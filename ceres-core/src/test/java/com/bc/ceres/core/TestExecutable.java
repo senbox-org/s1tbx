@@ -10,7 +10,7 @@ import org.junit.Ignore;
  * <li>&lt;steps&gt; = the number of single steps.</li>
  * </ol>
  * After each step,a progress indicating line is written to stdout.
- * <p/>
+ * <p>
  * The executable has 3 exit states:
  * <ul>
  * <li>0=Normal termintation,output only on stdout</li>

@@ -167,7 +167,6 @@ public abstract class AbstractParamEditor implements ParamEditor, ParamException
 
     /**
      * Initialized the UI of this editor. Called only once within this editor's constructor.
-     * <p/>
      * <p> The default implementation creates a label component for the parameter's "label" and "physicalUnit"
      * properties.
      */
@@ -179,7 +178,6 @@ public abstract class AbstractParamEditor implements ParamEditor, ParamException
     /**
      * Tells the UI to update it's state. The default implementations en-/disables the label components (if any) of this
      * editor.
-     * <p/>
      * <p>Note: If you override this method, you should call this base class version first.
      */
     public void updateUI() {
@@ -201,7 +199,6 @@ public abstract class AbstractParamEditor implements ParamEditor, ParamException
 
     /**
      * Tells the UI component to reconfigure itself, since the parameter's properties have changed.
-     * <p/>
      * <p>The default implementation simply calls the <code>updateUI</code> method.
      */
     public void reconfigureUI() {

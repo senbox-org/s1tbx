@@ -19,6 +19,7 @@ package com.bc.ceres.swing.figure;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.swing.figure.support.ScaleHandle;
 import com.bc.ceres.swing.figure.support.StyleDefaults;
+
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -27,7 +28,7 @@ import java.util.List;
 
 /**
  * Base class for all {@link Figure} implementations.
- * <p/>
+ * <p>
  * Provides support for the following properties:
  * {@code selectable}, {@code selected}, {@code normalStyle}, {@code selectedStyle}.
  *

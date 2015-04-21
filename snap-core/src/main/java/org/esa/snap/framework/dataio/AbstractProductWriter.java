@@ -87,7 +87,6 @@ public abstract class AbstractProductWriter implements ProductWriter {
 
     /**
      * Writes the in-memory representation of a data product.
-     * <p/>
      * <p> Whether the band data - the actual pixel values - is written out immediately or later when pixels are
      * flushed, is up to the implementation.
      *

@@ -25,7 +25,6 @@ import java.util.List;
  * concrete <code>Term</code> implementations each representing either an
  * an atomic leave (number constant, symbol reference) or a node
  * (e.g. binary operator, function call) within an expression tree.
- * <p/>
  * <p> Instances of this class are normally created using an expression parser
  * which implements the <code>{@link com.bc.jexp.Parser}</code> interface.
  * The <code>{@link com.bc.jexp.impl.ParserImpl}</code> class provides a default
@@ -844,7 +843,7 @@ public abstract class Term {
     /**
      * The logical AND operation:
      * <blockquote>
-     * <i>b-term</i> <code>&&</code> <i>b-term</i>
+     * <i>b-term</i> <code>&amp;&amp;</code> <i>b-term</i>
      * </blockquote>
      */
     public static final class AndB extends BinaryB {
@@ -924,7 +923,7 @@ public abstract class Term {
     /**
      * The bitwise AND operation:
      * <blockquote>
-     * <i>i-term</i> <code>&</code> <i>i-term</i>
+     * <i>i-term</i> <code>&amp;</code> <i>i-term</i>
      * </blockquote>
      */
     public static final class AndI extends BinaryI {
@@ -944,7 +943,7 @@ public abstract class Term {
     /**
      * The bitwise OR operation:
      * <blockquote>
-     * <i>i-term</i> <code>|</code> <i>i-term</i>
+     * <i>i-term</i> <code>&brvbar;</code> <i>i-term</i>
      * </blockquote>
      */
     public static final class OrI extends BinaryI {

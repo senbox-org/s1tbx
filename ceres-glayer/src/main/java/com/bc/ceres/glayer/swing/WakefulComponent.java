@@ -40,7 +40,7 @@ import java.awt.image.BufferedImage;
  * An animated component which can be in one of four {@link WakefulComponent.VisualState}s.
  * The visual state is presented by different degrees of component opacity. State transitions are
  * done smoothly and can be controlled by various time settings.
- * <p/>
+ * <p>
  * <pre>
  *
  *   INACTIVE   |  ACTIVATING    |      ACTIVE        |   DEACTIVATING   | INACTIVE
@@ -54,7 +54,7 @@ import java.awt.image.BufferedImage;
  *  ____________/                                                       \__________
  *
  * </pre>
- * <p/>
+ * <p>
  * Clients can observe state changes by listening to changes of the
  * {@link WakefulComponent#getVisualState() visualState} property.
  *

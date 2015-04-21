@@ -17,21 +17,20 @@
 package com.bc.ceres.jai.tilecache;
 
 import javax.media.jai.CachedTile;
+import java.awt.Image;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
-import java.awt.Image;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 
 
 /**
  * Information associated with a cached tile.
- * <p/>
  * <p> This class is used by {@link SwappingTileCache} to create an object that
  * includes all the information associated with a tile, and is put
  * into the tile cache.
- * <p/>
+ * <p>
  * The implementation is based on the Sun Microsystems' implementation of
  * the <code>javax.media.jai.CachedTile</code> interface.
  *

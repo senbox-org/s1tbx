@@ -6,12 +6,12 @@ import java.io.IOException;
 
 /**
  * An abstract base class for Gaussian grids.
- * <p/>
+ * <p>
  * A gaussian grid is a latitude/longitude grid. The spacing of the latitudes is not regular.
  * However, the spacing of the lines of latitude is symmetrical about the Equator. Note that
  * there is no latitude at either Pole or at the Equator. A grid is usually referred to by its
  * 'number' N, which is the number of lines of latitude between a Pole and the Equator.
- * <p/>
+ * <p>
  * The longitudes of the grid points are defined by giving the number of points along each
  * line of latitude. The first point is at longitude 0 and the points are equally spaced along
  * the line of latitude. In a regular gaussian grid, the number of longitude points along a

@@ -23,7 +23,9 @@ import javax.media.jai.PlanarImage;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.operator.ConstantDescriptor;
 import javax.media.jai.operator.ScaleDescriptor;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.image.RenderedImage;
 
 /**
@@ -75,7 +77,7 @@ public abstract class AbstractMultiLevelSource implements MultiLevelSource {
      * Called by {@link #getImage(int)} if a level image is requested for the first time.
      * Note that images created via this method will be {@link PlanarImage#dispose disposed}
      * when {@link #reset} is called on this multi-level image source. See {@link #getImage(int)}.
-     * <p/>
+     * <p>
      * The dimension of the level image created must be the same as that obtained from
      * {@link #getImageDimension(int, int, double)} for the scale associated with the
      * given resolution level.
@@ -88,9 +90,8 @@ public abstract class AbstractMultiLevelSource implements MultiLevelSource {
 
     /**
      * Removes all cached level images and also disposes
-     * any {@link javax.media.jai.PlanarImage PlanarImage}s among them.</p>
-     * <p/>
-     * <p>Overrides should always call {@code super.reset()}.<p/>
+     * any {@link javax.media.jai.PlanarImage PlanarImage}s among them.
+     * <p>Overrides should always call {@code super.reset()}.<p>
      */
     @Override
     public synchronized void reset() {

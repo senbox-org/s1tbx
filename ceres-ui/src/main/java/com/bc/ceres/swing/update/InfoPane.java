@@ -63,11 +63,11 @@ class InfoPane extends JPanel {
             html.append("<p>");
             html.append("<u>Module description:</u><br/>");
             html.append(getTextValue(module.getDescription()));
-            html.append("</p>");
+            html.append("");
             html.append("<p>");
             html.append("<u>Changelog:</u><br/>");
             html.append(getTextValue(module.getChangelog()));
-            html.append("</p>");
+            html.append("");
             html.append("<p>");
             html.append("<u>Vendor information:</u><br/>");
             html.append("<ul>");
@@ -81,7 +81,7 @@ class InfoPane extends JPanel {
             }
             addUrl(html, "About", module.getAboutUrl());
             html.append("</ul>");
-            html.append("</p>");
+            html.append("");
             html.append("</body>");
             html.append("</html>");
 

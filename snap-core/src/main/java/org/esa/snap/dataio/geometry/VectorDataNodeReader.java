@@ -58,7 +58,7 @@ import java.util.Map;
 
 /**
  * Reader that creates an instance of {@link VectorDataNode} for a given CSV (character separated values) input.
- * Clients need to specify:<br/>
+ * Clients need to specify:
  * <ul>
  * <li>a strategy for receiving the CRS the vector data is based on (given by an instance of
  * {@link org.esa.snap.util.FeatureUtils.FeatureCrsProvider})</li>

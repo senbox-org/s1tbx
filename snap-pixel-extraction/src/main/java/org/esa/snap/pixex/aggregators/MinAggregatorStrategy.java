@@ -5,7 +5,7 @@ import org.esa.snap.pixex.calvalus.ma.Record;
 
 /**
  * {@inheritDoc}
- * <p/>
+ * <p>
  * Retrieves the minimum value for a record.
  */
 public class MinAggregatorStrategy extends AbstractAggregatorStrategy {

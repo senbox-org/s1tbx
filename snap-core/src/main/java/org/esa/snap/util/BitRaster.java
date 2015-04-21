@@ -78,7 +78,7 @@ public final class BitRaster {
      * Creates a byte-packed bitmask as array of bytes.
      * <p>
      * This method is used to provide backward API compatibility with BEAM versions prior 4.1.
-     * Its use is discouraged.</p>
+     * Its use is discouraged.
      *
      * @return an array of bytes of size {@link #getBytePackedBitmaskRasterWidth()}<code> * </code>{@link #getHeight()}
      * @see #getBytePackedBitmaskRasterWidth()
@@ -98,7 +98,7 @@ public final class BitRaster {
      * Gets the width of this raster in byte-packed form
      * <p>
      * This method is used to provide backward API compatibility with BEAM versions prior 4.1.
-     * Its use is discouraged.</p>
+     * Its use is discouraged.
      *
      * @return the width of this raster in byte-packed form
      * @see #createBytePackedBitmaskRasterData()

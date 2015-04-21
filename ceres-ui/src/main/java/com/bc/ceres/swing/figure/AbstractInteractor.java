@@ -28,7 +28,7 @@ public abstract class AbstractInteractor implements Interactor {
     private ArrayList<InteractorListener> listeners;
 
     protected AbstractInteractor() {
-        listeners = new ArrayList<InteractorListener>(3);
+        listeners = new ArrayList<>(3);
     }
 
     @Override
@@ -66,7 +66,7 @@ public abstract class AbstractInteractor implements Interactor {
 
     /**
      * Invoked when the mouse enters a component.
-     * <p/>
+     * <p>
      * The default implementation does nothing.
      *
      * @param event The mouse event.
@@ -77,7 +77,7 @@ public abstract class AbstractInteractor implements Interactor {
 
     /**
      * Invoked when the mouse exits a component.
-     * <p/>
+     * <p>
      * The default implementation does nothing.
      *
      * @param event The mouse event.
@@ -88,7 +88,7 @@ public abstract class AbstractInteractor implements Interactor {
 
     /**
      * Invoked when a mouse button has been pressed on a component.
-     * <p/>
+     * <p>
      * The default implementation does nothing.
      *
      * @param event The mouse event.
@@ -99,7 +99,7 @@ public abstract class AbstractInteractor implements Interactor {
 
     /**
      * Invoked when a mouse button has been released on a component.
-     * <p/>
+     * <p>
      * The default implementation does nothing.
      *
      * @param event The mouse event.
@@ -111,7 +111,7 @@ public abstract class AbstractInteractor implements Interactor {
     /**
      * Invoked when the mouse button has been clicked (pressed
      * and released) on a component.
-     * <p/>
+     * <p>
      * The default implementation does nothing.
      *
      * @param event The mouse event.
@@ -126,11 +126,11 @@ public abstract class AbstractInteractor implements Interactor {
      * delivered to the component where the drag originated until the
      * mouse button is released (regardless of whether the mouse position
      * is within the bounds of the component).
-     * <p/>
-     * Due to platform-dependent Drag&Drop implementations,
+     * <p>
+     * Due to platform-dependent Drag&amp;Drop implementations,
      * <code>MOUSE_DRAGGED</code> events may not be delivered during a native
-     * Drag&Drop operation.
-     * <p/>
+     * Drag&amp;Drop operation.
+     * <p>
      * The default implementation does nothing.
      *
      * @param event The mouse event.
@@ -142,7 +142,7 @@ public abstract class AbstractInteractor implements Interactor {
     /**
      * Invoked when the mouse cursor has been moved onto a component
      * but no buttons have been pushed.
-     * <p/>
+     * <p>
      * The default implementation does nothing.
      *
      * @param event The mouse event.
@@ -155,7 +155,7 @@ public abstract class AbstractInteractor implements Interactor {
      * Invoked when a key has been pressed.
      * See the class description for {@link KeyEvent} for a definition of
      * a key pressed event.
-     * <p/>
+     * <p>
      * The default implementation does nothing.
      *
      * @param event The key event.
@@ -168,7 +168,7 @@ public abstract class AbstractInteractor implements Interactor {
      * Invoked when a key has been released.
      * See the class description for {@link KeyEvent} for a definition of
      * a key released event.
-     * <p/>
+     * <p>
      * The default implementation does nothing.
      *
      * @param event The key event.
@@ -181,7 +181,7 @@ public abstract class AbstractInteractor implements Interactor {
      * Invoked when a key has been typed.
      * See the class description for {@link KeyEvent} for a definition of
      * a key typed event.
-     * <p/>
+     * <p>
      * The default implementation calls {@link #cancelInteraction(java.awt.event.InputEvent)} if the
      * "ESC" key has been typed.
      *

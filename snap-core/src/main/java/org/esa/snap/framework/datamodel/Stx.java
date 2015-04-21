@@ -24,7 +24,7 @@ import javax.media.jai.Histogram;
 /**
  * Provides statistic information for a raster data node at a given image resolution level.
  * Instances of the <code>Stx</code> class are created using the {@link StxFactory}.
- * <p/>
+ * <p>
  * <i>Important note: This class has been revised in BEAM 4.10. All behaviour has been moved to {@link StxFactory}
  * leaving behind this class as a pure data container. Statistics are now furthermore derived upon
  * geo-physically interpreted image data (before it operated on the raw, unscaled data). Thus, it is
@@ -148,17 +148,17 @@ public class Stx {
 
     /**
      * Gets the histogram computed from image samples.
-     * <p/>
+     * <p>
      * The returned histogram may have been computed on the logarithms of image samples.
      * In this case {@link #isLogHistogram()} returns true and it is expected that the histogram has been
      * computed from logarithms (base 10) of image samples.
      * Therefore, any statistical property retrieved from the returned histogram object such as low value, high value, bin low value,
      * mean, moment, entropy, etc. must be raised to the power of 10. Scaling is best done using the {@link #getHistogramScaling()} object.
-     * <p/>
+     * <p>
      * The returned histogram may furthermore be computed from integer image data.
      * In this case {@link #isIntHistogram()} returns true and the high value of the histogram is by one higher than
      * the value returned by {@link #getMinimum()}.
-     * <p/>
+     * <p>
      * The {@code numBands} property of the histogram will always be 1.
      *
      * @return The histogram.
@@ -189,7 +189,7 @@ public class Stx {
 
     /**
      * Gets the (inclusive) minimum value of the histogram bin given by the bin index.
-     * <p/>
+     * <p>
      * The value returned is in units of the image samples,
      * {@link #getHistogramScaling() histogram scaling} is already applied
      *
@@ -203,7 +203,7 @@ public class Stx {
 
     /**
      * Gets the (exclusive) maximum value of the histogram bin given by the bin index.
-     * <p/>
+     * <p>
      * The value returned is in units of the image samples,
      * {@link #getHistogramScaling() histogram scaling} is already applied
      *
@@ -217,7 +217,7 @@ public class Stx {
 
     /**
      * Gets the width of any histogram bin.
-     * <p/>
+     * <p>
      * The method's return value is undefined if {@link #isLogHistogram()} returns {@code true}. In this case you will have to use
      * {@link #getHistogramBinWidth(int)}.
      *
@@ -229,7 +229,7 @@ public class Stx {
 
     /**
      * Gets the width of the histogram bin given by the bin index.
-     * <p/>
+     * <p>
      * The value returned is in units of the image samples,
      * {@link #getHistogramScaling() histogram scaling} is already applied
      *

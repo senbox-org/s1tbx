@@ -94,7 +94,6 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
     /**
      * The template method which is called by the <code>readBandRasterDataSubSampling</code> method after an optional
      * spatial subset has been applied to the input parameters.
-     * <p/>
      * <p>The destination band, buffer and region parameters are exactly the ones passed to the original
      * <code>readBandRasterDataSubSampling</code> call. Since the <code>destOffsetX</code> and <code>destOffsetY</code>
      * parameters are already taken into acount in the <code>sourceOffsetX</code> and <code>sourceOffsetY</code>

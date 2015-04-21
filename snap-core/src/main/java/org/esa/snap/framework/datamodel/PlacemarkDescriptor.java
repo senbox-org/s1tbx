@@ -25,10 +25,10 @@ import java.awt.Point;
 
 /**
  * Placemark descriptors are used to describe and create {@link Placemark}s.
- * <p/>
+ * <p>
  * New placemark descriptors can be added by using the Service Provider Interface
  * {@code META-INF/services/org.esa.snap.framework.datamodel.PlacemarkDescriptor}.
- * <p/>
+ * <p>
  * Since this interface is likely to change, clients should not directly implement it.
  * Instead they should derive their implementation from {@link AbstractPlacemarkDescriptor}.
  *
@@ -51,7 +51,7 @@ public interface PlacemarkDescriptor {
      * Asks the descriptor to set any application specific information in the feature type's user data.
      * When called, the framework has already classified the given feature type as being {@link DecodeQualification#INTENDED} or
      * {@link DecodeQualification#SUITABLE} by consulting the method {@link #getCompatibilityFor}.
-     * <p/>
+     * <p>
      * Implementors of this method may consider setting specific user data that allows {@link #getCompatibilityFor}
      * to return {@link DecodeQualification#INTENDED} after e.g. data has been deserialized from a persistent data store.
      *
@@ -61,12 +61,12 @@ public interface PlacemarkDescriptor {
 
     /**
      * Gets the compatibility for the given {@code featureType} with respect to the placemarks created by this descriptor.
-     * <p/>
+     * <p>
      * The method shall only return {@link DecodeQualification#INTENDED}, if the
      * descriptor was designed for interpreting the given feature type, e.g. by inspecting the {@code featureType}'s
      * user data which may be set by
      * {@link #setUserDataOf(org.opengis.feature.simple.SimpleFeatureType)}.
-     * <p/>
+     * <p>
      * The method may return {@link DecodeQualification#SUITABLE}, if the
      * {@link #createPlacemark(org.opengis.feature.simple.SimpleFeature)}
      * method can successfully create a new placemark from a feature having the compatible {@code featureType}.

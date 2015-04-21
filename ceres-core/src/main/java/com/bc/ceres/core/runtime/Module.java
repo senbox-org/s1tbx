@@ -26,8 +26,8 @@ import java.util.Enumeration;
 
 /**
  * Represents a module.
- * <p/>
- * This interface is not intended to be implemented by clients.</p>
+ * <p>
+ * This interface is not intended to be implemented by clients.
  */
 public interface Module extends Comparable<Module> {
 
@@ -127,7 +127,7 @@ public interface Module extends Comparable<Module> {
     String getPackaging();
 
     /**
-     * @return <code>true</true> if the module uses native libraries via JNI.
+     * @return <code>true</code> if the module uses native libraries via JNI.
      */
     boolean isNative();
 
@@ -207,8 +207,8 @@ public interface Module extends Comparable<Module> {
      * Finds the resource with the given name.  A resource is some data
      * (images, audio, text, etc) that can be accessed by class code in a way
      * that is independent of the location of the code.
-     * <p/>
-     * <p> The name of a resource is a '<tt>/</tt>'-separated path name that
+     * <p>
+     * The name of a resource is a '<tt>/</tt>'-separated path name that
      * identifies the resource.
      *
      * @param name The resource name
@@ -239,8 +239,8 @@ public interface Module extends Comparable<Module> {
      * Finds all the resources with the given name. A resource is some data
      * (images, audio, text, etc) that can be accessed by class code in a way
      * that is independent of the location of the code.
-     * <p/>
-     * <p>The name of a resource is a <tt>/</tt>-separated path name that
+     * <p>
+     * The name of a resource is a <tt>/</tt>-separated path name that
      * identifies the resource.
      *
      * @param name The resource name

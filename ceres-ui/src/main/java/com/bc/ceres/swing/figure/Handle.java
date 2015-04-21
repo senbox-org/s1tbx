@@ -16,7 +16,8 @@
 
 package com.bc.ceres.swing.figure;
 
-import java.awt.*;
+import java.awt.Cursor;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -24,11 +25,11 @@ import java.awt.geom.Rectangle2D;
  * Handles are shown on figures vertices or boundaries. Usually they when figures are selected.
  * Various handle types may be used to modify a figure's geometry, e.g. resize, rotate or move
  * figures or their vertices.
- * <p/>
+ * <p>
  * Important note: The {@link #getShape() shape} and {@link #getShape() bounds}
  * returned by handles are in <i>view</i> coordinates. This is in contrast to
  * {@link Figure figures}, which return these properties in <i>model</i> coordinates.
- * <p/>
+ * <p>
  * Clients should not implement this interface directly, because it may change in the future.
  * Instead they should derive their {@code Handle} implementation from {@link AbstractHandle}.
  *

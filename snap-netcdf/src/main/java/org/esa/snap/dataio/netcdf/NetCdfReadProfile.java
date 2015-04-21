@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * A NetCdf metadata profile.
- * <p/>
+ * <p>
  * This interface is NOT intended to be implemented by clients.
  */
 class NetCdfReadProfile {

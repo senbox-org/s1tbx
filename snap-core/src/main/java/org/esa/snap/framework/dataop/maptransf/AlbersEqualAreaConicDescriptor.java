@@ -64,7 +64,7 @@ public class AlbersEqualAreaConicDescriptor implements MapTransformDescriptor {
 
     /**
      * The default parameters of this map descriptor
-     * <p/>
+     * <p>
      * NOTE: These default values are specific to the SIBERIA-II project and
      * should be altered accordingly for other areas of interest.
      */
@@ -114,8 +114,8 @@ public class AlbersEqualAreaConicDescriptor implements MapTransformDescriptor {
      * be used to register projections that are based on the type of <code>{@link MapTransform}</code> described by this
      * <code>MapTransformDescriptor</code>. Registering projection instances is done using the using the <code>{@link
      * MapProjectionRegistry#registerProjection}</code> method.
-     * <p/>
-     * <p/>
+     * <p>
+     * <p>
      * A typical implementation of this method would be:
      * <pre>
      * public void registerProjections() {
@@ -364,7 +364,6 @@ public class AlbersEqualAreaConicDescriptor implements MapTransformDescriptor {
         /**
          * Worker method to be overridden by derived class. Performs the pure transformation. Prescaling, northing,
          * easting etc is calculated in this class.
-         * <p/>
          * <p>Should be overridden in order to delegate to <code>{@link #inverse_impl(double, double,
                 * org.esa.snap.framework.datamodel.GeoPos)}</code> if transformation is performed is in 64-bit accuracy.
          * Override <code>{@link #inverse_impl(double, double, org.esa.snap.framework.datamodel.GeoPos)}</code> instead

@@ -38,9 +38,10 @@ public final class RuntimeFactory {
      * <li><code>${ceres.context}.modules</code> - the directory which is scanned for modules.</li>
      * <li><code>${ceres.context}.app</code> - the identifier of an extension registered with the <code>ceres-core:applications</code> extension point.</li>
      * </ol>
-     * where <code>${ceres.context}</code> is the value of the runtime's context identifier which defaults to "ceres".</p>
+     * where <code>${ceres.context}</code> is the value of the runtime's context identifier which defaults to "ceres".
      *
      * @return a default configuration
+     *
      * @throws CoreException if a runtime core error occurs
      */
     public static RuntimeConfig createRuntimeConfig() throws CoreException {
@@ -74,6 +75,7 @@ public final class RuntimeFactory {
      * @param commandLineArgs the command line arguments passed to the application
      * @param progressMonitor the progress monitor which is informed about the launch sequence's progress
      * @return a module runtime instance
+     *
      * @see #createRuntime(com.bc.ceres.core.runtime.RuntimeConfig, String[])
      */
     public static ModuleRuntime createRuntime(RuntimeConfig config, String[] commandLineArgs, ProgressMonitor progressMonitor) {
@@ -87,6 +89,7 @@ public final class RuntimeFactory {
      * a progress monitor will be created which outputs its progress
      * messages to on the bottom of the splash screen image.
      *
+     * @param config the runtime configuration
      * @return A progress monitor.
      */
     public static ProgressMonitor createProgressMonitor(RuntimeConfig config) {

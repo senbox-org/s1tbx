@@ -32,7 +32,7 @@ import org.opengis.geometry.BoundingBox;
 
 /**
  * A container which allows to store vector data in the BEAM product model.
- * <p/>
+ * <p>
  * This is a preliminary API under construction for BEAM 4.7. Not intended for public use.
  *
  * @author Norman Fomferra
@@ -166,7 +166,7 @@ public class VectorDataNode extends ProductNode {
      * Informs clients which have registered a {@link ProductNodeListener} with the {@link Product}
      * containing this {@link VectorDataNode}, that one or more OpenGIS {@code SimpleFeature}s have
      * been added to the underlying {@code FeatureCollection}.
-     * <p/>
+     * <p>
      * The method fires a product node property change event, where the {@code propertyName}
      * is {@link #PROPERTY_NAME_FEATURE_COLLECTION}, the {@code oldValue} is {@code null}, and
      * the {@code newValue} is the array of features added.
@@ -182,7 +182,7 @@ public class VectorDataNode extends ProductNode {
      * Informs clients which have registered a {@link ProductNodeListener} with the {@link Product}
      * containing this {@link VectorDataNode}, that one or more OpenGIS {@code SimpleFeature}s have
      * been removed from the underlying {@code FeatureCollection}.
-     * <p/>
+     * <p>
      * The method fires a product node property change event, where the {@code propertyName}
      * is {@link #PROPERTY_NAME_FEATURE_COLLECTION}, the {@code oldValue} is the array of features
      * removed, and the {@code newValue} is {@code null}.
@@ -198,7 +198,7 @@ public class VectorDataNode extends ProductNode {
      * Informs clients which have registered a {@link ProductNodeListener} with the {@link Product}
      * containing this {@link VectorDataNode}, that one or more OpenGIS {@code SimpleFeature}s from
      * from the underlying {@code FeatureCollection} have been changed.
-     * <p/>
+     * <p>
      * The method fires a product node property change event, where the {@code propertyName}
      * is {@link #PROPERTY_NAME_FEATURE_COLLECTION}, and both {@code oldValue} and {@code newValue}
      * are the same array of features changed.
@@ -293,10 +293,8 @@ public class VectorDataNode extends ProductNode {
     /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
-     * <p/>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-     * <p/>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
     @Override

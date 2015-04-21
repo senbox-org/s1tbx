@@ -27,7 +27,7 @@ import java.awt.image.RenderedImage;
 
 /**
  * An <code>OperationDescriptor</code> describing the "Paint" operation.
- * <p/>
+ * <p>
  *
  * @author Norman Fomferra
  * @author Marco Peters
@@ -83,12 +83,14 @@ public class PaintDescriptor extends OperationDescriptorImpl {
     /**
      * Paints.
      *
-     * @param source0    The source image to paint on.
-     * @param source1    The paint mask. Must be a one-banded image of type BYTE.
-     * @param paintColor The paint color.
-     * @param hints      The <code>RenderingHints</code> to use.
-     *                   May be <code>null</code>.
+     * @param source0      The source image to paint on.
+     * @param source1      The paint mask. Must be a one-banded image of type BYTE.
+     * @param paintColor   The paint color.
+     * @param alphaIsFirst Whether alpha is the first band
+     * @param hints        The <code>RenderingHints</code> to use.
+     *                     May be <code>null</code>.
      * @return The <code>RenderedOp</code> destination.
+     *
      * @throws IllegalArgumentException if <code>source0</code> or <code>function</code> is <code>null</code>.
      * @see javax.media.jai.JAI
      * @see javax.media.jai.ParameterBlockJAI

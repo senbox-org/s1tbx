@@ -23,17 +23,17 @@ import static com.bc.ceres.nbmgen.CeresModuleProject.*;
  * </pre>
  * <p>
  * For example:
- * </p>
+ *
  * <pre>
  *    NbmGenTool . s1tbx true
  * </pre>
  * <p>Scans a ${project-dir} for Ceres modules ({@code pom.xml} + {@code src/main/resources/module.xml})
  * and converts each module into a NetBeans module.
- * </p>
+ *
  * <p><b>WARNING: This tool will overwrite all of your {@code pom.xml} files the given ${project-dir}.
  * It will also create or overwrite {@code src/main/nmb/manifest.mf} files. Make sure the originals
  * of these files are committed/pushed to git before applying this tool.</b>
- * </p>
+ *
  *
  * @author Norman
  */
@@ -133,7 +133,7 @@ public class NbmGenTool implements CeresModuleProject.Processor {
         StringBuilder longDescription = new StringBuilder();
 
         longDescription
-                .append(moduleDescription != null ? "<p>" + moduleDescription + "</p>" : "")
+                .append(moduleDescription != null ? "<p>" + moduleDescription + "" : "")
                 .append(descriptionEntry("Funding", moduleFunding))
                 .append(descriptionEntry("Vendor", moduleVendor))
                 .append(descriptionEntry("Contact address", moduleContactAddress))
@@ -190,7 +190,7 @@ public class NbmGenTool implements CeresModuleProject.Processor {
     }
 
     private String descriptionEntry(String name, String value) {
-        return value != null ? String.format("<p><b>%s:</b> %s</p>", name, value) : "";
+        return value != null ? String.format("<p><b>%s:</b> %s", name, value) : "";
     }
 
     private static void infoModuleDetail(String msg) {

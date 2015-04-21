@@ -17,7 +17,6 @@ package org.esa.snap.util;
 
 /**
  * A utility class providing a set of static functions frequently used when working with basic Java arrays.
- * <p/>
  * <p> All functions have been implemented with extreme caution in order to provide a maximum performance.
  *
  * @author Norman Fomferra
@@ -27,7 +26,7 @@ public class ArrayUtils {
 
     /**
      * Indicates whether the given arrays arrays are "equal to" each other.
-     * <p/>
+     * <p>
      *
      * @param array1 the first array, can be <code>null</code>
      * @param array2 the second array, can also be <code>null</code>
@@ -56,7 +55,7 @@ public class ArrayUtils {
 
     /**
      * Indicates whether the given arrays arrays are "equal to" each other.
-     * <p/>
+     * <p>
      *
      * @param array1 the first array, can be <code>null</code>
      * @param array2 the second array, can also be <code>null</code>
@@ -85,7 +84,6 @@ public class ArrayUtils {
 
     /**
      * Indicates whether the given objects arrays are "equal to" each other.
-     * <p/>
      * <p> This method should be used in place of the <code>Object.equals</code> if one ore both arguments can be
      * <code>null</code> and if an element-by-element comparision shall be performed, since this is what this method
      * does: for each element pair the <code>ObjectUtils.equalObjects</code> method is called.
@@ -116,7 +114,6 @@ public class ArrayUtils {
 
     /**
      * Returns the index of the specified object within the given object array.
-     * <p/>
      * <p> The method calls the <code>ObjectUtils.equalObjects</code> with the specified element on each of the array's
      * elements. If both are equal, the index is immediately returned.
      *
@@ -138,7 +135,6 @@ public class ArrayUtils {
 
     /**
      * Checks if the given object is member of the specified array.
-     * <p/>
      * <p> The method simply returns <code>getElementIndex(element, array) >= 0</code>.
      *
      * @param element the element to be searched

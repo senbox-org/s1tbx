@@ -22,11 +22,29 @@ import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.swing.binding.internal.*;
+import com.bc.ceres.swing.binding.internal.AbstractButtonAdapter;
+import com.bc.ceres.swing.binding.internal.BindingImpl;
+import com.bc.ceres.swing.binding.internal.ButtonGroupAdapter;
+import com.bc.ceres.swing.binding.internal.ComboBoxAdapter;
+import com.bc.ceres.swing.binding.internal.FormattedTextFieldAdapter;
+import com.bc.ceres.swing.binding.internal.ListSelectionAdapter;
+import com.bc.ceres.swing.binding.internal.SpinnerAdapter;
+import com.bc.ceres.swing.binding.internal.TextComponentAdapter;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
-import java.awt.*;
+import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -154,7 +172,6 @@ public class BindingContext {
     /**
      * Adjusts all associated GUI components so that they reflect the
      * values of the associated value container.
-     * <p/>
      *
      * @see ComponentAdapter#adjustComponents()
      */
@@ -177,7 +194,7 @@ public class BindingContext {
 
     /**
      * Binds the property given by its name to the given component adapter.
-     * <p/>
+     * <p>
      * The method creates a new binding, adds it to this context and calls the follwing methods on
      * the given component adapter:
      * <ol>
@@ -399,11 +416,11 @@ public class BindingContext {
     /**
      * Prevents component validation and property changes of the value container
      * triggered by the given component.
-     * <p/>
+     * <p>
      * For example, if a text component loses keyboard focus because another component requests it,
      * its text value will be converted, validated and the value container's property will be changed.
      * For some focus targets, like a dialog's "Cancel" button, this is not desired.
-     * <p/>
+     * <p>
      * By default, component validation and property changes are permitted for most Swing components.
      *
      * @param component The component.

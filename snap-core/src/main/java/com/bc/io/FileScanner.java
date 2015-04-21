@@ -23,7 +23,6 @@ import java.io.FileFilter;
  * A utility class for scaning directories in the local filesystem.
  *
  * @author Norman Fomferra
- * @version
  */
 public class FileScanner {
 

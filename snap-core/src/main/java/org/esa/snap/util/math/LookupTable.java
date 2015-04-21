@@ -20,7 +20,7 @@ import java.text.MessageFormat;
 /**
  * The class {@code LookupTable} performs the function of multilinear
  * interpolation for lookup tables with an arbitrary number of dimensions.
- * <p/>
+ * <p>
  * todo - method for degrading a table (see C++ code below)
  *
  * @author Ralf Quast
@@ -253,7 +253,7 @@ public class LookupTable {
      * corresponds to the index of the maximum partition member which is less than
      * or equal to the coordinate value. The [0, 1) fractional component describes
      * the position of the coordinate value within its bracketing subinterval.
-     * <p/>
+     * <p>
      * Exception: If the given coordinate value is equal to the partition maximum,
      * the fractional component of the returned {@link FracIndex} is equal to 1.0,
      * and the integral component is set to the index of the next to last partition

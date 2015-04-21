@@ -19,10 +19,8 @@ import org.esa.snap.framework.datamodel.Product;
 
 /**
  * The <code>ProductWriterPlugIn</code> interface is implemented by data product writer plug-ins.
- * <p/>
  * <p>XMLCoder plug-ins are used to provide meta-information about a particular data format and to create instances of
  * the actual writer objects.
- * <p/>
  * <p> A plug-in can register itself in the <code>ProductIO</code> plug-in registry or it is automatically found during
  * a classpath scan.
  *
@@ -43,7 +41,6 @@ public interface ProductWriterPlugIn extends ProductIOPlugIn {
 
     /**
      * Returns an array containing the classes that represent valid output types for this writer.
-     * <p/>
      * <p> Intances of the classes returned in this array are valid objects for the <code>setOutput</code> method of the
      * <code>ProductWriter</code> interface (the method will not throw an <code>InvalidArgumentException</code> in this
      * case).

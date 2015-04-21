@@ -762,28 +762,13 @@
 
                 <plugin>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.10.1</version>
+                    <version>2.10.3</version>
                     <configuration>
-                        <links>
-                            <link>http://java.sun.com/javase/7/docs/api/</link>
-                        </links>
-                        <aggregate>true</aggregate>
-                        <subpackages>
-                            com.bc.ceres:org.esa.snap.framework:org.esa.snap.util:org.esa.snap.visat:com.bc.jexp
-                        </subpackages>
-                        <excludePackageNames>
-                            *.internal:com.bc.ceres.site:org.esa.snap.visat.toolviews:org.esa.snap.visat.actions:org.esa.snap.visat.dialogs:org.esa.snap.visat.plugins
-                        </excludePackageNames>
-                        <maxmemory>256m</maxmemory>
-                        <quiet>false</quiet>
-                        <!--suppress MavenModelInspection - beam.api.version needs to be set before running the maven target -->
-                        <doctitle>
-                            ${project.name} ${beam.api.version} API
-                        </doctitle>
-                        <!--suppress MavenModelInspection - beam.api.version needs to be set before running the maven target -->
-                        <windowtitle>
-                            ${project.name} ${beam.api.version} API
-                        </windowtitle>
+                        <quiet>true</quiet><!-- show only warnings and errors -->
+                        <excludePackageNames>*.internal:*.impl</excludePackageNames>
+                        <!-- javadoc tool in JDK8 has become very strict. See  http://stackoverflow.com/questions/22528767/jdk8-and-javadoc-has-become-very-strict
+                         Not all are real errors and there are a lot. For now we disable the strict checking. -->
+                        <additionalparam>-Xdoclint:none</additionalparam>
                     </configuration>
                 </plugin>
 
@@ -839,6 +824,10 @@
         <plugins>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
             </plugin>
 
             <plugin>

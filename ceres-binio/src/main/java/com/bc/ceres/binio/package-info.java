@@ -18,7 +18,7 @@
  * The core {@code binio} API.
  *
  * <p>{@code binio} is a low-level API used to read and write arbitrarily formetted binary files.
- * It imposes the following programming model:</p>
+ * It imposes the following programming model:
  *
  * <pre>
  *     // Static format declaration:
@@ -34,6 +34,6 @@
  *
  * <p>The {@link TypeBuilder} class to easily build complex types.
  * Types can also be read from external plain text files using the
- * {@link com.bc.ceres.binio.util.TypeParser} class.</p>
+ * {@link com.bc.ceres.binio.util.TypeParser} class.
  */
 package com.bc.ceres.binio;

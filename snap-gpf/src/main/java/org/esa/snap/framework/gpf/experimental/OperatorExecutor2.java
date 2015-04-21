@@ -33,7 +33,7 @@ import java.awt.image.Raster;
  * target product of the given operator have. The computation of these tiles is
  * may be parallelized to use all available CPUs (cores) using the JAI
  * {@link javax.media.jai.TileScheduler}.
- * </p>
+ *
  * <p>
  * Requirements:<br/>
  * 1. Receive raster data for all bands for a requested tile size.<br/>
@@ -41,8 +41,8 @@ import java.awt.image.Raster;
  * 3. Efficient computation of single pixels (may not be implemented here, but in MultiLevelImage)<br/>
  * 4. Immediate Execution<br/>
  * 5. Configurable with respect to e.g. parallelism, execution order<br/>
- * </p>
- * <p/>
+ *
+ * <p>
  * <i>Important Note: This class is not part of the official API, we may remove or rename it at any time.</i>
  *
  * @author Marco Zuehlke

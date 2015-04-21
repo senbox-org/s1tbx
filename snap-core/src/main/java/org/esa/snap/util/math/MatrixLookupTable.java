@@ -19,7 +19,7 @@ package org.esa.snap.util.math;
  * The class {@code MatrixLookupTable} performs the function of
  * multilinear  interpolation for matrix  lookup tables with an
  * arbitrary number of dimensions.
- * <p/>
+ * <p>
  * The implementation simply delegates to an {@link VectorLookupTable}.
  *
  * @author Ralf Quast

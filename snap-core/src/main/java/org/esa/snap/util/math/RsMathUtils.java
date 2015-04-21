@@ -20,7 +20,6 @@ import org.esa.snap.util.Guardian;
 
 /**
  * A utility class providing a set of mathematical functions frequently used in the fields of remote sensing.
- * <p/>
  * <p> All functions have been implemented with extreme caution in order to provide a maximum performance.
  *
  * @author Tom Block
@@ -81,10 +80,10 @@ public class RsMathUtils {
     /**
      * Converts an array of radiance values to an array of reflectance values for given solar spectral flux and sun
      * zenith angle.
-     * <p/>
+     * <p>
      * If the <code>recycle</code> parameter is of the same size as the radiance array, this array will be filled with
      * the results and returned. The returned result may contain reflectances &lt;0 or &gt;1.
-     * <p/>
+     * <p>
      * The method performs no plausability check on the conversion.
      *
      * @param rad     the radiances in mW /(m^2 * sr * nm)

@@ -22,7 +22,6 @@ import javax.media.jai.JAI;
 import javax.media.jai.OperationDescriptorImpl;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.RenderedOp;
-import javax.media.jai.registry.RenderableRegistryMode;
 import javax.media.jai.registry.RenderedRegistryMode;
 import java.awt.RenderingHints;
 import java.awt.image.DataBuffer;
@@ -37,7 +36,6 @@ import java.util.TreeSet;
 /**
  * An <code>OperationDescriptor</code> describing the "Expression"
  * operation.
- * <p/>
  * <p> The Expression operation creates a single-banded, tiled rendered
  * image, where all the samples are computed from a given mathematical
  * (Java) expression.
@@ -161,7 +159,6 @@ public class ExpressionDescriptor extends OperationDescriptorImpl {
 
     /**
      * Creates an expression image.
-     * <p/>
      * <p>Creates a <code>ParameterBlockJAI</code> from all
      * supplied arguments except <code>hints</code> and invokes
      * {@link JAI#create(String,ParameterBlock,RenderingHints)}.

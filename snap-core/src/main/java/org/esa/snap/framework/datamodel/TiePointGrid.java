@@ -34,8 +34,8 @@ import java.io.IOException;
 
 /**
  * A tie-point grid contains the data for geophysical parameter in remote sensing data products. Tie-point grid are
- * two-dimensional images which hold their pixel values (samples) in a <code>float</code> array. <p/>
- * <p/>
+ * two-dimensional images which hold their pixel values (samples) in a <code>float</code> array. <p>
+ * <p>
  * Usually, tie-point grids are a sub-sampling of a data product's scene resolution.
  *
  * @author Norman Fomferra
@@ -242,8 +242,8 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     /**
-     * Gets a raster data holding this tie-point's interpolated pixel data for an entire product scene. <p/>
-     * <p/>
+     * Gets a raster data holding this tie-point's interpolated pixel data for an entire product scene. <p>
+     * <p>
      * In opposite to the <code>getRasterData</code> method, this method returns raster data that has at least
      * <code>getBandOutputRasterWidth()*getBandOutputRasterHeight()</code> elements of the given data type to store
      * the scene's pixels.
@@ -343,8 +343,8 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     /**
-     * Gets the interpolated sample for the pixel located at (x,y) as an integer value. <p/>
-     * <p/>
+     * Gets the interpolated sample for the pixel located at (x,y) as an integer value. <p>
+     * <p>
      * If the pixel co-odinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
      *
      * @param x The X co-ordinate of the pixel location
@@ -371,8 +371,8 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     /**
-     * Computes the interpolated sample for the pixel located at (x,y). <p/>
-     * <p/>
+     * Computes the interpolated sample for the pixel located at (x,y). <p>
+     * <p>
      * If the pixel co-odinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
      *
      * @param x The X co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
@@ -388,8 +388,8 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     /**
-     * Computes the interpolated sample for the pixel located at (x,y) given as floating point co-ordinates. <p/>
-     * <p/>
+     * Computes the interpolated sample for the pixel located at (x,y) given as floating point co-ordinates. <p>
+     * <p>
      * If the pixel co-odinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
      *
      * @param x The X co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
@@ -404,8 +404,8 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     /**
-     * Gets the interpolated sample for the pixel located at (x,y) as a double value. <p/>
-     * <p/>
+     * Gets the interpolated sample for the pixel located at (x,y) as a double value. <p>
+     * <p>
      * If the pixel co-ordinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
      *
      * @param x The X co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
@@ -421,8 +421,8 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     /**
-     * Gets the interpolated sample for the pixel located at (x,y) as a double value. <p/>
-     * <p/>
+     * Gets the interpolated sample for the pixel located at (x,y) as a double value. <p>
+     * <p>
      * If the pixel co-ordinates given by (x,y) are not covered by this tie-point grid, the method extrapolates.
      *
      * @param x The X co-ordinate of the pixel location, given in the pixel co-ordinates of the data product to which
@@ -678,8 +678,8 @@ public class TiePointGrid extends RasterDataNode {
     }
 
     /**
-     * Reads raster data from this dataset into the user-supplied raster data buffer. <p/>
-     * <p/>
+     * Reads raster data from this dataset into the user-supplied raster data buffer. <p>
+     * <p>
      * This method always directly (re-)reads this band's data from its associated data source into the given data
      * buffer.
      *
@@ -762,8 +762,8 @@ public class TiePointGrid extends RasterDataNode {
     /**
      * Accepts the given visitor. This method implements the well known 'Visitor' design pattern of the gang-of-four.
      * The visitor pattern allows to define new operations on the product data model without the need to add more code
-     * to it. The new operation is implemented by the visitor. <p/>
-     * <p/>
+     * to it. The new operation is implemented by the visitor. <p>
+     * <p>
      * The method simply calls <code>visitor.visit(this)</code>.
      *
      * @param visitor the visitor

@@ -71,7 +71,6 @@ public class FieldRef {
 
     /**
      * Parses the given field reference string and returns a corresponding field reference object.
-     * <p/>
      * <p> The formats accepted are <ld> <li> <i>DatasetName</i><code>.</code><i>FieldIndex</i> </li> <li>
      * <i>DatasetName</i><code>.</code><i>FieldIndex</i><code>.</code><i>ElemIndex</i> </li> </ld> with
      * <i>FieldIndex</i> and <i>ElemIndex</i> beeing one-based (!) integer indexes.

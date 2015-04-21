@@ -16,8 +16,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * <p>Allows to extract time information from file names.</p>
- * <p>Usage:</p>
+ * <p>Allows to extract time information from file names.
+ * <p>Usage:
  * <ul>
  * <li>create a new instance providing a date interpretation pattern and a filename interpretation pattern</li>
  * <li>the date interpretation pattern must be composed of the following components:
@@ -47,7 +47,7 @@ import java.util.regex.Pattern;
  * <li>call {@link #extractTimeStamps(String)} to receive the start and stop time of the respective filename</li>
  * <li>for filenames containing only a single date, start and stop time are identical</li>
  * </ul>
- * <p>Limitations:</p>
+ * <p>Limitations:
  * <ul>
  * <li>If both start date and end date are provided, the first pattern found in the filename is always considered the start date.</li>
  * </ul>

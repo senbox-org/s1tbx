@@ -315,12 +315,9 @@ public class MerisProductFile extends ProductFile {
 
     /**
      * This method is called after the main product header has been read in successfully.
-     * <p/>
      * <p> Sub-classes should set product specific parameters in the <code>parameters</code> argument. The parameters
      * can be referenced in DDDB in order to implement dynamic field length, such as 'LINE_WIDTH'.
-     * <p/>
      * <p> When this method is called, the <code>getMPH()</code> method returns a non-null value.
-     * <p/>
      * <p> The default implementation is empty.
      *
      * @param parameters product specific parameters (possibly referenced within in the DDDB
@@ -334,12 +331,9 @@ public class MerisProductFile extends ProductFile {
 
     /**
      * This method is called after the main product header has been read in successfully.
-     * <p/>
      * <p> Sub-classes should set product specific parameters in the <code>parameters</code> argument. The parameters
      * can be referenced in DDDB in order to implement dynamic field length, such as 'LINE_WIDTH'.
-     * <p/>
      * <p> When this method is called, the <code>getMPH()</code> method returns a non-null value.
-     * <p/>
      * <p> The default implementation is empty.
      *
      * @param parameters product specific parameters (possibly referenced within in the DDDB

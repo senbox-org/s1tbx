@@ -15,6 +15,7 @@
  */
 package com.bc.io;
 
+import javax.swing.ProgressMonitor;
 import java.awt.Component;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -26,12 +27,9 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-import javax.swing.ProgressMonitor;
-
 /**
  * A utility class for downloading files from the internet.
  * @author Norman Fomferra
- * @version
  */
 public class FileDownloader {
     // todo (nf) - dont use progress monitor directly, use an observer instead

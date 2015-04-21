@@ -24,7 +24,6 @@ import java.util.List;
 
 /**
  * The <code>ProductSubsetDef</code> class describes a subset or portion of a remote sensing data product.
- * <p/>
  * <p> Subsets can be spatial or spectral or both. A spatial subset is given through a rectangular region in pixels. The
  * spectral subset as a list of band (or channel) names.
  *

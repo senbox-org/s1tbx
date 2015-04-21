@@ -97,7 +97,6 @@ public class TiledFileOpImage extends SourcelessOpImage {
     /**
      * Computes a tile.  Since the operation has no sources,
      * there is no need to worry about cobbling.
-     * <p/>
      * <p> Subclasses should implement the
      * <code>computeRect(PlanarImage[], WritableRaster, Rectangle)</code>
      * method to perform the actual computation.

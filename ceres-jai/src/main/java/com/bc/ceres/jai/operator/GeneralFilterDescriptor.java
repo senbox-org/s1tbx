@@ -30,32 +30,28 @@ import java.awt.image.RenderedImage;
 
 /**
  * An <code>OperationDescriptor</code> describing the "Convolve" operation.
- * <p/>
  * <p> Convolution is a spatial operation that computes each output
  * sample by multiplying elements of a kernel with the samples
  * surrounding a particular source sample.
- * <p/>
  * <p> For each destination sample, the kernel is rotated 180 degrees
  * and its "key element," or origin, is placed over the source pixel
  * corresponding with the destination pixel.  The kernel elements are
  * multiplied with the source pixels beneath them, and the resulting
  * products are summed together to produce the destination sample
  * value.
- * <p/>
  * <p> Pseudocode for the convolution operation on a single sample
  * dst[x][y] is as follows, assuming the kernel is of size width x height
  * and has already been rotated through 180 degrees.  The kernel's Origin
  * element is located at position (xOrigin, yOrigin):
- * <p/>
+ * <p>
  * <pre>
  * dst[x][y] = 0;
- * for (int i = -xOrigin; i < -xOrigin + width; i++) {
- *     for (int j = -yOrigin; j < -yOrigin + height; j++) {
+ * for (int i = -xOrigin; i &lt; -xOrigin + width; i++) {
+ *     for (int j = -yOrigin; j &lt; -yOrigin + height; j++) {
  *         dst[x][y] += src[x + i][y + j]*kernel[xOrigin + i][yOrigin + j];
  *     }
  * }
  * </pre>
- * <p/>
  * <p> Convolution, like any neighborhood operation, leaves a band of
  * pixels around the edges undefined.  For example, for a 3x3 kernel
  * only four kernel elements and four source pixels contribute to the
@@ -64,9 +60,8 @@ import java.awt.image.RenderedImage;
  * included in the destination image.  A "Border" operation may be used
  * to add an appropriate border to the source image in order to avoid
  * shrinkage of the image boundaries.
- * <p/>
  * <p> The kernel may not be bigger in any dimension than the image data.
- * <p/>
+ * <p>
  * It should be noted that this operation automatically adds a
  * value of <code>Boolean.TRUE</code> for the
  * <code>JAI.KEY_REPLACE_INDEX_COLOR_MODEL</code> to the given
@@ -82,8 +77,7 @@ import java.awt.image.RenderedImage;
  * <code>JAI.KEY_REPLACE_INDEX_COLOR_MODEL</code> is
  * <code>Boolean.TRUE</code>, in some cases the operator could set the
  * default.
- * <p/>
- * <p><table border=1>
+ * <table border=1>
  * <caption>Resource List</caption>
  * <tr><th>Name</th>        <th>Value</th></tr>
  * <tr><td>GlobalName</td>  <td>Convolve</td></tr>
@@ -94,15 +88,14 @@ import java.awt.image.RenderedImage;
  * <tr><td>DocURL</td>      <td>http://java.sun.com/products/java-media/jai/forDevelopers/jai-apidocs/javax/media/jai/operator/ConvolveDescriptor.html</td></tr>
  * <tr><td>Version</td>     <td>1.0</td></tr>
  * <tr><td>arg0Desc</td>    <td>The convolution kernel.</td></tr>
- * </table></p>
- * <p/>
- * <p><table border=1>
+ * </table>
+ * <table border=1>
  * <caption>Parameter List</caption>
  * <tr><th>Name</th>   <th>Class Type</th>
  * <th>Default Value</th></tr>
  * <tr><td>kernel</td> <td>javax.media.jai.KernelJAI</td>
  * <td>NO_PARAMETER_DEFAULT</td>
- * </table></p>
+ * </table>
  *
  * @see javax.media.jai.OperationDescriptor
  * @see javax.media.jai.KernelJAI
@@ -166,7 +159,6 @@ public class GeneralFilterDescriptor extends OperationDescriptorImpl {
 
     /**
      * Performs kernel-based convolution on an image.
-     * <p/>
      * <p>Creates a <code>ParameterBlockJAI</code> from all
      * supplied arguments except <code>hints</code> and invokes
      * {@code JAI#create(String,ParameterBlock,java.awt.RenderingHints)}.

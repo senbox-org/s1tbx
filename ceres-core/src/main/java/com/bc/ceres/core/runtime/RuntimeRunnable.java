@@ -20,14 +20,14 @@ import com.bc.ceres.core.ProgressMonitor;
 
 /**
  * A runnable which is executed by the runtime.
- * <p/>
- * This interface may be implemented by clients.</p>
+ * <p>
+ * This interface may be implemented by clients.
  */
 public interface RuntimeRunnable {
 
     /**
      * Executes client code.
-     * <p/>
+     * <p>
      * If this RuntimeRunnable is an application launched by the Ceres runtime,
      * the <code>argument</code> parameter can safely be casted to a <code>String[]</code>.
      * This array contains all command-line arguments passed to the application.

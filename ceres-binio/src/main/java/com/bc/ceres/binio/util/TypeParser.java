@@ -16,8 +16,11 @@
 
 package com.bc.ceres.binio.util;
 
-import com.bc.ceres.binio.*;
-import static com.bc.ceres.binio.TypeBuilder.*;
+import com.bc.ceres.binio.CompoundMember;
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.SequenceType;
+import com.bc.ceres.binio.SimpleType;
+import com.bc.ceres.binio.Type;
 import com.bc.ceres.binio.internal.CompoundTypeImpl;
 import com.bc.ceres.binio.internal.VarElementCountSequenceTypeImpl;
 
@@ -28,49 +31,47 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static com.bc.ceres.binio.TypeBuilder.*;
+
 /**
  * A simple parser which can be used to read type definition <i>units</i> using the following syntax:
  * <blockquote>
- * <i>unit</i> := <i>compounds</i><br/>
- * <p/>
- * <i>compounds</i> := { <i>compound</i> }<br/>
- * <p/>
+ * <i>unit</i> := <i>compounds</i>
+ * <p>
+ * <i>compounds</i> := { <i>compound</i> }
+ * <p>
  * <i>compound</i> := <i>compound-name</i> <u>{</u> <i>members</i> <u>}</u>  [<u>;</u>]
- * <p/>
- * <i>members</i> := { <i>member</i> }<br/>
- * <p/>
- * <i>member</i> := <i>type</i> <i>member-name</i> <u>;</u> <br/>
- * <p/>
- * <i>type</i> := <i>scalar-type</i> | <i>array-type</i> <br/>
- * <p/>
- * <i>array-type</i> := <i>element-type</i> <u>[</u><i>element-count</i><u>]</u> { <u>[</u><i>element-count</i><u>]</u> } <br/>
- * <p/>
- * <i>element-type</i> := <i>scalar-type</i> <br/>
- * <p/>
- * <i>element-count</i> := <i>integer</i> | <i>member-reference</i> <br/>
- * <p/>
- * <i>scalar-type</i> := <i>simple-type</i> | <i>compound-name</i> <br/>
- * <p/>
- * <i>simple-type</i> := <u>byte</u> | <u>ubyte</u> | <u>short</u> | <u>ushort</u> | <u>int</u> | <u>uint</u> | <u>long</u> | <u>float</u> | <u>double</u> <br/>
- * <p/>
- * <i>member-reference</i> := <u>$</u><i>member-name</i> (member must be an integer type) <br/>
- * <p/>
- * <i>compound-name</i> := <i>name</i> <br/>
- * <p/>
- * <i>member-name</i> := <i>name</i> <br/>
- * <p/>
- * <i>name</i> := <i>java-identifier</i> | any character sequence within two enclosing <u>"</u> (double quote)<br/>
+ * <p>
+ * <i>members</i> := { <i>member</i> }
+ * <p>
+ * <i>member</i> := <i>type</i> <i>member-name</i> <u>;</u>
+ * <p>
+ * <i>type</i> := <i>scalar-type</i> | <i>array-type</i>
+ * <p>
+ * <i>array-type</i> := <i>element-type</i> <u>[</u><i>element-count</i><u>]</u> { <u>[</u><i>element-count</i><u>]</u> }
+ * <p>
+ * <i>element-type</i> := <i>scalar-type</i>
+ * <p>
+ * <i>element-count</i> := <i>integer</i> | <i>member-reference</i>
+ * <p>
+ * <i>scalar-type</i> := <i>simple-type</i> | <i>compound-name</i>
+ * <p>
+ * <i>simple-type</i> := <u>byte</u> | <u>ubyte</u> | <u>short</u> | <u>ushort</u> | <u>int</u> | <u>uint</u> | <u>long</u> | <u>float</u> | <u>double</u>
+ * <p>
+ * <i>member-reference</i> := <u>$</u><i>member-name</i> (member must be an integer type)
+ * <p>
+ * <i>compound-name</i> := <i>name</i>
+ * <p>
+ * <i>member-name</i> := <i>name</i>
+ * <p>
+ * <i>name</i> := <i>java-identifier</i> | any character sequence within two enclosing <u>"</u> (double quote)
  * </blockquote>
- * <p/>
- * <p/>
  * For example:
  * <pre>
- * <p/>
  * Dataset {
  *     int lineCount;
  *     Scanline[$lineCount] scanlines;
  * };
- * <p/>
  * Scanline {
  *     int flags;
  *     double[512] data;

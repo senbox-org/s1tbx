@@ -27,7 +27,7 @@ import java.util.Set;
 
 /**
  * A registry for layer type instances.
- * <p/>
+ * <p>
  * In order to register new layer types, use the standard {@code META-INF/services}
  * JAR service provider interface (SPI). The service provider name is identical to this
  * class' fully qualified name: {@code com.bc.ceres.glayer.LayerType}.

@@ -27,7 +27,7 @@ import java.beans.PropertyChangeEvent;
 public interface LayerListener {
     /**
      * Called if a property of the given layer has changed. The source of the property change event
-     * may be either the layer itself or its style (see {@link Layer#getStyle()}).
+     * may be either the layer itself or its style (see {@link Layer#getConfiguration()}).
      *
      * @param layer The layer which triggered the change.
      * @param event The layer property change event.

@@ -85,7 +85,6 @@ public abstract class DataItemInfo extends ItemInfo {
     /**
      * Utility method which returns the size in bytes required to store a single element of the type given by the
      * supplied data type ID. If the given type is unknown, the method returns zero.
-     * <p/>
      * <p>IMPORTANT NOTE: This method returns <code>12</code> (= 3 x 4 bytes) for the data type
      * <code>ProductData.TYPE_UTC</code>, since the DDDB interprets an UTC value as a single element, where as the
      * <code>ProductData.UTC</code> stores it as three <code>int</code>s.

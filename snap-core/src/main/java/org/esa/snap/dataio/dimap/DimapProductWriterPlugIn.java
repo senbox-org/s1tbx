@@ -28,11 +28,11 @@ import java.util.Set;
 
 /**
  * The <code>DimapProductWriterPlugIn</code> class is the plug-in entry-point for the BEAM-DIMAP product writer.
- * <p/>
- * <p/>
+ * <p>
+ * <p>
  * <b>Version history:</b>
- * <p/>
- * <p/>
+ * <p>
+ * <p>
  * <table>
  * <tr><th>Version</th><th>Comment</th></tr>
  * <tr> <td valign="top">1.0</td> <td>initial version BEAM version 1.0</td> </tr>
@@ -72,7 +72,7 @@ import java.util.Set;
  * &lt;Tie_Point_Grid_Info&gt;
  * inside &lt;Tie_Point_Grids&gt;<br>
  * new tag added:<br>
- * &lt;CYCLIC&gt<br> </td> </tr>
+ * &lt;CYCLIC&gt;<br> </td> </tr>
  * <tr> <td valign="top">1.2.0</td>
  * <td> Now supports <code>Pin</code>.<br>
  * new tag added:<br>
@@ -87,13 +87,13 @@ import java.util.Set;
  * &lt;Band_Statistics&gt;
  * inside &lt;Image_Display&gt;<br>
  * new tags added:<br>
- * &lt;GAMMA&gt<br><br>
+ * &lt;GAMMA&gt;<br><br>
  * Now supports <code>ValidMasks</code> for bands.<br>
  * affected tag:<br>
  * &lt;Spectral_Band_Info&gt;
  * inside &lt;Image_Interpretation&gt;<br>
  * new tags added:<br>
- * &lt;VALID_MASK_TERM&gt<br> </td> </tr>
+ * &lt;VALID_MASK_TERM&gt;<br> </td> </tr>
  * <tr> <td valign="top">1.4.0</td>
  * <td> Now the MapGeocoding was written in a new style
  * <pre>
@@ -143,7 +143,7 @@ import java.util.Set;
  * Affected tag:<br>
  * &lt;Production&gt;<br>
  * new tags added:<br>
- * &lt;PRODUCT_SCENE_RASTER_START_TIME&gt &lt;PRODUCT_SCENE_RASTER_STOP_TIME&gt<br> </td> </tr>
+ * &lt;PRODUCT_SCENE_RASTER_START_TIME&gt; &lt;PRODUCT_SCENE_RASTER_STOP_TIME&gt;<br> </td> </tr>
  * <tr> <td valign="top">1.4.2</td>
  * <td> Since BEAM version 3.2 {@link org.esa.snap.framework.datamodel.RasterDataNode RasterDataNode} supports the
  * <code>NoDataValue</code>.<br>
@@ -442,7 +442,6 @@ public class DimapProductWriterPlugIn implements ProductWriterPlugIn {
 
     /**
      * Returns an array containing the classes that represent valid output types for this BEAM-DIMAP product writer.
-     * <p/>
      * <p> Intances of the classes returned in this array are valid objects for the <code>writeProductNodes</code>
      * method of the <code>AbstractProductWriter</code> interface (the method will not throw an
      * <code>InvalidArgumentException</code> in this case).
@@ -457,7 +456,6 @@ public class DimapProductWriterPlugIn implements ProductWriterPlugIn {
     /**
      * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is
      * used.
-     * <p/>
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the locale name for the given decription string, if <code>null</code> the default locale is used

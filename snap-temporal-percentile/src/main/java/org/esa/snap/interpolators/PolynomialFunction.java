@@ -25,7 +25,7 @@ import java.util.Arrays;
  * Immutable representation of a real polynomial function with real coefficients.
  * <p>
  * <a href="http://mathworld.wolfram.com/HornersMethod.html">Horner's Method</a>
- * is used to evaluate the function.</p>
+ * is used to evaluate the function.
  */
 class PolynomialFunction implements Serializable {
 
@@ -48,7 +48,7 @@ class PolynomialFunction implements Serializable {
      * are null.
      * <p>
      * The constructor makes a copy of the input array and assigns the copy to
-     * the coefficients property.</p>
+     * the coefficients property.
      *
      * @param c Polynomial coefficients.
      * @throws NullPointerException if {@code c} is {@code null}.
@@ -73,7 +73,7 @@ class PolynomialFunction implements Serializable {
      * <p>
      *  The value returned is <br/>
      *  <code>coefficients[n] * x^n + ... + coefficients[1] * x  + coefficients[0]</code>
-     * </p>
+     *
      *
      * @param x the argument for which the function value should be computed.
      *
@@ -118,7 +118,7 @@ class PolynomialFunction implements Serializable {
      * with positive coefficients except for the first displayed term
      * (i.e. we display <code>-3</code> for a constant negative polynomial,
      * but <code>1 - 3 x + x^2</code> if the negative coefficient is not
-     * the first one displayed).</p>
+     * the first one displayed).
      *
      * @return a string representation of the polynomial.
      */

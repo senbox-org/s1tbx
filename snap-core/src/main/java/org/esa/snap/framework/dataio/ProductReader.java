@@ -54,10 +54,8 @@ public interface ProductReader {
 
     /**
      * Reads a data product and returns a in-memory representation of it.
-     * <p/>
      * <p> The given subset info can be used to specify spatial and spectral portions of the original proudct. If the
      * subset is omitted, the complete product is read in.
-     * <p/>
      * <p> Whether the band data - the actual pixel values - is read in immediately or later when pixels are requested,
      * is up to the implementation.
      *
@@ -84,19 +82,16 @@ public interface ProductReader {
     /**
      * Reads raster data from the data source specified by the given destination band into the given in-memory buffer
      * and region.
-     * <p/>
      * <h3>Destination band</h3> The destination band is used to identify the data source from which this method
      * transfers the sample values into the given destination buffer. The method does not modify the given destination
      * band at all. If this product reader has a <code>ProductSubsetDef</code> instance attached to it, the method
      * should also consider the specified spatial subset and sub-sampling (if any) applied to the destination band.
-     * <p/>
      * <h3>Destination region</h3> The given destination region specified by the <code>destOffsetX</code>,
      * <code>destOffsetY</code>, <code>destWidth</code> and <code>destHeight</code> parameters are given in the band's
      * raster co-ordinates of the raster which results <i>after</i> applying the optional spatial subset and
      * sub-sampling given by the <code>ProductSubsetDef</code> instance to the <i>data source</i>. If no spatial subset
      * and sub-sampling is specified, the destination co-ordinates are identical with the source co-ordinates. The
      * destination region should always specify a sub-region of the band's scene raster.
-     * <p/>
      * <h3>Destination buffer</h3> The first element of the destination buffer corresponds to the given
      * <code>destOffsetX</code> and <code>destOffsetY</code> of the destination region. The offset parameters are
      * <b>not</b> an offset within the buffer.<br> The number of elements in the buffer exactly be <code>destWidth *
@@ -123,10 +118,8 @@ public interface ProductReader {
     /**
      * Closes the access to all currently opened resources such as file input streams and all resources of this children
      * directly owned by this reader. Its primary use is to allow the garbage collector to perform a vanilla job.
-     * <p/>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>close()</code> are undefined.
-     * <p/>
      * <p>Overrides of this method should always call <code>super.close();</code> after disposing this instance.
      *
      * @throws IOException if an I/O error occurs

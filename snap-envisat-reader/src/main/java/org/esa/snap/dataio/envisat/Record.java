@@ -23,7 +23,6 @@ import java.io.IOException;
 
 /**
  * The <code>Record</code> class represents a record in a dataset of of an ENVISAT product.
- * <p/>
  * <p> A record performs its <code>readFrom</code> operation by delegating it sequentially to all of its fields.
  *
  * @author Norman Fomferra

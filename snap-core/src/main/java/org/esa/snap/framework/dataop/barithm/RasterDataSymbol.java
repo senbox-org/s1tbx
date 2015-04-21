@@ -26,7 +26,6 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
 /**
  * Represents a read-only symbol. A symbol can be a named constant or variable.
  * It has a return type an can be evaluated. This class is based on RasterData.
- * <p/>
  * <p>Within an expression, a reference to a symbol is created if the parser
  * encounters a name and this name can be resolved through the parser's current namespace.
  * The resulting term in this case is an instance of <code>{@link com.bc.jexp.Term.Ref}</code>.

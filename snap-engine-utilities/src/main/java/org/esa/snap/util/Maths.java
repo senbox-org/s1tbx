@@ -280,14 +280,11 @@ public final class Maths {
 
     /**
      * Interpolate vector using 8th order Legendre interpolation.
-     * <p/>
      * <p>The method interpolates a n-dimensional vector, at desired point given as input an equidistant
-     * n-dimensional vectors.</p>
-     * <p/>
+     * n-dimensional vectors.
      * <p><b>Notes:</b> Coefficients for 8th order interpolation are pre-computed. Method is primarily designed for
-     * interpolating orbits, and it should be used with care in other applications, although it should work anywhere.</p>
-     * <p/>
-     * <p><b>Implementation details:</b> Adapted from 'getorb' package.</p>
+     * interpolating orbits, and it should be used with care in other applications, although it should work anywhere.
+     * <p><b>Implementation details:</b> Adapted from 'getorb' package.
      *
      * @param samples Sample value array.
      * @param x       Desired position.

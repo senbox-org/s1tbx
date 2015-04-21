@@ -21,7 +21,7 @@ import java.io.IOException;
 
 /**
  * Renders temporal bins to a rectangular output raster. Used by {@link Reprojector}.
- * <p/>
+ * <p>
  * Bin renderers can render either maximum rasters of the size
  * <pre>
  *     PlanetaryGrid grid = ctx.getPlanetaryGrid();

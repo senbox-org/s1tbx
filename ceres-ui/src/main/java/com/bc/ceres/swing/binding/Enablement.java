@@ -39,7 +39,7 @@ public interface Enablement extends PropertyChangeListener {
         /**
          * Notifies this condition that the enablement has been uninstalled.
          * The default implementation does nothing.
-         * <p/>
+         * <p>
          * The default implementation does nothing.
          *
          * @param bindingContext The binding context.

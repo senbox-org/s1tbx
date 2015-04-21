@@ -22,7 +22,7 @@ import org.esa.snap.util.Guardian;
 import java.awt.geom.Point2D;
 
 /**
- * <p><i>Note that this class is not yet public API and may change in future releases.</i></p>
+ * <p><i>Note that this class is not yet public API and may change in future releases.</i>
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$

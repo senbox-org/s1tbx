@@ -78,7 +78,7 @@ import java.util.logging.Level;
  * serve as computation base. All the input products are sorted chronologically and grouped per day. For each day
  * inside the given time period, a collocated mean band from the grouped products is computed. By this means, a intermediate
  * time series product is created successively.
- * <p/>
+ * <p>
  * This time series product is used to create time series' per pixel. Days with missing values or with values that have been
  * masked out using the valid pixel expression will cause gaps in a time series. To improve the percentile calculation
  * results, such gaps can be filled.
@@ -88,10 +88,10 @@ import java.util.logging.Level;
  * <li>gap filling by spline interpolation</li>
  * <li>gap filling by quadratic interpolation</li>
  * </ul>
- * <p/>
+ * <p>
  * Based on these time series', for each percentile a band is written to the target product.
  * In these bands, each pixel holds the threshold of the respective percentile.
- * <p/>
+ * <p>
  *
  * @author Sabine Embacher
  * @author Tonio Fincke
@@ -535,7 +535,7 @@ public class TemporalPercentileOp extends Operator {
     /**
      * This method adds metadata to the intermediate time series product.
      * This metadata is needed to meet the requirements of the time series tool.
-     * <p/>
+     * <p>
      * The time series tool can be used to examine products that contain time series.
      * These time series have the form of bands where the timestamp of the band is
      * encoded as suffix of the band's name.

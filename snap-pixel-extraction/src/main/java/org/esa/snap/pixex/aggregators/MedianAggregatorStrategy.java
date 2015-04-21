@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 /**
  * {@inheritDoc}
- * <p/>
+ * <p>
  * Retrieves the median value for a record.
  * If the record contains an even number of values, the mean of the left and the right median is taken.
  */

@@ -19,8 +19,8 @@ package com.bc.ceres.core.runtime;
  * A configuration element, with its attributes and children,
  * directly reflects the content and structure of the extension and extension point
  * sections within the declaring module's manifest (module.xml) file.
- * <p/>
- * This interface is not intended to be implemented by clients.</p>
+ * <p>
+ * This interface is not intended to be implemented by clients.
  */
 public interface ConfigurationElementBase<T> {
 

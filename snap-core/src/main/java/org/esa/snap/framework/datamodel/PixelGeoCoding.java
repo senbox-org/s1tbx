@@ -56,23 +56,20 @@ import java.util.Vector;
 /**
  * The <code>PixelGeoCoding</code> is an implementation of a {@link GeoCoding} which uses
  * dedicated latitude and longitude bands in order to provide geographical positions
- * for <i>each</i> pixel. Unlike the {@link TiePointGeoCoding}</p>, which uses sub-sampled {@link TiePointGrid tie-point grids},
- * the  <code>PixelGeoCoding</code> class uses {@link Band bands}.</p>
- * <p/>
+ * for <i>each</i> pixel. Unlike the {@link TiePointGeoCoding}, which uses sub-sampled {@link TiePointGrid tie-point grids},
+ * the  <code>PixelGeoCoding</code> class uses {@link Band bands}.
  * <p>This class is especially useful for high accuracy geo-coding, e.g. if geographical positions are computed for each pixel
- * by an upstream orthorectification.</p>
- * <p/>
+ * by an upstream orthorectification.
  * <p>While the implementation of the {@link #getGeoPos(PixelPos, GeoPos)} is straight forward,
  * the {@link #getPixelPos(GeoPos, PixelPos)} uses two different search algorithms in order to
  * find the corresponding geo-position for a given pixel:
  * <ol>
  * <li>Search an N x N window around an estimated pixel position using the geo-coding of the source product (if any) or</li>
  * <li>perform a quad-tree search if the source product has no geo-coding.</li>
- * </ol></p>
- * <p/>
+ * </ol>
  * <p><i>Use instances of this class with care: The constructor fully loads the data given by the latitudes and longitudes bands and
- * the valid mask (if any) into memory.</i></p>
- * <p/>
+ * the valid mask (if any) into memory.</i>
+ * <p>
  * <em>Note (rq-20110526):</em>
  * A better implementation of the find pixel method could be something like:
  * <ol>
@@ -90,7 +87,7 @@ import java.util.Vector;
  * <li>Keep all rational function approximations in a map and reuse them for
  * subsequent calls.</li>
  * </ol>
- * <p/>
+ * <p>
  * The advantage of this algorithm is that it obviously avoids problems related
  * to the antimeridian and poles included in the source region.
  */
@@ -131,7 +128,7 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
 
     /**
      * Constructs a new pixel-based geo-coding.
-     * <p/>
+     * <p>
      * <i>Use with care: In contrast to the other constructor this one loads the data not until first access to
      * {@link #getPixelPos(GeoPos, PixelPos)} or {@link #getGeoPos(PixelPos, GeoPos)}. </i>
      *
@@ -245,9 +242,8 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
 
     /**
      * Constructs a new pixel-based geo-coding.
-     * <p/>
      * <p><i>Use with care: This constructor fully loads the data given by the latitudes and longitudes bands and
-     * the valid mask (if any) into memory.</i></p>
+     * the valid mask (if any) into memory.</i>
      *
      * @param latBand      the band providing the latitudes
      * @param lonBand      the band providing the longitudes
@@ -298,10 +294,9 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
     /**
      * <p>Fills the gaps in the given latitude and longitude data buffers.
      * The method shall fill in reasonable a latitude and longitude value at all positions where
-     * {@link IndexValidator#validateIndex(int) validator.validateIndex(pixelIndex)} returns false.</p>
-     * <p/>
+     * {@link IndexValidator#validateIndex(int) validator.validateIndex(pixelIndex)} returns false.
      * <p>The default implementation uses the underlying {@link #getPixelPosEstimator() estimator} (if any)
-     * to find default values for the gaps.</p>
+     * to find default values for the gaps.
      *
      * @param validator the pixel validator, never null
      * @param latElems  the latitude data buffer in row-major order
@@ -746,7 +741,6 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
     /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
-     * <p/>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
      */

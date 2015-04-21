@@ -5,7 +5,7 @@ import org.esa.snap.pixex.calvalus.ma.Record;
 
 /**
  * {@inheritDoc}
- * <p/>
+ * <p>
  * Retrieves the maximum value for a record.
  */
 public class MaxAggregatorStrategy extends AbstractAggregatorStrategy {

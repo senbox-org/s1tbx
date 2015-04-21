@@ -22,7 +22,7 @@ import java.awt.geom.AffineTransform;
 import java.io.File;
 
 /**
- * @deprectaed since BEAM 4.5, use {@link FileMultiLevelSource} instead.
+ * @deprecated since BEAM 4.5, use {@link FileMultiLevelSource} instead.
  */
 @Deprecated
 public class FileMultiLevelSourceFactory {

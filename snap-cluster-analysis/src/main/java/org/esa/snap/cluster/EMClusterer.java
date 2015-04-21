@@ -21,7 +21,7 @@ import java.util.Random;
 
 /**
  * Expectation maximization (EM) cluster algorithm.
- * <p/>
+ * <p>
  * todo - make algorithm use a point acessor instead of a point array
  * todo - revise API to reduce the number of fields
  *
@@ -229,7 +229,7 @@ class EMClusterer {
 
     /**
      * Cluster comparator.
-     * <p/>
+     * <p>
      * Compares two clusters according to their prior probability.
      */
     private static class PriorProbabilityClusterComparator implements Comparator<EMCluster> {

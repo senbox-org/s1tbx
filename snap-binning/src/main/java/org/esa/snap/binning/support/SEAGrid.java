@@ -24,7 +24,7 @@ import static java.lang.Math.*;
  * Implementation of a PlanetaryGrid that uses a Sinusoidal Equal Area (SEA) grid layout.
  * It is similar to the SEA grid used in the NASA  SeaDAS software for creating the binned Level-3 MODIS and SeaWiFS products.
  * The mayor difference is the way how we count bin indexes and row indexes.
- * <p/>
+ * <p>
  *
  * @author Norman Fomferra
  * @author Marco Zühlke

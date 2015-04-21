@@ -24,7 +24,7 @@ import org.esa.snap.framework.datamodel.ProductNodeFilter;
  * A {@code ProductConfigurer} is used to configure a target product with respect to a current source product
  * which serves as a template.
  * Various {@code copy...()} methods may be used to copy parts of the source product into the target product.
- * <p/>
+ * <p>
  * This interface is not intended to be implemented by clients.
  *
  * @author Olaf Danne

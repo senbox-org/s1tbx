@@ -19,7 +19,7 @@ package org.esa.snap.binning;
 /**
  * The planetary grid used for the binning. It subdivides the planet into approximately equal-area bin cells
  * organised in rows with a number of columns varying with the latitude.
- * <p/>
+ * <p>
  * Implementing classes must provide 2 constructors. One no-args constructor which creates the grid with standard
  * settings and the second receives on single integer value specifying the number of grid rows.
  *

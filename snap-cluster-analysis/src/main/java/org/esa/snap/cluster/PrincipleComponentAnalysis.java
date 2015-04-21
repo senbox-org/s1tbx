@@ -10,26 +10,26 @@ import org.ejml.ops.SingularOps;
 /**
  * <p>
  * The following is a simple example of how to perform basic principle component analysis in EJML.
- * </p>
+ *
  * <p>
  * Principal Component Analysis (PCA) is typically used to develop a linear model for a set of data
  * (e.g. face images) which can then be used to test for membership.  PCA works by converting the
  * set of data to a new basis that is a subspace of the original set.  The subspace is selected
  * to maximize information.
- * </p>
+ *
  * <p>
  * PCA is typically derived as an eigenvalue problem.  However in this implementation {@link org.ejml.factory.SingularValueDecomposition SVD}
  * is used instead because it will produce a more numerically stable solution.  Computation using EVD requires explicitly
  * computing the variance of each sample set. The variance is computed by squaring the residual, which can
  * cause loss of precision.
- * </p>
+ *
  * <p>
  * Usage:<br>
  * 1) call setup()<br>
  * 2) For each sample (e.g. an image ) call addSample()<br>
  * 3) After all the samples have been added call computeBasis()<br>
  * 4) Call  sampleToEigenSpace() , eigenToSampleSpace() , errorMembership() , response()
- * </p>
+ *
  * <i>Note: The documentation and code of this class is a modified version of the one taken from
  * <a href="http://code.google.com/p/efficient-java-matrix-library/wiki/PrincipleComponentAnalysisExample">Principle Component Analysis Example</a>
  * of the EJML home page (16.01.2013).</i>
@@ -175,11 +175,11 @@ public class PrincipleComponentAnalysis {
      * <p>
      * The membership error for a sample.  If the error is less than a threshold then
      * it can be considered a member.  The threshold's value depends on the data set.
-     * </p>
+     *
      * <p>
      * The error is computed by projecting the sample into eigenspace then projecting
      * it back into sample space and
-     * </p>
+     *
      *
      * @param sampleA The sample whose membership status is being considered.
      * @return Its membership error.

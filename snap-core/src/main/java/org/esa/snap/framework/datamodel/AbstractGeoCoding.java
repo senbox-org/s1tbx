@@ -28,10 +28,9 @@ import org.opengis.referencing.operation.MathTransform;
 
 /**
  * <code>AbstractGeoCoding</code> is the base class of all geo-coding implementation.
- * <p/>
  * <p> <b> Note:</b> New geo-coding implementations shall implement this abstract class, instead of
  * implementing the interface {@link GeoCoding}.
- * </p>
+ *
  *
  * @author Marco Peters
  */

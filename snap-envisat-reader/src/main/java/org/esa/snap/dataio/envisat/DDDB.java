@@ -33,7 +33,6 @@ import java.util.Vector;
 
 /**
  * A <code>DDDB</code> instance is used read record infos from the ENVISAT data description database (DDDB).
- * <p/>
  * <p> Note this class has public access as a side-effect of the implementation.
  *
  * @author Norman Fomferra
@@ -181,7 +180,6 @@ public class DDDB {
 
     /**
      * Gets the name of the DSD (as internally used in product data files) for the dataset with the given name.
-     * <p/>
      * <p>Note that the dataset name must not necessarily match the internally used DSD name.
      *
      * @param productType the product type identifier, e.g. "MER_FR__2P"
@@ -201,7 +199,6 @@ public class DDDB {
 
     /**
      * Reads a record info from the database.
-     * <p/>
      * <p> The record is specified through the given product type (e.g. "MER_FR__2P") and a dataset name (e.g.
      * "Scaling_Factor_GADS"). Additional parameters are required for special product derivates such as 'child products'
      * in order to supply the true number of pixels in an image line.
@@ -227,7 +224,6 @@ public class DDDB {
 
     /**
      * Reads a record info from the database.
-     * <p/>
      * <p> The record is specified given the path to the *.dd file in the dddb resources.
      *
      * @param recordInfoFilePath a <code>String</code> holding the relative path to the *.dd file
@@ -721,7 +717,6 @@ public class DDDB {
 
     /**
      * Gets a dataset info from the database.
-     * <p/>
      * <p> The dataset is specified through the given product type (e.g. "MER_FR__2P") and a dataset name (e.g.
      * "Scaling_Factor_GADS").
      *

@@ -34,7 +34,6 @@ import java.util.Set;
  * or validation information such as minimum and maximum values. An instance of this class which implements this
  * interface can contain any number of attributes. The interpretation of particular attributes is handed over to
  * specialized parameter editors and validators.
- * <p/>
  * <p> <i>Important note:</i> Attribute keys must NOT contain the period (.) character.
  *
  * @author Norman Fomferra
@@ -415,11 +414,9 @@ public class ParamProperties {
 
     /**
      * Sets the properties to the values found in the given <code>Properties</code> instance.
-     * <p/>
      * <p>This utility method searches for all keys in the given <code>Properties</code> instance whose keys start with
      * <code>paramName + "."</code>. The rest of the key is expected to be a valid <code>ParamProperties</code>
      * attribute key and the property value a corresponding textual representation of the attribute's value.
-     * <p/>
      * <p> The method can be used to automatically configure parameters from Java property files.
      *
      * @param paramName the parameter name
@@ -602,7 +599,6 @@ public class ParamProperties {
 
     /**
      * Loads the class with the specified name.
-     * <p/>
      * <p>This method can be overridden in order to implement a specialized mechanism to load parameter validator and
      * editor classes. The default implementation simply returns  <code>getClass().getClassLoader().loadClass(className)</code>.
      *

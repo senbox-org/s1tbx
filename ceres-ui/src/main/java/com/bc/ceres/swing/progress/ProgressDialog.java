@@ -19,12 +19,35 @@ package com.bc.ceres.swing.progress;
 import com.bc.ceres.swing.SwingHelper;
 import com.jidesoft.swing.JideButton;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.AbstractButton;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.RGBImageFilter;
-import java.util.EventObject;
 
 /**
  * A utility class very similar to {@link javax.swing.ProgressMonitor} but with the following extensions:
@@ -124,7 +147,7 @@ public class ProgressDialog {
 
     /**
      * Indicate the progress of the operation being monitored.
-     * If the specified value is >= the maximum, the progress
+     * If the specified value is &gt;= the maximum, the progress
      * monitor is closed.
      *
      * @param progress an int specifying the current value, between the
@@ -160,7 +183,7 @@ public class ProgressDialog {
 
     /**
      * Indicate that the operation is complete.  This happens automatically
-     * when the value set by {@link #setProgress} is >= {@link #getMaximum maximum} , but it may be called
+     * when the value set by {@link #setProgress} is &gt;= {@link #getMaximum maximum} , but it may be called
      * earlier if the operation ends early.
      */
     public void close() {

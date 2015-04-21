@@ -29,7 +29,6 @@ import java.util.Vector;
 /**
  * The <code>ColorPaletteDef</code> class represents a curve that is used to transform the sample values of a
  * geo-physical band into color palette indexes.
- * <p/>
  * <p> This special implementation of a gradation curve also provides separate color values for each of the tie points
  * contained in the curve. This allows a better image interpretation because certain colors correspond to certain sample
  * values even if the curve points are used to create color gradient palettes.
@@ -314,10 +313,8 @@ public class ColorPaletteDef implements Cloneable  {
     /**
      * Releases all of the resources used by this color palette definition and all of its owned children. Its primary
      * use is to allow the garbage collector to perform a vanilla job.
-     * <p/>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-     * <p/>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
     public void dispose() {

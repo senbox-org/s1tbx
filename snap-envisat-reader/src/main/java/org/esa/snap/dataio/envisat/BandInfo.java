@@ -19,7 +19,6 @@ import org.esa.snap.framework.datamodel.FlagCoding;
 
 /**
  * The <code>BandInfo</code> class provides information for an available band within an ENVISAT product.
- * <p/>
  * <p> Note that this class is public only as a side-effect of the implementation.
  *
  * @author Norman Fomferra

@@ -62,7 +62,6 @@ public class CrsGeoCoding extends AbstractGeoCoding {
     /**
      * Constructs a new instance of this class from a map CRS, image dimension, and image-to-map
      * transformation parameters.
-     * <p/>
      * The reference pixel is set to the BEAM default value, namely the center of the upper left image pixel
      * (i.e. {@code referencePixelX = referencePixelY = 0.5}).
      *

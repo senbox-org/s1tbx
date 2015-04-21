@@ -34,7 +34,6 @@ import java.util.TimeZone;
 /**
  * The abstract <code>ProductData</code> class represents a generic data buffer used to hold the actual data values
  * stored in remote sensing data products.
- * <p/>
  * <p> A single <code>ProductData</code> instance can have one or more elements of a primitive type. The primitive types
  * are: <ld> <li> {@link ProductData.Byte signed 8-bit integer} </li> <li> {@link ProductData.UByte unsigned 16-bit
  * integer} </li> <li> {@link ProductData.Short signed 32-bit integer} </li> <li> {@link ProductData.UShort unsigned
@@ -42,9 +41,7 @@ import java.util.TimeZone;
  * 32-bit integer} </li> <li> {@link ProductData.Float 32-bit floating point} </li> <li> {@link ProductData.Double
  * 64-bit floating point} </li> <li> {@link ProductData.ASCII a character string (8-bit ASCII encoding)} </li> <li>
  * {@link ProductData.UTC a MJD-2000 encoded data/time value} </li> </ld>
- * <p/>
  * <p>The number of elements is an inmutable property of a <code>ProductData</code> instance.
- * <p/>
  * <p>In order to access the data in a <code>ProductData</code> instance, multiple setters and getters are provided
  * which use generic <i>transfer data types</i> in order to make the data transfer in and out of a
  * <code>ProductData</code> instance easy for programmers.<br> For scalar (one-element) values the prototypes are
@@ -748,7 +745,6 @@ public abstract class ProductData implements Cloneable {
 
     /**
      * Sets the value at the specified index as a <code>String</code>.
-     * <p/>
      * <p><i>THE METHOD IS CURRENTLY NOT IMPLEMENTED.</i>
      *
      * @param index the value index, must be <code>&gt;=0</code> and <code>&lt;getNumDataElems()</code>
@@ -796,7 +792,6 @@ public abstract class ProductData implements Cloneable {
 
     /**
      * Reads all elements of this <code>ProductData</code> instance from to the given input stream.
-     * <p/>
      * <p> The method subsequentially reads the elements at <code>0</code> to <code>getNumElems()-1</code> of this
      * <code>ProductData</code> instance from the given input stream.<br> Reading starts at the current seek position
      * within the input stream.
@@ -811,7 +806,6 @@ public abstract class ProductData implements Cloneable {
 
     /**
      * Reads a single element of this <code>ProductData</code> instance from to the given output stream.
-     * <p/>
      * <p> The method reads the element at <code>pos</code> of this <code>ProductData</code> instance from the given
      * output stream.<br> Reading starts at the current seek position within the output stream.
      *
@@ -826,7 +820,6 @@ public abstract class ProductData implements Cloneable {
 
     /**
      * Reads elements of this <code>ProductData</code> instance from the given output stream.
-     * <p/>
      * <p> The method subsequentially reads the elements at <code>startPos</code> to <code>startPos+numElems-1</code> of
      * this <code>ProductData</code> instance from the given input stream.<br> Reading starts at the current seek
      * position of the input stream.
@@ -841,7 +834,6 @@ public abstract class ProductData implements Cloneable {
 
     /**
      * Reads elements into this <code>ProductData</code> instance from the given input stream.
-     * <p/>
      * <p> The method subsequentially reads the elements at <code>startPos</code> to <code>startPos+numElems-1</code> of
      * this <code>ProductData</code> instance from the given input stream.<br> Reading starts at <code>inputPos</code>
      * within the output stream. The method multiplies this position with the value returned by
@@ -862,7 +854,6 @@ public abstract class ProductData implements Cloneable {
 
     /**
      * Writes all elements of this <code>ProductData</code> instance to to the given output stream.
-     * <p/>
      * <p> The method subsequentially writes the elements at <code>0</code> to <code>getNumElems()-1</code> of this
      * <code>ProductData</code> instance to the given output stream.<br> Writing starts at the current seek position
      * within the output stream.
@@ -877,7 +868,6 @@ public abstract class ProductData implements Cloneable {
 
     /**
      * Writes a single element of this <code>ProductData</code> instance to to the given output stream.
-     * <p/>
      * <p> The method writes the element at <code>pos</code> of this <code>ProductData</code> instance to the given
      * output stream.<br> Writing starts at the current seek position within the output stream.
      *
@@ -892,7 +882,6 @@ public abstract class ProductData implements Cloneable {
 
     /**
      * Writes elements of this <code>ProductData</code> instance to to the given output stream.
-     * <p/>
      * <p> The method subsequentially writes the elements at <code>startPos</code> to <code>startPos+numElems-1</code>
      * of this <code>ProductData</code> instance to the given output stream.<br> Writing starts at the current seek
      * position within the output stream.
@@ -907,7 +896,6 @@ public abstract class ProductData implements Cloneable {
 
     /**
      * Writes elements of this <code>ProductData</code> instance to to the given output stream.
-     * <p/>
      * <p> The method subsequentially writes the elements at <code>startPos</code> to <code>startPos+numElems-1</code>
      * of this <code>ProductData</code> instance to the given output stream.<br> Writing starts at
      * <code>outputPos</code> within the output stream. The method multiplies this position with the value returned by
@@ -974,7 +962,6 @@ public abstract class ProductData implements Cloneable {
     /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
-     * <p/>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
      */
@@ -982,7 +969,6 @@ public abstract class ProductData implements Cloneable {
 
     /**
      * The <code>Byte</code> class is a <code>ProductData</code> specialisation for signed 8-bit integer fields.
-     * <p/>
      * <p> Internally, data is stored in an array of the type <code>byte[]</code>.
      */
     public static class Byte extends ProductData {
@@ -1217,10 +1203,8 @@ public abstract class ProductData implements Cloneable {
         /**
          * Releases all of the resources used by this object instance and all of its owned children. Its primary use is
          * to allow the garbage collector to perform a vanilla job.
-         * <p/>
          * <p>This method should be called only if it is for sure that this object instance will never be used again.
          * The results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-         * <p/>
          * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
          */
         @Override
@@ -1231,12 +1215,10 @@ public abstract class ProductData implements Cloneable {
 
     /**
      * The <code>UByte</code> class is a <code>ProductData</code> specialisation for unsigned 8-bit integer fields.
-     * <p/>
      * <p> Internally, data is stored in an array of the type <code>byte[]</code>.
-     * <p/>
      * <p> In order to preserve the accuracy for the unsigned byte value range the <code>getElemIntAt</code> method
      * should be used to retrieve the data stored in this value instead of accessing the data array directly.
-     * <p/>
+     * <p>
      * Another method is to mask each of the array elements in order to get the unsigned type in the following way:
      * <pre>
      *     byte[] data = (byte[]) {@link #getElems() value.getElems()};
@@ -1350,7 +1332,6 @@ public abstract class ProductData implements Cloneable {
 
     /**
      * The <code>Short</code> class is a <code>ProductData</code> specialisation for signed 16-bit integer fields.
-     * <p/>
      * <p> Internally, data is stored in an array of the type <code>short[]</code>.
      */
     public static class Short extends ProductData {
@@ -1557,10 +1538,8 @@ public abstract class ProductData implements Cloneable {
         /**
          * Releases all of the resources used by this object instance and all of its owned children. Its primary use is
          * to allow the garbage collector to perform a vanilla job.
-         * <p/>
          * <p>This method should be called only if it is for sure that this object instance will never be used again.
          * The results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-         * <p/>
          * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
          */
         @Override
@@ -1572,12 +1551,10 @@ public abstract class ProductData implements Cloneable {
 
     /**
      * The <code>UShort</code> class is a <code>ProductData</code> specialisation for unsigned 16-bit integer fields.
-     * <p/>
      * <p> Internally, data is stored in an array of the type <code>short[]</code>.
-     * <p/>
      * <p> In order to preserve the accuracy for the unsigned byte value range the <code>getElemIntAt</code> method
      * should be used to retrieve the data stored in this value instead of accessing the data array directly.
-     * <p/>
+     * <p>
      * Another method is to mask each of the array elements in order to get the unsigned type in the following way:
      * <pre>
      *     short[] data = (short[]) value.getRaster();
@@ -1691,7 +1668,6 @@ public abstract class ProductData implements Cloneable {
 
     /**
      * The <code>Int</code> class is a <code>ProductData</code> specialisation for signed 32-bit integer fields.
-     * <p/>
      * <p> Internally, data is stored in an array of the type <code>int[]</code>.
      */
     public static class Int extends ProductData {
@@ -1898,10 +1874,8 @@ public abstract class ProductData implements Cloneable {
         /**
          * Releases all of the resources used by this object instance and all of its owned children. Its primary use is
          * to allow the garbage collector to perform a vanilla job.
-         * <p/>
          * <p>This method should be called only if it is for sure that this object instance will never be used again.
          * The results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-         * <p/>
          * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
          */
         @Override
@@ -1912,13 +1886,11 @@ public abstract class ProductData implements Cloneable {
 
     /**
      * The <code>UInt</code> class is a <code>ProductData</code> specialisation for unsigned 32-bit integer fields.
-     * <p/>
      * <p> Internally, data is stored in an array of the type <code>int[]</code>.
-     * <p/>
      * <p> In order to preserve the accuracy for the unsigned <code>int</code> value range the
      * <code>getElemUIntAt</code> method should be used to retrieve the data stored in this value instead of accessing
      * the data array directly.
-     * <p/>
+     * <p>
      * Another method is to mask each of the array elements in order to get the unsigned type in the following way:
      * <pre>
      *     int[] data = (int[]) value.getRaster();
@@ -1974,7 +1946,6 @@ public abstract class ProductData implements Cloneable {
 
         /**
          * Please refer to {@link ProductData#getElemIntAt(int)}.
-         * <p/>
          * <p><i>IMPORTANT NOTE: This method returns the data element unchanged as it is sinternally stored (a 32-bit
          * signed integer) and thus can also return negative values. Use <code>getElemUIntAt</code> which returns
          * unsigned <code>long</code> values only.</i>
@@ -2049,7 +2020,6 @@ public abstract class ProductData implements Cloneable {
     /**
      * The <code>ProductData.Float</code> class is a <code>ProductData</code> specialisation for 32-bit floating point
      * fields.
-     * <p/>
      * <p> Internally, data is stored in an array of the type <code>float[]</code>.
      */
     public static class Float extends ProductData {
@@ -2253,10 +2223,8 @@ public abstract class ProductData implements Cloneable {
         /**
          * Releases all of the resources used by this object instance and all of its owned children. Its primary use is
          * to allow the garbage collector to perform a vanilla job.
-         * <p/>
          * <p>This method should be called only if it is for sure that this object instance will never be used again.
          * The results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-         * <p/>
          * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
          */
         @Override
@@ -2268,7 +2236,6 @@ public abstract class ProductData implements Cloneable {
     /**
      * The <code>ProductData.Float</code> class is a <code>ProductData</code> specialisation for 64-bit floating point
      * fields.
-     * <p/>
      * <p> Internally, data is stored in an array of the type <code>double[]</code>.
      */
     public static class Double extends ProductData {
@@ -2456,10 +2423,8 @@ public abstract class ProductData implements Cloneable {
         /**
          * Releases all of the resources used by this object instance and all of its owned children. Its primary use is
          * to allow the garbage collector to perform a vanilla job.
-         * <p/>
          * <p>This method should be called only if it is for sure that this object instance will never be used again.
          * The results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-         * <p/>
          * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
          */
         @Override
@@ -2471,7 +2436,6 @@ public abstract class ProductData implements Cloneable {
     /**
      * The <code>ProductData.ASCII</code> class is a <code>ProductData.Byte</code> specialisation representing textual
      * values.
-     * <p/>
      * <p> Internally, data is stored in an array of the type <code>byte[]</code>.
      */
     public static class ASCII extends Byte {
@@ -2565,7 +2529,6 @@ public abstract class ProductData implements Cloneable {
     /**
      * The <code>ProductData.UTC</code> class is a <code>ProductData.UInt</code> specialisation for UTC date/time
      * values.
-     * <p/>
      * <p> Internally, data is stored in an <code>int[3]</code> array which represents a Modified Julian Day 2000
      * ({@link org.esa.snap.framework.datamodel.ProductData.UTC#getMJD() MJD}) as a {@link
      * org.esa.snap.framework.datamodel.ProductData.UTC#getDaysFraction() days}, a {@link

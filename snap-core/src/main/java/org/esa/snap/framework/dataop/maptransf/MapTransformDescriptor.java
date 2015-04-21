@@ -31,8 +31,8 @@ public interface MapTransformDescriptor {
      * can and should be used to register projections that are based on the type of <code>{@link MapTransform}</code>
      * described by this <code>MapTransformDescriptor</code>. Registering projection instances is done using the using
      * the <code>{@link MapProjectionRegistry#registerProjection}</code> method.
-     * <p/>
-     * <p/>
+     * <p>
+     * <p>
      * A typical implementation of this method would be:
      * <pre>
      * public void registerProjections() {
@@ -51,9 +51,8 @@ public interface MapTransformDescriptor {
     /**
      * Creates an instance of the map transform for the given parameter values. The parameter value array must exactly
      * match the size and semantics of the parameters returned by the {@link #getParameters()} method.
-     * <p/>
      * <p>Important: Implementors of this method shall ensure that an element-wise copy of the given parameter array is
-     * created and set.</p>
+     * created and set.
      *
      * @param parameterValues the parameter values. If null, a map transform with default parameter values is created
      *
@@ -86,8 +85,7 @@ public interface MapTransformDescriptor {
 
     /**
      * Gets the parameters for this map transform.
-     * <p/>
-     * <p>Important: Changing elements in the returned array may change this object's state.</p>
+     * <p>Important: Changing elements in the returned array may change this object's state.
      *
      * @return The list of parameters required to create a new instance of the map transform.
      */

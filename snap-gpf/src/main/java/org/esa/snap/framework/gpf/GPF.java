@@ -34,14 +34,14 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * <p>The facade for the Graph Processing Framework.</p>
+ * <p>The facade for the Graph Processing Framework.
  * <p>The Graph Processing Framework makes extensive use of Java Advanced Imaging (JAI).
  * Therefore, configuring the JAI {@link javax.media.jai.TileCache TileCache} and
  * {@link javax.media.jai.TileScheduler TileScheduler} will also affect the overall performance of
- * the Graph Processing Framework.</p>
+ * the Graph Processing Framework.
  * <p>This class may be overridden in order to alter product creation behaviour of the static
  * {@code createProduct} methods of the GPF instance.
- * The current instance can be set by {@link #setDefaultInstance(GPF)}.</p>
+ * The current instance can be set by {@link #setDefaultInstance(GPF)}.
  *
  * @author Norman Fomferra
  * @since 4.1
@@ -57,7 +57,7 @@ public class GPF {
 
     /**
      * Key for GPF tile size {@link RenderingHints}.
-     * <p/>
+     * <p>
      * The value for this key must be an instance of {@link Dimension} with
      * both width and height positive.
      */
@@ -71,7 +71,7 @@ public class GPF {
 
     /**
      * An unmodifiable empty {@link Map Map}.
-     * <p/>
+     * <p>
      * Can be used for convenience as a parameter for {@code createProduct()} if no
      * parameters are needed for the operator.
      *
@@ -83,7 +83,7 @@ public class GPF {
 
     /**
      * An unmodifiable empty {@link Map Map}.
-     * <p/>
+     * <p>
      * Can be used for convenience as a parameter for {@code createProduct(String, Map, Map)} if no
      * source products are needed for the operator.
      *
@@ -292,7 +292,7 @@ public class GPF {
      * By concatenating multiple calls it is possible to set up a processing graph.
      * <p>All static {@code createProduct} methods delegate to this non-static (= NS) version.
      * It can be overriden by clients in order to alter product creation behaviour of the static
-     * {@code createProduct} methods of the current GPF instance.</p>
+     * {@code createProduct} methods of the current GPF instance.
      *
      * @param operatorName   the name of the operator to use.
      * @param parameters     the named parameters needed by the operator.

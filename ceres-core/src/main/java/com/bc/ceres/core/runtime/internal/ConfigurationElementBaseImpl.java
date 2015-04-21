@@ -25,9 +25,8 @@ import java.util.ArrayList;
  * A configuration element, with its attributes and children,
  * directly reflects the content and structure of the extension
  * section within the declaring plug-in's manifest (plugin.xml) file.
- * <p/>
  * <p>This interface also provides a way to create executable extension objects.
- * This interface is not intended to be implemented by clients.</p>
+ * This interface is not intended to be implemented by clients.
  */
 public abstract class ConfigurationElementBaseImpl<T extends ConfigurationElementBase>
         implements ConfigurationElementBase<T> {

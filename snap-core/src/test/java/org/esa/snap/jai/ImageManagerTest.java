@@ -246,10 +246,10 @@ public class ImageManagerTest {
     /**
      * size of source image is calculated in
      * {@code com.bc.ceres.glevel.support.DefaultMultiLevelSource#createImage(int)}
-     * <p/>
+     * <p>
      * size of mask image is calculated in
      * {@code org.esa.snap.jai.ImageManager#createSingleBandedImageLayout(org.esa.snap.framework.datamodel.RasterDataNode)}
-     * <p/>
+     * <p>
      * they shall not produce different results.
      */
     @Test

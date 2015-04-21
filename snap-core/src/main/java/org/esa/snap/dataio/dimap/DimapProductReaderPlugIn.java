@@ -29,10 +29,9 @@ import java.util.Locale;
 /**
  * The <code>DimapProductReaderPlugIn</code> class is an implementation of the <code>ProductReaderPlugIn</code>
  * interface exclusively for data products having the BEAM-DIMAP product format.
- * <p/>
  * <p>XMLDecoder plug-ins are used to provide meta-information about a particular data format and to create instances of
  * the actual reader objects.
- * <p/>
+ * <p>
  * The BEAM-DIMAP version history is provided in the API doc of the {@link DimapProductWriterPlugIn}.
  *
  * @author Sabine Embacher
@@ -73,7 +72,6 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
     /**
      * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is
      * used.
-     * <p/>
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param name the local for the given description string, if <code>null</code> the default locale is used
@@ -86,7 +84,6 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
     /**
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if
      * it's content has the BEAM-DIMAP format.
-     * <p/>
      * <p> BEAM-DIMAP product readers accept <code>java.lang.String</code> - a file path or a <code>java.io.File</code>
      * - an abstract file path.
      *
@@ -132,7 +129,6 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
 
     /**
      * Returns an array containing the classes that represent valid input types for an BEAM-DIMAP product reader.
-     * <p/>
      * <p> Instances of the classes returned in this array are valid objects for the <code>setInput</code> method of the
      * <code>DimapProductReader</code> class (the method will not throw an <code>InvalidArgumentException</code> in this
      * case).

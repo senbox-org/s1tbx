@@ -57,7 +57,7 @@ public class ConverterRegistry {
     private Map<Class<?>, Converter<?>> converters;
 
     private ConverterRegistry() {
-        converters = new HashMap<Class<?>, Converter<?>>(33);
+        converters = new HashMap<>(33);
 
         // Primitive types
         setConverter(Boolean.TYPE, new BooleanConverter());

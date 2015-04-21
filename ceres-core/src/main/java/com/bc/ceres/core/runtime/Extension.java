@@ -18,8 +18,8 @@ package com.bc.ceres.core.runtime;
 
 /**
  * An extension declared in a module.
- * <p/>
- * <p>If {@link #getDeclaringModule() declared} in a module manifest (module.xml), an extension has the following syntax:
+ * <p>
+ * If {@link #getDeclaringModule() declared} in a module manifest (module.xml), an extension has the following syntax:
  * <pre>
  *    &lt;extension point="{@link #getPoint() point}"&gt;
  *       {@link #getConfigurationElement() configuration element 1}
@@ -27,17 +27,15 @@ package com.bc.ceres.core.runtime;
  *       ...
  *    &lt;/extension&gt;
  * </pre>
- * </p>
- * <p/>
- * <p>An extension can also have an optional identifier which makes it possible to retrieve it via the
+ * <p>
+ * An extension can also have an optional identifier which makes it possible to retrieve it via the
  * {@link Module#getExtension(String)} method:
  * <pre>
  *    &lt;extension id="{@link #getId() id}" point="{@link #getPoint() point}"&gt;
  *       ...
  *    &lt;/extension&gt;
  * </pre>
- * <p/>
- * This interface is not intended to be implemented by clients.</p>
+ * This interface is not intended to be implemented by clients.
  */
 public interface Extension {
 

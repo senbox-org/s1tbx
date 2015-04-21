@@ -26,10 +26,8 @@ import java.util.Map;
  * The interface of a graphical figure. A figure knows its center point, its bounding box and can draw itself. A figure
  * can be composed of several sub-figures. Figures also can have an open ended set of attributes. An attribute is
  * identified by a string and has an arbitrary type.
- * <p/>
  * <p>To interact and manipulate with a figure it can provide handles (see {@link FigureHandle}).<p> A
  * handle can manipulate a figure's shape or its attributes.
- * <p/>
  * <p>A default implementation for the Figure interface are provided by the <code>AbstractFigure</code> class.
  *
  * @author Norman Fomferra
@@ -101,7 +99,6 @@ public interface Figure extends Drawable, Cloneable, Serializable {
 
     /**
      * Gets a shape representation of this figure.
-     * <p/>
      * <p>If the figure does not have a shape represenation, the method returns <code>null</code>.
      *
      * @return a shape representation of this figure or <code>null</code> if no such exists.

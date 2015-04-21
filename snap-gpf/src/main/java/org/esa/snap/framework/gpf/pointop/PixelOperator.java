@@ -20,7 +20,7 @@ public abstract class PixelOperator extends PointOperator {
 
     /**
      * Computes the target samples from the given source samples.
-     * <p/>
+     * <p>
      * The number of source/target samples is the maximum defined sample index plus one. Source/target samples are defined
      * by using the respective {@link SampleConfigurer} in the
      * {@link #configureSourceSamples(SampleConfigurer) configureSourceSamples} and

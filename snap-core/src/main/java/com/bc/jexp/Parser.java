@@ -28,6 +28,7 @@ public interface Parser {
 
     /**
      * Gets this parser's default namespace.
+     *
      * @return the default environment used to resolve names.
      */
     Namespace getDefaultNamespace();
@@ -38,6 +39,8 @@ public interface Parser {
      *
      * @param code the code string, for the syntax of valid expressions refer
      *             to the class description
+     * @return the the parsed code as {@link Term}
+     *
      * @throws ParseException if a parse reportError occurs
      */
     Term parse(String code) throws ParseException;
@@ -47,9 +50,11 @@ public interface Parser {
      * Parses the expression given in the code string.
      * Names in the code string are resolved using the given namespace.
      *
-     * @param code the code string, for the syntax of valid expressions refer
-     *             to the class description
+     * @param code      the code string, for the syntax of valid expressions refer
+     *                  to the class description
      * @param namespace the environment which is used to resolve names
+     * @return the the parsed code as {@link Term}
+     *
      * @throws ParseException if a parse error occurs
      */
     Term parse(String code, Namespace namespace) throws ParseException;

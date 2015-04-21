@@ -18,7 +18,7 @@
  * The private implementation package for the {@code binio} API.
  * The package hosts the diverse implementations of the {@link com.bc.ceres.binio.CompoundData} and {@link com.bc.ceres.binio.SequenceData} interfaces.
  *
- * <p>The {@code CompoundData} implementations are:</p>
+ * <p>The {@code CompoundData} implementations are:
  * <table>
  * <tr>
  *    <th>Compound instance</th>
@@ -35,7 +35,7 @@
  * </table>
  *
  *
- * <p>The {@code SequenceData} implementations are:</p>
+ * <p>The {@code SequenceData} implementations are:
  * <table>
  * <tr>
  *    <th>Sequence instance</th>

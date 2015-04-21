@@ -45,7 +45,7 @@ import static com.bc.ceres.binio.TypeBuilder.*;
 /**
  * Utlity class used to read BinX schema files.
  * See the <a href="http://www.edikt.org/binx/">BinX Project</a>.
- * <p/>
+ * <p>
  * This class is not thread-safe.
  */
 public class BinX {

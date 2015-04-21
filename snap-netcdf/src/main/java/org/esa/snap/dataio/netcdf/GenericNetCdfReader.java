@@ -45,7 +45,6 @@ public class GenericNetCdfReader extends AbstractProductReader {
     /**
      * Provides an implementation of the <code>readProductNodes</code> interface method. Clients implementing this
      * method can be sure that the input object and eventually the subset information has already been set.
-     * <p/>
      * <p>This method is called as a last step in the <code>readProductNodes(input, subsetInfo)</code> method.
      *
      * @throws java.io.IOException if an I/O error occurs
@@ -89,10 +88,8 @@ public class GenericNetCdfReader extends AbstractProductReader {
     /**
      * Closes the access to all currently opened resources such as file input streams and all resources of this children
      * directly owned by this reader. Its primary use is to allow the garbage collector to perform a vanilla job.
-     * <p/>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>close()</code> are undefined.
-     * <p/>
      * <p>Overrides of this method should always call <code>super.close();</code> after disposing this instance.
      *
      * @throws java.io.IOException if an I/O error occurs

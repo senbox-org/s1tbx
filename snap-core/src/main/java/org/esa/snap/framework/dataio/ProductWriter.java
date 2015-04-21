@@ -50,7 +50,6 @@ public interface ProductWriter {
 
     /**
      * Writes the in-memory representation of a data product.
-     * <p/>
      * <p> Whether the band data - the actual pixel values - is written out immediately or later when pixels are
      * flushed, is up to the implementation.
      *
@@ -67,16 +66,13 @@ public interface ProductWriter {
     /**
      * Writes raster data from the given in-memory source buffer into the data sink specified by the given source band
      * and region.
-     * <p/>
      * <h3>Source band</h3> The source band is used to identify the data sink in which this method transfers the sample
      * values given in the source buffer. The method does not modify the pixel data of the given source band at all.
-     * <p/>
      * <h3>Source buffer</h3> The first element of the source buffer corresponds to the given <code>sourceOffsetX</code>
      * and <code>sourceOffsetY</code> of the source region. These parameters are an offset within the band's raster data
      * and <b>not</b> an offset within the source buffer.<br> The number of elements in the buffer must be exactly be
      * <code>sourceWidth * sourceHeight</code>. The pixel values to be writte are considered to be stored in
      * line-by-line order, so the raster X co-ordinate varies faster than the Y.
-     * <p/>
      * <h3>Source region</h3> The given destination region specified by the <code>sourceOffsetX</code>,
      * <code>sourceOffsetY</code>, <code>sourceWidth</code> and <code>sourceHeight</code> parameters is given in the
      * source band's raster co-ordinates. These co-ordinates are identical with the destination raster co-ordinates

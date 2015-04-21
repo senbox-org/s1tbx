@@ -33,7 +33,6 @@ import java.util.logging.Logger;
 /**
  * The <code>ProductIO</code> class provides several utility methods concerning data I/O for remote sensing data
  * products.
- * <p/>
  * <p> For example, a product can be read in using a single method call:
  * <pre>
  *      Product product =  ProductIO.readProduct("test.prd");
@@ -113,11 +112,10 @@ public class ProductIO {
      * associated with the reader which is the most preferred according to the product format names
      * supplied as last argument. If no reader capable of decoding the file is capable of handling
      * any of these product formats, the returned product will be associated with the first reader
-     * found in the registry which is capable of decoding the file.</p>
-     * <p/>
+     * found in the registry which is capable of decoding the file.
      * <p>The method does not automatically load band raster data, so
      * {@link org.esa.snap.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
-     * for all bands in the product returned by this method.</p>
+     * for all bands in the product returned by this method.
      *
      * @param file        the data product file
      * @param formatNames a list of product format names defining the preference, if more than one reader
@@ -168,10 +166,10 @@ public class ProductIO {
     /**
      * Reads the data product specified by the given file path.
      * <p>The product returned will be associated with the reader appropriate for the given
-     * file format (see also {@link org.esa.snap.framework.datamodel.Product#getProductReader() Product.productReader}).</p>
+     * file format (see also {@link org.esa.snap.framework.datamodel.Product#getProductReader() Product.productReader}).
      * <p>The method does not automatically read band data, thus
      * {@link org.esa.snap.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
-     * for all bands in the product returned by this method.</p>
+     * for all bands in the product returned by this method.
      *
      * @param filePath the data product file path
      *
@@ -188,10 +186,10 @@ public class ProductIO {
     /**
      * Reads the data product specified by the given file.
      * <p>The product returned will be associated with the reader appropriate for the given
-     * file format (see also {@link org.esa.snap.framework.datamodel.Product#getProductReader() Product.productReader}).</p>
+     * file format (see also {@link org.esa.snap.framework.datamodel.Product#getProductReader() Product.productReader}).
      * <p>The method does not automatically read band data, thus
      * {@link org.esa.snap.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
-     * for all bands in the product returned by this method.</p>
+     * for all bands in the product returned by this method.
      *
      * @param file the data product file
      *
@@ -235,7 +233,7 @@ public class ProductIO {
      * Tries to find a product reader instance suitable for the given input.
      * The method returns {@code null}, if no
      * registered product reader can handle the given {@code input} value.
-     * <p/>
+     * <p>
      * The {@code input} may be of any type, but most likely it will be a file path given by a {@code String} or
      * {@code File} value. Some readers may also directly support an {@link javax.imageio.stream.ImageInputStream} object.
      *

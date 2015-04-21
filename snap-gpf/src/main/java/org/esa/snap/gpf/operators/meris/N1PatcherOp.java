@@ -40,7 +40,7 @@ import java.io.IOException;
  * The <code>N1PatcherOp</code> copies an existing N1 file
  * and replaces the data for the radiance band with the data
  * from the given product
- * <p/>
+ * <p>
  * Configuration Elements:
  * <ul>
  * <li><b>originalFilePath</b> the path of the N1 file that should be patched

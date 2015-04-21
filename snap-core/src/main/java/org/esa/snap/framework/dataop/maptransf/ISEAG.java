@@ -20,7 +20,7 @@ package org.esa.snap.framework.dataop.maptransf;
  * The class <code>ISEAG</code> represents the <i>Integerised Sinusoidal Equal Area Grid</i>
  * used by MODIS and SeaWiFS Level-3 binning.
  * 
- * <p><i>Note that this class is not yet public API and may change in future releases.</i></p>
+ * <p><i>Note that this class is not yet public API and may change in future releases.</i>
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$

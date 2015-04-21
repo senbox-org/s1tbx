@@ -52,11 +52,11 @@ class ElevationModelInstaller extends SwingWorker {
 
     /**
      * Computes a result, or throws an exception if unable to do so.
-     * <p/>
-     * <p/>
+     * <p>
+     * <p>
      * Note that this method is executed only once.
-     * <p/>
-     * <p/>
+     * <p>
+     * <p>
      * Note: this method is executed in a background thread.
      *
      * @return the computed result

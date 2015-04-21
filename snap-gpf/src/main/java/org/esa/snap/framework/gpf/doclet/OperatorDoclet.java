@@ -35,17 +35,17 @@ import org.esa.snap.framework.gpf.descriptor.OperatorDescriptor;
 /**
  * A doclet which scans the classpath for GPF operators and creates
  * associated documentation from the {@link OperatorDescriptor} retrieved via the {@link OperatorSpi}.
- * <p/>
+ * <p>
  * This Doclet can be called on Windows from the command line
  * by the following instruction.
  * <b>NOTE:</b> You have to adopt the pathes to your needs.
- * <p/>
+ * <p>
  * <pre>
  *  SET DocletClassName=org.esa.snap.framework.gpf.doclet.OperatorDoclet
  *  SET SourcePath=.\beam-gpf\src\main\java
  *  SET ClassPath=.\beam-gpf\target\classes
  * </pre>
- * <p/>
+ * <p>
  * <pre>
  * javadoc -doclet "%DocletClassName%" -docletpath "%DocletPath%" ^
  *         -sourcepath "%SourcePath%" -classpath "%ClassPath%" ^

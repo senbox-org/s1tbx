@@ -19,7 +19,7 @@ package com.bc.ceres.swing.selection;
 /**
  * Interface implemented by a class interested in hearing about
  * selection change events.
- * <p/>
+ * <p>
  * This interface may be implemented by clients.
  *
  * @author Norman Fomferra

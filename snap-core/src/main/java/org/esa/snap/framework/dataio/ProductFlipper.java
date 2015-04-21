@@ -96,10 +96,8 @@ public class ProductFlipper extends AbstractProductBuilder {
     /**
      * Closes the access to all currently opened resources such as file input streams and all resources of this children
      * directly owned by this reader. Its primary use is to allow the garbage collector to perform a vanilla job.
-     * <p/>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>close()</code> are undefined.
-     * <p/>
      * <p>Overrides of this method should always call <code>super.close();</code> after disposing this instance.
      *
      * @throws IOException if an I/O error occurs
@@ -113,10 +111,8 @@ public class ProductFlipper extends AbstractProductBuilder {
     /**
      * Reads raster data from the data source specified by the given destination band into the given in-memory buffer
      * and region.
-     * <p/>
      * <p>For a complete description, please refer to the {@link ProductReader#readBandRasterData(org.esa.snap.framework.datamodel.Band, int, int, int, int, org.esa.snap.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)}  interface definition}
      * of this method.
-     * <p/>
      * <p>The <code>AbstractProductReader</code> implements this method using the <i>Template Method</i> pattern. The
      * template method in this case is the abstract method to which the call is delegated after an optional spatial
      * subset given by {@link #getSubsetDef()} has been applied to the input parameters.
@@ -216,7 +212,6 @@ public class ProductFlipper extends AbstractProductBuilder {
     /**
      * The template method which is called by the <code>readBandRasterDataSubSampling</code> method after an optional
      * spatial subset has been applied to the input parameters.
-     * <p/>
      * <p>The destination band, buffer and region parameters are exactly the ones passed to the original
      * <code>readBandRasterDataSubSampling</code> call. Since the <code>destOffsetX</code> and <code>destOffsetY</code>
      * parameters are already taken into acount in the <code>sourceOffsetX</code> and <code>sourceOffsetY</code>

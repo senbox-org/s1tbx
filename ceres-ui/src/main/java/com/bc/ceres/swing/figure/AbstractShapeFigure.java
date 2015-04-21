@@ -36,7 +36,7 @@ import java.util.Arrays;
 
 /**
  * A figure that is based on a Java AWT shape geometry.
- * <p/>
+ * <p>
  * Sub-classes have to provide the actual shape (lines or areas) in model coordinates.
  *
  * @author Norman Fomferra

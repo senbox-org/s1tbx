@@ -88,7 +88,6 @@ public class DateTimeUtils {
 
     /**
      * Converts a julian day (JD) to a UTC date/time value.
-     * <p/>
      * <p><i>Important note:</i> Due to the limitations of {@link java.util.Date java.util.Date} this method does not
      * take leap seconds into account.
      *
@@ -103,7 +102,6 @@ public class DateTimeUtils {
 
     /**
      * Converts a UTC date/time value to a julian day (JD).
-     * <p/>
      * <p><i>Important note:</i> Due to the limitations of {@link java.util.Date java.util.Date} this method does not
      * take leap seconds into account.
      *
@@ -119,7 +117,6 @@ public class DateTimeUtils {
     /**
      * Converts a UTC date/time value to a string. The method uses the ISO 8601 date/time format <code>YYYY-MM-DD
      * hh:mm:ss.S</code>
-     * <p/>
      * <p><i>Important note:</i> Due to the limitations of {@link java.util.Date java.util.Date} this method does not
      * take leap seconds into account.
      *
@@ -134,7 +131,6 @@ public class DateTimeUtils {
     /**
      * Converts a UTC date/time string to a UTC date/time value. The method uses the ISO 8601 date/time format
      * <code>YYYY-MM-DD hh:mm:ss.S</code>
-     * <p/>
      * <p><i>Important note:</i> Due to the limitations of {@link java.util.Date java.util.Date} this method does not
      * take leap seconds into account.
      *

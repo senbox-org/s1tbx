@@ -44,13 +44,11 @@ import java.util.WeakHashMap;
 
 /**
  * A class implementing a caching mechanism for image tiles.
- * <p/>
  * <p> <code>TileCache</code> provides a mechanism by which an
  * <code>OpImage</code> may cache its computed tiles.  There may be
  * multiple <code>TileCache</code>s used in an application up to the
  * point of having a different <code>TileCache</code> for each
  * <code>OpImage</code>.
- * <p/>
  * <p> The <code>TileCache</code> used for a particular <code>OpImage</code>
  * is derived from the <code>RenderingHints</code> assigned to the
  * associated imaging chain node.  If the node is constructed using
@@ -58,7 +56,6 @@ import java.util.WeakHashMap;
  * in the <code>RenderingHints</code> parameter, then one is derived
  * from the <code>RenderingHints</code> associated with the instance of the
  * <code>JAI</code> class being used.
- * <p/>
  * <p> In the Sun reference implementation, the cache size is limited by
  * the memory capacity, which is set to a default value at construction
  * or subsequently using the <code>setMemoryCapacity()</code> method.

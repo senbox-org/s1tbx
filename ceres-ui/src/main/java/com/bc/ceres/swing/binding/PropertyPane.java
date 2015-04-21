@@ -31,12 +31,10 @@ import static com.bc.ceres.swing.TableLayout.*;
 /**
  * A utility class used to create a {@link JPanel} containing default Swing components and their corresponding bindings for the
  * {@link com.bc.ceres.binding.PropertyContainer} given by the {@link com.bc.ceres.swing.binding.BindingContext}.
- * <p/>
  * <p>If the {@code displayName} property of the binding's {@link com.bc.ceres.binding.PropertySet PropertySet}
- * is set, it will be used as label, otherwise a label is derived from the {@code name} property.</p>
- * <p/>
+ * is set, it will be used as label, otherwise a label is derived from the {@code name} property.
  * <p>Properties, whose attribute "enabled" is set to {@code false}, will be shown in disabled state.
- * Properties, whose attribute "visible" is set to {@code false}, will not be shown at all.</p>
+ * Properties, whose attribute "visible" is set to {@code false}, will not be shown at all.
  */
 public class PropertyPane {
 

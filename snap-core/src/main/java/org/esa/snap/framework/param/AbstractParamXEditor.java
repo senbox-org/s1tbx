@@ -83,7 +83,6 @@ public abstract class AbstractParamXEditor extends AbstractParamEditor {
 
     /**
      * Tells the UI to update it's state.
-     * <p/>
      * <p>Note: If you override this method, please call the super class version first.
      */
     @Override

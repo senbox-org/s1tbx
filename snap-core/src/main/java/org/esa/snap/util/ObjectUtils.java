@@ -19,7 +19,6 @@ import java.util.Arrays;
 
 /**
  * This utility class provides several useful <code>Object</code>-related methods.
- * <p/>
  * <p> All functions have been implemented with extreme caution in order to provide a maximum performance.
  *
  * @author Norman Fomferra
@@ -29,13 +28,10 @@ public final class ObjectUtils {
 
     /**
      * Indicates whether the given objects are "equal to" each other.
-     * <p/>
      * <p> This method should be used in place of the <code>Object.equals</code> if one ore both arguments can be
      * <code>null</code>.
-     * <p/>
      * <p> If both objects are arrays of the same primitive types the comparision is delegated to the corresponding
      * <code>java.util.Arrays.equals</code> method.
-     * <p/>
      * <p> If both objects are object arrays with equal lengths, the method is recursively called for each array element
      * pair. If the first pair is not equal, the method immediately returns <code>false</code>.
      *
