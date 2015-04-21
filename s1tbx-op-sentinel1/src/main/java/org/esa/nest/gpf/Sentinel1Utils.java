@@ -290,6 +290,8 @@ public final class Sentinel1Utils {
         subSwath.burstLastValidLineTime = new double[subSwath.numOfBursts];
         subSwath.firstValidSample = new int[subSwath.numOfBursts][];
         subSwath.lastValidSample = new int[subSwath.numOfBursts][];
+        subSwath.firstValidLine = new int[subSwath.numOfBursts];
+        subSwath.lastValidLine = new int[subSwath.numOfBursts];
 
         subSwath.firstValidPixel = 0;
         subSwath.lastValidPixel = subSwath.numOfSamples;
@@ -315,9 +317,11 @@ public final class Sentinel1Utils {
                 int firstValidLineIdx = -1;
                 int lastValidLineIdx = -1;
                 for (int lineIdx = 0; lineIdx < subSwath.firstValidSample[k].length; lineIdx++) {
-                    if (subSwath.firstValidSample[k][lineIdx] != -1 &&
-                            subSwath.firstValidSample[k][lineIdx] < firstValidPixel) {
-                        firstValidPixel = subSwath.firstValidSample[k][lineIdx];
+                    if (subSwath.firstValidSample[k][lineIdx] != -1) {
+
+                        if (subSwath.firstValidSample[k][lineIdx] < firstValidPixel) {
+                            firstValidPixel = subSwath.firstValidSample[k][lineIdx];
+                        }
 
                         if (firstValidLineIdx == -1) {
                             firstValidLineIdx = lineIdx;
@@ -340,6 +344,9 @@ public final class Sentinel1Utils {
 
                 subSwath.burstLastValidLineTime[k] = subSwath.burstFirstLineTime[k] +
                         lastValidLineIdx * subSwath.azimuthTimeInterval;
+
+                subSwath.firstValidLine[k] = firstValidLineIdx;
+                subSwath.lastValidLine[k] = lastValidLineIdx;
 
                 k++;
             }
@@ -606,6 +613,7 @@ public final class Sentinel1Utils {
             final double azTime = (subSwath[s].firstLineTime + subSwath[s].lastLineTime)/2.0;
             subSwath[s].dopplerRate = new double[subSwath[s].numOfBursts][subSwath[s].samplesPerBurst];
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
+                //final double azTime = (subSwath[s].burstFirstLineTime[b] + subSwath[s].burstLastLineTime[b])/2.0;
                 final double v = orbit.getVelocity(azTime/Constants.secondsInDay); // DLR: 7594.0232
                 final double steeringRate = subSwath[s].azimuthSteeringRate * Constants.DTOR;
                 final double krot = 2*v*steeringRate/waveLength; // doppler rate by antenna steering
@@ -635,8 +643,9 @@ public final class Sentinel1Utils {
             final double tmp1 = subSwath[s].linesPerBurst * subSwath[s].azimuthTimeInterval / 2.0;
 
             for (int b = 0; b < subSwath[s].numOfBursts; b++) {
-                final double tmp2 = tmp1 + subSwath[s].dopplerCentroid[b][subSwath[s].firstValidPixel] /
-                        subSwath[s].rangeDependDopplerRate[b][subSwath[s].firstValidPixel];
+                final int firstValidSample = subSwath[s].firstValidSample[b][subSwath[s].firstValidLine[b]];
+                final double tmp2 = tmp1 + subSwath[s].dopplerCentroid[b][firstValidSample] /
+                        subSwath[s].rangeDependDopplerRate[b][firstValidSample];
 
                 for (int x = 0; x < subSwath[s].samplesPerBurst; x++) {
                     subSwath[s].referenceTime[b][x] = tmp2 -
@@ -1324,6 +1333,8 @@ public final class Sentinel1Utils {
         public double[] burstLastValidLineTime;
         public int[][] firstValidSample;
         public int[][] lastValidSample;
+        public int[] firstValidLine;
+        public int[] lastValidLine;
         public double[][] rangeDependDopplerRate;
         public double[][] dopplerRate;
         public double[][] referenceTime;
