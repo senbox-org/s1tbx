@@ -20,9 +20,9 @@ import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.framework.ui.layer.LayerSourceAssistantPane;
 import org.esa.snap.framework.ui.layer.LayerSourceDescriptor;
 import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.layermanager.layersrc.SelectLayerSourceAssistantPage;
 import org.esa.snap.visat.VisatApp;
 import org.esa.snap.visat.actions.AbstractVisatAction;
-import org.esa.snap.visat.toolviews.layermanager.layersrc.SelectLayerSourceAssistantPage;
 
 /**
  * This action opens a vector dataset
@@ -36,8 +36,7 @@ public class OpenVectorAction extends AbstractVisatAction {
     public void actionPerformed(final CommandEvent event) {
 
         final LayerSourceAssistantPane pane = new LayerSourceAssistantPane(VisatApp.getApp().getApplicationWindow(),
-                "Add Layer",
-                getAppContext());
+                "Add Layer");
         final LayerSourceDescriptor[] layerSourceDescriptors = BeamUiActivator.getInstance().getLayerSources();
         pane.show(new SelectLayerSourceAssistantPage(layerSourceDescriptors));
     }
