@@ -257,7 +257,7 @@ public final class SliceAssemblyOp extends Operator {
             //System.out.println("Check slant range time for " + e.getName() + " " + sss + " = " + slantRangeTime);
             for (int i = 1; i < sliceProducts.length; i++) {
                 double srt = getSlantRangeTime(sliceProducts[i], swathID);
-                if (slantRangeTime - srt > 1e-12) {
+                if (Math.abs(slantRangeTime - srt) > 1e-12) {
                      throw new OperatorException("Slant range time don't agree: " + i + " " + swathID);
                 }
             }
@@ -500,7 +500,7 @@ public final class SliceAssemblyOp extends Operator {
             createLatLonTiePointGridsForSLC();
         }
 
-        //targetProduct.setPreferredTileSize(targetWidth, 10);
+        //targetProduct.setPreferredTileSize(targetWidth, 1);
     }
 
     private Term createTerm(final String expression, final Product[] availableProducts) {
@@ -1305,7 +1305,7 @@ public final class SliceAssemblyOp extends Operator {
 
                 final int sliceLinesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("linesPerBurst"));
                 if (sliceLinesPerBurst != linesPerBurst) {
-                    throw new OperatorException("slice " + i + " has different linesPerBurst " + sliceLinesPerBurst + " " + linesPerBurst);
+                    throw new OperatorException("slice " + i + " has different linesPerBurst " + sliceLinesPerBurst + " vs. " + linesPerBurst);
                 }
                 final int sliceSamplesPerBurst = Integer.parseInt(sliceSwathTiming.getAttributeString("samplesPerBurst"));
                 //System.out.println("sliceSamplesPerBurst = " + sliceSamplesPerBurst + " samplesPerBurst = " + samplesPerBurst);
@@ -1340,6 +1340,71 @@ public final class SliceAssemblyOp extends Operator {
 
             targetSwathTiming.setAttributeString("samplesPerBurst", Integer.toString(samplesPerBurst));
             targetBurstList.setAttributeString("count", Integer.toString(count));
+        }
+    }
+
+    private void updateGeolocationGrid() {
+
+        final MetadataElement targetOrigProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
+        MetadataElement[] elements = getElementsToUpdate(targetOrigProdRoot, "annotation");
+
+        for (MetadataElement e : elements) {
+
+            final String imageNum = extractImageNumber(e.getName());
+            MetadataElement targetGeolocationGrid = e.getElement("product").getElement("geolocationGrid");
+            MetadataElement targetGeolocationGridPointList = targetGeolocationGrid.getElement("geolocationGridPointList");
+            int count = Integer.parseInt(targetGeolocationGridPointList.getAttributeString("count"));
+            int numberOfLines = 0;
+            for (int i = 1; i < sliceProducts.length; i++) {
+
+                MetadataElement sliceImageAnnotation = getAnnotationElement(sliceProducts[i], imageNum, "imageAnnotation");
+                MetadataElement sliceImageInformation = sliceImageAnnotation.getElement("imageInformation");
+                numberOfLines += Integer.parseInt(sliceImageInformation.getAttributeString("numberOfLines"));
+                MetadataElement sliceGeolocationGrid = getAnnotationElement(sliceProducts[i], imageNum, "geolocationGrid");
+                MetadataElement sliceGeolocationGridPointList = sliceGeolocationGrid.getElement("geolocationGridPointList");
+                final int sliceCount = Integer.parseInt(sliceGeolocationGridPointList.getAttributeString("count"));
+                if (sliceCount < 1) {
+                    continue;
+                }
+
+                MetadataElement [] sliceGeolocationGridPoints = sliceGeolocationGridPointList.getElements();
+                for (MetadataElement p : sliceGeolocationGridPoints) {
+                    MetadataElement newP = p.createDeepClone();
+                    final long sliceLine = Long.parseLong(p.getAttributeString("line"));
+                    newP.setAttributeString("line", Long.toString(sliceLine + numberOfLines));
+                    targetGeolocationGridPointList.addElementAt(newP, count++);
+                }
+            }
+            targetGeolocationGridPointList.setAttributeString("count", Integer.toString(count));
+        }
+    }
+
+    private void updateDopplerCentroid() {
+
+        final MetadataElement targetOrigProdRoot = AbstractMetadata.getOriginalProductMetadata(targetProduct);
+        MetadataElement[] elements = getElementsToUpdate(targetOrigProdRoot, "annotation");
+
+        for (MetadataElement e : elements) {
+
+            final String imageNum = extractImageNumber(e.getName());
+            MetadataElement targetDopplerCentroid = e.getElement("product").getElement("dopplerCentroid");
+            MetadataElement targetDCEstimateList = targetDopplerCentroid.getElement("dcEstimateList");
+            int count = Integer.parseInt(targetDCEstimateList.getAttributeString("count"));
+            for (int i = 1; i < sliceProducts.length; i++) {
+
+                MetadataElement sliceDopplerCentroid = getAnnotationElement(sliceProducts[i], imageNum, "dopplerCentroid");
+                MetadataElement sliceDCEstimateList = sliceDopplerCentroid.getElement("dcEstimateList");
+                final int sliceCount = Integer.parseInt(sliceDCEstimateList.getAttributeString("count"));
+                if (sliceCount < 1) {
+                    continue;
+                }
+
+                MetadataElement [] sliceDCEstimates = sliceDCEstimateList.getElements();
+                for (MetadataElement dc : sliceDCEstimates) {
+                    targetDCEstimateList.addElementAt(dc.createDeepClone(), count++);
+                }
+            }
+            targetDCEstimateList.setAttributeString("count", Integer.toString(count));
         }
     }
 
@@ -1387,8 +1452,24 @@ public final class SliceAssemblyOp extends Operator {
         } else {
             // We assume that "orbs" are in chronological order
             final double lastTime = orbVectorList.get(orbVectorList.size()-1).time_mjd;
+            final double firstTime = orbs[0].time_mjd;
+            final double midTime = (lastTime + firstTime) / 2.0;
+            int firstVecToRemove = -1;
+            for (int i = 0; i < orbVectorList.size(); i++) {
+                if (orbVectorList.get(i).time_mjd > midTime) {
+                    firstVecToRemove = i;
+                    break;
+                }
+            }
+
+            if (firstVecToRemove != -1) {
+                for (int i = orbVectorList.size()-1; i >= firstVecToRemove; i--) {
+                    orbVectorList.remove(i);
+                }
+            }
+
             for (int i = 0; i < orbs.length; i++) {
-                if (orbs[i].time_mjd > lastTime) {
+                if (orbs[i].time_mjd > midTime) {
                     orbVectorList.add(orbs[i]);
                 }
             }
@@ -1474,6 +1555,10 @@ public final class SliceAssemblyOp extends Operator {
 
         updateSwathTiming();
 
+        updateGeolocationGrid();
+
+        updateDopplerCentroid();
+
         updateAzimuthFmRateList();
 
         //System.out.println("DONE updateTargetProductMetadata");
@@ -1513,6 +1598,9 @@ public final class SliceAssemblyOp extends Operator {
             final int maxY = ty0 + targetTileRectangle.height;
             final int maxX = tx0 + targetTileRectangle.width;
 
+            if(targetTileRectangle.width < 2)
+                return;
+
             final BandLines[] lines = bandLineMap.get(targetBand);
             final ProductData trgData = targetTile.getDataBuffer();
 
@@ -1543,14 +1631,18 @@ public final class SliceAssemblyOp extends Operator {
                 final int yy = y-line.start;
                 srcRect.setBounds(targetTileRectangle.x, yy, targetTileRectangle.width, 1);
 
-                final Tile sourceRaster = getSourceTile(line.band, srcRect);
-                final ProductData srcData = sourceRaster.getDataBuffer();
-                final TileIndex srcIndex = new TileIndex(sourceRaster);
-                trgIndex.calculateStride(y);
-                srcIndex.calculateStride(yy);
+                try {
+                    final Tile sourceRaster = getSourceTile(line.band, srcRect);
+                    final ProductData srcData = sourceRaster.getDataBuffer();
+                    final TileIndex srcIndex = new TileIndex(sourceRaster);
+                    trgIndex.calculateStride(y);
+                    srcIndex.calculateStride(yy);
 
-                for (int x = tx0; x < maxX; ++x) {
-                    trgData.setElemDoubleAt(trgIndex.getIndex(x), srcData.getElemDoubleAt(srcIndex.getIndex(x)));
+                    for (int x = tx0; x < maxX; ++x) {
+                        trgData.setElemDoubleAt(trgIndex.getIndex(x), srcData.getElemDoubleAt(srcIndex.getIndex(x)));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
 

@@ -6,24 +6,34 @@ import com.google.common.cache.LoadingCache;
 import org.esa.nest.dataio.imageio.ImageIOFile;
 
 import java.awt.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by lveci on 20/05/2014.
  */
 public class DataCache {
 
-    private static final long MAX_SIZE = 4000;
-
     private final LoadingCache<DataKey, Data> cache;
 
     public DataCache() {
-        cache = CacheBuilder.newBuilder().maximumSize(MAX_SIZE).build(new CacheLoader<DataKey, Data>() {
-                                                                          @Override
-                                                                          public Data load(DataKey key) throws Exception {
-                                                                              return new Data();
-                                                                          }
-                                                                      }
+        cache = CacheBuilder.newBuilder().maximumSize(3000).initialCapacity(1000)
+        .expireAfterAccess(5, TimeUnit.MINUTES)
+                //.recordStats()
+                .build(new CacheLoader<DataKey, Data>() {
+                           @Override
+                           public Data load(DataKey key) throws Exception {
+                               return new Data();
+                           }
+                       }
         );
+    }
+
+    public long size() {
+        return cache.size();
+    }
+
+    public String stats() {
+        return cache.stats().toString();
     }
 
     public Data get(DataKey key) {

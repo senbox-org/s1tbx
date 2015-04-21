@@ -52,9 +52,11 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
     private final JLabel externalDEMNoDataValueLabel = new JLabel("DEM No Data Value:");
     private static final String externalDEMStr = "External DEM";
     private Double extNoDataValue = 0.0;
-    private boolean maskOutAreaWithoutElevation = false;
-    private boolean outputRangeAzimuthOffset = false;
-    private boolean outputDerampDemodPhase = false;
+    private Boolean maskOutAreaWithoutElevation = false;
+    private Boolean outputRangeAzimuthOffset = false;
+    private Boolean outputDerampDemodPhase = false;
+
+    private final boolean includeOutputRangeAzimuthOffset = false;
 
     private final DialogUtils.TextAreaKeyListener textAreaKeyListener = new DialogUtils.TextAreaKeyListener();
 
@@ -131,11 +133,18 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
         resamplingType.setSelectedItem(paramMap.get("resamplingType"));
 
         maskOutAreaWithoutElevation = (Boolean)paramMap.get("maskOutAreaWithoutElevation");
+        outputRangeAzimuthOffset = (Boolean)paramMap.get("outputRangeAzimuthOffset");
         outputDerampDemodPhase = (Boolean)paramMap.get("outputDerampDemodPhase");
 
-        maskOutAreaWithoutElevationCheckBox.setSelected(maskOutAreaWithoutElevation);
-        outputRangeAzimuthOffsetCheckBox.setSelected(outputRangeAzimuthOffset);
-        outputDerampDemodPhaseCheckBox.setSelected(outputDerampDemodPhase);
+        if(maskOutAreaWithoutElevation != null) {
+            maskOutAreaWithoutElevationCheckBox.setSelected(maskOutAreaWithoutElevation);
+        }
+        if(outputRangeAzimuthOffset != null) {
+            outputRangeAzimuthOffsetCheckBox.setSelected(outputRangeAzimuthOffset);
+        }
+        if(outputDerampDemodPhase != null) {
+            outputDerampDemodPhaseCheckBox.setSelected(outputDerampDemodPhase);
+        }
     }
 
     @Override
@@ -183,8 +192,10 @@ public class BackGeocodingOpUI extends BaseOperatorUI {
         DialogUtils.addComponent(contentPane, gbc, "Resampling Type:", resamplingType);
         gbc.gridy++;
         contentPane.add(maskOutAreaWithoutElevationCheckBox, gbc);
-        gbc.gridy++;
-        contentPane.add(outputRangeAzimuthOffsetCheckBox, gbc);
+        if(includeOutputRangeAzimuthOffset) {
+            gbc.gridy++;
+            contentPane.add(outputRangeAzimuthOffsetCheckBox, gbc);
+        }
         gbc.gridy++;
         contentPane.add(outputDerampDemodPhaseCheckBox, gbc);
         gbc.gridy++;
