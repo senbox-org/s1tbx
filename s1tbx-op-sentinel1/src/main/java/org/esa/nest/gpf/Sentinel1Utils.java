@@ -352,6 +352,8 @@ public final class Sentinel1Utils {
             }
             subSwath.firstValidPixel = firstValidPixel;
             subSwath.lastValidPixel = lastValidPixel;
+            subSwath.firstValidLineTime = subSwath.burstFirstValidLineTime[0];
+            subSwath.lastValidLineTime = subSwath.burstLastValidLineTime[subSwath.numOfBursts - 1];
         }
 
         subSwath.slrTimeToFirstValidPixel = subSwath.slrTimeToFirstPixel +
@@ -1321,6 +1323,8 @@ public final class Sentinel1Utils {
         public int numOfSamples;
         public double firstLineTime;
         public double lastLineTime;
+        public double firstValidLineTime;
+        public double lastValidLineTime;
         public double slrTimeToFirstPixel;
         public double slrTimeToLastPixel;
         public double slrTimeToFirstValidPixel;
