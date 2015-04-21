@@ -96,6 +96,7 @@ public class FlatEarthWWToolView extends ToolTopComponent implements WWView {
     private AppPanel wwjPanel = null;
 
     private ProductLayer productLayer = null;
+    public Level2ProductLayer level2ProductLayer;
     private Position eyePosition = null;
     private ProductSceneView currentView;
     private ObservedViewportHandler observedViewportHandler;
@@ -163,6 +164,8 @@ public class FlatEarthWWToolView extends ToolTopComponent implements WWView {
                     productLayer.setPickEnabled(false);
                     productLayer.setName("Opened Products");
                     layerList.add(productLayer);
+
+                    level2ProductLayer = new Level2ProductLayer();
 
                     final Layer placeNameLayer = layerList.getLayerByName("Place Names");
                     placeNameLayer.setEnabled(true);
@@ -245,7 +248,12 @@ public class FlatEarthWWToolView extends ToolTopComponent implements WWView {
         if (productLayer != null) {
             for (Product prod : products) {
                 try {
-                    productLayer.addProduct(prod, false, getWwd());
+                    //if ((prod.getName().indexOf("S1A_S1_OCN_") >= 0 || prod.getName().indexOf("003197_05B7") >= 0)) {
+                    //    level2ProductLayer.addProduct(prod, getWwd());
+                    //}
+                    //else {
+                        productLayer.addProduct(prod, getWwd());
+                    //}
                 } catch (Exception e) {
                     datApp.handleError("WorldWind unable to add product " + prod.getName(), e);
                 }
@@ -259,7 +267,12 @@ public class FlatEarthWWToolView extends ToolTopComponent implements WWView {
     public void removeProduct(Product product) {
         if (getSelectedProduct() == product)
             setSelectedProduct(null);
-        if (productLayer != null)
+
+
+        if (level2ProductLayer != null && (product.getName().indexOf("S1A_S1_OCN_") >= 0 || product.getName().indexOf("003197_05B7") >= 0)) {
+            level2ProductLayer.removeProduct(product);
+        }
+        else if (productLayer != null)
             productLayer.removeProduct(product);
 
         if (isVisible()) {

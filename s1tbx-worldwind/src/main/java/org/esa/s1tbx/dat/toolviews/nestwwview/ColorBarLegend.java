@@ -29,10 +29,30 @@ import java.awt.image.BufferedImage;
  */
 public class ColorBarLegend extends gov.nasa.worldwindx.examples.analytics.AnalyticSurfaceLegend {
 
+    private double theMinValue;
+    private double theMaxValue;
+
     public ColorBarLegend() {
         super();
+
     }
 
+    public void setColorGradient(int width, int height, double minValue, double maxValue, double minHue, double maxHue,
+                                                   Color borderColor, Iterable<? extends LabelAttributes> labels, LabelAttributes titleLabel, boolean whiteZero)
+    {
+        System.out.println("setColorGradient " + minHue + " " + maxHue);
+
+        screenImage = new ScreenImage();
+        screenImage.setImageSource(createColorGradientLegendImage(width,
+                height, minHue, maxHue,
+                borderColor, whiteZero));
+        this.labels = createColorGradientLegendLabels(width,
+                height, minValue, maxValue, labels, titleLabel);
+
+        theMinValue = minValue;
+        theMaxValue = maxValue;
+    }
+    /*
     public static ColorBarLegend fromColorGradient(int width, int height, double minValue, double maxValue, double minHue, double maxHue,
                                                    Color borderColor, Iterable<? extends LabelAttributes> labels, LabelAttributes titleLabel, boolean whiteZero)
     {
@@ -47,7 +67,7 @@ public class ColorBarLegend extends gov.nasa.worldwindx.examples.analytics.Analy
 
         return legend;
     }
-
+    */
 
     protected BufferedImage createColorGradientLegendImage(int width, int
             height, double minHue, double maxHue, Color borderColor, boolean whiteZero)
@@ -93,4 +113,16 @@ public class ColorBarLegend extends gov.nasa.worldwindx.examples.analytics.Analy
         setScreenLocation(new Point ((int) x, (int) y));
         super.render(dc);
     }
+<<<<<<< HEAD:s1tbx-worldwind/src/main/java/org/esa/nest/dat/toolviews/nestwwview/ColorBarLegend.java
+
+    public double getMinValue() {
+       return theMinValue;
+    }
+
+    public double getMaxValue() {
+        return theMaxValue;
+    }
 }
+=======
+}
+>>>>>>> 4ae7dc0a4abc883fe388c9770991b1a520aa43e3:s1tbx-worldwind/src/main/java/org/esa/s1tbx/dat/toolviews/nestwwview/ColorBarLegend.java

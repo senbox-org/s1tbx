@@ -20,6 +20,7 @@ import gov.nasa.worldwind.util.BufferWrapper;
 import gov.nasa.worldwindx.examples.analytics.AnalyticSurface;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
 
@@ -32,16 +33,15 @@ public class ProductRenderablesInfo  {
     public BufferWrapper owiAnalyticSurfaceValueBuffer = null;
     public BufferWrapper rvlAnalyticSurfaceValueBuffer = null;
 
-    // NOTE: analytic surfaces are included in these lists:
-    public ArrayList<Renderable> owiRenderableList;
-    public ArrayList<Renderable> oswRenderableList;
-    public ArrayList<Renderable> rvlRenderableList;
 
+    public HashMap<String, ArrayList<Renderable>> theRenderableListHash;
     public ProductRenderablesInfo() {
         super();
-        owiRenderableList = new ArrayList<Renderable>();
-        oswRenderableList = new ArrayList<Renderable>();
-        rvlRenderableList = new ArrayList<Renderable>();
+
+        theRenderableListHash = new HashMap<String, ArrayList<Renderable>>();
+        theRenderableListHash.put("owi", new ArrayList<Renderable>());
+        theRenderableListHash.put("osw", new ArrayList<Renderable>());
+        theRenderableListHash.put("rvl", new ArrayList<Renderable>());
     }
 
     public void setAnalyticSurfaceAndBuffer (AnalyticSurface analyticSurface, BufferWrapper analyticSurfaceValueBuffer, String comp) {

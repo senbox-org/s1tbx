@@ -43,14 +43,26 @@ import gov.nasa.worldwind.view.orbit.BasicOrbitView;
 import gov.nasa.worldwind.wms.CapabilitiesRequest;
 import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
 import gov.nasa.worldwindx.examples.WMSLayersPanel;
+<<<<<<< HEAD:s1tbx-worldwind/src/main/java/org/esa/nest/dat/toolviews/nestwwview/NestWWToolView.java
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.ui.product.ProductSceneView;
+=======
 import gov.nasa.worldwindx.examples.util.DirectedPath;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.framework.ui.application.support.AbstractToolView;
 import org.esa.snap.framework.ui.product.ProductSceneView;
+>>>>>>> 4ae7dc0a4abc883fe388c9770991b1a520aa43e3:s1tbx-worldwind/src/main/java/org/esa/s1tbx/dat/toolviews/nestwwview/NestWWToolView.java
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.util.SelectionSupport;
+import org.esa.snap.rcp.windows.ToolTopComponent;
 import org.netbeans.api.annotations.common.NullAllowed;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.util.NbBundle;
+import org.openide.windows.TopComponent;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -91,12 +103,36 @@ import java.net.URISyntaxException;
 //import gov.nasa.worldwind.layers.Earth.OpenStreetMapLayer;
 // ADDED
 
+@TopComponent.Description(
+        preferredID = "WorldWind3DTopComponent",
+        //iconBase = "org/esa/snap/rcp/icons/xxx.gif",
+        persistenceType = TopComponent.PERSISTENCE_ALWAYS
+)
+@TopComponent.Registration(
+        mode = "navigator",
+        openAtStartup = true,
+        position = 3
+)
+@ActionID(category = "Window", id = "org.esa.nest.dat.toolviews.nestwwview.NestWWToolView")
+@ActionReferences({
+        @ActionReference(path = "Menu/Window/Tool Windows"),
+        @ActionReference(path = "Toolbars/Views")
+})
+@TopComponent.OpenActionRegistration(
+        displayName = "#CTL_WorldWind3DTopComponentName",
+        preferredID = "WorldWind3DTopComponent"
+)
+@NbBundle.Messages({
+        "CTL_WorldWind3DTopComponentName=WorldWind 3D View",
+        "CTL_WorldWind3DTopComponentDescription=WorldWind 3D World Map",
+})
+
 /**
  * The window displaying the world map.
  *
  * @version $Revision: 1.22 $ $Date: 2011-11-02 23:04:54 $
  */
-public class NestWWToolView extends AbstractToolView implements WWView {
+public class NestWWToolView extends ToolTopComponent implements WWView {
 
     //private static final String loadDEMCommand = "loadDEM";
     //private static final ImageIcon loadDEMIcon = ResourceUtils.LoadIcon("org/esa/snap/icons/dem24.gif");
@@ -107,10 +143,11 @@ public class NestWWToolView extends AbstractToolView implements WWView {
     private LayerPanel layerPanel = null;
     private ProductPanel productPanel = null;
 
-    private JSlider opacitySlider = null;
-    //private JLabel theSelectedObjectLabel = null;
-    private ProductLayer productLayer = null;
+    //private JSlider opacitySlider = null;
 
+    private ProductLayer productLayer = null;
+    public Level2ProductLayer level2ProductLayer;
+    
     private final Dimension wmsPanelSize = new Dimension(400, 600);
 
     private final JTabbedPane tabbedPane = new JTabbedPane();
@@ -121,10 +158,7 @@ public class NestWWToolView extends AbstractToolView implements WWView {
     private static final boolean includeProductPanel = true;
     private static final boolean includeWMSPanel = false;
 
-    private DirectedPath theLastSelectedDP = null;
 
-    private boolean theOWILimitChanged = false;
-    private boolean theRVLLimitChanged = false;
 
     private static final String[] servers = new String[]
             {
@@ -135,17 +169,22 @@ public class NestWWToolView extends AbstractToolView implements WWView {
             };
 
     public NestWWToolView() {
+        setDisplayName("WorldWind");
+        setLayout(new BorderLayout(4, 4));
+        setBorder(new EmptyBorder(4, 4, 4, 4));
+        add(createControl(), BorderLayout.CENTER);
+        //SnapApp.getDefault().getSelectionSupport(ProductSceneView.class).addHandler((oldValue, newValue) -> setCurrentView(newValue));
     }
 
-    @Override
     public JComponent createControl() {
 
         productLayer = new ProductLayer(true);
+        level2ProductLayer = new Level2ProductLayer();
         // ADDED
         //productLayer.setMinActiveAltitude(3e6);
         //productLayer.setMaxActiveAltitude(4e6);
 
-        final Window windowPane = getPaneWindow();
+        final Window windowPane = SwingUtilities.getWindowAncestor(this);
         if (windowPane != null)
             windowPane.setSize(800, 400);
         final JPanel mainPane = new JPanel(new BorderLayout(4, 4));
@@ -203,60 +242,13 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         //productLayer.setPickEnabled(false);
         productLayer.setName("Opened Products");
 
-        // ADDED
-        // testLayer will react to selectListener which is added later
-        // anything added to product layer doesn't seem to react to select listener
-        /*
-        RenderableLayer testLayer = new RenderableLayer();
-
-
-        Polyline pLine = new Polyline();
-        pLine.setLineWidth(10);
-        pLine.setFollowTerrain(true);
-
-        java.util.List<Position> positions = new ArrayList<Position>();
-        positions.add(new Position(Angle.fromDegreesLatitude(10.0),
-                Angle.fromDegreesLongitude(10.0), 0.0));
-        positions.add(new Position(Angle.fromDegreesLatitude(10.0),
-                Angle.fromDegreesLongitude(20.0), 0.0));
-        positions.add(new Position(Angle.fromDegreesLatitude(20.0),
-                Angle.fromDegreesLongitude(20.0), 0.0));
-        positions.add(new Position(Angle.fromDegreesLatitude(20.0),
-                Angle.fromDegreesLongitude(10.0), 0.0));
-        positions.add(new Position(Angle.fromDegreesLatitude(10.0),
-                Angle.fromDegreesLongitude(10.0), 0.0));
-        pLine.setPositions(positions);
-
-
-        testLayer.addRenderable(pLine);
-
-        AnnotationAttributes controlPointsAttributes = new AnnotationAttributes();
-        // Define an 8x8 square centered on the screen point
-        controlPointsAttributes.setFrameShape(AVKey.SHAPE_RECTANGLE);
-        controlPointsAttributes.setLeader(AVKey.SHAPE_NONE);
-        controlPointsAttributes.setAdjustWidthToText(AVKey.SIZE_FIXED);
-        controlPointsAttributes.setSize(new Dimension(12, 12));
-        controlPointsAttributes.setDrawOffset(new Point(0, -4));
-        controlPointsAttributes.setInsets(new Insets(0, 0, 0, 0));
-        controlPointsAttributes.setBorderWidth(0);
-        controlPointsAttributes.setCornerRadius(0);
-        controlPointsAttributes.setBackgroundColor(Color.BLUE);    // Normal color
-        controlPointsAttributes.setTextColor(Color.GREEN);         // Highlighted color
-        controlPointsAttributes.setHighlightScale(1.2);
-        controlPointsAttributes.setDistanceMaxScale(1);            // No distance scaling
-        controlPointsAttributes.setDistanceMinScale(1);
-        controlPointsAttributes.setDistanceMinOpacity(1);
-
-        Position pos = new Position(Angle.fromDegreesLatitude(10.0),
-                Angle.fromDegreesLongitude(10.0), 0.0);
-        GlobeAnnotation currControlPoint = new GlobeAnnotation("Test Point", pos, controlPointsAttributes);
-        testLayer.addRenderable(currControlPoint);
-
-        getWwd().getModel().getLayers().add(testLayer);
-        */
-        // ADDED: end
+        level2ProductLayer.setOpacity(0.8);
+        // CHANGED: otherwise the objects in the product layer won't react to the select listener
+        //productLayer.setPickEnabled(false);
+        level2ProductLayer.setName("Level 2 Products");
 
         insertTiledLayer(getWwd(), productLayer);
+        insertTiledLayer(getWwd(), level2ProductLayer);
 
         // Add an internal frame listener to VISAT so that we can update our
         // world map window with the information of the currently activated  product scene view.
@@ -360,34 +352,12 @@ public class NestWWToolView extends AbstractToolView implements WWView {
                 {
                     //System.out.println(event.getTopObject());
                     //System.out.println(event.getEventAction());
-                    if (event.getEventAction().equals(SelectEvent.ROLLOVER) && (event.getTopObject() instanceof DirectedPath)) {
-                        System.out.println("click " + event.getTopObject());
+                    level2ProductLayer.updateInfoAnnotation(event);
 
-                        System.out.println("DirectedPath:::");
-                        DirectedPath dp = (DirectedPath) event.getTopObject();
-                        //dp.getAttributes().setOutlineMaterial(Material.WHITE);
-                        dp.setHighlighted(true);
-                        //dp.setAttributes(productLayer.dpHighlightAttrs);
-                        //theSelectedObjectLabel.setText("" + productLayer.theObjectInfoHash.get(dp));
-
-                        productLayer.infoAnnotation.setText(productLayer.theObjectInfoHash.get(dp));
-                        productLayer.infoAnnotation.getAttributes().setVisible(true);
-                        theLastSelectedDP = dp;
-                        //System.out.println("selectedProduct " + getSelectedProduct());
-                        //final ExecCommand command = datApp.getCommandManager().getExecCommand("showPolarWaveView");
-                        //command.execute(2);
-                    }
-                    else {
-
-                        if (theLastSelectedDP != null) {
-                            theLastSelectedDP.setHighlighted(false);
-
-                        }
-                        productLayer.infoAnnotation.getAttributes().setVisible(false);
-                        //theSelectedObjectLabel.setText("");
-                    }
                 }
             });
+            //level2ProductLayer.createColorBarLegend(0, 10, false, "OWI Wind Speed", "owi");
+            //level2ProductLayer.createColorBarLegend(0, 10, true, "RVL Rad. Vel.", "rvl");
 
 
         } catch (Throwable e) {
@@ -399,7 +369,10 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         // CHANGED
         //final JPanel controlPanel = new JPanel(new GridLayout(0, 1, 5, 5));
         //final JPanel mainControlPanel = new JPanel(new GridLayout(2, 1, 5, 5));
-        final JPanel controlPanel = new JPanel(new GridLayout(6, 1, 5, 5));
+        final JPanel controlPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+
+        // THIS CODE WAS MOVED TO ProductLayer.getControlPanel
+        /*
         opacitySlider = new JSlider();
         opacitySlider.setMaximum(100);
         opacitySlider.setValue((int) (productLayer.getOpacity() * 100));
@@ -417,151 +390,15 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         final JPanel opacityPanel = new JPanel(new BorderLayout(5, 5));
         opacityPanel.add(new JLabel("Opacity"), BorderLayout.WEST);
         opacityPanel.add(this.opacitySlider, BorderLayout.CENTER);
+        */
 
+        JPanel opacityPanel = productLayer.getControlPanel(getWwd());
         controlPanel.add(opacityPanel);
 
         // ADDED
+        JPanel controlLevel2Panel = level2ProductLayer.getControlPanel(getWwd());
 
-        JRadioButton owiBtn = new JRadioButton("OWI");
-        owiBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                System.out.println("owi:");
-                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "owi", true);
-                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "osw", false);
-                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "rvl", false);
-
-
-            }
-        });
-
-
-        JRadioButton oswBtn = new JRadioButton("OSW");
-        oswBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                System.out.println("osw:");
-                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "owi", false);
-                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "osw", true);
-                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "rvl", false);
-
-            }
-        });
-
-
-        JRadioButton rvlBtn = new JRadioButton("RVL");
-        rvlBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                System.out.println("rvl:");
-                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "owi", false);
-                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "osw", false);
-                productLayer.setComponentVisible(productLayer.colorBarLegendProduct, "rvl", true);
-
-            }
-        });
-
-
-        ButtonGroup group = new ButtonGroup();
-        group.add(owiBtn);
-        group.add(oswBtn);
-        group.add(rvlBtn);
-        owiBtn.setSelected(true);
-
-        JPanel componentTypePanel = new JPanel(new GridLayout(1, 4, 5, 5));
-        componentTypePanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-        componentTypePanel.add(new JLabel("Component:"));
-        componentTypePanel.add(owiBtn);
-        componentTypePanel.add(oswBtn);
-        componentTypePanel.add(rvlBtn);
-        controlPanel.add(componentTypePanel);
-
-
-        JPanel maxPanel = new JPanel(new GridLayout(1, 2, 5, 5));
-        maxPanel.add(new JLabel("Max OWI Wind Speed:"));
-
-
-        JSpinner maxSP = new JSpinner(new SpinnerNumberModel(10, 0, 10, 1));
-        maxSP.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                int newValue = (Integer) ((JSpinner) e.getSource()).getValue();
-
-                theOWILimitChanged = true;
-            }
-        });
-        maxPanel.add(maxSP);
-        controlPanel.add(maxPanel);
-
-        JPanel minPanel = new JPanel(new GridLayout(1, 2, 5, 5));
-        minPanel.add(new JLabel("Min OWI Wind Speed:"));
-
-        JSpinner minSP = new JSpinner(new SpinnerNumberModel(0, 0, 10, 1));
-        minSP.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                System.out.println("new value " + ((JSpinner) e.getSource()).getValue());
-
-                theOWILimitChanged = true;
-            }
-        });
-        minPanel.add(minSP);
-        controlPanel.add(minPanel);
-
-        JPanel maxRVLPanel = new JPanel(new GridLayout(1, 2, 5, 5));
-        maxRVLPanel.add(new JLabel("Max RVL Rad Vel.:"));
-
-
-        JSpinner maxRVLSP = new JSpinner(new SpinnerNumberModel(6, 0, 10, 1));
-        maxRVLSP.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                int newValue = (Integer) ((JSpinner) e.getSource()).getValue();
-                theRVLLimitChanged = true;
-            }
-        });
-        maxRVLPanel.add(maxRVLSP);
-        controlPanel.add(maxRVLPanel);
-
-        JButton updateButton = new JButton("Update");
-        updateButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-
-                if (theOWILimitChanged && productLayer.owiColorBarLegend != null) {
-
-                    //double minValue = ((Integer) minSP.getValue()) * 1.0e4;
-                    //double maxValue = ((Integer) maxSP.getValue()) * 1.0e4;
-                    double minValue = ((Integer) minSP.getValue());
-                    double maxValue = ((Integer) maxSP.getValue());
-
-                    productLayer.removeRenderable(productLayer.owiColorBarLegend);
-                    productLayer.createColorBarLegend(minValue, maxValue, productLayer.theCurrMinHue, productLayer.theCurrMaxHue, false, "OWI Wind Speed", "owi");
-                    productLayer.addRenderable(productLayer.owiColorBarLegend);
-
-                    productLayer.createColorGradient(minValue, maxValue, productLayer.theCurrMinHue, productLayer.theCurrMaxHue, false, productLayer.theProductRenderablesInfoHash.get(productLayer.colorBarLegendProduct), "owi");
-                    getWwd().redrawNow();
-                }
-                if (theRVLLimitChanged && productLayer.rvlColorBarLegend != null) {
-                    System.out.println("theRVLLimitChanged");
-
-                    //double minValue = ((Integer) minSP.getValue()) * 1.0e4;
-                    //double maxValue = ((Integer) maxSP.getValue()) * 1.0e4;
-
-                    double maxValue = ((Integer) maxRVLSP.getValue());
-                    double minValue = -1*maxValue;
-
-                    productLayer.removeRenderable(productLayer.rvlColorBarLegend);
-                    productLayer.createColorBarLegend(minValue, maxValue, productLayer.theCurrMinHue, productLayer.theCurrMaxHue, true, "RVL Rad. Vel.", "rvl");
-                    productLayer.addRenderable(productLayer.rvlColorBarLegend);
-
-                    productLayer.createColorGradient(minValue, maxValue, productLayer.theCurrMinHue, productLayer.theCurrMaxHue, true, productLayer.theProductRenderablesInfoHash.get(productLayer.colorBarLegendProduct), "rvl");
-                    getWwd().redrawNow();
-                }
-
-
-                theOWILimitChanged = false;
-                theRVLLimitChanged = false;
-            }
-        });
-        controlPanel.add(updateButton);
-
+        controlPanel.add(controlLevel2Panel);
         //mainControlPanel.add(controlPanel);
         //mainControlPanel.add(makeRVLPanel ());
         //controlPanel.add(makeRVLPanel ());
@@ -572,43 +409,6 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         return controlPanel;
     }
 
-    // ADDED
-    /*
-    private JPanel makeRVLPanel () {
-        //final JPanel rvlPanel = new JPanel(new GridLayout(1, 3, 5, 5));
-
-
-        JPanel maxRVLPanel = new JPanel(new GridLayout(1, 2, 5, 5));
-        maxRVLPanel.add(new JLabel("Max RVL Rad Vel.:"));
-
-
-        JSpinner maxRVLSP = new JSpinner(new SpinnerNumberModel(10, 0, 10, 1));
-        maxRVLSP.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                int newValue = (Integer) ((JSpinner) e.getSource()).getValue();
-            }
-        });
-        maxRVLPanel.add(maxRVLSP);
-        //rvlPanel.add(maxPanel);
-
-
-        JButton newButton = new JButton("Update");
-        newButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-
-            }
-        });
-        maxPanel.add(newButton);
-
-        //controlPanel.add(theSelectedObjectLabel);
-        maxPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
-
-        return maxPanel;
-    }
-    */
 
     private void LoadDEM() {
 
@@ -637,7 +437,12 @@ public class NestWWToolView extends AbstractToolView implements WWView {
         if (productLayer != null) {
             for (Product prod : products) {
                 try {
-                    productLayer.addProduct(prod, true, getWwd());
+                    if (level2ProductLayer != null && (prod.getName().indexOf("S1A_S1_OCN_") >= 0 || prod.getName().indexOf("003197_05B7") >= 0)) {
+                        level2ProductLayer.addProduct(prod, getWwd());
+                    }
+                    else {
+                        productLayer.addProduct(prod, getWwd());
+                    }
                 } catch (Exception e) {
                     SnapApp.getDefault().handleError("WorldWind unable to add product " + prod.getName(), e);
                 }
@@ -653,8 +458,12 @@ public class NestWWToolView extends AbstractToolView implements WWView {
     public void removeProduct(Product product) {
         if (getSelectedProduct() == product)
             setSelectedProduct(null);
-        if (productLayer != null)
+        if (level2ProductLayer != null && (product.getName().indexOf("S1A_S1_OCN_") >= 0 || product.getName().indexOf("003197_05B7") >= 0)) {
+            level2ProductLayer.removeProduct(product);
+        }
+        else if (productLayer != null) {
             productLayer.removeProduct(product);
+        }
         if (productPanel != null)
             productPanel.update(getWwd());
 
