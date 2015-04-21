@@ -13,31 +13,15 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dat.toolviews.nestwwview;
+package org.esa.s1tbx.dat.toolviews.worldwind;
 
-import gov.nasa.worldwind.WorldWind;
-import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.geom.Angle;
-import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
 import gov.nasa.worldwind.layers.RenderableLayer;
-import gov.nasa.worldwind.render.BasicShapeAttributes;
-import gov.nasa.worldwind.render.DrawContext;
-import gov.nasa.worldwind.render.Material;
-import gov.nasa.worldwind.render.Path;
 import gov.nasa.worldwind.render.Polyline;
-import gov.nasa.worldwind.render.Renderable;
-import gov.nasa.worldwind.render.ScreenAnnotation;
-import gov.nasa.worldwind.render.ShapeAttributes;
 import gov.nasa.worldwind.render.SurfaceImage;
-import gov.nasa.worldwind.util.BufferFactory;
-import gov.nasa.worldwind.util.BufferWrapper;
-import gov.nasa.worldwind.util.WWMath;
-import gov.nasa.worldwindx.examples.analytics.AnalyticSurface;
-import gov.nasa.worldwindx.examples.analytics.AnalyticSurfaceAttributes;
-import gov.nasa.worldwindx.examples.util.DirectedPath;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
@@ -53,24 +37,14 @@ import org.esa.snap.framework.gpf.GPF;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.ProductUtils;
 
-<<<<<<< HEAD:s1tbx-worldwind/src/main/java/org/esa/nest/dat/toolviews/nestwwview/ProductLayer.java
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-=======
-import javax.swing.SwingWorker;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Insets;
-import java.awt.Point;
->>>>>>> 4ae7dc0a4abc883fe388c9770991b1a520aa43e3:s1tbx-worldwind/src/main/java/org/esa/s1tbx/dat/toolviews/nestwwview/ProductLayer.java
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.Format;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -382,7 +356,6 @@ public class ProductLayer extends RenderableLayer implements ProductRenderer {
 
         return productSubset;
     }
-<<<<<<< HEAD:s1tbx-worldwind/src/main/java/org/esa/nest/dat/toolviews/nestwwview/ProductLayer.java
 
     public JPanel getControlPanel (WorldWindowGLCanvas wwd) {
         JSlider opacitySlider = new JSlider();
@@ -405,6 +378,4 @@ public class ProductLayer extends RenderableLayer implements ProductRenderer {
         return opacityPanel;
     }
 }
-=======
-}
->>>>>>> 4ae7dc0a4abc883fe388c9770991b1a520aa43e3:s1tbx-worldwind/src/main/java/org/esa/s1tbx/dat/toolviews/nestwwview/ProductLayer.java
+

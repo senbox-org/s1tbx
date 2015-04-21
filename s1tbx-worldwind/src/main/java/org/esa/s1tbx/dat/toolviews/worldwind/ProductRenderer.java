@@ -13,20 +13,22 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dat.toolviews.nestwwview;
+package org.esa.s1tbx.dat.toolviews.worldwind;
 
-import gov.nasa.worldwind.util.StatusBar;
+import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
+import org.esa.snap.framework.datamodel.Product;
+
+import javax.swing.*;
 
 /**
- * NEST
- * User: lveci
- * Date: Apr 9, 2009
+
  */
-class MinimalStatusBar extends StatusBar {
+public interface ProductRenderer {
 
-    MinimalStatusBar() {
-        super();
+    public void addProduct (Product product, WorldWindowGLCanvas wwd);
 
-        this.remove(altDisplay);
-    }
+    public void removeProduct(Product product);
+
+    public JPanel getControlPanel (WorldWindowGLCanvas wwd);
+
 }

@@ -1,4 +1,4 @@
-package org.esa.s1tbx.dat.toolviews.nestwwview;
+package org.esa.s1tbx.dat.toolviews.worldwind;
 
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductManager;

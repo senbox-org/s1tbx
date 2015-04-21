@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dat.toolviews.nestwwview;
+package org.esa.s1tbx.dat.toolviews.worldwind;
 
 import gov.nasa.worldwind.Configuration;
 import gov.nasa.worldwind.Model;
@@ -43,17 +43,9 @@ import gov.nasa.worldwind.view.orbit.BasicOrbitView;
 import gov.nasa.worldwind.wms.CapabilitiesRequest;
 import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
 import gov.nasa.worldwindx.examples.WMSLayersPanel;
-<<<<<<< HEAD:s1tbx-worldwind/src/main/java/org/esa/nest/dat/toolviews/nestwwview/NestWWToolView.java
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.ui.product.ProductSceneView;
-=======
-import gov.nasa.worldwindx.examples.util.DirectedPath;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductNode;
-import org.esa.snap.framework.ui.application.support.AbstractToolView;
 import org.esa.snap.framework.ui.product.ProductSceneView;
->>>>>>> 4ae7dc0a4abc883fe388c9770991b1a520aa43e3:s1tbx-worldwind/src/main/java/org/esa/s1tbx/dat/toolviews/nestwwview/NestWWToolView.java
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.util.SelectionSupport;
 import org.esa.snap.rcp.windows.ToolTopComponent;
@@ -66,18 +58,7 @@ import org.openide.windows.TopComponent;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JSlider;
-import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
-import javax.swing.SpinnerNumberModel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -86,13 +67,7 @@ import javax.swing.event.InternalFrameEvent;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;

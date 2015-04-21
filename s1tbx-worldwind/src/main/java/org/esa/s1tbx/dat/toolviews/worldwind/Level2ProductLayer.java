@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.nest.dat.toolviews.nestwwview;
+package org.esa.s1tbx.dat.toolviews.worldwind;
 
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.avlist.AVKey;
@@ -24,17 +24,23 @@ import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
 import gov.nasa.worldwind.layers.RenderableLayer;
-import gov.nasa.worldwind.render.*;
+import gov.nasa.worldwind.render.BasicShapeAttributes;
+import gov.nasa.worldwind.render.DrawContext;
+import gov.nasa.worldwind.render.Material;
+import gov.nasa.worldwind.render.Path;
+import gov.nasa.worldwind.render.Renderable;
+import gov.nasa.worldwind.render.ScreenAnnotation;
+import gov.nasa.worldwind.render.ShapeAttributes;
 import gov.nasa.worldwind.util.BufferFactory;
 import gov.nasa.worldwind.util.BufferWrapper;
 import gov.nasa.worldwind.util.WWMath;
 import gov.nasa.worldwindx.examples.analytics.AnalyticSurface;
 import gov.nasa.worldwindx.examples.analytics.AnalyticSurfaceAttributes;
 import gov.nasa.worldwindx.examples.util.DirectedPath;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.GeoPos;
+import org.esa.snap.framework.datamodel.PixelPos;
+import org.esa.snap.framework.datamodel.Product;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

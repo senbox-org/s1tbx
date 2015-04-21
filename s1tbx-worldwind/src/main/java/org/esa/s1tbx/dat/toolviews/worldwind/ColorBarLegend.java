@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dat.toolviews.nestwwview;
+package org.esa.s1tbx.dat.toolviews.worldwind;
 
 import gov.nasa.worldwind.render.DrawContext;
 import gov.nasa.worldwind.render.ScreenImage;
@@ -113,7 +113,6 @@ public class ColorBarLegend extends gov.nasa.worldwindx.examples.analytics.Analy
         setScreenLocation(new Point ((int) x, (int) y));
         super.render(dc);
     }
-<<<<<<< HEAD:s1tbx-worldwind/src/main/java/org/esa/nest/dat/toolviews/nestwwview/ColorBarLegend.java
 
     public double getMinValue() {
        return theMinValue;
@@ -123,6 +122,3 @@ public class ColorBarLegend extends gov.nasa.worldwindx.examples.analytics.Analy
         return theMaxValue;
     }
 }
-=======
-}
->>>>>>> 4ae7dc0a4abc883fe388c9770991b1a520aa43e3:s1tbx-worldwind/src/main/java/org/esa/s1tbx/dat/toolviews/nestwwview/ColorBarLegend.java
