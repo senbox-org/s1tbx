@@ -8,16 +8,16 @@ import org.jpy.PyLib;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.ProviderNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import static org.esa.snap.util.SystemUtils.*;
+import static org.esa.snap.util.SystemUtils.LOG;
 
 /**
  * This class is used to establish the bridge between Java and Python.
@@ -68,7 +68,7 @@ public class PyBridge {
             return;
         }
 
-        String pythonExecutable = getPythonExecutable();
+        Path pythonExecutable = getPythonExecutable();
         Path pythonModuleInstallDir = getPythonModuleInstallDir();
         boolean forcePythonConfig = isForcePythonConfig();
 
@@ -84,9 +84,30 @@ public class PyBridge {
         }
     }
 
-    public synchronized static void installPythonModule(String pythonExecutable,
+    /**
+     * Installs the SNAP-Python interface.
+     *
+     * @param pythonExecutable The Python executable.
+     * @param pythonModuleInstallDir The directory into which the 'snappy' Python module will be installed and configured.
+     * @param forcePythonConfig If {@code true}, any existing installation / configuration will be overwritten.
+     * @return The path to the configured 'snappy' Python module.
+     * @throws IOException
+     */
+    public synchronized static Path installPythonModule(Path pythonExecutable,
                                                         Path pythonModuleInstallDir,
-                                                        boolean forcePythonConfig) throws IOException {
+                                                        Boolean forcePythonConfig) throws IOException {
+        if (pythonExecutable == null) {
+            pythonExecutable = getPythonExecutable();
+        }
+
+        if (pythonModuleInstallDir == null) {
+            pythonModuleInstallDir = getPythonModuleInstallDir();
+        }
+
+        if (forcePythonConfig == null) {
+            forcePythonConfig = isForcePythonConfig();
+        }
+
         Path snappyDir = pythonModuleInstallDir.resolve(SNAPPY_DIR_NAME);
         if (forcePythonConfig || !Files.isDirectory(snappyDir)) {
             unpackPythonModuleDir(snappyDir);
@@ -110,6 +131,8 @@ public class PyBridge {
         if (Debug.isEnabled() && System.getProperty(JPY_DEBUG_PROPERTY) == null) {
             System.setProperty(JPY_DEBUG_PROPERTY, "true");
         }
+
+        return snappyDir;
     }
 
     /**
@@ -128,18 +151,18 @@ public class PyBridge {
         }
     }
 
-    private static void configureJpy(String pythonExecutable, Path snappyDir) throws IOException {
+    private static void configureJpy(Path pythonExecutable, Path snappyDir) throws IOException {
         LOG.info("Configuring SNAP-Python bridge...");
 
         // "java.home" is always present
         List<String> command = new ArrayList<>();
-        command.add(pythonExecutable);
+        command.add(pythonExecutable.toString());
         command.add(SNAPPYUTIL_PY_FILENAME);
         command.add("--snap_home");
         command.add(System.getProperty("snap.home", Paths.get(".").toAbsolutePath().normalize().toString()));
         //command.add(SystemUtils.getApplicationHomeDir().getPath());
         command.add("--java_module");
-        command.add(MODULE_CODE_BASE_PATH.toFile().getPath());
+        command.add(toFilePath(MODULE_CODE_BASE_PATH).toString());
         command.add("--force");
         command.add("--log_file");
         command.add(SNAPPYUTIL_LOG_FILENAME);
@@ -190,19 +213,38 @@ public class PyBridge {
     private static Path findModuleCodeBasePath() {
         try {
             URI uri = PyBridge.class.getProtectionDomain().getCodeSource().getLocation().toURI();
-            Path path = Paths.get(uri);
-            if (Files.isRegularFile(path)) {
-                try {
-                    FileSystem fileSystem = FileSystems.newFileSystem(path, PyBridge.class.getClassLoader());
-                    return fileSystem.getPath("/");
-                } catch (ProviderNotFoundException e) {
-                    // ok
-                }
+            try {
+                return Paths.get(uri);
+            } catch (FileSystemNotFoundException exp) {
+                FileSystems.newFileSystem(uri, Collections.emptyMap());
+                return Paths.get(uri);
             }
-            return path;
         } catch (URISyntaxException | IOException e) {
             throw new RuntimeException("Failed to detect the module's code base path", e);
         }
+    }
+
+    private static Path toFilePath(Path path) {
+        String prefix = "jar:";
+        String suffix = "!/";
+        String uriString = path.toUri().toString();
+        if (uriString.startsWith(prefix)) {
+            if (uriString.endsWith(suffix)) {
+                uriString = uriString.substring(prefix.length(), uriString.length() - suffix.length());
+            } else {
+                int pos = uriString.indexOf(suffix);
+                if (pos > 0) {
+                    uriString = uriString.substring(prefix.length(), pos);
+                } else {
+                    uriString = uriString.substring(prefix.length());
+                }
+            }
+            path = Paths.get(URI.create(uriString));
+        }
+        if (!(Files.isDirectory(path) || Files.isRegularFile(path))) {
+            throw new IllegalArgumentException("path: " + path);
+        }
+        return path;
     }
 
     private static void unpackPythonModuleDir(Path pythonModuleDir) throws IOException {
@@ -215,8 +257,8 @@ public class PyBridge {
         return System.getProperty(FORCE_PYTHON_CONFIG_PROPERTY, "true").equalsIgnoreCase("true");
     }
 
-    private static String getPythonExecutable() {
-        return System.getProperty(PYTHON_EXECUTABLE_PROPERTY, "python");
+    private static Path getPythonExecutable() {
+        return Paths.get(System.getProperty(PYTHON_EXECUTABLE_PROPERTY, "python"));
     }
 
     private static Path getPythonModuleInstallDir() {
