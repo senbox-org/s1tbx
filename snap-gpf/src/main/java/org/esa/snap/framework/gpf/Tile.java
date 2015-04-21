@@ -31,7 +31,7 @@ import java.util.Iterator;
  * {@link Operator#computeTile(org.esa.snap.framework.datamodel.Band, Tile, com.bc.ceres.core.ProgressMonitor) computeTile}
  * and {@link Operator#computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  computeTileStack} methods.
  * Source tiles are obtained by using the
- * {@link Operator#getSourceTile(org.esa.snap.framework.datamodel.RasterDataNode, java.awt.Rectangle) getSourceTile} method.
+ * {@link Operator#getSourceTile(RasterDataNode, java.awt.Rectangle) getSourceTile} method.
  * <p>Three ways are provided to access and manipulate the sample data of a target tile:
  * <p>(1) This is the simplest (but also slowest) way to modify sample data of a tile:
  * <pre>
@@ -87,8 +87,8 @@ import java.util.Iterator;
  * <p>Note that option (3) can only be used if the exact sample data type
  * is known or has been identified in a former step. The code snippet above
  * implies that the underlying data type is {@code float}
- * (because {@link org.esa.snap.framework.datamodel.RasterDataNode#getDataType() getRasterDataNode().getDataType()}
- * returns {@link ProductData#TYPE_FLOAT32}).<br/>
+ * (because {@link RasterDataNode#getDataType() getRasterDataNode().getDataType()}
+ * returns {@link ProductData#TYPE_FLOAT32}).
  * The {@link #getDataBufferFloat()} and its derivatives all return arrays of raw, non-calibrated sample values.
  * Use the {@link #toGeoPhysical(float)} and {@link #toRaw(float)} to convert between physical and raw
  * sample values.
@@ -669,8 +669,8 @@ public interface Tile extends Iterable<Tile.Pos> {
      * </pre>
      * is equivalent to iterating over all pixels using two nested loops
      * <pre>
-     * for (int y = tile.getMinY(); y <= tile.getMaxY(); y++) {
-     *     for (int x = tile.getMinX(); x <= tile.getMaxX(); x++) {
+     * for (int y = tile.getMinY(); y &lt;= tile.getMaxY(); y++) {
+     *     for (int x = tile.getMinX(); x &lt;= tile.getMaxX(); x++) {
      *         // ...
      *     }
      * }

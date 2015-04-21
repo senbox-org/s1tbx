@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * Implementations write a part of a {@link Product Product} to a NetCDF-file. They are provided to the framework by implementations
  * of {@link org.esa.snap.dataio.netcdf.AbstractNetCdfWriterPlugIn AbstractNetCdfWriterPlugIn}.
- * The methods of all {@see ProfilePartWriter} belonging to a {@link org.esa.snap.dataio.netcdf.AbstractNetCdfWriterPlugIn AbstractNetCdfWriterPlugIn}
+ * The methods of all {@link ProfilePartWriter} belonging to a {@link org.esa.snap.dataio.netcdf.AbstractNetCdfWriterPlugIn AbstractNetCdfWriterPlugIn}
  * are called in the following sequence
  * <ol>
  * <li> {@link #preEncode(ProfileWriteContext, Product)}</li>

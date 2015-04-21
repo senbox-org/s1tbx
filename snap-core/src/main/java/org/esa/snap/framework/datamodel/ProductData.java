@@ -35,12 +35,19 @@ import java.util.TimeZone;
  * The abstract <code>ProductData</code> class represents a generic data buffer used to hold the actual data values
  * stored in remote sensing data products.
  * <p> A single <code>ProductData</code> instance can have one or more elements of a primitive type. The primitive types
- * are: <ld> <li> {@link ProductData.Byte signed 8-bit integer} </li> <li> {@link ProductData.UByte unsigned 16-bit
- * integer} </li> <li> {@link ProductData.Short signed 32-bit integer} </li> <li> {@link ProductData.UShort unsigned
- * 16-bit integer} </li> <li> {@link ProductData.Int signed 32-bit integer} </li> <li> {@link ProductData.UInt unsigned
- * 32-bit integer} </li> <li> {@link ProductData.Float 32-bit floating point} </li> <li> {@link ProductData.Double
- * 64-bit floating point} </li> <li> {@link ProductData.ASCII a character string (8-bit ASCII encoding)} </li> <li>
- * {@link ProductData.UTC a MJD-2000 encoded data/time value} </li> </ld>
+ * are:
+ * <ul>
+ * <li> {@link ProductData.Byte signed 8-bit integer} </li>
+ * <li> {@link ProductData.UByte unsigned 16-bit integer} </li>
+ * <li> {@link ProductData.Short signed 32-bit integer} </li>
+ * <li> {@link ProductData.UShort unsigned 16-bit integer} </li>
+ * <li> {@link ProductData.Int signed 32-bit integer} </li>
+ * <li> {@link ProductData.UInt unsigned 32-bit integer} </li>
+ * <li> {@link ProductData.Float 32-bit floating point} </li>
+ * <li> {@link ProductData.Double 64-bit floating point} </li>
+ * <li> {@link ProductData.ASCII a character string (8-bit ASCII encoding)} </li>
+ * <li> {@link ProductData.UTC a MJD-2000 encoded data/time value} </li>
+ * </ul>
  * <p>The number of elements is an inmutable property of a <code>ProductData</code> instance.
  * <p>In order to access the data in a <code>ProductData</code> instance, multiple setters and getters are provided
  * which use generic <i>transfer data types</i> in order to make the data transfer in and out of a
@@ -1222,8 +1229,8 @@ public abstract class ProductData implements Cloneable {
      * Another method is to mask each of the array elements in order to get the unsigned type in the following way:
      * <pre>
      *     byte[] data = (byte[]) {@link #getElems() value.getElems()};
-     *     for (int i = 0; i < data.length; i++) {
-     *         int value = data[i] & 0xff;
+     *     for (int i = 0; i &lt; data.length; i++) {
+     *         int value = data[i] &amp; 0xff;
      *         ...
      *     }
      * </pre>
@@ -1558,8 +1565,8 @@ public abstract class ProductData implements Cloneable {
      * Another method is to mask each of the array elements in order to get the unsigned type in the following way:
      * <pre>
      *     short[] data = (short[]) value.getRaster();
-     *     for (int i = 0; i < data.length; i++) {
-     *         int value = data[i] & 0xffff;
+     *     for (int i = 0; i &lt; data.length; i++) {
+     *         int value = data[i] &amp; 0xffff;
      *         ...
      *     }
      * </pre>
@@ -1894,8 +1901,8 @@ public abstract class ProductData implements Cloneable {
      * Another method is to mask each of the array elements in order to get the unsigned type in the following way:
      * <pre>
      *     int[] data = (int[]) value.getRaster();
-     *     for (int i = 0; i < data.length; i++) {
-     *         long value = data[i] & 0xffffffffL;
+     *     for (int i = 0; i %lt; data.length; i++) {
+     *         long value = data[i] &amp; 0xffffffffL;
      *         ...
      *     }
      * </pre>

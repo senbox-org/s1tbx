@@ -101,7 +101,7 @@ public interface OperatorSpiRegistry {
     /**
      *  Gets a set of all aliases
      *
-     * @return the Set<string> of keys
+     * @return the Set&lt;string&gt; of alias keys
      */
     public Set getAliases();
 }

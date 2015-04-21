@@ -43,7 +43,6 @@ import java.awt.image.RenderedImage;
  * dst[x][y] is as follows, assuming the kernel is of size width x height
  * and has already been rotated through 180 degrees.  The kernel's Origin
  * element is located at position (xOrigin, yOrigin):
- * <p>
  * <pre>
  * dst[x][y] = 0;
  * for (int i = -xOrigin; i &lt; -xOrigin + width; i++) {

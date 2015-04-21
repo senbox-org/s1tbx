@@ -194,7 +194,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Gets associated ancillary bands as a roleName --> band mapping.
+     * Gets associated ancillary bands as a roleName --&gt; band mapping.
      * @return The associated ancillary band map, which may be empty.
      * @since BEAM 5.1
      */
@@ -401,7 +401,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Gets the scaling factor which is applied to raw {@link <code>ProductData</code>}. The default value is
+     * Gets the scaling factor which is applied to raw {@link ProductData}. The default value is
      * <code>1.0</code> (no factor).
      *
      * @return the scaling factor
@@ -412,7 +412,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Sets the scaling factor which is applied to raw {@link <code>ProductData</code>}.
+     * Sets the scaling factor which is applied to raw {@link ProductData}.
      *
      * @param scalingFactor the scaling factor
      * @see #isScalingApplied()
@@ -430,7 +430,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Gets the scaling offset which is applied to raw {@link <code>ProductData</code>}. The default value is
+     * Gets the scaling offset which is applied to raw {@link ProductData}. The default value is
      * <code>0.0</code> (no offset).
      *
      * @return the scaling offset
@@ -441,7 +441,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Sets the scaling offset which is applied to raw {@link <code>ProductData</code>}.
+     * Sets the scaling offset which is applied to raw {@link ProductData}.
      *
      * @param scalingOffset the scaling offset
      * @see #isScalingApplied()
@@ -459,7 +459,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Gets whether or not the {@link <code>ProductData</code>} of this band has a negative binominal distribution and
+     * Gets whether or not the {@link ProductData} of this band has a negative binomial distribution and
      * thus the common logarithm (base 10) of the values is stored in the raw data. The default value is
      * <code>false</code>.
      *
@@ -471,7 +471,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Sets whether or not the {@link <code>ProductData</code>} of this band has a negative binominal distribution and
+     * Sets whether or not the {@link ProductData} of this band has a negative binomial distribution and
      * thus the common logarithm (base 10) of the values is stored in the raw data.
      *
      * @param log10Scaled whether or not the data is logging-10 scaled

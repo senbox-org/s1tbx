@@ -28,7 +28,7 @@ import java.awt.image.renderable.ParameterBlock;
 import java.awt.image.renderable.RenderedImageFactory;
 
 /**
- * @see com.sun.media.jai.opimage.ConvolveOpImage
+ * @see javax.media.jai.operator.ConvolveDescriptor
  */
 public class GeneralFilterRIF implements RenderedImageFactory {
 

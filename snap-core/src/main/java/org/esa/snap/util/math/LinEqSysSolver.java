@@ -102,8 +102,7 @@ public class LinEqSysSolver {
 
 
     /**
-     * Rearranges the matrix <code>a</code> by swapping line <code>k</code> with a suitable <i>pivot</i> line <code>k' >
-     * k</code>.
+     * Rearranges the matrix <code>a</code> by swapping line <code>k</code> with a suitable <i>pivot</i> line <code>k'</code>.
      *
      * @param a   coefficient matrix [0..n-1][0..n-1] (left side of equation)
      * @param c   the constant vector [0..n-1] (right side of equation)

@@ -243,7 +243,7 @@ public class MathUtils {
      *
      * @param min       the minimum value of the range
      * @param max       the maximum value of the range
-     * @param numDigits the number of significant digits, must be <code>>=0</code>
+     * @param numDigits the number of significant digits, must be <code>=0</code>
      *
      * @return the rounded value, always a power to the base 10
      *
@@ -261,7 +261,7 @@ public class MathUtils {
      *
      * @param min       the minimum value of the range
      * @param max       the maximum value of the range
-     * @param numDigits the number of significant digits after the decimal point, must be <code>>=0</code>
+     * @param numDigits the number of significant digits after the decimal point, must be <code>=0</code>
      *
      * @return the rounded value, always a power to the base 10
      *
@@ -337,19 +337,19 @@ public class MathUtils {
 
     /**
      * Creates a quantized gamma (correction) curve for 256 samples in range from <code>0</code> to <code>1</code>. The
-     * array returned for can be used as a lookup table for gamma transformations. In order to interprete the value
+     * array returned for can be used as a lookup table for gamma transformations. In order to interpret the value
      * correctly use the following code snippet:
      * <pre>
      *    byte[] f = MathUtils.createGammaCurve(gamma, null);
-     *    for (int i = 0; i < 256; i++) {
-     *         // transform i --> j
-     *         j = f[i] & 0xff;
+     *    for (int i = 0; i &lt; 256; i++) {
+     *         // transform i --&gt; j
+     *         j = f[i] &amp; 0xff;
      *         // now use j instead of i
      *    }
      * </pre>
      *
      * @param gamma the gamma value, reasonable range is <code>1/10</code> to <code>10</code>, if <code>1</code> then
-     *              each <code>f[i] & 0xff</code> will be <code>i</code>.
+     *              each <code>f[i] &amp; 0xff</code> will be <code>i</code>.
      * @param f     the curve as an array of length 256. If not <code>null</code>, the method used this array as returen
      *              value after values have been written into it. If <code>null</code>,  the method creates a new array
      *              and returns it.

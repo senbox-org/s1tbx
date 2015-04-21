@@ -48,16 +48,16 @@ import java.util.Map;
 
 /**
  * <p>
- * This band maths operator can be used to create a product with multiple bands based on mathematical expression.<br/>
+ * This band maths operator can be used to create a product with multiple bands based on mathematical expression.<br>
  * All products specified as source must have the same width and height, otherwise the operator will fail.
  * The geo-coding information and metadata for the target product is taken from the first source product.
  *
  * <p>
- * To reference a band of one of the source products within an expression use the following syntax:<br/>
- * <br/>
- * <code>$sourceProducts<b>#</b>.bandName</code><br/>
- * <br/>
- * Where <b>#</b> means the index of the source product. The index is zero based.<br/>
+ * To reference a band of one of the source products within an expression use the following syntax:<br>
+ * <br>
+ * <code>$sourceProducts<b>#</b>.bandName</code><br>
+ * <br>
+ * Where <b>#</b> means the index of the source product. The index is zero based.<br>
  * The bands of the first source product (<code>$sourceProducts<b>0</b></code>) can be referenced without this
  * product identifier. The band name is sufficient.
  *

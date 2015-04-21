@@ -26,7 +26,7 @@ import java.text.MessageFormat;
  * <p>
  * The {@link #interpolate(double[], double[])} method returns a {@link InterpolatingFunction}
  * consisting of n cubic polynomials, defined over the subintervals determined by the x values,
- * x[0] < x[i] ... < x[n].  The x values are referred to as "knot points."
+ * x[0] &lt; x[i] ... &lt; x[n].  The x values are referred to as "knot points."
  * <p>
  * The value of the PolynomialSplineFunction at a point x that is greater than or equal to the smallest
  * knot point and strictly less than the largest knot point is computed by finding the subinterval to which

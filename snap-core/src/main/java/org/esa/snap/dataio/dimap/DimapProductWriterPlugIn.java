@@ -33,7 +33,7 @@ import java.util.Set;
  * <b>Version history:</b>
  * <p>
  * <p>
- * <table>
+ * <table summary="">
  * <tr><th>Version</th><th>Comment</th></tr>
  * <tr> <td valign="top">1.0</td> <td>initial version BEAM version 1.0</td> </tr>
  * <tr> <td valign="top">1.0.1</td>

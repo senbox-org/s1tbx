@@ -23,7 +23,7 @@ package org.esa.snap.util.math;/*
  * <p>
  * (1) d(p, q) = 0, if p = q
  * <p>
- * (2) d(p, q) > 0, if p ≠ q
+ * (2) d(p, q) &gt; 0, if p ≠ q
  *
  * @author Ralf Quast
  * @since Version 5.0

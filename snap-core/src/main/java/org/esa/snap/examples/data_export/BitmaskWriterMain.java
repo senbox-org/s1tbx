@@ -48,7 +48,7 @@ import java.io.IOException;
  * <p>You find all possible flag datasets in the <code><b>beam.jar</b>!/org/esa/snap/resources/dddb/bands/<i>product-type</i>.dd</code>
  * file, where <i>product-type</i> is an ENVISAT product type name, such as "MER_RR__1P" for a MERIS L1b reduced
  * resolution product. The corresponding flags you can find in a dataset are stored under
- * <code><b>beam.jar</b>!/org/esa/snap/resources/dddb/bands/<i>product-type</i>_<i>dataset_type</i><.dd</code>.
+ * <code><b>beam.jar</b>!/org/esa/snap/resources/dddb/bands/<i>product-type</i>_<i>dataset_type</i>.dd</code>.
  * <i><b>Note:</b> If you want to work with product subsets, you can use the {@link
  * org.esa.snap.framework.dataio.ProductSubsetBuilder} class. It has a static method which lets you create a subset of a
  * given product and subset definition.</i>

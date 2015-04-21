@@ -45,7 +45,7 @@ import java.awt.image.renderable.ParameterBlock;
  * <tr><td>Version</td>     <td>1.0</td></tr>
  * <tr><td>arg0Desc</td>    <td>The convolution kernel.</td></tr>
  * </table>
- * <p><table border=1>
+ * <table border=1>
  * <caption>Parameter List</caption>
  * <tr><th>Name</th>   <th>Class Type</th>
  * <th>Default Value</th></tr>

@@ -30,7 +30,7 @@ import java.awt.geom.Point2D;
  * @author Marco Peters
  * @author Ralf Quast
  * @version 1.0
- * @link http://remotesensing.org/proj/
+ * @see <a href="http://remotesensing.org/proj/">http://remotesensing.org/proj/</a>
  * 
  * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.projection.Stereographic.Provider} instead.
  */
@@ -239,7 +239,7 @@ public class StereographicDescriptor implements MapTransformDescriptor {
      * @author Marco Peters
      * @author Ralf Quast
      * @version 1.0
-     * @link http://remotesensing.org/proj/
+     * @see <a href="http://remotesensing.org/proj/">http://remotesensing.org/proj/</a>
      * 
      * @deprecated since BEAM 4.7, use geotools {@link org.geotools.referencing.operation.projection.MapProjection} instead.
      */

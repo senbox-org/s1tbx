@@ -91,7 +91,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public final int getOffset(int x, int y) {
@@ -99,7 +99,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public final int getOffset(int x, int y, int b) {
@@ -107,7 +107,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public Object getDataElements(int x, int y, int w, int h, Object obj, DataBuffer data) {
@@ -119,7 +119,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setDataElements(int x, int y, int w, int h, Object obj, DataBuffer data) {
@@ -127,7 +127,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int[] getPixels(int x, int y, int w, int h, int array[], DataBuffer data) {
@@ -135,7 +135,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public float[] getPixels(int x, int y, int w, int h, float array[], DataBuffer data) {
@@ -143,7 +143,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public double[] getPixels(int x, int y, int w, int h, double array[], DataBuffer data) {
@@ -151,7 +151,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setPixels(int x, int y, int w, int h, int array[], DataBuffer data) {
@@ -159,7 +159,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setPixels(int x, int y, int w, int h, float array[], DataBuffer data) {
@@ -167,7 +167,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setPixels(int x, int y, int w, int h, double array[], DataBuffer data) {
@@ -175,7 +175,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int[] getPixel(int x, int y, int array[], DataBuffer data) {
@@ -187,7 +187,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public float[] getPixel(int x, int y, float array[], DataBuffer data) {
@@ -199,7 +199,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public double[] getPixel(int x, int y, double array[], DataBuffer data) {
@@ -211,7 +211,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setPixel(int x, int y, int array[], DataBuffer data) {
@@ -219,7 +219,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setPixel(int x, int y, float array[], DataBuffer data) {
@@ -227,7 +227,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setPixel(int x, int y, double array[], DataBuffer data) {
@@ -235,7 +235,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int[] getSamples(int x, int y, int w, int h, int b, int array[], DataBuffer data) {
@@ -252,7 +252,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public float[] getSamples(int x, int y, int w, int h, int b, float array[], DataBuffer data) {
@@ -269,7 +269,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public double[] getSamples(int x, int y, int w, int h, int b, double array[], DataBuffer data) {
@@ -286,7 +286,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setSamples(int x, int y, int w, int h, int b, int array[], DataBuffer data) {
@@ -299,7 +299,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setSamples(int x, int y, int w, int h, int b, float array[], DataBuffer data) {
@@ -312,7 +312,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setSamples(int x, int y, int w, int h, int b, double array[], DataBuffer data) {
@@ -325,7 +325,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public int getSample(int x, int y, int b, DataBuffer data) {
@@ -334,7 +334,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public float getSampleFloat(int x, int y, int b, DataBuffer data) {
@@ -343,7 +343,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public double getSampleDouble(int x, int y, int b, DataBuffer data) {
@@ -352,7 +352,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setSample(int x, int y, int b, int s, DataBuffer data) {
@@ -361,7 +361,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setSample(int x, int y, int b, float s, DataBuffer data) {
@@ -370,7 +370,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     @Override
     public void setSample(int x, int y, int b, double s, DataBuffer data) {

@@ -2052,7 +2052,7 @@ public class Product extends ProductNode {
      * Gets the preferred tile size which may be used for a the {@link java.awt.image.RenderedImage rendered image}
      * created for a {@link RasterDataNode} of this product.
      *
-     * @return the preferred tile size, may be <code>null</null> if not specified
+     * @return the preferred tile size, may be <code>null</code> if not specified
      * @see RasterDataNode#getSourceImage()
      * @see RasterDataNode#setSourceImage(java.awt.image.RenderedImage)
      */
@@ -2076,7 +2076,7 @@ public class Product extends ProductNode {
      * Sets the preferred tile size which may be used for a the {@link java.awt.image.RenderedImage rendered image}
      * created for a {@link RasterDataNode} of this product.
      *
-     * @param preferredTileSize the preferred tile size, may be <code>null</null> if not specified
+     * @param preferredTileSize the preferred tile size, may be <code>null</code> if not specified
      * @see RasterDataNode#getSourceImage()
      * @see RasterDataNode#setSourceImage(java.awt.image.RenderedImage)
      */
@@ -2587,7 +2587,7 @@ public class Product extends ProductNode {
      * The given expression is considered to be boolean, if it evaluates to <code>true</code>
      * the related bit in the mask is set.
      *
-     * @param expression the boolean expression, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
+     * @param expression the boolean expression, e.g. "l2_flags.LAND &amp;&amp; reflec_10 &gt;= 0.0"
      * @param pm         a progress monitor
      * @return a bit-packed mask for all pixels of the scene, never null
      * @throws IOException if an I/O error occurs
@@ -2612,7 +2612,7 @@ public class Product extends ProductNode {
      * The given term is considered to be boolean, if it evaluates to <code>true</code>
      * the related bit in the mask is set.
      *
-     * @param term the boolean term, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
+     * @param term the boolean term, e.g. "l2_flags.LAND &amp;&amp; reflec_10 &gt;= 0.0"
      * @param pm   a progress monitor
      * @return a bit-packed mask for all pixels of the scene, never null
      * @throws IOException if an I/O error occurs

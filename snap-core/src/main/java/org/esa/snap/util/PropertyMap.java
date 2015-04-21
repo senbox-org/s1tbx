@@ -66,7 +66,6 @@ public class PropertyMap {
      * Loads key/value pairs from a text file into this property map.
      *
      * @param file the text file
-     *
      * @throws IOException if an I/O error occurs
      */
     public void load(File file) throws IOException {
@@ -82,7 +81,6 @@ public class PropertyMap {
      *
      * @param file   the text file
      * @param header an optional file header
-     *
      * @throws IOException if an I/O error occurs
      */
     public void store(File file, String header) throws IOException {
@@ -126,7 +124,6 @@ public class PropertyMap {
      * Gets a value of type <code>boolean</code>.
      *
      * @param key the key
-     *
      * @return the value for the given key, or <code>false</code> if the key is not contained in this property set.
      */
     public boolean getPropertyBool(String key) {
@@ -138,9 +135,8 @@ public class PropertyMap {
      *
      * @param key          the key
      * @param defaultValue the default value that is returned if the key was not found in this property set.
-     *
      * @return the value for the given key, or <code>defaultValue</code> if the key is not contained in this property
-     *         set.
+     * set.
      */
     public boolean getPropertyBool(String key, boolean defaultValue) {
         return getPropertyBool(key, defaultValue ? Boolean.TRUE : Boolean.FALSE);
@@ -151,9 +147,8 @@ public class PropertyMap {
      *
      * @param key          the key
      * @param defaultValue the default value that is returned if the key was not found in this property set.
-     *
      * @return the value for the given key, or <code>defaultValue</code> if the key is not contained in this property
-     *         set.
+     * set.
      */
     public Boolean getPropertyBool(String key, Boolean defaultValue) {
         String value = _properties.getProperty(key);
@@ -168,7 +163,6 @@ public class PropertyMap {
      *
      * @param key   the key
      * @param value the value
-     *
      * @throws IllegalArgumentException
      */
     public void setPropertyBool(String key, boolean value) {
@@ -181,7 +175,6 @@ public class PropertyMap {
      *
      * @param key      the key
      * @param newValue the new value
-     *
      * @throws IllegalArgumentException
      */
     public void setPropertyBool(String key, Boolean newValue) {
@@ -194,7 +187,6 @@ public class PropertyMap {
      * Gets a value of type <code>int</code>.
      *
      * @param key the key
-     *
      * @return the value for the given key, or <code>0</code> (zero) if the key is not contained in this property set.
      */
     public int getPropertyInt(String key) {
@@ -206,9 +198,8 @@ public class PropertyMap {
      *
      * @param key          the key
      * @param defaultValue the default value that is returned if the key was not found in this property set.
-     *
      * @return the value for the given key, or <code>defaultValue</code> if the key is not contained in this property
-     *         set.
+     * set.
      */
     public int getPropertyInt(String key, int defaultValue) {
         Guardian.assertNotNullOrEmpty("key", key);
@@ -233,9 +224,8 @@ public class PropertyMap {
      *
      * @param key          the key
      * @param defaultValue the default value that is returned if the key was not found in this property set.
-     *
      * @return the value for the given key, or <code>defaultValue</code> if the key is not contained in this property
-     *         set.
+     * set.
      */
     public Integer getPropertyInt(String key, Integer defaultValue) {
         Guardian.assertNotNullOrEmpty("key", key);
@@ -260,7 +250,6 @@ public class PropertyMap {
      *
      * @param key      the key
      * @param newValue the new value
-     *
      * @throws IllegalArgumentException
      */
     public void setPropertyInt(String key, int newValue) {
@@ -272,7 +261,6 @@ public class PropertyMap {
      *
      * @param key      the key
      * @param newValue the value
-     *
      * @throws IllegalArgumentException
      */
     public void setPropertyInt(String key, Integer newValue) {
@@ -285,9 +273,8 @@ public class PropertyMap {
      * Gets a value of type <code>double</code>.
      *
      * @param key the key
-     *
      * @return the value for the given key, or <code>0.0</code> (zero) if the key is not contained in this property
-     *         set.
+     * set.
      */
     public double getPropertyDouble(String key) {
         return getPropertyDouble(key, 0.0);
@@ -298,9 +285,8 @@ public class PropertyMap {
      *
      * @param key          the key
      * @param defaultValue the default value that is returned if the key was not found in this property set.
-     *
      * @return the value for the given key, or <code>defaultValue</code> if the key is not contained in this property
-     *         set.
+     * set.
      */
     public double getPropertyDouble(String key, double defaultValue) {
         String value = _properties.getProperty(key);
@@ -323,9 +309,8 @@ public class PropertyMap {
      *
      * @param key          the key
      * @param defaultValue the default value that is returned if the key was not found in this property set.
-     *
      * @return the value for the given key, or <code>defaultValue</code> if the key is not contained in this property
-     *         set.
+     * set.
      */
     public Double getPropertyDouble(String key, Double defaultValue) {
         String value = _properties.getProperty(key);
@@ -348,7 +333,6 @@ public class PropertyMap {
      *
      * @param key      the key
      * @param newValue the new value
-     *
      * @throws IllegalArgumentException
      */
     public void setPropertyDouble(String key, double newValue) {
@@ -360,7 +344,6 @@ public class PropertyMap {
      *
      * @param key      the key
      * @param newValue the value
-     *
      * @throws IllegalArgumentException
      */
     public void setPropertyDouble(String key, Double newValue) {
@@ -373,9 +356,8 @@ public class PropertyMap {
      * Gets a value of type <code>String</code>.
      *
      * @param key the key
-     *
      * @return the value for the given key, or <code>""</code> (empty string) if the key is not contained in this
-     *         property set, never <code>null</code>.
+     * property set, never <code>null</code>.
      */
     public String getPropertyString(String key) {
         return getPropertyString(key, "");
@@ -386,14 +368,12 @@ public class PropertyMap {
      *
      * @param key          the key
      * @param defaultValue the default value that is returned if the key was not found in this property set.
-     *
      * @return the value for the given key, or <code>defaultValue</code> if the key is not contained in this property
-     *         set.
+     * set.
      */
     public String getPropertyString(String key, String defaultValue) {
         Guardian.assertNotNullOrEmpty("key", key);
-        String property = _properties.getProperty(key, defaultValue);
-        return property;
+        return _properties.getProperty(key, defaultValue);
     }
 
     /**
@@ -401,7 +381,6 @@ public class PropertyMap {
      *
      * @param key      the key
      * @param newValue the new value
-     *
      * @throws IllegalArgumentException
      */
     public void setPropertyString(String key, String newValue) {
@@ -414,9 +393,8 @@ public class PropertyMap {
      * Gets a value of type <code>Color</code>.
      *
      * @param key the key
-     *
      * @return the value for the given key, or <code>Color.black</code> if the key is not contained in this property
-     *         set, never <code>null</code>.
+     * set, never <code>null</code>.
      */
     public Color getPropertyColor(String key) {
         return getPropertyColor(key, Color.black);
@@ -427,9 +405,8 @@ public class PropertyMap {
      *
      * @param key          the key
      * @param defaultValue the default value that is returned if the key was not found in this property set.
-     *
      * @return the value for the given key, or <code>defaultValue</code> if the key is not contained in this property
-     *         set.
+     * set.
      */
     public Color getPropertyColor(String key, Color defaultValue) {
         Guardian.assertNotNullOrEmpty("key", key);
@@ -448,7 +425,6 @@ public class PropertyMap {
      *
      * @param key      the key
      * @param newValue the value
-     *
      * @throws IllegalArgumentException
      */
     public void setPropertyColor(String key, Color newValue) {
@@ -466,14 +442,16 @@ public class PropertyMap {
 
     /**
      * Gets a value of type <code>Font</code>. The method actually looks for three keys in order to construct the font
-     * instance: <ld> <li><code>&lt;key&gt;.name</code> for the font's name</li> <li><code>&lt;key&gt;.style</code> for
-     * the font's style (an integer value)</li> <li><code>&lt;key&gt;.name</code> for the font's size in points (an
-     * integer value)</li> </ld>
+     * instance:
+     * <ul>
+     * <li><code>&lt;key&gt;.name</code> for the font's name</li>
+     * <li><code>&lt;key&gt;.style</code> for the font's style (an integer value)</li>
+     * <li><code>&lt;key&gt;.name</code> for the font's size in points (an integer value)</li>
+     * </ul>
      *
      * @param key the key
-     *
      * @return the value for the given key, or a plain, 12-point "SandSerif" font if the key is not contained in this
-     *         property set, never <code>null</code>.
+     * property set, never <code>null</code>.
      */
     public Font getPropertyFont(String key) {
         return getPropertyFont(key, new Font("SansSerif", Font.PLAIN, 12));
@@ -481,15 +459,17 @@ public class PropertyMap {
 
     /**
      * Gets a value of type <code>Font</code>. The method actually looks for three keys in order to construct the font
-     * instance: <ld> <li><code>&lt;key&gt;.name</code> for the font's name</li> <li><code>&lt;key&gt;.style</code> for
-     * the font's style (an integer value)</li> <li><code>&lt;key&gt;.name</code> for the font's size in points (an
-     * integer value)</li> </ld>
+     * instance:
+     * <ul>
+     * <li><code>&lt;key&gt;.name</code> for the font's name</li>
+     * <li><code>&lt;key&gt;.style</code> for the font's style (an integer value)</li>
+     * <li><code>&lt;key&gt;.name</code> for the font's size in points (an integer value)</li>
+     * </ul>
      *
      * @param key          the key
      * @param defaultValue the default value that is returned if the key was not found in this property set.
-     *
      * @return the value for the given key, or <code>defaultValue</code> if the key is not contained in this property
-     *         set.
+     * set.
      */
     public Font getPropertyFont(String key, Font defaultValue) {
         Guardian.assertNotNullOrEmpty("key", key);
@@ -504,13 +484,15 @@ public class PropertyMap {
 
     /**
      * Sets a font of type <code>Font</code>. The method actually puts three keys in this property set in order to store
-     * the font's properties: <ld> <li><code>&lt;key&gt;.name</code> for the font's name</li>
-     * <li><code>&lt;key&gt;.style</code> for the font's style (an integer font)</li> <li><code>&lt;key&gt;.name</code>
-     * for the font's size in points (an integer font)</li> </ld>
+     * the font's properties:
+     * <ul>
+     * <li><code>&lt;key&gt;.name</code> for the font's name</li>
+     * <li><code>&lt;key&gt;.style</code> for the font's style (an integer font)</li>
+     * <li><code>&lt;key&gt;.name</code> for the font's size in points (an integer font)</li>
+     * </ul>
      *
      * @param key      the key
      * @param newValue the font
-     *
      * @throws IllegalArgumentException
      */
     public void setPropertyFont(String key, Font newValue) {

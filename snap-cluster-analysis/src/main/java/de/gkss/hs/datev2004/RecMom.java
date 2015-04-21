@@ -74,7 +74,7 @@ public class RecMom {
 
 
 
-    /**@param pt the unweighted point of dim>1
+    /**@param pt the unweighted point of dim&gt;1
          @param wgt its weight*/
     public void recalc(double[] pt, double wgt) {
         if (dim != pt.length)

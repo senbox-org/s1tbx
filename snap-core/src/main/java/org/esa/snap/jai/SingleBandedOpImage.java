@@ -154,7 +154,7 @@ public abstract class SingleBandedOpImage extends SourcelessOpImage {
      * @param noDataValue The no-data value used to fill the data buffer
      *                    of the raster created.
      * @return the raster created.
-     * @see {@link NoDataRaster}.
+     * @see  NoDataRaster
      */
     protected NoDataRaster createNoDataRaster(double noDataValue) {
         final Raster raster = createWritableRaster(getSampleModel(), new Point(0, 0));

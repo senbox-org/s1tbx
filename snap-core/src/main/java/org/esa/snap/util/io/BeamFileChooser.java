@@ -200,7 +200,7 @@ public class BeamFileChooser extends JFileChooser {
 
     /**
      * Checks whether or not the given filename with one of the known file extensions. The known file extension of this
-     * file chooser are those, which are registered using a {@link <code>BeamFileFilter</code>}.
+     * file chooser are those, which are registered using a {@link BeamFileFilter}.
      *
      * @param filename the filename to be checked
      * @return <code>true</code>, if the given file has a "known" extension

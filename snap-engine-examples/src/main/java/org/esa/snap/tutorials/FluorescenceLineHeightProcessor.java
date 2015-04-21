@@ -18,10 +18,12 @@ import java.io.IOException;
  *    FLH = L2 - k * [L1 + (L3 - L1) * (wl2 - wl1) / (wl3 - wl1)]
  * </pre>
  * <p>
- * where:<br/>
- * L1 is the radiance in band 7
- * L2 is the radiance in band 8
- * L3 is the radiance in band 9
+ * where:
+ * <ul>
+ * <li>L1 is the radiance in band 7</li>
+ * <li>L2 is the radiance in band 8</li>
+ * <li>L3 is the radiance in band 9</li>
+ * </ul>
  * k is a user-supplied processing parameter.
  */
 public class FluorescenceLineHeightProcessor {

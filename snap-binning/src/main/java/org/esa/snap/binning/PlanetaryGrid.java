@@ -41,7 +41,7 @@ public interface PlanetaryGrid {
      * Gets the row index for the given bin index. The pseudo code for the implementation is
      * <pre>
      *       int row = numRows - 1;
-     *       while (idx < baseBin[row]) {
+     *       while (idx &lt; baseBin[row]) {
      *            row--;
      *       }
      *       return row;

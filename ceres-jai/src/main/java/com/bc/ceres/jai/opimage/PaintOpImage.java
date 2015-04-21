@@ -35,24 +35,20 @@ import java.util.Map;
 
 /**
  * An OpImage class to perform convolution on a source image.
- * <p>
  * <p> This class implements a convolution operation. Convolution is a
  * spatial operation that computes each output sample by multiplying
  * elements of a kernel with the samples surrounding a particular
  * source sample.
- * <p>
  * <p> For each destination sample, the kernel is rotated 180 degrees
  * and its "key element" is placed over the source pixel corresponding
  * with the destination pixel.  The kernel elements are multiplied
  * with the source pixels under them, and the resulting products are
  * summed together to produce the destination sample value.
- * <p>
  * <p> Example code for the convolution operation on a single sample
  * dst[x][y] is as follows. First your original kernel is rotated
  * by 180 degrees, then the following -
  * assuming the kernel is of size M rows x N columns
  * and the rotated kernel's key element is at position (xKey, yKey):
- * <p>
  * <pre>
  * dst[x][y] = 0;
  * for (int i = -xKey; i &lt; M - xKey; i++) {
@@ -61,7 +57,6 @@ import java.util.Map;
  *     }
  * }
  * </pre>
- * <p>
  * <p> Convolution, or any neighborhood operation, leaves a band of
  * pixels around the edges undefined, i.e., for a 3x3 kernel, only
  * four kernel elements and four source pixels contribute to the
@@ -69,7 +64,6 @@ import java.util.Map;
  * in the destination image.  A BorderOpImage may be used to add an
  * appropriate border to the source image in order to avoid shrinkage
  * of the image boundaries.
- * <p>
  * <p> The Kernel cannot be bigger in any dimension than the image data.
  *
  * @see javax.media.jai.KernelJAI

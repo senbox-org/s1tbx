@@ -38,7 +38,7 @@ import java.util.Map;
 /**
  * Instances of <code>FeatureStatisticsWriter</code> enrich shapefiles or features with statistics.
  * <p>
- * This is done like this:<br/>
+ * This is done like this:
  * <ol>
  * <li>the original shapefile is being opened and its features are loaded</li>
  * <li>a new feature type is created on the basis of the feature type of the original shapefile</li>

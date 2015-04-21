@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @see com.sun.media.jai.opimage.ConvolveOpImage
+ * @see javax.media.jai.operator.ConvolveDescriptor
  */
 public class XmlRIF implements RenderedImageFactory {
 

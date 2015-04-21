@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  * <li>second of minute, given as <i>ss</i></li>
  * </ul>
  * , which may appear in arbitrary order and can be separated using the characters <i>_</i>, <i>.</i>, and <i>-</i>.
- * </br>
+ * <br>
  * Examples:
  * <ul>
  * <li><i>yyyyMMdd_hhmmss</i></li>

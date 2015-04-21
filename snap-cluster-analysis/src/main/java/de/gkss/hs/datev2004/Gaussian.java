@@ -16,7 +16,8 @@
 
 package de.gkss.hs.datev2004;
 
-import Jama.*;
+import Jama.Matrix;
+import Jama.SingularValueDecomposition;
 
 /**
  * calculations with the Gaussian
@@ -32,7 +33,7 @@ public class Gaussian {
     public double center;
 
     /**
-     * for dimension >1
+     * for dimension &gt; 1
      *
      * @param cov the covariance matrix
      * @param cog center of gravity

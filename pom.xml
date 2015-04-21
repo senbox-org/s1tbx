@@ -766,9 +766,6 @@
                     <configuration>
                         <quiet>true</quiet><!-- show only warnings and errors -->
                         <excludePackageNames>*.internal:*.impl</excludePackageNames>
-                        <!-- javadoc tool in JDK8 has become very strict. See  http://stackoverflow.com/questions/22528767/jdk8-and-javadoc-has-become-very-strict
-                         Not all are real errors and there are a lot. For now we disable the strict checking. -->
-                        <additionalparam>-Xdoclint:none</additionalparam>
                     </configuration>
                 </plugin>
 

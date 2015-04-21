@@ -123,7 +123,7 @@ public final class SEAGrid implements PlanetaryGrid {
      * Pseudo-code:
      * <pre>
      *       int row = numRows - 1;
-     *       while (idx < baseBin[row]) {
+     *       while (idx &lt; baseBin[row]) {
      *            row--;
      *       }
      *       return row;

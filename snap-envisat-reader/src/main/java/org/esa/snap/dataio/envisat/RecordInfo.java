@@ -26,9 +26,9 @@ import java.util.Vector;
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
- * @see <{FieldInfo}>
- * @see <{Field}>
- * @see <{Record}>
+ * @see FieldInfo
+ * @see Field
+ * @see Record
  */
 public final class RecordInfo extends ItemInfo {
 

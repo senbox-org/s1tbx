@@ -135,7 +135,7 @@ public class ArrayUtils {
 
     /**
      * Checks if the given object is member of the specified array.
-     * <p> The method simply returns <code>getElementIndex(element, array) >= 0</code>.
+     * <p> The method simply returns <code>getElementIndex(element, array) &gt;= 0</code>.
      *
      * @param element the element to be searched
      * @param array   the array in which to search the element, must not be <code>null</code>

@@ -171,7 +171,7 @@ public @interface Parameter {
 
     /**
      * @return An arbitrary Boolean value which will be ignored.
-     * @see #itemAlias()#
+     * @see #itemAlias()
      * @deprecated Since BEAM 5. Not used anymore. No replacement.
      */
     @Deprecated

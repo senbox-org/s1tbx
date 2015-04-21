@@ -26,7 +26,7 @@ import java.awt.geom.Path2D;
 import java.io.IOException;
 
 /**
- * Builder for instances of {@link TransectProfileData}.<br/>
+ * Builder for instances of {@link TransectProfileData}.
  * Constraints:
  * <ul>
  *     <li>a non-null raster is mandatory</li>

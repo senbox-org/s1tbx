@@ -115,7 +115,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
     }
 
     /**
-     * Gets the number of approximations used for the transformation map (lat,lon) --> image (x,y).
+     * Gets the number of approximations used for the transformation map (lat,lon) --&gt; image (x,y).
      *
      * @return the number of approximations, zero if no approximations could be computed
      */

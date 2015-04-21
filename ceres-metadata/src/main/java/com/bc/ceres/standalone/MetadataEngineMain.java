@@ -15,8 +15,7 @@ import java.util.Map;
  * A default executable class for the metadata engine. It implements common usage of the MatadataEngine API.
  * <p>
  * <b>usage: java -classpath path com.bc.ceres.standalone.MetadataEngineMain -t /path/targetItem.suff -v templateX=/path/metadata.vm.txt [-v templateY=/path/report.vm.xml] [optional options] [arg1] [arg2] ...</b>
- * <p>
- * <table>
+ * <table summary="">
  * <tr>
  * <td>-m &lt;filePath&gt; </td>
  * <td>Optional. The absolute path and name of a text file to be included. E.g. global metadata. Refer to as $metadata in velocity templates.</td>

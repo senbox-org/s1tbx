@@ -45,7 +45,7 @@ public final class AggregatedNumber extends Number {
 
     /**
      * NF is the number of values x that have been filtered out since they do not satisfy the condition
-     * ({@link #mean} - a * {@link #sigma}) < x <  ({@link #mean} + a * {@link #sigma}), where a is most likely
+     * ({@link #mean} - a * {@link #sigma}) &lt; x &lt;  ({@link #mean} + a * {@link #sigma}), where a is most likely
      * 1.5.
      */
     public final int nF;

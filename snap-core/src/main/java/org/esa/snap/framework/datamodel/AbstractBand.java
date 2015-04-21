@@ -218,7 +218,7 @@ public abstract class AbstractBand extends RasterDataNode {
      * (Re-)Computes this band's data using the given arithmetic expression.
      *
      * @param expression          the arithmetic expression string, e.g. "1 + log(radiance_5 / radiance_13)"
-     * @param validMaskExpression the arithmetic expression identifying valid source pixels, e.g. "radiance_5 > 0.0 && radiance_13 > 0.0"
+     * @param validMaskExpression the arithmetic expression identifying valid source pixels, e.g. "radiance_5 &gt; 0.0 &amp;&amp; radiance_13 &gt; 0.0"
      * @param sourceProducts      the list of source products possibly referenced in the expression
      * @param defaultProductIndex the index of the product for which also symbols without the
      *                            product prefix <code>$<i>ref-no</i></code> are registered in the namespace

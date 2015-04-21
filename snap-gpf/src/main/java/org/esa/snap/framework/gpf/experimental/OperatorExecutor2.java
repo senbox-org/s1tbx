@@ -35,13 +35,14 @@ import java.awt.image.Raster;
  * {@link javax.media.jai.TileScheduler}.
  *
  * <p>
- * Requirements:<br/>
- * 1. Receive raster data for all bands for a requested tile size.<br/>
- * 2. Deterministic vs. Non-deterministic Op/Graph Execution (asynchronous, synchronous)<br/>
- * 3. Efficient computation of single pixels (may not be implemented here, but in MultiLevelImage)<br/>
- * 4. Immediate Execution<br/>
- * 5. Configurable with respect to e.g. parallelism, execution order<br/>
- *
+ * Requirements:
+ * <ol>
+ * <li>Receive raster data for all bands for a requested tile size.</li>
+ * <li>Deterministic vs. Non-deterministic Op/Graph Execution (asynchronous, synchronous)</li>
+ * <li>Efficient computation of single pixels (may not be implemented here, but in MultiLevelImage)</li>
+ * <li>Immediate Execution</li>
+ * <li>Configurable with respect to e.g. parallelism, execution order</li>
+ * </ol>
  * <p>
  * <i>Important Note: This class is not part of the official API, we may remove or rename it at any time.</i>
  *

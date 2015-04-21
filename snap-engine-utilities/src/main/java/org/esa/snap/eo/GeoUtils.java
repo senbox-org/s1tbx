@@ -195,12 +195,13 @@ public final class GeoUtils {
     /**
      * Convert polar coordinates to Cartesian vector.
      * <p>
-     * <b>Definitions:<b/>
-     * <p>Latitude: angle from XY-plane towards +Z-axis.<p>Longitude: angle in XY-plane measured from +X-axis towards +Y-axis.<p>
-     *
+     * <b>Definitions:</b>
+     * <ul>
+     * <li>Latitude: angle from XY-plane towards +Z-axis.</li>
+     * <li>Longitude: angle in XY-plane measured from +X-axis towards +Y-axis.</li>
+     * </ul>
      * <p>
      * Note: Apache's FastMath used in implementation.
-     *
      *
      * @param latitude  The latitude of a given pixel (in degree).
      * @param longitude The longitude of the given pixel (in degree).
@@ -225,9 +226,11 @@ public final class GeoUtils {
     /**
      * Convert Cartesian to Polar coordinates.
      * <p>
-     * <b>Definitions:<b/>
-     * <p>Latitude: angle from XY-plane towards +Z-axis.<p>Longitude: angle in XY-plane measured from +X-axis towards +Y-axis.<p>
-     *
+     * <b>Definitions:</b>
+     * <ul>
+     * <li>Latitude: angle from XY-plane towards +Z-axis.</li>
+     * <li>Longitude: angle in XY-plane measured from +X-axis towards +Y-axis.</li>
+     * </ul>
      * <p>
      * Implementation Details: Unlike for rest of utility methods GeoPos class container is not used for storing polar
      * coordinates. GeoPos fields are declared as floats and can introduced numerical errors, especially in radius/height.

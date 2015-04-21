@@ -49,7 +49,9 @@ import java.io.IOException;
  * <li><code>"ozone"          </code> type float in DU  - Total ozone                                    </li>
  * <li><code>"rel_hum"        </code> type float in %   - Relative humidity                              </li>
  * </ul>
- * <p>The valid grid names for AATSR TOA L1b products are:<ul> <li><code>"latitude"          </code> type float in deg -
+ * <p>The valid grid names for AATSR TOA L1b products are:
+ * <ul>
+ * <li><code>"latitude"          </code> type float in deg -
  * Latitudes                           </li> <li><code>"longitude"         </code> type float in deg - Longitudes
  * </li> <li><code>"lat_corr_nadir"    </code> type float in deg - Latitude corrections, nadir view
  * </li> <li><code>"lon_corr_nadir"    </code> type float in deg - Longitude corrections, nadir view   </li>
@@ -63,8 +65,9 @@ import java.io.IOException;
  * <li><code>"sun_elev_fward"    </code> type float in deg - Solar elevation, forward view       </li>
  * <li><code>"view_elev_fward"   </code> type float in deg - Satellite elevation, forward view   </li>
  * <li><code>"sun_azimuth_fward" </code> type float in deg - Solar azimuth, forward view         </li>
- * <li><code>"view_azimuth_fward"</code> type float in deg - Satellite azimuth, forward view     </li> </ld>
- * <p>The valid grid names for AATSR NR L2 products are:<ld> <li><code>"latitude"          </code> type float in deg -
+ * <li><code>"view_azimuth_fward"</code> type float in deg - Satellite azimuth, forward view     </li>
+ * </ul>
+ * The valid grid names for AATSR NR L2 products are:<ul> <li><code>"latitude"          </code> type float in deg -
  * Latitudes                          </li> <li><code>"longitude"         </code> type float in deg - Longitudes
  * </li> <li><code>"lat_corr_nadir"    </code> type float in deg - Latitude corrections, nadir view
  * </li> <li><code>"lon_corr_nadir"    </code> type float in deg - Longitude corrections, nadir view  </li>

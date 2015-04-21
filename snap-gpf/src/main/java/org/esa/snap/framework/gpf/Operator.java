@@ -33,15 +33,15 @@ import java.util.logging.Logger;
 /**
  * The abstract base class for all operators intended to be extended by clients.
  * <p>The following methods are intended to be implemented or overridden:
- * <ld>
+ * <ul>
  * <li>{@link #initialize()}: must be implemented in order to initialise the operator and create the target
  * product.</li>
- * <li>{@link #computeTile(org.esa.snap.framework.datamodel.Band, Tile, com.bc.ceres.core.ProgressMonitor) computeTile()}: implemented to compute the tile
+ * <li>{@link #computeTile(Band, Tile, ProgressMonitor) computeTile()}: implemented to compute the tile
  * for a single band.</li>
- * <li>{@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor)}: implemented to compute the tiles
+ * <li>{@link #computeTileStack(Map, Rectangle, ProgressMonitor)}: implemented to compute the tiles
  * for multiple bands.</li>
  * <li>{@link #dispose()}: can be overridden in order to free all resources previously allocated by the operator.</li>
- * </ld>
+ * </ul>
  *
  * <p>Generally, only one {@code computeTile} method needs to be implemented. It depends on the type of algorithm which
  * of both operations is most advantageous to implement:
@@ -126,7 +126,7 @@ public abstract class Operator {
 
     /**
      * Updates this operator forcing it to recreate the target product.
-     * <i>Warning: Experimental API added by nf (25.02.2010)</i><br/>
+     * <i>Warning: Experimental API added by nf (25.02.2010)</i>
      *
      * @since BEAM 4.8
      */
@@ -185,11 +185,11 @@ public abstract class Operator {
     // todo - seems not very helpful, only usage in SpectralUnmixingOp (nf - 17.12.2010)
 
     /**
-     * Deactivates the {@link #computeTile(org.esa.snap.framework.datamodel.Band, Tile, com.bc.ceres.core.ProgressMonitor) computeTile}
+     * Deactivates the {@link #computeTile(Band, Tile, ProgressMonitor) computeTile}
      * method. This method can be called from within the {@link #initialize()} method if the current operator configuration prevents
      * the computation of tiles of individual, independent bands.
      *
-     * @throws IllegalStateException if the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack} method is not implemented
+     * @throws IllegalStateException if the {@link #computeTileStack(Map, Rectangle, ProgressMonitor) computeTileStack} method is not implemented
      */
     protected final void deactivateComputeTileMethod() throws IllegalStateException {
         if (!context.isComputeTileStackMethodUsable()) {
@@ -391,7 +391,7 @@ public abstract class Operator {
      * Gets a {@link Tile} for a given band and image region.
      *
      * @param rasterDataNode the raster data node of a data product,
-     *                       e.g. a {@link org.esa.snap.framework.datamodel.Band Band} or
+     *                       e.g. a {@link Band Band} or
      *                       {@link org.esa.snap.framework.datamodel.TiePointGrid TiePointGrid}.
      * @param region         the image region in pixel coordinates
      *
@@ -410,7 +410,7 @@ public abstract class Operator {
      * In this case an extended tile will need to be read from the source.
      *
      * @param rasterDataNode the raster data node of a data product,
-     *                       e.g. a {@link org.esa.snap.framework.datamodel.Band Band} or
+     *                       e.g. a {@link Band Band} or
      *                       {@link org.esa.snap.framework.datamodel.TiePointGrid TiePointGrid}.
      * @param region         The image region in pixel coordinates
      * @param borderExtender A strategy used to fill the raster regions that lie outside the bounds of the source image.

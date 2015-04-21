@@ -212,7 +212,7 @@ public class SystemUtils {
     }
 
     /**
-     * Gets all files (class directory & JAR file pathes) given in the current class path of the Java runtime which
+     * Gets all files (class directory &amp; JAR file pathes) given in the current class path of the Java runtime which
      * loaded this class.
      * <p>
      * <p> The files pathes returned are either relative or absolute, just as they where defined for the runtime's class

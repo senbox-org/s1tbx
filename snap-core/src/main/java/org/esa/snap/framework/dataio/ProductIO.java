@@ -107,14 +107,14 @@ public class ProductIO {
     /**
      * Reads the data product specified by the given file.
      * <p>The returned product will be associated with a reader capable of decoding the file (also
-     * see {@link org.esa.snap.framework.datamodel.Product#getProductReader() Product.productReader}).
+     * see {@link Product#getProductReader() Product.productReader}).
      * If more than one appropriate reader exists in the registry, the returned product will be
      * associated with the reader which is the most preferred according to the product format names
      * supplied as last argument. If no reader capable of decoding the file is capable of handling
      * any of these product formats, the returned product will be associated with the first reader
      * found in the registry which is capable of decoding the file.
      * <p>The method does not automatically load band raster data, so
-     * {@link org.esa.snap.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
+     * {@link Band#getRasterData() Band.rasterData} will always be null
      * for all bands in the product returned by this method.
      *
      * @param file        the data product file
@@ -166,9 +166,9 @@ public class ProductIO {
     /**
      * Reads the data product specified by the given file path.
      * <p>The product returned will be associated with the reader appropriate for the given
-     * file format (see also {@link org.esa.snap.framework.datamodel.Product#getProductReader() Product.productReader}).
+     * file format (see also {@link Product#getProductReader() Product.productReader}).
      * <p>The method does not automatically read band data, thus
-     * {@link org.esa.snap.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
+     * {@link Band#getRasterData() Band.rasterData} will always be null
      * for all bands in the product returned by this method.
      *
      * @param filePath the data product file path
@@ -186,9 +186,9 @@ public class ProductIO {
     /**
      * Reads the data product specified by the given file.
      * <p>The product returned will be associated with the reader appropriate for the given
-     * file format (see also {@link org.esa.snap.framework.datamodel.Product#getProductReader() Product.productReader}).
+     * file format (see also {@link Product#getProductReader() Product.productReader}).
      * <p>The method does not automatically read band data, thus
-     * {@link org.esa.snap.framework.datamodel.Band#getRasterData() Band.rasterData} will always be null
+     * {@link Band#getRasterData() Band.rasterData} will always be null
      * for all bands in the product returned by this method.
      *
      * @param file the data product file
@@ -280,10 +280,11 @@ public class ProductIO {
     /**
      * Writes a product with the specified format to the given file path.
      * <p>The method also writes all band data to the file. Therefore the band data must either
-     * <ld>
-     * <li>be completely loaded ({@link org.esa.snap.framework.datamodel.Band#getRasterData() Band.rasterData} is not null)</li>
-     * <li>or the product must be associated with a product reader ({@link org.esa.snap.framework.datamodel.Product#getProductReader() Product.productReader} is not null) so that unloaded data can be reloaded.</li>
-     * </ld>.
+     * <ul>
+     * <li>be completely loaded ({@link Band#getRasterData() Band.rasterData} is not <code>null</code>)</li>
+     * <li>or the product must be associated with a product reader ({@link Product#getProductReader() Product.productReader} is not <code>null</code>)
+     * so that unloaded data can be reloaded.</li>
+     * </ul>.
      *
      * @param product    the product, must not be <code>null</code>
      * @param filePath   the file path
@@ -301,10 +302,11 @@ public class ProductIO {
     /**
      * Writes a product with the specified format to the given file path.
      * <p>The method also writes all band data to the file. Therefore the band data must either
-     * <ld>
-     * <li>be completely loaded ({@link org.esa.snap.framework.datamodel.Band#getRasterData() Band.rasterData} is not null)</li>
-     * <li>or the product must be associated with a product reader ({@link org.esa.snap.framework.datamodel.Product#getProductReader() Product.productReader} is not null) so that unloaded data can be reloaded.</li>
-     * </ld>.
+     * <ul>
+     * <li>be completely loaded ({@link Band#getRasterData() Band.rasterData} is not <code>null</code>)</li>
+     * <li>or the product must be associated with a product reader ({@link Product#getProductReader() Product.productReader} is not <code>null</code>)
+     * so that unloaded data can be reloaded.</li>
+     * </ul>.
      *
      * @param product    the product, must not be <code>null</code>
      * @param filePath   the file path
@@ -324,10 +326,11 @@ public class ProductIO {
     /**
      * Writes a product with the specified format to the given file.
      * <p>The method also writes all band data to the file. Therefore the band data must either
-     * <ld>
-     * <li>be completely loaded ({@link org.esa.snap.framework.datamodel.Band#getRasterData() Band.rasterData} is not null)</li>
-     * <li>or the product must be associated with a product reader ({@link org.esa.snap.framework.datamodel.Product#getProductReader() Product.productReader} is not null) so that unloaded data can be reloaded.</li>
-     * </ld>.
+     * <ul>
+     * <li>be completely loaded ({@link Band#getRasterData() Band.rasterData} is not <code>null</code>)</li>
+     * <li>or the product must be associated with a product reader ({@link Product#getProductReader() Product.productReader} is not <code>null</code>)
+     * so that unloaded data can be reloaded.</li>
+     * </ul>.
      *
      * @param product     the product, must not be <code>null</code>
      * @param file        the product file , must not be <code>null</code>
@@ -347,10 +350,11 @@ public class ProductIO {
     /**
      * Writes a product with the specified format to the given file.
      * <p>The method also writes all band data to the file. Therefore the band data must either
-     * <ld>
-     * <li>be completely loaded ({@link org.esa.snap.framework.datamodel.Band#getRasterData() Band.rasterData} is not null)</li>
-     * <li>or the product must be associated with a product reader ({@link org.esa.snap.framework.datamodel.Product#getProductReader() Product.productReader} is not null) so that unloaded data can be reloaded.</li>
-     * </ld>.
+     * <ul>
+     * <li>be completely loaded ({@link Band#getRasterData() Band.rasterData} is not <code>null</code>)</li>
+     * <li>or the product must be associated with a product reader ({@link Product#getProductReader() Product.productReader} is not <code>null</code>)
+     * so that unloaded data can be reloaded.</li>
+     * </ul>.
      *
      * @param product     the product, must not be <code>null</code>
      * @param file        the product file , must not be <code>null</code>

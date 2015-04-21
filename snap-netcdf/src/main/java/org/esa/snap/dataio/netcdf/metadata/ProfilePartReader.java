@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * Implementations provide parts of a {@link Product Product}. They are provided to the framework by implementations
  * of {@link org.esa.snap.dataio.netcdf.AbstractNetCdfReaderPlugIn AbstractNetCdfReaderPlugIn}.
- * The methods of all {@see ProfilePartReader} belonging to a {@link org.esa.snap.dataio.netcdf.AbstractNetCdfReaderPlugIn AbstractNetCdfReaderPlugIn}
+ * The methods of all {@link ProfilePartReader} belonging to a {@link org.esa.snap.dataio.netcdf.AbstractNetCdfReaderPlugIn AbstractNetCdfReaderPlugIn}
  * are called in the following sequence
  * <ol>
  * <li> {@link #preDecode(org.esa.snap.dataio.netcdf.ProfileReadContext , Product)}</li>
