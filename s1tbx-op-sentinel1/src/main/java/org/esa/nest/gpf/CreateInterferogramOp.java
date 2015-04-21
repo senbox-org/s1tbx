@@ -94,15 +94,15 @@ public class CreateInterferogramOp extends Operator {
 
     @Parameter(interval = "(1, 75]",
             description = "Size of coherence estimation window in Azimuth direction",
-            defaultValue = "10",
+            defaultValue = "9",
             label = "Coherence Azimuth Window Size")
-    private int cohWinAz = 10;
+    private int cohWinAz = 9;
 
     @Parameter(interval = "(1, 75]",
             description = "Size of coherence estimation window in Range direction",
-            defaultValue = "10",
+            defaultValue = "45",
             label = "Coherence Range Window Size")
-    private int cohWinRg = 10;
+    private int cohWinRg = 45;
 
     // flat_earth_polynomial container
     private HashMap<String, DoubleMatrix> flatEarthPolyMap = new HashMap<>();
