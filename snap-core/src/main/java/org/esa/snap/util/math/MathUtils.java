@@ -22,7 +22,6 @@ import java.awt.Rectangle;
 /**
  * A utility class providing frequently used mathematical functions which are not found in the
  * <code>java.lang.Math</code> class.
- * <p/>
  * <p> All functions have been implemented with extreme caution in order to provide a maximum performance.
  *
  * @author Norman Fomferra
@@ -282,7 +281,6 @@ public class MathUtils {
     /**
      * Computes a rounded value for the given rounding factor. The given value is pre-multiplied with the rounding
      * factor, then rounded to the closest <code>int</code> and then again divided by the the rounding factor.
-     * <p/>
      * <p>The rounding factor can be computed for a given value range and accuracy with the
      * <code>computeRoundFactor</code>  method.
      *
@@ -300,7 +298,6 @@ public class MathUtils {
     /**
      * Computes a rounded value for the given rounding factor. The given value is pre-multiplied with the rounding
      * factor, then rounded to the closest <code>int</code> and then again divided by the the rounding factor.
-     * <p/>
      * <p>The rounding factor can be computed for a given value range and accuracy with the
      * <code>computeRoundFactor</code>  method.
      *

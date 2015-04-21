@@ -46,7 +46,7 @@ public abstract class ProgressMonitorSwingWorker<T, V> extends SwingWorker<T, V>
      *
      * @return the computed result
      *
-     * @throws Exception
+     * @throws Exception if unable to compute a result
      */
     @Override
     protected final T doInBackground() throws Exception {
@@ -65,8 +65,7 @@ public abstract class ProgressMonitorSwingWorker<T, V> extends SwingWorker<T, V>
 
     /**
      * Computes a result, or throws an exception if unable to do so.
-     * <p/>
-     * <p>Note that this method is executed only once in a background thread.</p>
+     * <p>Note that this method is executed only once in a background thread.
      *
      * @param pm the progress monitor
      *

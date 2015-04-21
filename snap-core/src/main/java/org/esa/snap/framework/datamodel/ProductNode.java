@@ -67,7 +67,7 @@ public abstract class ProductNode extends ExtensibleObject {
     /**
      * Sets the the owner node of this node.
      * <p>Overrides shall finally call <code>super.setOwner(owner)</code>.
-     * </p>
+     *
      *
      * @param owner the new owner
      */
@@ -150,7 +150,7 @@ public abstract class ProductNode extends ExtensibleObject {
 
     /**
      * Sets this node's modified flag.
-     * <p/>
+     * <p>
      * If the modified flag changes to true and this node has an owner, the owner's modified flag is also set to
      * true.
      *
@@ -177,10 +177,8 @@ public abstract class ProductNode extends ExtensibleObject {
     /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
-     * <p/>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-     * <p/>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
     public void dispose() {

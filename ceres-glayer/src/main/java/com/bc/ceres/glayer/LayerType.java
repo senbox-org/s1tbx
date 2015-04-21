@@ -42,12 +42,12 @@ public abstract class LayerType extends ExtensibleObject {
      * The default implementation returns the name given by the
      * {@link com.bc.ceres.glayer.annotations.LayerTypeMetadata#name()} annotation property, if any.
      * Otherwise, the fully qualified class name is returned.
-     * </p>
+     *
      * <p>
      * As of Ceres 0.13, it is not recommended to override this method. Instead use the
      * {@link com.bc.ceres.glayer.annotations.LayerTypeMetadata#name()}
      * annotation property for your special layer type.
-     * </p>
+     *
      *
      * @return The name of this layer type.
      */
@@ -67,11 +67,11 @@ public abstract class LayerType extends ExtensibleObject {
      * The default implementation returns the alias names given by the
      * {@link com.bc.ceres.glayer.annotations.LayerTypeMetadata#aliasNames()} annotation property, if any.
      * Otherwise, an empty array is returned.
-     * </p>
+     *
      * <p>
      * As of Ceres 0.13, it is not recommended to override this method. Instead use the {@link LayerTypeMetadata}
      * annotation for your special layer type.
-     * </p>
+     *
      *
      * @return The aliases of this layer type.
      */

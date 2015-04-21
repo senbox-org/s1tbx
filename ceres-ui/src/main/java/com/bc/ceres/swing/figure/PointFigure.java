@@ -21,7 +21,7 @@ import java.awt.geom.Point2D;
 
 /**
  * A point figure.
- * <p/>
+ * <p>
  * Clients should not implement this interface directly, because it may change in the future.
  * Instead they should derive their {@code Figure} implementation from {@link AbstractPointFigure}.
  *

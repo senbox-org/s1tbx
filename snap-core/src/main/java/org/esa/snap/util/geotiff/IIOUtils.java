@@ -41,13 +41,10 @@ public class IIOUtils {
      * <code>ImageReader</code> chosen automatically from among those currently registered. The <code>File</code> is
      * wrapped in an <code>ImageInputStream</code>.  If no registered <code>ImageReader</code> claims to be able to
      * readImage the resulting stream, <code>null</code> is returned.
-     * <p/>
      * <p> The current cache settings from <code>getUseCache</code>and <code>getCacheDirectory</code> will be used to
      * control caching in the <code>ImageInputStream</code> that is created.
-     * <p/>
      * <p> Note that there is no <code>readImage</code> method that takes a filename as a <code>String</code>; use this
      * method instead after creating a <code>File</code> from the filename.
-     * <p/>
      * <p> This methods does not attempt to locate <code>ImageReader</code>s that can readImage directly from a
      * <code>File</code>; that may be accomplished using <code>IIORegistry</code> and <code>ImageReaderSpi</code>.
      *

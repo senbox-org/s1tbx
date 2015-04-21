@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  * for multiple bands.</li>
  * <li>{@link #dispose()}: can be overridden in order to free all resources previously allocated by the operator.</li>
  * </ld>
- * </p>
+ *
  * <p>Generally, only one {@code computeTile} method needs to be implemented. It depends on the type of algorithm which
  * of both operations is most advantageous to implement:
  * <ol>
@@ -53,16 +53,15 @@ import java.util.logging.Logger;
  * because they are a simultaneous output. This is often the case for algorithms based on neural network, cluster analyses,
  * model inversion methods or spectral unmixing.</li>
  * </ol>
- * </p>
+ *
  * <p>The framework execute either the {@code computeTile()} or the {@code computeTileStack()} method
  * based on the current use case or request.
  * If tiles for single bands are requested, e.g. for image display, it will always prefer an implementation of
  * the {@code computeTile()} method and call it.
  * If all tiles are requested at once, e.g. writing a product to disk, it will attempt to use the {@code computeTileStack()}
- * method. If the framework cannot use its preferred operation, it will use the one implemented by the operator.</p>
- * <p/>
- * <p>todo - Explain the role of operator annotations (nf - 15.10.2007)</p>
- * <p>todo - Explain the role of the SPI (nf - 15.10.2007)</p>
+ * method. If the framework cannot use its preferred operation, it will use the one implemented by the operator.
+ * <p>todo - Explain the role of operator annotations (nf - 15.10.2007)
+ * <p>todo - Explain the role of the SPI (nf - 15.10.2007)
  *
  * @author Norman Fomferra
  * @author Marco Peters
@@ -110,13 +109,13 @@ public abstract class Operator {
      * <p>The target product can be either defined by a field of type {@link Product} annotated with the
      * {@link org.esa.snap.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
      * by calling {@link #setTargetProduct} method.
-     * </p>
+     *
      * <p> This method shall never be called directly. The framework calls this method after it has created
      * an instance of this {@code Operator}. This will occur
      * only once durting the lifetime of an {@code Operator} instance.
      * If not already done, calling the {@link #getTargetProduct()} will always trigger
      * a call to the {@code initialize()} method.
-     * </p>
+     *
      * Any client code that must be performed before computation of tile data
      * should be placed here.
      *
@@ -139,9 +138,9 @@ public abstract class Operator {
 
     /**
      * Called by the framework in order to compute a tile for the given target band.
-     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
+     * <p>The default implementation throws a runtime exception with the message "not implemented".
      * <p>This method shall never be called directly.
-     * </p>
+     *
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
@@ -158,9 +157,9 @@ public abstract class Operator {
 
     /**
      * Called by the framework in order to compute the stack of tiles for the given target bands.
-     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
+     * <p>The default implementation throws a runtime exception with the message "not implemented".
      * <p>This method shall never be called directly.
-     * </p>
+     *
      *
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
@@ -177,7 +176,7 @@ public abstract class Operator {
     /**
      * Releases the resources the operator has acquired during its lifetime.
      * The default implementation does nothing.
-     * <p/>
+     * <p>
      * Overrides should make sure to call {@code super.dispose()} as well.
      */
     public void dispose() {
@@ -310,9 +309,8 @@ public abstract class Operator {
 
     /**
      * Gets the target product for the operator.
-     * <p/>
      * <p>If the target product is not set, calling this method results in a
-     * call to {@link #initialize()}.</p>
+     * call to {@link #initialize()}.
      *
      * @return The target product.
      *
@@ -325,8 +323,7 @@ public abstract class Operator {
 
     /**
      * Sets the target product for the operator.
-     * <p/>
-     * <p>Must be called from within the {@link #initialize()} method.</p>
+     * <p>Must be called from within the {@link #initialize()} method.
      *
      * @param targetProduct The target product.
      */
@@ -336,9 +333,8 @@ public abstract class Operator {
 
     /**
      * Gets a target property of the operator.
-     * <p/>
      * <p>If the requested target property is not set, calling this method results in a
-     * call to {@link #initialize()}.</p>
+     * call to {@link #initialize()}.
      *
      * @param name the name of the property requested.
      *

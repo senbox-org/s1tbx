@@ -21,14 +21,14 @@ import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.swing.figure.support.DefaultFigureStyle;
 import com.bc.ceres.swing.figure.support.NamedSymbol;
 
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 /**
  * Base class for all {@link PointFigure} implementations.
- * <p/>
+ * <p>
  * Sub-classes have to provide the location and radius of the point in model coordinates.
  *
  * @author Norman Fomferra

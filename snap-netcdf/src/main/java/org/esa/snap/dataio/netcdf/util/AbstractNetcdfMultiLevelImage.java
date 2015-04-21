@@ -32,7 +32,7 @@ import java.awt.image.RenderedImage;
  * {@link com.bc.ceres.glevel.MultiLevelSource} interface.
  * The image data provided by this {@code PlanarImage} corresponds to the level zero image of the given
  * {@code MultiLevelSource}.
- * <p/>
+ * <p>
  * The difference is that this {@code MultiLevelImage} computes its model lazy. when requested the first time.
  *
  * @author Marco Zuehlke

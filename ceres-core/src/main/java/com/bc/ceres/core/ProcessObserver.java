@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 /**
  * An observer that notifies its {@link ProcessObserver.Handler handlers} about lines of characters that have been written
  * by a process to both {@code stdout} and {@code stderr} output streams.
- * <p/>
+ * <p>
  * <pre>
  * TODO
  *

@@ -99,7 +99,7 @@ public class MetadataResourceEngine {
      * Reads the all metadata file belonging to the given source item and places them into a map registered as
      * 'sourceMetadata' the velocity context. The 'sourceMetadata'-map contains the processed metadata files as another map.
      * The map of metadata files can be retrieved using the key 'sourceId'.
-     * <p/>
+     * <p>
      * Metadata files belong to a source if they follow a naming pattern:
      * For a given {@code sourcePath} "chl_a.nc", e.g. "chl_a-metadata.xml" and "chl_a-report.html" are considered.
      *
@@ -139,7 +139,7 @@ public class MetadataResourceEngine {
     /**
      * Writes metadata belonging to the given target item. For this the velocity template is evaluated
      * using the current context.
-     * <p/>
+     * <p>
      * The target metadata files follow a naming pattern:
      * For a given {@code templatePath} "report.xml.vm" and {@code targetPath} "chl_a.nc"
      * a target metadata file "chl_a-report.xml" gets written.

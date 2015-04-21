@@ -16,10 +16,10 @@
 
 package com.bc.ceres.glayer;
 
-import java.awt.*;
+import java.awt.AlphaComposite;
 
 /**
- * An enumeration used by the {@link Style} interface.
+ * An enumeration used by {@link Layer}.
  *
  * @author Norman Fomferra
  */
@@ -39,7 +39,7 @@ public enum Composite {
 
     final int value;
 
-    private Composite(int value) {
+    Composite(int value) {
         this.value = value;
     }
 

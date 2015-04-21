@@ -19,7 +19,7 @@ package org.esa.snap.framework.dataop.maptransf;
 import org.esa.snap.framework.datamodel.GeoPos;
 
 /**
- * <p><i>Note that this class is not yet public API and may change in future releases.</i></p>
+ * <p><i>Note that this class is not yet public API and may change in future releases.</i>
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$

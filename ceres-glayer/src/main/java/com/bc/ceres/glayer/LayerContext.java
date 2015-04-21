@@ -19,10 +19,10 @@ package com.bc.ceres.glayer;
 /**
  * The context in which layers are managed, created and/or rendered, e.g. the view used to
  * display multiple layers.
- * <p/>
+ * <p>
  * By default, the context is composed of the root layer and a common coordinate reference system (CRS)
  * shared by all layers, this is the root layer and all of its child layers and so forth.
- * <p/>
+ * <p>
  * Instances of this interface are passed to the several methods of {@link LayerType}
  * in order to provide special layer type implementations with access to application specific services.
  * Therefore this interface is intended to be implemented by clients.

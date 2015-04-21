@@ -66,7 +66,6 @@ class LineInterleavedRecordReader extends RecordReader {
 
     /**
      * Reads the record with the given zero-based index from from the product file.
-     * <p/>
      * <p> In order to reduce memory allocation, the method accepts an optional record argument. If this record is not
      * null, it will be used to read in the data. If it is null, a new record will be created.
      *
@@ -98,7 +97,6 @@ class LineInterleavedRecordReader extends RecordReader {
 
     /**
      * Reads a segment of a single field from the record with the given zero-based index from from the product file.
-     * <p/>
      * <p> In order to reduce memory allocation, the method accepts an mandantory record argument.
      * It will be used to read in the data.
      *

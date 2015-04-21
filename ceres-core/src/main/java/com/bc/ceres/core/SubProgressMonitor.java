@@ -35,11 +35,9 @@ package com.bc.ceres.core;
  *         pm.done();
  *     }
  * </pre>
- * <p/>
  * <p>
  * This class may be instantiated or subclassed by clients.
- * </p>
- * <p>This class has been more or less directly taken over from the <a href="http://www.eclipse.org/">Eclipse</a> Core API.</p>
+ * <p>This class has been more or less directly taken over from the <a href="http://www.eclipse.org/">Eclipse</a> Core API.
  */
 public class SubProgressMonitor extends ProgressMonitorWrapper {
 

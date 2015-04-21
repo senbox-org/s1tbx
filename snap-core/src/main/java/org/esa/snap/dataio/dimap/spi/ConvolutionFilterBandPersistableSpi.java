@@ -20,7 +20,7 @@ import org.esa.snap.framework.datamodel.ConvolutionFilterBand;
 import org.jdom.Element;
 
 /**
- * <p><i>Note that this class is not yet public API. Interface may chhange in future releases.</i></p>
+ * <p><i>Note that this class is not yet public API. Interface may chhange in future releases.</i>
  *
  * @author Marco Peters
  */

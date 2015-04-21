@@ -20,7 +20,7 @@ package com.bc.ceres.core;
  * The <code>ProgressMonitor</code> interface is implemented
  * by objects that monitor the progress of an activity; the methods
  * in this interface are invoked by code that performs the activity.
- * <p/>
+ * <p>
  * All activity is broken down into a linear sequence of tasks against
  * which progress is reported. When a task begins, a <code>beginTask(String, int)
  * </code> notification is reported, followed by any number and mixture of
@@ -30,24 +30,22 @@ package com.bc.ceres.core;
  * notification, the progress monitor cannot be reused;  i.e., <code>
  * beginTask(String, int)</code> cannot be called again after the call to
  * <code>done()</code>.
- * </p>
- * <p/>
+ * <p>
  * A request to cancel an operation can be signaled using the
  * <code>setCanceled</code> method.  Operations taking a progress
  * monitor are expected to poll the monitor (using <code>isCanceled</code>)
  * periodically and abort at their earliest convenience.  Operation can however
  * choose to ignore cancelation requests.
- * </p>
- * <p/>
+ * <p>
  * Since notification is synchronous with the activity itself, the listener should
  * provide a fast and robust implementation. If the handling of notifications would
  * involve blocking operations, or operations which might throw uncaught exceptions,
  * the notifications should be queued, and the actual processing deferred (or perhaps
  * delegated to a separate thread).
- * </p><p>
+ * <p>
  * Clients may implement this interface.
- * </p>
- * <p>This interface has been more or less directly taken over from the <a href="http://www.eclipse.org/">Eclipse</a> Core API.</p>
+ * <p>
+ * This interface has been more or less directly taken over from the <a href="http://www.eclipse.org/">Eclipse</a> Core API.
  */
 public interface ProgressMonitor {
 
@@ -80,7 +78,7 @@ public interface ProgressMonitor {
     /**
      * Internal method to handle scaling correctly. This method
      * must not be called by a client. Clients should
-     * always use the method </code>worked(int)</code>.
+     * always use the method <code>worked(int)</code>.
      *
      * @param work the amount of work done
      */

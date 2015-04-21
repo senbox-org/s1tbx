@@ -32,7 +32,7 @@ import java.awt.geom.Point2D;
 
 /**
  * The Mollweide projection is a pseudocylindrical map projection.
- * <p/>
+ * <p>
  * It is used primarily where accurate representation of area takes precedence over shape,
  * for instance small maps depicting global distributions.
  *

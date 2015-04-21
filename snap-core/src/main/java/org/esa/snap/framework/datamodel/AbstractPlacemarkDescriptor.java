@@ -20,7 +20,6 @@ public abstract class AbstractPlacemarkDescriptor implements PlacemarkDescriptor
 
     /**
      * {@inheritDoc}
-     * <p/>
      * The default implementation returns
      * <pre>
      *     new Placemark(this, feature)

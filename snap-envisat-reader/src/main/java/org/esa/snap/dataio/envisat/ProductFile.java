@@ -222,7 +222,6 @@ public abstract class ProductFile {
     /**
      * Opens an ENVISAT product file for the given seekable data input stream and returns an object representing the
      * opened product file.
-     * <p/>
      * <p> This factory method automatically detects the ENVISAT product type and returns - if applicable - an
      * appropriate <code>ProductFile</code> subclass instance for it, otherwise a default <code>ProductFile</code>
      * instance is created.
@@ -365,7 +364,6 @@ public abstract class ProductFile {
     /**
      * Gets the number of columns contained in the measuremet datasets (MDS) contained in this product. The value
      * returned is measured in pixels.
-     * <p/>
      * <p> Since the retrieval of the number of columns is product type dependend this method is abstract in order to
      * let a sub-class implement the retrieval.
      *
@@ -376,10 +374,8 @@ public abstract class ProductFile {
     /**
      * Gets the number of lines contained in the measuremet datasets (MDS) contained in this product. The value returned
      * is measured in pixels.
-     * <p/>
      * <p> Since the retrieval of the number of lines is product type dependend this method is abstract in order to let
      * a sub-class implement the retrieval.
-     * <p/>
      * <p> Another way to get the number of lines for a particular scene is to call the <code>getNumRecords</code>
      * method of the related <code>DSD</code> or <code>RecordReader</code>,
      *
@@ -392,7 +388,6 @@ public abstract class ProductFile {
 
     /**
      * Gets the X-offset of the first (upper left) tie-point in the grid in the product's scene pixel co-ordinates.
-     * <p/>
      * <p> Since the retrieval of the X-offset of the tie-point grid is product type dependend this method is abstract
      * in order to let a sub-class implement the retrieval.
      *
@@ -404,7 +399,6 @@ public abstract class ProductFile {
 
     /**
      * Gets the Y-offset of the first (upper left) tie-point in the grid in the product's scene pixel co-ordinates.
-     * <p/>
      * <p> Since the retrieval of the Y-offset of the tie-point grid is product type dependend this method is abstract
      * in order to let a sub-class implement the retrieval.
      *
@@ -417,10 +411,8 @@ public abstract class ProductFile {
     /**
      * Gets the number of columns associated with one tie point. The value returned is measured in pixels. The method
      * returns the value <code>1</code> for data products not having tie point datasets.
-     * <p/>
      * <p> Since the retrieval of the number of columns associated with one tie point is product type dependend this
      * method is abstract in order to let a sub-class implement the retrieval.
-     * <p/>
      * <p> Valid ENVISAT data products must at least provide a number of
      * <pre> 1 + getSceneRasterWidth() / getTiePointSubSamplingX() </pre>
      * tie points per annotation dataset record (ADSR).
@@ -435,10 +427,8 @@ public abstract class ProductFile {
      * Gets the number of lines (i.e. samples in vertical direction) associated with one tie point. The value returned
      * is measured in pixels. The method returns the value <code>1</code> for data products not having tie point
      * datasets.
-     * <p/>
      * <p> Since the retrieval of the number of lines contained in a data product is differs from pruct type to type
      * this method is abstract in order to let a sub-class implement the retrieval.
-     * <p/>
      * <p> Valid ENVISAT data products must at least provide a number of
      * <pre> 1 + getSceneRasterHeight() / getTiePointSubSamplingY() </pre>
      * tie points per annotation dataset record (ADSR).
@@ -677,7 +667,6 @@ public abstract class ProductFile {
 
     /**
      * Gets a record reader for the dataset with the given dataset name.
-     * <p/>
      * <p> Although the method does not access the product file at this moment, an I/O error can occur, since the method
      * accesses the internal dataset descriptor database (DDDB).
      *
@@ -855,12 +844,9 @@ public abstract class ProductFile {
 
     /**
      * This method is called after the main product header has been read in successfully.
-     * <p/>
      * <p> Sub-classes should set product specific parameters in the <code>parameters</code> argument. The parameters
      * can be referenced in DDDB in order to implement dynamic field length, such as 'LINE_WIDTH'.
-     * <p/>
      * <p> When this method is called, the <code>getMPH()</code> method returns a non-null value.
-     * <p/>
      * <p> The default implementation is empty.
      *
      * @param parameters product specific parameters (possibly referenced within in the DDDB
@@ -872,13 +858,10 @@ public abstract class ProductFile {
 
     /**
      * This method is called after the specific product header has been read in successfully.
-     * <p/>
      * <p> Sub-classes should set product specific parameters in the <code>parameters</code> argument. The parameters
      * can be referenced in DDDB in order to implement dynamic field length, such as 'LINE_WIDTH'.
-     * <p/>
      * <p> When this method is called, the <code>getMPH()</code> and <code>getSPH()</code> methods return a non-null
      * value.
-     * <p/>
      * <p> The default implementation is empty.
      *
      * @param parameters product specific parameters as used in the DDDB
@@ -1006,7 +989,6 @@ public abstract class ProductFile {
     /**
      * Opens an ENVISAT product file for the given seekable data input stream and returns an object representing the
      * opened product file.
-     * <p/>
      * <p> This factory method automatically detects the ENVISAT product type and returns - if applicable - an
      * appropriate <code>ProductFile</code> subclass instance for it, otherwise a default <code>ProductFile</code>
      * instance is created.
@@ -1027,7 +1009,6 @@ public abstract class ProductFile {
     /**
      * Opens an ENVISAT product file for the given seekable data input stream and returns an object representing the
      * opened product file.
-     * <p/>
      * <p> This factory method automatically detects the ENVISAT product type and returns - if applicable - an
      * appropriate <code>ProductFile</code> subclass instance for it, otherwise a default <code>ProductFile</code>
      * instance is created.
@@ -1078,7 +1059,6 @@ public abstract class ProductFile {
 
     /**
      * Initializes a product file object from the seekable data input stream.
-     * <p/>
      * <p> The method then calls the private <code>readMPH</code> and <code>readSPH</code> in sequence.
      *
      * @throws java.io.IOException if an I/O error occurs
@@ -1102,10 +1082,9 @@ public abstract class ProductFile {
 
     /**
      * Implementation helper.
-     * <p/>
      * <p> Reads the MPH. The MPH is expected to have the size defined in the <code>EnvisatConstants.MPH_SIZE</code>
      * constant. <p> Internally the MPH is stored in the <code>mph</code> member.
-     * <p/>
+     * <p>
      * The following MPH parameters have are used internally by this reader: <ld> <li><code>PRODUCT</code></li>
      * <li><code>TOT_SIZE</code></li> <li><code>SPH_SIZE</code></li> <li><code>DSD_SIZE</code></li>
      * <li><code>NUM_DSD</code></li> <li><code>NUM_DATA_SETS</code></li> <li><code>SENSING_START</code></li>
@@ -1157,7 +1136,7 @@ public abstract class ProductFile {
 
     /**
      * Implementation helper.
-     * <p/>
+     * <p>
      * Reads the SPH and all DSDs contained in it. <p> Internally the SPH is stored in the <code>sph</code> member
      * while each of the DSDs read in are stored in the internal <code>dsdArray</code> member.
      *
@@ -1228,7 +1207,7 @@ public abstract class ProductFile {
 
     /**
      * Implementation helper.
-     * <p/>
+     * <p>
      * Reads the single, product type specific GADS record.
      *
      * @throws java.io.IOException if an I/O error occurs

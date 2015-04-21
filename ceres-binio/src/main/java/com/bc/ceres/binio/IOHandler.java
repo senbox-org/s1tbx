@@ -28,7 +28,7 @@ public interface IOHandler {
      * Reads a sequence of up to {@code data.length} bytes into the
      * given array starting from the the given position. If the position
      * is greater than the file's current size then no bytes are read.
-     * <p/>
+     * <p>
      * A read operation might not fill the array, and in fact it might not
      * read any bytes at all.  Whether or not it does so, depends upon the
      * state of the file, e.g. only bytes that remain in the file starting from
@@ -47,7 +47,7 @@ public interface IOHandler {
      * starting at the given position. If the given
      * position is greater than the file's current size then the file will be
      * grown to accommodate the new bytes; the values of any bytes between the
-     * previous end-of-file and the newly-written bytes are unspecified.</p>
+     * previous end-of-file and the newly-written bytes are unspecified.
      *
      * @param context  The I/O context.
      * @param data     The data array from which bytes are to be transferred.
@@ -59,7 +59,7 @@ public interface IOHandler {
     
     /**
      * Returns the current size of the backing file, array or stream.
-     * <p/>This value may change, while writing to a growing file or array.
+     * <p>This value may change, while writing to a growing file or array.
      * If the value is unknown {@code -1} will be returned.
      * 
      * @return Te maximum position.

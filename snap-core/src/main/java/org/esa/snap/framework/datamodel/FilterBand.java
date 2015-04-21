@@ -35,8 +35,7 @@ import java.io.IOException;
 
 /**
  * Represents a band that generates its data by using another band as input and performs some kind of operation on this input.
- * <p/>
- * <p><i>Note that this class is not yet public API and may change in future releases.</i></p>
+ * <p><i>Note that this class is not yet public API and may change in future releases.</i>
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$

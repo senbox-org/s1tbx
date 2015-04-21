@@ -21,7 +21,7 @@ import org.jdom.Element;
 /**
  * The service provider interface (SPI) for <code>DimapPersistable</code>s.
  *
- * <p><i>Note that this class is not yet public API. Interface may chhange in future releases.</i></p>
+ * <p><i>Note that this class is not yet public API. Interface may chhange in future releases.</i>
  *
  * @author Marco Peters
  * @version $Revision$ $Date$

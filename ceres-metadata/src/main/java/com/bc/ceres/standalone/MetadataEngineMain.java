@@ -13,9 +13,9 @@ import java.util.Map;
 
 /**
  * A default executable class for the metadata engine. It implements common usage of the MatadataEngine API.
- * <p/>
+ * <p>
  * <b>usage: java -classpath path com.bc.ceres.standalone.MetadataEngineMain -t /path/targetItem.suff -v templateX=/path/metadata.vm.txt [-v templateY=/path/report.vm.xml] [optional options] [arg1] [arg2] ...</b>
- * <p/>
+ * <p>
  * <table>
  * <tr>
  * <td>-m &lt;filePath&gt; </td>

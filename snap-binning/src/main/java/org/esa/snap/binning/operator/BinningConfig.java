@@ -54,7 +54,7 @@ public class BinningConfig {
     /**
      * Specifies the planetary grid used for the binning. It must be the fully qualified
      * name of a class implementing the {@link PlanetaryGrid} interface.
-     * <p/>
+     * <p>
      * If the {@code numRows} is given (meaning it is greater than 0), the planetary grid class
      * must have a public one-argument constructor which takes the {@code numRows} as input.
      * Otherwise a public no-arg constructor is expected.

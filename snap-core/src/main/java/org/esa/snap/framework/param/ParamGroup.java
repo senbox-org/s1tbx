@@ -48,13 +48,11 @@ public class ParamGroup {
 
     /**
      * Adds and configures parameters supplied through the given properties.
-     * <p/>
      * <p> For each entry in the properties having the form <code><i>any-string</i>.name = <i>param-name</i></code> the
      * method creates a new parameter with the name given by <i>param-name</i> if it does not already exists in this
      * list. Then, for each entry of the form <code><i>param-name</i>.<i>attrib-name</i> = <i>attrib-value</i></code>
      * contained in the given properties, the method sets/creates a new parameter attribute for the parameter's
      * <code>getProperties()</code> field.
-     * <p/>
      * <p> If a parameter found in the properties has the <code>null</code> value, the method sets the value of this
      * parameter to the value given by <code><i>param-name</i>.defaultValue = <i>default-value</i></code>, if it can be
      * found in the properties.
@@ -86,7 +84,6 @@ public class ParamGroup {
 
     /**
      * Sets parameter values supplied through the given property map.
-     * <p/>
      * <p> For each parameter contained in this list having the name <i>param-name</i> this method searches for entries
      * in the  property ma having the form <code><i>param-name</i> = <i>param-value</i></code>. If it can be found, the
      * parameter is set to the given textual value using the parameter's <code>setValueAsText</code> method.
@@ -109,7 +106,6 @@ public class ParamGroup {
 
     /**
      * Gets the parameter values in this group as a property map instance.
-     * <p/>
      * <p> Simply returns <code>getParameterValues(null)</code>.
      *
      * @return the property map, never <code>null</code>
@@ -122,7 +118,6 @@ public class ParamGroup {
 
     /**
      * Gets the parameter values in this group as a property map instance.
-     * <p/>
      * <p> For each parameter contained in this list a new entry in the  property map instance is created. The key is
      * always the paramer's name and the value is created by using the parameter's <code>getValueAsText</code> method.
      *

@@ -23,7 +23,7 @@ import javax.swing.JComponent;
 /**
  * A bi-directional binding between one or more Swing GUI components and a
  * property in a value container.
- * <p/>
+ * <p>
  * This class is not intended to be implemented by clients.
  *
  * @author Norman Fomferra
@@ -93,10 +93,10 @@ public interface Binding {
     /**
      * Adjusts the Swing components in reaction to a bound property change event in the
      * associated {@link com.bc.ceres.binding.PropertyContainer PropertyContainer}.
-     * <p/>
+     * <p>
      * The method delegates to {@link ComponentAdapter#adjustComponents()},
      * but only if this binding is not already adjusting its GUI components.
-     * <p/>
+     * <p>
      * After calling this method the UI is in-sync with the property, so that {@link #getProblem()}
      * will return {@code null}.
      *

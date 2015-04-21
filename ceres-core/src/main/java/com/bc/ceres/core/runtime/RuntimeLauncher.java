@@ -20,7 +20,7 @@ import com.bc.ceres.core.CoreException;
 
 /**
  * Provides a {@link #launch(com.bc.ceres.core.runtime.RuntimeConfig, ClassLoader, String[]) launch} method to launch a runtime.
- * This class provides a default application entry point and is used by the {@link com.bc.ceres.launcher.Launcher}.
+ * This class provides a default application entry point
  */
 public final class RuntimeLauncher {
 

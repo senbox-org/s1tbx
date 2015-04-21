@@ -91,7 +91,7 @@ public abstract class VirtualDir {
     /**
      * Returns an array of strings naming the files and directories in the
      * directory denoted by the given relative directory path.
-     * <p/>
+     * <p>
      * There is no guarantee that the name strings in the resulting array
      * will appear in any specific order; they are not, in particular,
      * guaranteed to appear in alphabetical order.

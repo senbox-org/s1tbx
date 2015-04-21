@@ -31,16 +31,16 @@ import java.util.Arrays;
  * have been computed to match the values of another function at the knot
  * points.  The value consistency constraints are not currently enforced by
  * <code>PolynomialSplineFunction</code> itself, but are assumed to hold among
- * the polynomials and knot points passed to the constructor.</p>
+ * the polynomials and knot points passed to the constructor.
  * <p>
  * N.B.:  The polynomials in the <code>polynomials</code> property must be
  * centered on the knot points to compute the spline function values.
- * See below.</p>
+ * See below.
  * <p>
  * The domain of the polynomial spline function is
  * <code>[smallest knot, largest knot]</code>.  Attempts to evaluate the
  * function at values outside of this range generate IllegalArgumentExceptions.
- * </p>
+ *
  * <p>
  * The value of the polynomial spline function for an argument <code>x</code>
  * is computed as follows:
@@ -51,7 +51,7 @@ import java.util.Arrays;
  * is thrown.</li>
  * <li> Let <code>j</code> be the index of the largest knot point that is less
  * than or equal to <code>x</code>.  The value returned is <br>
- * <code>polynomials[j](x - knot[j])</code></li></ol></p>
+ * <code>polynomials[j](x - knot[j])</code></li></ol>
  */
 public class InterpolatingFunction {
 

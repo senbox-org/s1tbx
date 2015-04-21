@@ -28,7 +28,7 @@ import java.util.Locale;
 /**
  * Performance tests for FastMath.
  * Not enabled by default, as the class does not end in Test.
- * <p/>
+ * <p>
  * Invoke by running<br/>
  * {@code mvn test -Dtest=org.esa.snap.util.math.FastMathPerformance}<br/>
  * or by running<br/>

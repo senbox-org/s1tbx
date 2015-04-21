@@ -196,12 +196,11 @@ public final class GeoUtils {
      * Convert polar coordinates to Cartesian vector.
      * <p>
      * <b>Definitions:<b/>
-     * <p>Latitude: angle from XY-plane towards +Z-axis.<p/>
-     * <p>Longitude: angle in XY-plane measured from +X-axis towards +Y-axis.<p/>
-     * </p>
+     * <p>Latitude: angle from XY-plane towards +Z-axis.<p>Longitude: angle in XY-plane measured from +X-axis towards +Y-axis.<p>
+     *
      * <p>
      * Note: Apache's FastMath used in implementation.
-     * </p>
+     *
      *
      * @param latitude  The latitude of a given pixel (in degree).
      * @param longitude The longitude of the given pixel (in degree).
@@ -227,16 +226,15 @@ public final class GeoUtils {
      * Convert Cartesian to Polar coordinates.
      * <p>
      * <b>Definitions:<b/>
-     * <p>Latitude: angle from XY-plane towards +Z-axis.<p/>
-     * <p>Longitude: angle in XY-plane measured from +X-axis towards +Y-axis.<p/>
-     * </p>
+     * <p>Latitude: angle from XY-plane towards +Z-axis.<p>Longitude: angle in XY-plane measured from +X-axis towards +Y-axis.<p>
+     *
      * <p>
      * Implementation Details: Unlike for rest of utility methods GeoPos class container is not used for storing polar
      * coordinates. GeoPos fields are declared as floats and can introduced numerical errors, especially in radius/height.
-     * </p>
+     *
      * <p>
      * Note: Apache's FastMath used in implementation.
-     * </p>
+     *
      *
      * @param xyz          Array of x, y, and z coordinates.
      * @param phiLamHeight Array of latitude (in radians), longitude (in radians), and radius (in meters).

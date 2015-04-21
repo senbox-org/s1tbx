@@ -17,7 +17,7 @@ package org.esa.snap.dataio.dimap;
 
 /**
  * This class defines some frequently used constants for BEAM DIMAP products.
- * <p/>
+ * <p>
  * The BEAM-DIMAP version history is provided in the API doc of the {@link DimapProductWriterPlugIn}.
  *
  * @author Sabine Embacher
@@ -40,7 +40,7 @@ public final class DimapProductConstants {
 
     /**
      * BEAM-DIMAP version number.
-     * <p/>
+     * <p>
      * Important note: If you change this number, update the BEAM-DIMAP version history given at {@link DimapProductWriterPlugIn}.
      */
     public static final String DIMAP_CURRENT_VERSION = "2.12.0";

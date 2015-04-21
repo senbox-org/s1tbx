@@ -18,9 +18,8 @@ package org.esa.snap.framework.datamodel;
 /**
  * The interface <code>Pointing</code> wraps a {@link GeoCoding} and optionally provides more geometry
  * information such as sun direction, satellite (view) direction and elevation at a given pixel position.
- * <p/>
  * <p>All <code>Pointing</code> implementations should override
- * the {@link Object#equals(Object) equals()} and  {@link Object#hashCode() hashCode()} methods.</p>
+ * the {@link Object#equals(Object) equals()} and  {@link Object#hashCode() hashCode()} methods.
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
@@ -60,10 +59,10 @@ public interface Pointing {
 
     /**
      * Gets the elevation above the given pixel position.
-     * <p/>
+     * <p>
      * This method is called by the {@link org.esa.snap.framework.dataop.dem.Orthorectifier} in the case that no
      * {@link org.esa.snap.framework.dataop.dem.ElevationModel ElevationModel} is available.
-     * <p/>
+     * <p>
      * Note that a particular implementation is not able to retrieve a meaningful
      * elevation, it should return zero.
      *

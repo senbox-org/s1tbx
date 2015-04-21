@@ -27,7 +27,7 @@ import java.io.IOException;
  * with additional capabilities, e.g. insert, delete and select all.
  * It can be seen as the environment in which selections reside and originate,
  * e.g. a GUI table, list, tree, or a drawing of figures.
- * <p/>
+ * <p>
  * This interface may be directly implemented by clients, although it is advised
  * to extend {@link AbstractSelectionContext AbstractSelectionContext},
  * since this interface may evolve in the future.

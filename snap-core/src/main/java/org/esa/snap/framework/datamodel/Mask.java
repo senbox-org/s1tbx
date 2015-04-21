@@ -50,7 +50,7 @@ import java.util.Map;
 
 /**
  * A {@code Mask} is used to mask image pixels of other raster data nodes.
- * <p/>
+ * <p>
  * This is a preliminary API under construction for BEAM 4.7. Not intended for public use.
  *
  * @author Norman Fomferra

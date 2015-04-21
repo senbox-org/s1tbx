@@ -19,7 +19,7 @@ package org.esa.snap.util;
 /**
  * The <code>StopWatch</code> class is a (very) simple utility class that allows to measure the time passed between two
  * user defined events.
- * <p/>
+ * <p>
  * Here is an example:
  * <pre>
  *      ...

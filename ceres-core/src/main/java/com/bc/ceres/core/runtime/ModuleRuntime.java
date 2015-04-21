@@ -20,9 +20,9 @@ import com.bc.ceres.core.CoreException;
 
 /**
  * A runtime for applications composed of multiple modules.
- * <p/>A module runtime is configured through a {@link RuntimeConfig}.
- * <p/>The {@link #getModule()} method implemented of a <code>ModuleRuntime</code> returns the system module.
- * <p/>This interface is not intended to be implemented by clients.
+ * <p>A module runtime is configured through a {@link RuntimeConfig}.
+ * <p>The {@link #getModule()} method implemented of a <code>ModuleRuntime</code> returns the system module.
+ * <p>This interface is not intended to be implemented by clients.
  */
 public interface ModuleRuntime extends ModuleContext {
 
@@ -47,7 +47,7 @@ public interface ModuleRuntime extends ModuleContext {
      * <li>start all modules,</li>
      * <li>register this runtime's {@link #stop()} method as a shutdown hook to the VM,</li>
      * <li>start an optional application, which is a {@link RuntimeRunnable} registered with the  <code>ceres-core:applications</code> extension point.</li>
-     * </li>
+     * </ol>
      *
      * @throws CoreException if an error in the runtime occurs
      * @see java.lang.Runtime#addShutdownHook(Thread)

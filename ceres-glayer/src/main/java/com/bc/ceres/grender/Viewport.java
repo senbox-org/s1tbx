@@ -16,7 +16,7 @@
 
 package com.bc.ceres.grender;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
@@ -28,14 +28,14 @@ import java.awt.geom.Rectangle2D;
  * (translation, rotation, scaling) from the view to the model coordiate system.
  * Shearing transformations are not supported, but the coordinate system's
  * Y-axes may point in different directions.
- * </p>
+ *
  * <p>The view coordinate system is a cartesian coordinate system with the X-axis pointing
  * to the right and the Y-axis pointing downwards.
- * </p>
+ *
  * <p>The model coordinate system is assumed to be cartesian coordinate system with the X-axis pointing
  * to the right and the Y-axis pointing either upwards or downwards.
  * See method {@link #isModelYAxisDown()}.
- * </p>
+ *
  *
  * @author Norman Fomferra
  */

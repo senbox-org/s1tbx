@@ -24,7 +24,6 @@ import org.esa.snap.util.math.RsMathUtils;
 
 /**
  * An experimental modification of the standard {@link Orthorectifier}.
- * <p/>
  * <p><i>IMPORTANT NOTE: This class is not thread save. In order to use it safely, make sure to create a new instance of
  * this class for each orthorectifying thread.</i>
  *
@@ -48,10 +47,10 @@ public class Orthorectifier2 extends Orthorectifier {
 
     /**
      * Returns the pixel co-ordinates as x,y for a given geographical position given as lat,lon.
-     * <p/>
+     * <p>
      * Implements the prediction/correction algorithm from the MERIS Geometry Handbook, VT-P194-DOC-001-E, iss 1, rev 4,
      * page 29, figure 23.
-     * <p/>
+     * <p>
      * Scope of the prediction/correction algorithm is to retrieve the pixel x,y
      * that matches the given lat,lon by the direct location model f(x,y) = lat,lon.
      *

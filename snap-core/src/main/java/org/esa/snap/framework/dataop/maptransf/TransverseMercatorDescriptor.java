@@ -92,7 +92,7 @@ public class TransverseMercatorDescriptor implements MapTransformDescriptor {
     /**
      * This method is called within the <code>{@link org.esa.snap.framework.dataop.maptransf.MapProjectionRegistry#registerDescriptor}</code>
      * method after an instance of this <code>MapTransformDescriptor</code> has been successfully registered.
-     * <p/>
+     * <p>
      * The method delegates the call to <code>{@link org.esa.snap.framework.dataop.maptransf.UTM#registerProjections}</code>
      * in order to register all frequently used UTM projections.
      */

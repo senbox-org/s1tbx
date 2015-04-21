@@ -25,7 +25,6 @@ import java.io.IOException;
  * The abstract <code>Field</code> class represents an element at the end of the containment hierarchy of ENVISAT
  * products. ENVISAT products are composed of datasets which are composed of one or more records which are composed of
  * one or more fields. Last not least a field is composed of one or more atomic data elements, the actual data arrays.
- * <p/>
  * <p> A record performs its <code>readFrom</code> operation by delegating it sequentially to the abstract
  * <code>readFrom</code> operation of all of its fields.
  *

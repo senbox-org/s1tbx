@@ -104,7 +104,7 @@ public abstract class ProgressBarProgressMonitor implements ProgressMonitor {
     /**
      * Internal method to handle scaling correctly. This method
      * must not be called by a client. Clients should
-     * always use the method </code>worked(int)</code>.
+     * always use the method <code>worked(int)</code>.
      *
      * @param work the amount of work done
      */

@@ -49,7 +49,7 @@ public final class Rotator {
      * Constructs a new rotation. In the rotated system, the point defined
      * by the (lon, lat) parameters is located at the origin, i.e. has the
      * geographical coordinates (0, 0).
-     * <p/>
+     * <p>
      * The new rotation is composed of a clockwise rotation about the z-axis
      * (which corresponds to S-N direction) and a counter-clockwise rotation
      * about the y-axis (which corresponds to W-E direction).
@@ -67,7 +67,7 @@ public final class Rotator {
      * Constructs a new rotation. In the rotated system, the point defined
      * by the (lon, lat) parameters is located at the origin, i.e. has the
      * geographical coordinates (0, 0).
-     * <p/>
+     * <p>
      * The new rotation is composed of a clockwise rotation about the z-axis
      * (which corresponds to S-N direction), a counter-clockwise rotation
      * about the y-axis (which corresponds to W-E direction), and a counter
@@ -139,7 +139,7 @@ public final class Rotator {
      * Constructs a new rotation. In the rotated system, the point defined
      * by the (lon, lat) parameters is located at the origin, i.e. has the
      * geographical coordinates (0, 0).
-     * <p/>
+     * <p>
      * The new rotation is composed of a clockwise rotation about the z-axis
      * (which corresponds to S-N direction) and a counter-clockwise rotation
      * about the y-axis (which corresponds to W-E direction).
@@ -156,7 +156,7 @@ public final class Rotator {
      * Constructs a new rotation. In the rotated system, the point defined
      * by the (lon, lat) parameters is located at the origin, i.e. has the
      * geographical coordinates (0, 0).
-     * <p/>
+     * <p>
      * The new rotation is composed of a clockwise rotation about the z-axis
      * (which corresponds to S-N direction), a counter-clockwise rotation
      * about the y-axis (which corresponds to W-E direction), and a counter

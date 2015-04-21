@@ -55,8 +55,8 @@ import java.util.Map;
  * <p>
  * <pre>
  * dst[x][y] = 0;
- * for (int i = -xKey; i < M - xKey; i++) {
- *     for (int j = -yKey; j < N - yKey; j++) {
+ * for (int i = -xKey; i &lt; M - xKey; i++) {
+ *     for (int j = -yKey; j &lt; N - yKey; j++) {
  *         dst[x][y] += src[x + i][y + j] * kernel[xKey + i][yKey + j];
  *     }
  * }
@@ -101,12 +101,13 @@ public final class PaintOpImage extends PointOpImage {
      * ColorModel may optionally be specified by an ImageLayout
      * object.
      *
-     * @param source0    a source
-     * @param source1    a alpha mask for painting
-     * @param config     the image configuration.
-     * @param layout     an ImageLayout optionally containing the tile grid layout,
-     *                   SampleModel, and ColorModel, or null.
-     * @param paintColor The paint color.
+     * @param source0      a source
+     * @param source1      a alpha mask for painting
+     * @param config       the image configuration.
+     * @param layout       an ImageLayout optionally containing the tile grid layout,
+     *                     SampleModel, and ColorModel, or null.
+     * @param paintColor   The paint color.
+     * @param alphaIsFirst Whether alpha is the first band
      */
     public PaintOpImage(RenderedImage source0,
                         RenderedImage source1,

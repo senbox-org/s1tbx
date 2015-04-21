@@ -84,7 +84,7 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
  * An operator that is used to perform spatial and temporal aggregations into "bin" cells for any number of source
  * product. The output is either a file comprising the resulting bins or a reprojected "map" of the bin cells
  * represented by a usual data product.
- * <p/>
+ * <p>
  * Unlike most other operators, that can compute single {@link org.esa.snap.framework.gpf.Tile tiles},
  * the binning operator processes all
  * of its source products in its {@link #initialize()} method.

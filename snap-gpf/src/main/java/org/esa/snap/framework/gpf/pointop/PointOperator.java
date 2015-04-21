@@ -79,14 +79,14 @@ public abstract class PointOperator extends Operator {
 
     /**
      * Prepares the inputs for this operator. Called by {@link #initialize()}.
-     * <p/>
+     * <p>
      * Clients may override to perform some extra validation of
      * parameters and source products and/or to load external, auxiliary resources. External resources that may be opened
      * by this method and that must remain open during the {@code Operator}'s lifetime shall be closed
      * by a dedicated override of the {@link #dispose()} method.
-     * <p/>
+     * <p>
      * Failures of input preparation shall be indicated by throwing an {@link OperatorException}.
-     * <p/>
+     * <p>
      * The default implementation checks whether all source products have the same raster size.
      * Clients that require a similar behaviour in their operator shall first call the {@code super} method
      * in their implementation.
@@ -99,7 +99,7 @@ public abstract class PointOperator extends Operator {
 
     /**
      * Creates the target product instance. Called by {@link #initialize()}.
-     * <p/>
+     * <p>
      * The default implementation creates a target product instance given the raster size of the (first) source product.
      *
      * @return A new target product instance.
@@ -115,20 +115,20 @@ public abstract class PointOperator extends Operator {
 
     /**
      * Configures the target product via the given {@link ProductConfigurer}. Called by {@link #initialize()}.
-     * <p/>
+     * <p>
      * Client implementations of this method usually add product components to the given target product, such as
      * {@link Band bands} to be computed by this operator,
      * {@link org.esa.snap.framework.datamodel.VirtualBand virtual bands},
      * {@link org.esa.snap.framework.datamodel.Mask masks}
      * or {@link org.esa.snap.framework.datamodel.SampleCoding sample codings}.
-     * <p/>
+     * <p>
      * The default implementation retrieves the (first) source product and copies to the target product
      * <ul>
      * <li>the start and stop time by calling {@link ProductConfigurer#copyTimeCoding()},</li>
      * <li>all tie-point grids by calling {@link ProductConfigurer#copyTiePointGrids(String...)},</li>
      * <li>the geo-coding by calling {@link ProductConfigurer#copyGeoCoding()}.</li>
      * </ul>
-     * <p/>
+     * <p>
      * Clients that require a similar behaviour in their operator shall first call the {@code super} method
      * in their implementation.
      *
@@ -148,8 +148,8 @@ public abstract class PointOperator extends Operator {
     /**
      * Configures all source samples that this operator requires for the computation of target samples.
      * Source sample are defined by using the provided {@link SampleConfigurer}.
-     * <p/>
-     * <p/> The method is called by {@link #initialize()}.
+     * <p>
+     * <p> The method is called by {@link #initialize()}.
      *
      * @param sampleConfigurer The configurer that defines the layout of a pixel.
      * @throws OperatorException If the source samples cannot be configured.
@@ -159,8 +159,8 @@ public abstract class PointOperator extends Operator {
     /**
      * Configures all target samples computed by this operator.
      * Target samples are defined by using the provided {@link SampleConfigurer}.
-     * <p/>
-     * <p/> The method is called by {@link #initialize()}.
+     * <p>
+     * <p> The method is called by {@link #initialize()}.
      *
      * @param sampleConfigurer The configurer that defines the layout of a pixel.
      * @throws OperatorException If the target samples cannot be configured.

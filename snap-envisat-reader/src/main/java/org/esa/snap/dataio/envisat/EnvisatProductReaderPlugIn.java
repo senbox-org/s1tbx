@@ -38,7 +38,6 @@ import java.util.zip.ZipFile;
 /**
  * The <code>EnvisatProductReaderPlugIn</code> class is an implementation of the <code>ProductReaderPlugIn</code>
  * interface exclusively for data products having the standard ESA/ENVISAT raw format.
- * <p/>
  * <p>XMLDecoder plug-ins are used to provide meta-information about a particular data format and to create instances of
  * the actual reader objects.
  *
@@ -80,7 +79,6 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
     /**
      * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is
      * used.
-     * <p/>
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param name the local for the given description string, if <code>null</code> the default locale is used
@@ -94,7 +92,6 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if
      * it's content has the ENVISAT format by checking if the first bytes in the file equals the ENVISAT magic file
      * string <code>PRODUCT=&quot;</code>.
-     * <p/>
      * <p> ENVISAT product readers accept <code>java.lang.String</code> - a file path, <code>java.io.File</code> - an
      * abstract file path or a <code>javax.imageio.stream.ImageInputStream</code> - an already opened image input
      * stream.
@@ -151,7 +148,6 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
 
     /**
      * Returns an array containing the classes that represent valid input types for an ENVISAT product reader.
-     * <p/>
      * <p> Instances of the classes returned in this array are valid objects for the <code>readProductNodes</code>
      * method of the <code>AbstractProductReader</code> class (the method will not throw an
      * <code>InvalidArgumentException</code> in this case).

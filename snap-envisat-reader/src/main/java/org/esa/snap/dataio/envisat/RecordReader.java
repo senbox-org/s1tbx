@@ -23,11 +23,9 @@ import java.io.IOException;
 /**
  * A <code>RecordReader</code> instance is used read records of for a particular dataset contained in an ENVISAT product
  * file.
- * <p/>
  * <p> It is composed of a dataset descriptor (DSD) which provides size and offset of the entire dataset and a
  * <code>RecordInfo</code> which comes from a static database (DDDB) and describes in detail the structure of the
  * records to be read.
- * <p/>
  * <p> The <code>RecordInfo</code> is also used as a factory to create new record instances. The actual record reading
  * is delegated to this record instances.
  *
@@ -115,9 +113,7 @@ public class RecordReader {
 
     /**
      * Reads a record from the product file and returns the instance.
-     * <p/>
      * <p> If the dataset is composed of multiple records this method only reads the first.
-     * <p/>
      * <p>Note that the method creates a new record instance each time it is called.
      *
      * @throws java.io.IOException if an I/O error occurs
@@ -129,7 +125,6 @@ public class RecordReader {
 
     /**
      * Reads the record with the given zero-based index from the product file.
-     * <p/>
      * <p>Note that the method creates a new record instance each time it is called.
      *
      * @param index the record index, must be <code>&gt;=0</code> and <code>&lt;getDSD().getDatasetOffset()</code>
@@ -144,7 +139,6 @@ public class RecordReader {
 
     /**
      * Reads the record with the given zero-based index from from the product file.
-     * <p/>
      * <p> In order to reduce memory allocation, the method accepts an optional record argument. If this record is not
      * null, it will be used to read in the data. If it is null, a new record will be created.
      *
@@ -185,8 +179,7 @@ public class RecordReader {
 
     /**
      * Reads a segment of a single field from the record with the given zero-based index from from the product file.
-     * <p/>
-     * <p> In order to reduce memory allocation, the method accepts an mandantory record argument. 
+     * <p> In order to reduce memory allocation, the method accepts an mandantory record argument.
      * It will be used to read in the data.
      *                             
      * @param sourceY the record index, must be <code>&gt;=0</code> and <code>&lt;getDSD().getDatasetOffset()</code>

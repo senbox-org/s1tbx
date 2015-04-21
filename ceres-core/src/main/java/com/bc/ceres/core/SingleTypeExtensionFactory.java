@@ -93,7 +93,7 @@ public class SingleTypeExtensionFactory<T, E> implements ExtensionFactory {
      * Called if, and only if this factory's {@link #getExtensionType() extensionType} is assignable from the given {@code extensionType}.
      * <p>The default implementation returns a new instance of {@code extensionSubType}, either
      * created from its public no-arg constructor or its public 1-arg constructor which can take the given {@code object}. Clients may subclass and
-     * override this method in order to implement a more sophisticated instance creation.</p>
+     * override this method in order to implement a more sophisticated instance creation.
      *
      * @param object        The object to be extended.
      * @param extensionType The type of the requested extension.

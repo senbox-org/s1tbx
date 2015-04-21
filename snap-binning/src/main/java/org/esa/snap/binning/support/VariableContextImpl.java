@@ -24,7 +24,7 @@ import java.util.ArrayList;
  * This is the variable context for all variables referenced
  * from a given L3 processing request. It therefore provides the list of actual
  * raster data nodes to be read from a given input data product.
- * <p/>
+ * <p>
  * The i=0...n-1 measurements in an {@link org.esa.snap.binning.Observation} directly correspond
  * to the i=0...n-1 variables provided by {@code VariableContext}.
  *

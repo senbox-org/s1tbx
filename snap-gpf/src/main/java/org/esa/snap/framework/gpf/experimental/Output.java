@@ -20,7 +20,7 @@ package org.esa.snap.framework.gpf.experimental;
  * This is a marker interface which can be used by implementations of {@link org.esa.snap.framework.gpf.Operator} class
  * in order to indicate that the {@code Operator} marked by this interface takes care of the output itself and thus,
  * the framework shall not consider it as an operator that produces raster data to be written to a product file.
- * <p/>
+ * <p>
  * <i>Important Note: This class is not part of the official API, we may remove or rename it at any time.</i>
  *
  * @author Marco Peters

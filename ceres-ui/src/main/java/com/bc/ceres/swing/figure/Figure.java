@@ -19,7 +19,7 @@ package com.bc.ceres.swing.figure;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.swing.undo.Restorable;
 
-import java.awt.*;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -28,7 +28,7 @@ import java.awt.geom.Rectangle2D;
 /**
  * A figure represents a graphical object.
  * Figures are graphically modified by their {@link Handle}s.
- * <p/>
+ * <p>
  * Clients should not implement this interface directly, because it may change in the future.
  * Instead they should derive their {@code Figure} implementation from {@link AbstractFigure}.
  *

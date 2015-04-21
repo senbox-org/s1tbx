@@ -37,7 +37,7 @@ public class GetterSetterAccessor implements PropertyAccessor {
      *
      * @param instance the plain Java object
      * @param getter    the getter method
-     * @param getter    the setter method
+     * @param setter    the setter method
      */
     public GetterSetterAccessor(Object instance, Method getter, Method setter) {
         this.object = instance;

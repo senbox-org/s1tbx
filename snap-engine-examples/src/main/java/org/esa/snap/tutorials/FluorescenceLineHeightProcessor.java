@@ -11,13 +11,13 @@ import java.io.IOException;
 /**
  * Example taken from the tutorial given at Sentinel-3 OLCI/SLSTR and MERIS/(A)ATSR workshop 2012.
  * See http://www.brockmann-consult.de/cms/web/beam/tutorials
- * <p/>
- * <p/>
+ * <p>
+ * <p>
  * The FLH is computed as follows:
  * <pre>
  *    FLH = L2 - k * [L1 + (L3 - L1) * (wl2 - wl1) / (wl3 - wl1)]
  * </pre>
- * <p/>
+ * <p>
  * where:<br/>
  * L1 is the radiance in band 7
  * L2 is the radiance in band 8

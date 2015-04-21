@@ -20,7 +20,6 @@ import com.bc.ceres.core.Assert;
 /**
  * This utility class which provides several static <code>assert</code>XXX methods which can be used to internally check
  * the arguments passed to methods.
- * <p/>
  * <p> All functions have been implemented with extreme caution in order to provide a maximum performance.
  *
  * @author Norman Fomferra
@@ -31,7 +30,6 @@ public class Guardian {
     /**
      * Checks whether the given argument value is <code>true</code>. If not, an
      * <code>IllegalArgumentException</code> is thrown with the given message text.
-     * <p/>
      * <p>This utility method is used to check arguments passed into methods:
      * <pre>
      * public void setOrigin(double[] point) {
@@ -52,7 +50,6 @@ public class Guardian {
      * Checks whether the given argument value is not <code>null</code>. If not, an
      * <code>IllegalArgumentException</code> is thrown with a standardized message text using the supplied parameter
      * name.
-     * <p/>
      * <p>This utility method is used to check arguments passed into methods:
      * <pre>
      * public void setBounds(Rectangle bounds) {
@@ -75,7 +72,6 @@ public class Guardian {
      * Checks whether the given (parameter) value string is not <code>null</code> and not empty. If not, an
      * <code>IllegalArgumentException</code> is thrown with a standardized message text using the supplied parameter
      * name.
-     * <p/>
      * <p>This utility method is used to check arguments passed into methods:
      * <pre>
      * public void setProductId(String productId) {
@@ -131,7 +127,6 @@ public class Guardian {
     /**
      * Checks if the given value is greater than the given limit. If not, an <code>IllegalArgumentException</code> is
      * thrown with a standardized message text using the supplied argument name.
-     * <p/>
      * <p>This utility method is used to check arguments passed into methods:
      * <pre>
      * public void setWeight(long weight) {
@@ -158,7 +153,6 @@ public class Guardian {
     /**
      * Checks if the given values are equal. If not, an <code>IllegalArgumentException</code> is thrown with a
      * standardized message text using the supplied message.
-     * <p/>
      * <p>This utility method is used to check arguments passed into methods:
      * <pre>
      * public void writeDataAtRegion(int x, inty, int w, int h, byte[] data) {
@@ -180,7 +174,6 @@ public class Guardian {
     /**
      * Checks if the given values are equal. If not, an <code>IllegalArgumentException</code> is thrown with a
      * standardized message text using the supplied message.
-     * <p/>
      * <p>This utility method is used to check arguments passed into methods:
      * <pre>
      * public void writeDataAtRegion(int x, inty, int w, int h, byte[] data) {
@@ -210,7 +203,6 @@ public class Guardian {
     /**
      * Checks if the given objects are equal. If not, an <code>IllegalArgumentException</code> is thrown with a
      * standardized message text using the supplied message.
-     * <p/>
      * <p>This utility method is used to check arguments passed into methods:
      * <pre>
      * public NewBandDialog(final Window parent, ProductNodeList products) {
@@ -240,7 +232,6 @@ public class Guardian {
     /**
      * Checks if the given objects are the same instances. If not, an <code>IllegalArgumentException</code> is thrown
      * with a standardized message text using the supplied message.
-     * <p/>
      * <p>This utility method is used to check arguments passed into methods:
      * <pre>
      * public NewBandDialog(final Window parent, ProductNodeList products) {
@@ -270,7 +261,6 @@ public class Guardian {
     /**
      * Checks if the given value are in the given range. If not, an <code>IllegalArgumentException</code> is thrown with
      * a standardized message text using the supplied value name.
-     * <p/>
      * <p>This utility method is used to check arguments passed into methods:
      * <pre>
      * public void writeDataAtRegion(int x, inty, int w, int h, byte[] data) {
@@ -302,7 +292,6 @@ public class Guardian {
     /**
      * Checks if the given value are in the given range. If not, an <code>IllegalArgumentException</code> is thrown with
      * a standardized message text using the supplied value name.
-     * <p/>
      * <p>This utility method is used to check arguments passed into methods:
      * <pre>
      * public void writeDataAtRegion(int x, inty, int w, int h, byte[] data) {

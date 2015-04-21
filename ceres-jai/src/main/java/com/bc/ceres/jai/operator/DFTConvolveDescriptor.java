@@ -31,10 +31,8 @@ import java.awt.image.renderable.ParameterBlock;
 
 /**
  * An <code>OperationDescriptor</code> describing the "DFTConvolve" operation.
- * <p/>
  * <p> This operation behaves as the JAI standard "Convolve" operation but uses
- * a Fast Fourier Transformation for the convolution.</p>
- * <p/>
+ * a Fast Fourier Transformation for the convolution.
  * <p><table border=1>
  * <caption>Resource List</caption>
  * <tr><th>Name</th>        <th>Value</th></tr>
@@ -46,15 +44,14 @@ import java.awt.image.renderable.ParameterBlock;
  * <tr><td>DocURL</td>      <td>http://java.sun.com/products/java-media/jai/forDevelopers/jai-apidocs/javax/media/jai/operator/ConvolveDescriptor.html</td></tr>
  * <tr><td>Version</td>     <td>1.0</td></tr>
  * <tr><td>arg0Desc</td>    <td>The convolution kernel.</td></tr>
- * </table></p>
- * <p/>
+ * </table>
  * <p><table border=1>
  * <caption>Parameter List</caption>
  * <tr><th>Name</th>   <th>Class Type</th>
  * <th>Default Value</th></tr>
  * <tr><td>kernel</td> <td>javax.media.jai.KernelJAI</td>
  * <td>NO_PARAMETER_DEFAULT</td>
- * </table></p>
+ * </table>
  *
  * @see javax.media.jai.OperationDescriptor
  * @see javax.media.jai.KernelJAI
@@ -136,7 +133,6 @@ public class DFTConvolveDescriptor extends OperationDescriptorImpl {
 
     /**
      * Performs kernel-based convolution on an image.
-     * <p/>
      * <p>Creates a <code>ParameterBlockJAI</code> from all
      * supplied arguments except <code>hints</code> and invokes
      * {@link JAI#create(String, java.awt.image.renderable.ParameterBlock, java.awt.RenderingHints)}.

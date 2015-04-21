@@ -30,7 +30,7 @@ import java.awt.image.SampleModel;
 /**
  * An <code>OperationDescriptor</code> describing the "Reinterpret"
  * operation.
- * <p/>
+ * <p>
  * The Reinterpret operation creates a single-banded, tiled rendered
  * image, where the source samples are rescaled or reformatted.
  */
@@ -101,7 +101,6 @@ public class ReinterpretDescriptor extends OperationDescriptorImpl {
 
     /**
      * Reinterprets an image.
-     * <p/>
      * <p>Creates a <code>ParameterBlockJAI</code> from all supplied arguments (except <code>hints</code>) and
      * invokes {@link JAI#create(String,java.awt.image.renderable.ParameterBlock,java.awt.RenderingHints)}.
      *

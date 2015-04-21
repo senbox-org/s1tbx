@@ -24,8 +24,8 @@ import java.awt.datatransfer.Transferable;
 /**
  * Represents a selection of zero, one or more items, e.g. the selected entries of a table,
  * nodes of a tree view or figures of a drawing.
- * <p/>This interface may be implemented by clients.
- * <p/>Selections should always be implemented as imutable objects.
+ * <p>This interface may be implemented by clients.
+ * <p>Selections should always be implemented as imutable objects.
  *
  * @author Norman Fomferra
  * @since Ceres 0.10

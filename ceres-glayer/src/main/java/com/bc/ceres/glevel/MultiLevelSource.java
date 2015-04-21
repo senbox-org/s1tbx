@@ -18,7 +18,7 @@ package com.bc.ceres.glevel;
 
 import com.bc.ceres.glevel.support.DefaultMultiLevelSource;
 
-import java.awt.*;
+import java.awt.Shape;
 import java.awt.image.RenderedImage;
 
 /**
@@ -62,17 +62,14 @@ public interface MultiLevelSource {
 
     /**
      * <p>Provides a hint that the level images provided so far will no longer be accessed from a
-     * reference in user space.</p>
-     * <p/>
+     * reference in user space.
      * <p>Therefore implementations of this method might also dispose any cached level images
-     * that have been provided so far.</p>
-     * <p/>
+     * that have been provided so far.
      * <p>After calling this method, a call to {@link #getImage(int)}} for the same level may
-     * return a new level image instance.</p>
-     * <p/>
+     * return a new level image instance.
      * <p>This method is particularly useful if properties have changed that affect the appearance of the
      * returned images at all levels, e.g. after a new color palette has been assigned or the
-     * contrast range has changed.</p>
+     * contrast range has changed.
      */
     void reset();
 }

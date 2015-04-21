@@ -62,13 +62,13 @@ import java.util.logging.Level;
 /**
  * An operator that is used to compute statistics for any number of source products, restricted to regions given by an
  * ESRI shapefile.
- * <p/>
+ * <p>
  * It writes two different sorts of output:<br/>
  * <ul>
  * <li>an ASCII file in tab-separated CSV format, in which the statistics are mapped to the source regions</li>
  * <li>a shapefile that corresponds to the input shapefile, enriched with the statistics for the regions defined by the shapefile</li>
  * </ul>
- * <p/>
+ * <p>
  * Unlike most other operators, that can compute single {@link org.esa.snap.framework.gpf.Tile tiles},
  * the statistics operator processes all of its source products in its {@link #initialize()} method.
  *

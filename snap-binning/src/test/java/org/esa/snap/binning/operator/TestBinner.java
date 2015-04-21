@@ -50,7 +50,7 @@ import java.util.TreeMap;
 /**
  * <p>
  * Usage: <code>TestBinner <i>sourceDir</i> <i>regionWkt</i> <i>binnerConfig</i> <i>formatterConfig</i> [<i>formatterConfig</i> ...]</code>
- * </p>
+ *
  * with
  * <ul>
  * <li><code><i>sourceDir</i></code> Directory containing input product files</li>
@@ -58,7 +58,7 @@ import java.util.TreeMap;
  * <li><code><i>binnerConfig</i></code> File with binning configuration XML (see /org/esa/snap/binning/BinningConfigTest.xml)</li>
  * <li><code><i>formatterConfig</i></code> File with formatter configuration XML (see /org/esa/snap/binning/FormatterConfigTest.xml)</li>
  * </ul>
- * <p/>
+ * <p>
  * The test demonstrates the usage of various binning API classes such as
  * <ul>
  * <li>{@link SpatialBinner}</li>

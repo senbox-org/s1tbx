@@ -83,7 +83,6 @@ public class GeoTiffProductWriterPlugIn implements ProductWriterPlugIn {
 
     /**
      * Returns an array containing the classes that represent valid output types for this GeoTIFF product writer.
-     * <p/>
      * <p> Intances of the classes returned in this array are valid objects for the <code>writeProductNodes</code>
      * method of the <code>AbstractProductWriter</code> interface (the method will not throw an
      * <code>InvalidArgumentException</code> in this case).
@@ -102,7 +101,6 @@ public class GeoTiffProductWriterPlugIn implements ProductWriterPlugIn {
     /**
      * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is
      * used.
-     * <p/>
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param name the local for the given description string, if <code>null</code> the default locale is used

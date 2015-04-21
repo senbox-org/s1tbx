@@ -47,7 +47,7 @@ public class HeaderParser {
     /**
      * Constructs a new record containing the parameters in the ASCII header source. Each record field stands for a
      * single header parameter.
-     * <p/>
+     * <p>
      * The source is expected to be a sequence of new-line separated records of key-value pairs each having the form
      * <code><i>key</i>=<i>value</i> <i>new-line</i></code>. The exact ENVISAT header format is given in the document
      * <i>ENVISAT-1 PRODUCTS SPECIFICATION, Volume 5: Product Structures.</i>

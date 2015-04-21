@@ -143,10 +143,8 @@ public abstract class AbstractProductReader implements ProductReader {
 
     /**
      * Reads the nodes of a data product and returns an in-memory representation of it.
-     * <p/>
      * <p> The given subset info can be used to specify spatial and spectral portions of the original proudct. If the
      * subset is omitted, the complete product is read in.
-     * <p/>
      * <p> Whether the band data - the actual pixel values - is read in immediately or later when pixels are requested,
      * is up to the implementation.
      *
@@ -182,7 +180,6 @@ public abstract class AbstractProductReader implements ProductReader {
     /**
      * Provides an implementation of the <code>readProductNodes</code> interface method. Clients implementing this
      * method can be sure that the input object and eventually the subset information has already been set.
-     * <p/>
      * <p>This method is called as a last step in the <code>readProductNodes(input, subsetInfo)</code> method.
      *
      * @return a new product instance
@@ -193,10 +190,8 @@ public abstract class AbstractProductReader implements ProductReader {
     /**
      * Reads raster data from the data source specified by the given destination band into the given in-memory buffer
      * and region.
-     * <p/>
      * <p>For a complete description, please refer to the {@link ProductReader#readBandRasterData(org.esa.snap.framework.datamodel.Band, int, int, int, int, org.esa.snap.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)}  interface definition}
      * of this method.
-     * <p/>
      * <p>The <code>AbstractProductReader</code> implements this method using the <i>Template Method</i> pattern. The
      * template method in this case is the abstract method to which the call is delegated after an optional spatial
      * subset given by {@link #getSubsetDef()} has been applied to the input parameters.
@@ -268,7 +263,6 @@ public abstract class AbstractProductReader implements ProductReader {
     /**
      * The template method which is called by the method after an optional spatial subset has been applied to the input
      * parameters.
-     * <p/>
      * <p>The destination band, buffer and region parameters are exactly the ones passed to the original  call. Since
      * the <code>destOffsetX</code> and <code>destOffsetY</code> parameters are already taken into acount in the
      * <code>sourceOffsetX</code> and <code>sourceOffsetY</code> parameters, an implementor of this method is free to
@@ -308,10 +302,8 @@ public abstract class AbstractProductReader implements ProductReader {
     /**
      * Closes the access to all currently opened resources such as file input streams and all resources of this children
      * directly owned by this reader. Its primary use is to allow the garbage collector to perform a vanilla job.
-     * <p/>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>close()</code> are undefined.
-     * <p/>
      * <p>Overrides of this method should always call <code>super.close();</code> after disposing this instance.
      *
      * @throws IOException if an I/O error occurs
@@ -332,7 +324,7 @@ public abstract class AbstractProductReader implements ProductReader {
      * absolute path to the parent of the file returned by Product.getFileLocation().
      * For all subsequent nodes, the node name.
      * - content: each node stores as content a java.io.File object that physically defines the node.
-     * <p/>
+     * <p>
      * The method returns null when a TreeNode can not be assembled (i.e. in-memory product, created from stream ...)
      *
      * @return the root TreeNode or null

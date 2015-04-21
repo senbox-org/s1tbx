@@ -20,7 +20,6 @@ package com.bc.jexp;
 /**
  * A representation of a function. A function has a name, a return type
  * and can be evaluated by passing a number of arguments to it.
- * <p/>
  * <p>Within an expression, a reference to a function is created if the parser
  * encounters a name followed by an argument list and the name can be resolved
  * through the parser's current namespace.

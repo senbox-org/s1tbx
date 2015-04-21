@@ -23,13 +23,13 @@ import java.io.StringWriter;
 
 /**
  * An engine to transform resources using a {@link VelocityEngine}.
- * <p/>
+ * <p>
  * Resources given to this engine are processed and added to the embedded
  * {@link VelocityContext}. For the evaluation the current {@link VelocityContext}
  * and its content is used.
- * <p/>
+ * <p>
  * Resources can be retrieved afterwards.
- * <p/>
+ * <p>
  *
  * @author MarcoZ
  * @author Bettina
@@ -98,7 +98,7 @@ public class ResourceEngine {
     /**
      * Evaluates the given {@link Resource} using the current {@link VelocityContext} and adds the
      * result of this processing to the {@link VelocityContext} under given name.
-     * <p/>
+     * <p>
      * The evaluated {@link Resource} is returned.
      *
      * @param name     The name under which the resource is added

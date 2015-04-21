@@ -24,26 +24,26 @@ package org.esa.snap.binning;
  * <li>B. Temporal binning: how are spatial bins aggregated to temporal bins?</li>
  * <li>C. Final statistics: how are final statistic computed?</li>
  * </ul>
- * <p/>
+ * <p>
  * A. Spatial binning: For each bin found in a single observation (swath).
  * <ol>
  * <li>{@link #initSpatial(BinContext, WritableVector)}</li>
  * <li>For each contributing measurement: {@link #aggregateSpatial(BinContext, Observation, WritableVector)}</li>
  * <li>{@link #completeSpatial(BinContext, int, WritableVector)}</li>
  * </ol>
- * <p/>
+ * <p>
  * B. Temporal binning: For all bins found in all swaths.
  * <ol>
  * <li>{@link #initTemporal(BinContext, WritableVector)}</li>
  * <li>For each contributing spatial bin: {@link #aggregateTemporal(BinContext, Vector, int, WritableVector)}</li>
  * <li>{@link #completeTemporal(BinContext, int, WritableVector)}</li>
  * </ol>
- * <p/>
+ * <p>
  * C. Final statistics: For all bins found in all swaths compute the final statistics.
  * <ol>
  * <li>{@link #computeOutput(Vector, WritableVector)}</li>
  * </ol>
- * <p/>
+ * <p>
  * Note for implementors: Aggregators should have no state. In order to exchange information within the spatial or temporal
  * binning calling sequences, use the {@link BinContext}.
  *

@@ -25,9 +25,9 @@ import java.io.IOException;
 
 /**
  * A handy base class for implementations of the {@link SelectionContext} interface.
- * <p/>Clients only need to implement the methods {@link #getSelection()}
+ * <p>Clients only need to implement the methods {@link #getSelection()}
  * and {@link #setSelection(Selection)}.
- * <p/>No particular selection operations are implemented, e.g. {@link #canDeleteSelection()},
+ * <p>No particular selection operations are implemented, e.g. {@link #canDeleteSelection()},
  * {@link #canInsert(java.awt.datatransfer.Transferable)}, {@link #canSelectAll()},
  * all return {@code false}.
  *

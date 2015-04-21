@@ -31,7 +31,7 @@ import java.util.Set;
 /**
  * A convenient layout manager that allows multiple components to be laid out
  * in form of a table-like grid.
- * <p/>
+ * <p>
  * It uses the same parameters as Swing's standard {@link java.awt.GridBagLayout GridBagLayout} manager, however clients
  * don't have to deal with {@link java.awt.GridBagConstraints GridBagConstraints}. Instead, they can easily use the
  * the various setters to adjust single parameters. Parameters can be specified for
@@ -43,10 +43,10 @@ import java.util.Set;
  * </ol>
  * Note that type-safe enums exists for the {@link com.bc.ceres.swing.TableLayout.Fill fill} and
  * {@link com.bc.ceres.swing.TableLayout.Anchor anchor} parameter values.
- * <p/>
+ * <p>
  * Any parameter settings may be removed from the layout by passing {@code null} as value.
- * <p/>
- * Components are added to their container using a {@link #cell(int, int) cell(row, col)}</i> or
+ * <p>
+ * Components are added to their container using a {@link #cell(int, int) cell(row, col)} or
  * {@link #cell(int, int, int, int) cell(row, col, rowspan, colspan)} constraint, for example:
  * <pre>
  *      panel.add(new JLabel("Iterations:"), TableLayout.cell(0, 3));

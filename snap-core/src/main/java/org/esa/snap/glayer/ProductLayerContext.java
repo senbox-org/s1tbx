@@ -24,7 +24,7 @@ import org.esa.snap.framework.datamodel.ProductNode;
 /**
  * A {@link LayerContext} for layers requiring access to a certain {@link Product} or a
  * certain {@link ProductNode}.
- * <p/>
+ * <p>
  * For {@link LayerType}s requiring this context, {@link LayerType#isValidFor(LayerContext)}
  * must return {@code true} if, and only if, the argument is an instance of this class.
  *

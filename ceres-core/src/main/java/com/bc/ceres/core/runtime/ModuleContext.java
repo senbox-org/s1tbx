@@ -17,16 +17,16 @@
 package com.bc.ceres.core.runtime;
 
 import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.Extensible;
+import com.bc.ceres.core.ProgressMonitor;
 
 import java.net.URL;
 import java.util.logging.Logger;
 
 /**
  * The context in which a module lives.
- * <p/>
- * This interface is not intended to be implemented by clients.</p>
+ * <p>
+ * This interface is not intended to be implemented by clients.
  */
 public interface ModuleContext extends Extensible {
     /**

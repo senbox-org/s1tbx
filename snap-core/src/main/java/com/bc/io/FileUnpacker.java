@@ -15,6 +15,7 @@
  */
 package com.bc.io;
 
+import javax.swing.ProgressMonitor;
 import java.awt.Component;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -30,13 +31,10 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.swing.ProgressMonitor;
-
 /**
  * A utility class for unpacking file archives.
  *
  * @author Norman Fomferra
- * @version
  */
 public class FileUnpacker {
 

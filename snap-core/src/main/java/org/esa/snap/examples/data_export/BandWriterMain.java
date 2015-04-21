@@ -29,17 +29,16 @@ import java.io.IOException;
  * This is an example program which writes out an entire band of an ENVISAT data product. The image is written as a raw
  * data file - pixels are stored in the band's data type, which can be <code>byte</code>, <code>float</code> or others.
  * A message line is printed to the console containing some information about the image file beeing written.
- * <p/>
  * <p>The program expects three input arguments: <ol> <li><i>input-file</i> - the file path to an ENVISAT input data
  * product</li> <li><i>output-file</i> - the file path to the band image file to be written</li> <li><i>band-name</i> -
  * the name of the band to be extracted</li> </ol>
- * <p/>
- * <p>The valid band names for MERIS L1b reduced and full resolution products are:<ld>
+ * <p>The valid band names for MERIS L1b reduced and full resolution products are:
+ * <ul>
  * <li><code>"radiance_</code><i>index</i>" type float in mW/(m^2*sr*nm) - TOA radiance, <i>index</i> ranges from
  * <code>1</code> to <code>15</code></li> <li><code>"l1_flags"        </code> type byte (8 flag bits) - quality
- * flags</li> <li><code>"ssi"             </code> type byte - spectral shift index</li> </ld></p>
- * <p/>
- * <p>The valid band names for MERIS L2 reduced and full resolution products are:<ld>
+ * flags</li> <li><code>"ssi"             </code> type byte - spectral shift index</li>
+ * </ul>
+ * <p>The valid band names for MERIS L2 reduced and full resolution products are:<ul>
  * <li><code>"reflec_</code><i>index</i>" type float in 1 - Normalized surface reflectance, <i>index</i> = 1 to 13</li>
  * <li><code>"water_vapour"   </code> type float in g/cm^2 - Water vapour content               </li>
  * <li><code>"algal_1"        </code> type float in mg/m^3 - Chlorophyll 1 content              </li>
@@ -59,9 +58,8 @@ import java.io.IOException;
  * <li><code>"cloud_opt_thick"</code> type float in dl - Cloud optical thickness                </li>
  * <li><code>"cloud_top_press"</code> type float in hPa  - Cloud top pressure                   </li>
  * <li><code>"cloud_type"     </code> type byte - Cloud type                                    </li>
- * <li><code>"l2_flags"       </code> type int (24 flag bits) - Classification and quality flags</li> </ld></p>
- * <p/>
- * <p>The valid band names for AATSR TOA L1b products are:<ld> <li><code>"btemp_nadir_1200"</code> type float in K -
+ * <li><code>"l2_flags"       </code> type int (24 flag bits) - Classification and quality flags</li> </ul>
+ * <p>The valid band names for AATSR TOA L1b products are:<ul> <li><code>"btemp_nadir_1200"</code> type float in K -
  * Brightness temperature, nadir view (11500-12500 nm)</li> <li><code>"btemp_nadir_1100"</code> type float in K -
  * Brightness temperature, nadir view (10400-11300 nm)</li> <li><code>"btemp_nadir_0370"</code> type float in K -
  * Brightness temperature, nadir view (3505-3895 nm)</li> <li><code>"reflec_nadir_1600"</code> type float in % -
@@ -78,16 +76,14 @@ import java.io.IOException;
  * <li><code>"confid_flags_nadir"</code> type int (16 flag bits) - Confidence flags, nadir view</li>
  * <li><code>"confid_flags_fward"</code> type int (16 flag bits) - Confidence flags, forward view</li>
  * <li><code>"cloud_flags_nadir"</code> type int (16 flag bits) - Cloud flags, nadir view</li>
- * <li><code>"cloud_flags_fward"</code> type int (16 flag bits) - Cloud flags, forward view</li> </ld></p>
- * <p/>
- * <p>The valid band names for AATSR NR L2 products are:<ld> <li><code>"sst_nadir"       </code> type float in K - Sea
+ * <li><code>"cloud_flags_fward"</code> type int (16 flag bits) - Cloud flags, forward view</li> </ul>
+ * <p>The valid band names for AATSR NR L2 products are:<ul> <li><code>"sst_nadir"       </code> type float in K - Sea
  * surface temperature nadir view      </li> <li><code>"sst_comb"        </code> type float in K - Sea surface
  * temperature combined views  </li> <li><code>"cloud_top_temp"  </code> type float in K - Cloud top temperature
  * </li> <li><code>"cloud_top_height"</code> type float in m - Cloud top height                        </li>
  * <li><code>"lst"             </code> type float in K - Land surface temperature                </li> <li><code>"ndvi"
  * </code> type float in * - Normalized difference vegetation index  </li> <li><code>"flags"           </code>
- * type int (16 flag bits) - Classification and quality flags</li> </ld></p>
- * <p/>
+ * type int (16 flag bits) - Classification and quality flags</li> </ul>
  * <i><b>Note:</b> If you want to work with product subsets, you can use the {@link
  * org.esa.snap.framework.dataio.ProductSubsetBuilder} class. It has a static method which lets you create a subset of a
  * given product and subset definition.</i>

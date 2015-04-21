@@ -19,7 +19,7 @@ package org.esa.snap.util.math;
  * The class {@code VectorLookupTable} performs the function of
  * multilinear  interpolation for vector lookup  tables with an
  * arbitrary number of dimensions.
- * <p/>
+ * <p>
  * todo - thread safety
  * todo - method for degrading a table (see {@link LookupTable})
  *

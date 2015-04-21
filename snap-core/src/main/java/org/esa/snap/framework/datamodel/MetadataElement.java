@@ -574,7 +574,6 @@ public class MetadataElement extends ProductNode {
      * Accepts the given visitor. This method implements the well known 'Visitor' design pattern of the gang-of-four.
      * The visitor pattern allows to define new operations on the product data model without the need to add more code
      * to it. The new operation is implemented by the visitor.
-     * <p/>
      * <p>The method first visits (calls <code>acceptVisitor</code> for) all elements contained in this element and then
      * visits all attributes. Finally the method calls <code>visitor.visit(this)</code>.
      *
@@ -643,10 +642,8 @@ public class MetadataElement extends ProductNode {
     /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
-     * <p/>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-     * <p/>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
     @Override

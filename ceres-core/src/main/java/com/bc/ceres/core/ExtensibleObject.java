@@ -25,7 +25,7 @@ public class ExtensibleObject implements Extensible {
     /**
      * Gets the extension for this object corresponding to a specified extension
      * type.
-     * <p/>
+     * <p>
      * The default implementation is
      * <pre>
      *    return ExtensionManager.getInstance().getExtension(this, extensionType);

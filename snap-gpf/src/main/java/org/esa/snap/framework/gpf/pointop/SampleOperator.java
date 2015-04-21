@@ -18,7 +18,7 @@ public abstract class SampleOperator extends PointOperator {
 
     /**
      * Computes a single target sample from the given source samples.
-     * <p/>
+     * <p>
      * The number of source samples is the maximum defined source sample index plus one. Source samples are defined
      * by using the {@link SampleConfigurer} in the
      * {@link #configureSourceSamples(SampleConfigurer) configureSourceSamples} method.

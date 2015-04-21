@@ -37,7 +37,7 @@ import java.io.IOException;
 /**
  * Reads the specified file as product. This operator may serve as a source node in processing graphs,
  * especially if multiple data products need to be read in.
- * <p/>
+ * <p>
  * Here is a sample of how the <code>Read</code> operator can be integrated as a node within a processing graph:
  * <pre>
  *    &lt;node id="readNode"&gt;

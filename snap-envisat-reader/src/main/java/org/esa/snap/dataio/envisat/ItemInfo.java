@@ -20,7 +20,6 @@ import org.esa.snap.util.Guardian;
 
 /**
  * The <code>FieldInfo</code> class contains the information about the structure of a particular record field.
- * <p/>
  * <p> A <code>RecordInfo</code> instance contains a list of <code>FieldInfo</code> instances describing each field of
  * the record.
  *

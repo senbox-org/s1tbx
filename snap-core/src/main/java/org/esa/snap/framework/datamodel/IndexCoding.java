@@ -94,7 +94,6 @@ public class IndexCoding extends SampleCoding {
      * Accepts the given visitor. This method implements the well known 'Visitor' design pattern of the gang-of-four.
      * The visitor pattern allows to define new operations on the product data model without the need to add more code
      * to it. The new operation is implemented by the visitor.
-     * <p/>
      * <p>The method simply calls <code>visitor.visit(this)</code>.
      *
      * @param visitor the visitor, must not be <code>null</code>

@@ -36,7 +36,7 @@ public class ModuleManagerMain implements RuntimeRunnable {
 
     /**
      * Executes client code.
-     * <p/>
+     * <p>
      * If this RuntimeRunnable is an application launched by the Ceres runtime,
      * the <code>argument</code> parameter can safely be casted to a <code>String[]</code>.
      * This array contains all command-line arguments passed to the application.

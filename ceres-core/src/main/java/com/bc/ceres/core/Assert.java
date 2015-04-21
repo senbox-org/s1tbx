@@ -21,15 +21,14 @@ package com.bc.ceres.core;
  * <code>Assert</code> is useful for for embedding runtime sanity checks
  * in code. The predicate methods all test a condition and throw some
  * type of unchecked exception if the condition does not hold.
- * <p/>
+ * <p>
  * Assertion failure exceptions, like most runtime exceptions, are
  * thrown when something is misbehaving. Assertion failures are invariably
  * unspecified behavior; consequently, clients should never rely on
  * these being thrown (and certainly should not being catching them
  * specifically).
- * </p><p>
+ * <p>
  * This class is not intended to be instantiated or sub-classed by clients.
- * </p>
  */
 public final class Assert {
     /* This class is not intended to be instantiated. */

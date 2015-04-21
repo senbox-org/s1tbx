@@ -313,7 +313,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Sets the geo-coding for this {@link RasterDataNode}.
      * Also sets the geo-coding of the parent {@link Product} if it has no geo-coding yet.
      * <p>On property change, the method calls {@link #fireProductNodeChanged(String)} with the property
-     * name {@link #PROPERTY_NAME_GEOCODING}.</p>
+     * name {@link #PROPERTY_NAME_GEOCODING}.
      *
      * @param geoCoding the new geo-coding
      * @see Product#setGeoCoding(GeoCoding)
@@ -781,7 +781,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Gets a raster data holding this dataset's pixel data for an entire product scene. If the data has'nt been loaded
      * so far the method returns <code>null</code>.
-     * <p/>
      * <p>In oposite to the <code>getRasterData</code> method, this method returns raster data that has at least
      * <code>getBandOutputRasterWidth()*getBandOutputRasterHeight()</code> elements of the given data type to store the
      * scene's pixels.
@@ -819,7 +818,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Sets the raster data of this dataset.
-     * <p/>
      * <p> Note that this method does not copy data at all. If the supplied raster data is compatible with this product
      * raster, then simply its reference is stored. Modifications in the supplied raster data will also affect this
      * dataset's data!
@@ -846,7 +844,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <code>hasRasterData()</code> should always return <code>true</code> and <code>getRasterData()</code> should
      * always return a valid <code>ProductData</code> instance with at least <code>getRasterWidth()*getRasterHeight()</code>
      * elements (samples).
-     * <p/>
      * <p>The default implementation of this method does nothing.
      *
      * @param pm a monitor to inform the user about progress
@@ -860,10 +857,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Un-loads the raster data for this <code>RasterDataNode</code>.
-     * <p/>
      * <p>It is up to the implementation whether after this method has been called successfully, the
      * <code>hasRasterData()</code> method returns <code>false</code> or <code>true</code>.
-     * <p/>
      * <p>The default implementation of this method does nothing.
      *
      * @see #loadRasterData()
@@ -876,10 +871,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
-     * <p/>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-     * <p/>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
     @Override
@@ -918,7 +911,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Checks whether or not the pixel located at (x,y) is valid.
      * A pixel is assumed to be valid either if  {@link #getValidMaskImage() validMaskImage} is null or
      * or if the bit corresponding to (x,y) is set within the returned mask image.
-     * <p/>
+     * <p>
      * <i>Note: Implementation changed by Norman (2011-08-09) in order to increase performance since
      * a synchronised block was used due to problem with the JAI ROI class that has been used in
      * the former implementation.</i>
@@ -948,7 +941,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Gets a geo-physical sample value at the given pixel coordinate as {@code int} value.
-     * <p/>
+     * <p>
      * <i>Note: This method does not belong to the public API.
      * It has been added by Norman (2011-08-09) in order to perform performance tests.</i>
      *
@@ -966,7 +959,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Gets a geo-physical sample value at the given pixel coordinate as {@code float} value.
-     * <p/>
+     * <p>
      * <i>Note: This method does not belong to the public API.
      * It has been added by Norman (2011-08-09) in order to perform performance tests.</i>
      *
@@ -1345,11 +1338,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Reads the complete underlying raster data.
-     * <p/>
      * <p>After this method has been called successfully, <code>hasRasterData()</code> should always return
      * <code>true</code> and <code>getRasterData()</code> should always return a valid <code>ProductData</code> instance
      * with at least <code>getRasterWidth()*getRasterHeight()</code> elements (samples).
-     * <p/>
      * <p>In opposite to the <code>loadRasterData</code> method, the <code>readRasterDataFully</code> method always
      * reloads the data of this product raster, independently of whether its has already been loaded or not.
      *
@@ -1420,7 +1411,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Writes data from this product raster into the specified region of the user-supplied raster.
-     * <p/>
      * <p> It is important to know that this method does not change this product raster's internal state nor does it
      * write into this product raster's internal raster.
      *
@@ -1573,7 +1563,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Returns the image information for this raster data node.
-     * <p/>
      * <p>The method simply returns the value of <code>ensureValidImageInfo(null, ProgressMonitor.NULL)</code>.
      *
      * @param pm A progress monitor.
@@ -1587,7 +1576,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Gets the image creation information.
-     * <p/>
      * <p>If no image information has been assigned before, the <code>{@link #createDefaultImageInfo(double[], com.bc.ceres.core.ProgressMonitor)}</code> method is
      * called with the given parameters passed to this method.
      *
@@ -1608,7 +1596,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Creates a default image information instance.
-     * <p/>
      * <p>An <code>IllegalStateException</code> is thrown in the case that this raster data node has no raster data.
      *
      * @param histoSkipAreas the left (at index 0) and right (at index 1) normalized areas of the raster data
@@ -1628,7 +1615,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Creates an instance of a default image information.
-     * <p/>
      * <p>An <code>IllegalStateException</code> is thrown in the case that this raster data node has no raster data.
      *
      * @param histoSkipAreas the left (at index 0) and right (at index 1) normalized areas of the raster data
@@ -1970,7 +1956,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Returns whether the geophysical image is set on this {@code RasterDataNode}.
-     * <p/>
+     * <p>
      * This method belongs to preliminary API and may be removed or changed in the future.
      *
      * @return whether the geophysical image is set.
@@ -2097,10 +2083,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Gets the statistics. If statistcs are not yet available,
      * the method will compute (possibly inaccurate) statistics and return those.
-     * <p/>
+     * <p>
      * If accurate statistics are required, the {@link #getStx(boolean, com.bc.ceres.core.ProgressMonitor)}
      * shall be used instead.
-     * <p/>
+     * <p>
      * This method belongs to preliminary API and may be removed or changed in the future.
      *
      * @return The statistics.

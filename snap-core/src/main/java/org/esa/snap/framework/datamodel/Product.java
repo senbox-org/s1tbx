@@ -551,7 +551,7 @@ public class Product extends ProductNode {
     }
 
     /**
-     * <p>Writes the header of a data product.<p/>
+     * <p>Writes the header of a data product.<p>
      *
      * @param output an object representing a valid output for this writer, might be a <code>ImageOutputStream</code>
      *               or a <code>File</code> or other <code>Object</code> to use for future decoding.
@@ -626,12 +626,11 @@ public class Product extends ProductNode {
     /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
-     * <p/>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-     * </p>
+     *
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
-     * </p>
+     *
      * <p>This implementation also calls the <code>closeIO</code> in order to release all open I/O resources.
      */
     @Override
@@ -810,11 +809,10 @@ public class Product extends ProductNode {
 
     /**
      * Gets the (sensing) start time associated with the first raster data line.
-     * <p/>
      * <p>For Level-1/2 products this is
      * the data-take time associated with the first raster data line.
      * For Level-3 products, this could be the start time of first input product
-     * contributing data.</p>
+     * contributing data.
      *
      * @return the sensing start time, can be null e.g. for non-swath products
      */
@@ -824,11 +822,10 @@ public class Product extends ProductNode {
 
     /**
      * Sets the (sensing) start time of this product.
-     * <p/>
      * <p>For Level-1/2 products this is
      * the data-take time associated with the first raster data line.
      * For Level-3 products, this could be the start time of first input product
-     * contributing data.</p>
+     * contributing data.
      *
      * @param startTime the sensing start time, can be null
      */
@@ -843,11 +840,10 @@ public class Product extends ProductNode {
 
     /**
      * Gets the (sensing) stop time associated with the last raster data line.
-     * <p/>
      * <p>For Level-1/2 products this is
      * the data-take time associated with the last raster data line.
      * For Level-3 products, this could be the end time of last input product
-     * contributing data.</p>
+     * contributing data.
      *
      * @return the stop time , can be null e.g. for non-swath products
      */
@@ -857,11 +853,10 @@ public class Product extends ProductNode {
 
     /**
      * Sets the (sensing) stop time associated with the first raster data line.
-     * <p/>
      * <p>For Level-1/2 products this is
      * the data-take time associated with the last raster data line.
      * For Level-3 products, this could be the end time of last input product
-     * contributing data.</p>
+     * contributing data.
      *
      * @param endTime the sensing stop time, can be null
      */
@@ -2091,11 +2086,10 @@ public class Product extends ProductNode {
 
     /**
      * Returns the names of all flags of all flag datasets contained this product.
-     * <p/>
      * <p>A flag name contains the dataset (a band of this product) and the actual flag name as defined in the
      * flag-coding associated with the dataset. The general format for the flag name strings returned is therefore
      * <code>"<i>dataset</i>.<i>flag_name</i>"</code>.
-     * </p>
+     *
      * <p>The method is used to find out which flags a product has in order to use them in bit-mask expressions.
      *
      * @return the array of all flag names. If this product does not support flags, an empty array is returned, but
@@ -2667,13 +2661,13 @@ public class Product extends ProductNode {
      * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
      * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
      * elements.
-     * </p>
+     *
      * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
      * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
-     * </p>
+     *
      * <p> The {@link #parseExpression(String)} method can be used to create a bit-mask
      * term from a textual bit-mask expression.
-     * </p>
+     *
      *
      * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
      * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
@@ -2710,16 +2704,15 @@ public class Product extends ProductNode {
 
     /**
      * Creates a bit-mask by evaluating the given bit-mask term.
-     * <p/>
      * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
      * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
      * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
      * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
      * elements.
-     * </p>
+     *
      * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
      * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
-     * </p>
+     *
      * <p> The {@link #parseExpression(String)} method can be used to create a bit-mask
      * term from a textual bit-mask expression.
      *

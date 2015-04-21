@@ -273,8 +273,7 @@ public class GPFFacadeTest {
 
         /**
          * {@inheritDoc}
-         * <p/>
-         * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
+         * <p>The default implementation throws a runtime exception with the message "not implemented".
          */
         @Override
         public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
@@ -323,8 +322,7 @@ public class GPFFacadeTest {
 
         /**
          * {@inheritDoc}
-         * <p/>
-         * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
+         * <p>The default implementation throws a runtime exception with the message "not implemented".
          */
         @Override
         public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {

@@ -48,7 +48,7 @@ import java.util.Set;
 
 /**
  * The product writer for the BEAM-DIMAP format.
- * <p/>
+ * <p>
  * The BEAM-DIMAP version history is provided in the API doc of the {@link DimapProductWriterPlugIn}.
  *
  * @author Sabine Embacher

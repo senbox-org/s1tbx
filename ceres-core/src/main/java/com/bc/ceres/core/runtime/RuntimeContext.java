@@ -31,15 +31,17 @@ public final class RuntimeContext {
 
     /**
      * Checks the status of the runtime's one and only system module.
+     *
      * @return {@code true} if the runtime is available.
      */
-     public static boolean isAvailable() {
+    public static boolean isAvailable() {
         return getModuleContext() != null;
     }
 
     /**
      * Gets the runtime configuration. The method
      * returns {@code null} if the runtime is not available.
+     *
      * @return The runtime configuration, or {@code null}.
      */
     public static RuntimeConfig getConfig() {
@@ -64,22 +66,21 @@ public final class RuntimeContext {
      * A resource is some data
      * (images, audio, text, etc) that can be accessed by class code in a way
      * that is independent of the location of the code.
-     * <p/>
-     * <p>The name of a resource is a <tt>/</tt>-separated path name that
+     * <p>
+     * The name of a resource is a <tt>/</tt>-separated path name that
      * identifies the resource.
      *
      * @param resourceName The resource name
-     *
      * @return An enumeration of {@link java.net.URL <tt>URL</tt>} objects for
-     *         the resource.  If no resources could  be found, the enumeration
-     *         will be empty.  Resources that the module runtime doesn't have
-     *         access to will not be in the enumeration.
+     * the resource.  If no resources could  be found, the enumeration
+     * will be empty.  Resources that the module runtime doesn't have
+     * access to will not be in the enumeration.
      *
      * @throws java.io.IOException If I/O errors occur
      * @see ClassLoader#getResources(String)
      * @since 0.14
      */
-    public static Enumeration<URL> getResources(String resourceName)  throws IOException {
+    public static Enumeration<URL> getResources(String resourceName) throws IOException {
         return Thread.currentThread().getContextClassLoader().getResources(resourceName);
     }
 }

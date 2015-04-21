@@ -47,8 +47,7 @@ import java.util.Random;
  * <li>the bandwidth of the band</li> <li>the solar spectral flux of the band</li> <li>the width and height of the
  * band</li> </ul> The band can contain a buffer to the real data, but this buffer must be read explicitely, to keep the
  * memory fingerprint small, the data is not read automatically.
- * <p/>
- * <p/>
+ * <p>
  * The several <code>getPixel</code> and <code>readPixel</code> methods of this class do not necessarily return the
  * values contained in the data buffer of type {@link ProductData}. If the <code>scalingFactor</code>,
  * <code>scalingOffset</code> or <code>log10Scaled</code> are set a conversion of the form <code>scalingFactor *
@@ -444,7 +443,6 @@ public class Band extends AbstractBand {
      * Accepts the given visitor. This method implements the well known 'Visitor' design pattern of the gang-of-four.
      * The visitor pattern allows to define new operations on the product data model without the need to add more code
      * to it. The new operation is implemented by the visitor.
-     * <p/>
      * <p>The method simply calls <code>visitor.visit(this)</code>.
      *
      * @param visitor the visitor, must not be <code>null</code>
@@ -528,10 +526,8 @@ public class Band extends AbstractBand {
     /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
-     * <p/>
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-     * <p/>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
     @Override

@@ -48,7 +48,7 @@ class VirtualBandMultiLevelImage extends DefaultMultiLevelImage implements Produ
     /**
      * Creates a new {@link MultiLevelImage} computed from raster data arithmetics. The image
      * created is reset whenever any referred raster data have changed.
-     * <p/>
+     * <p>
      * A 'node data changed' event is fired from the associated {@link RasterDataNode} whenever
      * the image created is reset.
      *

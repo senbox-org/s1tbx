@@ -18,8 +18,8 @@ package com.bc.ceres.core.runtime;
 
 /**
  * An extension point declared in a module.
- * <p/>
- * <p>If {@link #getDeclaringModule() declared} in a module manifest (module.xml), an extension point has the following syntax:
+ * <p>
+ * If {@link #getDeclaringModule() declared} in a module manifest (module.xml), an extension point has the following syntax:
  * <pre>
  *    &lt;extensionPoint id="{@link #getId() id}"&gt;
  *       {@link #getConfigurationSchemaElement() configuration schema element 1}
@@ -27,8 +27,7 @@ package com.bc.ceres.core.runtime;
  *       ...
  *    &lt;/extensionPoint&gt;
  * </pre>
- * <p/>
- * This interface is not intended to be implemented by clients.</p>
+ * This interface is not intended to be implemented by clients.
  */
 public interface ExtensionPoint {
 

@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 /**
  * A <code>CsvReader</code> instance is used read text files with CSV (comma separated values) format.
- * <p/>
+ * <p>
  * This reader interprets each line of a text file as record (also empty lines). The fields of the record are
  * delimited by a single separator character which must not necessarily be a comma.
  *
@@ -112,7 +112,7 @@ public class CsvReader extends LineNumberReader {
     /**
      * Reads a record info from the database. A record is represented by a complete line in the CSV formatted text
      * file.
-     * <p/>
+     * <p>
      * Leading and trailing whitespaces removed from each column value. For empty lines, the method returns an
      * array of the length zero. The method returns <code>null</code> if the end of file has been reached.
      *

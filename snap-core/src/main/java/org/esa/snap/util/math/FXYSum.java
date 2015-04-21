@@ -20,9 +20,9 @@ package org.esa.snap.util.math;
  * The class <code>FXYSum</code> represents a sum of function terms <i>sum(c[i] * f[i](x,y), i=0, n-1)</i>
  * where the vector <i>c</i> is a <code>double</code> array of constant coefficients and the vector <i>f</i>
  * is an array of functions of type <code>{@link FXY}</code> in <i>x</i> and <i>y</i>.
- * <p/>
+ * <p>
  * The vector <i>c</i> of constants is set by the {@link FXYSum#approximate(double[][], int[])} method.
- * <p/>
+ * <p>
  * After vector <i>c</i> is set, the actual function values <i>z(x,y)</i> are retrieved using the
  * {@link FXYSum#computeZ(double, double)} method.
  *
@@ -43,7 +43,7 @@ public class FXYSum {
      * <li>{@link Cubic} - order = 3 ; number of coefficients = 10</li>
      * <li>{@link BiCubic} - order = 6 ; number of coefficients = 16</li>
      * </ul>
-     * </p>
+     *
      *
      * @param order        the order of the sum
      * @param coefficients the coefficients

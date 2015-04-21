@@ -24,11 +24,11 @@ public class ExtMath {
 
     /**
      * Returns the common logarithm, the logarithm with base 10 of a double value. Special cases:
-     * <ld>
+     * <ul>
      * <li>If the argument is NaN or less than zero, then the result is NaN.</li>
      * <li>If the argument is positive infinity, then the result is positive infinity.</li>
      * <li>If the argument is positive zero or negative zero, then the result is negative infinity.</li>
-     * </ld>
+     * </ul>
      *
      * @param x number greater than 0.0.
      *
@@ -69,11 +69,11 @@ public class ExtMath {
 
     /**
      * Computes the signum of a given integer. The method returns
-     * <ld>
+     * <ul>
      * <li>-1, if a is negative</li>
      * <li>+1, if a is positive</li>
      * <li>0, if a is zero.</li>
-     * </ld>
+     * </ul>
      *
      * @param a the number
      *
@@ -85,11 +85,11 @@ public class ExtMath {
 
     /**
      * Computes the signum of a given long integer. The method returns
-     * <ld>
+     * <ul>
      * <li>-1, if a is negative</li>
      * <li>+1, if a is positive</li>
      * <li>0, if a is zero.</li>
-     * </ld>
+     * </ul>
      *
      * @param a the number
      *
@@ -101,12 +101,12 @@ public class ExtMath {
 
     /**
      * Computes the signum of a given number. The method returns
-     * <ld>
+     * <ul>
      * <li>-1, if a is negative</li>
      * <li>+1, if a is positive</li>
      * <li>0, if a is zero</li>
      * <li>NaN, if a is NaN.</li>
-     * </ld>
+     * </ul>
      *
      * @param a the number
      *
@@ -121,12 +121,12 @@ public class ExtMath {
 
     /**
      * Computes the signum of a given number. The method returns
-     * <ld>
+     * <ul>
      * <li>-1, if a is negative</li>
      * <li>+1, if a is positive</li>
      * <li>0, if a is zero</li>
      * <li>NaN, if a is NaN.</li>
-     * </ld>
+     * </ul>
      *
      * @param a the number
      *

@@ -20,9 +20,9 @@ import com.bc.ceres.core.CoreException;
 
 /**
  * A configurable extension.
- * This interface may be implemented by client supplied extensions.</p>
+ * This interface may be implemented by client supplied extensions.
  *
- * @see ConfigurationElement#createExecutableExtension(Class<T>)
+ * @see ConfigurationElement#createExecutableExtension(Class)
  */
 public interface ConfigurableExtension {
 

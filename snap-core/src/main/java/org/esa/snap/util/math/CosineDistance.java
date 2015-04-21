@@ -17,7 +17,7 @@ package org.esa.snap.util.math;/*
 /**
  * This class uses the negative cosine of the spherical distance as a distance
  * measure between two (lon, lat) points.
- * <p/>
+ * <p>
  * This distance measure is computationally much less expensive than the spherical
  * distance, because it is not necessary to evaluate the inverse of the cosine.
  *

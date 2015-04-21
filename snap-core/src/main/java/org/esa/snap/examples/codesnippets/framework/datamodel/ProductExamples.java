@@ -33,7 +33,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Each satellite product is an object of the class </p><pre>org.esa.snap.framework.datamodel.Product</pre></p>
+ * Each satellite product is an object of the class <pre>org.esa.snap.framework.datamodel.Product</pre>
  * This class contains code snippets that show some possibilities and constraints in the usage of the product class.
  */
 public class ProductExamples {

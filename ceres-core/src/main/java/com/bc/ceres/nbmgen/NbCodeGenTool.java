@@ -23,13 +23,11 @@ import java.util.Map;
  * </pre>
  * <p>
  * For NbCodeGenMain:
- * </p>
  * <pre>
  *    NbCodeGenMain . true
  * </pre>
  * <p>Scans a ${project-dir} for Ceres modules ({@code pom.xml} + {@code src/main/resources/module.xml})
  * and generates NB Java code stubs for all Ceres extensions.
- * </p>
  *
  * @author Norman
  */

@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 
 /**
  * Gets notified once a new tile has been computed.
- * <p/>
+ * <p>
  * The framework uses observers as follows:
  * <ol>
  *     <li>{@link #start()} is called only once before any other method is called.</li>

@@ -47,7 +47,6 @@ import java.util.Vector;
 
 /**
  * A utility class providing a set of static functions frequently used when working with images.
- * <p/>
  * <p> All functions have been implemented with extreme caution in order to provide a maximum performance.
  *
  * @author Norman Fomferra

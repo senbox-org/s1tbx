@@ -434,7 +434,6 @@ public class JAIUtils {
      *    low  = level - window / 2
      *    high = level + window / 2
      * </pre>
-     * <p/>
      * <p> The image returned is always of type 'byte' and has the same number of bands as the source image.
      *
      * @param image  the source image, can be of any type

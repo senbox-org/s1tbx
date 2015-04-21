@@ -29,7 +29,7 @@ import java.util.List;
 
 /**
  * Approximates the x(lat, lon) and y(lat, lon) functions.
- * <p/>
+ * <p>
  * This class does not belong to the public API.
  *
  * @author Ralf Quast

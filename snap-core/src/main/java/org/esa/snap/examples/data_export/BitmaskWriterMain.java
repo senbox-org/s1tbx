@@ -27,35 +27,28 @@ import java.io.IOException;
 /**
  * This is an example program which writes out a bit-mask image of an ENVISAT data product. The image is written as a
  * raw byte stream and contains as much bytes as a the number of pixels a scene of the product has.
- * <p/>
  * <p>The program expects three input arguments: <ol> <li><i>input-file</i> - the input file path to an ENVISAT data
- * product</li> <li><i>output-file</i> - the file path to the bit-mask image file to be written<</li>
+ * product</li> <li><i>output-file</i> - the file path to the bit-mask image file to be written</li>
  * <li><i>bit-mask-expr</i> - the bit-mask expression</li> </ol>
- * <p/>
  * <p><i>bit-mask-expr</i> is a boolean expression. The logical operators you can use are "AND", "OR" and "NOT" (or the
- * characters "&", "|" and "!" respectively). You can also enclose sub-expressions in parentheses "(" and ")" to change
+ * characters "&amp;", "&#124;" and "!" respectively). You can also enclose sub-expressions in parentheses "(" and ")" to change
  * the evaluation priority.
- * <p/>
  * <p>A reference to a flag value in a data product comprises the flag dataset name followed by a dot "." and followed
  * by the flag name you are interested in. For example, "l1_flags.INVALID" references the INVALID-flag in the dataset
  * "l1_flags".
- * <p/>
- * <p>The following are examples for valid bit-mask expression strings for MERIS L1b products: <ld> <li><code>"NOT
+ * <p>The following are examples for valid bit-mask expression strings for MERIS L1b products: <ul> <li><code>"NOT
  * l1_flags.INVALID AND NOT l1_flags.BRIGHT"</code></li> <li><code>"(l1_flags.COASTLINE OR l1_flags.LAND_OCEAN) AND NOT
  * l1_flags.GLINT_RISK"</code></li> <li><code>"!(l1_flags.BRIGHT | l1_flags.GLINT_RISK | l1_flags.INVALID |
- * l1_flags.SUSPECT)"</code></li> </ld></p>
- * <p/>
- * <p>The following are examples for valid bit-mask expression strings for AATSR TOA L1b products: <ld> <li><code>"NOT
+ * l1_flags.SUSPECT)"</code></li> </ul>
+ * <p>The following are examples for valid bit-mask expression strings for AATSR TOA L1b products: <ul> <li><code>"NOT
  * confid_flags_nadir.SATURATION AND NOT confid_flags_nadir.OUT_OF_RANGE"</code> <li><code>"confid_flags_nadir.SATURATION
  * OR confid_flags_fward.SATURATION"</code> <li><code>"cloud_flags_nadir.LAND OR cloud_flags_fward.SUN_GLINT"</code>
  * <li><code>"cloud_flags_nadir.CLOUDY and not confid_flags_nadir.NO_SIGNAL"</code> <li><code>"cloud_flags_fward.CLOUDY
- * and not confid_flags_fward.NO_SIGNAL"</code> </ld></p>
- * <p/>
+ * and not confid_flags_fward.NO_SIGNAL"</code> </ul>
  * <p>You find all possible flag datasets in the <code><b>beam.jar</b>!/org/esa/snap/resources/dddb/bands/<i>product-type</i>.dd</code>
  * file, where <i>product-type</i> is an ENVISAT product type name, such as "MER_RR__1P" for a MERIS L1b reduced
  * resolution product. The corresponding flags you can find in a dataset are stored under
  * <code><b>beam.jar</b>!/org/esa/snap/resources/dddb/bands/<i>product-type</i>_<i>dataset_type</i><.dd</code>.
- * <p/>
  * <i><b>Note:</b> If you want to work with product subsets, you can use the {@link
  * org.esa.snap.framework.dataio.ProductSubsetBuilder} class. It has a static method which lets you create a subset of a
  * given product and subset definition.</i>

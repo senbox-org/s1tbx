@@ -135,7 +135,7 @@ public class OperatorHandlerHtml implements OperatorHandler {
             }
             writer.println("</table>");
         } else {
-            writer.println("<p><i>This operator does not have any sources.</i></p>");
+            writer.println("<p><i>This operator does not have any sources.</i>");
         }
 
         writer.println("<h2>Parameters</h2>");
@@ -160,12 +160,12 @@ public class OperatorHandlerHtml implements OperatorHandler {
             }
             writer.println("</table>");
         } else {
-            writer.println("<p><i>This operator does not have any parameters.</i></p>");
+            writer.println("<p><i>This operator does not have any parameters.</i>");
         }
 
         // todo - fix this (nf)
 //        writer.println("<h2>Usage</h2>");
-//        writer.println("<p><i>TODO</i></p>");
+//        writer.println("<p><i>TODO</i>");
 
         writeFooter(writer);
     }

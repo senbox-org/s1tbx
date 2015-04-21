@@ -18,14 +18,18 @@ package com.bc.ceres.binio.util;
 
 import junit.framework.TestCase;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 /**
  * See also:
- * <p/>
+ * <p>
  * java.nio Examples from The Java Developers Almanac 1.4
  * http://exampledepot.com/egs/java.nio/pkg.html
  * ---

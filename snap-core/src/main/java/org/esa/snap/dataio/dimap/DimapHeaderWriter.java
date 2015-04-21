@@ -66,7 +66,7 @@ import java.util.Vector;
 
 /**
  * This class is used to print the DIMAP XML header of the given product to a given writer or file.
- * <p/>
+ * <p>
  * The BEAM-DIMAP version history is provided in the API doc of the {@link DimapProductWriterPlugIn}.
  */
 public final class DimapHeaderWriter extends XmlWriter {

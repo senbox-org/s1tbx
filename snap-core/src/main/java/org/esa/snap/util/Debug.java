@@ -26,11 +26,9 @@ import java.util.logging.Logger;
 /**
  * The <code>Debug</code> as it name says is a utility class for debugging. It contains exculisvely static methods and
  * cannot be instantiated.
- * <p/>
  * <p>This class provides methods for program assertions as well as tracing capabilities. The tracing output can be
  * redirected to any <code>java.io.XMLCoder</code>. The debbuging capabilities of this class can be disabled at runtime
  * by calling <code>Debug.setEnabled(false)</code>.
- * <p/>
  * <p> The methods defined in this class are guaranteed not to throw any exceptions caused by illegal argument passed to
  * them.
  *
@@ -263,10 +261,8 @@ public class Debug {
     /**
      * If the <code>condition</code> is NOT true, and the debugging functionality is enabled, this method throws an
      * <code>AssertionFailure</code> in order to signal that an internal program post- or pre-condition failed.
-     * <p/>
      * <p> Use this method whenever a valid state must be ensured within your sourcecode in order to safely continue the
      * program.
-     * <p/>
      * <p> For example, the method can be used to ensure valid arguments passed to private and protected methods.
      *
      * @param condition the assert condition
@@ -285,10 +281,8 @@ public class Debug {
      * If the <code>condition</code> is NOT true, and the debugging functionality is enabled, this method throws an
      * <code>AssertionFailure</code> in order to signal that an internal program post- or pre-condition failed. The
      * <code>AssertionFailure</code> will be created with the given error message string.
-     * <p/>
      * <p> Use this method whenever a valid state must be ensured within your sourcecode in order to safely continue the
      * program.
-     * <p/>
      * <p> For example, the method can be used to ensure valid arguments passed to private and protected methods.
      *
      * @param condition the assert condition
@@ -308,10 +302,8 @@ public class Debug {
     /**
      * If the given object is null, and the debugging functionality is enabled, this method throws an
      * <code>AssertionFailure</code> in order to signal that an internal program post- or pre-condition failed.
-     * <p/>
      * <p> Use this method whenever a valid state must be ensured within your sourcecode in order to safely continue the
      * program.
-     * <p/>
      * <p> For example, the method can be used to ensure valid arguments passed to private and protected methods.
      *
      * @param object the object to test for non-null condition
@@ -329,10 +321,8 @@ public class Debug {
     /**
      * If the given String is null or empty, and the debugging functionality is enabled, this method throws an
      * <code>AssertionFailure</code> in order to signal that an internal program post- or pre-condition failed.
-     * <p/>
      * <p> Use this method whenever a valid state must be ensured within your sourcecode in order to safely continue the
      * program.
-     * <p/>
      * <p> For example, the method can be used to ensure valid arguments passed to private and protected methods.
      *
      * @param string the String to test for non-null and not empty condition

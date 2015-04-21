@@ -18,7 +18,6 @@ package org.esa.snap.framework.datamodel;
 
 /**
  * A filter for abstract product nodes.
- * <p/>
  * <p> Instances of this interface may be passed to the {@link ProductNodeList#createSubset(ProductNodeFilter)} method.
  */
 public interface ProductNodeFilter<T extends ProductNode> {
