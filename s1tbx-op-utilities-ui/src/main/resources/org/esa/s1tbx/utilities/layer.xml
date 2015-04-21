@@ -41,21 +41,18 @@
             <folder name="Resampling">
                 <attr name="position" intvalue="150"/>
                 <file name="org-esa-s1tbx-gpf-OversampleOp-Action.shadow">
-                    <attr name="originalFile"
-                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-OversampleOp-Action.instance"/>
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-OversampleOp-Action.instance"/>
                     <attr name="position" intvalue="100"/>
                 </file>
                 <file name="org-esa-s1tbx-gpf-UndersampleOp-Action.shadow">
-                    <attr name="originalFile"
-                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-UndersampleOp-Action.instance"/>
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-UndersampleOp-Action.instance"/>
                     <attr name="position" intvalue="200"/>
                 </file>
             </folder>
             <folder name="Data Conversion">
                 <attr name="position" intvalue="200"/>
                 <file name="org-esa-s1tbx-gpf-ConvertDatatypeOp-Action.shadow">
-                    <attr name="originalFile"
-                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-ConvertDatatypeOp-Action.instance"/>
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-ConvertDatatypeOp-Action.instance"/>
                     <attr name="position" intvalue="100"/>
                 </file>
             </folder>

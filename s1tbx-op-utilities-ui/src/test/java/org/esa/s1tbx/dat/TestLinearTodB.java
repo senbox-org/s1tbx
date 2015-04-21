@@ -41,7 +41,7 @@ public class TestLinearTodB {
         final Product product = createTestProduct(16, 4);
         final Band band1 = product.getBandAt(0);
 
-        LinearTodBOpAction.convert(product, band1, true);
+        LinearTodBAction.convert(product, band1, true);
         assertTrue(product.getNumBands() == 2);
 
         final Band band2 = product.getBandAt(1);
@@ -57,7 +57,7 @@ public class TestLinearTodB {
         band1.setName(band1.getName() + dBStr);
         band1.setUnit(band1.getUnit() + dBStr);
 
-        LinearTodBOpAction.convert(product, band1, false);
+        LinearTodBAction.convert(product, band1, false);
         assertTrue(product.getNumBands() == 2);
 
         final Band band2 = product.getBandAt(1);

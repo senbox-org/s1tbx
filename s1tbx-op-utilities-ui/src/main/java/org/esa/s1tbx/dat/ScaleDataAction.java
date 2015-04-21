@@ -21,15 +21,31 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.visat.actions.AbstractVisatAction;
+import org.esa.snap.rcp.actions.AbstractSnapAction;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
+import org.openide.util.NbBundle;
 
+import java.awt.event.ActionEvent;
+
+@ActionID(
+        category = "Tools",
+        id = "org.esa.s1tbx.dat.ScaleDataAction"
+)
+@ActionRegistration(displayName = "#CTL_ScaleDataAction_Text")
+@ActionReference(
+        path = "Menu/Tools/Data Conversion",
+        position = 300
+)
+@NbBundle.Messages({"CTL_ScaleDataAction_Text=Scale Data"})
 /**
  * ScaleData action.
  */
-public class ScaleDataAction extends AbstractVisatAction {
+public class ScaleDataAction extends AbstractSnapAction {
 
     @Override
-    public void actionPerformed(CommandEvent event) {
+    public void actionPerformed(ActionEvent event) {
 
         final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
         if (node instanceof Band) {
@@ -41,7 +57,6 @@ public class ScaleDataAction extends AbstractVisatAction {
         }
     }
 
-    @Override
     public void updateState(CommandEvent event) {
         final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
         if (node instanceof Band) {

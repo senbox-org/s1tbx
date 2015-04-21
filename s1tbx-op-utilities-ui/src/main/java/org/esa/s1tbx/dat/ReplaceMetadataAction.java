@@ -22,25 +22,38 @@ import org.esa.snap.datamodel.metadata.AbstractMetadataIO;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.ui.command.CommandEvent;
-import org.esa.snap.framework.ui.command.ExecCommand;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.actions.AbstractSnapAction;
 import org.esa.snap.util.ResourceUtils;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
+import org.openide.util.NbBundle;
 
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+@ActionID(
+        category = "Processing",
+        id = "org.esa.s1tbx.dat.ReplaceMetadataAction"
+)
+@ActionRegistration(displayName = "#CTL_ReplaceMetadataAction_Text")
+@ActionReference(
+        path = "Menu/Tools/Data Conversion",
+        position = 400
+)
+@NbBundle.Messages({"CTL_ReplaceMetadataAction_Text=Replace Metadata"})
 /**
  * This action replaces the Metadata with that of another product
  *
- * @author lveci
- * @version $Revision: 1.4 $ $Date: 2012-01-03 18:49:13 $
  */
-public class ReplaceMetadataAction extends ExecCommand {
+public class ReplaceMetadataAction extends AbstractSnapAction {
 
     @Override
-    public void actionPerformed(final CommandEvent event) {
+    public void actionPerformed(final ActionEvent event) {
 
         final Product destProduct = SnapApp.getDefault().getSelectedProduct();
         final String[] compatibleProductNames = getCompatibleProducts(destProduct);
@@ -90,14 +103,13 @@ public class ReplaceMetadataAction extends ExecCommand {
         }
     }
 
-    @Override
     public void updateState(final CommandEvent event) {
         final Product product = SnapApp.getDefault().getSelectedProduct();
         setEnabled(product != null);
     }
 
     private static String[] getCompatibleProducts(final Product destProduct) {
-        final List<String> prodList = new ArrayList<String>();
+        final List<String> prodList = new ArrayList<>();
 
         final Product[] products = SnapApp.getDefault().getProductManager().getProducts();
         for (Product p : products) {

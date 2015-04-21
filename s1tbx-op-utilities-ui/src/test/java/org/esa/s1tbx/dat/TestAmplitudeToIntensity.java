@@ -39,7 +39,7 @@ public class TestAmplitudeToIntensity {
         final Product product = createTestProduct("Amplitude", Unit.AMPLITUDE, 16, 4);
         final Band band1 = product.getBandAt(0);
 
-        AmplitudeToIntensityOpAction.convert(product, band1, false);
+        AmplitudeToIntensityAction.convert(product, band1, false);
         assertTrue(product.getNumBands() == 2);
 
         final Band band2 = product.getBandAt(1);
@@ -53,7 +53,7 @@ public class TestAmplitudeToIntensity {
         final Product product = createTestProduct("Intensity", Unit.INTENSITY, 16, 4);
         final Band band1 = product.getBandAt(0);
 
-        AmplitudeToIntensityOpAction.convert(product, band1, true);
+        AmplitudeToIntensityAction.convert(product, band1, true);
         assertTrue(product.getNumBands() == 2);
 
         final Band band2 = product.getBandAt(1);
