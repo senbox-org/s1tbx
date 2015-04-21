@@ -176,9 +176,9 @@ public final class TOPSARDeburstOp extends Operator {
      */
     private void computeTargetSlantRangeTimeToFirstAndLastPixels() {
 
-            targetSlantRangeTimeToFirstPixel = subSwath[0].slrTimeToFirstValidPixel;
-            targetSlantRangeTimeToLastPixel = subSwath[numOfSubSwath - 1].slrTimeToLastValidPixel;
-            targetDeltaSlantRangeTime = subSwath[0].rangePixelSpacing / Constants.lightSpeed;
+        targetSlantRangeTimeToFirstPixel = subSwath[0].slrTimeToFirstPixel;
+        targetSlantRangeTimeToLastPixel = subSwath[numOfSubSwath - 1].slrTimeToLastPixel;
+        targetDeltaSlantRangeTime = subSwath[0].rangePixelSpacing / Constants.lightSpeed;
     }
 
     /**
@@ -1027,12 +1027,12 @@ public final class TOPSARDeburstOp extends Operator {
 
     private int computeYMin(final Sentinel1Utils.SubSwathInfo subSwath) {
 
-        return (int) ((subSwath.firstLineTime - targetFirstLineTime) / targetLineTimeInterval);
+        return (int) ((subSwath.firstValidLineTime - targetFirstLineTime) / targetLineTimeInterval);
     }
 
     private int computeYMax(final Sentinel1Utils.SubSwathInfo subSwath) {
 
-        return (int) ((subSwath.lastLineTime - targetFirstLineTime) / targetLineTimeInterval);
+        return (int) ((subSwath.lastValidLineTime - targetFirstLineTime) / targetLineTimeInterval);
     }
 
     private int computeXMin(final Sentinel1Utils.SubSwathInfo subSwath) {
