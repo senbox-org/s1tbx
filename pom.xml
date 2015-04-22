@@ -1367,6 +1367,15 @@
 				<module>s1tbx-benchmark</module>
             </modules>
 		</profile>
+        <profile>
+            <id>snap</id>
+            <modules>
+				<module>../snap-engine</module>
+				<module>../snap-desktop</module>
+                <!--module>../s2tbx</module-->
+				<module>../s3tbx</module>
+            </modules>
+		</profile>
     </profiles>
 
 </project>
