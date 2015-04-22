@@ -1368,12 +1368,13 @@
             </modules>
 		</profile>
         <profile>
-            <id>snap</id>
+            <id>all</id>
             <modules>
 				<module>../snap-engine</module>
 				<module>../snap-desktop</module>
                 <!--module>../s2tbx</module-->
 				<module>../s3tbx</module>
+                <module>../esa-pfa</module>
             </modules>
 		</profile>
     </profiles>

@@ -12,23 +12,11 @@ import org.esa.snap.util.DialogUtils;
 import org.esa.snap.util.ProductOpener;
 import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.io.BeamFileChooser;
-import org.jlinda.nest.dat.dialogs.InSARMasterDialog;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableModel;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -46,12 +34,11 @@ public class ProductLibraryActions {
     private static final ImageIcon copyIcon = UIUtils.loadImageIcon("/org/esa/s1tbx/icons/copy24.png", ProductLibraryToolView.class);
     private static final ImageIcon findSlicesIcon = UIUtils.loadImageIcon("/org/esa/s1tbx/icons/slices24.png", ProductLibraryToolView.class);
     private static final ImageIcon batchIcon = UIUtils.loadImageIcon("/org/esa/s1tbx/icons/batch24.png", ProductLibraryToolView.class);
-    private static final ImageIcon stackIcon = UIUtils.loadImageIcon("/org/esa/s1tbx/icons/stack24.png", ProductLibraryToolView.class);
 
     private final JTable productEntryTable;
     private final ProductLibraryToolView toolView;
     private final ProductOpener openHandler;
-    private JButton selectAllButton, openAllSelectedButton, copySelectedButton, findSlicesButton, batchProcessButton, stackButton;
+    private JButton selectAllButton, openAllSelectedButton, copySelectedButton, findSlicesButton, batchProcessButton;
 
     private JMenuItem copyToItem,  moveToItem, deleteItem;
 
@@ -105,13 +92,6 @@ public class ProductLibraryActions {
             }
         });
 
-        stackButton = DialogUtils.createButton("stackButton", "Stack overview", stackIcon, panel, DialogUtils.ButtonStyle.Icon);
-        stackButton.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                performStackOverviewAction();
-            }
-        });
-
         panel.add(selectAllButton);
         panel.add(openAllSelectedButton);
         panel.add(copySelectedButton);
@@ -119,7 +99,6 @@ public class ProductLibraryActions {
         //panel.add(new JSeparator(SwingConstants.HORIZONTAL));
         panel.add(Box.createRigidArea(new Dimension(24,24)));
         panel.add(findSlicesButton);
-        panel.add(stackButton);
 
         return panel;
     }
@@ -134,19 +113,11 @@ public class ProductLibraryActions {
         batchDlg.show();
     }
 
-    private void performStackOverviewAction() {
-
-        final InSARMasterDialog dialog = new InSARMasterDialog();
-        dialog.setInputProductList(getSelectedProductEntries());
-        dialog.show();
-    }
-
     public void selectionEnabled(final boolean enable) {
         openAllSelectedButton.setEnabled(enable);
         copySelectedButton.setEnabled(enable);
         findSlicesButton.setEnabled(enable && getNumberOfSelections() == 1);
         batchProcessButton.setEnabled(enable);
-        stackButton.setEnabled(enable && getNumberOfSelections() > 1);
     }
 
     private int getNumberOfSelections() {

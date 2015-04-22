@@ -65,15 +65,6 @@
             <artifactId>snap-gui-utilities</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jlinda</groupId>
-            <artifactId>jlinda-nest-ui</artifactId>
-            <version>${jlinda.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.alee</groupId>
             <artifactId>weblaf</artifactId>
         </dependency>
@@ -100,7 +91,6 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>org.esa.s1tbx.*</publicPackage>
-                        <publicPackage>com.alee.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
