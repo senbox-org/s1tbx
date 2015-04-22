@@ -26,19 +26,19 @@ public class MacroExpanderTest extends TestCase {
 
     Properties _p = new Properties();
     private final String _expected =
-            "SET BEAM_HOME = usr/local/org/esa/beam\n"
+            "SET SNAP_HOME = usr/local/org/esa/snap\n"
             + "usr/local/java2/bin/java -classpath=../lib/junit.jar:../lib/jaxp.jar Test\n";
 
     private final String _source1 =
-            "SET BEAM_HOME = ${org.esa.snap.home}\n"
+            "SET SNAP_HOME = ${org.esa.snap.home}\n"
             + "${java.home}/bin/java -classpath=${class.path} Test\n";
 
     private final String _source2 =
-            "SET BEAM_HOME = $org.esa.snap.home\n"
+            "SET SNAP_HOME = $org.esa.snap.home\n"
             + "$java.home/bin/java -classpath=$class.path Test\n";
 
     private final String _source3 =
-            "SET BEAM_HOME = $org.esa.snap.home$\n"
+            "SET SNAP_HOME = $org.esa.snap.home$\n"
             + "$java.home$/bin/java -classpath=$class.path$ Test\n";
 
     public MacroExpanderTest(String testName) {
@@ -51,7 +51,7 @@ public class MacroExpanderTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        _p.setProperty("org.esa.snap.home", "usr/local/org/esa/beam");
+        _p.setProperty("org.esa.snap.home", "usr/local/org/esa/snap");
         _p.setProperty("java.home", "usr/local/java2");
         _p.setProperty("class.path", "../lib/junit.jar:../lib/jaxp.jar");
     }
