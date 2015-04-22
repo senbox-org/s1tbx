@@ -24,7 +24,6 @@ import static org.junit.Assert.*;
 
 /**
  * @author Marco Peters
- * @version $ Revision $ Date $
  * @since BEAM 4.6
  */
 public class RasterDataNodeTest {

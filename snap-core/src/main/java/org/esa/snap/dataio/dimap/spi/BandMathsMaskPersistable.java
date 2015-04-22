@@ -24,7 +24,6 @@ import static org.esa.snap.dataio.dimap.DimapProductConstants.*;
 
 /**
  * @author Marco Peters
- * @version $ Revision $ Date $
  * @since BEAM 4.7
  */
 class BandMathsMaskPersistable extends MaskPersistable {
