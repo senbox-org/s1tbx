@@ -21,9 +21,9 @@ public abstract class ResourceLocator {
         ServiceLoader<ResourceLocator> providers = ServiceLoader.load(ResourceLocator.class);
         ResourceLocator resourceLocator = null;
         for (ResourceLocator provider : providers) {
-            if (!(provider instanceof DefaultResourceLocator)) {
+            if (!provider.getClass().equals(DefaultResourceLocator.class)) {
                 resourceLocator = provider;
-                        break;
+                break;
             } else if (resourceLocator == null) {
                 resourceLocator = provider;
             }
