@@ -45,7 +45,6 @@ import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
 import gov.nasa.worldwindx.examples.WMSLayersPanel;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductNode;
-import org.esa.snap.framework.ui.product.ProductSceneView;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.util.SelectionSupport;
 import org.esa.snap.rcp.windows.ToolTopComponent;
@@ -62,8 +61,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -165,27 +162,6 @@ public class NestWWToolView extends ToolTopComponent implements WWView {
         final JPanel mainPane = new JPanel(new BorderLayout(4, 4));
         mainPane.setSize(new Dimension(300, 300));
 
-
-        /*     JToolBar toolbar = new JToolBar();
-
-          JButton loadDEMButton = new JButton();
-          loadDEMButton.setName(getClass().getName() + loadDEMCommand);
-
-          loadDEMButton = (JButton) ToolButtonFactory.createButton(loadDEMIcon, false);
-          loadDEMButton.setBackground(mainPane.getBackground());
-          loadDEMButton.setActionCommand(loadDEMCommand);
-          loadDEMButton.setVisible(true);
-
-          loadDEMButton.addActionListener(new ActionListener() {
-
-              public void actionPerformed(final ActionEvent e) {
-                  LoadDEM();
-              }
-          });
-          toolbar.add(loadDEMButton);
-
-          mainPane.add(toolbar, BorderLayout.NORTH); */
-
         // world wind canvas
         initialize(mainPane);
         if (wwjPanel == null) return mainPane;
@@ -225,8 +201,7 @@ public class NestWWToolView extends ToolTopComponent implements WWView {
         insertTiledLayer(getWwd(), productLayer);
         insertTiledLayer(getWwd(), level2ProductLayer);
 
-        // Add an internal frame listener to VISAT so that we can update our
-        // world map window with the information of the currently activated  product scene view.
+        // update world map window with the information of the currently activated  product scene view.
         final SnapApp snapApp = SnapApp.getDefault();
         snapApp.getProductManager().addListener(new WWProductManagerListener(this));
         snapApp.getSelectionSupport(ProductNode.class).addHandler(new SelectionSupport.Handler<ProductNode>() {
@@ -382,12 +357,6 @@ public class NestWWToolView extends ToolTopComponent implements WWView {
         controlPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
         return controlPanel;
-    }
-
-
-    private void LoadDEM() {
-
-        //_eventListener.LoadDEM();
     }
 
     public void setSelectedProduct(Product product) {
@@ -560,23 +529,6 @@ public class NestWWToolView extends ToolTopComponent implements WWView {
 
         public final StatusBar getStatusBar() {
             return statusBar;
-        }
-    }
-
-    private class WWIFL extends InternalFrameAdapter {
-
-        @Override
-        public void internalFrameActivated(final InternalFrameEvent e) {
-            final Container contentPane = e.getInternalFrame().getContentPane();
-            Product product = null;
-            if (contentPane instanceof ProductSceneView) {
-                product = ((ProductSceneView) contentPane).getProduct();
-            }
-            setSelectedProduct(product);
-        }
-
-        @Override
-        public void internalFrameDeactivated(final InternalFrameEvent e) {
         }
     }
 }

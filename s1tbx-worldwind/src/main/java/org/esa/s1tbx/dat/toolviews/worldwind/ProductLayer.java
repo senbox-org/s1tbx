@@ -35,6 +35,7 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.gpf.GPF;
 import org.esa.snap.gpf.OperatorUtils;
+import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.ProductUtils;
 
 import javax.swing.*;
@@ -216,7 +217,7 @@ public class ProductLayer extends RenderableLayer implements ProductRenderer {
                     addRenderable(si);
                     imageTable.put(name, si);
                 } catch (Exception e) {
-                    //VisatApp.getApp().showErrorDialog(e.getMessage());
+                    SnapDialogs.showError(e.getMessage());
                 }
             }
         };
