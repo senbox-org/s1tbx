@@ -81,11 +81,11 @@ import java.net.URISyntaxException;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(
-        mode = "navigator",
+        mode = "rightSlidingSide",
         openAtStartup = true,
-        position = 3
+        position = 2
 )
-@ActionID(category = "Window", id = "org.esa.nest.dat.toolviews.nestwwview.NestWWToolView")
+@ActionID(category = "Window", id = "org.esa.s1tbx.dat.toolviews.worldwind.WWToolView")
 @ActionReferences({
         @ActionReference(path = "Menu/Window/Tool Windows"),
         @ActionReference(path = "Toolbars/Views")
@@ -104,10 +104,7 @@ import java.net.URISyntaxException;
  *
  * @version $Revision: 1.22 $ $Date: 2011-11-02 23:04:54 $
  */
-public class NestWWToolView extends ToolTopComponent implements WWView {
-
-    //private static final String loadDEMCommand = "loadDEM";
-    //private static final ImageIcon loadDEMIcon = ResourceUtils.LoadIcon("org/esa/snap/icons/dem24.gif");
+public class WWToolView extends ToolTopComponent implements WWView {
 
     private final Dimension canvasSize = new Dimension(800, 600);
 
@@ -130,8 +127,6 @@ public class NestWWToolView extends ToolTopComponent implements WWView {
     private static final boolean includeProductPanel = true;
     private static final boolean includeWMSPanel = false;
 
-
-
     private static final String[] servers = new String[]
             {
                     "http://neowms.sci.gsfc.nasa.gov/wms/wms",
@@ -140,7 +135,7 @@ public class NestWWToolView extends ToolTopComponent implements WWView {
                     "http://worldwind46.arc.nasa.gov:8087/wms"
             };
 
-    public NestWWToolView() {
+    public WWToolView() {
         setDisplayName("WorldWind");
         setLayout(new BorderLayout(4, 4));
         setBorder(new EmptyBorder(4, 4, 4, 4));
