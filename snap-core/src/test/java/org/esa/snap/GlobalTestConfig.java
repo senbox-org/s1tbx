@@ -74,7 +74,7 @@ public class GlobalTestConfig {
         if (filePath != null) {
             return new File(filePath);
         }
-        return new File(SystemUtils.getBeamHomeDir(),
+        return new File(SystemUtils.getApplicationHomeDir(),
                         SystemUtils.convertToLocalPath(beamRelDefaultPath));
     }
 }

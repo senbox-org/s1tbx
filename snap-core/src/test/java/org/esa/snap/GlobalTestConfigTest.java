@@ -69,7 +69,7 @@ public class GlobalTestConfigTest extends TestCase {
         } catch (SecurityException e) {
             fail("SecurityException not expected");
         }
-        final File defaultFile = new File(SystemUtils.getBeamHomeDir(),
+        final File defaultFile = new File(SystemUtils.getApplicationHomeDir(),
                                           SystemUtils.convertToLocalPath(
                                                   GlobalTestConfig.BEAM_TEST_DATA_INPUT_DIR_DEFAULT_PATH));
         assertEquals(defaultFile, file);

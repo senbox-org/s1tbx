@@ -50,13 +50,14 @@ import java.util.logging.Logger;
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @version $Revision$ $Date$
  */
 public class SystemUtils {
 
-    public static final String SNAP_LOGGER_NAME_PROPERTY_NAME = "snap.logger.name";
-    public static final String SNAP_LOGGER_LEVEL_PROPERTY_NAME = "snap.logger.level";
-    public static final String BEAM_PARALLELISM_PROPERTY_NAME = "snap.parallelism";
+    public static final String SNAP_HOME_PROPERTY_NAME = getApplicationContextId() + ".home";
+    public static final String SNAP_USERDIR_PROPERTY_NAME = getApplicationContextId() + ".userdir";
+    public static final String SNAP_LOGGER_NAME_PROPERTY_NAME = getApplicationContextId() + ".logger.name";
+    public static final String SNAP_LOGGER_LEVEL_PROPERTY_NAME = getApplicationContextId() + ".logger.level";
+    public static final String SNAP_PARALLELISM_PROPERTY_NAME = getApplicationContextId() + ".parallelism";
 
     private static final String LAX_INSTALL_DIR_PROPERTY_NAME = "lax.root.install.dir";
 
@@ -87,6 +88,8 @@ public class SystemUtils {
     private static final String EPSG_DATABASE_DIR_NAME = "epsg-database";
     private static final String JAI_REGISTRY_PATH = "/META-INF/javax.media.jai.registryFile.jai";
 
+    private static final String DEFAULT_USERDIR = new File(System.getProperty("user.home"), "." + getApplicationContextId()).getPath();
+
     static {
         LOG = Logger.getLogger(System.getProperty(SNAP_LOGGER_NAME_PROPERTY_NAME, "org.esa.snap"));
         String levelName = System.getProperty(SNAP_LOGGER_LEVEL_PROPERTY_NAME, "INFO");
@@ -98,8 +101,13 @@ public class SystemUtils {
         } catch (SecurityException e) {
             LOG.severe("failed to set log level '" + levelName + "'");
         }
-    }
 
+        // Make sure "snap.home" and "snap.user" are correctly set when running from NetBeans Platform
+        System.setProperty(SNAP_HOME_PROPERTY_NAME, System.getProperty("netbeans.home",
+                                                                       System.getProperty(SNAP_HOME_PROPERTY_NAME, ".")));
+        System.setProperty(SNAP_USERDIR_PROPERTY_NAME, System.getProperty("netbeans.user",
+                                                                          System.getProperty(SNAP_USERDIR_PROPERTY_NAME, DEFAULT_USERDIR)));
+    }
 
     /**
      * Gets the current user's name, or the string <code>"unknown"</code> if the the user's name cannot be determined.
@@ -117,7 +125,7 @@ public class SystemUtils {
      * @return the current working directory, never <code>null</code>
      */
     public static File getUserHomeDir() {
-        return new File(System.getProperty("netbeans.user", System.getProperty("user.home", ".")));
+        return new File(System.getProperty("user.home", "."));
     }
 
     /**
@@ -125,7 +133,6 @@ public class SystemUtils {
      * "http://sentinel.esa.int".
      *
      * @return the current user's application data directory
-     *
      * @since BEAM 4.10
      */
     public static String getApplicationHomepageUrl() {
@@ -136,7 +143,6 @@ public class SystemUtils {
      * Gets the current user's application data directory.
      *
      * @return the current user's application data directory
-     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir() {
@@ -148,12 +154,10 @@ public class SystemUtils {
      *
      * @param force if true, the directory will be created if it didn't exist before
      * @return the current user's application data directory
-     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir(boolean force) {
-        String contextId = getApplicationContextId();
-        final File dir = new File(getUserHomeDir(), "." + contextId);
+        File dir = new File(System.getProperty(SNAP_USERDIR_PROPERTY_NAME, "."));
         if (force && !dir.exists()) {
             dir.mkdirs();
         }
@@ -166,7 +170,6 @@ public class SystemUtils {
      * the string "snap" is used.
      *
      * @return The application context ID.
-     *
      * @since BEAM 4.10
      */
     public static String getApplicationContextId() {
@@ -187,7 +190,6 @@ public class SystemUtils {
      * the string "SNAP" is used.
      *
      * @return The application name.
-     *
      * @see #getApplicationContextId()
      * @since BEAM 4.10
      */
@@ -250,7 +252,7 @@ public class SystemUtils {
     }
 
     public static String getApplicationHomePropertyName() {
-        return getApplicationContextId() + ".home";
+        return SNAP_HOME_PROPERTY_NAME;
     }
 
     /**
@@ -263,7 +265,6 @@ public class SystemUtils {
      *
      * @param url the URL
      * @return an assumption of an application's home directory, never <code>null</code>
-     *
      * @throws IllegalArgumentException if the given url is <code>null</code>.
      */
     public static File getApplicationHomeDir(final URL url) {
@@ -296,7 +297,6 @@ public class SystemUtils {
      *
      * @param aClass The class.
      * @return the file name of the given class
-     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String getClassFileName(final Class aClass) {
@@ -327,48 +327,6 @@ public class SystemUtils {
     }
 
     /**
-     * Gets the BEAM Java home directory. The method evaluates the system property <code>org.esa.snap.home</code>. If it
-     * is given, it is returned, otherwise <code>getApplicationHomeDir()</code> is returned.
-     *
-     * @return the BEAM home directory
-     *
-     * @deprecated since BEAM 4.10, use {@link #getApplicationHomeDir()} instead
-     */
-    @Deprecated
-    public static File getBeamHomeDir() {
-
-        String homeKey = getApplicationHomePropertyName();
-
-        String homeDir = System.getProperty(homeKey);
-        if (homeDir != null && homeDir.length() > 0) {
-            return new File(homeDir);
-        }
-        homeDir = System.getProperty(LAX_INSTALL_DIR_PROPERTY_NAME);
-        if (homeDir != null && homeDir.length() > 0) {
-            return new File(homeDir);
-        }
-
-        final URL url = SystemUtils.class.getResource(getClassFileName(SystemUtils.class));
-        String path = url.getPath();
-        try {
-            path = URLDecoder.decode(path, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // ignored
-        }
-        path = path.replace(File.separatorChar, '/');
-        String beam4Key = "/beam4/";
-        int beam4Index = path.indexOf(beam4Key);
-        if (beam4Index != -1) {
-            path = path.substring(0, beam4Index + beam4Key.length() - 1);
-            path = path.replace('/', File.separatorChar);
-            return new File(path);
-        } else {
-            return new File(".").getAbsoluteFile();
-        }
-    }
-
-
-    /**
      * Gets the default BEAM cache directory. This is the directory
      * where BEAM stores temporary data.
      *
@@ -383,13 +341,12 @@ public class SystemUtils {
      *
      * @param urlPath an URL path or any other string containing the forward slash '/' as directory separator.
      * @return a path string with all occurrences of '/'
-     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String convertToLocalPath(String urlPath) {
         Guardian.assertNotNull("urlPath", urlPath);
         if (File.separatorChar != _URL_DIR_SEPARATOR_CHAR
-            && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
+                && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
             return urlPath.replace(_URL_DIR_SEPARATOR_CHAR,
                                    File.separatorChar);
         }
@@ -475,7 +432,7 @@ public class SystemUtils {
         final String currentLafName = UIManager.getLookAndFeel().getClass().getName();
 
         return System.getProperty(macOsSpecificPropertyKey) != null
-               && systemLafName.equals(currentLafName);
+                && systemLafName.equals(currentLafName);
     }
 
     /**
@@ -596,7 +553,7 @@ public class SystemUtils {
         } else {
             LOG.warning(MessageFormat.format("{0} not found", JAI_REGISTRY_PATH));
         }
-        Integer parallelism = Integer.getInteger(BEAM_PARALLELISM_PROPERTY_NAME,
+        Integer parallelism = Integer.getInteger(SNAP_PARALLELISM_PROPERTY_NAME,
                                                  Runtime.getRuntime().availableProcessors());
         JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
         LOG.info(MessageFormat.format("JAI tile scheduler parallelism set to {0}", parallelism));
@@ -642,7 +599,7 @@ public class SystemUtils {
 
         // Returns image
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,
-                                                                IOException {
+                IOException {
             if (!DataFlavor.imageFlavor.equals(flavor)) {
                 throw new UnsupportedFlavorException(flavor);
             }
