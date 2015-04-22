@@ -7,7 +7,6 @@ import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.descriptor.DefaultOperatorDescriptor;
 import org.esa.snap.framework.gpf.descriptor.OperatorDescriptor;
-import org.esa.snap.util.SystemUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,7 +18,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.logging.Level;
 
-import static org.esa.snap.util.SystemUtils.*;
+import static org.esa.snap.util.SystemUtils.LOG;
 
 /**
  * The service provider interface (SPI) for the SNAP Python operator.
@@ -42,7 +41,6 @@ public class PyOperatorSpi extends OperatorSpi {
     static final String EXT_PROPERTY_NAME = "snap.snappy.ext";
 
     static {
-        scanDir(Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "snappy", "ext"));
         scanDirs(System.getProperty(EXT_PROPERTY_NAME, "").split(File.pathSeparator));
         scanClassPath();
     }
@@ -80,7 +78,7 @@ public class PyOperatorSpi extends OperatorSpi {
         }
 
         Path moduleRoot = subtract(resourcePath, Paths.get(PY_OP_RESOURCE_NAME).getNameCount());
-        LOG.info("Python module root found: " + moduleRoot.toUri());
+        LOG.info("SNAP-Python module root found: " + moduleRoot.toUri());
 
         try {
             Files.lines(resourcePath).forEach(line -> {

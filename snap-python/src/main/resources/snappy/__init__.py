@@ -43,7 +43,7 @@ debug = False
 if config.has_option('DEFAULT', 'debug'):
     debug = config.getboolean('DEFAULT', 'debug')
 
-# Pre-load Java VM shared library and import 'jpy' the Java-Python bridge
+# Pre-load Java VM shared library and import 'jpy', the Java-Python bridge
 if module_dir not in sys.path:
     sys.path.append(module_dir)
 import jpyutil

@@ -5,9 +5,13 @@ import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.TreeCopier;
 import org.jpy.PyLib;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -16,6 +20,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 import static org.esa.snap.util.SystemUtils.LOG;
 
@@ -46,17 +52,19 @@ import static org.esa.snap.util.SystemUtils.LOG;
  */
 public class PyBridge {
 
-    public static final String SNAPPYUTIL_PY_FILENAME = "snappyutil.py";
-    public static final String SNAPPYUTIL_LOG_FILENAME = "snappyutil.log";
-    public static final String FORCE_PYTHON_CONFIG_PROPERTY = "snap.forcePythonConfig";
     public static final String PYTHON_EXECUTABLE_PROPERTY = "snap.pythonExecutable";
     public static final String PYTHON_MODULE_INSTALL_DIR_PROPERTY = "snap.pythonModuleDir";
-    public static final String JPY_JAVA_API_CONFIG_FILENAME = "jpyconfig.properties";
-    public static final String JPY_DEBUG_PROPERTY = "jpy.debug";
-    public static final String JPY_CONFIG_PROPERTY = "jpy.config";
+    public static final String FORCE_PYTHON_CONFIG_PROPERTY = "snap.forcePythonConfig";
 
     private static final Path MODULE_CODE_BASE_PATH = findModuleCodeBasePath();
-    public static final String SNAPPY_DIR_NAME = "snappy";
+    private static final Path PYTHON_CONFIG_DIR = Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "snap-python");
+    private static final String JPY_DEBUG_PROPERTY = "jpy.debug";
+    private static final String JPY_CONFIG_PROPERTY = "jpy.config";
+    private static final String SNAPPY_NAME = "snappy";
+    private static final String SNAPPY_PROPERTIES_NAME = "snappy.properties";
+    private static final String SNAPPYUTIL_PY_FILENAME = "snappyutil.py";
+    private static final String SNAPPYUTIL_LOG_FILENAME = "snappyutil.log";
+    private static final String JPY_JAVA_API_CONFIG_FILENAME = "jpyconfig.properties";
 
     private static boolean established;
 
@@ -68,17 +76,11 @@ public class PyBridge {
             return;
         }
 
-        Path pythonExecutable = getPythonExecutable();
-        Path pythonModuleInstallDir = getPythonModuleInstallDir();
-        boolean forcePythonConfig = isForcePythonConfig();
-
-        installPythonModule(pythonExecutable,
-                            pythonModuleInstallDir,
-                            forcePythonConfig);
+        Path snappyPath = installPythonModule(null, null, null);
 
         synchronized (PyLib.class) {
             if (!established) {
-                startPython(pythonModuleInstallDir);
+                startPython(snappyPath.getParent());
                 established = true;
             }
         }
@@ -87,15 +89,18 @@ public class PyBridge {
     /**
      * Installs the SNAP-Python interface.
      *
-     * @param pythonExecutable The Python executable.
+     * @param pythonExecutable       The Python executable.
      * @param pythonModuleInstallDir The directory into which the 'snappy' Python module will be installed and configured.
-     * @param forcePythonConfig If {@code true}, any existing installation / configuration will be overwritten.
+     * @param forcePythonConfig      If {@code true}, any existing installation / configuration will be overwritten.
      * @return The path to the configured 'snappy' Python module.
      * @throws IOException
      */
     public synchronized static Path installPythonModule(Path pythonExecutable,
                                                         Path pythonModuleInstallDir,
                                                         Boolean forcePythonConfig) throws IOException {
+
+        loadPythonConfig();
+
         if (pythonExecutable == null) {
             pythonExecutable = getPythonExecutable();
         }
@@ -108,22 +113,23 @@ public class PyBridge {
             forcePythonConfig = isForcePythonConfig();
         }
 
-        Path snappyDir = pythonModuleInstallDir.resolve(SNAPPY_DIR_NAME);
-        if (forcePythonConfig || !Files.isDirectory(snappyDir)) {
-            unpackPythonModuleDir(snappyDir);
+        Path snappyPath = pythonModuleInstallDir.resolve(SNAPPY_NAME);
+        if (forcePythonConfig || !Files.isDirectory(snappyPath)) {
+            unpackPythonModuleDir(snappyPath);
+            storePythonConfig(pythonExecutable, pythonModuleInstallDir);
         }
 
-        Path jpyConfigFile = snappyDir.resolve(JPY_JAVA_API_CONFIG_FILENAME);
+        Path jpyConfigFile = snappyPath.resolve(JPY_JAVA_API_CONFIG_FILENAME);
         if (forcePythonConfig || !Files.exists(jpyConfigFile)) {
             // Configure jpy Python-side
-            configureJpy(pythonExecutable, snappyDir);
+            configureJpy(pythonExecutable, snappyPath);
         }
         if (!Files.exists(jpyConfigFile)) {
-            throw new IOException(String.format("Python configuration incomplete.\n" +
+            throw new IOException(String.format("SNAP-Python configuration incomplete.\n" +
                                                         "Missing file '%s'.\n" +
                                                         "Please check log file '%s'.",
                                                 jpyConfigFile,
-                                                snappyDir.resolve(SNAPPYUTIL_LOG_FILENAME)));
+                                                snappyPath.resolve(SNAPPYUTIL_LOG_FILENAME)));
         }
 
         // Configure jpy Java-side
@@ -132,7 +138,7 @@ public class PyBridge {
             System.setProperty(JPY_DEBUG_PROPERTY, "true");
         }
 
-        return snappyDir;
+        return snappyPath;
     }
 
     /**
@@ -152,17 +158,16 @@ public class PyBridge {
     }
 
     private static void configureJpy(Path pythonExecutable, Path snappyDir) throws IOException {
-        LOG.info("Configuring SNAP-Python bridge...");
+        LOG.info("Configuring SNAP-Python interface...");
 
         // "java.home" is always present
         List<String> command = new ArrayList<>();
         command.add(pythonExecutable.toString());
         command.add(SNAPPYUTIL_PY_FILENAME);
         command.add("--snap_home");
-        command.add(System.getProperty("snap.home", Paths.get(".").toAbsolutePath().normalize().toString()));
-        //command.add(SystemUtils.getApplicationHomeDir().getPath());
+        command.add(SystemUtils.getApplicationHomeDir().getPath());
         command.add("--java_module");
-        command.add(toFilePath(MODULE_CODE_BASE_PATH).toString());
+        command.add(stripJarScheme(MODULE_CODE_BASE_PATH).toString());
         command.add("--force");
         command.add("--log_file");
         command.add(SNAPPYUTIL_LOG_FILENAME);
@@ -224,10 +229,11 @@ public class PyBridge {
         }
     }
 
-    private static Path toFilePath(Path path) {
+    private static Path stripJarScheme(Path path) {
         String prefix = "jar:";
         String suffix = "!/";
         String uriString = path.toUri().toString();
+
         if (uriString.startsWith(prefix)) {
             if (uriString.endsWith(suffix)) {
                 uriString = uriString.substring(prefix.length(), uriString.length() - suffix.length());
@@ -239,17 +245,21 @@ public class PyBridge {
                     uriString = uriString.substring(prefix.length());
                 }
             }
+            try {
+                // We must decode the inner URI string first
+                uriString = URLDecoder.decode(uriString, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                // ?
+            }
             path = Paths.get(URI.create(uriString));
         }
-        if (!(Files.isDirectory(path) || Files.isRegularFile(path))) {
-            throw new IllegalArgumentException("path: " + path);
-        }
+
         return path;
     }
 
     private static void unpackPythonModuleDir(Path pythonModuleDir) throws IOException {
         Files.createDirectories(pythonModuleDir);
-        TreeCopier.copy(getResourcePath(SNAPPY_DIR_NAME), pythonModuleDir);
+        TreeCopier.copy(getResourcePath(SNAPPY_NAME), pythonModuleDir);
         LOG.info("SNAP-Python module directory: " + pythonModuleDir);
     }
 
@@ -267,7 +277,7 @@ public class PyBridge {
         if (pythonModuleDirStr != null) {
             pythonModuleInstallDir = Paths.get(pythonModuleDirStr);
         } else {
-            pythonModuleInstallDir = Paths.get(SystemUtils.getApplicationDataDir(true).getPath(), "snap-python");
+            pythonModuleInstallDir = PYTHON_CONFIG_DIR;
         }
         return pythonModuleInstallDir.toAbsolutePath().normalize();
     }
@@ -284,4 +294,52 @@ public class PyBridge {
         }
     }
 
+
+    private static boolean loadPythonConfig() {
+        if (Files.isDirectory(PYTHON_CONFIG_DIR)) {
+            Path pythonConfigFile = PYTHON_CONFIG_DIR.resolve(SNAPPY_PROPERTIES_NAME);
+            if (Files.isRegularFile(pythonConfigFile)) {
+                Properties properties = new Properties();
+                try {
+                    try (BufferedReader bufferedReader = Files.newBufferedReader(pythonConfigFile)) {
+                        properties.load(bufferedReader);
+                    }
+                    Set<String> keys = properties.stringPropertyNames();
+                    for (String key : keys) {
+                        String value = properties.getProperty(key);
+                        if (System.getProperty(key) == null) {
+                            System.setProperty(key, value);
+                        }
+                    }
+                    LOG.warning(String.format("SNAP-Python configuration loaded from '%s'", pythonConfigFile));
+                    return true;
+                } catch (IOException e) {
+                    LOG.warning(String.format("Failed to load SNAP-Python configuration from '%s'", pythonConfigFile));
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean storePythonConfig(Path pythonExecutable,
+                                             Path pythonModuleInstallDir) {
+
+        Path pythonConfigFile = PYTHON_CONFIG_DIR.resolve(SNAPPY_PROPERTIES_NAME);
+        try {
+            if (!Files.exists(pythonConfigFile.getParent())) {
+                Files.createDirectories(pythonConfigFile.getParent());
+            }
+            Properties properties = new Properties();
+            properties.setProperty(PYTHON_EXECUTABLE_PROPERTY, pythonExecutable.toString());
+            properties.setProperty(PYTHON_MODULE_INSTALL_DIR_PROPERTY, pythonModuleInstallDir.toString());
+            try (BufferedWriter bufferedWriter = Files.newBufferedWriter(pythonConfigFile)) {
+                properties.store(bufferedWriter, "Created by " + PyBridge.class.getName());
+            }
+            LOG.warning(String.format("SNAP-Python configuration written to '%s'", pythonConfigFile));
+            return true;
+        } catch (IOException e) {
+            LOG.warning(String.format("Failed to store SNAP-Python configuration to '%s'", pythonConfigFile));
+            return false;
+        }
+    }
 }
