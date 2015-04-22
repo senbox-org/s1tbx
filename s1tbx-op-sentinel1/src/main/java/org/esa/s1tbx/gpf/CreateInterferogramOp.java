@@ -98,15 +98,15 @@ public class CreateInterferogramOp extends Operator {
 
     @Parameter(interval = "(1, 75]",
             description = "Size of coherence estimation window in Azimuth direction",
-            defaultValue = "10",
+            defaultValue = "9",
             label = "Coherence Azimuth Window Size")
-    private int cohWinAz = 10;
+    private int cohWinAz = 9;
 
     @Parameter(interval = "(1, 75]",
             description = "Size of coherence estimation window in Range direction",
-            defaultValue = "10",
+            defaultValue = "45",
             label = "Coherence Range Window Size")
-    private int cohWinRg = 10;
+    private int cohWinRg = 45;
 
     // flat_earth_polynomial container
     private HashMap<String, DoubleMatrix> flatEarthPolyMap = new HashMap<>();
@@ -129,7 +129,7 @@ public class CreateInterferogramOp extends Operator {
     private Sentinel1Utils su = null;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
     private int numSubSwaths = 0;
-    private org.jlinda.core.Point mstSceneCentreXYZ = null;
+    private org.jlinda.core.Point[] mstSceneCentreXYZ = null;
     private double slvScenseCentreAzimuthTime = 0.0;
     private int subSwathIndex = 0;
     private double avgSceneHeight = 0.0;
@@ -223,6 +223,33 @@ public class CreateInterferogramOp extends Operator {
 
     private void getMstApproxSceneCentreXYZ() throws Exception {
 
+        final int numOfBursts = subSwath[subSwathIndex - 1].numOfBursts;
+        mstSceneCentreXYZ = new Point[numOfBursts];
+
+        for (int b = 0; b < numOfBursts; b++) {
+            final double firstLineTime = subSwath[subSwathIndex - 1].burstFirstLineTime[b];
+            final double lastLineTime = subSwath[subSwathIndex - 1].burstLastLineTime[b];
+            final double slrTimeToFirstPixel = subSwath[subSwathIndex - 1].slrTimeToFirstPixel;
+            final double slrTimeToLastPixel = subSwath[subSwathIndex - 1].slrTimeToLastPixel;
+            final double latUL = su.getLatitude(firstLineTime, slrTimeToFirstPixel, subSwathIndex);
+            final double latUR = su.getLatitude(firstLineTime, slrTimeToLastPixel, subSwathIndex);
+            final double latLL = su.getLatitude(lastLineTime, slrTimeToFirstPixel, subSwathIndex);
+            final double latLR = su.getLatitude(lastLineTime, slrTimeToLastPixel, subSwathIndex);
+
+            final double lonUL = su.getLongitude(firstLineTime, slrTimeToFirstPixel, subSwathIndex);
+            final double lonUR = su.getLongitude(firstLineTime, slrTimeToLastPixel, subSwathIndex);
+            final double lonLL = su.getLongitude(lastLineTime, slrTimeToFirstPixel, subSwathIndex);
+            final double lonLR = su.getLongitude(lastLineTime, slrTimeToLastPixel, subSwathIndex);
+
+            final double lat = (latUL + latUR + latLL + latLR) / 4.0;
+            final double lon = (lonUL + lonUR + lonLL + lonLR) / 4.0;
+
+            final PosVector mstSceneCenter = new PosVector();
+            GeoUtils.geo2xyzWGS84(lat, lon, 0.0, mstSceneCenter);
+            mstSceneCentreXYZ[b] = new Point(mstSceneCenter.toArray());
+        }
+
+        /*
         final MetadataElement mstRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
         final double firstNearLat = AbstractMetadata.getAttributeDouble(mstRoot, AbstractMetadata.first_near_lat);
@@ -240,7 +267,8 @@ public class CreateInterferogramOp extends Operator {
 
         final PosVector mstSceneCenter = new PosVector();
         GeoUtils.geo2xyzWGS84(lat, lon, 0.0, mstSceneCenter);
-        mstSceneCentreXYZ = new Point(mstSceneCenter.toArray());
+        org.jlinda.core.Point mstSceneCentreXYZ1 = new Point(mstSceneCenter.toArray());
+        */
     }
 
     private void getSlvApproxSceneCentreAzimuthTime() throws Exception {
@@ -302,8 +330,7 @@ public class CreateInterferogramOp extends Operator {
 
                         final String polynomialName = slave.name + "_" + s + "_" + b;
 
-                        flatEarthPolyMap.put(polynomialName, estimateFlatEarthPolynomial(
-                                master.metaData, master.orbit, slave.metaData, slave.orbit, s+1, b));
+                        flatEarthPolyMap.put(polynomialName, estimateFlatEarthPolynomial(master, slave, s+1, b));
                     }
                 }
             }
@@ -365,7 +392,7 @@ public class CreateInterferogramOp extends Operator {
         // put sourceMaster metadata into the masterMap
         metaMapPut(masterTag, masterMeta, sourceProduct, masterMap);
 
-        // pug sourceSlave metadata into slaveMap
+        // put sourceSlave metadata into slaveMap
         MetadataElement slaveElem = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot);
         if(slaveElem == null) {
             slaveElem = sourceProduct.getMetadataRoot().getElement("Slave Metadata");
@@ -525,8 +552,13 @@ public class CreateInterferogramOp extends Operator {
      * Create a flat earth phase polynomial for a given burst in TOPSAR product.
      */
     private DoubleMatrix estimateFlatEarthPolynomial(
-            SLCImage masterMetadata, Orbit masterOrbit, SLCImage slaveMetadata, Orbit slaveOrbit,
-            final int subSwathIndex, final int burstIndex) throws Exception {
+            final CplxContainer master, final CplxContainer slave, final int subSwathIndex, final int burstIndex)
+            throws Exception {
+
+        final double[][] masterOSV = getAdjacentOrbitStateVectors(master, mstSceneCentreXYZ[burstIndex]);
+        final double[][] slaveOSV = getAdjacentOrbitStateVectors(slave, mstSceneCentreXYZ[burstIndex]);
+        final Orbit masterOrbit = new Orbit(masterOSV, orbitDegree);
+        final Orbit slaveOrbit = new Orbit(slaveOSV, orbitDegree);
 
         long minLine = burstIndex*subSwath[subSwathIndex - 1].linesPerBurst;
         long maxLine = minLine + subSwath[subSwathIndex - 1].linesPerBurst - 1;
@@ -541,8 +573,8 @@ public class CreateInterferogramOp extends Operator {
         DoubleMatrix y = new DoubleMatrix(srpNumberPoints);
         DoubleMatrix A = new DoubleMatrix(srpNumberPoints, numberOfCoefficients);
 
-        double masterMinPi4divLam = (-4 * Constants.PI * Constants.lightSpeed) / masterMetadata.getRadarWavelength();
-        double slaveMinPi4divLam = (-4 * Constants.PI * Constants.lightSpeed) / slaveMetadata.getRadarWavelength();
+        double masterMinPi4divLam = (-4 * Constants.PI * Constants.lightSpeed) / master.metaData.getRadarWavelength();
+        double slaveMinPi4divLam = (-4 * Constants.PI * Constants.lightSpeed) / slave.metaData.getRadarWavelength();
 
         // Loop through vector or distributedPoints()
         for (int i = 0; i < srpNumberPoints; ++i) {
@@ -557,7 +589,9 @@ public class CreateInterferogramOp extends Operator {
             final double mstAzTime = line2AzimuthTime(line, subSwathIndex, burstIndex);
 
             // compute xyz of this point : sourceMaster
-            org.jlinda.core.Point xyzMaster = masterOrbit.lph2xyz(mstAzTime, mstRgTime, avgSceneHeight, mstSceneCentreXYZ);
+            org.jlinda.core.Point xyzMaster = masterOrbit.lph2xyz(
+                    mstAzTime, mstRgTime, avgSceneHeight, mstSceneCentreXYZ[burstIndex]);
+
             org.jlinda.core.Point slaveTimeVector = slaveOrbit.xyz2t(xyzMaster, slvScenseCentreAzimuthTime);
 
             final double slaveTimeRange = slaveTimeVector.x;
@@ -586,6 +620,64 @@ public class CreateInterferogramOp extends Operator {
         DoubleMatrix rhs = Atranspose.mmul(y);
 
         return Solve.solve(N, rhs);
+    }
+
+    private double[][] getAdjacentOrbitStateVectors(
+            final CplxContainer container, final org.jlinda.core.Point sceneCentreXYZ) {
+
+        try {
+            double[] time = container.orbit.getTime();
+            double[] dataX = container.orbit.getData_X();
+            double[] dataY = container.orbit.getData_Y();
+            double[] dataZ = container.orbit.getData_Z();
+
+            final int numOfOSV = dataX.length;
+            double minDistance = 0.0;
+            int minIdx = 0;
+            for (int i = 0; i < numOfOSV; i++) {
+                final double dx = dataX[i] - sceneCentreXYZ.x;
+                final double dy = dataY[i] - sceneCentreXYZ.y;
+                final double dz = dataZ[i] - sceneCentreXYZ.z;
+                final double distance = Math.sqrt(dx*dx + dy*dy + dz*dz)/1000.0;
+                if (i == 0) {
+                    minDistance = distance;
+                    minIdx = i;
+                    continue;
+                }
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    minIdx = i;
+                }
+            }
+
+            int stIdx, edIdx;
+            if (minIdx < 3) {
+                stIdx = 0;
+                edIdx = Math.min(7, numOfOSV - 1);
+            } else if (minIdx > numOfOSV - 5) {
+                stIdx = Math.max(numOfOSV - 8, 0);
+                edIdx = numOfOSV - 1;
+            } else {
+                stIdx = minIdx - 3;
+                edIdx = minIdx + 4;
+            }
+
+            final double[][] adjacentOSV = new double[edIdx - stIdx + 1][4];
+            int k = 0;
+            for (int i = stIdx; i <= edIdx; i++) {
+                adjacentOSV[k][0] = time[i];
+                adjacentOSV[k][1] = dataX[i];
+                adjacentOSV[k][2] = dataY[i];
+                adjacentOSV[k][3] = dataZ[i];
+                k++;
+            }
+
+            return adjacentOSV;
+        } catch (Throwable e) {
+            OperatorUtils.catchOperatorException(getId(), e);
+        }
+        return null;
     }
 
     private double line2AzimuthTime(final double line, final int subSwathIndex, final int burstIndex) {

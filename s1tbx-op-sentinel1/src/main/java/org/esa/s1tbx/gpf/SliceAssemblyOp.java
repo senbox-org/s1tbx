@@ -272,7 +272,7 @@ public final class SliceAssemblyOp extends Operator {
             //System.out.println("Check slant range time for " + e.getName() + " " + sss + " = " + slantRangeTime);
             for (int i = 1; i < sliceProducts.length; i++) {
                 double srt = getSlantRangeTime(sliceProducts[i], swathID);
-                if (slantRangeTime - srt > 1e-12) {
+                if (Math.abs(slantRangeTime - srt) > 1e-12) {
                      throw new OperatorException("Slant range time don't agree: " + i + " " + swathID);
                 }
             }
@@ -1467,8 +1467,24 @@ public final class SliceAssemblyOp extends Operator {
         } else {
             // We assume that "orbs" are in chronological order
             final double lastTime = orbVectorList.get(orbVectorList.size()-1).time_mjd;
+            final double firstTime = orbs[0].time_mjd;
+            final double midTime = (lastTime + firstTime) / 2.0;
+            int firstVecToRemove = -1;
+            for (int i = 0; i < orbVectorList.size(); i++) {
+                if (orbVectorList.get(i).time_mjd > midTime) {
+                    firstVecToRemove = i;
+                    break;
+                }
+            }
+
+            if (firstVecToRemove != -1) {
+                for (int i = orbVectorList.size()-1; i >= firstVecToRemove; i--) {
+                    orbVectorList.remove(i);
+                }
+            }
+
             for (int i = 0; i < orbs.length; i++) {
-                if (orbs[i].time_mjd > lastTime) {
+                if (orbs[i].time_mjd > midTime) {
                     orbVectorList.add(orbs[i]);
                 }
             }

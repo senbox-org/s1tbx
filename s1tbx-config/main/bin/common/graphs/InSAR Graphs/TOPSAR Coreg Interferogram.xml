@@ -82,8 +82,8 @@
       <srpNumberPoints>501</srpNumberPoints>
       <orbitDegree>3</orbitDegree>
       <includeCoherence>true</includeCoherence>
-      <cohWinAz>10</cohWinAz>
-      <cohWinRg>10</cohWinRg>
+      <cohWinAz>9</cohWinAz>
+      <cohWinRg>45</cohWinRg>
     </parameters>
   </node>
   <node id="TOPSAR-Deburst">
