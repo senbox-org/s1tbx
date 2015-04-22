@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dat.toolviews.worldwind;
+package org.esa.s1tbx.dat.toolviews.worldwind.layers;
 
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
 import gov.nasa.worldwind.geom.Angle;
@@ -22,6 +22,7 @@ import gov.nasa.worldwind.geom.Sector;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gov.nasa.worldwind.render.Polyline;
 import gov.nasa.worldwind.render.SurfaceImage;
+import org.esa.s1tbx.dat.toolviews.worldwind.ProductRenderer;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
@@ -68,7 +69,7 @@ public class ProductLayer extends RenderableLayer implements ProductRenderer {
 
 
 
-    ProductLayer(boolean showSurfaceImages) {
+    public ProductLayer(boolean showSurfaceImages) {
 
         enableSurfaceImages = showSurfaceImages;
 

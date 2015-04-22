@@ -43,6 +43,8 @@ import gov.nasa.worldwind.view.orbit.BasicOrbitView;
 import gov.nasa.worldwind.wms.CapabilitiesRequest;
 import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
 import gov.nasa.worldwindx.examples.WMSLayersPanel;
+import org.esa.s1tbx.dat.toolviews.worldwind.layers.Level2ProductLayer;
+import org.esa.s1tbx.dat.toolviews.worldwind.layers.ProductLayer;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.rcp.SnapApp;

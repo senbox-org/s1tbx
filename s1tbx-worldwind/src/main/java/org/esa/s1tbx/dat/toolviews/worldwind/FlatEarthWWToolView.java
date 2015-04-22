@@ -34,6 +34,8 @@ import gov.nasa.worldwind.layers.WorldMapLayer;
 import gov.nasa.worldwind.util.StatusBar;
 import gov.nasa.worldwind.view.orbit.FlatOrbitView;
 import gov.nasa.worldwindx.examples.ClickAndGoSelectListener;
+import org.esa.s1tbx.dat.toolviews.worldwind.layers.Level2ProductLayer;
+import org.esa.s1tbx.dat.toolviews.worldwind.layers.ProductLayer;
 import org.esa.snap.framework.datamodel.GeoCoding;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.PixelPos;

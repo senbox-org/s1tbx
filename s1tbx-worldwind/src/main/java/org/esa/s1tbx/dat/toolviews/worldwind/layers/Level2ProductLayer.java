@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dat.toolviews.worldwind;
+package org.esa.s1tbx.dat.toolviews.worldwind.layers;
 
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.avlist.AVKey;
@@ -37,6 +37,9 @@ import gov.nasa.worldwind.util.WWMath;
 import gov.nasa.worldwindx.examples.analytics.AnalyticSurface;
 import gov.nasa.worldwindx.examples.analytics.AnalyticSurfaceAttributes;
 import gov.nasa.worldwindx.examples.util.DirectedPath;
+import org.esa.s1tbx.dat.toolviews.worldwind.ColorBarLegend;
+import org.esa.s1tbx.dat.toolviews.worldwind.ProductRenderablesInfo;
+import org.esa.s1tbx.dat.toolviews.worldwind.ProductRenderer;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.PixelPos;

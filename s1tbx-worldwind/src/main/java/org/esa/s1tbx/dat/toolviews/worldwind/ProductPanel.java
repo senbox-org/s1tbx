@@ -18,6 +18,7 @@ package org.esa.s1tbx.dat.toolviews.worldwind;
 import com.alee.extended.tree.WebCheckBoxTree;
 import gov.nasa.worldwind.WorldWindow;
 import gov.nasa.worldwind.awt.WorldWindowGLCanvas;
+import org.esa.s1tbx.dat.toolviews.worldwind.layers.ProductLayer;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
