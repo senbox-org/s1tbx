@@ -64,7 +64,6 @@
             <artifactId>native-libs</artifactId>
             <version>4.65-1.04</version>
         </dependency>
-        <!-- JUnit dependency is needed because it is used in production code -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

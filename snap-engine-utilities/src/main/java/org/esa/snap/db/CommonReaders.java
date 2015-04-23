@@ -8,26 +8,24 @@ import org.esa.snap.framework.datamodel.Product;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * Optimize getting readers for common data products
  */
 public class CommonReaders {
 
-    private static ProductReaderPlugIn dimapReadPlugIn;
-    private static ProductReaderPlugIn envisatReadPlugIn;
-    private static ProductReaderPlugIn TSXReadPlugIn;
-    private static ProductReaderPlugIn RS2ReadPlugIn;
-    private static ProductReaderPlugIn S1ReadPlugIn;
-    private static ProductReaderPlugIn GeoTiffReadPlugIn;
-    static {
+    private final static ProductReaderPlugIn dimapReadPlugIn = getReaderPlugIn("BEAM-DIMAP");
+    private final static ProductReaderPlugIn envisatReadPlugIn = getReaderPlugIn("ENVISAT");
+    private final static ProductReaderPlugIn TSXReadPlugIn = getReaderPlugIn("TerraSarX");
+    private final static ProductReaderPlugIn RS2ReadPlugIn = getReaderPlugIn("RADARSAT-2");
+    private final static ProductReaderPlugIn S1ReadPlugIn = getReaderPlugIn("SENTINEL-1");
+    private final static ProductReaderPlugIn GeoTiffReadPlugIn = getReaderPlugIn("GeoTIFF");
+
+    private static ProductReaderPlugIn getReaderPlugIn(final String format) {
         final ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
-        dimapReadPlugIn = registry.getReaderPlugIns("BEAM-DIMAP").next();
-        envisatReadPlugIn = registry.getReaderPlugIns("ENVISAT").next();
-        TSXReadPlugIn = registry.getReaderPlugIns("TerraSarX").next();
-        RS2ReadPlugIn = registry.getReaderPlugIns("RADARSAT-2").next();
-        S1ReadPlugIn = registry.getReaderPlugIns("SENTINEL-1").next();
-        GeoTiffReadPlugIn = registry.getReaderPlugIns("GeoTIFF").next();
+        final Iterator<ProductReaderPlugIn> itr = registry.getReaderPlugIns(format);
+        return itr != null && itr.hasNext() ? itr.next() : null;
     }
 
     public static Product readProduct(final File file) throws IOException {
@@ -72,6 +70,8 @@ public class CommonReaders {
     }
 
     private static Product read(final File file, final ProductReaderPlugIn selectedPlugIn) throws IOException {
+        if(selectedPlugIn == null)
+            return null;
         final ProductReader productReader = selectedPlugIn.createReaderInstance();
         return productReader == null ? null : productReader.readProductNodes(file, null);
     }
