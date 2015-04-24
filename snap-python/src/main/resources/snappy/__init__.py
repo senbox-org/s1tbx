@@ -5,8 +5,9 @@ You can configure snappy by using a file named snappy.ini as follows:
 
     [DEFAULT]
     snap_home: C:/Program Files/snap-2.0
-    java_classpath: target/classes
-    java_options: -Djava.awt.headless=false
+    java_class_path: target/classes
+    java_library_path: target/lib/amd64
+    java_options: -Djava.awt.headless=true
     java_max_mem: 4G
     debug: False
 
@@ -62,25 +63,43 @@ if debug:
     jpy.diag.flags = jpy.diag.F_EXEC + jpy.diag.F_ERR
 
 
-# Recursively searches for JAR files in 'dir_path' and appends them to 'classpath'.
+# Recursively searches for JAR files in 'dir_path' and appends them to the first member of the
+# 'env' tuple (env[0] is the classpath). Also searches for 'lib/LIB_PLATFORM_NAMES[i]' and if one
+# exists, appends it to the second member of the 'env' tuple (env[1] is the java.library.path)
 # Note: Sub-directories named 'locale' or 'docs' are not searched and
 #       JAR files ending with '-ui.jar' or '-examples.jar' are excluded.
-# Only used if this module is not imported from Java.
 #
-def _collect_snap_jvm_classpath(dir_path, classpath):
+# Note: This function is called only if the 'snappy' module is not imported from Java.
+#
+def _collect_snap_jvm_env(dir_path, env):
     for name in os.listdir(dir_path):
         path = os.path.join(dir_path, name)
-        if os.path.isfile(path) and name.endswith('.jar') and \
-                not (name.endswith('-ui.jar') or name.endswith('-examples.jar')):
-            classpath.append(path)
-        elif os.path.isdir(path) and not (name == 'locale' or name == 'docs'):
-            _collect_snap_jvm_classpath(path, classpath)
+        if os.path.isfile(path) and name.endswith('.jar'):
+            if not (name.endswith('-ui.jar') or name.endswith('-examples.jar')):
+                env[0].append(path)
+        elif os.path.isdir(path):
+            if name == 'modules':
+                import platform
+                os_arch = platform.machine().lower()
+                os_name = platform.system().lower()
+                lib_path1 = os.path.join(path, 'lib')
+                if os.path.exists(lib_path1):
+                    lib_path2 = os.path.join(lib_path1, os_arch)
+                    if os.path.exists(lib_path2):
+                        lib_path3 = os.path.join(lib_path2, os_name)
+                        if os.path.exists(lib_path3):
+                            env[1].append(lib_path3)
+                        env[1].append(lib_path2)
+                    env[1].append(lib_path1)
+            if not (name == 'locale' or name == 'docs'):
+                _collect_snap_jvm_env(path, env)
 
 
 # Searches for *.jar files in directory given by global 'snap_home' variable and returns them as a list.
-# Only used if this module is not imported from Java.
 #
-def _get_snap_jvm_classpath():
+# Note: This function is called only if the 'snappy' module is not imported from Java.
+#
+def _get_snap_jvm_env():
 
     dir_names = []
     for name in os.listdir(snap_home):
@@ -107,23 +126,24 @@ def _get_snap_jvm_classpath():
         print(module_dir + ': module_dirs = ')
         pprint.pprint(module_dirs)
 
-    classpath = []
+    env = ([], [])
     for path in module_dirs:
-        _collect_snap_jvm_classpath(path, classpath)
+        _collect_snap_jvm_env(path, env)
 
     if debug:
         import pprint
-        print(module_dir + ': classpath =')
-        pprint.pprint(classpath)
+        print(module_dir + ': env =')
+        pprint.pprint(env)
 
-    return classpath
+    return env
 
 
 # Creates a list of Java JVM options, including the Java classpath derived from the global 'snap_home' variable.
-# Only used if this module is not imported from Java.
+#
+# Note: This function is called only if the 'snappy' module is not imported from Java.
 #
 def _get_snap_jvm_options():
-    global snap_home, extra_classpath, max_mem, options, extra_options
+    global snap_home
 
     if config.has_option('DEFAULT', 'snap_home'):
         snap_home = config.get('DEFAULT', 'snap_home')
@@ -135,18 +155,25 @@ def _get_snap_jvm_options():
                       "in file './snappy.ini' or set environment variable 'SNAP_HOME' to an " +
                       "existing SNAP distribution directory.")
 
-    classpath = _get_snap_jvm_classpath()
+    env = _get_snap_jvm_env()
+    class_path = env[0]
+    library_path = env[1]
 
-    if config.has_option('DEFAULT', 'java_classpath'):
-        extra_classpath = config.get('DEFAULT', 'java_classpath')
-        classpath += extra_classpath.split(os.pathsep)
+    if config.has_option('DEFAULT', 'java_class_path'):
+        extra_class_path = config.get('DEFAULT', 'java_class_path')
+        class_path += extra_class_path.split(os.pathsep)
+
+    if config.has_option('DEFAULT', 'java_library_path'):
+        extra_library_path = config.get('DEFAULT', 'java_library_path')
+        library_path += extra_library_path.split(os.pathsep)
 
     max_mem = '512M'
     if config.has_option('DEFAULT', 'java_max_mem'):
         max_mem = config.get('DEFAULT', 'java_max_mem')
 
     options = ['-Djava.awt.headless=true',
-               '-Djava.class.path=' + os.pathsep.join(classpath),
+               '-Djava.class.path=' + os.pathsep.join(class_path),
+               '-Djava.library.path=' + os.pathsep.join(library_path),
                '-Xmx' + max_mem]
 
     if config.has_option('DEFAULT', 'java_options'):
@@ -164,8 +191,8 @@ if not called_from_java:
 
 # Don't need these functions anymore
 del _get_snap_jvm_options
-del _get_snap_jvm_classpath
-del _collect_snap_jvm_classpath
+del _get_snap_jvm_env
+del _collect_snap_jvm_env
 
 
 # noinspection PyUnusedLocal
