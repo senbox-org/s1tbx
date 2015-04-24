@@ -437,6 +437,10 @@ public final class TOPSARDeburstOp extends Operator {
             absTgt.setAttributeDouble("slrTimeToFirstValidPixel", subSwath[0].slrTimeToFirstValidPixel);
             absTgt.addAttribute(new MetadataAttribute("slrTimeToLastValidPixel", ProductData.TYPE_FLOAT32));
             absTgt.setAttributeDouble("slrTimeToLastValidPixel", subSwath[0].slrTimeToLastValidPixel);
+            absTgt.addAttribute(new MetadataAttribute("firstValidLineTime", ProductData.TYPE_FLOAT64));
+            absTgt.setAttributeDouble("firstValidLineTime", subSwath[0].firstValidLineTime);
+            absTgt.addAttribute(new MetadataAttribute("lastValidLineTime", ProductData.TYPE_FLOAT64));
+            absTgt.setAttributeDouble("lastValidLineTime", subSwath[0].lastValidLineTime);
         }
     }
 

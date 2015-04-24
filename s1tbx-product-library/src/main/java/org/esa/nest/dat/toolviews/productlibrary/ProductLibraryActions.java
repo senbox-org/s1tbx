@@ -187,8 +187,13 @@ public class ProductLibraryActions {
     }
 
     private void performFileAction(final ProductFileHandler.TYPE operationType) {
-        final File targetFolder = promptForRepositoryBaseDir();
-        if (targetFolder == null) return;
+        final File targetFolder;
+        if(operationType.equals(ProductFileHandler.TYPE.DELETE)) {
+            targetFolder = null;
+        } else {
+            targetFolder = promptForRepositoryBaseDir();
+            if (targetFolder == null) return;
+        }
 
         final ProductEntry[] entries = getSelectedProductEntries();
         final LabelBarProgressMonitor progMon = toolView.createLabelBarProgressMonitor();

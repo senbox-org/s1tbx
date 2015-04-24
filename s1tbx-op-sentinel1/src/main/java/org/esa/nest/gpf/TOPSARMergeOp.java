@@ -210,6 +210,8 @@ public final class TOPSARMergeOp extends Operator {
                 subSwath[s].lastValidPixel = AbstractMetadata.getAttributeInt(absRoot, "lastValidPixel");
                 subSwath[s].slrTimeToFirstValidPixel = AbstractMetadata.getAttributeDouble(absRoot, "slrTimeToFirstValidPixel");
                 subSwath[s].slrTimeToLastValidPixel = AbstractMetadata.getAttributeDouble(absRoot, "slrTimeToLastValidPixel");
+                subSwath[s].firstValidLineTime = AbstractMetadata.getAttributeDouble(absRoot, "firstValidLineTime");
+                subSwath[s].lastValidLineTime = AbstractMetadata.getAttributeDouble(absRoot, "lastValidLineTime");
             }
         } catch (Throwable e) {
             throw new OperatorException(e.getMessage());
@@ -221,18 +223,18 @@ public final class TOPSARMergeOp extends Operator {
      */
     private void computeTargetStartEndTime() {
 
-            targetFirstLineTime = subSwath[0].firstLineTime;
-            targetLastLineTime = subSwath[0].lastLineTime;
-            for (int i = 1; i < numOfSubSwath; i++) {
-                if (targetFirstLineTime > subSwath[i].firstLineTime) {
-                    targetFirstLineTime = subSwath[i].firstLineTime;
-                }
-
-                if (targetLastLineTime < subSwath[i].lastLineTime) {
-                    targetLastLineTime = subSwath[i].lastLineTime;
-                }
+        targetFirstLineTime = subSwath[0].firstLineTime;
+        targetLastLineTime = subSwath[0].lastLineTime;
+        for (int i = 1; i < numOfSubSwath; i++) {
+            if (targetFirstLineTime > subSwath[i].firstLineTime) {
+                targetFirstLineTime = subSwath[i].firstLineTime;
             }
-            targetLineTimeInterval = subSwath[0].azimuthTimeInterval;
+
+            if (targetLastLineTime < subSwath[i].lastLineTime) {
+                targetLastLineTime = subSwath[i].lastLineTime;
+            }
+        }
+        targetLineTimeInterval = subSwath[0].azimuthTimeInterval;
     }
 
     /**
@@ -240,9 +242,9 @@ public final class TOPSARMergeOp extends Operator {
      */
     private void computeTargetSlantRangeTimeToFirstAndLastPixels() {
 
-            targetSlantRangeTimeToFirstPixel = subSwath[0].slrTimeToFirstValidPixel;
-            targetSlantRangeTimeToLastPixel = subSwath[numOfSubSwath - 1].slrTimeToLastValidPixel;
-            targetDeltaSlantRangeTime = subSwath[0].rangePixelSpacing / Constants.lightSpeed;
+        targetSlantRangeTimeToFirstPixel = subSwath[0].slrTimeToFirstValidPixel;
+        targetSlantRangeTimeToLastPixel = subSwath[numOfSubSwath - 1].slrTimeToLastValidPixel;
+        targetDeltaSlantRangeTime = subSwath[0].rangePixelSpacing / Constants.lightSpeed;
     }
 
     /**
@@ -479,6 +481,8 @@ public final class TOPSARMergeOp extends Operator {
         absTgt.removeAttribute(absTgt.getAttribute("lastValidPixel"));
         absTgt.removeAttribute(absTgt.getAttribute("slrTimeToFirstValidPixel"));
         absTgt.removeAttribute(absTgt.getAttribute("slrTimeToLastValidPixel"));
+        absTgt.removeAttribute(absTgt.getAttribute("firstValidLineTime"));
+        absTgt.removeAttribute(absTgt.getAttribute("lastValidLineTime"));
     }
 
     private void updateOriginalMetadata() {
@@ -519,10 +523,10 @@ public final class TOPSARMergeOp extends Operator {
                 if (tileSlrtToFirstPixel >= subSwath[i].slrTimeToFirstValidPixel &&
                         tileSlrtToFirstPixel <= subSwath[i].slrTimeToLastValidPixel) {
 
-                    if (tileFirstLineTime >= subSwath[i].firstLineTime &&
-                            tileFirstLineTime < subSwath[i].lastLineTime ||
-                            tileLastLineTime >= subSwath[i].firstLineTime &&
-                            tileLastLineTime < subSwath[i].lastLineTime) {
+                    if (tileFirstLineTime >= subSwath[i].firstValidLineTime &&
+                            tileFirstLineTime < subSwath[i].lastValidLineTime ||
+                            tileLastLineTime >= subSwath[i].firstValidLineTime &&
+                            tileLastLineTime < subSwath[i].lastValidLineTime) {
 
                         firstSubSwathIndex = i;
                         break;
@@ -537,10 +541,10 @@ public final class TOPSARMergeOp extends Operator {
                     if (tileSlrtToLastPixel >= subSwath[i].slrTimeToFirstValidPixel &&
                             tileSlrtToLastPixel <= subSwath[i].slrTimeToLastValidPixel) {
 
-                        if (tileFirstLineTime >= subSwath[i].firstLineTime &&
-                                tileFirstLineTime < subSwath[i].lastLineTime ||
-                                tileLastLineTime >= subSwath[i].firstLineTime &&
-                                tileLastLineTime < subSwath[i].lastLineTime) {
+                        if (tileFirstLineTime >= subSwath[i].firstValidLineTime &&
+                                tileFirstLineTime < subSwath[i].lastValidLineTime ||
+                                tileLastLineTime >= subSwath[i].firstValidLineTime &&
+                                tileLastLineTime < subSwath[i].lastValidLineTime) {
 
                             lastSubSwathIndex = i;
                         }
@@ -860,8 +864,8 @@ public final class TOPSARMergeOp extends Operator {
         Sentinel1Utils.SubSwathInfo info;
         for (int i = firstSubSwathIndex; i <= lastSubSwathIndex; i++) {
             info = subSwath[i];
-            if (targetLineTime >= info.firstLineTime &&
-                    targetLineTime <= info.lastLineTime &&
+            if (targetLineTime >= info.firstValidLineTime &&
+                    targetLineTime <= info.lastValidLineTime &&
                     targetSampleSlrTime >= info.slrTimeToFirstValidPixel &&
                     targetSampleSlrTime <= info.slrTimeToLastValidPixel) {
 
