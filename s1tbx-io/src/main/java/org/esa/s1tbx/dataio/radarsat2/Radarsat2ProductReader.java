@@ -28,7 +28,7 @@ import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.XMLSupport;
+import org.esa.snap.framework.dataop.downloadable.XMLSupport;
 import org.jdom2.Document;
 import org.jdom2.Element;
 

@@ -44,8 +44,6 @@
 		<!--module>s1tbx-benchmark</module-->
         <module>s1tbx-commons</module>
 		<module>s1tbx-config</module>
-		<module>s1tbx-dem</module>	
-        <module>s1tbx-dem-ui</module>
 		<!--module>s1tbx-help</module-->
 		<module>s1tbx-io</module>
         <module>s1tbx-kit</module>
@@ -380,9 +378,9 @@
             </dependency>
 			
 			<dependency>
-                <groupId>org.esa.s1tbx</groupId>
-                <artifactId>s1tbx-dem</artifactId>
-                <version>${s1tbx.version}</version>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-dem</artifactId>
+                <version>${snap.version}</version>
             </dependency>
 
             <!-- GeoTools Libraries ############################################# -->

@@ -39,7 +39,7 @@ import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.Guardian;
-import org.esa.snap.util.XMLSupport;
+import org.esa.snap.framework.dataop.downloadable.XMLSupport;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import ucar.ma2.Array;

@@ -1,20 +1,14 @@
 package org.jlinda.nest.dat.coregistration;
 
-import org.esa.s1tbx.dataio.dem.DEMFactory;
+import org.esa.snap.dataio.dem.DEMFactory;
 import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.snap.gpf.ui.UIValidation;
 import org.esa.snap.util.DialogUtils;
 import org.jlinda.nest.gpf.coregistration.ResampleOp;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Map;

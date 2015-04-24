@@ -16,14 +16,13 @@
 package org.esa.s1tbx.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.dataio.dem.DEMFactory;
-import org.esa.s1tbx.dataio.dem.EarthGravitationalModel96;
-import org.esa.s1tbx.dataio.dem.ElevationModel;
-import org.esa.s1tbx.dataio.dem.FileElevationModel;
 import org.esa.s1tbx.datamodel.CalibrationFactory;
 import org.esa.s1tbx.datamodel.Calibrator;
 import org.esa.s1tbx.gpf.CalibrationOp;
 import org.esa.s1tbx.gpf.Sentinel1Calibrator;
+import org.esa.snap.dataio.dem.DEMFactory;
+import org.esa.snap.dataio.dem.EarthGravitationalModel96;
+import org.esa.snap.dataio.dem.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.PosVector;
@@ -40,6 +39,7 @@ import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
 import org.esa.snap.framework.gpf.Operator;
@@ -57,7 +57,7 @@ import org.esa.snap.gpf.TileGeoreferencing;
 import org.esa.snap.util.ProductUtils;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;

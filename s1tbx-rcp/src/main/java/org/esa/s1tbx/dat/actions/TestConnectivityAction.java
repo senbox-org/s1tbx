@@ -18,7 +18,7 @@ package org.esa.s1tbx.dat.actions;
 import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.framework.ui.command.ExecCommand;
 import org.esa.snap.util.Settings;
-import org.esa.snap.util.ftpUtils;
+import org.esa.snap.framework.dataop.downloadable.ftpUtils;
 import org.esa.snap.visat.VisatApp;
 
 /**
@@ -29,7 +29,7 @@ public class TestConnectivityAction extends ExecCommand {
     @Override
     public void actionPerformed(CommandEvent event) {
         final String remoteFTPSRTM = Settings.instance().get("DEM.srtm3GeoTiffDEM_FTP");
-        final String remotePathSRTM = ftpUtils.getPathFromSettings("DEM.srtm3GeoTiffDEM_remotePath");
+        final String remotePathSRTM = Settings.getPath("DEM.srtm3GeoTiffDEM_remotePath");
         final String delftFTP = Settings.instance().get("OrbitFiles.delftFTP");
         final String delftFTPPath = Settings.instance().get("OrbitFiles.delftFTP_ERS2_precise_remotePath");
 

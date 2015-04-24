@@ -17,8 +17,7 @@ package org.esa.s1tbx.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.dataio.dem.DEMFactory;
-import org.esa.s1tbx.dataio.dem.ElevationModel;
+import org.esa.snap.dataio.dem.DEMFactory;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.PosVector;
@@ -32,6 +31,7 @@ import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.VirtualBand;
+import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
@@ -46,7 +46,7 @@ import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.ProductUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

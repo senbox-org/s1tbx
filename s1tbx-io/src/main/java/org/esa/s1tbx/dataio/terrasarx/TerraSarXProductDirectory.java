@@ -37,7 +37,7 @@ import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.StackUtils;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.XMLSupport;
+import org.esa.snap.framework.dataop.downloadable.XMLSupport;
 import org.esa.snap.util.ZipUtils;
 import org.esa.snap.util.math.MathUtils;
 import org.jdom2.Document;

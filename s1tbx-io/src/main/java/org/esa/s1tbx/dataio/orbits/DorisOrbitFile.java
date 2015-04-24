@@ -23,7 +23,7 @@ import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.util.Settings;
-import org.esa.snap.util.ftpUtils;
+import org.esa.snap.framework.dataop.downloadable.ftpUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,10 +57,10 @@ public class DorisOrbitFile extends BaseOrbitFile {
         String remoteBaseFolder = "";
         if (orbitType.contains(DORIS_VOR)) {
             orbitPath = Settings.instance().get("OrbitFiles.dorisVOROrbitPath");
-            remoteBaseFolder = ftpUtils.getPathFromSettings("OrbitFiles.dorisFTP_vor_remotePath");
+            remoteBaseFolder = Settings.getPath("OrbitFiles.dorisFTP_vor_remotePath");
         } else if (orbitType.contains(DORIS_POR)) {
             orbitPath = Settings.instance().get("OrbitFiles.dorisPOROrbitPath");
-            remoteBaseFolder = ftpUtils.getPathFromSettings("OrbitFiles.dorisFTP_por_remotePath");
+            remoteBaseFolder = Settings.getPath("OrbitFiles.dorisFTP_por_remotePath");
         }
 
         final Calendar startCal = sourceProduct.getStartTime().getAsCalendar();
@@ -122,7 +122,7 @@ public class DorisOrbitFile extends BaseOrbitFile {
         }
 
         final File localFolder = new File(Settings.instance().get("OrbitFiles.dorisVOROrbitPath"));
-        final URL remotePath = new URL(ftpUtils.getPathFromSettings("OrbitFiles.dorisHTTP_vor_remotePath"));
+        final URL remotePath = new URL(Settings.getPath("OrbitFiles.dorisHTTP_vor_remotePath"));
         final File localFile = new File(localFolder, year+".zip");
 
         final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);

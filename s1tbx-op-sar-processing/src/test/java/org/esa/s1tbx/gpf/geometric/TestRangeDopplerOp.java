@@ -15,9 +15,9 @@
  */
 package org.esa.s1tbx.gpf.geometric;
 
-import org.esa.s1tbx.dataio.dem.ElevationModel;
-import org.esa.s1tbx.dataio.dem.ElevationModelDescriptor;
-import org.esa.s1tbx.dataio.dem.ElevationModelRegistry;
+import org.esa.snap.framework.dataop.dem.ElevationModel;
+import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.framework.dataio.ProductIO;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.datamodel.GeoCoding;

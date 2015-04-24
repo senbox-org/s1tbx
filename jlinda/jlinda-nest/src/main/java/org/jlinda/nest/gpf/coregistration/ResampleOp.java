@@ -1,9 +1,9 @@
 package org.jlinda.nest.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.dataio.dem.ElevationModel;
-import org.esa.s1tbx.dataio.dem.ElevationModelDescriptor;
-import org.esa.s1tbx.dataio.dem.ElevationModelRegistry;
+import org.esa.snap.framework.dataop.dem.ElevationModel;
+import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;

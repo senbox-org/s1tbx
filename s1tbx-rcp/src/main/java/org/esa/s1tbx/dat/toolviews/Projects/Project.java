@@ -36,7 +36,7 @@ import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.ResourceUtils;
-import org.esa.snap.util.XMLSupport;
+import org.esa.snap.framework.dataop.downloadable.XMLSupport;
 import org.esa.snap.visat.VisatApp;
 import org.jdom2.Attribute;
 import org.jdom2.Document;

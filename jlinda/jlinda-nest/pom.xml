@@ -52,9 +52,9 @@
             <version>${s1tbx.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-dem</artifactId>
-            <version>${s1tbx.version}</version>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-dem</artifactId>
+            <version>${snap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jblas</groupId>
