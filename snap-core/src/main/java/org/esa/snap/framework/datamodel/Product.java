@@ -776,17 +776,6 @@ public class Product extends ProductNode {
         return sceneRasterSize != null ? (Dimension) sceneRasterSize.clone() : null;
     }
 
-    // todo - [multisize_products] do we want this method at all? Maybe useful to init size after no-size constructor before bands are added
-//    public void setSceneRasterSize(Dimension sceneRasterSize) {
-//        Assert.state(!sceneRasterGeometryInvalidated && this.sceneRasterSize == null);
-//        if (!ObjectUtils.equalObjects(this.sceneRasterSize, sceneRasterSize)) {
-//            Dimension oldSceneRasterSize = this.sceneRasterSize;
-//            this.sceneRasterSize = sceneRasterSize != null ? (Dimension) sceneRasterSize.clone() : null;
-//            sceneRasterGeometryInvalidated = false;
-//            fireNodeChanged(this, "sceneRasterSize", oldSceneRasterSize, sceneRasterSize);
-//        }
-//    }
-
     /**
      * @return The scene raster width in pixels, or 0 if the scene raster geometry is not (yet) determined.
      */

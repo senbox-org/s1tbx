@@ -50,6 +50,7 @@ import java.util.List;
 public class CfGeocodingPart extends ProfilePartIO {
 
     private boolean geographicCRS;
+    private boolean latLonVarsAddedByGeocoding;
 
     @Override
     public void decode(ProfileReadContext ctx, Product p) throws IOException {
@@ -113,6 +114,7 @@ public class CfGeocodingPart extends ProfilePartIO {
             } else {
                 addLatLonBands(ncFile, ImageManager.getPreferredTileSize(product));
             }
+            latLonVarsAddedByGeocoding = true;
         }
         ctx.setProperty(Constants.Y_FLIPPED_PROPERTY_NAME, false);
     }
@@ -123,8 +125,7 @@ public class CfGeocodingPart extends ProfilePartIO {
 
     @Override
     public void encode(ProfileWriteContext ctx, Product product) throws IOException {
-        NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
-        if (isLatLonPresent(ncFile)) {
+        if (!latLonVarsAddedByGeocoding) {
             return;
         }
         final int h = product.getSceneRasterHeight();
@@ -134,6 +135,7 @@ public class CfGeocodingPart extends ProfilePartIO {
         final PixelPos pixelPos = new PixelPos();
         final GeoPos geoPos = new GeoPos();
 
+        NFileWriteable ncFile = ctx.getNetcdfFileWriteable();
         NVariable latVariable = ncFile.findVariable("lat");
         NVariable lonVariable = ncFile.findVariable("lon");
         if (geographicCRS) {

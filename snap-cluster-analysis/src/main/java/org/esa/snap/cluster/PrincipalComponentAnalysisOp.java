@@ -46,7 +46,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 
 /**
- * Implements a Principle Component Analysis.
+ * Implements a Principal Component Analysis.
  *
  * @author Norman Fomferra
  * @since BEAM 5
@@ -56,8 +56,8 @@ import java.awt.Rectangle;
                   version = "1.0",
                   authors = "Norman Fomferra",
                   copyright = "(c) 2013 by Brockmann Consult",
-                  description = "Performs a Principle Component Analysis.")
-public class PrincipleComponentAnalysisOp extends Operator {
+                  description = "Performs a Principal Component Analysis.")
+public class PrincipalComponentAnalysisOp extends Operator {
 
     @SourceProduct(alias = "source", label = "Source product", description="The source product.")
     private Product sourceProduct;
@@ -70,7 +70,7 @@ public class PrincipleComponentAnalysisOp extends Operator {
     private String[] sourceBandNames;
 
     @Parameter(label = "Maximum component count",
-               description = "The maximum number of principle components to compute.",
+               description = "The maximum number of principal components to compute.",
                defaultValue = "-1")
     private int componentCount;
 
@@ -95,13 +95,13 @@ public class PrincipleComponentAnalysisOp extends Operator {
 
     private transient Roi roi;
     private transient Band[] sourceBands;
-    private transient PrincipleComponentAnalysis pca;
+    private transient PrincipalComponentAnalysis pca;
     private transient Band[] componentBands;
     private transient Band responseBand;
     private transient Band errorBand;
     private transient Band flagsBand;
 
-    public PrincipleComponentAnalysisOp() {
+    public PrincipalComponentAnalysisOp() {
     }
 
     @Override
@@ -299,7 +299,7 @@ public class PrincipleComponentAnalysisOp extends Operator {
                 System.arraycopy(tmp, 0, pointData, 0, pointData.length);
             }
 
-            pca = new PrincipleComponentAnalysis(pointSize);
+            pca = new PrincipalComponentAnalysis(pointSize);
             pca.computeBasis(pointData, componentCount);
             pm.worked(tileRectangles.length);
         } finally {
@@ -348,7 +348,7 @@ public class PrincipleComponentAnalysisOp extends Operator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(PrincipleComponentAnalysisOp.class);
+            super(PrincipalComponentAnalysisOp.class);
         }
     }
 

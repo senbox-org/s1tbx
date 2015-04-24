@@ -34,21 +34,21 @@
                 <attr name="helpId"
                       stringvalue="clusterAnalysisKMeans"/>
             </file>
-            <file name="org-esa-snap-cluster-PrincipleComponentAnalysis.instance">
+            <file name="org-esa-snap-cluster-PrincipalComponentAnalysis.instance">
                 <attr name="instanceCreate"
                       methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate"
                       methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
                 <attr name="displayName"
-                      stringvalue="Principle Component Analysis"/>
+                      stringvalue="Principal Component Analysis"/>
                 <attr name="operatorName"
                       stringvalue="PCA"/>
                 <attr name="dialogTitle"
-                      stringvalue="Principle Component Analysis"/>
+                      stringvalue="Principal Component Analysis"/>
                 <attr name="targetProductNameSuffix"
                       stringvalue="_pca"/>
                 <attr name="helpId"
-                      stringvalue="principleComponentAnalysis"/>
+                      stringvalue="principalComponentAnalysis"/>
             </file>
         </folder>
     </folder>
@@ -68,9 +68,9 @@
                     <attr name="position"
                           intvalue="20"/>
                 </file>
-                <file name="org-esa-snap-cluster-PrincipleComponentAnalysis.shadow">
+                <file name="org-esa-snap-cluster-PrincipalComponentAnalysis.shadow">
                     <attr name="originalFile"
-                          stringvalue="Actions/Operators/org-esa-snap-cluster-PrincipleComponentAnalysis.instance"/>
+                          stringvalue="Actions/Operators/org-esa-snap-cluster-PrincipalComponentAnalysis.instance"/>
                     <attr name="position"
                           intvalue="30"/>
                 </file>

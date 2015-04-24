@@ -39,6 +39,11 @@ import org.esa.snap.util.math.IndexValidator;
 import org.esa.snap.util.math.MathUtils;
 import org.esa.snap.util.math.Quantizer;
 import org.esa.snap.util.math.Range;
+import org.geotools.referencing.operation.transform.ConcatenatedTransform;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.MathTransform2D;
+import org.opengis.referencing.operation.NoninvertibleTransformException;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -156,6 +161,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private Map<String, RasterDataNode> ancillaryBands = new HashMap<>();
 
 
+    private SceneRasterTransform sceneRasterTransform;
+
+
     /**
      * Constructs an object of type <code>RasterDataNode</code>.
      *
@@ -195,6 +203,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Gets associated ancillary bands as a roleName --&gt; band mapping.
+     *
      * @return The associated ancillary band map, which may be empty.
      * @since BEAM 5.1
      */
@@ -209,6 +218,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Gets an associated ancillary band for the specified role name.
+     *
      * @param roleName The association role, may be {@code "mean"}, @code "variance"}, etc.
      * @return The associated ancillary band or {@code null}.
      * @since BEAM 5.1
@@ -219,8 +229,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Sets or removes an associated ancillary band.
+     *
      * @param roleName The association role, may be {@code "mean"}, @code "variance"}, etc.
-     * @param band The associated ancillary band. May be {@code null} in order to remove the role.
+     * @param band     The associated ancillary band. May be {@code null} in order to remove the role.
      * @since BEAM 5.1
      */
     public void setAncillaryBand(String roleName, RasterDataNode band) {
@@ -234,29 +245,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (oldBand != newBand) {
             fireProductNodeChanged(PROPERTY_NAME_ANCILLARY_BANDS, ancillaryBands, ancillaryBands);
         }
-    }
-
-    /**
-     * @return The width of the product's scene raster in pixels. By default, the method simply
-     *         returns <code>getRasterWidth()</code>.
-     */
-    public int getSceneRasterWidth() {
-        return getRasterWidth();
-    }
-
-    /**
-     * @return The height of the product's scene raster in pixels. By default, the method simply
-     *         returns <code>getRasterHeight()</code>.
-     */
-    public int getSceneRasterHeight() {
-        return getRasterHeight();
-    }
-
-    /**
-     * @return The size of the product's scene raster in pixels.
-     */
-    public Dimension getSceneRasterSize() {
-        return new Dimension(getSceneRasterWidth(), getSceneRasterHeight());
     }
 
     /**
@@ -278,6 +266,90 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public Dimension getRasterSize() {
         return new Dimension(rasterWidth, rasterHeight);
+    }
+
+    /**
+     * @return The width of the product's scene raster in pixels. By default, the method simply
+     * returns <code>getRasterWidth()</code>.
+     */
+    public int getSceneRasterWidth() {
+        return getRasterWidth();
+    }
+
+    /**
+     * @return The height of the product's scene raster in pixels. By default, the method simply
+     * returns <code>getRasterHeight()</code>.
+     */
+    public int getSceneRasterHeight() {
+        return getRasterHeight();
+    }
+
+    /**
+     * @return The size of the product's scene raster in pixels.
+     */
+    public Dimension getSceneRasterSize() {
+        return new Dimension(getSceneRasterWidth(), getSceneRasterHeight());
+    }
+
+    /**
+     * Gets a transformation allowing to transform from this raster CS to the product's scene raster CS.
+     *
+     * @return The transformation or {@code null}, if no such exists.
+     * @since SNAP 2.0
+     */
+    public SceneRasterTransform getSceneRasterTransform() {
+        if (sceneRasterTransform != null) {
+            return sceneRasterTransform;
+        }
+        return computeSceneRasterTransform();
+    }
+
+    /**
+     * Sets the transformation allowing to transform from this raster CS to the product's scene raster CS.
+     *
+     * @param sceneRasterTransform The transformation or {@code null}.
+     * @since SNAP 2.0
+     */
+    public void setSceneRasterTransform(SceneRasterTransform sceneRasterTransform) {
+        this.sceneRasterTransform = sceneRasterTransform;
+    }
+
+    /**
+     * Computes a transformation allowing to transform from this raster CS o the product's scene raster CS.
+     * This method is called if no transformation has been set using the
+     * {@link #setSceneRasterTransform(SceneRasterTransform)} method.
+     *
+     * @return The transformation or {@code null}, if no such exists.
+     * @since SNAP 2.0
+     */
+    protected SceneRasterTransform computeSceneRasterTransform() {
+        Product product = getProduct();
+        if (product != null) {
+            GeoCoding pgc = product.getGeoCoding();
+            GeoCoding rgc = getGeoCoding();
+            if (pgc == rgc || pgc != null && rgc == null) {
+                return SceneRasterTransform.IDENTITY;
+            }
+            if (pgc != null) {
+                CoordinateReferenceSystem pcrs = pgc.getMapCRS();
+                CoordinateReferenceSystem rcrs = rgc.getMapCRS();
+                if (pcrs.equals(rcrs)) {
+                    try {
+                        MathTransform ri2m = rgc.getImageToMapTransform();
+                        MathTransform pm2i = pgc.getImageToMapTransform().inverse();
+                        MathTransform mathTransform = ConcatenatedTransform.create(ri2m, pm2i);
+                        if (mathTransform instanceof MathTransform2D ) {
+                            MathTransform2D forward = (MathTransform2D) mathTransform;
+                            MathTransform2D inverse = forward.inverse();
+                            return new DefaultSceneRasterTransform(forward, inverse);
+                        }
+                    } catch (NoninvertibleTransformException e) {
+                        // can't create SceneRasterTransform
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -722,7 +794,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * The method returns {@code null},  if none of these properties are set.
      *
      * @return The expression used for the computation of the mask which identifies valid pixel values,
-     *         or {@code null}.
+     * or {@code null}.
      * @see #getValidPixelExpression()
      * @see #getNoDataValue()
      * @since BEAM 4.2
@@ -1092,7 +1164,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated since BEAM 4.11. Use {@link #getPixels(int,int,int,int,int[])} instead.
+     * @deprecated since BEAM 4.11. Use {@link #getPixels(int, int, int, int, int[])} instead.
      */
     @Deprecated
     public abstract int[] getPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm);
@@ -1112,7 +1184,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated since BEAM 4.11. Use {@link #getPixels(int,int,int,int,float[])} instead.
+     * @deprecated since BEAM 4.11. Use {@link #getPixels(int, int, int, int, float[])} instead.
      */
     @Deprecated
     public abstract float[] getPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm);
@@ -1135,7 +1207,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param h      height of the pixel array to be read.
      * @param pixels double array to be filled with data
      * @param pm     a monitor to inform the user about progress
-     * @deprecated since BEAM 4.11. Use {@link #getPixels(int,int,int,int,double[])} instead.
+     * @deprecated since BEAM 4.11. Use {@link #getPixels(int, int, int, int, double[])} instead.
      */
     @Deprecated
     public abstract double[] getPixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm);
@@ -1896,7 +1968,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Gets the source image associated with this {@code RasterDataNode}.
      *
      * @return The source image. Never {@code null}. In the case that {@link #isSourceImageSet()} returns {@code false},
-     *         the method {@link #createSourceImage()} will be called in order to set and return a valid source image.
+     * the method {@link #createSourceImage()} will be called in order to set and return a valid source image.
      * @see #createSourceImage()
      * @see #isSourceImageSet()
      * @since BEAM 4.2

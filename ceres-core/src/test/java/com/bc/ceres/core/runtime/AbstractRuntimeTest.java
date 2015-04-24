@@ -16,7 +16,9 @@
 
 package com.bc.ceres.core.runtime;
 
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,8 +26,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
-public abstract class AbstractRuntimeTest extends TestCase {
-    private ArrayList<File> fileStack = new ArrayList<File>();
+import static org.junit.Assert.*;
+
+public abstract class AbstractRuntimeTest {
+    private ArrayList<File> fileStack = new ArrayList<>();
     private String baseDirPath;
     private String dirPath;
     private String contextId;
@@ -42,8 +46,8 @@ public abstract class AbstractRuntimeTest extends TestCase {
         return contextId;
     }
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         File targetDir = new File("target");
         File testdataDir = new File(targetDir, "test-data");
         mkdir0(targetDir);
@@ -51,8 +55,8 @@ public abstract class AbstractRuntimeTest extends TestCase {
         baseDirPath = testdataDir.getAbsolutePath();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         deleteFileStack();
     }
 
@@ -103,6 +107,7 @@ public abstract class AbstractRuntimeTest extends TestCase {
         touch(dirPath + "/modules/lib-hdf/lib/unix/libhdf.so");
     }
 
+    @Test
     protected void testConfigPaths(RuntimeConfig config) throws RuntimeConfigException {
 
         String configFilename= contextId + ".config";
