@@ -19,7 +19,7 @@ import org.esa.snap.gpf.StatusProgressMonitor;
 import org.esa.snap.util.PropertyMap;
 import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.ftpUtils;
+import org.esa.snap.framework.dataop.downloadable.ftpUtils;
 import org.esa.snap.util.io.FileUtils;
 
 import java.io.BufferedInputStream;

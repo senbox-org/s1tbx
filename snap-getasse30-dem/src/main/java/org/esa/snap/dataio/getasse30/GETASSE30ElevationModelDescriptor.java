@@ -15,29 +15,29 @@
  */
 package org.esa.snap.dataio.getasse30;
 
+import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.dataop.dem.AbstractElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDescriptor {
 
-    public static final String NAME = "GETASSE30";
-    public static final String DB_FILE_SUFFIX = ".GETASSE30";
-    public static final String ARCHIVE_URL_PATH = "http://org.esa.snap.s3.amazonaws.com/data/GETASSE30.zip";
-    public static final int NUM_X_TILES = 24;
-    public static final int NUM_Y_TILES = 12;
-    public static final int DEGREE_RES = 15;
-    public static final int PIXEL_RES = 1800;
+    private static final String NAME = "GETASSE30";
+    private static final String DB_FILE_SUFFIX = ".GETASSE30";
+    private static final int NUM_X_TILES = 24;
+    private static final int NUM_Y_TILES = 12;
+    private static final int DEGREE_RES = 15;
+    private static final int PIXEL_RES = 1800;
     public static final int NO_DATA_VALUE = -9999;
-    public static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
-    public static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
-    public static final Datum DATUM = Datum.WGS_84;
+    private static final GeoPos RASTER_ORIGIN = new GeoPos(90.0f, 180.0f);
+    private static final int RASTER_WIDTH = NUM_X_TILES * PIXEL_RES;
+    private static final int RASTER_HEIGHT = NUM_Y_TILES * PIXEL_RES;
+
+    private static final Datum DATUM = Datum.WGS_84;
 
     public GETASSE30ElevationModelDescriptor() {
     }
@@ -53,23 +53,53 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
     }
 
     @Override
+    public int getNumXTiles() {
+        return NUM_X_TILES;
+    }
+
+    @Override
+    public int getNumYTiles() {
+        return NUM_Y_TILES;
+    }
+
+    @Override
     public float getNoDataValue() {
         return NO_DATA_VALUE;
     }
 
     @Override
+    public int getRasterWidth() {
+        return RASTER_WIDTH;
+    }
+
+    @Override
+    public int getRasterHeight() {
+        return RASTER_HEIGHT;
+    }
+
+    @Override
+    public GeoPos getRasterOrigin() {
+        return RASTER_ORIGIN;
+    }
+
+    @Override
+    public int getDegreeRes() {
+        return DEGREE_RES;
+    }
+
+    @Override
+    public int getPixelRes() {
+        return PIXEL_RES;
+    }
+
+    @Override
     public boolean isDemInstalled() {
-        final File file = getTileFile(-180, -90);   // todo (nf) - check all tiles
-        return file.canRead();
+        return true;
     }
 
     @Override
     public URL getDemArchiveUrl() {
-        try {
-            return new URL(ARCHIVE_URL_PATH);
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException("MalformedURLException not expected: " + ARCHIVE_URL_PATH);
-        }
+        return null;
     }
 
     @Override
@@ -79,10 +109,6 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
         } catch (IOException e) {
             return null;
         }
-    }
-
-    public File getTileFile(int minLon, int minLat) {
-        return new File(getDemInstallDir(), createTileFilename(minLat, minLon));
     }
 
     public String createTileFilename(int minLat, int minLon) {

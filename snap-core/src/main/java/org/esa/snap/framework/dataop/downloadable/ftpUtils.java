@@ -13,18 +13,23 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.util;
+package org.esa.snap.framework.dataop.downloadable;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
-import org.esa.snap.gpf.StatusProgressMonitor;
+import org.esa.snap.framework.datamodel.ProgressListenerList;
+import org.esa.snap.util.SystemUtils;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +43,7 @@ public final class ftpUtils {
     private final String user;
     private final String password;
     private boolean ftpClientConnected = false;
+    private ProgressListenerList progressListenerList = new ProgressListenerList();
 
     public enum FTPError {FILE_NOT_FOUND, OK, READ_ERROR}
 
@@ -97,11 +103,9 @@ public final class ftpUtils {
             }
             fos = new BufferedOutputStream(new FileOutputStream(localFile.getAbsolutePath()));
 
-            final StatusProgressMonitor status = new StatusProgressMonitor(fileSize,
-                    "Downloading " + localFile.getName() + "... ");
-            status.setAllowStdOut(false);
+            progressListenerList.fireProcessStarted("Downloading " + localFile.getName() + "... ", 0, fileSize.intValue());
 
-            final int size = 4096;//32768;
+            final int size = 4096;
             final byte[] buf = new byte[size];
             int n;
             int total = 0;
@@ -109,12 +113,10 @@ public final class ftpUtils {
                 fos.write(buf, 0, n);
                 if (fileSize != null) {
                     total += n;
-                    status.worked(total);
-                } else {
-                    status.working();
+                    progressListenerList.fireProcessInProgress(total);
                 }
             }
-            status.done();
+            progressListenerList.fireProcessEnded(true);
 
             ftpClient.completePendingCommand();
             return FTPError.OK;
@@ -154,18 +156,10 @@ public final class ftpUtils {
         return ftpClient.listFiles(path);
     }
 
-    public static String getPathFromSettings(final String tag) {
-        String path = Settings.instance().get(tag);
-        path = path.replace("\\", "/");
-        if (!path.endsWith("/"))
-            path += "/";
-        return path;
-    }
-
     public static Map<String, Long> readRemoteFileList(final ftpUtils ftp, final String server, final String remotePath) {
 
         boolean useCachedListing = true;
-        final String tmpDirUrl = ResourceUtils.getApplicationUserTempDataDir().getAbsolutePath();
+        final String tmpDirUrl = SystemUtils.getApplicationDataDir().getAbsolutePath();
         final File listingFile = new File(tmpDirUrl + "//" + server + ".listing.xml");
         if (!listingFile.exists())
             useCachedListing = false;

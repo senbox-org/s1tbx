@@ -19,9 +19,11 @@
     <folder name="Menu">
         <folder name="File">
             <folder name="Import">
-                <file name="org-esa-snap-dataio-getasse30-ImportGetasse30Product.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Readers/org-esa-snap-dataio-getasse30-ImportGetasse30Product.instance"/>
-                </file>
+                <folder name="DEM">
+                    <file name="org-esa-snap-dataio-getasse30-ImportGetasse30Product.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-snap-dataio-getasse30-ImportGetasse30Product.instance"/>
+                    </file>
+                </folder>
             </folder>
         </folder>
     </folder>

@@ -108,7 +108,7 @@ public class GETASSE30FileInfo {
     private void setFromData(final File dataFile) throws IOException {
         final String ext = FileUtils.getExtension(dataFile.getName());
         if (".zip".equalsIgnoreCase(ext)) {
-            final String baseName = FileUtils.getFilenameWithoutExtension(dataFile.getName());
+            final String baseName = FileUtils.getFilenameWithoutExtension(dataFile.getName()) + ".GETASSE30";
             final ZipFile zipFile = new ZipFile(dataFile);
             try {
                 final ZipEntry zipEntry = getZipEntryIgnoreCase(zipFile, baseName);

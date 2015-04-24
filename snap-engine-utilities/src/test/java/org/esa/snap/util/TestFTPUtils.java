@@ -15,6 +15,7 @@
  */
 package org.esa.snap.util;
 
+import org.esa.snap.framework.dataop.downloadable.ftpUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 

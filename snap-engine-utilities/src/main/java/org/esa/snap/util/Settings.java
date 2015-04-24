@@ -56,6 +56,14 @@ public final class Settings {
         return auxdataConfig;
     }
 
+    public static String getPath(final String tag) {
+        String path = instance().get(tag);
+        path = path.replace("\\", "/");
+        if (!path.endsWith("/"))
+            path += "/";
+        return path;
+    }
+
     public static File getAuxDataFolder() {
         String auxDataPath = Settings.instance().get("AuxDataPath");
         if (auxDataPath == null || auxDataPath.isEmpty()) {
