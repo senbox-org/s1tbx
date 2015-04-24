@@ -18,25 +18,33 @@ package com.bc.ceres.core.runtime.support;
 
 import com.bc.ceres.core.runtime.AbstractRuntimeTest;
 import com.bc.ceres.core.runtime.RuntimeConfigException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
+import static org.junit.Assert.*;
 
+
+@Ignore
 public class DefaultRuntimeConfigTest extends AbstractRuntimeTest {
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         clearContextSystemProperties("pacman");
         super.setUp();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         super.tearDown();
         clearContextSystemProperties("pacman");
     }
 
-    public void ignore_testWithNoProperties() throws RuntimeConfigException, IOException {
+    @Ignore
+    public void testWithNoProperties() throws RuntimeConfigException, IOException {
         DefaultRuntimeConfig config = new DefaultRuntimeConfig();
         assertEquals("ceres", config.getContextId());
 
@@ -67,6 +75,7 @@ public class DefaultRuntimeConfigTest extends AbstractRuntimeTest {
         assertEquals(null, config.getMainClassPath());
     }
 
+    @Test
     public void testWithSystemProperties() throws RuntimeConfigException, IOException {
         String configContent = "# Empty config file\n";
         initContextHomeDir("pacman", "pacman-1.3.6", configContent);
@@ -83,6 +92,7 @@ public class DefaultRuntimeConfigTest extends AbstractRuntimeTest {
         assertEquals("a:b:c", config.getMainClassPath());
     }
 
+    @Test
     public void testWithConfigProperties() throws RuntimeConfigException, IOException {
         String configContent = ""
                 + "pacman.home  = " + getBaseDirPath() + "/pacman-1.3.6\n"
@@ -101,6 +111,7 @@ public class DefaultRuntimeConfigTest extends AbstractRuntimeTest {
     }
 
 
+    @Test
     public void testWithNoHomeNoConfig() throws RuntimeConfigException, IOException {
         String configContent = ""
                 + "pacman.app  = bibo\n"
