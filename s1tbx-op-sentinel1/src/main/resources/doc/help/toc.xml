@@ -13,6 +13,7 @@
             <tocitem text="TOPSAR Merge" target="TOPSARMergeOp"/>
             <tocitem text="Range Shift" target="RangeShiftOp"/>
             <tocitem text="Azimuth Shift" target="AzimuthShiftOp"/>
+            <tocitem text="Back Geocoding" target="BackGeocodingOp"/>
         </tocitem>
     </tocitem>
 
