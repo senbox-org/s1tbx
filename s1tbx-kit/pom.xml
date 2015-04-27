@@ -126,11 +126,6 @@
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-product-library</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-rcp</artifactId>
             <version>${project.version}</version>
         </dependency>
