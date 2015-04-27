@@ -130,7 +130,7 @@ public class CreateInterferogramOp extends Operator {
     private int subSwathIndex = 0;
     private double avgSceneHeight = 0.0;
 
-    private boolean outputFlatEarthPhase = false;
+    private boolean outputFlatEarthPhase = true;
 
     /**
      * Initializes this operator and sets the one and only target product.
@@ -516,7 +516,8 @@ public class CreateInterferogramOp extends Operator {
             org.jlinda.core.Point xyzMaster = masterOrbit.lph2xyz(line + 1, pixel + 1, avgSceneHeight, masterMetadata);
             org.jlinda.core.Point slaveTimeVector = slaveOrbit.xyz2t(xyzMaster, slaveMetadata);
 
-            final double slaveTimeRange = slaveTimeVector.x;
+//            final double slaveTimeRange = slaveTimeVector.x;
+            final double slaveTimeRange = 0.5*(slaveTimeVector.x + masterTimeRange);
 
             // observation vector
             y.put(i, (masterMinPi4divLam * masterTimeRange) - (slaveMinPi4divLam * slaveTimeRange));

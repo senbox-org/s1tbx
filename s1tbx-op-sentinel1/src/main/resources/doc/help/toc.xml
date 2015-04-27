@@ -10,6 +10,7 @@
             <tocitem text="TOPSAR Deburst" target="TOPSARDeburstOp"/>
             <tocitem text="TOPSAR Split" target="TOPSARSplitOp"/>
             <tocitem text="Slice Assembly" target="SliceAssemblyOp"/>
+            <tocitem text="TOPSAR Merge" target="TOPSARMergeOp"/>
         </tocitem>
     </tocitem>
 

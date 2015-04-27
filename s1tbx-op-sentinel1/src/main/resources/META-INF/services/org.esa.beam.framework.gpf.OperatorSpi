@@ -10,3 +10,4 @@ org.esa.nest.gpf.CreateCoherenceImageOp$Spi
 org.esa.nest.gpf.CreateInterferogramOp$Spi
 org.esa.nest.gpf.TOPSARMergeOp$Spi
 org.esa.nest.gpf.GRDPostProcessOp$Spi
+org.esa.nest.gpf.RemoveTopoPhaseOp$Spi

@@ -59,6 +59,11 @@
             <class>org.esa.nest.gpf.TOPSARMergeOpUI</class>
             <operatorName>TOPSAR-Merge</operatorName>
         </OperatorUI>
+        <OperatorUI>
+            <id>org.esa.nest.gpf.RemoveTopoPhaseOpUI</id>
+            <class>org.esa.nest.gpf.RemoveTopoPhaseOpUI</class>
+            <operatorName>RemoveTopoPhase</operatorName>
+        </OperatorUI>
     </extension>
 
     <extension point="snap-ui:actions">
@@ -200,7 +205,7 @@
             <targetProductNameSuffix>_az</targetProductNameSuffix>
         </action>
 
-        <!--action>
+        <action>
             <id>ComputeDerampDemodPhaseOp</id>
             <helpId>ComputeDerampDemodPhaseOp</helpId>
             <class>org.esa.snap.dat.actions.OperatorAction</class>
@@ -211,7 +216,7 @@
             <dialogTitle>Compute Deramp Demodulation Phase</dialogTitle>
             <shortDescr>Compute Deramp Demodulation Phase</shortDescr>
             <targetProductNameSuffix>_ddp</targetProductNameSuffix>
-        </action-->
+        </action>
 
         <action>
             <id>InterferogramOp</id>
@@ -227,6 +232,19 @@
             <placeFirst>true</placeFirst>
         </action>
 
+        <action>
+            <id>RemoveTopoPhaseOp</id>
+            <helpId>RemoveTopoPhaseOp</helpId>
+            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <icon>esaIcon</icon>
+            <text>Remove Topographic Phase</text>
+            <operatorName>RemoveTopoPhase</operatorName>
+            <dialogTitle>Remove Topographic Phase</dialogTitle>
+            <shortDescr>Remove Topographic Phase</shortDescr>
+            <targetProductNameSuffix>_tpr</targetProductNameSuffix>
+            <parent>products</parent>
+            <placeFirst>true</placeFirst>
+        </action>
 
     </extension>
 

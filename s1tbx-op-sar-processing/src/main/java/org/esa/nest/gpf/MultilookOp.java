@@ -197,6 +197,7 @@ public final class MultilookOp extends Operator {
             final Unit.UnitType bandUnit = Unit.getUnitType(sourceBand1);
             final boolean isdB = bandUnit == Unit.UnitType.INTENSITY_DB || bandUnit == Unit.UnitType.AMPLITUDE_DB;
             final boolean isComplex = outputIntensity && (bandUnit == Unit.UnitType.REAL || bandUnit == Unit.UnitType.IMAGINARY);
+            final boolean isPhase = bandUnit == Unit.UnitType.PHASE;
 
             double meanValue;
             final int maxy = ty0 + th;
@@ -226,7 +227,7 @@ public final class MultilookOp extends Operator {
                     trgIndex.calculateStride(ty);
                     for (int tx = tx0; tx < maxx; tx++) {
                         meanValue = getMeanValue(
-                                tx, ty, srcData1, srcData2, srcIndex, nRgLooks, nAzLooks, isdB, isComplex, isPolsar);
+                                tx, ty, srcData1, srcData2, srcIndex, nRgLooks, nAzLooks, isdB, isComplex, isPolsar, isPhase);
                         trgData.setElemDoubleAt(trgIndex.getIndex(tx), meanValue);
                     }
                 }
@@ -387,7 +388,8 @@ public final class MultilookOp extends Operator {
                                        final ProductData srcData1, final ProductData srcData2,
                                        final TileIndex srcIndex,
                                        final int nRgLooks, final int nAzLooks,
-                                       final boolean isdB, final boolean isComplex, final boolean isPolsar) {
+                                       final boolean isdB, final boolean isComplex,
+                                       final boolean isPolsar, final boolean isPhase) {
 
         final int xStart = tx * nRgLooks;
         final int yStart = ty * nAzLooks;
@@ -427,7 +429,11 @@ public final class MultilookOp extends Operator {
             }
         }
 
-        return meanValue / (nRgLooks * nAzLooks);
+        if (isPhase) {
+            return meanValue % Math.PI;
+        } else {
+            return meanValue / (nRgLooks * nAzLooks);
+        }
     }
 
     /**

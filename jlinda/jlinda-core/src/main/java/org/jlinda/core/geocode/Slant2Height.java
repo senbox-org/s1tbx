@@ -20,6 +20,15 @@ import static org.jlinda.core.utils.LinearAlgebraUtils.matTxmat;
 import static org.jlinda.core.utils.PolyUtils.normalize2;
 import static org.jlinda.core.utils.PolyUtils.polyFit;
 
+/* JL: This operator converts the unwrapped interferometric phase to the heights in the radar coded system.
+       This functionality is sometimes referred to as "slant-to-height" conversion. Implementation is performed
+       following the Schwabisch method, that uses polynomials to compare the actual phase with the flat earth
+       (reference) phase. The Schwabisch method is a fast method that yields the radar coded heights. It builds
+       on the idea to first compute the reference phase at a number of discrete heights and then to compare the
+       actual phase from the interferogram with these pre-computed values to determine the height. An obstacle
+       with this method is that the interferograms that are used as input do not contain the reference phase
+       anymore, so that has to be pre-computed and included in the height-estimation procedure.
+ */
 public class Slant2Height {
 
     private static final Logger logger = SystemUtils.LOG;
@@ -35,7 +44,7 @@ public class Slant2Height {
     private final int degree1D; // only possible now.
     private final int degree2D;
 
-    private static final int MAXHEIGHT = 5000; // max hei for ref.phase
+    private static final int MAXHEIGHT = 5000; // max height for reference phase
     private static final int TEN = 10;
 
     private DoubleMatrix tile;
@@ -65,9 +74,18 @@ public class Slant2Height {
 
         logger.setLevel(Level.FINE);
 
+        // JL: Number of points for evaluation of phase at different altitudes, defaultValue = "200"
         this.nPoints = nPoints;
+
+        // JL: Number of height samples in range [0,5000), defaultValue = "3"
         this.nHeights = nHeights;
+
+        // JL: Degree of the 1D polynomial to fit reference phase through, defaultValue = "2"
+        //     Note that the following relation must hold in order to have enough equations for the unknowns
+        //     in polynomial fitting: nHeights >= degree1d + 1
         this.degree1D = degree1d;
+
+        // JL: Degree of the 2D polynomial to fit reference phase through, defaultValue = "5"
         this.degree2D = degree2d;
 
         this.master = master;
@@ -90,6 +108,7 @@ public class Slant2Height {
         this.tileWindow = window;
     }
 
+    // JL: set a window of image size
     public void setDataWindow(Window window) {
         this.dataWindow = window;
     }
@@ -105,43 +124,39 @@ public class Slant2Height {
 
     /**
      * slant2h-eight (schwabisch)
-     * <p/>
      * compute height in radar coded system (master):
-     * <p/>
-     * <p/>
-     * 1.  compute reference phase for h=0,2000,4000 in nPoints
-     * <p/>
-     * 2.  solve system: h(phi) = a_0 + a_1*phi + a_2*phi*phi
-     * (2nd degree 1D polynomial) for all nPoints
-     * <p/>
-     * 3.  compute a_i (l,p) = degree2D 2D polynomial
-     * <p/>
-     * 4.0 set offset to the one of first pixel , add this to all
-     * this step is skipped, phase is w.r.t. h=0, ref. is subtracted
-     * <p/>
-     * 4.1 evaluate polynomial of 3. for all points (l,p) of
-     * (multilooked) unwrapped interferogram
-     * <p/>
+     * 1. Compute reference phase for h = 0, 2000, 4000 in nPoints;
+     * 2. Solve system: h(phi) = a_0 + a_1*phi + a_2*phi*phi, (2nd degree 1D polynomial) for all nPoints
+     * 3. Compute a_i (l,p) = degree2D 2D polynomial;
+     * 4.0 Set offset to the one of first pixel, add this to all
+     *     this step is skipped, phase is w.r.t. h=0, ref. is subtracted
+     * 4.1 Evaluate polynomial of 3. for all points (l,p) of (multilooked) unwrapped interferogram
+     *
      * Note: solution to system for betas seems not be very stable!??
      */
     public void schwabisch() throws Exception {
 
         logger.fine("slant2h Schwabisch (PM 01-Apr-2011)");
 
+        // JL: divide height range [0, 5000] into nHeights = 3 levels: 0, 2500, 5000 with step size being heightStep = 2500m
         final int heightStep = MAXHEIGHT / (nHeights - 1); // heights to eval ref.refPhase
 
         // Matrices for storing refPhase for all ref. ellipsoids
         //  refPhase(i,0)  refPhase for height 0
         //  refPhase(i,1)  refPhase for height Heigthsep * 1
         //  refPhase(i,Nh) refPhase for height 4000
-//        Map<Integer, DoubleMatrix> refPhaseMap = Maps.newLinkedHashMap();
+        // Map<Integer, DoubleMatrix> refPhaseMap = Maps.newLinkedHashMap();
 
+        // JL: 200x3 matrix holding phases computed for 200 points
+        //     for three heights (0, 2500, 5000)
         DoubleMatrix refPhaseMatrix = new DoubleMatrix(nPoints, nHeights);
 
         // Distribute points in original master system (not multilooked)
         // (i,0): line, (i,1): pixel, (i,2) flagfromdisk (not used here)
+        // JL: evenly distribute the 200 points in the whole image
         int[][] positionArray = MathUtils.distributePoints(nPoints, dataWindow);
 
+        // JL: save the positions of the 200 points in Position matrix
         DoubleMatrix Position = new DoubleMatrix(nPoints, 2);
         for (int i = 0; i < nPoints; i++) {
             Position.put(i, 0, positionArray[i][0]);
@@ -155,6 +170,7 @@ public class Slant2Height {
         // Compute reference refPhase in N points for height (numheight)
         logger.fine("S2H: schwabisch: STEP1: compute reference refPhase for nHeights.");
         DoubleMatrix refPhaseZero = new DoubleMatrix(nPoints);
+        // JL: compute reference phases for the 200 points and three heights (0, 2500, 5000)
         for (int heightIdx = 0; heightIdx < nHeights; heightIdx++) {
 
             int height = heightIdx * heightStep;
@@ -162,8 +178,10 @@ public class Slant2Height {
             DoubleMatrix refPhase = new DoubleMatrix(nPoints); // pseudo-observation
 
             // Compute delta r for all points
+            // JL: compute reference phase for the 200 points and given height
             for (int i = 0; i < nPoints; i++) {
-                double phase = computeReferencePhase((double) positionArray[i][0], (double) positionArray[i][1], height, master, slave, masterOrbit, slaveOrbit);
+                double phase = computeReferencePhase((double) positionArray[i][0], (double) positionArray[i][1],
+                        height, master, slave, masterOrbit, slaveOrbit);
                 refPhase.put(i, phase);
             }
 
@@ -174,6 +192,7 @@ public class Slant2Height {
 
             //  Subtract ref. refPhase at h=0 for all point
             //  this is the same as adding reference refPhase for all in uint
+            // JL: the first column elements are all zeros? So the reference phase is flat-earth phase removed.
             refPhaseMatrix.putColumn(heightIdx, refPhase.sub(refPhaseZero));
         }
 
@@ -184,8 +203,11 @@ public class Slant2Height {
         logger.fine("S2H: schwabisch: STEP2: estimate coefficients 1d polynomial.");
 
 //        DoubleMatrix design = new DoubleMatrix(nHeights, degree1D + 1); // design matrix
+
+        // JL: alphas is a 200x(2+1) matrix holding coefficients of 200 polynomials (3 coefficients for each 2 degree
+        //     1-D polynomial).
         DoubleMatrix alphas = new DoubleMatrix(nPoints, degree1D + 1); // pseudo-observation
-        DoubleMatrix hei = new DoubleMatrix(nHeights, 1);
+        DoubleMatrix hei = new DoubleMatrix(nHeights, 1); // hei = [0, 2500, 5000]
         for (int i = 0; i < nHeights; i++) {
             hei.put(i, 0, i * heightStep); // 0, .., 5000
         }
@@ -193,9 +215,14 @@ public class Slant2Height {
         // normalize tile to [0,1]
         minPhi = refPhaseMatrix.min();
         maxPhi = refPhaseMatrix.max();
+        // JL: normalize matrix elements to [-2,2]
         normalize(refPhaseMatrix, minPhi, maxPhi);
 
+        // JL: compute polynomial for each point
         for (int i = 0; i < nPoints; i++) {// solve system for all points
+            // JL: For each row in refPhaseMatrix, we have three phases [ph0, ph1, ph2] computed for three
+            //     heights [h0, h1, h2]. Now we want to use them to compute a polynomial
+            //     height(phase) = c0 + c1*phase + c2*phase*phase.
             alphas.putRow(i, new DoubleMatrix(polyFit(refPhaseMatrix.getRow(i), hei, degree1D)));
         } // loop over all points
 
@@ -208,6 +235,7 @@ public class Slant2Height {
         // ... alpha_i = sum(k,l) beta_kl l^k p^l;
         // ... Solve simultaneous for all betas
         // ... this does not seem to be possibly with my routine, so do per alfa_i
+        // JL: for 5 degree 2-D polynomial, there are 21 unknown coefficients
         final int Nunk = PolyUtils.numberOfCoefficients(degree2D); // Number of unknowns
 
         // ______ Check redundancy is done before? ______
@@ -216,6 +244,7 @@ public class Slant2Height {
             throw new IllegalArgumentException();
         }
 
+        // JL: A is a 200x21 matrix with each row holding 21 terms corresponding to the 21 polynomial coefficients.
         DoubleMatrix A = new DoubleMatrix(nPoints, Nunk); // designmatrix
 
         // Set up system of equations
@@ -224,13 +253,16 @@ public class Slant2Height {
 //        double maxL = Position.getColumn(0).max();
 //        double minP = Position.getColumn(1).min();
 //        double maxP = Position.getColumn(1).max();
+        // JL: dataWindow is the window for the whole image
         double minL = dataWindow.linelo;
         double maxL = dataWindow.linehi;
         double minP = dataWindow.pixlo;
         double maxP = dataWindow.pixhi;
 
+        // JL: populate matrix A with each row corresponding to a point
         for (int i = 0; i < nPoints; i++) {
             // ______ normalize coordinates ______
+            // JL: normalize row and col indices to [-2,2] range
             double posL = normalize2(Position.get(i, 0), minL, maxL);
             double posP = normalize2(Position.get(i, 1), minP, maxP);
 
@@ -244,12 +276,20 @@ public class Slant2Height {
         }
 
         // Solve 2d polynomial system for alfas at these points
-        DoubleMatrix N = matTxmat(A, A);
-        rhs = matTxmat(A, alphas);
+        // JL: Here alpha is a 200x3 matrix with each row holding the 3 polynomial coefficients for computing height
+        //     from reference phase. The idea is to solve Ax_i = alpha_i, for i = 1,2,3, where x_i is a 21x1 vector
+        //     holding the 21 2-D polynomial coefficients for computing c_i, the ith coefficient for polynomial
+        //     height(phase) = c0 + c1*phase + c2*phase*phase. Later for every pixel with (line, pixel) indices,
+        //     we can compute c0, c1 and c2 first using 3 different 2-D polynomials, then compute the height for
+        //     the point for given reference phase using height(phase) = c0 + c1*phase + c2*phase*phase.
+        DoubleMatrix N = matTxmat(A, A); // JL: N = A^(T)*A, 21x21
+        rhs = matTxmat(A, alphas); // JL: rhs = A^(T)*alphas, 21x3
         DoubleMatrix Qx_hat = N;
 
         // Solve the normal equations for all alpha_i
         // Simultaneous solution doesn't work somehow
+        // JL: solve A^(T)*A*x_i = A^(T)*alpha_i, for i = 1,2,3. Save the result (21x1 vector) in the corresponding
+        //     column in rhs.
         for (int i = 0; i < rhs.getColumns(); ++i) {
             DoubleMatrix rhs_alphai = rhs.getColumn(i);
             rhs.putColumn(i, Solve.solveSymmetric(Qx_hat, rhs_alphai));
@@ -262,8 +302,6 @@ public class Slant2Height {
         if (maxdev > 0.01) {
             logger.warning("slant2h: possibly wrong solution. deviation from unity AtA*inv(AtA) = {"+maxdev+"} > 0.01");
         }
-
-
     }
 
 
@@ -294,6 +332,8 @@ public class Slant2Height {
         double firstPixel = (double) (tileWindow.pixlo) + (mlFacP - 1.) / 2.;
 
         // ant axis of pixel coordinates ______
+        // JL: p_axis is a vector holding pixel indices of a complete range line.
+        //     The pixel indices are then normalized.
         DoubleMatrix p_axis = new DoubleMatrix(mlPixels, 1);
         for (int i = 0; i < tileWindow.pixels(); i++) {
             p_axis.put(i, 0, firstPixel + i * mlFacP);
@@ -301,6 +341,8 @@ public class Slant2Height {
         normalize(p_axis, minP, maxP);
 
         // ant axis for azimuth coordinates ______
+        // JL: l_axis is a vector holding line indices of a complete azimuth line.
+        //     The line indices are then normalized.
         DoubleMatrix l_axis = new DoubleMatrix(mlLines, 1);
         for (int k = 0; k < tileWindow.lines(); k++) {
             l_axis.put(k, 0, firstLine + k * mlFacL);
@@ -308,34 +350,44 @@ public class Slant2Height {
         normalize(l_axis, minL, maxL);
 
         // ---> Lookup table because not known in advance what degree1D is
+        // JL: compute {c0, c1, c2} for all pixels
         DoubleMatrix[] pntALPHA = new DoubleMatrix[TEN];
-        for (int k = 0; k <= degree1D; k++) {
+        for (int k = 0; k <= degree1D; k++) { // JL: looping through c0, c1, c2
+            // JL: get the 21 2-D polynomial coefficients saved in rhs for computing c_k and save them in beta
             DoubleMatrix beta = new DoubleMatrix(PolyUtils.numberOfCoefficients(degree2D), 1);
             for (int l = 0; l < PolyUtils.numberOfCoefficients(degree2D); l++) {
-                beta.put(l, 0, rhs.get(l, k)); // solution stored in rhs
+                beta.put(l, 0, rhs.get(l, k));
             }
+            // JL: compute c_k for all image pixels and save result in a image size matrix:
+            //     pntALPHA[k] contains all c_k for all image pixels, k = 0, 1, 2.
             pntALPHA[k] = PolyUtils.polyval(l_axis, p_axis, beta, degree2D);
         }
 
         // Evaluate h=f(l,p,phi) for all points in grid in BUFFER
         double[] coeffThisPoint = new double[degree1D + 1]; //DoubleMatrix(degree1D + 1, 1);
 
+        // JL: compute height for each pixel in the given tile
         for (int line = 0; line < mlLines; line++) {
             for (int pixel = 0; pixel < mlPixels; pixel++) {
                 // Check if unwrapped ok, else compute h
                 if (tile.get(line, pixel) != Double.NaN) // else leave NaN
                 {
+                    // JL: get {c0, c1, c2}
                     for (int k = 0; k < degree1D + 1; k++) {
                         coeffThisPoint[k] = pntALPHA[k].get(line, pixel);
                     }
+                    // JL: data is the master image data. Here we assume the data is the interferometric phase with
+                    //     flat-earth phase removed.
                     double data = tile.get(line, pixel);
+                    // JL: normalize the phase
                     double x = PolyUtils.normalize2(data, minPhi, maxPhi);
+                    //JL: compute height using 1-D polynomial with coefficients {c0, c1, c2} computed for this point
                     double value = PolyUtils.polyVal1D(x, coeffThisPoint);
+                    // JL: save the height
                     tile.put(line, pixel, value);
                 }
             }
         }
-
     }
 
     // This is prototype implementation: to be removed in next cleanup....
