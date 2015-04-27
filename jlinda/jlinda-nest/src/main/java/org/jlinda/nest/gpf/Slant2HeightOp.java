@@ -101,29 +101,20 @@ public class Slant2HeightOp extends Operator {
         try {
 
             // work out which is which product: loop through source product and check which product has a 'unwrapped phase' band
-            // JL: check source product for band with abs_phase unit
             sortOutSourceProducts(); // -> declares topoProduct and defoProduct
 
-            // JL: Create masterMap that maps master orbit number to a CplxContainer
             constructSourceMetadata();
-
-            // JL: For every master/slave pair, create a targetMap that maps a product name to a ProductContainer that
-            //     contains both master and slave products.
             constructTargetMetadata();
-
-            // JL: For every master/slave pair, add one target band with meter unit.
             createTargetProduct();
-
-            // JL: get source image dimension
             getSourceImageDimension();
 
             // does the math for slant2height conversion
-            // JL: create a Slant2Height object
             slant2Height();
 
         } catch (Exception e) {
             throw new OperatorException(e);
         }
+
     }
 
     private void slant2Height() throws Exception {
@@ -133,22 +124,16 @@ public class Slant2HeightOp extends Operator {
             for (Integer keySlave : slaveMap.keySet()) {
                 CplxContainer slave = slaveMap.get(keySlave);
 
-                // JL: for every master/slave pair, create a Slant2Height object
-                Slant2Height slant2Height = new Slant2Height(nPoints, nHeights, degree1D, degree2D,
-                        master.metaData, master.orbit, slave.metaData, slave.orbit);
-
-                // JL: set a window of image size
+                Slant2Height slant2Height = new Slant2Height(nPoints, nHeights, degree1D, degree2D, master.metaData, master.orbit, slave.metaData, slave.orbit);
                 slant2Height.setDataWindow(new Window(0, sourceImageHeight, 0, sourceImageWidth));
-
-                // JL: Compute 3 2-d polynomials (21 coefficients): ci = C_i(line_n, pixel_n), for i = 1,2,3,
-                //     where line_n and pixel_n are normalized line and pixel indices, and c_i is the ith coefficient
-                //     for reference phase polynomial ph(h) = c0 + c1*h + c2*h*h.
                 slant2Height.schwabisch();
 
-                // JL: create slant2HeightMap that maps slave date to the slant2Height object
                 slant2HeightMap.put(slave.date, slant2Height);
+
             }
         }
+
+
     }
 
     private void getSourceImageDimension() {
@@ -156,8 +141,6 @@ public class Slant2HeightOp extends Operator {
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
     }
 
-    // JL: create targetMap for every master/slave pair. It maps a product name (masterKey_slaveKey) to
-    //     a ProductContainer that contains both master and slave products.
     private void constructTargetMetadata() {
 
         for (Integer keyMaster : masterMap.keySet()) {
@@ -181,8 +164,6 @@ public class Slant2HeightOp extends Operator {
         }
     }
 
-    // JL: looping through all source bands to check if there is a band with abs_phase unit.
-    //     If not, throw an exception.
     private void sortOutSourceProducts() {
 
         // check whether there are absolute phases bands in the product
@@ -208,13 +189,9 @@ public class Slant2HeightOp extends Operator {
 
         /* organize metadata */
         // put sourceMaster metadata into the masterMap
-        // JL: create masterMap that maps master orbit number to a CplxContainer which contains
-        //     master metadata, orbit and I/Q bands.
         metaMapPut(masterTag, masterMeta, sourceProduct, masterMap);
 
         // pug sourceSlave metadata into slaveDefoMap
-        // JL: create slaveMap which is similar to masterMap. For this operator, there is no slave product,
-        //     there is only one interferogram product. So don't understand why this is needed. Maybe never used.
         slaveRoot = sourceProduct.getMetadataRoot().getElement(slaveMetadataRoot).getElements();
         for (MetadataElement meta : slaveRoot) {
             metaMapPut(slaveTag, meta, sourceProduct, slaveMap);
@@ -287,12 +264,13 @@ public class Slant2HeightOp extends Operator {
         }
 
 //        targetProduct.setPreferredTileSize(1,1);
+
     }
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-
         try {
+
             final Rectangle rect = targetTile.getRectangle();
 //            System.out.println("Original: x0 = " + rect.x + ", y = " + rect.y + ", w = " + rect.width + ", h = " + rect.height);
             final int x0 = rect.x;
@@ -300,7 +278,6 @@ public class Slant2HeightOp extends Operator {
             final int w = rect.width;
             final int h = rect.height;
 
-            // JL: create a window of tile size
             Window tileWindow = new Window(y0, y0 + h - 1, x0, x0 + w - 1);
 
             for (String absPhaseKey : targetMap.keySet()) {
@@ -310,22 +287,17 @@ public class Slant2HeightOp extends Operator {
                 if (targetBand.getName().equals(product.targetBandName_I)) {
 
                     // check out from source
-                    // JL: get source tile for source band (with abs_phase unit)
                     Tile tileRealMaster = getSourceTile(product.sourceMaster.realBand, rect);
-
-                    // JL: get source samples in the source tile and initialize dataMaster matrix
                     final DoubleMatrix dataMaster = TileUtilsDoris.pullDoubleMatrix(tileRealMaster);// check out from source
 
                     // get class for this slave from the map
-                    // JL: get the Slant2Height object created in initialize()
                     Slant2Height slant2Height = slant2HeightMap.get(product.sourceSlave.date);
-
-                    // JL:
                     slant2Height.applySchwabisch(tileWindow, dataMaster);
 
-                    // JL: save samples in dataMaster to target band
                     TileUtilsDoris.pushDoubleMatrix(dataMaster, targetTile, targetTile.getRectangle());
+
                 }
+
             }
 
         } catch (Exception e) {
@@ -338,4 +310,6 @@ public class Slant2HeightOp extends Operator {
             super(Slant2HeightOp.class);
         }
     }
+
+
 }
