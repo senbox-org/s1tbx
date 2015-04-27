@@ -11,6 +11,8 @@
             <tocitem text="TOPSAR Split" target="TOPSARSplitOp"/>
             <tocitem text="Slice Assembly" target="SliceAssemblyOp"/>
             <tocitem text="TOPSAR Merge" target="TOPSARMergeOp"/>
+            <tocitem text="Range Shift" target="RangeShiftOp"/>
+            <tocitem text="Azimuth Shift" target="AzimuthShiftOp"/>
         </tocitem>
     </tocitem>
 

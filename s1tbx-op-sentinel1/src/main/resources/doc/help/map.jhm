@@ -12,4 +12,5 @@
     <mapID target="SliceAssemblyOp" url="operators/SliceAssemblyOp.html"/>
     <mapID target="TOPSARMergeOp" url="operators/TOPSARMergeOp.html"/>
     <mapID target="RangeShiftOp" url="operators/RangeShiftOp.html"/>
+    <mapID target="AzimuthShiftOp" url="operators/AzimuthShiftOp.html"/>
 </map>
