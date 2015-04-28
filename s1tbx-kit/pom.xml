@@ -51,16 +51,6 @@
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-dem</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-dem-ui</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-io</artifactId>
             <version>${project.version}</version>
         </dependency>

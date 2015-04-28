@@ -1,10 +1,7 @@
 package org.jlinda.nest.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.dataio.dem.ElevationModel;
-import org.esa.s1tbx.dataio.dem.ElevationModelDescriptor;
-import org.esa.s1tbx.dataio.dem.ElevationModelRegistry;
-import org.esa.s1tbx.dataio.dem.FileElevationModel;
+import org.esa.snap.dataio.dem.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
@@ -14,6 +11,9 @@ import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.VirtualBand;
+import org.esa.snap.framework.dataop.dem.ElevationModel;
+import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
@@ -44,7 +44,7 @@ import org.jlinda.nest.utils.CplxContainer;
 import org.jlinda.nest.utils.ProductContainer;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

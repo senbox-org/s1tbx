@@ -37,7 +37,7 @@ import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.ResourceUtils;
-import org.esa.snap.util.XMLSupport;
+import org.esa.snap.framework.dataop.downloadable.XMLSupport;
 import org.jdom2.Document;
 import org.jdom2.Element;
 

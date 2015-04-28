@@ -1,7 +1,7 @@
 package org.esa.s1tbx.gpf.geometric;
 
 import org.apache.commons.math3.util.FastMath;
-import org.esa.s1tbx.dataio.dem.ElevationModel;
+import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.PosVector;

@@ -1,6 +1,6 @@
 package org.esa.s1tbx.dataio.TAXI;
 
-import org.esa.snap.util.XMLSupport;
+import org.esa.snap.framework.dataop.downloadable.XMLSupport;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;

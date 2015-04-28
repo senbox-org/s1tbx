@@ -22,7 +22,7 @@ import org.esa.snap.datamodel.Orbits;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.util.Settings;
-import org.esa.snap.util.ftpUtils;
+import org.esa.snap.framework.dataop.downloadable.ftpUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,12 +58,12 @@ public class PrareOrbitFile extends BaseOrbitFile {
         final String remoteHTTPFolder;
         if (mission.equals("ERS1")) {
             orbitPath = Settings.instance().get("OrbitFiles.prareERS1OrbitPath");
-            remoteBaseFolder = ftpUtils.getPathFromSettings("OrbitFiles.prareFTP_ERS1_remotePath");
-            remoteHTTPFolder = ftpUtils.getPathFromSettings("OrbitFiles.prareHTTP_ERS1_remotePath");
+            remoteBaseFolder = Settings.getPath("OrbitFiles.prareFTP_ERS1_remotePath");
+            remoteHTTPFolder = Settings.getPath("OrbitFiles.prareHTTP_ERS1_remotePath");
         } else {
             orbitPath = Settings.instance().get("OrbitFiles.prareERS2OrbitPath");
-            remoteBaseFolder = ftpUtils.getPathFromSettings("OrbitFiles.prareFTP_ERS2_remotePath");
-            remoteHTTPFolder = ftpUtils.getPathFromSettings("OrbitFiles.prareHTTP_ERS2_remotePath");
+            remoteBaseFolder = Settings.getPath("OrbitFiles.prareFTP_ERS2_remotePath");
+            remoteHTTPFolder = Settings.getPath("OrbitFiles.prareHTTP_ERS2_remotePath");
         }
 
         // get product start time

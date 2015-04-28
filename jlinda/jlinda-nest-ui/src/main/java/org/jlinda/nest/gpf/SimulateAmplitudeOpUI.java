@@ -1,7 +1,7 @@
 package org.jlinda.nest.gpf;
 
-import org.esa.s1tbx.dataio.dem.ElevationModelDescriptor;
-import org.esa.s1tbx.dataio.dem.ElevationModelRegistry;
+import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.gpf.ui.BaseOperatorUI;
 import org.esa.snap.gpf.ui.OperatorUIUtils;

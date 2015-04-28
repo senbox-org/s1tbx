@@ -25,7 +25,6 @@ import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.Settings;
-import org.esa.snap.util.ftpUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
@@ -170,7 +169,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         }
 
         final File localFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath"), String.valueOf(year));
-        final URL remotePath = new URL(ftpUtils.getPathFromSettings("OrbitFiles.sentinel1POEOrbit_remotePath"));
+        final URL remotePath = new URL(Settings.getPath("OrbitFiles.sentinel1POEOrbit_remotePath"));
         final File localFile = new File(localFolder, year+"-"+month+".zip");
 
         final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);

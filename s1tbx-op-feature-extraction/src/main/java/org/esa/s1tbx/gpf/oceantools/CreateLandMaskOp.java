@@ -16,14 +16,14 @@
 package org.esa.s1tbx.gpf.oceantools;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.dataio.dem.DEMFactory;
-import org.esa.s1tbx.dataio.dem.ElevationModel;
-import org.esa.s1tbx.dataio.dem.ElevationModelDescriptor;
-import org.esa.s1tbx.dataio.dem.ElevationModelRegistry;
+import org.esa.snap.dataio.dem.DEMFactory;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.VirtualBand;
+import org.esa.snap.framework.dataop.dem.ElevationModel;
+import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
@@ -38,7 +38,7 @@ import org.esa.snap.gpf.TileGeoreferencing;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.ProductUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
