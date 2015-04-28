@@ -19,8 +19,9 @@ import org.esa.snap.util.Debug;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileChooserFactory;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import java.awt.Component;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -49,7 +50,7 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
 
     protected AbstractElevationModelDescriptor() {
         demPropertiesDir = new File(SystemUtils.getApplicationDataDir(),
-                                    "beam-core/auxdata/dem" + File.separator + getName());
+                                    "snap-core/auxdata/dem" + File.separator + getName());
         if (!demPropertiesDir.exists()) {
             demPropertiesDir.mkdirs();
         }
@@ -58,7 +59,7 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
     }
 
     /**
-     * Gets the DEM properties file "${BEAM-HOME}/beam-core/auxdata/dem/${DEM}/dem.properties".
+     * Gets the DEM properties file "${USER_APP_DATA}/snap-core/auxdata/dem/${DEM}/dem.properties".
      */
     public File getDemPropertiesFile() {
         return new File(demPropertiesDir, PROPERTIES_FILE_NAME);
@@ -143,7 +144,7 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
     }
 
     /**
-     * Loads DEM properties from the "${BEAM-HOME}/beam-core/auxdata/dem/${DEM}/dem.properties" file.
+     * Loads DEM properties from the "${USER_APP_DATA}/snap-core/auxdata/dem/${DEM}/dem.properties" file.
      */
     protected Properties loadProperties() {
         final Properties properties = new Properties();
@@ -167,7 +168,7 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
     }
 
     /**
-     * Stores DEM properties in the "${BEAM-HOME}/beam-core/auxdata/dem/${DEM}/dem.properties" file.
+     * Stores DEM properties in the "${USER_APP_DATA}/snap-core/auxdata/dem/${DEM}/dem.properties" file.
      */
     protected void storeProperties() {
         final Properties properties = new Properties();
@@ -181,7 +182,7 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
     }
 
     /**
-     * Stores DEM properties in the "${BEAM-HOME}/beam-core/auxdata/dem/${DEM}/dem.properties" file.
+     * Stores DEM properties in the "${USER_APP_DATA}/snap-core/auxdata/dem/${DEM}/dem.properties" file.
      *
      * @param properties the properties
      */
