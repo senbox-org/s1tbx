@@ -34,10 +34,7 @@ import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
-import org.esa.snap.gpf.InputProductValidator;
-import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.gpf.TileIndex;
+import org.esa.snap.gpf.*;
 import org.jblas.*;
 import org.jlinda.core.Orbit;
 import org.jlinda.core.Point;
@@ -502,6 +499,7 @@ public class CreateInterferogramOp extends Operator {
 
         double masterMinPi4divLam = (-4 * Math.PI * org.jlinda.core.Constants.SOL) / masterMetadata.getRadarWavelength();
         double slaveMinPi4divLam = (-4 * Math.PI * org.jlinda.core.Constants.SOL) / slaveMetadata.getRadarWavelength();
+        final boolean isBiStaticStack = StackUtils.isBiStaticStack(sourceProduct);
 
         // Loop through vector or distributedPoints()
         for (int i = 0; i < srpNumberPoints; ++i) {
@@ -516,7 +514,12 @@ public class CreateInterferogramOp extends Operator {
             org.jlinda.core.Point xyzMaster = masterOrbit.lph2xyz(line + 1, pixel + 1, avgSceneHeight, masterMetadata);
             org.jlinda.core.Point slaveTimeVector = slaveOrbit.xyz2t(xyzMaster, slaveMetadata);
 
-            final double slaveTimeRange = slaveTimeVector.x;
+            double slaveTimeRange;
+            if (isBiStaticStack) {
+                slaveTimeRange = 0.5*(slaveTimeVector.x + masterTimeRange);
+            } else {
+                slaveTimeRange = slaveTimeVector.x;
+            }
 
             // observation vector
             y.put(i, (masterMinPi4divLam * masterTimeRange) - (slaveMinPi4divLam * slaveTimeRange));

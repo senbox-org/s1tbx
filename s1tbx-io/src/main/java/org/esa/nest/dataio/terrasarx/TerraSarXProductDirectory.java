@@ -194,6 +194,8 @@ public class TerraSarXProductDirectory extends XMLProductDirectory {
         AbstractMetadataIO.AddXMLMetadata(mainRootElement, cosscMetadataElem);
         metadataRoot.addElement(cosscMetadataElem);
 
+        // Turn on the bi-static flag
+        abstractedMetadata.setAttributeInt("bistatic_stack", 1);
 
         // Add the slave metadata
         metadataRoot.addElement(slaveRoot);

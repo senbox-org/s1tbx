@@ -1,0 +1,32 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Help - Sentinel-1</title>
+
+
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link rel="stylesheet" href="../style.css"></head><body>
+<table class="header">
+<tbody>
+<tr class="header">
+<td class="header">&nbsp; Azimuth Shift<br>
+</td>
+<td class="header" align="right"><a href="../general/Overview.html"><img src="../images/snap_header.jpg" border="0"></a></td>
+</tr>
+</tbody>
+</table>
+<h3>Sentinel-1 Azimuth Shift</h3>
+<p class="MsoNormal"><span>This opaerator follows the Range Shift
+operator in the TOPS InSAR processing chain. It first estimates a
+global azimuth offset for the whole sub-swath of the split S-1 SLC
+image using a Enhanced Spectral Diversity (ESD) method. The ESD
+approach exploits the data at the overlapped area of the adjacent
+bursts. The estimation is done for every overlapped area and the final azimuth offset is obtained by averaging all the estimations.<br>
+</span></p>
+<p class="MsoNormal"><span>The operator then performs shift in azimuth
+direction for every burst using the offset computed above and a phase
+ramp method in frequency domain</span>.<br>
+<span style=""><o:p></o:p></span></p>
+ <br>
+<hr>
+</body></html>
