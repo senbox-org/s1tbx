@@ -3,7 +3,7 @@
         "http://java.sun.com/products/javahelp/toc_2_0.dtd">
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
-    <tocitem text="VISAT">
+    <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Tools">
             <tocitem text="Import and Export Tools">
                 <tocitem text="Import Raster Data">
