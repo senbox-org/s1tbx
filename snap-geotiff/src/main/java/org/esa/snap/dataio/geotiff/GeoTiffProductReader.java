@@ -73,9 +73,7 @@ import javax.imageio.stream.ImageInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
@@ -86,6 +84,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -93,6 +92,8 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class GeoTiffProductReader extends AbstractProductReader {
 
@@ -117,6 +118,19 @@ public class GeoTiffProductReader extends AbstractProductReader {
         }
         if (input instanceof File) {
             inputFile = (File) input;
+            if(inputFile.getName().toLowerCase().endsWith(".zip")) {
+                final ZipFile productZip = new ZipFile(inputFile, ZipFile.OPEN_READ);
+                // get first tif
+                final Enumeration<? extends ZipEntry> entries = productZip.entries();
+                while(entries.hasMoreElements()) {
+                    final ZipEntry zipEntry = entries.nextElement();
+                    final String name = zipEntry.getName().toLowerCase();
+                    if(name.endsWith(".tif") || name.endsWith(".tiff")) {
+                        input = productZip.getInputStream(zipEntry);
+                        break;
+                    }
+                }
+            }
         }
         inputStream = ImageIO.createImageInputStream(input);
         return readGeoTIFFProduct(inputStream, inputFile);
