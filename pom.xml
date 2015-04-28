@@ -61,7 +61,6 @@
         <module>s1tbx-op-sentinel1-ui</module>
 		<module>s1tbx-op-utilities</module>
         <module>s1tbx-op-utilities-ui</module>
-		<module>s1tbx-product-library</module>
 		<module>s1tbx-rcp</module>
 		<module>s1tbx-worldwind</module>
 		
@@ -1365,6 +1364,13 @@
             <id>benchmark</id>
             <modules>
 				<module>s1tbx-benchmark</module>
+            </modules>
+		</profile>
+		<profile>
+            <id>s1tbx</id>
+            <modules>
+				<module>../snap-engine</module>
+				<module>../snap-desktop</module>
             </modules>
 		</profile>
         <profile>
