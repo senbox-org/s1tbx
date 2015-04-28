@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='ISO-8859-1'  ?>
+<!DOCTYPE toc
+        PUBLIC
+        "-//Sun Microsystems Inc.//DTD
+     JavaHelp TOC Version 2.0//EN"
+        "http://java.sun.com/products/javahelp/toc_2_0.dtd">
+
+<toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
+
+    <tocitem text="Sentinel Toolbox Application">
+        <tocitem text="Tools">
+            <tocitem text="Import and Export Tools">
+                <tocitem text="Import Raster Data">
+                    <tocitem text="SAR Sensors">
+                        <tocitem text="Sentinel-1" target="importSentinel1Product"/>
+                        <tocitem text="ENVISAT" target="importEnvisatProduct"/>
+                        <tocitem text="ERS (.E1, .E2)" target="importErsProduct"/>
+                        <tocitem text="ERS CEOS" target="ImportERSCeos"/>
+                        <tocitem text="JERS CEOS" target="ImportJERSCeos"/>
+                        <tocitem text="ALOS PALSAR" target="ImportAlosPalsar"/>
+                        <tocitem text="Radarsat-1" target="ImportRadarsat1"/>
+                        <tocitem text="Radarsat-2" target="ImportRadarsat2"/>
+                        <tocitem text="TerraSarX" target="ImportTerraSarX"/>
+                        <tocitem text="Cosmo-Skymed" target="ImportCosmoSkymed"/>
+                        <tocitem text="PolsarPro" target="ImportPolsarPro"/>
+                    </tocitem>
+                    <tocitem text="DEMs">
+                        <tocitem text="GETASSE30 Tile" target="importGETASSE30"/>
+                        <tocitem text="GTOPO30 Tile" target="importGTOPO30"/>
+                        <tocitem text="ACE DEM Tile" target="importACE"/>
+                        <tocitem text="SRTM DEM Tile" target="importSRTM"/>
+                    </tocitem>
+                    <tocitem text="Generic Formats">
+                        <tocitem text="Generic Binary" target="importGenericBinary"/>
+                        <tocitem text="Complex Generic Binary" target="importComplexGenericBinary"/>
+                    </tocitem>
+                </tocitem>
+            </tocitem>
+
+        </tocitem>
+    </tocitem>
+
+</toc>

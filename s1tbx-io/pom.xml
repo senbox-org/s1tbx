@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>s1tbx-io</artifactId>
-    <name>S1TBX Readers and Writers</name>
+    <name>S1TBX IO</name>
 	
     <packaging>nbm</packaging>
 

@@ -145,4 +145,12 @@
         </folder>
     </folder>
 
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="org-esa-s1tbx-s1tbx-io-helpset.xml" url="helpset.xml">
+                <attr name="position" intvalue="4700"/>
+            </file>
+        </folder>
+    </folder>
+
 </filesystem>

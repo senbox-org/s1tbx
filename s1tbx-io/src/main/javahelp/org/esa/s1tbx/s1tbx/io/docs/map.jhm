@@ -23,31 +23,9 @@
     <mapID target="importACE" url="readers/ImportACE.html"/>
     <mapID target="importSRTM" url="readers/ImportSRTM.html"/>
     <!-- Common File Formats -->
-    <mapID target="ImportGeoTIFF" url="readers/ImportGeoTIFF.html"/>
-    <mapID target="ImportImageIO" url="readers/ImportImageIO.html"/>
-    <mapID target="importNetCDF" url="readers/ImportNetCDF.html"/>
-    <mapID target="importHDF" url="readers/ImportHDF.html"/>
     <mapID target="importGenericBinary" url="readers/ImportGenericBinary.html"/>
     <mapID target="importComplexGenericBinary" url="readers/ImportComplexGenericBinary.html"/>
-    <mapID target="importDimapProduct" url="readers/BeamDimapFormat.html"/>
-    <mapID target="ImportEnvi" url="readers/ImportEnvi.html"/>
-    <!-- Multispectral -->
-    <mapID target="importLandsatTMProduct" url="readers/ImportLandsatTM.html"/>
-    <mapID target="ImportAlosAVNIR2" url="readers/ImportAVNIR2.html"/>
-    <mapID target="ImportAlosPRISM" url="readers/ImportPRISM.html"/>
-
-    <mapID target="importGeometry" url="readers/ImportGeometry.html"/>
 
     <!-- Product Writers -->
-    <mapID target="exportDimapProduct" url="writers/ExportDimapProduct.html"/>
-    <mapID target="exportEnviGcpFile" url="writers/ExportEnviGcpFile.html"/>
-    <mapID target="exportHdf5Product" url="writers/ExportHDF.html"/>
-    <mapID target="exportNetCDF" url="writers/ExportNetCDF.html"/>
-    <mapID target="exportImageFile" url="writers/ExportImage.html"/>
-    <mapID target="exportKml" url="writers/ExportKml.html"/>
-    <mapID target="exportROIPixels" url="writers/ExportROIPixels.html"/>
-    <mapID target="exportTransectPixels" url="writers/ExportTransectPixels.html"/>
-    <mapID target="exportGeoTIFF" url="writers/ExportGeoTIFF.html"/>
-    <mapID target="exportColorPalette" url="writers/ExportColorPalette.html"/>
 
 </map>
