@@ -15,157 +15,48 @@
  */
 package org.esa.snap.dataio.getasse30;
 
-import com.bc.ceres.core.Assert;
-import org.esa.snap.framework.dataio.ProductIOPlugInManager;
-import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.framework.datamodel.GeoPos;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.framework.datamodel.PixelPos;
+import org.esa.snap.framework.dataop.dem.BaseElevationModel;
+import org.esa.snap.framework.dataop.dem.ElevationFile;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
-public class GETASSE30ElevationModel implements ElevationModel, Resampling.Raster {
+public class GETASSE30ElevationModel extends BaseElevationModel {
 
-    public static final int NUM_X_TILES = GETASSE30ElevationModelDescriptor.NUM_X_TILES;
-    public static final int NUM_Y_TILES = GETASSE30ElevationModelDescriptor.NUM_Y_TILES;
-    public static final int DEGREE_RES = GETASSE30ElevationModelDescriptor.DEGREE_RES;
-    public static final int NUM_PIXELS_PER_TILE = GETASSE30ElevationModelDescriptor.PIXEL_RES;
-    public static final int NO_DATA_VALUE = GETASSE30ElevationModelDescriptor.NO_DATA_VALUE;
-    public static final int RASTER_WIDTH = NUM_X_TILES * NUM_PIXELS_PER_TILE;
-    public static final int RASTER_HEIGHT = NUM_Y_TILES * NUM_PIXELS_PER_TILE;
+    private static final ProductReaderPlugIn productReaderPlugIn = getReaderPlugIn(GETASSE30ReaderPlugIn.FORMAT_NAME);
 
-    private final GETASSE30ElevationModelDescriptor descriptor;
-    private final GETASSE30ElevationTile[][] elevationTiles;
-    private final List<GETASSE30ElevationTile> elevationTileCache;
-    private final Resampling resampling;
-    private final Resampling.Index resamplingIndex;
-    private final Resampling.Raster resamplingRaster;
-
-    public GETASSE30ElevationModel(GETASSE30ElevationModelDescriptor descriptor, Resampling resampling) throws IOException {
-        Assert.notNull(descriptor, "descriptor");
-        Assert.notNull(resampling, "resampling");
-        this.descriptor = descriptor;
-        this.resampling = resampling;
-        this.resamplingIndex = resampling.createIndex();
-        this.resamplingRaster = this;
-        this.elevationTiles = createElevationTiles();
-        this.elevationTileCache = new ArrayList<GETASSE30ElevationTile>();
+    public GETASSE30ElevationModel(final GETASSE30ElevationModelDescriptor descriptor, final Resampling resamplingMethod) throws IOException {
+        super(descriptor, resamplingMethod);
     }
 
     @Override
-    public ElevationModelDescriptor getDescriptor() {
-        return descriptor;
+    public double getIndexX(final GeoPos geoPos) {
+        return (geoPos.lon + 180.0) / DEGREE_RES_BY_NUM_PIXELS_PER_TILE;
     }
 
     @Override
-    public double getElevation(GeoPos geoPos) throws Exception {
-        double pixelX = (geoPos.lon + 180.0f) / DEGREE_RES * NUM_PIXELS_PER_TILE; // todo (nf) - consider 0.5
-        double pixelY = RASTER_HEIGHT - (geoPos.lat + 90.0f) / DEGREE_RES * NUM_PIXELS_PER_TILE; // todo (nf) - consider 0.5, y = (90 - lon) / DEGREE_RES * NUM_PIXELS_PER_TILE;
-        final double elevation;
-        synchronized (resampling) {
-            resampling.computeIndex(pixelX, pixelY,
-                                     RASTER_WIDTH,
-                                     RASTER_HEIGHT,
-                                     resamplingIndex);
-            elevation = resampling.resample(resamplingRaster, resamplingIndex);
-        }
-        if (Double.isNaN(elevation)) {
-            return descriptor.getNoDataValue();
-        }
-        return elevation;
+    public double getIndexY(final GeoPos geoPos) {
+        return RASTER_HEIGHT - (geoPos.lat + 90.0f) / DEGREE_RES_BY_NUM_PIXELS_PER_TILE;
     }
 
     @Override
-    public Resampling getResampling() {
-        return resampling;
+    public GeoPos getGeoPos(final PixelPos pixelPos) {
+        final double pixelLat = (RASTER_HEIGHT - pixelPos.y) * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 90.0;
+        final double pixelLon = pixelPos.x * DEGREE_RES_BY_NUM_PIXELS_PER_TILE - 180.0;
+        return new GeoPos(pixelLat, pixelLon);
     }
 
     @Override
-    public void dispose() {
-        elevationTileCache.clear();
-        for (GETASSE30ElevationTile[] elevationTile : elevationTiles) {
-            for (GETASSE30ElevationTile anElevationTile : elevationTile) {
-                anElevationTile.dispose();
-            }
-        }
-    }
-
-    @Override
-    public int getWidth() {
-        return RASTER_WIDTH;
-    }
-
-    @Override
-    public int getHeight() {
-        return RASTER_HEIGHT;
-    }
-
-    @Override
-    public final boolean getSamples(final int[] x, final int[] y, final double[][] samples) throws Exception {
-        boolean allValid = true;
-        for (int i = 0; i < y.length; i++) {
-            final int tileYIndex = y[i] / NUM_PIXELS_PER_TILE;
-            final int pixelY = y[i] - tileYIndex * NUM_PIXELS_PER_TILE;
-
-            for (int j = 0; j < x.length; j++) {
-                final int tileXIndex = x[j] / NUM_PIXELS_PER_TILE;
-
-                final GETASSE30ElevationTile tile = getElevationTile(tileXIndex, tileYIndex);
-                if (tile == null) {
-                    samples[i][j] = Double.NaN;
-                    allValid = false;
-                    continue;
-                }
-
-                samples[i][j] = tile.getSample(x[j] - tileXIndex * NUM_PIXELS_PER_TILE, pixelY);
-                if(samples[i][j] == NO_DATA_VALUE) {
-                    samples[i][j] = Double.NaN;
-                    allValid = false;
-                }
-            }
-        }
-        return allValid;
-    }
-
-    private GETASSE30ElevationTile[][] createElevationTiles() throws IOException {
-        final GETASSE30ElevationTile[][] elevationTiles = new GETASSE30ElevationTile[NUM_X_TILES][NUM_Y_TILES];
-        final ProductReaderPlugIn getasse30ReaderPlugIn = getGETASSE30ReaderPlugIn();
-        for (int i = 0; i < elevationTiles.length; i++) {
-            for (int j = 0; j < elevationTiles[i].length; j++) {
-                final ProductReader productReader = getasse30ReaderPlugIn.createReaderInstance();
-                final int minLon = i * DEGREE_RES - 180;
-                final int minLat = j * DEGREE_RES - 90;
-                final Product product = productReader.readProductNodes(descriptor.getTileFile(minLon, minLat), null);
-                elevationTiles[i][NUM_Y_TILES - 1 - j] = new GETASSE30ElevationTile(this, product);
-            }
-        }
-        return elevationTiles;
-    }
-
-    public void updateCache(GETASSE30ElevationTile tile) {
-        elevationTileCache.remove(tile);
-        elevationTileCache.add(0, tile);
-        while (elevationTileCache.size() > 60) {
-            final int index = elevationTileCache.size() - 1;
-            GETASSE30ElevationTile lastTile = elevationTileCache.get(index);
-            lastTile.clearCache();
-            elevationTileCache.remove(index);
-        }
-    }
-
-    private GETASSE30ElevationTile getElevationTile(final int lonIndex, final int latIndex) {
-        return elevationTiles[lonIndex][latIndex];
-    }
-
-    private static GETASSE30ReaderPlugIn getGETASSE30ReaderPlugIn() {
-        final Iterator readerPlugIns = ProductIOPlugInManager.getInstance().getReaderPlugIns(
-                GETASSE30ReaderPlugIn.FORMAT_NAME);
-        return (GETASSE30ReaderPlugIn) readerPlugIns.next();
+    protected void createElevationFile(final ElevationFile[][] elevationFiles,
+                                       final int x, final int y, final File demInstallDir) {
+        final int minLon = x * DEGREE_RES - 180;
+        final int minLat = y * DEGREE_RES - 90;
+        final String fileName = descriptor.createTileFilename(minLat, minLon);
+        final File localFile = new File(demInstallDir, fileName);
+        elevationFiles[x][NUM_Y_TILES - 1 - y] = new GETASSE30File(this, localFile, productReaderPlugIn.createReaderInstance());
     }
 }

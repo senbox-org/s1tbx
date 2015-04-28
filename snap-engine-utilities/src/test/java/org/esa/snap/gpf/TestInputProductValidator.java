@@ -4,6 +4,7 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -55,6 +56,7 @@ public class TestInputProductValidator {
     }
 
     @Test
+    @Ignore
     public void TestSentinel1GRDProduct() throws Exception {
         final File inputFile = TestData.inputS1_GRD;
         if(!inputFile.exists()) {
@@ -71,6 +73,7 @@ public class TestInputProductValidator {
     }
 
     @Test
+    @Ignore
     public void TestSentinel1SLCProduct() throws Exception {
         final File inputFile = TestData.inputS1_StripmapSLC;
         if(!inputFile.exists()) {

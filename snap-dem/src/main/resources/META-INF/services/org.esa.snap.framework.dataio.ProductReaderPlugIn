@@ -1,0 +1,2 @@
+org.esa.snap.dataio.dem.ace.ACEReaderPlugIn
+org.esa.snap.dataio.dem.ace2_5min.ACE2_5MinReaderPlugIn

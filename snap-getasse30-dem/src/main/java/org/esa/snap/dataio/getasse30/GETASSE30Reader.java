@@ -74,7 +74,7 @@ public class GETASSE30Reader extends AbstractProductReader {
         try {
             final String ext = FileUtils.getExtension(dataFile);
             if (".zip".equalsIgnoreCase(ext)) {
-                final String entryName = FileUtils.getFilenameWithoutExtension(dataFile.getName());
+                final String entryName = FileUtils.getFilenameWithoutExtension(dataFile.getName()) + ".GETASSE30";
                 _zipFile = new ZipFile(dataFile);
                 final ZipEntry entry = getZipEntryIgnoreCase(entryName);
                 final InputStream inputStream = _zipFile.getInputStream(entry);

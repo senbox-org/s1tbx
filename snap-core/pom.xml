@@ -97,6 +97,11 @@
             <groupId>org.geotools</groupId>
             <artifactId>gt-render</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.3</version>
+        </dependency>
 
         <!-- JUnit dependency is needed because it is used in production code -->
         <dependency>

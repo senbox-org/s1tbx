@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Brockmann Consult GmbH (info@brockmann-consult.de)
+ * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,8 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-
-package org.esa.snap.dataio.getasse30;
+package org.esa.snap.dataio.dem;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.util.CachingObjectArray;
@@ -22,25 +21,27 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class GETASSE30ElevationTile {
+class FileElevationTile {
 
-    private GETASSE30ElevationModel _dem;
-    private CachingObjectArray _linesCache;
-    private Product _product;
+    private CachingObjectArray linesCache;
+    private Product product;
+    private static final int maxLines = 500;
+    private final List<Integer> indexList = new ArrayList<Integer>(maxLines);
 
-    public GETASSE30ElevationTile(final GETASSE30ElevationModel dem, final Product product) {
-        _dem = dem;
-        _product = product;
+    public FileElevationTile(final Product product) {
+        this.product = product;
 
-        _linesCache = new CachingObjectArray(getLineFactory());
-        _linesCache.setCachedRange(0, product.getSceneRasterHeight());
+        linesCache = new CachingObjectArray(getLineFactory());
+        linesCache.setCachedRange(0, product.getBandAt(0).getSceneRasterHeight());
     }
 
     public float getSample(int pixelX, int pixelY) throws IOException {
         final float[] line;
         try {
-            line = (float[]) _linesCache.getObject(pixelY);
+            line = (float[]) linesCache.getObject(pixelY);
         } catch (Exception e) {
             throw convertLineCacheException(e);
         }
@@ -49,27 +50,36 @@ public class GETASSE30ElevationTile {
 
     public void dispose() {
         clearCache();
-        _linesCache = null;
-        if (_product != null) {
-            _product.dispose();
-            _product = null;
+        linesCache = null;
+        if (product != null) {
+            product.dispose();
+            product = null;
         }
-        _dem = null;
     }
 
     public void clearCache() {
-        _linesCache.clear();
+        linesCache.clear();
     }
 
     private CachingObjectArray.ObjectFactory getLineFactory() {
-        final Band band = _product.getBandAt(0);
-        final int width = _product.getSceneRasterWidth();
+        final Band band = product.getBandAt(0);
+        final int width = product.getSceneRasterWidth();
         return new CachingObjectArray.ObjectFactory() {
-            public Object createObject(int index) throws Exception {
-                _dem.updateCache(GETASSE30ElevationTile.this);
+            public Object createObject(final int index) throws Exception {
+                updateCache(index);
                 return band.readPixels(0, index, width, 1, new float[width], ProgressMonitor.NULL);
             }
         };
+    }
+
+    private void updateCache(int index) {
+        indexList.remove((Object) index);
+        indexList.add(0, index);
+        if (indexList.size() > maxLines) {
+            final int i = indexList.size() - 1;
+            linesCache.setObject(i, null);
+            indexList.remove(i);
+        }
     }
 
     private static IOException convertLineCacheException(Exception e) {

@@ -19,9 +19,8 @@ import org.esa.snap.util.Debug;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileChooserFactory;
 
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

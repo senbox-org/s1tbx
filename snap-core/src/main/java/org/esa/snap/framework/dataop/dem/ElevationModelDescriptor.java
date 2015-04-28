@@ -15,6 +15,7 @@
  */
 package org.esa.snap.framework.dataop.dem;
 
+import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 
@@ -26,7 +27,6 @@ import java.net.URL;
  * specified geographical datum for a given geographical position.
  *
  * @author Norman Fomferra
- * @version $Revision$
  */
 public interface ElevationModelDescriptor {
 
@@ -55,6 +55,55 @@ public interface ElevationModelDescriptor {
      * @return the  no-data value, e.g. -99999
      */
     float getNoDataValue();
+
+    /**
+     * Gets the (raster) width of this elevation map.
+     *
+     * @return the  width value, e.g. 15000
+     */
+    int getRasterWidth();
+
+    /**
+     * Gets the (raster) height of this elevation map.
+     *
+     * @return the (raster) height value, e.g. 30000
+     */
+    int getRasterHeight();
+
+    /**
+     * Gets the geo-origin of this elevation map (upper-left-corner).
+     *
+     * @return the  (lat,lon) value, e.g.
+     */
+    GeoPos getRasterOrigin();
+
+    /**
+     * Gets the resolution (in degrees) of this elevation map.
+     *
+     * @return the  (degree) value, e.g.
+     */
+    int getDegreeRes();
+
+    /**
+     * Gets the resolution (in pixels) of this elevation map.
+     *
+     * @return the  (pixels) value, e.g.
+     */
+    int getPixelRes();
+
+    /**
+     * Gets the number of tiles in x direction
+     *
+     * @return number of rows
+     */
+    int getNumXTiles();
+
+    /**
+     * Gets the number of tiles in y direction
+     *
+     * @return number of columns
+     */
+    int getNumYTiles();
 
     /**
      * Creates the elevation model instance.
@@ -109,4 +158,12 @@ public interface ElevationModelDescriptor {
      * Currently not used.
      */
     int getInstallationStatus();
+
+    /**
+     * Create the tile filename
+     * @param minLat
+     * @param minLon
+     * @return filename
+     */
+    String createTileFilename(int minLat, int minLon);
 }
