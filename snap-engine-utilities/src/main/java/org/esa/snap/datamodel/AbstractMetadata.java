@@ -145,6 +145,7 @@ public final class AbstractMetadata {
     public static final String rescaling_factor = "rescaling_factor";
 
     public static final String coregistered_stack = "coregistered_stack";
+    public static final String bistatic_stack = "bistatic_stack";
 
     public static final String external_calibration_file = "external_calibration_file";
     public static final String orbit_state_vector_file = "orbit_state_vector_file";

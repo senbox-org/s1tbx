@@ -242,4 +242,10 @@ public final class StackUtils {
         }
         return names;
     }
+
+    public static boolean isBiStaticStack(final Product product) {
+        final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
+        return absRoot != null && absRoot.getAttributeInt(AbstractMetadata.bistatic_stack, 0) == 1;
+    }
+
 }
