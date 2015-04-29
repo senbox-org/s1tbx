@@ -165,10 +165,12 @@ public class Sentinel1Level0Directory extends XMLProductDirectory implements Sen
                 final MetadataElement facility = processing.getElement("facility");
                 if (facility != null) {
                     final MetadataElement software = facility.getElement("software");
-                    final String org = facility.getAttributeString("organisation");
-                    final String name = software.getAttributeString("name");
-                    final String version = software.getAttributeString("version");
-                    AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, org + ' ' + name + ' ' + version);
+                    if(software != null) {
+                        final String org = facility.getAttributeString("organisation");
+                        final String name = software.getAttributeString("name");
+                        final String version = software.getAttributeString("version");
+                        AbstractMetadata.setAttribute(absRoot, AbstractMetadata.ProcessingSystemIdentifier, org + ' ' + name + ' ' + version);
+                    }
                 }
                 final ProductData.UTC start = getTime(processing, "start");
                 AbstractMetadata.setAttribute(absRoot, AbstractMetadata.PROC_TIME, start);

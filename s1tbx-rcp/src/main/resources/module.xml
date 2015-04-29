@@ -346,7 +346,6 @@
             <class>org.esa.nest.dat.actions.TestConnectivityAction</class>
             <text>Test Connectivity</text>
             <shortDescr>Test FTP connection for automatic downloads of DEMs</shortDescr>
-            <placeAfter>checkForUpdate</placeAfter>
         </action>
 
         <action>
@@ -361,8 +360,25 @@
             <smallIcon>icons/About16.gif</smallIcon>
             <largeIcon>icons/About24.gif</largeIcon>
             <helpId>about</helpId>
-            <placeAfter>RequestFeature</placeAfter>
-            <separatorBefore>true</separatorBefore>
+            <placeAfter>Wizards</placeAfter>
+        </action>
+
+        <action>
+            <id>showToolboxesPage</id>
+            <parent>help</parent>
+            <class>org.esa.nest.dat.actions.ShowHomePageAction</class>
+            <text>ESA Toolboxes</text>
+            <shortDescr>Toolboxes home page</shortDescr>
+
+        </action>
+
+        <action>
+            <id>showTutorialsPage</id>
+            <parent>help</parent>
+            <class>org.esa.nest.dat.actions.ShowTutorialsPageAction</class>
+            <text>Sentinel-1 Toolbox Tutorials</text>
+            <shortDescr>Tutorials home page</shortDescr>
+            <placeAfter>showToolboxesPage</placeAfter>
         </action>
 
         <action>
@@ -371,7 +387,7 @@
             <text>Wizards</text>
             <parent>help</parent>
             <smallIcon>/org/esa/snap/icons/wizard-16.png</smallIcon>
-            <placeAfter>helpTopics</placeAfter>
+            <placeAfter>testConnectivity</placeAfter>
         </action>
 
         <action>

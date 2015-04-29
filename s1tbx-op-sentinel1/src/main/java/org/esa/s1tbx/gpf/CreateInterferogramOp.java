@@ -36,6 +36,7 @@ import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
+import org.esa.snap.gpf.StackUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.ProductUtils;
 import org.jblas.ComplexDouble;
@@ -56,7 +57,7 @@ import org.jlinda.nest.utils.ProductContainer;
 import org.jlinda.nest.utils.TileUtilsDoris;
 
 import javax.media.jai.BorderExtender;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -98,15 +99,15 @@ public class CreateInterferogramOp extends Operator {
 
     @Parameter(interval = "(1, 75]",
             description = "Size of coherence estimation window in Azimuth direction",
-            defaultValue = "9",
+            defaultValue = "10",
             label = "Coherence Azimuth Window Size")
-    private int cohWinAz = 9;
+    private int cohWinAz = 10;
 
     @Parameter(interval = "(1, 75]",
             description = "Size of coherence estimation window in Range direction",
-            defaultValue = "45",
+            defaultValue = "10",
             label = "Coherence Range Window Size")
-    private int cohWinRg = 45;
+    private int cohWinRg = 10;
 
     // flat_earth_polynomial container
     private HashMap<String, DoubleMatrix> flatEarthPolyMap = new HashMap<>();
@@ -506,6 +507,7 @@ public class CreateInterferogramOp extends Operator {
 
         double masterMinPi4divLam = (-4 * Math.PI * org.jlinda.core.Constants.SOL) / masterMetadata.getRadarWavelength();
         double slaveMinPi4divLam = (-4 * Math.PI * org.jlinda.core.Constants.SOL) / slaveMetadata.getRadarWavelength();
+        final boolean isBiStaticStack = StackUtils.isBiStaticStack(sourceProduct);
 
         // Loop through vector or distributedPoints()
         for (int i = 0; i < srpNumberPoints; ++i) {
@@ -520,7 +522,12 @@ public class CreateInterferogramOp extends Operator {
             org.jlinda.core.Point xyzMaster = masterOrbit.lph2xyz(line + 1, pixel + 1, avgSceneHeight, masterMetadata);
             org.jlinda.core.Point slaveTimeVector = slaveOrbit.xyz2t(xyzMaster, slaveMetadata);
 
-            final double slaveTimeRange = slaveTimeVector.x;
+            double slaveTimeRange;
+            if (isBiStaticStack) {
+                slaveTimeRange = 0.5*(slaveTimeVector.x + masterTimeRange);
+            } else {
+                slaveTimeRange = slaveTimeVector.x;
+            }
 
             // observation vector
             y.put(i, (masterMinPi4divLam * masterTimeRange) - (slaveMinPi4divLam * slaveTimeRange));

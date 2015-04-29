@@ -16,9 +16,9 @@
 package org.esa.s1tbx.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.datamodel.CalibrationFactory;
-import org.esa.s1tbx.datamodel.Calibrator;
-import org.esa.s1tbx.gpf.CalibrationOp;
+import org.esa.s1tbx.calibration.gpf.support.CalibrationFactory;
+import org.esa.s1tbx.calibration.gpf.support.Calibrator;
+import org.esa.s1tbx.calibration.gpf.CalibrationOp;
 import org.esa.s1tbx.gpf.coregistration.GCPManager;
 import org.esa.s1tbx.gpf.coregistration.WarpOp;
 import org.esa.snap.dataio.dem.DEMFactory;

@@ -19,15 +19,15 @@ import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.framework.ui.command.ExecCommand;
 import org.esa.snap.util.SystemUtils;
 
-import java.awt.Desktop;
+import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 
 /**
  * This action launches the default browser to display the NEST web page.
  */
-public class ShowHomePageAction extends ExecCommand {
-    private static final String HOME_PAGE_URL_DEFAULT = "https://sentinel.esa.int/web/sentinel/toolboxes";
+public class ShowTutorialsPageAction extends ExecCommand {
+    private static final String HOME_PAGE_URL_DEFAULT = "https://sentinel.esa.int/web/sentinel/toolboxes/sentinel-1/tutorials";
 
     /**
      * Launches the default browser to display the NEST web site.
