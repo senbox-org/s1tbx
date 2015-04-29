@@ -126,7 +126,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     private File getDestFolder(final int year) {
         final File orbitFileFolder;
         if(orbitType.endsWith(RESTITUTED)) {
-            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1ResOrbitPath")+File.separator+year);
+            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1RESOrbitPath")+File.separator+year);
         } else {
             orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath")+File.separator+year);
         }
@@ -139,7 +139,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         final File orbitFileFolder;
         if(orbitType.endsWith(RESTITUTED)) {
             prefix = "S1A_OPER_AUX_RESORB_OPOD_";
-            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1ResOrbitPath")+File.separator+year);
+            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1RESOrbitPath")+File.separator+year);
         } else {
             prefix = "S1A_OPER_AUX_POEORB_OPOD_";
             orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath")+File.separator+year);
@@ -173,14 +173,17 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     private void getRemoteFiles(final int year, final int month) throws Exception {
 
+        final File localFolder;
+        final URL remotePath;
         if(orbitType.endsWith(RESTITUTED)) {
-            return;
+            localFolder = new File(Settings.instance().get("OrbitFiles.sentinel1RESOrbitPath"), String.valueOf(year));
+            remotePath = new URL(ftpUtils.getPathFromSettings("OrbitFiles.sentinel1RESOrbit_remotePath"));
+        } else {
+            localFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath"), String.valueOf(year));
+            remotePath = new URL(ftpUtils.getPathFromSettings("OrbitFiles.sentinel1POEOrbit_remotePath"));
         }
 
-        final File localFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath"), String.valueOf(year));
-        final URL remotePath = new URL(ftpUtils.getPathFromSettings("OrbitFiles.sentinel1POEOrbit_remotePath"));
-        final File localFile = new File(localFolder, year+"-"+month+".zip");
-
+        final File localFile = new File(localFolder, year + "-" + month + ".zip");
         final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
         archive.getContentFiles();
     }
