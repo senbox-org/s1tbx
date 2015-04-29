@@ -105,7 +105,9 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             this.orbitFile = findOrbitFile(stateVectorTime, year);
             if(orbitFile == null) {
                 String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
-                throw new OperatorException("No valid orbit file found for " + timeStr + "\nOrbit files may be downloaded from https://qc.sentinel1.eo.esa.int/");
+                final File destFolder = getDestFolder(year);
+                throw new OperatorException("No valid orbit file found for " + timeStr + "\nOrbit files may be downloaded from https://qc.sentinel1.eo.esa.int/"
+                                            +"\nand placed in "+destFolder.getAbsolutePath());
             }
         }
 
@@ -119,6 +121,16 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         checkOrbitFileValidity();
 
         return orbitFile;
+    }
+
+    private File getDestFolder(final int year) {
+        final File orbitFileFolder;
+        if(orbitType.endsWith(RESTITUTED)) {
+            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1ResOrbitPath")+File.separator+year);
+        } else {
+            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath")+File.separator+year);
+        }
+        return orbitFileFolder;
     }
 
     private File findOrbitFile(final double stateVectorTime, final int year) {
