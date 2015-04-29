@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.dat.actions;
 
-import org.esa.snap.dat.dialogs.PromptDialog;
+import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
 import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;

@@ -16,7 +16,7 @@
 package org.esa.s1tbx.dat.wizards;
 
 import org.esa.snap.db.ProductEntry;
-import org.esa.snap.gpf.ui.worldmap.WorldMapUI;
+import org.esa.snap.graphbuilder.gpf.ui.worldmap.WorldMapUI;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;

@@ -64,7 +64,7 @@
         <action>
             <id>SliceAssemblyOp</id>
             <helpId>SliceAssemblyOp</helpId>
-            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
             <text>S-1 Slice Assembly</text>
@@ -76,7 +76,7 @@
         <action>
             <id>TOPSARSplitOp</id>
             <helpId>TOPSARSplitOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
             <text>S-1 TOPS Split</text>
@@ -89,7 +89,7 @@
         <action>
             <id>TOPSARMergeOp</id>
             <helpId>TOPSARMergeOp</helpId>
-            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
             <placeAfter>TOPSARSplitOp</placeAfter>
@@ -102,7 +102,7 @@
         <action>
             <id>TOPSARDeburstOp</id>
             <helpId>TOPSARDeburstOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
             <text>S-1 TOPS Deburst</text>
@@ -115,7 +115,7 @@
         <action>
             <id>Sentinel1SLCtoGRD</id>
             <helpId>Sentinel1SLCtoGRD</helpId>
-            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>Sentinel1</parent>
             <text>S-1 SLC to GRD</text>
@@ -137,7 +137,7 @@
         <action>
             <id>TOPSCoregistration</id>
             <helpId>BackGeocodingOp</helpId>
-            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>TOPSCoregistrationGroup</parent>
             <placeFirst>true</placeFirst>
@@ -152,7 +152,7 @@
         <action>
             <id>BackGeocodingOp</id>
             <helpId>BackGeocodingOp</helpId>
-            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>TOPSCoregistrationGroup</parent>
             <placeAfter>TOPSCoregistration</placeAfter>
@@ -165,7 +165,7 @@
         <action>
             <id>RangeShiftOp</id>
             <helpId>RangeShiftOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>TOPSCoregistrationGroup</parent>
             <placeAfter>BackGeocodingOp</placeAfter>
@@ -179,7 +179,7 @@
         <action>
             <id>AzimuthShiftOp</id>
             <helpId>AzimuthShiftOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>TOPSCoregistrationGroup</parent>
             <placeAfter>RangeShiftOp</placeAfter>
@@ -193,7 +193,7 @@
         <!--action>
             <id>ComputeDerampDemodPhaseOp</id>
             <helpId>ComputeDerampDemodPhaseOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>TOPSCoregistrationGroup</parent>
             <text>Compute Deramp Demodulation Phase</text>
@@ -206,7 +206,7 @@
         <action>
             <id>InterferogramOp</id>
             <helpId>InterferogramOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Interferogram Formation</text>
             <operatorName>Interferogram</operatorName>

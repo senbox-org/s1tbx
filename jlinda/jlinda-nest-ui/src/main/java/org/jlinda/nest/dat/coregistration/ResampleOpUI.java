@@ -2,8 +2,8 @@ package org.jlinda.nest.dat.coregistration;
 
 import org.esa.snap.dataio.dem.DEMFactory;
 import org.esa.snap.framework.ui.AppContext;
-import org.esa.snap.gpf.ui.BaseOperatorUI;
-import org.esa.snap.gpf.ui.UIValidation;
+import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
+import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.util.DialogUtils;
 import org.jlinda.nest.gpf.coregistration.ResampleOp;
 

@@ -5,7 +5,7 @@
         <folder name="Operators">
             <file name="org-esa-s1tbx-gpf-CalibrationOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Calibrate"/>
                 <attr name="operatorName" stringvalue="Calibration"/>
                 <attr name="dialogTitle" stringvalue="Calibration"/>
@@ -15,7 +15,7 @@
             </file>
             <file name="org-esa-s1tbx-gpf-RemoveAntennaPatternOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Remove Antenna Pattern"/>
                 <attr name="operatorName" stringvalue="RemoveAntennaPattern"/>
                 <attr name="dialogTitle" stringvalue="Remove Antenna Pattern"/>
@@ -25,7 +25,7 @@
             </file>
             <file name="org-esa-s1tbx-gpf-Sentinel1RemoveThermalNoiseOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="S-1 Thermal Noise Removal"/>
                 <attr name="operatorName" stringvalue="ThermalNoiseRemoval"/>
                 <attr name="dialogTitle" stringvalue="S-1 Thermal Noise Removal"/>

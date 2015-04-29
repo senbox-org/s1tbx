@@ -19,8 +19,8 @@ import com.bc.ceres.swing.TableLayout;
 import org.esa.snap.framework.gpf.ui.TargetProductSelector;
 import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.framework.ui.BasicApp;
-import org.esa.snap.gpf.ui.BaseOperatorUI;
-import org.esa.snap.gpf.ui.UIValidation;
+import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
+import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.util.DialogUtils;
 import org.esa.snap.util.SystemUtils;
 

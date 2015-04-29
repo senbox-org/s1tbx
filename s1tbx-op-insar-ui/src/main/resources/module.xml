@@ -67,7 +67,7 @@
         <action>
             <id>CreateStack</id>
             <helpId>CreateStack</helpId>
-            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>tools</parent>
             <text>Create Stack</text>
@@ -79,7 +79,7 @@
         <action>
             <id>CoregistrationGraph</id>
             <helpId>Coregistration</helpId>
-            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>CoregistrationGroup</parent>
             <placeAfter>TOPSCoregistrationGroup</placeAfter>
@@ -92,7 +92,7 @@
         <!--action>
             <id>DEMBasedCoregistrationOp</id>
             <helpId>DEMBasedCoregistrationOp</helpId>
-            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <class>GraphAction</class>
             <icon>esaIcon</icon>
             <parent>CoregistrationGroup</parent>
             <text>DEM Based Coregistration</text>
@@ -104,7 +104,7 @@
 
         <action>
             <id>PrincipalComponents</id>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Principal Components</text>
             <operatorName>Principle-Components</operatorName>
@@ -125,7 +125,7 @@
 
         <action>
             <id>StackAveraging</id>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Stack Averaging</text>
             <operatorName>Stack-Averaging</operatorName>
@@ -139,7 +139,7 @@
         <action>
             <id>StackSplit</id>
             <helpId>StackSplit</helpId>
-            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>StackGroup</parent>
             <text>Stack Split</text>
@@ -151,7 +151,7 @@
         <action>
             <id>GoldsteinPhaseFiltering</id>
             <helpId>GoldsteinFilterOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <parent>insar_filters</parent>
             <text>Goldstein Phase Filtering</text>
             <operatorName>GoldsteinPhaseFiltering</operatorName>
@@ -163,7 +163,7 @@
         <action>
             <id>DEMGeneration</id>
             <helpId>DEMGenerationOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <parent>products</parent>
             <text>DEM Generation</text>
             <operatorName>DEMGeneration</operatorName>

@@ -69,7 +69,7 @@
         <action>
             <id>InSARCoregistrationGraph</id>
             <helpId>InSARCoregistration</helpId>
-            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.GraphAction</class>
             <icon>esaIcon</icon>
             <parent>CoregistrationGroup</parent>
             <placeFirst>true</placeFirst>
@@ -81,7 +81,7 @@
 
         <action>
             <id>CrossResamplingOp</id>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Cross InSAR resampling</text>
             <operatorName>CrossResampling</operatorName>
@@ -114,7 +114,7 @@
 
         <action>
             <id>CoherenceOp</id>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Coherence Estimation</text>
             <operatorName>Coherence</operatorName>
@@ -128,7 +128,7 @@
 
         <action>
             <id>InterferogramOp</id>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Interferogram Formation</text>
             <operatorName>Interferogram</operatorName>
@@ -142,7 +142,7 @@
 
         <action>
             <id>SubtRefDemOp</id>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Topographic Phase Removal</text>
             <operatorName>TopoPhaseRemoval</operatorName>
@@ -156,7 +156,7 @@
 
         <action>
             <id>DInSAROp</id>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Three-pass Differential InSAR</text>
             <operatorName>Three-passDInSAR</operatorName>
@@ -170,7 +170,7 @@
 
         <action>
             <id>Slant2HeightOp</id>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Phase to Height</text>
             <operatorName>Phase2Height</operatorName>
@@ -194,7 +194,7 @@
 
         <!--action>
             <id>SimulateAmplitudeOp</id>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Simulate Amplitude</text>
             <operatorName>SimulateAmplitude</operatorName>
@@ -217,7 +217,7 @@
 
         <action>
             <id>RangeFilterOp</id>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Range Filtering</text>
             <operatorName>RangeFilter</operatorName>
@@ -229,7 +229,7 @@
 
         <action>
             <id>AzimuthFilterOp</id>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Azimuth Filtering</text>
             <operatorName>AzimuthFilter</operatorName>
@@ -242,7 +242,7 @@
 
         <!--action>
             <id>PhaseFilterOp</id>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>OperatorAction</class>
             <icon>esaIcon</icon>
             <text>Phase Filtering</text>
             <operatorName>PhaseFilter</operatorName>
@@ -293,7 +293,7 @@
 
         <action>
             <id>SnaphuExportOp</id>
-            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.GraphAction</class>
             <helpId>Unwrap</helpId>
             <text>Snaphu Export</text>
             <graphFile>SnaphuExportGraph.xml</graphFile>
@@ -307,7 +307,7 @@
         <action>
             <id>SnaphuImportOp</id>
             <helpId>Unwrap</helpId>
-            <class>org.esa.snap.dat.actions.GraphAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.GraphAction</class>
             <text>Snaphu Import</text>
             <graphFile>SnaphuImportGraph.xml</graphFile>
             <shortDescr>Import result of Snaphu to InSAR product</shortDescr>

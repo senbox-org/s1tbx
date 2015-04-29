@@ -16,7 +16,7 @@
 package org.esa.s1tbx.dat.wizards.MosaicWizard;
 
 import org.esa.s1tbx.dat.wizards.WizardPanel;
-import org.esa.snap.dat.dialogs.BatchGraphDialog;
+import org.esa.snap.graphbuilder.rcp.dialogs.BatchGraphDialog;
 import org.esa.snap.rcp.SnapApp;
 
 import javax.swing.BorderFactory;

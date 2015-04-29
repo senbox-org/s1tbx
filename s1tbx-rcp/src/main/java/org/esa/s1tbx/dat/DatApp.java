@@ -21,7 +21,7 @@ import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.action.DockableBarContext;
 import org.esa.s1tbx.dat.actions.LoadTabbedLayoutAction;
 import org.esa.s1tbx.dat.views.polarview.PolarView;
-import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
+import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.db.ProductDB;
 import org.esa.snap.framework.dataio.ProductIOPlugInManager;

@@ -5,7 +5,7 @@
         <folder name="Operators">
             <file name="org-esa-s1tbx-gpf-SliceAssemblyOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.GraphAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="S-1 Slice Assembly"/>
                 <attr name="graphFile"  stringvalue="Sentinel1SliceAssemblyGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="S-1 Slice Assembly"/>
@@ -14,7 +14,7 @@
             </file>
             <file name="org-esa-s1tbx-gpf-TOPSARSplitOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="S-1 TOPS Split"/>
                 <attr name="operatorName" stringvalue="TOPSAR-Split"/>
                 <attr name="dialogTitle" stringvalue="S-1 TOPS Split"/>
@@ -22,7 +22,7 @@
             </file>
             <file name="org-esa-s1tbx-gpf-TOPSARMergeOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.GraphAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="S-1 TOPS Merge"/>
                 <attr name="graphFile" stringvalue="TOPSARMergeGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="S-1 TOPS Merge"/>
@@ -31,7 +31,7 @@
             </file>
             <file name="org-esa-s1tbx-gpf-TOPSARDeburstOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="S-1 TOPS Deburst"/>
                 <attr name="operatorName" stringvalue="TOPSAR-Deburst"/>
                 <attr name="dialogTitle" stringvalue="S-1 TOPS Deburst"/>
@@ -41,7 +41,7 @@
             </file>
             <file name="org-esa-s1tbx-gpf-Sentinel1SLCtoGRD-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.GraphAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="S-1 SLC to GRD"/>
                 <attr name="graphFile" stringvalue="Sentinel1SLCtoGRDGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="S-1 SLC to GRD"/>
@@ -51,7 +51,7 @@
 
             <file name="org-esa-s1tbx-gpf-TOPSCoregistration-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.GraphAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="S1 TOPS Coregistration"/>
                 <attr name="graphFile" stringvalue="Sentinel1SLCtoGRDGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="S1 TOPS Coregistration"/>
@@ -60,7 +60,7 @@
             </file>
             <file name="org-esa-s1tbx-gpf-BackGeocodingOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.GraphAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="S-1 Back Geocoding"/>
                 <attr name="graphFile" stringvalue="BackGeocodingGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="S-1 Back Geocoding"/>
@@ -69,7 +69,7 @@
             </file>
             <file name="org-esa-s1tbx-gpf-RangeShiftOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="S-1 Range Shift"/>
                 <attr name="operatorName" stringvalue="Range-Shift"/>
                 <attr name="dialogTitle" stringvalue="S-1 Range Shift"/>
@@ -79,7 +79,7 @@
             </file>
             <file name="org-esa-s1tbx-gpf-AzimuthShiftOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="S-1 Azimuth Shift"/>
                 <attr name="operatorName" stringvalue="Azimuth-Shift"/>
                 <attr name="dialogTitle" stringvalue="S-1 Azimuth Shift"/>
@@ -89,7 +89,7 @@
             </file>
             <file name="org-esa-s1tbx-gpf-ComputeDerampDemodPhaseOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Compute Deramp Demodulation Phase"/>
                 <attr name="operatorName" stringvalue="Compute-Deramp-Demod-Phase"/>
                 <attr name="dialogTitle" stringvalue="Compute Deramp Demodulation Phase"/>
@@ -99,7 +99,7 @@
             </file>
             <file name="org-esa-s1tbx-gpf-InterferogramOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Interferogram Formation"/>
                 <attr name="operatorName" stringvalue="Interferogram"/>
                 <attr name="dialogTitle" stringvalue="Interferogram Formation"/>

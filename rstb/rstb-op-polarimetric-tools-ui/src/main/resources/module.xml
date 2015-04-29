@@ -76,7 +76,7 @@
         <action>
             <id>PolarimetricMatricesOp</id>
             <helpId>PolarimetricMatricesOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>polarimetrictools</parent>
             <text>Polarimetric Matrix Generation</text>
@@ -89,7 +89,7 @@
         <action>
             <id>PolarimetricSpeckleFilterOp</id>
             <helpId>PolarimetricSpeckleFilterOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>polarimetrictools</parent>
             <text>Polarimetric Speckle Filter</text>
@@ -103,7 +103,7 @@
         <action>
             <id>OrientationAngleCorrectionOp</id>
             <helpId>OrientationAngleCorrectionOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>polarimetrictools</parent>
             <text>Orientation Angle Correction</text>
@@ -117,7 +117,7 @@
         <action>
             <id>PolarimetricDecompositionOp</id>
             <helpId>PolarimetricDecompositionOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>polarimetrictools</parent>
             <text>Polarimetric Decomposition</text>

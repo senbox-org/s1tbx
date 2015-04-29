@@ -42,8 +42,8 @@
  */
 package org.esa.s1tbx.dat.wizards;
 
-import org.esa.snap.dat.dialogs.BatchGraphDialog;
-import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
+import org.esa.snap.graphbuilder.rcp.dialogs.BatchGraphDialog;
+import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
 import org.esa.snap.rcp.SnapDialogs;
 
 import javax.swing.BorderFactory;

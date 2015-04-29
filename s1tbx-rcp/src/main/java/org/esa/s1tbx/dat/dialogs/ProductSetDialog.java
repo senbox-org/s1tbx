@@ -16,8 +16,8 @@
 package org.esa.s1tbx.dat.dialogs;
 
 import org.esa.s1tbx.dat.toolviews.Projects.ProductSet;
-import org.esa.snap.dat.dialogs.FileTable;
-import org.esa.snap.dat.dialogs.ProductSetPanel;
+import org.esa.snap.graphbuilder.rcp.dialogs.support.FileTable;
+import org.esa.snap.graphbuilder.rcp.dialogs.ProductSetPanel;
 import org.esa.snap.framework.ui.ModalDialog;
 import org.esa.snap.framework.ui.ModelessDialog;
 import org.esa.snap.rcp.SnapApp;

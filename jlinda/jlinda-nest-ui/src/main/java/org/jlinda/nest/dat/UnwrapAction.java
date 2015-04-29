@@ -1,6 +1,6 @@
 package org.jlinda.nest.dat;
 
-import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
+import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
 import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.visat.actions.AbstractVisatAction;

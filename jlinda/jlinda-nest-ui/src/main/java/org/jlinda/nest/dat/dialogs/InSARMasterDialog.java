@@ -2,7 +2,7 @@ package org.jlinda.nest.dat.dialogs;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import org.esa.snap.dat.dialogs.ProductSetPanel;
+import org.esa.snap.graphbuilder.rcp.dialogs.ProductSetPanel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.db.CommonReaders;
 import org.esa.snap.db.ProductEntry;

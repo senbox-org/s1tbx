@@ -18,8 +18,8 @@ import org.esa.snap.framework.ui.GridBagUtils;
 import org.esa.snap.framework.ui.ModalDialog;
 import org.esa.snap.framework.ui.product.ProductExpressionPane;
 import org.esa.snap.gpf.operators.standard.BandMathsOp;
-import org.esa.snap.gpf.ui.BaseOperatorUI;
-import org.esa.snap.gpf.ui.UIValidation;
+import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
+import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.PropertyMap;
 

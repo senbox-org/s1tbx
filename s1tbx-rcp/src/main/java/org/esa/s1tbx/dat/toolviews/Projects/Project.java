@@ -17,8 +17,8 @@ package org.esa.s1tbx.dat.toolviews.Projects;
 
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.s1tbx.dat.dialogs.ProductSetDialog;
-import org.esa.snap.dat.dialogs.PromptDialog;
-import org.esa.snap.dat.graphbuilder.GraphBuilderDialog;
+import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
+import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
 import org.esa.snap.dataio.dimap.DimapProductConstants;
 import org.esa.snap.db.CommonReaders;
 import org.esa.snap.framework.dataio.ProductIO;

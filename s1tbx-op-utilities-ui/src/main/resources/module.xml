@@ -68,7 +68,7 @@
         <action>
             <id>OverSampleOp</id>
             <helpId>OverSampleOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Resampling</parent>
             <text>Oversample</text>
@@ -80,7 +80,7 @@
         <action>
             <id>UnderSampleOp</id>
             <helpId>UnderSampleOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>Resampling</parent>
             <text>Undersample</text>
@@ -100,7 +100,7 @@
         <action>
             <id>ConvertDatatypeOp</id>
             <helpId>ConvertDatatypeOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>DatasetConversion</parent>
             <text>Convert Datatype</text>
@@ -152,7 +152,7 @@
         <action>
             <id>BandSelectOp</id>
             <helpId>BandSelectOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>csaIcon</icon>
             <parent>tools</parent>
             <text>Band Select</text>
@@ -164,7 +164,7 @@
         <action>
             <id>ImageFilterOp</id>
             <helpId>FilterOperator</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>tools</parent>
             <text>Image Filtering</text>
@@ -177,7 +177,7 @@
         <action>
             <id>TestPattern</id>
             <helpId>TestPattern</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>esaIcon</icon>
             <parent>tools</parent>
             <text>TestPattern</text>

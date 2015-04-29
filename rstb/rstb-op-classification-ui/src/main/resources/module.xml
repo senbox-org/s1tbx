@@ -41,7 +41,7 @@
         <action>
             <id>PolarimetricClassificationOp</id>
             <helpId>PolarimetricClassificationOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>polarimetrictools</parent>
             <text>Unsupervised Polarimetric Classification</text>
@@ -66,7 +66,7 @@
         <action>
             <id>SupervisedWishartClassificationOp</id>
             <helpId>SupervisedWishartClassificationOp</helpId>
-            <class>org.esa.snap.dat.actions.OperatorAction</class>
+            <class>org.esa.snap.graphbuilder.rcp.actions.OperatorAction</class>
             <icon>rstbIcon</icon>
             <parent>polarimetrictools</parent>
             <text>Supervised Wishart Classification</text>

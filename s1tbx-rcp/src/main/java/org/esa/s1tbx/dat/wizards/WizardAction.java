@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.dat.wizards;
 
-import org.esa.snap.dat.actions.OperatorAction;
+import org.esa.snap.graphbuilder.rcp.actions.OperatorAction;
 import org.esa.snap.framework.ui.ModelessDialog;
 
 import java.util.Arrays;

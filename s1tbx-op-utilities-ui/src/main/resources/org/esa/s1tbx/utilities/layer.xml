@@ -5,7 +5,7 @@
         <folder name="Operators">
             <file name="org-esa-s1tbx-gpf-OversampleOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Oversample"/>
                 <attr name="operatorName" stringvalue="Oversample"/>
                 <attr name="dialogTitle" stringvalue="Oversample"/>
@@ -15,7 +15,7 @@
             </file>
             <file name="org-esa-s1tbx-gpf-UndersampleOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Undersample"/>
                 <attr name="operatorName" stringvalue="Undersample"/>
                 <attr name="dialogTitle" stringvalue="Undersample"/>
@@ -25,7 +25,7 @@
             </file>
             <file name="org-esa-s1tbx-gpf-ConvertDatatypeOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Convert Datatype"/>
                 <attr name="operatorName" stringvalue="Convert-Datatype"/>
                 <attr name="dialogTitle" stringvalue="Convert Datatype"/>

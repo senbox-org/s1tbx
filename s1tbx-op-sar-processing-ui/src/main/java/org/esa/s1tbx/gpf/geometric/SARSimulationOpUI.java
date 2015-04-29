@@ -18,9 +18,9 @@ package org.esa.s1tbx.gpf.geometric;
 import org.esa.snap.dataio.dem.DEMFactory;
 import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
 import org.esa.snap.framework.ui.AppContext;
-import org.esa.snap.gpf.ui.BaseOperatorUI;
-import org.esa.snap.gpf.ui.OperatorUIUtils;
-import org.esa.snap.gpf.ui.UIValidation;
+import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
+import org.esa.snap.graphbuilder.gpf.ui.OperatorUIUtils;
+import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.DialogUtils;
 

@@ -6,7 +6,7 @@
             <folder name="Geometric">
                 <file name="org-esa-s1tbx-gpf-GeolocationGridGeocodingOp-Action.instance">
                     <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                    <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                     <attr name="displayName" stringvalue="Geolocation-Grid"/>
                     <attr name="operatorName" stringvalue="Ellipsoid-Correction-GG"/>
                     <attr name="dialogTitle" stringvalue="Ellipsoid Correction - Geolocation-Grid"/>
@@ -16,7 +16,7 @@
                 </file>
                 <file name="org-esa-s1tbx-gpf-EllipsoidCorrectionRDOp-Action.instance">
                     <attr name="instanceCreate"  methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                    <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                     <attr name="displayName" stringvalue="Average Height Range-Doppler"/>
                     <attr name="operatorName" stringvalue="Ellipsoid-Correction-RD"/>
                     <attr name="dialogTitle" stringvalue="Ellipsoid Correction - Range Doppler"/>
@@ -26,7 +26,7 @@
                 </file>
                 <file name="org-esa-s1tbx-gpf-RangeDopplerGeocodingOp-Action.instance">
                     <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate"  methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                    <attr name="delegate"  methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                     <attr name="displayName" stringvalue="Range-Doppler Terrain Correction"/>
                     <attr name="operatorName" stringvalue="Terrain-Correction"/>
                     <attr name="dialogTitle" stringvalue="Range Doppler Terrain Correction"/>
@@ -36,7 +36,7 @@
                 </file>
                 <file name="org-esa-s1tbx-gpf-SARSimulationOp-Action.instance">
                     <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                    <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                     <attr name="displayName" stringvalue="SAR Simulation"/>
                     <attr name="operatorName" stringvalue="SAR-Simulation"/>
                     <attr name="dialogTitle" stringvalue="Simulate a SAR image"/>
@@ -46,7 +46,7 @@
                 </file>
                 <file name="org-esa-s1tbx-gpf-SARSimGeocodingOp-Action.instance">
                     <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.dat.actions.GraphAction.create"/>
+                    <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                     <attr name="displayName" stringvalue="SAR-Simulation Terrain Correction"/>
                     <attr name="graphFile" stringvalue="SARSimTCGraph.xml"/>
                     <attr name="dialogTitle" stringvalue="SAR-Simulation Terrain Correction"/>
@@ -56,7 +56,7 @@
                 </file>
                 <file name="org-esa-s1tbx-gpf-ALOSDeskewingOp-Action.instance">
                     <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                    <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                     <attr name="displayName" stringvalue="ALOS Deskewing"/>
                     <attr name="operatorName" stringvalue="ALOS-Deskewing"/>
                     <attr name="dialogTitle" stringvalue="Deskew ALOS product"/>
@@ -66,7 +66,7 @@
                 </file>
                 <file name="org-esa-s1tbx-gpf-SlantRangeGroundRangeOp-Action.instance">
                     <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                    <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                     <attr name="displayName" stringvalue="Slant Range to Ground Range"/>
                     <attr name="operatorName" stringvalue="SRGR"/>
                     <attr name="dialogTitle" stringvalue="Slant Range to Ground Range"/>
@@ -76,7 +76,7 @@
                 </file>
                 <file name="org-esa-s1tbx-gpf-UpdateGeoRefOp-Action.instance">
                     <attr name="instanceCreate"  methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                    <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                     <attr name="displayName" stringvalue="Update Geo Reference"/>
                     <attr name="operatorName" stringvalue="Update-Geo-Reference"/>
                     <attr name="dialogTitle" stringvalue="Update Geo Reference"/>
@@ -87,7 +87,7 @@
             </folder>
             <file name="org-esa-s1tbx-gpf-MultilookOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.dat.actions.OperatorAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Multilooking"/>
                 <attr name="operatorName" stringvalue="Multilook"/>
                 <attr name="dialogTitle" stringvalue="Multilooking"/>
