@@ -125,9 +125,9 @@ public final class BackGeocodingOp extends Operator {
     private ElevationModel dem = null;
     private boolean isElevationModelAvailable = false;
     private double demNoDataValue = 0; // no data value for DEM
-
     private double noDataValue = 0.0;
-    
+    private double avgSceneHeight = 0.0;
+
 	private int subSwathIndex = 0;
     private int burstOffset = 0;
     private boolean burstOffsetComputed = false;
@@ -218,6 +218,8 @@ public final class BackGeocodingOp extends Operator {
 
             selectedResampling = ResamplingFactory.createResampling(resamplingType);
 
+            getMeanTerrainElevation();
+
             createTargetProduct();
 
             updateTargetProductMetadata();
@@ -278,6 +280,12 @@ public final class BackGeocodingOp extends Operator {
             throw new OperatorException("Source products should have the same acquisition modes");
         }
         acquisitionMode = mAcquisitionMode;
+    }
+
+    private void getMeanTerrainElevation() throws Exception {
+
+        final MetadataElement mAbsRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[0]);
+        avgSceneHeight = AbstractMetadata.getAttributeDouble(mAbsRoot, AbstractMetadata.avg_scene_height);
     }
 
     /**
@@ -753,7 +761,10 @@ public final class BackGeocodingOp extends Operator {
 //            final double extralat = 1.5*delta + 4.0/25.0;
 //            final double extralon = 1.5*delta + 4.0/25.0;
             final double extralat = 20*delta;
-            final double extralon = 20*delta;
+            double extralon = 20*delta;
+            if (avgSceneHeight >= 2000.0) {
+                extralon = 20*delta + 4.0/25.0;
+            }
             final double latMin = latLonMinMax[0] - extralat;
             final double latMax = latLonMinMax[1] + extralat;
             final double lonMin = latLonMinMax[2] - extralon;
