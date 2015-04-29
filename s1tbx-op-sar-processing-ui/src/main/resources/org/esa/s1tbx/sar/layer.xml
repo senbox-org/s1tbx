@@ -3,89 +3,166 @@
 
     <folder name="Actions">
         <folder name="Operators">
-            <folder name="Geometric">
-                <file name="org-esa-s1tbx-gpf-GeolocationGridGeocodingOp-Action.instance">
-                    <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
-                    <attr name="displayName" stringvalue="Geolocation-Grid"/>
-                    <attr name="operatorName" stringvalue="Ellipsoid-Correction-GG"/>
-                    <attr name="dialogTitle" stringvalue="Ellipsoid Correction - Geolocation-Grid"/>
-                    <attr name="targetProductNameSuffix" stringvalue="_EC"/>
-                    <attr name="ShortDescription" stringvalue="Ellipsoid Correction Geolocation-Grid Method"/>
-                    <attr name="icon" stringvalue="esaIcon"/>
-                </file>
-                <file name="org-esa-s1tbx-gpf-EllipsoidCorrectionRDOp-Action.instance">
-                    <attr name="instanceCreate"  methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
-                    <attr name="displayName" stringvalue="Average Height Range-Doppler"/>
-                    <attr name="operatorName" stringvalue="Ellipsoid-Correction-RD"/>
-                    <attr name="dialogTitle" stringvalue="Ellipsoid Correction - Range Doppler"/>
-                    <attr name="targetProductNameSuffix" stringvalue="_EC"/>
-                    <attr name="ShortDescription" stringvalue="Ellipsoid Correction Range-Doppler Method Assuming Average Height"/>
-                    <attr name="icon" stringvalue="esaIcon"/>
-                </file>
-                <file name="org-esa-s1tbx-gpf-RangeDopplerGeocodingOp-Action.instance">
-                    <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate"  methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
-                    <attr name="displayName" stringvalue="Range-Doppler Terrain Correction"/>
-                    <attr name="operatorName" stringvalue="Terrain-Correction"/>
-                    <attr name="dialogTitle" stringvalue="Range Doppler Terrain Correction"/>
-                    <attr name="targetProductNameSuffix" stringvalue="_TC"/>
-                    <attr name="ShortDescription" stringvalue="Range Doppler Terrain Correction"/>
-                    <attr name="icon" stringvalue="esaIcon"/>
-                </file>
-                <file name="org-esa-s1tbx-gpf-SARSimulationOp-Action.instance">
-                    <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
-                    <attr name="displayName" stringvalue="SAR Simulation"/>
-                    <attr name="operatorName" stringvalue="SAR-Simulation"/>
-                    <attr name="dialogTitle" stringvalue="Simulate a SAR image"/>
-                    <attr name="targetProductNameSuffix" stringvalue="_Sim"/>
-                    <attr name="ShortDescription" stringvalue="Simulate a SAR image based on a DEM"/>
-                    <attr name="icon" stringvalue="esaIcon"/>
-                </file>
-                <file name="org-esa-s1tbx-gpf-SARSimGeocodingOp-Action.instance">
-                    <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
-                    <attr name="displayName" stringvalue="SAR-Simulation Terrain Correction"/>
-                    <attr name="graphFile" stringvalue="SARSimTCGraph.xml"/>
-                    <attr name="dialogTitle" stringvalue="SAR-Simulation Terrain Correction"/>
-                    <attr name="targetProductNameSuffix" stringvalue="_TC"/>
-                    <attr name="ShortDescription" stringvalue="Perform Orthorectification using a simulated SAR image based on a DEM"/>
-                    <attr name="icon" stringvalue="esaIcon"/>
-                </file>
-                <file name="org-esa-s1tbx-gpf-ALOSDeskewingOp-Action.instance">
-                    <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
-                    <attr name="displayName" stringvalue="ALOS Deskewing"/>
-                    <attr name="operatorName" stringvalue="ALOS-Deskewing"/>
-                    <attr name="dialogTitle" stringvalue="Deskew ALOS product"/>
-                    <attr name="targetProductNameSuffix" stringvalue="_DSk"/>
-                    <attr name="ShortDescription" stringvalue="Deskew ALOS product"/>
-                    <attr name="icon" stringvalue="geoAusIcon"/>
-                </file>
-                <file name="org-esa-s1tbx-gpf-SlantRangeGroundRangeOp-Action.instance">
-                    <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
-                    <attr name="displayName" stringvalue="Slant Range to Ground Range"/>
-                    <attr name="operatorName" stringvalue="SRGR"/>
-                    <attr name="dialogTitle" stringvalue="Slant Range to Ground Range"/>
-                    <attr name="targetProductNameSuffix" stringvalue="_GrRg"/>
-                    <attr name="ShortDescription" stringvalue="Converts from slant range to ground range"/>
-                    <attr name="icon" stringvalue="esaIcon"/>
-                </file>
-                <file name="org-esa-s1tbx-gpf-UpdateGeoRefOp-Action.instance">
-                    <attr name="instanceCreate"  methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                    <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
-                    <attr name="displayName" stringvalue="Update Geo Reference"/>
-                    <attr name="operatorName" stringvalue="Update-Geo-Reference"/>
-                    <attr name="dialogTitle" stringvalue="Update Geo Reference"/>
-                    <attr name="targetProductNameSuffix" stringvalue="_Geo"/>
-                    <attr name="ShortDescription" stringvalue="Update Geo Reference via backgeocoding"/>
-                    <attr name="icon" stringvalue="rstbIcon"/>
-                </file>
-            </folder>
-            <file name="org-esa-s1tbx-gpf-MultilookOp-Action.instance">
+            <file name="org-esa-s1tbx-sar-gpf-applyOrbitFile-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Apply Orbit File"/>
+                <attr name="operatorName" stringvalue="Apply-Orbit-File"/>
+                <attr name="dialogTitle" stringvalue="Apply Orbit File"/>
+                <attr name="targetProductNameSuffix"  stringvalue="_Orb"/>
+                <attr name="ShortDescription" stringvalue="Apply Orbit File to update orbit state vectors"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+
+            <file name="org-esa-s1tbx-sar-gpf-geometric-GeolocationGridGeocodingOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Geolocation-Grid"/>
+                <attr name="operatorName" stringvalue="Ellipsoid-Correction-GG"/>
+                <attr name="dialogTitle" stringvalue="Ellipsoid Correction - Geolocation-Grid"/>
+                <attr name="targetProductNameSuffix" stringvalue="_EC"/>
+                <attr name="ShortDescription" stringvalue="Ellipsoid Correction Geolocation-Grid Method"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-geometric-EllipsoidCorrectionRDOp-Action.instance">
+                <attr name="instanceCreate"  methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Average Height Range-Doppler"/>
+                <attr name="operatorName" stringvalue="Ellipsoid-Correction-RD"/>
+                <attr name="dialogTitle" stringvalue="Ellipsoid Correction - Range Doppler"/>
+                <attr name="targetProductNameSuffix" stringvalue="_EC"/>
+                <attr name="ShortDescription" stringvalue="Ellipsoid Correction Range-Doppler Method Assuming Average Height"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-geometric-RangeDopplerGeocodingOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate"  methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Range-Doppler Terrain Correction"/>
+                <attr name="operatorName" stringvalue="Terrain-Correction"/>
+                <attr name="dialogTitle" stringvalue="Range Doppler Terrain Correction"/>
+                <attr name="targetProductNameSuffix" stringvalue="_TC"/>
+                <attr name="ShortDescription" stringvalue="Range Doppler Terrain Correction"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-geometric-SARSimulationOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="SAR Simulation"/>
+                <attr name="operatorName" stringvalue="SAR-Simulation"/>
+                <attr name="dialogTitle" stringvalue="Simulate a SAR image"/>
+                <attr name="targetProductNameSuffix" stringvalue="_Sim"/>
+                <attr name="ShortDescription" stringvalue="Simulate a SAR image based on a DEM"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-geometric-SARSimGeocodingOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="SAR-Simulation Terrain Correction"/>
+                <attr name="graphFile" stringvalue="SARSimTCGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="SAR-Simulation Terrain Correction"/>
+                <attr name="targetProductNameSuffix" stringvalue="_TC"/>
+                <attr name="ShortDescription" stringvalue="Perform Orthorectification using a simulated SAR image based on a DEM"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-geometric-MosaicOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="SAR-Mosaic"/>
+                <attr name="graphFile" stringvalue="MosaicGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="SAR-Mosaic"/>
+                <attr name="targetProductNameSuffix" stringvalue="_mosaic"/>
+                <attr name="ShortDescription" stringvalue="Mosaic various images together"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-geometric-ALOSDeskewingOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="ALOS Deskewing"/>
+                <attr name="operatorName" stringvalue="ALOS-Deskewing"/>
+                <attr name="dialogTitle" stringvalue="Deskew ALOS product"/>
+                <attr name="targetProductNameSuffix" stringvalue="_DSk"/>
+                <attr name="ShortDescription" stringvalue="Deskew ALOS product"/>
+                <attr name="icon" stringvalue="geoAusIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-geometric-SlantRangeGroundRangeOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Slant Range to Ground Range"/>
+                <attr name="operatorName" stringvalue="SRGR"/>
+                <attr name="dialogTitle" stringvalue="Slant Range to Ground Range"/>
+                <attr name="targetProductNameSuffix" stringvalue="_GrRg"/>
+                <attr name="ShortDescription" stringvalue="Converts from slant range to ground range"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-geometric-UpdateGeoRefOp-Action.instance">
+                <attr name="instanceCreate"  methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Update Geo Reference"/>
+                <attr name="operatorName" stringvalue="Update-Geo-Reference"/>
+                <attr name="dialogTitle" stringvalue="Update Geo Reference"/>
+                <attr name="targetProductNameSuffix" stringvalue="_Geo"/>
+                <attr name="ShortDescription" stringvalue="Update Geo Reference via backgeocoding"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-geometric-TerrainFlatteningOp-Action.instance">
+                <attr name="instanceCreate"  methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Radiometric Terrain Flattening"/>
+                <attr name="operatorName" stringvalue="Terrain-Flattening"/>
+                <attr name="dialogTitle" stringvalue="Radiometric Terrain Flattening"/>
+                <attr name="targetProductNameSuffix" stringvalue="_TF"/>
+                <attr name="ShortDescription" stringvalue="Radiometric Terrain Flattening"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-filtering-SpeckleFilterOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Single Product Speckle Filter"/>
+                <attr name="operatorName" stringvalue="Speckle-Filter"/>
+                <attr name="dialogTitle" stringvalue="Single Product Speckle Filter"/>
+                <attr name="targetProductNameSuffix"  stringvalue="_Spk"/>
+                <attr name="ShortDescription" stringvalue="Single Product Speckle Filter"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-filtering-MultiTemporalSpeckleFilterOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Multi-temporal Speckle Filter"/>
+                <attr name="operatorName" stringvalue="Multi-Temporal-Speckle-Filter"/>
+                <attr name="dialogTitle" stringvalue="Multi-temporal Speckle Filter"/>
+                <attr name="targetProductNameSuffix"  stringvalue="_Spk"/>
+                <attr name="ShortDescription" stringvalue="Speckle filter a stack"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-wss-WSSDeburstOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="ASAR WSS Deburst"/>
+                <attr name="operatorName" stringvalue="DeburstWSS"/>
+                <attr name="dialogTitle" stringvalue="ASAR WSS Deburst"/>
+                <attr name="targetProductNameSuffix"  stringvalue="_Deburst"/>
+                <attr name="ShortDescription" stringvalue="Deburst an ASAR WSS product"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-wss-WSSMosaicOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="WSS Deburst, Calibrate and Detect"/>
+                <attr name="graphFile" stringvalue="WSSDetectGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="WSS Deburst, Calibrate and Detect"/>
+                <attr name="ShortDescription" stringvalue="Graph to deburst and detect a WSS product. Run Mosaic afterwards to combine"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-SLCtoPRI-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Complex to Detected GR"/>
+                <attr name="graphFile" stringvalue="SLCtoPRIGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="SLC to PRI"/>
+                <attr name="ShortDescription" stringvalue="Convert a SLC product to a detected ground range product"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-MultilookOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Multilooking"/>
@@ -101,65 +178,89 @@
     <folder name="Menu">
         <folder name="SAR Processing">
             <attr name="position" intvalue="510"/>
+            <file name="org-esa-s1tbx-sar-gpf-applyOrbitFile-Action.shadow">
+                <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-applyOrbitFile-Action.instance"/>
+                <attr name="position" intvalue="50"/>
+            </file>
             <folder name="Radiometric">
                 <attr name="position" intvalue="100"/>
+                <file name="org-esa-s1tbx-sar-gpf-geometric-SpeckleFilterOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-SpeckleFilterOp-Action.instance"/>
+                    <attr name="position" intvalue="400"/>
+                </file>
             </folder>
             <folder name="Speckle Filtering">
                 <attr name="position" intvalue="200"/>
+                <file name="org-esa-s1tbx-sar-gpf-filtering-SpeckleFilterOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-filtering-SpeckleFilterOp-Action.instance"/>
+                    <attr name="position" intvalue="100"/>
+                </file>
+                <file name="org-esa-s1tbx-sar-gpf-filtering-MultiTemporalSpeckleFilterOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-filtering-MultiTemporalSpeckleFilterOp-Action.instance"/>
+                    <attr name="position" intvalue="200"/>
+                </file>
             </folder>
             <folder name="Geometric">
                 <attr name="position" intvalue="500"/>
                 <folder name="Terrain Correction">
                     <attr name="position" intvalue="100"/>
-                    <file name="org-esa-s1tbx-gpf-RangeDopplerGeocodingOp-Action.shadow">
-                        <attr name="originalFile"
-                              stringvalue="Actions/Operators/Geometric/org-esa-s1tbx-gpf-RangeDopplerGeocodingOp-Action.instance"/>
+                    <file name="org-esa-s1tbx-sar-gpf-geometric-RangeDopplerGeocodingOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-RangeDopplerGeocodingOp-Action.instance"/>
                         <attr name="position" intvalue="100"/>
                     </file>
-                    <file name="org-esa-s1tbx-gpf-SARSimulationOp-Action.shadow">
-                        <attr name="originalFile"
-                              stringvalue="Actions/Operators/Geometric/org-esa-s1tbx-gpf-SARSimulationOp-Action.instance"/>
+                    <file name="org-esa-s1tbx-sar-gpf-geometric-SARSimulationOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-SARSimulationOp-Action.instance"/>
                         <attr name="position" intvalue="200"/>
                     </file>
-                    <file name="org-esa-s1tbx-gpf-SARSimGeocodingOp-Action.shadow">
-                        <attr name="originalFile"
-                              stringvalue="Actions/Operators/Geometric/org-esa-s1tbx-gpf-SARSimGeocodingOp-Action.instance"/>
+                    <file name="org-esa-s1tbx-sar-gpf-geometric-SARSimGeocodingOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-SARSimGeocodingOp-Action.instance"/>
                         <attr name="position" intvalue="300"/>
                     </file>
                 </folder>
                 <folder name="Ellipsoid Correction">
                     <attr name="position" intvalue="200"/>
-                    <file name="org-esa-s1tbx-gpf-EllipsoidCorrectionRDOp-Action.shadow">
-                        <attr name="originalFile"
-                              stringvalue="Actions/Operators/Geometric/org-esa-s1tbx-gpf-EllipsoidCorrectionRDOp-Action.instance"/>
+                    <file name="org-esa-s1tbx-sar-gpf-geometric-EllipsoidCorrectionRDOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-EllipsoidCorrectionRDOp-Action.instance"/>
                         <attr name="position" intvalue="100"/>
                     </file>
-                    <file name="org-esa-s1tbx-gpf-GeolocationGridGeocodingOp.shadow">
-                        <attr name="originalFile"
-                              stringvalue="Actions/Operators/Geometric/org-esa-s1tbx-gpf-GeolocationGridGeocodingOp-Action.instance"/>
+                    <file name="org-esa-s1tbx-sar-gpf-geometric-GeolocationGridGeocodingOp.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-GeolocationGridGeocodingOp-Action.instance"/>
                         <attr name="position" intvalue="200"/>
                     </file>
                 </folder>
-                <file name="org-esa-s1tbx-gpf-ALOSDeskewingOp-Action.shadow">
-                    <attr name="originalFile"
-                          stringvalue="Actions/Operators/Geometric/org-esa-s1tbx-gpf-ALOSDeskewingOp-Action.instance"/>
+                <file name="org-esa-s1tbx-sar-gpf-geometric-MosaicOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-MosaicOp-Action.instance"/>
                     <attr name="position" intvalue="300"/>
                 </file>
-                <file name="org-esa-s1tbx-gpf-SlantRangeGroundRangeOp-Action.shadow">
-                    <attr name="originalFile"
-                          stringvalue="Actions/Operators/Geometric/org-esa-s1tbx-gpf-SlantRangeGroundRangeOp-Action.instance"/>
+                <file name="org-esa-s1tbx-sar-gpf-geometric-ALOSDeskewingOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-ALOSDeskewingOp-Action.instance"/>
                     <attr name="position" intvalue="400"/>
                 </file>
-                <file name="org-esa-s1tbx-gpf-UpdateGeoRefOp-Action.shadow">
-                    <attr name="originalFile"
-                          stringvalue="Actions/Operators/Geometric/org-esa-s1tbx-gpf-UpdateGeoRefOp-Action.instance"/>
+                <file name="org-esa-s1tbx-sar-gpf-geometric-SlantRangeGroundRangeOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-SlantRangeGroundRangeOp-Action.instance"/>
                     <attr name="position" intvalue="500"/>
                 </file>
+                <file name="org-esa-s1tbx-sar-gpf-geometric-UpdateGeoRefOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-UpdateGeoRefOp-Action.instance"/>
+                    <attr name="position" intvalue="600"/>
+                </file>
             </folder>
-            <file name="org-esa-s1tbx-gpf-MultilookOp-Action.shadow">
-                <attr name="originalFile"
-                      stringvalue="Actions/Operators/org-esa-s1tbx-gpf-MultilookOp-Action.instance"/>
+            <folder name="ASAR WSS">
                 <attr name="position" intvalue="600"/>
+                <file name="org-esa-s1tbx-sar-gpf-wss-WSSDeburstOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-wss-WSSDeburstOp-Action.instance"/>
+                </file>
+                <file name="org-esa-s1tbx-sar-gpf-wss-WSSMosaicOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-wss-WSSMosaicOp-Action.instance"/>
+                </file>
+            </folder>
+            <file name="org-esa-s1tbx-sar-gpf-MultilookOp-Action.shadow">
+                <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-MultilookOp-Action.instance"/>
+                <attr name="position" intvalue="700"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-SLCtoPRI-Action.shadow">
+                <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-SLCtoPRI-Action.instance"/>
+                <attr name="position" intvalue="800"/>
             </file>
         </folder>
     </folder>
@@ -202,13 +303,5 @@
             <attr name="operatorName" stringvalue="Terrain-Flattening"/>
         </file>
     </folder>
-
-    <!--folder name="Services">
-        <folder name="JavaHelp">
-            <file name="helpset.xml" url="helpset.xml">
-                <attr name="position" intvalue="4600"/>
-            </file>
-        </folder>
-    </folder-->
 
 </filesystem>

@@ -3,7 +3,7 @@
 
     <folder name="Actions">
         <folder name="Operators">
-            <file name="org-esa-s1tbx-gpf-CalibrationOp-Action.instance">
+            <file name="org-esa-s1tbx-calibration-gpf-CalibrationOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Calibrate"/>
@@ -13,7 +13,7 @@
                 <attr name="ShortDescription" stringvalue="Apply radiometric calibration"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
-            <file name="org-esa-s1tbx-gpf-RemoveAntennaPatternOp-Action.instance">
+            <file name="org-esa-s1tbx-calibration-gpf-RemoveAntennaPatternOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Remove Antenna Pattern"/>
@@ -23,7 +23,7 @@
                 <attr name="ShortDescription" stringvalue="Remove the Antenna Pattern for ASAR and ERS products"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
-            <file name="org-esa-s1tbx-gpf-Sentinel1RemoveThermalNoiseOp-Action.instance">
+            <file name="org-esa-s1tbx-calibration-gpf-Sentinel1RemoveThermalNoiseOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="S-1 Thermal Noise Removal"/>
@@ -33,7 +33,7 @@
                 <attr name="ShortDescription" stringvalue="Apply radiometric calibration"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
-            <file name="org-esa-s1tbx-gpf-importXCAProduct-Action.instance">
+            <file name="org-esa-s1tbx-calibration-gpf-importXCAProduct-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName" stringvalue="View ASAR XCA Product"/>
@@ -50,24 +50,20 @@
             <attr name="position" intvalue="510"/>
             <folder name="Radiometric">
                 <attr name="position" intvalue="100"/>
-                <file name="org-esa-s1tbx-gpf-CalibrationOp-Action.shadow">
-                    <attr name="originalFile"
-                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-CalibrationOp-Action.instance"/>
+                <file name="org-esa-s1tbx-calibration-gpf-CalibrationOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-CalibrationOp-Action.instance"/>
                     <attr name="position" intvalue="100"/>
                 </file>
-                <file name="org-esa-s1tbx-gpf-RemoveAntennaPatternOp-Action.shadow">
-                    <attr name="originalFile"
-                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-RemoveAntennaPatternOp-Action.instance"/>
+                <file name="org-esa-s1tbx-calibration-gpf-RemoveAntennaPatternOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-RemoveAntennaPatternOp-Action.instance"/>
                     <attr name="position" intvalue="200"/>
                 </file>
-                <file name="org-esa-s1tbx-gpf-Sentinel1RemoveThermalNoiseOp.shadow">
-                    <attr name="originalFile"
-                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-Sentinel1RemoveThermalNoiseOp-Action.instance"/>
+                <file name="org-esa-s1tbx-calibration-gpf-Sentinel1RemoveThermalNoiseOp.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-Sentinel1RemoveThermalNoiseOp-Action.instance"/>
                     <attr name="position" intvalue="300"/>
                 </file>
-                <file name="org-esa-s1tbx-gpf-importXCAProduct-Action.shadow">
-                    <attr name="originalFile"
-                          stringvalue="Actions/Operators/org-esa-s1tbx-gpf-importXCAProduct-Action.instance"/>
+                <file name="org-esa-s1tbx-calibration-gpf-importXCAProduct-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-importXCAProduct-Action.instance"/>
                     <attr name="position" intvalue="400"/>
                 </file>
             </folder>
@@ -75,26 +71,18 @@
     </folder>
 
     <folder name="OperatorUIs">
-        <file name="org.esa.s1tbx.calibration.gpf.CalibrationOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.calibration.gpf.CalibrationOpUI"/>
+        <file name="org.esa.s1tbx.calibration.gpf.ui.CalibrationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.calibration.gpf.ui.CalibrationOpUI"/>
             <attr name="operatorName" stringvalue="Calibration"/>
         </file>
-        <file name="org.esa.s1tbx.calibration.gpf.RemoveAntennaPatternOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.calibration.gpf.RemoveAntennaPatternOpUI"/>
+        <file name="org.esa.s1tbx.calibration.gpf.ui.RemoveAntennaPatternOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.calibration.gpf.ui.RemoveAntennaPatternOpUI"/>
             <attr name="operatorName" stringvalue="RemoveAntennaPattern"/>
         </file>
-        <file name="org.esa.s1tbx.calibration.gpf.Sentinel1RemoveThermalNoiseOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.calibration.gpf.Sentinel1RemoveThermalNoiseOpUI"/>
+        <file name="org.esa.s1tbx.calibration.gpf.ui.Sentinel1RemoveThermalNoiseOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.calibration.gpf.ui.Sentinel1RemoveThermalNoiseOpUI"/>
             <attr name="operatorName" stringvalue="ThermalNoiseRemoval"/>
         </file>
     </folder>
-
-    <!--folder name="Services">
-        <folder name="JavaHelp">
-            <file name="helpset.xml" url="helpset.xml">
-                <attr name="position" intvalue="4600"/>
-            </file>
-        </folder>
-    </folder-->
 
 </filesystem>

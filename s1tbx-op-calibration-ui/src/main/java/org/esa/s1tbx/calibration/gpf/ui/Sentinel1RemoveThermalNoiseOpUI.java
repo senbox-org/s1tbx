@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.calibration.gpf;
+package org.esa.s1tbx.calibration.gpf.ui;
 
 import org.esa.s1tbx.gpf.Sentinel1Utils;
 import org.esa.snap.datamodel.AbstractMetadata;

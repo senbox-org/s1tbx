@@ -1,3 +1,5 @@
+org.esa.s1tbx.sar.gpf.filtering.SpeckleFilterOp$Spi
+org.esa.s1tbx.sar.gpf.filtering.MultiTemporalSpeckleFilterOp$Spi
 org.esa.s1tbx.sar.gpf.geometric.RangeDopplerGeocodingOp$Spi
 org.esa.s1tbx.sar.gpf.geometric.GeolocationGridGeocodingOp$Spi
 org.esa.s1tbx.sar.gpf.geometric.EllipsoidCorrectionRDOp$Spi
@@ -7,9 +9,7 @@ org.esa.s1tbx.sar.gpf.geometric.MosaicOp$Spi
 org.esa.s1tbx.sar.gpf.geometric.ALOSDeskewingOp$Spi
 org.esa.s1tbx.sar.gpf.geometric.TerrainFlatteningOp$Spi
 org.esa.s1tbx.sar.gpf.geometric.SRGROp$Spi
-org.esa.s1tbx.sar.gpf.filtering.SpeckleFilterOp$Spi
-org.esa.s1tbx.sar.gpf.filtering.MultiTemporalSpeckleFilterOp$Spi
-org.esa.s1tbx.sar.gpf.DeburstWSSOp$Spi
-org.esa.s1tbx.sar.gpf.MultilookOp$Spi
 org.esa.s1tbx.sar.gpf.geometric.UpdateGeoRefOp$Spi
 org.esa.s1tbx.sar.gpf.orbits.ApplyOrbitFileOp$Spi
+org.esa.s1tbx.sar.gpf.DeburstWSSOp$Spi
+org.esa.s1tbx.sar.gpf.MultilookOp$Spi
