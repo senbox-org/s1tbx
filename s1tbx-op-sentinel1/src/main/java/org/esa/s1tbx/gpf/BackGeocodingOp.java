@@ -54,6 +54,7 @@ import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.StackUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.ProductUtils;
+import org.esa.snap.util.StringUtils;
 import org.jlinda.core.delaunay.FastDelaunayTriangulator;
 import org.jlinda.core.delaunay.Triangle;
 import org.jlinda.core.delaunay.TriangulationException;
@@ -136,9 +137,8 @@ public final class BackGeocodingOp extends Operator {
     private ElevationModel dem = null;
     private boolean isElevationModelAvailable = false;
     private double demNoDataValue = 0; // no data value for DEM
-
     private double noDataValue = 0.0;
-    
+
 	private int subSwathIndex = 0;
     private int burstOffset = 0;
     private boolean burstOffsetComputed = false;
@@ -215,7 +215,7 @@ public final class BackGeocodingOp extends Operator {
 
             final String[] mPolarizations = mSU.getPolarizations();
 			final String[] sPolarizations = sSU.getPolarizations();
-			if (!mPolarizations[0].equals(sPolarizations[0])) {
+			if (!StringUtils.containsIgnoreCase(sPolarizations, mPolarizations[0])) {
 				throw new OperatorException("Same polarization is expected.");
 			}
 
@@ -527,19 +527,29 @@ public final class BackGeocodingOp extends Operator {
                         continue;
                     }
                     GeoUtils.geo2xyzWGS84(lat, lon, alt, earthPoint);
-                    final int[] mBurstIndices = getBurstIndices(subSwathIndex, mSU, mOrbit, earthPoint);
-                    final int[] sBurstIndices = getBurstIndices(subSwathIndex, sSU, sOrbit, earthPoint);
-                    if (mBurstIndices == null || (mBurstIndices[0] == -1 && mBurstIndices[1] == -1) ||
-                            sBurstIndices == null || (sBurstIndices[0] == -1 || sBurstIndices[1] == -1 )) {
+                    final BurstIndices mBurstIndices = getBurstIndices(subSwathIndex, mSU, mOrbit, earthPoint);
+                    final BurstIndices sBurstIndices = getBurstIndices(subSwathIndex, sSU, sOrbit, earthPoint);
+                    if (mBurstIndices == null || sBurstIndices == null ||
+                            (mBurstIndices.firstBurstIndex == -1 && mBurstIndices.secondBurstIndex == -1) ||
+                            (sBurstIndices.firstBurstIndex == -1 && sBurstIndices.secondBurstIndex == -1 )) {
                         continue;
                     }
 
-                    if (mBurstIndices[1] == -1 && sBurstIndices[1] == -1 ||
-                            mBurstIndices[1] != -1 && sBurstIndices[1] != -1) {
-                        burstOffset = sBurstIndices[0] - mBurstIndices[0];
-                        burstOffsetComputed = true;
-                        return;
+                    if (mBurstIndices.inUpperPartOfFirstBurst == sBurstIndices.inUpperPartOfFirstBurst) {
+                        burstOffset = sBurstIndices.firstBurstIndex - mBurstIndices.firstBurstIndex;
+                    } else if (sBurstIndices.secondBurstIndex != -1 &&
+                            mBurstIndices.inUpperPartOfFirstBurst == sBurstIndices.inUpperPartOfSecondBurst) {
+                        burstOffset = sBurstIndices.secondBurstIndex - mBurstIndices.firstBurstIndex;
+                    } else if (mBurstIndices.secondBurstIndex != -1 &&
+                            mBurstIndices.inUpperPartOfSecondBurst == sBurstIndices.inUpperPartOfFirstBurst) {
+                        burstOffset = sBurstIndices.firstBurstIndex - mBurstIndices.secondBurstIndex;
+                    } else if (mBurstIndices.secondBurstIndex != -1 && sBurstIndices.secondBurstIndex != -1 &&
+                            mBurstIndices.inUpperPartOfSecondBurst == sBurstIndices.inUpperPartOfSecondBurst) {
+                        burstOffset = sBurstIndices.secondBurstIndex - mBurstIndices.secondBurstIndex;
                     }
+
+                    burstOffsetComputed = true;
+                    return;
                 }
             }
         } catch (Throwable t) {
@@ -547,8 +557,8 @@ public final class BackGeocodingOp extends Operator {
         }
     }
 
-    private int[] getBurstIndices(final int subSwathIndex, final Sentinel1Utils su,
-                                  final SARGeocoding.Orbit orbit, final PosVector earthPoint) {
+    private BurstIndices getBurstIndices(final int subSwathIndex, final Sentinel1Utils su,
+                                         final SARGeocoding.Orbit orbit, final PosVector earthPoint) {
 
         try {
             Sentinel1Utils.SubSwathInfo subSwath = su.getSubSwath()[subSwathIndex - 1];
@@ -562,14 +572,19 @@ public final class BackGeocodingOp extends Operator {
 
             final double zeroDopplerTime = zeroDopplerTimeInDays * Constants.secondsInDay;
 
-            int[] burstIndices = {-1, -1};
+            BurstIndices burstIndices = new BurstIndices();
             int k = 0;
             for (int i = 0; i < subSwath.numOfBursts; i++) {
                 if (zeroDopplerTime >= subSwath.burstFirstLineTime[i] && zeroDopplerTime < subSwath.burstLastLineTime[i]) {
+                    boolean inUpperPartOfBurst = (zeroDopplerTime >=
+                            (subSwath.burstFirstLineTime[i] + subSwath.burstLastLineTime[i])/2.0);
+
                     if (k == 0) {
-                        burstIndices[0] = i;
+                        burstIndices.firstBurstIndex = i;
+                        burstIndices.inUpperPartOfFirstBurst = inUpperPartOfBurst;
                     } else {
-                        burstIndices[1] = i;
+                        burstIndices.secondBurstIndex = i;
+                        burstIndices.inUpperPartOfSecondBurst = inUpperPartOfBurst;
                         break;
                     }
                     ++k;
@@ -683,7 +698,7 @@ public final class BackGeocodingOp extends Operator {
             throws Exception {
 
         final int sBurstIndex = mBurstIndex + burstOffset;
-        if (sBurstIndex >= sSubSwath[subSwathIndex - 1].numOfBursts) {
+        if (sBurstIndex < 0 || sBurstIndex >= sSubSwath[subSwathIndex - 1].numOfBursts) {
             return;
         }
 
@@ -735,8 +750,8 @@ public final class BackGeocodingOp extends Operator {
             throws Exception {
 
         try {
-            final int xmin = Math.max(x0 - (int)extendedAmount[3], 0);
-            final int ymin = Math.max(y0 - (int)extendedAmount[1], 0);
+            final int xmin = x0 - (int)extendedAmount[3];
+            final int ymin = y0 - (int)extendedAmount[1];
             final int ymax = y0 + h + (int)Math.abs(extendedAmount[0]);
             final int xmax = x0 + w + (int)Math.abs(extendedAmount[2]);
 
@@ -750,6 +765,7 @@ public final class BackGeocodingOp extends Operator {
 //            final double extralon = 1.5*delta + 4.0/25.0;
             final double extralat = 20*delta;
             final double extralon = 20*delta;
+
             final double latMin = latLonMinMax[0] - extralat;
             final double latMax = latLonMinMax[1] + extralat;
             final double lonMin = latLonMinMax[2] - extralon;
@@ -1567,6 +1583,13 @@ public final class BackGeocodingOp extends Operator {
         private static double rint(final double coord) {
             return Math.floor(coord + 0.5);
         }
+    }
+
+    private static class BurstIndices {
+        int firstBurstIndex = -1;
+        int secondBurstIndex = -1;
+        boolean inUpperPartOfFirstBurst = false;
+        boolean inUpperPartOfSecondBurst = false;
     }
 
 

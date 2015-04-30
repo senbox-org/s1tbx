@@ -108,7 +108,9 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
             this.orbitFile = findOrbitFile(stateVectorTime, year);
             if(orbitFile == null) {
                 String timeStr = absRoot.getAttributeUTC(AbstractMetadata.STATE_VECTOR_TIME).format();
-                throw new OperatorException("No valid orbit file found for " + timeStr + "\nOrbit files may be downloaded from https://qc.sentinel1.eo.esa.int/");
+                final File destFolder = getDestFolder(year);
+                throw new OperatorException("No valid orbit file found for " + timeStr + "\nOrbit files may be downloaded from https://qc.sentinel1.eo.esa.int/"
+                                            +"\nand placed in "+destFolder.getAbsolutePath());
             }
         }
 
@@ -124,13 +126,23 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
         return orbitFile;
     }
 
+    private File getDestFolder(final int year) {
+        final File orbitFileFolder;
+        if(orbitType.endsWith(RESTITUTED)) {
+            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1RESOrbitPath")+File.separator+year);
+        } else {
+            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath")+File.separator+year);
+        }
+        return orbitFileFolder;
+    }
+
     private File findOrbitFile(final double stateVectorTime, final int year) {
 
         final String prefix;
         final File orbitFileFolder;
         if(orbitType.endsWith(RESTITUTED)) {
             prefix = "S1A_OPER_AUX_RESORB_OPOD_";
-            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1ResOrbitPath")+File.separator+year);
+            orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1RESOrbitPath")+File.separator+year);
         } else {
             prefix = "S1A_OPER_AUX_POEORB_OPOD_";
             orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath")+File.separator+year);
@@ -164,14 +176,17 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     private void getRemoteFiles(final int year, final int month) throws Exception {
 
+        final File localFolder;
+        final URL remotePath;
         if(orbitType.endsWith(RESTITUTED)) {
-            return;
+            localFolder = new File(Settings.instance().get("OrbitFiles.sentinel1RESOrbitPath"), String.valueOf(year));
+            remotePath = new URL(Settings.instance().getPath("OrbitFiles.sentinel1RESOrbit_remotePath"));
+        } else {
+            localFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath"), String.valueOf(year));
+            remotePath = new URL(Settings.instance().getPath("OrbitFiles.sentinel1POEOrbit_remotePath"));
         }
 
-        final File localFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath"), String.valueOf(year));
-        final URL remotePath = new URL(Settings.getPath("OrbitFiles.sentinel1POEOrbit_remotePath"));
-        final File localFile = new File(localFolder, year+"-"+month+".zip");
-
+        final File localFile = new File(localFolder, year + "-" + month + ".zip");
         final DownloadableArchive archive = new DownloadableArchive(localFile, remotePath);
         archive.getContentFiles();
     }
