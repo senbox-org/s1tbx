@@ -94,9 +94,23 @@ public class OperatorSpiRegistryImplTest {
         assertTrue(operatorSpis.contains(heino3));
     }
 
+    @Test
+    public void testRemovalWhenSpiRegisteredWithAlias() throws InterruptedException {
+
+        DummyOp.Spi heino1 = new DummyOp.Spi();
+
+        assertTrue(registry.addOperatorSpi("Heino1", heino1));
+
+        assertTrue(registry.removeOperatorSpi(heino1));
+        assertTrue(registry.getAliases().isEmpty());
+
+    }
+
     @OperatorMetadata(alias = "Heino")
     public static class DummyOp extends TestOps.Op1 {
+
         public static class Spi extends OperatorSpi {
+
             public Spi() {
                 super(DummyOp.class);
             }

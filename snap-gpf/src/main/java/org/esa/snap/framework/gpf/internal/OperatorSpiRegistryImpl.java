@@ -27,7 +27,9 @@ import org.esa.snap.util.SystemUtils;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * A registry for operator SPI instances.
@@ -78,6 +80,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
 
     /**
      * @return The set of all registered operator SPIs.
+     *
      * @since BEAM 5
      */
     @Override
@@ -132,7 +135,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      * Adds the given {@link OperatorSpi operatorSpi} to this registry.
      *
      * @param operatorSpi the SPI to add
-     * @return {@code true}, if the {@link OperatorSpi} could be succesfully added, otherwise {@code false}
+     * @return {@code true}, if the {@link OperatorSpi} could be successfully added, otherwise {@code false}
      */
     @Override
     public boolean addOperatorSpi(OperatorSpi operatorSpi) {
@@ -150,6 +153,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      * @param operatorName an (alias) name used as key for the registration.
      * @param operatorSpi  the SPI to add
      * @return {@code true}, if the {@link OperatorSpi} could be successfully added, otherwise {@code false}
+     *
      * @since BEAM 5
      */
     @Override
@@ -173,7 +177,16 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      */
     @Override
     public boolean removeOperatorSpi(OperatorSpi operatorSpi) {
-        return serviceRegistry.removeService(operatorSpi);
+        if (!serviceRegistry.removeService(operatorSpi)) {
+            Stream<Map.Entry<String, OperatorSpi>> extraSpiStream = extraOperatorSpis.entrySet().stream();
+            Optional<Map.Entry<String, OperatorSpi>> spiEntry = extraSpiStream.filter(entry -> entry.getValue() == operatorSpi).findFirst();
+            if(spiEntry.isPresent() && extraOperatorSpis.remove(spiEntry.get().getKey(), spiEntry.get().getValue())) {
+                unregisterAlias(spiEntry.get().getValue());
+            }else {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
