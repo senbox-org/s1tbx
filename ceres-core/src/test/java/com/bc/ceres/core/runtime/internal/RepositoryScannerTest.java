@@ -20,23 +20,25 @@ import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ProxyConfig;
-import junit.framework.TestCase;
+import org.junit.Ignore;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Logger;
 
+import static org.junit.Assert.*;
+
 /**
  * Unit test for simple ModuleReader.
  */
-public class RepositoryScannerTest
-        extends TestCase {
+public class RepositoryScannerTest {
 
     Logger NO_LOGGER = Logger.getAnonymousLogger();
     ProgressMonitor NO_PM = ProgressMonitor.NULL;
     ProxyConfig NO_PROXY = ProxyConfig.NULL;
 
+    @Ignore
     public void testNullArgConvention() throws IOException, CoreException {
         URL NO_URL = new File("").getAbsoluteFile().toURI().toURL();
 
@@ -63,6 +65,7 @@ public class RepositoryScannerTest
         }
     }
 
+    @Ignore
     public void testRepository() throws IOException, CoreException {
         File repositoryDir = Config.getRepositoryDir();
 
@@ -108,6 +111,7 @@ public class RepositoryScannerTest
         assertNull(rm);
     }
 
+    @Ignore
     public void testDumpModuleNames() throws Exception {
         URL url = new URL("http://www.brockmann-consult.de/beam/software/repositories/4.10");
 
