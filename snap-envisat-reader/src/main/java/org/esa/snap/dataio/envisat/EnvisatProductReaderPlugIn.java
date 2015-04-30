@@ -235,14 +235,14 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
         ));
         manager.addProfile(new RGBImageProfile("MERIS L1b - 13,5,1",
                                                new String[]{
-                                                       "radiance_14",
+                                                       "radiance_13",
                                                        "radiance_5",
                                                        "radiance_1"
                                                }
         ));
         manager.addProfile(new RGBImageProfile("MERIS L1b - 13,4,2",
                                                new String[]{
-                                                       "radiance_14",
+                                                       "radiance_13",
                                                        "radiance_4",
                                                        "radiance_2"
                                                }
@@ -251,7 +251,7 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
                                                new String[]{
                                                        "reflec_13",
                                                        "reflec_5",
-                                                       "reflec_13"
+                                                       "reflec_1"
                                                }
         ));
         manager.addProfile(new RGBImageProfile("AATSR L1b - Forward, Day",
