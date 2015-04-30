@@ -25,7 +25,7 @@
         <surefire.jvm.args>${test.jvm.arguments} -enableassertions</surefire.jvm.args>
 
 		<jlinda.version>2.0.0-SNAPSHOT</jlinda.version>
-		<rstb.version>6.3.2</rstb.version>
+		<rstb.version>7.0.0-SNAPSHOT</rstb.version>
 		<s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
 		<snap.version>2.0.0-SNAPSHOT</snap.version>
         
