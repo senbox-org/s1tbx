@@ -21,6 +21,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.commons.math3.util.FastMath;
 import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.util.StringUtils;
 import org.esa.nest.dataio.dem.ElevationModel;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
@@ -203,7 +204,7 @@ public final class BackGeocodingOp extends Operator {
 
             final String[] mPolarizations = mSU.getPolarizations();
 			final String[] sPolarizations = sSU.getPolarizations();
-			if (!mPolarizations[0].equals(sPolarizations[0])) {
+			if (!StringUtils.containsIgnoreCase(sPolarizations, mPolarizations[0])) {
 				throw new OperatorException("Same polarization is expected.");
 			}
 
