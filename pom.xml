@@ -279,6 +279,12 @@
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
+                <artifactId>snap-dem</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.esa.snap</groupId>
                 <artifactId>snap-rcp</artifactId>
                 <version>${snap.version}</version>
             </dependency>
@@ -372,12 +378,6 @@
                 <groupId>org.esa.s1tbx</groupId>
                 <artifactId>s1tbx-io</artifactId>
                 <version>${s1tbx.version}</version>
-            </dependency>
-			
-			<dependency>
-                <groupId>org.esa.snap</groupId>
-                <artifactId>snap-dem</artifactId>
-                <version>${snap.version}</version>
             </dependency>
 
             <!-- GeoTools Libraries ############################################# -->
@@ -745,34 +745,6 @@
                 <artifactId>mockito-all</artifactId>
                 <version>1.9.5</version>
                 <scope>test</scope>
-            </dependency>
-
-            <!-- JIDE Swing Libraries ############################################# -->
-
-            <dependency>
-                <groupId>com.jidesoft</groupId>
-                <artifactId>jide-dock</artifactId>
-                <version>${jide.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jidesoft</groupId>
-                <artifactId>jide-action</artifactId>
-                <version>${jide.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jidesoft</groupId>
-                <artifactId>jide-grids</artifactId>
-                <version>${jide.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jidesoft</groupId>
-                <artifactId>jide-components</artifactId>
-                <version>${jide.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jidesoft</groupId>
-                <artifactId>jide-common</artifactId>
-                <version>${jide.version}</version>
             </dependency>
 
             <!-- xStream Libraries ############################################# -->
