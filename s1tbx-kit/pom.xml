@@ -51,6 +51,11 @@
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
+            <artifactId>s1tbx-commons</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-io</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -117,11 +122,6 @@
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-rcp</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-worldwind</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
