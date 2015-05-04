@@ -370,22 +370,24 @@
                 <artifactId>s1tbx-commons</artifactId>
                 <version>${s1tbx.version}</version>
             </dependency>
-
 			<dependency>
                 <groupId>org.esa.s1tbx</groupId>
                 <artifactId>s1tbx-rcp</artifactId>
                 <version>${s1tbx.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.esa.s1tbx</groupId>
                 <artifactId>s1tbx-op-calibration</artifactId>
                 <version>${s1tbx.version}</version>
             </dependency>
-			
 			<dependency>
                 <groupId>org.esa.s1tbx</groupId>
                 <artifactId>s1tbx-io</artifactId>
+                <version>${s1tbx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.esa.s1tbx</groupId>
+                <artifactId>s1tbx-op-insar</artifactId>
                 <version>${s1tbx.version}</version>
             </dependency>
 

@@ -61,6 +61,12 @@
         <dependency>
             <groupId>org.jlinda</groupId>
             <artifactId>jlinda-core</artifactId>
+            <version>${s1tbx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jlinda</groupId>
+            <artifactId>jlinda-nest</artifactId>
+            <version>${s1tbx.version}</version>
         </dependency>
     </dependencies>
 

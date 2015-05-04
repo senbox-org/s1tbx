@@ -1,0 +1,142 @@
+
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Operators">
+            <file name="org-esa-s1tbx-insar-gpf-coregistration-CreateStack-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Create Stack"/>
+                <attr name="graphFile" stringvalue="CreateStackGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Create Stack"/>
+                <attr name="ShortDescription" stringvalue="Stacks together several products without coregistering"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-insar-gpf-coregistration-CoregistrationGraph-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Automatic Coregistration"/>
+                <attr name="graphFile" stringvalue="CoregistrationGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Automatic Coregistration"/>
+                <attr name="ShortDescription" stringvalue="Perform Automatic Cross-Correlation based Coregistration"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-insar-gpf-StackAveraging-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Stack Averaging"/>
+                <attr name="operatorName" stringvalue="Stack-Averaging"/>
+                <attr name="dialogTitle" stringvalue="StackAveraging"/>
+                <attr name="ShortDescription" stringvalue="Principal Component Analysis"/>
+                <attr name="targetProductNameSuffix" stringvalue="_avg"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-insar-gpf-StackSplit-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Stack Split"/>
+                <attr name="graphFile" stringvalue="StackSplitGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Stack Split"/>
+                <attr name="ShortDescription" stringvalue="Split stack into multiple products"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+
+            <file name="org-esa-s1tbx-insar-gpf-PrincipalComponents-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Principal Components"/>
+                <attr name="operatorName" stringvalue="Principal-Components"/>
+                <attr name="dialogTitle" stringvalue="Principal Component Analysis"/>
+                <attr name="ShortDescription" stringvalue="Principal Component Analysis"/>
+                <attr name="targetProductNameSuffix" stringvalue="_pca"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+
+            <file name="org-esa-s1tbx-insar-gpf-InterferogramOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Interferogram Formation"/>
+                <attr name="operatorName" stringvalue="Interferogram"/>
+                <attr name="dialogTitle" stringvalue="Interferogram Formation"/>
+                <attr name="ShortDescription" stringvalue="Interferogram Formation and Flat Earth Phase Removal"/>
+                <attr name="targetProductNameSuffix" stringvalue="_ifg"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-insar-gpf-Coherence-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Coherence Estimation"/>
+                <attr name="operatorName" stringvalue="Coherence"/>
+                <attr name="dialogTitle" stringvalue="Coherence Estimation"/>
+                <attr name="ShortDescription" stringvalue="Estimate Coherence"/>
+                <attr name="targetProductNameSuffix" stringvalue="_coh"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-insar-gpf-GoldsteinPhaseFiltering-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Goldstein Phase Filtering"/>
+                <attr name="operatorName" stringvalue="GoldsteinPhaseFiltering"/>
+                <attr name="dialogTitle" stringvalue="Goldstein Phase Filtering"/>
+                <attr name="ShortDescription" stringvalue="Goldstein Phase Filtering"/>
+                <attr name="targetProductNameSuffix" stringvalue="_flt"/>
+                <attr name="icon" stringvalue="csaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-insar-gpf-DEMGenerationOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="DEM Generation"/>
+                <attr name="operatorName" stringvalue="DEMGeneration"/>
+                <attr name="dialogTitle" stringvalue="DEM Generation"/>
+                <attr name="ShortDescription" stringvalue="Generate a DEM from unwrapped phase"/>
+                <attr name="targetProductNameSuffix" stringvalue="_dem"/>
+                <attr name="icon" stringvalue="csaIcon"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="SAR Processing">
+            <attr name="position" intvalue="510"/>
+            <folder name="Coregistration">
+                <attr name="position" intvalue="300"/>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="OperatorUIs">
+        <file name="org.esa.s1tbx.gpf.CreateStackOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.CreateStackOpUI"/>
+            <attr name="operatorName" stringvalue="CreateStack"/>
+        </file>
+        <file name="org.esa.s1tbx.gpf.GCPSelectionOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.GCPSelectionOpUI"/>
+            <attr name="operatorName" stringvalue="GCP-Selection"/>
+        </file>
+        <file name="org.esa.s1tbx.insar.gpf.ui.PCAOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.PCAOpUI"/>
+            <attr name="operatorName" stringvalue="Principle-Components"/>
+        </file>
+        <file name="org.esa.s1tbx.gpf.WarpOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.WarpOpUI"/>
+            <attr name="operatorName" stringvalue="Warp"/>
+        </file>
+        <file name="org.esa.s1tbx.gpf.DEMBasedCoregistrationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.coregistration.DEMBasedCoregistrationOpUI"/>
+            <attr name="operatorName" stringvalue="DEM-Based-Coregistration"/>
+        </file>
+        <file name="org.esa.s1tbx.gpf.DEMGenerationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.insar.gpf.ui.DEMGenerationOpUI"/>
+            <attr name="operatorName" stringvalue="DEMGeneration"/>
+        </file>
+    </folder>
+
+    <folder name="LayerSources">
+        <file name="GCPVectorLayerSource">
+            <attr name="displayName" stringvalue="Coregistered GCP Movement Vector"/>
+            <attr name="description" stringvalue="Shows GCP movement from slave to master"/>
+            <attr name="layerSourceClass" stringvalue="org.esa.s1tbx.insar.rcp.layersrc.GCPVectorLayerSource"/>
+        </file>
+    </folder>
+
+</filesystem>

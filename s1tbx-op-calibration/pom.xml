@@ -64,8 +64,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
-            <artifactId>s1tbx-op-sentinel1</artifactId>
-            <version>${s1tbx.version}</version>
+            <artifactId>s1tbx-op-insar</artifactId>
         </dependency>
     </dependencies>
 

@@ -16,7 +16,7 @@
 package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.gpf.geometric.SARGeocoding;
+import org.esa.s1tbx.insar.gpf.geometric.SARGeocoding;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.framework.datamodel.Band;
