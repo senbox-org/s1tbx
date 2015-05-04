@@ -20,10 +20,8 @@ import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.framework.ui.command.ExecCommand;
-import org.esa.snap.framework.ui.product.ProductMetadataView;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.visat.VisatApp;
-import org.esa.snap.visat.actions.ShowMetadataViewAction;
 
 /**
  * This action to edit Metadata
@@ -40,7 +38,7 @@ public class EditMetadataAction extends ExecCommand {
         final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(product);
 
         if (absRoot != null) {
-            createProductMetadataView(absRoot);
+            //createProductMetadataView(absRoot);
         } else {
             // no attributes found
             VisatApp.getApp().showErrorDialog("Edit Metadata", "No editable metadata found.");
@@ -56,9 +54,9 @@ public class EditMetadataAction extends ExecCommand {
     /**
      * Creates a new product metadata view and opens an internal frame for it.
      */
-    public synchronized static ProductMetadataView createProductMetadataView(final MetadataElement element) {
+   /* public synchronized static ProductMetadataView createProductMetadataView(final MetadataElement element) {
         final ShowMetadataViewAction command = (ShowMetadataViewAction) VisatApp.getApp().getCommandManager().getCommand(
                 ShowMetadataViewAction.ID);
         return command.openMetadataView(element);
-    }
+    }*/
 }

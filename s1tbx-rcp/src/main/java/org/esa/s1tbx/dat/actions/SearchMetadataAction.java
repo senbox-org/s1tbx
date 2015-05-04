@@ -50,7 +50,7 @@ public class SearchMetadataAction extends ExecCommand {
             product.setModified(isModified);
 
             if (resultElem.getNumElements() > 0 || resultElem.getNumAttributes() > 0) {
-                EditMetadataAction.createProductMetadataView(resultElem);
+                //EditMetadataAction.createProductMetadataView(resultElem);
             } else {
                 // no attributes found
                 VisatApp.getApp().showErrorDialog("Search Metadata", dlg.getValue() + " not found in the Metadata");
