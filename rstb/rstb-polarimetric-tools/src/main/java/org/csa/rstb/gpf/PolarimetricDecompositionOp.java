@@ -93,6 +93,7 @@ public final class PolarimetricDecompositionOp extends Operator {
     static final String SINCLAIR_DECOMPOSITION = "Sinclair Decomposition";
     static final String PAULI_DECOMPOSITION = "Pauli Decomposition";
     static final String FREEMAN_DURDEN_DECOMPOSITION = "Freeman-Durden Decomposition";
+    static final String GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION = "Generalized Freeman-Durden Decomposition";
     static final String YAMAGUCHI_DECOMPOSITION = "Yamaguchi Decomposition";
     static final String VANZYL_DECOMPOSITION = "van Zyl Decomposition";
     static final String H_A_ALPHA_DECOMPOSITION = "H-A-Alpha Quad Pol Decomposition";
@@ -114,7 +115,8 @@ public final class PolarimetricDecompositionOp extends Operator {
         if (s.equals(SINCLAIR_DECOMPOSITION) || s.equals(PAULI_DECOMPOSITION) ||
                 s.equals(FREEMAN_DURDEN_DECOMPOSITION) || s.equals(YAMAGUCHI_DECOMPOSITION) ||
                 s.equals(VANZYL_DECOMPOSITION) || s.equals(H_A_ALPHA_DECOMPOSITION) || s.equals(H_ALPHA_DECOMPOSITION) ||
-                s.equals(CLOUDE_DECOMPOSITION) || s.equals(TOUZI_DECOMPOSITION)) {
+                s.equals(CLOUDE_DECOMPOSITION) || s.equals(TOUZI_DECOMPOSITION) ||
+                s.equals(GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION)) {
             decomposition = s;
         } else {
             throw new OperatorException(s + " is an invalid decomposition name.");
@@ -210,6 +212,9 @@ public final class PolarimetricDecompositionOp extends Operator {
                         windowSize, sourceImageWidth, sourceImageHeight);
             case FREEMAN_DURDEN_DECOMPOSITION:
                 return new FreemanDurden(srcBandList, sourceProductType,
+                        windowSize, sourceImageWidth, sourceImageHeight);
+            case GENERALIZED_FREEMAN_DURDEN_DECOMPOSITION:
+                return new GeneralizedFreemanDurden(srcBandList, sourceProductType,
                         windowSize, sourceImageWidth, sourceImageHeight);
             case YAMAGUCHI_DECOMPOSITION:
                 return new Yamaguchi(srcBandList, sourceProductType,
