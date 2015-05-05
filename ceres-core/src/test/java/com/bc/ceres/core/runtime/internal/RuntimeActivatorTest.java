@@ -28,13 +28,10 @@ public class RuntimeActivatorTest {
 
     @Test
     public void testSpiConfigurationParsing() throws IOException {
-        testSpiConfigurationParsing("/services/com.acme.TestSpi1",
-                                    new String[]{"com.foo.TestSpi1Impl"});
-        testSpiConfigurationParsing("/services/com.acme.TestSpi2",
-                                    new String[]{"com.foo.TestSpi2Impl"});
+        testSpiConfigurationParsing("/services/com.acme.TestSpi1", new String[]{"com.foo.TestSpi1Impl"});
+        testSpiConfigurationParsing("/services/com.acme.TestSpi2", new String[]{"com.foo.TestSpi2Impl"});
     }
 
-    @Test
     private void testSpiConfigurationParsing(String path, String[] expectedClassNames) throws IOException {
         URL resource = getClass().getResource(path);
         assertNotNull(resource);
