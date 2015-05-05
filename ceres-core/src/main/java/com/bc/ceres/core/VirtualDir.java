@@ -16,10 +16,6 @@
 
 package com.bc.ceres.core;
 
-import com.bc.ceres.core.runtime.RuntimeConfig;
-import com.bc.ceres.core.runtime.RuntimeContext;
-import com.bc.ceres.core.runtime.support.DefaultRuntimeConfig;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -404,7 +400,7 @@ public abstract class VirtualDir {
     }
 
     private static File getBaseTempDir() throws IOException {
-        String contextId = getContextId();
+        String contextId = "snap";
         File tempDir;
         String tempDirName = System.getProperty("java.io.tmpdir");
         if (tempDirName != null) {
@@ -422,15 +418,6 @@ public abstract class VirtualDir {
             throw new IOException("Temporary directory not available: " + tempDir);
         }
         return tempDir;
-    }
-
-    private static String getContextId() {
-        String contextId = DefaultRuntimeConfig.DEFAULT_CERES_CONTEXT;
-        RuntimeConfig runtimeConfig = RuntimeContext.getConfig();
-        if (runtimeConfig != null) {
-            contextId = runtimeConfig.getContextId();
-        }
-        return contextId;
     }
 
 }

@@ -18,9 +18,9 @@ package com.bc.ceres.core.runtime;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
 import com.bc.ceres.core.runtime.internal.RuntimeImpl;
 import com.bc.ceres.core.runtime.internal.SplashScreenProgressMonitor;
-import com.bc.ceres.core.runtime.support.DefaultRuntimeConfig;
 
 /**
  * A factory for runtime instances.

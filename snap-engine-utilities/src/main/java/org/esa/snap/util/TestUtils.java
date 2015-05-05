@@ -16,8 +16,6 @@
 package org.esa.snap.util;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.runtime.RuntimeConfig;
-import com.bc.ceres.core.runtime.support.DefaultRuntimeConfig;
 import org.esa.snap.dataio.dimap.DimapProductConstants;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
@@ -126,8 +124,6 @@ public class TestUtils {
             return;
 
         try {
-            final RuntimeConfig runtimeConfig = new DefaultRuntimeConfig();
-
             JAI.getDefaultInstance().getTileScheduler().setParallelism(Runtime.getRuntime().availableProcessors());
             MemUtils.configureJaiTileCache();
 

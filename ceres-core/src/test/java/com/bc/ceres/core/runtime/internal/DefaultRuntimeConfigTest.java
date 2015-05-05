@@ -14,7 +14,7 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.ceres.core.runtime.support;
+package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.runtime.AbstractRuntimeTest;
 import com.bc.ceres.core.runtime.RuntimeConfigException;
