@@ -195,9 +195,9 @@ public class ProductManager {
                 if (productList.remove(product)) {
                     productList.clearRemovedList();
                     product.removeProductNodeListener(productNodeNameChangeListener);
-                    product.resetRefNo();
                     clearProductManager(product);
                     fireEvent(product, PRODUCT_REMOVED);
+                    product.resetRefNo();       // don't reset ref no until after event fired
                     return true;
                 }
             }
