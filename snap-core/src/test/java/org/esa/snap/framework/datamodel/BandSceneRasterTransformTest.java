@@ -3,12 +3,7 @@ package org.esa.snap.framework.datamodel;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.junit.Test;
 
-import java.awt.geom.AffineTransform;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 public class BandSceneRasterTransformTest {
     @Test
@@ -63,7 +58,7 @@ public class BandSceneRasterTransformTest {
     }
 
     @Test
-    public void testCustomTransfoprm() throws Exception {
+    public void testCustomTransform() throws Exception {
 
         Product product = new Product("A", "B", 10, 20);
 
