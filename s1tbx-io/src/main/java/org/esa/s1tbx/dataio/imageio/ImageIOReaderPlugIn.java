@@ -40,9 +40,10 @@ public class ImageIOReaderPlugIn implements ProductReaderPlugIn {
     private final Class[] VALID_INPUT_TYPES = new Class[]{File.class, String.class};
 
     private static String[] getFormatNamesList() {
-        final List<String> names = new ArrayList<>(20);
+        final List<String> names = new ArrayList<>(40);
         names.add("ImageIO");
         names.addAll(Arrays.asList(ImageIO.getReaderFormatNames()));
+        names.remove("geotiff");
         return names.toArray(new String[names.size()]);
     }
 
