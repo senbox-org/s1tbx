@@ -181,7 +181,7 @@ public class BindingContextTest {
 
         textField.setText("Bibo");
         textField.postActionEvent();
-        Thread.sleep(10);
+        Thread.sleep(100);
         assertEquals("Bibo", propertyContainerOB.getValue("stringValue"));
 
         propertyContainerOB.setValue("stringValue", "Samson");
