@@ -16,7 +16,7 @@
 package org.esa.s1tbx.gpf.oceantools;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.dataio.dem.DEMFactory;
+import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;

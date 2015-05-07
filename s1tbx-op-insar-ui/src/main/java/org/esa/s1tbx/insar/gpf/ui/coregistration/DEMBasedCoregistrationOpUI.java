@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.insar.gpf.ui.coregistration;
 
-import org.esa.snap.dataio.dem.DEMFactory;
+import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;

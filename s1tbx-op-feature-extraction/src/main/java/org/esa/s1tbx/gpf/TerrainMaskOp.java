@@ -16,8 +16,8 @@
 package org.esa.s1tbx.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.dataio.dem.DEMFactory;
-import org.esa.snap.dataio.dem.FileElevationModel;
+import org.esa.snap.dem.dataio.DEMFactory;
+import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;

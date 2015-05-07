@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.sentinel1.gpf.ui;
 
-import org.esa.snap.dataio.dem.DEMFactory;
+import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
 import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
