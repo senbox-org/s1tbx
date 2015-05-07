@@ -1,6 +1,6 @@
-org.esa.snap.dataio.dem.ace.ACEElevationModelDescriptor
-org.esa.snap.dataio.dem.ace2_5min.ACE2_5MinElevationModelDescriptor
-org.esa.snap.dataio.dem.srtm3_geotiff.SRTM3GeoTiffElevationModelDescriptor
-org.esa.snap.dataio.dem.srtm1_esrigrid.SRTM1GridElevationModelDescriptor
-org.esa.snap.dataio.dem.aster.AsterElevationModelDescriptor
+org.esa.snap.dem.dataio.ace.ACEElevationModelDescriptor
+org.esa.snap.dem.dataio.ace2_5min.ACE2_5MinElevationModelDescriptor
+org.esa.snap.dem.dataio.srtm3_geotiff.SRTM3GeoTiffElevationModelDescriptor
+org.esa.snap.dem.dataio.srtm1_esrigrid.SRTM1GridElevationModelDescriptor
+org.esa.snap.dem.dataio.aster.AsterElevationModelDescriptor
 

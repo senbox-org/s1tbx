@@ -1,2 +1,2 @@
-org.esa.snap.gpf.AddElevationOp$Spi
-org.esa.snap.gpf.FillHoleOp$Spi
+org.esa.snap.dem.gpf.AddElevationOp$Spi
+org.esa.snap.dem.gpf.FillHoleOp$Spi
