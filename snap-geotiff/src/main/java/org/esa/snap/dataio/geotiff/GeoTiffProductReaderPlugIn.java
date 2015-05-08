@@ -53,8 +53,8 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
 				 final String ext = FileUtils.getExtension((File) imageIOInput);
                  if(ext.equalsIgnoreCase(".tif") || ext.equalsIgnoreCase(".tiff") || ext.equalsIgnoreCase(".btf")) {
                      return DecodeQualification.INTENDED;
-                 } else if(ext.equalsIgnoreCase(".zip") && isZipped((File)imageIOInput)) {
-                     return DecodeQualification.INTENDED;
+                 } else if(ext.equalsIgnoreCase(".zip")) {
+                     return checkZip((File) imageIOInput);
                  } else {
                      return DecodeQualification.UNABLE;
                  }
@@ -72,19 +72,28 @@ public class GeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
         return DecodeQualification.UNABLE;
     }
 
-    private static boolean isZipped(final File file) throws IOException {
+    private static DecodeQualification checkZip(final File file) throws IOException {
         final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
         final Enumeration<? extends ZipEntry> entries = productZip.entries();
+        boolean foundTiff = false;
+        int entryCnt = 0;
         while(entries.hasMoreElements()) {
             final ZipEntry zipEntry = entries.nextElement();
             if (zipEntry != null && !zipEntry.isDirectory()) {
+                entryCnt++;
                 final String name = zipEntry.getName().toLowerCase();
                 if(name.endsWith(".tif") || name.endsWith(".tiff") || name.endsWith(".btf")) {
-                    return true;
+                    foundTiff = true;
+                }
+                if(foundTiff && entryCnt > 1) {
+                    return DecodeQualification.SUITABLE;        // not exclusively a zipped tiff
                 }
             }
         }
-        return false;
+        if(foundTiff && entryCnt == 1) {
+            return DecodeQualification.INTENDED;    // only zipped tiff
+        }
+        return DecodeQualification.UNABLE;
     }
 
     static DecodeQualification getDecodeQualificationImpl(ImageInputStream stream) {
