@@ -535,6 +535,8 @@ public final class BackGeocodingOp extends Operator {
                     } else if (mBurstIndices.secondBurstIndex != -1 && sBurstIndices.secondBurstIndex != -1 &&
                             mBurstIndices.inUpperPartOfSecondBurst == sBurstIndices.inUpperPartOfSecondBurst) {
                         burstOffset = sBurstIndices.secondBurstIndex - mBurstIndices.secondBurstIndex;
+                    } else {
+                        continue;
                     }
 
                     burstOffsetComputed = true;

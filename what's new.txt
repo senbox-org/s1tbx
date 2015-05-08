@@ -1,3 +1,15 @@
+New in S1TBX 1.1.1
+
+Automatic download of S-1 POE and RES orbits
+Fix TOPS Coregistration for products starting at different bursts
+Fix TOPS Coregistration to extend DEM for high elevation areas
+Fix TOPS Coregistration to compute burst offset from middle of burst
+Burst to remove invalid pixel areas
+Fix SLC slice assembly
+Flat-Earth phase to use average terrain height
+Handle bistatic interferogram for TanDEM-X
+Generalized Freeman Durden (RVOG) Decomposition
+
 New in S1TBX 1.1.0
 
 Sentinel-1 precise orbit application
