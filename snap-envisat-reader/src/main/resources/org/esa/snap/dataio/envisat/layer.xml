@@ -3,7 +3,7 @@
         <folder name="Readers">
             <file name="org-esa-snap-dataio-envisat-ImportEnvisatProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.gui.actions.file.ImportProductAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName" stringvalue="ENVISAT MERIS,AATSR"/>
                 <attr name="formatName" stringvalue="ENVISAT"/>
                 <attr name="useAllFileFilter" boolvalue="true"/>
@@ -12,7 +12,7 @@
             </file>
             <file name="org-esa-snap-dataio-envisat-ImportERSProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.gui.actions.file.ImportProductAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName" stringvalue="ERS1/2 ATSR (.E1, .E2)"/>
                 <attr name="formatName" stringvalue="ENVISAT"/>
                 <attr name="useAllFileFilter" boolvalue="true"/>
@@ -21,7 +21,7 @@
             </file>
             <file name="org-esa-snap-dataio-envisat-ImportEnvisatASARProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.gui.actions.file.ImportProductAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName" stringvalue="ENVISAT ASAR"/>
                 <attr name="formatName" stringvalue="ENVISAT"/>
                 <attr name="useAllFileFilter" boolvalue="true"/>
@@ -30,7 +30,7 @@
             </file>
             <file name="org-esa-snap-dataio-envisat-ImportErsSARProduct.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.gui.actions.file.ImportProductAction.create"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName" stringvalue="ERS1/2 SAR (.E1, .E2)"/>
                 <attr name="formatName" stringvalue="ENVISAT"/>
                 <attr name="useAllFileFilter" boolvalue="true"/>
