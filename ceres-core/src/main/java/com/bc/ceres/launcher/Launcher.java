@@ -19,7 +19,6 @@ package com.bc.ceres.launcher;
 import com.bc.ceres.core.runtime.RuntimeConfig;
 import com.bc.ceres.core.runtime.RuntimeConfigException;
 import com.bc.ceres.core.runtime.internal.DefaultRuntimeConfig;
-import com.bc.ceres.launcher.internal.BootstrapClasspathFactory;
 import com.bc.ceres.launcher.internal.BruteForceClasspathFactory;
 
 import java.io.File;
@@ -69,13 +68,7 @@ public final class Launcher {
      */
     public static Launcher createDefaultLauncher() throws RuntimeConfigException {
         RuntimeConfig runtimeConfig = new DefaultRuntimeConfig();
-        ClasspathFactory classpathFactory;
-        if (runtimeConfig.isUsingModuleRuntime()) {
-            classpathFactory = new BootstrapClasspathFactory(runtimeConfig);
-        } else {
-            classpathFactory = new BruteForceClasspathFactory(runtimeConfig);
-        }
-        return new Launcher(runtimeConfig, classpathFactory);
+        return new Launcher(runtimeConfig, new BruteForceClasspathFactory(runtimeConfig));
     }
 
     /**
