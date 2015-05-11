@@ -41,6 +41,7 @@ import org.esa.snap.framework.datamodel.ProductNodeGroup;
 import org.esa.snap.framework.datamodel.ProductVisitorAdapter;
 import org.esa.snap.framework.datamodel.RGBChannelDef;
 import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.framework.datamodel.SceneRasterTransform;
 import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.datamodel.VectorDataNode;
 import org.esa.snap.framework.datamodel.VirtualBand;
@@ -60,6 +61,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Color;
@@ -2109,7 +2111,7 @@ public class ProductUtils {
                 if (validExpr != null && !product.isCompatibleBandArithmeticExpression(validExpr)) {
                     raster.setValidPixelExpression(null);
                     String pattern = "Valid pixel expression ''{0}'' removed from output {1} ''{2}'' " +
-                                     "because it is not applicable.";   /*I18N*/
+                            "because it is not applicable.";   /*I18N*/
                     messages.add(MessageFormat.format(pattern, validExpr, type, raster.getName()));
                 }
             }
@@ -2273,10 +2275,10 @@ public class ProductUtils {
                                                  final double defaultNoDataValue,
                                                  final Map<Band, RasterDataNode> addedRasterDataNodes) {
         copyBandsForGeomTransform(sourceProduct,
-                                  targetProduct,
-                                  false,
-                                  defaultNoDataValue,
-                                  addedRasterDataNodes);
+                targetProduct,
+                false,
+                defaultNoDataValue,
+                addedRasterDataNodes);
     }
 
     /**
@@ -2536,4 +2538,50 @@ public class ProductUtils {
         }
         return sample;
     }
+
+    public static PixelPos transformToProductGrid(RasterDataNode rasterDataNode, PixelPos orig) throws TransformException {
+        final SceneRasterTransform sceneRasterTransform = rasterDataNode.getSceneRasterTransform();
+        if(sceneRasterTransform == SceneRasterTransform.IDENTITY) {
+            return orig;
+        }
+        final PixelPos target = new PixelPos();
+        sceneRasterTransform.getForward().transform(orig, target);
+        return target;
+    }
+
+    public static PixelPos transformToRasterGrid(RasterDataNode rasterDataNode, PixelPos orig) throws TransformException {
+        final SceneRasterTransform sceneRasterTransform = rasterDataNode.getSceneRasterTransform();
+        if(sceneRasterTransform == SceneRasterTransform.IDENTITY) {
+            return orig;
+        }
+        final PixelPos target = new PixelPos();
+        sceneRasterTransform.getInverse().transform(orig, target);
+        return target;
+    }
+
+    public static PixelPos transformFromToRasterGrid(RasterDataNode from, RasterDataNode to, PixelPos orig) throws TransformException {
+        return transformToRasterGrid(to, transformToProductGrid(from, orig));
+    }
+
+    public static Shape transformToProductGrid(RasterDataNode rasterDataNode, Shape orig) throws TransformException {
+        final SceneRasterTransform sceneRasterTransform = rasterDataNode.getSceneRasterTransform();
+        if(sceneRasterTransform == SceneRasterTransform.IDENTITY) {
+            return orig;
+        }
+        Shape transformedShape = sceneRasterTransform.getForward().createTransformedShape(orig);
+        return transformedShape;
+    }
+
+    public static Shape transformToRasterGrid(RasterDataNode rasterDataNode, Shape orig) throws TransformException {
+        final SceneRasterTransform sceneRasterTransform = rasterDataNode.getSceneRasterTransform();
+        if(sceneRasterTransform == SceneRasterTransform.IDENTITY) {
+            return orig;
+        }
+        return sceneRasterTransform.getInverse().createTransformedShape(orig);
+    }
+
+    public static Shape transformFromToRasterGrid(RasterDataNode from, RasterDataNode to, Shape orig) throws TransformException {
+        return transformToRasterGrid(to, transformToProductGrid(from, orig));
+    }
+
 }
