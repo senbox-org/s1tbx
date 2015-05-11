@@ -18,6 +18,7 @@ package org.esa.snap.framework.dataop.dem;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.dataop.downloadable.ftpUtils;
+import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
 
 import java.io.BufferedInputStream;
@@ -145,13 +146,14 @@ public abstract class ElevationFile {
 
     protected boolean getRemoteHttpFile(final String baseUrl) throws IOException {
         final String remotePath = baseUrl + localZipFile.getName();
-        System.out.println("http retrieving " + remotePath);
+        SystemUtils.LOG.info("http retrieving " + remotePath);
         try {
             downloadFile(new URL(remotePath), localZipFile);
 
             return true;
         } catch (Exception e) {
-            System.out.println("http error:" + e.getMessage() + " on " + remotePath);
+            // no need to alarm the user. Tiles may not be found because they are in the ocean or outside valid areas
+            SystemUtils.LOG.warning("http error:" + e.getMessage() + " on " + remotePath);
             remoteFileExists = false;
         }
         return false;
