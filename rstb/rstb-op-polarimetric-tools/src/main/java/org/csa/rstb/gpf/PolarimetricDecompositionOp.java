@@ -16,16 +16,7 @@
 package org.csa.rstb.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.csa.rstb.gpf.decompositions.Cloude;
-import org.csa.rstb.gpf.decompositions.Decomposition;
-import org.csa.rstb.gpf.decompositions.FreemanDurden;
-import org.csa.rstb.gpf.decompositions.HAlphaC2;
-import org.csa.rstb.gpf.decompositions.Pauli;
-import org.csa.rstb.gpf.decompositions.Sinclair;
-import org.csa.rstb.gpf.decompositions.Touzi;
-import org.csa.rstb.gpf.decompositions.Yamaguchi;
-import org.csa.rstb.gpf.decompositions.hAAlpha;
-import org.csa.rstb.gpf.decompositions.vanZyl;
+import org.csa.rstb.gpf.decompositions.*;
 import org.esa.s1tbx.dataio.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.framework.datamodel.Band;

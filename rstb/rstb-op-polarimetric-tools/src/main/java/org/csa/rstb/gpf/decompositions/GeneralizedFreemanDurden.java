@@ -16,14 +16,13 @@
 package org.csa.rstb.gpf.decompositions;
 
 import org.csa.rstb.gpf.PolOpUtils;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.nest.dataio.PolBandUtils;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.framework.gpf.Operator;
+import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.framework.gpf.Tile;
+import org.esa.s1tbx.dataio.PolBandUtils;
 import org.esa.snap.datamodel.Unit;
-import org.esa.snap.eo.Constants;
 import org.esa.snap.gpf.TileIndex;
 
 import java.awt.*;
@@ -67,7 +66,7 @@ public class GeneralizedFreemanDurden extends DecompositionBase implements Decom
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed.
      * @param op              the polarimetric decomposition operator
-     * @throws org.esa.beam.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
+     * @throws org.esa.snap.framework.gpf.OperatorException If an error occurs during computation of the filtered value.
      */
     public void computeTile(final Map<Band, Tile> targetTiles, final Rectangle targetRectangle,
                             final Operator op) throws OperatorException {
