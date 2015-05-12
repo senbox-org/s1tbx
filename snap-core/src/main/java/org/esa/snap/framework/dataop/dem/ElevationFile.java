@@ -108,18 +108,22 @@ public abstract class ElevationFile {
                 errorInLocalFile = false;
             } else {
                 if (!remoteFileExists && localFileExists) {
-                    System.out.println("Unable to reader product " + localFile.getAbsolutePath());
+                    SystemUtils.LOG.severe("Unable to reader product " + localFile.getAbsolutePath());
                 }
                 localFileExists = false;
                 errorInLocalFile = true;
             }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            SystemUtils.LOG.severe(e.getMessage());
+
             tile = null;
             localFileExists = false;
             errorInLocalFile = true;
+            if(e.getCause() instanceof UnsupportedOperationException) {
+                unrecoverableError = true;
+            }
             if (unrecoverableError) {
-                throw new IOException(e);
+                throw e;
             }
         }
     }
@@ -243,7 +247,8 @@ public abstract class ElevationFile {
             unrecoverableError = true;
             throw e;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            SystemUtils.LOG.info(e.getMessage());
+
             if (ftp == null) {
                 unrecoverableError = false;      // allow to continue
                 remoteFileExists = false;
