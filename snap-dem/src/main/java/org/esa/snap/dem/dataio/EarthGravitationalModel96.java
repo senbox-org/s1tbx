@@ -17,14 +17,12 @@ package org.esa.snap.dem.dataio;
 
 import org.apache.commons.math3.util.FastMath;
 import org.esa.snap.util.Maths;
-import org.esa.snap.util.ResourceInstaller;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
+import java.net.URL;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -82,16 +80,19 @@ public final class EarthGravitationalModel96 {
 
     private EarthGravitationalModel96() throws IOException {
 
-        final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
-        final Path egmDataPath = moduleBasePath.resolve("org/esa/snap/auxdata/egm96/" + ZIPNAME);
+        final URL egmDataPath = getClass().getClassLoader().getResource("org/esa/snap/auxdata/egm96/" + NAME);
 
         InputStream inputStream;
         try {
-            final ZipFile zipFile = new ZipFile(egmDataPath.toFile());
-            final ZipEntry entry = zipFile.getEntry(NAME);
-            inputStream = zipFile.getInputStream(entry);
-        } catch (FileNotFoundException e) {
-            throw new IOException("File not found: " + egmDataPath);
+            if(NAME.endsWith(".zip")) {
+                final ZipFile zipFile = new ZipFile(egmDataPath.getFile());
+                final ZipEntry entry = zipFile.getEntry(NAME);
+                inputStream = zipFile.getInputStream(entry);
+            } else {
+                inputStream = egmDataPath.openStream();
+            }
+        } catch (Exception e) {
+            throw new IOException("EarthGravitationalModel96 file not found: " + egmDataPath, e);
         }
 
         final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
