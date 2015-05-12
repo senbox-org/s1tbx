@@ -363,14 +363,6 @@
         </action>
 
         <action>
-            <id>testConnectivity</id>
-            <parent>help</parent>
-            <class>org.esa.nest.dat.actions.TestConnectivityAction</class>
-            <text>Test Connectivity</text>
-            <shortDescr>Test FTP connection for automatic downloads of DEMs</shortDescr>
-        </action>
-
-        <action>
             <id>aboutDAT</id>
             <parent>help</parent>
             <class>org.esa.beam.visat.actions.AboutAction</class>
