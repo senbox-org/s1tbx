@@ -201,7 +201,7 @@
                 </file>
             </folder>
             <folder name="Geometric">
-                <attr name="position" intvalue="500"/>
+                <attr name="position" intvalue="600"/>
                 <folder name="Terrain Correction">
                     <attr name="position" intvalue="100"/>
                     <file name="org-esa-s1tbx-sar-gpf-geometric-RangeDopplerGeocodingOp-Action.shadow">
@@ -246,21 +246,23 @@
                 </file>
             </folder>
             <folder name="ASAR WSS">
-                <attr name="position" intvalue="600"/>
+                <attr name="position" intvalue="800"/>
                 <file name="org-esa-s1tbx-sar-gpf-wss-WSSDeburstOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-wss-WSSDeburstOp-Action.instance"/>
+                    <attr name="position" intvalue="100"/>
                 </file>
                 <file name="org-esa-s1tbx-sar-gpf-wss-WSSMosaicOp-Action.shadow">
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-wss-WSSMosaicOp-Action.instance"/>
+                    <attr name="position" intvalue="200"/>
                 </file>
             </folder>
-            <file name="org-esa-s1tbx-sar-gpf-MultilookOp-Action.shadow">
-                <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-MultilookOp-Action.instance"/>
-                <attr name="position" intvalue="700"/>
-            </file>
             <file name="org-esa-s1tbx-sar-gpf-SLCtoPRI-Action.shadow">
                 <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-SLCtoPRI-Action.instance"/>
-                <attr name="position" intvalue="800"/>
+                <attr name="position" intvalue="900"/>
+            </file>
+            <file name="org-esa-s1tbx-sar-gpf-MultilookOp-Action.shadow">
+                <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-MultilookOp-Action.instance"/>
+                <attr name="position" intvalue="1000"/>
             </file>
         </folder>
     </folder>

@@ -100,6 +100,50 @@
             <attr name="position" intvalue="510"/>
             <folder name="Coregistration">
                 <attr name="position" intvalue="300"/>
+                <file name="org-esa-s1tbx-insar-gpf-coregistration-CoregistrationGraph-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-CoregistrationGraph-Action.instance"/>
+                    <attr name="position" intvalue="200"/>
+                </file>
+                <folder name="Stack Tools">
+                    <attr name="position" intvalue="300"/>
+                    <file name="org-esa-s1tbx-insar-gpf-StackAveraging-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-StackAveraging-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org-esa-s1tbx-insar-gpf-StackSplit-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-StackSplit-Action.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                </folder>
+                <file name="org-esa-s1tbx-insar-gpf-coregistration-CreateStack-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-coregistration-CreateStack-Action.instance"/>
+                    <attr name="position" intvalue="400"/>
+                </file>
+            </folder>
+            <folder name="Interferometric">
+                <attr name="position" intvalue="400"/>
+                <folder name="Products">
+                    <attr name="position" intvalue="100"/>
+                    <file name="org-esa-s1tbx-insar-gpf-InterferogramOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-InterferogramOp-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org-esa-s1tbx-insar-gpf-Coherence-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-Coherence-Action.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="org-esa-s1tbx-insar-gpf-DEMGenerationOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-DEMGenerationOp-Action.instance"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                </folder>
+                <folder name="Filtering">
+                    <attr name="position" intvalue="200"/>
+                    <file name="org-esa-s1tbx-insar-gpf-GoldsteinPhaseFiltering-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-GoldsteinPhaseFiltering-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                </folder>
             </folder>
         </folder>
     </folder>
