@@ -1,0 +1,192 @@
+
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Operators">
+            <file name="org-jlinda-nest-gpf-InSARCoregistrationGraph-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="InSAR Optimized Coregistration"/>
+                <attr name="graphFile" stringvalue="InSARCoregistrationGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="InSAR Coregistration"/>
+                <attr name="ShortDescription" stringvalue="Perform InSAR Optimized Automatic Coregistration"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-jlinda-nest-gpf-CrossResamplingOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Cross InSAR resampling"/>
+                <attr name="operatorName" stringvalue="CrossResampling"/>
+                <attr name="dialogTitle" stringvalue="Cross InSAR resampling"/>
+                <attr name="ShortDescription" stringvalue="Perform resampling of SAR geometries for Cross-InSAR"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-jlinda-nest-gpf-SubtRefDemOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Topographic Phase Removal"/>
+                <attr name="operatorName" stringvalue="TopoPhaseRemoval"/>
+                <attr name="dialogTitle" stringvalue="Topographic Phase Removal"/>
+                <attr name="ShortDescription" stringvalue="Compute and subtract topographic phase"/>
+                <attr name="targetProductNameSuffix" stringvalue="_dinsar"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-jlinda-nest-gpf-DInSAROp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Three-pass Differential InSAR"/>
+                <attr name="operatorName" stringvalue="Three-passDInSAR"/>
+                <attr name="dialogTitle" stringvalue="Three-pass Differential InSAR"/>
+                <attr name="ShortDescription" stringvalue="Three-pass Differential InSAR"/>
+                <attr name="targetProductNameSuffix" stringvalue="_dinsar"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-jlinda-nest-gpf-Slant2HeightOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Phase to Height"/>
+                <attr name="operatorName" stringvalue="Phase2Height"/>
+                <attr name="dialogTitle" stringvalue="Phase to height conversion"/>
+                <attr name="ShortDescription" stringvalue="Phase to height conversion"/>
+                <attr name="targetProductNameSuffix" stringvalue="_hgt"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-jlinda-nest-gpf-RangeFilterOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Range Filtering"/>
+                <attr name="operatorName" stringvalue="RangeFilter"/>
+                <attr name="dialogTitle" stringvalue="Range Filtering"/>
+                <attr name="ShortDescription" stringvalue="Filter stack of SAR images in range direction"/>
+                <attr name="targetProductNameSuffix" stringvalue="_rgFlt"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-jlinda-nest-gpf-AzimuthFilterOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Azimuth Filtering"/>
+                <attr name="operatorName" stringvalue="AzimuthFilter"/>
+                <attr name="dialogTitle" stringvalue="Azimuth Filtering"/>
+                <attr name="ShortDescription" stringvalue="Filter stack of SAR images in azimuth direction"/>
+                <attr name="targetProductNameSuffix" stringvalue="_azFlt"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-jlinda-nest-gpf-PhaseFilterOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Phase Filtering"/>
+                <attr name="operatorName" stringvalue="PhaseFilter"/>
+                <attr name="dialogTitle" stringvalue="Phase Filtering"/>
+                <attr name="ShortDescription" stringvalue="Phase Filtering"/>
+                <attr name="targetProductNameSuffix" stringvalue="_flt"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-jlinda-nest-gpf-SnaphuExportOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Snaphu Export"/>
+                <attr name="graphFile" stringvalue="SnaphuExportGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Snaphu Export"/>
+                <attr name="ShortDescription" stringvalue="Export data and construct conf file for SNAPHU unwrapping"/>
+                <attr name="targetProductNameSuffix" stringvalue="_snaphu"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-jlinda-nest-gpf-SnaphuImportOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Snaphu Import"/>
+                <attr name="graphFile" stringvalue="SnaphuImportGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Snaphu Import"/>
+                <attr name="ShortDescription" stringvalue="Import result of Snaphu to InSAR product"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="SAR Processing">
+            <folder name="Coregistration">
+                <attr name="position" intvalue="300"/>
+                <file name="org-jlinda-nest-gpf-InSARCoregistrationGraph-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-jlinda-nest-gpf-InSARCoregistrationGraph-Action.instance"/>
+                    <attr name="position" intvalue="100"/>
+                </file>
+                <file name="org-jlinda-nest-gpf-CrossResamplingOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-jlinda-nest-gpf-CrossResamplingOp-Action.instance"/>
+                    <attr name="position" intvalue="400"/>
+                </file>
+            </folder>
+            <folder name="Interferometric">
+                <attr name="position" intvalue="400"/>
+                <folder name="Products">
+                    <attr name="position" intvalue="100"/>
+                    <file name="org-jlinda-nest-gpf-SubtRefDemOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-jlinda-nest-gpf-SubtRefDemOp-Action.instance"/>
+                        <attr name="position" intvalue="400"/>
+                    </file>
+                    <file name="org-jlinda-nest-gpf-DInSAROp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-jlinda-nest-gpf-DInSAROp-Action.instance"/>
+                        <attr name="position" intvalue="500"/>
+                    </file>
+                    <file name="org-jlinda-nest-gpf-Slant2HeightOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-jlinda-nest-gpf-Slant2HeightOp-Action.instance"/>
+                        <attr name="position" intvalue="600"/>
+                    </file>
+                </folder>
+                <folder name="Filtering">
+                    <attr name="position" intvalue="200"/>
+                    <folder name="Spectral Filtering">
+                        <attr name="position" intvalue="100"/>
+                        <file name="org-jlinda-nest-gpf-RangeFilterOp-Action.shadow">
+                            <attr name="originalFile" stringvalue="Actions/Operators/org-jlinda-nest-gpf-RangeFilterOp-Action.instance"/>
+                            <attr name="position" intvalue="100"/>
+                        </file>
+                        <file name="org-jlinda-nest-gpf-AzimuthFilterOp-Action.shadow">
+                            <attr name="originalFile" stringvalue="Actions/Operators/org-jlinda-nest-gpf-AzimuthFilterOp-Action.instance"/>
+                            <attr name="position" intvalue="200"/>
+                        </file>
+                    </folder>
+                </folder>
+                <folder name="unwrapping">
+                    <attr name="position" intvalue="300"/>
+                    <file name="org-jlinda-nest-gpf-SnaphuExportOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-jlinda-nest-gpf-SnaphuExportOp-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org-jlinda-nest-gpf-SnaphuImportOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-jlinda-nest-gpf-SnaphuImportOp-Action.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="OperatorUIs">
+        <file name="org.jlinda.nest.gpf.ui.CreateInSARStackOpUI">
+            <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.CreateInSARStackOpUI"/>
+            <attr name="operatorName" stringvalue="CreateInSARStack"/>
+        </file>
+        <file name="org.jlinda.nest.gpf.ui.CoarseFineCoregOpUI">
+            <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.CoarseFineCoregOpUI"/>
+            <attr name="operatorName" stringvalue="CoarseFine-Coregistration2"/>
+        </file>
+        <file name="org.jlinda.nest.gpf.ui.ResampleOpUI">
+            <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.ResampleOpUI"/>
+            <attr name="operatorName" stringvalue="Resample2"/>
+        </file>
+        <file name="org.jlinda.nest.gpf.ui.CrossResamplingOpUI">
+            <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.CrossResamplingOpUI"/>
+            <attr name="operatorName" stringvalue="CrossResampling"/>
+        </file>
+        <file name="org.jlinda.nest.gpf.ui.SimulateAmplitudeOpUI">
+            <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.SimulateAmplitudeOpUI"/>
+            <attr name="operatorName" stringvalue="SimulateAmplitude"/>
+        </file>
+        <file name="org.jlinda.nest.gpf.ui.SubtRefDemOpUI">
+            <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.SubtRefDemOpUI"/>
+            <attr name="operatorName" stringvalue="SubtRefDem"/>
+        </file>
+    </folder>
+
+</filesystem>

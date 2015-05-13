@@ -25,13 +25,13 @@
     <extension point="snap-graph-builder:OperatorUIs">
 
         <OperatorUI>
-            <id>org.csa.rstb.gpf.PolarimetricClassificationOpUI</id>
-            <class>org.csa.rstb.gpf.PolarimetricClassificationOpUI</class>
+            <id>org.csa.rstb.classification.gpf.ui.PolarimetricClassificationOpUI</id>
+            <class>org.csa.rstb.classification.gpf.ui.PolarimetricClassificationOpUI</class>
             <operatorName>Polarimetric-Classification</operatorName>
         </OperatorUI>
         <OperatorUI>
-            <id>org.csa.rstb.gpf.SupervisedWishartClassificationOpUI</id>
-            <class>org.csa.rstb.gpf.SupervisedWishartClassificationOpUI</class>
+            <id>org.csa.rstb.classification.gpf.ui.SupervisedWishartClassificationOpUI</id>
+            <class>org.csa.rstb.classification.gpf.ui.SupervisedWishartClassificationOpUI</class>
             <operatorName>Supervised-Wishart-Classification</operatorName>
         </OperatorUI>
     </extension>
@@ -54,7 +54,7 @@
 
         <action>
             <id>SupervisedTraining</id>
-            <class>org.csa.rstb.dat.actions.SupervisedTrainingAction</class>
+            <class>org.csa.rstb.classification.rcp.actions.SupervisedTrainingAction</class>
             <icon>rstbIcon</icon>
             <text>Supervised Classification Training</text>
             <shortDescr>Use a products geometry to train a classifier</shortDescr>
@@ -79,7 +79,7 @@
 
         <action>
             <id>PolsarWizard</id>
-            <class>org.csa.rstb.dat.wizards.PolarimetryWizard.PolSARWizardAction</class>
+            <class>org.csa.rstb.classification.rcp.wizards.PolarimetryWizard.PolSARWizardAction</class>
             <parent>Wizards</parent>
             <text>Polarimetric Classification Wizard</text>
             <shortDescr>Wizard for Polarimetric Classification</shortDescr>

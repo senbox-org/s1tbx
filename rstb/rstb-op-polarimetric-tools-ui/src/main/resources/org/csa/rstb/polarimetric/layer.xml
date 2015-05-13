@@ -1,0 +1,84 @@
+
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Operators">
+            <file name="org-csa-rstb-polarimetric-gpf-PolarimetricMatricesOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Polarimetric Matrix Generation"/>
+                <attr name="operatorName" stringvalue="Polarimetric-Matrices"/>
+                <attr name="dialogTitle" stringvalue="Generate Covariance or Coherency Matrix"/>
+                <attr name="ShortDescription" stringvalue="Generate Covariance or Coherency Matrix"/>
+                <attr name="targetProductNameSuffix" stringvalue="_mat"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+            </file>
+            <file name="org-csa-rstb-polarimetric-gpf-PolarimetricSpeckleFilterOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Polarimetric Speckle Filter"/>
+                <attr name="operatorName" stringvalue="Polarimetric-Speckle-Filter"/>
+                <attr name="dialogTitle" stringvalue="Polarimetric Speckle Filter"/>
+                <attr name="ShortDescription" stringvalue="Polarimetric Speckle Filter"/>
+                <attr name="targetProductNameSuffix" stringvalue="_Spk"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+            </file>
+            <file name="org-csa-rstb-polarimetric-gpf-OrientationAngleCorrectionOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Polarimetric Orientation Angle Correction"/>
+                <attr name="operatorName" stringvalue="Orientation-Angle-Correction"/>
+                <attr name="dialogTitle" stringvalue="Orientation Angle Correction"/>
+                <attr name="ShortDescription" stringvalue="Polarimetric Orientation Angle Correction"/>
+                <attr name="targetProductNameSuffix" stringvalue="_Ori"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+            </file>
+            <file name="org-csa-rstb-polarimetric-gpf-PolarimetricDecompositionOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Polarimetric Decomposition"/>
+                <attr name="operatorName" stringvalue="Polarimetric-Decomposition"/>
+                <attr name="dialogTitle" stringvalue="Polarimetric Decomposition"/>
+                <attr name="ShortDescription" stringvalue="Polarimetric Decomposition"/>
+                <attr name="targetProductNameSuffix" stringvalue="_Decomp"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="SAR Processing">
+            <folder name="Polarimetric">
+                <attr name="position" intvalue="500"/>
+                <file name="org-csa-rstb-polarimetric-gpf-PolarimetricMatricesOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-PolarimetricMatricesOp-Action.instance"/>
+                    <attr name="position" intvalue="100"/>
+                </file>
+                <file name="org-csa-rstb-polarimetric-gpf-PolarimetricSpeckleFilterOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-PolarimetricSpeckleFilterOp-Action.instance"/>
+                    <attr name="position" intvalue="200"/>
+                </file>
+                <file name="org-csa-rstb-polarimetric-gpf-OrientationAngleCorrectionOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-OrientationAngleCorrectionOp-Action.instance"/>
+                    <attr name="position" intvalue="300"/>
+                </file>
+                <file name="org-csa-rstb-polarimetric-gpf-PolarimetricDecompositionOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-polarimetric-gpf-PolarimetricDecompositionOp-Action.instance"/>
+                    <attr name="position" intvalue="400"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="OperatorUIs">
+        <file name="org.csa.rstb.polarimetric.gpf.ui.PolarimetricDecompositionOpUI">
+            <attr name="operatorUIClass" stringvalue="org.csa.rstb.polarimetric.gpf.ui.PolarimetricDecompositionOpUI"/>
+            <attr name="operatorName" stringvalue="Polarimetric-Decomposition"/>
+        </file>
+        <file name="org.csa.rstb.polarimetric.gpf.ui.PolarimetricSpeckleFilterOpUI">
+            <attr name="operatorUIClass" stringvalue="org.csa.rstb.polarimetric.gpf.ui.PolarimetricSpeckleFilterOpUI"/>
+            <attr name="operatorName" stringvalue="Polarimetric-Speckle-Filter"/>
+        </file>
+    </folder>
+
+</filesystem>

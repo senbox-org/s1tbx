@@ -23,33 +23,33 @@
     <extension point="snap-graph-builder:OperatorUIs">
 
         <OperatorUI>
-            <id>org.jlinda.nest.dat.coregistration.CreateInSARStackOpUI</id>
-            <class>org.jlinda.nest.dat.coregistration.CreateInSARStackOpUI</class>
+            <id>org.jlinda.nest.gpf.ui.CreateInSARStackOpUI</id>
+            <class>org.jlinda.nest.gpf.ui.CreateInSARStackOpUI</class>
             <operatorName>CreateInSARStack</operatorName>
         </OperatorUI>
         <OperatorUI>
-            <id>org.jlinda.nest.dat.coregistration.CoarseFineCoregOpUI</id>
-            <class>org.jlinda.nest.dat.coregistration.CoarseFineCoregOpUI</class>
+            <id>org.jlinda.nest.gpf.ui.CoarseFineCoregOpUI</id>
+            <class>org.jlinda.nest.gpf.ui.CoarseFineCoregOpUI</class>
             <operatorName>CoarseFine-Coregistration2</operatorName>
         </OperatorUI>
         <OperatorUI>
-            <id>org.jlinda.nest.dat.coregistration.ResampleOpUI</id>
-            <class>org.jlinda.nest.dat.coregistration.ResampleOpUI</class>
+            <id>org.jlinda.nest.gpf.ui.ResampleOpUI</id>
+            <class>org.jlinda.nest.gpf.ui.ResampleOpUI</class>
             <operatorName>Resample2</operatorName>
         </OperatorUI>
         <OperatorUI>
-            <id>org.jlinda.nest.gpf.CrossResamplingOpUI</id>
-            <class>org.jlinda.nest.gpf.CrossResamplingOpUI</class>
+            <id>org.jlinda.nest.gpf.ui.CrossResamplingOpUI</id>
+            <class>org.jlinda.nest.gpf.ui.CrossResamplingOpUI</class>
             <operatorName>CrossResampling</operatorName>
         </OperatorUI>
         <OperatorUI>
-            <id>org.jlinda.nest.gpf.SimulateAmplitudeOpUI</id>
-            <class>org.jlinda.nest.gpf.SimulateAmplitudeOpUI</class>
+            <id>org.jlinda.nest.gpf.ui.SimulateAmplitudeOpUI</id>
+            <class>org.jlinda.nest.gpf.ui.SimulateAmplitudeOpUI</class>
             <operatorName>SimulateAmplitude</operatorName>
         </OperatorUI>
         <OperatorUI>
-            <id>org.jlinda.nest.gpf.SubtRefDemOpUI</id>
-            <class>org.jlinda.nest.gpf.SubtRefDemOpUI</class>
+            <id>org.jlinda.nest.gpf.ui.SubtRefDemOpUI</id>
+            <class>org.jlinda.nest.gpf.ui.SubtRefDemOpUI</class>
             <operatorName>SubtRefDem</operatorName>
         </OperatorUI>
     </extension>

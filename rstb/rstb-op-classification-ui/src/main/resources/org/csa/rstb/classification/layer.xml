@@ -3,35 +3,52 @@
 
     <folder name="Actions">
         <folder name="Operators">
-            <!--file name="org-esa-s1tbx-gpf-FillHoleOp-Action.instance">
+            <file name="org-csa-rstb-classification-gpf-PolarimetricClassificationOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="OperatorAction.create"/>
-                <attr name="displayName" stringvalue="Fill DEM Hole"/>
-                <attr name="operatorName" stringvalue="Fill-Hole"/>
-                <attr name="dialogTitle" stringvalue="Fill DEM Hole"/>
-                <attr name="ShortDescription" stringvalue="Fill holes in a DEM product"/>
-                <attr name="icon" stringvalue="esaIcon"/>
-            </file-->
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Polarimetric Unsupervised Classification"/>
+                <attr name="operatorName" stringvalue="Polarimetric-Classification"/>
+                <attr name="dialogTitle" stringvalue="Polarimetric Classification"/>
+                <attr name="ShortDescription" stringvalue="Polarimetric Classification"/>
+                <attr name="targetProductNameSuffix" stringvalue="_Class"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+            </file>
+            <file name="org-csa-rstb-classification-gpf-SupervisedWishartClassificationOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Supervised Wishart Classification"/>
+                <attr name="operatorName" stringvalue="Supervised-Wishart-Classification"/>
+                <attr name="dialogTitle" stringvalue="Supervised Wishart Classification"/>
+                <attr name="ShortDescription" stringvalue="Supervised Wishart Classification"/>
+                <attr name="targetProductNameSuffix" stringvalue="_Class"/>
+                <attr name="icon" stringvalue="rstbIcon"/>
+            </file>
         </folder>
     </folder>
 
     <folder name="Menu">
         <folder name="SAR Processing">
             <folder name="Polarimetric">
-                <!--file name="org-esa-s1tbx-gpf-FillHoleOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-FillHoleOp-Action.instance"/>
-                </file-->
+                <attr name="position" intvalue="500"/>
+                <file name="org-csa-rstb-classification-gpf-PolarimetricClassificationOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-classification-gpf-PolarimetricClassificationOp-Action.instance"/>
+                    <attr name="position" intvalue="500"/>
+                </file>
+                <file name="org-csa-rstb-classification-gpf-SupervisedWishartClassificationOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-csa-rstb-classification-gpf-SupervisedWishartClassificationOp-Action.instance"/>
+                    <attr name="position" intvalue="700"/>
+                </file>
             </folder>
         </folder>
     </folder>
 
     <folder name="OperatorUIs">
-        <file name="org.csa.rstb.gpf.PolarimetricClassificationOpUI">
-            <attr name="operatorUIClass" stringvalue="org.csa.rstb.gpf.PolarimetricClassificationOpUI"/>
+        <file name="org.csa.rstb.classification.gpf.ui.PolarimetricClassificationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.csa.rstb.classification.gpf.ui.PolarimetricClassificationOpUI"/>
             <attr name="operatorName" stringvalue="Polarimetric-Classification"/>
         </file>
-        <file name="org.csa.rstb.gpf.SupervisedWishartClassificationOpUI">
-            <attr name="operatorUIClass" stringvalue="org.csa.rstb.gpf.SupervisedWishartClassificationOpUI"/>
+        <file name="org.csa.rstb.classification.gpf.ui.SupervisedWishartClassificationOpUI">
+            <attr name="operatorUIClass" stringvalue="org.csa.rstb.classification.gpf.ui.SupervisedWishartClassificationOpUI"/>
             <attr name="operatorName" stringvalue="Supervised-Wishart-Classification"/>
         </file>
     </folder>

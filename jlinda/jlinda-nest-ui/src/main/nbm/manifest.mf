@@ -3,6 +3,7 @@ AutoUpdate-Show-In-Client: false
 AutoUpdate-Essential-Module: true
 OpenIDE-Module-Java-Dependencies: Java > 1.8
 OpenIDE-Module-Display-Category: Sentinel-1 Toolbox
+OpenIDE-Module-Layer: org/jlinda/nest/layer.xml
 OpenIDE-Module-Long-Description: <p>JLinda InSAR Processing Tools</p><p><b>Vendor:</b> PPO.labs</p><p>
  <b>Contact address:</b> Netherlands</p><p><b>Copyright:</b> (C) 2015 by PPO.labs</p><p><b>
  Vendor:</b> PPO.labs</p><p><b>License:</b> http://www.gnu.org/licenses/gpl.html</p>

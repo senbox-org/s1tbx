@@ -25,21 +25,21 @@
     <extension point="snap-graph-builder:OperatorUIs">
 
         <OperatorUI>
-            <id>org.csa.rstb.gpf.PolarimetricDecompositionOpUI</id>
-            <class>org.csa.rstb.gpf.PolarimetricDecompositionOpUI</class>
+            <id>org.csa.rstb.polarimetric.gpf.ui.PolarimetricDecompositionOpUI</id>
+            <class>org.csa.rstb.polarimetric.gpf.ui.PolarimetricDecompositionOpUI</class>
             <operatorName>Polarimetric-Decomposition</operatorName>
         </OperatorUI>
         <OperatorUI>
-            <id>org.csa.rstb.gpf.PolarimetricSpeckleFilterOpUI</id>
-            <class>org.csa.rstb.gpf.PolarimetricSpeckleFilterOpUI</class>
+            <id>org.csa.rstb.polarimetric.gpf.ui.PolarimetricSpeckleFilterOpUI</id>
+            <class>org.csa.rstb.polarimetric.gpf.ui.PolarimetricSpeckleFilterOpUI</class>
             <operatorName>Polarimetric-Speckle-Filter</operatorName>
         </OperatorUI>
     </extension>
 
     <extension point="snap-ui:toolViews">
         <toolView>
-            <id>org.csa.rstb.dat.toolviews.HaAlphaPlotToolView</id>
-            <class>org.csa.rstb.dat.toolviews.HaAlphaPlotToolView</class>
+            <id>org.csa.rstb.polarimetric.rcp.toolviews.HaAlphaPlotToolView</id>
+            <class>org.csa.rstb.polarimetric.rcp.toolviews.HaAlphaPlotToolView</class>
             <title>H-a Alpha Plane</title>
             <tabTitle>H-a Alpha Plane</tabTitle>
             <description>H-a Alpha Plane Plot</description>
@@ -65,7 +65,7 @@
         <action>
             <id>launchPolsarPro</id>
             <parent>polarimetrictools</parent>
-            <class>org.csa.rstb.dat.actions.LaunchPolsarProAction</class>
+            <class>org.csa.rstb.polarimetric.rcp.actions.LaunchPolsarProAction</class>
             <text>Launch PolSARPro</text>
             <shortDescr>Start PolSARPro</shortDescr>
             <separatorBefore>true</separatorBefore>
