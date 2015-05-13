@@ -21,7 +21,7 @@ import org.esa.snap.dataio.netcdf.metadata.ProfilePartWriter;
 import org.esa.snap.dataio.netcdf.nc.NFileWriteable;
 import org.esa.snap.framework.dataio.ProductWriter;
 import org.esa.snap.framework.dataio.ProductWriterPlugIn;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,8 +39,8 @@ public abstract class AbstractNetCdfWriterPlugIn implements ProductWriterPlugIn 
     }
 
     @Override
-    public BeamFileFilter getProductFileFilter() {
-        return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
+    public SnapFileFilter getProductFileFilter() {
+        return new SnapFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
     }
 
     ///////////////////////////////////////////////

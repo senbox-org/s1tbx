@@ -71,8 +71,8 @@ public class FileChooserFactory {
     }
 
     private FileChooserFactory() {
-        fileChooserClass = BeamFileChooser.class;
-        dirChooserClass = BeamFileChooser.class;
+        fileChooserClass = SnapFileChooser.class;
+        dirChooserClass = SnapFileChooser.class;
     }
     
     // Initialization on demand holder idiom

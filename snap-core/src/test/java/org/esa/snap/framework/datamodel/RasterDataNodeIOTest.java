@@ -22,7 +22,7 @@ import org.esa.snap.framework.dataio.AbstractProductReader;
 import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.awt.Rectangle;
 import java.io.IOException;
@@ -218,8 +218,8 @@ public class RasterDataNodeIOTest extends TestCase {
             return new TestProductReader(this);
         }
 
-        public BeamFileFilter getProductFileFilter() {
-            return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
+        public SnapFileFilter getProductFileFilter() {
+            return new SnapFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
         }
 
         public String[] getFormatNames() {

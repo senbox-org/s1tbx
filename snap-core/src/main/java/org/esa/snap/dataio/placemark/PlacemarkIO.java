@@ -34,7 +34,7 @@ import org.esa.snap.util.Guardian;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.XmlWriter;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.DOMBuilder;
@@ -353,14 +353,14 @@ public class PlacemarkIO {
         xmlWriter.close();
     }
 
-    public static BeamFileFilter createTextFileFilter() {
-        return new BeamFileFilter("PLACEMARK_TEXT_FILE",
+    public static SnapFileFilter createTextFileFilter() {
+        return new SnapFileFilter("PLACEMARK_TEXT_FILE",
                                   new String[]{FILE_EXTENSION_FLAT_TEXT, FILE_EXTENSION_FLAT_OLD},
                                   "Placemark files - flat text format");
     }
 
-    public static BeamFileFilter createPlacemarkFileFilter() {
-        return new BeamFileFilter("PLACEMARK_XML_FILE",
+    public static SnapFileFilter createPlacemarkFileFilter() {
+        return new SnapFileFilter("PLACEMARK_XML_FILE",
                                   new String[]{FILE_EXTENSION_PLACEMARK, FILE_EXTENSION_XML_OLD},
                                   "Placemark files - XML format");
     }

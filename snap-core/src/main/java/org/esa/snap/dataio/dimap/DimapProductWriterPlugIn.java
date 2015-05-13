@@ -19,7 +19,7 @@ import org.esa.snap.framework.dataio.EncodeQualification;
 import org.esa.snap.framework.dataio.ProductWriter;
 import org.esa.snap.framework.dataio.ProductWriterPlugIn;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.util.HashSet;
@@ -407,7 +407,7 @@ import java.util.Set;
 public class DimapProductWriterPlugIn implements ProductWriterPlugIn {
 
     public final static String DIMAP_FORMAT_NAME = DimapProductConstants.DIMAP_FORMAT_NAME;
-    private final BeamFileFilter dimapFileFilter = (BeamFileFilter) DimapProductHelpers.createDimapFileFilter();
+    private final SnapFileFilter dimapFileFilter = (SnapFileFilter) DimapProductHelpers.createDimapFileFilter();
     private Set<DimapProductWriter.WriterExtender> dimapWriterWriterExtenders;
 
     /**
@@ -480,7 +480,7 @@ public class DimapProductWriterPlugIn implements ProductWriterPlugIn {
         return dimapProductWriter;
     }
 
-    public BeamFileFilter getProductFileFilter() {
+    public SnapFileFilter getProductFileFilter() {
         return dimapFileFilter;
     }
 

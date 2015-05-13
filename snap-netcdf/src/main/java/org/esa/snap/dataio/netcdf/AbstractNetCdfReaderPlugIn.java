@@ -23,7 +23,7 @@ import org.esa.snap.dataio.netcdf.util.RasterDigest;
 import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 import ucar.nc2.NetcdfFile;
 
 import java.io.File;
@@ -80,8 +80,8 @@ public abstract class AbstractNetCdfReaderPlugIn implements ProductReaderPlugIn 
     }
 
     @Override
-    public BeamFileFilter getProductFileFilter() {
-        return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
+    public SnapFileFilter getProductFileFilter() {
+        return new SnapFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
     }
 
     ///////////////////////////////////////////////

@@ -25,7 +25,6 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.util.io.BeamFileFilter;
 
 import java.awt.Rectangle;
 import java.awt.image.Raster;
@@ -138,7 +137,7 @@ public class OperatorProductReader implements ProductReader {
             return new String[]{"GPF_IN_MEMORY"};
         }
 
-        public BeamFileFilter getProductFileFilter() {
+        public SnapFileFilter getProductFileFilter() {
             return null;
         }
     }

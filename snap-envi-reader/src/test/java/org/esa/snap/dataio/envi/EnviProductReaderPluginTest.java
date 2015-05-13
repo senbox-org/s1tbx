@@ -2,7 +2,7 @@ package org.esa.snap.dataio.envi;
 
 import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -154,14 +154,14 @@ public class EnviProductReaderPluginTest {
 
     @Test
     public void testGetProductFileFilter() {
-        final BeamFileFilter beamFileFilter = readerPlugIn.getProductFileFilter();
+        final SnapFileFilter snapFileFilter = readerPlugIn.getProductFileFilter();
 
-        assertEquals(".hdr", beamFileFilter.getDefaultExtension());
-        final String[] extensions = beamFileFilter.getExtensions();
+        assertEquals(".hdr", snapFileFilter.getDefaultExtension());
+        final String[] extensions = snapFileFilter.getExtensions();
         assertEquals(".hdr", extensions[0]);
         assertEquals(".zip", extensions[1]);
-        assertEquals("ENVI Data Products (*.hdr,*.zip)", beamFileFilter.getDescription());
-        assertEquals("ENVI", beamFileFilter.getFormatName());
+        assertEquals("ENVI Data Products (*.hdr,*.zip)", snapFileFilter.getDescription());
+        assertEquals("ENVI", snapFileFilter.getFormatName());
     }
 
     ///////////////////////////////////////////////////////////////////////////

@@ -15,7 +15,7 @@
  */
 package org.esa.snap.framework.dataio;
 
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.util.Locale;
 
@@ -24,7 +24,6 @@ import java.util.Locale;
  * The <code>ProductIOPlugIn</code> interface is the base for all data product reader or writer plug-ins.
  *
  * @author Norman Fomferra
- * @version $Revision$ $Date$
  */
 public interface ProductIOPlugIn {
 
@@ -59,9 +58,9 @@ public interface ProductIOPlugIn {
     String getDescription(Locale locale);
 
     /**
-     * Gets an instance of {@link org.esa.snap.util.io.BeamFileFilter} for use in a {@link javax.swing.JFileChooser JFileChooser}.
+     * Gets an instance of {@link SnapFileFilter} for use in a {@link javax.swing.JFileChooser JFileChooser}.
      *
      * @return a file filter
      */
-    BeamFileFilter getProductFileFilter();
+    SnapFileFilter getProductFileFilter();
 }

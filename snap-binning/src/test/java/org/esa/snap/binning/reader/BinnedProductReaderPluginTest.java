@@ -2,7 +2,7 @@ package org.esa.snap.binning.reader;
 
 import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public class BinnedProductReaderPluginTest {
 
     @Test
     public void testGetProductFileFilter() {
-        final BeamFileFilter fileFilter = plugin.getProductFileFilter();
+        final SnapFileFilter fileFilter = plugin.getProductFileFilter();
         assertTrue(fileFilter instanceof BinnedFileFilter);
     }
 

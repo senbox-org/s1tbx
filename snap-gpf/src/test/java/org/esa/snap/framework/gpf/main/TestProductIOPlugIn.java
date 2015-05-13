@@ -13,7 +13,6 @@ import org.esa.snap.framework.dataio.ProductWriterPlugIn;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.io.BeamFileFilter;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -99,7 +98,7 @@ public class TestProductIOPlugIn implements ProductReaderPlugIn, ProductWriterPl
     }
 
     @Override
-    public BeamFileFilter getProductFileFilter() {
+    public SnapFileFilter getProductFileFilter() {
         return null;
     }
 

@@ -23,7 +23,6 @@ import junit.framework.TestSuite;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.io.BeamFileFilter;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -89,8 +88,8 @@ public class ProductIOPlugInManagerTest extends TestCase {
             return new XProductReader(this);
         }
 
-        public BeamFileFilter getProductFileFilter() {
-            return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
+        public SnapFileFilter getProductFileFilter() {
+            return new SnapFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
 
         }
 
@@ -124,8 +123,8 @@ public class ProductIOPlugInManagerTest extends TestCase {
             return new YProductReader(this);
         }
 
-        public BeamFileFilter getProductFileFilter() {
-            return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
+        public SnapFileFilter getProductFileFilter() {
+            return new SnapFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
         }
 
         public DecodeQualification getDecodeQualification(Object input) {
@@ -163,8 +162,8 @@ public class ProductIOPlugInManagerTest extends TestCase {
             return new XProductWriter(this);
         }
 
-        public BeamFileFilter getProductFileFilter() {
-            return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
+        public SnapFileFilter getProductFileFilter() {
+            return new SnapFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
         }
 
     }
@@ -196,8 +195,8 @@ public class ProductIOPlugInManagerTest extends TestCase {
             return new YProductWriter(this);
         }
 
-        public BeamFileFilter getProductFileFilter() {
-            return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
+        public SnapFileFilter getProductFileFilter() {
+            return new SnapFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
         }
 
     }

@@ -24,7 +24,7 @@ import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.framework.dataio.ProductWriter;
 import org.esa.snap.framework.dataio.ProductWriterPlugIn;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.util.Locale;
@@ -73,7 +73,7 @@ public class RawTiledPyramidsProductCodecSpi implements ProductReaderPlugIn, Pro
         return FORMAT_DESCRIPTION;
     }
 
-    public BeamFileFilter getProductFileFilter() {
+    public SnapFileFilter getProductFileFilter() {
         return new RawTiledPyramidsProductFileFilter();
     }
 

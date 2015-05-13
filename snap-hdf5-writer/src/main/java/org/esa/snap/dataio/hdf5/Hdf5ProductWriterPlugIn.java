@@ -20,7 +20,7 @@ import org.esa.snap.framework.dataio.ProductWriter;
 import org.esa.snap.framework.dataio.ProductWriterPlugIn;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.text.MessageFormat;
@@ -130,14 +130,14 @@ public class Hdf5ProductWriterPlugIn implements ProductWriterPlugIn {
         return new Hdf5ProductWriter(this);
     }
 
-    public BeamFileFilter getProductFileFilter() {
+    public SnapFileFilter getProductFileFilter() {
         String[] formatNames = getFormatNames();
         String formatName = "";
         if (formatNames.length > 0) {
             formatName = formatNames[0];
         }
 
-        return new BeamFileFilter(formatName, getDefaultFileExtensions(), getDescription(null));
+        return new SnapFileFilter(formatName, getDefaultFileExtensions(), getDescription(null));
     }
 
     private static Class<?> loadHdf5Lib(Class<?> callerClass) {

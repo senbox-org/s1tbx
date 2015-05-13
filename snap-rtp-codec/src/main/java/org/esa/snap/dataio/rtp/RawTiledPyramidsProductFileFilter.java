@@ -16,14 +16,14 @@
 
 package org.esa.snap.dataio.rtp;
 
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 
 import static org.esa.snap.dataio.rtp.RawTiledPyramidsProductCodecSpi.*;
 
 
-class RawTiledPyramidsProductFileFilter extends BeamFileFilter {
+class RawTiledPyramidsProductFileFilter extends SnapFileFilter {
     public RawTiledPyramidsProductFileFilter() {
         super(FORMAT_NAME, NO_FILE_EXTENSIONS, FORMAT_DESCRIPTION);
     }

@@ -32,38 +32,35 @@ import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 
 /**
- * The general BEAM file chooser.
+ * The general SNAP file chooser.
  *
  * @author Norman Fomferra
- * @version $Revision$  $Date$
  */
-public class BeamFileChooser extends JFileChooser {
+public class SnapFileChooser extends JFileChooser {
 
     private String lastFilename;
     private Rectangle dialogBounds;
     private ResizeHandler resizeHandler;
 
-    public BeamFileChooser() {
+    public SnapFileChooser() {
         super();
         init();
     }
 
-    public BeamFileChooser(FileSystemView fsv) {
+    public SnapFileChooser(FileSystemView fsv) {
         super(fsv);
         init();
     }
 
-    public BeamFileChooser(File currentDirectory) {
+    public SnapFileChooser(File currentDirectory) {
         super(currentDirectory);
         init();
     }
 
-    public BeamFileChooser(File currentDirectory, FileSystemView fsv) {
+    public SnapFileChooser(File currentDirectory, FileSystemView fsv) {
         super(currentDirectory, fsv);
         init();
     }
@@ -105,9 +102,9 @@ public class BeamFileChooser extends JFileChooser {
      */
     @Override
     public void approveSelection() {
-        Debug.trace("BeamFileChooser: approveSelection(): selectedFile = " + getSelectedFile());
-        Debug.trace("BeamFileChooser: approveSelection(): currentFilename = " + getCurrentFilename());
-        Debug.trace("BeamFileChooser: approveSelection(): currentDirectory = " + getCurrentDirectory());
+        Debug.trace("SnapFileChooser: approveSelection(): selectedFile = " + getSelectedFile());
+        Debug.trace("SnapFileChooser: approveSelection(): currentFilename = " + getCurrentFilename());
+        Debug.trace("SnapFileChooser: approveSelection(): currentDirectory = " + getCurrentDirectory());
         if (getDialogType() != JFileChooser.OPEN_DIALOG) {
             ensureSelectedFileHasValidExtension();
         }
@@ -149,20 +146,20 @@ public class BeamFileChooser extends JFileChooser {
      * @param currentFilename The current filename, or <code>null</code>.
      */
     public void setCurrentFilename(String currentFilename) {
-        Debug.trace("BeamFileChooser: setCurrentFilename(\"" + currentFilename + "\")");
+        Debug.trace("SnapFileChooser: setCurrentFilename(\"" + currentFilename + "\")");
         String defaultExtension = getDefaultExtension();
 
         if (getDialogType() != JFileChooser.OPEN_DIALOG) {
             if (currentFilename != null && defaultExtension != null) {
                 FileFilter fileFilter = getFileFilter();
-                if (fileFilter instanceof BeamFileFilter) {
-                    BeamFileFilter filter = (BeamFileFilter) fileFilter;
+                if (fileFilter instanceof SnapFileFilter) {
+                    SnapFileFilter filter = (SnapFileFilter) fileFilter;
                     if (!filter.checkExtension(currentFilename)) {
                         currentFilename = FileUtils.exchangeExtension(currentFilename, defaultExtension);
                     }
                 } else if (fileFilter instanceof FileNameExtensionFilter) {
                     FileNameExtensionFilter filter = (FileNameExtensionFilter) fileFilter;
-                    if (!BeamFileFilter.checkExtensions(currentFilename, filter.getExtensions())) {
+                    if (!SnapFileFilter.checkExtensions(currentFilename, filter.getExtensions())) {
                         currentFilename = FileUtils.exchangeExtension(currentFilename, defaultExtension);
                     }
                 }
@@ -175,14 +172,14 @@ public class BeamFileChooser extends JFileChooser {
     }
 
     /**
-     * Returns the currently selected BEAM file filter.
+     * Returns the currently selected SNAP file filter.
      *
-     * @return the current BEAM file filter, or <code>null</code>
+     * @return the current SNAP file filter, or <code>null</code>
      */
-    public BeamFileFilter getBeamFileFilter() {
+    public SnapFileFilter getSnapFileFilter() {
         FileFilter ff = getFileFilter();
-        if (ff instanceof BeamFileFilter) {
-            return (BeamFileFilter) ff;
+        if (ff instanceof SnapFileFilter) {
+            return (SnapFileFilter) ff;
         }
         return null;
     }
@@ -191,8 +188,8 @@ public class BeamFileChooser extends JFileChooser {
      * @return The current extension or <code>null</code> if it is unknown.
      */
     public String getDefaultExtension() {
-        if (getBeamFileFilter() != null) {
-            return getBeamFileFilter().getDefaultExtension();
+        if (getSnapFileFilter() != null) {
+            return getSnapFileFilter().getDefaultExtension();
         }
         return null;
     }
@@ -200,20 +197,20 @@ public class BeamFileChooser extends JFileChooser {
 
     /**
      * Checks whether or not the given filename with one of the known file extensions. The known file extension of this
-     * file chooser are those, which are registered using a {@link BeamFileFilter}.
+     * file chooser are those, which are registered using a {@link SnapFileFilter}.
      *
      * @param filename the filename to be checked
      * @return <code>true</code>, if the given file has a "known" extension
-     * @see BeamFileFilter
+     * @see SnapFileFilter
      */
     public boolean checkExtension(String filename) {
         if (filename != null) {
             FileFilter[] fileFilters = getChoosableFileFilters();
             if (fileFilters != null) {
                 for (FileFilter filter : fileFilters) {
-                    if (filter instanceof BeamFileFilter) {
-                        final BeamFileFilter beamFileFilter = (BeamFileFilter) filter;
-                        if (beamFileFilter.checkExtension(filename)) {
+                    if (filter instanceof SnapFileFilter) {
+                        final SnapFileFilter snapFileFilter = (SnapFileFilter) filter;
+                        if (snapFileFilter.checkExtension(filename)) {
                             return true;
                         }
                     }
@@ -245,42 +242,36 @@ public class BeamFileChooser extends JFileChooser {
         resizeHandler = new ResizeHandler();
         setAcceptAllFileFilterUsed(false);
 
-        addPropertyChangeListener(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                Object newValue = evt.getNewValue();
-                if (newValue instanceof File) {
-                    lastFilename = ((File) newValue).getName();
-                }
+        addPropertyChangeListener(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, evt -> {
+            Object newValue = evt.getNewValue();
+            if (newValue instanceof File) {
+                lastFilename = ((File) newValue).getName();
             }
         });
-        addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                final BeamFileFilter beamFileFilter = getBeamFileFilter();
-                if (beamFileFilter != null) {
-                    setFileSelectionMode(beamFileFilter.getFileSelectionMode().getValue());
-                } else {
-                    setFileSelectionMode(FILES_ONLY);
-                }
-
-                if (getSelectedFile() != null) {
-                    return;
-                }
-                if (lastFilename == null || lastFilename.length() == 0) {
-                    return;
-                }
-                setCurrentFilename(lastFilename);
+        addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, evt -> {
+            final SnapFileFilter snapFileFilter = getSnapFileFilter();
+            if (snapFileFilter != null) {
+                setFileSelectionMode(snapFileFilter.getFileSelectionMode().getValue());
+            } else {
+                setFileSelectionMode(FILES_ONLY);
             }
+
+            if (getSelectedFile() != null) {
+                return;
+            }
+            if (lastFilename == null || lastFilename.length() == 0) {
+                return;
+            }
+            setCurrentFilename(lastFilename);
         });
     }
 
     private boolean isCompoundDocument(File file) {
         final FileFilter[] filters = getChoosableFileFilters();
         for (FileFilter fileFilter : filters) {
-            if (fileFilter instanceof BeamFileFilter) {
-                BeamFileFilter beamFileFilter = (BeamFileFilter) fileFilter;
-                if (beamFileFilter.isCompoundDocument(file)) {
+            if (fileFilter instanceof SnapFileFilter) {
+                SnapFileFilter snapFileFilter = (SnapFileFilter) fileFilter;
+                if (snapFileFilter.isCompoundDocument(file)) {
                     return true;
                 }
             }
@@ -291,7 +282,7 @@ public class BeamFileChooser extends JFileChooser {
     private void ensureSelectedFileHasValidExtension() {
         File selectedFile = getSelectedFile();
         if (selectedFile != null) {
-            BeamFileFilter mff = getBeamFileFilter();
+            SnapFileFilter mff = getSnapFileFilter();
             if (mff != null
                 && mff.getDefaultExtension() != null
                 && !mff.checkExtension(selectedFile)) {

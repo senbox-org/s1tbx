@@ -19,7 +19,6 @@ package org.esa.snap.dataio.getasse30;
 import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.util.io.BeamFileFilter;
 
 import java.io.File;
 import java.util.Locale;
@@ -94,8 +93,8 @@ public class GETASSE30ReaderPlugIn implements ProductReaderPlugIn {
         return new GETASSE30Reader(this);
     }
 
-    public BeamFileFilter getProductFileFilter() {
-        return new BeamFileFilter(FORMAT_NAME, FILE_EXTENSIONS, DESCRIPTION);
+    public SnapFileFilter getProductFileFilter() {
+        return new SnapFileFilter(FORMAT_NAME, FILE_EXTENSIONS, DESCRIPTION);
     }
 
     /**

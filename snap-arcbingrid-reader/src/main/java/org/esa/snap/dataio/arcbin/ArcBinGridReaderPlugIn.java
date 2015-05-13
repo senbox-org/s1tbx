@@ -19,7 +19,7 @@ package org.esa.snap.dataio.arcbin;
 import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.util.Locale;
@@ -31,7 +31,7 @@ public class ArcBinGridReaderPlugIn implements ProductReaderPlugIn {
     private static final String FORMAT_NAME = "ARC_INFO_BIN_GRID";
     private static final String[] FORMAT_NAMES = new String[]{FORMAT_NAME};
     private static final Class[] INPUT_TYPES = new Class[]{String.class, File.class};
-    private static final BeamFileFilter FILE_FILTER = new ArcBinGridFileFilter();
+    private static final SnapFileFilter FILE_FILTER = new ArcBinGridFileFilter();
 
     @Override
     public DecodeQualification getDecodeQualification(Object input) {
@@ -68,11 +68,11 @@ public class ArcBinGridReaderPlugIn implements ProductReaderPlugIn {
     }
 
     @Override
-    public BeamFileFilter getProductFileFilter() {
+    public SnapFileFilter getProductFileFilter() {
         return FILE_FILTER;
     }
 
-    private static class ArcBinGridFileFilter extends BeamFileFilter {
+    private static class ArcBinGridFileFilter extends SnapFileFilter {
 
         private ArcBinGridFileFilter() {
             setFormatName(FORMAT_NAMES[0]);

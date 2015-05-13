@@ -32,7 +32,7 @@ import org.esa.snap.util.BeamConstants;
 import org.esa.snap.util.BitRaster;
 import org.esa.snap.util.ObjectUtils;
 import org.esa.snap.util.ProductUtilsTest;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -1096,8 +1096,8 @@ class DummyProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
     @Override
-    public BeamFileFilter getProductFileFilter() {
-        return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
+    public SnapFileFilter getProductFileFilter() {
+        return new SnapFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
     }
 
 }

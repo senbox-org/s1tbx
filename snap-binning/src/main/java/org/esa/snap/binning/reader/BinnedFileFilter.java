@@ -1,10 +1,8 @@
 package org.esa.snap.binning.reader;
 
-import org.esa.snap.util.io.BeamFileFilter;
-
 import java.io.File;
 
-public class BinnedFileFilter extends BeamFileFilter {
+public class BinnedFileFilter extends SnapFileFilter {
 
     public BinnedFileFilter() {
         super(BinnedProductReaderPlugin.FORMAT_NAME,

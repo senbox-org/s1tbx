@@ -2,7 +2,6 @@ package org.esa.snap.dataio.bigtiff;
 
 
 import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.util.io.BeamFileFilter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -65,11 +64,11 @@ public class BigGeoTiffProductReaderPlugInTest {
 
     @Test
     public void testProductFileFilter() {
-        final BeamFileFilter beamFileFilter = plugIn.getProductFileFilter();
+        final SnapFileFilter snapFileFilter = plugIn.getProductFileFilter();
 
-        assertNotNull(beamFileFilter);
-        assertArrayEquals(plugIn.getDefaultFileExtensions(), beamFileFilter.getExtensions());
-        assertEquals(plugIn.getFormatNames()[0], beamFileFilter.getFormatName());
-        assertEquals(true, beamFileFilter.getDescription().contains(plugIn.getDescription(Locale.getDefault())));
+        assertNotNull(snapFileFilter);
+        assertArrayEquals(plugIn.getDefaultFileExtensions(), snapFileFilter.getExtensions());
+        assertEquals(plugIn.getFormatNames()[0], snapFileFilter.getFormatName());
+        assertEquals(true, snapFileFilter.getDescription().contains(plugIn.getDescription(Locale.getDefault())));
     }
 }

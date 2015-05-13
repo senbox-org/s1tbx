@@ -19,7 +19,7 @@ import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.util.Locale;
@@ -78,8 +78,8 @@ public class ACE2_5MinReaderPlugIn implements ProductReaderPlugIn {
         return new ACE2_5MinReader(this);
     }
 
-    public BeamFileFilter getProductFileFilter() {
-        return new BeamFileFilter(FORMAT_NAME, FILE_EXTENSIONS, DESCRIPTION);
+    public SnapFileFilter getProductFileFilter() {
+        return new SnapFileFilter(FORMAT_NAME, FILE_EXTENSIONS, DESCRIPTION);
     }
 
     /**

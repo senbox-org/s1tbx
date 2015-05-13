@@ -16,7 +16,6 @@
 
 package org.esa.snap.dataio.dimap;
 
-import org.esa.snap.util.io.BeamFileFilter;
 import org.esa.snap.util.io.FileUtils;
 
 import java.io.File;
@@ -24,7 +23,7 @@ import java.io.File;
 import static org.esa.snap.dataio.dimap.DimapProductConstants.*;
 
 
-public class DimapFileFilter extends BeamFileFilter {
+public class DimapFileFilter extends SnapFileFilter {
     public DimapFileFilter() {
         super(DIMAP_FORMAT_NAME, DIMAP_HEADER_FILE_EXTENSION, "BEAM-DIMAP product files");
     }

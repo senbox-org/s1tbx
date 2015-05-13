@@ -18,7 +18,7 @@ package org.esa.snap.dataio.dimap;
 import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.io.FileReader;
@@ -41,7 +41,7 @@ import java.util.Locale;
  */
 public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
 
-    private final BeamFileFilter dimapFileFilter = (BeamFileFilter) DimapProductHelpers.createDimapFileFilter();
+    private final SnapFileFilter dimapFileFilter = (SnapFileFilter) DimapProductHelpers.createDimapFileFilter();
     private ArrayList<DimapProductReader.ReaderExtender> readerExtenders;
 
     /**
@@ -154,7 +154,7 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
         return dimapProductReader;
     }
 
-    public BeamFileFilter getProductFileFilter() {
+    public SnapFileFilter getProductFileFilter() {
         return dimapFileFilter;
     }
 

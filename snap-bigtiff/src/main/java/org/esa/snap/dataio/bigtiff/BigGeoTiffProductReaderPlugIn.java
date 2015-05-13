@@ -5,7 +5,7 @@ import it.geosolutions.imageioimpl.plugins.tiff.TIFFImageReader;
 import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -66,8 +66,8 @@ public class BigGeoTiffProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
     @Override
-    public BeamFileFilter getProductFileFilter() {
-        return new BeamFileFilter(Constants.FORMAT_NAMES[0], getDefaultFileExtensions(), getDescription(null));
+    public SnapFileFilter getProductFileFilter() {
+        return new SnapFileFilter(Constants.FORMAT_NAMES[0], getDefaultFileExtensions(), getDescription(null));
     }
 
     // @todo 3 tb/tb write test following the original GeoTiff pattern 2015-01-08

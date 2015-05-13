@@ -5,7 +5,7 @@ import org.esa.snap.framework.dataio.EncodeQualification;
 import org.esa.snap.framework.dataio.ProductWriter;
 import org.esa.snap.framework.dataio.ProductWriterPlugIn;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.util.Locale;
@@ -16,7 +16,7 @@ import java.util.Locale;
 public class EnviProductWriterPlugIn implements ProductWriterPlugIn {
 
     public final static String FORMAT_NAME = EnviConstants.FORMAT_NAME;
-    private final BeamFileFilter fileFilter = new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
+    private final SnapFileFilter fileFilter = new SnapFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
 
     /**
      * Constructs a new ENVI product writer plug-in instance.
@@ -84,7 +84,7 @@ public class EnviProductWriterPlugIn implements ProductWriterPlugIn {
         return new EnviProductWriter(this);
     }
 
-    public BeamFileFilter getProductFileFilter() {
+    public SnapFileFilter getProductFileFilter() {
         return fileFilter;
     }
 }

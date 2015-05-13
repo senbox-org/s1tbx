@@ -20,23 +20,23 @@ import junit.framework.TestCase;
 
 import java.io.File;
 
-public class BeamFileFilterTest extends TestCase {
+public class SnapFileFilterTest extends TestCase {
     public void testSingleExt() {
-        testSingleExt(new BeamFileFilter("X", "xml", "X files"));
-        testSingleExt(new BeamFileFilter("X", new String[]{"xml"}, "X files"));
+        testSingleExt(new SnapFileFilter("X", "xml", "X files"));
+        testSingleExt(new SnapFileFilter("X", new String[]{"xml"}, "X files"));
     }
 
     public void testMultiExt() {
-        testMultiExt(new BeamFileFilter("X", "xml,zip", "X files"));
-        testMultiExt(new BeamFileFilter("X", new String[]{".xml",".zip"}, "X files"));
+        testMultiExt(new SnapFileFilter("X", "xml,zip", "X files"));
+        testMultiExt(new SnapFileFilter("X", new String[]{".xml",".zip"}, "X files"));
     }
 
     public void testNoExt() {
-        testNoExt(new BeamFileFilter("X", "", "X files"));
-        testNoExt(new BeamFileFilter("X", new String[0], "X files"));
+        testNoExt(new SnapFileFilter("X", "", "X files"));
+        testNoExt(new SnapFileFilter("X", new String[0], "X files"));
     }
 
-    private void testSingleExt(BeamFileFilter fileFilter) {
+    private void testSingleExt(SnapFileFilter fileFilter) {
         assertEquals("X", fileFilter.getFormatName());
         assertNotNull(fileFilter.getExtensions());
         assertEquals(1, fileFilter.getExtensions().length);
@@ -49,7 +49,7 @@ public class BeamFileFilterTest extends TestCase {
         assertEquals(false, fileFilter.accept(new File("./a.txt")));
     }
 
-    private void testMultiExt(BeamFileFilter fileFilter) {
+    private void testMultiExt(SnapFileFilter fileFilter) {
         assertEquals("X", fileFilter.getFormatName());
         assertNotNull(fileFilter.getExtensions());
         assertEquals(2, fileFilter.getExtensions().length);
@@ -63,7 +63,7 @@ public class BeamFileFilterTest extends TestCase {
         assertEquals(false, fileFilter.accept(new File("./a.txt")));
     }
 
-    private void testNoExt(BeamFileFilter fileFilter) {
+    private void testNoExt(SnapFileFilter fileFilter) {
         assertEquals("X", fileFilter.getFormatName());
         assertNotNull(fileFilter.getExtensions());
         assertEquals(0, fileFilter.getExtensions().length);
@@ -77,7 +77,7 @@ public class BeamFileFilterTest extends TestCase {
 
 
     public void testDefaultConstructor() {
-        final BeamFileFilter f = new BeamFileFilter();
+        final SnapFileFilter f = new SnapFileFilter();
         assertNull(f.getFormatName());
         assertNull(f.getDescription());
         assertNull(f.getDefaultExtension());
@@ -86,7 +86,7 @@ public class BeamFileFilterTest extends TestCase {
     }
 
     public void testSingleExtConstructor() {
-        final BeamFileFilter f = new BeamFileFilter("RALLA", ".ral", "RALLA Files");
+        final SnapFileFilter f = new SnapFileFilter("RALLA", ".ral", "RALLA Files");
         assertEquals("RALLA", f.getFormatName());
         assertEquals("RALLA Files (*.ral)", f.getDescription());
         assertTrue(f.hasExtensions());
@@ -96,7 +96,7 @@ public class BeamFileFilterTest extends TestCase {
     }
 
     public void testMultipleExtConstructor() {
-        final BeamFileFilter f = new BeamFileFilter("Holla", new String[]{".hol", ".ho", ".holla"}, "Holla Files");
+        final SnapFileFilter f = new SnapFileFilter("Holla", new String[]{".hol", ".ho", ".holla"}, "Holla Files");
         assertEquals("Holla", f.getFormatName());
         assertEquals("Holla Files (*.hol,*.ho,*.holla)", f.getDescription());
         assertTrue(f.hasExtensions());
@@ -108,25 +108,25 @@ public class BeamFileFilterTest extends TestCase {
     }
 
     public void testConstructorsBehaveEqualWithEmptyExtension() {
-        BeamFileFilter fileFilter = new BeamFileFilter("All", "", "No Extension");
+        SnapFileFilter fileFilter = new SnapFileFilter("All", "", "No Extension");
         assertEquals("All", fileFilter.getFormatName());
         assertEquals(null, fileFilter.getDefaultExtension());
         assertEquals("No Extension", fileFilter.getDescription());
         assertEquals(0, fileFilter.getExtensions().length);
 
-        fileFilter = new BeamFileFilter("All", new String[]{""}, "No Extension");
+        fileFilter = new SnapFileFilter("All", new String[]{""}, "No Extension");
         assertEquals("All", fileFilter.getFormatName());
         assertEquals(null, fileFilter.getDefaultExtension());
         assertEquals("No Extension", fileFilter.getDescription());
         assertEquals(0, fileFilter.getExtensions().length);
 
-        fileFilter = new BeamFileFilter("All", ".42, ,uni", "One Empty");
+        fileFilter = new SnapFileFilter("All", ".42, ,uni", "One Empty");
         assertEquals("All", fileFilter.getFormatName());
         assertEquals(".42", fileFilter.getDefaultExtension());
         assertEquals("One Empty (*.42,*.uni)", fileFilter.getDescription());
         assertEquals(2, fileFilter.getExtensions().length);
 
-        fileFilter = new BeamFileFilter("All", new String[]{".42", "", "uni"}, "One Empty");
+        fileFilter = new SnapFileFilter("All", new String[]{".42", "", "uni"}, "One Empty");
         assertEquals("All", fileFilter.getFormatName());
         assertEquals(".42", fileFilter.getDefaultExtension());
         assertEquals("One Empty (*.42,*.uni)", fileFilter.getDescription());
@@ -134,7 +134,7 @@ public class BeamFileFilterTest extends TestCase {
     }
 
     public void testSetters() {
-        final BeamFileFilter f = new BeamFileFilter();
+        final SnapFileFilter f = new SnapFileFilter();
         f.setFormatName("Zappo");
         f.setDescription("Zappo File Format");
         f.setExtensions(new String[]{".zap", ".ZAPPO"});
@@ -149,7 +149,7 @@ public class BeamFileFilterTest extends TestCase {
     }
 
     public void testSingleExtIgnoreCase() {
-        final BeamFileFilter f = new BeamFileFilter("RALLA", ".ral", "RALLA Files");
+        final SnapFileFilter f = new SnapFileFilter("RALLA", ".ral", "RALLA Files");
 
         assertTrue(f.accept(new File("my_ralla.ral")));
         assertTrue(f.accept(new File("my_ralla.RAL")));
@@ -157,7 +157,7 @@ public class BeamFileFilterTest extends TestCase {
     }
 
     public void testMultipleExtIgnoreCase() {
-        final BeamFileFilter f = new BeamFileFilter("RALLA", new String[]{".ral", ".lar"}, "RALLA Files");
+        final SnapFileFilter f = new SnapFileFilter("RALLA", new String[]{".ral", ".lar"}, "RALLA Files");
 
         assertTrue(f.accept(new File("my_ralla.ral")));
         assertTrue(f.accept(new File("my_ralla.RAL")));
@@ -168,7 +168,7 @@ public class BeamFileFilterTest extends TestCase {
     }
 
     public void testThatExtensionsIgnoreCase() {
-        final BeamFileFilter f = new BeamFileFilter("RALLA", new String[]{".ral", ".ral.zip"}, "RALLA Files");
+        final SnapFileFilter f = new SnapFileFilter("RALLA", new String[]{".ral", ".ral.zip"}, "RALLA Files");
 
         assertTrue(f.accept(new File("my_ralla.ral")));
         assertTrue(f.accept(new File("my_ralla.RAL")));

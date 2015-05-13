@@ -23,7 +23,6 @@ import javax.swing.filechooser.FileFilter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,22 +30,21 @@ import java.util.List;
  * A <code>FileFilter</code> with file extensions support.
  *
  * @author Norman Fomferra
- * @version $Revision$  $Date$
  */
-public class BeamFileFilter extends FileFilter {
+public class SnapFileFilter extends FileFilter {
 
     private String formatName;
     private String[] extensions;
     private String description;
 
-    public BeamFileFilter() {
+    public SnapFileFilter() {
     }
 
-    public BeamFileFilter(String formatName, String extension, String description) {
+    public SnapFileFilter(String formatName, String extension, String description) {
         this(formatName, StringUtils.toStringArray(extension, ","), description);
     }
 
-    public BeamFileFilter(String formatName, String[] extensions, String description) {
+    public SnapFileFilter(String formatName, String[] extensions, String description) {
         setFormatName(formatName);
         setExtensions(extensions);
         setDescription(description);
@@ -98,7 +96,7 @@ public class BeamFileFilter extends FileFilter {
      */
     public void setExtensions(String[] extensions) {
         if (extensions != null) {
-            ArrayList<String> extensionList = new ArrayList<String>();
+            ArrayList<String> extensionList = new ArrayList<>();
             for (final String extension : extensions) {
                 if (extension.startsWith(".")) {
                     extensionList.add(extension);
@@ -218,7 +216,7 @@ public class BeamFileFilter extends FileFilter {
     /**
      * Checks if the given directory represents a compound document.
      * If so, we don't want the user to descend into it when using the
-     * {@link org.esa.snap.util.io.BeamFileChooser}.
+     * {@link SnapFileChooser}.
      * The default implementation returns {@code false}.
      * Clients may override.
      *
@@ -231,7 +229,7 @@ public class BeamFileFilter extends FileFilter {
     }
 
     /**
-     * Gets the file selection mode for the {@link org.esa.snap.util.io.BeamFileChooser} if this filter is used.
+     * Gets the file selection mode for the {@link SnapFileChooser} if this filter is used.
      * The default implementation returns {@link FileSelectionMode#FILES_ONLY}.
      * Clients may override.
      *
@@ -279,20 +277,15 @@ public class BeamFileFilter extends FileFilter {
      * @return a sorted list of file filters
      * @since BEAM 4.10
      */
-    public static <T extends ProductIOPlugIn> List<BeamFileFilter> getSortedFileFilters(Iterator<T> pluginIterator) {
-        List<BeamFileFilter> fileFilterList = new ArrayList<BeamFileFilter>();
+    public static <T extends ProductIOPlugIn> List<SnapFileFilter> getSortedFileFilters(Iterator<T> pluginIterator) {
+        List<SnapFileFilter> fileFilterList = new ArrayList<>();
         while (pluginIterator.hasNext()) {
-            final BeamFileFilter productFileFilter = pluginIterator.next().getProductFileFilter();
+            final SnapFileFilter productFileFilter = pluginIterator.next().getProductFileFilter();
             if (productFileFilter != null) {
                 fileFilterList.add(productFileFilter);
             }
         }
-        Collections.sort(fileFilterList, new Comparator<BeamFileFilter>() {
-            @Override
-            public int compare(BeamFileFilter bff1, BeamFileFilter bff2) {
-                return bff1.getDescription().compareTo(bff2.getDescription());
-            }
-        });
+        Collections.sort(fileFilterList, (bff1, bff2) -> bff1.getDescription().compareTo(bff2.getDescription()));
         return fileFilterList;
     }
 }

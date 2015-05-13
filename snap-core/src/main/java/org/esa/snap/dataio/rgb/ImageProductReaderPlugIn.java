@@ -19,8 +19,8 @@ import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.io.BeamFileFilter;
 import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.util.Locale;
@@ -80,7 +80,7 @@ public class ImageProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
     @Override
-    public BeamFileFilter getProductFileFilter() {
-        return new BeamFileFilter(FORMAT_NAME, getDefaultFileExtensions(), "Image files");
+    public SnapFileFilter getProductFileFilter() {
+        return new SnapFileFilter(FORMAT_NAME, getDefaultFileExtensions(), "Image files");
     }
 }
