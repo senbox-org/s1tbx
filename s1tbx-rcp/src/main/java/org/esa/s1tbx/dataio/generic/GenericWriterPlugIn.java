@@ -19,6 +19,7 @@ import org.esa.snap.framework.dataio.EncodeQualification;
 import org.esa.snap.framework.dataio.ProductWriter;
 import org.esa.snap.framework.dataio.ProductWriterPlugIn;
 import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.util.Locale;

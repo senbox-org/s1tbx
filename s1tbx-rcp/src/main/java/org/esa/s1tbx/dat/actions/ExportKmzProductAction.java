@@ -42,6 +42,7 @@ import org.esa.snap.graphbuilder.rcp.dialogs.support.GPFProcessor;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.SnapFileChooser;
+import org.esa.snap.util.io.SnapFileFilter;
 import org.esa.snap.visat.VisatApp;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
