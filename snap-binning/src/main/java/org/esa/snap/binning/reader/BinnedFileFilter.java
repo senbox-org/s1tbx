@@ -1,5 +1,7 @@
 package org.esa.snap.binning.reader;
 
+import org.esa.snap.util.io.SnapFileFilter;
+
 import java.io.File;
 
 public class BinnedFileFilter extends SnapFileFilter {

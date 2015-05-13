@@ -25,6 +25,7 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.awt.Rectangle;
 import java.awt.image.Raster;

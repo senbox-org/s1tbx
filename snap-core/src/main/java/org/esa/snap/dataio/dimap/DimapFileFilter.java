@@ -17,6 +17,7 @@
 package org.esa.snap.dataio.dimap;
 
 import org.esa.snap.util.io.FileUtils;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 
