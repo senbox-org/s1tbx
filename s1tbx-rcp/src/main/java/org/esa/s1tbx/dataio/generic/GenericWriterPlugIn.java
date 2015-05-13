@@ -19,7 +19,6 @@ import org.esa.snap.framework.dataio.EncodeQualification;
 import org.esa.snap.framework.dataio.ProductWriter;
 import org.esa.snap.framework.dataio.ProductWriterPlugIn;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.util.io.BeamFileFilter;
 
 import java.io.File;
 import java.util.Locale;
@@ -90,7 +89,7 @@ public class GenericWriterPlugIn implements ProductWriterPlugIn {
         return new GenericWriter(this);
     }
 
-    public BeamFileFilter getProductFileFilter() {
-        return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
+    public SnapFileFilter getProductFileFilter() {
+        return new SnapFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
     }
 }

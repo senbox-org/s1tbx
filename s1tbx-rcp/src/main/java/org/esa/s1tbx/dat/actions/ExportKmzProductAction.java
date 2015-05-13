@@ -19,8 +19,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.snap.dat.dialogs.StringSelectorDialog;
-import org.esa.snap.graphbuilder.rcp.dialogs.support.GPFProcessor;
-import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
 import org.esa.snap.framework.dataio.ProductSubsetDef;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.CrsGeoCoding;
@@ -39,10 +37,11 @@ import org.esa.snap.framework.dataop.maptransf.MapTransformDescriptor;
 import org.esa.snap.framework.help.HelpSys;
 import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.framework.ui.command.ExecCommand;
+import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
+import org.esa.snap.graphbuilder.rcp.dialogs.support.GPFProcessor;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.io.BeamFileChooser;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileChooser;
 import org.esa.snap.visat.VisatApp;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -68,13 +67,13 @@ public class ExportKmzProductAction extends ExecCommand {
     private static final String[] KMZ_FORMAT_DESCRIPTION = {"KMZ", "kmz", "KMZ - Google Earth File Format"};
     private static final String IMAGE_EXPORT_DIR_PREFERENCES_KEY = "user.image.export.dir";
 
-    private final BeamFileFilter kmzFileFilter;
+    private final SnapFileFilter kmzFileFilter;
 
     public ExportKmzProductAction() {
         final String formatName = KMZ_FORMAT_DESCRIPTION[0];
         final String formatExt = KMZ_FORMAT_DESCRIPTION[1];
         final String formatDescr = KMZ_FORMAT_DESCRIPTION[2];
-        kmzFileFilter = new BeamFileFilter(formatName, formatExt, formatDescr);
+        kmzFileFilter = new SnapFileFilter(formatName, formatExt, formatDescr);
     }
 
     @Override
@@ -129,7 +128,7 @@ public class ExportKmzProductAction extends ExecCommand {
                 IMAGE_EXPORT_DIR_PREFERENCES_KEY, SystemUtils.getUserHomeDir().getPath());
         final File currentDir = new File(lastDir);
 
-        final BeamFileChooser fileChooser = new BeamFileChooser();
+        final SnapFileChooser fileChooser = new SnapFileChooser();
         HelpSys.enableHelpKey(fileChooser, getHelpId());
         fileChooser.setCurrentDirectory(currentDir);
         fileChooser.addChoosableFileFilter(kmzFileFilter);

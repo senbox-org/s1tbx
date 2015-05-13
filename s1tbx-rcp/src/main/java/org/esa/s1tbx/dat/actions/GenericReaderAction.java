@@ -32,8 +32,7 @@ import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.SystemUtils;
-import org.esa.snap.util.io.BeamFileChooser;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileChooser;
 import org.esa.snap.visat.VisatApp;
 
 import javax.swing.JButton;
@@ -131,7 +130,7 @@ public class GenericReaderAction extends ExecCommand {
                 fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
             fileChooser.setAcceptAllFileFilterUsed(useAllFileFilter);
             if (!useFilesAndFolders) {
-                final BeamFileFilter fileFilter = readerPlugIn.getProductFileFilter();
+                final SnapFileFilter fileFilter = readerPlugIn.getProductFileFilter();
                 if (fileFilter != null) {
                     fileChooser.setFileFilter(fileFilter);
                 }
@@ -203,7 +202,7 @@ public class GenericReaderAction extends ExecCommand {
         return false;
     }
 
-    protected class ProductFileChooser extends BeamFileChooser {
+    protected class ProductFileChooser extends SnapFileChooser {
 
         private static final long serialVersionUID = -8122437634943074658L;
 

@@ -18,7 +18,6 @@ package org.esa.s1tbx.dataio.generic;
 import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.util.io.BeamFileFilter;
 
 import java.io.File;
 import java.util.Locale;
@@ -68,7 +67,7 @@ public class GenericReaderPlugIn implements ProductReaderPlugIn {
         return new GenericReader(this);
     }
 
-    public BeamFileFilter getProductFileFilter() {
+    public SnapFileFilter getProductFileFilter() {
         return new FileFilter();
     }
 
@@ -106,7 +105,7 @@ public class GenericReaderPlugIn implements ProductReaderPlugIn {
         return PLUGIN_DESCRIPTION;
     }
 
-    public static class FileFilter extends BeamFileFilter {
+    public static class FileFilter extends SnapFileFilter {
 
         public FileFilter() {
             super(FORMAT_NAMES[0], FORMAT_FILE_EXTENSIONS, PLUGIN_DESCRIPTION);

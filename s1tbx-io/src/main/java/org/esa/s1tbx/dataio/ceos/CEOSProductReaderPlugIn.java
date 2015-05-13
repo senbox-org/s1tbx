@@ -20,7 +20,6 @@ import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.gpf.ReaderUtils;
-import org.esa.snap.util.io.BeamFileFilter;
 
 import java.io.File;
 import java.util.Locale;
@@ -80,7 +79,7 @@ public class CEOSProductReaderPlugIn implements ProductReaderPlugIn {
         return new ERSProductReader(this);
     }
 
-    public BeamFileFilter getProductFileFilter() {
+    public SnapFileFilter getProductFileFilter() {
         return new FileFilter();
     }
 
@@ -118,7 +117,7 @@ public class CEOSProductReaderPlugIn implements ProductReaderPlugIn {
         return constants.getPluginDescription();
     }
 
-    public class FileFilter extends BeamFileFilter {
+    public class FileFilter extends SnapFileFilter {
 
         public FileFilter() {
             super();

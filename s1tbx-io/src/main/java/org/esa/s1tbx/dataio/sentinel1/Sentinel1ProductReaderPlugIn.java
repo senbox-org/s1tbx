@@ -20,7 +20,7 @@ import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.util.ZipUtils;
-import org.esa.snap.util.io.BeamFileFilter;
+import org.esa.snap.util.io.SnapFileFilter;
 
 import java.io.File;
 import java.io.IOException;
@@ -148,7 +148,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         return new Sentinel1ProductReader(this);
     }
 
-    public BeamFileFilter getProductFileFilter() {
+    public SnapFileFilter getProductFileFilter() {
         return new FileFilter();
     }
 
@@ -186,7 +186,7 @@ public class Sentinel1ProductReaderPlugIn implements ProductReaderPlugIn {
         return Sentinel1Constants.getPluginDescription();
     }
 
-    public static class FileFilter extends BeamFileFilter {
+    public static class FileFilter extends SnapFileFilter {
 
         public FileFilter() {
             super();
