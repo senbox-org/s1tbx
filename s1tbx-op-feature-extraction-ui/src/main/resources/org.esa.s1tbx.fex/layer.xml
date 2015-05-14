@@ -1,0 +1,84 @@
+
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Operators">
+            <file name="org-esa-s1tbx-fex-gpf-TerrainMaskGeneration-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Terrain Mask"/>
+                <attr name="operatorName" stringvalue="Terrain-Mask"/>
+                <attr name="dialogTitle" stringvalue="Terrain Mask"/>
+                <attr name="targetProductNameSuffix" stringvalue="_terr-msk"/>
+                <attr name="ShortDescription" stringvalue="Terrain Mask Generation"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-fex-gpf-createLandMaskOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Land/Sea Mask"/>
+                <attr name="operatorName" stringvalue="Land-Sea-Mask"/>
+                <attr name="dialogTitle" stringvalue="Land/Sea Mask"/>
+                <attr name="targetProductNameSuffix" stringvalue="_msk"/>
+                <attr name="ShortDescription" stringvalue="Land/Sea Mask Generation"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-fex-gpf-SpeckleDivergence-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Speckle Divergence"/>
+                <attr name="operatorName" stringvalue="Speckle-Divergence"/>
+                <attr name="dialogTitle" stringvalue="Speckle Divergence"/>
+                <attr name="targetProductNameSuffix" stringvalue="_spk-div"/>
+                <attr name="ShortDescription" stringvalue="Speckle Divergence for Urban Area Detection"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="SAR Processing">
+            <attr name="position" intvalue="510"/>
+            <folder name="Radiometric">
+                <attr name="position" intvalue="100"/>
+                <file name="org-esa-s1tbx-calibration-gpf-CalibrationOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-CalibrationOp-Action.instance"/>
+                    <attr name="position" intvalue="100"/>
+                </file>
+                <file name="org-esa-s1tbx-calibration-gpf-RemoveAntennaPatternOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-RemoveAntennaPatternOp-Action.instance"/>
+                    <attr name="position" intvalue="200"/>
+                </file>
+                <file name="org-esa-s1tbx-calibration-gpf-Sentinel1RemoveThermalNoiseOp.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-Sentinel1RemoveThermalNoiseOp-Action.instance"/>
+                    <attr name="position" intvalue="300"/>
+                </file>
+                <file name="org-esa-s1tbx-calibration-gpf-importXCAProduct-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-importXCAProduct-Action.instance"/>
+                    <attr name="position" intvalue="400"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="OperatorUIs">
+        <file name="org.esa.s1tbx.fex.gpf.ui.oceantools.CreateLandMaskOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.fex.gpf.ui.oceantools.CreateLandMaskOpUI"/>
+            <attr name="operatorName" stringvalue="Land-Sea-Mask"/>
+        </file>
+    </folder>
+
+    <folder name="LayerSources">
+        <file name="object-detection-layer-source">
+            <attr name="displayName" stringvalue="Object Detection Results"/>
+            <attr name="description" stringvalue="Shows detected ocean objects"/>
+            <attr name="layerSourceClass" stringvalue="org.esa.s1tbx.fex.rcp.layersrc.ObjectDetectionLayerSource"/>
+        </file>
+        <file name="wind-field-estimation-layer-source">
+            <attr name="displayName" stringvalue="Wind Field Estimation Results"/>
+            <attr name="description" stringvalue="Shows wind field"/>
+            <attr name="layerSourceClass" stringvalue="org.esa.s1tbx.fex.rcp.layersrc.WindFieldEstimationLayerSource"/>
+        </file>
+    </folder>
+
+</filesystem>
