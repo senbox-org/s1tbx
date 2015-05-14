@@ -4,20 +4,22 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="Data Processors">
+    <tocitem text="SAR Processing">
         <tocitem text="Analysis Operators">
             <tocitem text="Principle Component Analysis" target="PCA"/>
         </tocitem>
-        <tocitem text="Utility Operators">
+        <tocitem text="Coregistration">
             <tocitem text="Create Stack" target="CreateStackOp"/>
-        </tocitem>
-        <tocitem text="SAR Operators">
             <tocitem text="GCP Selection" target="GCPSelectionOp"/>
             <tocitem text="Warp" target="WarpOp"/>
         </tocitem>
-        <tocitem text="InSAR">
-            <tocitem text="Goldstein Phase Filtering" target="GoldsteinFilterOp"/>
-            <tocitem text="DEM Generation" target="DEMGenerationOp"/>
+        <tocitem text="Interferometric">
+            <tocitem text="Filtering">
+                <tocitem text="Goldstein Phase Filtering" target="GoldsteinFilterOp"/>
+            </tocitem>
+            <tocitem text="Products">
+                <tocitem text="DEM Generation" target="DEMGenerationOp"/>
+            </tocitem>
         </tocitem>
     </tocitem>
 

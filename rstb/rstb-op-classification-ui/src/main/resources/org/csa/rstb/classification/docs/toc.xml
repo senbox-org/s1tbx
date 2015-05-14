@@ -4,8 +4,8 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="Data Processors">
-        <tocitem text="Geometry Operators">
+    <tocitem text="SAR Processing">
+        <tocitem text="Geometric">
             <tocitem text="Coherence Optimization" target="CoherenceOptimizationOp"/>
         </tocitem>
     </tocitem>

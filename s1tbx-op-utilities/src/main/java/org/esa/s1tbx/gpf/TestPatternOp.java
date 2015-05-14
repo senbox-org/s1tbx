@@ -42,7 +42,7 @@ import java.awt.Rectangle;
         category = "Utilities",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "For testing only")
+        description = "For testing only", internal = true)
 public final class TestPatternOp extends Operator {
 
     @SourceProduct(alias = "source")

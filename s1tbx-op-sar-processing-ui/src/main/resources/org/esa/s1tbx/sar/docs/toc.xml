@@ -4,7 +4,6 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="Data Processors">
         <tocitem text="SAR Processing">
             <tocitem text="Geometric">
                 <tocitem text="Range Doppler Terrain Correction" target="RangeDopplerGeocodingOp"/>
@@ -20,6 +19,5 @@
                 <tocitem text="Update-Geo-Reference" target="UpdateGeoRefOp"/>
             </tocitem>
         </tocitem>
-    </tocitem>
 
 </toc>

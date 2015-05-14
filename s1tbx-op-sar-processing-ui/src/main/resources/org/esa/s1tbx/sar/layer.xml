@@ -22,6 +22,7 @@
                 <attr name="dialogTitle" stringvalue="Ellipsoid Correction - Geolocation-Grid"/>
                 <attr name="targetProductNameSuffix" stringvalue="_EC"/>
                 <attr name="ShortDescription" stringvalue="Ellipsoid Correction Geolocation-Grid Method"/>
+                <attr name="helpId" stringvalue="GeolocationGridGeocodingOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-geometric-EllipsoidCorrectionRDOp-Action.instance">
@@ -32,6 +33,7 @@
                 <attr name="dialogTitle" stringvalue="Ellipsoid Correction - Range Doppler"/>
                 <attr name="targetProductNameSuffix" stringvalue="_EC"/>
                 <attr name="ShortDescription" stringvalue="Ellipsoid Correction Range-Doppler Method Assuming Average Height"/>
+                <attr name="helpId" stringvalue="EllipsoidCorrectionRDOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-geometric-RangeDopplerGeocodingOp-Action.instance">
@@ -42,6 +44,7 @@
                 <attr name="dialogTitle" stringvalue="Range Doppler Terrain Correction"/>
                 <attr name="targetProductNameSuffix" stringvalue="_TC"/>
                 <attr name="ShortDescription" stringvalue="Range Doppler Terrain Correction"/>
+                <attr name="helpId" stringvalue="RangeDopplerGeocodingOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-geometric-SARSimulationOp-Action.instance">

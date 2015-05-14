@@ -7,11 +7,8 @@
 
     <!--Analysis Operators-->
     <mapID target="PCA" url="operators/PCAOp.html"/>
-
-    <!--Utility Operators-->
+    <!--Coregistration-->
     <mapID target="CreateStackOp" url="operators/CollocateOp.html"/>
-
-    <!--SAR Operators-->
     <mapID target="GCPSelectionOp" url="operators/GCPSelectionOp.html"/>
     <mapID target="WarpOp" url="operators/WarpOp.html"/>
     <!-- InSAR -->

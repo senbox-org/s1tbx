@@ -1116,27 +1116,6 @@
 		
     </build>
 
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
-				<configuration>
-					<aggregate>true</aggregate>
-					<maxmemory>600m</maxmemory>
-					<links>
-                            <link>http://java.sun.com/javase/6/docs/api/</link>
-                    </links>
-                    <subpackages>
-                        org.esa.s1tbx:org.esa.snap:org.esa.snap.framework:org.esa.snap.util:org.esa.snap.visat:com.bc.jexp
-                    </subpackages>
-                    <quiet>false</quiet>
-				</configuration>
-            </plugin>
-        </plugins>
-    </reporting>
-
     <developers>
         <developer>
             <id>rajesh</id>

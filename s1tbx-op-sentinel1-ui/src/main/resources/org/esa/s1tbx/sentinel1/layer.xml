@@ -53,7 +53,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
                 <attr name="displayName" stringvalue="S1 TOPS Coregistration"/>
-                <attr name="graphFile" stringvalue="Sentinel1SLCtoGRDGraph.xml"/>
+                <attr name="graphFile" stringvalue="Sentinel1-TOPS-Coregistration.xml"/>
                 <attr name="dialogTitle" stringvalue="S1 TOPS Coregistration"/>
                 <attr name="ShortDescription" stringvalue="S1 TOPS Coregistration"/>
                 <attr name="icon" stringvalue="esaIcon"/>
