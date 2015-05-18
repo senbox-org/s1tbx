@@ -1,3 +1,7 @@
+New in S1TBX 1.1.2
+
+Fix win32 command line options
+
 New in S1TBX 1.1.1
 
 Automatic download of S-1 POE and RES orbits
