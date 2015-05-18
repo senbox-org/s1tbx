@@ -39,7 +39,10 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import javax.media.jai.operator.ConstantDescriptor;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Polygon;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.util.Arrays;
@@ -290,7 +293,7 @@ public class ProductUtilsTest {
         source.getFlagCodingGroup().add(originalFlagCoding);
         final String maskName = "erni_mask";
         final Mask mask = Mask.BandMathsType.create(maskName, "erni detected", size, size, "flag.erni",
-                Color.WHITE, 0.6f);
+                                                    Color.WHITE, 0.6f);
         source.getMaskGroup().add(mask);
 
         Product target = new Product("target", "T", size, size);
@@ -376,9 +379,9 @@ public class ProductUtilsTest {
     @Test
     public void testComputeSourcePixelCoordinates() {
         final PixelPos[] pixelCoords = ProductUtils.computeSourcePixelCoordinates(new ProductUtilsTest.SGeoCoding(),
-                2, 2,
-                new ProductUtilsTest.DGeoCoding(),
-                new Rectangle(0, 0, 3, 2));
+                                                                                  2, 2,
+                                                                                  new ProductUtilsTest.DGeoCoding(),
+                                                                                  new Rectangle(0, 0, 3, 2));
 
         assertEquals(3 * 2, pixelCoords.length);
 
@@ -428,7 +431,7 @@ public class ProductUtilsTest {
     public void testCreateRectBoundary_usePixelCenter_false() {
         final boolean usePixelCenter = false;
         final PixelPos[] rectBoundary = ProductUtils.createRectBoundary(new Rectangle(2, 3, 15, 20), 7,
-                usePixelCenter);
+                                                                        usePixelCenter);
         assertEquals(12, rectBoundary.length);
         assertEquals(new PixelPos(2, 3), rectBoundary[0]);
         assertEquals(new PixelPos(9, 3), rectBoundary[1]);
