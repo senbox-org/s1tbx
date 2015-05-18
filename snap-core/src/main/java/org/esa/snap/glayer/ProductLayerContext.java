@@ -40,4 +40,6 @@ public interface ProductLayerContext extends LayerContext {
      * @return the product provided by this context.
      */
     Product getProduct();
+
+    ProductNode getProductNode();
 }
