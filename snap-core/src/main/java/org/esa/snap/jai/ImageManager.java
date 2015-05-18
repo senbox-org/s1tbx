@@ -912,8 +912,8 @@ public class ImageManager {
                         final int width;
                         final int height;
                         if (rasterDataNode != null) {
-                            width = rasterDataNode.getRasterWidth();
-                            height = rasterDataNode.getRasterHeight();
+                            width = rasterDataNode.getSceneRasterWidth();
+                            height = rasterDataNode.getSceneRasterHeight();
                         } else {
                             width = product.getSceneRasterWidth();
                             height = product.getSceneRasterHeight();
