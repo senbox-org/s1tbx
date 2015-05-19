@@ -33,21 +33,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util</artifactId>
-            <version>RELEASE802</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-windows</artifactId>
-            <version>RELEASE802</version>
-        </dependency>
-        <dependency>
-            <groupId>org.csa.rstb</groupId>
-            <artifactId>rstb-op-polarimetric-tools</artifactId>
-            <version>${rstb.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>ceres-core</artifactId>
         </dependency>
@@ -87,6 +72,11 @@
         <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-rcp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.csa.rstb</groupId>
+            <artifactId>rstb-op-polarimetric-tools</artifactId>
+            <version>${rstb.version}</version>
         </dependency>
 
         <dependency>
