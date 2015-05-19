@@ -90,7 +90,7 @@ public final class ApplyOrbitFileOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(valueSet = {SentinelPODOrbitFile.PRECISE+" (Auto Download)", SentinelPODOrbitFile.RESTITUTED,
+    @Parameter(valueSet = {SentinelPODOrbitFile.PRECISE+" (Auto Download)", SentinelPODOrbitFile.RESTITUTED+" (Auto Download)",
             DorisOrbitFile.DORIS_POR + " (ENVISAT)", DorisOrbitFile.DORIS_VOR + " (ENVISAT)"+" (Auto Download)",
             DelftOrbitFile.DELFT_PRECISE + " (ENVISAT, ERS1&2)" +" (Auto Download)", PrareOrbitFile.PRARE_PRECISE + " (ERS1&2)"+" (Auto Download)"},
             defaultValue = SentinelPODOrbitFile.PRECISE+" (Auto Download)", label = "Orbit State Vectors")
