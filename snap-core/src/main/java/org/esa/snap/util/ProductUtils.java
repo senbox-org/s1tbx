@@ -2564,16 +2564,21 @@ public class ProductUtils {
     }
 
     public static Shape transformToProductGrid(RasterDataNode rasterDataNode, Shape orig) throws TransformException {
-        final SceneRasterTransform sceneRasterTransform = rasterDataNode.getSceneRasterTransform();
-        if(sceneRasterTransform == SceneRasterTransform.IDENTITY) {
-            return orig;
-        }
-        Shape transformedShape = sceneRasterTransform.getForward().createTransformedShape(orig);
-        return transformedShape;
+        return transformToProductGrid(rasterDataNode.getSceneRasterTransform(), orig);
     }
 
     public static Shape transformToRasterGrid(RasterDataNode rasterDataNode, Shape orig) throws TransformException {
-        final SceneRasterTransform sceneRasterTransform = rasterDataNode.getSceneRasterTransform();
+        return transformToRasterGrid(rasterDataNode.getSceneRasterTransform(), orig);
+    }
+
+    public static Shape transformToProductGrid(SceneRasterTransform sceneRasterTransform, Shape orig) throws TransformException {
+        if(sceneRasterTransform == SceneRasterTransform.IDENTITY) {
+            return orig;
+        }
+        return sceneRasterTransform.getForward().createTransformedShape(orig);
+    }
+
+    public static Shape transformToRasterGrid(SceneRasterTransform sceneRasterTransform, Shape orig) throws TransformException {
         if(sceneRasterTransform == SceneRasterTransform.IDENTITY) {
             return orig;
         }
