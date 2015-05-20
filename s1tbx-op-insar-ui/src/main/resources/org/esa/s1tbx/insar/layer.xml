@@ -11,6 +11,7 @@
                 <attr name="dialogTitle" stringvalue="Create Stack"/>
                 <attr name="ShortDescription" stringvalue="Stacks together several products without coregistering"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="CreateStack"/>
             </file>
             <file name="org-esa-s1tbx-insar-gpf-coregistration-CoregistrationGraph-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -20,16 +21,18 @@
                 <attr name="dialogTitle" stringvalue="Automatic Coregistration"/>
                 <attr name="ShortDescription" stringvalue="Perform Automatic Cross-Correlation based Coregistration"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="Coregistration"/>
             </file>
             <file name="org-esa-s1tbx-insar-gpf-StackAveraging-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Stack Averaging"/>
                 <attr name="operatorName" stringvalue="Stack-Averaging"/>
-                <attr name="dialogTitle" stringvalue="StackAveraging"/>
+                <attr name="dialogTitle" stringvalue="Stack Averaging"/>
                 <attr name="ShortDescription" stringvalue="Principal Component Analysis"/>
                 <attr name="targetProductNameSuffix" stringvalue="_avg"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="StackAveraging"/>
             </file>
             <file name="org-esa-s1tbx-insar-gpf-StackSplit-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -39,6 +42,7 @@
                 <attr name="dialogTitle" stringvalue="Stack Split"/>
                 <attr name="ShortDescription" stringvalue="Split stack into multiple products"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="StackSplit"/>
             </file>
 
             <file name="org-esa-s1tbx-insar-gpf-PrincipalComponents-Action.instance">
@@ -50,6 +54,7 @@
                 <attr name="ShortDescription" stringvalue="Principal Component Analysis"/>
                 <attr name="targetProductNameSuffix" stringvalue="_pca"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="PCA"/>
             </file>
 
             <file name="org-esa-s1tbx-insar-gpf-InterferogramOp-Action.instance">
@@ -61,6 +66,7 @@
                 <attr name="ShortDescription" stringvalue="Interferogram Formation and Flat Earth Phase Removal"/>
                 <attr name="targetProductNameSuffix" stringvalue="_ifg"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="InterferogramOp"/>
             </file>
             <file name="org-esa-s1tbx-insar-gpf-Coherence-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -71,6 +77,7 @@
                 <attr name="ShortDescription" stringvalue="Estimate Coherence"/>
                 <attr name="targetProductNameSuffix" stringvalue="_coh"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="CoherenceOp"/>
             </file>
             <file name="org-esa-s1tbx-insar-gpf-GoldsteinPhaseFiltering-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -81,6 +88,7 @@
                 <attr name="ShortDescription" stringvalue="Goldstein Phase Filtering"/>
                 <attr name="targetProductNameSuffix" stringvalue="_flt"/>
                 <attr name="icon" stringvalue="csaIcon"/>
+                <attr name="helpId" stringvalue="GoldsteinFilterOp"/>
             </file>
             <file name="org-esa-s1tbx-insar-gpf-DEMGenerationOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -91,6 +99,7 @@
                 <attr name="ShortDescription" stringvalue="Generate a DEM from unwrapped phase"/>
                 <attr name="targetProductNameSuffix" stringvalue="_dem"/>
                 <attr name="icon" stringvalue="csaIcon"/>
+                <attr name="helpId" stringvalue="DEMGenerationOp"/>
             </file>
         </folder>
     </folder>
