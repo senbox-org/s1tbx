@@ -38,6 +38,7 @@ import java.io.IOException;
 public class BeamMetadataPart extends ProfilePartIO {
 
     private static final String SPLITTER = ":";
+    private static final String SPLITTER2 = "%3a";
     private static final String METADATA_VARIABLE = "metadata";
     private static final String DESCRIPTION_SUFFIX = "descr";
     private static final String UNIT_SUFFIX = "unit";
@@ -52,11 +53,16 @@ public class BeamMetadataPart extends ProfilePartIO {
             for (Attribute attribute : metadata.getAttributes()) {
                 String attrName = attribute.getShortName();
                 if (attrName.startsWith(SPLITTER)) {
-                    attrName = attrName.substring(1, attrName.length());
+                    attrName = attrName.substring(SPLITTER.length(), attrName.length());
+                } else if (attrName.startsWith(SPLITTER2)) {
+                    attrName = attrName.substring(SPLITTER2.length(), attrName.length());
                 }
                 if (attrName.contains(SPLITTER)) {
                     String prefix = attrName.split(SPLITTER)[0];
-                    readMetadata(attribute, metadataRoot, prefix);
+                    readMetadata(attribute, metadataRoot, prefix, SPLITTER);
+                } else if (attrName.contains(SPLITTER2)) {
+                    String prefix = attrName.split(SPLITTER2)[0];
+                    readMetadata(attribute, metadataRoot, prefix, SPLITTER2);
                 } else {
                     ProductData attributeValue = DataTypeUtils.createProductData(attribute);
                     metadataRoot.addAttribute(new MetadataAttribute(attrName, attributeValue, true));
@@ -65,9 +71,9 @@ public class BeamMetadataPart extends ProfilePartIO {
         }
     }
 
-    private void readMetadata(Attribute attribute, MetadataElement metadataRoot, String prefix) {
+    private void readMetadata(Attribute attribute, MetadataElement metadataRoot, String prefix, String splitter) {
         // create new subgroup or take existing one
-        String[] splittedPrefix = prefix.split(SPLITTER);
+        String[] splittedPrefix = prefix.split(splitter);
         String metaDataElementName = prefix;
         if (splittedPrefix.length > 1) {
             metaDataElementName = splittedPrefix[splittedPrefix.length - 1];
@@ -79,22 +85,22 @@ public class BeamMetadataPart extends ProfilePartIO {
         }
         // cut prefix of attribute name
         String temp = attribute.getShortName();
-        if (temp.startsWith(SPLITTER)) {
-            temp = temp.substring(1, temp.length());
+        if (temp.startsWith(splitter)) {
+            temp = temp.substring(splitter.length(), temp.length());
         }
         temp = temp.replaceFirst(prefix, "");
-        if (temp.startsWith(SPLITTER)) {
-            temp = temp.substring(1, temp.length());
+        if (temp.startsWith(splitter)) {
+            temp = temp.substring(splitter.length(), temp.length());
         }
 
-        String[] splittedAttrName = temp.split(SPLITTER);
+        String[] splittedAttrName = temp.split(splitter);
         temp = splittedAttrName[0];
         if (splittedAttrName.length > 1) {
             // recursive call
-            readMetadata(attribute, metadataElement, prefix + SPLITTER + temp);
+            readMetadata(attribute, metadataElement, prefix + splitter + temp, splitter);
         } else {
             // attribute is leaf, add attribute into subgroup
-            String newAttributeName = attribute.getShortName().replaceFirst(prefix, "").replace(SPLITTER, "");
+            String newAttributeName = attribute.getShortName().replaceFirst(prefix, "").replace(splitter, "");
             if (newAttributeName.endsWith("." + UNIT_SUFFIX)) {
                 // setting the unit this way requires that it is written AFTER its attribute
                 newAttributeName = newAttributeName.substring(0, newAttributeName.length() - UNIT_SUFFIX.length() - 1);
