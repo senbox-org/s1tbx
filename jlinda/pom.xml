@@ -22,8 +22,8 @@
         <jlinda.version>2.0.0-SNAPSHOT</jlinda.version>
 		<s1tbx.version>2.0.0-SNAPSHOT</s1tbx.version>
 		<snap.version>2.0.0-SNAPSHOT</snap.version>
-        <jblas.version>1.2.3</jblas.version>
-        <junit.version>4.11</junit.version>
+        <jblas.version>1.2.4</jblas.version>
+        <junit.version>4.12</junit.version>
 		
 		<outputdir>../../../output</outputdir>
     </properties>
@@ -48,6 +48,10 @@
         <module>jlinda-nest-ui</module>
     </modules>
 
+    <prerequisites>
+       <maven>3.1.0</maven>
+    </prerequisites>
+    
     <repositories>
 		<repository>
             <id>array-mvn-repo</id>
@@ -66,7 +70,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.3</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -83,7 +87,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.15</version>
+                <version>2.18.1</version>
                 <configuration>
                     <!-- <parallel>methods</parallel> -->
                     <!--<threadCount>4</threadCount>-->
@@ -93,7 +97,7 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <version>2.2.1</version>
+                <version>2.4</version>
                 <artifactId>maven-source-plugin</artifactId>
                 <executions>
                     <execution>
@@ -108,7 +112,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>2.5.2</version>
                 <!--<configuration>-->
                 <!--<tagNameFormat>v@{project.version}</tagNameFormat>-->
                 <!--</configuration>-->
@@ -143,7 +147,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.5</version>
+                    <version>2.6</version>
                     <configuration>
                         <!-- to have the jar plugin pickup the nbm generated manifest -->
                         <useDefaultManifestFile>true</useDefaultManifestFile>

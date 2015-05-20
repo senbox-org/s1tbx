@@ -140,7 +140,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
         final String prefix;
         final File orbitFileFolder;
-        if(orbitType.endsWith(RESTITUTED)) {
+        if(orbitType.startsWith(RESTITUTED)) {
             prefix = "S1A_OPER_AUX_RESORB_OPOD_";
             orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1RESOrbitPath")+File.separator+year);
         } else {

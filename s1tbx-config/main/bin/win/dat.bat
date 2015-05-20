@@ -5,7 +5,7 @@ set S1TBX_HOME=${installer:sys.installationDir}
 "%S1TBX_HOME%\jre\bin\java.exe" ^
     -Xms512M -Xmx${installer:maxHeapSize} ^
     -Xverify:none -XX:+AggressiveOpts -XX:+UseFastAccessorMethods ^
-    -XX:+UseParallelGC -XX:+UseNUMA -XX:+UseLoopPredicate ^
+    -XX:+UseParallelGC -XX:+UseNUMA ^
     "-Dceres.context=${installer:context}" ^
     "-D${installer:context}.debug=true" ^
     "-D${installer:context}.consoleLog=true" ^
