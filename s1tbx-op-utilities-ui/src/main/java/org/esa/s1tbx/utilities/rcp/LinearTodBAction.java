@@ -38,7 +38,7 @@ import java.awt.event.ActionEvent;
 )
 @ActionRegistration(displayName = "#CTL_LinearTodBAction_Text")
 @ActionReference(
-        path = "Menu/Tools/Data Conversion",
+        path = "Menu/SAR Processing/Utilities/Data Conversion",
         position = 200
 )
 @NbBundle.Messages({"CTL_LinearTodBAction_Text=Linear to/from dB"})

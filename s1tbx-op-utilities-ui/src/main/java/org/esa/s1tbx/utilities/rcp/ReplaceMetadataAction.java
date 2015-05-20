@@ -42,7 +42,7 @@ import java.util.List;
 )
 @ActionRegistration(displayName = "#CTL_ReplaceMetadataAction_Text")
 @ActionReference(
-        path = "Menu/Tools/Data Conversion",
+        path = "Menu/SAR Processing/Utilities/Data Conversion",
         position = 400
 )
 @NbBundle.Messages({"CTL_ReplaceMetadataAction_Text=Replace Metadata"})

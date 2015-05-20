@@ -35,7 +35,7 @@ import java.awt.event.ActionEvent;
 )
 @ActionRegistration(displayName = "#CTL_ScaleDataAction_Text")
 @ActionReference(
-        path = "Menu/Tools/Data Conversion",
+        path = "Menu/SAR Processing/Utilities/Data Conversion",
         position = 300
 )
 @NbBundle.Messages({"CTL_ScaleDataAction_Text=Scale Data"})

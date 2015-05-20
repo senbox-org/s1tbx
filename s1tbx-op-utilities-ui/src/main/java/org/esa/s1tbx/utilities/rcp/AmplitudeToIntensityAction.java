@@ -38,7 +38,7 @@ import java.awt.event.ActionEvent;
 )
 @ActionRegistration(displayName = "#CTL_AmplitudeToIntensityAction_Text")
 @ActionReference(
-        path = "Menu/Tools/Data Conversion",
+        path = "Menu/SAR Processing/Utilities/Data Conversion",
         position = 100
 )
 @NbBundle.Messages({"CTL_AmplitudeToIntensityAction_Text=Amplitude to/from Intensity"})

@@ -37,24 +37,27 @@
     </folder>
 
     <folder name="Menu">
-        <folder name="Tools">
-            <folder name="Resampling">
-                <attr name="position" intvalue="150"/>
-                <file name="org-esa-s1tbx-utilities-gpf-OversampleOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-OversampleOp-Action.instance"/>
+        <folder name="SAR Processing">
+            <folder name="Utilities">
+                <attr name="position" intvalue="900"/>
+                <folder name="Resampling">
                     <attr name="position" intvalue="100"/>
-                </file>
-                <file name="org-esa-s1tbx-utilities-gpf-UndersampleOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-UndersampleOp-Action.instance"/>
+                    <file name="org-esa-s1tbx-utilities-gpf-OversampleOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-OversampleOp-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org-esa-s1tbx-utilities-gpf-UndersampleOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-UndersampleOp-Action.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                </folder>
+                <folder name="Data Conversion">
                     <attr name="position" intvalue="200"/>
-                </file>
-            </folder>
-            <folder name="Data Conversion">
-                <attr name="position" intvalue="200"/>
-                <file name="org-esa-s1tbx-utilities-gpf-ConvertDatatypeOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-ConvertDatatypeOp-Action.instance"/>
-                    <attr name="position" intvalue="100"/>
-                </file>
+                    <file name="org-esa-s1tbx-utilities-gpf-ConvertDatatypeOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-ConvertDatatypeOp-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                </folder>
             </folder>
         </folder>
     </folder>
