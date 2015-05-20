@@ -15,6 +15,7 @@
  */
 package org.esa.s1tbx.dat;
 
+import org.esa.s1tbx.utilities.rcp.AmplitudeToIntensityAction;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;

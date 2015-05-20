@@ -5,6 +5,7 @@
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
         <tocitem text="SAR Processing">
+            <tocitem text="Apply Orbit Correction" target="ApplyOrbitFileOp"/>
             <tocitem text="Geometric">
                 <tocitem text="Range Doppler Terrain Correction" target="RangeDopplerGeocodingOp"/>
                 <tocitem text="SAR Simulation Terrain Correction" target="SARSimGeocodingOp"/>
@@ -18,6 +19,15 @@
                 <tocitem text="Terrain Flattening" target="TerrainFlatteningOp"/>
                 <tocitem text="Update-Geo-Reference" target="UpdateGeoRefOp"/>
             </tocitem>
+            <tocitem text="Speckle Filtering">
+                <tocitem text="Speckle Filter" target="SpeckleFilterOp"/>
+                <tocitem text="Multi-Temporal Speckle Filter" target="MultiTemporalSpeckleFilterOp"/>
+            </tocitem>
+            <tocitem text="ASAR WSS">
+                <tocitem text="WSS Deburst" target="WSSDeburstOp"/>
+                <tocitem text="WSS Mosaic" target="WSSMosaic"/>
+            </tocitem>
+            <tocitem text="Multilook" target="MultilookOp"/>
         </tocitem>
 
 </toc>

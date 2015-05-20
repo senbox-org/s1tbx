@@ -15,6 +15,8 @@
  */
 package org.esa.s1tbx.gpf;
 
+import org.esa.s1tbx.utilities.gpf.FilterOperator;
+import org.esa.s1tbx.utilities.gpf.ui.FilterOpUI;
 import org.esa.snap.framework.gpf.GPF;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.util.TestUtils;
