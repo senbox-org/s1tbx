@@ -46,7 +46,8 @@ import java.util.prefs.Preferences;
 @ActionReferences({
         @ActionReference(
                 path = "Menu/SAR Processing/Polarimetric",
-                position = 50
+                position = 50,
+                separatorAfter = 51
         )
 })
 @NbBundle.Messages({
