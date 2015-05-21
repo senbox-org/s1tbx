@@ -630,6 +630,14 @@
                 <version>2.5.3</version>
             </dependency>
 
+            <!-- Smart configurator support ######################################## -->
+
+            <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>smart-configurator</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

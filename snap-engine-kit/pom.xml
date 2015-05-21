@@ -220,6 +220,11 @@
             <artifactId>globcover-worldmap</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>smart-configurator</artifactId>
+        <version>${snap.version}</version>
+    </dependency>
 
     </dependencies>
 

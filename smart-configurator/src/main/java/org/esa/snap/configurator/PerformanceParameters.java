@@ -33,6 +33,7 @@ public class PerformanceParameters {
 
     private String otherVMOptions;
 
+    private static PerformanceParameters actualParameters = null;
 
     /**
      *
@@ -49,9 +50,6 @@ public class PerformanceParameters {
     }
 
 
-    // TODO: supress this when parameters are functional
-    // for stubbing only
-    private static PerformanceParameters actualParameters = null;
 
     public long getVmXMX() {
         return vmXMX;
