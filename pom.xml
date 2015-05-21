@@ -33,9 +33,6 @@
 		<jide.version>3.6.1</jide.version>
 		<hdf.version>2.7.1</hdf.version>
         <netcdf.version>4.3.22</netcdf.version>	
-		
-		<outputdir>../../output</outputdir>
-		<packagedir>../package</packagedir>
 	</properties>
   
 	<modules>
@@ -43,7 +40,7 @@
 		<module>rstb</module>
 		<!--module>s1tbx-benchmark</module-->
         <module>s1tbx-commons</module>
-		<module>s1tbx-config</module>
+		<!--module>s1tbx-config</module-->
 		<!--module>s1tbx-help</module-->
 		<module>s1tbx-io</module>
         <module>s1tbx-kit</module>
@@ -1048,7 +1045,7 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-					<outputDirectory>${packagedir}</outputDirectory>
+					<outputDirectory>target</outputDirectory>
 					<finalName>s1tbx</finalName>
                     <descriptors>
 						<descriptor>s1tbx-config/main/assembly/bin-windows64.xml</descriptor>
@@ -1066,18 +1063,6 @@
                 <artifactId>maven-clean-plugin</artifactId>
                 <configuration>
                     <filesets>
-                        <fileset>
-                            <directory>${outputdir}</directory>
-                            <includes>
-                                <include>**/*</include>
-                            </includes>
-                        </fileset>
-						<fileset>
-                            <directory>${packagedir}</directory>
-                            <includes>
-                                <include>**/*</include>
-                            </includes>
-                        </fileset>
 						<fileset>
                             <directory>target</directory>
                             <includes>
