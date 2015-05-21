@@ -50,6 +50,7 @@
 
         <!-- SNAP System Modules -->
 
+        <module>snap-launcher</module>
         <module>snap-core</module>
         <!--<module>snap-config</module>-->
         <module>snap-engine-kit</module>

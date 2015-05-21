@@ -53,9 +53,11 @@
                 <folder name="SAR Sensors">
                     <file name="org-esa-snap-dataio-envisat-ImportEnvisatASARProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-snap-dataio-envisat-ImportEnvisatASARProduct.instance"/>
+                        <attr name="position" intvalue="400"/>
                     </file>
                     <file name="org-esa-snap-dataio-envisat-ImportErsSARProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-snap-dataio-envisat-ImportErsSARProduct.instance"/>
+                        <attr name="position" intvalue="550"/>
                     </file>
                 </folder>
             </folder>
