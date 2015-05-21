@@ -4,16 +4,20 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="Data Processors">
-        <tocitem text="Sentinel-1">
+    <tocitem text="SAR Processing">
+        <tocitem text="Coregistration">
+            <tocitem text="S-1 TOPS Coregistration">
+                <tocitem text="Back Geocoding" target="BackGeocodingOp"/>
+                <tocitem text="Range Shift" target="RangeShiftOp"/>
+                <tocitem text="Azimuth Shift" target="AzimuthShiftOp"/>
+            </tocitem>
+        </tocitem>
+        <tocitem text="Sentinel-1 TOPS">
             <tocitem text="Sentinel1 SLC to GRD" target="Sentinel1SLCtoGRD"/>
             <tocitem text="TOPSAR Deburst" target="TOPSARDeburstOp"/>
             <tocitem text="TOPSAR Split" target="TOPSARSplitOp"/>
             <tocitem text="Slice Assembly" target="SliceAssemblyOp"/>
             <tocitem text="TOPSAR Merge" target="TOPSARMergeOp"/>
-            <tocitem text="Range Shift" target="RangeShiftOp"/>
-            <tocitem text="Azimuth Shift" target="AzimuthShiftOp"/>
-            <tocitem text="Back Geocoding" target="BackGeocodingOp"/>
         </tocitem>
     </tocitem>
 

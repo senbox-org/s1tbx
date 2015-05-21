@@ -9,40 +9,56 @@ Building S1TBX from the source
 	* Install git
 2. Add $JAVA_HOME/bin, $MAVEN_HOME/bin to your PATH.
 
-3. Clone the S1TBX source code and related repositories into MY_PROJECTS/
+3. Clone the S1TBX source code and related repositories into SNAP/
 
 	git clone https://github.com/senbox-org/s1tbx.git
 	
+    git clone https://github.com/senbox-org/snap-desktop.git
+    
 	git clone https://github.com/senbox-org/snap-engine.git
 	
-4. For the stable release branch of the software, check out the snap-1.1.x branch in the repositories
+4. CD into SNAP/snap-engine:
 
-	CD into MY_PROJECTS/snap-engine
+   mvn install
+
+5. CD into SNAP/snap-desktop:
+
+   mvn install
+
+6. CD into SNAP/s1tbx:
+
+   mvn install
+   
+7. CD into SNAP/snap-desktop/snap-application:
+
+   mvn nbm:cluster-app
+
+8. Start the application via Maven:
+
+   mvn nbm:run-platform
 	
-	git checkout snap-1.1.x
-	
-	CD into MY_PROJECTS/s1tbx
-	
-	git checkout snap-1.1.x
-	
-5. CD into MY_PROJECTS/s1tbx and build S1TBX from source: 
+Setting up IntelliJ IDEA
 
-	mvn compile -P withbeam
-	
-6. Open the pom.xml file from within IntelliJ IDEA to import.
-7. Activate the maven profile withbeam
-8. Use the following configuration to run DAT:
+1. Create an empty project with the SNAP/ directory as project directory
 
-    * Main class: com.bc.ceres.launcher.Launcher
-    * VM parameters: -Xmx8G -Dceres.context=s1tbx
-    * Program parameters: none
-    * Working directory: MY_PROJECTS\output
-    * Use classpath of module: s1tbx-bootstrap
+2. Import the pom.xml files of snap-engine, snap-desktop and s1tbx as modules. Ensure **not** to enable
+the option *'Create module groups for multi-module Maven projects'*. Everything can be default values.
 
-To package for all platforms
+3. Set the used SDK for the main project. A JDK 1.8 or later is needed.
 
-mvn package assembly:assembly -Dmaven.test.skip=true -P withbeam
-
-you will then need to supply a jre for each platform.
+4. Use the following configuration to run SNAP in the IDE:
+	* **Main class:** org.esa.snap.nbexec.Launcher
+	* **VM parameters:** -Dsun.awt.nopixfmt=true -Dsun.java2d.noddraw=true -Dsun.java2d.dpiaware=false
+	All VM parameters are optional
+    * **Program arguments:** 
+    --clusters
+    "E:\build\SNAP\s1tbx\target\nbm\netbeans\s1tbx";"E:\build\SNAP\s1tbx\rstb\target\nbm\netbeans\rstb"
+    --patches
+    "E:\build\SNAP\snap-engine\$\target\classes";"E:\build\SNAP\s1tbx\$\target\classes"
+    --userdir
+    "..\.snap2"
+    
+	* **Working directory:** SNAP/snap-desktop/snap-application/target/snap/
+	* **Use classpath of module:** nbexec
 
 Enjoy!

@@ -112,33 +112,43 @@
                 <folder name="SAR Sensors">
                     <file name="org-esa-s1tbx-dataio-ceos-importAlosPalsarProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-dataio-ceos-importAlosPalsarProduct.instance"/>
+                        <attr name="position" intvalue="100"/>
                     </file>
                     <file name="org-esa-s1tbx-dataio-ceos-importAlos2Product.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-dataio-ceos-importAlos2Product.instance"/>
+                        <attr name="position" intvalue="200"/>
                     </file>
                     <file name="org-esa-s1tbx-dataio-importCosmoSkymed.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-dataio-importCosmoSkymed.instance"/>
+                        <attr name="position" intvalue="300"/>
                     </file>
                     <file name="org-esa-s1tbx-dataio-ceos-importERSProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-dataio-ceos-importERSProduct.instance"/>
+                        <attr name="position" intvalue="500"/>
                     </file>
                     <file name="org-esa-s1tbx-dataio-ceos-importJERSCEOSProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-dataio-ceos-importJERSCEOSProduct.instance"/>
+                        <attr name="position" intvalue="600"/>
                     </file>
                     <file name="org-esa-s1tbx-dataio-ceos-importRadarsatProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-dataio-ceos-importRadarsatProduct.instance"/>
+                        <attr name="position" intvalue="700"/>
                     </file>
                     <file name="org-esa-s1tbx-dataio-importRadarsat2Product.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-dataio-importRadarsat2Product.instance"/>
+                        <attr name="position" intvalue="800"/>
                     </file>
                     <file name="org-esa-s1tbx-dataio-importS1Product.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-dataio-importS1Product.instance"/>
+                        <attr name="position" intvalue="900"/>
                     </file>
                     <file name="org-esa-s1tbx-dataio-importTerraSarXProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-dataio-importTerraSarXProduct.instance"/>
+                        <attr name="position" intvalue="1000"/>
                     </file>
                     <file name="org-esa-s1tbx-dataio-importTanDEMXProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-dataio-importTanDEMXProduct.instance"/>
+                        <attr name="position" intvalue="1100"/>
                     </file>
                 </folder>
             </folder>

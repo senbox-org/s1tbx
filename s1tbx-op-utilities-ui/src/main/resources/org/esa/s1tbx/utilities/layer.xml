@@ -3,7 +3,7 @@
 
     <folder name="Actions">
         <folder name="Operators">
-            <file name="org-esa-s1tbx-gpf-OversampleOp-Action.instance">
+            <file name="org-esa-s1tbx-utilities-gpf-OversampleOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Oversample"/>
@@ -13,7 +13,7 @@
                 <attr name="ShortDescription" stringvalue="Oversamples an image"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
-            <file name="org-esa-s1tbx-gpf-UndersampleOp-Action.instance">
+            <file name="org-esa-s1tbx-utilities-gpf-UndersampleOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Undersample"/>
@@ -23,7 +23,7 @@
                 <attr name="ShortDescription" stringvalue="Undersamples an image"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
-            <file name="org-esa-s1tbx-gpf-ConvertDatatypeOp-Action.instance">
+            <file name="org-esa-s1tbx-utilities-gpf-ConvertDatatypeOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
                 <attr name="displayName" stringvalue="Convert Datatype"/>
@@ -37,61 +37,56 @@
     </folder>
 
     <folder name="Menu">
-        <folder name="Tools">
-            <folder name="Resampling">
-                <attr name="position" intvalue="150"/>
-                <file name="org-esa-s1tbx-gpf-OversampleOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-OversampleOp-Action.instance"/>
+        <folder name="SAR Processing">
+            <folder name="Utilities">
+                <attr name="position" intvalue="900"/>
+                <folder name="Resampling">
                     <attr name="position" intvalue="100"/>
-                </file>
-                <file name="org-esa-s1tbx-gpf-UndersampleOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-UndersampleOp-Action.instance"/>
+                    <file name="org-esa-s1tbx-utilities-gpf-OversampleOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-OversampleOp-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org-esa-s1tbx-utilities-gpf-UndersampleOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-UndersampleOp-Action.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                </folder>
+                <folder name="Data Conversion">
                     <attr name="position" intvalue="200"/>
-                </file>
-            </folder>
-            <folder name="Data Conversion">
-                <attr name="position" intvalue="200"/>
-                <file name="org-esa-s1tbx-gpf-ConvertDatatypeOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-ConvertDatatypeOp-Action.instance"/>
-                    <attr name="position" intvalue="100"/>
-                </file>
+                    <file name="org-esa-s1tbx-utilities-gpf-ConvertDatatypeOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-utilities-gpf-ConvertDatatypeOp-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                </folder>
             </folder>
         </folder>
     </folder>
 
     <folder name="OperatorUIs">
-        <file name="org.esa.s1tbx.gpf.BandMathsOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.BandMathsOpUI"/>
+        <file name="org.esa.s1tbx.utilities.gpf.ui.BandMathsOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.utilities.gpf.ui.BandMathsOpUI"/>
             <attr name="operatorName" stringvalue="BandMaths"/>
         </file>
-        <file name="org.esa.s1tbx.gpf.BandSelectOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.BandSelectOpUI"/>
+        <file name="org.esa.s1tbx.utilities.gpf.ui.BandSelectOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.utilities.gpf.ui.BandSelectOpUI"/>
             <attr name="operatorName" stringvalue="BandSelect"/>
         </file>
-        <file name="org.esa.s1tbx.gpf.FilterOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.FilterOpUI"/>
+        <file name="org.esa.s1tbx.utilities.gpf.ui.FilterOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.utilities.gpf.ui.FilterOpUI"/>
             <attr name="operatorName" stringvalue="Image-Filter"/>
         </file>
-        <file name="org.esa.s1tbx.gpf.OversamplingOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.OversamplingOpUI"/>
+        <file name="org.esa.s1tbx.utilities.gpf.ui.OversamplingOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.utilities.gpf.ui.OversamplingOpUI"/>
             <attr name="operatorName" stringvalue="Oversample"/>
         </file>
-        <file name="org.esa.s1tbx.gpf.TileWriterUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.TileWriterUI"/>
+        <file name="org.esa.s1tbx.utilities.gpf.ui.TileWriterUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.utilities.gpf.ui.TileWriterUI"/>
             <attr name="operatorName" stringvalue="TileWriter"/>
         </file>
-        <file name="org.esa.s1tbx.gpf.UndersamplingOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.gpf.UndersamplingOpUI"/>
+        <file name="org.esa.s1tbx.utilities.gpf.ui.UndersamplingOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.utilities.gpf.ui.UndersamplingOpUI"/>
             <attr name="operatorName" stringvalue="Undersample"/>
         </file>
     </folder>
-
-    <!--folder name="Services">
-        <folder name="JavaHelp">
-            <file name="helpset.xml" url="helpset.xml">
-                <attr name="position" intvalue="4600"/>
-            </file>
-        </folder>
-    </folder-->
 
 </filesystem>
