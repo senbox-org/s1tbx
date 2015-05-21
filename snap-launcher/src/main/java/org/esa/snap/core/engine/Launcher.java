@@ -1,4 +1,4 @@
-package org.esa.snap.core;
+package org.esa.snap.core.engine;
 
 import java.io.File;
 import java.io.IOException;
@@ -102,12 +102,13 @@ public class Launcher {
 
     public void run(String[] args) throws Exception {
         long t0 = System.currentTimeMillis();
-        ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
         ScanResult scanResult = scanInstallationDir();
         long t1 = System.currentTimeMillis();
         if (debug) {
             trace("Scanning of installation directory took " + (t1 - t0) + " ms");
         }
+
+        ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
         setJavaLibraryPath(scanResult.libraryPathEntries);
         ClassLoader classLoader = createClassLoader(scanResult.classPathEntries);
         try {

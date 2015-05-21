@@ -1,5 +1,6 @@
-package org.esa.snap.core;
+package org.esa.snap.core.engine;
 
+import org.esa.snap.core.engine.Launcher;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
