@@ -2,6 +2,7 @@ package org.esa.snap.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -147,7 +148,20 @@ public class Launcher {
         if (javaLibraryPath == null || javaLibraryPath.isEmpty()) {
             System.setProperty("java.library.path", extraLibraryPath);
         } else if (!extraLibraryPath.isEmpty()) {
-            System.setProperty("java.library.path", javaLibraryPath + File.pathSeparator + extraLibraryPath);
+            System.setProperty("java.library.path", extraLibraryPath + File.pathSeparator + javaLibraryPath);
+        }
+        try {
+            //
+            // The following hack is based on an implementation detail of the Oracle ClassLoader implementation.
+            // It checks whether its static field "sys_path" is null, and if so it sets its static field "user_paths"
+            // to the parsed value of system property "java.library.path" and caches it. This behaviour prevents it
+            // from accepting any programmatical changes of system property "java.library.path".
+            //
+            Field sysPathsField = ClassLoader.class.getDeclaredField("sys_paths");
+            sysPathsField.setAccessible(true);
+            sysPathsField.set(null, null);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            trace("Warning: Failed to modify class loader: " + e.getMessage());
         }
         if (debug) {
             traceLibraryPaths();
