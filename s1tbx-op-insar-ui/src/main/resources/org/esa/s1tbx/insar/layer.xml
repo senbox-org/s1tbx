@@ -29,7 +29,7 @@
                 <attr name="displayName" stringvalue="Stack Averaging"/>
                 <attr name="operatorName" stringvalue="Stack-Averaging"/>
                 <attr name="dialogTitle" stringvalue="Stack Averaging"/>
-                <attr name="ShortDescription" stringvalue="Principal Component Analysis"/>
+                <attr name="ShortDescription" stringvalue="Stack Averaging"/>
                 <attr name="targetProductNameSuffix" stringvalue="_avg"/>
                 <attr name="icon" stringvalue="esaIcon"/>
                 <attr name="helpId" stringvalue="StackAveraging"/>
@@ -100,6 +100,74 @@
                 <attr name="targetProductNameSuffix" stringvalue="_dem"/>
                 <attr name="icon" stringvalue="csaIcon"/>
                 <attr name="helpId" stringvalue="DEMGenerationOp"/>
+            </file>
+            <file name="org-jlinda-nest-gpf-Slant2HeightOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Phase to Height"/>
+                <attr name="operatorName" stringvalue="Phase2Height"/>
+                <attr name="dialogTitle" stringvalue="Phase to height conversion"/>
+                <attr name="ShortDescription" stringvalue="Phase to height conversion"/>
+                <attr name="targetProductNameSuffix" stringvalue="_hgt"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="Slant2HeightOp"/>
+            </file>
+
+            <file name="org-jlinda-nest-gpf-SubtRefDemOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Topographic Phase Removal"/>
+                <attr name="operatorName" stringvalue="TopoPhaseRemoval"/>
+                <attr name="dialogTitle" stringvalue="Topographic Phase Removal"/>
+                <attr name="ShortDescription" stringvalue="Compute and subtract topographic phase"/>
+                <attr name="targetProductNameSuffix" stringvalue="_dinsar"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="SubtRefDemOp"/>
+            </file>
+
+            <file name="org-jlinda-nest-gpf-DInSAROp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Three-pass Differential InSAR"/>
+                <attr name="operatorName" stringvalue="Three-passDInSAR"/>
+                <attr name="dialogTitle" stringvalue="Three-Pass differential InSAR"/>
+                <attr name="ShortDescription" stringvalue="Three-Pass differential InSAR"/>
+                <attr name="targetProductNameSuffix" stringvalue="_dinsar"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="DInSAROp"/>
+            </file>
+
+            <file name="org-jlinda-nest-gpf-RangeFilterOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Range Filtering"/>
+                <attr name="operatorName" stringvalue="RangeFilter"/>
+                <attr name="dialogTitle" stringvalue="Range Filtering"/>
+                <attr name="ShortDescription" stringvalue="Range Filtering"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="RangeFilterOp"/>
+            </file>
+
+            <file name="org-jlinda-nest-gpf-AzimuthFilterOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Azimuth Filtering"/>
+                <attr name="operatorName" stringvalue="AzimuthFilter"/>
+                <attr name="dialogTitle" stringvalue="Azimuth Filtering"/>
+                <attr name="ShortDescription" stringvalue="Filter stack of SAR images in AZIMUTH direction"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="AzimuthFilterOp"/>
+            </file>
+
+            <file name="org-jlinda-nest-gpf-CrossResamplingOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Cross InSAR resampling"/>
+                <attr name="operatorName" stringvalue="CrossResampling"/>
+                <attr name="dialogTitle" stringvalue="Cross InSAR resampling"/>
+                <attr name="ShortDescription" stringvalue="Perform resampling of SAR geometries for Cross-InSAR"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="CrossResamplingOp"/>
             </file>
         </folder>
     </folder>
