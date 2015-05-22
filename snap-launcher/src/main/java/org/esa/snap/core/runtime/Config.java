@@ -1,4 +1,4 @@
-package org.esa.snap.core.engine;
+package org.esa.snap.core.runtime;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -41,7 +41,7 @@ import java.util.logging.*;
  *
  * @author Norman Fomferra
  * @see Launcher
- * @see Runtime
+ * @see Engine
  * @since SNAP 2.0
  */
 public class Config {

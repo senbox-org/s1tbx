@@ -1,4 +1,4 @@
-package org.esa.snap.core.engine;
+package org.esa.snap.core.runtime;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
  *
  * @author Norman Fomferra
  * @see Config
- * @see Runtime
+ * @see Engine
  * @since SNAP 2.0
  */
 public class Launcher {
@@ -48,14 +48,14 @@ public class Launcher {
         if (mainClassName == null) {
             throw new RuntimeException(String.format("Missing system property '%s'", PROPERTY_MAIN_CLASS_NAME));
         }
-        Runtime.instance().runInContext(() -> {
+        Engine.start().runClientCode(() -> {
             try {
-                Class<?> mainClass = Runtime.instance().getClassLoader().loadClass(mainClassName);
+                Class<?> mainClass = Engine.getInstance().getClientClassLoader().loadClass(mainClassName);
                 Method mainMethod = mainClass.getMethod("main", String[].class);
                 mainMethod.invoke(null, new Object[]{args});
             } catch (ClassNotFoundException | InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
-        });
+        }).stop();
     }
 }

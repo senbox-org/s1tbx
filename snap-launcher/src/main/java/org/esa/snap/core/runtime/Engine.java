@@ -1,4 +1,4 @@
-package org.esa.snap.core.engine;
+package org.esa.snap.core.runtime;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,128 +9,189 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * This {@link #instance() singleton} class is used run client code that uses the SNAP Engine Java API.
+ * This {@link #getInstance() singleton} class is used run client code that uses the various SNAP Engine APIs.
  * <p>
- * The easiest way to use SNAP Engine code is to surround it by the two methods {@link #pushContextClassLoader()}
- * and {@link #popContextClassLoader()}. Smaller code snippets can be run using the {@link #runInContext(Runnable)} methods.
- * Finally it is possible to use the SNAP Engine's {@link #getClassLoader()} class loader} directly.
+ * Instances of this class are created using the {@link #start} methods.
  * <p>
- * Note that using this class is not required if you develop SNAP Engine plugins.
+ * Note that using this class is not required if you develop SNAP plugins.
  *
  * @author Norman Fomferra
  * @see Config
  * @see Launcher
  * @since SNAP 2.0
  */
-public class Runtime {
+public class Engine {
 
     private static final String JAR_EXT = ".jar";
 
-    private static final Runtime instance = new Runtime();
-    private ClassLoader classLoader;
-    private Deque<ClassLoader> contextClassLoaderStack;
-    private Set<String> excludedClusterNames;
-    private Set<String> excludedModuleNames;
+    private static Engine instance;
+    private final ClassLoader clientClassLoader;
 
-    private Runtime() {
+    private Engine() {
+        getConfig().load();
+        ScanResult scanResult = scanInstallationDir();
+        setJavaLibraryPath(scanResult.libraryPathEntries);
+        clientClassLoader = createClientClassLoader(scanResult.classPathEntries);
     }
 
     /**
-     * @return The singleton instance of this class.
+     * @return The runtime singleton instance, if the SNAP Engine has been started, {@code null} otherwise.
+     * @see #start()
+     * @see #stop()
      */
-    public static Runtime instance() {
+    public static Engine getInstance() {
         return instance;
     }
 
     /**
-     * @return The configuration.
+     * @return The SNAP-Engine configuration.
      */
     public Config getConfig() {
         return Config.instance();
     }
 
     /**
-     * @return A configured logger.
+     * @return The SNAP-Engine logger.
      */
     public Logger getLogger() {
         return Config.instance().logger();
     }
 
     /**
-     * @return A configured class loader providing access to SNAP Engine classes and resources.
+     * Starts the SNAP Engine. If the Engine has already been started, no further actions are performed and
+     * the existing instance is returned.
+     * <p>
+     * The method simply calls {@link #start(boolean) start(true)}.
+     * <p>
+     * It is recommended to call {@link #stop()} once the Engine is longer required by any client code.
+     *
+     * @return The runtime singleton instance.
+     * @see #start(boolean)
      */
-    public ClassLoader getClassLoader() {
-        if (classLoader == null) {
-            synchronized (this) {
-                if (classLoader == null) {
-                    getConfig().load();
-                    ScanResult scanResult = scanInstallationDir();
-                    setJavaLibraryPath(scanResult.libraryPathEntries);
-                    classLoader = createClassLoader(scanResult.classPathEntries);
+    public static Engine start() {
+        return start(true);
+    }
+
+    /**
+     * Starts the SNAP Engine Runtime. If the Engine has already been started, no further actions are performed and
+     * the existing instance is returned.
+     * <p>
+     * If the given {@code setContextClassLoader} parameter is {@code true}, the current thread's context class loader
+     * will become the Engine's {@link #getClientClassLoader() client class loader}.
+     * This may be the desired behaviour for many use cases.
+     * <p>
+     * If the given {@code setContextClassLoader} parameter is {@code false}, the current thread's class loader
+     * remains unchanged. However, you can use various utility methods to apply it: {@link #setContextClassLoader()},
+     * {@link #runClientCode(Runnable)}, {@link #createClientRunnable(Runnable)}.
+     * <p>
+     * It is recommended to call {@link #stop()} once the Engine is longer required by any client code.
+     *
+     * @param setContextClassLoader If {@code true}, the {@link #getClientClassLoader() client
+     *                              class loader} will become the current thread's context class loader.
+     * @return The runtime singleton instance
+     * @see #start()
+     */
+    public static Engine start(boolean setContextClassLoader) {
+        if (instance == null) {
+            synchronized (Engine.class) {
+                if (instance == null) {
+                    instance = new Engine();
+                    if (setContextClassLoader) {
+                        instance.setContextClassLoader();
+                    }
                 }
             }
         }
-        return classLoader;
+        return instance;
     }
 
     /**
-     * Pushes the current context class loader onto a stack and makes this Runtime's class loader the
-     * current context class loader.
+     * Stops the SNAP Engine Runtime. Calling this method on a stopped Engine has no effect.
      *
-     * @see #popContextClassLoader()
-     * @see #runInContext(Runnable)
-     * @see #getClassLoader()
+     * @see #start()
+     * @see #start(boolean)
      */
-    public synchronized void pushContextClassLoader() {
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        ClassLoader newClassLoader = getClassLoader();
-        if (contextClassLoaderStack == null) {
-            contextClassLoaderStack = new ArrayDeque<>();
-        }
-        contextClassLoaderStack.add(oldClassLoader);
-        Thread.currentThread().setContextClassLoader(newClassLoader);
+    public synchronized void stop() {
+        instance = null;
     }
 
     /**
-     * Pops a class loader from a stack and makes it the
-     * current context class loader.
+     * Returns a class loader providing access to SNAP Engine classes and resources.
+     * A typical and effective use is to make it current thread's context class loader:
+     * <pre>
+     *  Thread.currentThread().setContextClassLoader(Engine.getInstance().getClientClassLoader());
+     *  </pre>
      *
-     * @see #pushContextClassLoader()
-     * @see #runInContext(Runnable)
-     * @see #getClassLoader()
+     * @return The class loader providing access to SNAP Engine classes and resources.
+     * @throws IllegalStateException If {@link #stop()} has already been called.
+     * @see #setContextClassLoader()
      */
-    public synchronized void popContextClassLoader() {
-        if (contextClassLoaderStack == null || contextClassLoaderStack.isEmpty()) {
-            throw new IllegalStateException("contextClassLoaderStack");
-        }
-        ClassLoader oldClassLoader = contextClassLoaderStack.pop();
-        Thread.currentThread().setContextClassLoader(oldClassLoader);
+    public ClassLoader getClientClassLoader() {
+        assertStarted();
+        return clientClassLoader;
     }
 
     /**
-     * Runs the given Runnable with this Runtime's class loader as the
-     * current context class loader.
+     * Utility method which is a shortcut for:
+     * <pre>
+     *  Thread.currentThread().setContextClassLoader(Engine.getInstance().getClientClassLoader());
+     *  </pre>
      *
-     * @see #pushContextClassLoader()
-     * @see #popContextClassLoader()
-     * @see #getClassLoader()
+     * @return The previous context class loader.
+     * @throws IllegalStateException If {@link #stop()} has already been called.
+     * @see #getClientClassLoader()
      */
-    public void runInContext(Runnable runnable) {
+    public ClassLoader setContextClassLoader() {
+        assertStarted();
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(clientClassLoader);
+        return contextClassLoader;
+    }
+
+    /**
+     * Runs the given Runnable with the {@link #getClientClassLoader() client class loader} as the
+     * current thread's context class loader.
+     *
+     * @param runnable Client code to be executed using the client class loader.
+     * @return This instance so that calls can be chained in a single expression.
+     * @throws IllegalStateException If {@link #stop()} has already been called.
+     */
+    public Engine runClientCode(Runnable runnable) {
+        assertStarted();
+        ClassLoader classLoader = setContextClassLoader();
         try {
-            pushContextClassLoader();
             runnable.run();
         } finally {
-            popContextClassLoader();
+            Thread.currentThread().setContextClassLoader(classLoader);
         }
+        return this;
     }
 
-    private ClassLoader createClassLoader(List<Path> paths) {
+    /**
+     * Creates a new runnable which will run the given runnable using the {@link #getClientClassLoader() client class loader}.
+     * <p>
+     * Invoking the returned Runnable may cause an {@code IllegalStateException} if {@link #stop()} has already been called.
+     *
+     * @param runnable Client code to be executed using the client class loader.
+     * @return A new runnable which will delegate to the given runnable.
+     * @see #getClientClassLoader()
+     */
+    public Runnable createClientRunnable(Runnable runnable) {
+        assertStarted();
+        return () -> runClientCode(runnable);
+    }
+
+    private ClassLoader createClientClassLoader(List<Path> paths) {
 
         List<URL> urls = new ArrayList<>();
         for (Path path : paths) {
@@ -210,14 +271,14 @@ public class Runtime {
         Path clustersFile = installationDir.resolve(Paths.get("etc", "snap.clusters"));
         if (Files.exists(clustersFile)) {
             // SNAP-Desktop NetBeans installation (the default)
-            return scanNetBeansInstallationStructure(scanResult, installationDir, clustersFile);
+            return scanNetBeansInstallationStructure(installationDir, clustersFile, scanResult);
         } else {
             // SNAP-Engine stand-alone packaging
-            return scanEngineInstallationStructure(scanResult, installationDir);
+            return scanEngineInstallationStructure(installationDir, scanResult);
         }
     }
 
-    private ScanResult scanEngineInstallationStructure(ScanResult scanResult, Path installationDir) throws IOException {
+    private ScanResult scanEngineInstallationStructure(Path installationDir, ScanResult scanResult) throws IOException {
         Path modulesDir = installationDir.resolve("modules");
         if (Files.isDirectory(modulesDir)) {
             scanDir(modulesDir, scanResult);
@@ -229,26 +290,38 @@ public class Runtime {
         return scanResult;
     }
 
-    private ScanResult scanNetBeansInstallationStructure(ScanResult scanResult, Path installationDir, Path clustersFile) throws IOException {
+    private ScanResult scanNetBeansInstallationStructure(Path installationDir, Path clustersFile, ScanResult scanResult) throws IOException {
+
+        Set<String> excludedClusterNames = new HashSet<>();
+        Collections.addAll(excludedClusterNames, Config.instance().excludedClusterNames());
 
         ArrayList<Path> clusterPaths = new ArrayList<>();
         try {
-            List<String> clusters = Files.readAllLines(clustersFile);
-            for (String cluster : clusters) {
-                if (!isExcludedClusterName(cluster)) {
-                    Path clusterPath = installationDir.resolve(cluster);
-                    if (Files.isDirectory(clusterPath)) {
-                        clusterPaths.add(clusterPath);
-                    }
+            List<String> clusterNames = Files.readAllLines(clustersFile);
+            clusterNames.stream().filter(clusterName -> !excludedClusterNames.contains(clusterName)).forEach(clusterName -> {
+                Path clusterPath = installationDir.resolve(clusterName);
+                if (Files.isDirectory(clusterPath)) {
+                    clusterPaths.add(clusterPath);
                 }
-            }
+            });
         } catch (IOException e) {
             fail(e);
         }
 
+
+        Set<String> excludedModuleNames = new HashSet<>();
+        String[] moduleNames = Config.instance().excludedModuleNames();
+        for (String mavenName : moduleNames) {
+            if (mavenName.indexOf(':') == -1) {
+                mavenName = "org.esa.snap:" + mavenName;
+            }
+            String netBeansName = mavenName.replace(':', '-').replace('.', '-');
+            excludedModuleNames.add(netBeansName + ".jar");
+        }
+
         if (!clusterPaths.isEmpty()) {
             for (Path clusterPath : clusterPaths) {
-                scanNetBeansCluster(clusterPath, scanResult);
+                scanNetBeansCluster(clusterPath, excludedModuleNames, scanResult);
             }
         } else {
             fail("No classpath entries found");
@@ -257,35 +330,15 @@ public class Runtime {
         return scanResult;
     }
 
-    private boolean isExcludedClusterName(String clusterName) {
-        if (excludedClusterNames == null) {
-            excludedClusterNames = new HashSet<>();
-            Collections.addAll(excludedClusterNames, Config.instance().excludedClusterNames());
-        }
-        return excludedClusterNames.contains(clusterName);
-    }
-
-
-    private boolean isExcludedModuleJarName(String jarName) {
-        if (excludedModuleNames == null) {
-            excludedModuleNames = new HashSet<>();
-            String[] moduleNames = Config.instance().excludedModuleNames();
-            for (String mavenName : moduleNames) {
-                if (mavenName.indexOf(':') == -1) {
-                    mavenName = "org.esa.snap:" + mavenName;
-                }
-                String netBeansName = mavenName.replace(':', '-').replace('.', '-');
-                excludedModuleNames.add(netBeansName + ".jar");
-            }
-        }
-        return excludedModuleNames.contains(jarName);
-    }
-
-    private void scanNetBeansCluster(Path clusterDir, ScanResult scanResult) throws IOException {
+    private void scanNetBeansCluster(Path clusterDir, Set<String> excludedModuleNames, ScanResult scanResult) throws IOException {
         Path modulesDir = clusterDir.resolve(Paths.get("modules"));
 
         // Collect module JARs
-        List<Path> moduleJarFiles = Files.list(modulesDir).filter(this::isIncludedModuleJar).collect(Collectors.toList());
+        List<Path> moduleJarFiles = Files.list(modulesDir)
+                .filter(path -> Files.isRegularFile(path))
+                .filter(path -> path.endsWith(JAR_EXT))
+                .filter((path) -> !excludedModuleNames.contains(path.getFileName().toString()))
+                .collect(Collectors.toList());
         for (Path moduleJarFile : moduleJarFiles) {
             scanResult.classPathEntries.add(moduleJarFile);
         }
@@ -332,25 +385,16 @@ public class Runtime {
     private void scanDir(Path dir, ScanResult scanResult) throws IOException {
         List<Path> entries = Files.list(dir).collect(Collectors.toList());
 
-        scanResult.classPathEntries.addAll(entries.stream().filter(this::isJar).collect(Collectors.toList()));
+        scanResult.classPathEntries.addAll(entries.stream()
+                                                   .filter(path -> Files.isRegularFile(path))
+                                                   .filter(path -> path.getFileName().toString().endsWith(JAR_EXT))
+                                                   .collect(Collectors.toList()));
 
         for (Path entry : entries) {
             if (Files.isDirectory(entry)) {
                 scanDir(entry, scanResult);
             }
         }
-    }
-
-    private boolean isJar(Path path) {
-        return Files.isRegularFile(path) && path.getFileName().toString().endsWith(JAR_EXT);
-    }
-
-    private boolean isIncludedModuleJar(Path path) {
-        if (!Files.isRegularFile(path)) {
-            return false;
-        }
-        String jarName = path.getFileName().toString();
-        return jarName.endsWith(JAR_EXT) && !isExcludedModuleJarName(jarName);
     }
 
     private void fail(String s) {
@@ -392,6 +436,12 @@ public class Runtime {
             } else {
                 logger.info("JNI library paths: none");
             }
+        }
+    }
+
+    private void assertStarted() {
+        if (instance == null) {
+            throw new IllegalStateException("Please call " + Engine.class + ".start() first.");
         }
     }
 

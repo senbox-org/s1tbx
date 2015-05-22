@@ -1,4 +1,4 @@
-package org.esa.snap.core.engine;
+package org.esa.snap.core.runtime;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -10,18 +10,17 @@ import java.util.Set;
 import static org.junit.Assert.*;
 
 /**
- * Created by Norman on 21.05.2015.
+ * @author Norman
  */
 public class ConfigTest {
 
     @Before
     public void setUp() throws Exception {
-        Set<String> names = System.getProperties().stringPropertyNames();
-        for (String name : names) {
-            if (name.startsWith("snap.")) {
-                System.clearProperty(name);
-            }
-        }
+        System.getProperties()
+                .stringPropertyNames()
+                .stream()
+                .filter(name -> name.startsWith("snap."))
+                .forEach(System::clearProperty);
     }
 
     @Test
