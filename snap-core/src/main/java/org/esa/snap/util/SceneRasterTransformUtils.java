@@ -2,6 +2,7 @@ package org.esa.snap.util;
 
 import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.SceneRasterTransform;
+import org.esa.snap.framework.datamodel.SceneRasterTransformException;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
 
@@ -14,21 +15,29 @@ import java.awt.geom.PathIterator;
  */
 public class SceneRasterTransformUtils {
 
-    public static Shape transformShapeToProductCoordinates(Shape shape, SceneRasterTransform sceneRasterTransform) {
+    public static Shape transformShapeToProductCoordinates(Shape shape, SceneRasterTransform sceneRasterTransform) throws SceneRasterTransformException {
         if (sceneRasterTransform == SceneRasterTransform.IDENTITY) {
             return shape;
         }
-        return transformShape(shape, sceneRasterTransform.getForward());
+        final MathTransform2D forward = sceneRasterTransform.getForward();
+        if (forward == null) {
+            throw new SceneRasterTransformException("Cannot transform: No inverse transformation provided");
+        }
+        return transformShape(shape, forward);
     }
 
-    public static Shape transformShapeToRasterCoordinates(Shape shape, SceneRasterTransform sceneRasterTransform) {
+    public static Shape transformShapeToRasterCoordinates(Shape shape, SceneRasterTransform sceneRasterTransform) throws SceneRasterTransformException {
         if (sceneRasterTransform == SceneRasterTransform.IDENTITY) {
             return shape;
         }
-        return transformShape(shape, sceneRasterTransform.getInverse());
+        final MathTransform2D inverse = sceneRasterTransform.getInverse();
+        if (inverse == null) {
+            throw new SceneRasterTransformException("Cannot inverse: No inverse transformation provided");
+        }
+        return transformShape(shape, inverse);
     }
 
-    private static Shape transformShape(Shape shape, MathTransform2D transformation) {
+    private static Shape transformShape(Shape shape, MathTransform2D transformation) throws SceneRasterTransformException {
         try {
             if (shape instanceof Path2D.Double) {
                 Path2D.Double origPath = (Path2D.Double) shape;
@@ -70,8 +79,7 @@ public class SceneRasterTransformUtils {
                 return transformation.createTransformedShape(shape);
             }
         } catch (TransformException e) {
-            e.printStackTrace();
-            return shape;
+            throw new SceneRasterTransformException(e.getMessage(), e);
         }
     }
 

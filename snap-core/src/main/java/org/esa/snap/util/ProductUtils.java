@@ -42,6 +42,7 @@ import org.esa.snap.framework.datamodel.ProductVisitorAdapter;
 import org.esa.snap.framework.datamodel.RGBChannelDef;
 import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.datamodel.SceneRasterTransform;
+import org.esa.snap.framework.datamodel.SceneRasterTransformException;
 import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.datamodel.VectorDataNode;
 import org.esa.snap.framework.datamodel.VirtualBand;
@@ -61,6 +62,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
 
 import javax.media.jai.PlanarImage;
@@ -2539,53 +2541,85 @@ public class ProductUtils {
         return sample;
     }
 
-    public static PixelPos transformToProductGrid(RasterDataNode rasterDataNode, PixelPos orig) throws TransformException {
+    public static PixelPos transformToProductGrid(RasterDataNode rasterDataNode, PixelPos orig) throws SceneRasterTransformException {
         final SceneRasterTransform sceneRasterTransform = rasterDataNode.getSceneRasterTransform();
         if(sceneRasterTransform == SceneRasterTransform.IDENTITY) {
             return orig;
         }
         final PixelPos target = new PixelPos();
-        sceneRasterTransform.getForward().transform(orig, target);
+        final MathTransform2D forward = sceneRasterTransform.getForward();
+        if(forward == null) {
+            throw new SceneRasterTransformException("Cannot transform: No forward transformation provided");
+        }
+        try {
+            forward.transform(orig, target);
+        } catch (TransformException e) {
+            throw new SceneRasterTransformException(e.getMessage(), e);
+        }
         return target;
     }
 
-    public static PixelPos transformToRasterGrid(RasterDataNode rasterDataNode, PixelPos orig) throws TransformException {
+    public static PixelPos transformToRasterGrid(RasterDataNode rasterDataNode, PixelPos orig) throws SceneRasterTransformException {
         final SceneRasterTransform sceneRasterTransform = rasterDataNode.getSceneRasterTransform();
         if(sceneRasterTransform == SceneRasterTransform.IDENTITY) {
             return orig;
         }
         final PixelPos target = new PixelPos();
-        sceneRasterTransform.getInverse().transform(orig, target);
+        final MathTransform2D inverse = sceneRasterTransform.getInverse();
+        if(inverse == null) {
+            throw new SceneRasterTransformException("Cannot transform: No inverse transformation provided");
+        }
+        try {
+            inverse.transform(orig, target);
+        } catch (TransformException e) {
+            throw new SceneRasterTransformException(e.getMessage(), e);
+        }
         return target;
     }
 
-    public static PixelPos transformFromToRasterGrid(RasterDataNode from, RasterDataNode to, PixelPos orig) throws TransformException {
+    public static PixelPos transformFromToRasterGrid(RasterDataNode from, RasterDataNode to, PixelPos orig) throws SceneRasterTransformException {
         return transformToRasterGrid(to, transformToProductGrid(from, orig));
     }
 
-    public static Shape transformToProductGrid(RasterDataNode rasterDataNode, Shape orig) throws TransformException {
+    public static Shape transformToProductGrid(RasterDataNode rasterDataNode, Shape orig) throws SceneRasterTransformException {
         return transformToProductGrid(rasterDataNode.getSceneRasterTransform(), orig);
     }
 
-    public static Shape transformToRasterGrid(RasterDataNode rasterDataNode, Shape orig) throws TransformException {
+    public static Shape transformToRasterGrid(RasterDataNode rasterDataNode, Shape orig) throws SceneRasterTransformException {
         return transformToRasterGrid(rasterDataNode.getSceneRasterTransform(), orig);
     }
 
-    public static Shape transformToProductGrid(SceneRasterTransform sceneRasterTransform, Shape orig) throws TransformException {
+    public static Shape transformToProductGrid(SceneRasterTransform sceneRasterTransform, Shape orig) throws SceneRasterTransformException {
         if(sceneRasterTransform == SceneRasterTransform.IDENTITY) {
             return orig;
         }
-        return sceneRasterTransform.getForward().createTransformedShape(orig);
+        final MathTransform2D forward = sceneRasterTransform.getForward();
+        if(forward == null) {
+            throw new SceneRasterTransformException("Cannot transform: No forward transformation provided");
+        }
+        try {
+            return forward.createTransformedShape(orig);
+        } catch (TransformException e) {
+            throw new SceneRasterTransformException(e.getMessage(), e);
+        }
     }
 
-    public static Shape transformToRasterGrid(SceneRasterTransform sceneRasterTransform, Shape orig) throws TransformException {
+    public static Shape transformToRasterGrid(SceneRasterTransform sceneRasterTransform, Shape orig) throws SceneRasterTransformException {
         if(sceneRasterTransform == SceneRasterTransform.IDENTITY) {
             return orig;
         }
-        return sceneRasterTransform.getInverse().createTransformedShape(orig);
+        final MathTransform2D inverse = sceneRasterTransform.getInverse();
+        if(inverse == null) {
+            throw new SceneRasterTransformException("Cannot transform: No forward transformation provided");
+        }
+        try {
+            return inverse.createTransformedShape(orig);
+        } catch (TransformException e) {
+            throw new SceneRasterTransformException(e.getMessage(), e);
+        }
     }
 
-    public static Shape transformFromToRasterGrid(RasterDataNode from, RasterDataNode to, Shape orig) throws TransformException {
+    public static Shape transformFromToRasterGrid(RasterDataNode from, RasterDataNode to, Shape orig) throws SceneRasterTransformException {
         return transformToRasterGrid(to, transformToProductGrid(from, orig));
     }
 

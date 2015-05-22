@@ -29,6 +29,7 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNodeGroup;
 import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.framework.datamodel.SceneRasterTransformException;
 import org.esa.snap.framework.datamodel.TiePointGeoCoding;
 import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.datamodel.VirtualBand;
@@ -615,7 +616,7 @@ public class ProductUtilsTest {
     }
 
     @Test
-    public void testTransformToProductGrid_PixelPos() throws TransformException {
+    public void testTransformToProductGrid_PixelPos() throws TransformException, SceneRasterTransformException {
         Product product = new Product("A", "B", 4, 8);
         TiePointGrid lat = new TiePointGrid("lat", 2, 2, 0, 0, 4, 8, new float[]{1f, 5f, 1f, 5f});
         TiePointGrid lon = new TiePointGrid("lon", 2, 2, 0, 0, 4, 8, new float[]{1f, 1f, 9f, 9f});
@@ -650,7 +651,7 @@ public class ProductUtilsTest {
     }
 
     @Test
-    public void testTransformToRasterGrid_PixelPos() throws TransformException {
+    public void testTransformToRasterGrid_PixelPos() throws TransformException, SceneRasterTransformException {
         Product product = new Product("A", "B", 4, 8);
         TiePointGrid lat = new TiePointGrid("lat", 2, 2, 0, 0, 4, 8, new float[]{1f, 5f, 1f, 5f});
         TiePointGrid lon = new TiePointGrid("lon", 2, 2, 0, 0, 4, 8, new float[]{1f, 1f, 9f, 9f});
@@ -675,7 +676,7 @@ public class ProductUtilsTest {
     }
 
     @Test
-    public void testTransformFromToRasterGrid_PixelPos() throws TransformException {
+    public void testTransformFromToRasterGrid_PixelPos() throws TransformException, SceneRasterTransformException {
         Product product = new Product("A", "B", 4, 8);
         TiePointGrid lat = new TiePointGrid("lat", 2, 2, 0, 0, 4, 8, new float[]{1f, 5f, 1f, 5f});
         TiePointGrid lon = new TiePointGrid("lon", 2, 2, 0, 0, 4, 8, new float[]{1f, 1f, 9f, 9f});
@@ -716,7 +717,7 @@ public class ProductUtilsTest {
     }
 
     @Test
-         public void testTransformToProductGrid_Shape() throws TransformException {
+         public void testTransformToProductGrid_Shape() throws TransformException, SceneRasterTransformException {
         Product product = new Product("A", "B", 4, 8);
         TiePointGrid lat = new TiePointGrid("lat", 2, 2, 0, 0, 4, 8, new float[]{1f, 5f, 1f, 5f});
         TiePointGrid lon = new TiePointGrid("lon", 2, 2, 0, 0, 4, 8, new float[]{1f, 1f, 9f, 9f});
@@ -757,7 +758,7 @@ public class ProductUtilsTest {
     }
 
     @Test
-    public void testTransformToRasterGrid_Shape() throws TransformException {
+    public void testTransformToRasterGrid_Shape() throws TransformException, SceneRasterTransformException {
         Product product = new Product("A", "B", 4, 8);
         TiePointGrid lat = new TiePointGrid("lat", 2, 2, 0, 0, 4, 8, new float[]{1f, 5f, 1f, 5f});
         TiePointGrid lon = new TiePointGrid("lon", 2, 2, 0, 0, 4, 8, new float[]{1f, 1f, 9f, 9f});
@@ -798,7 +799,7 @@ public class ProductUtilsTest {
     }
 
     @Test
-    public void testTransformFromToRasterGrid_Shape() throws TransformException {
+    public void testTransformFromToRasterGrid_Shape() throws TransformException, SceneRasterTransformException {
         Product product = new Product("A", "B", 2, 4);
         TiePointGrid lat = new TiePointGrid("lat", 2, 2, 0, 0, 2, 4, new float[]{1f, 5f, 1f, 5f});
         TiePointGrid lon = new TiePointGrid("lon", 2, 2, 0, 0, 2, 4, new float[]{1f, 1f, 9f, 9f});
