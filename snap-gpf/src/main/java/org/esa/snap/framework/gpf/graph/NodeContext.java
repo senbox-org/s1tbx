@@ -98,6 +98,10 @@ public class NodeContext {
         operator.setSourceProduct(id, sourceProduct);
     }
 
+    public void addSourceProducts(Product[] sourceProducts) {
+        operator.setSourceProducts(sourceProducts);
+    }
+
     public void setOperatorConfiguration(OperatorConfiguration opConfiguration) {
         operatorContext.setConfiguration(opConfiguration);
     }
