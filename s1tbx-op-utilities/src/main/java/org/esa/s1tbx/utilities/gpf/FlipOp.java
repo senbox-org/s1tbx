@@ -32,8 +32,8 @@ import org.esa.snap.util.ProductUtils;
  * Creates a new product with only selected bands
  */
 
-@OperatorMetadata(alias = "flip",
-        category = "Utilities",
+@OperatorMetadata(alias = "Flip",
+        category = "Tools",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "flips a product horizontal/vertical")

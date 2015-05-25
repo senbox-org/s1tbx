@@ -52,7 +52,7 @@ import java.util.Map;
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Writes a data product to a tiles.",
-        category = "Utilities")
+        category = "Tools")
 public class TileWriterOp extends Operator implements Output {
 
     @TargetProduct
