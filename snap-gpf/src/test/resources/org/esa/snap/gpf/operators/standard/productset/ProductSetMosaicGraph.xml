@@ -1,0 +1,64 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="ProductSet-Reader">
+    <operator>ProductSet-Reader</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <fileList/>
+    </parameters>
+  </node>
+  <node id="Mosaic">
+    <operator>Mosaic</operator>
+    <sources>
+      <sourceProduct refid="ProductSet-Reader"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <variables>
+        <variable>
+            <name>Amplitude</name>
+            <expression>Amplitude</expression>
+        </variable>
+    </variables>
+      <conditions/>
+      <combine>OR</combine>
+      <crs>GEOGCS["WGS84(DD)", 
+      DATUM["WGS84", 
+        SPHEROID["WGS84", 6378137.0, 298.257223563]], 
+      PRIMEM["Greenwich", 0.0], 
+      UNIT["degree", 0.017453292519943295], 
+      AXIS["Geodetic longitude", EAST], 
+      AXIS["Geodetic latitude", NORTH]]</crs>
+    <orthorectify>false</orthorectify>
+    <elevationModelName>SRTM 3Sec</elevationModelName>
+    <resampling>Nearest</resampling>
+    <westBound>-81.04157041717704</westBound>
+    <northBound>-4.7015698958812004</northBound>
+    <eastBound>-81.02703314222474</eastBound>
+    <southBound>-4.719745289728561</southBound>
+    <pixelSizeX>0.001</pixelSizeX>
+    <pixelSizeY>0.001</pixelSizeY>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="Mosaic"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file>target.dim</file>
+      <formatName>BEAM-DIMAP</formatName>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="ProductSet-Reader">
+      <displayPosition x="28.0" y="119.0"/>
+    </node>
+    <node id="Mosaic">
+      <displayPosition x="174.0" y="118.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition x="256.0" y="118.0"/>
+    </node>    
+  </applicationData>
+</graph>

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Dimap_Document name="subset1.dim">
+    <Metadata_Id>
+        <METADATA_FORMAT version="2.12.0">DIMAP</METADATA_FORMAT>
+        <METADATA_PROFILE>BEAM-DATAMODEL-V1</METADATA_PROFILE>
+    </Metadata_Id>
+    <Dataset_Id>
+        <DATASET_SERIES>BEAM-PRODUCT</DATASET_SERIES>
+        <DATASET_NAME>subset1</DATASET_NAME>
+    </Dataset_Id>
+    <Dataset_Use>
+        <DATASET_COMMENTS>ASAR Wide Swath Medium Resolution Image</DATASET_COMMENTS>
+    </Dataset_Use>
+    <Production>
+        <DATASET_PRODUCER_NAME />
+        <PRODUCT_TYPE>ASA_WSM_1P</PRODUCT_TYPE>
+        <PRODUCT_SCENE_RASTER_START_TIME>01-MAR-2008 03:34:22.260346</PRODUCT_SCENE_RASTER_START_TIME>
+        <PRODUCT_SCENE_RASTER_STOP_TIME>01-MAR-2008 03:34:22.362309</PRODUCT_SCENE_RASTER_STOP_TIME>
+    </Production>
+    <Coordinate_Reference_System>
+        <Horizontal_CS>
+            <HORIZONTAL_CS_TYPE>GEOGRAPHIC</HORIZONTAL_CS_TYPE>
+            <Geographic_CS>
+                <Horizontal_Datum>
+                    <HORIZONTAL_DATUM_NAME>WGS-84</HORIZONTAL_DATUM_NAME>
+                    <Ellipsoid>
+                        <ELLIPSOID_NAME>WGS-84</ELLIPSOID_NAME>
+                        <Ellipsoid_Parameters>
+                            <ELLIPSOID_MAJ_AXIS unit="M">6378137.0</ELLIPSOID_MAJ_AXIS>
+                            <ELLIPSOID_MIN_AXIS unit="M">6356752.3</ELLIPSOID_MIN_AXIS>
+                        </Ellipsoid_Parameters>
+                    </Ellipsoid>
+                </Horizontal_Datum>
+            </Geographic_CS>
+        </Horizontal_CS>
+    </Coordinate_Reference_System>
+    <Geoposition>
+        <Geoposition_Points>
+            <TIE_POINT_GRID_NAME_LAT>latitude</TIE_POINT_GRID_NAME_LAT>
+            <TIE_POINT_GRID_NAME_LON>longitude</TIE_POINT_GRID_NAME_LON>
+        </Geoposition_Points>
+    </Geoposition>
+    <Raster_Dimensions>
+        <NCOLS>10</NCOLS>
+        <NROWS>10</NROWS>
+        <NBANDS>1</NBANDS>
+    </Raster_Dimensions>
+    <Data_Access>
+        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>
+        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>
+        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>
+        <Data_File>
+            <DATA_FILE_PATH href="subset1.data/Amplitude.hdr" />
+            <BAND_INDEX>0</BAND_INDEX>
+        </Data_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="subset1.data/tie_point_grids/samples.hdr" />
+            <TIE_POINT_GRID_INDEX>0</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="subset1.data/tie_point_grids/slant_range_time.hdr" />
+            <TIE_POINT_GRID_INDEX>1</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="subset1.data/tie_point_grids/incident_angle.hdr" />
+            <TIE_POINT_GRID_INDEX>2</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="subset1.data/tie_point_grids/latitude.hdr" />
+            <TIE_POINT_GRID_INDEX>3</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+        <Tie_Point_Grid_File>
+            <TIE_POINT_GRID_FILE_PATH href="subset1.data/tie_point_grids/longitude.hdr" />
+            <TIE_POINT_GRID_INDEX>4</TIE_POINT_GRID_INDEX>
+        </Tie_Point_Grid_File>
+    </Data_Access>
+    <Tie_Point_Grids>
+        <NUM_TIE_POINT_GRIDS>5</NUM_TIE_POINT_GRIDS>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>0</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>range sample</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>pixel</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>samples</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>3</NCOLS>
+            <NROWS>3</NROWS>
+            <OFFSET_X>0.5</OFFSET_X>
+            <OFFSET_Y>0.5</OFFSET_Y>
+            <STEP_X>563.0</STEP_X>
+            <STEP_Y>540.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>1</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>2 way slant range time</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>ns</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>slant_range_time</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>3</NCOLS>
+            <NROWS>3</NROWS>
+            <OFFSET_X>0.5</OFFSET_X>
+            <OFFSET_Y>0.5</OFFSET_Y>
+            <STEP_X>563.0</STEP_X>
+            <STEP_Y>540.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>2</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Incident angle</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>deg</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>incident_angle</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>3</NCOLS>
+            <NROWS>3</NROWS>
+            <OFFSET_X>0.5</OFFSET_X>
+            <OFFSET_Y>0.5</OFFSET_Y>
+            <STEP_X>563.0</STEP_X>
+            <STEP_Y>540.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>3</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Latitude of the tie points (WGS-84), positive N</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>deg</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>latitude</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>3</NCOLS>
+            <NROWS>3</NROWS>
+            <OFFSET_X>0.5</OFFSET_X>
+            <OFFSET_Y>0.5</OFFSET_Y>
+            <STEP_X>563.0</STEP_X>
+            <STEP_Y>540.0</STEP_Y>
+            <CYCLIC>false</CYCLIC>
+        </Tie_Point_Grid_Info>
+        <Tie_Point_Grid_Info>
+            <TIE_POINT_GRID_INDEX>4</TIE_POINT_GRID_INDEX>
+            <TIE_POINT_DESCRIPTION>Longitude of the tie points (WGS-84), Greenwich origin, positive E</TIE_POINT_DESCRIPTION>
+            <PHYSICAL_UNIT>deg</PHYSICAL_UNIT>
+            <TIE_POINT_GRID_NAME>longitude</TIE_POINT_GRID_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <NCOLS>3</NCOLS>
+            <NROWS>3</NROWS>
+            <OFFSET_X>0.5</OFFSET_X>
+            <OFFSET_Y>0.5</OFFSET_Y>
+            <STEP_X>563.0</STEP_X>
+            <STEP_Y>540.0</STEP_Y>
+            <CYCLIC>true</CYCLIC>
+        </Tie_Point_Grid_Info>
+    </Tie_Point_Grids>
+    <Image_Interpretation>
+        <Spectral_Band_Info>
+            <BAND_INDEX>0</BAND_INDEX>
+            <BAND_DESCRIPTION>Wide Swath Mode Medium Resolution Image</BAND_DESCRIPTION>
+            <BAND_NAME>Amplitude</BAND_NAME>
+            <BAND_RASTER_WIDTH>10</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>10</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>uint16</DATA_TYPE>
+            <PHYSICAL_UNIT>amplitude</PHYSICAL_UNIT>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>true</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+        </Spectral_Band_Info>
+    </Image_Interpretation>
+    <Dataset_Sources>
+        <MDElem name="metadata">
+            <MDElem name="history">
+                <MDElem name="SubsetInfo">
+                    <MDATTR name="SourceProduct.name" type="ascii">ASA_WSM_1PNUPA20080301_033422_000000732066_00261_31377_2804.N1</MDATTR>
+                    <MDATTR name="SubSampling.x" type="int32" mode="rw">1</MDATTR>
+                    <MDATTR name="SubSampling.y" type="int32" mode="rw">1</MDATTR>
+                    <MDATTR name="SubRegion.x" type="int32" mode="rw">0</MDATTR>
+                    <MDATTR name="SubRegion.y" type="int32" mode="rw">0</MDATTR>
+                    <MDATTR name="SubRegion.width" type="int32" mode="rw">10</MDATTR>
+                    <MDATTR name="SubRegion.height" type="int32" mode="rw">10</MDATTR>
+                    <MDATTR name="ProductNodeName.1" type="ascii">samples</MDATTR>
+                    <MDATTR name="ProductNodeName.2" type="ascii">slant_range_time</MDATTR>
+                    <MDATTR name="ProductNodeName.3" type="ascii">incident_angle</MDATTR>
+                    <MDATTR name="ProductNodeName.4" type="ascii">latitude</MDATTR>
+                    <MDATTR name="ProductNodeName.5" type="ascii">longitude</MDATTR>
+                    <MDATTR name="ProductNodeName.6" type="ascii">Amplitude</MDATTR>
+                </MDElem>
+            </MDElem>
+            <MDElem name="Processing_Graph">
+                <MDElem name="node.0">
+                    <MDATTR name="id" type="ascii" mode="rw">Subset</MDATTR>
+                    <MDATTR name="operator" type="ascii" mode="rw">Subset</MDATTR>
+                    <MDATTR name="moduleName" type="ascii" mode="rw">snap-gpf</MDATTR>
+                    <MDATTR name="moduleVersion" type="ascii" mode="rw">2.0.0</MDATTR>
+                    <MDATTR name="purpose" type="ascii" mode="rw">Create a spatial and/or spectral subset of a data product.</MDATTR>
+                    <MDATTR name="authors" type="ascii" mode="rw">Marco Zuehlke, Norman Fomferra, Marco Peters</MDATTR>
+                    <MDATTR name="version" type="ascii" mode="rw">1.1</MDATTR>
+                    <MDATTR name="copyright" type="ascii" mode="rw">(c) 2011 by Brockmann Consult</MDATTR>
+                    <MDATTR name="processingTime" type="ascii" mode="rw">2015-05-22T23:22:09.833Z</MDATTR>
+                    <MDElem name="sources">
+                        <MDATTR name="Read" type="ascii" mode="rw">file:/D:/EO/Scenarios/Flooding_Ecuador/ASAR-Ecuador-floods/ASA_WSM_1PNUPA20080301_033422_000000732066_00261_31377_2804.N1</MDATTR>
+                    </MDElem>
+                    <MDElem name="parameters">
+                        <MDATTR name="fullSwath" type="ascii">false</MDATTR>
+                        <MDATTR name="subSamplingY" type="ascii">1</MDATTR>
+                        <MDATTR name="subSamplingX" type="ascii">1</MDATTR>
+                        <MDATTR name="copyMetadata" type="ascii">false</MDATTR>
+                        <MDATTR name="region" type="ascii">0,0,10,10</MDATTR>
+                        <MDElem name="sourceBands">
+                            <MDATTR name="band" type="ascii">Amplitude</MDATTR>
+                        </MDElem>
+                    </MDElem>
+                </MDElem>
+            </MDElem>
+        </MDElem>
+    </Dataset_Sources>
+</Dimap_Document>
