@@ -15,7 +15,7 @@
  */
 package org.esa.snap.db;
 
-import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,13 +58,15 @@ public abstract class DAO {
     private static void setDBSystemDir() {
         // create the db system directory
         final File fileSystemDir = getDBSystemDir();
-        fileSystemDir.mkdir();
+        if(!fileSystemDir.exists()) {
+            fileSystemDir.mkdir();
+        }
         // decide on the db system directory
         System.setProperty("derby.system.home", fileSystemDir.getAbsolutePath());
     }
 
     public static File getDBSystemDir() {
-        return new File(ResourceUtils.getApplicationUserDir(true), "productDB");
+        return new File(SystemUtils.getApplicationDataDir(true), "productDB");
     }
 
     private static void loadDatabaseDriver(final String driverName) {
