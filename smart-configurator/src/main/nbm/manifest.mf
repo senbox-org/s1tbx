@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: false
+AutoUpdate-Essential-Module: true
+OpenIDE-Module-Java-Dependencies: Java > 1.8
+OpenIDE-Module-Display-Category: SNAP
+OpenIDE-Module-Long-Description: <p>A module to compute automatically
+ optimum configuration for SNAP, considering system characteristics
+ such as RAM, CPUs, disks, etc. as well as a selected processing chain.
+ </p><p><b>Vendor:</b> CS SI</p><
+ p><b>Contact address:</b> 22 Avenue Galilee, 92350 Le Plessis Robinson 
+ (France)</p><p><b>Copyright:</b> (C) 2015 by CS SI</p><p><
+ b>Vendor:</b> CS SI</p><p><b>License:</b> http://www
+ .gnu.org/licenses/gpl.html</p><p><b>Changelog:</b> <b>Changes in 2.0.
+ 0</b><br/>

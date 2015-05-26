@@ -17,6 +17,14 @@
 package org.esa.snap.configurator;
 
 
+import org.esa.snap.util.SystemUtils;
+
+import javax.media.jai.JAI;
+import javax.media.jai.TileCache;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.util.List;
+
 /**
  * Storage for performance parameters
  *
@@ -25,50 +33,42 @@ package org.esa.snap.configurator;
  */
 public class PerformanceParameters {
 
-    private long vmXMX;
-    private long vmXMS;
+    private VMParameters vmParameters;
+
     private String vmTmpDir;
     private String auxDataPath;
-    private String largeTileCache;
+    private String userDir;
 
-    private String otherVMOptions;
+    private long tileCacheCapacity;
+    private long tileSize;
+    private int nbThreads;
 
     private static PerformanceParameters actualParameters = null;
 
+
     /**
-     *
-     * @return a clone of this performance parameter object
+     * Default constructor
      */
-    public PerformanceParameters clone() {
-        PerformanceParameters clone = new PerformanceParameters();
-        clone.setVmTmpDir(this.vmTmpDir);
-        clone.setAuxDataPath(this.auxDataPath);
-        clone.setVmXMS(this.vmXMS);
-        clone.setVmXMX(this.vmXMX);
-        clone.setLargeTileCache(this.largeTileCache);
-        return clone;
-    }
+    public PerformanceParameters() {}
 
-
-
-    public long getVmXMX() {
-        return vmXMX;
+    /**
+     * Cloning constructor
+     *
+     * @param clone the performance parameter to copy
+     */
+    public PerformanceParameters(PerformanceParameters clone) {
+        this.setVmTmpDir(clone.vmTmpDir);
+        this.setAuxDataPath(clone.auxDataPath);
+        this.setVMParameters(clone.vmParameters.toString());
+        this.setUserDir(clone.userDir);
     }
 
     public void setVmXMX(long vmXMX) {
-        this.vmXMX = vmXMX;
-    }
-
-    public long getVmXMS() {
-        return vmXMS;
+        vmParameters.setVmXMX(vmXMX);
     }
 
     public void setVmXMS(long vmXMS) {
-        this.vmXMS = vmXMS;
-    }
-
-    public String getOtherVMOptions() {
-        return otherVMOptions;
+        vmParameters.setVmXMS(vmXMS);
     }
 
     public String getVmTmpDir() {
@@ -79,60 +79,214 @@ public class PerformanceParameters {
         this.vmTmpDir = vmTmpDir;
     }
 
-    public String getAuxDataPath() {
-        return auxDataPath;
-    }
 
     public void setAuxDataPath(String auxDataPath) {
         this.auxDataPath = auxDataPath;
     }
 
-    public String getLargeTileCache() {
-        return largeTileCache;
+    public String getUserDir() {
+        return userDir;
     }
 
-    public void setLargeTileCache(String largeTileCache) {
-        this.largeTileCache = largeTileCache;
+    public void setUserDir(String largeTileCache) {
+        this.userDir = largeTileCache;
     }
 
+    public long getTileCacheCapacity() {
+        return tileCacheCapacity;
+    }
+
+    public void setTileCacheCapacity(long cacheSize) {
+        this.tileCacheCapacity = cacheSize;
+    }
+
+    public long getTileSize() {
+        return tileSize;
+    }
+
+    public void setTileSize(long tileSize) {
+        this.tileSize = tileSize;
+    }
+
+    public int getNbThreads() {
+        return nbThreads;
+    }
+
+    public void setNbThreads(int nbThreads) {
+        this.nbThreads = nbThreads;
+    }
+
+    /**
+     * Build a string from vm parameters
+     *
+     * @return VM parameters as a String
+     */
     public String getVMParameters() {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(" -Xmx ");
-        buffer.append(getVmXMX());
-        buffer.append(" - Xms ");
-        buffer.append(getVmXMS());
-        buffer.append(" ");
-        buffer.append(getOtherVMOptions());
-        return buffer.toString();
+        return vmParameters.toString();
+    }
+
+
+    /**
+     * set the Xmx, Xms and other parameters from a string
+     *
+     * @param vmParametersLine the vm parameters string to parse
+     */
+    public void setVMParameters(String vmParametersLine) {
+        vmParameters = new VMParameters(vmParametersLine);
     }
 
 
     /**
      *
-     * Reads the parameters files to retreive the actual performance parameters.
+     * Reads the parameters files and system settings to retreive the actual performance parameters.
      *
      * @return the actual performance parameters
      */
-    public static PerformanceParameters retreiveActualConfiguration() {
+    synchronized static PerformanceParameters loadConfiguration() {
 
         if(actualParameters == null) {
             actualParameters = new PerformanceParameters();
 
-            actualParameters.setVmTmpDir("C:\\Tmp");
-            actualParameters.setLargeTileCache("C:\\Tmp");
-            actualParameters.setVmXMX(4096);
-            actualParameters.setAuxDataPath("C:\\Tmp");
-            actualParameters.setVmXMS(1024);
+            actualParameters.setVmTmpDir(System.getProperty("java.io.tmpdir"));
+            actualParameters.setUserDir(System.getProperty("user.dir"));
+            actualParameters.vmParameters = retreiveVMParameters();
+
+            TileCache tileCache = JAI.getDefaultInstance().getTileCache();
+            long memoryCapacity = tileCache.getMemoryCapacity();
+            actualParameters.setTileCacheCapacity(memoryCapacity);
+            actualParameters.setTileSize(128);
+            actualParameters.setNbThreads(2);
         }
 
         return actualParameters;
     }
 
+    private static VMParameters retreiveVMParameters() {
+        RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
+        List<String> vmParamsList = bean.getInputArguments();
+        String[] vmParamsArray = new String[vmParamsList.size()];
+        vmParamsList.toArray(vmParamsArray);
+
+        return new VMParameters(vmParamsArray);
+    }
+
+
+
     /**
+     * Save the actual configuration
      *
-     * @param newParameters
+     * @param confToSave The configuration to save
      */
-    public static void setActualParameters(PerformanceParameters newParameters) {
-        PerformanceParameters.actualParameters = newParameters;
+    synchronized static void saveConfiguration(PerformanceParameters confToSave) {
+        //TODO save the configuration..
+    }
+
+
+    private static class VMParameters {
+
+        private long vmXMX = 0;
+        private long vmXMS = 0;
+        private String otherVMOptions;
+
+        public long getVmXMX() {
+            return vmXMX;
+        }
+
+        public void setVmXMX(long vmXMX) {
+            this.vmXMX = vmXMX;
+        }
+
+        public long getVmXMS() {
+            return vmXMS;
+        }
+
+        public void setVmXMS(long vmXMS) {
+            this.vmXMS = vmXMS;
+        }
+
+        public String getOtherVMOptions() {
+            return otherVMOptions;
+        }
+
+        public void setOtherVMOptions(String otherVMOptions) {
+            this.otherVMOptions = otherVMOptions;
+        }
+
+        public VMParameters(String vmParametersString) {
+            if (vmParametersString != null) {
+                String[] stringArray = vmParametersString.split(" ");
+                fromStringArray(stringArray);
+            }
+        }
+
+        public VMParameters(String[] vmParametersStringArray){
+            fromStringArray(vmParametersStringArray);
+        }
+
+        public void fromStringArray(String[] vmParametersStringArray) {
+            String otherVMParams = "";
+            for (String thisArg : vmParametersStringArray) {
+
+                if (thisArg != null) {
+                    if (thisArg.startsWith("-Xmx")) {
+                        try {
+                            setVmXMX(getMemVmSettingValue(thisArg));
+                        } catch (NumberFormatException ex) {
+                            SystemUtils.LOG.warning("VM Parameters, bad XMX: " + thisArg);
+                        }
+                    } else if (thisArg.equalsIgnoreCase("-Xms")) {
+                        try {
+                            setVmXMS(getMemVmSettingValue(thisArg));
+                        } catch (NumberFormatException ex) {
+                            SystemUtils.LOG.warning("VM Parameters, bad XMS: " + thisArg);
+                        }
+                    } else {
+                        otherVMParams += thisArg + " ";
+                    }
+                }
+                setOtherVMOptions(otherVMParams);
+            }
+        }
+
+
+        private int getMemVmSettingValue(String vmStringSetting) throws NumberFormatException{
+
+            String memStringValue = vmStringSetting.substring(4);
+            float multValue;
+            if(memStringValue.endsWith("g") || memStringValue.endsWith("G")) {
+                multValue = 1024;
+                memStringValue = memStringValue.substring(0, memStringValue.length()-1);
+            } else if(memStringValue.endsWith("m") || memStringValue.endsWith("M")) {
+                multValue = 1;
+                memStringValue = memStringValue.substring(0, memStringValue.length()-1);
+            } else if(memStringValue.endsWith("k") || memStringValue.endsWith("K")) {
+                multValue = 1/1024;
+                memStringValue = memStringValue.substring(0, memStringValue.length()-1);
+            } else {
+                multValue = 1/(1024*1024);
+            }
+
+            return Math.round(Integer.parseInt(memStringValue) * multValue);
+        }
+
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            if(getVmXMX() != 0) {
+                builder.append(" -Xmx");
+                builder.append(getVmXMX());
+                builder.append("m ");
+            }
+            if(getVmXMS() != 0) {
+                builder.append(" -Xms");
+                builder.append(getVmXMS());
+                builder.append("m ");
+            }
+            if(getOtherVMOptions() != null) {
+                builder.append(getOtherVMOptions());
+            }
+            return builder.toString();
+        }
     }
 }
