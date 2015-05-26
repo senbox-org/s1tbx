@@ -223,9 +223,8 @@
         <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>smart-configurator</artifactId>
-        <version>${snap.version}</version>
-    </dependency>
-
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <properties>
