@@ -131,7 +131,12 @@ public class InsertMultiPointFigureInteractor extends FigureEditorInteractor {
             } else {
                 figure = factory.createLineFigure(createPath(), figureEditor.getDefaultLineStyle());
             }
-            figureEditor.getFigureCollection().addFigure(figure);
+            if (figure != null) {
+                figureEditor.getFigureCollection().addFigure(figure);
+            } else {
+                //todo show message?
+                started = false;
+            }
         }
     }
 

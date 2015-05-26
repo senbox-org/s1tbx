@@ -28,6 +28,7 @@ import com.bc.ceres.swing.figure.AbstractInteractorListener;
 import com.bc.ceres.swing.figure.FigureCollection;
 import com.bc.ceres.swing.figure.FigureFactory;
 import com.bc.ceres.swing.figure.Interactor;
+import com.bc.ceres.swing.figure.ShapeFigure;
 import com.bc.ceres.swing.figure.interactions.InsertEllipseFigureInteractor;
 import com.bc.ceres.swing.figure.interactions.InsertLineFigureInteractor;
 import com.bc.ceres.swing.figure.interactions.InsertPolygonFigureInteractor;
@@ -181,24 +182,45 @@ public abstract class FigureEditorApp {
         FigureCollection drawing = figureEditorPanel.getFigureEditor().getFigureCollection();
 
         FigureFactory figureFactory = figureEditorPanel.getFigureEditor().getFigureFactory();
-        drawing.addFigure(figureFactory.createPolygonFigure(new Rectangle(20, 30, 200, 100), DefaultFigureStyle.createPolygonStyle(Color.BLUE, Color.GREEN)));
-        drawing.addFigure(figureFactory.createPolygonFigure(new Rectangle(90, 10, 100, 200), DefaultFigureStyle.createPolygonStyle(Color.MAGENTA, Color.ORANGE)));
+        final ShapeFigure polygonFigure1 = figureFactory.createPolygonFigure(new Rectangle(20, 30, 200, 100), DefaultFigureStyle.createPolygonStyle(Color.BLUE, Color.GREEN));
+        if (polygonFigure1 != null) {
+            drawing.addFigure(polygonFigure1);
+        }
+        final ShapeFigure polygonFigure2 = figureFactory.createPolygonFigure(new Rectangle(90, 10, 100, 200), DefaultFigureStyle.createPolygonStyle(Color.MAGENTA, Color.ORANGE));
+        if (polygonFigure2 != null) {
+            drawing.addFigure(polygonFigure2);
+        }
         Path2D linePath = rectPath(true, 110, 60, 70, 140);
-        drawing.addFigure(figureFactory.createLineFigure(linePath, DefaultFigureStyle.createLineStyle(Color.GRAY)));
+        final ShapeFigure lineFigure1 = figureFactory.createLineFigure(linePath, DefaultFigureStyle.createLineStyle(Color.GRAY));
+        if (lineFigure1 != null) {
+            drawing.addFigure(lineFigure1);
+        }
 
         linePath = new Path2D.Double();
         linePath.moveTo(110, 60);
         linePath.lineTo(110 + 70, 60);
         linePath.lineTo(110 + 70, 60 + 140);
-        drawing.addFigure(figureFactory.createLineFigure(linePath, DefaultFigureStyle.createLineStyle(Color.BLACK)));
+        final ShapeFigure lineFigure2 = figureFactory.createLineFigure(linePath, DefaultFigureStyle.createLineStyle(Color.BLACK));
+        if (lineFigure2 != null) {
+            drawing.addFigure(lineFigure2);
+        }
 
         linePath = new Path2D.Double();
         linePath.moveTo(200, 100);
         linePath.lineTo(300, 200);
-        drawing.addFigure(figureFactory.createLineFigure(linePath, DefaultFigureStyle.createLineStyle(Color.MAGENTA, new BasicStroke(5.0f))));
+        final ShapeFigure lineFigure3 = figureFactory.createLineFigure(linePath, DefaultFigureStyle.createLineStyle(Color.MAGENTA, new BasicStroke(5.0f)));
+        if (lineFigure3 != null) {
+            drawing.addFigure(lineFigure3);
+        }
 
-        drawing.addFigure(figureFactory.createPolygonFigure(new Ellipse2D.Double(50, 100, 80, 80), DefaultFigureStyle.createPolygonStyle(Color.YELLOW, Color.RED)));
-        drawing.addFigure(figureFactory.createPolygonFigure(new Ellipse2D.Double(220, 120, 150, 300), DefaultFigureStyle.createPolygonStyle(Color.GREEN, Color.BLUE)));
+        final ShapeFigure polygonFigure3 = figureFactory.createPolygonFigure(new Ellipse2D.Double(50, 100, 80, 80), DefaultFigureStyle.createPolygonStyle(Color.YELLOW, Color.RED));
+        if (polygonFigure3 != null) {
+            drawing.addFigure(polygonFigure3);
+        }
+        final ShapeFigure polygonFigure4 = figureFactory.createPolygonFigure(new Ellipse2D.Double(220, 120, 150, 300), DefaultFigureStyle.createPolygonStyle(Color.GREEN, Color.BLUE));
+        if (polygonFigure4 != null) {
+            drawing.addFigure(polygonFigure4);
+        }
 
         Area area = new Area(new Rectangle(0, 0, 100, 100));
         area.subtract(new Area(new Rectangle(25, 25, 50, 50)));
@@ -212,7 +234,10 @@ public abstract class FigureEditorApp {
         path.append(rectPath(false, 12, 12, 25, 25), false);
         path.append(rectPath(false, 65, 65, 25, 25), false);
         DefaultFigureStyle shapeStyle = DefaultFigureStyle.createPolygonStyle(new Color(0, 0, 255, 127), Color.ORANGE);
-        drawing.addFigure(figureFactory.createPolygonFigure(path, shapeStyle));
+        final ShapeFigure polygonFigure5 = figureFactory.createPolygonFigure(path, shapeStyle);
+        if (polygonFigure5 != null) {
+            drawing.addFigure(polygonFigure5);
+        }
 
         for (int i = 0; i < 50; i++) {
             DefaultFigureStyle pointStyle = new DefaultFigureStyle();

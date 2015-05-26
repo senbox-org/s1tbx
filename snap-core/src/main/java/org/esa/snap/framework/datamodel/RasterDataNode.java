@@ -44,7 +44,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
-import org.opengis.referencing.operation.TransformException;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
@@ -53,7 +52,6 @@ import javax.media.jai.ROI;
 import java.awt.Dimension;
 import java.awt.RenderingHints;
 import java.awt.Shape;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
@@ -1018,47 +1016,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return true;
     }
 
-    private int[] transformToRasterCoordinates(int x, int y) {
-        int[] result = {x, y};
-        final SceneRasterTransform sceneRasterTransform = getSceneRasterTransform();
-        if (sceneRasterTransform != null && sceneRasterTransform != SceneRasterTransform.IDENTITY) {
-            final MathTransform2D inverse = sceneRasterTransform.getInverse();
-            Point2D source = new Point2D.Float(x, y);
-            Point2D target = new Point2D.Float();
-            try {
-                inverse.transform(source, target);
-                result[0] = (int) Math.round(target.getX());
-                result[1] = (int) Math.round(target.getY());
-            } catch (TransformException e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
-    }
-
-    private int[] transformToProductCoordinates(int x, int y) {
-        int[] result = {x, y};
-        final SceneRasterTransform sceneRasterTransform = getSceneRasterTransform();
-        if (sceneRasterTransform != null && sceneRasterTransform != SceneRasterTransform.IDENTITY) {
-            final MathTransform2D forward = sceneRasterTransform.getForward();
-            Point2D source = new Point2D.Float(x, y);
-            Point2D target = new Point2D.Float();
-            try {
-                forward.transform(source, target);
-                result[0] = (int) Math.round(target.getX());
-                result[1] = (int) Math.round(target.getY());
-            } catch (TransformException e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
-    }
-
-    public boolean isProductPixelValid(int x, int y) {
-        final int[] rasterCoordinates = transformToRasterCoordinates(x, y);
-        return isPixelValid(rasterCoordinates[0], rasterCoordinates[1]);
-    }
-
     /**
      * Gets a geo-physical sample value at the given pixel coordinate as {@code int} value.
      * <p>
@@ -1077,11 +1034,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return tile.getSample(x, y, 0);
     }
 
-    public int getProductSampleInt(int x, int y) {
-        final int[] rasterCoordinates = transformToRasterCoordinates(x, y);
-        return getSampleInt(rasterCoordinates[0], rasterCoordinates[1]);
-    }
-
     /**
      * Gets a geo-physical sample value at the given pixel coordinate as {@code float} value.
      * <p>
@@ -1098,11 +1050,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         int ty = image.YToTileY(y);
         Raster tile = image.getTile(tx, ty);
         return tile.getSampleFloat(x, y, 0);
-    }
-
-    public float getProductSampleFloat(int x, int y) {
-        final int[] rasterCoordinates = transformToRasterCoordinates(x, y);
-        return getSampleFloat(rasterCoordinates[0], rasterCoordinates[1]);
     }
 
     /**
@@ -1128,15 +1075,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return isPixelValid(x, y);
     }
 
-    public boolean isProductPixelValid(int pixelIndex) {
-        if (!isValidMaskUsed()) {
-            return true;
-        }
-        final int y = pixelIndex / getSceneRasterWidth();
-        final int x = pixelIndex - (y * getSceneRasterWidth());
-        return isProductPixelValid(x, y);
-    }
-
     /**
      * Checks whether or not the pixel located at (x,y) is valid.
      * The method first test whether a pixel is valid by using the {@link #isPixelValid(int, int)} method,
@@ -1156,10 +1094,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return isPixelValid(x, y) && (roi == null || roi.contains(x, y));
     }
 
-    public boolean isProductPixelValid(int x, int y, ROI roi) {
-        return isProductPixelValid(x, y) && (roi == null || roi.contains(x, y));
-    }
-
     /**
      * Returns the pixel located at (x,y) as an integer value.
      *
@@ -1169,11 +1103,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      */
     public abstract int getPixelInt(int x, int y);
-
-    public int getProductPixelInt(int x, int y) {
-        final int[] rasterCoordinates = transformToRasterCoordinates(x, y);
-        return getPixelInt(rasterCoordinates[0], rasterCoordinates[1]);
-    }
 
     /**
      * Returns the pixel located at (x,y) as a float value.
@@ -1185,11 +1114,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public abstract float getPixelFloat(int x, int y);
 
-    public float getProductPixelFloat(int x, int y) {
-        final int[] rasterCoordinates = transformToRasterCoordinates(x, y);
-        return getPixelFloat(rasterCoordinates[0], rasterCoordinates[1]);
-    }
-
     /**
      * Returns the pixel located at (x,y) as a double value.
      *
@@ -1199,11 +1123,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      */
     public abstract double getPixelDouble(int x, int y);
-
-    public double getProductPixelDouble(int x, int y) {
-        final int[] rasterCoordinates = transformToRasterCoordinates(x, y);
-        return getPixelDouble(rasterCoordinates[0], rasterCoordinates[1]);
-    }
 
     /**
      * Sets the pixel located at (x,y) to the given integer value.
@@ -1215,11 +1134,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public abstract void setPixelInt(int x, int y, int pixelValue);
 
-    public void setProductPixelInt(int x, int y, int pixelValue) {
-        final int[] rasterCoordinates = transformToRasterCoordinates(x, y);
-        setPixelInt(rasterCoordinates[0], rasterCoordinates[1], pixelValue);
-    }
-
     /**
      * Sets the pixel located at (x,y) to the given float value.
      *
@@ -1230,11 +1144,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public abstract void setPixelFloat(int x, int y, float pixelValue);
 
-    public void setProductPixelFloat(int x, int y, float pixelValue) {
-        final int[] rasterCoordinates = transformToRasterCoordinates(x, y);
-        setPixelFloat(rasterCoordinates[0], rasterCoordinates[1], pixelValue);
-    }
-
     /**
      * Sets the pixel located at (x,y) to the given double value.
      *
@@ -1244,11 +1153,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
      */
     public abstract void setPixelDouble(int x, int y, double pixelValue);
-
-    public void setProductPixelDouble(int x, int y, double pixelValue) {
-        final int[] rasterCoordinates = transformToRasterCoordinates(x, y);
-        setPixelDouble(rasterCoordinates[0], rasterCoordinates[1], pixelValue);
-    }
 
     /**
      * Retrieves the range of pixels specified by the coordinates as integer array. Throws exception when the data is
@@ -1975,11 +1879,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         scalingApplied = getScalingFactor() != 1.0
                 || getScalingOffset() != 0.0
                 || isLog10Scaled();
-    }
-
-    public String getProductPixelString(int x, int y) {
-        final int[] rasterCoordinates = transformToRasterCoordinates(x, y);
-        return getPixelString(rasterCoordinates[0], rasterCoordinates[1]);
     }
 
     /**

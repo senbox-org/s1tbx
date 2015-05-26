@@ -19,6 +19,7 @@ package com.bc.ceres.swing.figure.interactions;
 import com.bc.ceres.swing.figure.Figure;
 import com.bc.ceres.swing.figure.FigureEditor;
 import com.bc.ceres.swing.figure.FigureEditorInteractor;
+import com.bc.ceres.swing.figure.ShapeFigure;
 
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
@@ -60,8 +61,14 @@ public class InsertLineFigureInteractor extends FigureEditorInteractor {
             linePath.moveTo(referencePoint.getX(), referencePoint.getY());
             linePath.lineTo(referencePoint.getX(), referencePoint.getY());
 
-            figure = figureEditor.getFigureFactory().createLineFigure(linePath, figureEditor.getDefaultLineStyle());
-            figureEditor.getFigureCollection().addFigure(figure);
+            final ShapeFigure lineFigure = figureEditor.getFigureFactory().createLineFigure(linePath, figureEditor.getDefaultLineStyle());
+            if (lineFigure != null) {
+                figure = lineFigure;
+                figureEditor.getFigureCollection().addFigure(figure);
+            } else {
+                //todo show message
+                started = false;
+            }
         }
     }
 
