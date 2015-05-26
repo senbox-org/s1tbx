@@ -51,6 +51,7 @@
 
         <!-- SNAP System Modules -->
 
+        <module>snap-launcher</module>
         <module>snap-core</module>
         <!--<module>snap-config</module>-->
         <module>snap-engine-kit</module>
@@ -79,6 +80,7 @@
         <module>snap-pixel-extraction</module>
         <module>snap-python</module>
         <module>snap-rtp-codec</module>
+        <module>smart-configurator</module> <!-- should be snap-smart-configurator-->
         <module>snap-statistics</module>
         <module>snap-temporal-percentile</module>
         <module>snap-unmix</module>
