@@ -89,6 +89,13 @@ public final class ResourceUtils {
         return tmpDir;
     }
 
+    public static File getReportFolder() {
+        final File reportFolder = new File(SystemUtils.getApplicationDataDir(true) + File.separator + "var" + File.separator + "log");
+        if (!reportFolder.exists())
+            reportFolder.mkdirs();
+        return reportFolder;
+    }
+
     public static Path getGraphFolder(final String subFolder) {
         return SystemUtils.getApplicationDataDir().toPath().resolve("graphs").resolve(subFolder);
     }
