@@ -37,9 +37,7 @@ import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.math.MathUtils;
 
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -692,12 +690,7 @@ public class PCAOp extends Operator {
 
     private void createReportFile() {
 
-        final File appUserDir = new File(ResourceUtils.getApplicationUserDir(true).getAbsolutePath() + File.separator + "log");
-        if (!appUserDir.exists()) {
-            appUserDir.mkdirs();
-        }
-
-        final File reportFile = new File(appUserDir, sourceProduct.getName() + "_pca_report.txt");
+        final File reportFile = new File(ResourceUtils.getReportFolder(), sourceProduct.getName() + "_pca_report.txt");
         try {
             final FileOutputStream out = new FileOutputStream(reportFile);
 

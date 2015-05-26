@@ -18,7 +18,7 @@ package org.csa.rstb.polarimetric.rcp.actions;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.FileFolderUtils;
-import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.SystemUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -100,7 +100,7 @@ public class LaunchPolsarProAction extends AbstractAction {
     }
 
     private static void externalExecute(final File prog, final File tclWishFile) {
-        final File homeFolder = ResourceUtils.findHomeFolder();
+        final File homeFolder = SystemUtils.getApplicationHomeDir();
         final File program = new File(homeFolder, "bin" + File.separator + "exec.bat");
 
         String wish = "wish";

@@ -50,8 +50,7 @@ import javax.media.jai.InterpolationTable;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.WarpPolynomial;
-import java.awt.Desktop;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
@@ -965,12 +964,8 @@ public class WarpOp extends Operator {
     }
 
     private static File getResidualsFile(final Product sourceProduct) {
-        String fileName = sourceProduct.getName() + "_residual.txt";
-        final File appUserDir = new File(ResourceUtils.getApplicationUserDir(true).getAbsolutePath() + File.separator + "log");
-        if (!appUserDir.exists()) {
-            appUserDir.mkdirs();
-        }
-        return new File(appUserDir.toString(), fileName);
+        final String fileName = sourceProduct.getName() + "_residual.txt";
+        return new File(ResourceUtils.getReportFolder(), fileName);
     }
 
     /**

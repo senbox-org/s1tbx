@@ -16,19 +16,19 @@
 package org.esa.s1tbx.sar.gpf.geometric;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.calibration.gpf.CalibrationOp;
 import org.esa.s1tbx.calibration.gpf.support.CalibrationFactory;
 import org.esa.s1tbx.calibration.gpf.support.Calibrator;
-import org.esa.s1tbx.calibration.gpf.CalibrationOp;
 import org.esa.s1tbx.insar.gpf.coregistration.GCPManager;
 import org.esa.s1tbx.insar.gpf.coregistration.WarpOp;
 import org.esa.s1tbx.insar.gpf.geometric.SARGeocoding;
 import org.esa.s1tbx.insar.gpf.geometric.SARUtils;
-import org.esa.snap.dem.dataio.DEMFactory;
-import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.PosVector;
 import org.esa.snap.datamodel.Unit;
+import org.esa.snap.dem.dataio.DEMFactory;
+import org.esa.snap.dem.dataio.FileElevationModel;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.eo.GeoUtils;
 import org.esa.snap.eo.LocalGeometry;
@@ -1316,11 +1316,7 @@ public class SARSimTerrainCorrectionOp extends Operator {
 
     private static File getFile(final Product sourceProduct, final String name) {
         final String fileName = sourceProduct.getName() + name;
-        final File appUserDir = new File(ResourceUtils.getApplicationUserDir(true).getAbsolutePath() + File.separator + "log");
-        if (!appUserDir.exists()) {
-            appUserDir.mkdirs();
-        }
-        return new File(appUserDir.toString(), fileName);
+        return new File(ResourceUtils.getReportFolder(), fileName);
     }
 
 
