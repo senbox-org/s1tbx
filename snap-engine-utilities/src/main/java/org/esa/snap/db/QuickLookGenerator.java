@@ -32,13 +32,13 @@ import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.ResourceUtils;
+import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.ZipUtils;
 
 import javax.imageio.ImageIO;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
@@ -64,7 +64,7 @@ public class QuickLookGenerator {
 
     private static final String[] defaultQuickLookBands = new String[] { "intensity", "band", "t11", "t22", "t33", "c11", "c22", "c33"};
 
-    private static final File dbStorageDir = new File(ResourceUtils.getApplicationUserDir(true),
+    private static final File dbStorageDir = new File(SystemUtils.getApplicationDataDir(true),
             ProductDB.DEFAULT_PRODUCT_DATABASE_NAME + File.separator + "QuickLooks");
 
     public static boolean quickLookExists(final ProductEntry entry) {

@@ -61,7 +61,7 @@ public class PropertiesMap extends PropertyMap {
                         File auxFolder = Settings.getAuxDataFolder();
                         out = value.replace(fullKey, auxFolder.getPath());
                     } else if (keyWord.equalsIgnoreCase(SystemUtils.getApplicationContextId() + ".home") || keyWord.equalsIgnoreCase("SNAP_HOME")) {
-                        out = value.replace(fullKey, ResourceUtils.findHomeFolder().getAbsolutePath());
+                        out = value.replace(fullKey, SystemUtils.getApplicationHomeDir().getAbsolutePath());
                     } else {
                         out = value.replace(fullKey, keyWord);
                     }

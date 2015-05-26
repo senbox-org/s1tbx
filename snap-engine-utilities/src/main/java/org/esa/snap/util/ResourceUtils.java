@@ -78,33 +78,22 @@ public final class ResourceUtils {
     }
 
     /**
-     * Optionally creates and returns the current user's application data directory.
-     *
-     * @param forceCreate if true, the directory will be created if it didn't exist before
-     * @return the current user's application data directory
-     */
-    public static File getApplicationUserDir(boolean forceCreate) {
-        final File dir = new File(SystemUtils.getUserHomeDir(), '.' + SystemUtils.getApplicationContextId());
-        if (forceCreate && !dir.exists()) {
-            dir.mkdirs();
-        }
-        return dir;
-    }
-
-    public static String getHomeUrl() {
-        return System.getProperty(SystemUtils.getApplicationContextId() + ".home", ".");
-    }
-
-    /**
      * get the temporary data folder in the user's application data directory
      *
      * @return the temp folder
      */
     public static File getApplicationUserTempDataDir() {
-        final File tmpDir = new File(ResourceUtils.getApplicationUserDir(true), "temp");
+        final File tmpDir = new File(SystemUtils.getApplicationDataDir(true), "temp");
         if (!tmpDir.exists())
             tmpDir.mkdirs();
         return tmpDir;
+    }
+
+    public static File getReportFolder() {
+        final File reportFolder = new File(SystemUtils.getApplicationDataDir(true) + File.separator + "var" + File.separator + "log");
+        if (!reportFolder.exists())
+            reportFolder.mkdirs();
+        return reportFolder;
     }
 
     public static Path getGraphFolder(final String subFolder) {
@@ -112,44 +101,7 @@ public final class ResourceUtils {
     }
 
     public static File getResFolder() {
-        return new File(ResourceUtils.getHomeUrl(), "resource");
-    }
-
-    public static File findConfigFile(String filename) {
-        final String homeDir = System.getProperty(SystemUtils.getApplicationContextId() + ".home");
-        if (homeDir != null && homeDir.length() > 0) {
-            final File homeDirFile = new File(homeDir);
-
-            final String homeDirStr = homeDirFile.getAbsolutePath();
-            String settingsfilePath = homeDirStr + File.separator + "config" + File.separator + filename;
-
-            final File outFile2 = new File(settingsfilePath);
-            if (outFile2.exists())
-                return outFile2;
-
-            final int idx = homeDirStr.lastIndexOf(File.separator);
-            settingsfilePath = homeDirStr.substring(0, idx) + File.separator + "config" + File.separator + filename;
-
-            final File outFile3 = new File(settingsfilePath);
-            if (outFile3.exists())
-                return outFile3;
-        }
-
-        final File homeFolder = ResourceUtils.findHomeFolder();
-        return new File(homeFolder, "config" + File.separator + filename);
-    }
-
-    public static File findHomeFolder() {
-        final String nestHome = System.getProperty(SystemUtils.getApplicationContextId() + ".home");
-        File homePath;
-        if (nestHome == null)
-            homePath = SystemUtils.getApplicationHomeDir();
-        else
-            homePath = new File(nestHome);
-        String homePathStr = homePath.getAbsolutePath();
-        if (homePathStr.endsWith(".") && homePathStr.length() > 1)
-            homePathStr = homePathStr.substring(0, homePathStr.lastIndexOf(File.separator));
-        return new File(homePathStr);
+        return new File(SystemUtils.getApplicationHomeDir(), "resource");
     }
 
     public static void sortFileList(final File[] filelist) {
