@@ -11,6 +11,7 @@
                 <attr name="dialogTitle" stringvalue="InSAR Coregistration"/>
                 <attr name="ShortDescription" stringvalue="Perform InSAR Optimized Automatic Coregistration"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="InSARCoregistration"/>
             </file>
             <file name="org-jlinda-nest-gpf-CrossResamplingOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -20,6 +21,7 @@
                 <attr name="dialogTitle" stringvalue="Cross InSAR resampling"/>
                 <attr name="ShortDescription" stringvalue="Perform resampling of SAR geometries for Cross-InSAR"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="CrossResamplingOp"/>
             </file>
             <file name="org-jlinda-nest-gpf-SubtRefDemOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -30,6 +32,7 @@
                 <attr name="ShortDescription" stringvalue="Compute and subtract topographic phase"/>
                 <attr name="targetProductNameSuffix" stringvalue="_dinsar"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="SubtRefDemOp"/>
             </file>
             <file name="org-jlinda-nest-gpf-DInSAROp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -40,6 +43,7 @@
                 <attr name="ShortDescription" stringvalue="Three-pass Differential InSAR"/>
                 <attr name="targetProductNameSuffix" stringvalue="_dinsar"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="DInSAROp"/>
             </file>
             <file name="org-jlinda-nest-gpf-Slant2HeightOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -50,6 +54,7 @@
                 <attr name="ShortDescription" stringvalue="Phase to height conversion"/>
                 <attr name="targetProductNameSuffix" stringvalue="_hgt"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="Slant2HeightOp"/>
             </file>
             <file name="org-jlinda-nest-gpf-RangeFilterOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -60,6 +65,7 @@
                 <attr name="ShortDescription" stringvalue="Filter stack of SAR images in range direction"/>
                 <attr name="targetProductNameSuffix" stringvalue="_rgFlt"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="RangeFilterOp"/>
             </file>
             <file name="org-jlinda-nest-gpf-AzimuthFilterOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -70,6 +76,7 @@
                 <attr name="ShortDescription" stringvalue="Filter stack of SAR images in azimuth direction"/>
                 <attr name="targetProductNameSuffix" stringvalue="_azFlt"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="AzimuthFilterOp"/>
             </file>
             <file name="org-jlinda-nest-gpf-PhaseFilterOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -80,6 +87,7 @@
                 <attr name="ShortDescription" stringvalue="Phase Filtering"/>
                 <attr name="targetProductNameSuffix" stringvalue="_flt"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="PhaseFilterOp"/>
             </file>
             <file name="org-jlinda-nest-gpf-SnaphuExportOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -90,6 +98,7 @@
                 <attr name="ShortDescription" stringvalue="Export data and construct conf file for SNAPHU unwrapping"/>
                 <attr name="targetProductNameSuffix" stringvalue="_snaphu"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="SnaphuExportOp"/>
             </file>
             <file name="org-jlinda-nest-gpf-SnaphuImportOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -99,6 +108,29 @@
                 <attr name="dialogTitle" stringvalue="Snaphu Import"/>
                 <attr name="ShortDescription" stringvalue="Import result of Snaphu to InSAR product"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="SnaphuImportOp"/>
+            </file>
+            <file name="org-esa-s1tbx-insar-gpf-InterferogramOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Interferogram Formation"/>
+                <attr name="operatorName" stringvalue="Interferogram"/>
+                <attr name="dialogTitle" stringvalue="Interferogram Formation"/>
+                <attr name="ShortDescription" stringvalue="Interferogram Formation and Flat Earth Phase Removal"/>
+                <attr name="targetProductNameSuffix" stringvalue="_ifg"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="InterferogramOp"/>
+            </file>
+            <file name="org-esa-s1tbx-insar-gpf-Coherence-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Coherence Estimation"/>
+                <attr name="operatorName" stringvalue="Coherence"/>
+                <attr name="dialogTitle" stringvalue="Coherence Estimation"/>
+                <attr name="ShortDescription" stringvalue="Estimate Coherence"/>
+                <attr name="targetProductNameSuffix" stringvalue="_coh"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="CoherenceOp"/>
             </file>
         </folder>
     </folder>
