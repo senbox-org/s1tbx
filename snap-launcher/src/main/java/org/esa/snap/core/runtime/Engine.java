@@ -37,11 +37,15 @@ public class Engine {
     private static Engine instance;
     private final ClassLoader clientClassLoader;
 
-    private Engine() {
+    private Engine(boolean standAloneMode) {
         getConfig().load();
-        ScanResult scanResult = scanInstallationDir();
-        setJavaLibraryPath(scanResult.libraryPathEntries);
-        clientClassLoader = createClientClassLoader(scanResult.classPathEntries);
+        if (standAloneMode) {
+            ScanResult scanResult = scanInstallationDir();
+            setJavaLibraryPath(scanResult.libraryPathEntries);
+            clientClassLoader = createClientClassLoader(scanResult.classPathEntries);
+        } else {
+            clientClassLoader = Thread.currentThread().getContextClassLoader();
+        }
     }
 
     /**
@@ -105,7 +109,7 @@ public class Engine {
         if (instance == null) {
             synchronized (Engine.class) {
                 if (instance == null) {
-                    instance = new Engine();
+                    instance = new Engine(setContextClassLoader);
                     if (setContextClassLoader) {
                         instance.setContextClassLoader();
                     }
@@ -267,7 +271,7 @@ public class Engine {
 
     private ScanResult scanInstallationDir0() throws IOException {
         ScanResult scanResult = new ScanResult();
-        Path installationDir = Config.instance().homeDir();
+        Path installationDir = Config.instance().installDir();
         Path clustersFile = installationDir.resolve(Paths.get("etc", "snap.clusters"));
         if (Files.exists(clustersFile)) {
             // SNAP-Desktop NetBeans installation (the default)
