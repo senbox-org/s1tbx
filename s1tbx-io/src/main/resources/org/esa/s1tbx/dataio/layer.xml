@@ -62,7 +62,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName" stringvalue="Cosmo-Skymed"/>
-                <attr name="formatName" stringvalue="Cosmo-Skymed"/>
+                <attr name="formatName" stringvalue="CosmoSkymed"/>
                 <attr name="useAllFileFilter" boolvalue="true"/>
                 <attr name="helpId" stringvalue="importCosmoSkymed"/>
                 <attr name="ShortDescription" stringvalue="Open Cosmo-Skymed data product."/>
@@ -89,7 +89,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName" stringvalue="TerraSAR-X"/>
-                <attr name="formatName" stringvalue="TerraSAR-X"/>
+                <attr name="formatName" stringvalue="TerraSarX"/>
                 <attr name="useAllFileFilter" boolvalue="true"/>
                 <attr name="helpId" stringvalue="importTerraSarXProduct"/>
                 <attr name="ShortDescription" stringvalue="Open TerraSAR-X data product."/>
@@ -98,7 +98,7 @@
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
                 <attr name="displayName" stringvalue="TanDEM-X"/>
-                <attr name="formatName" stringvalue="TerraSAR-X"/>
+                <attr name="formatName" stringvalue="TerraSarX"/>
                 <attr name="useAllFileFilter" boolvalue="true"/>
                 <attr name="helpId" stringvalue="importTerraSarXProduct"/>
                 <attr name="ShortDescription" stringvalue="Open TanDEM-X data product."/>
