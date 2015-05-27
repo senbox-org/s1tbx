@@ -1,9 +1,6 @@
 package org.jlinda.nest.gpf.coregistration;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.framework.dataop.dem.ElevationModel;
-import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
-import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
@@ -17,6 +14,9 @@ import org.esa.snap.framework.datamodel.Placemark;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNodeGroup;
+import org.esa.snap.framework.dataop.dem.ElevationModel;
+import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.framework.dataop.resamp.Resampling;
 import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
 import org.esa.snap.framework.gpf.Operator;
@@ -45,8 +45,7 @@ import javax.media.jai.InterpolationTable;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.WarpPolynomial;
-import java.awt.Desktop;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
@@ -651,12 +650,8 @@ public class ResampleOp extends Operator {
     }
 
     private static File getResidualsFile(final Product sourceProduct) {
-        String fileName = sourceProduct.getName() + "_residual.txt";
-        final File appUserDir = new File(ResourceUtils.getApplicationUserDir(true).getAbsolutePath() + File.separator + "log");
-        if (!appUserDir.exists()) {
-            appUserDir.mkdirs();
-        }
-        return new File(appUserDir.toString(), fileName);
+        final String fileName = sourceProduct.getName() + "_residual.txt";
+        return new File(ResourceUtils.getReportFolder(), fileName);
     }
 
     /**

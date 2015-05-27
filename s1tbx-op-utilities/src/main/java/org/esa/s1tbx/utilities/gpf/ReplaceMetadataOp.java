@@ -33,7 +33,7 @@ import org.esa.snap.util.ProductUtils;
  * Replaces the Metadata with that of another product
  */
 @OperatorMetadata(alias = "ReplaceMetadata",
-        category = "Utilities",
+        category = "SAR Processing/Utilities",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Replace the metadata of the first product with that of the second")

@@ -23,6 +23,7 @@ import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.framework.dataop.downloadable.XMLSupport;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
@@ -35,11 +36,10 @@ import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.ResourceUtils;
-import org.esa.snap.framework.dataop.downloadable.XMLSupport;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -144,11 +144,7 @@ public class ObjectDiscriminationOp extends Operator {
      */
     private void setTargetReportFilePath() {
         final String fileName = sourceProduct.getName() + "_object_detection_report.xml";
-        final File appUserDir = new File(ResourceUtils.getApplicationUserDir(true).getAbsolutePath() + File.separator + "log");
-        if (!appUserDir.exists()) {
-            appUserDir.mkdirs();
-        }
-        targetReportFile = new File(appUserDir.toString(), fileName);
+        targetReportFile = new File(ResourceUtils.getReportFolder(), fileName);
     }
 
     /**

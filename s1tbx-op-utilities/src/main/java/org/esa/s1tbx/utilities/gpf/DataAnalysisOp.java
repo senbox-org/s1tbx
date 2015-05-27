@@ -30,7 +30,7 @@ import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.ResourceUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -54,7 +54,7 @@ import java.util.HashMap;
  * that can compute bands independently of each other.
  */
 @OperatorMetadata(alias = "Data-Analysis",
-        category = "Analysis",
+        category = "Tools",
         description = "Computes statistics",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
@@ -262,11 +262,7 @@ public class DataAnalysisOp extends Operator {
     private void writeStatsToFile() {
         String fileName = sourceProduct.getName() + "_statistics.txt";
         try {
-            final File appUserDir = new File(ResourceUtils.getApplicationUserDir(true).getAbsolutePath() + File.separator + "log");
-            if (!appUserDir.exists()) {
-                appUserDir.mkdirs();
-            }
-            fileName = appUserDir.toString() + File.separator + fileName;
+            fileName = ResourceUtils.getReportFolder().toString() + File.separator + fileName;
             final FileOutputStream out = new FileOutputStream(fileName);
 
             // Connect print stream to the output stream

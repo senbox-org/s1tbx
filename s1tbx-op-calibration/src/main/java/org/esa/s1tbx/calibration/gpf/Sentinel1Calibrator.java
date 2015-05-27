@@ -102,14 +102,13 @@ public class Sentinel1Calibrator extends BaseCalibrator implements Calibrator {
             selectedPols = Sentinel1Utils.getProductPolarizations(absRoot);
         }
 
-        selectedPolList = new ArrayList<String>(4);
+        selectedPolList = new ArrayList<>(4);
         for (String pol : selectedPols) {
             selectedPolList.add(pol.toUpperCase());
         }
-        //selectedPolList = Arrays.asList(selectedPols);
 
         if (!outputSigmaBand && !outputGammaBand && !outputBetaBand && !outputDNBand) {
-            throw new OperatorException("No output product is selected");
+            this.outputSigmaBand = true;
         }
     }
 

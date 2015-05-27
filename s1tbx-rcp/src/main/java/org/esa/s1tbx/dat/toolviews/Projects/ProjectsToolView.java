@@ -15,17 +15,14 @@
  */
 package org.esa.s1tbx.dat.toolviews.Projects;
 
-import com.jidesoft.icons.IconsFactory;
-import com.jidesoft.swing.JideScrollPane;
-import com.jidesoft.swing.JideSplitPane;
 import org.esa.snap.framework.ui.BasicApp;
+import org.esa.snap.framework.ui.UIUtils;
 import org.esa.snap.framework.ui.application.support.AbstractToolView;
 
-import javax.swing.JComponent;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import java.awt.Dimension;
+import java.awt.*;
 import java.util.Enumeration;
 import java.util.Observer;
 import java.util.Vector;
@@ -49,15 +46,15 @@ public class ProjectsToolView extends AbstractToolView implements Observer {
     public JComponent createControl() {
         Project.instance().addObserver(this);
 
-        final JScrollPane prjScrollPane = new JideScrollPane(createTree());
+        final JScrollPane prjScrollPane = new JScrollPane(createTree());
         prjScrollPane.setPreferredSize(new Dimension(320, 480));
         prjScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         prjScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         prjScrollPane.setBorder(null);
         prjScrollPane.setViewportBorder(null);
 
-        final JideSplitPane splitPane = new JideSplitPane(JideSplitPane.VERTICAL_SPLIT);
-        splitPane.addPane(prjScrollPane);
+        final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPane.add(prjScrollPane);
 
         return splitPane;
     }
@@ -69,9 +66,9 @@ public class ProjectsToolView extends AbstractToolView implements Observer {
         projectTree.setRootVisible(false);
         projectTree.setShowsRootHandles(true);
         DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) projectTree.getCellRenderer();
-        renderer.setLeafIcon(IconsFactory.getImageIcon(BasicApp.class, "/org/esa/s1tbx/resources/images/icons/RsBandAsSwath16.gif"));
-        renderer.setClosedIcon(IconsFactory.getImageIcon(BasicApp.class, "/org/esa/s1tbx/resources/images/icons/RsGroupClosed16.gif"));
-        renderer.setOpenIcon(IconsFactory.getImageIcon(BasicApp.class, "/org/esa/s1tbx/resources/images/icons/RsGroupOpen16.gif"));
+        renderer.setLeafIcon(UIUtils.loadImageIcon("/org/esa/s1tbx/resources/images/icons/RsBandAsSwath16.gif", BasicApp.class));
+        renderer.setClosedIcon(UIUtils.loadImageIcon("/org/esa/s1tbx/resources/images/icons/RsGroupClosed16.gif", BasicApp.class));
+        renderer.setOpenIcon(UIUtils.loadImageIcon("/org/esa/s1tbx/resources/images/icons/RsGroupOpen16.gif", BasicApp.class));
         return projectTree;
     }
 

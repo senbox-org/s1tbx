@@ -1,7 +1,6 @@
 package org.esa.s1tbx.sentinel1.gpf;
 
 import org.esa.s1tbx.dataio.TAXI.TAXIParameterFileReader;
-import org.esa.s1tbx.sentinel1.gpf.ComputeDerampDemodPhaseOp;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.util.ResourceUtils;
@@ -13,7 +12,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Test ComputeDerampDemodPhaseOp
@@ -147,11 +146,7 @@ public class TestComputeDerampDemodPhaseOp {
 
     private void outputToFile(final float[] dataArray, final String fileName) throws Exception {
 
-        final File appUserDir = new File(ResourceUtils.getApplicationUserDir(true).getAbsolutePath() + File.separator + "log");
-        if (!appUserDir.exists()) {
-            appUserDir.mkdirs();
-        }
-        final File ftFile = new File(appUserDir.toString(), fileName);
+        final File ftFile = new File(ResourceUtils.getReportFolder(), fileName);
         final FileOutputStream out = new FileOutputStream(ftFile.getAbsolutePath(), false);
         PrintStream p = new PrintStream(out);
         for (float data:dataArray) {

@@ -19,18 +19,10 @@ import com.alee.extended.panel.WebAccordion;
 import com.alee.extended.panel.WebAccordionStyle;
 import org.esa.snap.framework.ui.ModalDialog;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.SystemUtils;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -72,7 +64,7 @@ class DatAboutBox extends ModalDialog {
             }
         });
 
-        final File homeFolder = ResourceUtils.findHomeFolder();
+        final File homeFolder = SystemUtils.getApplicationHomeDir();
         final File imgFile = new File(homeFolder, "resource" + File.separator + "images" + File.separator + "sentinel_toolboxes_banner.png");
         final Icon icon = new ImageIcon(imgFile.getAbsolutePath());
 

@@ -15,13 +15,6 @@
  */
 package org.esa.s1tbx.dat;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.jidesoft.action.CommandBar;
-import com.jidesoft.action.CommandMenuBar;
-import com.jidesoft.action.DockableBarContext;
-import org.esa.s1tbx.dat.actions.LoadTabbedLayoutAction;
-import org.esa.s1tbx.dat.views.polarview.PolarView;
-import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.db.ProductDB;
 import org.esa.snap.framework.dataio.ProductIOPlugInManager;
@@ -34,24 +27,16 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.gpf.GPF;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.OperatorSpiRegistry;
-import org.esa.snap.framework.help.HelpSys;
 import org.esa.snap.framework.ui.ModalDialog;
 import org.esa.snap.framework.ui.application.ApplicationDescriptor;
-import org.esa.snap.framework.ui.command.Command;
-import org.esa.snap.framework.ui.command.CommandManager;
+import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.rcp.SnapDialogs;
 import org.esa.snap.util.MemUtils;
 import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.Settings;
 import org.esa.snap.visat.VisatApp;
 
-import javax.swing.JInternalFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JSeparator;
-import java.awt.Container;
-import java.awt.Dimension;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -59,12 +44,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -94,74 +73,9 @@ public class DatApp extends VisatApp {
     }
 
     @Override
-    protected void initClientUI(ProgressMonitor pm) {
-        super.initClientUI(pm);
-
-        final CommandBar processorToolBar = createProcessorToolBar();
-        processorToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_NORTH);
-        processorToolBar.getContext().setInitIndex(3);
-        getMainFrame().getDockableBarManager().addDockableBar(processorToolBar);
-
-        final CommandBar labelToolBar = createLabelToolBar();
-        labelToolBar.getContext().setInitSide(DockableBarContext.DOCK_SIDE_EAST);
-        labelToolBar.getContext().setInitIndex(4);
-        getMainFrame().getDockableBarManager().addDockableBar(labelToolBar);
-
-        updateGraphMenu();
-
-        postInit();
-    }
-
-    @Override
     protected void configureJaiTileCache() {
         MemUtils.createTileCache();
         super.configureJaiTileCache();
-    }
-
-    protected void loadLayout() {
-        final String getStarted = SnapApp.getDefault().getPreferences().get("visat.showGettingStarted", "true");
-        getMainFrame().setMinimumSize(new Dimension(1200, 800));
-        if (getStarted == null || getStarted.equals("true")) {
-            LoadTabbedLayoutAction.loadTabbedLayout();
-
-            HelpSys.showTheme("top");
-            SnapApp.getDefault().getPreferences().put("visat.showGettingStarted", "false");
-
-            getMainFrame().setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
-        } else {
-            getMainFrame().getLayoutPersistence().loadLayoutData(); // </JIDE>
-        }
-    }
-
-    protected void postInit() {
-        try {
-            //disable JAI media library
-            System.setProperty("com.sun.media.jai.disableMediaLib", "true");
-
-            //disableOperatorPlugins();
-            //disableIOPlugins();
-
-            validateAuxDataFolder();
-
-            //UIManager.put("List.lockToPositionOnScroll", Boolean.FALSE);
-
-            //backgroundInitTasks();
-        } catch (Throwable t) {
-            SnapDialogs.showError("PostInit failed. " + t.toString());
-        }
-    }
-
-    protected void disableOperatorPlugins() {
-
-        removeOperator("org.esa.snap.gpf.operators.standard.MergeOp$Spi");
-        removeOperator("org.esa.snap.pixex.PixExOp$Spi");
-        removeOperator("org.esa.snap.statistics.StatisticsOp$Spi");
-        removeOperator("org.esa.snap.gpf.operators.meris.N1PatcherOp$Spi");
-    }
-
-    protected void disableIOPlugins() {
-
-        removeReaderPlugIn("org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn");
     }
 
     protected void removeOperator(final String spi) {
@@ -287,89 +201,6 @@ public class DatApp extends VisatApp {
         }
     }
 
-    @Override
-    protected HashSet<String> getExcludedToolbars() {
-        final HashSet<String> excludedIds = super.getExcludedToolbars();
-
-        //excludedIds.add("org.esa.snap.visat.toolviews.spectrum.SpectrumToolView");
-        //excludedIds.add("org.esa.snap.visat.toolviews.placemark.pin.PinManagerToolView");
-        //excludedIds.add("org.esa.snap.visat.toolviews.placemark.gcp.GcpManagerToolView");
-        //excludedIds.add("org.esa.s1tbx.dat.toolviews.worldmap.NestWorldMapToolView");
-        excludedIds.add("org.csa.rstb.dat.toolviews.HaAlphaPlotToolView");
-
-        return excludedIds;
-    }
-
-    @Override
-    protected void addDefaultToolViewCommands(final List<String> commandIds) {
-        // add default views grouped
-        commandIds.add("org.esa.s1tbx.dat.toolviews.Projects.ProjectsToolView.showCmd");
-        commandIds.add("org.esa.snap.visat.ProductsToolView.showCmd");
-        commandIds.add("org.esa.snap.visat.toolviews.pixelinfo.PixelInfoToolView.showCmd");
-        commandIds.add(null);
-        commandIds.add("org.esa.snap.visat.toolviews.nav.NavigationToolView.showCmd");
-        commandIds.add("org.esa.snap.visat.toolviews.imageinfo.ColorManipulationToolView.showCmd");
-        commandIds.add("org.esa.snap.visat.toolviews.layermanager.LayerManagerToolView.showCmd");
-        commandIds.add(null);
-    }
-
-    /**
-     * Overrides the base class version in order to create a tool bar for VISAT.
-     */
-    @Override
-    protected CommandBar createMainToolBar() {
-        // context of action in module.xml used as key
-        final CommandBar toolBar = createToolBar(MAIN_TOOL_BAR_ID, "Standard");
-
-        addCommandsToToolBar(toolBar, new String[]{
-                "newProject",
-                "loadProject",
-                null,
-                "open",
-                //"openVector",
-                "save",
-        });
-
-        return toolBar;
-    }
-
-    /**
-     * Overrides the base class version in order to creates the menu bar for VISAT.
-     */
-    @Override
-    protected CommandBar createMainMenuBar() {
-        final CommandMenuBar menuBar = new CommandMenuBar("Main Menu");
-        menuBar.setHidable(true);
-        menuBar.setStretch(true);
-
-        boolean incImageProcessing = false;
-        final CommandManager cmdMan = getCommandManager();
-        for (int i = 0; i < cmdMan.getNumCommands(); i++) {
-            final String parent = cmdMan.getCommandAt(i).getParent();
-            if (parent == null)
-                continue;
-
-            if (parent.equals("image-processing"))
-                incImageProcessing = true;
-        }
-
-        menuBar.add(createJMenu("file", "File", 'F'));
-        menuBar.add(createJMenu("edit", "Edit", 'E'));
-        menuBar.add(createJMenu("view", "View", 'V'));
-        //menuBar.add(createAnalysisMenu());
-        menuBar.add(createJMenu("tools", "Utilities", 'U'));
-        //menuBar.add(createJMenu("processing", "Optical Processing", 'O'));
-        menuBar.add(createJMenu("SAR Processing", "SAR Processing", 'S'));
-        if (incImageProcessing)
-            menuBar.add(createJMenu("image-processing", "Image Processing", 'M'));
-        menuBar.add(createJMenu("processing.imageAnalysis", "Image Analysis", 'I'));
-        menuBar.add(createJMenu("Graphs", "Graphs", 'G'));
-        menuBar.add(createJMenu("window", "Window", 'W'));
-        menuBar.add(createJMenu("help", "Help", 'H'));
-
-        return menuBar;
-    }
-
     private void updateGraphMenu() {
         final JMenu menu = findMenu("Graphs");
         if (menu == null) {
@@ -407,133 +238,5 @@ public class DatApp extends VisatApp {
                 menu.add(item);
             }
         }
-    }
-
-//    @Override
-//    protected JMenu createAnalysisMenu() {
-//        final JMenu menu = super.createAnalysisMenu();
-//
-//        addCommandToMenu(menu, "org.csa.rstb.dat.toolviews.HaAlphaPlotToolView" + SHOW_TOOLVIEW_CMD_POSTFIX);
-//        return menu;
-//    }
-
-    protected void addCommandToMenu(final JMenu menu, final String cmdID) {
-        final Command command = getCommandManager().getCommand(cmdID);
-        if (command != null) {
-            menu.getPopupMenu().add(command.createMenuItem());
-        }
-    }
-
-   // @Override
-//    protected CommandBar createAnalysisToolBar() {
-//        final CommandBar toolBar = super.createAnalysisToolBar();
-//
-//        addCommandsToToolBar(toolBar, new String[]{
-//                "org.csa.rstb.dat.toolviews.HaAlphaPlotToolView" + SHOW_TOOLVIEW_CMD_POSTFIX
-//        });
-//        return toolBar;
-//    }
-
-    protected CommandBar createProcessorToolBar() {
-        // context of action in module.xml used as key
-        final CommandBar toolBar = new CommandBar(PROCESSORS_TOOL_BAR_ID, "Processors");
-        toolBar.addDockableBarListener(new ToolBarListener());
-
-        addCommandsToToolBar(toolBar, new String[]{
-                "openGraphBuilderDialog",
-                "batchProcessing"
-        });
-
-        return toolBar;
-    }
-
-    protected CommandBar createLabelToolBar() {
-        final CommandBar toolBar = createToolBar(LABELS_TOOL_BAR_ID, "Labels and GeoTags");
-        final LinkedList<String> cmdList = new LinkedList<String>();
-        final Map<String, String> placeAfterMap = new HashMap<String, String>();
-
-        cmdList.add("pinTool");
-        cmdList.add("gcpTool");
-
-        final CommandManager cmdMan = getCommandManager();
-        final int numCmds = cmdMan.getNumCommands();
-        for (int i = 0; i < numCmds; ++i) {
-            final Command cmd = cmdMan.getCommandAt(i);
-            final String parent = cmd.getParent();
-            if (parent != null && parent.equals("labels")) {
-                placeAfterMap.put(cmd.getCommandID(), cmd.getPlaceAfter());
-                cmdList.add(cmd.getCommandID());
-            }
-        }
-
-        // order
-        final Set<String> placeAfterSet = placeAfterMap.keySet();
-        for (String id : placeAfterSet) {
-            final String placeAfter = placeAfterMap.get(id);
-            int index = cmdList.indexOf(placeAfter);
-            if (index != -1) {
-                cmdList.remove(id);
-                index = cmdList.indexOf(placeAfter);
-                cmdList.add(index + 1, id);
-            }
-        }
-
-        addCommandsToToolBar(toolBar, cmdList.toArray(new String[cmdList.size()]));
-
-        return toolBar;
-    }
-
-    @Override
-    protected CommandBar createInteractionsToolBar() {
-        final CommandBar toolBar = createToolBar(INTERACTIONS_TOOL_BAR_ID, "Interactions");
-        addCommandsToToolBar(toolBar, new String[]{
-                // These IDs are defined in the module.xml
-                "selectLayerTool",
-                "rangeFinder",
-                "zoomTool",
-                "pannerTool",
-                null,
-                "magicWandTool",
-                "drawLineTool",
-                "drawPolylineTool",
-                "drawRectangleTool",
-                "drawEllipseTool",
-                "drawPolygonTool",
-                "createVectorDataNode",
-        });
-
-        return toolBar;
-    }
-
-    /**
-     * Closes all (internal) frames associated with the given product.
-     *
-     * @param product The product to close the internal frames for.
-     */
-    @Override
-    public synchronized void closeAllAssociatedFrames(final Product product) {
-        super.closeAllAssociatedFrames(product);
-
-        boolean frameFound;
-        do {
-            frameFound = false;
-            final JInternalFrame[] frames = getDesktopPane().getAllFrames();
-            if (frames == null) {
-                break;
-            }
-            for (final JInternalFrame frame : frames) {
-                final Container cont = frame.getContentPane();
-                Product frameProduct = null;
-                if (cont instanceof PolarView) {
-                    final PolarView view = (PolarView) cont;
-                    frameProduct = view.getProduct();
-                }
-                if (frameProduct != null && frameProduct == product) {
-                    getDesktopPane().closeFrame(frame);
-                    frameFound = true;
-                    break;
-                }
-            }
-        } while (frameFound);
     }
 }

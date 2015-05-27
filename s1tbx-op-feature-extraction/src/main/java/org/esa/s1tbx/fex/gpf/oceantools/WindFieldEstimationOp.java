@@ -26,6 +26,7 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.framework.dataop.downloadable.XMLSupport;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
@@ -37,7 +38,6 @@ import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.ResourceUtils;
-import org.esa.snap.framework.dataop.downloadable.XMLSupport;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
@@ -46,8 +46,7 @@ import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
 import javax.media.jai.operator.MedianFilterDescriptor;
 import javax.media.jai.operator.MedianFilterShape;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
@@ -203,11 +202,7 @@ public class WindFieldEstimationOp extends Operator {
      */
     private void setTargetReportFilePath() {
         final String fileName = sourceProduct.getName() + "_wind_field_report.xml";
-        final File appUserDir = new File(ResourceUtils.getApplicationUserDir(true).getAbsolutePath() + File.separator + "log");
-        if (!appUserDir.exists()) {
-            appUserDir.mkdirs();
-        }
-        windFieldReportFile = new File(appUserDir.toString(), fileName);
+        windFieldReportFile = new File(ResourceUtils.getReportFolder(), fileName);
     }
 
     /**

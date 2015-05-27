@@ -42,7 +42,7 @@ import java.util.HashMap;
  */
 
 @OperatorMetadata(alias = "LinearTodB",
-        category = "Utilities/Data Conversion",
+        category = "SAR Processing/Utilities/Data Conversion",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Converts bands to dB")
