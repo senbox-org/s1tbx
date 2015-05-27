@@ -156,8 +156,13 @@
                 <version>${snap.version}</version>
             </dependency>
 
-            <!-- SNAP System Level Modules -->
+            <!-- SNAP Engine System Level Modules -->
 
+            <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-launcher</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-core</artifactId>
