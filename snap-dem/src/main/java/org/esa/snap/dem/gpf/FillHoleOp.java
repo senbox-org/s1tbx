@@ -39,7 +39,7 @@ import java.awt.*;
  */
 
 @OperatorMetadata(alias = "Fill-Hole",
-        category = "Geometric Operations/DEM Tools",
+        category = "Tools/DEM Tools",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Fill holes in given product")
