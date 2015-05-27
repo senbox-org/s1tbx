@@ -11,6 +11,7 @@
                 <attr name="dialogTitle" stringvalue="Apply Orbit File"/>
                 <attr name="targetProductNameSuffix"  stringvalue="_Orb"/>
                 <attr name="ShortDescription" stringvalue="Apply Orbit File to update orbit state vectors"/>
+                <attr name="helpId" stringvalue="ApplyOrbitFileOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
 
@@ -55,6 +56,7 @@
                 <attr name="dialogTitle" stringvalue="Simulate a SAR image"/>
                 <attr name="targetProductNameSuffix" stringvalue="_Sim"/>
                 <attr name="ShortDescription" stringvalue="Simulate a SAR image based on a DEM"/>
+                <attr name="helpId" stringvalue="SARSimOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-geometric-SARSimGeocodingOp-Action.instance">
@@ -65,6 +67,7 @@
                 <attr name="dialogTitle" stringvalue="SAR-Simulation Terrain Correction"/>
                 <attr name="targetProductNameSuffix" stringvalue="_TC"/>
                 <attr name="ShortDescription" stringvalue="Perform Orthorectification using a simulated SAR image based on a DEM"/>
+                <attr name="helpId" stringvalue="SARSimGeocodingOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-geometric-MosaicOp-Action.instance">
@@ -75,6 +78,7 @@
                 <attr name="dialogTitle" stringvalue="SAR-Mosaic"/>
                 <attr name="targetProductNameSuffix" stringvalue="_mosaic"/>
                 <attr name="ShortDescription" stringvalue="Mosaic various images together"/>
+                <attr name="helpId" stringvalue="MosaicOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-geometric-ALOSDeskewingOp-Action.instance">
@@ -85,6 +89,7 @@
                 <attr name="dialogTitle" stringvalue="Deskew ALOS product"/>
                 <attr name="targetProductNameSuffix" stringvalue="_DSk"/>
                 <attr name="ShortDescription" stringvalue="Deskew ALOS product"/>
+                <attr name="helpId" stringvalue="ALOSDeskewingOp"/>
                 <attr name="icon" stringvalue="geoAusIcon"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-geometric-SlantRangeGroundRangeOp-Action.instance">
@@ -95,6 +100,7 @@
                 <attr name="dialogTitle" stringvalue="Slant Range to Ground Range"/>
                 <attr name="targetProductNameSuffix" stringvalue="_GrRg"/>
                 <attr name="ShortDescription" stringvalue="Converts from slant range to ground range"/>
+                <attr name="helpId" stringvalue="SRGROp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-geometric-UpdateGeoRefOp-Action.instance">
@@ -105,6 +111,7 @@
                 <attr name="dialogTitle" stringvalue="Update Geo Reference"/>
                 <attr name="targetProductNameSuffix" stringvalue="_Geo"/>
                 <attr name="ShortDescription" stringvalue="Update Geo Reference via backgeocoding"/>
+                <attr name="helpId" stringvalue="UpdateGeoRefOp"/>
                 <attr name="icon" stringvalue="rstbIcon"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-geometric-TerrainFlatteningOp-Action.instance">
@@ -115,6 +122,7 @@
                 <attr name="dialogTitle" stringvalue="Radiometric Terrain Flattening"/>
                 <attr name="targetProductNameSuffix" stringvalue="_TF"/>
                 <attr name="ShortDescription" stringvalue="Radiometric Terrain Flattening"/>
+                <attr name="helpId" stringvalue="TerrainFlatteningOp"/>
                 <attr name="icon" stringvalue="rstbIcon"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-filtering-SpeckleFilterOp-Action.instance">
@@ -125,6 +133,7 @@
                 <attr name="dialogTitle" stringvalue="Single Product Speckle Filter"/>
                 <attr name="targetProductNameSuffix"  stringvalue="_Spk"/>
                 <attr name="ShortDescription" stringvalue="Single Product Speckle Filter"/>
+                <attr name="helpId" stringvalue="SpeckleFilterOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-filtering-MultiTemporalSpeckleFilterOp-Action.instance">
@@ -135,6 +144,7 @@
                 <attr name="dialogTitle" stringvalue="Multi-temporal Speckle Filter"/>
                 <attr name="targetProductNameSuffix"  stringvalue="_Spk"/>
                 <attr name="ShortDescription" stringvalue="Speckle filter a stack"/>
+                <attr name="helpId" stringvalue="MultiTemporalSpeckleFilterOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-wss-WSSDeburstOp-Action.instance">
@@ -145,6 +155,7 @@
                 <attr name="dialogTitle" stringvalue="ASAR WSS Deburst"/>
                 <attr name="targetProductNameSuffix"  stringvalue="_Deburst"/>
                 <attr name="ShortDescription" stringvalue="Deburst an ASAR WSS product"/>
+                <attr name="helpId" stringvalue="WSSDeburstOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-wss-WSSMosaicOp-Action.instance">
@@ -154,6 +165,7 @@
                 <attr name="graphFile" stringvalue="WSSDetectGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="WSS Deburst, Calibrate and Detect"/>
                 <attr name="ShortDescription" stringvalue="Graph to deburst and detect a WSS product. Run Mosaic afterwards to combine"/>
+                <attr name="helpId" stringvalue="WSSMosaic"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-SLCtoPRI-Action.instance">
@@ -163,6 +175,7 @@
                 <attr name="graphFile" stringvalue="SLCtoPRIGraph.xml"/>
                 <attr name="dialogTitle" stringvalue="SLC to PRI"/>
                 <attr name="ShortDescription" stringvalue="Convert a SLC product to a detected ground range product"/>
+                <attr name="helpId" stringvalue="SLCtoPRI"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-MultilookOp-Action.instance">
@@ -173,6 +186,7 @@
                 <attr name="dialogTitle" stringvalue="Multilooking"/>
                 <attr name="targetProductNameSuffix"  stringvalue="_ML"/>
                 <attr name="ShortDescription" stringvalue="Multilook average an image"/>
+                <attr name="helpId" stringvalue="MultilookOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
         </folder>

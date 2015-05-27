@@ -11,6 +11,7 @@
                 <attr name="dialogTitle" stringvalue="S-1 Slice Assembly"/>
                 <attr name="targetProductNameSuffix" stringvalue="_asm"/>
                 <attr name="ShortDescription" stringvalue="Merge slice products together"/>
+                <attr name="helpId" stringvalue="SliceAssemblyOp"/>
             </file>
             <file name="org-esa-s1tbx-gpf-TOPSARSplitOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -19,6 +20,7 @@
                 <attr name="operatorName" stringvalue="TOPSAR-Split"/>
                 <attr name="dialogTitle" stringvalue="S-1 TOPS Split"/>
                 <attr name="ShortDescription" stringvalue="Split a Sentinel1 TOPSAR product into subswaths"/>
+                <attr name="helpId" stringvalue="TOPSARSplitOp"/>
             </file>
             <file name="org-esa-s1tbx-gpf-TOPSARMergeOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -28,6 +30,7 @@
                 <attr name="dialogTitle" stringvalue="S-1 TOPS Merge"/>
                 <attr name="ShortDescription" stringvalue="Merge TOPSAR subswaths together"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="TOPSARMergeOp"/>
             </file>
             <file name="org-esa-s1tbx-gpf-TOPSARDeburstOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -38,6 +41,7 @@
                 <attr name="ShortDescription" stringvalue="Deburst a Sentinel1 TOPSAR product"/>
                 <attr name="targetProductNameSuffix" stringvalue="_deb"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="TOPSARDeburstOp"/>
             </file>
             <file name="org-esa-s1tbx-gpf-Sentinel1SLCtoGRD-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -47,6 +51,7 @@
                 <attr name="dialogTitle" stringvalue="S-1 SLC to GRD"/>
                 <attr name="ShortDescription" stringvalue="Convert a Sentinel1 SLC product to a detected ground range product"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="Sentinel1SLCtoGRD"/>
             </file>
 
             <file name="org-esa-s1tbx-gpf-TOPSCoregistration-Action.instance">
@@ -66,6 +71,7 @@
                 <attr name="dialogTitle" stringvalue="S-1 Back Geocoding"/>
                 <attr name="ShortDescription" stringvalue="Back Geocoding"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="BackGeocodingOp"/>
             </file>
             <file name="org-esa-s1tbx-gpf-RangeShiftOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -76,6 +82,7 @@
                 <attr name="ShortDescription" stringvalue="Constant Range Offset Estimation"/>
                 <attr name="targetProductNameSuffix" stringvalue="_rg"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="RangeShiftOp"/>
             </file>
             <file name="org-esa-s1tbx-gpf-AzimuthShiftOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -86,6 +93,7 @@
                 <attr name="ShortDescription" stringvalue="Azimuth Offset Estimation"/>
                 <attr name="targetProductNameSuffix" stringvalue="_az"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="AzimuthShiftOp"/>
             </file>
             <file name="org-esa-s1tbx-gpf-ComputeDerampDemodPhaseOp-Action.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
@@ -96,6 +104,7 @@
                 <attr name="ShortDescription" stringvalue="Compute Deramp Demodulation Phase"/>
                 <attr name="targetProductNameSuffix" stringvalue="_ddp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
+                <attr name="helpId" stringvalue="ComputeDerampDemodPhaseOp"/>
             </file>
         </folder>
     </folder>
