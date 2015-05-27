@@ -5,9 +5,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.*;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * This class is used to configure a stand-alone SNAP Engine application. Various configuration settings may be
@@ -46,7 +54,7 @@ import java.util.logging.*;
  */
 public class Config {
 
-    public static final String PROPERTY_HOME_DIR = "snap.home";
+    public static final String PROPERTY_INSTALL_DIR = "snap.home";
     public static final String PROPERTY_USER_DIR = "snap.user";
     public static final String PROPERTY_CONFIG_FILE = "snap.config";
     public static final String PROPERTY_EXCLUDED_CLUSTER_NAMES = "snap.excludedClusters";
@@ -104,13 +112,13 @@ public class Config {
         return Boolean.getBoolean(PROPERTY_DEBUG);
     }
 
-    public Config homeDir(Path value) {
-        setSystemProperty(PROPERTY_HOME_DIR, value);
+    public Config installDir(Path value) {
+        setSystemProperty(PROPERTY_INSTALL_DIR, value);
         return this;
     }
 
-    public Path homeDir() {
-        return Paths.get(System.getProperty(PROPERTY_HOME_DIR, ""));
+    public Path installDir() {
+        return Paths.get(System.getProperty(PROPERTY_INSTALL_DIR, ""));
     }
 
     public Config userDir(Path value) {
@@ -205,18 +213,52 @@ public class Config {
             loaded = loadProperties(configFile, true);
         }
 
-        // Configuration level 2: User configuration file from SNAP's user directory
-        if (!ignoreUserConfig()) {
-            loaded = loadProperties(userDir().resolve("snap.config"), false) || loaded;
-        }
+        if (!ignoreUserConfig() || !ignoreDefaultConfig()) {
+            List<String> clusterNames = loadClusterNames();
 
-        // Configuration level 3: Default configuration file from SNAP's installation directory
-        if (!ignoreDefaultConfig()) {
-            loaded = loadProperties(homeDir().resolve(Paths.get("etc", "snap.config")), false) || loaded;
+            // Configuration level 2: User configuration file from SNAP's user directory
+            if (!ignoreUserConfig()) {
+                loaded = loadUserConfigs(clusterNames, loaded);
+            }
+
+            // Configuration level 3: Default configuration file from SNAP's installation directory
+            if (!ignoreDefaultConfig()) {
+                loaded = loadDefaultConfigs(clusterNames, loaded);
+            }
         }
 
         loaded(loaded);
 
+        return loaded;
+    }
+
+    private List<String> loadClusterNames() {
+        List<String> clusterNames = new ArrayList<>();
+        Path clustersFile = installDir().resolve("etc").resolve("snap.clusters");
+        if (Files.isRegularFile(clustersFile)) {
+            try {
+                clusterNames = Files.readAllLines(clustersFile).stream().filter(name -> !name.trim().isEmpty()).collect(Collectors.toList());
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, String.format("Failed to load clusters file from '%s'", clustersFile), e);
+            }
+        }
+        if (!clusterNames.contains("snap")) {
+            clusterNames.add("snap");
+        }
+        return clusterNames;
+    }
+
+    private boolean loadUserConfigs(List<String> clusterNames, boolean loaded) {
+        for (String clusterName : clusterNames) {
+            loaded = loadProperties(userDir().resolve(clusterName + ".config"), false) || loaded;
+        }
+        return loaded;
+    }
+
+    private boolean loadDefaultConfigs(List<String> clusterNames, boolean loaded) {
+        for (String clusterName : clusterNames) {
+            loaded = loadProperties(installDir().resolve(Paths.get("etc", clusterName + ".config")), false) || loaded;
+        }
         return loaded;
     }
 
@@ -286,16 +328,16 @@ public class Config {
             System.setProperty(name, value);
         } catch (Throwable t) {
             String msg = String.format("Can't set system property '%s' (from %s)",
-                    name,
-                    file != null ? String.format("file '%s'", file) : "code");
+                                       name,
+                                       file != null ? String.format("file '%s'", file) : "code");
             logger.log(Level.SEVERE, msg, t);
             return false;
         }
         if (debug()) {
             String msg = String.format("System property '%s' set to value '%s' (from %s)",
-                    name,
-                    System.getProperty(name),
-                    file != null ? String.format("file '%s'", file) : "code");
+                                       name,
+                                       System.getProperty(name),
+                                       file != null ? String.format("file '%s'", file) : "code");
             logger.info(msg);
         }
         return true;
