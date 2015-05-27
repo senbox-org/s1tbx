@@ -69,7 +69,7 @@ import static org.esa.s1tbx.dataio.sentinel1.Sentinel1Level1Directory.*;
  * Merges Sentinel-1 slice products
  */
 @OperatorMetadata(alias = "SliceAssembly",
-        category = "SAR Processing/Sentinel-1",
+        category = "SAR Processing/Sentinel-1 TOPS",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Merges Sentinel-1 slice products")

@@ -16,6 +16,7 @@
 package org.esa.s1tbx.fex.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.s1tbx.fex.gpf.masks.TerrainMaskOp;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
@@ -53,7 +54,7 @@ import java.util.List;
  */
 
 @OperatorMetadata(alias = "Speckle-Divergence",
-        category = "Image Analysis",
+        category = "SAR Processing/Feature Extraction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Detect urban area.")

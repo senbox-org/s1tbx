@@ -11,6 +11,7 @@
                 <attr name="dialogTitle" stringvalue="Terrain Mask"/>
                 <attr name="targetProductNameSuffix" stringvalue="_terr-msk"/>
                 <attr name="ShortDescription" stringvalue="Terrain Mask Generation"/>
+                <attr name="helpId" stringvalue="TerrainMaskGeneration"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-fex-gpf-createLandMaskOp-Action.instance">
@@ -21,6 +22,18 @@
                 <attr name="dialogTitle" stringvalue="Land/Sea Mask"/>
                 <attr name="targetProductNameSuffix" stringvalue="_msk"/>
                 <attr name="ShortDescription" stringvalue="Land/Sea Mask Generation"/>
+                <attr name="helpId" stringvalue="CreateLandMask"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-fex-gpf-ChangeDetection-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Change Detection"/>
+                <attr name="operatorName" stringvalue="Change-Detection"/>
+                <attr name="dialogTitle" stringvalue="Change Detection"/>
+                <attr name="targetProductNameSuffix" stringvalue="_change"/>
+                <attr name="ShortDescription" stringvalue="Extract Change Detection Features"/>
+                <attr name="helpId" stringvalue="ChangeDetection"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-fex-gpf-SpeckleDivergence-Action.instance">
@@ -31,31 +44,118 @@
                 <attr name="dialogTitle" stringvalue="Speckle Divergence"/>
                 <attr name="targetProductNameSuffix" stringvalue="_spk-div"/>
                 <attr name="ShortDescription" stringvalue="Speckle Divergence for Urban Area Detection"/>
+                <attr name="helpId" stringvalue="SpeckleDivergence"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-fex-gpf-GLCMOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Grey Level Co-occurrence Matrix"/>
+                <attr name="operatorName" stringvalue="GLCM"/>
+                <attr name="dialogTitle" stringvalue="GLCM"/>
+                <attr name="targetProductNameSuffix" stringvalue="_glcm"/>
+                <attr name="ShortDescription" stringvalue="Extract Texture Features"/>
+                <attr name="helpId" stringvalue="GLCMOp"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-fex-gpf-GaborFilterOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Gabor Filter"/>
+                <attr name="operatorName" stringvalue="GaborFilter"/>
+                <attr name="dialogTitle" stringvalue="Gabor Filter"/>
+                <attr name="targetProductNameSuffix" stringvalue="_gab"/>
+                <attr name="ShortDescription" stringvalue="Extract Texture Features"/>
+                <attr name="helpId" stringvalue="GaborFilterOp"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-fex-gpf-ObjectDetection-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Ocean Object Detection"/>
+                <attr name="graphFile" stringvalue="ShipDetectionGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Ocean Object Detection"/>
+                <attr name="targetProductNameSuffix" stringvalue="_ship"/>
+                <attr name="ShortDescription" stringvalue="Ship Detection"/>
+                <attr name="helpId" stringvalue="ObjectDetection"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-fex-gpf-OilSpillDetectionOp-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Oil Spill Detection"/>
+                <attr name="graphFile" stringvalue="OilSpillDetectionGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Oil Spill Detection"/>
+                <attr name="targetProductNameSuffix" stringvalue="_oil"/>
+                <attr name="ShortDescription" stringvalue="Oil Spill Detection"/>
+                <attr name="helpId" stringvalue="OilSpillDetection"/>
+                <attr name="icon" stringvalue="esaIcon"/>
+            </file>
+            <file name="org-esa-s1tbx-fex-gpf-WindFieldEstimation-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Wind Field Estimation"/>
+                <attr name="graphFile" stringvalue="WindFieldEstimationGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Wind Field Estimation"/>
+                <attr name="targetProductNameSuffix" stringvalue="_oil"/>
+                <attr name="ShortDescription" stringvalue="Wind Field Estimation"/>
+                <attr name="helpId" stringvalue="WindFieldEstimation"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
         </folder>
     </folder>
 
     <folder name="Menu">
-        <folder name="SAR Processing">
-            <attr name="position" intvalue="510"/>
-            <folder name="Radiometric">
-                <attr name="position" intvalue="100"/>
-                <file name="org-esa-s1tbx-calibration-gpf-CalibrationOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-CalibrationOp-Action.instance"/>
+        <folder name="Tools">
+            <folder name="Masks">
+                <attr name="position" intvalue="420"/>
+                <file name="org-esa-s1tbx-fex-gpf-createLandMaskOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-fex-gpf-createLandMaskOp-Action.instance"/>
                     <attr name="position" intvalue="100"/>
                 </file>
-                <file name="org-esa-s1tbx-calibration-gpf-RemoveAntennaPatternOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-RemoveAntennaPatternOp-Action.instance"/>
+                <file name="org-esa-s1tbx-fex-gpf-TerrainMaskGeneration-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-fex-gpf-TerrainMaskGeneration-Action.instance"/>
                     <attr name="position" intvalue="200"/>
                 </file>
-                <file name="org-esa-s1tbx-calibration-gpf-Sentinel1RemoveThermalNoiseOp.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-Sentinel1RemoveThermalNoiseOp-Action.instance"/>
+            </folder>
+        </folder>
+        <folder name="SAR Processing">
+            <attr name="position" intvalue="510"/>
+            <folder name="Feature Extraction">
+                <attr name="position" intvalue="900"/>
+                <folder name="Texture Analysis">
+                    <attr name="position" intvalue="100"/>
+                    <file name="org-esa-s1tbx-fex-gpf-GLCMOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-fex-gpf-GLCMOp-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org-esa-s1tbx-fex-gpf-GaborFilterOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-fex-gpf-GaborFilterOp-Action.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                </folder>
+                <folder name="Ocean Tools">
+                    <attr name="position" intvalue="200"/>
+                    <file name="org-esa-s1tbx-fex-gpf-ObjectDetection-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-fex-gpf-ObjectDetection-Action.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org-esa-s1tbx-fex-gpf-OilSpillDetectionOp-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-fex-gpf-OilSpillDetectionOp-Action.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="org-esa-s1tbx-fex-gpf-WindFieldEstimation-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-fex-gpf-WindFieldEstimation-Action.instance"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                </folder>
+                <file name="org-esa-s1tbx-fex-gpf-ChangeDetection-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-fex-gpf-ChangeDetection-Action.instance"/>
                     <attr name="position" intvalue="300"/>
                 </file>
-                <file name="org-esa-s1tbx-calibration-gpf-importXCAProduct-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-calibration-gpf-importXCAProduct-Action.instance"/>
-                    <attr name="position" intvalue="400"/>
+                <file name="org-esa-s1tbx-fex-gpf-SpeckleDivergence-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-fex-gpf-SpeckleDivergence-Action.instance"/>
+                    <attr name="position" intvalue="300"/>
                 </file>
             </folder>
         </folder>

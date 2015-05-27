@@ -275,11 +275,11 @@
             </folder>
             <file name="org-esa-s1tbx-sar-gpf-SLCtoPRI-Action.shadow">
                 <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-SLCtoPRI-Action.instance"/>
-                <attr name="position" intvalue="1000"/>
+                <attr name="position" intvalue="1100"/>
             </file>
             <file name="org-esa-s1tbx-sar-gpf-MultilookOp-Action.shadow">
                 <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-MultilookOp-Action.instance"/>
-                <attr name="position" intvalue="1100"/>
+                <attr name="position" intvalue="1200"/>
             </file>
         </folder>
     </folder>

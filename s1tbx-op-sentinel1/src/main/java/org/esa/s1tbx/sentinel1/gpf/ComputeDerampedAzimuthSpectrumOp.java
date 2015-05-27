@@ -44,7 +44,7 @@ import java.util.Map;
  * The output azimuth spectrum can be used in verifying the deramp phase computed.
  */
 @OperatorMetadata(alias = "Azimuth-Spectrum",
-        category = "SAR Processing/Sentinel-1",
+        category = "SAR Processing/Coregistration/S-1 TOPS Coregistration",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
         description = "Compute azimuth spectrum for each deramped burst",

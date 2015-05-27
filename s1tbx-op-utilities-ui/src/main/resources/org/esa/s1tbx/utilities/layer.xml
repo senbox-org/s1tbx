@@ -39,7 +39,7 @@
     <folder name="Menu">
         <folder name="SAR Processing">
             <folder name="Utilities">
-                <attr name="position" intvalue="900"/>
+                <attr name="position" intvalue="1000"/>
                 <folder name="Resampling">
                     <attr name="position" intvalue="100"/>
                     <file name="org-esa-s1tbx-utilities-gpf-OversampleOp-Action.shadow">

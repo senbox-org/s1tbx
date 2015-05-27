@@ -80,7 +80,7 @@ import java.util.List;
  */
 
 @OperatorMetadata(alias = "Wind-Field-Estimation",
-        category = "SAR Processing/Ocean Tools",
+        category = "SAR Processing/Feature Extraction/Ocean Tools",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Estimate wind speed and direction")

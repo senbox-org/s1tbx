@@ -58,7 +58,7 @@ import java.util.ArrayList;
  */
 
 @OperatorMetadata(alias = "Forest-Area-Classification",
-        category = "Image Analysis/Feature Extraction",
+        category = "SAR Processing/Feature Extraction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Detect forest area", internal = true)

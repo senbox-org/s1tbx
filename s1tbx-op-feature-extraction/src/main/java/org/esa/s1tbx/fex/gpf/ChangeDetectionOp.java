@@ -47,7 +47,7 @@ import java.util.Map;
  */
 
 @OperatorMetadata(alias = "Change-Detection",
-        category = "Image Analysis",
+        category = "SAR Processing/Feature Extraction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Change Detection.")

@@ -44,7 +44,7 @@ import java.util.List;
  * clustered and then discriminated based on the size of the cluster.
  */
 @OperatorMetadata(alias = "Oil-Spill-Clustering",
-        category = "SAR Processing/Ocean Tools/Oil Spill Detection",
+        category = "SAR Processing/Feature Extraction/Ocean Tools/Oil Spill Detection",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
         description = "Remove small clusters from detected area.")
