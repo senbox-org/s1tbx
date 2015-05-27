@@ -85,6 +85,7 @@
         <module>snap-unmix</module>
         <module>blue-marble-worldmap</module>
         <module>globcover-worldmap</module>
+        <module>snap-sta</module>
 
         <module>lib-hdf</module>
     </modules>
@@ -180,6 +181,12 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-netcdf</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>snap-sta</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 
