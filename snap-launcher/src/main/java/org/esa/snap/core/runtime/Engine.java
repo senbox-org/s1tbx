@@ -68,7 +68,7 @@ public class Engine {
      * @return The SNAP-Engine logger.
      */
     public Logger getLogger() {
-        return Config.instance().logger();
+        return getConfig().logger();
     }
 
     /**
@@ -212,7 +212,7 @@ public class Engine {
             classLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]), classLoader);
         }
 
-        if (Config.instance().debug()) {
+        if (getConfig().debug()) {
             traceClassLoader("classLoader", classLoader);
         }
 
@@ -229,14 +229,14 @@ public class Engine {
             setJavaLibraryPath(extraLibraryPath + File.pathSeparator + javaLibraryPath);
         }
 
-        if (Config.instance().debug()) {
+        if (getConfig().debug()) {
             traceLibraryPaths();
         }
     }
 
     private void setJavaLibraryPath(String extraLibraryPath) {
 
-        if (!Config.instance().setSystemProperty("java.library.path", extraLibraryPath)) {
+        if (!getConfig().setSystemProperty("java.library.path", extraLibraryPath)) {
             return;
         }
 
@@ -260,7 +260,7 @@ public class Engine {
             long t0 = System.currentTimeMillis();
             ScanResult scanResult = scanInstallationDir0();
             long t1 = System.currentTimeMillis();
-            if (Config.instance().debug()) {
+            if (getConfig().debug()) {
                 getLogger().info("Scanning of installation directory took " + (t1 - t0) + " ms");
             }
             return scanResult;
@@ -271,7 +271,7 @@ public class Engine {
 
     private ScanResult scanInstallationDir0() throws IOException {
         ScanResult scanResult = new ScanResult();
-        Path installationDir = Config.instance().installDir();
+        Path installationDir = getConfig().installDir();
         Path clustersFile = installationDir.resolve(Paths.get("etc", "snap.clusters"));
         if (Files.exists(clustersFile)) {
             // SNAP-Desktop NetBeans installation (the default)
@@ -297,7 +297,7 @@ public class Engine {
     private ScanResult scanNetBeansInstallationStructure(Path installationDir, Path clustersFile, ScanResult scanResult) throws IOException {
 
         Set<String> excludedClusterNames = new HashSet<>();
-        Collections.addAll(excludedClusterNames, Config.instance().excludedClusterNames());
+        Collections.addAll(excludedClusterNames, getConfig().excludedClusterNames());
 
         ArrayList<Path> clusterPaths = new ArrayList<>();
         try {
@@ -314,7 +314,7 @@ public class Engine {
 
 
         Set<String> excludedModuleNames = new HashSet<>();
-        String[] moduleNames = Config.instance().excludedModuleNames();
+        String[] moduleNames = getConfig().excludedModuleNames();
         for (String mavenName : moduleNames) {
             if (mavenName.indexOf(':') == -1) {
                 mavenName = "org.esa.snap:" + mavenName;
@@ -410,7 +410,7 @@ public class Engine {
     }
 
     private void traceClassLoader(String name, ClassLoader classLoader) {
-        if (Config.instance().debug()) {
+        if (getConfig().debug()) {
             Logger logger = getLogger();
             logger.info(name + ".class = " + classLoader.getClass() + " =========================================================");
             if (classLoader instanceof URLClassLoader) {
@@ -428,7 +428,7 @@ public class Engine {
     }
 
     private void traceLibraryPaths() {
-        if (Config.instance().debug()) {
+        if (getConfig().debug()) {
             Logger logger = getLogger();
             String[] paths = System.getProperty("java.library.path", "").split(File.pathSeparator);
             if (paths.length > 0) {
