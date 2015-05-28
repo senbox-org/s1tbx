@@ -24,6 +24,7 @@ import com.bc.jexp.ParseException;
 import org.esa.snap.framework.dataio.ProductSubsetDef;
 import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.jai.ImageManager;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.BitRaster;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.Guardian;
@@ -165,11 +166,10 @@ public class PixelGeoCoding extends AbstractGeoCoding implements BasicPixelGeoCo
         rasterWidth = latBand.getSceneRasterWidth();
         rasterHeight = latBand.getSceneRasterHeight();
 
-        boolean disableTiling = "false".equalsIgnoreCase(System.getProperty(SYSPROP_PIXEL_GEO_CODING_USE_TILING));
-        useTiling = !disableTiling; // the default since BEAM 4.10.3 is 'useTiling=true'
+        useTiling = Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_USE_TILING, true);
 
         // fraction accuracy is only implemented in tiling mode (because tiling mode will be the default soon)
-        fractionAccuracy = useTiling && Boolean.getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY);
+        fractionAccuracy = useTiling && Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY, false);
 
         pixelPosEstimator = latBand.getProduct().getGeoCoding();
 

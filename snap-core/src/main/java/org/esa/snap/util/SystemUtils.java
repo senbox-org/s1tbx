@@ -15,7 +15,7 @@
  */
 package org.esa.snap.util;
 
-import com.bc.ceres.core.runtime.RuntimeContext;
+import org.esa.snap.runtime.Config;
 import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
 import javax.media.jai.JAI;
@@ -33,9 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.text.MessageFormat;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
@@ -53,10 +50,6 @@ import java.util.logging.Logger;
  */
 public class SystemUtils {
 
-    public static final String SNAP_HOME_PROPERTY_NAME = getApplicationContextId() + ".home";
-    public static final String SNAP_USERDIR_PROPERTY_NAME = getApplicationContextId() + ".userdir";
-    public static final String SNAP_LOGGER_NAME_PROPERTY_NAME = getApplicationContextId() + ".logger.name";
-    public static final String SNAP_LOGGER_LEVEL_PROPERTY_NAME = getApplicationContextId() + ".logger.level";
     public static final String SNAP_PARALLELISM_PROPERTY_NAME = getApplicationContextId() + ".parallelism";
 
     private static final String LAX_INSTALL_DIR_PROPERTY_NAME = "lax.root.install.dir";
@@ -64,7 +57,7 @@ public class SystemUtils {
     /**
      * The SNAP system logger. Default name is "org.esa.snap" which may be overridden by system property "snap.logger.name".
      */
-    public static final Logger LOG;
+    public static final Logger LOG = Config.instance().logger();
 
     public static final String LS = System.getProperty("line.separator");
 
@@ -82,32 +75,9 @@ public class SystemUtils {
     public static final String CACHE_DIR_NAME = "cache";
     private static final String _H5_CLASS_NAME = "ncsa.hdf.hdf5lib.H5";
     private static final String _H4_CLASS_NAME = "ncsa.hdf.hdflib.HDFLibrary";
-    private static final String FILE_PROTOCOL_PREFIX = "file:";
-    private static final String JAR_PROTOCOL_PREFIX = "jar:";
 
     private static final String EPSG_DATABASE_DIR_NAME = "epsg-database";
     private static final String JAI_REGISTRY_PATH = "/META-INF/javax.media.jai.registryFile.jai";
-
-    private static final String DEFAULT_USERDIR = new File(System.getProperty("user.home"), "." + getApplicationContextId()).getPath();
-
-    static {
-        LOG = Logger.getLogger(System.getProperty(SNAP_LOGGER_NAME_PROPERTY_NAME, "org.esa.snap"));
-        String levelName = System.getProperty(SNAP_LOGGER_LEVEL_PROPERTY_NAME, "INFO");
-        try {
-            Level level = parseLogLevel(levelName);
-            LOG.setLevel(level);
-        } catch (IllegalArgumentException e) {
-            LOG.severe("illegal log level '" + levelName + "'");
-        } catch (SecurityException e) {
-            LOG.severe("failed to set log level '" + levelName + "'");
-        }
-
-        // Make sure "snap.home" and "snap.user" are correctly set when running from NetBeans Platform
-        System.setProperty(SNAP_HOME_PROPERTY_NAME, System.getProperty("netbeans.home",
-                                                                       System.getProperty(SNAP_HOME_PROPERTY_NAME, ".")));
-        System.setProperty(SNAP_USERDIR_PROPERTY_NAME, System.getProperty("netbeans.user",
-                                                                          System.getProperty(SNAP_USERDIR_PROPERTY_NAME, DEFAULT_USERDIR)));
-    }
 
     /**
      * Gets the current user's name, or the string <code>"unknown"</code> if the the user's name cannot be determined.
@@ -132,11 +102,11 @@ public class SystemUtils {
      * Gets the application home page URL as set by the system property "${ceres.context}.homepage.url". Default is
      * "http://sentinel.esa.int".
      *
-     * @return the current user's application data directory
+     * @return the application homepage url
      * @since BEAM 4.10
      */
     public static String getApplicationHomepageUrl() {
-        return System.getProperty(getApplicationContextId() + ".homepage.url", "http://sentinel.esa.int");
+        return Config.instance().preferences().get(getApplicationContextId() + ".homepage.url", "http://sentinel.esa.int");
     }
 
     /**
@@ -157,7 +127,7 @@ public class SystemUtils {
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir(boolean force) {
-        File dir = new File(System.getProperty(SNAP_USERDIR_PROPERTY_NAME, "."));
+        File dir = Config.instance().userDir().toFile();
         if (force && !dir.exists()) {
             dir.mkdirs();
         }
@@ -166,21 +136,14 @@ public class SystemUtils {
 
     /**
      * Gets the application context ID uses as prefix in a number of application configuration settings.
-     * The context ID is configured using the system property "ceres.context". If this property is not set,
+     * The context ID is configured using the system property "snap.context". If this property is not set,
      * the string "snap" is used.
      *
      * @return The application context ID.
      * @since BEAM 4.10
      */
     public static String getApplicationContextId() {
-        String contextId = null;
-        if (RuntimeContext.getModuleContext() != null) {
-            contextId = RuntimeContext.getModuleContext().getRuntimeConfig().getContextId();
-        }
-        if (contextId == null) {
-            contextId = System.getProperty("ceres.context", "snap");
-        }
-        return contextId;
+        return Config.instance().preferences().get("snap.context", "snap");
     }
 
     /**
@@ -194,7 +157,7 @@ public class SystemUtils {
      * @since BEAM 4.10
      */
     public static String getApplicationName() {
-        return System.getProperty(getApplicationContextId() + ".application.name", "SNAP");
+        return Config.instance().preferences().get(getApplicationContextId() + ".application.name", "SNAP");
     }
 
     /**
@@ -234,62 +197,13 @@ public class SystemUtils {
     }
 
     /**
-     * Gets the application's home directory as set by the system property "${ceres.context}.home".
-     * If not set, the method determines the home directory by retrieving the URL of this
-     * class using the method {@link #getApplicationHomeDir(java.net.URL)}.
+     * Gets the application's home directory as set by the system property "${snap.context}.home".
      *
      * @return an assumption of an application's home directory, never <code>null</code>
      */
     public static File getApplicationHomeDir() {
-        final String homeKey = getApplicationHomePropertyName();
-        final String homeValue = System.getProperty(homeKey);
-        if (homeValue != null) {
-            return new File(homeValue);
-        }
-        // Use fallback
-        final URL url = SystemUtils.class.getResource(getClassFileName(SystemUtils.class));
-        return getApplicationHomeDir(url);
+        return Config.instance().installDir().toFile();
     }
-
-    public static String getApplicationHomePropertyName() {
-        return SNAP_HOME_PROPERTY_NAME;
-    }
-
-    /**
-     * Extracts an application's home directory from the given URL.
-     * <p>
-     * The URL is than scanned for the last occurence of the string <code>&quot;/modules/&quot;</code>.
-     * If this succeeds the method returns the absolute
-     * (parent) path to the directory which contains <code>modules</code>, which is
-     * then assumed to be the requested home directory.
-     *
-     * @param url the URL
-     * @return an assumption of an application's home directory, never <code>null</code>
-     * @throws IllegalArgumentException if the given url is <code>null</code>.
-     */
-    public static File getApplicationHomeDir(final URL url) {
-        Guardian.assertNotNull("url", url);
-        String path = url.getPath();
-        try {
-            path = URLDecoder.decode(path, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // ignored
-        }
-        path = stripUrlProtocolPrefixes(path);
-        path = path.replace(File.separatorChar, '/');
-        path = stripClassLibraryPaths(path);
-        path = path.replace('/', File.separatorChar);
-        return new File(path);
-    }
-
-    private static String stripClassLibraryPaths(String path) {
-        int pos = path.lastIndexOf("/modules/");
-        if (pos >= 0) {
-            path = path.substring(0, pos);
-        }
-        return path;
-    }
-
 
     /**
      * Retrieves the file name of a class. For example, the string <code>"Date.class"</code> is returned for the
@@ -312,27 +226,13 @@ public class SystemUtils {
         return className + ".class";
     }
 
-
-    private static String stripUrlProtocolPrefixes(String path) {
-        while (true) {
-            if (path.startsWith(FILE_PROTOCOL_PREFIX)) {
-                path = path.substring(FILE_PROTOCOL_PREFIX.length());
-            } else if (path.startsWith(JAR_PROTOCOL_PREFIX)) {
-                path = path.substring(JAR_PROTOCOL_PREFIX.length());
-            } else {
-                break;
-            }
-        }
-        return path;
-    }
-
     /**
      * Gets the default BEAM cache directory. This is the directory
      * where BEAM stores temporary data.
      *
      * @return the default cache directory
      */
-    public static File getDefaultBeamCacheDir() {
+    public static File getDefaultCacheDir() {
         return new File(getApplicationDataDir(), CACHE_DIR_NAME);
     }
 
@@ -553,8 +453,8 @@ public class SystemUtils {
         } else {
             LOG.warning(MessageFormat.format("{0} not found", JAI_REGISTRY_PATH));
         }
-        Integer parallelism = Integer.getInteger(SNAP_PARALLELISM_PROPERTY_NAME,
-                                                 Runtime.getRuntime().availableProcessors());
+        int parallelism = Config.instance().preferences().getInt(SNAP_PARALLELISM_PROPERTY_NAME,
+                                                                 Runtime.getRuntime().availableProcessors());
         JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
         LOG.info(MessageFormat.format("JAI tile scheduler parallelism set to {0}", parallelism));
     }

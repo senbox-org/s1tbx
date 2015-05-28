@@ -21,6 +21,7 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.TiePointGrid;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.Guardian;
 import org.esa.snap.util.SystemUtils;
@@ -45,11 +46,11 @@ public abstract class AbstractProductReader implements ProductReader {
     /**
      * @since BEAM 4.9
      */
-    private static final String SYSPROP_READER_TILE_WIDTH = "snap.reader.tileWidth";
+    private static final String SYSPROP_READER_TILE_WIDTH = "snap.dataio.reader.tileWidth";
     /**
      * @since BEAM 4.9
      */
-    private static final String SYSPROP_READER_TILE_HEIGHT = "snap.reader.tileHeight";
+    private static final String SYSPROP_READER_TILE_HEIGHT = "snap.dataio.reader.tileHeight";
 
     /**
      * The reader plug-in responsible for creating this reader.
@@ -432,8 +433,8 @@ public abstract class AbstractProductReader implements ProductReader {
 
     public static void configurePreferredTileSize(Product product) {
         Dimension newSize = getConfiguredTileSize(product,
-                                                  System.getProperty(SYSPROP_READER_TILE_WIDTH),
-                                                  System.getProperty(SYSPROP_READER_TILE_HEIGHT));
+                                                  Config.instance().preferences().get(SYSPROP_READER_TILE_WIDTH, null),
+                                                  Config.instance().preferences().get(SYSPROP_READER_TILE_HEIGHT, null));
         if (newSize != null) {
             Dimension oldSize = product.getPreferredTileSize();
             if (oldSize == null) {

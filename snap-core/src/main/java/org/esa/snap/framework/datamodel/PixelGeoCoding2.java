@@ -20,6 +20,7 @@ import com.bc.jexp.ParseException;
 import org.esa.snap.framework.dataio.ProductSubsetDef;
 import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.jai.ImageManager;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.Guardian;
 import org.esa.snap.util.math.MathUtils;
 
@@ -48,7 +49,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
 
     private final int rasterW;
     private final int rasterH;
-    private final boolean fractionAccuracy = Boolean.getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY);
+    private final boolean fractionAccuracy;
     private final DataProvider dataProvider;
     private final GeoCoding formerGeocoding;
 
@@ -86,6 +87,7 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
                     "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
         }
 
+        fractionAccuracy = Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_FRACTION_ACCURACY, false);
         this.latBand = latBand;
         this.lonBand = lonBand;
         formerGeocoding = product.getGeoCoding();
@@ -147,7 +149,8 @@ class PixelGeoCoding2 extends AbstractGeoCoding implements BasicPixelGeoCoding {
         pixelPosEstimator = new PixelPosEstimator(lonImage, latImage, maskImage, 0.5);
         pixelFinder = new DefaultPixelFinder(lonImage, latImage, maskImage, pixelDiagonalSquared);
 
-        boolean disableTiling = "false".equalsIgnoreCase(System.getProperty(SYSPROP_PIXEL_GEO_CODING_USE_TILING));
+        boolean useTiling = Config.instance().preferences().getBoolean(SYSPROP_PIXEL_GEO_CODING_USE_TILING, true);
+        boolean disableTiling = !useTiling;
         if (disableTiling) {
             dataProvider = new ArrayDataProvider(lonBand, latBand, maskImage);
         } else {

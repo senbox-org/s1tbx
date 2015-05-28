@@ -19,6 +19,7 @@ package org.esa.snap.framework.datamodel;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.framework.dataio.ProductSubsetDef;
 import org.esa.snap.framework.dataop.maptransf.Datum;
+import org.esa.snap.runtime.Config;
 import org.junit.Test;
 
 import javax.media.jai.RenderedOp;
@@ -156,10 +157,10 @@ public class PixelGeoCodingTest {
     @Test
     public void testGetGeoPos_useNoTiling() throws IOException {
         try {
-            System.setProperty("snap.pixelGeoCoding.useTiling", "false");
+            Config.instance().preferences().putBoolean("snap.pixelGeoCoding.useTiling", false);
             doTestGetGeoPos();
         } finally {
-            System.clearProperty("snap.pixelGeoCoding.useTiling");
+            Config.instance().preferences().remove("snap.pixelGeoCoding.useTiling");
         }
     }
 
@@ -207,8 +208,8 @@ public class PixelGeoCodingTest {
         assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(0.25f, 0.25f), null).toString());
 
         try {
-            System.setProperty("snap.pixelGeoCoding.fractionAccuracy", "true");
-            System.setProperty("snap.pixelGeoCoding.useTiling", "true");
+            Config.instance().preferences().putBoolean("snap.pixelGeoCoding.fractionAccuracy", true);
+            Config.instance().preferences().putBoolean("snap.pixelGeoCoding.useTiling", true);
             product = createProduct();
             tiePointGeoCoding = (TiePointGeoCoding) product.getGeoCoding();
             pixelGeoCoding = GeoCodingFactory.createPixelGeoCoding(product.getBand("latBand"),
@@ -260,8 +261,8 @@ public class PixelGeoCodingTest {
             gp = tiePointGeoCoding.getGeoPos(new PixelPos(2.75f, 2.25f), null).toString();
             assertEquals(gp, pixelGeoCoding.getGeoPos(new PixelPos(2.75f, 2.25f), null).toString());
         } finally {
-            System.clearProperty("snap.pixelGeoCoding.fractionAccuracy");
-            System.clearProperty("snap.pixelGeoCoding.useTiling");
+            Config.instance().preferences().remove("snap.pixelGeoCoding.fractionAccuracy");
+            Config.instance().preferences().remove("snap.pixelGeoCoding.useTiling");
         }
     }
 
@@ -273,10 +274,10 @@ public class PixelGeoCodingTest {
     @Test
     public void testTransferGeoCoding_useNoTiling() throws IOException {
         try {
-            System.setProperty("snap.pixelGeoCoding.useTiling", "false");
+            Config.instance().preferences().putBoolean("snap.pixelGeoCoding.useTiling", false);
             doTestTransferGeoCoding();
         } finally {
-            System.clearProperty("snap.pixelGeoCoding.useTiling");
+            Config.instance().preferences().remove("snap.pixelGeoCoding.useTiling");
         }
     }
 
@@ -304,10 +305,10 @@ public class PixelGeoCodingTest {
     @Test
     public void testTransferGeoCoding_WithSpatialSubset_useNoTiling() throws IOException {
         try {
-            System.setProperty("snap.pixelGeoCoding.useTiling", "false");
+            Config.instance().preferences().putBoolean("snap.pixelGeoCoding.useTiling", false);
             doTestTransferGeoCoding_WithSpatialSubset();
         } finally {
-            System.clearProperty("snap.pixelGeoCoding.useTiling");
+            Config.instance().preferences().remove("snap.pixelGeoCoding.useTiling");
         }
     }
 
@@ -326,7 +327,7 @@ public class PixelGeoCodingTest {
         def.setSubSampling(1, 2);
         Product targetProduct = sourceProduct.createSubset(def, "target", "");
 
-        if ("true".equals(System.getProperty(GeoCodingFactory.USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY))) {
+        if (Config.instance().preferences().getBoolean(GeoCodingFactory.USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY, false)) {
             targetProduct.setGeoCoding(null);
             targetProduct.removeTiePointGrid(targetProduct.getTiePointGrid("latGrid"));
             targetProduct.removeTiePointGrid(targetProduct.getTiePointGrid("lonGrid"));
@@ -341,7 +342,7 @@ public class PixelGeoCodingTest {
         assertTrue(targetProduct.containsBand("lonBand"));
         assertTrue(targetProduct.containsBand("flagomat"));
 
-        if ("true".equals(System.getProperty(GeoCodingFactory.USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY))) {
+        if (Config.instance().preferences().getBoolean(GeoCodingFactory.USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY, false)) {
             assertTrue(targetProduct.containsTiePointGrid("latGrid"));
             assertTrue(targetProduct.containsTiePointGrid("lonGrid"));
         }
@@ -349,7 +350,7 @@ public class PixelGeoCodingTest {
         assertTrue(targetProduct.getFlagCodingGroup().contains("flags"));
 
         BasicPixelGeoCoding targetGC = (BasicPixelGeoCoding) targetProduct.getGeoCoding();
-        if ("true".equals(System.getProperty(GeoCodingFactory.USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY))) {
+        if (Config.instance().preferences().getBoolean(GeoCodingFactory.USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY, false)) {
             assertNotNull(targetGC.getPixelPosEstimator());
         }
 

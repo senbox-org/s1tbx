@@ -34,6 +34,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.jexp.ParseException;
 import org.esa.snap.framework.dataio.ProductSubsetDef;
 import org.esa.snap.framework.dataop.barithm.BandArithmetic;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.math.MathUtils;
 
@@ -52,7 +53,7 @@ public class GeoCodingFactory {
                                                            final Band lonBand,
                                                            final String validMask,
                                                            final int searchRadius) {
-        if ("true".equals(System.getProperty(USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY))) {
+        if (useAlternatePixelGeoCoding()) {
             return new PixelGeoCoding(latBand, lonBand, validMask, searchRadius);
         }
         return new PixelGeoCoding2(latBand, lonBand, validMask);
@@ -63,10 +64,14 @@ public class GeoCodingFactory {
                                                            final String validMask,
                                                            final int searchRadius,
                                                            ProgressMonitor pm) throws IOException {
-        if ("true".equals(System.getProperty(USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY))) {
+        if (useAlternatePixelGeoCoding()) {
             return new PixelGeoCoding(latBand, lonBand, validMask, searchRadius, pm); // this is a special constructor
         }
         return new PixelGeoCoding2(latBand, lonBand, validMask);
+    }
+
+    private static boolean useAlternatePixelGeoCoding() {
+        return Config.instance().preferences().getBoolean(USE_ALTERNATE_PIXEL_GEO_CODING_PROPERTY, false);
     }
 
     static void copyReferencedRasters(String validMaskExpression,

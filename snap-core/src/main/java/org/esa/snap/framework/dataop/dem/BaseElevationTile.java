@@ -18,6 +18,7 @@ package org.esa.snap.framework.dataop.dem;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.runtime.Config;
 
 import java.util.Arrays;
 
@@ -36,8 +37,7 @@ public class BaseElevationTile implements ElevationTile {
         this.bandWidth = band.getSceneRasterWidth();
         noDataValue = dem.getDescriptor().getNoDataValue();
         objectArray = new float[band.getSceneRasterHeight() + 1][];
-        final String prop = System.getProperty("useDEMGravitationalModel");
-        useDEMGravitationalModel = prop != null && prop.equalsIgnoreCase("true");
+        useDEMGravitationalModel = Config.instance().preferences().getBoolean("snap.useDEMGravitationalModel", false);
         //System.out.println("Dem Tile "+product.getName());
     }
 
