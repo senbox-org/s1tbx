@@ -9,7 +9,7 @@
         <homeID>top</homeID>
         <mapref location="map.jhm"/>
     </maps>
-    <view mergetype="javax.help.UniteAppendMerge">
+    <view mergetype="javax.help.SortMerge">
         <name>TOC</name>
         <label>Contents</label>
         <type>javax.help.TOCView</type>

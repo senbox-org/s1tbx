@@ -4,8 +4,8 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-    <tocitem text="SAR Processing">
-        <tocitem text="Polarimetric">
+    <tocitem text="SAR Processing" mergetype="javax.help.SortMerge">
+        <tocitem text="Polarimetric" mergetype="javax.help.SortMerge">
             <tocitem text="Polarimetric Matrices" target="PolarimetricMatricesOp"/>
             <tocitem text="Polarimetric Decomposition" target="PolarimetricDecompositionOp"/>
             <tocitem text="Polarimetric Speckle Filtering" target="PolarimetricSpeckleFilterOp"/>

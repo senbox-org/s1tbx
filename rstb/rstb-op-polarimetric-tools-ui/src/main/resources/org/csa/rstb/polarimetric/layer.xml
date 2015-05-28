@@ -47,6 +47,11 @@
     </folder>
 
     <folder name="Menu">
+        <folder name="Help">
+            <folder name="Wizards">
+                <attr name="position" intvalue="500"/>
+            </folder>
+        </folder>
         <folder name="SAR Processing">
             <folder name="Polarimetric">
                 <attr name="position" intvalue="500"/>

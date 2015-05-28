@@ -4,9 +4,9 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-        <tocitem text="SAR Processing">
+        <tocitem text="SAR Processing" mergetype="javax.help.SortMerge">
             <tocitem text="Apply Orbit Correction" target="ApplyOrbitFileOp"/>
-            <tocitem text="Geometric">
+            <tocitem text="Geometric" mergetype="javax.help.SortMerge">
                 <tocitem text="Range Doppler Terrain Correction" target="RangeDopplerGeocodingOp"/>
                 <tocitem text="SAR Simulation Terrain Correction" target="SARSimGeocodingOp"/>
                 <tocitem text="SAR Simulation" target="SARSimOp"/>
