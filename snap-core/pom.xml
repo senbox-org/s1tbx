@@ -50,6 +50,10 @@
             <artifactId>ceres-jai</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-runtime</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom</artifactId>
         </dependency>
@@ -144,6 +148,7 @@
                         <publicPackage>com.bc.util</publicPackage>
                         <publicPackage>com.bc.jnn</publicPackage>
                         <publicPackage>org.esa.snap</publicPackage>
+                        <publicPackage>org.esa.snap.runtime.*</publicPackage>
                         <publicPackage>org.esa.snap.dataio.*</publicPackage>
                         <publicPackage>org.esa.snap.framework.*</publicPackage>
                         <publicPackage>org.esa.snap.glayer.*</publicPackage>
