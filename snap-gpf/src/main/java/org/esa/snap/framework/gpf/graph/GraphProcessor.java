@@ -22,6 +22,7 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.internal.OperatorContext;
+import org.esa.snap.framework.gpf.internal.ProductSetHandler;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.math.MathUtils;
 
@@ -121,6 +122,11 @@ public class GraphProcessor {
         GraphContext graphContext;
         try {
             pm.beginTask("Executing processing graph", 100);
+
+            // handle product sets
+            final ProductSetHandler productSet = new ProductSetHandler(graph);
+            productSet.replaceProductSetsWithReaders();
+
             graphContext = new GraphContext(graph);
             executeGraph(graphContext, SubProgressMonitor.create(pm, 90));
             graphContext.dispose();
