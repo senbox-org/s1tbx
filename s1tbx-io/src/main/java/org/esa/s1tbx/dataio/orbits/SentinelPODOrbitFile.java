@@ -59,7 +59,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
     // 4) POE
     // 5) NRT Restituted
 
-    public final static String RESTITUTED = "Sentinel Restituded";
+    public final static String RESTITUTED = "Sentinel Restituted";
     public final static String PRECISE = "Sentinel Precise";
 
     private final int polyDegree;
