@@ -7,8 +7,12 @@
         <tocitem text="Tools">
             <tocitem text="Import and Export Tools">
                 <tocitem text="Import Raster Data">
-                    <tocitem text="Envi" target="enviReader"/>
-                    <tocitem text="HICO" target="enviReader"/>
+                    <tocitem text="Generic Formats">
+                        <tocitem text="Envi" target="enviReader"/>
+                    </tocitem>
+                    <tocitem text="Optical Sensors">
+                        <tocitem text="HICO" target="enviReader"/>
+                    </tocitem>
                 </tocitem>
             </tocitem>
         </tocitem>
