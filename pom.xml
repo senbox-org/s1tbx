@@ -50,7 +50,7 @@
 
         <!-- SNAP System Modules -->
 
-        <module>snap-launcher</module>
+        <module>snap-runtime</module>
         <module>snap-core</module>
         <!--<module>snap-config</module>-->
         <module>snap-engine-kit</module>
@@ -161,7 +161,7 @@
 
             <dependency>
                 <groupId>org.esa.snap</groupId>
-                <artifactId>snap-launcher</artifactId>
+                <artifactId>snap-runtime</artifactId>
                 <version>${snap.version}</version>
             </dependency>
             <dependency>
