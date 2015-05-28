@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.*;
+import java.util.logging.Formatter;
+import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 /**
  * This class is used to configure a stand-alone SNAP Engine application. Various configuration settings may be
@@ -46,7 +48,7 @@ import java.util.logging.*;
  */
 public class Config {
 
-    public static final String PROPERTY_HOME_DIR = "snap.home";
+    public static final String PROPERTY_INSTALL_DIR = "snap.home";
     public static final String PROPERTY_USER_DIR = "snap.user";
     public static final String PROPERTY_CONFIG_FILE = "snap.config";
     public static final String PROPERTY_EXCLUDED_CLUSTER_NAMES = "snap.excludedClusters";
@@ -56,7 +58,6 @@ public class Config {
     public static final String PROPERTY_DEBUG = "snap.debug";
     public static final String PROPERTY_LOG_NAME = "snap.log.name";
     public static final String PROPERTY_LOG_LEVEL = "snap.log.level";
-    public static final String PROPERTY_CONFIG_LOADED = "snap.configLoaded";
 
     static String[] DEFAULT_EXCLUDED_CLUSTER_NAMES = new String[]{
             "platform", "ide"
@@ -79,16 +80,26 @@ public class Config {
             "org.esa.snap:snap-collocation-ui",
     };
 
-    private static final Config instance = new Config();
+    private static Config instance = new Config();
     private LoggerConfig loggerConfig;
     private Logger logger;
+    private Map<String, EnginePreferences> preferencesMap;
+    private EnginePreferences preferences;
 
     private Config() {
-        loggerConfig = new LoggerConfig();
+        loggerConfig = new LoggerConfig(); // also sets 'logger'
+        preferencesMap = new HashMap<>();
+        preferences = new EnginePreferences("snap");
+        preferencesMap.put(preferences.name(), preferences);
     }
 
     public static Config instance() {
         return instance;
+    }
+
+    static Config newInstance() {
+        instance = new Config();
+        return instance();
     }
 
     public Logger logger() {
@@ -96,91 +107,105 @@ public class Config {
     }
 
     public Config debug(boolean value) {
-        setSystemProperty(PROPERTY_DEBUG, value);
+        preferences().putBoolean(PROPERTY_DEBUG, value);
         return this;
     }
 
     public boolean debug() {
-        return Boolean.getBoolean(PROPERTY_DEBUG);
+        return preferences().getBoolean(PROPERTY_DEBUG, false);
     }
 
-    public Config homeDir(Path value) {
-        setSystemProperty(PROPERTY_HOME_DIR, value);
+    public Config installDir(Path value) {
+        preferences().put(PROPERTY_INSTALL_DIR, value.toString());
         return this;
     }
 
-    public Path homeDir() {
-        return Paths.get(System.getProperty(PROPERTY_HOME_DIR, ""));
+    public Path installDir() {
+        return Paths.get(preferences().get(PROPERTY_INSTALL_DIR, ""));
     }
 
     public Config userDir(Path value) {
-        setSystemProperty(PROPERTY_USER_DIR, value);
+        preferences().put(PROPERTY_USER_DIR, value.toString());
         return this;
     }
 
     public Path userDir() {
-        return Paths.get(System.getProperty(PROPERTY_USER_DIR, Paths.get(System.getProperty("user.home"), ".snap").toString()));
+        String value = preferences().get(PROPERTY_USER_DIR, Paths.get(System.getProperty("user.home"), ".snap").toString());
+        return Paths.get(value);
     }
 
     public Config configFile(Path value) {
-        setSystemProperty(PROPERTY_CONFIG_FILE, value);
+        preferences().put(PROPERTY_CONFIG_FILE, value.toString());
         return this;
     }
 
     public Path configFile() {
-        String value = System.getProperty(PROPERTY_CONFIG_FILE);
+        String value = preferences().get(PROPERTY_CONFIG_FILE, null);
         return value != null ? Paths.get(value) : null;
     }
 
     public Config ignoreDefaultConfig(boolean value) {
-        setSystemProperty(PROPERTY_IGNORE_DEFAULT_CONFIG, value);
+        preferences().putBoolean(PROPERTY_IGNORE_DEFAULT_CONFIG, value);
         return this;
     }
 
     public boolean ignoreDefaultConfig() {
-        return Boolean.getBoolean(PROPERTY_IGNORE_DEFAULT_CONFIG);
+        return preferences().getBoolean(PROPERTY_IGNORE_DEFAULT_CONFIG, false);
     }
 
     public Config ignoreUserConfig(boolean value) {
-        setSystemProperty(PROPERTY_IGNORE_USER_CONFIG, value);
+        preferences().putBoolean(PROPERTY_IGNORE_USER_CONFIG, value);
         return this;
     }
 
     public boolean ignoreUserConfig() {
-        return Boolean.getBoolean(PROPERTY_IGNORE_USER_CONFIG);
+        return preferences().getBoolean(PROPERTY_IGNORE_USER_CONFIG, false);
     }
 
     public Config excludedClusterNames(String... values) {
-        setSystemProperty(PROPERTY_EXCLUDED_CLUSTER_NAMES, String.join(",", values));
+        preferences().put(PROPERTY_EXCLUDED_CLUSTER_NAMES, String.join(",", values));
         return this;
     }
 
     public String[] excludedClusterNames() {
-        String value = System.getProperty(PROPERTY_EXCLUDED_CLUSTER_NAMES);
+        String value = preferences().get(PROPERTY_EXCLUDED_CLUSTER_NAMES, null);
         return value != null ? value.split(",") : DEFAULT_EXCLUDED_CLUSTER_NAMES;
     }
 
     public Config excludedModuleNames(String... values) {
-        setSystemProperty(PROPERTY_EXCLUDED_MODULE_NAMES, String.join(",", values));
+        preferences().put(PROPERTY_EXCLUDED_MODULE_NAMES, String.join(",", values));
         return this;
     }
 
     public String[] excludedModuleNames() {
-        String value = System.getProperty(PROPERTY_EXCLUDED_MODULE_NAMES);
+        String value = preferences().get(PROPERTY_EXCLUDED_MODULE_NAMES, null);
         return value != null ? value.split(",") : DEFAULT_EXCLUDED_MODULE_NAMES;
     }
 
     /**
-     * @return true, if any configuration file has been loaded
-     * @see #PROPERTY_CONFIG_LOADED
+     * @return true, if the configuration has already been loaded
      */
     public boolean loaded() {
-        return Boolean.getBoolean(PROPERTY_CONFIG_LOADED);
+        return preferences.isLoaded();
     }
 
-    Config loaded(boolean value) {
-        setSystemProperty(PROPERTY_CONFIG_LOADED, value);
-        return this;
+    /**
+     * Gets the default configuration as Java preferences.
+     *
+     * @return The default configuration, never {@code null}.
+     */
+    public Preferences preferences() {
+        return preferences;
+    }
+
+    /**
+     * Gets the configuration with the specified name as Java preferences.
+     *
+     * @param configName The configuration name.
+     * @return The named configuration, never {@code null}.
+     */
+    private Preferences preferences(String configName) {
+        return loadPreferences(configName);
     }
 
     /**
@@ -190,37 +215,80 @@ public class Config {
      * @see #loaded()
      */
     public boolean load() {
-
-        if (loaded()) {
-            return false;
-        }
-
-        boolean loaded = false;
-
-        // Configuration level 0: System properties state at this point in time
-
-        // Configuration level 1: Custom configuration file
-        Path configFile = configFile();
-        if (configFile != null) {
-            loaded = loadProperties(configFile, true);
-        }
-
-        // Configuration level 2: User configuration file from SNAP's user directory
-        if (!ignoreUserConfig()) {
-            loaded = loadProperties(userDir().resolve("snap.config"), false) || loaded;
-        }
-
-        // Configuration level 3: Default configuration file from SNAP's installation directory
-        if (!ignoreDefaultConfig()) {
-            loaded = loadProperties(homeDir().resolve(Paths.get("etc", "snap.config")), false) || loaded;
-        }
-
-        loaded(loaded);
-
-        return loaded;
+        loadPreferences("snap");
+        return loaded();
     }
 
-    private boolean loadProperties(Path propertiesFile, boolean mustExist) {
+
+    /**
+     * Loads configured (Java properties) configuration files as described for {@link Config this class}.
+     *
+     * @return The loaded properties or {@code null} if no configuration file was found.
+     * @see #loaded()
+     */
+    private EnginePreferences loadPreferences(String configName) {
+
+        EnginePreferences preferences = preferencesMap.get(configName);
+        if (preferences == null) {
+            preferences = new EnginePreferences(this.preferences, configName);
+            preferencesMap.put(configName, preferences);
+        }
+
+        if (preferences.isLoaded()) {
+            return preferences;
+        }
+
+        preferences.setLoaded(true);
+
+        // Configuration level 1: Default configuration file from SNAP installation directory
+        if (!ignoreDefaultConfig()) {
+            Properties defaultProperties = loadProperties(installDir().resolve(Paths.get("etc", configName + ".config")), false);
+            if (defaultProperties != null) {
+                Properties newProperties = new Properties(defaultProperties);
+                newProperties.putAll(preferences.getProperties());
+                preferences.setProperties(newProperties);
+            }
+        }
+
+        // Configuration level 2: User configuration file from SNAP user directory
+        if (!ignoreUserConfig()) {
+            Properties userProperties = loadProperties(userDir().resolve(configName + ".config"), false);
+            if (userProperties != null) {
+                preferences.getProperties().putAll(userProperties);
+            }
+        }
+
+        // Configuration level 3: Custom configuration file
+        String configPath = preferences.get(configName + ".config", null);
+        if (configPath != null) {
+            Properties additionalProperties = loadProperties(Paths.get(configPath), true);
+            if (additionalProperties != null) {
+                preferences.getProperties().putAll(additionalProperties);
+            }
+        }
+
+        // Configuration level 4: System properties
+        Set<String> names = System.getProperties().stringPropertyNames();
+        for (String name : names) {
+            if (name.startsWith(configName + ".")) {
+                preferences.getProperties().put(name, System.getProperty(name));
+            }
+        }
+
+        // Load configurations of clusters other than 'snap'
+        if (preferences == this.preferences) {
+            List<String> clusterNames = loadClusterNames();
+            for (String clusterName : clusterNames) {
+                if (!clusterName.equals(preferences.name())) {
+                    loadPreferences(clusterName);
+                }
+            }
+        }
+
+        return preferences;
+    }
+
+    private Properties loadProperties(Path propertiesFile, boolean mustExist) {
 
         if (!Files.isRegularFile(propertiesFile)) {
             String msg = String.format("Can't find configuration file '%s'", propertiesFile);
@@ -229,7 +297,7 @@ public class Config {
             } else if (debug()) {
                 logger.info(msg);
             }
-            return false;
+            return null;
         }
 
         Properties properties = new Properties();
@@ -239,42 +307,29 @@ public class Config {
             }
         } catch (IOException e) {
             logger.log(Level.SEVERE, String.format("Can't load system properties from file '%s'", propertiesFile), e);
-            return false;
+            return null;
         }
 
-        boolean change = false;
+        loggerConfig.update();
 
-        Set<String> names = properties.stringPropertyNames();
-        for (String name : names) {
-            String value = System.getProperty(name);
-            if (value == null) {
-                boolean ok = setSystemProperty(name, properties.getProperty(name), propertiesFile);
-                if (ok) {
-                    change = true;
-                    if (debug()) {
-                        logger.info(String.format("System property '%s' set to value '%s' (from file '%s')", name, System.getProperty(name), propertiesFile));
-                    }
-                }
-            } else {
-                if (debug()) {
-                    logger.info(String.format("Ignored property '%s' (from file '%s') as it is already set", name, propertiesFile));
-                }
+        return properties;
+    }
+
+
+    private List<String> loadClusterNames() {
+        List<String> clusterNames = new ArrayList<>();
+        Path clustersFile = installDir().resolve("etc").resolve("snap.clusters");
+        if (Files.isRegularFile(clustersFile)) {
+            try {
+                clusterNames = Files.readAllLines(clustersFile).stream().filter(name -> !name.trim().isEmpty()).collect(Collectors.toList());
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, String.format("Failed to load clusters file from '%s'", clustersFile), e);
             }
         }
-
-        if (change) {
-            loggerConfig.update();
+        if (!clusterNames.contains("snap")) {
+            clusterNames.add("snap");
         }
-
-        return change;
-    }
-
-    boolean setSystemProperty(String name, boolean value) {
-        return setSystemProperty(name, Boolean.toString(value));
-    }
-
-    boolean setSystemProperty(String name, Path value) {
-        return setSystemProperty(name, value.toString());
+        return clusterNames;
     }
 
     boolean setSystemProperty(String name, String value) {
@@ -300,7 +355,6 @@ public class Config {
         }
         return true;
     }
-
 
     private class LoggerConfig {
         private String loggerName;

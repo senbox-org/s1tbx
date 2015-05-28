@@ -10,7 +10,9 @@
         <tocitem text="Tools">
             <tocitem text="Import and Export Tools">
                 <tocitem text="Import Raster Data">
-                    <tocitem text="GeoTIFF" target="importGeoTIFFProduct"/>
+                    <tocitem text="Generic Formats">
+                        <tocitem text="GeoTIFF" target="importGeoTIFFProduct"/>
+                    </tocitem>
                 </tocitem>
             </tocitem>
         </tocitem>
