@@ -507,9 +507,6 @@ public class BandTest extends AbstractRasterDataNodeTest {
     }
 
     public final void testReadAndWritePixels() throws IOException {
-        String name = "x";
-        final File file = new File(GlobalTestConfig.getBeamTestDataInputDirectory(),
-                                   name + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
         final int[] testInt8s = new int[]{3, -6, 9, -12, 15, -18};
         final int[] testInt16s = new int[]{11, -22, 33, -44, 55, -66};
         final int[] testInt32s = new int[]{111, -222, 333, -444, 555, -666};
@@ -527,6 +524,7 @@ public class BandTest extends AbstractRasterDataNodeTest {
         double[] trueScaledDoubles = new double[6];
         double[] testScaledDoubles;
 
+        String name = "x";
         Product product = new Product(name, "NO_TYPE", 3, 2);
 
         Band bandInt8 = new Band("bandInt8", ProductData.TYPE_INT8, 3, 2);
@@ -569,6 +567,8 @@ public class BandTest extends AbstractRasterDataNodeTest {
         bandFloat64.setPixels(0, 0, 3, 2, testFloat64s);
         product.addBand(bandFloat64);
 
+        final File outputDirectory = GlobalTestConfig.getBeamTestDataOutputDirectory();
+        final File file = new File(outputDirectory, name + DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION);
         ProductIO.writeProduct(product,
                                file,
                                DimapProductConstants.DIMAP_FORMAT_NAME,
