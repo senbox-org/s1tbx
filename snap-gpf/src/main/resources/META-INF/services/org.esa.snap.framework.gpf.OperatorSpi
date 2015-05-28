@@ -5,7 +5,6 @@ org.esa.snap.gpf.operators.standard.MosaicOp$Spi
 org.esa.snap.gpf.operators.standard.SubsetOp$Spi
 org.esa.snap.gpf.operators.standard.WriteRGBOp$Spi
 org.esa.snap.gpf.operators.standard.PassThroughOp$Spi
-org.esa.snap.gpf.operators.standard.ProductSetReaderOp$Spi
 org.esa.snap.gpf.operators.standard.BandMathsOp$Spi
 org.esa.snap.gpf.operators.standard.reproject.ReprojectionOp$Spi
 org.esa.snap.gpf.operators.meris.N1PatcherOp$Spi

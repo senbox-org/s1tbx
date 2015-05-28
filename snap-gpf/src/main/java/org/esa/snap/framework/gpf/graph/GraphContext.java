@@ -171,7 +171,6 @@ public class GraphContext {
             return;
         }
 
-        final List<Product> sourceProductList = new ArrayList<>();
         for (NodeSource source : nodeContext.getNode().getSources()) {
             NodeContext sourceNodeContext = getNodeContext(source.getSourceNode());
             Product sourceProduct = null;
@@ -186,17 +185,8 @@ public class GraphContext {
             if (sourceProduct == null) {
                 throw new GraphException(getMissingSourceMessage(nodeContext.getNode(), source));
             }
-            sourceProductList.add(sourceProduct);
-            nodeContext.addSourceProduct(source.getSourceNodeId(), sourceProduct);
+            nodeContext.addSourceProduct(source.getName(), sourceProduct);
         }
-
-        if(sourceProductList.size() == 1) {
-            nodeContext.addSourceProduct(nodeContext.getNode().getSources()[0].getName(), sourceProductList.get(0));
-        } else {
-            // setSourceProducts if more than one
-            nodeContext.addSourceProducts(sourceProductList.toArray(new Product[sourceProductList.size()]));
-        }
-
         Node node = nodeContext.getNode();
         DomElement configuration = node.getConfiguration();
         OperatorConfiguration opConfiguration = this.createOperatorConfiguration(configuration,
