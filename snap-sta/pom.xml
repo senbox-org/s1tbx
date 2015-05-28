@@ -28,7 +28,7 @@
     <artifactId>snap-sta</artifactId>
     <packaging>nbm</packaging>
 
-    <name>Standalone Tool Adapter</name>
+    <name>SNAP Standalone Tool Adapter</name>
     <description>Adapter for external tools invocation from within the Sentinel Toolboxes</description>
 
     <dependencies>
