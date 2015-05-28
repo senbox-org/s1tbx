@@ -48,7 +48,7 @@ import org.apache.commons.math3.util.FastMath;
  * log10(x),
  * exp10(x),
  * sign(x).
- * <p>It also provides the fuzzy comparision functions
+ * <p>It also provides the fuzzy comparison functions
  * feq(x, y),
  * fneq(x).
  *
@@ -73,6 +73,34 @@ public final class DefaultNamespace extends NamespaceImpl {
         registerSymbol(SymbolFactory.createConstant("PI", Math.PI));
         registerSymbol(SymbolFactory.createConstant("E", Math.E));
         registerSymbol(SymbolFactory.createConstant("NaN", Double.NaN));
+    }
+
+    public static double mean(final EvalEnv env, final Term[] args) {
+        double sum = 0.0;
+        final int n = args.length;
+        for (Term arg : args) {
+            sum += arg.evalD(env);
+        }
+        return sum/(double)n;
+    }
+
+    public static double mean2(final EvalEnv env, final Term[] args) {
+        double sqrSum = 0.0;
+        final int n = args.length;
+        for (Term arg : args) {
+            double v = arg.evalD(env);
+            sqrSum += v * v;
+        }
+        return sqrSum/(double)n;
+    }
+
+    public static double mean4(final EvalEnv env, final Term[] args) {
+        double sum = 0.0;
+        final int n = args.length;
+        for (Term arg : args) {
+            sum += FastMath.pow(arg.evalD(env), 4);
+        }
+        return sum/(double)n;
     }
 
     private void registerDefaultFunctions() {
@@ -422,6 +450,28 @@ public final class DefaultNamespace extends NamespaceImpl {
             }
         });
 
+        registerFunction(new AbstractFunction.D("avg", -1) {
+
+            public double evalD(final EvalEnv env, final Term[] args) {
+                return mean(env, args);
+            }
+        });
+
+        registerFunction(new AbstractFunction.D("stddev", -1) {
+
+            public double evalD(final EvalEnv env, final Term[] args) {
+                double mean = mean(env, args);
+                return Math.sqrt(mean2(env, args) - (mean*mean));
+            }
+        });
+
+        registerFunction(new AbstractFunction.D("coef_var", -1) {
+
+            public double evalD(final EvalEnv env, final Term[] args) {
+                final double m2 = mean2(env, args);
+                return Math.sqrt(mean4(env, args) - (m2 * m2)) / m2;
+            }
+        });
     }
 
 }
