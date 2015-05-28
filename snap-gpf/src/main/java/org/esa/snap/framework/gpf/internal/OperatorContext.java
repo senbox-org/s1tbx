@@ -550,7 +550,7 @@ public class OperatorContext {
         convertOperatorContextToMetadata(this, targetGraphME);
     }
 
-    private void convertOperatorContextToMetadata(OperatorContext context, MetadataElement targetGraphME) {
+    private void convertOperatorContextToMetadata(OperatorContext context, MetadataElement targetGraphME) throws OperatorException {
         String opId = context.getId();
         boolean contains = false;
         int nodeElementCount = 0;
@@ -613,6 +613,9 @@ public class OperatorContext {
         List<MetadataAttribute> sourceAttributeList = new ArrayList<>(context.sourceProductList.size() * 2);
         for (Product sourceProduct : context.sourceProductList) {
             final String sourceId = context.getSourceProductId(sourceProduct);
+            if(sourceId == null) {
+                throw new OperatorException(formatExceptionMessage("Source product not found: "+sourceProduct.getName()));
+            }
             final String sourceNodeId;
             if (sourceProduct.getFileLocation() != null) {
                 sourceNodeId = sourceProduct.getFileLocation().toURI().toASCIIString();
