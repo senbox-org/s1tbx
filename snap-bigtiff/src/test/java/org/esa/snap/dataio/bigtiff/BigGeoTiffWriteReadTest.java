@@ -41,6 +41,7 @@ import org.esa.snap.framework.dataop.maptransf.MapProjectionRegistry;
 import org.esa.snap.framework.dataop.maptransf.MapTransform;
 import org.esa.snap.framework.dataop.maptransf.MapTransformDescriptor;
 import org.esa.snap.jai.ImageManager;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.io.FileUtils;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
@@ -329,10 +330,10 @@ public class BigGeoTiffWriteReadTest {
         bandFloat32.setDataElems(createFloats(getProductSize(), 2.343f));
 
         try {
-            System.setProperty("org.esa.snap.dataio.bigtiff.force.bigtiff", "true");
+            Config.instance().preferences().put("snap.dataio.bigtiff.force.bigtiff", "true");
             performTest(2.0e-5f);
         } finally {
-            System.clearProperty("org.esa.snap.dataio.bigtiff.force.bigtiff");
+            Config.instance().preferences().remove("snap.dataio.bigtiff.force.bigtiff");
         }
     }
 
@@ -355,13 +356,13 @@ public class BigGeoTiffWriteReadTest {
         bandFloat32.setDataElems(createFloats(getProductSize(), 108.65f));
 
         try {
-            System.setProperty("org.esa.snap.dataio.bigtiff.compression.type", "LZW");
-            System.setProperty("org.esa.snap.dataio.bigtiff.compression.quality", "0.8");
+            Config.instance().preferences().put("snap.dataio.bigtiff.compression.type", "LZW");
+            Config.instance().preferences().put("snap.dataio.bigtiff.compression.quality", "0.8");
 
             performTest(2.0e-5f);
         } finally {
-            System.clearProperty("org.esa.snap.dataio.bigtiff.compression.type");
-            System.clearProperty("org.esa.snap.dataio.bigtiff.compression.quality");
+            Config.instance().preferences().remove("org.esa.snap.dataio.bigtiff.compression.type");
+            Config.instance().preferences().remove("org.esa.snap.dataio.bigtiff.compression.quality");
         }
     }
 

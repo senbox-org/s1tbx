@@ -21,6 +21,7 @@ import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.jai.ImageManager;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.geotiff.GeoTIFF;
@@ -50,15 +51,15 @@ import java.util.Locale;
 
 class BigGeoTiffProductWriter extends AbstractProductWriter {
 
-    private static String PARAM_COMPRESSION_TYPE = "org.esa.snap.dataio.bigtiff.compression.type";   // value must be "LZW"
+    private static String PARAM_COMPRESSION_TYPE = "snap.dataio.bigtiff.compression.type";   // value must be "LZW"
 
-    private static String PARAM_COMPRESSION_QUALITY = "org.esa.snap.dataio.bigtiff.compression.quality";   // value float 0 ... 1, default 0.75
-    private static String PARAM_COMPRESSION_QUALITY_DEFAULT = "0.75";
+    private static String PARAM_COMPRESSION_QUALITY = "snap.dataio.bigtiff.compression.quality";   // value float 0 ... 1, default 0.75
+    private static float PARAM_COMPRESSION_QUALITY_DEFAULT = 0.75f;
 
-    private static String PARAM_TILING_WIDTH = "org.esa.snap.dataio.bigtiff.tiling.width";   // integer value
-    private static String PARAM_TILING_HEIGHT = "org.esa.snap.dataio.bigtiff.tiling.height";   // integer value
+    private static String PARAM_TILING_WIDTH = "snap.dataio.bigtiff.tiling.width";   // integer value
+    private static String PARAM_TILING_HEIGHT = "snap.dataio.bigtiff.tiling.height";   // integer value
 
-    private static String PARAM_FORCE_BIGTIFF = "org.esa.snap.dataio.bigtiff.force.bigtiff";   // boolean
+    private static String PARAM_FORCE_BIGTIFF = "snap.dataio.bigtiff.force.bigtiff";   // boolean
 
     private File outputFile;
     private TIFFImageWriter imageWriter;
@@ -75,7 +76,7 @@ class BigGeoTiffProductWriter extends AbstractProductWriter {
     private void createWriterParams() {
         writeParam = new TIFFImageWriteParam(Locale.ENGLISH);
 
-        final String compressionType = System.getProperty(PARAM_COMPRESSION_TYPE);
+        final String compressionType = Config.instance().preferences().get(PARAM_COMPRESSION_TYPE, null);
         if (StringUtils.isNotNullAndNotEmpty(compressionType)) {
             if (compressionType.equals("LZW")) {
                 writeParam.setCompressionMode(TIFFImageWriteParam.MODE_EXPLICIT);
@@ -84,16 +85,15 @@ class BigGeoTiffProductWriter extends AbstractProductWriter {
                 writeParam.setTIFFCompressor(compressor);
                 writeParam.setCompressionType(compressor.getCompressionType());
 
-                final String compressionQualityProperty = System.getProperty(PARAM_COMPRESSION_QUALITY, PARAM_COMPRESSION_QUALITY_DEFAULT);
-                final float compressionQuality = Float.parseFloat(compressionQualityProperty);
+                final float compressionQuality = Config.instance().preferences().getFloat(PARAM_COMPRESSION_QUALITY, PARAM_COMPRESSION_QUALITY_DEFAULT);
                 writeParam.setCompressionQuality(compressionQuality);
             } else {
                 throw new IllegalArgumentException("Compression type '" + compressionType + "' is not supported");
             }
         }
 
-        final String tilingWidthProperty = System.getProperty(PARAM_TILING_WIDTH);
-        final String tilingHeightProperty = System.getProperty(PARAM_TILING_HEIGHT);
+        final String tilingWidthProperty = Config.instance().preferences().get(PARAM_TILING_WIDTH, null);
+        final String tilingHeightProperty = Config.instance().preferences().get(PARAM_TILING_HEIGHT, null);
         if (StringUtils.isNotNullAndNotEmpty(tilingWidthProperty) && StringUtils.isNotNullAndNotEmpty(tilingHeightProperty)) {
             final int tileWidth = Integer.parseInt(tilingWidthProperty);
             final int tileHeight = Integer.parseInt(tilingHeightProperty);
@@ -102,11 +102,8 @@ class BigGeoTiffProductWriter extends AbstractProductWriter {
             writeParam.setTiling(tileWidth, tileHeight, 0, 0);
         }
 
-        final String bigTiffProperty = System.getProperty(PARAM_FORCE_BIGTIFF);
-        if (StringUtils.isNotNullAndNotEmpty(bigTiffProperty)) {
-            final boolean forceBigTiff = Boolean.parseBoolean(bigTiffProperty);
-            writeParam.setForceToBigTIFF(forceBigTiff);
-        }
+        final boolean forceBigTiff = Config.instance().preferences().getBoolean(PARAM_FORCE_BIGTIFF, false);
+        writeParam.setForceToBigTIFF(forceBigTiff);
     }
 
     @Override
