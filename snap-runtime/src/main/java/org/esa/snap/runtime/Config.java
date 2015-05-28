@@ -1,4 +1,4 @@
-package org.esa.snap.core.runtime;
+package org.esa.snap.runtime;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 public class Config {
 
     public static final String PROPERTY_INSTALL_DIR = "snap.home";
-    public static final String PROPERTY_USER_DIR = "snap.user";
+    public static final String PROPERTY_USER_DIR = "snap.userdir";
     public static final String PROPERTY_CONFIG_FILE = "snap.config";
     public static final String PROPERTY_EXCLUDED_CLUSTER_NAMES = "snap.excludedClusters";
     public static final String PROPERTY_EXCLUDED_MODULE_NAMES = "snap.excludedModules";

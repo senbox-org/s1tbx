@@ -1,4 +1,4 @@
-package org.esa.snap.core.runtime;
+package org.esa.snap.runtime;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

@@ -11,9 +11,9 @@
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>snap-launcher</artifactId>
+    <artifactId>snap-runtime</artifactId>
     <packaging>jar</packaging>
-    <name>SNAP Launcher</name>
+    <name>SNAP Runtime</name>
 
     <dependencies>
         <dependency>
