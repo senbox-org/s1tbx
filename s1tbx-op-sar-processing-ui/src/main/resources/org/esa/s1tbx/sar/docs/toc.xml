@@ -4,9 +4,22 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
-        <tocitem text="SAR Processing" mergetype="javax.help.SortMerge">
+        <tocitem text="SAR Processing">
             <tocitem text="Apply Orbit Correction" target="ApplyOrbitFileOp"/>
-            <tocitem text="Geometric" mergetype="javax.help.SortMerge">
+            <tocitem text="Radiometric">
+                <tocitem text="Terrain Flattening" target="TerrainFlatteningOp"/>
+            </tocitem>
+            <tocitem text="Speckle Filtering">
+                <tocitem text="Speckle Filter" target="SpeckleFilterOp"/>
+                <tocitem text="Multi-Temporal Speckle Filter" target="MultiTemporalSpeckleFilterOp"/>
+            </tocitem>
+            <tocitem text="Coregistration">
+            </tocitem>
+            <tocitem text="Interferometric">
+            </tocitem>
+            <tocitem text="Polarimetric">
+            </tocitem>
+            <tocitem text="Geometric">
                 <tocitem text="Range Doppler Terrain Correction" target="RangeDopplerGeocodingOp"/>
                 <tocitem text="SAR Simulation Terrain Correction" target="SARSimGeocodingOp"/>
                 <tocitem text="SAR Simulation" target="SARSimOp"/>
@@ -16,12 +29,9 @@
                 <tocitem text="Slant Range to Ground Range" target="SRGROp"/>
                 <tocitem text="Mosaic" target="MosaicOp"/>
                 <tocitem text="ALOS Deskewing" target="ALOSDeskewingOp"/>
-                <tocitem text="Terrain Flattening" target="TerrainFlatteningOp"/>
                 <tocitem text="Update-Geo-Reference" target="UpdateGeoRefOp"/>
             </tocitem>
-            <tocitem text="Speckle Filtering">
-                <tocitem text="Speckle Filter" target="SpeckleFilterOp"/>
-                <tocitem text="Multi-Temporal Speckle Filter" target="MultiTemporalSpeckleFilterOp"/>
+            <tocitem text="Sentinel-1 TOPS">
             </tocitem>
             <tocitem text="ASAR WSS">
                 <tocitem text="WSS Deburst" target="WSSDeburstOp"/>
