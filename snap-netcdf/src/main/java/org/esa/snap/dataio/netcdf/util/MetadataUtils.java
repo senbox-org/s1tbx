@@ -19,6 +19,7 @@ package org.esa.snap.dataio.netcdf.util;
 import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.SystemUtils;
 import ucar.ma2.Array;
@@ -31,6 +32,7 @@ import ucar.nc2.Variable;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 
 /**
@@ -41,8 +43,8 @@ public class MetadataUtils {
 
     public static final String GLOBAL_ATTRIBUTES = "Global_Attributes";
     public static final String VARIABLE_ATTRIBUTES = "Variable_Attributes";
-    private static final String PROPERTY_KEY_METADATA_ELEMENT_LIMIT = "snap.netcdf.metadataElementLimit";
-    private static final String DEFAULT_MAX_NUM_VALUES_READ = "100";
+    private static final String PROPERTY_KEY_METADATA_ELEMENT_LIMIT = "snap.dataio.netcdf.metadataElementLimit";
+    private static final int DEFAULT_MAX_NUM_VALUES_READ = 100;
 
     private MetadataUtils() {
     }
@@ -109,12 +111,12 @@ public class MetadataUtils {
     }
 
     private static int getMaxNumValuesRead() {
-        String maxNumValuesRead = System.getProperty(PROPERTY_KEY_METADATA_ELEMENT_LIMIT);
-        if (maxNumValuesRead == null) {
-            SystemUtils.LOG.warning("Missing system property '" + PROPERTY_KEY_METADATA_ELEMENT_LIMIT + ". Falling back to default");
-            maxNumValuesRead = DEFAULT_MAX_NUM_VALUES_READ;
+        Preferences preferences = Config.instance().preferences();
+        if (preferences.get(PROPERTY_KEY_METADATA_ELEMENT_LIMIT, null) == null) {
+            SystemUtils.LOG.warning("Missing configuration property '" + PROPERTY_KEY_METADATA_ELEMENT_LIMIT + "'. " +
+                                            "Using default ("+DEFAULT_MAX_NUM_VALUES_READ+").");
         }
-        return Integer.parseInt(maxNumValuesRead);
+        return preferences.getInt(PROPERTY_KEY_METADATA_ELEMENT_LIMIT, DEFAULT_MAX_NUM_VALUES_READ);
     }
 
     public static MetadataElement createMetadataElement(Variable variable, int maxNumValuesRead) {
