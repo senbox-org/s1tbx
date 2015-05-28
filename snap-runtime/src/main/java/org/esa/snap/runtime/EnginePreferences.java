@@ -29,18 +29,22 @@ import java.util.prefs.BackingStoreException;
  */
 class EnginePreferences extends AbstractPreferences {
 
-    private static EnginePreferences root = new EnginePreferences(null, "");
+    private static EnginePreferences root = new EnginePreferences(null, "", System.getProperties());
 
     private Properties properties;
     private boolean loaded;
 
     EnginePreferences(String name) {
-        this(root, name);
+        this(root, name, null);
     }
 
     EnginePreferences(AbstractPreferences parent, String name) {
+        this(parent, name, null);
+    }
+
+    EnginePreferences(AbstractPreferences parent, String name, Properties defaults) {
         super(parent, name);
-        this.properties = new Properties();
+        this.properties = new Properties(defaults);
     }
 
     Properties getProperties() {
