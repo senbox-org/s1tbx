@@ -20,9 +20,9 @@ public class LauncherTest {
 
     @Test
     public void testSuccess() throws Exception {
-        System.setProperty(Launcher.PROPERTY_MAIN_CLASS_NAME, App.class.getName());
+        System.setProperty(Launcher.PROPERTY_MAIN_CLASS_NAME, TestApp.class.getName());
         new Launcher().run(new String[]{"A", "B", "C"});
-        assertArrayEquals(new String[]{"A", "B", "C"}, App.args);
+        assertArrayEquals(new String[]{"A", "B", "C"}, TestApp.args);
     }
 
     @Test
@@ -37,11 +37,4 @@ public class LauncherTest {
         }
     }
 
-    public static class App {
-        static String[] args;
-
-        public static void main(String[] args) {
-            App.args = args.clone();
-        }
-    }
 }
