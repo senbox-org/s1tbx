@@ -19,6 +19,7 @@ import org.esa.snap.framework.gpf.GPF;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.descriptor.ToolAdapterOperatorDescriptor;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
 import org.openide.modules.Places;
@@ -251,6 +252,8 @@ public class ToolAdapterIO {
      */
     public static File getSystemAdapterPath() {
         if (systemModulePath == null) {
+            // Uncommented by Norman 28.05.2015, please review!
+            /*
             String applicationHomePropertyName = SystemUtils.getApplicationHomePropertyName();
             if (applicationHomePropertyName == null) {
                 applicationHomePropertyName = "user.dir";
@@ -260,6 +263,8 @@ public class ToolAdapterIO {
                 homeFolder = System.getProperty("user.dir");
             }
             systemModulePath = new File(homeFolder);
+            */
+            systemModulePath = Config.instance().userDir().toFile();
             for (String subFolder : SYS_SUBFOLDERS) {
                 systemModulePath = new File(systemModulePath, subFolder);
             }
