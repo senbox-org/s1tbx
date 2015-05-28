@@ -112,8 +112,8 @@ public class SummaryCSVTool {
     }
 
     private static void initSystem() {
-        if (System.getProperty("ceres.context") == null) {
-            System.setProperty("ceres.context", "snap");
+        if (System.getProperty("snap.context") == null) {
+            System.setProperty("snap.context", "snap");
         }
         Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
         SystemUtils.init3rdPartyLibs(GPT.class.getClassLoader());
