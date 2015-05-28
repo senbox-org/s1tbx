@@ -1,5 +1,6 @@
 package org.esa.snap.python;
 
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.Debug;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.TreeCopier;
@@ -264,16 +265,16 @@ public class PyBridge {
     }
 
     private static boolean isForcePythonConfig() {
-        return System.getProperty(FORCE_PYTHON_CONFIG_PROPERTY, "true").equalsIgnoreCase("true");
+        return Config.instance().preferences().getBoolean(FORCE_PYTHON_CONFIG_PROPERTY, true);
     }
 
     private static Path getPythonExecutable() {
-        return Paths.get(System.getProperty(PYTHON_EXECUTABLE_PROPERTY, "python"));
+        return Paths.get(Config.instance().preferences().get(PYTHON_EXECUTABLE_PROPERTY, "python"));
     }
 
     private static Path getPythonModuleInstallDir() {
         Path pythonModuleInstallDir;
-        String pythonModuleDirStr = System.getProperty(PYTHON_MODULE_INSTALL_DIR_PROPERTY);
+        String pythonModuleDirStr = Config.instance().preferences().get(PYTHON_MODULE_INSTALL_DIR_PROPERTY, null);
         if (pythonModuleDirStr != null) {
             pythonModuleInstallDir = Paths.get(pythonModuleDirStr);
         } else {
@@ -310,6 +311,7 @@ public class PyBridge {
                         if (System.getProperty(key) == null) {
                             System.setProperty(key, value);
                         }
+                        Config.instance().preferences().put(key, value);
                     }
                     LOG.warning(String.format("SNAP-Python configuration loaded from '%s'", pythonConfigFile));
                     return true;

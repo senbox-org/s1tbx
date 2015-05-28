@@ -22,6 +22,7 @@ import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
+import org.esa.snap.runtime.Config;
 import org.junit.Test;
 
 import java.io.File;
@@ -76,7 +77,7 @@ public class Nc4ReaderTest {
         assertEquals(5, defaultLonValueCount);
 
         // constraining number of read values
-        System.setProperty("snap.netcdf.metadataElementLimit", "3");
+        Config.instance().preferences().putInt("snap.dataio.netcdf.metadataElementLimit", 3);
         final Product constrainedProduct = reader.readProductNodes(file.getPath(), null);
         MetadataElement constrainedLonElement = constrainedProduct.getMetadataRoot().getElement("Variable_Attributes").getElement("lon");
         MetadataAttribute constrainedLonValues = constrainedLonElement.getElement("Values").getAttribute("data");
@@ -84,7 +85,7 @@ public class Nc4ReaderTest {
         assertEquals(3, constrainedLonValueCount);
                 
         // removing constrains of number of read values
-        System.setProperty("snap.netcdf.metadataElementLimit", "-1");
+        Config.instance().preferences().putInt("snap.dataio.netcdf.metadataElementLimit", -1);
         final Product unconstrainedProduct = reader.readProductNodes(file.getPath(), null);
         MetadataElement unconstrainedLonElement = unconstrainedProduct.getMetadataRoot().getElement("Variable_Attributes").getElement("lon");
         MetadataAttribute unconstrainedLonValues = unconstrainedLonElement.getElement("Values").getAttribute("data");

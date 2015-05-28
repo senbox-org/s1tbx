@@ -5,6 +5,7 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.descriptor.DefaultOperatorDescriptor;
 import org.esa.snap.framework.gpf.main.GPT;
 import org.esa.snap.python.PyBridge;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.io.TreeDeleter;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class PyOperatorTest {
     public static void init() {
         // e.g. use -Dsnap.pythonExecutable=C:/Python34/python.exe
         assumeTrue(String.format("Please set '%s' to execute this test", PyBridge.PYTHON_EXECUTABLE_PROPERTY),
-                   System.getProperty(PyBridge.PYTHON_EXECUTABLE_PROPERTY) != null);
+                   Config.instance().preferences().get(PyBridge.PYTHON_EXECUTABLE_PROPERTY, null) != null);
 
         PyOperatorSpiTest.init();
     }
@@ -82,7 +83,7 @@ public class PyOperatorTest {
         PyOperator operator = new PyOperator();
         operator.setSpi(spi);
         operator.setParameterDefaultValues();
-        operator.setPythonModulePath(new File(System.getProperty(EXT_PROPERTY_NAME), "snappy_ndvi_op").getPath());
+        operator.setPythonModulePath(new File(Config.instance().preferences().get(EXT_PROPERTY_NAME, null), "snappy_ndvi_op").getPath());
         operator.setPythonModuleName("ndvi_op");
         operator.setPythonClassName("NdviOp");
         operator.setParameter("lowerName", "radiance_13");

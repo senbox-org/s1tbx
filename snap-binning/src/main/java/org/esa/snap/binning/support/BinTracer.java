@@ -24,6 +24,7 @@ import org.esa.snap.binning.SpatialBin;
 import org.esa.snap.binning.TemporalBin;
 import org.esa.snap.binning.VariableContext;
 import org.esa.snap.binning.Vector;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.SystemUtils;
 
 import java.io.FileNotFoundException;
@@ -35,7 +36,7 @@ import java.io.PrintStream;
  */
 public class BinTracer {
 
-    private static final String SYSPROP_TRACE_LAT_LON = "beam.binning.traceLatLon";
+    private static final String SYSPROP_TRACE_LAT_LON = "snap.binning.traceLatLon";
 
     private final long binIndex;
     private final String[] obsNames;
@@ -54,7 +55,7 @@ public class BinTracer {
     }
 
     public static boolean isActive() {
-        return System.getProperty(SYSPROP_TRACE_LAT_LON) != null;
+        return Config.instance().preferences().get(SYSPROP_TRACE_LAT_LON, null) != null;
     }
 
     public static BinTracer create(BinManager binManager, PlanetaryGrid planetaryGridInst, String productOutputFile) {
@@ -82,7 +83,7 @@ public class BinTracer {
     }
 
     private static long getBinIndexToTrace(PlanetaryGrid planetaryGrid) {
-        String latLonString = System.getProperty(SYSPROP_TRACE_LAT_LON);
+        String latLonString = Config.instance().preferences().get(SYSPROP_TRACE_LAT_LON, null);
         if (latLonString != null && latLonString.contains(",")) {
             String[] latLon = latLonString.split(",");
             if (latLon.length == 2) {

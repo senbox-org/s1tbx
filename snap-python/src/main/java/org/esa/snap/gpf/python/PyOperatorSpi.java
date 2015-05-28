@@ -7,6 +7,7 @@ import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.descriptor.DefaultOperatorDescriptor;
 import org.esa.snap.framework.gpf.descriptor.OperatorDescriptor;
+import org.esa.snap.runtime.Config;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,7 +42,7 @@ public class PyOperatorSpi extends OperatorSpi {
     static final String EXT_PROPERTY_NAME = "snap.snappy.ext";
 
     static {
-        scanDirs(System.getProperty(EXT_PROPERTY_NAME, "").split(File.pathSeparator));
+        scanDirs(Config.instance().preferences().get(EXT_PROPERTY_NAME, "").split(File.pathSeparator));
         scanClassPath();
     }
 

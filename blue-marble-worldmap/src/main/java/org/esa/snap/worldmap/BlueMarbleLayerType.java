@@ -25,6 +25,7 @@ import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glevel.MultiLevelSource;
 import org.esa.snap.glayer.WorldMapLayerType;
 import org.esa.snap.glevel.TiledFileMultiLevelSource;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.io.FileUtils;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -43,7 +44,7 @@ import java.nio.file.Paths;
                    aliasNames = {"org.esa.snap.worldmap.BlueMarbleLayerType"})
 public class BlueMarbleLayerType extends WorldMapLayerType {
 
-    private static final String WORLD_IMAGE_DIR_PROPERTY_NAME = "org.esa.snap.worldImageDir";
+    private static final String WORLD_IMAGE_DIR_PROPERTY_NAME = "snap.worldImageDir";
     private static final String WORLD_MAP_LAYER_NAME = "World Map (NASA Blue Marble)";
     private static final String WORLD_MAP_LABEL = "NASA Blue Marble";
 
@@ -87,7 +88,7 @@ public class BlueMarbleLayerType extends WorldMapLayerType {
     }
 
     private static MultiLevelSource createMultiLevelSource() {
-        String dirString = System.getProperty(WORLD_IMAGE_DIR_PROPERTY_NAME);
+        String dirString = Config.instance().preferences().get(WORLD_IMAGE_DIR_PROPERTY_NAME, null);
         Path dirPath = getDirPath(dirString);
         if (dirPath == null) {
             throw new IllegalStateException("World image directory not found.");

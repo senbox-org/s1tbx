@@ -60,6 +60,7 @@ import org.esa.snap.framework.gpf.internal.OperatorConfiguration.Reference;
 import org.esa.snap.framework.gpf.monitor.TileComputationEvent;
 import org.esa.snap.framework.gpf.monitor.TileComputationObserver;
 import org.esa.snap.gpf.operators.standard.WriteOp;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.jai.JAIUtils;
 
@@ -105,6 +106,7 @@ public class OperatorContext {
 
     private static final String DATETIME_OUTPUT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final SimpleDateFormat DATETIME_OUTPUT_FORMAT = new SimpleDateFormat(DATETIME_OUTPUT_PATTERN);
+
     static {
         DATETIME_OUTPUT_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
@@ -156,7 +158,7 @@ public class OperatorContext {
      * @param image Any JAI OpImage.
      */
     public static void setTileCache(OpImage image) {
-        boolean disableTileCache = Boolean.parseBoolean(System.getProperty(GPF.DISABLE_TILE_CACHE_PROPERTY, "false"));
+        boolean disableTileCache = Config.instance().preferences().getBoolean(GPF.DISABLE_TILE_CACHE_PROPERTY, false);
         if (disableTileCache) {
             image.setTileCache(null);
         } else if (image.getTileCache() == null) {
@@ -167,8 +169,7 @@ public class OperatorContext {
 
     private static synchronized TileCache getTileCache() {
         if (tileCache == null) {
-            boolean useFileTileCache = Boolean.parseBoolean(
-                    System.getProperty(GPF.USE_FILE_TILE_CACHE_PROPERTY, "false"));
+            boolean useFileTileCache = Config.instance().preferences().getBoolean(GPF.USE_FILE_TILE_CACHE_PROPERTY, false);
             if (useFileTileCache) {
                 tileCache = new SwappingTileCache(JAI.getDefaultInstance().getTileCache().getMemoryCapacity(),
                                                   new DefaultSwapSpace(SwappingTileCache.DEFAULT_SWAP_DIR,
@@ -327,7 +328,7 @@ public class OperatorContext {
     public void setParameter(String name, Object value) {
         Assert.notNull(name, "name");
         PropertySet paramSet = getParameterSet();
-        if(paramSet.isPropertyDefined(name)) {
+        if (paramSet.isPropertyDefined(name)) {
             Property property = paramSet.getProperty(name);
             if (value != null) {
                 setPropertyValue(value, property);
@@ -468,7 +469,7 @@ public class OperatorContext {
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
         while (true) {
             if (Operator.class.equals(aClass)
-                || !Operator.class.isAssignableFrom(aClass)) {
+                    || !Operator.class.isAssignableFrom(aClass)) {
                 return false;
             }
             try {
@@ -521,7 +522,7 @@ public class OperatorContext {
             if (operatorSpi == null) {
                 PropertyDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
                 parameterSet = PropertyContainer.createObjectBacked(operator, parameterDescriptorFactory);
-            }else {
+            } else {
                 OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
                 PropertySetDescriptor propertySetDescriptor;
                 try {
@@ -531,7 +532,7 @@ public class OperatorContext {
                 }
                 if (operatorDescriptor instanceof AnnotationOperatorDescriptor) {
                     parameterSet = PropertyContainer.createObjectBacked(operator, propertySetDescriptor);
-                }else{
+                } else {
                     parameterSet = PropertyContainer.createMapBacked(new HashMap<String, Object>(), propertySetDescriptor);
                 }
             }
@@ -760,10 +761,10 @@ public class OperatorContext {
                 // The WriteOp needs to be called for VirtualBands in order to write them as real bands, where necessary (NetCDF-CF).
                 // For other operators it should not be called
                 if (operator instanceof WriteOp) {
-                    WriteOp writer = (WriteOp)operator;
+                    WriteOp writer = (WriteOp) operator;
                     ProductWriter productWriter = ProductIO.getProductWriter(writer.getFormatName());
 
-                    if(productWriter.shouldWrite(targetBand)) {
+                    if (productWriter.shouldWrite(targetBand)) {
                         targetImageMap.put(targetBand, new OperatorImage(targetBand, this) {
                             @Override
                             protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
@@ -804,8 +805,8 @@ public class OperatorContext {
         Dimension tileSize = null;
         for (final Product sourceProduct : sourceProductList) {
             if (sourceProduct.getPreferredTileSize() != null &&
-                sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
-                sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
+                    sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
+                    sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
                 tileSize = sourceProduct.getPreferredTileSize();
                 break;
             }
@@ -917,7 +918,7 @@ public class OperatorContext {
     }
 
     private void processSourceProductField(Field declaredField, SourceProduct sourceProductAnnotation) throws
-                                                                                                       OperatorException {
+            OperatorException {
         if (declaredField.getType().equals(Product.class)) {
             String productMapName = declaredField.getName();
             Product sourceProduct = getSourceProduct(productMapName);
@@ -950,7 +951,7 @@ public class OperatorContext {
     }
 
     private void processSourceProductsField(Field declaredField, SourceProducts sourceProductsAnnotation) throws
-                                                                                                          OperatorException {
+            OperatorException {
         if (declaredField.getType().equals(Product[].class)) {
             Product[] sourceProducts = getSourceProductsFieldValue(declaredField);
             if (sourceProducts != null) {
@@ -1148,7 +1149,7 @@ public class OperatorContext {
 
     private void startTileComputationObservation() {
         if (tileComputationObserver == null) {
-            String tchClass = System.getProperty(GPF.TILE_COMPUTATION_OBSERVER_PROPERTY);
+            String tchClass = Config.instance().preferences().get(GPF.TILE_COMPUTATION_OBSERVER_PROPERTY, null);
             if (tchClass != null) {
                 try {
                     tileComputationObserver = (TileComputationObserver) Class.forName(tchClass).newInstance();
@@ -1178,6 +1179,7 @@ public class OperatorContext {
                     new TileComputationEvent(operatorImage, tileX, tileY, startNanos, endNanos, nettoNanos));
         }
     }
+
     /////////////////////////////////////////////////////////////////////////////////////
     private final ThreadLocal<SuspendableStopWatch> nettoWatch = new ThreadLocal<SuspendableStopWatch>() {
         @Override
@@ -1213,6 +1215,7 @@ public class OperatorContext {
     public long getNettoTime() {
         return nettoWatch.get().getTime();
     }
+
     /////////////////////////////////////////////////////////////////////////////////////
     boolean isComputingImageOf(Band band) {
         if (band.isSourceImageSet()) {

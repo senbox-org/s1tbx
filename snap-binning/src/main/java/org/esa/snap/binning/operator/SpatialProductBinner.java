@@ -36,6 +36,7 @@ import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.framework.dataop.barithm.BandArithmetic;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.jai.ImageManager;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.StopWatch;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.util.SystemUtils;
@@ -59,7 +60,7 @@ import java.util.logging.Logger;
  */
 public class SpatialProductBinner {
 
-    private static final String PROPERTY_KEY_SLICE_HEIGHT = "beam.binning.sliceHeight";
+    private static final String PROPERTY_KEY_SLICE_HEIGHT = "snap.binning.sliceHeight";
     private static final String BINNING_MASK_NAME = "_binning_mask";
 
     /**
@@ -220,8 +221,8 @@ public class SpatialProductBinner {
         }
 
         // TODO make this a parameter nf/mz 2013-11-05
-        String sliceHeightString = System.getProperty(PROPERTY_KEY_SLICE_HEIGHT, String.valueOf(sliceHeight));
-        Dimension dimension = new Dimension(sliceWidth, Integer.parseInt(sliceHeightString));
+        sliceHeight = Config.instance().preferences().getInt(PROPERTY_KEY_SLICE_HEIGHT, sliceHeight);
+        Dimension dimension = new Dimension(sliceWidth, sliceHeight);
         String logMsg = String.format("Using slice dimension [width=%d, height=%d] in binning", dimension.width, dimension.height);
         SystemUtils.LOG.log(Level.INFO, logMsg);
         return dimension;

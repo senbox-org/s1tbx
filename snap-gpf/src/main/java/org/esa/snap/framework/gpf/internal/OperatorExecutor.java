@@ -20,6 +20,7 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.math.MathUtils;
 
@@ -147,7 +148,7 @@ public class OperatorExecutor {
 
     private ExecutionOrder getEffectiveExecutionOrder(ExecutionOrder executionOrder) {
         ExecutionOrder effectiveExecutionOrder = executionOrder;
-        String executionOrderProperty = System.getProperty("beam.gpf.executionOrder");
+        String executionOrderProperty = Config.instance().preferences().get("snap.gpf.executionOrder", null);
         if (executionOrderProperty != null) {
             effectiveExecutionOrder = ExecutionOrder.valueOf(executionOrderProperty);
         }

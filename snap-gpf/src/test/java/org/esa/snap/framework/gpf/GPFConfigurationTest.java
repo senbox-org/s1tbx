@@ -4,6 +4,7 @@ package org.esa.snap.framework.gpf;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.gpf.operators.standard.SubsetOp;
+import org.esa.snap.runtime.Config;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,27 +20,27 @@ public class GPFConfigurationTest {
 
     @Before
     public void setUp() throws Exception {
-        oldValue = System.getProperty(GPF.DISABLE_TILE_CACHE_PROPERTY);
+        oldValue = Config.instance().preferences().get(GPF.DISABLE_TILE_CACHE_PROPERTY, null);
     }
 
     @After
     public void tearDown() throws Exception {
         if (oldValue != null) {
-            System.setProperty(GPF.DISABLE_TILE_CACHE_PROPERTY, oldValue);
+            Config.instance().preferences().put(GPF.DISABLE_TILE_CACHE_PROPERTY, oldValue);
         } else {
-            System.clearProperty(GPF.DISABLE_TILE_CACHE_PROPERTY);
+            Config.instance().preferences().remove(GPF.DISABLE_TILE_CACHE_PROPERTY);
         }
     }
 
     @Test
     public void testThatTileCacheCanBeDisabled() {
-        System.setProperty(GPF.DISABLE_TILE_CACHE_PROPERTY, "true");
+        Config.instance().preferences().put(GPF.DISABLE_TILE_CACHE_PROPERTY, "true");
         assertNull(createOpImage().getTileCache());
     }
 
     @Test
     public void testThatTileCacheCanBeEnabled() {
-        System.setProperty(GPF.DISABLE_TILE_CACHE_PROPERTY, "false");
+        Config.instance().preferences().put(GPF.DISABLE_TILE_CACHE_PROPERTY, "false");
         assertNotNull(createOpImage().getTileCache());
     }
 

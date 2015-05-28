@@ -4,6 +4,7 @@ package org.esa.snap.gpf.python;
 import org.esa.snap.framework.gpf.GPF;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.OperatorSpiRegistry;
+import org.esa.snap.runtime.Config;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class PyOperatorSpiTest {
     public static void init() {
         File file = PyOperatorTest.getResourceFile("/");
         assertTrue(file.isDirectory());
-        System.setProperty(EXT_PROPERTY_NAME, file.getPath());
+        Config.instance().preferences().put(EXT_PROPERTY_NAME, file.getPath());
         //System.out.printf("%s = %s%n", EXT_PROPERTY_NAME, System.getProperty(EXT_PROPERTY_NAME));
     }
 
