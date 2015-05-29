@@ -62,7 +62,7 @@
     <folder name="Services">
         <folder name="JavaHelp">
             <file name="org-esa-snap-snap-envi-reader-helpset.xml" url="helpset.xml">
-                <attr name="position" intvalue="4800"/>
+                <attr name="position" intvalue="2340"/>
             </file>
         </folder>
     </folder>

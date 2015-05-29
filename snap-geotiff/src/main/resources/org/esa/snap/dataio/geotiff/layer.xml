@@ -45,7 +45,7 @@
     <folder name="Services">
         <folder name="JavaHelp">
             <file name="org-esa-snap-snap-geotiff-helpset.xml" url="helpset.xml">
-                <attr name="position" intvalue="4700"/>
+                <attr name="position" intvalue="2320"/>
             </file>
         </folder>
     </folder>

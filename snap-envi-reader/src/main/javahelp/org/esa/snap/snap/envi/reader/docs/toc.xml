@@ -4,15 +4,13 @@
 
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
     <tocitem text="Sentinel Toolbox Application">
-        <tocitem text="Tools">
-            <tocitem text="Import and Export Tools">
-                <tocitem text="Import Raster Data">
-                    <tocitem text="Generic Formats">
-                        <tocitem text="Envi" target="enviReader"/>
-                    </tocitem>
-                    <tocitem text="Optical Sensors">
-                        <tocitem text="HICO" target="enviReader"/>
-                    </tocitem>
+        <tocitem text="Import and Export">
+            <tocitem text="Import Raster Data">
+                <tocitem text="Generic Formats">
+                    <tocitem text="Envi" target="enviReader"/>
+                </tocitem>
+                <tocitem text="Optical Sensors">
+                    <tocitem text="HICO" target="enviReader"/>
                 </tocitem>
             </tocitem>
         </tocitem>

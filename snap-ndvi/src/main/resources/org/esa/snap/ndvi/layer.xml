@@ -37,7 +37,7 @@
     <folder name="Services">
         <folder name="JavaHelp">
             <file name="org-esa-snap-snap-ndvi-helpset.xml" url="helpset.xml">
-                <attr name="position" intvalue="4600"/>
+                <attr name="position" intvalue="4310"/>
             </file>
         </folder>
     </folder>

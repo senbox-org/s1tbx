@@ -9,7 +9,7 @@
 
     <tocitem text="Data Processors">
         <tocitem text="Thematic Land Processing">
-            <tocitem text="BEAM NDVI Operator" target="NDVIOperator">
+            <tocitem text="NDVI Operator" target="NDVIOperator">
                 <tocitem text="Algorithm Specification" target="algorithm"/>
             </tocitem>
         </tocitem>
