@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -37,6 +37,7 @@ import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.gpf.operators.standard.WriteOp;
+import org.esa.snap.runtime.Config;
 
 import javax.media.jai.JAI;
 import java.io.File;
@@ -46,6 +47,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
 /**
  * Utilities for Operator unit tests
@@ -54,6 +56,8 @@ import java.util.logging.Logger;
  */
 public class TestUtils {
 
+    private static final String S1TBX_TESTS = "s1tbx.tests";
+
     private static final boolean FailOnSkip = false;
     private static final boolean FailOnLargeTestProducts = false;
     private static final boolean FailOnAllNoData = false;
@@ -61,21 +65,20 @@ public class TestUtils {
     public static final String SKIPTEST = "skipTest";
 
     public static final Logger log = SystemUtils.LOG;
-    private final static String contextID = SystemUtils.getApplicationContextId();
-    private static final PropertiesMap testPreferences = Settings.instance().getAutomatedTestConfigPropertyMap(contextID + ".tests");
+    private static final Preferences testPreferences = Config.instance().preferences(S1TBX_TESTS);
 
     public static String rootPathTestProducts = "";
 
-    public final static File[] rootArchivePaths = loadFilePath(".test.rootArchivePaths");
-    public final static File[] rootPathsTerraSarX = loadFilePath(".test.rootPathTerraSarX");
-    public final static File[] rootPathsASAR = loadFilePath(".test.rootPathASAR");
-    public final static File[] rootPathsRadarsat2 = loadFilePath(".test.rootPathRadarsat2");
-    public final static File[] rootPathsRadarsat1 = loadFilePath(".test.rootPathRadarsat1");
-    public final static File[] rootPathsSentinel1 = loadFilePath(".test.rootPathSentinel1");
-    public final static File[] rootPathsERS = loadFilePath(".test.rootPathERS");
-    public final static File[] rootPathsJERS = loadFilePath(".test.rootPathJERS");
-    public final static File[] rootPathsALOS = loadFilePath(".test.rootPathALOS");
-    public final static File[] rootPathsCosmoSkymed = loadFilePath(".test.rootPathCosmoSkymed");
+    public final static File[] rootArchivePaths = loadFilePath("test.rootArchivePaths");
+    public final static File[] rootPathsTerraSarX = loadFilePath("test.rootPathTerraSarX");
+    public final static File[] rootPathsASAR = loadFilePath("test.rootPathASAR");
+    public final static File[] rootPathsRadarsat2 = loadFilePath("test.rootPathRadarsat2");
+    public final static File[] rootPathsRadarsat1 = loadFilePath("test.rootPathRadarsat1");
+    public final static File[] rootPathsSentinel1 = loadFilePath("test.rootPathSentinel1");
+    public final static File[] rootPathsERS = loadFilePath("test.rootPathERS");
+    public final static File[] rootPathsJERS = loadFilePath("test.rootPathJERS");
+    public final static File[] rootPathsALOS = loadFilePath("test.rootPathALOS");
+    public final static File[] rootPathsCosmoSkymed = loadFilePath("test.rootPathCosmoSkymed");
 
     private static int subsetX = 0;
     private static int subsetY = 0;
@@ -90,16 +93,16 @@ public class TestUtils {
     static {
 
         if (testPreferences != null) {
-            rootPathTestProducts = testPreferences.getPropertyPath(contextID + ".test.rootPathTestProducts");
+            rootPathTestProducts = testPreferences.get("test.rootPathTestProducts", "");
 
-            subsetX = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetX"));
-            subsetY = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetY"));
-            subsetWidth = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetWidth"));
-            subsetHeight = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.subsetHeight"));
+            subsetX = Integer.parseInt(testPreferences.get("test.subsetX", ""));
+            subsetY = Integer.parseInt(testPreferences.get("test.subsetY", ""));
+            subsetWidth = Integer.parseInt(testPreferences.get("test.subsetWidth", ""));
+            subsetHeight = Integer.parseInt(testPreferences.get("test.subsetHeight", ""));
 
-            maxIteration = Integer.parseInt(testPreferences.getPropertyString(contextID + ".test.maxProductsPerRootFolder"));
-            String testReadersOnAllProducts = testPreferences.getPropertyString(contextID + ".test.ReadersOnAllProducts");
-            String testProcessingOnAllProducts = testPreferences.getPropertyString(contextID + ".test.ProcessingOnAllProducts");
+            maxIteration = Integer.parseInt(testPreferences.get("test.maxProductsPerRootFolder", ""));
+            String testReadersOnAllProducts = testPreferences.get("test.ReadersOnAllProducts", "");
+            String testProcessingOnAllProducts = testPreferences.get("test.ProcessingOnAllProducts", "");
 
             canTestReadersOnAllProducts = testReadersOnAllProducts != null && testReadersOnAllProducts.equalsIgnoreCase("true");
             canTestProcessingOnAllProducts = testProcessingOnAllProducts != null && testProcessingOnAllProducts.equalsIgnoreCase("true");
@@ -111,7 +114,7 @@ public class TestUtils {
             return new File[]{};
 
         final List<File> fileList = new ArrayList<>(3);
-        final String pathsStr = testPreferences.getPropertyPath(contextID + id);
+        final String pathsStr = testPreferences.get(id, "");
         final StringTokenizer st = new StringTokenizer(pathsStr, ",");
         while (st.hasMoreTokens()) {
             fileList.add(new File(st.nextToken()));
