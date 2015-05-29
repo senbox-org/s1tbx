@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,6 +15,8 @@
  */
 package org.esa.snap.util;
 
+import org.esa.snap.runtime.Config;
+
 import java.io.File;
 
 /**
@@ -25,22 +27,18 @@ import java.io.File;
  */
 public final class Settings {
 
-    private static Settings _instance = null;
-    private final PropertiesMap auxdataConfig = new PropertiesMap();
+    private static Settings _instance = new Settings();
+    private static final String SNAP_AUXDATA = "snap.auxdata";
 
     /**
      * @return The unique instance of this class.
      */
     public static Settings instance() {
-        if (_instance == null) {
-            _instance = new Settings();
-        }
         return _instance;
     }
 
     private Settings() {
-        Config.load(auxdataConfig, new File(SystemUtils.getApplicationDataDir(), "config" +
-                File.separator + SystemUtils.getApplicationContextId() + ".auxdata.config"));
+        Config.instance().preferences().put("AuxDataPath", SystemUtils.getApplicationDataDir() + File.separator + "snap-core"+File.separator+"auxdata");
     }
 
     public static boolean isWindowsOS() {
@@ -49,11 +47,7 @@ public final class Settings {
     }
 
     public String get(final String key) {
-        return auxdataConfig.getPropertyPath(key);
-    }
-
-    public PropertyMap getAuxdataProperty() {
-        return auxdataConfig;
+        return Config.instance().preferences(SNAP_AUXDATA).get(key, "");
     }
 
     public static String getPath(final String tag) {
@@ -65,14 +59,10 @@ public final class Settings {
     }
 
     public static File getAuxDataFolder() {
-        String auxDataPath = Settings.instance().get("AuxDataPath");
-        if (auxDataPath == null || auxDataPath.isEmpty()) {
-            if (isWindowsOS()) {
-                auxDataPath = "c:\\AuxData";
-            } else {
-                auxDataPath = SystemUtils.getUserHomeDir() + File.separator + "AuxData";
-            }
-        }
-        return new File(auxDataPath);
+        return new File(Config.instance().preferences().get("AuxDataPath", ""));
+    }
+
+    public static PropertiesMap getAutomatedTestConfigPropertyMap(final String name) {
+        return null;
     }
 }

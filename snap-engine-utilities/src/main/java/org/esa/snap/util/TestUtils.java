@@ -62,7 +62,7 @@ public class TestUtils {
 
     public static final Logger log = SystemUtils.LOG;
     private final static String contextID = SystemUtils.getApplicationContextId();
-    private static final PropertiesMap testPreferences = Config.getAutomatedTestConfigPropertyMap(contextID + ".tests");
+    private static final PropertiesMap testPreferences = Settings.instance().getAutomatedTestConfigPropertyMap(contextID + ".tests");
 
     public static String rootPathTestProducts = "";
 

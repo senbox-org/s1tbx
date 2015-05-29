@@ -46,7 +46,7 @@ public class TestSettings {
     public void testGetAuxDataProperty() {
         final Settings settings = Settings.instance();
 
-        String value = settings.getAuxdataProperty().getPropertyString("DEM.srtm3GeoTiffDEM_FTP");
+        String value = settings.get("DEM.srtm3GeoTiffDEM_FTP");
         assert (!value.isEmpty());
     }
 
@@ -54,7 +54,7 @@ public class TestSettings {
     public void testNotFound() {
         final Settings settings = Settings.instance();
 
-        String value = settings.getAuxdataProperty().getPropertyString("string not found");
+        String value = settings.get("string not found");
         assert (value.isEmpty());
     }
 }

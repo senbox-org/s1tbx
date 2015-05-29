@@ -35,6 +35,10 @@
             <artifactId>snap-gpf</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-runtime</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <version>10.11.1.1</version>
