@@ -29,22 +29,20 @@ import java.util.prefs.BackingStoreException;
  */
 class EnginePreferences extends AbstractPreferences {
 
-    private static EnginePreferences root = new EnginePreferences(null, "", System.getProperties());
+    private static EnginePreferences root = new EnginePreferences(null, "");
 
     private Properties properties;
     private boolean loaded;
+    private final String keyPrefix;
 
     EnginePreferences(String name) {
-        this(root, name, null);
+        this(root, name);
     }
 
     EnginePreferences(AbstractPreferences parent, String name) {
-        this(parent, name, null);
-    }
-
-    EnginePreferences(AbstractPreferences parent, String name, Properties defaults) {
         super(parent, name);
-        this.properties = new Properties(defaults);
+        this.properties = new Properties();
+        this.keyPrefix = name + ".";
     }
 
     Properties getProperties() {
@@ -76,6 +74,12 @@ class EnginePreferences extends AbstractPreferences {
      */
     @Override
     protected void putSpi(String key, String value) {
+        if (key.startsWith(keyPrefix)) {
+            String globalValue = System.getProperty(key);
+            if (globalValue != null) {
+                System.setProperty(key, value);
+            }
+        }
         properties.put(key, value);
     }
 
@@ -101,7 +105,13 @@ class EnginePreferences extends AbstractPreferences {
      */
     @Override
     protected String getSpi(String key) {
-        return resolve(key);
+        if (key.startsWith(keyPrefix)) {
+            String globalValue = System.getProperty(key);
+            if (globalValue != null) {
+                return resolveValue(globalValue);
+            }
+        }
+        return resolveKey(key);
     }
 
     /**
@@ -116,6 +126,12 @@ class EnginePreferences extends AbstractPreferences {
      */
     @Override
     protected void removeSpi(String key) {
+        if (key.startsWith(keyPrefix)) {
+            String globalValue = System.getProperty(key);
+            if (globalValue != null) {
+                System.clearProperty(key);
+            }
+        }
         properties.remove(key);
     }
 
@@ -276,12 +292,12 @@ class EnginePreferences extends AbstractPreferences {
         store();
     }
 
-    private String resolve(String key) {
-        String value = getRaw(key);
-        if (value == null) {
-            return null;
-        }
+    private String resolveKey(String key) {
+        String value = properties.getProperty(key, null);
+        return value != null ? resolveValue(value) : null;
+    }
 
+    private String resolveValue(String value) {
         boolean change;
         int pos1 = 0;
         do {
@@ -291,7 +307,7 @@ class EnginePreferences extends AbstractPreferences {
                 int pos2 = value.indexOf("}", pos1 + 2);
                 if (pos2 != -1) {
                     String varKey = value.substring(pos1 + 2, pos2);
-                    String varValue = getRaw(varKey);
+                    String varValue = getVariableValue(varKey);
                     if (varValue != null) {
                         String newValue = value.replace("${" + varKey + "}", varValue);
                         change = !newValue.equals(value);
@@ -306,18 +322,18 @@ class EnginePreferences extends AbstractPreferences {
         return value;
     }
 
-    private String getRaw(String key) {
-        String value = properties.getProperty(key, null);
-        if (value == null && parent() != null) {
-            value = parent().get(key, null);
+    private String getVariableValue(String varKey) {
+        String varValue = properties.getProperty(varKey);
+        if (varValue == null && parent() != null) {
+            varValue = parent().get(varKey, null);
         }
-        if (value == null) {
-            value = System.getProperty(key, null);
+        if (varValue == null) {
+            varValue = System.getProperty(varKey, null);
         }
-        if (value == null) {
-            value = System.getenv(key);
+        if (varValue == null) {
+            varValue = System.getenv(varKey);
         }
-        return value;
+        return varValue;
     }
 
     private void load() throws BackingStoreException {
