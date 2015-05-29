@@ -579,26 +579,6 @@
 
             <dependency>
                 <groupId>com.jidesoft</groupId>
-                <artifactId>jide-dock</artifactId>
-                <version>${jide.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jidesoft</groupId>
-                <artifactId>jide-action</artifactId>
-                <version>${jide.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jidesoft</groupId>
-                <artifactId>jide-grids</artifactId>
-                <version>${jide.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jidesoft</groupId>
-                <artifactId>jide-components</artifactId>
-                <version>${jide.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jidesoft</groupId>
                 <artifactId>jide-common</artifactId>
                 <version>${jide.version}</version>
             </dependency>
