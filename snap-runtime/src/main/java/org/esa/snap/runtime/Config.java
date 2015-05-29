@@ -204,7 +204,7 @@ public class Config {
      * @param configName The configuration name.
      * @return The named configuration, never {@code null}.
      */
-    private Preferences preferences(String configName) {
+    public Preferences preferences(String configName) {
         return loadPreferences(configName);
     }
 
