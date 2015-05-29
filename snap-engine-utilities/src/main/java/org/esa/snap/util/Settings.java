@@ -38,7 +38,7 @@ public final class Settings {
     }
 
     private Settings() {
-        Config.instance().preferences().put("AuxDataPath", SystemUtils.getApplicationDataDir() + File.separator + "snap-core"+File.separator+"auxdata");
+        Config.instance().preferences(SNAP_AUXDATA).put("AuxDataPath", SystemUtils.getApplicationDataDir() + File.separator + "snap-core"+File.separator+"auxdata");
     }
 
     public static boolean isWindowsOS() {

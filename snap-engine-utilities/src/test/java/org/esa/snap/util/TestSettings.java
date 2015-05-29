@@ -17,6 +17,8 @@ package org.esa.snap.util;
 
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertEquals;
+
 /**
  * Settings Tester.
  *
@@ -38,8 +40,11 @@ public class TestSettings {
         final Settings settings = Settings.instance();
 
         String value1 = settings.get("DEM.srtm3GeoTiffDEM_FTP");
+        assertEquals(value1, "xftp.jrc.it");
         String value2 = settings.get("AuxDataPath");
+        assert (!value2.isEmpty());
         String value3 = settings.get("demPath");
+        assert(!value3.contains("AuxDataPath"));
     }
 
     @Test
