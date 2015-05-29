@@ -152,6 +152,8 @@ public final class ApplyOrbitFileOp extends Operator {
                     orbitType = PrareOrbitFile.PRARE_PRECISE;
                 } else if (mission.startsWith("SENTINEL")) {
                     orbitType = SentinelPODOrbitFile.PRECISE;
+                } else {
+                    throw new OperatorException("Please select an orbit file type");
                 }
             }
             if(mission.equals("ENVISAT")) {
