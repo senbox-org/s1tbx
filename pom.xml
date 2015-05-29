@@ -39,7 +39,7 @@
 		<module>rstb</module>
 		<!--module>s1tbx-benchmark</module-->
         <module>s1tbx-commons</module>
-		<!--module>s1tbx-config</module-->
+		<module>s1tbx-config</module>
 		<!--module>s1tbx-help</module-->
 		<module>s1tbx-io</module>
         <module>s1tbx-kit</module>

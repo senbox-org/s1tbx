@@ -31,6 +31,11 @@
     <name>S1TBX config</name>
     <description>Adds the resources for the runtime environment.</description>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <all.clusters>${project.build.directory}/../../../snap-desktop/snap-application/target/snap</all.clusters>
+    </properties>
+    
 	<profiles>
 	  <profile>
 	    <id>windows32</id> 
@@ -103,29 +108,52 @@
         <outputDirectory>${outputdir}/modules/${project.artifactId}-${project.version}</outputDirectory>
 		<pluginManagement>
 	        <plugins>
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.7</version>
+                    <executions>
+                        
+                    </executions>
+                </plugin>
 				<plugin>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>2.7</version>
 					<executions>
-					  <execution>
-						<id>copy-resources</id>
-						<phase>validate</phase>
-						<goals>
-						  <goal>copy-resources</goal>
-						</goals>
-						<configuration>
-						  <outputDirectory>${outputdir}</outputDirectory>
-						  <resources>          
-							<resource>
-							  <directory>main/bin/common</directory>
-							  <filtering>false</filtering>
-							</resource>
-							<resource>
-							  <directory>${osFolder}</directory>
-							</resource>
-						  </resources>              
-						</configuration>            
-					  </execution>
+                        <execution>
+                            <id>copy-conf-files</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${all.clusters}/etc/</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>etc</directory>
+                                        <filtering>false</filtering>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                        <!--execution>
+                            <id>copy-resources</id>
+                            <phase>validate</phase>
+                            <goals>
+                              <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                              <outputDirectory>${outputdir}</outputDirectory>
+                              <resources>          
+                                <resource>
+                                  <directory>main/bin/common</directory>
+                                  <filtering>false</filtering>
+                                </resource>
+                                <resource>
+                                  <directory>${osFolder}</directory>
+                                </resource>
+                              </resources>              
+                            </configuration>            
+                        </execution-->
 					</executions>
 				</plugin>
 			</plugins>
