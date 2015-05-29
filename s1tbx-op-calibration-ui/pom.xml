@@ -64,14 +64,14 @@
             <artifactId>snap-gui-utilities</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-visat-rcp</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-op-insar</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-annotations-common</artifactId>

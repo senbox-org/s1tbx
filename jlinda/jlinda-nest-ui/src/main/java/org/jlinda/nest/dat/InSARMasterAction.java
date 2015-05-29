@@ -15,14 +15,15 @@
  */
 package org.jlinda.nest.dat;
 
-import org.esa.snap.framework.ui.command.CommandEvent;
-import org.esa.snap.visat.actions.AbstractVisatAction;
 import org.jlinda.nest.dat.dialogs.InSARMasterDialog;
 
-public class InSARMasterAction extends AbstractVisatAction {
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+
+public class InSARMasterAction extends AbstractAction {
 
     @Override
-    public void actionPerformed(final CommandEvent event) {
+    public void actionPerformed(final ActionEvent event) {
         final InSARMasterDialog dialog = new InSARMasterDialog();
         dialog.show();
     }

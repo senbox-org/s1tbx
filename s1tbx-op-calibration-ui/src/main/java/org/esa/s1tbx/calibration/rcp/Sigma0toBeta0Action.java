@@ -21,20 +21,36 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.ProductNode;
 import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.visat.actions.AbstractVisatAction;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
+import org.openide.util.NbBundle;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 /**
  * Sigma0toBeta0Action action.
  */
-public class Sigma0toBeta0Action extends AbstractVisatAction {
+@ActionID(
+        category = "Tools",
+        id = "Sigma0toBeta0Action"
+)
+@ActionRegistration(
+        displayName = "#CTL_Sigma0toBeta0ActionName"
+)
+@ActionReference(path = "Menu/SAR Processing/Radiometric", position = 600)
+@NbBundle.Messages({
+        "CTL_Sigma0toBeta0ActionName=Convert Sigma0 to Beta0"
+})
+public class Sigma0toBeta0Action extends AbstractAction {
 
     @Override
-    public void actionPerformed(CommandEvent event) {
+    public void actionPerformed(ActionEvent event) {
 
         CalibrationOp.createBetaVirtualBand(SnapApp.getDefault().getSelectedProduct(), false);
     }
 
-    @Override
     public void updateState(CommandEvent event) {
         final ProductNode node = SnapApp.getDefault().getSelectedProductNode();
         if (node instanceof Band) {
@@ -47,5 +63,4 @@ public class Sigma0toBeta0Action extends AbstractVisatAction {
         }
         event.getCommand().setEnabled(false);
     }
-
 }

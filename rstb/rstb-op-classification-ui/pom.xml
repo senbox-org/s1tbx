@@ -79,10 +79,6 @@
             <artifactId>snap-graph-builder</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.esa.snap</groupId>
-            <artifactId>snap-visat-rcp</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.esa.s1tbx</groupId>
             <artifactId>s1tbx-io</artifactId>
         </dependency>
