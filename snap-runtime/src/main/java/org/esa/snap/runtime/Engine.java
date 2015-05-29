@@ -312,7 +312,6 @@ public class Engine {
             fail(e);
         }
 
-
         Set<String> excludedModuleNames = new HashSet<>();
         String[] moduleNames = getConfig().excludedModuleNames();
         for (String mavenName : moduleNames) {
@@ -337,11 +336,17 @@ public class Engine {
     private void scanNetBeansCluster(Path clusterDir, Set<String> excludedModuleNames, ScanResult scanResult) throws IOException {
         Path modulesDir = clusterDir.resolve(Paths.get("modules"));
 
+        if (!Files.isDirectory(modulesDir)) {
+            return;
+        }
+
         // Collect module JARs
         List<Path> moduleJarFiles = Files.list(modulesDir)
                 .filter(path -> Files.isRegularFile(path))
-                .filter(path -> path.endsWith(JAR_EXT))
-                .filter((path) -> !excludedModuleNames.contains(path.getFileName().toString()))
+                .filter(path -> {
+                    String name = path.getFileName().toString();
+                    return name.endsWith(JAR_EXT) && !excludedModuleNames.contains(name);
+                })
                 .collect(Collectors.toList());
         for (Path moduleJarFile : moduleJarFiles) {
             scanResult.classPathEntries.add(moduleJarFile);
