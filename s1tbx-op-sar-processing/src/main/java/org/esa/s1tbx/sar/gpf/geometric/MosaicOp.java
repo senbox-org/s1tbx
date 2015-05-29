@@ -76,7 +76,7 @@ public class MosaicOp extends Operator {
     private Product targetProduct = null;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-            rasterDataNodeType = Band.class, label = "Source Bands")
+            label = "Source Bands")
     private String[] sourceBandNames = null;
 
     @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
@@ -87,11 +87,11 @@ public class MosaicOp extends Operator {
     private String resamplingMethod = ResamplingFactory.NEAREST_NEIGHBOUR_NAME;
 
     @Parameter(defaultValue = "true", description = "Average the overlapping areas", label = "Average Overlap")
-    private boolean average = true;
+    private Boolean average = true;
     @Parameter(defaultValue = "true", description = "Normalize by Mean", label = "Normalize by Mean")
-    private boolean normalizeByMean = true;
+    private Boolean normalizeByMean = true;
     @Parameter(defaultValue = "false", description = "Gradient Domain Mosaic", label = "Gradient Domain Mosaic")
-    private boolean gradientDomainMosaic = false;
+    private Boolean gradientDomainMosaic = false;
 
     @Parameter(defaultValue = "0", description = "Pixel Size (m)", label = "Pixel Size (m)")
     private double pixelSize = 0;
