@@ -15,14 +15,15 @@
  */
 package org.esa.s1tbx.dat.toolviews.Projects;
 
-import org.esa.snap.framework.ui.BasicApp;
 import org.esa.snap.framework.ui.UIUtils;
 import org.esa.snap.framework.ui.application.support.AbstractToolView;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import java.awt.*;
+import java.awt.Dimension;
 import java.util.Enumeration;
 import java.util.Observer;
 import java.util.Vector;
@@ -66,9 +67,9 @@ public class ProjectsToolView extends AbstractToolView implements Observer {
         projectTree.setRootVisible(false);
         projectTree.setShowsRootHandles(true);
         DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) projectTree.getCellRenderer();
-        renderer.setLeafIcon(UIUtils.loadImageIcon("/org/esa/s1tbx/resources/images/icons/RsBandAsSwath16.gif", BasicApp.class));
-        renderer.setClosedIcon(UIUtils.loadImageIcon("/org/esa/s1tbx/resources/images/icons/RsGroupClosed16.gif", BasicApp.class));
-        renderer.setOpenIcon(UIUtils.loadImageIcon("/org/esa/s1tbx/resources/images/icons/RsGroupOpen16.gif", BasicApp.class));
+        renderer.setLeafIcon(UIUtils.loadImageIcon("/org/esa/s1tbx/resources/images/icons/RsBandAsSwath16.gif"));
+        renderer.setClosedIcon(UIUtils.loadImageIcon("/org/esa/s1tbx/resources/images/icons/RsGroupClosed16.gif"));
+        renderer.setOpenIcon(UIUtils.loadImageIcon("/org/esa/s1tbx/resources/images/icons/RsGroupOpen16.gif"));
         return projectTree;
     }
 

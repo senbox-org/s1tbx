@@ -17,8 +17,6 @@ package org.esa.s1tbx.dat.toolviews.Projects;
 
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.s1tbx.dat.dialogs.ProductSetDialog;
-import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
-import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
 import org.esa.snap.dataio.dimap.DimapProductConstants;
 import org.esa.snap.db.CommonReaders;
 import org.esa.snap.framework.dataio.ProductIO;
@@ -26,17 +24,18 @@ import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductManager;
 import org.esa.snap.framework.datamodel.ProductNodeList;
-import org.esa.snap.framework.ui.BasicApp;
+import org.esa.snap.framework.dataop.downloadable.XMLSupport;
 import org.esa.snap.framework.ui.ModelessDialog;
 import org.esa.snap.framework.ui.NewProductDialog;
-import org.esa.snap.framework.ui.command.ExecCommand;
 import org.esa.snap.framework.ui.product.ProductSubsetDialog;
+import org.esa.snap.graphbuilder.rcp.dialogs.GraphBuilderDialog;
+import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
+import org.esa.snap.rcp.actions.file.SaveProductAsAction;
 import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.ResourceUtils;
-import org.esa.snap.framework.dataop.downloadable.XMLSupport;
 import org.esa.snap.visat.VisatApp;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
@@ -93,9 +92,9 @@ public class Project extends Observable {
     }
 
     private static void showProjectsView() {
-        final ExecCommand command = VisatApp.getApp().getCommandManager().
-                getExecCommand("org.esa.s1tbx.dat.toolviews.Projects.ProjectsToolView.showCmd");
-        command.execute();
+//        final ExecCommand command = VisatApp.getApp().getCommandManager().
+//                getExecCommand("org.esa.s1tbx.dat.toolviews.Projects.ProjectsToolView.showCmd");
+//        command.execute();
     }
 
     public void CreateNewProject() {
@@ -243,8 +242,7 @@ public class Project extends Observable {
 
         if (VisatApp.getApp() != null) {
             SnapApp.getDefault().getPreferences().put(
-                    BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR, processedFolder.getPath().getAbsolutePath());
-            VisatApp.getApp().updateState();
+                    SaveProductAsAction.PREFERENCES_KEY_LAST_PRODUCT_DIR, processedFolder.getPath().getAbsolutePath());
         }
 
         // start refresh timer for any outside changes to project folder
