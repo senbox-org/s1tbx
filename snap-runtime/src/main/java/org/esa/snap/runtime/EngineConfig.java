@@ -59,7 +59,7 @@ public class EngineConfig extends Config {
     public static final String PROPERTY_LOG_LEVEL = "snap.log.level";
 
     static String[] DEFAULT_EXCLUDED_CLUSTER_NAMES = new String[]{
-            "platform", "ide"
+            "etc", "platform", "ide"
     };
 
     static String[] DEFAULT_EXCLUDED_MODULE_NAMES = new String[]{
