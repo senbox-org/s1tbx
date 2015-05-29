@@ -188,12 +188,6 @@ class BasicCeosProductDirectory extends CEOSProductDirectory {
             setLatLonMetadata(product, absRoot);
         }
 
-        //if (VisatApp.getApp() != null) {
-        //    VisatApp.getApp().showWarningDialog("This product is for an unknown mission in CEOS format.\n" +
-        //            "Some functionality may not be supported.\n" +
-        //            "Please contact nest_pr@array.ca for further support.");
-        //}
-
         return product;
     }
 

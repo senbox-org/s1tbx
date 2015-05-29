@@ -21,7 +21,7 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.framework.ui.command.ExecCommand;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.visat.VisatApp;
+import org.esa.snap.rcp.SnapDialogs;
 
 /**
  * This action to edit Metadata
@@ -41,7 +41,7 @@ public class EditMetadataAction extends ExecCommand {
             //createProductMetadataView(absRoot);
         } else {
             // no attributes found
-            VisatApp.getApp().showErrorDialog("Edit Metadata", "No editable metadata found.");
+            SnapDialogs.showError("Edit Metadata", "No editable metadata found.");
         }
     }
 

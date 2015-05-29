@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,32 +16,44 @@
 package org.esa.s1tbx.dat.actions;
 
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.ui.command.CommandEvent;
-import org.esa.snap.framework.ui.command.ExecCommand;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.util.MemUtils;
-import org.esa.snap.visat.VisatApp;
+import org.esa.snap.rcp.actions.file.CloseProductAction;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
+import org.openide.util.NbBundle;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This action closes all opened products other than the one selected.
  */
-public class CloseAllOthersAction extends ExecCommand {
+@ActionID(
+        category = "File",
+        id = "CloseAllOthersAction"
+)
+@ActionRegistration(
+        displayName = "#CTL_CloseAllOthersActionName"
+)
+@ActionReference(path = "Menu/File", position = 50)
+@NbBundle.Messages({
+        "CTL_CloseAllOthersActionName=Close All Other Products"
+})
+public class CloseAllOthersAction extends AbstractAction {      //todo make context aware
 
     @Override
-    public void actionPerformed(final CommandEvent event) {
+    public void actionPerformed(final ActionEvent event) {
         final Product selectedProduct = SnapApp.getDefault().getSelectedProduct();
         final Product[] products = SnapApp.getDefault().getProductManager().getProducts();
-        for (int i = products.length - 1; i >= 0; i--) {
-            if (products[i] != selectedProduct)
-                VisatApp.getApp().closeProduct(products[i]);
+        final List<Product> productsToClose = new ArrayList<>(products.length);
+        for (Product product : products) {
+            if (product != selectedProduct) {
+                productsToClose.add(product);
+            }
         }
-        // free cache
-        MemUtils.freeAllMemory();
-    }
-
-    @Override
-    public void updateState(final CommandEvent event) {
-        setEnabled(SnapApp.getDefault().getProductManager().getProductCount() > 1 &&
-                           SnapApp.getDefault().getSelectedProduct() != null);
+        new CloseProductAction(productsToClose).execute();
     }
 }

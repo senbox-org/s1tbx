@@ -230,11 +230,6 @@
                 <artifactId>snap-ui</artifactId>
 				<version>${snap.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.esa.snap</groupId>
-                <artifactId>snap-visat-rcp</artifactId>
-				<version>${snap.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>org.esa.snap</groupId>

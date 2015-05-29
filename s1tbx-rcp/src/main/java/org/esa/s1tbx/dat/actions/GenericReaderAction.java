@@ -30,20 +30,12 @@ import org.esa.snap.framework.ui.command.ExecCommand;
 import org.esa.snap.framework.ui.product.ProductSubsetDialog;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.rcp.SnapDialogs;
-import org.esa.snap.util.Debug;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.SnapFileChooser;
 import org.esa.snap.util.io.SnapFileFilter;
-import org.esa.snap.visat.VisatApp;
 
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -73,8 +65,6 @@ public class GenericReaderAction extends ExecCommand {
 
     void importProduct() {
 
-        VisatApp visatApp = VisatApp.getApp();
-
         if (readerPlugIn == null) {
             // Should not come here...
             return;
@@ -84,7 +74,7 @@ public class GenericReaderAction extends ExecCommand {
         if (selectedFile == null) {
             return;
         }
-
+/* //todo
         Debug.assertTrue(fileChooser != null);
         // file chooser only returns a product, if a product subset was created.
         Product product = fileChooser.getSubsetProduct();
@@ -108,8 +98,8 @@ public class GenericReaderAction extends ExecCommand {
                 product.setModified(false);
             }
         } catch (Exception e) {
-            visatApp.handleUnknownException(e);
-        }
+            SnapApp.getDefault().handleError("Unable to import", e);
+        } */
     }
 
 
@@ -119,7 +109,6 @@ public class GenericReaderAction extends ExecCommand {
         }
 
         File currentDir = null;
-        final VisatApp visatApp = VisatApp.getApp();
         final String currentDirPath = SnapApp.getDefault().getPreferences().get(lastDirKey,
                                                                                 SystemUtils.getUserHomeDir().getPath());
         if (currentDirPath != null) {
@@ -176,18 +165,17 @@ public class GenericReaderAction extends ExecCommand {
     private Product readProductNodes(final File file) {
 
         Product product = null;
-        final VisatApp visatApp = VisatApp.getApp();
         try {
-            visatApp.setStatusBarMessage("Reading from '" + file + "'..."); /*I18N*/
+            SnapApp.getDefault().setStatusBarMessage("Reading from '" + file + "'..."); /*I18N*/
             SnapApp.getDefault().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
             final ProductReader reader = readerPlugIn.createReaderInstance();
             product = reader.readProductNodes(file, null);
 
             SnapApp.getDefault().getMainFrame().setCursor(Cursor.getDefaultCursor());
-            visatApp.clearStatusBarMessage();
+            SnapApp.getDefault().setStatusBarMessage("");
         } catch (Exception e) {
-            visatApp.handleUnknownException(e);
+            SnapApp.getDefault().handleError("Unable to import", e);
         }
 
         return product;
@@ -234,7 +222,7 @@ public class GenericReaderAction extends ExecCommand {
         void createUI() {
 
             setDialogType(OPEN_DIALOG);
-            setDialogTitle(VisatApp.getApp().getAppName() + " - Import " + formatName + " Product"); /*I18N*/
+            setDialogTitle("Import " + formatName + " Product"); /*I18N*/
 
             _subsetButton = new JButton("Subset...");  /*I18N*/
             _subsetButton.setMnemonic('S'); /*I18N*/

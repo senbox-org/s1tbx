@@ -15,14 +15,7 @@
  */
 package org.esa.s1tbx.dat.views.polarview;
 
-import org.esa.snap.visat.VisatApp;
-
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Rectangle;
+import java.awt.*;
 
 abstract class AbstractAxisDisplay {
 
@@ -32,7 +25,7 @@ abstract class AbstractAxisDisplay {
     public static final int MAX_POINTS = 16380;
 
     AbstractAxisDisplay() {
-        backgroundColor = VisatApp.getApp().getDesktopPane().getBackground();
+        backgroundColor = Color.white;
     }
 
     public Color getBackground() {

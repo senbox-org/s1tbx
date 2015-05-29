@@ -15,14 +15,14 @@
  */
 package org.esa.s1tbx.dat.actions;
 
-import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
 import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.framework.ui.command.ExecCommand;
+import org.esa.snap.graphbuilder.rcp.dialogs.PromptDialog;
 import org.esa.snap.rcp.SnapApp;
-import org.esa.snap.visat.VisatApp;
+import org.esa.snap.rcp.SnapDialogs;
 
 /**
  * This action to searches the Metadata
@@ -53,7 +53,7 @@ public class SearchMetadataAction extends ExecCommand {
                 //EditMetadataAction.createProductMetadataView(resultElem);
             } else {
                 // no attributes found
-                VisatApp.getApp().showErrorDialog("Search Metadata", dlg.getValue() + " not found in the Metadata");
+                SnapDialogs.showError("Search Metadata", dlg.getValue() + " not found in the Metadata");
             }
         }
     }

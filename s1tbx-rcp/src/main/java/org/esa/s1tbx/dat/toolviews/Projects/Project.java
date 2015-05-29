@@ -36,13 +36,12 @@ import org.esa.snap.rcp.actions.file.SaveProductAsAction;
 import org.esa.snap.util.FileFolderUtils;
 import org.esa.snap.util.ProductFunctions;
 import org.esa.snap.util.ResourceUtils;
-import org.esa.snap.visat.VisatApp;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
-import javax.swing.SwingWorker;
-import java.awt.Frame;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -240,10 +239,8 @@ public class Project extends Observable {
             newFolder.setCreatedByUser(true);
         }
 
-        if (VisatApp.getApp() != null) {
-            SnapApp.getDefault().getPreferences().put(
-                    SaveProductAsAction.PREFERENCES_KEY_LAST_PRODUCT_DIR, processedFolder.getPath().getAbsolutePath());
-        }
+        SnapApp.getDefault().getPreferences().put(
+                SaveProductAsAction.PREFERENCES_KEY_LAST_PRODUCT_DIR, processedFolder.getPath().getAbsolutePath());
 
         // start refresh timer for any outside changes to project folder
         startUpdateTimer();
@@ -372,7 +369,7 @@ public class Project extends Observable {
             dialog.show();
             dialog.LoadGraph(file);
         } else if (parentFolder.getFolderType() == ProjectSubFolder.FolderType.PRODUCT) {
-            VisatApp.getApp().openProduct(file);
+            //todo VisatApp.getApp().openProduct(file);
         }
     }
 
@@ -457,7 +454,7 @@ public class Project extends Observable {
                                 }
                                 final File destFile = new File(importedFolder.getPath(), product.getName());
 
-                                VisatApp.getApp().writeProductImpl(product, destFile, "BEAM-DIMAP", false);
+                                //todo VisatApp.getApp().writeProductImpl(product, destFile, "BEAM-DIMAP", false);
                             }
                         } catch (Exception e) {
                             SnapDialogs.showError(e.getMessage());
@@ -476,7 +473,7 @@ public class Project extends Observable {
         final SwingWorker worker = new SwingWorker() {
             @Override
             protected Object doInBackground() throws Exception {
-                VisatApp.getApp().writeProduct(product, destFile, "BEAM-DIMAP");
+                //todo VisatApp.getApp().writeProduct(product, destFile, "BEAM-DIMAP");
                 return null;
             }
 

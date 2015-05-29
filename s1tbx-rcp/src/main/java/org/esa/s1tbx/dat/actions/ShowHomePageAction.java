@@ -15,28 +15,52 @@
  */
 package org.esa.s1tbx.dat.actions;
 
-import org.esa.snap.framework.ui.command.CommandEvent;
-import org.esa.snap.framework.ui.command.ExecCommand;
 import org.esa.snap.util.SystemUtils;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.awt.ActionRegistration;
+import org.openide.util.NbBundle;
 
-import java.awt.Desktop;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.URI;
 
 /**
- * This action launches the default browser to display the NEST web page.
+ * This action launches the default browser to display the project web page.
  */
-public class ShowHomePageAction extends ExecCommand {
+@ActionID(
+        category = "Help",
+        id = "ShowHomePageAction"
+)
+@ActionRegistration(
+        displayName = "#CTL_ShowHomePageAction_MenuText",
+        popupText = "#CTL_ShowHomePageAction_MenuText",
+        lazy = true
+)
+@ActionReferences({
+        @ActionReference(
+                path = "Help",
+                position = 110
+        )
+})
+@NbBundle.Messages({
+        "CTL_ShowHomePageAction_MenuText=SNAP Home Page",
+        "CTL_ShowHomePageAction_ShortDescription=Show the toolboxes website"
+})
+public class ShowHomePageAction extends AbstractAction {
     private static final String HOME_PAGE_URL_DEFAULT = "https://sentinel.esa.int/web/sentinel/toolboxes";
 
     /**
-     * Launches the default browser to display the NEST web site.
+     * Launches the default browser to display the web site.
      * Invoked when a command action is performed.
      *
      * @param event the command event.
      */
     @Override
-    public void actionPerformed(CommandEvent event) {
+    public void actionPerformed(ActionEvent event) {
         final String homePageUrl = System.getProperty(SystemUtils.getApplicationContextId() + ".homePageUrl", HOME_PAGE_URL_DEFAULT);
         final Desktop desktop = Desktop.getDesktop();
 

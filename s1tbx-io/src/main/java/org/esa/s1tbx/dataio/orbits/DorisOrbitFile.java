@@ -188,14 +188,7 @@ public class DorisOrbitFile extends BaseOrbitFile {
             if (!localPath.exists())
                 localPath.mkdirs();
 
-         /*   if (VisatApp.getApp() != null) {
-                final DownloadOrbitWorker worker = new DownloadOrbitWorker(VisatApp.getApp(), "Download Orbit Files",
-                        ftp, fileSizeMap, remotePath, localPath);
-                worker.executeWithBlocking();
-
-            } else {*/
-                getRemoteFiles(ftp, fileSizeMap, remotePath, localPath, new NullProgressMonitor());
-          //  }
+            getRemoteFiles(ftp, fileSizeMap, remotePath, localPath, new NullProgressMonitor());
 
         } catch (Exception e) {
             System.out.println(e.getMessage());

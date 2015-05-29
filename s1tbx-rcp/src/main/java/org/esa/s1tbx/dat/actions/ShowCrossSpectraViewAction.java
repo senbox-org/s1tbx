@@ -16,28 +16,18 @@
 package org.esa.s1tbx.dat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.s1tbx.dat.views.polarview.PolarView;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductNode;
-import org.esa.snap.framework.datamodel.ProductNodeEvent;
-import org.esa.snap.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.ui.UIUtils;
 import org.esa.snap.framework.ui.command.CommandEvent;
 import org.esa.snap.framework.ui.command.ExecCommand;
 import org.esa.snap.framework.ui.product.ProductSceneImage;
-import org.esa.snap.framework.ui.product.ProductSceneView;
 import org.esa.snap.rcp.SnapApp;
 import org.esa.snap.util.Debug;
-import org.esa.snap.visat.VisatApp;
 
-import javax.swing.Icon;
-import javax.swing.JInternalFrame;
-import javax.swing.SwingWorker;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
+import javax.swing.*;
 
 /**
  * This action opens a polar wave view for the currently selected wave product.
@@ -47,13 +37,11 @@ public class ShowCrossSpectraViewAction extends ExecCommand {
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        final VisatApp visatApp = VisatApp.getApp();
-        openProductSceneView((RasterDataNode) visatApp.getSelectedProductNode());
+        openProductSceneView((RasterDataNode) SnapApp.getDefault().getSelectedProductNode());
     }
 
     void openProductSceneView(final RasterDataNode selectedProductNode) {
-        final VisatApp visatApp = VisatApp.getApp();
-        visatApp.setStatusBarMessage("Creating polar view...");
+        SnapApp.getDefault().setStatusBarMessage("Creating polar view...");
         UIUtils.setRootFrameWaitCursor(SnapApp.getDefault().getMainFrame());
         final Product product = SnapApp.getDefault().getSelectedProduct();
 
@@ -74,22 +62,22 @@ public class ShowCrossSpectraViewAction extends ExecCommand {
             @Override
             public void done() {
                 UIUtils.setRootFrameDefaultCursor(SnapApp.getDefault().getMainFrame());
-                visatApp.clearStatusBarMessage();
+                SnapApp.getDefault().setStatusBarMessage("");
 
                 final ProductSceneImage productSceneImage;
                 try {
                     productSceneImage = get();
                 } catch (OutOfMemoryError e) {
-                    visatApp.showOutOfMemoryErrorDialog("The polar view could not be created.");
+                    SnapApp.getDefault().handleError("The polar view could not be created.", e);
                     return;
                 } catch (Exception e) {
-                    visatApp.handleUnknownException(e);
+                    SnapApp.getDefault().handleError("The polar view could not be created.", e);
                     return;
                 }
 
                 final PolarView view = new PolarView(product, productSceneImage);
-                view.setCommandUIFactory(visatApp.getCommandUIFactory());
-
+                //view.setCommandUIFactory(visatApp.getCommandUIFactory());
+/* todo
                 final String title = createInternalFrameTitle(selectedProductNode);
                 final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
                 final JInternalFrame internalFrame = visatApp.createInternalFrame(title, icon, view, getHelpId());
@@ -115,32 +103,28 @@ public class ShowCrossSpectraViewAction extends ExecCommand {
                     }
                 });
 
-                visatApp.updateState();
+                //visatApp.updateState();
+                */
             }
         };
-        visatApp.getExecutorService().submit(worker);
-    }
-
-    private static String createInternalFrameTitle(final RasterDataNode raster) {
-        return UIUtils.getUniqueFrameTitle(VisatApp.getApp().getAllInternalFrames(), raster.getDisplayName());
+       //todo visatApp.getExecutorService().submit(worker);
     }
 
     private static ProductSceneImage createProductSceneImage(final RasterDataNode raster,
                                                              ProgressMonitor pm) {
         Debug.assertNotNull(raster);
         Debug.assertNotNull(pm);
-        final VisatApp app = VisatApp.getApp();
 
         ProductSceneImage sceneImage = null;
         try {
             pm.beginTask("Creating polar view...", 1);
-            final JInternalFrame[] frames = app.findInternalFrames(raster, 1);
+           /* final JInternalFrame[] frames = app.findInternalFrames(raster, 1);
             if (frames.length > 0) {
                 final ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
                 sceneImage = new ProductSceneImage(raster, view);
             } else {
                 sceneImage = new ProductSceneImage(raster, SnapApp.getDefault().getCompatiblePreferences(), SubProgressMonitor.create(pm, 1));
-            }
+            }*/
         } finally {
             pm.done();
         }

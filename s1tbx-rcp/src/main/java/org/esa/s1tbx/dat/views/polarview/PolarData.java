@@ -15,10 +15,7 @@
  */
 package org.esa.s1tbx.dat.views.polarview;
 
-import org.esa.snap.visat.VisatApp;
-
-import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.*;
 
 public class PolarData {
 
@@ -34,7 +31,7 @@ public class PolarData {
     private Object[] cValues = null;
     private float dirOffset = 0;
 
-    private final Color backgroundColor = VisatApp.getApp().getDesktopPane().getBackground();
+    private final Color backgroundColor = Color.white;
     private Color[][] colors;
     private ColourScale cScale = null;
     private int plotCount = 0;

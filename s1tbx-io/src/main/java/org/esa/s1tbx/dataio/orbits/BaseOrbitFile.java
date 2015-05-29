@@ -103,29 +103,4 @@ public abstract class BaseOrbitFile implements OrbitFile {
         }
         return false;
     }
-
-   /* protected static class DownloadOrbitWorker extends ProgressMonitorSwingWorker {
-
-        private final String remotePath;
-        private final File localPath;
-        private final ftpUtils ftp;
-        private final Map<String, Long> fileSizeMap;
-
-        DownloadOrbitWorker(final VisatApp visatApp, final String title,
-                            final ftpUtils ftp, final Map<String, Long> fileSizeMap,
-                            final String remotePath, final File localPath) {
-            super(visatApp.getMainFrame(), title);
-            this.ftp = ftp;
-            this.fileSizeMap = fileSizeMap;
-            this.remotePath = remotePath;
-            this.localPath = localPath;
-        }
-
-        @Override
-        protected Object doInBackground(ProgressMonitor pm) throws Exception {
-            getRemoteFiles(ftp, fileSizeMap, remotePath, localPath, pm);
-            return 0;
-        }
-    }*/
-
 }

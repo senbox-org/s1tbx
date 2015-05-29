@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2015 Brockmann Consult GmbH (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,28 +15,52 @@
  */
 package org.esa.s1tbx.dat.actions;
 
-import org.esa.snap.framework.ui.command.CommandEvent;
-import org.esa.snap.framework.ui.command.ExecCommand;
 import org.esa.snap.util.SystemUtils;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.awt.ActionRegistration;
+import org.openide.util.NbBundle;
 
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.URI;
 
 /**
- * This action launches the default browser to display the NEST web page.
+ * This action launches the default browser to display the project tutorials.
  */
-public class ShowTutorialsPageAction extends ExecCommand {
+@ActionID(
+        category = "Help",
+        id = "ShowTutorialsPageAction"
+)
+@ActionRegistration(
+        displayName = "#CTL_ShowTutorialsPageAction_MenuText",
+        popupText = "#CTL_ShowTutorialsPageAction_MenuText",
+        lazy = true
+)
+@ActionReferences({
+        @ActionReference(
+                path = "Help",
+                position = 210
+        )
+})
+@NbBundle.Messages({
+        "CTL_ShowTutorialsPageAction_MenuText=Tutorials",
+        "CTL_ShowTutorialsPageAction_ShortDescription=Show the toolboxes tutorials web page"
+})
+public class ShowTutorialsPageAction extends AbstractAction {
     private static final String HOME_PAGE_URL_DEFAULT = "https://sentinel.esa.int/web/sentinel/toolboxes/sentinel-1/tutorials";
 
     /**
-     * Launches the default browser to display the NEST web site.
+     * Launches the default browser to display the tutorials.
      * Invoked when a command action is performed.
      *
      * @param event the command event.
      */
     @Override
-    public void actionPerformed(CommandEvent event) {
+    public void actionPerformed(ActionEvent event) {
         final String homePageUrl = System.getProperty(SystemUtils.getApplicationContextId() + ".homePageUrl", HOME_PAGE_URL_DEFAULT);
         final Desktop desktop = Desktop.getDesktop();
 
