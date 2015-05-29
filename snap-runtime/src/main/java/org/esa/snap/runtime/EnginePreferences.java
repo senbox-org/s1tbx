@@ -32,8 +32,8 @@ class EnginePreferences extends AbstractPreferences {
     private static EnginePreferences root = new EnginePreferences(null, "");
 
     private Properties properties;
-    private boolean loaded;
     private final String keyPrefix;
+    private Path backingStorePath;
 
     EnginePreferences(String name) {
         this(root, name);
@@ -53,13 +53,6 @@ class EnginePreferences extends AbstractPreferences {
         this.properties = properties;
     }
 
-    public boolean isLoaded() {
-        return loaded;
-    }
-
-    public void setLoaded(boolean loaded) {
-        this.loaded = loaded;
-    }
 
     /**
      * Put the given key-value association into this preference node.  It is
@@ -374,7 +367,16 @@ class EnginePreferences extends AbstractPreferences {
         }
     }
 
-    private Path getBackingStorePath() {
-        return Config.instance().userDir().resolve(name() + ".config");
+    public Path getBackingStorePath() {
+        return backingStorePath != null ? backingStorePath : getDefaultBackingStorePath();
     }
+
+    public void setBackingStorePath(Path backingStorePath) {
+        this.backingStorePath = backingStorePath;
+    }
+
+    private Path getDefaultBackingStorePath() {
+        return EngineConfig.instance().userDir().resolve("etc").resolve(name() + Config.CONFIG_FILE_EXT);
+    }
+
 }

@@ -18,6 +18,7 @@ package org.esa.snap.util;
 import org.esa.snap.runtime.Config;
 
 import java.io.File;
+import java.util.prefs.Preferences;
 
 /**
  * Created by IntelliJ IDEA.
@@ -29,6 +30,7 @@ public final class Settings {
 
     private static Settings _instance = new Settings();
     private static final String SNAP_AUXDATA = "snap.auxdata";
+    private final Preferences auxdataPreferences;
 
     /**
      * @return The unique instance of this class.
@@ -38,7 +40,8 @@ public final class Settings {
     }
 
     private Settings() {
-        Config.instance().preferences(SNAP_AUXDATA).put("AuxDataPath", SystemUtils.getApplicationDataDir() + File.separator + "snap-core"+File.separator+"auxdata");
+        auxdataPreferences = Config.instance(SNAP_AUXDATA).load().preferences();
+        auxdataPreferences.put("AuxDataPath", SystemUtils.getApplicationDataDir() + File.separator + "snap-core" + File.separator + "auxdata");
     }
 
     public static boolean isWindowsOS() {
@@ -47,7 +50,7 @@ public final class Settings {
     }
 
     public String get(final String key) {
-        return Config.instance().preferences(SNAP_AUXDATA).get(key, "");
+        return auxdataPreferences.get(key, "");
     }
 
     public static String getPath(final String tag) {

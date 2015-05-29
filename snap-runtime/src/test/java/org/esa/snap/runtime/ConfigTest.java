@@ -16,89 +16,33 @@ public class ConfigTest {
 
     @Before
     public void setUp() throws Exception {
-        Config.newInstance();
+        Config.instance("bibo").clear();
         System.getProperties()
                 .stringPropertyNames()
                 .stream()
-                .filter(name -> name.startsWith("snap."))
+                .filter(name -> name.startsWith("bibo."))
                 .forEach(System::clearProperty);
     }
 
     @Test
-    public void testDefaults() throws Exception {
-        assertFalse(Config.instance().loaded());
-        assertFalse(Config.instance().debug());
-        assertFalse(Config.instance().ignoreUserConfig());
-        assertFalse(Config.instance().ignoreDefaultConfig());
-        assertArrayEquals(Config.DEFAULT_EXCLUDED_CLUSTER_NAMES, Config.instance().excludedClusterNames());
-        assertArrayEquals(Config.DEFAULT_EXCLUDED_MODULE_NAMES, Config.instance().excludedModuleNames());
-        assertEquals(Paths.get(""), Config.instance().installDir());
-        assertEquals(Paths.get(System.getProperty("user.home"), ".snap"), Config.instance().userDir());
-        assertNull(Config.instance().configFile());
+    public void testLoadStandard() throws Exception {
+        assertFalse(Config.instance("bibo").loaded());
+        Config.instance("bibo").load();
+        assertTrue(Config.instance("bibo").loaded());
     }
 
     @Test
-    public void testSetters() throws Exception {
-        Config.instance()
-                .debug(true)
-                .ignoreUserConfig(true)
-                .ignoreDefaultConfig(true)
-                .excludedClusterNames("s2tbx", "s3tbx", "smos")
-                .excludedModuleNames("a", "b", "c")
-                .installDir(Paths.get("/opt/snap2"))
-                .userDir(Paths.get("/home/bar"))
-                .configFile(Paths.get("./test.config"));
-        assertTrue(Config.instance().debug());
-        assertTrue(Config.instance().ignoreUserConfig());
-        assertTrue(Config.instance().ignoreDefaultConfig());
-        assertArrayEquals(new String[]{"s2tbx", "s3tbx", "smos"}, Config.instance().excludedClusterNames());
-        assertArrayEquals(new String[]{"a", "b", "c"}, Config.instance().excludedModuleNames());
-        assertEquals(Paths.get("/opt/snap2"), Config.instance().installDir());
-        assertEquals(Paths.get("/home/bar"), Config.instance().userDir());
-        assertEquals(Paths.get("./test.config"), Config.instance().configFile());
-    }
+    public void testLoadCustom() throws Exception {
 
-    @Test
-    public void testLoadWithDefaults() throws Exception {
-        Config.instance().load();
-        assertTrue(Config.instance().loaded());
-        assertFalse(Config.instance().debug());
-        assertFalse(Config.instance().ignoreUserConfig());
-        assertFalse(Config.instance().ignoreDefaultConfig());
-        assertArrayEquals(Config.DEFAULT_EXCLUDED_CLUSTER_NAMES, Config.instance().excludedClusterNames());
-        assertArrayEquals(Config.DEFAULT_EXCLUDED_MODULE_NAMES, Config.instance().excludedModuleNames());
-        assertEquals(Paths.get(""), Config.instance().installDir());
-        assertEquals(Paths.get(System.getProperty("user.home"), ".snap"), Config.instance().userDir());
-        assertNull(Config.instance().configFile());
-    }
+        Path configFile = Paths.get(EngineConfigTest.class.getResource("bibo-extra.properties").toURI());
 
-    @Test
-    public void testLoadFromFile() throws Exception {
-        Path configFile = Paths.get(ConfigTest.class.getResource("test.properties").toURI());
-        Config.instance().configFile(configFile).load();
-        assertTrue(Config.instance().debug());
-        assertTrue(Config.instance().ignoreUserConfig());
-        assertTrue(Config.instance().ignoreDefaultConfig());
-        assertArrayEquals(new String[]{"s1tbx", "s2tbx", "s3tbx"}, Config.instance().excludedClusterNames());
-        assertArrayEquals(new String[]{"snap-binning", "org.esa.snap:ceres-jai"}, Config.instance().excludedModuleNames());
-        assertEquals(Paths.get("/opt/snap"), Config.instance().installDir());
-        assertEquals(Paths.get("/home/foo"), Config.instance().userDir());
-        assertEquals(configFile, Config.instance().configFile());
-    }
+        assertFalse(Config.instance("bibo").loaded());
+        Config.instance("bibo").load(configFile);
+        assertFalse(Config.instance("bibo").loaded());
 
-    @Test
-    public void testPreferencesResolution() throws Exception {
-        Preferences preferences = Config.instance().preferences();
-
-        preferences.put("snap.home", "/opt/snap");
-        preferences.put("extra-cluster", "bibo");
-        preferences.put("cluster-path", "${snap.home}/${extra-cluster}");
-
-        assertEquals("/opt/snap/bibo", preferences.get("cluster-path", null));
-
-        preferences.put("myarch", "${os.arch}");
-        assertNotNull(preferences.get("myarch", null));
-        assertFalse(preferences.get("myarch", null).contains("${"));
-        assertFalse(preferences.get("myarch", null).contains("}"));
+        assertEquals(34, Config.instance("bibo").preferences().getInt("bibo.a", 0));
+        assertEquals(0.41, Config.instance("bibo").preferences().getDouble("bibo.b", 0.0), 1e-10);
+        assertEquals(true, Config.instance("bibo").preferences().getBoolean("bibo.c", false));
+        assertEquals("ABC", Config.instance("bibo").preferences().get("bibo.d", null));
     }
 }

@@ -60,8 +60,8 @@ public class Engine {
     /**
      * @return The SNAP-Engine configuration.
      */
-    public Config getConfig() {
-        return Config.instance();
+    public EngineConfig getConfig() {
+        return EngineConfig.instance();
     }
 
     /**

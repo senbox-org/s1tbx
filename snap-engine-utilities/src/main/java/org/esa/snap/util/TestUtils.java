@@ -65,7 +65,7 @@ public class TestUtils {
     public static final String SKIPTEST = "skipTest";
 
     public static final Logger log = SystemUtils.LOG;
-    private static final Preferences testPreferences = Config.instance().preferences(S1TBX_TESTS);
+    private static final Preferences testPreferences = Config.instance(S1TBX_TESTS).load().preferences();
 
     public static String rootPathTestProducts = "";
 
