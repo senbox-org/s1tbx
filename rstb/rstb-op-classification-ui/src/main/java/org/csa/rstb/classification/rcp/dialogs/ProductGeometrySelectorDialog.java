@@ -163,7 +163,7 @@ public class ProductGeometrySelectorDialog extends ModalDialog {
     private static File getDefaultSaveLocation() {
         File folder;
         try {
-            folder = new File(Settings.getAuxDataFolder(), "SupervisedTraining");
+            folder = new File(Settings.instance().getAuxDataFolder(), "SupervisedTraining");
         } catch (Exception e) {
             folder = FileSystemView.getFileSystemView().getRoots()[0];
         }
