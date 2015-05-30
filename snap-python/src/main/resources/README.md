@@ -21,7 +21,7 @@ and is independent from the snappy module.
 snappy has been tested with Python 2.7, 3.3 and 3.4 with Java 7 and 8 JDKs. 
 
 Since `snap-python` version 5.0.5, SNAP configures itself for a given Python executable. If not already done
-by the installer, set the configuration property `snap.pythonExecutable` in file `${snap-home}/config/snap.config`
+by the installer, set the configuration property `snap.pythonExecutable` in file `${snap-home}/etc/snap.properties`
 to your desired Python executable.
 
 

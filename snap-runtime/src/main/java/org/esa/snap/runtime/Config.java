@@ -21,14 +21,14 @@ import java.util.prefs.Preferences;
  * The following configuration properties are managed by this class.
  * <ul>
  * <li>{@code snap.home}: Path to the SNAP installation directory</li>
- * <li>{@code snap.user}: Path to the SNAP user directory</li>
+ * <li>{@code snap.userdir}: Path to the SNAP user directory</li>
  * <li>{@code snap.config}: Path to a SNAP configuration file (Java properties file format)</li>
  * <li>{@code snap.ignoreUserConfig}: Don't load any <code>&lt;name&gt;</code><code>.properties</code> file in SNAP user directory</li>
  * <li>{@code snap.ignoreDefaultConfig}: Don't load any <code>&lt;name&gt;</code><code>.properties</code> file in SNAP installation directory</li>
  * <li>{@code snap.excludedClusters}: Used only in SNAP Engine stand-alone mode: List of comma-separated NetBeans cluster names to be excluded from the Engine. Valid values are the ones contained in {@code $snap.home/etc/snap.clusters} (expert setting)</li>
  * <li>{@code snap.excludedModules}: Used only in SNAP Engine stand-alone mode: List of comma-separated module names to be excluded from the Engine. Module name: {@code [groupId:]artifactId}, default {@code groupId} is {@code org.esa.snap} (expert setting)</li>
  * <li>{@code snap.debug}: Log debugging information about SNAP Engine configuration, runtime, and launcher (expert setting)</li>
- * <li>{@code snap.log.name}: Name for the logger to be used (expert setting)</li>
+ * <li>{@code snap.logger.name}: Name for the logger to be used (expert setting)</li>
  * <li>{@code snap.log.level}: The logging level to be used, one of OFF, ALL, DEBUG, INFO, WARNING, ERROR (expert setting)</li>
  * </ul>
  * Configurations are not read from any configured (Java properties) files until the {@link #load()} method is called.
@@ -38,8 +38,8 @@ import java.util.prefs.Preferences;
  * The {@link #load()} method loads the various configuration files mentioned above in a well defined order:
  * <ol>
  * <li>Load file given by {@code $snap.config}, if any</li>
- * <li>Load file given by {@code $snap.user/snap.config}, if any and if not {@code $snap.ignoreUserConfig}</li>
- * <li>Load file given by {@code $snap.home/etc/snap.config}, if any and if not {@code $snap.ignoreDefaultConfig}</li>
+ * <li>Load file given by {@code $snap.userdir/etc/snap.properties}, if any and if not {@code $snap.ignoreUserConfig}</li>
+ * <li>Load file given by {@code $snap.home/etc/snap.properties}, if any and if not {@code $snap.ignoreDefaultConfig}</li>
  * </ol>
  *
  * @author Norman Fomferra
@@ -48,7 +48,7 @@ import java.util.prefs.Preferences;
  * @since SNAP 2.0
  */
 public class Config {
-    static final String CONFIG_FILE_EXT = ".config"; // todo - change value to ".properties" (nf)
+    static final String CONFIG_FILE_EXT = ".properties";
     static final String CONFIG_KEY_SUFFIX = ".config";
 
     private final static Map<String, Config> INSTANCES = new HashMap<>();
