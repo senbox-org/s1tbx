@@ -45,9 +45,10 @@ public final class ProcessTimeMonitor {
 
     public static String formatDuration(final long dur) {
         final DecimalFormat df = new DecimalFormat("#.##");
-        if (dur > 120) {
-            final float minutes = dur / 60f;
-            return df.format(minutes) + " minutes";
+        if (dur > 7200) {
+            return df.format(dur / 3600f) + " hours";
+        } else if (dur > 120) {
+            return df.format(dur / 60f) + " minutes";
         } else {
             return df.format(dur) + " seconds";
         }
