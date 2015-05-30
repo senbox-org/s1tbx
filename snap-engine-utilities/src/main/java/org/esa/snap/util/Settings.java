@@ -44,11 +44,6 @@ public final class Settings {
         auxdataPreferences.put("AuxDataPath", SystemUtils.getApplicationDataDir() + File.separator + "snap-core" + File.separator + "auxdata");
     }
 
-    public static boolean isWindowsOS() {
-        final String osName = System.getProperty("os.name");
-        return (osName.toLowerCase().contains("win"));
-    }
-
     public String get(final String key) {
         return auxdataPreferences.get(key, "");
     }
@@ -61,11 +56,8 @@ public final class Settings {
         return path;
     }
 
-    public static File getAuxDataFolder() {
-        return new File(Config.instance().preferences().get("AuxDataPath", ""));
+    public File getAuxDataFolder() {
+        return new File(auxdataPreferences.get("AuxDataPath", ""));
     }
 
-    public static PropertiesMap getAutomatedTestConfigPropertyMap(final String name) {
-        return null;
-    }
 }
