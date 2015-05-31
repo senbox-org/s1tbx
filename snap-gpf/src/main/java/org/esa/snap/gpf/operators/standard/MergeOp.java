@@ -53,7 +53,7 @@ import java.util.regex.Pattern;
  * @author Thomas Storm
  */
 @OperatorMetadata(alias = "Merge",
-                  category = "Utilities",
+                  category = "Tools",
                   description = "Allows copying raster data from any number of source products to a specified 'master'" +
                           " product.",
                   authors = "BEAM team",

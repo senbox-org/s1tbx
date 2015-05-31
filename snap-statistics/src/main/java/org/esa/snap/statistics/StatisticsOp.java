@@ -77,7 +77,7 @@ import java.util.logging.Level;
  * @author Thomas Storm
  */
 @OperatorMetadata(alias = "StatisticsOp",
-                  category = "Utilities",
+                  category = "Tools",
                   version = "1.0",
                   authors = "Sabine Embacher, Tonio Fincke, Thomas Storm",
                   copyright = "(c) 2012 by Brockmann Consult GmbH",

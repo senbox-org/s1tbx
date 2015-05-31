@@ -50,7 +50,7 @@ import java.io.IOException;
  * @author Marco Zuehlke
  */
 @OperatorMetadata(alias = "Meris.N1Patcher",
-                  category = "Utilities",
+                  category = "Tools",
                   description = "Copies an existing N1 file and replaces the data for the radiance bands",
                   version = "1.1",
                   authors = "Marco Zuehlke, Olaf Danne, Marco Peters",
