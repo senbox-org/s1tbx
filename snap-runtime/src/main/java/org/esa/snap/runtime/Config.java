@@ -136,24 +136,11 @@ public class Config {
         return preferences;
     }
 
-    /**
-     * Shortcut for
-     * <pre>
-     *    instance(configName).preferences()
-     * </pre>
-     *
-     * @param configName The configuration name.
-     * @return The named preferences.
-     */
-    public Preferences preferences(String configName) {
-        return instance(configName).preferences();
-    }
-
-    public Path storageFile() {
+    public Path storagePath() {
         return preferences.getBackingStorePath();
     }
 
-    public Config storageFile(Path propertiesFile) {
+    public Config storagePath(Path propertiesFile) {
         preferences.setBackingStorePath(propertiesFile);
         return this;
     }
