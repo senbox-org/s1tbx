@@ -114,7 +114,11 @@ public class EngineConfig extends Config {
 
     @Override
     public Path installDir() {
-        return Paths.get(preferences().get(PROPERTY_INSTALL_DIR, ""));
+        String value = preferences().get(PROPERTY_INSTALL_DIR, null);
+        if (value != null) {
+            return Paths.get(value);
+        }
+        return Paths.get(System.getProperty("user.dir"));
     }
 
     public EngineConfig userDir(Path value) {
@@ -124,8 +128,11 @@ public class EngineConfig extends Config {
 
     @Override
     public Path userDir() {
-        String value = preferences().get(PROPERTY_USER_DIR, Paths.get(System.getProperty("user.home"), ".snap").toString());
-        return Paths.get(value);
+        String value = preferences().get(PROPERTY_USER_DIR, null);
+        if (value != null) {
+            return Paths.get(value);
+        }
+        return Paths.get(System.getProperty("user.home"), ".snap");
     }
 
     public EngineConfig configFile(Path value) {

@@ -32,7 +32,7 @@ public class EngineConfigTest {
         assertFalse(EngineConfig.instance().ignoreDefaultConfig());
         assertArrayEquals(EngineConfig.DEFAULT_EXCLUDED_CLUSTER_NAMES, EngineConfig.instance().excludedClusterNames());
         assertArrayEquals(EngineConfig.DEFAULT_EXCLUDED_MODULE_NAMES, EngineConfig.instance().excludedModuleNames());
-        assertEquals(Paths.get(""), EngineConfig.instance().installDir());
+        assertEquals(Paths.get(System.getProperty("user.dir")), EngineConfig.instance().installDir());
         assertEquals(Paths.get(System.getProperty("user.home"), ".snap"), EngineConfig.instance().userDir());
         assertNull(EngineConfig.instance().configFile());
     }
@@ -67,7 +67,7 @@ public class EngineConfigTest {
         assertFalse(EngineConfig.instance().ignoreDefaultConfig());
         assertArrayEquals(EngineConfig.DEFAULT_EXCLUDED_CLUSTER_NAMES, EngineConfig.instance().excludedClusterNames());
         assertArrayEquals(EngineConfig.DEFAULT_EXCLUDED_MODULE_NAMES, EngineConfig.instance().excludedModuleNames());
-        assertEquals(Paths.get(""), EngineConfig.instance().installDir());
+        assertEquals(Paths.get(System.getProperty("user.dir")), EngineConfig.instance().installDir());
         assertEquals(Paths.get(System.getProperty("user.home"), ".snap"), EngineConfig.instance().userDir());
         assertNull(EngineConfig.instance().configFile());
     }
