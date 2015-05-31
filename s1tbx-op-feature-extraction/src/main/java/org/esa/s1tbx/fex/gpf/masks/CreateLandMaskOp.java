@@ -171,7 +171,8 @@ public class CreateLandMaskOp extends Operator {
             final int maxY = targetRectangle.y + targetRectangle.height;
             boolean valid;
 
-            final TileIndex tileIndex = new TileIndex(trgTiles[0].srcTile);
+            final TileIndex srcTileIndex = new TileIndex(trgTiles[0].srcTile);
+            final TileIndex trgTileIndex = new TileIndex(trgTiles[0].targetTile);
             final TileGeoreferencing tileGeoRef = new TileGeoreferencing(targetProduct, minX, minY, maxX - minX, maxY - minY);
 
             final float demNoDataValue = dem.getDescriptor().getNoDataValue();
@@ -180,11 +181,11 @@ public class CreateLandMaskOp extends Operator {
                     dem, demNoDataValue, null, tileGeoRef, minX, minY, maxX - minX, maxY - minY, null, true, localDEM);
 
             for (int y = minY; y < maxY; ++y) {
-                tileIndex.calculateStride(y);
+                srcTileIndex.calculateStride(y);
+                trgTileIndex.calculateStride(y);
                 final int yy = y - minY;
                 for (int x = minX; x < maxX; ++x) {
-
-                    final int index = tileIndex.getIndex(x);
+                    final int trgIndex = trgTileIndex.getIndex(x);
                     final double elev = localDEM[yy][x - minX];
 
                     if (landMask) {
@@ -200,13 +201,14 @@ public class CreateLandMaskOp extends Operator {
                     }
 
                     if (valid) {
+                        final int srcIndex = srcTileIndex.getIndex(x);
                         for (TileData tileData : trgTiles) {
-                            tileData.tileDataBuffer.setElemDoubleAt(index,
-                                    tileData.srcDataBuffer.getElemDoubleAt(index));
+                            tileData.tileDataBuffer.setElemDoubleAt(trgIndex,
+                                    tileData.srcDataBuffer.getElemDoubleAt(srcIndex));
                         }
                     } else {
                         for (TileData tileData : trgTiles) {
-                            tileData.tileDataBuffer.setElemDoubleAt(index, tileData.noDataValue);
+                            tileData.tileDataBuffer.setElemDoubleAt(trgIndex, tileData.noDataValue);
                         }
                     }
                 }
