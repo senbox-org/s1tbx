@@ -81,7 +81,7 @@ public class BeamCoreActivator implements Activator {
     @Override
     public void start(ModuleContext moduleContext) throws CoreException {
         BeamCoreActivator.moduleContext = moduleContext;
-        SystemUtils.init3rdPartyLibs(moduleContext.getModule().getClassLoader());
+        SystemUtils.init3rdPartyLibs(moduleContext.getModule().getClass());
         registerRGBProfiles(moduleContext);
         registerGeotoolsServices();
     }
