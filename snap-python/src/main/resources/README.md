@@ -21,7 +21,7 @@ and is independent from the snappy module.
 snappy has been tested with Python 2.7, 3.3 and 3.4 with Java 7 and 8 JDKs. 
 
 Since `snap-python` version 5.0.5, SNAP configures itself for a given Python executable. If not already done
-by the installer, set the configuration property `snap.pythonExecutable` in file `${snap-home}/etc/snap.properties`
+by the installer, set the configuration property `snap.pythonExecutable` in file `${snap.home}/etc/snap.properties`
 to your desired Python executable.
 
 
@@ -32,7 +32,7 @@ Before you can start using the SNAP API or developing SNAP operator plugins with
 SNAP for the desired Python version. 
 
 If there is no matching binary distribution, you will have to build `jpy` on your own and then copy your binary 
-distribution to the `${snap-home}/modules/${snap-python}/lib` directory.
+distribution to the `${snap.home}/modules/${snap-python}/lib` directory.
 
 Unfortunately this has to be done manually, so be 
 prepared to invest at least half an hour for setting up things correctly.
