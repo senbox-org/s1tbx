@@ -70,6 +70,9 @@ public class ReadOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
+        if (file == null) {
+            throw new OperatorException("'file' parameter must be set");
+        }
         try {
             final ProductReader productReader = ProductIO.getProductReaderForInput(file);
             if (productReader == null) {
