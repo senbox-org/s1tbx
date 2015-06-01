@@ -16,16 +16,11 @@
 package org.esa.snap.util;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.snap.dataio.dimap.DimapProductConstants;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.db.CommonReaders;
-import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductIO;
 import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.framework.dataio.ProductReaderPlugIn;
-import org.esa.snap.framework.dataio.ProductSubsetBuilder;
-import org.esa.snap.framework.dataio.ProductSubsetDef;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.MetadataElement;
@@ -34,93 +29,27 @@ import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.TiePointGeoCoding;
 import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.dataop.maptransf.Datum;
-import org.esa.snap.framework.gpf.Operator;
-import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.gpf.operators.standard.WriteOp;
-import org.esa.snap.runtime.Config;
 
 import javax.media.jai.JAI;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.StringTokenizer;
 import java.util.logging.Logger;
-import java.util.prefs.Preferences;
 
 /**
  * Utilities for Operator unit tests
- * In order to test the datasets at Array, set the following to true in the nest.config
- * nest.test.ReadersOnAllProducts=true nest.test.ProcessingOnAllProducts=true
  */
 public class TestUtils {
-
-    private static final String S1TBX_TESTS = "s1tbx.tests";
 
     private static final boolean FailOnSkip = false;
     private static final boolean FailOnLargeTestProducts = false;
     private static final boolean FailOnAllNoData = false;
+    private static final int LARGE_DIMENSION = 100;
+
     private static boolean testEnvironmentInitialized = false;
     public static final String SKIPTEST = "skipTest";
 
     public static final Logger log = SystemUtils.LOG;
-    private static final Preferences testPreferences = Config.instance(S1TBX_TESTS).load().preferences();
-
-    public static String rootPathTestProducts = "";
-
-    public final static File[] rootArchivePaths = loadFilePath("test.rootArchivePaths");
-    public final static File[] rootPathsTerraSarX = loadFilePath("test.rootPathTerraSarX");
-    public final static File[] rootPathsASAR = loadFilePath("test.rootPathASAR");
-    public final static File[] rootPathsRadarsat2 = loadFilePath("test.rootPathRadarsat2");
-    public final static File[] rootPathsRadarsat1 = loadFilePath("test.rootPathRadarsat1");
-    public final static File[] rootPathsSentinel1 = loadFilePath("test.rootPathSentinel1");
-    public final static File[] rootPathsERS = loadFilePath("test.rootPathERS");
-    public final static File[] rootPathsJERS = loadFilePath("test.rootPathJERS");
-    public final static File[] rootPathsALOS = loadFilePath("test.rootPathALOS");
-    public final static File[] rootPathsCosmoSkymed = loadFilePath("test.rootPathCosmoSkymed");
-
-    private static int subsetX = 0;
-    private static int subsetY = 0;
-    private static int subsetWidth = 0;
-    private static int subsetHeight = 0;
-
-    private static int maxIteration = 0;
-
-    public static boolean canTestReadersOnAllProducts = false;
-    public static boolean canTestProcessingOnAllProducts = false;
-
-    static {
-
-        if (testPreferences != null) {
-            rootPathTestProducts = testPreferences.get("test.rootPathTestProducts", "");
-
-            subsetX = Integer.parseInt(testPreferences.get("test.subsetX", ""));
-            subsetY = Integer.parseInt(testPreferences.get("test.subsetY", ""));
-            subsetWidth = Integer.parseInt(testPreferences.get("test.subsetWidth", ""));
-            subsetHeight = Integer.parseInt(testPreferences.get("test.subsetHeight", ""));
-
-            maxIteration = Integer.parseInt(testPreferences.get("test.maxProductsPerRootFolder", ""));
-            String testReadersOnAllProducts = testPreferences.get("test.ReadersOnAllProducts", "");
-            String testProcessingOnAllProducts = testPreferences.get("test.ProcessingOnAllProducts", "");
-
-            canTestReadersOnAllProducts = testReadersOnAllProducts != null && testReadersOnAllProducts.equalsIgnoreCase("true");
-            canTestProcessingOnAllProducts = testProcessingOnAllProducts != null && testProcessingOnAllProducts.equalsIgnoreCase("true");
-        }
-    }
-
-    private static File[] loadFilePath(final String id) {
-        if (testPreferences == null)
-            return new File[]{};
-
-        final List<File> fileList = new ArrayList<>(3);
-        final String pathsStr = testPreferences.get(id, "");
-        final StringTokenizer st = new StringTokenizer(pathsStr, ",");
-        while (st.hasMoreTokens()) {
-            fileList.add(new File(st.nextToken()));
-        }
-        return fileList.toArray(new File[fileList.size()]);
-    }
 
     public static void initTestEnvironment() {
         if (testEnvironmentInitialized)
@@ -138,10 +67,6 @@ public class TestUtils {
         }
     }
 
-    public static int getMaxIterations() {
-        return maxIteration;
-    }
-
     public static Product readSourceProduct(final File inputFile) throws IOException {
         if (!inputFile.exists()) {
             throw new IOException(inputFile.getAbsolutePath() + " not found");
@@ -151,6 +76,60 @@ public class TestUtils {
             throw new IOException("Unable to read "+inputFile.toString());
         }
         return product;
+    }
+
+    public static void verifyProduct(final Product product, final boolean verifyTimes, final boolean verifyGeoCoding) throws Exception {
+        verifyProduct(product, verifyTimes, verifyGeoCoding, false);
+    }
+
+    public static void verifyProduct(final Product product, final boolean verifyTimes, final boolean verifyGeoCoding,
+                                     final boolean verifyBandData) throws Exception {
+        if (product == null)
+            throw new Exception("product is null");
+        if (verifyGeoCoding && product.getGeoCoding() == null) {
+            SystemUtils.LOG.warning("Geocoding is null for " + product.getFileLocation().getAbsolutePath());
+            //throw new Exception("geocoding is null");
+        }
+        if (product.getMetadataRoot() == null)
+            throw new Exception("metadataroot is null");
+        if (product.getNumBands() == 0)
+            throw new Exception("numbands is zero");
+        if (product.getProductType() == null || product.getProductType().isEmpty())
+            throw new Exception("productType is null");
+        if (verifyTimes) {
+            if (product.getStartTime() == null)
+                throw new Exception("startTime is null");
+            if (product.getEndTime() == null)
+                throw new Exception("endTime is null");
+        }
+        if (verifyBandData && FailOnAllNoData) {
+            for (Band b : product.getBands()) {
+                if (b.getUnit() == null || b.getUnit().isEmpty())
+                    throw new Exception("band " + b.getName() + " has null unit");
+
+                // readPixels gets computeTiles to be executed
+                final int w = b.getSceneRasterWidth() / 2;
+                final int h = b.getSceneRasterHeight() / 2;
+                if (FailOnLargeTestProducts && (w > LARGE_DIMENSION * 2 || h > LARGE_DIMENSION * 2)) {
+                    throw new IOException("Test product too large " + w + "," + h);
+                }
+                final int x0 = w / 2;
+                final int y0 = h / 2;
+
+                boolean allNoData = true;
+                for (int y = y0; y < y0 + h; ++y) {
+                    final float[] floatValues = new float[w];
+                    b.readPixels(x0, y, w, 1, floatValues, ProgressMonitor.NULL);
+                    for (float f : floatValues) {
+                        if (!(f == b.getNoDataValue() || f == 0 || f == Float.NaN))
+                            allNoData = false;
+                    }
+                }
+                if (allNoData) {
+                    throw new Exception("band " + b.getName() + " is all no data value");
+                }
+            }
+        }
     }
 
     public static Product createProduct(final String type, final int w, final int h) {
@@ -194,60 +173,6 @@ public class TestUtils {
         product.setGeoCoding(tpGeoCoding);
     }
 
-    public static void verifyProduct(final Product product, final boolean verifyTimes, final boolean verifyGeoCoding) throws Exception {
-        verifyProduct(product, verifyTimes, verifyGeoCoding, false);
-    }
-
-    public static void verifyProduct(final Product product, final boolean verifyTimes, final boolean verifyGeoCoding,
-                                     final boolean verifyBandData) throws Exception {
-        if (product == null)
-            throw new Exception("product is null");
-        if (verifyGeoCoding && product.getGeoCoding() == null) {
-            log.warning("Geocoding is null for " + product.getFileLocation().getAbsolutePath());
-            //throw new Exception("geocoding is null");
-        }
-        if (product.getMetadataRoot() == null)
-            throw new Exception("metadataroot is null");
-        if (product.getNumBands() == 0)
-            throw new Exception("numbands is zero");
-        if (product.getProductType() == null || product.getProductType().isEmpty())
-            throw new Exception("productType is null");
-        if (verifyTimes) {
-            if (product.getStartTime() == null)
-                throw new Exception("startTime is null");
-            if (product.getEndTime() == null)
-                throw new Exception("endTime is null");
-        }
-        if (verifyBandData && FailOnAllNoData) {
-            for (Band b : product.getBands()) {
-                if (b.getUnit() == null || b.getUnit().isEmpty())
-                    throw new Exception("band " + b.getName() + " has null unit");
-
-                // readPixels gets computeTiles to be executed
-                final int w = b.getSceneRasterWidth() / 2;
-                final int h = b.getSceneRasterHeight() / 2;
-                if (FailOnLargeTestProducts && (w > subsetWidth * 2 || h > subsetHeight * 2)) {
-                    throw new IOException("Test product too large " + w + "," + h);
-                }
-                final int x0 = w / 2;
-                final int y0 = h / 2;
-
-                boolean allNoData = true;
-                for (int y = y0; y < y0 + h; ++y) {
-                    final float[] floatValues = new float[w];
-                    b.readPixels(x0, y, w, 1, floatValues, ProgressMonitor.NULL);
-                    for (float f : floatValues) {
-                        if (!(f == b.getNoDataValue() || f == 0 || f == Float.NaN))
-                            allNoData = false;
-                    }
-                }
-                if (allNoData) {
-                    throw new Exception("band " + b.getName() + " is all no data value");
-                }
-            }
-        }
-    }
-
     public static void attributeEquals(final MetadataElement elem, final String name,
                                        final double trueValue) throws Exception {
         final double val = elem.getAttributeDouble(name, 0);
@@ -288,7 +213,7 @@ public class TestUtils {
             }
             final ProductData expectedData = result.getData();
             if (!expectedData.equalElems(expectedAttrib.getData())) {
-                if ((expectedData.getType() == ProductData.TYPE_FLOAT64 ||
+                if ((expectedData.getType() == ProductData.TYPE_FLOAT32 ||
                         expectedData.getType() == ProductData.TYPE_FLOAT64) &&
                         Double.compare(expectedData.getElemDouble(), result.getData().getElemDouble()) == 0) {
 
@@ -431,190 +356,6 @@ public class TestUtils {
         }
     }
 
-    public static void executeOperator(final Operator op) throws Exception {
-        // get targetProduct: execute initialize()
-        final Product targetProduct = op.getTargetProduct();
-        // readPixels: execute computeTiles()
-        verifyProduct(targetProduct, true, true, true);
-    }
-
-    public static Product createSubsetProduct(final Product sourceProduct) throws IOException {
-        final int bandWidth = sourceProduct.getSceneRasterWidth();
-        final int bandHeight = sourceProduct.getSceneRasterHeight();
-
-        final ProductSubsetBuilder subsetReader = new ProductSubsetBuilder();
-        final ProductSubsetDef subsetDef = new ProductSubsetDef();
-
-        subsetDef.addNodeNames(sourceProduct.getTiePointGridNames());
-        subsetDef.addNodeNames(sourceProduct.getBandNames());
-        final int w = within(subsetWidth, bandWidth);
-        final int h = within(subsetHeight, bandHeight);
-        subsetDef.setRegion(within(subsetX, bandWidth - w), within(subsetY, bandHeight - h), w, h);
-        subsetDef.setIgnoreMetadata(false);
-        subsetDef.setTreatVirtualBandsAsRealBands(false);
-
-        final Product subsetProduct = subsetReader.readProductNodes(sourceProduct, subsetDef);
-        subsetProduct.setFileLocation(sourceProduct.getFileLocation());
-        if (subsetProduct.getSceneRasterWidth() > subsetWidth || subsetProduct.getSceneRasterHeight() > subsetHeight) {
-            throw new IOException("product size mismatch");
-        }
-
-        return subsetProduct;
-    }
-
-    public static Product writeSubsetProduct(final Product sourceProduct) throws IOException {
-        final int bandWidth = sourceProduct.getSceneRasterWidth();
-        final int bandHeight = sourceProduct.getSceneRasterHeight();
-
-        final ProductSubsetBuilder subsetReader = new ProductSubsetBuilder();
-        final ProductSubsetDef subsetDef = new ProductSubsetDef();
-
-        subsetDef.addNodeNames(sourceProduct.getTiePointGridNames());
-
-        final String bandName = ProductUtils.findSuitableQuicklookBandName(sourceProduct);
-        subsetDef.addNodeNames(new String[]{bandName});
-        final int w = within(subsetWidth, bandWidth);
-        final int h = within(subsetHeight, bandHeight);
-        subsetDef.setRegion(within(subsetX, bandWidth - w), within(subsetY, bandHeight - h), w, h);
-        subsetDef.setIgnoreMetadata(false);
-        subsetDef.setTreatVirtualBandsAsRealBands(true);
-
-        final Product subsetProduct = subsetReader.readProductNodes(sourceProduct, subsetDef);
-        final File tmpFile = new File(ResourceUtils.getApplicationUserTempDataDir(), "tmp_subset.dim");
-        final WriteOp writer = new WriteOp(subsetProduct, tmpFile, DimapProductConstants.DIMAP_FORMAT_NAME);
-        writer.writeProduct(ProgressMonitor.NULL);
-
-        return ProductIO.readProduct(tmpFile);
-    }
-
-    private static int within(final int val, final int max) {
-        return Math.max(0, Math.min(val, max));
-    }
-
-    public static void recurseFindReadableProducts(final File origFolder, final ArrayList<File> productList, int maxCount) throws Exception {
-
-
-        final File[] folderList = origFolder.listFiles(ProductFunctions.directoryFileFilter);
-        if(folderList != null) {
-            for (File folder : folderList) {
-                if (!folder.getName().contains(SKIPTEST)) {
-                    recurseFindReadableProducts(folder, productList, maxCount);
-                }
-            }
-        }
-
-        final File[] fileList = origFolder.listFiles(new ProductFunctions.ValidProductFileFilter());
-        if(fileList != null) {
-            for (File file : fileList) {
-                if (maxCount > 0 && productList.size() >= maxCount)
-                    return;
-
-                try {
-                    final ProductReader reader = ProductIO.getProductReaderForInput(file);
-                    if (reader != null) {
-                        productList.add(file);
-                    } else {
-                        log.warning(file.getAbsolutePath() + " is non valid");
-                    }
-                } catch (Exception e) {
-                    boolean ok = false;
-               /* if(exceptionExemptions != null) {
-                    for(String exemption : exceptionExemptions) {
-                        if(e.getMessage().contains(exemption)) {
-                            ok = true;
-                            System.out.println("Exemption for "+e.getMessage());
-                            break;
-                        }
-                    }
-                }    */
-                    if (!ok) {
-                        log.severe("Failed to process " + file.toString());
-                        throw e;
-                    }
-                }
-            }
-        }
-    }
-
-    private static int recurseProcessFolder(final OperatorSpi spi, final File origFolder,
-                                            final String format, int iterations,
-                                            final String[] productTypeExemptions,
-                                            final String[] exceptionExemptions) throws Exception {
-
-        final File[] folderList = origFolder.listFiles(ProductFunctions.directoryFileFilter);
-        if(folderList != null) {
-            for (File folder : folderList) {
-                if (maxIteration > 0 && iterations >= maxIteration)
-                    break;
-                if (!folder.getName().contains(SKIPTEST)) {
-                    iterations = recurseProcessFolder(spi, folder, format, iterations, productTypeExemptions, exceptionExemptions);
-                }
-            }
-        }
-
-        ProductReader reader = null;
-        if(format != null) {
-            reader = ProductIO.getProductReader(format);
-        }
-
-        final File[] fileList = origFolder.listFiles(new ProductFunctions.ValidProductFileFilter());
-        if(fileList != null) {
-            for (File file : fileList) {
-                if (maxIteration > 0 && iterations >= maxIteration)
-                    break;
-
-                try {
-                    if (reader != null) {
-                        if (reader.getReaderPlugIn().getDecodeQualification(file) != DecodeQualification.INTENDED) {
-                            continue;
-                        }
-                    } else {
-                        reader = CommonReaders.findCommonProductReader(file);
-                        if (reader == null)
-                            reader = ProductIO.getProductReaderForInput(file);
-                    }
-                    if (reader != null) {
-                        final Product sourceProduct = reader.readProductNodes(file, null);
-                        if (productTypeExemptions != null && containsProductType(productTypeExemptions, sourceProduct.getProductType()))
-                            continue;
-
-                        verifyProduct(sourceProduct, true, true, false);
-
-                        final Product subsetProduct = createSubsetProduct(sourceProduct);
-
-                        final Operator op = spi.createOperator();
-                        op.setSourceProduct(subsetProduct);
-
-                        TestUtils.log.info(spi.getOperatorAlias() + " Processing [" + iterations + "] " + file.toString());
-                        TestUtils.executeOperator(op);
-
-                        MemUtils.freeAllMemory();
-
-                        ++iterations;
-                    } else {
-                        TestUtils.log.warning(file.getAbsolutePath() + " is non valid");
-                    }
-                } catch (Exception e) {
-                    boolean ok = false;
-                    if (exceptionExemptions != null) {
-                        for (String exemption : exceptionExemptions) {
-                            if (e.getMessage() != null && e.getMessage().contains(exemption)) {
-                                ok = true;
-                                TestUtils.log.info("Exemption for " + e.getMessage());
-                                break;
-                            }
-                        }
-                    }
-                    if (!ok) {
-                        TestUtils.log.severe("Failed to process " + file.toString());
-                        throw e;
-                    }
-                }
-            }
-        }
-        return iterations;
-    }
-
     public static boolean containsProductType(final String[] productTypeExemptions, final String productType) {
         if (productTypeExemptions != null) {
             for (String str : productTypeExemptions) {
@@ -626,123 +367,8 @@ public class TestUtils {
         return false;
     }
 
-    /**
-     * Processes all products in a folder
-     *
-     * @param spi                   the OperatorSpi to create the operator
-     * @param folderPaths           list of paths to recurse through
-     * @param productTypeExemptions product types to ignore
-     * @param exceptionExemptions   exceptions that are ok and can be ignored for the test
-     * @throws Exception general exception
-     */
-    public static void testProcessAllInPath(final OperatorSpi spi, final File[] folderPaths,
-                                            final String[] productTypeExemptions,
-                                            final String[] exceptionExemptions) throws Exception {
-        testProcessAllInPath(spi, folderPaths, null, productTypeExemptions, exceptionExemptions);
-    }
-
-    /**
-     * Processes all products in a folder
-     *
-     * @param spi                   the OperatorSpi to create the operator
-     * @param folderPaths           list of paths to recurse through
-     * @param format                only use a reader for this format
-     * @param productTypeExemptions product types to ignore
-     * @param exceptionExemptions   exceptions that are ok and can be ignored for the test
-     * @throws Exception general exception
-     */
-    public static void testProcessAllInPath(final OperatorSpi spi, final File[] folderPaths,
-                                            final String format,
-                                            final String[] productTypeExemptions,
-                                            final String[] exceptionExemptions) throws Exception {
-        if (canTestProcessingOnAllProducts) {
-            for (File folder : folderPaths) {
-                if (!folder.exists()) {
-                    skipTest(spi, folder + " not found");
-                    continue;
-                }
-
-                int iterations = 0;
-                recurseProcessFolder(spi, folder, format, iterations, productTypeExemptions, exceptionExemptions);
-            }
-        }
-    }
-
-    private final static ProductFunctions.ValidProductFileFilter fileFilter = new ProductFunctions.ValidProductFileFilter(false);
-
-    public static void recurseReadFolder(final Object callingClass, final File[] folderPaths,
-                                         final ProductReaderPlugIn readerPlugin,
-                                         final ProductReader reader,
-                                         final String[] productTypeExemptions,
-                                         final String[] exceptionExemptions) throws Exception {
-        if (!TestUtils.canTestReadersOnAllProducts)
-            return;
-        for (File folderPath : folderPaths) {
-            if (!folderPath.exists()) {
-                TestUtils.skipTest(callingClass, "Folder " + folderPath + " not found");
-                continue;
-            }
-            recurseReadFolder(folderPath, readerPlugin, reader, productTypeExemptions, exceptionExemptions, 0);
-        }
-    }
-
-    private static int recurseReadFolder(final File origFolder,
-                                         final ProductReaderPlugIn readerPlugin,
-                                         final ProductReader reader,
-                                         final String[] productTypeExemptions,
-                                         final String[] exceptionExemptions,
-                                         int iterations) throws Exception {
-        final File[] folderList = origFolder.listFiles(ProductFunctions.directoryFileFilter);
-        if(folderList != null) {
-            for (File folder : folderList) {
-                if (!folder.getName().contains(SKIPTEST)) {
-                    iterations = recurseReadFolder(folder, readerPlugin, reader, productTypeExemptions, exceptionExemptions, iterations);
-                    if (maxIteration > 0 && iterations >= maxIteration)
-                        return iterations;
-                }
-            }
-        }
-
-        final File[] files = origFolder.listFiles(fileFilter);
-        if(files != null) {
-            for (File file : files) {
-                if (readerPlugin.getDecodeQualification(file) == DecodeQualification.INTENDED) {
-
-                    try {
-                        log.info("Reading [" + iterations + "] " + file.toString());
-
-                        final Product product = reader.readProductNodes(file, null);
-                        if (productTypeExemptions != null && containsProductType(productTypeExemptions, product.getProductType()))
-                            continue;
-                        verifyProduct(product, true, true, false);
-                        ++iterations;
-
-                        if (maxIteration > 0 && iterations >= maxIteration)
-                            break;
-                    } catch (Exception e) {
-                        boolean ok = false;
-                        if (exceptionExemptions != null) {
-                            for (String exemption : exceptionExemptions) {
-                                if (e.getMessage() != null && e.getMessage().contains(exemption)) {
-                                    ok = true;
-                                    log.info("Exemption for " + e.getMessage());
-                                    break;
-                                }
-                            }
-                        }
-                        if (!ok) {
-                            log.severe("Failed to read " + file.toString());
-                            throw e;
-                        }
-                    }
-                }
-            }
-        }
-        return iterations;
-    }
-
     public static boolean skipTest(final Object obj, final String msg) throws Exception {
-        log.severe(obj.getClass().getName() + " skipped " + msg);
+        SystemUtils.LOG.severe(obj.getClass().getName() + " skipped " + msg);
         if (FailOnSkip) {
             throw new Exception(obj.getClass().getName() + " skipped " + msg);
         }

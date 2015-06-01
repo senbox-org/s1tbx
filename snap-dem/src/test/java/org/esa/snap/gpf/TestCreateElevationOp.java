@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -22,23 +22,25 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.util.TestData;
+import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for MultilookOperator.
  */
 public class TestCreateElevationOp {
 
-    static {
-        TestUtils.initTestEnvironment();
-    }
+    public final static String sep = File.separator;
+    public final static String rootPathTestProducts = SystemUtils.getApplicationHomeDir()+sep+".."+sep+".."+sep+".."+sep+".."+sep+"testdata";
+    public final static String inputSAR = rootPathTestProducts + sep + "input" + sep + "SAR" + sep;
+    public final static File inputASAR_WSM = new File(inputSAR + "ASAR" + sep + "subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim");
 
     private final static OperatorSpi spi = new AddElevationOp.Spi();
 
@@ -60,7 +62,7 @@ public class TestCreateElevationOp {
      */
     @Test
     public void testProcessing() throws Exception {
-        final File inputFile = TestData.inputASAR_WSM;
+        final File inputFile =  inputASAR_WSM;
         if (!inputFile.exists()) {
             TestUtils.skipTest(this, inputFile + " not found");
             return;

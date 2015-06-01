@@ -1,10 +1,24 @@
+/*
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, see http://www.gnu.org/licenses/
+ */
 package org.esa.snap.gpf;
 
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.OperatorException;
-import org.esa.snap.util.TestData;
+import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.TestUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -17,9 +31,14 @@ import static org.junit.Assert.assertTrue;
  */
 public class TestInputProductValidator {
 
+    public final static String sep = File.separator;
+    public final static String rootPathTestProducts = SystemUtils.getApplicationHomeDir()+sep+".."+sep+".."+sep+".."+sep+".."+sep+"testdata";
+    public final static String inputSAR = rootPathTestProducts + sep + "input" + sep + "SAR" + sep;
+    public final static File inputASAR_WSM = new File(inputSAR + "ASAR" + sep + "subset_1_of_ENVISAT-ASA_WSM_1PNPDE20080119_093446_000000852065_00165_30780_2977.dim");
+
     @Test
     public void TestNotSentinel1Product() throws Exception {
-        final File inputFile = TestData.inputASAR_WSM;
+        final File inputFile = inputASAR_WSM;
         if(!inputFile.exists()) {
             TestUtils.skipTest(this, inputFile + " not found");
             return;
@@ -53,40 +72,6 @@ public class TestInputProductValidator {
         } catch (OperatorException e) {
             assertTrue(e.getMessage().contains("is not a valid acquisition mode"));
         }
-    }
-
-    @Test
-    @Ignore
-    public void TestSentinel1GRDProduct() throws Exception {
-        final File inputFile = TestData.inputS1_GRD;
-        if(!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
-        final InputProductValidator validator = new InputProductValidator(sourceProduct);
-
-        validator.checkIfSentinel1Product();
-        validator.checkProductType(new String[]{"GRD"});
-        validator.checkIfTOPSARBurstProduct(false);
-        validator.checkAcquisitionMode(new String[]{"SM"});
-    }
-
-    @Test
-    @Ignore
-    public void TestSentinel1SLCProduct() throws Exception {
-        final File inputFile = TestData.inputS1_StripmapSLC;
-        if(!inputFile.exists()) {
-            TestUtils.skipTest(this, inputFile + " not found");
-            return;
-        }
-        final Product sourceProduct = TestUtils.readSourceProduct(inputFile);
-        final InputProductValidator validator = new InputProductValidator(sourceProduct);
-
-        validator.checkIfSentinel1Product();
-        validator.checkProductType(new String[]{"SLC"});
-        validator.checkIfTOPSARBurstProduct(false);
-        validator.checkAcquisitionMode(new String[]{"SM"});
     }
 }
 

@@ -19,6 +19,7 @@ import org.esa.snap.framework.dataio.ProductIO;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.util.ProductFunctions;
+import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.TestUtils;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -33,8 +34,12 @@ import java.sql.Statement;
 /**
 
  */
-@Ignore("fails")
 public class TestProductDao {
+
+    public final static String sep = File.separator;
+    public final static String rootPathTestProducts = SystemUtils.getApplicationHomeDir()+sep+".."+sep+".."+sep+".."+sep+".."+sep+"testdata";
+    public final static String inputSAR = rootPathTestProducts + sep + "input" + sep + "SAR" + sep;
+    public final static File inputTestFolder = new File(inputSAR);
 
     private ProductDB db;
 
@@ -44,16 +49,15 @@ public class TestProductDao {
     }
 
     @Test
+    @Ignore
     public void testAddAll() throws Exception {
 
-        for (File folder : TestUtils.rootPathsERS) {
-            if (!folder.exists()) {
-                TestUtils.skipTest(this, folder + " not found");
-                return;
-            }
-
-            recurseProcessFolder(folder, db);
+        if (!inputTestFolder.exists()) {
+            TestUtils.skipTest(this, inputTestFolder + " not found");
+            return;
         }
+
+        recurseProcessFolder(inputTestFolder, db);
     }
 
     public static void recurseProcessFolder(final File folder, final ProductDB db) throws SQLException {

@@ -28,10 +28,9 @@ import java.io.File;
 public abstract class RecursiveProcessor {
 
 
-    public int recurseProcessFolder(final File folder, int iterations,
+    public int recurseProcessFolder(final File folder, int iterations, int maxIteration,
                                     final String[] productTypeExemptions,
                                     final String[] exceptionExemptions) throws Exception {
-        final int maxIteration = TestUtils.getMaxIterations();
         final File[] fileList = folder.listFiles(new ProductFunctions.ValidProductFileFilter(true));
         if(fileList == null)
             return iterations;
@@ -42,7 +41,7 @@ public abstract class RecursiveProcessor {
 
             if (file.isDirectory()) {
                 if (!file.getName().contains(TestUtils.SKIPTEST)) {
-                    iterations = recurseProcessFolder(file, iterations, productTypeExemptions, exceptionExemptions);
+                    iterations = recurseProcessFolder(file, iterations, maxIteration, productTypeExemptions, exceptionExemptions);
                 }
             } else {
                 try {
