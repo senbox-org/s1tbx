@@ -15,7 +15,9 @@
  */
 package org.esa.s1tbx.dataio.ceos.ers;
 
+import org.esa.s1tbx.S1TBXTests;
 import org.esa.snap.framework.dataio.ProductReader;
+import org.esa.snap.gpf.TestProcessor;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -41,6 +43,7 @@ public class TestERSProductReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        TestUtils.recurseReadFolder(this, TestUtils.rootPathsERS, readerPlugin, reader, null, null);
+        TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
+        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsERS, readerPlugin, reader, null, null);
     }
 }

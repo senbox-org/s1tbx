@@ -15,15 +15,17 @@
  */
 package org.esa.s1tbx.calibration.gpf;
 
+import org.esa.s1tbx.S1TBXTests;
+import org.esa.s1tbx.TestData;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.util.TestData;
+import org.esa.snap.gpf.TestProcessor;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
 import java.io.File;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit test for Calibration Operator.
@@ -81,11 +83,13 @@ public class TestRemoveAntennaPatternOp {
 
     @Test
     public void testProcessAllASAR() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsASAR, "ENVISAT", productTypeExemptions, exceptionExemptions);
+        TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsASAR, "ENVISAT", productTypeExemptions, exceptionExemptions);
     }
 
     @Test
     public void testProcessAllERS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsERS, "ERS CEOS", productTypeExemptions, exceptionExemptions);
+        TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsERS, "ERS CEOS", productTypeExemptions, exceptionExemptions);
     }
 }

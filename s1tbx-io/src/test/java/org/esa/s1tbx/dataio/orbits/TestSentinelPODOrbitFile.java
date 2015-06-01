@@ -6,7 +6,7 @@ import org.esa.snap.framework.dataio.ProductIO;
 import org.esa.snap.framework.datamodel.MetadataElement;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.util.TestData;
+import org.esa.s1tbx.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Ignore;
 import org.junit.Test;

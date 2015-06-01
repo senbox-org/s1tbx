@@ -15,9 +15,10 @@
  */
 package org.csa.rstb.polarimetric.gpf;
 
+import org.esa.s1tbx.S1TBXTests;
+import org.esa.s1tbx.TestData;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -41,9 +42,9 @@ public class TestPolarimetricSpeckleFilterOp {
     private final static String inputC3Stack = TestData.inputSAR + "\\QuadPolStack\\RS2-C3-Stack.dim";
     private final static String inputT3Stack = TestData.inputSAR + "\\QuadPolStack\\RS2-T3-Stack.dim";
 
-    private final static String expectedBoxCar = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_BoxCar.dim";
-    private final static String expectedRefinedLee = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_RefinedLee.dim";
-    private final static String expectedIDAN = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_IDAN.dim";
+    private final static String expectedBoxCar = S1TBXTests.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_BoxCar.dim";
+    private final static String expectedRefinedLee = S1TBXTests.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_RefinedLee.dim";
+    private final static String expectedIDAN = S1TBXTests.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_IDAN.dim";
 
     private Product runFilter(final PolarimetricSpeckleFilterOp op,
                               final String filterName, final String path) throws Exception {

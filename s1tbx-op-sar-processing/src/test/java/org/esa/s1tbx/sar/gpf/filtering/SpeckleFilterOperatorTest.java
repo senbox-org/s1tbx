@@ -16,20 +16,22 @@
 package org.esa.s1tbx.sar.gpf.filtering;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.sar.gpf.filtering.SpeckleFilterOp;
+import org.esa.s1tbx.S1TBXTests;
+import org.esa.s1tbx.TestData;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.util.TestData;
+import org.esa.snap.gpf.TestProcessor;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for SpeckleFilterOperator.
@@ -40,6 +42,7 @@ public class SpeckleFilterOperatorTest {
         TestUtils.initTestEnvironment();
     }
     private OperatorSpi spi = new SpeckleFilterOp.Spi();
+    private final static TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
 
     private String[] productTypeExemptions = {"_BP", "XCA", "WVW", "WVI", "WVS", "WSS", "DOR_VOR_AX"};
 
@@ -308,36 +311,36 @@ public class SpeckleFilterOperatorTest {
 
     @Test
     public void testProcessAllASAR() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsASAR, productTypeExemptions, null);
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsASAR, productTypeExemptions, null);
     }
 
     @Test
     public void testProcessAllERS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsERS, null, null);
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsERS, null, null);
     }
 
     @Test
     public void testProcessAllALOS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsALOS, "ALOS PALSAR CEOS", null, null);
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsALOS, "ALOS PALSAR CEOS", null, null);
     }
 
     @Test
     public void testProcessAllRadarsat2() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsRadarsat2, null, null);
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsRadarsat2, null, null);
     }
 
     @Test
     public void testProcessAllTerraSARX() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsTerraSarX, null, null);
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsTerraSarX, null, null);
     }
 
     @Test
     public void testProcessAllCosmo() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsCosmoSkymed, null, null);
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsCosmoSkymed, null, null);
     }
 
     @Test
     public void testProcessAllSentinel1() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsSentinel1, null, null);
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsSentinel1, null, null);
     }
 }

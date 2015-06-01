@@ -1,8 +1,10 @@
 package org.esa.s1tbx.sar.gpf.geometric;
 
+import org.esa.s1tbx.S1TBXTests;
+import org.esa.s1tbx.TestData;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.util.TestData;
+import org.esa.snap.gpf.TestProcessor;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -19,6 +21,7 @@ public class TestALOSDeskew {
         TestUtils.initTestEnvironment();
     }
     private final static OperatorSpi spi = new ALOSDeskewingOp.Spi();
+    private final static TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
 
     private String[] exceptionExemptions = {"PALSAR products only"};
 
@@ -50,6 +53,6 @@ public class TestALOSDeskew {
 
     @Test
     public void testProcessAllALOS() throws Exception {
-        TestUtils.testProcessAllInPath(spi, TestUtils.rootPathsALOS, "ALOS PALSAR CEOS", null, exceptionExemptions);
+        testProcessor.testProcessAllInPath(spi, S1TBXTests.rootPathsALOS, "ALOS PALSAR CEOS", null, exceptionExemptions);
     }
 }

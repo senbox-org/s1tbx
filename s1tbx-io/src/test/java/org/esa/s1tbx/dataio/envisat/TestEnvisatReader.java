@@ -15,8 +15,10 @@
  */
 package org.esa.s1tbx.dataio.envisat;
 
+import org.esa.s1tbx.S1TBXTests;
 import org.esa.snap.dataio.envisat.EnvisatProductReaderPlugIn;
 import org.esa.snap.framework.dataio.ProductReader;
+import org.esa.snap.gpf.TestProcessor;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -48,6 +50,7 @@ public class TestEnvisatReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        TestUtils.recurseReadFolder(this, TestUtils.rootPathsASAR, readerPlugin, reader, productTypeExemptions, null);
+        TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
+        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsASAR, readerPlugin, reader, productTypeExemptions, null);
     }
 }

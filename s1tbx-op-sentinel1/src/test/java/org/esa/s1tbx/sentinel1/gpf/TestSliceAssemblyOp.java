@@ -15,10 +15,9 @@
  */
 package org.esa.s1tbx.sentinel1.gpf;
 
-import org.esa.s1tbx.sentinel1.gpf.SliceAssemblyOp;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.util.TestData;
+import org.esa.s1tbx.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 

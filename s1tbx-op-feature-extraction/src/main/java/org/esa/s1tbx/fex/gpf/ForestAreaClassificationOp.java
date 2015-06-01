@@ -61,7 +61,7 @@ import java.util.ArrayList;
         category = "SAR Processing/Feature Extraction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
-        description = "Detect forest area", internal = true)
+        description = "Detect forest area", internal = false)
 public final class ForestAreaClassificationOp extends Operator {
 
     @SourceProduct(alias = "source")

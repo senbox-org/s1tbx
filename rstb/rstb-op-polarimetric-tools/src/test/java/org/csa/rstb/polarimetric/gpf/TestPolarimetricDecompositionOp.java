@@ -15,9 +15,10 @@
  */
 package org.csa.rstb.polarimetric.gpf;
 
+import org.esa.s1tbx.S1TBXTests;
+import org.esa.s1tbx.TestData;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.OperatorSpi;
-import org.esa.snap.util.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -41,14 +42,14 @@ public class TestPolarimetricDecompositionOp {
     private final static String inputC3Stack = TestData.inputSAR + "\\QuadPolStack\\RS2-C3-Stack.dim";
     private final static String inputT3Stack = TestData.inputSAR + "\\QuadPolStack\\RS2-T3-Stack.dim";
 
-    private final static String expectedSinclair = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_Sinclair.dim";
-    private final static String expectedPauli = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_Pauli.dim";
-    private final static String expectedFreeman = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_FreemanDurden.dim";
-    private final static String expectedYamaguchi = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_Yamaguchi.dim";
-    private final static String expectedVanZyl = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_VanZyl.dim";
-    private final static String expectedCloude = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_Cloude.dim";
-    private final static String expectedHaAlpha = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_HaAlpha.dim";
-    private final static String expectedTouzi = TestUtils.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_Touzi.dim";
+    private final static String expectedSinclair = S1TBXTests.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_Sinclair.dim";
+    private final static String expectedPauli = S1TBXTests.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_Pauli.dim";
+    private final static String expectedFreeman = S1TBXTests.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_FreemanDurden.dim";
+    private final static String expectedYamaguchi = S1TBXTests.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_Yamaguchi.dim";
+    private final static String expectedVanZyl = S1TBXTests.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_VanZyl.dim";
+    private final static String expectedCloude = S1TBXTests.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_Cloude.dim";
+    private final static String expectedHaAlpha = S1TBXTests.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_HaAlpha.dim";
+    private final static String expectedTouzi = S1TBXTests.rootPathTestProducts + "\\expected\\QuadPol\\QuadPol_subset_0_of_RS2-SLC-PDS_00058900_Touzi.dim";
 
     private Product runDecomposition(final PolarimetricDecompositionOp op,
                                      final String decompositionName, final String path) throws Exception {

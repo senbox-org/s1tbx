@@ -19,7 +19,7 @@ import org.esa.snap.framework.datamodel.GeoCoding;
 import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.util.TestData;
+import org.esa.s1tbx.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 

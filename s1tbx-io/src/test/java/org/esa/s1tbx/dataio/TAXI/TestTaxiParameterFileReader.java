@@ -15,7 +15,7 @@
  */
 package org.esa.s1tbx.dataio.TAXI;
 
-import org.esa.snap.util.TestData;
+import org.esa.s1tbx.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 

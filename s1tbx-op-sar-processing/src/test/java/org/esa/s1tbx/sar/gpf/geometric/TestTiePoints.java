@@ -19,7 +19,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.framework.dataio.ProductIO;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.util.TestData;
+import org.esa.s1tbx.TestData;
 import org.esa.snap.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;

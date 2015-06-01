@@ -15,8 +15,9 @@
  */
 package org.esa.s1tbx.dataio.cosmo;
 
+import org.esa.s1tbx.S1TBXTests;
 import org.esa.snap.framework.dataio.ProductReader;
-import org.esa.snap.util.TestUtils;
+import org.esa.snap.gpf.TestProcessor;
 import org.junit.Test;
 
 /**
@@ -43,6 +44,7 @@ public class TestCosmoSkymedReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        TestUtils.recurseReadFolder(this, TestUtils.rootPathsCosmoSkymed, readerPlugin, reader, null, exceptionExemptions);
+        TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
+        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsCosmoSkymed, readerPlugin, reader, null, exceptionExemptions);
     }
 }

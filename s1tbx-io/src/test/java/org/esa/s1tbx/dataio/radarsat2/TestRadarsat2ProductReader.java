@@ -15,10 +15,12 @@
  */
 package org.esa.s1tbx.dataio.radarsat2;
 
+import org.esa.s1tbx.S1TBXTests;
+import org.esa.s1tbx.TestData;
 import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.util.TestData;
+import org.esa.snap.gpf.TestProcessor;
 import org.esa.snap.util.TestUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,7 +52,8 @@ public class TestRadarsat2ProductReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        TestUtils.recurseReadFolder(this, TestUtils.rootPathsRadarsat2, readerPlugin, reader, null, null);
+        TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
+        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsRadarsat2, readerPlugin, reader, null, null);
     }
 
     @Test

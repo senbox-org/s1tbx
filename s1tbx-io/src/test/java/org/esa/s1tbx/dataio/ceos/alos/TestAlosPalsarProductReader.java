@@ -15,7 +15,9 @@
  */
 package org.esa.s1tbx.dataio.ceos.alos;
 
+import org.esa.s1tbx.S1TBXTests;
 import org.esa.snap.framework.dataio.ProductReader;
+import org.esa.snap.gpf.TestProcessor;
 import org.esa.snap.util.TestUtils;
 import org.junit.Test;
 
@@ -43,6 +45,7 @@ public class TestAlosPalsarProductReader {
      */
     @Test
     public void testOpenAll() throws Exception {
-        TestUtils.recurseReadFolder(this, TestUtils.rootPathsALOS, readerPlugin, reader, null, exceptionExemptions);
+        TestProcessor testProcessor = S1TBXTests.createS1TBXTestProcessor();
+        testProcessor.recurseReadFolder(this, S1TBXTests.rootPathsALOS, readerPlugin, reader, null, exceptionExemptions);
     }
 }

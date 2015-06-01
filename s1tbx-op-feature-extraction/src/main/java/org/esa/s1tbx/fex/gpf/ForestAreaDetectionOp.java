@@ -53,7 +53,7 @@ import java.util.Map;
         category = "SAR Processing/Feature Extraction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
-        description = "Detect forest area.", internal = true)
+        description = "Detect forest area.", internal = false)
 public class ForestAreaDetectionOp extends Operator {
 
     @SourceProduct(alias = "source")

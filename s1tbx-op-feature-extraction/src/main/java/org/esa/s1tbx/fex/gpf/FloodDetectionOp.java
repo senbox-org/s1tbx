@@ -49,7 +49,7 @@ import java.util.List;
         category = "SAR Processing/Feature Extraction",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2015 by Array Systems Computing Inc.",
-        description = "Detect flooded area.", internal = true)
+        description = "Detect flooded area.", internal = false)
 public class FloodDetectionOp extends Operator {
 
     @SourceProduct(alias = "source")
