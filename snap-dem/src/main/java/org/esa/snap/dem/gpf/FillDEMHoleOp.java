@@ -38,12 +38,12 @@ import java.awt.*;
  * Fill hole pixels in source product with linear interpolations in both x and y directions.
  */
 
-@OperatorMetadata(alias = "Fill-Hole",
+@OperatorMetadata(alias = "Fill-DEM-Hole",
         category = "Tools/DEM Tools",
         authors = "Jun Lu, Luis Veci",
         copyright = "Copyright (C) 2014 by Array Systems Computing Inc.",
-        description = "Fill holes in given product")
-public final class FillHoleOp extends Operator {
+        description = "Fill holes in given DEM product file.")
+public final class FillDEMHoleOp extends Operator {
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
@@ -321,7 +321,7 @@ public final class FillHoleOp extends Operator {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(FillHoleOp.class);
+            super(FillDEMHoleOp.class);
         }
     }
 }
