@@ -60,7 +60,7 @@ import java.io.IOException;
                   description = "Reads a product from disk.")
 public class ReadOp extends Operator {
 
-
+    // (A) Make this a Path object
     @Parameter(description = "The file from which the data product is read.", notNull = true, notEmpty = true)
     private File file;
     @TargetProduct
@@ -78,7 +78,11 @@ public class ReadOp extends Operator {
             if (productReader == null) {
                 throw new OperatorException("No product reader found for file " + file);
             }
+            // (B) If (A) is done:
+            // targetProduct.setSourceLocation(file.toURI());
+            // targetProduct.setFileLocation(file.toFile());
             targetProduct = productReader.readProductNodes(file, null);
+            targetProduct.setFileLocation(file);
             this.productReader = productReader;
         } catch (IOException e) {
             throw new OperatorException(e);
