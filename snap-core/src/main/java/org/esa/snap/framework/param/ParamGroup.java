@@ -16,11 +16,10 @@
 package org.esa.snap.framework.param;
 
 import org.esa.snap.util.Guardian;
+import org.esa.snap.util.DefaultPropertyMap;
 import org.esa.snap.util.PropertyMap;
 
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Set;
 
 /**
  * The <code>ParamGroup</code> class represents a ordered list of parameters.
@@ -128,7 +127,7 @@ public class ParamGroup {
      */
     public PropertyMap getParameterValues(PropertyMap propertyMap) {
         if (propertyMap == null) {
-            propertyMap = new PropertyMap();
+            propertyMap = new DefaultPropertyMap();
         }
         for (int i = 0; i < getNumParameters(); i++) {
             Parameter parameter = getParameterAt(i);

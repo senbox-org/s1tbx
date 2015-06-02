@@ -23,14 +23,14 @@ import junit.framework.TestSuite;
 import java.awt.Color;
 import java.awt.Font;
 
-public class PropertyMapTest extends TestCase {
+public class DefaultPropertyMapTest extends TestCase {
 
-    public PropertyMapTest(String testName) {
+    public DefaultPropertyMapTest(String testName) {
         super(testName);
     }
 
     public static Test suite() {
-        return new TestSuite(PropertyMapTest.class);
+        return new TestSuite(DefaultPropertyMapTest.class);
     }
 
 
@@ -38,7 +38,7 @@ public class PropertyMapTest extends TestCase {
      * Tests the functionality of set and getPropertyBool
      */
     public void testSetGetPropertyBool() {
-        PropertyMap prop = new PropertyMap();
+        PropertyMap prop = new DefaultPropertyMap();
 
         // "a" is not in the set
         assertEquals(false, prop.getPropertyBool("a"));
@@ -71,7 +71,7 @@ public class PropertyMapTest extends TestCase {
      * Tests the functionality of set and getPropertyColor
      */
     public void testSetGetPropertyColor() {
-        PropertyMap prop = new PropertyMap();
+        PropertyMap prop = new DefaultPropertyMap();
 
         // "a" is not in the set
         assertEquals(Color.black, prop.getPropertyColor("a"));
@@ -89,7 +89,7 @@ public class PropertyMapTest extends TestCase {
      * Tests the functionality for set and getPropertyDouble
      */
     public void testSetGetPropertyDouble() {
-        PropertyMap prop = new PropertyMap();
+        PropertyMap prop = new DefaultPropertyMap();
 
         // "a" is not in the set
         assertEquals(0.0, prop.getPropertyDouble("a"), 1e-10);  // test default
@@ -109,7 +109,7 @@ public class PropertyMapTest extends TestCase {
      * Checks the functionality of set and getPropertyFont
      */
     public void testSetGetPropertyFont() {
-        PropertyMap prop = new PropertyMap();
+        PropertyMap prop = new DefaultPropertyMap();
 
         Font font1 = new Font("SansSerif", Font.PLAIN, 12); // default
         Font font2 = new Font("SansSerif", Font.BOLD, 10);
@@ -130,7 +130,7 @@ public class PropertyMapTest extends TestCase {
      * Tests functionality of set and getPropertyInt
      */
     public void testSetGetPropertyInt() {
-        PropertyMap prop = new PropertyMap();
+        PropertyMap prop = new DefaultPropertyMap();
 
         // "a" is not in the set
         assertEquals(0, prop.getPropertyInt("a"));  // test default
@@ -150,7 +150,7 @@ public class PropertyMapTest extends TestCase {
      * Tests the functionality of set and getPropertyString
      */
     public void testSetGetPropertyString() {
-        PropertyMap prop = new PropertyMap();
+        PropertyMap prop = new DefaultPropertyMap();
 
         // "a" is not in the set
         assertEquals("", prop.getPropertyString("a"));  // test default

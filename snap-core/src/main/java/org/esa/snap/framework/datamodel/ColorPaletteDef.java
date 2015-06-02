@@ -17,6 +17,7 @@ package org.esa.snap.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
 import org.esa.snap.util.Guardian;
+import org.esa.snap.util.DefaultPropertyMap;
 import org.esa.snap.util.PropertyMap;
 
 import java.awt.Color;
@@ -257,7 +258,7 @@ public class ColorPaletteDef implements Cloneable  {
      * @throws IOException if an I/O error occurs
      */
     public static ColorPaletteDef loadColorPaletteDef(File file) throws IOException {
-        final PropertyMap propertyMap = new PropertyMap();
+        final PropertyMap propertyMap = new DefaultPropertyMap();
         propertyMap.load(file.toPath()); // Overwrite existing values
         final int numPoints = propertyMap.getPropertyInt(_PROPERTY_KEY_NUM_POINTS);
         if (numPoints < 2) {
@@ -293,7 +294,7 @@ public class ColorPaletteDef implements Cloneable  {
      */
     public static void storeColorPaletteDef(ColorPaletteDef colorPaletteDef, File file) throws IOException {
         final ColorPaletteDef.Point[] points = colorPaletteDef.getPoints();
-        final PropertyMap propertyMap = new PropertyMap();
+        final PropertyMap propertyMap = new DefaultPropertyMap();
         final int numPoints = points.length;
         propertyMap.setPropertyInt(_PROPERTY_KEY_NUM_POINTS, numPoints);
         propertyMap.setPropertyBool(_PROPERTY_KEY_AUTODISTRIBUTE, colorPaletteDef.isAutoDistribute());

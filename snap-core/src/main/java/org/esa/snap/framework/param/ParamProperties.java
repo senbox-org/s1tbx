@@ -25,7 +25,6 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
