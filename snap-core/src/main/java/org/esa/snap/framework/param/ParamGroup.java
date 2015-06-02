@@ -16,6 +16,7 @@
 package org.esa.snap.framework.param;
 
 import org.esa.snap.util.Guardian;
+import org.esa.snap.util.DefaultPropertyMap;
 import org.esa.snap.util.PropertyMap;
 
 import java.util.List;
@@ -65,20 +66,16 @@ public class ParamGroup {
     public static ParamGroup create(PropertyMap propertyMap) {
         ParamGroup paramGroup = new ParamGroup();
         final String nameSuffix = ".name";
-        java.util.Enumeration keys = propertyMap.getPropertyKeys();
-        while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
-            if (key.endsWith(nameSuffix)) {
-                String paramName = propertyMap.getPropertyString(key);
-                Parameter parameter = paramGroup.createParameter(paramName);
-                parameter.setPropertyValues(propertyMap);
-                if (parameter.getValue() == null) {
-                    if (parameter.getProperties().getDefaultValue() != null) {
-                        parameter.setDefaultValue();
-                    }
+        propertyMap.getPropertyKeys().stream().filter(key -> key.endsWith(nameSuffix)).forEach(key -> {
+            String paramName = propertyMap.getPropertyString(key);
+            Parameter parameter = paramGroup.createParameter(paramName);
+            parameter.setPropertyValues(propertyMap);
+            if (parameter.getValue() == null) {
+                if (parameter.getProperties().getDefaultValue() != null) {
+                    parameter.setDefaultValue();
                 }
             }
-        }
+        });
         return paramGroup;
     }
 
@@ -130,7 +127,7 @@ public class ParamGroup {
      */
     public PropertyMap getParameterValues(PropertyMap propertyMap) {
         if (propertyMap == null) {
-            propertyMap = new PropertyMap();
+            propertyMap = new DefaultPropertyMap();
         }
         for (int i = 0; i < getNumParameters(); i++) {
             Parameter parameter = getParameterAt(i);

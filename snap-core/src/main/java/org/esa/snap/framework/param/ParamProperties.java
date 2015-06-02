@@ -423,15 +423,11 @@ public class ParamProperties {
      */
     public void setPropertyValues(String paramName, PropertyMap propertyMap) {
         String namePrefix = paramName + ".";
-        java.util.Enumeration e = propertyMap.getPropertyKeys();
-        while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
-            if (name.startsWith(namePrefix)) {
-                String paramPropName = name.substring(namePrefix.length());
-                String paramPropValue = propertyMap.getPropertyString(name);
-                setPropertyValue(paramPropName, paramPropValue);
-            }
-        }
+        propertyMap.getPropertyKeys().stream().filter(key -> key.startsWith(namePrefix)).forEach(key -> {
+            String paramPropName = key.substring(namePrefix.length());
+            String paramPropValue = propertyMap.getPropertyString(key);
+            setPropertyValue(paramPropName, paramPropValue);
+        });
     }
 
     /**

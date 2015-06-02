@@ -203,7 +203,7 @@ public class PConvertMain {
 
     public static void main(String[] args) {
         Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
-        SystemUtils.init3rdPartyLibs(PConvertMain.class.getClassLoader());
+        SystemUtils.init3rdPartyLibs(PConvertMain.class);
         new PConvertMain(args).run();
     }
 

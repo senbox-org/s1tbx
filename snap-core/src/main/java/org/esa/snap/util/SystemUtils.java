@@ -15,14 +15,14 @@
  */
 package org.esa.snap.util;
 
+import com.bc.ceres.jai.operator.ReinterpretDescriptor;
 import org.esa.snap.runtime.Config;
 import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
 import javax.media.jai.JAI;
 import javax.media.jai.OperationRegistry;
-import javax.swing.UIManager;
-import java.awt.Image;
-import java.awt.Toolkit;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -415,11 +415,11 @@ public class SystemUtils {
     /**
      * Initialize third party libraries of BEAM.
      *
-     * @param cl The most useful class loader.
+     * @param cls The most useful class loader.
      * @since BEAM 4.8
      */
-    public static void init3rdPartyLibs(ClassLoader cl) {
-        initJAI(cl);
+    public static void init3rdPartyLibs(Class<?> cls) {
+        initJAI(cls);
         initGeoTools();
     }
 
@@ -429,34 +429,58 @@ public class SystemUtils {
         System.setProperty(HsqlEpsgDatabase.DIRECTORY_KEY, epsgDir.getAbsolutePath());
     }
 
-    private static void initJAI(ClassLoader cl) {
+    private static void initJAI(Class<?> cls) {
         // Suppress ugly (and harmless) JAI error messages saying that a JAI is going to continue in pure Java mode.
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");  // disable native libraries for JAI
         // Must use a new operation registry in order to register JAI operators defined in Ceres and BEAM
-        OperationRegistry operationRegistry = OperationRegistry.getThreadSafeOperationRegistry();
-        InputStream is = SystemUtils.class.getResourceAsStream(JAI_REGISTRY_PATH);
-        if (is != null) {
-            // Suppress ugly (and harmless) JAI error messages saying that a descriptor is already registered.
-            final PrintStream oldErr = System.err;
-            try {
-                setSystemErr(new PrintStream(new ByteArrayOutputStream()));
-                operationRegistry.updateFromStream(is);
-                operationRegistry.registerServices(cl);
-                JAI.getDefaultInstance().setOperationRegistry(operationRegistry);
-            } catch (IOException e) {
-                LOG.log(Level.SEVERE,
-                        MessageFormat.format("Error loading {0}: {1}", JAI_REGISTRY_PATH,
-                                             e.getMessage()), e);
-            } finally {
-                setSystemErr(oldErr);
-            }
-        } else {
-            LOG.warning(MessageFormat.format("{0} not found", JAI_REGISTRY_PATH));
-        }
+
+        // Load JAI registry files.
+        // For some reason registry file loading must be done in this order: first our own, then JAI's descriptors (nf)
+        loadJaiRegistryFile(cls, JAI_REGISTRY_PATH);
+        loadJaiRegistryFile(ReinterpretDescriptor.class, "/META-INF/registryFile.jai");
+        loadJaiRegistryFile(JAI.class, "/META-INF/javax.media.jai.registryFile.jai");
+
         int parallelism = Config.instance().preferences().getInt(SNAP_PARALLELISM_PROPERTY_NAME,
                                                                  Runtime.getRuntime().availableProcessors());
         JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
         LOG.info(MessageFormat.format("JAI tile scheduler parallelism set to {0}", parallelism));
+
+        JAI.enableDefaultTileCache();
+        Long size = Config.instance().preferences().getLong("snap.jai.tileCacheSize", 1024L * 1024L * 1024L) * 1024L * 1024L;
+        JAI.getDefaultInstance().getTileCache().setMemoryCapacity(size);
+
+        final long tileCacheSize = JAI.getDefaultInstance().getTileCache().getMemoryCapacity() / (1024L * 1024L);
+        LOG.info(MessageFormat.format("JAI tile cache size is {0} MB", tileCacheSize));
+
+        final int tileSize = Config.instance().preferences().getInt("snap.jai.defaultTileSize", 512);
+        JAI.setDefaultTileSize(new Dimension(tileSize, tileSize));
+        LOG.info(MessageFormat.format("JAI tile size is {0} pixels", tileSize));
+
+        JAI.getDefaultInstance().setRenderingHint(JAI.KEY_CACHED_TILE_RECYCLING_ENABLED, Boolean.TRUE);
+        LOG.info("JAI tile recycling enabled");
+    }
+
+    private static void loadJaiRegistryFile(Class<?> cls, String jaiRegistryPath) {
+        LOG.info("Reading JAI registry file from " + jaiRegistryPath);
+        // Must use a new operation registry in order to register JAI operators defined in Ceres and BEAM
+        OperationRegistry operationRegistry = OperationRegistry.getThreadSafeOperationRegistry();
+        InputStream is = cls.getResourceAsStream(jaiRegistryPath);
+        if (is != null) {
+            final PrintStream oldErr = System.err;
+            try {
+                // Suppress annoying and harmless JAI error messages saying that a descriptor is already registered.
+                System.setErr(new PrintStream(new ByteArrayOutputStream()));
+                operationRegistry.updateFromStream(is);
+                operationRegistry.registerServices(cls.getClassLoader());
+                JAI.getDefaultInstance().setOperationRegistry(operationRegistry);
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE, MessageFormat.format("Error loading {0}: {1}", jaiRegistryPath, e.getMessage()), e);
+            } finally {
+                System.setErr(oldErr);
+            }
+        } else {
+            LOG.warning(MessageFormat.format("{0} not found", jaiRegistryPath));
+        }
     }
 
     private static void setSystemErr(PrintStream oldErr) {

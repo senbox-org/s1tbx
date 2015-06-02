@@ -16,6 +16,7 @@
 package org.esa.snap.datamodel;
 
 import org.esa.snap.gpf.StatusProgressMonitor;
+import org.esa.snap.util.DefaultPropertyMap;
 import org.esa.snap.util.PropertyMap;
 import org.esa.snap.util.ResourceUtils;
 import org.esa.snap.util.SystemUtils;
@@ -124,16 +125,16 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
 
         boolean newVersion = true;
         if(remoteVersionFile.exists()) {
-            final PropertyMap remoteVersionMap = new PropertyMap();
-            remoteVersionMap.load(remoteVersionFile);
+            final PropertyMap remoteVersionMap = new DefaultPropertyMap();
+            remoteVersionMap.load(remoteVersionFile.toPath());
 
             remoteVersion = remoteVersionMap.getPropertyInt(localZipFile.getName());
 
             final File localVersionFile = new File(localZipFile.getParent(), versionFileName);
             if(localVersionFile.exists()) {
 
-                final PropertyMap localVersionMap = new PropertyMap();
-                localVersionMap.load(localVersionFile);
+                final PropertyMap localVersionMap = new DefaultPropertyMap();
+                localVersionMap.load(localVersionFile.toPath());
 
                 int localVersion = localVersionMap.getPropertyInt(localZipFile.getName());
 
@@ -152,13 +153,13 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
             return;
 
         final File localVersionFile = new File(localZipFile.getParent(), versionFileName);
-        final PropertyMap localVersionMap = new PropertyMap();
+        final PropertyMap localVersionMap = new DefaultPropertyMap();
         if(localVersionFile.exists()) {
-            localVersionMap.load(localVersionFile);
+            localVersionMap.load(localVersionFile.toPath());
         }
 
         localVersionMap.setPropertyInt(localZipFile.getName(), remoteVersion);
-        localVersionMap.store(localVersionFile, "");
+        localVersionMap.store(localVersionFile.toPath(), "");
     }
 
     private synchronized void findFile() throws IOException {

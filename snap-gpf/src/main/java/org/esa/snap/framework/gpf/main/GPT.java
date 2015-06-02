@@ -49,7 +49,7 @@ public class GPT {
             System.setProperty("snap.context", "snap");
         }
         Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
-        SystemUtils.init3rdPartyLibs(GPT.class.getClassLoader());
+        SystemUtils.init3rdPartyLibs(GPT.class);
         final CommandLineTool commandLineTool = new CommandLineTool();
         commandLineTool.run(args);
     }

@@ -15,9 +15,16 @@
  */
 package org.esa.snap.util;
 
+import org.esa.snap.runtime.Config;
+import org.junit.Before;
 import org.junit.Test;
 
-import static junit.framework.TestCase.assertEquals;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static junit.framework.TestCase.*;
 
 /**
  * Settings Tester.
@@ -25,6 +32,18 @@ import static junit.framework.TestCase.assertEquals;
  * @author lveci
  */
 public class TestSettings {
+
+    @Before
+    public void SetUp() throws IOException {
+        Path propFile = Paths.get("etc/snap.auxdata.properties");
+        if(!Files.exists(propFile)) {
+            propFile = Paths.get("../etc/snap.auxdata.properties");
+        }
+        if(!propFile.toFile().exists()) {
+            throw new IOException("Unable to locate snap.auxdata.properties");
+        }
+        Config.instance(Settings.SNAP_AUXDATA).load(propFile);
+    }
 
     @Test
     public void testLoadSettings() {
@@ -37,13 +56,22 @@ public class TestSettings {
 
     @Test
     public void testGet() {
-        final Settings settings = Settings.instance();
-
-        String value1 = settings.get("DEM.srtm3GeoTiffDEM_FTP");
+        String value1 = Settings.instance().get("DEM.srtm3GeoTiffDEM_FTP");
         assertEquals(value1, "xftp.jrc.it");
-        String value2 = settings.get("AuxDataPath");
-        assert (!value2.isEmpty());
-        String value3 = settings.get("demPath");
+    }
+
+    @Test
+    public void testGetAuxDataPath() {
+
+
+        String value2 = Settings.instance().get("AuxDataPath");
+        final Path auxDataPath = SystemUtils.getApplicationDataDir().toPath().resolve("snap-core").resolve("auxdata");
+        assertEquals(value2, auxDataPath.toString());
+    }
+
+    @Test
+    public void testVariableReplacement() {
+        String value3 = Settings.instance().get("demPath");
         assert(!value3.contains("AuxDataPath"));
     }
 
