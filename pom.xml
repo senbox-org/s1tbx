@@ -79,7 +79,7 @@
         <module>snap-pixel-extraction</module>
         <module>snap-python</module>
         <module>snap-rtp-codec</module>
-        <module>smart-configurator</module> <!-- should be snap-smart-configurator-->
+        <module>snap-smart-configurator</module>
         <module>snap-statistics</module>
         <module>snap-temporal-percentile</module>
         <module>snap-unmix</module>

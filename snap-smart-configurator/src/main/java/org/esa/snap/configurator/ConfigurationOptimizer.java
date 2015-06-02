@@ -20,6 +20,7 @@ package org.esa.snap.configurator;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -150,7 +151,8 @@ public class ConfigurationOptimizer {
                 if(writeSpeed > fastestForLargeCacheSpeed &&
                         sysInfos.getDiskFreeSize(diskName) > MIN_FREE_LARGE_CACHE_DISK_SPACE) {
                     fastestForLargeCacheSpeed = writeSpeed;
-                    fastestForLargeCache = FileUtils.getPathFromURI(URI.create(diskName));
+                    File diskNameAsFile = new File(diskName);
+                    fastestForLargeCache = FileUtils.getPathFromURI(diskNameAsFile.toURI());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -179,14 +181,5 @@ public class ConfigurationOptimizer {
                 e.printStackTrace();
             }
         }
-    }
-
-    public static void main(String[] args) {
-        System.out.println("java.library.path: " + System.getProperty("java.library.path"));
-
-        //System.out.println("nb cpus: " + sysInfos.getNbCPUs());
-
-        String ceresProp = System.getProperty("java.io.tmpdir");
-        System.out.println("ceresProp : " + ceresProp);
     }
 }

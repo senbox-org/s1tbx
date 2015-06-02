@@ -35,6 +35,17 @@ import java.util.prefs.Preferences;
  */
 public class PerformanceParameters {
 
+
+    /**
+     * Preferences key for the memory capacity of the JAI tile cache in megabytes
+     */
+    public static final String PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY = "jai.tileCache.memoryCapacity";
+    /**
+     * Preferences key for the number of processors which may be employed for JAI image processing.
+     */
+    public static final String PROPERTY_KEY_JAI_PARALLELISM = "snap.jai.parallelism";
+
+
     private VMParameters vmParameters;
     private Path userDir;
     private int nbThreads;

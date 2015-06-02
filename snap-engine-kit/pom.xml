@@ -222,7 +222,7 @@
         </dependency>
         <dependency>
             <groupId>org.esa.snap</groupId>
-            <artifactId>smart-configurator</artifactId>
+            <artifactId>snap-smart-configurator</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
