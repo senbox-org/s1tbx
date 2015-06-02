@@ -21,13 +21,9 @@ import org.esa.snap.gpf.operators.standard.BandMathsOp;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
 import org.esa.snap.graphbuilder.gpf.ui.UIValidation;
 import org.esa.snap.util.Debug;
-import org.esa.snap.util.PropertyMap;
 
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import java.awt.GridBagConstraints;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
@@ -50,12 +46,13 @@ public class BandMathsOpUI extends BaseOperatorUI {
     private JButton editExpressionButton = null;
     private JComponent panel = null;
     private String errorText = "";
+    private AppContext appContext;
 
     private BandMathsOp.BandDescriptor bandDesc = new BandMathsOp.BandDescriptor();
 
     @Override
     public JComponent CreateOpTab(String operatorName, Map<String, Object> parameterMap, AppContext appContext) {
-
+        this.appContext = appContext;
         initializeOperatorUI(operatorName, parameterMap);
         initVariables();
         panel = createUI();
@@ -252,7 +249,7 @@ public class BandMathsOpUI extends BaseOperatorUI {
 
             public void actionPerformed(ActionEvent e) {
                 ProductExpressionPane pep = ProductExpressionPane.createGeneralExpressionPane(getCompatibleProducts(),
-                        targetProduct, new PropertyMap());
+                        targetProduct, appContext.getPreferences());
                 pep.setCode(paramExpression.getValueAsText());
                 int status = pep.showModalDialog(SwingUtilities.getWindowAncestor(panel), "Arithmetic Expression Editor");
                 if (status == ModalDialog.ID_OK) {
