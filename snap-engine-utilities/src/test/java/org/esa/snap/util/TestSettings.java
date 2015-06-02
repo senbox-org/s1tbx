@@ -15,9 +15,10 @@
  */
 package org.esa.snap.util;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
-import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.*;
 
 /**
  * Settings Tester.
@@ -35,7 +36,7 @@ public class TestSettings {
         String value2 = settings.get("DEM.srtm3GeoTiffDEM_FTP");
     }
 
-    @Test
+    @Ignore
     public void testGet() {
         final Settings settings = Settings.instance();
 
