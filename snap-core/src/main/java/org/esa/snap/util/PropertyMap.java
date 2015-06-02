@@ -44,31 +44,19 @@ public interface PropertyMap {
 
     boolean getPropertyBool(String key);
 
-    boolean getPropertyBool(String key, boolean defaultValue);
-
     Boolean getPropertyBool(String key, Boolean defaultValue);
-
-    void setPropertyBool(String key, boolean value);
 
     void setPropertyBool(String key, Boolean newValue);
 
     int getPropertyInt(String key);
 
-    int getPropertyInt(String key, int defaultValue);
-
     Integer getPropertyInt(String key, Integer defaultValue);
-
-    void setPropertyInt(String key, int newValue);
 
     void setPropertyInt(String key, Integer value);
 
     double getPropertyDouble(String key);
 
-    double getPropertyDouble(String key, double defaultValue);
-
     Double getPropertyDouble(String key, Double defaultValue);
-
-    void setPropertyDouble(String key, double newValue);
 
     void setPropertyDouble(String key, Double value);
 

@@ -2,11 +2,6 @@ package org.esa.snap.util;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.beans.PropertyChangeListener;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * The <code>PropertyMap</code> class can be used instead of the standard JDK <code>java.util.Properties</code>
@@ -34,19 +29,6 @@ public abstract class AbstractPropertyMap implements PropertyMap {
     }
 
     /**
-     * Gets a value of type <code>boolean</code>.
-     *
-     * @param key          the key
-     * @param defaultValue the default value that is returned if the key was not found in this property set.
-     * @return the value for the given key, or <code>defaultValue</code> if the key is not contained in this property
-     * set.
-     */
-    @Override
-    public boolean getPropertyBool(String key, boolean defaultValue) {
-        return getPropertyBool(key, defaultValue ? Boolean.TRUE : Boolean.FALSE);
-    }
-
-    /**
      * Gets a value of type <code>Boolean</code>.
      *
      * @param key          the key
@@ -58,18 +40,6 @@ public abstract class AbstractPropertyMap implements PropertyMap {
     public Boolean getPropertyBool(String key, Boolean defaultValue) {
         String value = get(key);
         return value != null ? Boolean.valueOf(value) : defaultValue;
-    }
-
-    /**
-     * Sets a value of type <code>boolean</code>.
-     *
-     * @param key   the key
-     * @param value the value
-     * @throws IllegalArgumentException
-     */
-    @Override
-    public void setPropertyBool(String key, boolean value) {
-        setPropertyBool(key, value ? Boolean.TRUE : Boolean.FALSE);
     }
 
     /**
@@ -96,27 +66,6 @@ public abstract class AbstractPropertyMap implements PropertyMap {
     }
 
     /**
-     * Gets a value of type <code>int</code>.
-     *
-     * @param key          the key
-     * @param defaultValue the default value that is returned if the key was not found in this property set.
-     * @return the value for the given key, or <code>defaultValue</code> if the key is not contained in this property
-     * set.
-     */
-    @Override
-    public int getPropertyInt(String key, int defaultValue) {
-        String value = get(key);
-        if (value == null) {
-            return defaultValue;
-        }
-        try {
-            return Integer.valueOf(value);
-        } catch (NumberFormatException e) {
-            return defaultValue;
-        }
-    }
-
-    /**
      * Gets a value of type <code>Integer</code>.
      *
      * @param key          the key
@@ -135,18 +84,6 @@ public abstract class AbstractPropertyMap implements PropertyMap {
         } catch (NumberFormatException e) {
             return defaultValue;
         }
-    }
-
-    /**
-     * Sets a value of type <code>int</code>.
-     *
-     * @param key      the key
-     * @param newValue the new value
-     * @throws IllegalArgumentException
-     */
-    @Override
-    public void setPropertyInt(String key, int newValue) {
-        setPropertyInt(key, new Integer(newValue));
     }
 
     /**
@@ -174,27 +111,6 @@ public abstract class AbstractPropertyMap implements PropertyMap {
     }
 
     /**
-     * Gets a value of type <code>double</code>.
-     *
-     * @param key          the key
-     * @param defaultValue the default value that is returned if the key was not found in this property set.
-     * @return the value for the given key, or <code>defaultValue</code> if the key is not contained in this property
-     * set.
-     */
-    @Override
-    public double getPropertyDouble(String key, double defaultValue) {
-        String value = get(key);
-        if (value == null) {
-            return defaultValue;
-        }
-        try {
-            return Double.valueOf(value);
-        } catch (NumberFormatException e) {
-            return defaultValue;
-        }
-    }
-
-    /**
      * Gets a value of type <code>Double</code>.
      *
      * @param key          the key
@@ -213,18 +129,6 @@ public abstract class AbstractPropertyMap implements PropertyMap {
         } catch (NumberFormatException e) {
             return defaultValue;
         }
-    }
-
-    /**
-     * Sets a value of type <code>double</code>.
-     *
-     * @param key      the key
-     * @param newValue the new value
-     * @throws IllegalArgumentException
-     */
-    @Override
-    public void setPropertyDouble(String key, double newValue) {
-        setPropertyDouble(key, new Double(newValue));
     }
 
     /**
