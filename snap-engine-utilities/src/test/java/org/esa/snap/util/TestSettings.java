@@ -15,9 +15,12 @@
  */
 package org.esa.snap.util;
 
+import org.esa.snap.runtime.Config;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -27,6 +30,12 @@ import static junit.framework.TestCase.assertEquals;
  * @author lveci
  */
 public class TestSettings {
+
+    @Before
+    public void SetUp() {
+        Path propFile = Paths.get("..\\etc\\snap.auxdata.properties");
+        Config.instance(Settings.SNAP_AUXDATA).load(propFile);
+    }
 
     @Test
     public void testLoadSettings() {
@@ -45,6 +54,8 @@ public class TestSettings {
 
     @Test
     public void testGetAuxDataPath() {
+
+
         String value2 = Settings.instance().get("AuxDataPath");
         final Path auxDataPath = SystemUtils.getApplicationDataDir().toPath().resolve("snap-core").resolve("auxdata");
         assertEquals(value2, auxDataPath.toString());

@@ -30,7 +30,7 @@ import java.util.prefs.Preferences;
 public final class Settings {
 
     private static Settings _instance = new Settings();
-    private static final String SNAP_AUXDATA = "snap.auxdata";
+    static final String SNAP_AUXDATA = "snap.auxdata";
     private final Preferences auxdataPreferences;
 
     /**
