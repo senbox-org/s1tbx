@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.*;
 
 /**
  * Settings Tester.
@@ -34,9 +34,9 @@ public class TestSettings {
 
     @Before
     public void SetUp() throws IOException {
-        Path propFile = Paths.get("..\\etc\\snap.auxdata.properties");
+        Path propFile = Paths.get("etc\\snap.auxdata.properties");
         if(!propFile.toFile().exists()) {
-            propFile = Paths.get("..\\..\\etc\\snap.auxdata.properties");
+            propFile = Paths.get("..\\etc\\snap.auxdata.properties");
         }
         if(!propFile.toFile().exists()) {
             throw new IOException("Unable to locate snap.auxdata.properties");
