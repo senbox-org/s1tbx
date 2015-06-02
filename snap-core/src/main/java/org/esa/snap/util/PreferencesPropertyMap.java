@@ -49,15 +49,14 @@ public class PreferencesPropertyMap extends AbstractPropertyMap implements Prefe
         } else {
             preferences.remove(key);
         }
-        if (!ObjectUtils.equalObjects(value, oldValue)) {
-            firePropertyChange(key, value, oldValue);
-        }
         return oldValue;
     }
 
     @Override
     protected void firePropertyChange(String key, String oldValue, String newValue) {
-        // todo
+        if (propertyChangeSupport != null) {
+            propertyChangeSupport.firePropertyChange(key, oldValue, newValue);
+        }
     }
 
     @Override

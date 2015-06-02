@@ -16,154 +16,27 @@
 
 package org.esa.snap.util;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.After;
+import org.junit.Before;
 
-import java.awt.*;
 import java.util.prefs.Preferences;
 
-public class PreferencesPropertyMapTest extends TestCase {
+public class PreferencesPropertyMapTest extends BasePropertyMapTest {
 
     private Preferences preferences = Preferences.userNodeForPackage(PreferencesPropertyMapTest.class);
 
-    @Override
+    @Before
     public void setUp() throws Exception {
         preferences.clear();
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception {
         preferences.clear();
     }
 
-    /**
-     * Tests the functionality of set and getPropertyBool
-     */
-    public void testSetGetPropertyBool() {
-        PropertyMap prop = new PreferencesPropertyMap(preferences);
-
-        // "a" is not in the set
-        assertEquals(false, prop.getPropertyBool("a"));
-        assertEquals(true, (boolean) prop.getPropertyBool("a", true));
-        assertEquals(false, (boolean) prop.getPropertyBool("a", false));
-        assertEquals(null, prop.getPropertyBool("a", null));
-        assertEquals(Boolean.TRUE, prop.getPropertyBool("a", Boolean.TRUE));
-        assertEquals(Boolean.FALSE, prop.getPropertyBool("a", Boolean.FALSE));
-
-        // "b" is in the set and true
-        prop.setPropertyBool("b", true);
-        assertEquals(true, prop.getPropertyBool("b"));
-        assertEquals(true, (boolean) prop.getPropertyBool("b", true));
-        assertEquals(true, (boolean) prop.getPropertyBool("b", false));
-        assertEquals(Boolean.TRUE, prop.getPropertyBool("b", null));
-        assertEquals(Boolean.TRUE, prop.getPropertyBool("b", Boolean.TRUE));
-        assertEquals(Boolean.TRUE, prop.getPropertyBool("b", Boolean.FALSE));
-
-        // "c" is in the set and false
-        prop.setPropertyBool("c", false);
-        assertEquals(false, prop.getPropertyBool("c"));
-        assertEquals(false, (boolean) prop.getPropertyBool("c", true));
-        assertEquals(false, (boolean) prop.getPropertyBool("c", false));
-        assertEquals(Boolean.FALSE, prop.getPropertyBool("c", null));
-        assertEquals(Boolean.FALSE, prop.getPropertyBool("c", Boolean.TRUE));
-        assertEquals(Boolean.FALSE, prop.getPropertyBool("c", Boolean.FALSE));
-    }
-
-    /**
-     * Tests the functionality of set and getPropertyColor
-     */
-    public void testSetGetPropertyColor() {
-        PropertyMap prop = new PreferencesPropertyMap(preferences);
-
-        // "a" is not in the set
-        assertEquals(Color.black, prop.getPropertyColor("a"));
-        assertEquals(null, prop.getPropertyColor("a", null));
-        assertEquals(Color.yellow, prop.getPropertyColor("a", Color.yellow));
-
-        // "b" is in the set and red
-        prop.setPropertyColor("b", Color.red);
-        assertEquals(Color.red, prop.getPropertyColor("b"));
-        assertEquals(Color.red, prop.getPropertyColor("b", null));
-        assertEquals(Color.red, prop.getPropertyColor("b", Color.yellow));
-    }
-
-    /**
-     * Tests the functionality for set and getPropertyDouble
-     */
-    public void testSetGetPropertyDouble() {
-        PropertyMap prop = new PreferencesPropertyMap(preferences);
-
-        // "a" is not in the set
-        assertEquals(0.0, prop.getPropertyDouble("a"), 1e-10);  // test default
-        assertEquals(8.34, prop.getPropertyDouble("a", 8.34), 1e-10);
-        assertEquals(null, prop.getPropertyDouble("a", null));
-        assertEquals(new Double(8.34), prop.getPropertyDouble("a", 8.34));
-
-        // "b" is in the set and 23.4
-        prop.setPropertyDouble("b", 23.4);
-        assertEquals(23.4, prop.getPropertyDouble("b"), 1e-10);
-        assertEquals(23.4, prop.getPropertyDouble("b", 43.2), 1e-10);
-        assertEquals(new Double(23.4), prop.getPropertyDouble("b", 43.2));
-        assertEquals(new Double(23.4), prop.getPropertyDouble("b", null));
-    }
-
-    /**
-     * Checks the functionality of set and getPropertyFont
-     */
-    public void testSetGetPropertyFont() {
-        PropertyMap prop = new PreferencesPropertyMap(preferences);
-
-        Font font1 = new Font("SansSerif", Font.PLAIN, 12); // default
-        Font font2 = new Font("SansSerif", Font.BOLD, 10);
-
-        // "a" is not in the set
-        assertEquals(font1, prop.getPropertyFont("a"));  // test default
-        assertEquals(null, prop.getPropertyFont("a", null));
-        assertEquals(font2, prop.getPropertyFont("a", font2));
-
-        // "b" is in the set and font2
-        prop.setPropertyFont("b", font2);
-        assertEquals(font2, prop.getPropertyFont("b"));
-        assertEquals(font2, prop.getPropertyFont("b", null));
-        assertEquals(font2, prop.getPropertyFont("b", font1));
-    }
-
-    /**
-     * Tests functionality of set and getPropertyInt
-     */
-    public void testSetGetPropertyInt() {
-        PropertyMap prop = new PreferencesPropertyMap(preferences);
-
-        // "a" is not in the set
-        assertEquals(0, prop.getPropertyInt("a"));  // test default
-        assertEquals(8, (int) prop.getPropertyInt("a", 8));
-        assertEquals(null, prop.getPropertyInt("a", null));
-        assertEquals(new Integer(8), prop.getPropertyInt("a", 8));
-
-        // "b" is in the set and 23
-        prop.setPropertyInt("b", 23);
-        assertEquals(23, prop.getPropertyInt("b"));
-        assertEquals(23, (int) prop.getPropertyInt("b", 43));
-        assertEquals(new Integer(23), prop.getPropertyInt("b", 43));
-        assertEquals(new Integer(23), prop.getPropertyInt("b", null));
-    }
-
-    /**
-     * Tests the functionality of set and getPropertyString
-     */
-    public void testSetGetPropertyString() {
-        PropertyMap prop = new PreferencesPropertyMap(preferences);
-
-        // "a" is not in the set
-        assertEquals("", prop.getPropertyString("a"));  // test default
-        assertEquals("CBA", prop.getPropertyString("a", "CBA"));
-        assertEquals(null, prop.getPropertyString("a", null));
-
-        // "b" is in the set and "ABC"
-        prop.setPropertyString("b", "ABC");
-        assertEquals("ABC", prop.getPropertyString("b"));
-        assertEquals("ABC", prop.getPropertyString("b", "CBA"));
-        assertEquals("ABC", prop.getPropertyString("b", null));
+    @Override
+    protected PropertyMap createPropertyMap() {
+        return new PreferencesPropertyMap(preferences);
     }
 }
