@@ -120,7 +120,7 @@ public class DefaultPropertyMap extends AbstractPropertyMap {
     @Override
     protected String set(String key, String value) {
         Assert.notNull(key, "key");
-        String oldValue = properties.getProperty(key, value);
+        String oldValue = properties.getProperty(key);
         if (value != null) {
             properties.put(key, value);
         } else {
