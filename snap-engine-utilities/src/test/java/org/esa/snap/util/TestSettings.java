@@ -19,6 +19,7 @@ import org.esa.snap.runtime.Config;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -32,8 +33,14 @@ import static junit.framework.TestCase.assertEquals;
 public class TestSettings {
 
     @Before
-    public void SetUp() {
+    public void SetUp() throws IOException {
         Path propFile = Paths.get("..\\etc\\snap.auxdata.properties");
+        if(!propFile.toFile().exists()) {
+            propFile = Paths.get("..\\..\\etc\\snap.auxdata.properties");
+        }
+        if(!propFile.toFile().exists()) {
+            throw new IOException("Unable to locate snap.auxdata.properties");
+        }
         Config.instance(Settings.SNAP_AUXDATA).load(propFile);
     }
 
