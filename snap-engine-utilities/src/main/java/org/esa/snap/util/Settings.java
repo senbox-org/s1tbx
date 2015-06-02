@@ -18,6 +18,7 @@ package org.esa.snap.util;
 import org.esa.snap.runtime.Config;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.prefs.Preferences;
 
 /**
@@ -41,7 +42,8 @@ public final class Settings {
 
     private Settings() {
         auxdataPreferences = Config.instance(SNAP_AUXDATA).load().preferences();
-        auxdataPreferences.put("AuxDataPath", SystemUtils.getApplicationDataDir() + File.separator + "snap-core" + File.separator + "auxdata");
+        final Path auxDataPath = SystemUtils.getApplicationDataDir().toPath().resolve("snap-core").resolve("auxdata");
+        auxdataPreferences.put("AuxDataPath", auxDataPath.toString());
     }
 
     public String get(final String key) {
