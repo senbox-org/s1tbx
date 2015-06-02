@@ -31,7 +31,7 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * Default implementation of the {@link PropertyMap} interface.
+ * Default implementation of the {@link PropertyMap} interface backed by a {@link Properties} instance.
  *
  * @author Norman Fomferra
  * @since SNAP 2

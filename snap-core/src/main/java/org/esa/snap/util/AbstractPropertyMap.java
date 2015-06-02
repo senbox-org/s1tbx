@@ -4,11 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 
 /**
- * The <code>PropertyMap</code> class can be used instead of the standard JDK <code>java.util.Properties</code>
- * class.<code>PropertyMap</code> provides a generally more useful interface by adding a couple type conversion methods
- * for a set of most frequently used data types, such as <code>Boolean</code>, <code>Integer</code>,
- * <code>Double</code>, <code>Color</code> and <code>Font</code>.
- * <p>Additionally the class provides property change support.
+ * Abstract implementation of the {@link PropertyMap} interface.
  *
  * @author Norman Fomferra
  * @since SNAP 2
