@@ -18,8 +18,11 @@
 package org.esa.snap.configurator;
 
 import org.esa.snap.util.SystemUtils;
+import org.esa.snap.util.io.FileUtils;
 
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
 
 /**
  * Compute optimum parameters
@@ -133,9 +136,8 @@ public class ConfigurationOptimizer {
     private void computeOptimisedPathParams(PerformanceParameters performanceParameters) {
         String[] disks = sysInfos.getDisksNames();
 
-        String fastestForTmp = null;
         double fastestForTmpSpeed = 0;
-        String fastestForLargeCache = null;
+        Path fastestForLargeCache = null;
         double fastestForLargeCacheSpeed = 0;
 
         for(String diskName : disks) {
@@ -144,41 +146,21 @@ public class ConfigurationOptimizer {
                 if(writeSpeed > fastestForTmpSpeed &&
                         sysInfos.getDiskFreeSize(diskName) > MIN_FREE_TMP_DISK_SPACE) {
                     fastestForTmpSpeed = writeSpeed;
-                    fastestForTmp = diskName;
                 }
                 if(writeSpeed > fastestForLargeCacheSpeed &&
                         sysInfos.getDiskFreeSize(diskName) > MIN_FREE_LARGE_CACHE_DISK_SPACE) {
                     fastestForLargeCacheSpeed = writeSpeed;
-                    fastestForLargeCache = diskName;
+                    fastestForLargeCache = FileUtils.getPathFromURI(URI.create(diskName));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        // we check optimised parameters are at least DISK_MIN_SPEED_INCREASE percent
-        // faster than actual parameters.
-        if(fastestForTmp != null) {
-            String actualTmpDir = actualPerformanceParameters.getVmTmpDir();
-            DiskBenchmarker benchmarker = new DiskBenchmarker(actualTmpDir);
-            try {
-                double tmpDirWriteSpeed = benchmarker.getWriteSpeed();
-                double minSpeedToChange = tmpDirWriteSpeed * (1 + DISK_MIN_SPEED_INCREASE / 100);
-                if(minSpeedToChange < fastestForTmpSpeed) {
-                    performanceParameters.setVmTmpDir(fastestForTmp);
-                }
-            } catch (IOException e) {
-                // we could check tmp dir speed, so we change directory
-                performanceParameters.setVmTmpDir(fastestForTmp);
 
-                SystemUtils.LOG.warning(
-                        "Could not check performance of the tmp dir: " + actualPerformanceParameters.getVmTmpDir());
-                e.printStackTrace();
-            }
-        }
 
         if(fastestForLargeCache != null) {
-            String actualLargeCacheDir = actualPerformanceParameters.getUserDir();
+            String actualLargeCacheDir = actualPerformanceParameters.getUserDir().toString();
             DiskBenchmarker benchmarker = new DiskBenchmarker(actualLargeCacheDir);
             try {
                 double largeCacheDirWriteSpeed = benchmarker.getWriteSpeed();

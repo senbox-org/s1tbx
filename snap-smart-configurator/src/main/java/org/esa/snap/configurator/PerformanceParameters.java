@@ -17,13 +17,15 @@
 package org.esa.snap.configurator;
 
 
+import org.esa.snap.framework.gpf.internal.OperatorExecutor;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.SystemUtils;
 
-import javax.media.jai.JAI;
-import javax.media.jai.TileCache;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 /**
  * Storage for performance parameters
@@ -34,14 +36,20 @@ import java.util.List;
 public class PerformanceParameters {
 
     private VMParameters vmParameters;
-
-    private String vmTmpDir;
-    private String auxDataPath;
-    private String userDir;
-
-    private long tileCacheCapacity;
-    private long tileSize;
+    private Path userDir;
     private int nbThreads;
+
+    private int readerTileWidth;
+    private int readerTileHeight;
+    private int binningSliceHeight;
+
+    private boolean pixelGeoCodingFractionAccuracy;
+    private boolean pixelGeoCodingUseTiling;
+    private boolean useAlternatePixelGeoCoding;
+
+    private OperatorExecutor.ExecutionOrder gpfExecutionOrder;
+    private boolean gpfUseFileTileCache;
+    private boolean gpfDisableTileCache;
 
     private static PerformanceParameters actualParameters = null;
 
@@ -57,8 +65,6 @@ public class PerformanceParameters {
      * @param clone the performance parameter to copy
      */
     public PerformanceParameters(PerformanceParameters clone) {
-        this.setVmTmpDir(clone.vmTmpDir);
-        this.setAuxDataPath(clone.auxDataPath);
         this.setVMParameters(clone.vmParameters.toString());
         this.setUserDir(clone.userDir);
     }
@@ -71,41 +77,13 @@ public class PerformanceParameters {
         vmParameters.setVmXMS(vmXMS);
     }
 
-    public String getVmTmpDir() {
-        return vmTmpDir;
-    }
 
-    public void setVmTmpDir(String vmTmpDir) {
-        this.vmTmpDir = vmTmpDir;
-    }
-
-
-    public void setAuxDataPath(String auxDataPath) {
-        this.auxDataPath = auxDataPath;
-    }
-
-    public String getUserDir() {
+    public Path getUserDir() {
         return userDir;
     }
 
-    public void setUserDir(String largeTileCache) {
+    public void setUserDir(Path largeTileCache) {
         this.userDir = largeTileCache;
-    }
-
-    public long getTileCacheCapacity() {
-        return tileCacheCapacity;
-    }
-
-    public void setTileCacheCapacity(long cacheSize) {
-        this.tileCacheCapacity = cacheSize;
-    }
-
-    public long getTileSize() {
-        return tileSize;
-    }
-
-    public void setTileSize(long tileSize) {
-        this.tileSize = tileSize;
     }
 
     public int getNbThreads() {
@@ -136,32 +114,116 @@ public class PerformanceParameters {
     }
 
 
+
+    public int getReaderTileWidth() {
+        return readerTileWidth;
+    }
+
+    public void setReaderTileWidth(int readerTileWidth) {
+        this.readerTileWidth = readerTileWidth;
+    }
+
+    public int getReaderTileHeight() {
+        return readerTileHeight;
+    }
+
+    public void setReaderTileHeight(int readerTileHeight) {
+        this.readerTileHeight = readerTileHeight;
+    }
+
+    public int getBinningSliceHeight() {
+        return binningSliceHeight;
+    }
+
+    public void setBinningSliceHeight(int binningSliceHeight) {
+        this.binningSliceHeight = binningSliceHeight;
+    }
+
+    public boolean isPixelGeoCodingFractionAccuracy() {
+        return pixelGeoCodingFractionAccuracy;
+    }
+
+    public void setPixelGeoCodingFractionAccuracy(boolean pixelGeoCodingFractionAccuracy) {
+        this.pixelGeoCodingFractionAccuracy = pixelGeoCodingFractionAccuracy;
+    }
+
+    public boolean isPixelGeoCodingUseTiling() {
+        return pixelGeoCodingUseTiling;
+    }
+
+    public void setPixelGeoCodingUseTiling(boolean pixelGeoCodingUseTiling) {
+        this.pixelGeoCodingUseTiling = pixelGeoCodingUseTiling;
+    }
+
+    public boolean isUseAlternatePixelGeoCoding() {
+        return useAlternatePixelGeoCoding;
+    }
+
+    public void setUseAlternatePixelGeoCoding(boolean useAlternatePixelGeoCoding) {
+        this.useAlternatePixelGeoCoding = useAlternatePixelGeoCoding;
+    }
+
+    public OperatorExecutor.ExecutionOrder getGpfExecutionOrder() {
+        return gpfExecutionOrder;
+    }
+
+    public void setGpfExecutionOrder(OperatorExecutor.ExecutionOrder gpfExecutionOrder) {
+        this.gpfExecutionOrder = gpfExecutionOrder;
+    }
+
+    public boolean isGpfUseFileTileCache() {
+        return gpfUseFileTileCache;
+    }
+
+    public void setGpfUseFileTileCache(boolean gpfUseFileTileCache) {
+        this.gpfUseFileTileCache = gpfUseFileTileCache;
+    }
+
+    public boolean isGpfDisableTileCache() {
+        return gpfDisableTileCache;
+    }
+
+    public void setGpfDisableTileCache(boolean gpfDisableTileCache) {
+        this.gpfDisableTileCache = gpfDisableTileCache;
+    }
+
     /**
      *
      * Reads the parameters files and system settings to retreive the actual performance parameters.
+     * It updates the "actualParameters" according to the configuration loaded.
      *
-     * @return the actual performance parameters
+     * @return the actual performance parameters, loaded by this method
      */
     synchronized static PerformanceParameters loadConfiguration() {
 
-        if(actualParameters == null) {
-            actualParameters = new PerformanceParameters();
+        Config configuration = Config.instance().load();
+        Preferences preferences = configuration.preferences();
 
-            actualParameters.setVmTmpDir(System.getProperty("java.io.tmpdir"));
-            actualParameters.setUserDir(System.getProperty("user.dir"));
-            actualParameters.vmParameters = retreiveVMParameters();
+        actualParameters = new PerformanceParameters();
 
-            TileCache tileCache = JAI.getDefaultInstance().getTileCache();
-            long memoryCapacity = tileCache.getMemoryCapacity();
-            actualParameters.setTileCacheCapacity(memoryCapacity);
-            actualParameters.setTileSize(128);
-            actualParameters.setNbThreads(2);
-        }
+        VMParameters netBeansVmParameters = retreiveNBVMParameters();
+        String vmParameters = preferences.get("default_options", netBeansVmParameters.toString());
+        actualParameters.setVMParameters(vmParameters);
+        actualParameters.setUserDir(configuration.userDir());
+        actualParameters.setNbThreads(preferences.getInt("snap.parallelism", 1));
+
+        actualParameters.setReaderTileWidth(preferences.getInt("snap.dataio.reader.tileWidth", 1));
+        actualParameters.setReaderTileHeight(preferences.getInt("snap.dataio.reader.tileHeight", 1));
+        actualParameters.setBinningSliceHeight(preferences.getInt("snap.binning.sliceHeight", 1));
+
+        actualParameters.setPixelGeoCodingFractionAccuracy(preferences.getBoolean("snap.pixelGeoCoding.fractionAccuracy", false));
+        actualParameters.setPixelGeoCodingUseTiling(preferences.getBoolean("snap.pixelGeoCoding.useTiling", true));
+        actualParameters.setUseAlternatePixelGeoCoding(preferences.getBoolean("snap.useAlternatePixelGeoCoding", false));
+
+        String executionOrder = preferences.get("snap.gpf.executionOrder", "SCHEDULE_ROW_COLUMN_BAND");
+        actualParameters.setGpfExecutionOrder(OperatorExecutor.ExecutionOrder.valueOf(executionOrder));
+        actualParameters.setGpfUseFileTileCache(preferences.getBoolean("snap.gpf.useFileTileCache", false));
+        actualParameters.setGpfDisableTileCache(preferences.getBoolean("snap.gpf.disableTileCache", false));
 
         return actualParameters;
     }
 
-    private static VMParameters retreiveVMParameters() {
+    private static VMParameters retreiveNBVMParameters() {
         RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
         List<String> vmParamsList = bean.getInputArguments();
         String[] vmParamsArray = new String[vmParamsList.size()];
@@ -178,7 +240,25 @@ public class PerformanceParameters {
      * @param confToSave The configuration to save
      */
     synchronized static void saveConfiguration(PerformanceParameters confToSave) {
-        //TODO save the configuration..
+        Config configuration = Config.instance().load();
+        Preferences preferences = configuration.preferences();
+
+        preferences.put("default_options", confToSave.getVMParameters());
+        preferences.put("user.dir", confToSave.getUserDir().toString());
+        preferences.putInt("snap.parallelism", confToSave.getNbThreads());
+
+        preferences.putInt("snap.dataio.reader.tileWidth", confToSave.getReaderTileWidth());
+        preferences.putInt("snap.dataio.reader.tileHeight", confToSave.getReaderTileHeight());
+        preferences.putInt("snap.binning.sliceHeight", confToSave.getBinningSliceHeight());
+
+        preferences.putBoolean("snap.pixelGeoCoding.fractionAccuracy", confToSave.isPixelGeoCodingFractionAccuracy());
+        preferences.putBoolean("snap.pixelGeoCoding.ugetiling", confToSave.isPixelGeoCodingUseTiling());
+        preferences.putBoolean("snap.useAlternatePixelGeoCoding", confToSave.isUseAlternatePixelGeoCoding());
+
+        OperatorExecutor.ExecutionOrder executionOrderEnumVal = confToSave.getGpfExecutionOrder();
+        preferences.put("snap.gpf.executionOrder", executionOrderEnumVal.toString());
+        preferences.putBoolean("snap.gpf.useFileTileCache", confToSave.isGpfUseFileTileCache());
+        preferences.putBoolean("snap.gpf.disableTileCache", confToSave.isGpfDisableTileCache());
     }
 
 
