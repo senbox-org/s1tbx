@@ -18,7 +18,9 @@ package org.esa.snap.framework.param;
 import org.esa.snap.util.Guardian;
 import org.esa.snap.util.PropertyMap;
 
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The <code>ParamGroup</code> class represents a ordered list of parameters.
@@ -65,20 +67,16 @@ public class ParamGroup {
     public static ParamGroup create(PropertyMap propertyMap) {
         ParamGroup paramGroup = new ParamGroup();
         final String nameSuffix = ".name";
-        java.util.Enumeration keys = propertyMap.getPropertyKeys();
-        while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
-            if (key.endsWith(nameSuffix)) {
-                String paramName = propertyMap.getPropertyString(key);
-                Parameter parameter = paramGroup.createParameter(paramName);
-                parameter.setPropertyValues(propertyMap);
-                if (parameter.getValue() == null) {
-                    if (parameter.getProperties().getDefaultValue() != null) {
-                        parameter.setDefaultValue();
-                    }
+        propertyMap.getPropertyKeys().stream().filter(key -> key.endsWith(nameSuffix)).forEach(key -> {
+            String paramName = propertyMap.getPropertyString(key);
+            Parameter parameter = paramGroup.createParameter(paramName);
+            parameter.setPropertyValues(propertyMap);
+            if (parameter.getValue() == null) {
+                if (parameter.getProperties().getDefaultValue() != null) {
+                    parameter.setDefaultValue();
                 }
             }
-        }
+        });
         return paramGroup;
     }
 

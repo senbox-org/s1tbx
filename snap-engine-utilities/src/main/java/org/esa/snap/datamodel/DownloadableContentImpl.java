@@ -125,7 +125,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
         boolean newVersion = true;
         if(remoteVersionFile.exists()) {
             final PropertyMap remoteVersionMap = new PropertyMap();
-            remoteVersionMap.load(remoteVersionFile);
+            remoteVersionMap.load(remoteVersionFile.toPath());
 
             remoteVersion = remoteVersionMap.getPropertyInt(localZipFile.getName());
 
@@ -133,7 +133,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
             if(localVersionFile.exists()) {
 
                 final PropertyMap localVersionMap = new PropertyMap();
-                localVersionMap.load(localVersionFile);
+                localVersionMap.load(localVersionFile.toPath());
 
                 int localVersion = localVersionMap.getPropertyInt(localZipFile.getName());
 
@@ -154,11 +154,11 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
         final File localVersionFile = new File(localZipFile.getParent(), versionFileName);
         final PropertyMap localVersionMap = new PropertyMap();
         if(localVersionFile.exists()) {
-            localVersionMap.load(localVersionFile);
+            localVersionMap.load(localVersionFile.toPath());
         }
 
         localVersionMap.setPropertyInt(localZipFile.getName(), remoteVersion);
-        localVersionMap.store(localVersionFile, "");
+        localVersionMap.store(localVersionFile.toPath(), "");
     }
 
     private synchronized void findFile() throws IOException {

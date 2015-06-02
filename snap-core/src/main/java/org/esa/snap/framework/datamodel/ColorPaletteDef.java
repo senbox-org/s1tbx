@@ -258,7 +258,7 @@ public class ColorPaletteDef implements Cloneable  {
      */
     public static ColorPaletteDef loadColorPaletteDef(File file) throws IOException {
         final PropertyMap propertyMap = new PropertyMap();
-        propertyMap.load(file); // Overwrite existing values
+        propertyMap.load(file.toPath()); // Overwrite existing values
         final int numPoints = propertyMap.getPropertyInt(_PROPERTY_KEY_NUM_POINTS);
         if (numPoints < 2) {
             throw new IOException("The selected file contains less than\n" +
@@ -301,7 +301,7 @@ public class ColorPaletteDef implements Cloneable  {
             propertyMap.setPropertyColor(_PROPERTY_KEY_COLOR + i, points[i].getColor());
             propertyMap.setPropertyDouble(_PROPERTY_KEY_SAMPLE + i, points[i].getSample());
         }
-        propertyMap.store(file, "BEAM Colour Palette Definition File"); /*I18N*/
+        propertyMap.store(file.toPath(), "BEAM Colour Palette Definition File"); /*I18N*/
     }
 
     private void check2PointsMinimum() {

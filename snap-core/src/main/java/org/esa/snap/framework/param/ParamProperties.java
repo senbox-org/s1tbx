@@ -25,6 +25,7 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -423,15 +424,11 @@ public class ParamProperties {
      */
     public void setPropertyValues(String paramName, PropertyMap propertyMap) {
         String namePrefix = paramName + ".";
-        java.util.Enumeration e = propertyMap.getPropertyKeys();
-        while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
-            if (name.startsWith(namePrefix)) {
-                String paramPropName = name.substring(namePrefix.length());
-                String paramPropValue = propertyMap.getPropertyString(name);
-                setPropertyValue(paramPropName, paramPropValue);
-            }
-        }
+        propertyMap.getPropertyKeys().stream().filter(key -> key.startsWith(namePrefix)).forEach(key -> {
+            String paramPropName = key.substring(namePrefix.length());
+            String paramPropValue = propertyMap.getPropertyString(key);
+            setPropertyValue(paramPropName, paramPropValue);
+        });
     }
 
     /**

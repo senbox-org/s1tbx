@@ -15,21 +15,23 @@
  */
 package org.esa.snap.util;
 
+import com.bc.ceres.core.Assert;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.logging.Logger;
+import java.util.Set;
 
 /**
  * The <code>PropertyMap</code> class can be used instead of the standard JDK <code>java.util.Properties</code>
@@ -43,9 +45,11 @@ import java.util.logging.Logger;
  */
 public class PropertyMap {
 
-    private final Properties _properties;
-    private PropertyChangeSupport _propertyChangeSupport;
-    private Logger _logger;
+    protected static final Font DEFAULT_FONT = new Font("SansSerif", Font.PLAIN, 12);
+    protected static final Color DEFAULT_COLOR = Color.BLACK;
+
+    private final Properties properties;
+    private PropertyChangeSupport propertyChangeSupport;
 
     /**
      * Constructs a new and empty property map.
@@ -58,8 +62,7 @@ public class PropertyMap {
      * Constructs a property map which uses the given <code>Properties</code> as a key/value container.
      */
     public PropertyMap(Properties properties) {
-        _properties = (properties != null) ? properties : new Properties();
-        _logger = SystemUtils.LOG;
+        this.properties = (properties != null) ? properties : new Properties();
     }
 
     /**
@@ -68,11 +71,11 @@ public class PropertyMap {
      * @param file the text file
      * @throws IOException if an I/O error occurs
      */
-    public void load(File file) throws IOException {
+    public void load(Path file) throws IOException {
         Guardian.assertNotNull("file", file);
-        FileInputStream istream = new FileInputStream(file);
-        getProperties().load(istream);
-        istream.close();
+        try (BufferedReader reader = Files.newBufferedReader(file)) {
+            getProperties().load(reader);
+        }
     }
 
 
@@ -83,41 +86,28 @@ public class PropertyMap {
      * @param header an optional file header
      * @throws IOException if an I/O error occurs
      */
-    public void store(File file, String header) throws IOException {
+    public void store(Path file, String header) throws IOException {
         Guardian.assertNotNull("file", file);
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(160000);
-        getProperties().store(baos, header);
-        baos.close();
-
-        final String text = baos.toString();
-        final StringTokenizer st = new StringTokenizer(text, "\n\r", false);
-        final String[] lines = new String[st.countTokens()];
-        for (int i = 0; st.hasMoreElements(); i++) {
-            lines[i] = st.nextElement().toString();
+        try (BufferedWriter writer = Files.newBufferedWriter(file)) {
+            getProperties().store(writer, header);
         }
-        Arrays.sort(lines);
-
-        BufferedWriter bos = new BufferedWriter(new FileWriter(file));
-        for (int i = 0; i < lines.length; i++) {
-            bos.write(lines[i]);
-            bos.newLine();
-        }
-        bos.close();
+        List<String> lines = new ArrayList<>(Files.readAllLines(file));
+        Collections.sort(lines);
+        Files.write(file, lines);
     }
 
     /**
      * Returns the <code>Properties</code> instance in which this property map stores its key/value pairs.
      */
     public Properties getProperties() {
-        return _properties;
+        return properties;
     }
 
     /**
      * Returns an enumeration of the property keys in this map.
      */
-    public Enumeration getPropertyKeys() {
-        return _properties.keys();
+    public Set<String> getPropertyKeys() {
+        return properties.stringPropertyNames();
     }
 
     /**
@@ -151,11 +141,8 @@ public class PropertyMap {
      * set.
      */
     public Boolean getPropertyBool(String key, Boolean defaultValue) {
-        String value = _properties.getProperty(key);
-        if (value != null) {
-            return Boolean.valueOf(value);
-        }
-        return defaultValue;
+        String value = get(key);
+        return value != null ? Boolean.valueOf(value) : defaultValue;
     }
 
     /**
@@ -166,7 +153,6 @@ public class PropertyMap {
      * @throws IllegalArgumentException
      */
     public void setPropertyBool(String key, boolean value) {
-        Guardian.assertNotNullOrEmpty("key", key);
         setPropertyBool(key, value ? Boolean.TRUE : Boolean.FALSE);
     }
 
@@ -178,9 +164,7 @@ public class PropertyMap {
      * @throws IllegalArgumentException
      */
     public void setPropertyBool(String key, Boolean newValue) {
-        Guardian.assertNotNullOrEmpty("key", key);
-        Boolean oldValue = getPropertyBool(key, null);
-        changeInternalProperty(key, oldValue, newValue);
+        set(key, newValue != null ? Boolean.toString(newValue) : null);
     }
 
     /**
@@ -202,20 +186,15 @@ public class PropertyMap {
      * set.
      */
     public int getPropertyInt(String key, int defaultValue) {
-        Guardian.assertNotNullOrEmpty("key", key);
-        String value = _properties.getProperty(key);
-        if (value != null) {
-            try {
-                return Integer.parseInt(value);
-            } catch (NumberFormatException e) {
-                String message = "warning: property value of type 'int' expected: "
-                                 + key + "=" + value + "; using default value: "
-                                 + defaultValue;
-                _logger.warning(message);
-                Debug.trace(message);
-            }
+        String value = get(key);
+        if (value == null) {
+            return defaultValue;
         }
-        return defaultValue;
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 
 
@@ -228,20 +207,15 @@ public class PropertyMap {
      * set.
      */
     public Integer getPropertyInt(String key, Integer defaultValue) {
-        Guardian.assertNotNullOrEmpty("key", key);
-        String value = _properties.getProperty(key);
-        if (value != null) {
-            try {
-                return new Integer(value);
-            } catch (NumberFormatException e) {
-                String message = "warning: property value of type 'Integer' expected: "
-                                 + key + "=" + value + "; using default value: "
-                                 + defaultValue;
-                _logger.warning(message);
-                Debug.trace(message);
-            }
+        String value = get(key);
+        if (value == null) {
+            return defaultValue;
         }
-        return defaultValue;
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 
 
@@ -259,14 +233,12 @@ public class PropertyMap {
     /**
      * Sets a value of type <code>Integer</code>.
      *
-     * @param key      the key
-     * @param newValue the value
+     * @param key   the key
+     * @param value the value
      * @throws IllegalArgumentException
      */
-    public void setPropertyInt(String key, Integer newValue) {
-        Guardian.assertNotNullOrEmpty("key", key);
-        Integer oldValue = getPropertyInt(key, null);
-        changeInternalProperty(key, oldValue, newValue);
+    public void setPropertyInt(String key, Integer value) {
+        set(key, value != null ? Integer.toString(value) : null);
     }
 
     /**
@@ -289,19 +261,15 @@ public class PropertyMap {
      * set.
      */
     public double getPropertyDouble(String key, double defaultValue) {
-        String value = _properties.getProperty(key);
-        if (value != null) {
-            try {
-                return Double.valueOf(value);
-            } catch (NumberFormatException e) {
-                String message = "warning: property value of type 'double' expected: "
-                                 + key + "=" + value + "; using default value: "
-                                 + defaultValue;
-                _logger.warning(message);
-                Debug.trace(message);
-            }
+        String value = get(key);
+        if (value == null) {
+            return defaultValue;
         }
-        return defaultValue;
+        try {
+            return Double.valueOf(value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 
     /**
@@ -313,19 +281,15 @@ public class PropertyMap {
      * set.
      */
     public Double getPropertyDouble(String key, Double defaultValue) {
-        String value = _properties.getProperty(key);
-        if (value != null) {
-            try {
-                return new Double(value);
-            } catch (NumberFormatException e) {
-                String message = "warning: property value of type 'Double' expected: "
-                                 + key + "=" + value + "; using default value: "
-                                 + defaultValue;
-                _logger.warning(message);
-                Debug.trace(message);
-            }
+        String value = get(key);
+        if (value == null) {
+            return defaultValue;
         }
-        return defaultValue;
+        try {
+            return Double.valueOf(value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 
     /**
@@ -342,14 +306,12 @@ public class PropertyMap {
     /**
      * Sets a value of type <code>Double</code>.
      *
-     * @param key      the key
-     * @param newValue the value
+     * @param key   the key
+     * @param value the value
      * @throws IllegalArgumentException
      */
-    public void setPropertyDouble(String key, Double newValue) {
-        Guardian.assertNotNullOrEmpty("key", key);
-        Double oldValue = getPropertyDouble(key, null);
-        changeInternalProperty(key, oldValue, newValue);
+    public void setPropertyDouble(String key, Double value) {
+        set(key, value != null ? Double.toString(value) : null);
     }
 
     /**
@@ -360,7 +322,7 @@ public class PropertyMap {
      * property set, never <code>null</code>.
      */
     public String getPropertyString(String key) {
-        return getPropertyString(key, "");
+        return get(key, "");
     }
 
     /**
@@ -372,21 +334,18 @@ public class PropertyMap {
      * set.
      */
     public String getPropertyString(String key, String defaultValue) {
-        Guardian.assertNotNullOrEmpty("key", key);
-        return _properties.getProperty(key, defaultValue);
+        return get(key, defaultValue);
     }
 
     /**
      * Sets a value of type <code>String</code>.
      *
-     * @param key      the key
-     * @param newValue the new value
+     * @param key   the key
+     * @param value the new value
      * @throws IllegalArgumentException
      */
-    public void setPropertyString(String key, String newValue) {
-        Guardian.assertNotNullOrEmpty("key", key);
-        String oldValue = getPropertyString(key, null);
-        changeInternalProperty(key, oldValue, newValue);
+    public void setPropertyString(String key, String value) {
+        set(key, value);
     }
 
     /**
@@ -397,7 +356,7 @@ public class PropertyMap {
      * set, never <code>null</code>.
      */
     public Color getPropertyColor(String key) {
-        return getPropertyColor(key, Color.black);
+        return getPropertyColor(key, DEFAULT_COLOR);
     }
 
     /**
@@ -410,7 +369,7 @@ public class PropertyMap {
      */
     public Color getPropertyColor(String key, Color defaultValue) {
         Guardian.assertNotNullOrEmpty("key", key);
-        String value = _properties.getProperty(key);
+        String value = get(key);
         if (value != null) {
             Color color = StringUtils.parseColor(value);
             if (color != null) {
@@ -428,43 +387,22 @@ public class PropertyMap {
      * @throws IllegalArgumentException
      */
     public void setPropertyColor(String key, Color newValue) {
-        Guardian.assertNotNullOrEmpty("key", key);
-        Color oldValue = getPropertyColor(key, null);
-        if (!ObjectUtils.equalObjects(oldValue, newValue)) {
-            if (newValue != null) {
-                _properties.setProperty(key, StringUtils.formatColor(newValue));
-            } else {
-                _properties.remove(key);
-            }
-            firePropertyChange(key, oldValue, newValue);
-        }
+        set(key, StringUtils.formatColor(newValue));
     }
 
     /**
-     * Gets a value of type <code>Font</code>. The method actually looks for three keys in order to construct the font
-     * instance:
-     * <ul>
-     * <li><code>&lt;key&gt;.name</code> for the font's name</li>
-     * <li><code>&lt;key&gt;.style</code> for the font's style (an integer value)</li>
-     * <li><code>&lt;key&gt;.name</code> for the font's size in points (an integer value)</li>
-     * </ul>
+     * Gets a value of type <code>Font</code>.
      *
      * @param key the key
      * @return the value for the given key, or a plain, 12-point "SandSerif" font if the key is not contained in this
      * property set, never <code>null</code>.
      */
     public Font getPropertyFont(String key) {
-        return getPropertyFont(key, new Font("SansSerif", Font.PLAIN, 12));
+        return getPropertyFont(key, DEFAULT_FONT);
     }
 
     /**
-     * Gets a value of type <code>Font</code>. The method actually looks for three keys in order to construct the font
-     * instance:
-     * <ul>
-     * <li><code>&lt;key&gt;.name</code> for the font's name</li>
-     * <li><code>&lt;key&gt;.style</code> for the font's style (an integer value)</li>
-     * <li><code>&lt;key&gt;.name</code> for the font's size in points (an integer value)</li>
-     * </ul>
+     * Gets a value of type <code>Font</code>.
      *
      * @param key          the key
      * @param defaultValue the default value that is returned if the key was not found in this property set.
@@ -472,14 +410,33 @@ public class PropertyMap {
      * set.
      */
     public Font getPropertyFont(String key, Font defaultValue) {
-        Guardian.assertNotNullOrEmpty("key", key);
-        String fontName = getPropertyString(key + ".name", null);
-        if (fontName != null) {
-            int fontStyle = getPropertyInt(key + ".style", java.awt.Font.PLAIN);
-            int fontSize = getPropertyInt(key + ".size", 12);
-            return new Font(fontName, fontStyle, fontSize);
+        String value = get(key);
+        if (value == null) {
+            return defaultValue;
         }
-        return defaultValue;
+
+        String[] parts = value.split(";");
+        if (parts.length == 0 || parts.length > 3) {
+            throw new IllegalArgumentException("illegal font value: " + value);
+        }
+
+        String fontName = parts[0];
+        int fontStyle = DEFAULT_FONT.getStyle();
+        int fontSize = DEFAULT_FONT.getSize();
+
+        if (parts.length >= 2) {
+            String styleValue = parts[1];
+            if ("BOLD".equalsIgnoreCase(styleValue)) {
+                fontStyle = Font.BOLD;
+            } else if ("ITALIC".equalsIgnoreCase(styleValue)) {
+                fontStyle = Font.ITALIC;
+            }
+        }
+        if (parts.length >= 3) {
+            fontSize = Integer.parseInt(parts[2], 10);
+        }
+
+        return new Font(fontName, fontStyle, fontSize);
     }
 
     /**
@@ -491,25 +448,47 @@ public class PropertyMap {
      * <li><code>&lt;key&gt;.name</code> for the font's size in points (an integer font)</li>
      * </ul>
      *
-     * @param key      the key
-     * @param newValue the font
+     * @param key  the key
+     * @param font the font
      * @throws IllegalArgumentException
      */
-    public void setPropertyFont(String key, Font newValue) {
-        Guardian.assertNotNullOrEmpty("key", key);
-        Font oldValue = getPropertyFont(key, null);
-        if (!ObjectUtils.equalObjects(oldValue, newValue)) {
-            if (newValue != null) {
-                _properties.setProperty(key + ".name", newValue.getName());
-                _properties.setProperty(key + ".style", String.valueOf(newValue.getStyle()));
-                _properties.setProperty(key + ".size", String.valueOf(newValue.getSize()));
-            } else {
-                _properties.remove(key + ".name");
-                _properties.remove(key + ".style");
-                _properties.remove(key + ".size");
+    public void setPropertyFont(String key, Font font) {
+        String value = null;
+        if (font != null) {
+            String styleValue = "PLAIN";
+            int style = font.getStyle();
+            if (style == Font.ITALIC) {
+                styleValue = "ITALIC";
+            } else if (style == Font.BOLD) {
+                styleValue = "BOLD";
             }
-            firePropertyChange(key, oldValue, newValue);
+            value = String.format("%s;%s;%s", font.getName(), styleValue, font.getSize());
         }
+        set(key, value);
+    }
+
+    protected String get(String key) {
+        Assert.notNull(key, "key");
+        return properties.getProperty(key);
+    }
+
+    protected String get(String key, String defaultValue) {
+        Assert.notNull(key, "key");
+        return properties.getProperty(key, defaultValue);
+    }
+
+    protected String set(String key, String value) {
+        Assert.notNull(key, "key");
+        String oldValue = properties.getProperty(key, value);
+        if (value != null) {
+            properties.put(key, value);
+        } else {
+            properties.remove(key);
+        }
+        if (!ObjectUtils.equalObjects(value, oldValue)) {
+            firePropertyChange(key, value, oldValue);
+        }
+        return oldValue;
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -518,13 +497,13 @@ public class PropertyMap {
 
     public void addPropertyChangeListener(String key, PropertyChangeListener listener) {
         if (listener != null) {
-            if (_propertyChangeSupport == null) {
-                _propertyChangeSupport = new PropertyChangeSupport(this);
+            if (propertyChangeSupport == null) {
+                propertyChangeSupport = new PropertyChangeSupport(this);
             }
             if (key == null) {
-                _propertyChangeSupport.addPropertyChangeListener(listener);
+                propertyChangeSupport.addPropertyChangeListener(listener);
             } else {
-                _propertyChangeSupport.addPropertyChangeListener(key, listener);
+                propertyChangeSupport.addPropertyChangeListener(key, listener);
             }
         }
     }
@@ -534,29 +513,19 @@ public class PropertyMap {
     }
 
     public void removePropertyChangeListener(String key, PropertyChangeListener listener) {
-        if (listener != null && _propertyChangeSupport != null) {
+        if (listener != null && propertyChangeSupport != null) {
             if (key == null) {
-                _propertyChangeSupport.removePropertyChangeListener(listener);
+                propertyChangeSupport.removePropertyChangeListener(listener);
             } else {
-                _propertyChangeSupport.removePropertyChangeListener(key, listener);
+                propertyChangeSupport.removePropertyChangeListener(key, listener);
             }
         }
     }
 
-    protected void firePropertyChange(String key, Object oldValue, Object newValue) {
-        if (_propertyChangeSupport != null) {
-            _propertyChangeSupport.firePropertyChange(key, oldValue, newValue);
+    protected void firePropertyChange(String key, String oldValue, String newValue) {
+        if (propertyChangeSupport != null) {
+            propertyChangeSupport.firePropertyChange(key, oldValue, newValue);
         }
     }
 
-    private void changeInternalProperty(String key, Object oldValue, Object newValue) {
-        if (!ObjectUtils.equalObjects(oldValue, newValue)) {
-            if (newValue != null) {
-                _properties.setProperty(key, newValue.toString());
-            } else {
-                _properties.remove(key);
-            }
-            firePropertyChange(key, oldValue, newValue);
-        }
-    }
 }
