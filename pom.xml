@@ -85,7 +85,7 @@
         <module>snap-unmix</module>
         <module>blue-marble-worldmap</module>
         <module>globcover-worldmap</module>
-        <module>snap-sta</module>
+        <!--module>snap-sta</module-->
 
         <module>lib-hdf</module>
     </modules>
