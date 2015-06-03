@@ -24,6 +24,8 @@ import java.text.MessageFormat;
 
 public class ColorConverter implements Converter<Color> {
 
+    public final static ColorConverter INSTANCE = new ColorConverter();
+
     @Override
     public Class<Color> getValueType() {
         return Color.class;
