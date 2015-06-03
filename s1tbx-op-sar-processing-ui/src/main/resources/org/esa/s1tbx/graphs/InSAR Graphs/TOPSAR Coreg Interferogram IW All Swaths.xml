@@ -58,7 +58,7 @@
     <operator>Back-Geocoding</operator>
     <sources>
       <sourceProduct refid="TOPSAR-Split"/>
-      <sourceProduct refid="TOPSAR-Split(2)"/>
+      <sourceProduct.1 refid="TOPSAR-Split(2)"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <demName>SRTM 3Sec</demName>

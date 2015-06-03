@@ -58,7 +58,7 @@
     <operator>Back-Geocoding</operator>
     <sources>
       <sourceProduct refid="Apply-Orbit-File"/>
-      <sourceProduct refid="Apply-Orbit-File(2)"/>
+      <sourceProduct.1 refid="Apply-Orbit-File(2)"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <demName>SRTM 3Sec</demName>

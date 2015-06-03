@@ -38,7 +38,7 @@
     <operator>CreateStack</operator>
     <sources>
       <sourceProduct refid="BandSelect"/>
-      <sourceProduct refid="BandSelect(2)"/>
+      <sourceProduct.1 refid="BandSelect(2)"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <masterBands/>
