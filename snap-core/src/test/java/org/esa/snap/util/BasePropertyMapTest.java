@@ -109,7 +109,7 @@ public abstract class BasePropertyMapTest {
     public void testSetGetPropertyFont() {
         PropertyMap prop = createPropertyMap();
 
-        Font font1 = new Font("SansSerif", Font.PLAIN, 12); // default
+        Font font1 = new Font(Font.DIALOG, Font.PLAIN, 12); // default
         Font font2 = new Font("SansSerif", Font.BOLD, 10);
 
         // "a" is not in the set
