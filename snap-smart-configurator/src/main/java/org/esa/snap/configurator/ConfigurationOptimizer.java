@@ -60,7 +60,7 @@ public class ConfigurationOptimizer {
      * Default constructor. Performs initialisations.
      */
     public ConfigurationOptimizer() {
-        sysInfos = SigarSystemInfos.getInstance();
+        sysInfos = JavaSystemInfos.getInstance();
     }
 
 
@@ -90,7 +90,7 @@ public class ConfigurationOptimizer {
         custommisedPerformanceParameters = updatedParams;
     }
 
-    public void saveCustomisedParameters() {
+    public void saveCustomisedParameters() throws IOException {
         PerformanceParameters.saveConfiguration(custommisedPerformanceParameters);
         actualPerformanceParameters = new PerformanceParameters(custommisedPerformanceParameters);
     }
@@ -110,8 +110,8 @@ public class ConfigurationOptimizer {
      *
      */
     private void computeOptimisedRAMParams(PerformanceParameters performanceParameters) {
-        long freeRAM = sysInfos.getFreeRAM() / (1024 * 1024);
-        long thisAppRam = sysInfos.getThisAppRam() / (1024 * 1024);
+        long freeRAM = sysInfos.getFreeRAM();
+        long thisAppRam = sysInfos.getThisAppRam();
 
         long optisedJVMMem;
         if(freeRAM > DEFAULT_MIN_FREE_RAM) {
@@ -138,8 +138,8 @@ public class ConfigurationOptimizer {
         String[] disks = sysInfos.getDisksNames();
 
         double fastestForTmpSpeed = 0;
-        Path fastestForLargeCache = null;
-        double fastestForLargeCacheSpeed = 0;
+        Path fastestForUserDir = null;
+        double fastestForUserDirSpeed = 0;
 
         for(String diskName : disks) {
             try {
@@ -148,11 +148,11 @@ public class ConfigurationOptimizer {
                         sysInfos.getDiskFreeSize(diskName) > MIN_FREE_TMP_DISK_SPACE) {
                     fastestForTmpSpeed = writeSpeed;
                 }
-                if(writeSpeed > fastestForLargeCacheSpeed &&
+                if(writeSpeed > fastestForUserDirSpeed &&
                         sysInfos.getDiskFreeSize(diskName) > MIN_FREE_LARGE_CACHE_DISK_SPACE) {
-                    fastestForLargeCacheSpeed = writeSpeed;
+                    fastestForUserDirSpeed = writeSpeed;
                     File diskNameAsFile = new File(diskName);
-                    fastestForLargeCache = FileUtils.getPathFromURI(diskNameAsFile.toURI());
+                    fastestForUserDir = FileUtils.getPathFromURI(diskNameAsFile.toURI());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -161,18 +161,18 @@ public class ConfigurationOptimizer {
 
 
 
-        if(fastestForLargeCache != null) {
+        if(fastestForUserDir != null) {
             String actualLargeCacheDir = actualPerformanceParameters.getUserDir().toString();
             DiskBenchmarker benchmarker = new DiskBenchmarker(actualLargeCacheDir);
             try {
-                double largeCacheDirWriteSpeed = benchmarker.getWriteSpeed();
-                double minSpeedToChange = largeCacheDirWriteSpeed * (1 + DISK_MIN_SPEED_INCREASE / 100);
-                if(minSpeedToChange < fastestForLargeCacheSpeed) {
-                    performanceParameters.setUserDir(fastestForLargeCache);
+                double userDirWriteSpeed = benchmarker.getWriteSpeed();
+                double minSpeedToChange = userDirWriteSpeed * (1 + DISK_MIN_SPEED_INCREASE / 100);
+                if(minSpeedToChange < fastestForUserDirSpeed) {
+                    performanceParameters.setUserDir(fastestForUserDir);
                 }
             } catch (IOException e) {
                 // we could check actual large cache speed, so we change directory
-                performanceParameters.setUserDir(fastestForLargeCache);
+                performanceParameters.setUserDir(fastestForUserDir);
 
                 SystemUtils.LOG.warning(
                         "Could not check performance of large cache dir: " +

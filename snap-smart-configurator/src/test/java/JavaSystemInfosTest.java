@@ -16,7 +16,7 @@
 
 
 import junit.framework.TestCase;
-import org.esa.snap.configurator.SigarSystemInfos;
+import org.esa.snap.configurator.JavaSystemInfos;
 import org.esa.snap.configurator.SystemInfos;
 
 import java.io.IOException;
@@ -24,9 +24,9 @@ import java.io.IOException;
 /**
  * Created by nducoin on 27/03/2015.
  */
-public class SigarSystemInfosTest extends TestCase {
+public class JavaSystemInfosTest extends TestCase {
 
-    private static SystemInfos systemInfos = SigarSystemInfos.getInstance(1, 2);
+    private static SystemInfos systemInfos = JavaSystemInfos.getInstance(1, 2);
 
     public void testGetCPUs() {
         int nbCPUs = systemInfos.getNbCPUs();

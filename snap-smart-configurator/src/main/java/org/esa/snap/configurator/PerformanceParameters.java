@@ -21,9 +21,13 @@ import org.esa.snap.framework.gpf.internal.OperatorExecutor;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.util.SystemUtils;
 
+
+import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.prefs.Preferences;
 
@@ -52,7 +56,9 @@ public class PerformanceParameters {
 
     private int readerTileWidth;
     private int readerTileHeight;
-    private int binningSliceHeight;
+
+    private int defaultTileSize;
+    private int cacheSize;
 
     private boolean pixelGeoCodingFractionAccuracy;
     private boolean pixelGeoCodingUseTiling;
@@ -77,7 +83,11 @@ public class PerformanceParameters {
      */
     public PerformanceParameters(PerformanceParameters clone) {
         this.setVMParameters(clone.vmParameters.toString());
-        this.setUserDir(clone.userDir);
+        this.setUserDir(clone.getUserDir());
+
+        this.setNbThreads(clone.getNbThreads());
+        this.setDefaultTileSize(clone.getDefaultTileSize());
+        this.setCacheSize(clone.getCacheSize());
     }
 
     public void setVmXMX(long vmXMX) {
@@ -126,6 +136,14 @@ public class PerformanceParameters {
 
 
 
+    public int getDefaultTileSize() {
+        return defaultTileSize;
+    }
+
+    public void setDefaultTileSize(int defaultTileSize) {
+        this.defaultTileSize = defaultTileSize;
+    }
+
     public int getReaderTileWidth() {
         return readerTileWidth;
     }
@@ -142,12 +160,12 @@ public class PerformanceParameters {
         this.readerTileHeight = readerTileHeight;
     }
 
-    public int getBinningSliceHeight() {
-        return binningSliceHeight;
+    public int getCacheSize() {
+        return cacheSize;
     }
 
-    public void setBinningSliceHeight(int binningSliceHeight) {
-        this.binningSliceHeight = binningSliceHeight;
+    public void setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
     }
 
     public boolean isPixelGeoCodingFractionAccuracy() {
@@ -218,9 +236,10 @@ public class PerformanceParameters {
         actualParameters.setUserDir(configuration.userDir());
         actualParameters.setNbThreads(preferences.getInt("snap.parallelism", 1));
 
+        actualParameters.setDefaultTileSize(preferences.getInt("snap.jai.defaultTileSize", 1));
         actualParameters.setReaderTileWidth(preferences.getInt("snap.dataio.reader.tileWidth", 1));
         actualParameters.setReaderTileHeight(preferences.getInt("snap.dataio.reader.tileHeight", 1));
-        actualParameters.setBinningSliceHeight(preferences.getInt("snap.binning.sliceHeight", 1));
+        actualParameters.setCacheSize(preferences.getInt("snap.jai.tileCacheSize", 1));
 
         actualParameters.setPixelGeoCodingFractionAccuracy(preferences.getBoolean("snap.pixelGeoCoding.fractionAccuracy", false));
         actualParameters.setPixelGeoCodingUseTiling(preferences.getBoolean("snap.pixelGeoCoding.useTiling", true));
@@ -250,18 +269,29 @@ public class PerformanceParameters {
      *
      * @param confToSave The configuration to save
      */
-    synchronized static void saveConfiguration(PerformanceParameters confToSave) {
+    synchronized static void saveConfiguration(PerformanceParameters confToSave) throws IOException {
         Config configuration = Config.instance().load();
         Preferences preferences = configuration.preferences();
 
         preferences.put("default_options", confToSave.getVMParameters());
-        preferences.put("user.dir", confToSave.getUserDir().toString());
-        preferences.putInt("snap.parallelism", confToSave.getNbThreads());
 
+        String userDirString = confToSave.getUserDir().toString();
+
+        String[] diskNames = JavaSystemInfos.getInstance().getDisksNames();
+        if(Arrays.asList(diskNames).contains(userDirString)) {
+            userDirString = userDirString + File.separator + "." + SystemUtils.getApplicationContextId();
+            File contextFolderAsFile = new File(userDirString);
+            contextFolderAsFile.createNewFile();
+        }
+        preferences.put("user.dir", userDirString);
+
+        preferences.putInt("snap.parallelism", confToSave.getNbThreads());
+        preferences.putInt("snap.jai.defaultTileSize", confToSave.getDefaultTileSize());
+        preferences.putInt("snap.jai.tileCacheSize", confToSave.getCacheSize());
+
+/* not implemented in this version.
         preferences.putInt("snap.dataio.reader.tileWidth", confToSave.getReaderTileWidth());
         preferences.putInt("snap.dataio.reader.tileHeight", confToSave.getReaderTileHeight());
-        preferences.putInt("snap.binning.sliceHeight", confToSave.getBinningSliceHeight());
-
         preferences.putBoolean("snap.pixelGeoCoding.fractionAccuracy", confToSave.isPixelGeoCodingFractionAccuracy());
         preferences.putBoolean("snap.pixelGeoCoding.ugetiling", confToSave.isPixelGeoCodingUseTiling());
         preferences.putBoolean("snap.useAlternatePixelGeoCoding", confToSave.isUseAlternatePixelGeoCoding());
@@ -270,6 +300,7 @@ public class PerformanceParameters {
         preferences.put("snap.gpf.executionOrder", executionOrderEnumVal.toString());
         preferences.putBoolean("snap.gpf.useFileTileCache", confToSave.isGpfUseFileTileCache());
         preferences.putBoolean("snap.gpf.disableTileCache", confToSave.isGpfDisableTileCache());
+ */
     }
 
 
@@ -325,7 +356,7 @@ public class PerformanceParameters {
                         } catch (NumberFormatException ex) {
                             SystemUtils.LOG.warning("VM Parameters, bad XMX: " + thisArg);
                         }
-                    } else if (thisArg.equalsIgnoreCase("-Xms")) {
+                    } else if (thisArg.startsWith("-Xms")) {
                         try {
                             setVmXMS(getMemVmSettingValue(thisArg));
                         } catch (NumberFormatException ex) {
