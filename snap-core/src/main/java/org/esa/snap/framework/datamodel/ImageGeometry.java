@@ -122,12 +122,32 @@ public class ImageGeometry {
         return new Rectangle(width, height);
     }
 
+    public static ImageGeometry createTargetGeometry(RasterDataNode rasterDataNode, CoordinateReferenceSystem targetCrs,
+                                                     Double pixelSizeX, Double pixelSizeY, Integer width,
+                                                     Integer height,
+                                                     Double orientation, Double easting, Double northing,
+                                                     Double referencePixelX, Double referencePixelY) {
+        return createTargetGeometry(createMapBoundary(rasterDataNode, targetCrs), rasterDataNode.getSceneRasterWidth(),
+                                    rasterDataNode.getSceneRasterHeight(), targetCrs, pixelSizeX, pixelSizeY, width,
+                                    height, orientation, easting, northing, referencePixelX, referencePixelY);
+    }
+
     public static ImageGeometry createTargetGeometry(Product sourceProduct, CoordinateReferenceSystem targetCrs,
                                                      Double pixelSizeX, Double pixelSizeY, Integer width,
                                                      Integer height,
                                                      Double orientation, Double easting, Double northing,
                                                      Double referencePixelX, Double referencePixelY) {
-        Rectangle2D mapBoundary = createMapBoundary(sourceProduct, targetCrs);
+        return createTargetGeometry(createMapBoundary(sourceProduct, targetCrs), sourceProduct.getSceneRasterWidth(),
+                                    sourceProduct.getSceneRasterHeight(), targetCrs, pixelSizeX, pixelSizeY, width,
+                                    height, orientation, easting, northing, referencePixelX, referencePixelY);
+    }
+
+    public static ImageGeometry createTargetGeometry(Rectangle2D mapBoundary, int sourceWidth, int sourceHeight,
+                                                     CoordinateReferenceSystem targetCrs,
+                                                     Double pixelSizeX, Double pixelSizeY, Integer width,
+                                                     Integer height,
+                                                     Double orientation, Double easting, Double northing,
+                                                     Double referencePixelX, Double referencePixelY) {
         ImageGeometry ig = new ImageGeometry();
         ig.mapCrs = targetCrs;
         ig.orientation = orientation == null ? 0.0 : orientation;
@@ -137,8 +157,8 @@ public class ImageGeometry {
         if (pixelSizeX == null || pixelSizeY == null) {
             // used float here to preserve same behavior as in old map-projection implementation
             // if double would be used scene size would differ sometimes by one pixel
-            float pixelSize = (float) Math.min(mapW / sourceProduct.getSceneRasterWidth(),
-                                               mapH / sourceProduct.getSceneRasterHeight());
+            float pixelSize = (float) Math.min(mapW / sourceWidth,
+                                               mapH / sourceHeight);
             if (MathUtils.equalValues(pixelSize, 0.0f)) {
                 pixelSize = 1.0f;
             }
@@ -197,6 +217,27 @@ public class ImageGeometry {
 
     }
 
+    private static Rectangle2D createMapBoundary(final RasterDataNode rdn, CoordinateReferenceSystem targetCrs) {
+        try {
+            final CoordinateReferenceSystem sourceCrs = rdn.getGeoCoding().getImageCRS();
+            final int sourceW = rdn.getSceneRasterWidth();
+            final int sourceH = rdn.getSceneRasterHeight();
+            final Rectangle2D rect = XRectangle2D.createFromExtremums(0.5, 0.5, sourceW - 0.5, sourceH - 0.5);
+            int pointsPerSide = Math.max(sourceH, sourceW) / 10;
+            pointsPerSide = Math.max(9, pointsPerSide);
+            final ReferencedEnvelope sourceEnvelope = new ReferencedEnvelope(rect, sourceCrs);
+            final ReferencedEnvelope targetEnvelope = sourceEnvelope.transform(targetCrs, true, pointsPerSide);
+            double minX = targetEnvelope.getMinX();
+            double width = targetEnvelope.getWidth();
+            if (rdn.getGeoCoding().isCrossingMeridianAt180()) {
+                minX = -180.0;
+                width = 360;
+            }
+            return new Rectangle2D.Double(minX, targetEnvelope.getMinY(), width, targetEnvelope.getHeight());
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
     private static Rectangle2D createMapBoundary(final Product product, CoordinateReferenceSystem targetCrs) {
         try {

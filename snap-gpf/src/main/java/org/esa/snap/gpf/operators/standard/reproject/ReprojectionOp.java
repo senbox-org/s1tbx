@@ -32,6 +32,8 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.ProductNodeGroup;
 import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.framework.datamodel.SceneRasterTransform;
+import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.dataop.dem.ElevationModel;
 import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
@@ -68,6 +70,8 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -207,9 +211,10 @@ public class ReprojectionOp extends Operator {
     private boolean addDeltaBands;
 
     private ElevationModel elevationModel;
-    private MultiLevelModel sourceModel;
-    private MultiLevelModel targetModel;
-    private Reproject reprojection;
+    private Map<String, MultiLevelModel> sourceModelMap;
+    private MultiLevelModel defaultSourceModel;
+    private Map<String, ImageGeometry> imageGeometryMap;
+    private ImageGeometry defaultImageGeometry;
 
     @Override
     public void initialize() throws OperatorException {
@@ -226,7 +231,9 @@ public class ReprojectionOp extends Operator {
         * 2. Compute the target geometry
         */
         ImageGeometry targetImageGeometry = createImageGeometry(targetCrs);
-
+        initMaps(targetCrs);
+        defaultSourceModel = ImageManager.getMultiLevelModel(sourceProduct.getBandAt(0));
+        defaultImageGeometry = targetImageGeometry;
         /*
         * 3. Create the target product
         */
@@ -272,9 +279,6 @@ public class ReprojectionOp extends Operator {
         targetProduct.setStartTime(meanTime);
         targetProduct.setEndTime(meanTime);
 
-        sourceModel = ImageManager.getMultiLevelModel(sourceProduct.getBandAt(0));
-        targetModel = ImageManager.createMultiLevelModel(targetProduct);
-        reprojection = new Reproject(targetModel.getLevelCount());
         reprojectRasterDataNodes(sourceProduct.getBands());
         if (includeTiePointGrids) {
             reprojectRasterDataNodes(sourceProduct.getTiePointGrids());
@@ -295,6 +299,38 @@ public class ReprojectionOp extends Operator {
             elevationModel.dispose();
         }
         super.dispose();
+    }
+
+    private void initMaps(CoordinateReferenceSystem targetCrs) {
+        imageGeometryMap = new HashMap<>();
+        sourceModelMap = new HashMap<>();
+
+        final ProductNodeGroup<Band> sourceBands = sourceProduct.getBandGroup();
+        for (int i = 0; i < sourceBands.getNodeCount(); i++) {
+            addRasterDataNodeToMaps(sourceBands.get(i), targetCrs);
+        }
+        final ProductNodeGroup<TiePointGrid> tiePointGridGroup = sourceProduct.getTiePointGridGroup();
+        for (int i = 0; i < tiePointGridGroup.getNodeCount(); i++) {
+            addRasterDataNodeToMaps(tiePointGridGroup.get(i), targetCrs);
+        }
+    }
+
+    private void addRasterDataNodeToMaps(RasterDataNode rasterDataNode, CoordinateReferenceSystem targetCrs) {
+        if (rasterDataNode.getSceneRasterTransform() == SceneRasterTransform.IDENTITY) {
+            return;
+        }
+        final String rasterDataNodeName = rasterDataNode.getName();
+        if (!imageGeometryMap.containsKey(rasterDataNodeName)) {
+            imageGeometryMap.put(rasterDataNodeName, ImageGeometry.createTargetGeometry(rasterDataNode, targetCrs,
+                                                                                      pixelSizeX, pixelSizeY,
+                                                                                      width, height,
+                                                                                      orientation, easting,
+                                                                                      northing, referencePixelX,
+                                                                                      referencePixelY));
+        }
+        if (!sourceModelMap.containsKey(rasterDataNodeName)) {
+            sourceModelMap.put(rasterDataNodeName, ImageManager.getMultiLevelModel(rasterDataNode));
+        }
     }
 
     private ElevationModel createElevationModel() throws OperatorException {
@@ -332,6 +368,19 @@ public class ReprojectionOp extends Operator {
     }
 
     private void reprojectSourceRaster(RasterDataNode sourceRaster) {
+        final SceneRasterTransform sceneRasterTransform = sourceRaster.getSceneRasterTransform();
+        ImageGeometry imageGeometry;
+        if (imageGeometryMap.containsKey(sourceRaster.getName())) {
+            imageGeometry = imageGeometryMap.get(sourceRaster.getName());
+        } else {
+            imageGeometry = defaultImageGeometry;
+        }
+        MultiLevelModel sourceModel;
+        if (sourceModelMap.containsKey(sourceRaster.getName())) {
+            sourceModel = sourceModelMap.get(sourceRaster.getName());
+        } else {
+            sourceModel = defaultSourceModel;
+        }
         final int targetDataType;
         MultiLevelImage sourceImage;
         if (sourceRaster.isScalingApplied()) {
@@ -342,10 +391,13 @@ public class ReprojectionOp extends Operator {
             sourceImage = sourceRaster.getSourceImage();
         }
         final Number targetNoDataValue = getTargetNoDataValue(sourceRaster, targetDataType);
-        final Band targetBand = targetProduct.addBand(sourceRaster.getName(), targetDataType);
+        final Rectangle imageRect = imageGeometry.getImageRect();
+        final Band targetBand = new Band(sourceRaster.getName(), targetDataType, (int) imageRect.getWidth(), (int) imageRect.getHeight());
+        targetProduct.addBand(targetBand);
         targetBand.setLog10Scaled(sourceRaster.isLog10Scaled());
         targetBand.setNoDataValue(targetNoDataValue.doubleValue());
-        targetBand.setNoDataValueUsed(true);
+        targetBand.setNoDataValueUsed(targetBand.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
+                targetBand.getSceneRasterHeight() == targetProduct.getSceneRasterHeight());
         targetBand.setDescription(sourceRaster.getDescription());
         targetBand.setUnit(sourceRaster.getUnit());
 
@@ -356,9 +408,10 @@ public class ReprojectionOp extends Operator {
         }
 
         final Interpolation resampling = getResampling(targetBand);
-        MultiLevelImage projectedImage = createProjectedImage(sourceGeoCoding, sourceImage, targetBand, resampling);
+        MultiLevelImage projectedImage = createProjectedImage(sourceGeoCoding, sourceImage, sourceModel, targetBand, resampling);
         if (mustReplaceNaN(sourceRaster, targetDataType, targetNoDataValue.doubleValue())) {
-            projectedImage = createNaNReplacedImage(projectedImage, targetNoDataValue.doubleValue());
+            final MultiLevelModel targetModel = ImageManager.createMultiLevelModel(targetBand);
+            projectedImage = createNaNReplacedImage(projectedImage, targetModel, targetNoDataValue.doubleValue());
         }
         if (targetBand.isLog10Scaled()) {
             projectedImage = createLog10ScaledImage(projectedImage);
@@ -425,7 +478,7 @@ public class ReprojectionOp extends Operator {
         return targetNoDataNumber;
     }
 
-    private MultiLevelImage createNaNReplacedImage(final MultiLevelImage projectedImage, final double value) {
+    private MultiLevelImage createNaNReplacedImage(final MultiLevelImage projectedImage, MultiLevelModel targetModel, final double value) {
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetModel) {
 
@@ -441,19 +494,20 @@ public class ReprojectionOp extends Operator {
     }
 
     private MultiLevelImage createProjectedImage(final GeoCoding sourceGeoCoding, final MultiLevelImage sourceImage,
-                                                 final Band targetBand, final Interpolation resampling) {
+                                                 MultiLevelModel sourceModel, final Band targetBand, final Interpolation resampling) {
 
         final CoordinateReferenceSystem sourceModelCrs = ImageManager.getModelCrs(sourceGeoCoding);
         final CoordinateReferenceSystem targetModelCrs = ImageManager.getModelCrs(targetProduct.getGeoCoding());
         final AffineTransform i2mSourceProduct = ImageManager.getImageToModelTransform(sourceGeoCoding);
         final AffineTransform i2mTargetProduct = ImageManager.getImageToModelTransform(targetProduct.getGeoCoding());
+        MultiLevelModel targetModel = ImageManager.createMultiLevelModel(targetBand);
 
         return new DefaultMultiLevelImage(new AbstractMultiLevelSource(targetModel) {
 
             @Override
             public RenderedImage createImage(int targetLevel) {
                 final double targetScale = targetModel.getScale(targetLevel);
-                final int sourceLevel = sourceModel.getLevel(targetScale);
+                final int sourceLevel = sourceImage.getModel().getLevel(targetScale);
                 RenderedImage leveledSourceImage = sourceImage.getImage(sourceLevel);
 
                 final Rectangle sourceBounds = new Rectangle(leveledSourceImage.getWidth(),
@@ -491,6 +545,7 @@ public class ReprojectionOp extends Operator {
 
                 Dimension tileSize = ImageManager.getPreferredTileSize(targetProduct);
                 try {
+                    Reproject reprojection = new Reproject(targetModel.getLevelCount());
                     return reprojection.reproject(leveledSourceImage, sourceGeometry, targetGeometry,
                                                   targetBand.getNoDataValue(), resampling, hints, targetLevel,
                                                   tileSize);
@@ -642,6 +697,7 @@ public class ReprojectionOp extends Operator {
     private ImageGeometry createImageGeometry(CoordinateReferenceSystem targetCrs) {
         ImageGeometry imageGeometry;
         if (collocationProduct != null) {
+            //todo adapt this to multi resolution products
             imageGeometry = ImageGeometry.createCollocationTargetGeometry(sourceProduct, collocationProduct);
         } else {
             imageGeometry = ImageGeometry.createTargetGeometry(sourceProduct, targetCrs,
