@@ -1,5 +1,10 @@
 package org.esa.snap.util;
 
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.converters.ColorConverter;
+import com.bc.ceres.binding.converters.FontConverter;
+
 import java.awt.Color;
 import java.awt.Font;
 
@@ -10,8 +15,11 @@ import java.awt.Font;
  * @since SNAP 2
  */
 public abstract class AbstractPropertyMap implements PropertyMap {
-    public static final Font DEFAULT_FONT = new Font("SansSerif", Font.PLAIN, 12);
+
+    public static final Font DEFAULT_FONT = new Font(Font.DIALOG, Font.PLAIN, 12);
     public static final Color DEFAULT_COLOR = Color.BLACK;
+
+
 
     /**
      * Gets a value of type <code>boolean</code>.
@@ -198,27 +206,27 @@ public abstract class AbstractPropertyMap implements PropertyMap {
      */
     @Override
     public Color getPropertyColor(String key, Color defaultValue) {
-        Guardian.assertNotNullOrEmpty("key", key);
         String value = get(key);
-        if (value != null) {
-            Color color = StringUtils.parseColor(value);
-            if (color != null) {
-                return color;
-            }
+        if (value == null) {
+            return defaultValue;
         }
-        return defaultValue;
+        try {
+            return ColorConverter.INSTANCE.parse(value);
+        } catch (ConversionException e) {
+            return DEFAULT_COLOR;
+        }
     }
 
     /**
      * Sets a value of type <code>Color</code>.
      *
      * @param key      the key
-     * @param newValue the value
+     * @param value the value
      * @throws IllegalArgumentException
      */
     @Override
-    public void setPropertyColor(String key, Color newValue) {
-        set(key, StringUtils.formatColor(newValue));
+    public void setPropertyColor(String key, Color value) {
+        set(key, ColorConverter.INSTANCE.format(value));
     }
 
     /**
@@ -247,29 +255,11 @@ public abstract class AbstractPropertyMap implements PropertyMap {
         if (value == null) {
             return defaultValue;
         }
-
-        String[] parts = value.split(";");
-        if (parts.length == 0 || parts.length > 3) {
-            return defaultValue;
+        try {
+            return FontConverter.INSTANCE.parse(value);
+        } catch (ConversionException e) {
+            return DEFAULT_FONT;
         }
-
-        String fontName = parts[0];
-        int fontStyle = DEFAULT_FONT.getStyle();
-        int fontSize = DEFAULT_FONT.getSize();
-
-        if (parts.length >= 2) {
-            String styleValue = parts[1];
-            if ("BOLD".equalsIgnoreCase(styleValue)) {
-                fontStyle = Font.BOLD;
-            } else if ("ITALIC".equalsIgnoreCase(styleValue)) {
-                fontStyle = Font.ITALIC;
-            }
-        }
-        if (parts.length >= 3) {
-            fontSize = Integer.parseInt(parts[2], 10);
-        }
-
-        return new Font(fontName, fontStyle, fontSize);
     }
 
     /**
@@ -289,14 +279,7 @@ public abstract class AbstractPropertyMap implements PropertyMap {
     public void setPropertyFont(String key, Font font) {
         String value = null;
         if (font != null) {
-            String styleValue = "PLAIN";
-            int style = font.getStyle();
-            if (style == Font.ITALIC) {
-                styleValue = "ITALIC";
-            } else if (style == Font.BOLD) {
-                styleValue = "BOLD";
-            }
-            value = String.format("%s;%s;%s", font.getName(), styleValue, font.getSize());
+            value = FontConverter.INSTANCE.format(font);
         }
         set(key, value);
     }

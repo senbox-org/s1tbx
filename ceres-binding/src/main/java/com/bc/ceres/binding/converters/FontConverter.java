@@ -24,6 +24,8 @@ import java.text.MessageFormat;
 
 public class FontConverter implements Converter<Font> {
 
+    public final static FontConverter INSTANCE = new FontConverter();
+
     @Override
     public Class<Font> getValueType() {
         return Font.class;
@@ -34,24 +36,11 @@ public class FontConverter implements Converter<Font> {
         if (text.isEmpty()) {
             return null;
         }
-
-        final String[] tokens;
         try {
-            tokens = (String[]) new ArrayConverter(String[].class, new StringConverter()).parse(text);
-        } catch (ConversionException e) {
-            throw new ConversionException(
-                    MessageFormat.format("Cannot parse ''{0}'' into a font: {1}", text, e.getMessage()));
+            return Font.decode(text);
+        } catch (Exception e) {
+            throw new ConversionException("Illegal font format: " + text);
         }
-        final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < tokens.length; i++) {
-            final String token = tokens[i].trim();
-            sb.append(token);
-            if (i != tokens.length - 1) {
-                sb.append(" ");
-            }
-        }
-
-        return Font.decode(sb.toString());
     }
 
     @Override
@@ -59,8 +48,7 @@ public class FontConverter implements Converter<Font> {
         if (font == null) {
             return "";
         }
-
-        return String.format("%s,%s,%d", font.getName(), getStyleName(font), font.getSize());
+        return String.format("%s-%s-%d", font.getName(), getStyleName(font), font.getSize());
     }
 
     private static String getStyleName(Font font) {
