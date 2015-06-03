@@ -28,19 +28,9 @@ import com.bc.ceres.jai.operator.ScalingType;
 import org.esa.snap.framework.dataop.barithm.BandArithmetic;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.runtime.Config;
-import org.esa.snap.util.BitRaster;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.ObjectUtils;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.SystemUtils;
+import org.esa.snap.util.*;
 import org.esa.snap.util.jai.SingleBandedSampleModel;
-import org.esa.snap.util.math.DoubleList;
-import org.esa.snap.util.math.Histogram;
-import org.esa.snap.util.math.IndexValidator;
-import org.esa.snap.util.math.MathUtils;
-import org.esa.snap.util.math.Quantizer;
-import org.esa.snap.util.math.Range;
+import org.esa.snap.util.math.*;
 import org.geotools.referencing.operation.transform.ConcatenatedTransform;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -62,6 +52,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.prefs.BackingStoreException;
 
 /**
  * The <code>RasterDataNode</code> class ist the abstract base class for all objects in the product package that contain
@@ -1731,28 +1722,39 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     private ImageInfo loadCustomColorPalette(final Histogram histogram) {
-        try {
-            // set custom color palettes based on product types or units
-            final String unit = getUnit();
-            if(unit != null) {
-                final String prefix = SystemUtils.getApplicationContextId() + ".color-palette.unit.";
-                final String[] keys = Config.instance().listKeys(prefix);
-                String name = null;
-                for (String key : keys) {
-                    final String unitKey = key.replace(prefix,"");
-                    if (unit.contains(unitKey)) {
-                        name = Config.instance().preferences().get(key, null);
-                        break;
-                    }
-                }
-                if (name != null) {
-                    return loadColorPalette(histogram, name);
-                }
-            }
-        } catch(Exception e) {
-            SystemUtils.LOG.severe("createDefaultImageInfo: Unable to load custom color palette "+e.toString());
-            //continue
+
+        // set custom color palettes based on product types or units
+        final String unit = getUnit();
+        if (unit == null) {
+            return null;
         }
+
+        final String prefix = SystemUtils.getApplicationContextId() + ".color-palette.unit.";
+        final String[] keys;
+        try {
+            keys = Config.instance().listKeys(prefix);
+        } catch (BackingStoreException e) {
+            SystemUtils.LOG.severe(String.format("Unable to load configuration '%s': %s", Config.instance().name(), e.getMessage()));
+            return null;
+        }
+
+        String name = null;
+        for (String key : keys) {
+            final String unitKey = key.replace(prefix, "");
+            if (unit.contains(unitKey)) {
+                name = Config.instance().preferences().get(key, null);
+                break;
+            }
+        }
+
+        if (name != null) {
+            try {
+                return loadColorPalette(histogram, name);
+            } catch (IOException e) {
+                SystemUtils.LOG.severe(String.format("Unable to load custom color palette '%s': %s", name, e.toString()));
+            }
+        }
+
         return null;
     }
 
