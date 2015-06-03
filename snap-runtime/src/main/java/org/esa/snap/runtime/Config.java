@@ -5,11 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
@@ -139,15 +135,16 @@ public class Config {
     }
 
     /**
-     * List all property keys beginning with prefix
-     * @param prefix that a key must start with
-     * @return keys begenning with prefix
+     * List all property keys beginning with prefix.
+     *
+     * @param prefix that a key must start with.
+     * @return The keys beginning with prefix.
      */
     public String[] listKeys(final String prefix) throws BackingStoreException {
         final List<String> keyList = new ArrayList<>();
         final String[] keys = preferences.keys();
-        for(String key : keys) {
-            if(key.startsWith(prefix)) {
+        for (String key : keys) {
+            if (key.startsWith(prefix)) {
                 keyList.add(key);
             }
         }
