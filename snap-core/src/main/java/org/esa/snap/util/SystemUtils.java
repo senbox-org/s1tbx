@@ -461,17 +461,18 @@ public class SystemUtils {
     }
 
     private static void loadJaiRegistryFile(Class<?> cls, String jaiRegistryPath) {
+        ClassLoader cl = cls != null ? cls.getClassLoader() : Thread.currentThread().getContextClassLoader();
         LOG.info("Reading JAI registry file from " + jaiRegistryPath);
         // Must use a new operation registry in order to register JAI operators defined in Ceres and BEAM
         OperationRegistry operationRegistry = OperationRegistry.getThreadSafeOperationRegistry();
-        InputStream is = cls.getResourceAsStream(jaiRegistryPath);
+        InputStream is = cl.getResourceAsStream(jaiRegistryPath);
         if (is != null) {
             final PrintStream oldErr = System.err;
             try {
                 // Suppress annoying and harmless JAI error messages saying that a descriptor is already registered.
                 System.setErr(new PrintStream(new ByteArrayOutputStream()));
                 operationRegistry.updateFromStream(is);
-                operationRegistry.registerServices(cls.getClassLoader());
+                operationRegistry.registerServices(cl);
                 JAI.getDefaultInstance().setOperationRegistry(operationRegistry);
             } catch (IOException e) {
                 LOG.log(Level.SEVERE, MessageFormat.format("Error loading {0}: {1}", jaiRegistryPath, e.getMessage()), e);
