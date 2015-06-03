@@ -44,7 +44,7 @@ public class JavaSystemInfos implements SystemInfos {
 
     /**
      * Constructor is private, this is class is a singleton. This way it not to recompute all information each time we
-     * need an instance of SigarSystemInfos.
+     * need an instance of JavaSystemInfos.
      */
     private JavaSystemInfos(int benchmarkFileSize, int benchmarkNbSamples) {
         this.benchmarkNbSamples = benchmarkNbSamples;
@@ -55,7 +55,7 @@ public class JavaSystemInfos implements SystemInfos {
 
     /**
      * Returns an instance of SystemInfos
-     * @return an instance of SigarSystemInfos
+     * @return an instance of JavaSystemInfos
      */
     public static JavaSystemInfos getInstance() {
         if(systemInfos == null) {
@@ -68,7 +68,7 @@ public class JavaSystemInfos implements SystemInfos {
      * Returns an instance of SystemInfos
      * @param benchmarkFileSize the size of the file used to perform bechmarks, in MegaByte
      * @param benchmarkNbSamples the number of samples used to perform benchmarks
-     * @return an instance of SigarSystemInfos
+     * @return an instance of JavaSystemInfos
      */
     public static JavaSystemInfos getInstance(int benchmarkFileSize, int benchmarkNbSamples) {
         if(systemInfos == null) {
