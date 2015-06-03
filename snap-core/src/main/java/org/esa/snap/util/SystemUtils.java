@@ -436,12 +436,11 @@ public class SystemUtils {
     public static void initJAI(ClassLoader cl) {
         // Suppress ugly (and harmless) JAI error messages saying that a JAI is going to continue in pure Java mode.
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");  // disable native libraries for JAI
-        // Must use a new operation registry in order to register JAI operators defined in Ceres and BEAM
 
         try {
             JAI.getDefaultInstance().getOperationRegistry().registerServices(cl);
-        } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Failed to register additional JAI operators", e);
+        } catch (Throwable t) {
+            LOG.log(Level.SEVERE, "Failed to register additional JAI operators", t);
         }
 
         int parallelism = Config.instance().preferences().getInt(SNAP_PARALLELISM_PROPERTY_NAME,
@@ -454,11 +453,11 @@ public class SystemUtils {
         JAI.getDefaultInstance().getTileCache().setMemoryCapacity(size);
 
         final long tileCacheSize = JAI.getDefaultInstance().getTileCache().getMemoryCapacity() / (1024L * 1024L);
-        LOG.info(MessageFormat.format("JAI tile cache size is {0} MB", tileCacheSize));
+        LOG.info(MessageFormat.format("JAI tile cache size is {0} MiB", tileCacheSize));
 
         final int tileSize = Config.instance().preferences().getInt("snap.jai.defaultTileSize", 512);
         JAI.setDefaultTileSize(new Dimension(tileSize, tileSize));
-        LOG.info(MessageFormat.format("JAI tile size is {0} pixels", tileSize));
+        LOG.info(MessageFormat.format("JAI default tile size is {0} pixels", tileSize));
 
         JAI.getDefaultInstance().setRenderingHint(JAI.KEY_CACHED_TILE_RECYCLING_ENABLED, Boolean.TRUE);
         LOG.info("JAI tile recycling enabled");
