@@ -21,6 +21,7 @@ import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
 import javax.media.jai.JAI;
 import javax.media.jai.OperationRegistry;
+import javax.media.jai.RegistryElementDescriptor;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -34,9 +35,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.text.MessageFormat;
-import java.util.NoSuchElementException;
-import java.util.ServiceLoader;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -423,22 +423,26 @@ public class SystemUtils {
         initGeoTools();
     }
 
-    private static void initGeoTools() {
+    public static void initGeoTools() {
         // Must store EPSG database in BEAM home, otherwise it will be deleted from default temp location (Unix!, Windows?)
         File epsgDir = new File(SystemUtils.getApplicationDataDir(true), EPSG_DATABASE_DIR_NAME);
         System.setProperty(HsqlEpsgDatabase.DIRECTORY_KEY, epsgDir.getAbsolutePath());
     }
 
-    private static void initJAI(Class<?> cls) {
+    public static void initJAI(Class<?> cls) {
+        initJAI(cls.getClassLoader());
+    }
+
+    public static void initJAI(ClassLoader cl) {
         // Suppress ugly (and harmless) JAI error messages saying that a JAI is going to continue in pure Java mode.
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");  // disable native libraries for JAI
         // Must use a new operation registry in order to register JAI operators defined in Ceres and BEAM
 
-        // Load JAI registry files.
-        // For some reason registry file loading must be done in this order: first our own, then JAI's descriptors (nf)
-        loadJaiRegistryFile(cls, JAI_REGISTRY_PATH);
-        loadJaiRegistryFile(ReinterpretDescriptor.class, "/META-INF/registryFile.jai");
-        loadJaiRegistryFile(JAI.class, "/META-INF/javax.media.jai.registryFile.jai");
+        try {
+            JAI.getDefaultInstance().getOperationRegistry().registerServices(cl);
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, "Failed to register additional JAI operators", e);
+        }
 
         int parallelism = Config.instance().preferences().getInt(SNAP_PARALLELISM_PROPERTY_NAME,
                                                                  Runtime.getRuntime().availableProcessors());
@@ -458,38 +462,6 @@ public class SystemUtils {
 
         JAI.getDefaultInstance().setRenderingHint(JAI.KEY_CACHED_TILE_RECYCLING_ENABLED, Boolean.TRUE);
         LOG.info("JAI tile recycling enabled");
-    }
-
-    private static void loadJaiRegistryFile(Class<?> cls, String jaiRegistryPath) {
-        ClassLoader cl = cls != null ? cls.getClassLoader() : Thread.currentThread().getContextClassLoader();
-        LOG.info("Reading JAI registry file from " + jaiRegistryPath);
-        // Must use a new operation registry in order to register JAI operators defined in Ceres and BEAM
-        OperationRegistry operationRegistry = OperationRegistry.getThreadSafeOperationRegistry();
-        InputStream is = cl.getResourceAsStream(jaiRegistryPath);
-        if (is != null) {
-            final PrintStream oldErr = System.err;
-            try {
-                // Suppress annoying and harmless JAI error messages saying that a descriptor is already registered.
-                System.setErr(new PrintStream(new ByteArrayOutputStream()));
-                operationRegistry.updateFromStream(is);
-                operationRegistry.registerServices(cl);
-                JAI.getDefaultInstance().setOperationRegistry(operationRegistry);
-            } catch (IOException e) {
-                LOG.log(Level.SEVERE, MessageFormat.format("Error loading {0}: {1}", jaiRegistryPath, e.getMessage()), e);
-            } finally {
-                System.setErr(oldErr);
-            }
-        } else {
-            LOG.warning(MessageFormat.format("{0} not found", jaiRegistryPath));
-        }
-    }
-
-    private static void setSystemErr(PrintStream oldErr) {
-        try {
-            System.setErr(oldErr);
-        } catch (Exception e) {
-            // ignore
-        }
     }
 
     public static String getApplicationRemoteVersionUrl() {
