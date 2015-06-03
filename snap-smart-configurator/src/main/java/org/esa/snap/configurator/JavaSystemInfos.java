@@ -123,14 +123,18 @@ public class JavaSystemInfos implements SystemInfos {
 
     @Override
     public String[] getDisksNames() {
-        Iterable<Path> fileSystemsIterable = FileSystems.getDefault().getRootDirectories();
-        Vector<String> driveNames = new Vector<>();
-        for(Path path : fileSystemsIterable) {
-            driveNames.add(path.toString());
+        if(diskNames==null) {
+            Iterable<Path> fileSystemsIterable = FileSystems.getDefault().getRootDirectories();
+            Vector<String> driveNames = new Vector<>();
+            for (Path path : fileSystemsIterable) {
+                driveNames.add(path.toString());
+            }
+
+            String[] driveNamesArray = new String[driveNames.size()];
+            diskNames = driveNames.toArray(driveNamesArray);
         }
 
-        String[] driveNamesArray = new String[driveNames.size()];
-        return driveNames.toArray(driveNamesArray);
+        return diskNames;
     }
 
     @Override

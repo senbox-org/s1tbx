@@ -19,7 +19,9 @@ package org.esa.snap.configurator;
 
 import org.esa.snap.framework.gpf.internal.OperatorExecutor;
 import org.esa.snap.runtime.Config;
+import org.esa.snap.runtime.EngineConfig;
 import org.esa.snap.util.SystemUtils;
+import org.esa.snap.util.io.FileUtils;
 
 
 import java.io.File;
@@ -41,24 +43,31 @@ public class PerformanceParameters {
 
 
     /**
-     * Preferences key for the memory capacity of the JAI tile cache in megabytes
+     * Preferences key for the default tile size in pixels
      */
-    public static final String PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY = "jai.tileCache.memoryCapacity";
+    public static final String PROPERTY_DEFAULT_TILE_SIZE = "snap.jai.defaultTileSize";
+
+    /**
+     * Preferences key for the cache size in Mb
+     */
+    public static final String PROPERTY_JAI_CACHE_SIZE = "snap.jai.tileCacheSize";
+
     /**
      * Preferences key for the number of processors which may be employed for JAI image processing.
      */
-    public static final String PROPERTY_KEY_JAI_PARALLELISM = "snap.jai.parallelism";
+    public static final String PROPERTY_JAI_PARALLELISM = "snap.jai.parallelism";
 
 
     private VMParameters vmParameters;
     private Path userDir;
     private int nbThreads;
 
-    private int readerTileWidth;
-    private int readerTileHeight;
-
     private int defaultTileSize;
     private int cacheSize;
+
+    /*
+    private int readerTileWidth;
+    private int readerTileHeight;
 
     private boolean pixelGeoCodingFractionAccuracy;
     private boolean pixelGeoCodingUseTiling;
@@ -67,6 +76,7 @@ public class PerformanceParameters {
     private OperatorExecutor.ExecutionOrder gpfExecutionOrder;
     private boolean gpfUseFileTileCache;
     private boolean gpfDisableTileCache;
+    */
 
     private static PerformanceParameters actualParameters = null;
 
@@ -143,7 +153,16 @@ public class PerformanceParameters {
     public void setDefaultTileSize(int defaultTileSize) {
         this.defaultTileSize = defaultTileSize;
     }
+    public int getCacheSize() {
+        return cacheSize;
+    }
 
+    public void setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
+    }
+
+
+/*
     public int getReaderTileWidth() {
         return readerTileWidth;
     }
@@ -158,14 +177,6 @@ public class PerformanceParameters {
 
     public void setReaderTileHeight(int readerTileHeight) {
         this.readerTileHeight = readerTileHeight;
-    }
-
-    public int getCacheSize() {
-        return cacheSize;
-    }
-
-    public void setCacheSize(int cacheSize) {
-        this.cacheSize = cacheSize;
     }
 
     public boolean isPixelGeoCodingFractionAccuracy() {
@@ -215,6 +226,7 @@ public class PerformanceParameters {
     public void setGpfDisableTileCache(boolean gpfDisableTileCache) {
         this.gpfDisableTileCache = gpfDisableTileCache;
     }
+    */
 
     /**
      *
@@ -234,12 +246,14 @@ public class PerformanceParameters {
         String vmParameters = preferences.get("default_options", netBeansVmParameters.toString());
         actualParameters.setVMParameters(vmParameters);
         actualParameters.setUserDir(configuration.userDir());
-        actualParameters.setNbThreads(preferences.getInt("snap.parallelism", 1));
 
-        actualParameters.setDefaultTileSize(preferences.getInt("snap.jai.defaultTileSize", 1));
+        actualParameters.setNbThreads(preferences.getInt("PROPERTY_JAI_PARALLELISM", 1));
+        actualParameters.setDefaultTileSize(preferences.getInt("PROPERTY_DEFAULT_TILE_SIZE", 1));
+        actualParameters.setCacheSize(preferences.getInt("PROPERTY_JAI_CACHE_SIZE", 1));
+
+        /* not implemented in this version.
         actualParameters.setReaderTileWidth(preferences.getInt("snap.dataio.reader.tileWidth", 1));
         actualParameters.setReaderTileHeight(preferences.getInt("snap.dataio.reader.tileHeight", 1));
-        actualParameters.setCacheSize(preferences.getInt("snap.jai.tileCacheSize", 1));
 
         actualParameters.setPixelGeoCodingFractionAccuracy(preferences.getBoolean("snap.pixelGeoCoding.fractionAccuracy", false));
         actualParameters.setPixelGeoCodingUseTiling(preferences.getBoolean("snap.pixelGeoCoding.useTiling", true));
@@ -249,7 +263,7 @@ public class PerformanceParameters {
         actualParameters.setGpfExecutionOrder(OperatorExecutor.ExecutionOrder.valueOf(executionOrder));
         actualParameters.setGpfUseFileTileCache(preferences.getBoolean("snap.gpf.useFileTileCache", false));
         actualParameters.setGpfDisableTileCache(preferences.getBoolean("snap.gpf.disableTileCache", false));
-
+*/
         return actualParameters;
     }
 
@@ -278,16 +292,21 @@ public class PerformanceParameters {
         String userDirString = confToSave.getUserDir().toString();
 
         String[] diskNames = JavaSystemInfos.getInstance().getDisksNames();
-        if(Arrays.asList(diskNames).contains(userDirString)) {
-            userDirString = userDirString + File.separator + "." + SystemUtils.getApplicationContextId();
-            File contextFolderAsFile = new File(userDirString);
-            contextFolderAsFile.createNewFile();
+        for(String diskName : diskNames) {
+            if (diskName.equalsIgnoreCase(userDirString)) {
+                userDirString = userDirString + File.separator + "." + SystemUtils.getApplicationContextId();
+                File contextFolderAsFile = new File(userDirString);
+                contextFolderAsFile.mkdir();
+                confToSave.setUserDir(FileUtils.getPathFromURI(contextFolderAsFile.toURI()));
+                break;
+            }
         }
-        preferences.put("user.dir", userDirString);
+        preferences.put(EngineConfig.PROPERTY_USER_DIR, userDirString);
 
-        preferences.putInt("snap.parallelism", confToSave.getNbThreads());
-        preferences.putInt("snap.jai.defaultTileSize", confToSave.getDefaultTileSize());
-        preferences.putInt("snap.jai.tileCacheSize", confToSave.getCacheSize());
+
+        preferences.putInt("PROPERTY_JAI_PARALLELISM", confToSave.getNbThreads());
+        preferences.putInt("PROPERTY_DEFAULT_TILE_SIZE", confToSave.getDefaultTileSize());
+        preferences.putInt("PROPERTY_JAI_CACHE_SIZE", confToSave.getCacheSize());
 
 /* not implemented in this version.
         preferences.putInt("snap.dataio.reader.tileWidth", confToSave.getReaderTileWidth());
