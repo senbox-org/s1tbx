@@ -54,8 +54,12 @@ public final class ReaderUtils {
         product.addBand(virtBand);
     }
 
+    private static String createName(String origName, String newPrefix) {
+        return origName.replace(origName.substring(0, origName.indexOf("_")), newPrefix);
+    }
+
     public static void createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ, final String countStr) {
-        createVirtualIntensityBand(product, bandI, bandQ, "Intensity", countStr);
+        createVirtualIntensityBand(product, bandI, bandQ, createName(bandI.getName(), "Intensity"), countStr);
     }
 
     public static void createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ,
