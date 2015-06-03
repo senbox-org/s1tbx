@@ -26,7 +26,7 @@ import org.openide.windows.TopComponent;
 
 @TopComponent.Description(
         preferredID = "HaAlphaPlotTopComponent",
-        //iconBase = "org/esa/snap/rcp/icons/ScatterPlot24.gif",
+        iconBase = "org/csa/rstb/polarimetric/icons/h-a-alpha22.png",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS //todo define
 )
 @TopComponent.Registration(
@@ -56,7 +56,7 @@ public class HaAlphaPlotToolView extends AbstractStatisticsTopComponent {
 
     @Override
     protected PagePanel createPagePanel() {
-        return null;//new HaAlphaPlotPanel(this, getHelpId());
+        return new HaAlphaPlotPanel(this, "");
     }
 
     @Override

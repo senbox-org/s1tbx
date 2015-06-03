@@ -14,14 +14,15 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 package org.csa.rstb.polarimetric.rcp.toolviews;
-/*
+
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.binding.BindingContext;
-import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.csa.rstb.polarimetric.gpf.HaAlphaDescriptor;
+import org.esa.s1tbx.dat.graphics.Palette;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Mask;
 import org.esa.snap.framework.datamodel.Product;
@@ -32,11 +33,8 @@ import org.esa.snap.framework.datamodel.Stx;
 import org.esa.snap.framework.datamodel.StxFactory;
 import org.esa.snap.framework.dataop.barithm.BandArithmetic;
 import org.esa.snap.framework.ui.GridBagUtils;
-import org.esa.snap.framework.ui.application.ToolView;
-import org.esa.snap.util.Debug;
-import org.esa.snap.util.ProductUtils;
-import org.esa.snap.util.math.MathUtils;
-import org.esa.s1tbx.dat.graphics.Palette;
+import org.esa.snap.rcp.SnapApp;
+import org.esa.snap.rcp.statistics.AbstractStatisticsTopComponent;
 import org.esa.snap.rcp.statistics.AxisRangeControl;
 import org.esa.snap.rcp.statistics.ChartPagePanel;
 import org.esa.snap.rcp.statistics.MaskSelectionToolSupport;
@@ -44,6 +42,10 @@ import org.esa.snap.rcp.statistics.PlotAreaSelectionTool;
 import org.esa.snap.rcp.statistics.RefreshActionEnabler;
 import org.esa.snap.rcp.statistics.XYImagePlot;
 import org.esa.snap.rcp.statistics.XYPlotToolTipGenerator;
+import org.esa.snap.rcp.util.ProgressHandleMonitor;
+import org.esa.snap.util.Debug;
+import org.esa.snap.util.ProductUtils;
+import org.esa.snap.util.math.MathUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -52,6 +54,7 @@ import org.jfree.chart.annotations.XYLineAnnotation;
 import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.ui.RectangleInsets;
+import org.netbeans.api.progress.ProgressUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -63,13 +66,11 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-*/
+
 /**
  * The H-a Alpha plot pane within the statistics window.
  */
-/*
+
 public class HaAlphaPlotPanel extends ChartPagePanel {
 
     private static final String NO_DATA_MESSAGE = "This plot requires an H-a Alpha decomposition as input\n" +
@@ -109,7 +110,7 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
     private final static Color annotColour = Color.DARK_GRAY;
     private final static Font annotFont = new Font("Ariel", Font.BOLD, 14);
 
-    public HaAlphaPlotPanel(ToolView parentDialog, String helpId) {
+    public HaAlphaPlotPanel(AbstractStatisticsTopComponent parentDialog, String helpId) {
         super(parentDialog, helpId, CHART_TITLE, true);
     }
 
@@ -362,6 +363,7 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
     @Override
     protected void updateChartData() {
 
+        final ChartPagePanel chartPanel = this;
         final RasterDataNode rasterX = getRaster(X_VAR);
         final RasterDataNode rasterY = getRaster(Y_VAR);
 
@@ -369,111 +371,86 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
             return;
         }
 
-        ProgressMonitorSwingWorker<BufferedImage, Object> swingWorker = new ProgressMonitorSwingWorker<BufferedImage, Object>(
-                this, "Computing plot") {
+        ProgressHandleMonitor pm = ProgressHandleMonitor.create("Computing plot");
+        Runnable operation = () -> {
+            pm.beginTask("Computing plot...", 100);
+            try {
+                checkBandsForRange();
+                setRange(X_VAR, rasterX, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
+                setRange(Y_VAR, rasterY, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
+                BufferedImage densityPlotImage = ProductUtils.createDensityPlotImage(rasterX,
+                                                                                     axisRangeControls[X_VAR].getMin().floatValue(),
+                                                                                     axisRangeControls[X_VAR].getMax().floatValue(),
+                                                                                     rasterY,
+                                                                                     axisRangeControls[Y_VAR].getMin().floatValue(),
+                                                                                     axisRangeControls[Y_VAR].getMax().floatValue(),
+                                                                                     dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null,
+                                                                                     512,
+                                                                                     512,
+                                                                                     backgroundColor,
+                                                                                     null,
+                                                                                     SubProgressMonitor.create(pm, 70));
 
-            @Override
-            protected BufferedImage doInBackground(ProgressMonitor pm) throws Exception {
-                pm.beginTask("Computing plot...", 100);
-                try {
-                    checkBandsForRange();
-                    setRange(X_VAR, rasterX, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
-                    setRange(Y_VAR, rasterY, dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null, SubProgressMonitor.create(pm, 15));
-                    BufferedImage densityPlotImage = ProductUtils.createDensityPlotImage(rasterX,
-                                                                                         axisRangeControls[X_VAR].getMin().floatValue(),
-                                                                                         axisRangeControls[X_VAR].getMax().floatValue(),
-                                                                                         rasterY,
-                                                                                         axisRangeControls[Y_VAR].getMin().floatValue(),
-                                                                                         axisRangeControls[Y_VAR].getMax().floatValue(),
-                                                                                         dataSourceConfig.useRoiMask ? dataSourceConfig.roiMask : null,
-                                                                                         512,
-                                                                                         512,
-                                                                                         backgroundColor,
-                                                                                         null,
-                                                                                         SubProgressMonitor.create(pm, 70));
+                densityPlotImage = new BufferedImage(untoggledColorModel, densityPlotImage.getRaster(), densityPlotImage.isAlphaPremultiplied(), null);
 
-                    densityPlotImage = new BufferedImage(untoggledColorModel, densityPlotImage.getRaster(), densityPlotImage.isAlphaPremultiplied(), null);
+                plotColorsInverted = false;
 
-                    plotColorsInverted = false;
-                    return densityPlotImage;
-                } finally {
-                    pm.done();
+
+                checkBandsForRange();
+                double minX = axisRangeControls[X_VAR].getMin();
+                double maxX = axisRangeControls[X_VAR].getMax();
+                double minY = axisRangeControls[Y_VAR].getMin();
+                double maxY = axisRangeControls[Y_VAR].getMax();
+                if (minX > maxX || minY > maxY) {
+                    JOptionPane.showMessageDialog(chartPanel,
+                                                  "Failed to compute plot.\n" +
+                                                          "No Pixels considered..",
+
+                                                  CHART_TITLE,
+                                                  JOptionPane.ERROR_MESSAGE
+                    );
+                    plot.setDataset(null);
+                    return;
+
                 }
-            }
 
-            @Override
-            public void done() {
-                try {
-                    checkBandsForRange();
-                    final BufferedImage densityPlotImage = get();
-                    double minX = axisRangeControls[X_VAR].getMin();
-                    double maxX = axisRangeControls[X_VAR].getMax();
-                    double minY = axisRangeControls[Y_VAR].getMin();
-                    double maxY = axisRangeControls[Y_VAR].getMax();
-                    if (minX > maxX || minY > maxY) {
-                        JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                "Failed to compute plot.\n" +
-                                        "No Pixels considered..",
-
-                                CHART_TITLE,
-                                JOptionPane.ERROR_MESSAGE
-                        );
-                        plot.setDataset(null);
-                        return;
-
-                    }
-
-                    if (MathUtils.equalValues(minX, maxX, 1.0e-4)) {
-                        minX = Math.floor(minX);
-                        maxX = Math.ceil(maxX);
-                    }
-                    if (MathUtils.equalValues(minY, maxY, 1.0e-4)) {
-                        minY = Math.floor(minY);
-                        maxY = Math.ceil(maxY);
-                    }
-                    plot.setImage(densityPlotImage);
-                    plot.setImageDataBounds(new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY));
-                    axisRangeControls[X_VAR].adjustComponents(minX, maxX, NUM_DECIMALS);
-                    axisRangeControls[Y_VAR].adjustComponents(minY, maxY, NUM_DECIMALS);
+                if (MathUtils.equalValues(minX, maxX, 1.0e-4)) {
+                    minX = Math.floor(minX);
+                    maxX = Math.ceil(maxX);
+                }
+                if (MathUtils.equalValues(minY, maxY, 1.0e-4)) {
+                    minY = Math.floor(minY);
+                    maxY = Math.ceil(maxY);
+                }
+                plot.setImage(densityPlotImage);
+                plot.setImageDataBounds(new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY));
+                axisRangeControls[X_VAR].adjustComponents(minX, maxX, NUM_DECIMALS);
+                axisRangeControls[Y_VAR].adjustComponents(minY, maxY, NUM_DECIMALS);
 //                    plot.getDomainAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(X_VAR), "Entropy", false));
 //                    plot.getRangeAxis().setLabel(StatisticChartStyling.getAxisLabel(getRaster(Y_VAR), "Alpha", false));
-                    plot.getDomainAxis().setLabel("Entropy");
-                    plot.getRangeAxis().setLabel("Alpha");
-                    toggleZoneOverlayCheckBox.setEnabled(true);
+                plot.getDomainAxis().setLabel("Entropy");
+                plot.getRangeAxis().setLabel("Alpha");
+                toggleZoneOverlayCheckBox.setEnabled(true);
 
 
-                    // clear the list
-                    java.util.List<XYAnnotation> annotList = plot.getAnnotations();
-                    for (XYAnnotation an : annotList) {
-                        plot.removeAnnotation(an);
-                    }
-
-                    if (toggleZoneOverlayCheckBox.isSelected()) {
-                        drawZoneOverlay();
-                    }
-
-                } catch (InterruptedException | CancellationException e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute plot.\n" +
-                                    "Calculation canceled.",
-
-                            CHART_TITLE,
-                            JOptionPane.ERROR_MESSAGE
-                    );
-                } catch (ExecutionException | IllegalArgumentException e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                            "Failed to compute plot.\n" +
-                                    "An error occurred:\n" +
-                                    e.getCause().getMessage(),
-                            CHART_TITLE,
-                            JOptionPane.ERROR_MESSAGE
-                    );
+                // clear the list
+                java.util.List<XYAnnotation> annotList = plot.getAnnotations();
+                for (XYAnnotation an : annotList) {
+                    plot.removeAnnotation(an);
                 }
+
+                if (toggleZoneOverlayCheckBox.isSelected()) {
+                    drawZoneOverlay();
+                }
+
+            } catch (Exception e) {
+                SnapApp.getDefault().handleError("Failed to compute plot", e);
+            } finally {
+                pm.done();
             }
         };
-        swingWorker.execute();
+
+        ProgressUtils.runOffEventThreadWithProgressDialog(operation, "Computing plot", pm.getProgressHandle(), true, 50, 1000);
     }
 
     private void drawZoneOverlay() {
@@ -688,5 +665,5 @@ public class HaAlphaPlotPanel extends ChartPagePanel {
         private Property yBandProperty;
     }
 
-}*/
+}
 
