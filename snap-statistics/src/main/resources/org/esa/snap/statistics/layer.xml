@@ -1,0 +1,10 @@
+<filesystem>
+
+    <folder name="OperatorUIs">
+        <file name="org.esa.snap.statistics.gpf.ui.StatisticsOp">
+            <attr name="operatorName" stringvalue="StatisticsOp"/>
+            <attr name="disableFromGraphBuilder" stringvalue="true"/>
+        </file>
+    </folder>
+
+</filesystem>
