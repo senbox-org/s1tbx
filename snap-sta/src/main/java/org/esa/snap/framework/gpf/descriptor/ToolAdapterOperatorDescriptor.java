@@ -371,6 +371,37 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     public void setMainToolFileLocation(File mainToolFileLocation) {
         this.mainToolFileLocation = mainToolFileLocation;
     }
+
+    public File getExpandedLocation(File location) {
+        String expandedValue = null;
+        if (location != null) {
+            expandedValue = location.getPath();
+            String varKey = null, varVal = null;
+            if (expandedValue.contains("$")) {
+                expandedValue = expandedValue.substring(expandedValue.indexOf("$"));
+                for (SystemVariable variable : variables) {
+                    if (expandedValue.contains(variable.getKey())) {
+                        varKey = "$" + variable.getKey();
+                        varVal = variable.getValue();
+                        break;
+                    }
+                }
+            } else if (expandedValue.contains("%")) {
+                expandedValue = expandedValue.substring(expandedValue.indexOf("%"));
+                for (SystemVariable variable : variables) {
+                    if (expandedValue.contains(variable.getKey())) {
+                        varKey = "%" + variable.getKey() + "%";
+                        varVal = variable.getValue();
+                        break;
+                    }
+                }
+            }
+            if (varKey != null) {
+                expandedValue = expandedValue.replace(varKey, varVal);
+            }
+        }
+        return expandedValue == null ? null : new File(expandedValue);
+    }
     /**
      * Setter for the Progress Pattern field. The pattern is a regular expression.
      */

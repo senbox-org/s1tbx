@@ -32,10 +32,7 @@ import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
-import org.esa.snap.framework.gpf.descriptor.SystemVariable;
-import org.esa.snap.framework.gpf.descriptor.TemplateParameterDescriptor;
-import org.esa.snap.framework.gpf.descriptor.ToolAdapterOperatorDescriptor;
-import org.esa.snap.framework.gpf.descriptor.ToolParameterDescriptor;
+import org.esa.snap.framework.gpf.descriptor.*;
 import org.esa.snap.framework.gpf.internal.OperatorContext;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.util.ProductUtils;
@@ -43,9 +40,12 @@ import org.esa.snap.utils.PrivilegedAccessor;
 import org.netbeans.api.progress.ProgressHandle;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * Tool Adapter operator
@@ -186,7 +186,7 @@ public class ToolAdapterOp extends Operator {
     private void validateDescriptor() throws OperatorException {
 
         //Get the tool file
-        File toolFile = descriptor.getMainToolFileLocation();
+        File toolFile = descriptor.getExpandedLocation(descriptor.getMainToolFileLocation());
         if (toolFile == null) {
             throw new OperatorException("Tool file not defined!");
         }
@@ -196,13 +196,27 @@ public class ToolAdapterOp extends Operator {
         }
 
         //Get the tool's working directory
-        File toolWorkingDirectory = descriptor.getWorkingDir();
+        File toolWorkingDirectory = descriptor.getExpandedLocation(descriptor.getWorkingDir());
         if (toolWorkingDirectory == null) {
             throw new OperatorException("Tool working directory not defined!");
         }
         // check if the tool file exists
         if (!toolWorkingDirectory.exists() || !toolWorkingDirectory.isDirectory()) {
             throw new OperatorException(String.format("Invalid tool working directory: '%s'!", toolWorkingDirectory.getAbsolutePath()));
+        }
+
+        ParameterDescriptor[] parameterDescriptors = descriptor.getParameterDescriptors();
+        if (parameterDescriptors != null && parameterDescriptors.length > 0) {
+            for (ParameterDescriptor parameterDescriptor : parameterDescriptors) {
+                Class<?> dataType = parameterDescriptor.getDataType();
+                String defaultValue = parameterDescriptor.getDefaultValue();
+                if (File.class.isAssignableFrom(dataType) &&
+                        (parameterDescriptor.isNotNull() || parameterDescriptor.isNotEmpty()) &&
+                        (defaultValue == null || defaultValue.isEmpty() || !Files.exists(Paths.get(defaultValue)))) {
+                    throw new OperatorException(String.format("Parameter %s is marked as %s, but the value is missing",
+                            parameterDescriptor.getName(), parameterDescriptor.isNotNull() ? "NotNull" : "NotEmpty"));
+                }
+            }
         }
 
     }
@@ -232,13 +246,13 @@ public class ToolAdapterOp extends Operator {
                 final Product[] selectedProducts = getSourceProducts();
                 String sourceDefaultExtension = writerPlugIn.getDefaultFileExtensions()[0];
                 for (Product selectedProduct : selectedProducts) {
-                    File outFile = new File(descriptor.getWorkingDir(), INTERMEDIATE_PRODUCT_NAME + sourceDefaultExtension);
+                    File outFile = new File(descriptor.getExpandedLocation(descriptor.getWorkingDir()), INTERMEDIATE_PRODUCT_NAME + sourceDefaultExtension);
                     boolean hasDeleted = false;
                     while (outFile.exists() && !hasDeleted) {
                         hasDeleted = outFile.canWrite() && outFile.delete();
                         if (!hasDeleted) {
                             getLogger().warning(String.format("Could not delete previous temporary image %s", outFile.getName()));
-                            outFile = new File(descriptor.getWorkingDir(), INTERMEDIATE_PRODUCT_NAME + "_" + new Date().getTime() + sourceDefaultExtension);
+                            outFile = new File(descriptor.getExpandedLocation(descriptor.getWorkingDir()), INTERMEDIATE_PRODUCT_NAME + "_" + new Date().getTime() + sourceDefaultExtension);
                         }
                     }
                     Product interimProduct = new Product(outFile.getName(), selectedProduct.getProductType(),
@@ -289,7 +303,8 @@ public class ToolAdapterOp extends Operator {
             //redirect the error of the tool to the standard output
             pb.redirectErrorStream(true);
             //set the working directory
-            pb.directory(descriptor.getWorkingDir());
+            pb.directory(descriptor.getExpandedLocation(descriptor.getWorkingDir()));
+            pb.environment().putAll(descriptor.getVariables().stream().collect(Collectors.toMap(SystemVariable::getKey, SystemVariable::getValue)));
             //start the process
             process = pb.start();
             //get the process output
@@ -427,7 +442,7 @@ public class ToolAdapterOp extends Operator {
         final List<String> tokens = new ArrayList<>();
         String templateFile = ((ToolAdapterOperatorDescriptor) (getSpi().getOperatorDescriptor())).getTemplateFileLocation();
         if (templateFile != null) {
-            tokens.add(descriptor.getMainToolFileLocation().getAbsolutePath());
+            tokens.add(descriptor.getExpandedLocation(descriptor.getMainToolFileLocation()).getAbsolutePath());
             if (templateFile.endsWith(ToolAdapterConstants.TOOL_VELO_TEMPLATE_SUFIX)) {
                 tokens.addAll(transformTemplate(new File(this.adapterFolder, templateFile)));
             } else {
@@ -500,7 +515,7 @@ public class ToolAdapterOp extends Operator {
                 DateFormat.DEFAULT,
                 Locale.ENGLISH).format(new Date()).replace(":", separatorChar);
         dateFormatted = dateFormatted.replace("/", separatorChar).replace(" ", separatorChar);
-        String newFileName = descriptor.getWorkingDir() + templateFile.getName() + "_result_" + dateFormatted;
+        String newFileName = descriptor.getExpandedLocation(descriptor.getWorkingDir()) + templateFile.getName() + "_result_" + dateFormatted;
         ToolAdapterIO.saveFileContent(new File(newFileName), result);
         return newFileName;
     }

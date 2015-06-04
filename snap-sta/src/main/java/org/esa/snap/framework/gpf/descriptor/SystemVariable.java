@@ -56,7 +56,7 @@ public class SystemVariable {
      * @return
      */
     public String getValue() {
-        return value;
+        return resolve();
     }
 
     /**
@@ -79,4 +79,11 @@ public class SystemVariable {
         return newVariable;
     }
 
+    protected String resolve() {
+        String existingValue = System.getenv(this.key);
+        if (existingValue == null || existingValue.isEmpty()) {
+            existingValue = value;
+        }
+        return existingValue;
+    }
 }
