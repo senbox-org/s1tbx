@@ -140,7 +140,7 @@
                         <useOSGiDependencies>false</useOSGiDependencies>
                         <requiresRestart>false</requiresRestart>
                         <keystore>${project.basedir}/../../keystore/s1tbx.ks</keystore>
-                        <keystorealias>s1tbx</keystorealias>
+                        <keystorealias>snap</keystorealias>
                         <keystorepassword>snap-123</keystorepassword>
                     </configuration>
                 </plugin>
