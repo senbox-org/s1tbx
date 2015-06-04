@@ -15,28 +15,25 @@
  */
 package org.esa.snap.util;
 
-import com.bc.ceres.jai.operator.ReinterpretDescriptor;
 import org.esa.snap.runtime.Config;
 import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
 import javax.media.jai.JAI;
-import javax.media.jai.OperationRegistry;
-import javax.media.jai.RegistryElementDescriptor;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.UIManager;
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
 import java.text.MessageFormat;
-import java.util.*;
-import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.ServiceLoader;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -106,7 +103,7 @@ public class SystemUtils {
      * @since BEAM 4.10
      */
     public static String getApplicationHomepageUrl() {
-        return Config.instance().preferences().get(getApplicationContextId() + ".homepage.url", "http://sentinel.esa.int");
+        return Config.instance().preferences().get(getApplicationContextId() + ".homepage.url", "http://step.esa.int");
     }
 
     /**
