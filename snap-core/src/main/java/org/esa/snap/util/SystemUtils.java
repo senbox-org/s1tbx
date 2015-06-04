@@ -437,7 +437,7 @@ public class SystemUtils {
         try {
             JAI.getDefaultInstance().getOperationRegistry().registerServices(cl);
         } catch (Throwable t) {
-            LOG.log(Level.SEVERE, "Failed to register additional JAI operators", t);
+            LOG.log(Level.SEVERE, "Failed to register additional JAI operators: " + t.getMessage());
         }
 
         int parallelism = Config.instance().preferences().getInt(SNAP_PARALLELISM_PROPERTY_NAME,
