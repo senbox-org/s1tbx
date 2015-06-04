@@ -4,7 +4,10 @@ import com.bc.ceres.core.Assert;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,18 +64,33 @@ public class PreferencesPropertyMap extends AbstractPropertyMap implements Prefe
 
     @Override
     public void load(Path file) throws IOException {
-        // todo
+        Properties properties = new Properties();
+        try (BufferedReader reader = Files.newBufferedReader(file)) {
+            properties.load(reader);
+        }
+        for (String key : properties.stringPropertyNames()) {
+            preferences.put(key, properties.getProperty(key));
+        }
     }
 
     @Override
     public void store(Path file, String header) throws IOException {
-        // todo
+        try (BufferedWriter writer = Files.newBufferedWriter(file)) {
+            getProperties().store(writer, header);
+        }
     }
 
     @Override
     public Properties getProperties() {
-        // todo
-        return null;
+        Properties properties = new Properties();
+        try {
+            for (String propertyKey : preferences.keys()) {
+                properties.put(propertyKey, preferences.get(propertyKey, null));
+            }
+        } catch (BackingStoreException e) {
+            // ok
+        }
+        return properties;
     }
 
     @Override
