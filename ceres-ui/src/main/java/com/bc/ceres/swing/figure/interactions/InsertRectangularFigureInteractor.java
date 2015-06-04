@@ -59,7 +59,7 @@ public abstract class InsertRectangularFigureInteractor extends FigureEditorInte
             figureEditor.getFigureSelection().removeAllFigures();
             referencePoint = event.getPoint();
             canceled = false;
-            rectangularShape = createRectangularShape(toModelPoint(event, referencePoint));
+            rectangularShape = createRectangularShape(referencePoint);
             final ShapeFigure polygonFigure = figureEditor.getFigureFactory().createPolygonFigure(toModelShape(event, rectangularShape),
                                                                                                   figureEditor.getDefaultPolygonStyle());
             if (polygonFigure != null) {
