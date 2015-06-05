@@ -53,12 +53,23 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
             progress = Pattern.compile(progressPattern, Pattern.CASE_INSENSITIVE);
             initializeProgressMonitor();
         }
-        logger = Logger.getLogger(DefaultOutputConsumer.class.getName());
     }
 
     public void setProgressMonitor(ProgressMonitor monitor) {
         this.progressMonitor = monitor;
         initializeProgressMonitor();
+    }
+
+    @Override
+    public void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
+    private Logger getLogger() {
+        if (logger == null) {
+            logger = Logger.getLogger(DefaultOutputConsumer.class.getName());
+        }
+        return logger;
     }
 
     @Override
@@ -72,11 +83,11 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
                 else*/
                 progressMonitor.worked(worked);
             } else if (error != null && (matcher = error.matcher(line)).matches()) {
-                logger.severe(matcher.group(1));
+                getLogger().severe(matcher.group(1));
             } else {
                 //progressMonitor.setSubTaskName(line);
                 //progressMonitor.setSubTaskName(line);
-                logger.info(line);
+                getLogger().info(line);
             }
         } catch (Exception e) {
         }

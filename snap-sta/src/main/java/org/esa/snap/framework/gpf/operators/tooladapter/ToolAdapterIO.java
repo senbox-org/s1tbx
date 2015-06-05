@@ -66,6 +66,7 @@ public class ToolAdapterIO {
         Logger logger = Logger.getLogger(ToolAdapterOpSpi.class.getName());
         List<File> moduleFolders = null;
         try {
+            ToolAdapterRegistry.INSTANCE.clear();
             moduleFolders = ToolAdapterIO.scanForAdapters();
         } catch (IOException e) {
             logger.severe("Failed scan for Tools descriptors: I/O problem: " + e.getMessage());
@@ -211,7 +212,7 @@ public class ToolAdapterIO {
      * @return  The location of user-defined modules.
      */
     public static File getUserAdapterPath() {
-        if (userModulePath == null) {
+        //if (userModulePath == null) {
             String userPath = null;
             Preferences preferences = NbPreferences.forModule(ToolAdapterIO.class);
             if ((userPath = preferences.get("user.module.path", null)) == null) {
@@ -225,7 +226,7 @@ public class ToolAdapterIO {
             if (!userModulePath.exists() && !userModulePath.mkdirs()) {
                 logger.severe("Cannot create user folder for external tool adapter extensions");
             }
-        }
+        //}
         return userModulePath;
     }
 
