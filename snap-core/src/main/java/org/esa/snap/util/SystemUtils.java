@@ -427,7 +427,7 @@ public class SystemUtils {
     }
 
     public static void initJAI(Class<?> cls) {
-        initJAI(cls.getClassLoader());
+        initJAI(cls != null ? cls.getClassLoader() : Thread.currentThread().getContextClassLoader());
     }
 
     public static void initJAI(ClassLoader cl) {
