@@ -77,53 +77,47 @@ public class MaskCollectionLayer extends CollectionLayer {
     }
 
     private ImageLayer getMaskLayer(final Mask mask) {
-        LayerFilter layerFilter = new LayerFilter() {
-            @Override
-            public boolean accept(Layer layer) {
-                return (layer instanceof  ImageLayer &&
-                        mask == layer.getConfiguration().getValue(MaskLayerType.PROPERTY_NAME_MASK));
-            }
-        };
+        LayerFilter layerFilter = layer -> (layer instanceof  ImageLayer &&
+                mask == layer.getConfiguration().getValue(MaskLayerType.PROPERTY_NAME_MASK));
         return (ImageLayer) LayerUtils.getChildLayer(LayerUtils.getRootLayer(this), LayerUtils.SEARCH_DEEP, layerFilter);
     }
 
     private synchronized void updateChildren() {
 
         // Collect all current mask layers
-        LayerFilter layerFilter = new LayerFilter() {
-            @Override
-            public boolean accept(Layer layer) {
-                PropertySet conf = layer.getConfiguration();
-                return conf.isPropertyDefined(MaskLayerType.PROPERTY_NAME_MASK) && conf.getValue(MaskLayerType.PROPERTY_NAME_MASK) != null;
-            }
+        LayerFilter layerFilter = layer -> {
+            PropertySet conf = layer.getConfiguration();
+            return conf.isPropertyDefined(MaskLayerType.PROPERTY_NAME_MASK) && conf.getValue(MaskLayerType.PROPERTY_NAME_MASK) != null;
         };
         List<Layer> maskLayers = LayerUtils.getChildLayers(LayerUtils.getRootLayer(this), LayerUtils.SEARCH_DEEP, layerFilter);
-        HashMap<Mask, Layer> currentLayers = new HashMap<Mask, Layer>();
+        HashMap<Mask, Layer> currentLayers = new HashMap<>();
         for (Layer maskLayer : maskLayers) {
-            Mask mask = (Mask) maskLayer.getConfiguration().getValue(MaskLayerType.PROPERTY_NAME_MASK);
+            Mask mask = maskLayer.getConfiguration().getValue(MaskLayerType.PROPERTY_NAME_MASK);
             currentLayers.put(mask, maskLayer);
         }
 
         // Allign mask layers with available masks
-        Mask[] availableMasks = raster.getProduct().getMaskGroup().toArray(new Mask[0]);
-        HashSet<Layer> unusedLayers = new HashSet<Layer>(maskLayers);
-        for (Mask availableMask : availableMasks) {
-            Layer layer = currentLayers.get(availableMask);
-            if (layer != null) {
-                unusedLayers.remove(layer);
-            } else {
-                layer = createLayer(availableMask);
-                getChildren().add(layer);
+        if (raster != null) {
+            Mask[] availableMasks = raster.getProduct().getMaskGroup().toArray(new Mask[0]);
+            HashSet<Layer> unusedLayers = new HashSet<>(maskLayers);
+            for (Mask availableMask : availableMasks) {
+                Layer layer = currentLayers.get(availableMask);
+                if (layer != null) {
+                    unusedLayers.remove(layer);
+                } else {
+                    layer = createLayer(availableMask);
+                    getChildren().add(layer);
+                }
+                layer.setVisible(raster.getOverlayMaskGroup().contains(availableMask));
             }
-            layer.setVisible(raster.getOverlayMaskGroup().contains(availableMask));
-        }
 
-        // Remove unused layers
-        for (Layer layer : unusedLayers) {
-            layer.dispose();
-            Layer layerParent = layer.getParent();
-            if (layerParent != null) {
-                layerParent.getChildren().remove(layer);
+            // Remove unused layers
+            for (Layer layer : unusedLayers) {
+                layer.dispose();
+                Layer layerParent = layer.getParent();
+                if (layerParent != null) {
+                    layerParent.getChildren().remove(layer);
+                }
             }
         }
     }
