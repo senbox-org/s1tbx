@@ -494,7 +494,7 @@ public class OperatorContext {
             }
             operator.initialize();
             initTargetProduct();
-            initTargetProperties();
+            initTargetProperties(operator.getClass());
             initTargetImages();
             initGraphMetadata();
 
@@ -870,32 +870,38 @@ public class OperatorContext {
         }
     }
 
-    private void initTargetProperties() throws OperatorException {
-        Field[] declaredFields = operator.getClass().getDeclaredFields();
+    private void initTargetProperties(Class<? extends Operator> operatorClass) throws OperatorException {
+        Class<?> superClass = operatorClass.getSuperclass();
+        if (superClass != null && !superClass.equals(Operator.class)) {
+            initTargetProperties((Class<? extends Operator>) superClass);
+        }
+        Field[] declaredFields = operatorClass.getDeclaredFields();
+        Map<String, Object> localTargetPropertyMap = new HashMap<>();
         for (Field declaredField : declaredFields) {
             TargetProperty targetPropertyAnnotation = declaredField.getAnnotation(TargetProperty.class);
             if (targetPropertyAnnotation != null) {
                 Object propertyValue = getOperatorFieldValue(declaredField);
                 String fieldName = declaredField.getName();
-                if (targetPropertyMap.containsKey(fieldName)) {
+                if (localTargetPropertyMap.containsKey(fieldName)) {
                     final String message = formatExceptionMessage(
                             "Name of field '%s' is already used as target property alias.",
                             fieldName);
                     throw new OperatorException(message);
                 }
-                targetPropertyMap.put(fieldName, propertyValue);
+                localTargetPropertyMap.put(fieldName, propertyValue);
                 if (!targetPropertyAnnotation.alias().isEmpty()) {
                     String aliasName = targetPropertyAnnotation.alias();
-                    if (targetPropertyMap.containsKey(aliasName)) {
+                    if (localTargetPropertyMap.containsKey(aliasName)) {
                         final String message = formatExceptionMessage(
                                 "Alias of field '%s' is already used by another target property.",
                                 aliasName);
                         throw new OperatorException(message);
                     }
-                    targetPropertyMap.put(aliasName, propertyValue);
+                    localTargetPropertyMap.put(aliasName, propertyValue);
                 }
             }
         }
+        targetPropertyMap.putAll(localTargetPropertyMap);
     }
 
     private void initSourceProductFields() throws OperatorException {
