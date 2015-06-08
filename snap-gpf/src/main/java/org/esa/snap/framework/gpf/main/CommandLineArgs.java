@@ -20,6 +20,7 @@ import org.esa.snap.framework.dataio.ProductIO;
 import org.esa.snap.framework.dataio.ProductIOPlugInManager;
 import org.esa.snap.framework.dataio.ProductWriterPlugIn;
 import org.esa.snap.framework.gpf.GPF;
+import org.esa.snap.runtime.Config;
 import org.esa.snap.util.io.FileUtils;
 
 import java.text.MessageFormat;
@@ -41,8 +42,8 @@ public class CommandLineArgs {
     public static final String DEFAULT_METADATA_FILEPATH = "metadata.properties";
     public static final String DEFAULT_VELOCITY_TEMPLATE_DIRPATH = ".";
     public static final String DEFAULT_FORMAT_NAME = ProductIO.DEFAULT_FORMAT_NAME;
-    public static final int DEFAULT_TILE_CACHE_SIZE_IN_M = 512;
-    public static final int DEFAULT_TILE_SCHEDULER_PARALLELISM = Runtime.getRuntime().availableProcessors();
+    public static final int DEFAULT_TILE_CACHE_SIZE_IN_M = Config.instance().load().preferences().getInt("snap.jai.tileCacheSize", 512);
+    public static final int DEFAULT_TILE_SCHEDULER_PARALLELISM = Config.instance().load().preferences().getInt("snap.parallelism", Runtime.getRuntime().availableProcessors());
     public static final String VELOCITY_TEMPLATE_EXTENSION = ".vm";
 
     private String[] args;
