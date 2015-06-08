@@ -311,6 +311,12 @@ public class Engine {
         } catch (IOException e) {
             fail(e);
         }
+        for (String pathName : getConfig().preferences().get("snap.extraClusters", "").split(File.pathSeparator)) {
+            Path clusterPath = Paths.get(pathName);
+            if (Files.isDirectory(clusterPath)) {
+                clusterPaths.add(clusterPath);
+            }
+        }
 
         Set<String> excludedModuleNames = new HashSet<>();
         String[] moduleNames = getConfig().excludedModuleNames();
