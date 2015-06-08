@@ -15,6 +15,8 @@
  */
 package org.esa.snap.framework.gpf.operators.tooladapter;
 
+import java.util.logging.Logger;
+
 /**
  * This interface is used to consume the output of a tool, line by line
  *
@@ -27,4 +29,6 @@ interface ProcessOutputConsumer {
      * @param line a line of output text.
      */
     public void consumeOutput(String line);
+
+    public void setLogger(Logger logger);
 }

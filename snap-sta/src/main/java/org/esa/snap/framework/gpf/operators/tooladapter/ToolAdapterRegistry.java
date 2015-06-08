@@ -89,4 +89,8 @@ public enum ToolAdapterRegistry {
             }
         }
     }
+
+    void clear() {
+        registeredAdapters.clear();
+    }
 }

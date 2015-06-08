@@ -44,7 +44,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.util.*;
+import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -60,7 +63,7 @@ import java.util.stream.Collectors;
 public class ToolAdapterOp extends Operator {
 
     private static final String INTERMEDIATE_PRODUCT_NAME = "interimProduct";
-    private static final String[] DEFAULT_EXTENSIONS = { ".tif", ".tiff", ".nc", ".hdf", ".pgx", ".png", ".gif", ".jpg", ".bmp", ".pnm", ".pbm", ".pgm", ".ppm" };
+    private static final String[] DEFAULT_EXTENSIONS = { ".tif", ".tiff", ".nc", ".hdf", ".pgx", ".png", ".gif", ".jpg", ".bmp", ".pnm", ".pbm", ".pgm", ".ppm", ".jp2" };
     public static final String VELOCITY_LINE_SEPARATOR = "\r\n|\n";
     /**
      * Consume the output created by a tool.
@@ -84,21 +87,39 @@ public class ToolAdapterOp extends Operator {
     private File adapterFolder;
     private OperatorContext accessibleContext;
 
+    private List<String> errorMessages;
+
     /**
      * Constructor.
      */
     public ToolAdapterOp() {
         super();
+        errorMessages = new ArrayList<>();
         this.consumer = null;
+        Logger logger = getLogger();
         try {
             accessibleContext = (OperatorContext) PrivilegedAccessor.getValue(this, "context");
         } catch (Exception e) {
-            getLogger().severe(e.getMessage());
+            logger.severe(e.getMessage());
         }
         Velocity.init();
         //this.progressMonitor = ProgressMonitor.NULL;
         //this.descriptor = ((ToolAdapterOperatorDescriptor) accessibleContext.getOperatorSpi().getOperatorDescriptor());
         intermediateProductFiles = new ArrayList<>();
+        logger.addHandler(new Handler() {
+            @Override
+            public void publish(LogRecord record) {
+                if (Level.SEVERE.equals(record.getLevel())) {
+                    errorMessages.add(record.getMessage());
+                }
+            }
+
+            @Override
+            public void flush() { }
+
+            @Override
+            public void close() throws SecurityException { }
+        });
     }
 
     /**
@@ -108,6 +129,9 @@ public class ToolAdapterOp extends Operator {
      */
     public void setConsumer(ProcessOutputConsumer consumer) {
         this.consumer = consumer;
+        if (consumer != null) {
+            this.consumer.setLogger(getLogger());
+        }
     }
 
     public void setProgressMonitor(ProgressHandle monitor) { this.progressMonitor = new ProgressWrapper(monitor); }
@@ -139,6 +163,15 @@ public class ToolAdapterOp extends Operator {
     }
 
     /**
+     * Gets the list of errors that have been produced during external tool execution
+     *
+     * @return  A list of error messages. The list is empty if no error has occured.
+     */
+    public List<String> getErrors() {
+        return errorMessages;
+    }
+
+    /**
      * Initialise and run the defined tool.
      * <p>
      * This method will block until the tool finishes its execution.
@@ -159,6 +192,7 @@ public class ToolAdapterOp extends Operator {
             validateDescriptor();
             if (this.consumer == null) {
                 this.consumer = new DefaultOutputConsumer(descriptor.getProgressPattern(), descriptor.getErrorPattern(), this.progressMonitor);
+                this.consumer.setLogger(getLogger());
             }
             if (!isStopped) {
                 beforeExecute();
@@ -233,7 +267,7 @@ public class ToolAdapterOp extends Operator {
                     try {
                         transformTemplateParameter(parameter);
                     } catch (IOException e) {
-                        getLogger().severe("Error processing template before execution for parameter: '" + parameter.getName() + "'");
+                        getLogger().severe(String.format("Error processing template before execution for parameter [%s]", parameter.getName()));
                     }
                 });
         if (descriptor.shouldWriteBeforeProcessing()) {
@@ -264,7 +298,7 @@ public class ToolAdapterOp extends Operator {
                         }
                         ProductIO.writeProduct(interimProduct, outFile, sourceFormatName, true, SubProgressMonitor.create(progressMonitor, 50));
                     } catch (IOException e) {
-                        getLogger().severe("Cannot write to " + sourceFormatName + " format");
+                        getLogger().severe(String.format("Cannot write to %s format", sourceFormatName));
                         stop();
                     } finally {
                         try {
@@ -374,6 +408,9 @@ public class ToolAdapterOp extends Operator {
                                                  .forEach(intermediateProductFile -> {
                                                      getLogger().warning(String.format("Temporary image %s could not be deleted", intermediateProductFile.getName()));
                                                  });
+                if (input.isDirectory()) {
+                    input = selectCandidateRasterFile(input);
+                }
                 Product target = ProductIO.readProduct(input);
                 for (Band band : target.getBands()) {
                     ImageManager.getInstance().getSourceImage(band, 0);
@@ -523,7 +560,8 @@ public class ToolAdapterOp extends Operator {
     private List<String> transformTemplate(File templateFile) throws OperatorException {
         VelocityEngine veloEngine = new VelocityEngine();
         veloEngine.setProperty("file.resource.loader.path", templateFile.getParent());
-        for(SystemVariable variable : descriptor.getVariables()) {
+        List<SystemVariable> variables = descriptor.getVariables();
+        for(SystemVariable variable : variables) {
             veloEngine.addProperty(variable.getKey(), variable.getValue());
         }
         veloEngine.init();
@@ -531,9 +569,14 @@ public class ToolAdapterOp extends Operator {
         VelocityContext veloContext = new VelocityContext();
         putParametersToVeloContext(veloContext, true);
 
+        for (SystemVariable variable : variables) {
+            veloContext.put(variable.getKey(), variable.getValue());
+        }
+
         StringWriter writer = new StringWriter();
         veloTemplate.merge(veloContext, writer);
         String result = writer.toString();
+
         return Arrays.asList(result.split(VELOCITY_LINE_SEPARATOR));
     }
 
@@ -556,12 +599,12 @@ public class ToolAdapterOp extends Operator {
             if (files != null) {
                 rasters.addAll(Arrays.asList(files));
             }
-            File[] subFolders = folder.listFiles(File::isDirectory);
-            for(File subFolder : subFolders) {
-                List<File> subCandidates = getRasterFiles(subFolder);
-                if (subCandidates != null) {
-                    rasters.addAll(subCandidates);
-                }
+        }
+        File[] subFolders = folder.listFiles(File::isDirectory);
+        for(File subFolder : subFolders) {
+            List<File> subCandidates = getRasterFiles(subFolder);
+            if (subCandidates != null) {
+                rasters.addAll(subCandidates);
             }
         }
         return rasters;
