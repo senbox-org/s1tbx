@@ -87,10 +87,14 @@ class TiffTagToMetadataConverter {
         for (Map.Entry<Integer, GeoKeyEntry> entry : geoKeyMap.entrySet()) {
             final GeoKeyEntry geoKeyEntry = entry.getValue();
             final String name = geoKeyEntry.getName();
-            final ProductData data = getGeoKeyValue(geoKeyEntry);
-            if (data != null) {
-                final MetadataAttribute attribute = new MetadataAttribute(name, data, true);
-                geoKeyDirMetadata.addAttribute(attribute);
+            if (name != null) {
+                final ProductData data = getGeoKeyValue(geoKeyEntry);
+                if (data != null) {
+                    final MetadataAttribute attribute = new MetadataAttribute(name, data, true);
+                    geoKeyDirMetadata.addAttribute(attribute);
+                }
+            } else {
+                // Log a warning?
             }
         }
 
