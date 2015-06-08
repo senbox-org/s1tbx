@@ -115,14 +115,10 @@ public class ToolAdapterOp extends Operator {
             }
 
             @Override
-            public void flush() {
-
-            }
+            public void flush() { }
 
             @Override
-            public void close() throws SecurityException {
-
-            }
+            public void close() throws SecurityException { }
         });
     }
 
@@ -564,7 +560,8 @@ public class ToolAdapterOp extends Operator {
     private List<String> transformTemplate(File templateFile) throws OperatorException {
         VelocityEngine veloEngine = new VelocityEngine();
         veloEngine.setProperty("file.resource.loader.path", templateFile.getParent());
-        for(SystemVariable variable : descriptor.getVariables()) {
+        List<SystemVariable> variables = descriptor.getVariables();
+        for(SystemVariable variable : variables) {
             veloEngine.addProperty(variable.getKey(), variable.getValue());
         }
         veloEngine.init();
@@ -572,9 +569,14 @@ public class ToolAdapterOp extends Operator {
         VelocityContext veloContext = new VelocityContext();
         putParametersToVeloContext(veloContext, true);
 
+        for (SystemVariable variable : variables) {
+            veloContext.put(variable.getKey(), variable.getValue());
+        }
+
         StringWriter writer = new StringWriter();
         veloTemplate.merge(veloContext, writer);
         String result = writer.toString();
+
         return Arrays.asList(result.split(VELOCITY_LINE_SEPARATOR));
     }
 
