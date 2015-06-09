@@ -17,9 +17,6 @@
 package org.esa.snap.framework.gpf;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.core.runtime.internal.ModuleReader;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
 import org.esa.snap.framework.gpf.descriptor.AnnotationOperatorDescriptor;
@@ -31,10 +28,14 @@ import org.esa.snap.framework.gpf.descriptor.SourceProductDescriptor;
 import org.esa.snap.framework.gpf.descriptor.SourceProductsDescriptor;
 import org.esa.snap.framework.gpf.descriptor.TargetProductDescriptor;
 import org.esa.snap.framework.gpf.descriptor.TargetPropertyDescriptor;
+import org.esa.snap.util.io.FileUtils;
 
 import java.awt.RenderingHints;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
+import java.util.jar.Manifest;
 import java.util.logging.Logger;
 
 /**
@@ -62,7 +63,7 @@ public abstract class OperatorSpi {
     private final String operatorAlias;
 
     // lazily loaded
-    private Module module;
+    private Manifest manifest;
 
     /**
      * Constructs an operator SPI for the given operator descriptor.
@@ -209,18 +210,11 @@ public abstract class OperatorSpi {
         return operatorDescriptor.getAlias();
     }
 
-    /**
-     * Gets the {@link Module module} providing the operator code or {@code null} if it is not possible to
-     * determine the module.
-     *
-     * @return The module containing the operator.
-     * @since BEAM 5
-     */
-    public Module getModule() {
-        if (module == null) {
-            this.module = loadModule();
+    public Manifest getManifest() {
+        if (manifest == null) {
+            this.manifest = loadManifest();
         }
-        return module;
+        return manifest;
     }
 
     /**
@@ -247,13 +241,14 @@ public abstract class OperatorSpi {
         return operatorClass.getSimpleName();
     }
 
-    private Module loadModule() {
-        ModuleReader moduleReader = new ModuleReader(Logger.getAnonymousLogger());
-        URL moduleLocation = getOperatorDescriptor().getOperatorClass().getProtectionDomain().getCodeSource().getLocation();
+    private Manifest loadManifest()  {
         try {
-            return moduleReader.readFromLocation(moduleLocation);
-        } catch (CoreException e) {
-            Logger.getAnonymousLogger().warning("Could not read " + moduleLocation.toString());
+            URL moduleLocation = getOperatorDescriptor().getOperatorClass().getProtectionDomain().getCodeSource().getLocation();
+            final Path pathFromURI = FileUtils.getPathFromURI(moduleLocation.toURI());
+            final Path manifestPath = pathFromURI.resolve("META-INF/MANIFEST.MF");
+            return new Manifest(Files.newInputStream(manifestPath));
+        } catch (Exception e) {
+            Logger.getLogger(getClass().getName()).warning("Could not read manifest");
         }
         return null;
     }
