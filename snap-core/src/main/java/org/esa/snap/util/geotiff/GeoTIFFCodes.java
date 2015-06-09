@@ -37,6 +37,7 @@ public class GeoTIFFCodes extends IntMap {
     public static final int GeogInvFlatteningGeoKey = 2059;
     public static final int GeogAzimuthUnitsGeoKey = 2060;
     public static final int GeogPrimeMeridianLongGeoKey = 2061;
+    public static final int GeogTOWGS84GeoKey = 2062;
     public static final int ProjectedCSTypeGeoKey = 3072;
     public static final int PCSCitationGeoKey = 3073;
     public static final int ProjectionGeoKey = 3074;

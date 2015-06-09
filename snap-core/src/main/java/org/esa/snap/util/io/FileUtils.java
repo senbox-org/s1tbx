@@ -495,11 +495,14 @@ public class FileUtils {
      * @throws IllegalArgumentException If {@link URI} is not valid
      */
     public static Path getPathFromURI(URI uri) throws IOException {
-        try {
-            return Paths.get(uri);
-        } catch (FileSystemNotFoundException exp) {
-            FileSystems.newFileSystem(uri, Collections.emptyMap());
-            return Paths.get(uri);
+        // Must synchronize, because otherwise FS could have been created by concurrent thread
+        synchronized (FileUtils.class) {
+            try {
+                return Paths.get(uri);
+            } catch (FileSystemNotFoundException exp) {
+                FileSystems.newFileSystem(uri, Collections.emptyMap());
+                return Paths.get(uri);
+            }
         }
     }
 }

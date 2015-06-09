@@ -20,11 +20,13 @@ import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.snap.util.io.FileUtils;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Stream;
@@ -139,7 +141,14 @@ public class ResourceInstaller {
 
     public static Path findModuleCodeBasePath(Class clazz) {
         try {
-            return FileUtils.getPathFromURI(clazz.getProtectionDomain().getCodeSource().getLocation().toURI());
+            URI uri = clazz.getProtectionDomain().getCodeSource().getLocation().toURI();
+            Path basePath = Paths.get(uri);
+            String baseUri = uri.toString();
+            if (baseUri.startsWith("file:") && baseUri.endsWith(".jar") && basePath.toFile().isFile()) {
+                return FileUtils.getPathFromURI(URI.create("jar:" + baseUri + "!/"));
+            } else {
+                return FileUtils.getPathFromURI(uri);
+            }
         } catch (URISyntaxException | IOException e) {
             throw new RuntimeException("Failed to detect the module's code base path", e);
         }
