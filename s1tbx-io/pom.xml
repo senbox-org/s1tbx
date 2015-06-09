@@ -67,6 +67,7 @@
         <dependency>
             <groupId>it.geosolutions.imageio-ext</groupId>
             <artifactId>imageio-ext-tiff</artifactId>
+            <version>1.2-SENTBX</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
