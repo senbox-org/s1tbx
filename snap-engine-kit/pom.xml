@@ -225,11 +225,11 @@
             <artifactId>snap-smart-configurator</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--dependency>
+        <dependency>
             <groupId>org.esa.snap</groupId>
             <artifactId>snap-sta</artifactId>
             <version>${project.version}</version>
-        </dependency-->
+        </dependency>
     </dependencies>
 
     <properties>
