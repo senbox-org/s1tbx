@@ -244,7 +244,7 @@ public abstract class OperatorSpi {
     private Manifest loadManifest()  {
         try {
             URL moduleLocation = getOperatorDescriptor().getOperatorClass().getProtectionDomain().getCodeSource().getLocation();
-            final Path pathFromURI = FileUtils.getPathFromURI(moduleLocation.toURI());
+            final Path pathFromURI = FileUtils.getPathFromURI(FileUtils.ensureJarURI(moduleLocation.toURI()));
             final Path manifestPath = pathFromURI.resolve("META-INF/MANIFEST.MF");
             return new Manifest(Files.newInputStream(manifestPath));
         } catch (Exception e) {

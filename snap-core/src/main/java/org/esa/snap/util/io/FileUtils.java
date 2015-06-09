@@ -51,7 +51,7 @@ public class FileUtils {
      *
      * @param file the file whose extension is to be extracted.
      * @return the extension string which always includes a leading dot. Returns <code>null</code> if the file has
-     *         no extension.
+     * no extension.
      */
     public static String getExtension(File file) {
         Guardian.assertNotNull("file", file);
@@ -63,7 +63,7 @@ public class FileUtils {
      *
      * @param path the file path whose extension is to be extracted.
      * @return the extension string which always includes a leading dot. Returns <code>null</code> if the file path has
-     *         no extension.
+     * no extension.
      */
     public static String getExtension(String path) {
         Guardian.assertNotNull("path", path);
@@ -114,8 +114,7 @@ public class FileUtils {
      *
      * @param path      the string to change the extension
      * @param extension the new file extension including a leading dot (e.g. <code>".raw"</code>).
-     * @throws java.lang.IllegalArgumentException
-     *          if one of the given strings are null or empty.
+     * @throws java.lang.IllegalArgumentException if one of the given strings are null or empty.
      */
     public static String exchangeExtension(String path, String extension) {
         Guardian.assertNotNullOrEmpty("path", path);
@@ -149,8 +148,7 @@ public class FileUtils {
      *
      * @param file      the file to change the extension
      * @param extension the new file extension including a leading dot (e.g. <code>".raw"</code>).
-     * @throws java.lang.IllegalArgumentException
-     *          if one of the parameter strings are null or empty.
+     * @throws java.lang.IllegalArgumentException if one of the parameter strings are null or empty.
      */
     public static File exchangeExtension(File file, String extension) {
         Guardian.assertNotNull("file", file);
@@ -182,8 +180,7 @@ public class FileUtils {
      *
      * @param path      the string to ensure the extension
      * @param extension the new file extension including a leading dot (e.g. <code>".raw"</code>).
-     * @throws java.lang.IllegalArgumentException
-     *          if one of the given strings are null or empty.
+     * @throws java.lang.IllegalArgumentException if one of the given strings are null or empty.
      */
     public static String ensureExtension(String path, String extension) {
         Guardian.assertNotNullOrEmpty("path", path);
@@ -220,8 +217,7 @@ public class FileUtils {
      *
      * @param file      the file to ensure the extension
      * @param extension the new file extension including a leading dot (e.g. <code>".raw"</code>).
-     * @throws java.lang.IllegalArgumentException
-     *          if one of the parameter strings are null or empty.
+     * @throws java.lang.IllegalArgumentException if one of the parameter strings are null or empty.
      */
     public static File ensureExtension(File file, String extension) {
         Guardian.assertNotNull("file", file);
@@ -306,7 +302,7 @@ public class FileUtils {
         return new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.length() > extensionLC.length()
-                        && name.toLowerCase().endsWith(extensionLC);
+                       && name.toLowerCase().endsWith(extensionLC);
             }
         };
     }
@@ -456,7 +452,7 @@ public class FileUtils {
      *
      * @param tree directory to be deleted
      * @return <code>true</code> if and only if the file or directory is
-     *         successfully deleted; <code>false</code> otherwise
+     * successfully deleted; <code>false</code> otherwise
      */
     public static boolean deleteTree(File tree) {
         Guardian.assertNotNull("tree", tree);
@@ -491,7 +487,8 @@ public class FileUtils {
      *
      * @param uri The {@link URI} to create the {@link Path} from.
      * @return The converted {@link Path}.
-     * @throws IOException If the {@link Path} could not be created
+     *
+     * @throws IOException              If the {@link Path} could not be created
      * @throws IllegalArgumentException If {@link URI} is not valid
      */
     public static Path getPathFromURI(URI uri) throws IOException {
@@ -504,5 +501,22 @@ public class FileUtils {
                 return Paths.get(uri);
             }
         }
+    }
+
+    /**
+     * Ensures that the given URI is a path into a jar file.
+     * If the given URI points to a file and ends with '.jar' and starts with 'file:' the given URI is changed.
+     * 'jar:' is prepended and '!/' appended to the uri.
+     *
+     * @param uri the uri which shall be corrected
+     * @return the corrected URI
+     */
+    public static URI ensureJarURI(URI uri) {
+        Path basePath = Paths.get(uri);
+        String baseUri = uri.toString();
+        if (baseUri.startsWith("file:") && baseUri.endsWith(".jar") && basePath.toFile().isFile()) {
+            uri = URI.create("jar:" + baseUri + "!/");
+        }
+        return uri;
     }
 }
