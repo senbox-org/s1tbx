@@ -299,12 +299,8 @@ public class FileUtils {
      */
     public static FilenameFilter createExtensionFilenameFilter(String extension) {
         final String extensionLC = extension.toLowerCase();
-        return new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.length() > extensionLC.length()
-                       && name.toLowerCase().endsWith(extensionLC);
-            }
-        };
+        return (dir, name) -> name.length() > extensionLC.length()
+               && name.toLowerCase().endsWith(extensionLC);
     }
 
     /**
@@ -428,11 +424,8 @@ public class FileUtils {
     }
 
     public static String readText(File file) throws IOException {
-        final FileReader reader1 = new FileReader(file);
-        try {
+        try (FileReader reader1 = new FileReader(file)) {
             return readText(reader1);
-        } finally {
-            reader1.close();
         }
     }
 
@@ -510,9 +503,11 @@ public class FileUtils {
      *
      * @param uri the uri which shall be corrected
      * @return the corrected URI
+     *
+     * @throws IOException If the URI could not be converted into a {@link Path}
      */
-    public static URI ensureJarURI(URI uri) {
-        Path basePath = Paths.get(uri);
+    public static URI ensureJarURI(URI uri) throws IOException {
+        Path basePath = getPathFromURI(uri);
         String baseUri = uri.toString();
         if (baseUri.startsWith("file:") && baseUri.endsWith(".jar") && basePath.toFile().isFile()) {
             uri = URI.create("jar:" + baseUri + "!/");
