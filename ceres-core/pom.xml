@@ -101,6 +101,7 @@
 
                         <publicPackage>org.jfree.chart.*</publicPackage>
                         <publicPackage>org.jfree.data.*</publicPackage>
+                        <publicPackage>org.jfree.date.*</publicPackage>
                         <publicPackage>org.jfree.ui</publicPackage>
                         <publicPackage>org.jfree.util</publicPackage>
 
