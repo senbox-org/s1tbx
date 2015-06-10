@@ -16,6 +16,8 @@ Building S1TBX from the source
     git clone https://github.com/senbox-org/snap-desktop.git
     
 	git clone https://github.com/senbox-org/snap-engine.git
+    
+    git clone https://github.com/senbox-org/snap-installer.git
 	
 4. CD into SNAP/snap-engine:
 
@@ -28,14 +30,6 @@ Building S1TBX from the source
 6. CD into SNAP/s1tbx:
 
    mvn install
-   
-7. CD into SNAP/snap-desktop/snap-application:
-
-   mvn nbm:cluster-app
-
-8. Start the application via Maven:
-
-   mvn nbm:run-platform
 	
 Setting up IntelliJ IDEA
 
@@ -55,8 +49,6 @@ the option *'Create module groups for multi-module Maven projects'*. Everything 
     "E:\build\SNAP\s1tbx\target\nbm\netbeans\s1tbx";"E:\build\SNAP\s1tbx\rstb\target\nbm\netbeans\rstb"
     --patches
     "E:\build\SNAP\snap-engine\$\target\classes";"E:\build\SNAP\s1tbx\$\target\classes"
-    --userdir
-    "..\.snap2"
     
 	* **Working directory:** SNAP/snap-desktop/snap-application/target/snap/
 	* **Use classpath of module:** nbexec
