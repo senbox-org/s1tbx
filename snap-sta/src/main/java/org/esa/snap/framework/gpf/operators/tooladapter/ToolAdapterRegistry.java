@@ -16,7 +16,6 @@
 package org.esa.snap.framework.gpf.operators.tooladapter;
 
 import org.esa.snap.framework.gpf.GPF;
-import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.framework.gpf.OperatorSpiRegistry;
 import org.esa.snap.framework.gpf.descriptor.OperatorDescriptor;
@@ -24,6 +23,7 @@ import org.esa.snap.framework.gpf.descriptor.ToolAdapterOperatorDescriptor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Registry (map) class for mapping ToolAdapterOpSpi-s to adapter names.
@@ -56,9 +56,8 @@ public enum ToolAdapterRegistry {
      * OperatorSpiRegistry.
      *
      * @param operatorSpi   The SPI to be registered
-     * @throws OperatorException    If the SPI is already registered
      */
-    public void registerOperator(ToolAdapterOpSpi operatorSpi) throws OperatorException {
+    public void registerOperator(ToolAdapterOpSpi operatorSpi) {
         OperatorDescriptor operatorDescriptor = operatorSpi.getOperatorDescriptor();
         String operatorName = operatorDescriptor.getName() != null ? operatorDescriptor.getName() : operatorDescriptor.getAlias();
         OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
@@ -66,7 +65,9 @@ public enum ToolAdapterRegistry {
             operatorSpiRegistry.addOperatorSpi(operatorName, operatorSpi);
         }
         if (registeredAdapters.containsKey(operatorName)) {
-            throw new OperatorException("An operator with the same name is already registered!");
+            registeredAdapters.remove(operatorName);
+            registeredAdapters.put(operatorName, operatorSpi);
+            Logger.getGlobal().warning(String.format("An operator with the name %s was already registered", operatorName));
         }
         registeredAdapters.put(operatorName, operatorSpi);
     }

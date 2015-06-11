@@ -38,6 +38,9 @@ import java.util.stream.Collectors;
  */
 public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
 
+    public static final String SOURCE_PACKAGE = "package";
+    public static final String SOURCE_USER = "user";
+
     private String name;
     private Class<? extends Operator> operatorClass;
     private String alias;
@@ -61,6 +64,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     private List<SystemVariable> variables;
     private List<TemplateParameterDescriptor> toolParameterDescriptors = new ArrayList<>();
     private boolean isSystem;
+    private String source;
 
     private DefaultSourceProductDescriptor[] sourceProductDescriptors;
     private DefaultSourceProductsDescriptor sourceProductsDescriptor;
@@ -303,6 +307,20 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      * Getter for the isSystem field
      */
     public boolean isSystem() { return isSystem; }
+    /**
+     * Getter for the source of the descriptor.
+     * The source can be either "package" or "user".
+     */
+    public String getSource() { return source != null ? source : SOURCE_USER; }
+    /**
+     * Setter for the Source field.
+     */
+    public void setSource(String value) {
+        source = value;
+        if (!(SOURCE_PACKAGE.equals(source) || SOURCE_USER.equals(source))) {
+            source = SOURCE_USER;
+        }
+    }
 
     @Override
     public Class<? extends Operator> getOperatorClass() {
