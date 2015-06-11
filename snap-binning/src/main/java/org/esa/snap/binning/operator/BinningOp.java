@@ -103,7 +103,7 @@ todo - address the following BinningOp requirements (nf, 2012-03-09)
         autoWriteDisabled = true)
 public class BinningOp extends Operator {
 
-    public static enum TimeFilterMethod {
+    public enum TimeFilterMethod {
         NONE,
         TIME_RANGE,
         SPATIOTEMPORAL_DATA_DAY,
@@ -113,67 +113,70 @@ public class BinningOp extends Operator {
     public static final String DATETIME_INPUT_PATTERN = "yyyy-MM-dd HH:mm:ss";
     public static final String DATETIME_OUTPUT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
-    @SourceProducts(description = "The source products to be binned. Must be all of the same structure. " +
-            "If not given, the parameter 'sourceProductPaths' must be provided.")
+    @SourceProducts(description = "The source products to be binned. Must be all of the same structure.\n" +
+                                  "If not given, the parameter 'sourceProductPaths' must be provided.")
     Product[] sourceProducts;
 
     @TargetProduct
     Product targetProduct;
 
     @Parameter(description = "A comma-separated list of file paths specifying the source products.\n" +
-            "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
-            "'*' (matches any character sequence in path names) and\n" +
-            "'?' (matches any single character).")
+                             "Each path may contain the wildcards '**' (matches recursively any directory),\n" +
+                             "'*' (matches any character sequence in path names) and\n" +
+                             "'?' (matches any single character).")
     String[] sourceProductPaths;
 
     // TODO nf/mz 2013-11-05: this could be a common Operator parameter, it accelerates opening of products
-    @Parameter(description = "The common product format of all source products. This parameter is optional and may be used in conjunction " +
-            "with parameter 'sourceProductPaths' and only to speed up source product opening." +
-            "Try \"NetCDF-CF\", \"GeoTIFF\", \"BEAM-DIMAP\", or \"ENVISAT\", etc.",
+    @Parameter(description = "The common product format of all source products.\n" +
+                             "This parameter is optional and may be used in conjunction with\n" +
+                             "parameter 'sourceProductPaths' and only to speed up source product opening.\n" +
+                             "Try \"NetCDF-CF\", \"GeoTIFF\", \"BEAM-DIMAP\", or \"ENVISAT\", etc.",
             defaultValue = "")
     private String sourceProductFormat;
 
     @Parameter(converter = JtsGeometryConverter.class,
             description = "The considered geographical region as a geometry in well-known text format (WKT).\n" +
-                    "If not given, the geographical region will be computed according to the extents of the " +
-                    "input products.")
+                          "If not given, the geographical region will be computed according to the extents of the input products.")
     Geometry region;
 
     @Parameter(pattern = "\\d{4}-\\d{2}-\\d{2}(\\s\\d{2}:\\d{2}:\\d{2})?",
-            description = "The UTC start date of the binning period. " +
-                    "The format is either 'yyyy-MM-dd HH:mm:ss' or 'yyyy-MM-dd'. If only the date part is given, the time 00:00:00 is assumed.")
+            description = "The UTC start date of the binning period.\n" +
+                          "The format is either 'yyyy-MM-dd HH:mm:ss' or 'yyyy-MM-dd'.\n" +
+                          " If only the date part is given, the time 00:00:00 is assumed.")
     private String startDateTime;
 
     @Parameter(description = "Duration of the binning period in days.")
     private Double periodDuration;
 
-    @Parameter(description = "The method that is used to decide which source pixels are used with respect to their observation time. " +
-            "'NONE': ignore pixel observation time, use all source pixels. " +
-            "'TIME_RANGE': use all pixels that have been acquired in the given binning period. " +
-            "'SPATIOTEMPORAL_DATA_DAY': use a sensor-dependent, spatial \"data-day\" definition with the goal " +
-            "to minimise the time between the first and last observation contributing to the same bin in the given binning period. " +
-            "The decision, whether a source pixel contributes to a bin or not, is a function of the pixel's observation longitude and time. " +
-            "Requires the parameter 'minDataHour'.",
+    @Parameter(description = "The method that is used to decide which source pixels are used with respect to their observation time.\n" +
+                             "'NONE': ignore pixel observation time, use all source pixels.\n" +
+                             "'TIME_RANGE': use all pixels that have been acquired in the given binning period.\n" +
+                             "'SPATIOTEMPORAL_DATA_DAY': use a sensor-dependent, spatial \"data-day\" definition with the goal\n" +
+                             "to minimise the time between the first and last observation contributing to the same bin in the given binning period.\n" +
+                             "The decision, whether a source pixel contributes to a bin or not, is a function of the pixel's observation longitude and time.\n" +
+                             "Requires the parameter 'minDataHour'.",
             defaultValue = "NONE")
     private TimeFilterMethod timeFilterMethod;
 
     @Parameter(interval = "[0,24]",
-            description = "A sensor-dependent constant given in hours of a day (0 to 24) at which a sensor has a minimum number of " +
-                    "observations at the date line (the 180 degree meridian). Only used if parameter 'dataDayMode' is set to 'SPATIOTEMPORAL_DATADAY'.")
+            description = "A sensor-dependent constant given in hours of a day (0 to 24)\n" +
+                          "at which a sensor has a minimum number of observations at the date line (the 180 degree meridian).\n" +
+                          "Only used if parameter 'dataDayMode' is set to 'SPATIOTEMPORAL_DATADAY'.")
     private Double minDataHour;
 
     @Parameter(description = "Number of rows in the (global) planetary grid. Must be even.", defaultValue = "2160")
     private int numRows;
 
-    @Parameter(description = "The square of the number of pixels used for super-sampling an input pixel into multiple sub-pixels", defaultValue = "1")
+    @Parameter(description = "The square of the number of pixels used for super-sampling an input pixel into multiple sub-pixels",
+            defaultValue = "1")
     private Integer superSampling;
 
     @Parameter(description = "The band maths expression used to filter input pixels")
     private String maskExpr;
 
     @Parameter(alias = "variables", itemAlias = "variable",
-            description = "List of variables. A variable will generate a virtual band " +
-                    "in each source data product, so that it can be used as input for the binning.")
+            description = "List of variables. A variable will generate a virtual band\n" +
+                          "in each source data product, so that it can be used as input for the binning.")
     private VariableConfig[] variableConfigs;
 
     @Parameter(alias = "aggregators", domConverter = AggregatorConfigDomConverter.class,
@@ -190,13 +193,13 @@ public class BinningOp extends Operator {
     @Parameter(defaultValue = "BEAM-DIMAP")
     private String outputFormat;
     @Parameter(alias = "outputBands", itemAlias = "band", description = "Configures the target bands. Not needed " +
-            "if output type 'Product' is chosen.")
+                                                                        "if output type 'Product' is chosen.")
     private BandConfiguration[] bandConfigurations;
     @Parameter(alias = "productCustomizer", domConverter = ProductCustomizerConfigDomConverter.class)
     private ProductCustomizerConfig productCustomizerConfig;
 
     @Parameter(description = "If true, a SeaDAS-style, binned data NetCDF file is written in addition to the\n" +
-            "target product. The output file name will be <target>-bins.nc",
+                             "target product. The output file name will be <target>-bins.nc",
             defaultValue = "false")
     private boolean outputBinnedData;
 
@@ -214,9 +217,9 @@ public class BinningOp extends Operator {
     File metadataTemplateDir;
 
     @Parameter(description = "The type of metadata aggregation to be used. Possible values are:\n" +
-            "'NAME': aggregate the name of each input product\n" +
-            "'FIRST_HISTORY': aggregates all input product names and the processing history of the first product\n" +
-            "'ALL_HISTORIES': aggregates all input product names and processing histories",
+                             "'NAME': aggregate the name of each input product\n" +
+                             "'FIRST_HISTORY': aggregates all input product names and the processing history of the first product\n" +
+                             "'ALL_HISTORIES': aggregates all input product names and processing histories",
             defaultValue = "NAME")
     private String metadataAggregatorName;
 
@@ -405,9 +408,9 @@ public class BinningOp extends Operator {
         binningContext = binningConfig.createBinningContext(region, startDateUtc, periodDuration);
 
         BinningProductFilter productFilter = createSourceProductFilter(binningContext.getDataPeriod(),
-                startDateUtc,
-                endDateUtc,
-                region);
+                                                                       startDateUtc,
+                                                                       endDateUtc,
+                                                                       region);
 
         metadataAggregator = MetadataAggregatorFactory.create(metadataAggregatorName);
         numProductsAggregated = 0;
@@ -557,8 +560,8 @@ public class BinningOp extends Operator {
 
     private static Product copyProduct(Product writtenProduct) {
         Product targetProduct = new Product(writtenProduct.getName(), writtenProduct.getProductType(),
-                writtenProduct.getSceneRasterWidth(),
-                writtenProduct.getSceneRasterHeight());
+                                            writtenProduct.getSceneRasterWidth(),
+                                            writtenProduct.getSceneRasterHeight());
         targetProduct.setStartTime(writtenProduct.getStartTime());
         targetProduct.setEndTime(writtenProduct.getEndTime());
         ProductUtils.copyMetadata(writtenProduct, targetProduct);
@@ -649,9 +652,9 @@ public class BinningOp extends Operator {
             //  - grow rectangle by binSize in pixel units (see lc-tools of LC-CCI project)
         }
         final long numObs = SpatialProductBinner.processProduct(sourceProduct,
-                spatialBinner,
-                addedVariableBands,
-                ProgressMonitor.NULL);
+                                                                spatialBinner,
+                                                                addedVariableBands,
+                                                                ProgressMonitor.NULL);
         stopWatch.stop();
 
         getLogger().info(String.format("Spatial binning of product '%s' done, %d observations seen, took %s", productName, numObs, stopWatch));
@@ -707,7 +710,7 @@ public class BinningOp extends Operator {
     }
 
     private void writeOutput(List<TemporalBin> temporalBins, ProductData.UTC startTime, ProductData.UTC stopTime) throws
-            Exception {
+                                                                                                                  Exception {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -725,13 +728,13 @@ public class BinningOp extends Operator {
             getLogger().info(String.format("Writing mapped product '%s'...", formatterConfig.getOutputFile()));
             final MetadataElement processingGraphMetadata = getProcessingGraphMetadata();
             Formatter.format(binningContext.getPlanetaryGrid(),
-                    getTemporalBinSource(temporalBins),
-                    binningContext.getBinManager().getResultFeatureNames(),
-                    formatterConfig,
-                    region,
-                    startTime,
-                    stopTime,
-                    processingGraphMetadata);
+                             getTemporalBinSource(temporalBins),
+                             binningContext.getBinManager().getResultFeatureNames(),
+                             formatterConfig,
+                             region,
+                             startTime,
+                             stopTime,
+                             processingGraphMetadata);
             stopWatch.stop();
 
             String msgPattern = "Writing mapped product '%s' done, took %s";

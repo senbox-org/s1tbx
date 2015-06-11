@@ -29,7 +29,6 @@ import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.binding.dom.XppDomElement;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.glevel.MultiLevelImage;
 import com.bc.ceres.jai.tilecache.DefaultSwapSpace;
 import com.bc.ceres.jai.tilecache.SwappingTileCache;
@@ -75,6 +74,8 @@ import java.awt.RenderingHints;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -82,7 +83,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -91,6 +91,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -106,6 +108,8 @@ public class OperatorContext {
 
     private static final String DATETIME_OUTPUT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final SimpleDateFormat DATETIME_OUTPUT_FORMAT = new SimpleDateFormat(DATETIME_OUTPUT_PATTERN);
+    private static final String MANIFEST_ATTR_MODULE_NAME = "OpenIDE-Module-Name";
+    private static final String MANIFEST_ATTR_MODULE_VERSION = "OpenIDE-Module-Specification-Version";
 
     static {
         DATETIME_OUTPUT_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -469,7 +473,7 @@ public class OperatorContext {
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
         while (true) {
             if (Operator.class.equals(aClass)
-                    || !Operator.class.isAssignableFrom(aClass)) {
+                || !Operator.class.isAssignableFrom(aClass)) {
                 return false;
             }
             try {
@@ -533,7 +537,7 @@ public class OperatorContext {
                 if (operatorDescriptor instanceof AnnotationOperatorDescriptor) {
                     parameterSet = PropertyContainer.createObjectBacked(operator, propertySetDescriptor);
                 } else {
-                    parameterSet = PropertyContainer.createMapBacked(new HashMap<String, Object>(), propertySetDescriptor);
+                    parameterSet = PropertyContainer.createMapBacked(new HashMap<>(), propertySetDescriptor);
                 }
             }
         }
@@ -574,15 +578,13 @@ public class OperatorContext {
         targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(opId), false));
         targetNodeME.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(opName), false));
 
-        Module module = operatorSpi.getModule();
-        if (module == null) {
-            logger.warning("Could not read module information");
-        } else {
-            ProductData nameValue = ProductData.createInstance(module.getSymbolicName());
-            targetNodeME.addAttribute(new MetadataAttribute("moduleName", nameValue, false));
-
-            ProductData versionValue = ProductData.createInstance(module.getVersion().toString());
-            targetNodeME.addAttribute(new MetadataAttribute("moduleVersion", versionValue, false));
+        Manifest manifest = operatorSpi.getManifest();
+        if (manifest != null) {
+            final Attributes mainAttributes = manifest.getMainAttributes();
+            final ProductData moduleName = getAttributeValue(mainAttributes, MANIFEST_ATTR_MODULE_NAME);
+            targetNodeME.addAttribute(new MetadataAttribute("moduleName", moduleName, false));
+            final ProductData moduleVersion = getAttributeValue(mainAttributes, MANIFEST_ATTR_MODULE_VERSION);
+            targetNodeME.addAttribute(new MetadataAttribute("moduleVersion", moduleVersion, false));
         }
 
         OperatorSpiRegistry operatorSpiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
@@ -613,8 +615,8 @@ public class OperatorContext {
         List<MetadataAttribute> sourceAttributeList = new ArrayList<>(context.sourceProductList.size() * 2);
         for (Product sourceProduct : context.sourceProductList) {
             final String sourceId = context.getSourceProductId(sourceProduct);
-            if(sourceId == null) {
-                throw new OperatorException(formatExceptionMessage("Source product not found: "+sourceProduct.getName()));
+            if (sourceId == null) {
+                throw new OperatorException(formatExceptionMessage("Source product not found: " + sourceProduct.getName()));
             }
             final String sourceNodeId;
             if (sourceProduct.getFileLocation() != null) {
@@ -632,12 +634,7 @@ public class OperatorContext {
             sourceAttributeList.add(sourceAttribute);
         }
         final MetadataElement targetSourcesME = new MetadataElement("sources");
-        Collections.sort(sourceAttributeList, new Comparator<MetadataAttribute>() {
-            @Override
-            public int compare(MetadataAttribute ma1, MetadataAttribute ma2) {
-                return ma1.getName().compareTo(ma2.getName());
-            }
-        });
+        Collections.sort(sourceAttributeList, (ma1, ma2) -> ma1.getName().compareTo(ma2.getName()));
         for (MetadataAttribute sourceAttribute : sourceAttributeList) {
             targetSourcesME.addAttribute(sourceAttribute);
         }
@@ -654,6 +651,17 @@ public class OperatorContext {
         final MetadataElement targetParametersME = new MetadataElement("parameters");
         addDomToMetadata(parametersDom, targetParametersME);
         targetNodeME.addElement(targetParametersME);
+    }
+
+    private ProductData getAttributeValue(Attributes mainAttributes, String attrName) {
+        final String attrValue = mainAttributes.getValue(attrName);
+        final ProductData attrData;
+        if (attrValue != null) {
+            attrData = ProductData.createInstance(attrValue);
+        }else {
+            attrData = ProductData.createInstance("unknown");
+        }
+        return attrData;
     }
 
     private static void addDomToMetadata(DomElement parentDE, MetadataElement parentME) {
@@ -679,6 +687,12 @@ public class OperatorContext {
                 addDomToMetadata(elementList.get(0), name, parentME);
             }
         }
+    }
+
+
+    private Manifest loadManifest(OperatorSpi spi) throws IOException {
+        final InputStream resourceAsStream = spi.getOperatorClass().getResourceAsStream("/META-INF/MANIFEST.MF");
+        return new Manifest(resourceAsStream);
     }
 
     private static void addDomToMetadata(DomElement childDE, String name, MetadataElement parentME) {
@@ -767,7 +781,7 @@ public class OperatorContext {
                     WriteOp writer = (WriteOp) operator;
                     ProductWriter productWriter = ProductIO.getProductWriter(writer.getFormatName());
 
-                    if (productWriter.shouldWrite(targetBand)) {
+                    if (productWriter != null && productWriter.shouldWrite(targetBand)) {
                         targetImageMap.put(targetBand, new OperatorImage(targetBand, this) {
                             @Override
                             protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
@@ -808,8 +822,8 @@ public class OperatorContext {
         Dimension tileSize = null;
         for (final Product sourceProduct : sourceProductList) {
             if (sourceProduct.getPreferredTileSize() != null &&
-                    sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
-                    sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
+                sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
+                sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
                 tileSize = sourceProduct.getPreferredTileSize();
                 break;
             }
@@ -927,7 +941,7 @@ public class OperatorContext {
     }
 
     private void processSourceProductField(Field declaredField, SourceProduct sourceProductAnnotation) throws
-            OperatorException {
+                                                                                                       OperatorException {
         if (declaredField.getType().equals(Product.class)) {
             String productMapName = declaredField.getName();
             Product sourceProduct = getSourceProduct(productMapName);
@@ -960,7 +974,7 @@ public class OperatorContext {
     }
 
     private void processSourceProductsField(Field declaredField, SourceProducts sourceProductsAnnotation) throws
-            OperatorException {
+                                                                                                          OperatorException {
         if (declaredField.getType().equals(Product[].class)) {
             Product[] sourceProducts = getSourceProductsFieldValue(declaredField);
             if (sourceProducts != null) {
@@ -1246,6 +1260,7 @@ public class OperatorContext {
     }
 
     private static final class SuspendableStopWatch {
+
         private long startTime = -1;
         private long stopTime = -1;
 

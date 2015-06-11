@@ -82,6 +82,7 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>org.esa.snap.*</publicPackage>
+                        <publicPackage>org.apache.commons.io.*</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
