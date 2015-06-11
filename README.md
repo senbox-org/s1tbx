@@ -30,6 +30,11 @@ Building S1TBX from the source
 6. CD into SNAP/s1tbx:
 
    mvn install
+   
+7. If unit tests are failing, you can use the following to skip the tests
+   
+   mvn clean
+   mvn install -Dmaven.test.skip=true
 	
 Setting up IntelliJ IDEA
 
