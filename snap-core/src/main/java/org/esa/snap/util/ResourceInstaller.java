@@ -26,7 +26,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Stream;
@@ -142,15 +141,10 @@ public class ResourceInstaller {
     public static Path findModuleCodeBasePath(Class clazz) {
         try {
             URI uri = clazz.getProtectionDomain().getCodeSource().getLocation().toURI();
-            Path basePath = Paths.get(uri);
-            String baseUri = uri.toString();
-            if (baseUri.startsWith("file:") && baseUri.endsWith(".jar") && basePath.toFile().isFile()) {
-                return FileUtils.getPathFromURI(URI.create("jar:" + baseUri + "!/"));
-            } else {
-                return FileUtils.getPathFromURI(uri);
-            }
+            return FileUtils.getPathFromURI(FileUtils.ensureJarURI(uri));
         } catch (URISyntaxException | IOException e) {
             throw new RuntimeException("Failed to detect the module's code base path", e);
         }
     }
+
 }
