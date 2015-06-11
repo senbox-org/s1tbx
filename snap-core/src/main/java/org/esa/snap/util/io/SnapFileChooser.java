@@ -41,23 +41,21 @@ import java.io.File;
  */
 public class SnapFileChooser extends JFileChooser {
 
+    private static final Object syncFileFiltersObejct  = new Object();
     private String lastFilename;
     private Rectangle dialogBounds;
     private ResizeHandler resizeHandler;
 
     public SnapFileChooser() {
-        super();
-        init();
+        this(null, null);
     }
 
     public SnapFileChooser(FileSystemView fsv) {
-        super(fsv);
-        init();
+        this(null, fsv);
     }
 
     public SnapFileChooser(File currentDirectory) {
-        super(currentDirectory);
-        init();
+        this(currentDirectory, null);
     }
 
     public SnapFileChooser(File currentDirectory, FileSystemView fsv) {
@@ -238,7 +236,6 @@ public class SnapFileChooser extends JFileChooser {
     ///////////////////////////////////////////////////////////////////////////
 
     private void init() {
-
         resizeHandler = new ResizeHandler();
         setAcceptAllFileFilterUsed(false);
 
@@ -277,6 +274,21 @@ public class SnapFileChooser extends JFileChooser {
             }
         }
         return false;
+    }
+
+    @Override
+    public FileFilter[] getChoosableFileFilters() {
+        synchronized (syncFileFiltersObejct) {
+            return super.getChoosableFileFilters();
+        }
+    }
+
+
+    @Override
+    public void addChoosableFileFilter(FileFilter filter) {
+        synchronized (syncFileFiltersObejct) {
+            super.addChoosableFileFilter(filter);
+        }
     }
 
     private void ensureSelectedFileHasValidExtension() {
