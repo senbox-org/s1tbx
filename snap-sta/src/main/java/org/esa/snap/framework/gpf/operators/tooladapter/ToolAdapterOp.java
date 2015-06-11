@@ -15,8 +15,6 @@
  */
 package org.esa.snap.framework.gpf.operators.tooladapter;
 
-//import com.bc.ceres.binding.Property;
-
 import com.bc.ceres.binding.Property;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
@@ -88,6 +86,8 @@ public class ToolAdapterOp extends Operator {
     private OperatorContext accessibleContext;
 
     private List<String> errorMessages;
+
+    private VelocityContext lastPostContext;
 
     /**
      * Constructor.
@@ -204,10 +204,13 @@ public class ToolAdapterOp extends Operator {
                 Date finalDate = new Date();
                 this.consumer.consumeOutput("Finished tool execution in " + (finalDate.getTime() - currentTime.getTime()) / 1000 + " seconds");
             }
-            postExecute();
         } finally {
-            if (this.progressMonitor != null) {
-                this.progressMonitor.done();
+            try {
+                postExecute();
+            } finally {
+                if (this.progressMonitor != null) {
+                    this.progressMonitor.done();
+                }
             }
         }
     }
@@ -399,8 +402,21 @@ public class ToolAdapterOp extends Operator {
      * @throws OperatorException in case of an error
      */
     private void postExecute() throws OperatorException {
+        for(TemplateParameterDescriptor parameter : descriptor.getToolParameterDescriptors()){
+            if(parameter.getParameterType().equals(ToolAdapterConstants.TEMPLATE_AFTER_MASK)){
+                try {
+                    transformTemplateParameter(parameter);
+                } catch (IOException e) {
+                    throw new OperatorException("Error processing template after execution for parameter: '" + parameter.getName() + "'");
+                }
+            }
+        }
         reportProgress("Trying to open the new product");
         File input = (File) getParameter(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE);
+        if (input == null) {
+            input = (File) this.lastPostContext.get(ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE);
+        }
+        this.lastPostContext = null;
         if (input != null) {
             try {
                 intermediateProductFiles.stream().filter(intermediateProductFile -> intermediateProductFile != null && intermediateProductFile.exists())
@@ -418,15 +434,6 @@ public class ToolAdapterOp extends Operator {
                 setTargetProduct(target);
             } catch (IOException e) {
                 throw new OperatorException("Error reading product '" + input.getPath() + "'");
-            }
-        }
-        for(TemplateParameterDescriptor parameter : descriptor.getToolParameterDescriptors()){
-            if(parameter.getParameterType().equals(ToolAdapterConstants.TEMPLATE_AFTER_MASK)){
-                try {
-                    transformTemplateParameter(parameter);
-                } catch (IOException e) {
-                    throw new OperatorException("Error processing template after execution for parameter: '" + parameter.getName() + "'");
-                }
             }
         }
         if (this.consumer != null && this.consumer instanceof DefaultOutputConsumer) {
@@ -528,6 +535,8 @@ public class ToolAdapterOp extends Operator {
 
     private String transformTemplateParameter(TemplateParameterDescriptor parameter) throws IOException{
         File templateFile = accessibleContext.getParameterSet().getProperty(parameter.getName()).getValue();
+        // make sure for now the template is loaded from adapter's folder
+        templateFile = ToolAdapterIO.ensureLocalCopy(templateFile, descriptor.getAlias());
         VelocityEngine veloEngine = new VelocityEngine();
         veloEngine.setProperty("file.resource.loader.path", templateFile.getParent());
         for(SystemVariable variable : descriptor.getVariables()) {
@@ -554,6 +563,7 @@ public class ToolAdapterOp extends Operator {
         dateFormatted = dateFormatted.replace("/", separatorChar).replace(" ", separatorChar);
         String newFileName = descriptor.getExpandedLocation(descriptor.getWorkingDir()) + templateFile.getName() + "_result_" + dateFormatted;
         ToolAdapterIO.saveFileContent(new File(newFileName), result);
+        this.lastPostContext = veloContext;
         return newFileName;
     }
 
@@ -627,7 +637,8 @@ public class ToolAdapterOp extends Operator {
         @Override
         public void beginTask(String taskName, int totalWork) {
             this.progressHandle.setDisplayName(taskName);
-            this.progressHandle.start(totalWork, 1);
+            this.progressHandle.start(totalWork, -1);
+            this.progressHandle.switchToIndeterminate();
         }
 
         @Override

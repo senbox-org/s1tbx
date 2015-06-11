@@ -3,20 +3,14 @@
     <folder name="Actions">
         <folder name="Operators">
             <file name="org-esa-snap-ndvi-NdviOpAction.instance">
-                <attr name="instanceCreate"
-                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate"
-                      methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
-                <attr name="displayName"
-                      stringvalue="NDVI Processor"/>
-                <attr name="operatorName"
-                      stringvalue="NdviOp"/>
-                <attr name="dialogTitle"
-                      stringvalue="NDVI"/>
-                <attr name="targetProductNameSuffix"
-                      stringvalue="_ndvi"/>
-                <attr name="ShortDescription"
-                      stringvalue="Generates NDVI from a source product with at least two spectral bands."/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.DefaultOperatorAction.create"/>
+                <attr name="displayName" stringvalue="NDVI Processor"/>
+                <attr name="operatorName" stringvalue="NdviOp"/>
+                <attr name="dialogTitle" stringvalue="NDVI"/>
+                <attr name="helpId" stringvalue="NDVIOperator"/>
+                <attr name="targetProductNameSuffix" stringvalue="_ndvi"/>
+                <attr name="ShortDescription" stringvalue="Generates NDVI from a source product with at least two spectral bands."/>
             </file>
         </folder>
     </folder>
@@ -25,10 +19,8 @@
         <folder name="Processing">
             <folder name="Thematic Land Processing">
                 <file name="org-esa-snap-ndvi-NdviOpAction.shadow">
-                    <attr name="originalFile"
-                          stringvalue="Actions/Operators/org-esa-snap-ndvi-NdviOpAction.instance"/>
-                    <attr name="position"
-                          intvalue="0"/>
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-snap-ndvi-NdviOpAction.instance"/>
+                    <attr name="position" intvalue="0"/>
                 </file>
             </folder>
         </folder>

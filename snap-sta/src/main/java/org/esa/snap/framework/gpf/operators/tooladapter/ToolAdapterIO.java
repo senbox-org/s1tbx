@@ -33,6 +33,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +41,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
-import static org.esa.snap.utils.JarPackager.unpackAdapterJar;
+import static org.esa.snap.utils.ModulePackager.unpackAdapterJar;
 
 /**
  * Utility class for performing various operations needed by ToolAdapterOp.
@@ -92,8 +93,8 @@ public class ToolAdapterIO {
      */
     public static ToolAdapterOpSpi createOperatorSpi(File operatorFolder) throws OperatorException {
         //Look for the descriptor
-        File descriptorFile = new File(operatorFolder, ToolAdapterConstants.DESCRIPTOR_FILE);
         ToolAdapterOperatorDescriptor operatorDescriptor;
+        File descriptorFile = new File(operatorFolder, ToolAdapterConstants.DESCRIPTOR_FILE);
         if (descriptorFile.exists()) {
             operatorDescriptor = ToolAdapterOperatorDescriptor.fromXml(descriptorFile, ToolAdapterIO.class.getClassLoader());
         } else {
@@ -283,7 +284,7 @@ public class ToolAdapterIO {
         File[] jarFiles = path.listFiles(f -> f.getName().endsWith(".jar"));
         if (jarFiles != null) {
             for (File jarFile : jarFiles) {
-                unpackAdapterJar(jarFile);
+                unpackAdapterJar(jarFile, null);
             }
         }
         File[] moduleFolders = path.listFiles();
@@ -316,7 +317,7 @@ public class ToolAdapterIO {
         return template;
     }
 
-    private static void removeOperator(ToolAdapterOperatorDescriptor operator, boolean removeOperatorFolder) {
+    public static void removeOperator(ToolAdapterOperatorDescriptor operator, boolean removeOperatorFolder) {
         if (!operator.isSystem()) {
             ToolAdapterRegistry.INSTANCE.removeOperator(operator);
             if (removeOperatorFolder) {
@@ -329,5 +330,28 @@ public class ToolAdapterIO {
                 }
             }
         }
+    }
+
+    public static File ensureLocalCopy(File file, String adaptorAlias) {
+        File newFile = null;
+        File path = new File(getUserAdapterPath(), adaptorAlias);
+        if (!file.isAbsolute()) {
+            newFile = new File(path, file.getName());
+        } else if (file.exists() && !file.getAbsolutePath().startsWith(path.getAbsolutePath())) {
+            try {
+                newFile = Files.copy(Paths.get(file.getAbsolutePath()), Paths.get(path.getAbsolutePath(), file.getName()), StandardCopyOption.REPLACE_EXISTING).toFile();
+            } catch (IOException e) {
+                logger.warning(e.getMessage());
+            }
+        } else {
+            newFile = file;
+        }
+        return newFile;
+    }
+
+    public static File prettifyTemplateParameterPath(File templateFile, String adaptorAlias) {
+        File pathToRemove = new File(getUserAdapterPath(), adaptorAlias);
+        return new File(templateFile.getAbsolutePath().replace(pathToRemove.getAbsolutePath() + File.separator, ""),
+                        templateFile.getName());
     }
 }

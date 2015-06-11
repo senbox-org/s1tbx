@@ -244,9 +244,12 @@ public class VectorDataNodeReader {
         String geometryName = null;
         final String defaultGeometry = properties.get("defaultGeometry");
         for (int i = 0; i < tokens.length; i++) {
-            if (i == 0 && tokens[0].startsWith("org.esa.snap")) {
+            final String firstToken = tokens[0];
+            if (i == 0 &&
+                firstToken.startsWith("org.esa.snap") ||
+                firstToken.startsWith("org.esa.beam") /*for backward compatibility*/) {
                 hasFeatureTypeName = true;
-                featureTypeName = tokens[0];
+                featureTypeName = firstToken;
             } else {
                 String token = tokens[i];
                 final int colonPos = token.indexOf(':');

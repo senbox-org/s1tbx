@@ -97,8 +97,8 @@ public class MaskCollectionLayer extends CollectionLayer {
         }
 
         // Allign mask layers with available masks
-        if (raster != null) {
-            Mask[] availableMasks = raster.getProduct().getMaskGroup().toArray(new Mask[0]);
+        if (raster != null && getProduct() != null) {
+            Mask[] availableMasks = getProduct().getMaskGroup().toArray(new Mask[0]);
             HashSet<Layer> unusedLayers = new HashSet<>(maskLayers);
             for (Mask availableMask : availableMasks) {
                 Layer layer = currentLayers.get(availableMask);
