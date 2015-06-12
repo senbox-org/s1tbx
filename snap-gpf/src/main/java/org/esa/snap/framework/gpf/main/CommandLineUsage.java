@@ -42,12 +42,12 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
 class CommandLineUsage {
+
     private static final String COMMAND_LINE_USAGE_RESOURCE = "CommandLineUsage.txt";
 
     public static String getUsageText() {
@@ -110,7 +110,7 @@ class CommandLineUsage {
     public static String getUsageTextForGraph(String path, CommandLineContext commandLineContext) {
         final Graph graph;
         try {
-            graph = commandLineContext.readGraph(path, new HashMap<String, String>());
+            graph = commandLineContext.readGraph(path, new HashMap<>());
         } catch (GraphException e) {
             return e.getMessage();
         } catch (IOException e) {
@@ -292,7 +292,7 @@ class CommandLineUsage {
     private static ArrayList<DocElement> createParamDocElementList(OperatorDescriptor operatorDescriptor) {
         ArrayList<DocElement> docElementList = new ArrayList<>(10);
         ParameterDescriptor[] parameterDescriptors = operatorDescriptor.getParameterDescriptors();
-        for (ParameterDescriptor parameter: parameterDescriptors) {
+        for (ParameterDescriptor parameter : parameterDescriptors) {
             if (isConverterAvailable(parameter) && !parameter.isDeprecated()) {
                 String paramSyntax = String.format("  -P%s=<%s>", getName(parameter), getTypeName(parameter.getDataType()));
                 final ArrayList<String> descriptionLines = createParamDescriptionLines(parameter);
@@ -309,13 +309,8 @@ class CommandLineUsage {
         // The sorting of the properties needs to be treated special, compared to the other DocElements.
         // It would be sorted by the Type name instead of the name of the property
         List<TargetPropertyDescriptor> targetPropertyDescriptorList = Arrays.asList(targetPropertyDescriptors);
-        Collections.sort(targetPropertyDescriptorList, new Comparator<TargetPropertyDescriptor>() {
-                             @Override
-                             public int compare(TargetPropertyDescriptor tpd1, TargetPropertyDescriptor tpd2) {
-                                 return getName(tpd1).compareToIgnoreCase(getName(tpd2));
-                             }
-                         }
-                         );
+        Collections.sort(targetPropertyDescriptorList, (tpd1, tpd2) -> getName(tpd1).compareToIgnoreCase(getName(tpd2))
+        );
         for (TargetPropertyDescriptor property : targetPropertyDescriptors) {
             String propertySyntax = MessageFormat.format("{0} {1}", property.getDataType().getSimpleName(), getName(property));
             final ArrayList<String> descriptionLines = createTargetPropertyDescriptionLines(property);
@@ -432,12 +427,7 @@ class CommandLineUsage {
     }
 
     private static void sortAlphabetically(List<DocElement> docElementList) {
-        Collections.sort(docElementList, new Comparator<DocElement>() {
-            @Override
-            public int compare(DocElement element1, DocElement element2) {
-                return element1.syntax.compareToIgnoreCase(element2.syntax);
-            }
-        });
+        Collections.sort(docElementList, (element1, element2) -> element1.syntax.compareToIgnoreCase(element2.syntax));
     }
 
     private static void appendXmlUsage(StringBuilder usageText, OperatorDescriptor operatorDescriptor) {
@@ -494,7 +484,9 @@ class CommandLineUsage {
             }
             childElem.createChild("...");
         } else {
-            if (parameter.isStructure()) {
+            if (isConverterAvailable(parameter)) {
+                childElem.setValue(getTypeName(parameter.getDataType()));
+            } else if (parameter.isStructure()) {
                 ParameterDescriptor[] members = parameter.getStructureMemberDescriptors();
                 for (ParameterDescriptor member : members) {
                     convertParameterFieldToDom(member, childElem);
@@ -507,7 +499,7 @@ class CommandLineUsage {
 
     private static boolean isConverterAvailable(ParameterDescriptor parameter) {
         return parameter.getConverterClass() != null
-                || ConverterRegistry.getInstance().getConverter(parameter.getDataType()) != null;
+               || ConverterRegistry.getInstance().getConverter(parameter.getDataType()) != null;
     }
 
     private static String spaces(int n) {
@@ -550,6 +542,7 @@ class CommandLineUsage {
 
 
     private static class DocElement {
+
         private String syntax;
         private String[] descriptionLines;
 
