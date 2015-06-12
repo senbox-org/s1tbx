@@ -20,14 +20,18 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.Converter;
 import org.esa.snap.util.StringUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 
 /**
  * A converter for Rectangle
  *
  * @author Luis Veci
+ * @author Marco Peters
  */
 public class RectangleConverter implements Converter<Rectangle> {
+
+
+    private static final String EXCEPTION_FORMAT_PATTERN = "Invalid Rectangle '%s' should be in form of x,y,width,height";
 
     @Override
     public Class<Rectangle> getValueType() {
@@ -35,19 +39,26 @@ public class RectangleConverter implements Converter<Rectangle> {
     }
 
     @Override
-    public Rectangle parse(final String text) throws ConversionException {
-        if(text == null || text.isEmpty() || !text.contains(","))
-            throw new ConversionException("Invalid Rectangle '"+text+"' should be in form of x,y,width,height");
+    public Rectangle parse(String text) throws ConversionException {
+        if (text != null) {
+            text = text.trim();
+        }
+        if (text == null || text.isEmpty() || !text.contains(",")) {
+            throw new ConversionException(String.format(EXCEPTION_FORMAT_PATTERN, text));
+        }
         final String[] s = StringUtils.csvToArray(text);
-        if(s.length != 4)
-            throw  new ConversionException("Invalid Rectangle '"+text+"' should be in form of x,y,width,height");
-        return new Rectangle(Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2]), Integer.parseInt(s[3]));
+        if (s.length != 4) {
+            throw new ConversionException(String.format(EXCEPTION_FORMAT_PATTERN, text));
+        }
+        return new Rectangle(Integer.parseInt(s[0].trim()), Integer.parseInt(s[1].trim()),
+                             Integer.parseInt(s[2].trim()), Integer.parseInt(s[3].trim()));
     }
 
     @Override
     public String format(final Rectangle r) {
-        if(r == null)
+        if (r == null) {
             return "0,0,0,0";
-        return ""+r.x+','+r.y+','+r.width+','+r.height;
+        }
+        return "" + r.x + ',' + r.y + ',' + r.width + ',' + r.height;
     }
 }
