@@ -22,26 +22,24 @@ import org.esa.snap.framework.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
-import org.openide.modules.Places;
-import org.openide.util.NbPreferences;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-
-import static org.esa.snap.utils.ModulePackager.unpackAdapterJar;
 
 /**
  * Utility class for performing various operations needed by ToolAdapterOp.
@@ -52,9 +50,31 @@ public class ToolAdapterIO {
 
     private static final String[] SYS_SUBFOLDERS = { "modules", "extensions", "adapters" };
     private static final String[] USER_SUBFOLDERS = { "extensions", "adapters" };
+    private static final String STA_PREFERENCES = "sta.preferences";
     private static File systemModulePath;
     private static File userModulePath;
     private static Logger logger = Logger.getLogger(ToolAdapterIO.class.getName());
+
+    public static void setAdaptersPath(Path path) {
+        Path storagePath = Config.instance().storagePath();
+        File file = storagePath.toFile();
+        if (!file.exists()) {
+            try {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            } catch (IOException e) {
+                logger.severe("Cannot create module preferences: " + e.getMessage());
+            }
+        }
+        Config instance = Config.instance().load();
+        Preferences preferences = instance.preferences();
+        preferences.put("user.module.path", path.toFile().getAbsolutePath());
+        try {
+            preferences.sync();
+        } catch (BackingStoreException e) {
+            logger.severe("Cannot set adapters path in preferences: " + e.getMessage());
+        }
+    }
 
     /**
      * Scans for adapter folders in the system and user paths and registers all
@@ -213,21 +233,18 @@ public class ToolAdapterIO {
      * @return  The location of user-defined modules.
      */
     public static File getUserAdapterPath() {
-        //if (userModulePath == null) {
-            String userPath = null;
-            Preferences preferences = NbPreferences.forModule(ToolAdapterIO.class);
-            if ((userPath = preferences.get("user.module.path", null)) == null) {
-                userModulePath = new File(Places.getUserDirectory(), SystemUtils.getApplicationContextId());
-                for (String subFolder : USER_SUBFOLDERS) {
-                    userModulePath = new File(userModulePath, subFolder);
-                }
-            } else {
-                userModulePath = new File(userPath);
+        String userPath = Config.instance().load().preferences().get("user.module.path", null);
+        if (userPath == null) {
+            userModulePath = new File(Config.instance().userDir().toFile(), SystemUtils.getApplicationContextId());
+            for (String subFolder : USER_SUBFOLDERS) {
+                userModulePath = new File(userModulePath, subFolder);
             }
-            if (!userModulePath.exists() && !userModulePath.mkdirs()) {
-                logger.severe("Cannot create user folder for external tool adapter extensions");
-            }
-        //}
+        } else {
+            userModulePath = new File(userPath);
+        }
+        if (!userModulePath.exists() && !userModulePath.mkdirs()) {
+            logger.severe("Cannot create user folder for external tool adapter extensions");
+        }
         return userModulePath;
     }
 
@@ -315,6 +332,35 @@ public class ToolAdapterIO {
             template = new File(getUserAdapterPath(), spi.getOperatorAlias() + File.separator + templateFile);
         }
         return template;
+    }
+
+    private static void unpackAdapterJar(File jarFile, File unpackFolder) throws IOException {
+        JarFile jar = new JarFile(jarFile);
+        Enumeration enumEntries = jar.entries();
+        if (unpackFolder == null) {
+            unpackFolder = new File(getUserAdapterPath(), jarFile.getName().replace(".jar", ""));
+        }
+        if (!unpackFolder.exists())
+            unpackFolder.mkdir();
+        while (enumEntries.hasMoreElements()) {
+            JarEntry file = (JarEntry) enumEntries.nextElement();
+            File f = new File(unpackFolder, file.getName());
+            if (file.isDirectory()) {
+                f.mkdir();
+                continue;
+            } else {
+                f.getParentFile().mkdirs();
+            }
+            try (InputStream is = jar.getInputStream(file)) {
+                try (FileOutputStream fos = new FileOutputStream(f)) {
+                    while (is.available() > 0) {
+                        fos.write(is.read());
+                    }
+                    fos.close();
+                }
+                is.close();
+            }
+        }
     }
 
     public static void removeOperator(ToolAdapterOperatorDescriptor operator, boolean removeOperatorFolder) {

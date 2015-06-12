@@ -35,7 +35,6 @@ import org.esa.snap.framework.gpf.internal.OperatorContext;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
-import org.netbeans.api.progress.ProgressHandle;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -134,7 +133,7 @@ public class ToolAdapterOp extends Operator {
         }
     }
 
-    public void setProgressMonitor(ProgressHandle monitor) { this.progressMonitor = new ProgressWrapper(monitor); }
+    public void setProgressMonitor(ProgressMonitor monitor) { this.progressMonitor = monitor; }
 
     /**
      * Command to isStopped the tool.
@@ -623,56 +622,6 @@ public class ToolAdapterOp extends Operator {
     private void reportProgress(String message) {
         if (this.progressMonitor != null) {
             this.progressMonitor.setTaskName(message);
-        }
-    }
-
-    class ProgressWrapper implements ProgressMonitor {
-
-        private ProgressHandle progressHandle;
-
-        ProgressWrapper(ProgressHandle handle) {
-            this.progressHandle = handle;
-        }
-
-        @Override
-        public void beginTask(String taskName, int totalWork) {
-            this.progressHandle.setDisplayName(taskName);
-            this.progressHandle.start(totalWork, -1);
-        }
-
-        @Override
-        public void done() {
-            this.progressHandle.finish();
-        }
-
-        @Override
-        public void internalWorked(double work) {
-            this.progressHandle.progress((int)work);
-        }
-
-        @Override
-        public boolean isCanceled() {
-            return false;
-        }
-
-        @Override
-        public void setCanceled(boolean canceled) {
-            this.progressHandle.suspend("Cancelled");
-        }
-
-        @Override
-        public void setTaskName(String taskName) {
-            this.progressHandle.progress(taskName);
-        }
-
-        @Override
-        public void setSubTaskName(String subTaskName) {
-            this.progressHandle.progress(subTaskName);
-        }
-
-        @Override
-        public void worked(int work) {
-            internalWorked(work);
         }
     }
 }
