@@ -638,7 +638,6 @@ public class ToolAdapterOp extends Operator {
         public void beginTask(String taskName, int totalWork) {
             this.progressHandle.setDisplayName(taskName);
             this.progressHandle.start(totalWork, -1);
-            this.progressHandle.switchToIndeterminate();
         }
 
         @Override
