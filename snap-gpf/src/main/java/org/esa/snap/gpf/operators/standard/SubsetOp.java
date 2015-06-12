@@ -50,7 +50,7 @@ import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.converters.JtsGeometryConverter;
 import org.esa.snap.util.converters.RectangleConverter;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -58,10 +58,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
-import static java.lang.Math.ceil;
-import static java.lang.Math.floor;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 
 /**
  * This operator is used to create either spatial and/or spectral subsets of a data product.
@@ -75,11 +72,11 @@ import static java.lang.Math.min;
  * @since BEAM 4.9
  */
 @OperatorMetadata(alias = "Subset",
-                  category = "Geometric Operations",
-                  authors = "Marco Zuehlke, Norman Fomferra, Marco Peters",
-                  version = "1.1",
-                  copyright = "(c) 2011 by Brockmann Consult",
-                  description = "Create a spatial and/or spectral subset of a data product.")
+        category = "Geometric Operations",
+        authors = "Marco Zuehlke, Norman Fomferra, Marco Peters",
+        version = "1.2",
+        copyright = "(c) 2011 by Brockmann Consult",
+        description = "Create a spatial and/or spectral subset of a data product.")
 public class SubsetOp extends Operator {
 
     @SourceProduct(alias = "source", description = "The source product to create the subset from.")
@@ -88,35 +85,37 @@ public class SubsetOp extends Operator {
     private Product targetProduct;
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
-               rasterDataNodeType = Band.class, label = "Source Bands")
+            rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] bandNames;
 
-    @Parameter(converter = RectangleConverter.class, description = "The subset region in pixel coordinates.\n" +
-            "If not given, the entire scene is used. The 'geoRegion' parameter has precedence over this parameter.")
+    @Parameter(converter = RectangleConverter.class,
+            description = "The subset region in pixel coordinates.\n" +
+                          "Use the following format: <x>,<y>,<width>,<height>\n" +
+                          "If not given, the entire scene is used. The 'geoRegion' parameter has precedence over this parameter.")
     private Rectangle region = null;
 
     @Parameter(converter = JtsGeometryConverter.class,
-               description = "The subset region in geographical coordinates using WKT-format,\n" +
-                             "e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))\n" +
-                             "(make sure to quote the option due to spaces in <geometry>).\n" +
-                             "If not given, the entire scene is used.")
+            description = "The subset region in geographical coordinates using WKT-format,\n" +
+                          "e.g. POLYGON((<lon1> <lat1>, <lon2> <lat2>, ..., <lon1> <lat1>))\n" +
+                          "(make sure to quote the option due to spaces in <geometry>).\n" +
+                          "If not given, the entire scene is used.")
     private Geometry geoRegion;
     @Parameter(defaultValue = "1",
-               description = "The pixel sub-sampling step in X (horizontal image direction)")
+            description = "The pixel sub-sampling step in X (horizontal image direction)")
     private int subSamplingX = 1;
     @Parameter(defaultValue = "1",
-               description = "The pixel sub-sampling step in Y (vertical image direction)")
+            description = "The pixel sub-sampling step in Y (vertical image direction)")
     private int subSamplingY = 1;
     @Parameter(defaultValue = "false",
-               description = "Forces the operator to extend the subset region to the full swath.")
+            description = "Forces the operator to extend the subset region to the full swath.")
     private boolean fullSwath = false;
 
     @Parameter(description = "The comma-separated list of names of tie-point grids to be copied. \n" +
-            "If not given, all bands are copied.")
+                             "If not given, all bands are copied.")
     private String[] tiePointGridNames;
 
     @Parameter(defaultValue = "false",
-               description = "Whether to copy the metadata of the source product.")
+            description = "Whether to copy the metadata of the source product.")
     private boolean copyMetadata = false;
 
     private transient ProductReader subsetReader;
@@ -189,7 +188,7 @@ public class SubsetOp extends Operator {
         }
         String[] nodeNames = subsetDef.getNodeNames();
         if (nodeNames != null) {
-            final ArrayList<String> referencedNodeNames = new ArrayList<String>();
+            final ArrayList<String> referencedNodeNames = new ArrayList<>();
             for (String nodeName : nodeNames) {
                 collectReferencedRasters(nodeName, referencedNodeNames);
             }
