@@ -201,9 +201,9 @@
             </file>
             <folder name="Radiometric">
                 <attr name="position" intvalue="100"/>
-                <file name="org-esa-s1tbx-sar-gpf-geometric-SpeckleFilterOp-Action.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-SpeckleFilterOp-Action.instance"/>
-                    <attr name="position" intvalue="400"/>
+                <file name="org-esa-s1tbx-sar-gpf-geometric-TerrainFlatteningOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-sar-gpf-geometric-TerrainFlatteningOp-Action.instance"/>
+                    <attr name="position" intvalue="120"/>
                 </file>
             </folder>
             <folder name="Speckle Filtering">
