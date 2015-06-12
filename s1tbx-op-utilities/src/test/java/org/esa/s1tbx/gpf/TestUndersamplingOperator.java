@@ -253,7 +253,7 @@ public class TestUndersamplingOperator {
      * @throws Exception general exception
      */
     @Test
-    @Ignore("Bands all zero")
+
     public void testUndersamplingWithHorizontalKernel() throws Exception {
 
         Product sourceProduct = createTestProduct(12, 6);
@@ -297,7 +297,7 @@ public class TestUndersamplingOperator {
      * @throws Exception general exception
      */
     @Test
-    @Ignore("Bands all zero")
+
     public void testUndersamplingWithVerticalKernel() throws Exception {
 
         final Product sourceProduct = createTestProduct(12, 6);

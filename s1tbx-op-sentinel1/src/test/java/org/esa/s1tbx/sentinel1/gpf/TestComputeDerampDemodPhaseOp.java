@@ -18,7 +18,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Test ComputeDerampDemodPhaseOp
  */
-@Ignore("fails")
+
 public class TestComputeDerampDemodPhaseOp {
 
     private final static String inputPath =
