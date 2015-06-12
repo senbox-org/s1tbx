@@ -33,7 +33,7 @@
 
     <packaging>pom</packaging>
         
-    <description>RADARSAT-2 Polarimetric Tools</description>
+    <description>RADARSAT-2 Polarimetric Toolkit</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>		

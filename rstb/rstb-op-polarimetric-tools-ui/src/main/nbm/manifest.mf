@@ -4,7 +4,7 @@ AutoUpdate-Essential-Module: true
 OpenIDE-Module-Java-Dependencies: Java > 1.8
 OpenIDE-Module-Display-Category: Sentinel-1 Toolbox
 OpenIDE-Module-Layer: org/csa/rstb/polarimetric/layer.xml
-OpenIDE-Module-Long-Description: <p>SAR Polarimetric Processing Tools</p><p><b>Vendor:</b> Array Systems Computing Inc</p><p>
+OpenIDE-Module-Long-Description: <p>SAR Polarimetric Processing Tools UI</p><p><b>Vendor:</b> Array Systems Computing Inc</p><p>
  <b>Contact address:</b> 1120 Finch Ave W. Toronto (Canada)</p><p><b>Copyright:</b> (C) 2015 by Array Systems Computing Inc</p><p><b>
  Vendor:</b> Array Systems Computing Inc</p><p><b>License:</b> http://www.gnu.org/licenses/gpl.html</p>
 
