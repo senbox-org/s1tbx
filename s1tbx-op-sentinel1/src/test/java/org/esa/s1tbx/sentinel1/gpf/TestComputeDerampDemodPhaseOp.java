@@ -1,12 +1,12 @@
 package org.esa.s1tbx.sentinel1.gpf;
 
+import org.esa.s1tbx.TestData;
 import org.esa.s1tbx.dataio.TAXI.TAXIParameterFileReader;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.gpf.OperatorSpi;
 import org.esa.snap.util.ResourceUtils;
-import org.esa.s1tbx.TestData;
 import org.esa.snap.util.TestUtils;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -33,7 +33,8 @@ public class TestComputeDerampDemodPhaseOp {
     private final int width = 20564;
     private final int actOffset = 71;
 
-    public TestComputeDerampDemodPhaseOp() throws Exception {
+    @Before
+    public void Setup() throws Exception {
 
         final File inputFile = new File(inputPath);
         if (!inputFile.exists()) {
@@ -61,6 +62,8 @@ public class TestComputeDerampDemodPhaseOp {
 
     @Test
     public void testReferenceTime() throws Exception {
+        if(op == null)
+            return;
 
         final double dt = 2.055556280538440e-03;    // azimuthTimeInterval
         final int Nburst = 1629;                    // number of lines per burst
@@ -84,6 +87,8 @@ public class TestComputeDerampDemodPhaseOp {
 
     @Test
     public void testSlantRange() throws Exception {
+        if(op == null)
+            return;
 
         final float[] slr = op.computeSlantRange();
         final float[] trimmedSlr = new float[width];
@@ -97,6 +102,8 @@ public class TestComputeDerampDemodPhaseOp {
 
     @Test
     public void testKt() throws Exception {
+        if(op == null)
+            return;
 
         for (int burstIndex = 0; burstIndex < 9; burstIndex++) {
             final float[] kt = op.computeDopplerRate(burstIndex);
@@ -115,6 +122,8 @@ public class TestComputeDerampDemodPhaseOp {
 
     @Test
     public void testFdc() throws Exception {
+        if(op == null)
+            return;
 
         for (int burstIndex = 0; burstIndex < 9; burstIndex++) {
             final float[] fdc = op.computeDopplerCentroid(burstIndex);
