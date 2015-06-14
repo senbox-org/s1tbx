@@ -121,7 +121,12 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
     private boolean checkForNewRemoteHttpFile(final URL remoteURL, final File localZipFile) throws IOException {
 
         final File remoteVersionFile = new File(localZipFile.getParent(), "remote_"+versionFileName);
-        downloadFile(new URL(remoteURL.toString() + remoteVersionFile.getName()), remoteVersionFile);
+        try {
+            downloadFile(new URL(remoteURL.toString() + remoteVersionFile.getName()), remoteVersionFile);
+        } catch (Exception e) {
+            // remote version file not found
+            // continue
+        }
 
         boolean newVersion = true;
         if(remoteVersionFile.exists()) {
@@ -142,8 +147,8 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
                     newVersion = false;
                 }
             }
+            remoteVersionFile.delete();
         }
-        remoteVersionFile.delete();
 
         return newVersion;
     }
