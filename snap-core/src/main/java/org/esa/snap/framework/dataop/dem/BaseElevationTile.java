@@ -37,7 +37,7 @@ public class BaseElevationTile implements ElevationTile {
         this.bandWidth = band.getSceneRasterWidth();
         noDataValue = dem.getDescriptor().getNoDataValue();
         objectArray = new float[band.getSceneRasterHeight() + 1][];
-        useDEMGravitationalModel = Config.instance().preferences().getBoolean("snap.useDEMGravitationalModel", false);
+        useDEMGravitationalModel = Config.instance().preferences().getBoolean("snap.useDEMGravitationalModel", true);
         //System.out.println("Dem Tile "+product.getName());
     }
 
