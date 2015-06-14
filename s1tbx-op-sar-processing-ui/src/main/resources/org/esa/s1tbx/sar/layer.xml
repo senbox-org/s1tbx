@@ -299,7 +299,7 @@
         </file>
         <file name="org.esa.s1tbx.sar.gpf.ui.geometric.EllipsoidCorrectionRDOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.sar.gpf.ui.geometric.EllipsoidCorrectionRDOpUI"/>
-            <attr name="operatorName" stringvalue="Ellipsoid-Correction-GG"/>
+            <attr name="operatorName" stringvalue="Ellipsoid-Correction-RD"/>
         </file>
         <file name="org.esa.s1tbx.sar.gpf.ui.geometric.RangeDopplerGeocodingOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.sar.gpf.ui.geometric.RangeDopplerGeocodingOpUI"/>
