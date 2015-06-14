@@ -196,9 +196,7 @@ public class Config {
         if (!ignoreDefaultConfig()) {
             Properties defaultProperties = loadProperties(installDir().resolve("etc").resolve(name() + CONFIG_FILE_EXT), false);
             if (defaultProperties != null) {
-                Properties newProperties = new Properties(defaultProperties);
-                newProperties.putAll(preferences.getProperties());
-                preferences.setProperties(newProperties);
+                preferences.getProperties().putAll(defaultProperties);
             }
         }
 
