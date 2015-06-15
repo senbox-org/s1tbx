@@ -14,8 +14,9 @@
  * with this program; if not, see http://www.gnu.org/licenses/
  */
 
-package com.bc.jexp;
+package com.bc.jexp.impl;
 
+import com.bc.jexp.*;
 import com.bc.jexp.impl.AbstractSymbol;
 import com.bc.jexp.impl.DefaultNamespace;
 import com.bc.jexp.impl.NamespaceImpl;

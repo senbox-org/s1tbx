@@ -345,7 +345,9 @@ public final class ParserImpl implements Parser {
                 Term t2 = parseBitwiseOr(true);
                 if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
                     t1 = new Term.EqD(t1, t2);
-                } else if (t1.isI() && t2.isI()) {
+                } else if (t1.isB() && t2.isB()) {
+                    t1 = new Term.EqB(t1, t2);
+                } else if ((t1.isI() || t1.isB()) && (t2.isI() || t2.isB())) {
                     t1 = new Term.EqI(t1, t2);
                 } else if (!isTypeChecking()) {
                     t1 = new Term.EqD(t1, t2);
@@ -356,7 +358,9 @@ public final class ParserImpl implements Parser {
                 Term t2 = parseBitwiseOr(true);
                 if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
                     t1 = new Term.NEqD(t1, t2);
-                } else if (t1.isI() && t2.isI()) {
+                } else if (t1.isB() && t2.isB()) {
+                    t1 = new Term.NEqB(t1, t2);
+                } else if ((t1.isI() || t1.isB()) && (t2.isI() || t2.isB())) {
                     t1 = new Term.NEqI(t1, t2);
                 } else if (!isTypeChecking()) {
                     t1 = new Term.NEqD(t1, t2);
@@ -661,9 +665,9 @@ public final class ParserImpl implements Parser {
         } else if (tt == Tokenizer.TT_KEYWORD) {
             String keyword = tokenizer.getToken();
             if (keyword.equalsIgnoreCase("true")) {
-                t1 = new Term.ConstB(true);
+                t1 = Term.ConstB.TRUE;
             } else if (keyword.equalsIgnoreCase("false")) {
-                t1 = new Term.ConstB(false);
+                t1 = Term.ConstB.FALSE;
             } else {
                 reportError("Unexpected keyword '" + keyword + "'.");
             }

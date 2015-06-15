@@ -16,11 +16,7 @@
 
 package com.bc.jexp.impl;
 
-import com.bc.jexp.EvalEnv;
-import com.bc.jexp.EvalException;
-import com.bc.jexp.Namespace;
-import com.bc.jexp.Term;
-import org.apache.commons.math3.util.FastMath;
+import com.bc.jexp.*;
 
 /**
  * A default namespace which includes the constants PI, E and NaN as well as most of the functions from
@@ -57,7 +53,6 @@ import org.apache.commons.math3.util.FastMath;
  */
 public final class DefaultNamespace extends NamespaceImpl {
 
-    private static final double EPS = 1e-6;
 
     public DefaultNamespace() {
         this(null);
@@ -70,301 +65,15 @@ public final class DefaultNamespace extends NamespaceImpl {
     }
 
     private void registerDefaultSymbols() {
-        registerSymbol(SymbolFactory.createConstant("PI", Math.PI));
-        registerSymbol(SymbolFactory.createConstant("E", Math.E));
-        registerSymbol(SymbolFactory.createConstant("NaN", Double.NaN));
-    }
-
-    public static double mean(final EvalEnv env, final Term[] args) {
-        double sum = 0.0;
-        final int n = args.length;
-        for (Term arg : args) {
-            sum += arg.evalD(env);
+        for (Symbol symbol : Symbols.getAll()) {
+            registerSymbol(symbol);
         }
-        return sum/(double)n;
-    }
-
-    public static double mean2(final EvalEnv env, final Term[] args) {
-        double sqrSum = 0.0;
-        final int n = args.length;
-        for (Term arg : args) {
-            double v = arg.evalD(env);
-            sqrSum += v * v;
-        }
-        return sqrSum/(double)n;
-    }
-
-    public static double mean4(final EvalEnv env, final Term[] args) {
-        double sum = 0.0;
-        final int n = args.length;
-        for (Term arg : args) {
-            sum += FastMath.pow(arg.evalD(env), 4);
-        }
-        return sum/(double)n;
     }
 
     private void registerDefaultFunctions() {
-        registerFunction(new AbstractFunction.D("sin", 1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return FastMath.sin(args[0].evalD(env));
-            }
-        });
-        registerFunction(new AbstractFunction.D("cos", 1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return FastMath.cos(args[0].evalD(env));
-            }
-        });
-        registerFunction(new AbstractFunction.D("tan", 1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return FastMath.tan(args[0].evalD(env));
-            }
-        });
-        registerFunction(new AbstractFunction.D("asin", 1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return FastMath.asin(args[0].evalD(env));
-            }
-        });
-        registerFunction(new AbstractFunction.D("acos", 1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return FastMath.acos(args[0].evalD(env));
-            }
-        });
-        registerFunction(new AbstractFunction.D("atan", 1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return FastMath.atan(args[0].evalD(env));
-            }
-        });
-        registerFunction(new AbstractFunction.D("atan2", 2) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.atan2(args[0].evalD(env), args[1].evalD(env));
-            }
-        });
-        registerFunction(new AbstractFunction.D("log", 1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.log(args[0].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("log10", 1) {
-            public double evalD(EvalEnv env, Term[] args) throws EvalException {
-                return Math.log10(args[0].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("exp", 1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return FastMath.exp(args[0].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("exp10", 1) {
-
-            public double evalD(EvalEnv env, Term[] args) throws EvalException {
-                return FastMath.pow(10.0, args[0].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("sqr", 1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                double v = args[0].evalD(env);
-                return v * v;
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("sqrt", 1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.sqrt(args[0].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("pow", 2) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return FastMath.pow(args[0].evalD(env), args[1].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.I("min", 2) {
-
-            public int evalI(final EvalEnv env, final Term[] args) {
-                return Math.min(args[0].evalI(env), args[1].evalI(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("min", 2) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.min(args[0].evalD(env), args[1].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.I("max", 2) {
-
-            public int evalI(final EvalEnv env, final Term[] args) {
-                return Math.max(args[0].evalI(env), args[1].evalI(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("max", 2) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.max(args[0].evalD(env), args[1].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("floor", 1) {
-            public double evalD(EvalEnv env, Term[] args) throws EvalException {
-                return Math.floor(args[0].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("round", 1) {
-            public double evalD(EvalEnv env, Term[] args) throws EvalException {
-                return Math.round(args[0].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("ceil", 1) {
-            public double evalD(EvalEnv env, Term[] args) throws EvalException {
-                return Math.ceil(args[0].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("rint", 1) {
-            public double evalD(EvalEnv env, Term[] args) throws EvalException {
-                return Math.rint(args[0].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.I("sign", 1) {
-
-            public int evalI(final EvalEnv env, final Term[] args) {
-                return ExtMath.sign(args[0].evalI(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("sign", 1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return ExtMath.sign(args[0].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.I("abs", 1) {
-
-            public int evalI(final EvalEnv env, final Term[] args) {
-                return Math.abs(args[0].evalI(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("abs", 1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.abs(args[0].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("deg", 1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.toDegrees(args[0].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("rad", 1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return Math.toRadians(args[0].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("ampl", 2) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                final double a = args[0].evalD(env);
-                final double b = args[1].evalD(env);
-                return Math.sqrt(a * a + b * b);
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("phase", 2) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                final double a = args[0].evalD(env);
-                final double b = args[1].evalD(env);
-                return Math.atan2(b, a);
-            }
-        });
-
-        registerFunction(new AbstractFunction.B("feq", 2) {
-            public boolean evalB(EvalEnv env, Term[] args) throws EvalException {
-                final double x1 = args[0].evalD(env);
-                final double x2 = args[1].evalD(env);
-                return ExtMath.feq(x1, x2, EPS);
-            }
-        });
-
-        registerFunction(new AbstractFunction.B("feq", 3) {
-            public boolean evalB(EvalEnv env, Term[] args) throws EvalException {
-                final double x1 = args[0].evalD(env);
-                final double x2 = args[1].evalD(env);
-                final double eps = args[2].evalD(env);
-                return ExtMath.feq(x1, x2, eps);
-            }
-        });
-
-        registerFunction(new AbstractFunction.B("fneq", 2) {
-            public boolean evalB(EvalEnv env, Term[] args) throws EvalException {
-                final double x1 = args[0].evalD(env);
-                final double x2 = args[1].evalD(env);
-                return ExtMath.fneq(x1, x2, EPS);
-            }
-        });
-
-        registerFunction(new AbstractFunction.B("fneq", 3) {
-            public boolean evalB(EvalEnv env, Term[] args) throws EvalException {
-                final double x1 = args[0].evalD(env);
-                final double x2 = args[1].evalD(env);
-                final double eps = args[2].evalD(env);
-                return ExtMath.fneq(x1, x2, eps);
-            }
-        });
-
-        registerFunction(new AbstractFunction.B("inf", 1) {
-            public boolean evalB(EvalEnv env, Term[] args) throws EvalException {
-                return Double.isInfinite(args[0].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.B("nan", 1) {
-            public boolean evalB(EvalEnv env, Term[] args) throws EvalException {
-                return Double.isNaN(args[0].evalD(env));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("distance", -1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                double sqrSum = 0.0;
-                final int n = args.length / 2;
-                for (int i = 0; i < n; i++) {
-                    final double v = args[i + n].evalD(env) - args[i].evalD(env);
-                    sqrSum += v * v;
-                }
-                return Math.sqrt(sqrSum);
-            }
-        });
+        for (Function function : Functions.getAll()) {
+            registerFunction(function);
+        }
 
         registerFunction(new AbstractFunction.D("distance_deriv", -1) {
 
@@ -447,29 +156,6 @@ public final class DefaultNamespace extends NamespaceImpl {
                     }
                 }
                 return true;
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("avg", -1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                return mean(env, args);
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("stddev", -1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                double mean = mean(env, args);
-                return Math.sqrt(mean2(env, args) - (mean*mean));
-            }
-        });
-
-        registerFunction(new AbstractFunction.D("coef_var", -1) {
-
-            public double evalD(final EvalEnv env, final Term[] args) {
-                final double m2 = mean2(env, args);
-                return Math.sqrt(mean4(env, args) - (m2 * m2)) / m2;
             }
         });
     }

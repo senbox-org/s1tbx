@@ -61,7 +61,7 @@ public abstract class Term {
      * Gets the term's "natural" return type.
      *
      * @return the type, should always be one of the <code>TYPE_</code>X constants
-     *         defined in this class.
+     * defined in this class.
      */
     public abstract int getRetType();
 
@@ -91,6 +91,13 @@ public abstract class Term {
      * @throws EvalException if the evaluation fails
      */
     public abstract double evalD(EvalEnv env);
+
+    /**
+     * Visitor support.
+     *
+     * @param visitor A visitor.
+     */
+    public abstract <T> T accept(TermVisitor<T> visitor);
 
     /**
      * Evaluates this term to a <code>String</code> value.
@@ -245,6 +252,15 @@ public abstract class Term {
         return Double.toString(value);
     }
 
+    /**
+     * @return {@code true}, if this term evaluates to the same constant value regardless of any {@link EvalEnv},
+     * even {@code null}.
+     */
+    public abstract boolean isConst();
+
+
+    public abstract int compare(Term other);
+
     private static String getParamString(final String name, final Term[] args) {
         final StringBuilder sb = new StringBuilder();
         sb.append(name);
@@ -264,9 +280,70 @@ public abstract class Term {
     /**
      * A boolean constant, e.g. <code>true</code> or <code>false</code>.
      */
-    public static final class ConstB extends Term {
+    public static abstract class Const extends Term {
+
+        @Override
+        public boolean evalB(final EvalEnv env) {
+            return toB();
+        }
+
+        protected abstract boolean toB();
+
+        @Override
+        public int evalI(final EvalEnv env) {
+            return toI();
+        }
+
+        protected abstract int toI();
+
+        @Override
+        public double evalD(final EvalEnv env) {
+            return toD();
+        }
+
+        protected abstract double toD();
+
+        @Override
+        public String evalS(final EvalEnv env) {
+            return toS();
+        }
+
+        protected abstract String toS();
+
+        @Override
+        public final boolean isConst() {
+            return true;
+        }
+
+        @Override
+        public final int compare(Term other) {
+            if (other instanceof ConstB) {
+                return toI() - ((ConstB) other).toI();
+            } else if (other instanceof ConstI) {
+                return toI() - ((ConstI) other).toI();
+            } else if (other instanceof ConstD) {
+                double delta = toD() - ((ConstD) other).toD();
+                return delta == 0.0 ? 0 : delta < 0 ? -1 : +1;
+            } else if (other instanceof ConstS) {
+                return toS().compareTo(((ConstS) other).toS());
+            }
+            return -1;
+        }
+    }
+
+    /**
+     * A boolean constant, e.g. <code>true</code> or <code>false</code>.
+     */
+    public static final class ConstB extends Const {
+
+        public static final ConstB FALSE = new ConstB(false);
+        public static final ConstB TRUE = new ConstB(true);
 
         private final boolean value;
+
+        public static ConstB get(final boolean value) {
+            return value ? TRUE : FALSE;
+        }
 
         public ConstB(final boolean value) {
             this.value = value;
@@ -282,24 +359,35 @@ public abstract class Term {
         }
 
         @Override
-        public boolean evalB(final EvalEnv env) {
+        protected boolean toB() {
             return value;
         }
 
         @Override
-        public int evalI(final EvalEnv env) {
+        protected int toI() {
             return toI(value);
         }
 
         @Override
-        public double evalD(final EvalEnv env) {
+        protected double toD() {
             return toD(value);
         }
 
         @Override
-        public String toString() {
-            return String.valueOf(value);
+        protected String toS() {
+            return toS(value);
         }
+
+        @Override
+        public String toString() {
+            return toS();
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
+
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -308,9 +396,24 @@ public abstract class Term {
      * An integer constant, e.g. <code>6325</code> or <code>054</code> (octal)
      * or <code>0x49AF</code> (hex).
      */
-    public static final class ConstI extends Term {
+    public static final class ConstI extends Const {
+
+        public static final ConstI ZERO = new ConstI(0);
+        public static final ConstI ONE = new ConstI(1);
+        public static final ConstI TWO = new ConstI(2);
 
         private final int value;
+
+        public static ConstI get(int value) {
+            if (value == 0) {
+                return Term.ConstI.ZERO;
+            } else if (value == 1) {
+                return Term.ConstI.ONE;
+            } else if (value == 2) {
+                return Term.ConstI.TWO;
+            }
+            return new Term.ConstI(value);
+        }
 
         public ConstI(final int value) {
             this.value = value;
@@ -326,23 +429,33 @@ public abstract class Term {
         }
 
         @Override
-        public boolean evalB(final EvalEnv env) {
+        protected boolean toB() {
             return toB(value);
         }
 
         @Override
-        public int evalI(final EvalEnv env) {
+        protected int toI() {
             return value;
         }
 
         @Override
-        public double evalD(final EvalEnv env) {
+        protected double toD() {
             return value;
+        }
+
+        @Override
+        protected String toS() {
+            return toS(value);
         }
 
         @Override
         public String toString() {
             return String.valueOf(value);
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -352,9 +465,26 @@ public abstract class Term {
      * A floating point constant, e.g. <code>2.97665</code> or
      * <code>1.4e-12</code>.
      */
-    public static final class ConstD extends Term {
+    public static final class ConstD extends Const {
+
+        public static final ConstD NAN = new ConstD(Double.NaN);
+        public static final ConstD ZERO = new ConstD(0.0);
+        public static final ConstD ONE = new ConstD(1.0);
+        public static final ConstD TWO = new ConstD(2.0);
+        public static final ConstD HALF = new ConstD(0.5);
 
         private final double value;
+
+        public static ConstD get(double value) {
+            if (value == 0) {
+                return Term.ConstD.ZERO;
+            } else if (value == 1) {
+                return Term.ConstD.ONE;
+            } else if (value == 2) {
+                return Term.ConstD.TWO;
+            }
+            return new Term.ConstD(value);
+        }
 
         public ConstD(final double value) {
             this.value = value;
@@ -370,27 +500,37 @@ public abstract class Term {
         }
 
         @Override
-        public boolean evalB(final EvalEnv env) {
+        protected boolean toB() {
             return toB(value);
         }
 
         @Override
-        public int evalI(final EvalEnv env) {
+        protected int toI() {
             return toI(value);
         }
 
         @Override
-        public double evalD(final EvalEnv env) {
+        protected double toD() {
             return value;
+        }
+
+        @Override
+        protected String toS() {
+            return toS(value);
         }
 
         @Override
         public String toString() {
             return String.valueOf(value);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
-    public static class ConstS extends Term {
+    public static class ConstS extends Const {
         private final String value;
 
         public ConstS(String value) {
@@ -407,41 +547,47 @@ public abstract class Term {
         }
 
         @Override
-        public boolean evalB(EvalEnv context) {
-            if (value.equalsIgnoreCase("true") ||
-                    value.equalsIgnoreCase("false")) {
-                return Boolean.valueOf(value);
-            } else {
-                throw new EvalException("Not a boolean.");
+        protected boolean toB() {
+            if (value.equalsIgnoreCase("true")) {
+                return true;
             }
+            if (value.equalsIgnoreCase("false")) {
+                return false;
+            }
+            throw new EvalException("Cannot convert '" + value + "' to boolean.");
         }
 
         @Override
-        public int evalI(EvalEnv env) {
+        protected int toI() {
             try {
                 return Integer.valueOf(value);
             } catch (NumberFormatException e) {
-                throw new EvalException("Not an integer.", e);
+                throw new EvalException("Cannot convert '" + value + "' to int.");
             }
         }
 
         @Override
-        public double evalD(EvalEnv env) {
+        protected double toD() {
             try {
                 return Double.valueOf(value);
             } catch (NumberFormatException e) {
-                throw new EvalException("Not a double.", e);
+                throw new EvalException("Cannot convert '" + value + "' to double.");
             }
         }
 
         @Override
-        public String evalS(EvalEnv env) {
+        protected String toS() {
             return value;
         }
 
         @Override
         public String toString() {
             return "\"" + value + "\"";
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -495,6 +641,27 @@ public abstract class Term {
         public String toString() {
             return symbol.getName();
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
+
+        @Override
+        public boolean isConst() {
+            return symbol.isConst();
+        }
+
+        @Override
+        public int compare(Term other) {
+            if (other instanceof Const) {
+                return 1;
+            }
+            if (other instanceof Ref) {
+                return symbol.getName().compareTo(((Ref) other).symbol.getName());
+            }
+            return -1;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -507,11 +674,7 @@ public abstract class Term {
         protected final Function function;
         protected final Term[] args;
 
-        public Call(final Function function, final List<Term> args) {
-            this(function, args.toArray(new Term[args.size()]));
-        }
-
-        public Call(final Function function, final Term[] args) {
+        public Call(final Function function, final Term... args) {
             this.function = function;
             this.args = args;
         }
@@ -523,6 +686,18 @@ public abstract class Term {
 
         public Function getFunction() {
             return function;
+        }
+
+        public int getArgCount() {
+            return args.length;
+        }
+
+        public Term getArg() {
+            return args[0];
+        }
+
+        public Term getArg(int index) {
+            return args[index];
         }
 
         public Term[] getArgs() {
@@ -553,6 +728,45 @@ public abstract class Term {
         public String toString() {
             return getParamString(function.getName(), args);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
+
+        @Override
+        public boolean isConst() {
+            return function.isConst(args);
+        }
+
+        @Override
+        public int compare(Term other) {
+            if (other instanceof Const) {
+                return 1;
+            }
+            if (other instanceof Ref) {
+                return 1;
+            }
+            if (other instanceof Call) {
+                Call otherCall = (Call) other;
+                int i = function.getName().compareTo(otherCall.function.getName());
+                if (i != 0) {
+                    return i;
+                }
+                i = getArgCount() - otherCall.getArgCount();
+                if (i != 0) {
+                    return i;
+                }
+                for (int j = 0; j < getArgCount(); j++) {
+                    i = getArg(j).compare(otherCall.getArg(j));
+                    if (i != 0) {
+                        return i;
+                    }
+                }
+                return 0;
+            }
+            return -1;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -572,9 +786,25 @@ public abstract class Term {
             this.args = args;
         }
 
+        public String getName() {
+            return name;
+        }
+
         @Override
         public int getRetType() {
             return type;
+        }
+
+        public int getArgCount() {
+            return args.length;
+        }
+
+        public Term getArg() {
+            return args[0];
+        }
+
+        public Term getArg(int index) {
+            return args[index];
         }
 
         public Term[] getArgs() {
@@ -591,6 +821,47 @@ public abstract class Term {
             return getParamString(name, args);
         }
 
+        @Override
+        public boolean isConst() {
+            for (Term arg : args) {
+                if (!arg.isConst()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public int compare(Term other) {
+            if (other instanceof Const) {
+                return 1;
+            }
+            if (other instanceof Ref) {
+                return 1;
+            }
+            if (other instanceof Call) {
+                return 1;
+            }
+            if (other instanceof Op) {
+                Op otherOp = (Op) other;
+                int i = getName().compareTo(otherOp.getName());
+                if (i != 0) {
+                    return i;
+                }
+                i = getArgCount() - otherOp.getArgCount();
+                if (i != 0) {
+                    return i;
+                }
+                for (int j = 0; j < getArgCount(); j++) {
+                    i = getArg(j).compare(otherOp.getArg(j));
+                    if (i != 0) {
+                        return i;
+                    }
+                }
+                return 0;
+            }
+            return -1;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -786,6 +1057,11 @@ public abstract class Term {
         public double evalD(final EvalEnv env) {
             return arg1.evalB(env) ? arg2.evalD(env) : arg3.evalD(env);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -816,6 +1092,11 @@ public abstract class Term {
         public double evalD(final EvalEnv env) {
             throw new EvalException("not implemented");
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -835,6 +1116,11 @@ public abstract class Term {
         @Override
         public boolean evalB(final EvalEnv env) {
             return !arg.evalB(env);
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -856,6 +1142,11 @@ public abstract class Term {
         public boolean evalB(final EvalEnv env) {
             return arg1.evalB(env) && arg2.evalB(env);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -875,6 +1166,11 @@ public abstract class Term {
         @Override
         public boolean evalB(final EvalEnv env) {
             return arg1.evalB(env) || arg2.evalB(env);
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -896,6 +1192,11 @@ public abstract class Term {
         public int evalI(final EvalEnv env) {
             return ~arg.evalI(env);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -915,6 +1216,11 @@ public abstract class Term {
         @Override
         public int evalI(final EvalEnv env) {
             return arg1.evalI(env) ^ arg2.evalI(env);
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -936,6 +1242,11 @@ public abstract class Term {
         public int evalI(final EvalEnv env) {
             return arg1.evalI(env) & arg2.evalI(env);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -955,6 +1266,11 @@ public abstract class Term {
         @Override
         public int evalI(final EvalEnv env) {
             return arg1.evalI(env) | arg2.evalI(env);
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -981,6 +1297,11 @@ public abstract class Term {
         public double evalD(final EvalEnv env) {
             return -arg.evalD(env);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -999,6 +1320,8 @@ public abstract class Term {
             super("Add", type, arg1, arg2);
         }
 
+
+
         @Override
         public int evalI(final EvalEnv env) {
             return arg1.evalI(env) + arg2.evalI(env);
@@ -1007,6 +1330,11 @@ public abstract class Term {
         @Override
         public double evalD(final EvalEnv env) {
             return arg1.evalD(env) + arg2.evalD(env);
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -1033,6 +1361,11 @@ public abstract class Term {
         public double evalD(final EvalEnv env) {
             return arg1.evalD(env) - arg2.evalD(env);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1057,6 +1390,11 @@ public abstract class Term {
         @Override
         public double evalD(final EvalEnv env) {
             return arg1.evalD(env) * arg2.evalD(env);
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -1083,6 +1421,11 @@ public abstract class Term {
         public double evalD(final EvalEnv env) {
             return arg1.evalD(env) / arg2.evalD(env);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1108,6 +1451,11 @@ public abstract class Term {
         public double evalD(final EvalEnv env) {
             return arg1.evalD(env) % arg2.evalD(env);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1127,6 +1475,11 @@ public abstract class Term {
         @Override
         public boolean evalB(final EvalEnv env) {
             return arg1.evalB(env) == arg2.evalB(env);
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -1148,6 +1501,11 @@ public abstract class Term {
         public boolean evalB(final EvalEnv env) {
             return arg1.evalI(env) == arg2.evalI(env);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1167,6 +1525,11 @@ public abstract class Term {
         @Override
         public boolean evalB(final EvalEnv env) {
             return arg1.evalD(env) == arg2.evalD(env);
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -1188,6 +1551,11 @@ public abstract class Term {
         public boolean evalB(final EvalEnv env) {
             return arg1.evalB(env) != arg2.evalB(env);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1207,6 +1575,11 @@ public abstract class Term {
         @Override
         public boolean evalB(final EvalEnv env) {
             return arg1.evalI(env) != arg2.evalI(env);
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -1228,6 +1601,11 @@ public abstract class Term {
         public boolean evalB(final EvalEnv env) {
             return arg1.evalD(env) != arg2.evalD(env);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1247,6 +1625,11 @@ public abstract class Term {
         @Override
         public boolean evalB(final EvalEnv env) {
             return arg1.evalI(env) < arg2.evalI(env);
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -1268,6 +1651,11 @@ public abstract class Term {
         public boolean evalB(final EvalEnv env) {
             return arg1.evalD(env) < arg2.evalD(env);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1287,6 +1675,11 @@ public abstract class Term {
         @Override
         public boolean evalB(final EvalEnv env) {
             return arg1.evalI(env) <= arg2.evalI(env);
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -1308,6 +1701,11 @@ public abstract class Term {
         public boolean evalB(final EvalEnv env) {
             return arg1.evalD(env) <= arg2.evalD(env);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1327,6 +1725,11 @@ public abstract class Term {
         @Override
         public boolean evalB(final EvalEnv env) {
             return arg1.evalI(env) > arg2.evalI(env);
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -1348,6 +1751,11 @@ public abstract class Term {
         public boolean evalB(final EvalEnv env) {
             return arg1.evalD(env) > arg2.evalD(env);
         }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1367,6 +1775,11 @@ public abstract class Term {
         @Override
         public boolean evalB(final EvalEnv env) {
             return arg1.evalI(env) >= arg2.evalI(env);
+        }
+
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -1388,6 +1801,10 @@ public abstract class Term {
         public boolean evalB(final EvalEnv env) {
             return arg1.evalD(env) >= arg2.evalD(env);
         }
-    }
 
+        @Override
+        public <T> T accept(TermVisitor<T> visitor) {
+            return visitor.visit(this);
+        }
+    }
 }

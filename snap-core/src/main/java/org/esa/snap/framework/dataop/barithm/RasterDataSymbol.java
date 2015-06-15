@@ -97,6 +97,11 @@ public class RasterDataSymbol implements Symbol {
         return symbolType;
     }
 
+    @Override
+    public boolean isConst() {
+        return false;
+    }
+
     /**
      * @return The source image type.
      *
