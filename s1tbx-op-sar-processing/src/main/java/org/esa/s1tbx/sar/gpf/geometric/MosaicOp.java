@@ -394,7 +394,13 @@ public class MosaicOp extends Operator {
         minY = Math.max(minY - margin, minOffsetY);
         maxY = Math.min(maxY + margin, maxHeight - 1);
 
-        return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
+        if (minX > maxX || minY > maxY) {
+            return null;
+        }
+
+        int w = maxX - minX + 1;
+        int h = maxY - minY + 1;
+        return new Rectangle(minX, minY, w, h);
     }
 
     /**
