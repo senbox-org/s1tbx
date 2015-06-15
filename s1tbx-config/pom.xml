@@ -35,86 +35,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <all.clusters>${project.build.directory}/../../../snap-desktop/snap-application/target/snap</all.clusters>
     </properties>
-    
-	<profiles>
-	  <profile>
-	    <id>windows32</id> 
-		<activation>
-		  <os>
-			<family>windows</family>
-			<arch>x86</arch>
-		  </os>
-		</activation>
-		<properties>
-			<windows32>true</windows32>
-			<osFolder>main/bin/win/</osFolder>
-		</properties>
-	  </profile>
-	  <profile>
-	    <id>windows64</id> 
-		<activation>
-		  <os>
-			<family>windows</family>
-			<arch>AMD64</arch> 
-		  </os>
-		</activation>
-		<properties>
-			<windows64>true</windows64>
-			<osFolder>main/bin/win64/</osFolder>
-		</properties>
-	  </profile>
-	  <profile>
-	    <id>linux32</id> 
-		<activation>
-		  <os>
-			<family>unix</family>
-			<arch>i386</arch>
-		  </os>
-		</activation>
-		<properties>
-			<linux32>true</linux32>
-			<osFolder>main/bin/linux/</osFolder>
-		</properties>
-	  </profile>
-	  <profile>
-	    <id>linux64</id> 
-		<activation>
-		  <os>
-			<family>unix</family>
-			<arch>AMD64</arch>
-		  </os>
-		</activation>
-		<properties>
-			<linux64>true</linux64>
-			<osFolder>main/bin/linux64/</osFolder>
-		</properties>
-	  </profile>
-	  <profile>
-		<id>macosx</id>
-		<activation>
-			<os>
-				<family>mac</family>
-				<!-- arch not needed here since looks like *.jnilib are compiled to support both i386/x86_64 -->
-			</os>
-		</activation>
-		<properties>
-			<macosx>true</macosx>
-			<osFolder>main/bin/macosx/</osFolder>
-		</properties>
-	   </profile> 
-	</profiles>
 	
 	<build>
-        <outputDirectory>${outputdir}/modules/${project.artifactId}-${project.version}</outputDirectory>
 		<pluginManagement>
 	        <plugins>
-                <plugin>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>2.7</version>
-                    <executions>
-                        
-                    </executions>
-                </plugin>
 				<plugin>
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>2.7</version>
@@ -135,25 +59,6 @@
                                 </resources>
                             </configuration>
                         </execution>
-                        <!--execution>
-                            <id>copy-resources</id>
-                            <phase>validate</phase>
-                            <goals>
-                              <goal>copy-resources</goal>
-                            </goals>
-                            <configuration>
-                              <outputDirectory>${outputdir}</outputDirectory>
-                              <resources>          
-                                <resource>
-                                  <directory>main/bin/common</directory>
-                                  <filtering>false</filtering>
-                                </resource>
-                                <resource>
-                                  <directory>${osFolder}</directory>
-                                </resource>
-                              </resources>              
-                            </configuration>            
-                        </execution-->
 					</executions>
 				</plugin>
 			</plugins>
