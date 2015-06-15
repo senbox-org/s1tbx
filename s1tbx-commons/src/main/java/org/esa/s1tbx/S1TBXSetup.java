@@ -29,7 +29,7 @@ public class S1TBXSetup {
     }
 
     private static Path getColorPalettesDir() {
-        return SystemUtils.getApplicationDataDir().toPath().resolve("snap-rcp/auxdata/color_palettes");
+        return SystemUtils.getAuxDataPath().resolve("color_palettes");
     }
 
     private static Path getGraphsDir() {
