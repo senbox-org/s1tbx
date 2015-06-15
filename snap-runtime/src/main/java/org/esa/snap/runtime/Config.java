@@ -196,6 +196,7 @@ public class Config {
         if (!ignoreDefaultConfig()) {
             Properties defaultProperties = loadProperties(installDir().resolve("etc").resolve(name() + CONFIG_FILE_EXT), false);
             if (defaultProperties != null) {
+                // Properties from $installDir/etc are not put into preferences, they only serve as default values.
                 Properties newProperties = new Properties(defaultProperties);
                 newProperties.putAll(preferences.getProperties());
                 preferences.setProperties(newProperties);
@@ -206,6 +207,7 @@ public class Config {
         if (!ignoreUserConfig()) {
             Properties userProperties = loadProperties(userDir().resolve("etc").resolve(name() + CONFIG_FILE_EXT), false);
             if (userProperties != null) {
+                // Properties from $userDir/etc *are* put into preferences, they overwrite any existing values.
                 preferences.getProperties().putAll(userProperties);
             }
         }
@@ -215,6 +217,7 @@ public class Config {
         if (configPath != null) {
             Properties additionalProperties = loadProperties(Paths.get(configPath), true);
             if (additionalProperties != null) {
+                // Properties from $configPath *are also* put into preferences, they overwrite any existing values.
                 preferences.getProperties().putAll(additionalProperties);
             }
         }
