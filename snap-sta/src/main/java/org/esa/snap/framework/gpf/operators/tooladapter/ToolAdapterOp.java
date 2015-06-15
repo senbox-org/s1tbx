@@ -214,6 +214,10 @@ public class ToolAdapterOp extends Operator {
         }
     }
 
+    public List<String> getExecutionOutput() {
+        return this.consumer.getProcessOutput();
+    }
+
     /**
      * Verify that the data provided withing the operator descriptor is valid.
      *

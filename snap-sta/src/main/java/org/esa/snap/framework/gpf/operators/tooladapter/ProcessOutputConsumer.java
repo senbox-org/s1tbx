@@ -15,6 +15,7 @@
  */
 package org.esa.snap.framework.gpf.operators.tooladapter;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -28,7 +29,9 @@ interface ProcessOutputConsumer {
      *
      * @param line a line of output text.
      */
-    public void consumeOutput(String line);
+    void consumeOutput(String line);
 
-    public void setLogger(Logger logger);
+    void setLogger(Logger logger);
+
+    List<String> getProcessOutput();
 }

@@ -51,4 +51,20 @@ public interface ToolAdapterConstants {
     public static final String REGULAR_PARAM_MASK = "RegularParameter";
 
     public static final String DEFAULT_PARAM_NAME = "DefaultParameter";
+    String MAIN_TOOL_FILE_LOCATION = "mainToolFileLocation";
+    String WORKING_DIR = "workingDir";
+    String PROGRESS_PATTERN = "progressPattern";
+    String ERROR_PATTERN = "errorPattern";
+    String MENU_LOCATION = "menuLocation";
+    String DESCRIPTION = "description";
+    String AUTHORS = "authors";
+    String COPYRIGHT = "copyright";
+    String VERSION = "version";
+    String LABEL = "label";
+    String NAME = "name";
+    String ALIAS = "alias";
+    String NOT_NULL = "NotNull";
+    String NOT_EMPTY = "NotEmpty";
+    String PROCESSING_WRITER = "processingWriter";
+    String PREPROCESSOR_EXTERNAL_TOOL = "preprocessorExternalTool";
 }

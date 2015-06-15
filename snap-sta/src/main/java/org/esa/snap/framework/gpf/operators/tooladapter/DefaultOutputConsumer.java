@@ -17,6 +17,8 @@ package org.esa.snap.framework.gpf.operators.tooladapter;
 
 import com.bc.ceres.core.ProgressMonitor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,6 +37,7 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
     private Pattern progress;
     private Logger logger;
     private ProgressMonitor progressMonitor;
+    private List<String> processOutput;
 
     public DefaultOutputConsumer() {
         this(null, null, null);
@@ -53,6 +56,7 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
             progress = Pattern.compile(progressPattern, Pattern.CASE_INSENSITIVE);
             initializeProgressMonitor();
         }
+        processOutput = new ArrayList<>();
     }
 
     public void setProgressMonitor(ProgressMonitor monitor) {
@@ -78,28 +82,28 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
         try {
             if (progress != null && (matcher = progress.matcher(line)).matches()) {
                 int worked = Integer.parseInt(matcher.group(1));
-                /*if (worked < 2)
-                    progressMonitor.beginTask("Processing", worked);
-                else*/
                 progressMonitor.worked(worked);
+                getLogger().info(line);
             } else if (error != null && (matcher = error.matcher(line)).matches()) {
                 getLogger().severe(matcher.group(1));
             } else {
-                //progressMonitor.setSubTaskName(line);
-                //progressMonitor.setSubTaskName(line);
                 getLogger().info(line);
             }
         } catch (Exception e) {
         }
+        processOutput.add(line);
+    }
+
+    @Override
+    public List<String> getProcessOutput() {
+        return processOutput;
     }
 
     private void initializeProgressMonitor() {
         if (progressMonitor == null) {
             progressMonitor = ProgressMonitor.NULL;
             progressMonitor.beginTask("Starting", 100);
-        }/* else {
-            progressMonitor.beginTask("Starting", 100);
-        }*/
+        }
     }
 
     public void close() {

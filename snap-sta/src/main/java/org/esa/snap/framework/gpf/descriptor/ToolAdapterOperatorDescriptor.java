@@ -322,6 +322,8 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         }
     }
 
+    public boolean isFromPackage() { return SOURCE_PACKAGE.equals(getSource()); }
+
     @Override
     public Class<? extends Operator> getOperatorClass() {
         return operatorClass != null ? operatorClass : Operator.class;
