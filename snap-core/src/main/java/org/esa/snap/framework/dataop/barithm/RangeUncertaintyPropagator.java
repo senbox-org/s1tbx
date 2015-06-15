@@ -57,7 +57,11 @@ public class RangeUncertaintyPropagator implements UncertaintyPropagator, TermCo
             if (uncertainty != null) {
                 return new Term.Ref(new RasterDataSymbol(uncertainty.getName(), uncertainty, RasterDataSymbol.GEOPHYSICAL));
             }
-
+            RasterDataNode variance = raster.getAncillaryBand("variance");
+            if (variance != null) {
+                return new Term.Call(Functions.SQRT,
+                        new Term.Ref(new RasterDataSymbol(variance.getName(), variance, RasterDataSymbol.GEOPHYSICAL)));
+            }
         }
         return Term.ConstD.ZERO;
     }
@@ -72,64 +76,17 @@ public class RangeUncertaintyPropagator implements UncertaintyPropagator, TermCo
             minArgs[i] = new Term.Sub(Term.TYPE_D, arg, uncertainty(arg));
             maxArgs[i] = new Term.Add(Term.TYPE_D, arg, uncertainty(arg));
         }
-        return new Term.Call(Functions.ABS_D,
-                new Term.Sub(Term.TYPE_D,
-                        new Term.Call(term.getFunction(), minArgs),
-                        new Term.Call(term.getFunction(), maxArgs)));
+        return new Term.Mul(Term.TYPE_D,
+                Term.ConstD.HALF,
+                new Term.Call(Functions.ABS_D,
+                        new Term.Sub(Term.TYPE_D,
+                                new Term.Call(term.getFunction(), minArgs),
+                                new Term.Call(term.getFunction(), maxArgs))));
     }
 
     @Override
     public Term visit(Term.Cond term) {
         return new Term.Cond(Term.TYPE_D, term.getArg(0), uncertainty(term.getArg(1)), uncertainty(term.getArg(2)));
-    }
-
-    @Override
-    public Term visit(Term.Assign term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Term visit(Term.NotB term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Term visit(Term.AndB term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Term visit(Term.OrB term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Term visit(Term.NotI term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Term visit(Term.XOrI term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
-
-    }
-
-    @Override
-    public Term visit(Term.AndI term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Term visit(Term.OrI term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -174,92 +131,123 @@ public class RangeUncertaintyPropagator implements UncertaintyPropagator, TermCo
     }
 
     @Override
+    public Term visit(Term.Assign term) {
+        return unsupportedOp(term);
+    }
+
+    @Override
+    public Term visit(Term.NotB term) {
+        return unsupportedOp(term);
+    }
+
+    @Override
+    public Term visit(Term.AndB term) {
+        return unsupportedOp(term);
+    }
+
+    @Override
+    public Term visit(Term.OrB term) {
+        return unsupportedOp(term);
+    }
+
+    @Override
+    public Term visit(Term.NotI term) {
+        return unsupportedOp(term);
+    }
+
+    @Override
+    public Term visit(Term.XOrI term) {
+        return unsupportedOp(term);
+
+    }
+
+    @Override
+    public Term visit(Term.AndI term) {
+        return unsupportedOp(term);
+    }
+
+    @Override
+    public Term visit(Term.OrI term) {
+        return unsupportedOp(term);
+    }
+
+    @Override
     public Term visit(Term.Mod term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
+        return unsupportedOp(term);
     }
 
     @Override
     public Term visit(Term.EqB term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
+        return unsupportedOp(term);
     }
 
     @Override
     public Term visit(Term.EqI term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
+        return unsupportedOp(term);
     }
 
     @Override
     public Term visit(Term.EqD term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
+        return unsupportedOp(term);
     }
 
     @Override
     public Term visit(Term.NEqB term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
+        return unsupportedOp(term);
     }
 
     @Override
     public Term visit(Term.NEqI term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
+        return unsupportedOp(term);
     }
 
     @Override
     public Term visit(Term.NEqD term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
+        return unsupportedOp(term);
     }
 
     @Override
     public Term visit(Term.LtD term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
+        return unsupportedOp(term);
     }
 
     @Override
     public Term visit(Term.LtI term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
+        return unsupportedOp(term);
     }
 
     @Override
     public Term visit(Term.LeI term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
+        return unsupportedOp(term);
     }
 
     @Override
     public Term visit(Term.LeD term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
+        return unsupportedOp(term);
     }
 
     @Override
     public Term visit(Term.GtI term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
+        return unsupportedOp(term);
     }
 
     @Override
     public Term visit(Term.GtD term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
+        return unsupportedOp(term);
     }
 
     @Override
     public Term visit(Term.GeI term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
+        return unsupportedOp(term);
     }
 
     @Override
     public Term visit(Term.GeD term) {
-        // todo - test + implement me
-        throw new UnsupportedOperationException();
+        return unsupportedOp(term);
     }
+
+    private Term unsupportedOp(Term.Op term) {
+        throw new UnsupportedOperationException("unsupported operation '" + term.getName() + "'");
+    }
+
 }

@@ -18,11 +18,12 @@ public class GaussianUncertaintyPropagatorTest extends UncertaintyPropagatorTest
 
         assertEquals("sqrt(sqr(B1_unc))", uncert("B1"));
         assertEquals("sqrt(sqr(B2_unc))", uncert("B2"));
+        assertEquals("0.0", uncert("B3"));
+        assertEquals("sqrt(B4_var)", uncert("B4"));
 
         assertEquals("0.0", uncert("false"));
         assertEquals("0.0", uncert("10"));
         assertEquals("0.0", uncert("20.1"));
-        assertEquals("0.0", uncert("B3"));
         assertEquals("0.0", uncert("NaN")); // Improve me!
 
         assertEquals("sqrt(sqr(Mul(-1.0,B1_unc)))", uncert("-B1")); // Improve me!
