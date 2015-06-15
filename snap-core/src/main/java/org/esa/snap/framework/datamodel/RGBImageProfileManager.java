@@ -34,8 +34,7 @@ public class RGBImageProfileManager {
     private final static File profilesDir;
 
     static {
-        profilesDir = new File(SystemUtils.getApplicationDataDir(),
-                               "snap-core/auxdata/rgb_profiles");
+        profilesDir = SystemUtils.getAuxDataPath().resolve("rgb_profiles").toFile();
         if (!profilesDir.exists()) {
             profilesDir.mkdirs();
         }

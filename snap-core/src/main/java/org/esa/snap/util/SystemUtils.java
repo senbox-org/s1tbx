@@ -19,10 +19,8 @@ import org.esa.snap.runtime.Config;
 import org.geotools.referencing.factory.epsg.HsqlEpsgDatabase;
 
 import javax.media.jai.JAI;
-import javax.swing.UIManager;
-import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.Toolkit;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -30,6 +28,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
@@ -114,6 +113,16 @@ public class SystemUtils {
      */
     public static File getApplicationDataDir() {
         return getApplicationDataDir(false);
+    }
+
+    /**
+     * Gets the auxdata directory which stores dems, orbits, rgb profiles, etc.
+     *
+     * @return the auxiliary data directory
+     * @since SNAP 2.0
+     */
+    public static Path getAuxDataPath() {
+        return getApplicationDataDir().toPath().resolve("auxdata");
     }
 
     /**
