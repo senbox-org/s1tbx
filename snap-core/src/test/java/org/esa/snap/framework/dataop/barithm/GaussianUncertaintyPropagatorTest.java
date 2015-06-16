@@ -26,21 +26,21 @@ public class GaussianUncertaintyPropagatorTest extends UncertaintyPropagatorTest
         assertEquals("0.0", uncert("20.1"));
         assertEquals("0.0", uncert("NaN")); // Improve me!
 
-        assertEquals("sqrt(sqr(Mul(-1.0,B1_unc)))", uncert("-B1")); // Improve me!
+        assertEquals("sqrt(sqr(B1_unc))", uncert("-B1"));
         assertEquals("sqrt(sqr(B1_unc))", uncert("--B1"));
-        assertEquals("sqrt(sqr(Mul(-1.0,B1_unc)))", uncert("---B1")); // Improve me!
+        assertEquals("sqrt(sqr(B1_unc))", uncert("---B1"));
 
         assertEquals("sqrt(Add(sqr(B1_unc),sqr(B2_unc)))", uncert("B1 + B2"));
         assertEquals("sqrt(sqr(B1_unc))", uncert("B1 + B3"));
         assertEquals("sqrt(Add(sqr(B1_unc),sqr(B2_unc)))", uncert("B1 + B2 + B3"));
         assertEquals("sqrt(Add(sqr(B1_unc),sqr(B2_unc)))", uncert("B2 + B3 + B1"));
 
-        assertEquals("sqrt(Add(sqr(B1_unc),sqr(Mul(-1.0,B2_unc))))", uncert("B1 - B2")); // Improve me!
-        assertEquals("sqrt(Add(sqr(B2_unc),sqr(Mul(-1.0,B1_unc))))", uncert("B2 - B1")); // Improve me!
+        assertEquals("sqrt(Add(sqr(B1_unc),sqr(B2_unc)))", uncert("B1 - B2")); // Improve me!
+        assertEquals("sqrt(Add(sqr(B1_unc),sqr(B2_unc)))", uncert("B2 - B1")); // Improve me!
         assertEquals("sqrt(sqr(B1_unc))", uncert("B1 - B3"));
-        assertEquals("sqrt(sqr(Mul(-1.0,B1_unc)))", uncert("B3 - B1")); // Improve me!
-        assertEquals("sqrt(Add(sqr(B1_unc),sqr(Mul(-1.0,B2_unc))))", uncert("B1 - B2 - B3")); // Improve me!
-        assertEquals("sqrt(Add(sqr(B2_unc),sqr(Mul(-1.0,B1_unc))))", uncert("B2 - B3 - B1")); // Improve me!
+        assertEquals("sqrt(sqr(B1_unc))", uncert("B3 - B1")); // Improve me!
+        assertEquals("sqrt(Add(sqr(B1_unc),sqr(B2_unc)))", uncert("B1 - B2 - B3")); // Improve me!
+        assertEquals("sqrt(Add(sqr(B1_unc),sqr(B2_unc)))", uncert("B2 - B3 - B1")); // Improve me!
 
         assertEquals("sqrt(Add(sqr(Mul(B1,B2_unc)),sqr(Mul(B1_unc,B2))))", uncert("B1 * B2"));
         assertEquals("sqrt(sqr(Mul(B1_unc,B3)))", uncert("B1 * B3"));

@@ -164,6 +164,11 @@ public class TermSimplifier implements TermConverter {
             } else if (baseCall.getFunction() == Functions.EXP) {
                 return simplify(new Term.Call(Functions.EXP, new Term.Mul(Term.TYPE_D, baseCall.getArg(), exp)));
             }
+        } else if (base instanceof Term.Neg) {
+            Term.Neg negOp = (Term.Neg) base;
+            if (isEvenIntConst(exp)) {
+                return simpPow(negOp.getArg(), exp);
+            }
         }
 
         return pow(base, exp);

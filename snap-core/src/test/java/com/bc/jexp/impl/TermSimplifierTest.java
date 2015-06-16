@@ -48,6 +48,7 @@ public class TermSimplifierTest {
         assertEquals("0.0", simplify("sqr(0)"));
         assertEquals("1.0", simplify("sqr(1)"));
         assertEquals("4.0", simplify("sqr(2)"));
+        assertEquals("sqr(A)", simplify("sqr(-A)"));
         assertEquals("sqr(sqrt(A))", simplify("sqr(sqrt(A))"));  // don't suppress sign!
         assertEquals("sqr(pow(A,3))", simplify("sqr(pow(A,3))")); // don't suppress sign!
         assertEquals("sqr(sqrt(A))", simplify("sqr(pow(A,0.5))")); // don't suppress sign!
@@ -75,6 +76,7 @@ public class TermSimplifierTest {
 
         assertEquals("5.0", simplify("abs(5.0)"));
         assertEquals("5", simplify("abs(-5)"));
+        assertEquals("abs(A)", simplify("abs(-A)"));
 
         assertEquals("1.0", simplify("exp(0)"));
         assertEquals("E", simplify("exp(1)"));
