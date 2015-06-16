@@ -60,7 +60,7 @@ public class RangeUncertaintyPropagator implements UncertaintyPropagator, TermCo
             RasterDataNode variance = raster.getAncillaryBand("variance");
             if (variance != null) {
                 return new Term.Call(Functions.SQRT,
-                        new Term.Ref(new RasterDataSymbol(variance.getName(), variance, RasterDataSymbol.GEOPHYSICAL)));
+                                     new Term.Ref(new RasterDataSymbol(variance.getName(), variance, RasterDataSymbol.GEOPHYSICAL)));
             }
         }
         return Term.ConstD.ZERO;
@@ -68,20 +68,11 @@ public class RangeUncertaintyPropagator implements UncertaintyPropagator, TermCo
 
     @Override
     public Term visit(Term.Call term) {
-        Term[] args = term.getArgs();
-        Term[] minArgs = args.clone();
-        Term[] maxArgs = args.clone();
-        for (int i = 0; i < args.length; i++) {
-            Term arg = args[i];
-            minArgs[i] = new Term.Sub(Term.TYPE_D, arg, uncertainty(arg));
-            maxArgs[i] = new Term.Add(Term.TYPE_D, arg, uncertainty(arg));
-        }
-        return new Term.Mul(Term.TYPE_D,
-                Term.ConstD.HALF,
-                new Term.Call(Functions.ABS_D,
-                        new Term.Sub(Term.TYPE_D,
-                                new Term.Call(term.getFunction(), minArgs),
-                                new Term.Call(term.getFunction(), maxArgs))));
+        Term[] minArgs = getMinArgs(term.getArgs());
+        Term[] maxArgs = getMaxArgs(term.getArgs());
+        return maxDev(term,
+                      new Term.Call(term.getFunction(), minArgs),
+                      new Term.Call(term.getFunction(), maxArgs));
     }
 
     @Override
@@ -96,38 +87,22 @@ public class RangeUncertaintyPropagator implements UncertaintyPropagator, TermCo
 
     @Override
     public Term visit(Term.Add term) {
-        return addAbsUncertain(term);
+        return addAbsUncertainies(term);
     }
 
     @Override
     public Term visit(Term.Sub term) {
-        return addAbsUncertain(term);
+        return addAbsUncertainies(term);
     }
 
     @Override
     public Term visit(Term.Mul term) {
-        return addRelUncertain(term);
+        return addRelUncertainties(term);
     }
 
     @Override
     public Term visit(Term.Div term) {
-        return addRelUncertain(term);
-    }
-
-    private Term addAbsUncertain(Term.Binary term) {
-        Term uncert1 = uncertainty(term.getArg(0));
-        Term uncert2 = uncertainty(term.getArg(1));
-        return new Term.Add(Term.TYPE_D, uncert1, uncert2);
-    }
-
-    private Term addRelUncertain(Term.Binary term) {
-        Term arg1 = term.getArg(0);
-        Term arg2 = term.getArg(1);
-        Term uncert1 = uncertainty(arg1);
-        Term uncert2 = uncertainty(arg2);
-        return new Term.Add(Term.TYPE_D,
-                new Term.Div(Term.TYPE_D, uncert1, new Term.Call(Functions.ABS_D, arg1)),
-                new Term.Div(Term.TYPE_D, uncert2, new Term.Call(Functions.ABS_D, arg2)));
+        return addRelUncertainties(term);
     }
 
     @Override
@@ -158,7 +133,6 @@ public class RangeUncertaintyPropagator implements UncertaintyPropagator, TermCo
     @Override
     public Term visit(Term.XOrI term) {
         return unsupportedOp(term);
-
     }
 
     @Override
@@ -248,6 +222,74 @@ public class RangeUncertaintyPropagator implements UncertaintyPropagator, TermCo
 
     private Term unsupportedOp(Term.Op term) {
         throw new UnsupportedOperationException("unsupported operation '" + term.getName() + "'");
+    }
+
+    // (c +- dc) = (a +- da) + (b +- db)
+    // dc = da + db
+    //
+    private Term addAbsUncertainies(Term.Binary term) {
+        Term uncert1 = uncertainty(term.getArg(0));
+        Term uncert2 = uncertainty(term.getArg(1));
+        return new Term.Add(Term.TYPE_D, uncert1, uncert2);
+    }
+
+    // (c +- dc) = (a +- da) * (b +- db)
+    // dc/abs(c) = da/abs(a) + db/abs(b)
+    //
+    private Term addRelUncertainties(Term.Binary term) {
+        Term arg1 = term.getArg(0);
+        Term arg2 = term.getArg(1);
+        Term uncert1 = uncertainty(arg1);
+        Term uncert2 = uncertainty(arg2);
+        return new Term.Mul(Term.TYPE_D,
+                            new Term.Add(Term.TYPE_D,
+                                         new Term.Div(Term.TYPE_D,
+                                                      uncert1,
+                                                      new Term.Call(Functions.ABS_D, arg1)),
+                                         new Term.Div(Term.TYPE_D,
+                                                      uncert2,
+                                                      new Term.Call(Functions.ABS_D, arg2))),
+                            new Term.Call(Functions.ABS_D, term));
+    }
+
+    // Rough deviation estimation:
+    //
+    // (c +- dc) = F(a +- da, b +- db)
+    // dc =~ max(abs(F(a - da, b - db) - F(a, b)),
+    //           abs(F(a + da, b + db) - F(a, b)))
+    // where
+    //    term := F(a, b)
+    //    minTerm := F(a - da, b - db)
+    //    maxTerm := F(a + da, b + db)
+    //
+    private Term maxDev(Term term, Term minTerm, Term maxTerm) {
+        return new Term.Call(Functions.MAX_D,
+                             new Term.Call(Functions.ABS_D,
+                                           new Term.Sub(Term.TYPE_D,
+                                                        minTerm,
+                                                        term)),
+                             new Term.Call(Functions.ABS_D,
+                                           new Term.Sub(Term.TYPE_D,
+                                                        maxTerm,
+                                                        term)));
+    }
+
+    private Term[] getMinArgs(Term[] args) {
+        Term[] minArgs = args.clone();
+        for (int i = 0; i < args.length; i++) {
+            Term arg = args[i];
+            minArgs[i] = new Term.Sub(Term.TYPE_D, arg, uncertainty(arg));
+        }
+        return minArgs;
+    }
+
+    private Term[] getMaxArgs(Term[] args) {
+        Term[] maxArgs = args.clone();
+        for (int i = 0; i < args.length; i++) {
+            Term arg = args[i];
+            maxArgs[i] = new Term.Add(Term.TYPE_D, arg, uncertainty(arg));
+        }
+        return maxArgs;
     }
 
 }
