@@ -21,7 +21,9 @@ public class RangeUncertaintyPropagatorTest extends UncertaintyPropagatorTest {
         assertEquals("0.0", uncert("false"));
         assertEquals("0.0", uncert("10"));
         assertEquals("0.0", uncert("20.1"));
-        //assertEquals("NaN", uncert(product, "NaN"));
+        assertEquals("0.0", uncert("PI"));
+        assertEquals("0.0", uncert("E"));
+        assertEquals("NaN", uncert("NaN"));
 
         assertEquals("B1_unc", uncert("-B1"));
         assertEquals("B1_unc", uncert("--B1"));
@@ -44,7 +46,7 @@ public class RangeUncertaintyPropagatorTest extends UncertaintyPropagatorTest {
         assertEquals("Mul(abs(Mul(B1,B3)),Div(B1_unc,abs(B1)))",
                      uncert("B1 * B3"));
         assertEquals("Mul(abs(Mul(B3,Mul(B1,B2))),Div(Mul(abs(Mul(B1,B2)),Add(Div(B1_unc,abs(B1)),Div(B2_unc,abs(B2)))),abs(Mul(B1,B2))))",
-                     uncert( "B1 * B2 * B3"));
+                     uncert("B1 * B2 * B3"));
         assertEquals("Mul(abs(Mul(B1,Mul(B2,B3))),Add(Div(B1_unc,abs(B1)),Div(Mul(abs(Mul(B2,B3)),Div(B2_unc,abs(B2))),abs(Mul(B2,B3)))))",
                      uncert("B2 * B3 * B1"));
 

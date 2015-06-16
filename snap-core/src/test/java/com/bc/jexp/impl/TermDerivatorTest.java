@@ -15,14 +15,15 @@ public class TermDerivatorTest {
     public void testConst() throws Exception {
         assertEquals("0.0", derivative("0"));
         assertEquals("0.0", derivative("1"));
+        assertEquals("0.0", derivative("1.0"));
         assertEquals("0.0", derivative("true"));
+        assertEquals("NaN", derivative("NaN"));
     }
 
     @Test
     public void testRef() throws Exception {
         assertEquals("1.0", derivative("x"));
         assertEquals("0.0", derivative("PI"));
-        assertEquals("0.0", derivative("NaN")); // ?
         assertEquals("0.0", derivative("A"));
         assertEquals("0.0", derivative("B"));
     }

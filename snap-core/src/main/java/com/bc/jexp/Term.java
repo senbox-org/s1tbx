@@ -495,12 +495,16 @@ public abstract class Term {
         private final double value;
 
         public static ConstD get(double value) {
-            if (value == 0) {
+            if (value == 0.0) {
                 return Term.ConstD.ZERO;
-            } else if (value == 1) {
+            } else if (value == 0.5) {
+                return Term.ConstD.HALF;
+            } else if (value == 1.0) {
                 return Term.ConstD.ONE;
-            } else if (value == 2) {
+            } else if (value == 2.0) {
                 return Term.ConstD.TWO;
+            } else if (Double.isNaN(value)) {
+                return Term.ConstD.NAN;
             }
             return new Term.ConstD(value);
         }
@@ -1277,6 +1281,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
         @Override
         public int pre() {
             return XOrI_PRE;
@@ -1306,6 +1311,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
         @Override
         public int pre() {
             return AndI_PRE;
@@ -1602,6 +1608,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
         @Override
         public int pre() {
             return Comp_PRE;
@@ -1631,6 +1638,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
         @Override
         public int pre() {
             return Comp_PRE;
@@ -1660,6 +1668,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
         @Override
         public int pre() {
             return Comp_PRE;
@@ -1689,6 +1698,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
         @Override
         public int pre() {
             return Comp_PRE;
@@ -1718,6 +1728,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
         @Override
         public int pre() {
             return Comp_PRE;
@@ -1747,6 +1758,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
         @Override
         public int pre() {
             return Comp_PRE;
@@ -1776,6 +1788,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
         @Override
         public int pre() {
             return Comp_PRE;
@@ -1805,6 +1818,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
         @Override
         public int pre() {
             return Comp_PRE;
@@ -1834,6 +1848,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
         @Override
         public int pre() {
             return Comp_PRE;
@@ -1863,6 +1878,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
         @Override
         public int pre() {
             return Comp_PRE;
@@ -1892,6 +1908,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
         @Override
         public int pre() {
             return Comp_PRE;
@@ -1921,6 +1938,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
         @Override
         public int pre() {
             return Comp_PRE;
@@ -1950,6 +1968,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
         @Override
         public int pre() {
             return Comp_PRE;

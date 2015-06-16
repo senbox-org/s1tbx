@@ -653,13 +653,13 @@ public final class ParserImpl implements Parser {
         Term t1 = null;
         int tt = tokenizer.next();
         if (tt == Tokenizer.TT_DOUBLE) {
-            t1 = new Term.ConstD(convertDoubleToken());
+            t1 = Term.ConstD.get(convertDoubleToken());
         } else if (tt == Tokenizer.TT_INT) {
-            t1 = new Term.ConstI(convertIntToken());
+            t1 = Term.ConstI.get(convertIntToken());
         } else if (tt == Tokenizer.TT_HEX_INT) {
-            t1 = new Term.ConstI(convertHexIntToken());
+            t1 = Term.ConstI.get(convertHexIntToken());
         } else if (tt == Tokenizer.TT_OCT_INT) {
-            t1 = new Term.ConstI(convertOctIntToken());
+            t1 = Term.ConstI.get(convertOctIntToken());
         } else if (tt == Tokenizer.TT_STRING) {
             t1 = new Term.ConstS(convertStringToken());
         } else if (tt == Tokenizer.TT_KEYWORD) {
@@ -673,7 +673,11 @@ public final class ParserImpl implements Parser {
             }
         } else if (tt == Tokenizer.TT_NAME || tt == Tokenizer.TT_ESCAPED_NAME) {
             String name = tokenizer.getToken();
-            t1 = parseCallOrRef(name);
+            if ("NaN".equals(name)) {
+                t1 = Term.ConstD.NAN;
+            } else {
+                t1 = parseCallOrRef(name);
+            }
         } else if (tt == '(') {
             t1 = parseTerm(true);
             tt = tokenizer.next();

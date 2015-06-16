@@ -18,11 +18,13 @@ public class TermSimplifierTest {
         assertEquals("1", simplify("1"));
         assertEquals("10.3", simplify("10.3"));
         assertEquals("true", simplify("true"));
-        assertEquals("PI", simplify("PI"));
+        assertEquals("NaN", simplify("NaN"));
     }
 
     @Test
     public void testSymbol() throws Exception {
+        assertEquals("PI", simplify("PI"));
+        assertEquals("E", simplify("E"));
         assertEquals("A", simplify("A"));
         assertEquals("B", simplify("B"));
     }

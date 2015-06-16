@@ -1,6 +1,10 @@
 package org.esa.snap.framework.dataop.barithm;
 
-import com.bc.jexp.*;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Symbol;
+import com.bc.jexp.Term;
+import com.bc.jexp.TermConverter;
+import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.Functions;
 import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.TermDerivator;
@@ -16,14 +20,18 @@ import java.util.ArrayList;
  */
 public class GaussianUncertaintyPropagator implements UncertaintyPropagator {
 
-    boolean optimize;
+    private final boolean optimize;
+
+    public GaussianUncertaintyPropagator() {
+        this(false);
+    }
 
     public GaussianUncertaintyPropagator(boolean optimize) {
         this.optimize = optimize;
     }
 
     @Override
-    public Term propagateUncertainties(Product product, String expression) throws ParseException {
+    public Term propagateUncertainties(Product product, String expression) throws ParseException, UnsupportedOperationException {
         WritableNamespace namespace = product.createBandArithmeticDefaultNamespace();
         ParserImpl parser = new ParserImpl(namespace);
         Term term = parser.parse(expression);
@@ -36,21 +44,21 @@ public class GaussianUncertaintyPropagator implements UncertaintyPropagator {
                 Term partialDerivative = new TermDerivator(symbol).derivative(term);
                 Symbol uncertaintySymbol = namespace.resolveSymbol(uncertaintyRaster.getName());
                 Term sqrTerm = new Term.Call(Functions.SQR,
-                        new Term.Mul(Term.TYPE_D,
-                                partialDerivative,
-                                new Term.Ref(uncertaintySymbol)));
+                                             new Term.Mul(Term.TYPE_D,
+                                                          partialDerivative,
+                                                          new Term.Ref(uncertaintySymbol)));
                 terms.add(sqrTerm);
             } else if (varianceRaster != null) {
                 Term partialDerivative = new TermDerivator(symbol).derivative(term);
                 Symbol varianceSymbol = namespace.resolveSymbol(varianceRaster.getName());
                 Term sqrTerm = new Term.Mul(Term.TYPE_D,
-                        new Term.Call(Functions.SQR, partialDerivative),
-                        new Term.Ref(varianceSymbol));
+                                            new Term.Call(Functions.SQR, partialDerivative),
+                                            new Term.Ref(varianceSymbol));
                 terms.add(sqrTerm);
             }
         }
         if (terms.isEmpty()) {
-            return Term.ConstD.ZERO;
+            return term.isConst() && Double.isNaN(term.evalD(null)) ? Term.ConstD.NAN : Term.ConstD.ZERO;
         }
         Term result;
         if (terms.size() == 1) {
@@ -69,7 +77,6 @@ public class GaussianUncertaintyPropagator implements UncertaintyPropagator {
         Term simplifiedResult = new TermSimplifier().simplify(result);
         return optimize ? new Optimizer().optimize(simplifiedResult) : simplifiedResult;
     }
-
 
 
     private static class Optimizer implements TermConverter {

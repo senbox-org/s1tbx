@@ -59,20 +59,16 @@ public class TermSimplifier implements TermConverter {
                 return Term.ConstI.get(term.evalI(null));
             } else if (term.isD()) {
                 double value = term.evalD(null);
-                if (value == 0.0) {
-                    return Term.ConstD.ZERO;
-                } else if (value == 1.0) {
-                    return Term.ConstD.ONE;
-                } else if (value == 2.0) {
-                    return Term.ConstD.TWO;
+                if (Double.isNaN(value)) {
+                    return Term.ConstD.NAN;
                 } else {
                     double valueF = Math.floor(value);
                     if (value == valueF) {
-                        return new Term.ConstD(value);
+                        return Term.ConstD.get(value);
                     }
                     double valueR = Math.round(value * 100.0) / 100.0;
                     if (value == valueR) {
-                        return new Term.ConstD(value);
+                        return Term.ConstD.get(value);
                     }
                 }
             }

@@ -8,6 +8,7 @@ import com.bc.jexp.TermConverter;
  * Computes the derivative of a term.
  *
  * @author Norman Fomferra
+ * @since SNAP 2
  */
 public class TermDerivator implements TermConverter {
     private final TermSimplifier simplifier;
@@ -46,7 +47,7 @@ public class TermDerivator implements TermConverter {
 
     @Override
     public Term visit(Term.ConstD term) {
-        return Term.ConstD.ZERO;
+        return Double.isNaN(term.getValue()) ? Term.ConstD.NAN : Term.ConstD.ZERO;
     }
 
     @Override

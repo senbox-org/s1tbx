@@ -1,6 +1,10 @@
 package org.esa.snap.framework.dataop.barithm;
 
-import com.bc.jexp.*;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Symbol;
+import com.bc.jexp.Term;
+import com.bc.jexp.TermConverter;
+import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.Functions;
 import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.TermSimplifier;
@@ -13,10 +17,10 @@ import org.esa.snap.framework.datamodel.RasterDataNode;
  */
 public class RangeUncertaintyPropagator implements UncertaintyPropagator, TermConverter {
 
-    TermSimplifier simplifier = new TermSimplifier();
+    private TermSimplifier simplifier = new TermSimplifier();
 
     @Override
-    public Term propagateUncertainties(Product product, String expression) throws ParseException {
+    public Term propagateUncertainties(Product product, String expression) throws ParseException, UnsupportedOperationException {
         WritableNamespace namespace = product.createBandArithmeticDefaultNamespace();
         ParserImpl parser = new ParserImpl(namespace);
         Term term = parser.parse(expression);
@@ -39,7 +43,7 @@ public class RangeUncertaintyPropagator implements UncertaintyPropagator, TermCo
 
     @Override
     public Term visit(Term.ConstD term) {
-        return Term.ConstD.ZERO;
+        return Double.isNaN(term.getValue()) ? Term.ConstD.NAN : Term.ConstD.ZERO;
     }
 
     @Override

@@ -11,6 +11,6 @@ public class SymbolsTest {
     @Test
     public void testGetAll() throws Exception {
         int size = Symbols.getAll().size();
-        assertTrue(size >= 3);
+        assertTrue(size >= 2);
     }
 }
