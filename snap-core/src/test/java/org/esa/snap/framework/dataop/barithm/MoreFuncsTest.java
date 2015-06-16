@@ -35,30 +35,30 @@ public class MoreFuncsTest {
 
         product.setStartTime(startTime);
         product.setEndTime(endTime);
-        MoreFuncs.MJD mjd = new MoreFuncs.MJD(product);
+        MoreFuncs.PixelTimeSymbol pixelTimeSymbol = new MoreFuncs.PixelTimeSymbol("TIME", product);
 
         RasterDataEvalEnv rasterEnv = new RasterDataEvalEnv(0, 0, 10, 10);
-        assertEquals(startTime.getMJD(), mjd.evalD(rasterEnv), 1E-6);
+        assertEquals(startTime.getMJD(), pixelTimeSymbol.evalD(rasterEnv), 1E-6);
 
         rasterEnv = new RasterDataEvalEnv(9, 0, 10, 10);
-        assertEquals(startTime.getMJD(), mjd.evalD(rasterEnv), 1E-6);
+        assertEquals(startTime.getMJD(), pixelTimeSymbol.evalD(rasterEnv), 1E-6);
 
         rasterEnv = new RasterDataEvalEnv(0, 9, 10, 10);
-        assertEquals(endTime.getMJD(), mjd.evalD(rasterEnv), 1E-6);
+        assertEquals(endTime.getMJD(), pixelTimeSymbol.evalD(rasterEnv), 1E-6);
 
         rasterEnv = new RasterDataEvalEnv(9, 9, 10, 10);
-        assertEquals(endTime.getMJD(), mjd.evalD(rasterEnv), 1E-6);
+        assertEquals(endTime.getMJD(), pixelTimeSymbol.evalD(rasterEnv), 1E-6);
 
         rasterEnv = new RasterDataEvalEnv(-1, 4, 10, 10);
         double centralTime = (startTime.getMJD() * 5 + endTime.getMJD() * 4) / 9;
-        assertEquals(centralTime, mjd.evalD(rasterEnv), 1E-6);
+        assertEquals(centralTime, pixelTimeSymbol.evalD(rasterEnv), 1E-6);
     }
 
     @Test
     public void testMJDSymbol_no_time() throws Exception {
         final Product product = new Product("name", "type", 10, 10);
-        MoreFuncs.MJD mjd = new MoreFuncs.MJD(product);
+        MoreFuncs.PixelTimeSymbol pixelTimeSymbol = new MoreFuncs.PixelTimeSymbol("TIME", product);
 
-        assertTrue(Double.isNaN(mjd.evalD(new RasterDataEvalEnv(-1, -1, -1, -1))));
+        assertTrue(Double.isNaN(pixelTimeSymbol.evalD(new RasterDataEvalEnv(-1, -1, -1, -1))));
     }
 }

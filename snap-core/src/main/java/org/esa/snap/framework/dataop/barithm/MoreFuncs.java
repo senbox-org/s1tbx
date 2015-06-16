@@ -117,7 +117,7 @@ class MoreFuncs {
                 final int numBands = product.getNumBands();
                 for (int i = 0; i < numBands; i++) {
                     final Band band = product.getBandAt(i);
-                    MoreFuncs.registerBandProperties(namespace, band);
+                    MoreFuncs.registerBandProperties(namespace, band, namePrefix);
                 }
             }
         });
@@ -127,39 +127,13 @@ class MoreFuncs {
             public void extendNamespace(final WritableNamespace namespace, final Product product, final String namePrefix) {
                 final int width = product.getSceneRasterWidth();
                 final int height = product.getSceneRasterHeight();
-                final WeakReference<GeoCoding> geocodingRef = new WeakReference<GeoCoding>(product.getGeoCoding());
-                final Symbol lat = new AbstractSymbol.D("LAT") {
-                    @Override
-                    public double evalD(EvalEnv env) throws EvalException {
-                        double latitude = Double.NaN;
-                        GeoCoding geoCoding = geocodingRef.get();
-                        if (geoCoding != null && geoCoding.canGetGeoPos()) {
-                            GeoPos geoPos = getGeoPos(geoCoding, env, width, height);
-                            if (geoPos.isValid()) {
-                                latitude = geoPos.getLat();
-                            }
-                        }
-                        return latitude;
-                    }
-                };
-                final Symbol lon = new AbstractSymbol.D("LON") {
-                    @Override
-                    public double evalD(EvalEnv env) throws EvalException {
-                        double longitude = Double.NaN;
-                        GeoCoding geoCoding = geocodingRef.get();
-                        if (geoCoding != null && geoCoding.canGetGeoPos()) {
-                            GeoPos geoPos = getGeoPos(geoCoding, env, width, height);
-                            if (geoPos.isValid()) {
-                                longitude = geoPos.getLon();
-                            }
-                        }
-                        return longitude;
-                    }
-                };
-                final Symbol mjd = new MJD(product);
-                BandArithmetic.registerSymbol(lat);
-                BandArithmetic.registerSymbol(lon);
-                BandArithmetic.registerSymbol(mjd);
+                GeoCoding geoCoding = product.getGeoCoding();
+                if (geoCoding != null) {
+                    namespace.registerSymbol(new PixelLatSymbol(namePrefix + "LAT", geoCoding, width, height));
+                    namespace.registerSymbol(new PixelLonSymbol(namePrefix + "LON", geoCoding, width, height));
+                }
+                namespace.registerSymbol(new PixelTimeSymbol(namePrefix + "TIME", product));
+                namespace.registerSymbol(new PixelTimeSymbol(namePrefix + "MJD", product)); // For compatibility only
             }
         });
     }
@@ -174,7 +148,7 @@ class MoreFuncs {
         return INVALID_GEO_POS;
     }
 
-    private static void registerBandProperties(WritableNamespace namespace, final Band band) {
+    private static void registerBandProperties(WritableNamespace namespace, final Band band, String namePrefix) {
         final Class bandClass = band.getClass();
         final Method[] declaredMethods = bandClass.getDeclaredMethods();
         for (Method method : declaredMethods) {
@@ -191,7 +165,7 @@ class MoreFuncs {
                 if (propertyValue != null) {
                     final String propertyName = MoreFuncs.convertMethodNameToPropertyName(methodName);
                     final String symbolName = band.getName() + "." + propertyName;
-                    MoreFuncs.registerConstant(namespace, symbolName, propertyValue);
+                    MoreFuncs.registerConstant(namespace, namePrefix + symbolName, propertyValue);
                 }
             }
         }
@@ -255,23 +229,77 @@ class MoreFuncs {
         return 2.0 / (Math.exp(x) - Math.exp(-x));
     }
 
-    static class MJD extends AbstractSymbol.D {
+    static class PixelTimeSymbol extends AbstractSymbol.D {
+        private final WeakReference<Product> productRef;
 
-        private final Product product;
-
-        public MJD(Product product) {
-            super("MJD");
-            this.product = product;
+        PixelTimeSymbol(String name, Product product) {
+            super(name);
+            this.productRef = new WeakReference<>(product);
         }
 
         @Override
         public double evalD(EvalEnv env) throws EvalException {
-            int pixelY = ((RasterDataEvalEnv) env).getPixelY();
-            ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, pixelY);
-            if (scanLineTime != null) {
-                return scanLineTime.getMJD();
+            Product product = productRef.get();
+            if (product != null) {
+                int pixelY = ((RasterDataEvalEnv) env).getPixelY();
+                ProductData.UTC scanLineTime = ProductUtils.getScanLineTime(product, pixelY);
+                if (scanLineTime != null) {
+                    return scanLineTime.getMJD();
+                }
             }
             return Double.NaN;
+        }
+    }
+
+    static abstract class PixelGeoPosSymbol extends AbstractSymbol.D {
+        private final WeakReference<GeoCoding> geocodingRef;
+        private final int width;
+        private final int height;
+
+        protected PixelGeoPosSymbol(String name, GeoCoding geocoding, int width, int height) {
+            super(name);
+            this.geocodingRef = new WeakReference<>(geocoding);
+            this.width = width;
+            this.height = height;
+        }
+
+        @Override
+        public double evalD(EvalEnv env) throws EvalException {
+            double longitude = Double.NaN;
+            GeoCoding geoCoding = geocodingRef.get();
+            if (geoCoding != null && geoCoding.canGetGeoPos()) {
+                GeoPos geoPos = getGeoPos(geoCoding, env, width, height);
+                if (geoPos.isValid()) {
+                    longitude = getCoord(geoPos);
+                }
+            }
+            return longitude;
+        }
+
+        protected abstract double getCoord(GeoPos geoPos);
+    }
+
+    static final class PixelLonSymbol extends PixelGeoPosSymbol {
+
+        PixelLonSymbol(String name, GeoCoding geocoding, int width, int height) {
+            super(name, geocoding, width, height);
+        }
+
+        @Override
+        protected double getCoord(GeoPos geoPos) {
+            return geoPos.lon;
+        }
+    }
+
+    static final class PixelLatSymbol extends PixelGeoPosSymbol {
+
+        PixelLatSymbol(String name, GeoCoding geocoding, int width, int height) {
+            super(name, geocoding, width, height);
+        }
+
+        @Override
+        protected double getCoord(GeoPos geoPos) {
+            return geoPos.lat;
         }
     }
 }
