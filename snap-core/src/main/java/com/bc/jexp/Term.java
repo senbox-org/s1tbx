@@ -16,8 +16,6 @@
 
 package com.bc.jexp;
 
-import java.util.List;
-
 
 /**
  * The abstract <code>Term</code> class is an in-memory representation of an
@@ -34,6 +32,20 @@ import java.util.List;
  * @version $Revision$ $Date$
  */
 public abstract class Term {
+    // Term precedences for decompilation
+    private static final int Assign_PRE = 990;
+    private static final int Cond_PRE = 890;
+    private static final int OrB_PRE = 790;
+    private static final int AndB_PRE = 780;
+    private static final int Comp_PRE = 690;
+    private static final int OrI_PRE = 590;
+    private static final int XOrI_PRE = 580;
+    private static final int AndI_PRE = 570;
+    private static final int Add_PRE = 490;
+    private static final int Mul_PRE = 390;
+    private static final int Unary_PRE = 290;
+    //private static final int Postfix_PRE = 190;
+    private static final int Primary_PRE = 0;
 
     /**
      * The ID for the <code>boolean</code> type.
@@ -275,6 +287,8 @@ public abstract class Term {
         return sb.toString();
     }
 
+    public abstract int pre();
+
     /////////////////////////////////////////////////////////////////////////
 
     /**
@@ -328,6 +342,11 @@ public abstract class Term {
                 return toS().compareTo(((ConstS) other).toS());
             }
             return -1;
+        }
+
+        @Override
+        public int pre() {
+            return Primary_PRE;
         }
     }
 
@@ -662,6 +681,11 @@ public abstract class Term {
             }
             return -1;
         }
+
+        @Override
+        public int pre() {
+            return Primary_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -766,6 +790,11 @@ public abstract class Term {
                 return 0;
             }
             return -1;
+        }
+
+        @Override
+        public int pre() {
+            return Primary_PRE;
         }
     }
 
@@ -876,6 +905,11 @@ public abstract class Term {
         protected Unary(final String name, final int type, final Term arg) {
             super(name, type, new Term[]{arg});
             this.arg = arg;
+        }
+
+        @Override
+        public final int pre() {
+            return Unary_PRE;
         }
     }
 
@@ -1062,6 +1096,11 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
+        @Override
+        public int pre() {
+            return Cond_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1097,6 +1136,11 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
+        @Override
+        public int pre() {
+            return Assign_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1122,6 +1166,7 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1147,6 +1192,11 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
+        @Override
+        public int pre() {
+            return AndB_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1171,6 +1221,11 @@ public abstract class Term {
         @Override
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
+        }
+
+        @Override
+        public int pre() {
+            return OrB_PRE;
         }
     }
 
@@ -1222,6 +1277,10 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+        @Override
+        public int pre() {
+            return XOrI_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1247,6 +1306,10 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+        @Override
+        public int pre() {
+            return AndI_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1271,6 +1334,11 @@ public abstract class Term {
         @Override
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
+        }
+
+        @Override
+        public int pre() {
+            return OrI_PRE;
         }
     }
 
@@ -1320,8 +1388,6 @@ public abstract class Term {
             super("Add", type, arg1, arg2);
         }
 
-
-
         @Override
         public int evalI(final EvalEnv env) {
             return arg1.evalI(env) + arg2.evalI(env);
@@ -1335,6 +1401,11 @@ public abstract class Term {
         @Override
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
+        }
+
+        @Override
+        public int pre() {
+            return Add_PRE;
         }
     }
 
@@ -1366,6 +1437,11 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
+        @Override
+        public int pre() {
+            return Add_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1395,6 +1471,11 @@ public abstract class Term {
         @Override
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
+        }
+
+        @Override
+        public int pre() {
+            return Mul_PRE;
         }
     }
 
@@ -1426,6 +1507,11 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
+        @Override
+        public int pre() {
+            return Mul_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1456,6 +1542,11 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+
+        @Override
+        public int pre() {
+            return Mul_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1480,6 +1571,11 @@ public abstract class Term {
         @Override
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
+        }
+
+        @Override
+        public int pre() {
+            return Comp_PRE;
         }
     }
 
@@ -1506,6 +1602,10 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+        @Override
+        public int pre() {
+            return Comp_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1530,6 +1630,10 @@ public abstract class Term {
         @Override
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
+        }
+        @Override
+        public int pre() {
+            return Comp_PRE;
         }
     }
 
@@ -1556,6 +1660,10 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+        @Override
+        public int pre() {
+            return Comp_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1580,6 +1688,10 @@ public abstract class Term {
         @Override
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
+        }
+        @Override
+        public int pre() {
+            return Comp_PRE;
         }
     }
 
@@ -1606,6 +1718,10 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+        @Override
+        public int pre() {
+            return Comp_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1630,6 +1746,10 @@ public abstract class Term {
         @Override
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
+        }
+        @Override
+        public int pre() {
+            return Comp_PRE;
         }
     }
 
@@ -1656,6 +1776,10 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+        @Override
+        public int pre() {
+            return Comp_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1680,6 +1804,10 @@ public abstract class Term {
         @Override
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
+        }
+        @Override
+        public int pre() {
+            return Comp_PRE;
         }
     }
 
@@ -1706,6 +1834,10 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+        @Override
+        public int pre() {
+            return Comp_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1730,6 +1862,10 @@ public abstract class Term {
         @Override
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
+        }
+        @Override
+        public int pre() {
+            return Comp_PRE;
         }
     }
 
@@ -1756,6 +1892,10 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+        @Override
+        public int pre() {
+            return Comp_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1781,6 +1921,10 @@ public abstract class Term {
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
         }
+        @Override
+        public int pre() {
+            return Comp_PRE;
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1805,6 +1949,10 @@ public abstract class Term {
         @Override
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
+        }
+        @Override
+        public int pre() {
+            return Comp_PRE;
         }
     }
 }

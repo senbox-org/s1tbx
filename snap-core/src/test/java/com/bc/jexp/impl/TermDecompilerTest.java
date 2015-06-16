@@ -1,6 +1,8 @@
 package com.bc.jexp.impl;
 
-import com.bc.jexp.*;
+import com.bc.jexp.EvalEnv;
+import com.bc.jexp.EvalException;
+import com.bc.jexp.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,13 +12,167 @@ import static org.junit.Assert.assertEquals;
  * @author Norman
  */
 public class TermDecompilerTest {
+
     @Test
-    public void testConst() throws Exception {
-        assertEquals("0", decompile("0"));
-        assertEquals("1", decompile("1"));
-        assertEquals("10.3", decompile("10.3"));
-        assertEquals("true", decompile("true"));
-        assertEquals("NaN", decompile("NaN"));
+    public void testAssign() throws Exception {
+        //assertEquals("v = 3", decompile("v=3"));
+    }
+
+    @Test
+    public void testCond() throws Exception {
+        assertEquals("C ? A : B", decompile("C?A:B"));
+        assertEquals("C ? A + 1 : B - 1", decompile("C? A+1 : B-1"));
+        assertEquals("C ? A + 1 : true ? 1 : 2", decompile("C? A+1 : true ? 1:2"));
+        assertEquals("C ? true ? 1 : 2 : B - 1", decompile("C? true ? 1:2 : B-1"));
+        assertEquals("(C ? true : false) ? true ? 1 : 2 : B - 1", decompile("(C?true:false)? true ? 1:2 : B-1"));
+    }
+
+    @Test
+    public void testOrB() throws Exception {
+        assertEquals("C || true", decompile(" C|| true"));
+        assertEquals("C || true || false", decompile(" C|| true||false"));
+        assertEquals("C || true || false", decompile(" C|| (true||false)"));
+        assertEquals("C || true || false", decompile(" (C|| true)||false"));
+    }
+
+    @Test
+    public void testAndB() throws Exception {
+        assertEquals("C && true", decompile(" C&& true"));
+        assertEquals("C && true && false", decompile(" C&& true&&false"));
+        assertEquals("C && true && false", decompile(" C&& (true&&false)"));
+        assertEquals("C && true && false", decompile(" (C&& true)&&false"));
+    }
+
+    @Test
+    public void testXOrI() throws Exception {
+        assertEquals("B ^ 2", decompile(" B^ 2"));
+        assertEquals("B ^ 2 ^ 4", decompile(" B^ 2^4"));
+        assertEquals("B ^ 2 ^ 4", decompile(" B^ (2^4)"));
+        assertEquals("B ^ 2 ^ 4", decompile(" (B^ 2)^4"));
+    }
+    @Test
+    public void testAndI() throws Exception {
+        assertEquals("B & 2", decompile(" B& 2"));
+        assertEquals("B & 2 & 4", decompile(" B& 2&4"));
+        assertEquals("B & 2 & 4", decompile(" B& (2&4)"));
+        assertEquals("B & 2 & 4", decompile(" (B& 2)&4"));
+    }
+
+    @Test
+    public void testOrI() throws Exception {
+        assertEquals("B | 2", decompile(" B| 2"));
+        assertEquals("B | 2 | 4", decompile(" B| 2|4"));
+        assertEquals("B | 2 | 4", decompile(" B| (2|4)"));
+        assertEquals("B | 2 | 4", decompile(" (B| 2)|4"));
+    }
+
+    @Test
+    public void testAdd() throws Exception {
+        assertEquals("A + 2", decompile(" A +2"));
+        assertEquals("A + 2 + B", decompile(" A +2 +B"));
+        assertEquals("A + 2 + B", decompile("( A +2) +B"));
+        assertEquals("A + 2 + B", decompile(" A +(2 +B)"));
+        assertEquals("A + 2 + B + 1", decompile(" A +(2 +(B +1))"));
+        assertEquals("A + 2 + B + 1", decompile("((A +2) +  B) +1"));
+    }
+
+    @Test
+    public void testSub() throws Exception {
+        assertEquals("A - 2", decompile(" A -2"));
+        assertEquals("A - 2 - B", decompile(" A -2 -B"));
+        assertEquals("A - 2 - B", decompile("( A -2) -B"));
+        assertEquals("A - 2 - B - 1", decompile("(( A -2)-B) -1"));
+        assertEquals("A - (2 - B)", decompile(" A -(2 -B)"));
+        assertEquals("A - (2 - B)", decompile(" A -(2 -B)"));
+        assertEquals("A - 2 - (B - 1)", decompile(" A -2 -(B -1)"));
+        assertEquals("A - 2 - (B - 1)", decompile("( A -2) -(B -1)"));
+        assertEquals("A - (2 - (B - 1))", decompile(" A -(2 -(B -1))"));
+    }
+
+    @Test
+    public void testMul() throws Exception {
+        assertEquals("A * 2", decompile(" A *2"));
+        assertEquals("A * 2 * B", decompile(" A *2 *B"));
+        assertEquals("A * 2 * B", decompile("( A *2) *B"));
+        assertEquals("A * 2 * B", decompile(" A *(2 *B)"));
+        assertEquals("A * 2 * B * 1", decompile(" A *(2 *(B *1))"));
+        assertEquals("A * 2 * B * 1", decompile("((A *2) *  B) *1"));
+    }
+
+    @Test
+    public void testDiv() throws Exception {
+        assertEquals("A / 2", decompile(" A /2"));
+        assertEquals("A / 2 / B", decompile(" A /2 /B"));
+        assertEquals("A / 2 / B", decompile("( A /2) /B"));
+        assertEquals("A / 2 / B / 1", decompile("(( A /2)/B) /1"));
+        assertEquals("A / (2 / B)", decompile(" A /(2 /B)"));
+        assertEquals("A / (2 / B)", decompile(" A /(2 /B)"));
+        assertEquals("A / 2 / (B / 1)", decompile(" A /2 /(B /1)"));
+        assertEquals("A / 2 / (B / 1)", decompile("( A /2) /(B /1)"));
+        assertEquals("A / (2 / (B / 1))", decompile(" A /(2 /(B /1))"));
+    }
+
+    @Test
+    public void testMod() throws Exception {
+        assertEquals("A % 2", decompile(" A %2"));
+        assertEquals("A % 2 % B", decompile(" A %2 %B"));
+        assertEquals("A % 2 % B", decompile("( A %2) %B"));
+        assertEquals("A % 2 % B % 1", decompile("(( A %2)%B) %1"));
+        assertEquals("A % (2 % B)", decompile(" A %(2 %B)"));
+        assertEquals("A % (2 % B)", decompile(" A %(2 %B)"));
+        assertEquals("A % 2 % (B % 1)", decompile(" A %2 %(B %1)"));
+        assertEquals("A % 2 % (B % 1)", decompile("( A %2) %(B %1)"));
+        assertEquals("A % (2 % (B % 1))", decompile(" A %(2 %(B %1))"));
+    }
+
+    @Test
+    public void testComp() throws Exception {
+
+        assertEquals("A == 2", decompile("A==2"));
+        assertEquals("A == 2 == false", decompile("A==2==false"));
+        assertEquals("A == 2 == false", decompile("A==(2==false)"));
+        assertEquals("A == 2 == false", decompile("(A==2)==false"));
+
+        assertEquals("A != 2", decompile("A!=2"));
+        assertEquals("A != 2 != false", decompile("A!=2!=false"));
+        assertEquals("A != 2 != false", decompile("A!=(2!=false)"));
+        assertEquals("A != 2 != false", decompile("(A!=2)!=false"));
+
+        assertEquals("A >= 2", decompile("A>=2"));
+        assertEquals("A >= 2 == false", decompile("A>=2==false"));
+
+        assertEquals("A <= 2", decompile("A<=2"));
+        assertEquals("A <= 2 == false", decompile("A<=2==false"));
+
+        assertEquals("A < 2", decompile("A<2"));
+        assertEquals("A < 2 == false", decompile("A<2==false"));
+
+        assertEquals("A > 2", decompile("A>2"));
+        assertEquals("A > 2 == false", decompile("A>2==false"));
+    }
+
+    @Test
+    public void testUnary() throws Exception {
+        assertEquals("-A", decompile("-A"));
+        assertEquals("--A", decompile("--A"));
+        assertEquals("--A", decompile("-(-A)"));
+
+        assertEquals("~A", decompile("~A"));
+        assertEquals("~~A", decompile("~~A"));
+        assertEquals("~~A", decompile("~(~A)"));
+
+        assertEquals("!C", decompile("!C"));
+        assertEquals("!!C", decompile("!!C"));
+        assertEquals("!!C", decompile("!(!C)"));
+
+        assertEquals("!(~A > -1)", decompile("!(~A > -1)"));
+    }
+
+    @Test
+    public void testCall() throws Exception {
+        assertEquals("sin(x)", decompile("sin(x)"));
+        assertEquals("min(2, x)", decompile("min( 2,  x)"));
+        assertEquals("max(2, x + 1.5)", decompile("max( 2,  x + 1.5)"));
     }
 
     @Test
@@ -28,40 +184,21 @@ public class TermDecompilerTest {
     }
 
     @Test
-    public void testCall() throws Exception {
-        assertEquals("rand()", decompile("rand()"));
+    public void testConst() throws Exception {
+        assertEquals("0", decompile("0"));
+        assertEquals("1", decompile("1"));
+        assertEquals("10.3", decompile("10.3"));
+        assertEquals("true", decompile("true"));
+        assertEquals("NaN", decompile("NaN"));
     }
 
     @Test
-    public void testCond() throws Exception {
-    }
+    public void testMixed() throws Exception {
+        assertEquals("A * (B + A) * B / (x * B) / (-7 - x + A - x)",
+                     decompile("A*(B+A)*B/(x*B)/(-7-x+A-x)"));
 
-    @Test
-    public void testNeg() throws Exception {
-    }
-
-    @Test
-    public void testAdd() throws Exception {
-    }
-
-    @Test
-    public void testSub() throws Exception {
-    }
-
-    @Test
-    public void testMul() throws Exception {
-    }
-
-    @Test
-    public void testDiv() throws Exception {
-    }
-
-    @Test
-    public void testEq() throws Exception {
-    }
-
-    @Test
-    public void testNEq() throws Exception {
+        assertEquals("C && (B >= 4 || A == 2 * B) ? (x - 1) / (x + 2) : pow(2, -x - (A - 1))",
+                     decompile("C&&(B>=4||A==2*B)?(x-1)/(x+2):pow(2, -x-(A-1))"));
     }
 
     private ParserImpl parser;
@@ -87,6 +224,13 @@ public class TermDecompilerTest {
                 return (int) (200 * Math.random());
             }
         });
+        namespace.registerSymbol(new AbstractSymbol.B("C") {
+
+            @Override
+            public boolean evalB(EvalEnv env) throws EvalException {
+                return Math.random() > 0.5;
+            }
+        });
         parser = new ParserImpl(namespace);
     }
 
@@ -94,185 +238,4 @@ public class TermDecompilerTest {
         return new TermDecompiler().decompile(parser.parse(code));
     }
 
-    public static class TermDecompiler implements TermVisitor<String> {
-
-        public String  decompile(Term term) {
-            return term.accept(this);
-        }
-
-        @Override
-        public String visit(Term.ConstB term) {
-            return term.toString();
-        }
-
-        @Override
-        public String visit(Term.ConstI term) {
-            return term.toString();
-        }
-
-        @Override
-        public String visit(Term.ConstD term) {
-            return term.toString();
-        }
-
-        @Override
-        public String visit(Term.ConstS term) {
-            return term.toString();
-        }
-
-        @Override
-        public String visit(Term.Ref term) {
-            return term.getSymbol().getName();
-        }
-
-        @Override
-        public String visit(Term.Call term) {
-            return term.toString();
-        }
-
-        @Override
-        public String visit(Term.Cond term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.Assign term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.NotB term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.AndB term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.OrB term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.NotI term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.XOrI term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.AndI term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.OrI term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.Neg term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.Add term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.Sub term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.Mul term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.Div term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.Mod term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.EqB term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.EqI term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.EqD term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.NEqB term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.NEqI term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.NEqD term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.LtI term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.LtD term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.LeI term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.LeD term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.GtI term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.GtD term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.GeI term) {
-            return null;
-        }
-
-        @Override
-        public String visit(Term.GeD term) {
-            return null;
-        }
-    }
 }
