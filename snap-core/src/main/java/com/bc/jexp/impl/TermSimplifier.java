@@ -49,6 +49,9 @@ public class TermSimplifier implements TermConverter {
 
     @Override
     public Term visit(Term.Call term) {
+
+        term = new Term.Call(term.getFunction(), simplify(term.getArgs()));
+
         if (term.isConst()) {
             if (term.isB()) {
                 return Term.ConstB.get(term.evalB(null));
@@ -63,29 +66,33 @@ public class TermSimplifier implements TermConverter {
                 } else if (value == 2.0) {
                     return Term.ConstD.TWO;
                 } else {
-                    double valueR = Math.round(value * 10.0) / 10.0;
+                    double valueF = Math.floor(value);
+                    if (value == valueF) {
+                        return new Term.ConstD(value);
+                    }
+                    double valueR = Math.round(value * 100.0) / 100.0;
                     if (value == valueR) {
                         return new Term.ConstD(value);
                     }
                 }
             }
         }
+
         if (term.getFunction() == Functions.SQRT) {
-            Term arg1 = simplify(term.getArg());
+            Term arg1 = term.getArg();
             Term arg2 = Term.ConstD.HALF;
             return simpPow(arg1, arg2);
-        }
-        if (term.getFunction() == Functions.SQR) {
-            Term arg1 = simplify(term.getArg());
+        } else if (term.getFunction() == Functions.SQR) {
+            Term arg1 = term.getArg();
             Term arg2 = Term.ConstD.TWO;
             return simpPow(arg1, arg2);
-        }
-        if (term.getFunction() == Functions.POW) {
-            Term arg1 = simplify(term.getArg(0));
-            Term arg2 = simplify(term.getArg(1));
+        } else if (term.getFunction() == Functions.POW) {
+            Term arg1 = term.getArg(0);
+            Term arg2 = term.getArg(1);
             return simpPow(arg1, arg2);
         }
-        return new Term.Call(term.getFunction(), simplify(term.getArgs()));
+
+        return term;
     }
 
     private Term simpPow(Term arg1, Term arg2) {
