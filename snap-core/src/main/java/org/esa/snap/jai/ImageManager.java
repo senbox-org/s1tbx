@@ -348,8 +348,8 @@ public class ImageManager {
                                                 int level) {
         Assert.notNull(rasterDataNodes, "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1
-                     || rasterDataNodes.length == 3
-                     || rasterDataNodes.length == 4,
+                             || rasterDataNodes.length == 3
+                             || rasterDataNodes.length == 4,
                      "invalid number of bands"
         );
 
@@ -419,7 +419,7 @@ public class ImageManager {
                 } else if (visualisationMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending) {
                     PlanarImage confidenceImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, true);
                     //PlanarImage distrustImage = createByteIndexedImage(uncertaintyBand, uncertaintySourceImage, uncertaintyImageInfo, false);
-                    PlanarImage distrustImage = SubtractFromConstDescriptor.create(confidenceImage, new double[] {255}, createDefaultRenderingHints(confidenceImage, null));
+                    PlanarImage distrustImage = SubtractFromConstDescriptor.create(confidenceImage, new double[]{255}, createDefaultRenderingHints(confidenceImage, null));
                     PlanarImage uncertaintyImage = createLookupRgbImage(uncertaintyBand, distrustImage, uncertaintyImageInfo);
                     valueImage = paint(valueImage, confidenceImage, uncertaintyImage);
                     valueImage = paint(valueImage,
@@ -465,7 +465,9 @@ public class ImageManager {
     private static PlanarImage paint(PlanarImage sourceImage,
                                      PlanarImage maskImage, Color paintColor) {
         RenderingHints renderingHints = createDefaultRenderingHints(sourceImage, null);
-        sourceImage = PaintDescriptor.create(sourceImage, maskImage, paintColor, false, renderingHints);
+        if (maskImage != null) {
+            sourceImage = PaintDescriptor.create(sourceImage, maskImage, paintColor, false, renderingHints);
+        }
         return sourceImage;
     }
 
@@ -473,8 +475,12 @@ public class ImageManager {
                                      PlanarImage maskImage1, Color paintColor1,
                                      PlanarImage maskImage2, Color paintColor2) {
         RenderingHints renderingHints = createDefaultRenderingHints(sourceImage, null);
-        sourceImage = PaintDescriptor.create(sourceImage, maskImage1, paintColor1, false, renderingHints);
-        sourceImage = PaintDescriptor.create(sourceImage, maskImage2, paintColor2, false, renderingHints);
+        if (maskImage1 != null) {
+            sourceImage = PaintDescriptor.create(sourceImage, maskImage1, paintColor1, false, renderingHints);
+        }
+        if (maskImage2 != null) {
+            sourceImage = PaintDescriptor.create(sourceImage, maskImage2, paintColor2, false, renderingHints);
+        }
         return sourceImage;
     }
 
@@ -483,9 +489,15 @@ public class ImageManager {
                                      PlanarImage maskImage2, Color paintColor2,
                                      PlanarImage maskImage3, Color paintColor3) {
         RenderingHints renderingHints = createDefaultRenderingHints(sourceImage, null);
-        sourceImage = PaintDescriptor.create(sourceImage, maskImage1, paintColor1, false, renderingHints);
-        sourceImage = PaintDescriptor.create(sourceImage, maskImage2, paintColor2, false, renderingHints);
-        sourceImage = PaintDescriptor.create(sourceImage, maskImage3, paintColor3, false, renderingHints);
+        if (maskImage1 != null) {
+            sourceImage = PaintDescriptor.create(sourceImage, maskImage1, paintColor1, false, renderingHints);
+        }
+        if (maskImage2 != null) {
+            sourceImage = PaintDescriptor.create(sourceImage, maskImage2, paintColor2, false, renderingHints);
+        }
+        if (maskImage3 != null) {
+            sourceImage = PaintDescriptor.create(sourceImage, maskImage3, paintColor3, false, renderingHints);
+        }
         return sourceImage;
     }
 
@@ -503,7 +515,7 @@ public class ImageManager {
         return paintImpl(sourceImage, maskColorImage, maskImage, renderingHints);
     }
 
-    // todo - Write own JAI operator, look at PaintDescriptor which is very similar
+    // Check to write own JAI operator, look at PaintDescriptor which is very similar
     private static PlanarImage paintImpl(PlanarImage sourceImage, PlanarImage maskColorImage, RenderedImage maskImage, RenderingHints renderingHints) {
         boolean targetHasAlpha = sourceImage.getNumBands() == 4 || maskColorImage.getNumBands() == 4;
 
@@ -626,7 +638,7 @@ public class ImageManager {
 
     private static boolean mustReinterpretSourceImage(RasterDataNode raster, RenderedImage sourceImage) {
         return sourceImage.getSampleModel().getDataType() == DataBuffer.TYPE_BYTE &&
-               raster.getDataType() == ProductData.TYPE_INT8;
+                raster.getDataType() == ProductData.TYPE_INT8;
     }
 
     private static RenderingHints createDefaultRenderingHints(RenderedImage sourceImage, ImageLayout targetLayout) {
@@ -871,7 +883,7 @@ public class ImageManager {
             for (int i = 1; i < binCount; i++) {
                 double deviation = i - mu;
                 normCDF[b][i] = normCDF[b][i - 1] +
-                                (float) Math.exp(-deviation * deviation / twoSigmaSquared);
+                        (float) Math.exp(-deviation * deviation / twoSigmaSquared);
             }
         }
 
@@ -1160,7 +1172,7 @@ public class ImageManager {
         colorPalette[numColors - 1] = boSaCo.color2;
 
         if (uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending
-            || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Overlay) {
+                || uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Overlay) {
             boolean blend = uvMode == ImageInfo.UncertaintyVisualisationMode.Polychromatic_Blending;
             int alpha = 127;
             for (int i = 0; i < colorPalette.length; i++) {
