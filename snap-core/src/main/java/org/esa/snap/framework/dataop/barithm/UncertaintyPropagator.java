@@ -9,5 +9,5 @@ import org.esa.snap.framework.datamodel.Product;
  * @since SNAP 2
  */
 public interface UncertaintyPropagator {
-    Term propagateUncertainties(Product product, String expression) throws ParseException;
+    Term propagateUncertainties(Product product, String expression) throws ParseException, UnsupportedOperationException;
 }
