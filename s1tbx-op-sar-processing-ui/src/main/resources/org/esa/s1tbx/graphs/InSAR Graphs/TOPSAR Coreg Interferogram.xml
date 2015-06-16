@@ -68,7 +68,7 @@
       <resamplingType>BISINC_5_POINT_INTERPOLATION</resamplingType>
       <maskOutAreaWithoutElevation>true</maskOutAreaWithoutElevation>
       <outputRangeAzimuthOffset>false</outputRangeAzimuthOffset>
-      <outputDerampPhase>false</outputDerampPhase>
+      <outputDerampDemodPhase>false</outputDerampDemodPhase>
     </parameters>
   </node>
   <node id="Interferogram">
