@@ -52,8 +52,6 @@ import org.openide.windows.TopComponent;
  */
 public class HaAlphaPlotToolView extends AbstractStatisticsTopComponent {
 
-    public static final String ID = HaAlphaPlotToolView.class.getName();
-
     @Override
     protected PagePanel createPagePanel() {
         return new HaAlphaPlotPanel(this, "");
@@ -61,7 +59,7 @@ public class HaAlphaPlotToolView extends AbstractStatisticsTopComponent {
 
     @Override
     public HelpCtx getHelpCtx() {
-        return new HelpCtx(NbBundle.getMessage(HaAlphaPlotToolView.class, "CTL_HaAlphaPlotTopComponent_HelpId"));
+        return new HelpCtx(Bundle.CTL_HaAlphaPlotTopComponent_HelpId());
     }
 
 }
