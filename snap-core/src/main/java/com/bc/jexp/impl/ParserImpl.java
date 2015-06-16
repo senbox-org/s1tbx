@@ -405,11 +405,11 @@ public final class ParserImpl implements Parser {
      * @throws ParseException if a parse error occurs
      */
     private Term parseBitwiseOr(final boolean required) throws ParseException {
-        Term t1 = parseBtwiseXOr(required);
+        Term t1 = parseBitwiseXOr(required);
         while (t1 != null) {
             int tt = tokenizer.next();
             if (tt == '|') {
-                Term t2 = parseBtwiseXOr(true);
+                Term t2 = parseBitwiseXOr(true);
                 if ((t1.isI() && t2.isI()) || !isTypeChecking()) {
                     t1 = new Term.OrI(t1, t2);
                 } else {
@@ -430,7 +430,7 @@ public final class ParserImpl implements Parser {
      * @return The generated term.
      * @throws ParseException if a parse error occurs
      */
-    private Term parseBtwiseXOr(final boolean required) throws ParseException {
+    private Term parseBitwiseXOr(final boolean required) throws ParseException {
         Term t1 = parseBitwiseAnd(required);
         while (t1 != null) {
             int tt = tokenizer.next();
