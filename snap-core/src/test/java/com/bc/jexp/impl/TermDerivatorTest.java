@@ -22,9 +22,18 @@ public class TermDerivatorTest {
     public void testRef() throws Exception {
         assertEquals("1.0", derivative("x"));
         assertEquals("0.0", derivative("PI"));
-        assertEquals("0.0", derivative("NaN"));
+        assertEquals("0.0", derivative("NaN")); // ?
         assertEquals("0.0", derivative("A"));
         assertEquals("0.0", derivative("B"));
+    }
+
+    @Test
+    public void testNeg() throws Exception {
+        assertEquals("-1.0", derivative("-x"));
+        assertEquals("1.0", derivative("--x"));
+        assertEquals("-1.0", derivative("---x"));
+        assertEquals("Mul(2.0,Neg(x))", derivative("-x * x"));
+        assertEquals("-1.0", derivative("-(x + 1)"));
     }
 
     @Test
@@ -62,10 +71,27 @@ public class TermDerivatorTest {
     @Test
     public void testCall() throws Exception {
         assertEquals("cos(x)", derivative("sin(x)"));
+
         assertEquals("Neg(sin(x))", derivative("cos(x)"));
+
         assertEquals("Div(1.0,sqr(cos(x)))", derivative("tan(x)"));
+
         assertEquals("Mul(2.0,x)", derivative("sqr(x)"));
+
         assertEquals("Div(1.0,Mul(2.0,sqrt(x)))", derivative("sqrt(x)"));
+
+        assertEquals("exp(x)", derivative("exp(x)"));
+        assertEquals("Mul(2.0,exp(Mul(2,x)))", derivative("exp(2 * x)"));
+        assertEquals("Mul(exp(sqr(x)),Mul(2.0,x))", derivative("exp(x * x)"));
+        assertEquals("Mul(exp(x),exp(exp(x)))", derivative("exp(exp(x))"));
+        assertEquals("Mul(x,Div(1.0,x))", derivative("exp(log(x))")); // simplify me!
+
+        assertEquals("Div(1.0,x)", derivative("log(x)"));
+        assertEquals("Mul(2.0,Div(1.0,Mul(2,x)))", derivative("log(2 * x)")); // simplify me! (= "Div(1.0,x)")
+        assertEquals("Mul(Div(1.0,sqr(x)),Mul(2.0,x))", derivative("log(x * x)"));  // simplify me!
+        assertEquals("Mul(Div(1.0,x),Div(1.0,log(x)))", derivative("log(log(x))")); // simplify me!
+        assertEquals("Mul(exp(x),Div(1.0,exp(x)))", derivative("log(exp(x))")); // simplify me! (= "1.0")
+
         assertEquals("Mul(3.0,sqr(x))", derivative("pow(x,3)"));
         assertEquals("Mul(4.0,pow(x,3.0))", derivative("pow(x,4)"));
         assertEquals("Mul(0.3,pow(x,-0.7))", derivative("pow(x,0.3)"));

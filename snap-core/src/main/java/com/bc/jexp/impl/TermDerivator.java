@@ -66,49 +66,49 @@ public class TermDerivator implements TermConverter {
     public Term visit(Term.Call term) {
         if (term.getFunction() == Functions.SQR) {
             return new Term.Mul(Term.TYPE_D,
-                    new Term.Mul(Term.TYPE_D, Term.ConstD.TWO, term.getArg()),
-                    derivative(term.getArg()));
+                                new Term.Mul(Term.TYPE_D, Term.ConstD.TWO, term.getArg()),
+                                derivative(term.getArg()));
         } else if (term.getFunction() == Functions.SQRT) {
             return new Term.Mul(Term.TYPE_D,
-                    new Term.Div(Term.TYPE_D,
-                            Term.ConstD.ONE,
-                            new Term.Mul(Term.TYPE_D,
-                                    Term.ConstD.TWO,
-                                    new Term.Call(Functions.SQRT, term.getArg()))),
-                    derivative(term.getArg()));
+                                new Term.Div(Term.TYPE_D,
+                                             Term.ConstD.ONE,
+                                             new Term.Mul(Term.TYPE_D,
+                                                          Term.ConstD.TWO,
+                                                          new Term.Call(Functions.SQRT, term.getArg()))),
+                                derivative(term.getArg()));
         } else if (term.getFunction() == Functions.POW) {
             if (term.getArg(1).isConst()) {
                 double v = term.getArg(1).evalD(null);
                 return new Term.Mul(Term.TYPE_D,
-                        new Term.Mul(Term.TYPE_D,
-                                Term.ConstD.get(v),
-                                new Term.Call(Functions.POW,
-                                        term.getArg(),
-                                        Term.ConstD.get(v - 1))),
-                        derivative(term.getArg(0)));
+                                    new Term.Mul(Term.TYPE_D,
+                                                 Term.ConstD.get(v),
+                                                 new Term.Call(Functions.POW,
+                                                               term.getArg(),
+                                                               Term.ConstD.get(v - 1))),
+                                    derivative(term.getArg(0)));
             }
         } else if (term.getFunction() == Functions.EXP) {
             return new Term.Mul(Term.TYPE_D,
-                    term,
-                    derivative(term.getArg()));
+                                term,
+                                derivative(term.getArg()));
         } else if (term.getFunction() == Functions.LOG) {
             return new Term.Mul(Term.TYPE_D,
-                    new Term.Div(Term.TYPE_D, Term.ConstD.ONE, term),
-                    derivative(term.getArg()));
+                                new Term.Div(Term.TYPE_D, Term.ConstD.ONE, term.getArg()),
+                                derivative(term.getArg()));
         } else if (term.getFunction() == Functions.SIN) {
             return new Term.Mul(Term.TYPE_D,
-                    new Term.Call(Functions.COS, term.getArg()),
-                    derivative(term.getArg()));
+                                new Term.Call(Functions.COS, term.getArg()),
+                                derivative(term.getArg()));
         } else if (term.getFunction() == Functions.COS) {
             return new Term.Mul(Term.TYPE_D,
-                    new Term.Neg(Term.TYPE_D, new Term.Call(Functions.SIN, term.getArg())),
-                    derivative(term.getArg()));
+                                new Term.Neg(Term.TYPE_D, new Term.Call(Functions.SIN, term.getArg())),
+                                derivative(term.getArg()));
         } else if (term.getFunction() == Functions.TAN) {
             return new Term.Mul(Term.TYPE_D,
-                    new Term.Div(Term.TYPE_D,
-                            Term.ConstD.ONE,
-                            new Term.Call(Functions.SQR, new Term.Call(Functions.COS, term.getArg()))),
-                    derivative(term.getArg()));
+                                new Term.Div(Term.TYPE_D,
+                                             Term.ConstD.ONE,
+                                             new Term.Call(Functions.SQR, new Term.Call(Functions.COS, term.getArg()))),
+                                derivative(term.getArg()));
         }
         // add other functions from Functions class here...
         return unsupported(term);
@@ -139,8 +139,8 @@ public class TermDerivator implements TermConverter {
         Term arg1 = term.getArg(0);
         Term arg2 = term.getArg(1);
         return new Term.Add(Term.TYPE_D,
-                new Term.Mul(Term.TYPE_D, arg1, derivative(arg2)),
-                new Term.Mul(Term.TYPE_D, derivative(arg1), arg2));
+                            new Term.Mul(Term.TYPE_D, arg1, derivative(arg2)),
+                            new Term.Mul(Term.TYPE_D, derivative(arg1), arg2));
     }
 
     @Override
@@ -148,10 +148,10 @@ public class TermDerivator implements TermConverter {
         Term arg1 = term.getArg(0);
         Term arg2 = term.getArg(1);
         return new Term.Div(Term.TYPE_D,
-                new Term.Sub(Term.TYPE_D,
-                        new Term.Mul(Term.TYPE_D, derivative(arg1), arg2),
-                        new Term.Mul(Term.TYPE_D, arg1, derivative(arg2))),
-                new Term.Call(Functions.SQR, arg2));
+                            new Term.Sub(Term.TYPE_D,
+                                         new Term.Mul(Term.TYPE_D, derivative(arg1), arg2),
+                                         new Term.Mul(Term.TYPE_D, arg1, derivative(arg2))),
+                            new Term.Call(Functions.SQR, arg2));
     }
 
     @Override

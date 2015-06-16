@@ -54,13 +54,37 @@ public class TermSimplifierTest {
 
         assertEquals("1.0", simplify("pow(A,0)"));
         assertEquals("A", simplify("pow(A,1)"));
+        assertEquals("0.0", simplify("pow(0,A)"));
+        assertEquals("1.0", simplify("pow(1,A)"));
+        assertEquals("exp(A)", simplify("pow(E,A)"));
+        assertEquals("A", simplify("pow(E,log(A))"));
         assertEquals("pow(A,sqr(A))", simplify("pow(A,sqr(A))"));
+        assertEquals("pow(sqr(A),A)", simplify("pow(sqr(A),A)")); // don't suppress sign!
         assertEquals("sqr(sqrt(A))", simplify("pow(pow(A,0.5),2)")); // don't suppress sign!
         assertEquals("sqrt(sqr(A))", simplify("pow(pow(A,2),0.5)")); // don't suppress sign!
         assertEquals("sqrt(sqr(A))", simplify("pow(sqr(A),0.5)")); // don't suppress sign!
+        assertEquals("exp(Mul(3,A))", simplify("pow(exp(A),3)"));
+        assertEquals("pow(A,Mul(0.5,A))", simplify("pow(sqrt(A),A)"));
+
 
         assertEquals("3", simplify("min(3,4)"));
         assertEquals("3.0", simplify("min(3,4.0)"));
+
+        assertEquals("4", simplify("max(3,4)"));
+        assertEquals("4.0", simplify("max(3,4.0)"));
+
+        assertEquals("5.0", simplify("abs(5.0)"));
+        assertEquals("5", simplify("abs(-5)"));
+
+        assertEquals("1.0", simplify("exp(0)"));
+        assertEquals("E", simplify("exp(1)"));
+        assertEquals("3.2", simplify("exp(log(3.2))"));
+        assertEquals("A", simplify("exp(log(A))"));
+
+        assertEquals("0.0", simplify("log(1)"));
+        assertEquals("1.0", simplify("log(E)"));
+        assertEquals("2.3", simplify("log(exp(2.3))"));
+        assertEquals("A", simplify("log(exp(A))"));
 
     }
 

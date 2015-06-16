@@ -90,37 +90,83 @@ public class TermSimplifier implements TermConverter {
             Term arg1 = term.getArg(0);
             Term arg2 = term.getArg(1);
             return simpPow(arg1, arg2);
+        } else if (term.getFunction() == Functions.EXP) {
+            Term arg = term.getArg();
+            if (arg.isConst()) {
+                double v = arg.evalD(null);
+                if (v == 0.0) {
+                    return Term.ConstD.ONE;
+                } else if (v == 1.0) {
+                    return new Term.Ref(Symbols.E);
+                }
+            } else if (arg instanceof Term.Call) {
+                Term.Call callArg = (Term.Call) arg;
+                if (callArg.getFunction() == Functions.LOG) {
+                    return callArg.getArg();
+                }
+            }
+        } else if (term.getFunction() == Functions.LOG) {
+            Term arg = term.getArg();
+            if (arg.isConst()) {
+                double v = arg.evalD(null);
+                if (v == 0.0) {
+                    return Term.ConstD.ONE;
+                } else if (v == Math.E) {
+                    return new Term.Ref(Symbols.E);
+                }
+            } else if (arg instanceof Term.Call) {
+                Term.Call callArg = (Term.Call) arg;
+                if (callArg.getFunction() == Functions.EXP) {
+                    return callArg.getArg();
+                }
+            }
+        } else if (term.getFunction() == Functions.ABS_I || term.getFunction() == Functions.ABS_D) {
+            Term arg = term.getArg();
+            if (arg instanceof Term.Neg) {
+                Term.Neg negTerm = (Term.Neg) arg;
+                return simplify(new Term.Call(term.getFunction(), negTerm.getArg()));
+            }
         }
 
         return term;
     }
 
-    private Term simpPow(Term arg1, Term arg2) {
-        if (arg2.isConst()) {
-            double v = arg2.evalD(null);
-            if (v == 0.0) {
+    private Term simpPow(Term base, Term exp) {
+        if (base.isConst()) {
+            double nBase = base.evalD(null);
+            if (nBase == 0.0) {
+                return Term.ConstD.ZERO;
+            } else if (nBase == 1.0) {
                 return Term.ConstD.ONE;
-            } else if (v == 1.0) {
-                return arg1;
-            } else if (v == -1.0) {
-                return simplify(new Term.Div(Term.TYPE_D, Term.ConstD.ONE, arg1));
+            } else if (nBase == Math.E) {
+                return simplify(new Term.Call(Functions.EXP, exp));
+            }
+        }
+        if (exp.isConst()) {
+            double nExp = exp.evalD(null);
+            if (nExp == 0.0) {
+                return Term.ConstD.ONE;
+            } else if (nExp == 1.0) {
+                return base;
+            } else if (nExp == -1.0) {
+                return simplify(new Term.Div(Term.TYPE_D, Term.ConstD.ONE, base));
             }
         }
 
-        if (arg1 instanceof Term.Call && ((Term.Call) arg1).getFunction() == Functions.POW) {
-            Term.Call powCall = (Term.Call) arg1;
-            return simplifyNestedPowButConsiderSign(powCall, powCall.getArg(0), powCall.getArg(1), arg2);
-        }
-        if (arg1 instanceof Term.Call && ((Term.Call) arg1).getFunction() == Functions.SQRT) {
-            Term.Call sqrtCall = (Term.Call) arg1;
-            return simplifyNestedPowButConsiderSign(sqrtCall, sqrtCall.getArg(), Term.ConstD.HALF, arg2);
-        }
-        if (arg1 instanceof Term.Call && ((Term.Call) arg1).getFunction() == Functions.SQR) {
-            Term.Call sqrCall = (Term.Call) arg1;
-            return simplifyNestedPowButConsiderSign(sqrCall, sqrCall.getArg(), Term.ConstD.TWO, arg2);
+        if (base instanceof Term.Call) {
+            Term.Call baseCall = (Term.Call) base;
+            if (baseCall.getFunction() == Functions.POW) {
+                return simplifyNestedPowButConsiderSign(baseCall, baseCall.getArg(0), baseCall.getArg(1), exp);
+            } else if (baseCall.getFunction() == Functions.SQRT) {
+                return simplifyNestedPowButConsiderSign(baseCall, baseCall.getArg(), Term.ConstD.HALF, exp);
+            } else if (baseCall.getFunction() == Functions.SQR) {
+                return simplifyNestedPowButConsiderSign(baseCall, baseCall.getArg(), Term.ConstD.TWO, exp);
+            } else if (baseCall.getFunction() == Functions.EXP) {
+                return simplify(new Term.Call(Functions.EXP, new Term.Mul(Term.TYPE_D, baseCall.getArg(), exp)));
+            }
         }
 
-        return pow(arg1, arg2);
+        return pow(base, exp);
     }
 
     private Term simplifyNestedPowButConsiderSign(Term.Call innerCall, Term base, Term exp1, Term exp2) {
@@ -335,6 +381,8 @@ public class TermSimplifier implements TermConverter {
                 return Term.ConstD.ZERO;
             } else if (arg1.evalD(null) == 1.0) {
                 return arg2;
+            } else if (arg1.evalD(null) == -1.0) {
+                return simplify(new Term.Neg(arg2.getRetType(), arg2));
             }
         }
         if (arg2.isConst()) {
@@ -344,6 +392,8 @@ public class TermSimplifier implements TermConverter {
                 return Term.ConstD.ZERO;
             } else if (arg2.evalD(null) == 1.0) {
                 return arg1;
+            } else if (arg2.evalD(null) == -1.0) {
+                return simplify(new Term.Neg(arg1.getRetType(), arg1));
             }
         }
         int c = arg1.compare(arg2);
