@@ -48,11 +48,7 @@ import java.util.prefs.Preferences;
  */
 public class ToolAdapterIO {
 
-    private static final String[] SYS_SUBFOLDERS = { "modules", "extensions", "adapters" };
     private static final String[] USER_SUBFOLDERS = { "extensions", "adapters" };
-    private static final String STA_PREFERENCES = "sta.preferences";
-    private static File systemModulePath;
-    private static File userModulePath;
     private static Logger logger = Logger.getLogger(ToolAdapterIO.class.getName());
 
     public static void setAdaptersPath(Path path) {
@@ -60,15 +56,16 @@ public class ToolAdapterIO {
         File file = storagePath.toFile();
         if (!file.exists()) {
             try {
-                file.getParentFile().mkdirs();
-                file.createNewFile();
+                if (!(file.getParentFile().mkdirs() && file.createNewFile())) {
+                    logger.warning("Cannot create module preferences");
+                }
             } catch (IOException e) {
-                logger.severe("Cannot create module preferences: " + e.getMessage());
+                logger.severe("Error while creating module preferences: " + e.getMessage());
             }
         }
         Config instance = Config.instance().load();
         Preferences preferences = instance.preferences();
-        preferences.put("user.module.path", path.toFile().getAbsolutePath());
+        preferences.put(ToolAdapterConstants.USER_MODULE_PATH, path.toFile().getAbsolutePath());
         try {
             preferences.sync();
         } catch (BackingStoreException e) {
@@ -133,7 +130,7 @@ public class ToolAdapterIO {
      * @throws IOException
      */
     public static String readOperatorTemplate(String adapterName) throws IOException, OperatorException {
-        File file = getTemplateFile(adapterName, true);
+        File file = getTemplateFile(adapterName);
         byte[] encoded = Files.readAllBytes(Paths.get(file.getAbsolutePath()));
         return new String(encoded, Charset.defaultCharset());
     }
@@ -146,7 +143,7 @@ public class ToolAdapterIO {
      * @throws IOException
      */
     public static void writeOperatorTemplate(String adapterName, String content) throws IOException {
-        File file = getTemplateFile(adapterName, false);
+        File file = getTemplateFile(adapterName);
         saveFileContent(file, content);
     }
 
@@ -200,9 +197,6 @@ public class ToolAdapterIO {
      */
     public static void registerAdapter(File adapterFolder) throws OperatorException {
         ToolAdapterOpSpi operatorSpi = ToolAdapterIO.createOperatorSpi(adapterFolder);
-        if (adapterFolder.getAbsolutePath().startsWith(systemModulePath.getAbsolutePath())) {
-            ((ToolAdapterOperatorDescriptor) operatorSpi.getOperatorDescriptor()).setSystem(true);
-        }
         ToolAdapterRegistry.INSTANCE.registerOperator(operatorSpi);
     }
 
@@ -215,9 +209,6 @@ public class ToolAdapterIO {
     public static List<File> scanForAdapters() throws IOException {
         logger.log(Level.INFO, "Loading external tools...");
         List<File> modules = new ArrayList<>();
-        File systemModulesPath = getSystemAdapterPath();
-        logger.info("Scanning for external tools adapters: " + systemModulesPath.getAbsolutePath());
-        modules.addAll(scanForAdapters(systemModulesPath));
         File userModulesPath = getUserAdapterPath();
         logger.info("Scanning for external tools adapters: " + userModulesPath.getAbsolutePath());
         modules.addAll(scanForAdapters(userModulesPath));
@@ -226,14 +217,13 @@ public class ToolAdapterIO {
 
     /**
      * Returns the location of the user-defined adapters.
-     * An user-defined adapter is either a system tool adapter that was modified by the user
-     * or a new tool adapter defined by the user.
      * Also, in this location packed jar adapters may be found.
      *
      * @return  The location of user-defined modules.
      */
     public static File getUserAdapterPath() {
-        String userPath = Config.instance().load().preferences().get("user.module.path", null);
+        String userPath = Config.instance().load().preferences().get(ToolAdapterConstants.USER_MODULE_PATH, null);
+        File userModulePath;
         if (userPath == null) {
             userModulePath = new File(Config.instance().userDir().toFile(), SystemUtils.getApplicationContextId());
             for (String subFolder : USER_SUBFOLDERS) {
@@ -263,37 +253,6 @@ public class ToolAdapterIO {
         }
     }
 
-    /**
-     * Returns the location where the system adapter modules should be looked for.
-     * A system adapter module is a module that is included in the distribution bundle.
-     *
-     * @return  The system modules location
-     */
-    public static File getSystemAdapterPath() {
-        if (systemModulePath == null) {
-            // Uncommented by Norman 28.05.2015, please review!
-            /*
-            String applicationHomePropertyName = SystemUtils.getApplicationHomePropertyName();
-            if (applicationHomePropertyName == null) {
-                applicationHomePropertyName = "user.dir";
-            }
-            String homeFolder = System.getProperty(applicationHomePropertyName);
-            if (homeFolder == null) {
-                homeFolder = System.getProperty("user.dir");
-            }
-            systemModulePath = new File(homeFolder);
-            */
-            systemModulePath = Config.instance().userDir().toFile();
-            for (String subFolder : SYS_SUBFOLDERS) {
-                systemModulePath = new File(systemModulePath, subFolder);
-            }
-            if (!systemModulePath.exists() && !systemModulePath.mkdirs()) {
-                logger.severe("Cannot create system folder for external tool adapter extensions");
-            }
-        }
-        return systemModulePath;
-    }
-
     private static List<File> scanForAdapters(File path) throws IOException {
         if (!path.exists() || !path.isDirectory()) {
             throw new FileNotFoundException(path.getAbsolutePath());
@@ -317,7 +276,7 @@ public class ToolAdapterIO {
         return modules;
     }
 
-    private static File getTemplateFile(String adapterName, boolean forReading) throws IOException, OperatorException {
+    private static File getTemplateFile(String adapterName) throws IOException, OperatorException {
         OperatorSpi spi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(adapterName);
         if (spi == null) {
             throw new OperatorException("Cannot find the operator SPI");
@@ -327,11 +286,7 @@ public class ToolAdapterIO {
             throw new OperatorException("Cannot read the operator template file");
         }
         String templateFile = operatorDescriptor.getTemplateFileLocation();
-        File template = new File(forReading ? getSystemAdapterPath() : getUserAdapterPath(), spi.getOperatorAlias() + File.separator + templateFile);
-        if (!template.exists()) {
-            template = new File(getUserAdapterPath(), spi.getOperatorAlias() + File.separator + templateFile);
-        }
-        return template;
+        return new File(getUserAdapterPath(), spi.getOperatorAlias() + File.separator + templateFile);
     }
 
     private static void unpackAdapterJar(File jarFile, File unpackFolder) throws IOException {
@@ -341,15 +296,21 @@ public class ToolAdapterIO {
             unpackFolder = new File(getUserAdapterPath(), jarFile.getName().replace(".jar", ""));
         }
         if (!unpackFolder.exists())
-            unpackFolder.mkdir();
+            if (!unpackFolder.mkdir()) {
+                logger.warning(String.format("Cannot create folder %s", unpackFolder.getAbsolutePath()));
+            }
         while (enumEntries.hasMoreElements()) {
             JarEntry file = (JarEntry) enumEntries.nextElement();
             File f = new File(unpackFolder, file.getName());
             if (file.isDirectory()) {
-                f.mkdir();
+                if (!f.mkdir()) {
+                    logger.warning(String.format("Cannot create folder %s", f.getAbsolutePath()));
+                }
                 continue;
             } else {
-                f.getParentFile().mkdirs();
+                if (!f.getParentFile().mkdirs()) {
+                    logger.warning(String.format("Cannot create folder %s", f.getParentFile().getAbsolutePath()));
+                }
             }
             try (InputStream is = jar.getInputStream(file)) {
                 try (FileOutputStream fos = new FileOutputStream(f)) {
@@ -364,15 +325,13 @@ public class ToolAdapterIO {
     }
 
     public static void removeOperator(ToolAdapterOperatorDescriptor operator, boolean removeOperatorFolder) {
-        if (!operator.isSystem()) {
-            ToolAdapterRegistry.INSTANCE.removeOperator(operator);
-            if (removeOperatorFolder) {
-                File rootFolder = getUserAdapterPath();
-                File moduleFolder = new File(rootFolder, operator.getAlias());
-                if (moduleFolder.exists()) {
-                    if (!FileUtils.deleteTree(moduleFolder)) {
-                        logger.warning(String.format("Folder %s cannot be deleted", moduleFolder.getAbsolutePath()));
-                    }
+        ToolAdapterRegistry.INSTANCE.removeOperator(operator);
+        if (removeOperatorFolder) {
+            File rootFolder = getUserAdapterPath();
+            File moduleFolder = new File(rootFolder, operator.getAlias());
+            if (moduleFolder.exists()) {
+                if (!FileUtils.deleteTree(moduleFolder)) {
+                    logger.warning(String.format("Folder %s cannot be deleted", moduleFolder.getAbsolutePath()));
                 }
             }
         }
@@ -393,11 +352,5 @@ public class ToolAdapterIO {
             newFile = file;
         }
         return newFile;
-    }
-
-    public static File prettifyTemplateParameterPath(File templateFile, String adaptorAlias) {
-        File pathToRemove = new File(getUserAdapterPath(), adaptorAlias);
-        return new File(templateFile.getAbsolutePath().replace(pathToRemove.getAbsolutePath() + File.separator, ""),
-                        templateFile.getName());
     }
 }

@@ -67,4 +67,5 @@ public interface ToolAdapterConstants {
     String NOT_EMPTY = "NotEmpty";
     String PROCESSING_WRITER = "processingWriter";
     String PREPROCESSOR_EXTERNAL_TOOL = "preprocessorExternalTool";
+    String USER_MODULE_PATH = "user.module.path";
 }

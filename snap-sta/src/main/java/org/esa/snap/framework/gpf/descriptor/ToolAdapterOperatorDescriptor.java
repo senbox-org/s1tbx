@@ -298,18 +298,8 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      */
     public void setMenuLocation(String value) { menuLocation = value; }
     /**
-     * Setter for the isSystem field
-     */
-    public void setSystem(boolean value) {
-        isSystem = value;
-    }
-    /**
-     * Getter for the isSystem field
-     */
-    public boolean isSystem() { return isSystem; }
-    /**
      * Getter for the source of the descriptor.
-     * The source can be either "package" or "user".
+     * The source can be either "package" (coming from a nbm package) or "user" (user-defined).
      */
     public String getSource() { return source != null ? source : SOURCE_USER; }
     /**

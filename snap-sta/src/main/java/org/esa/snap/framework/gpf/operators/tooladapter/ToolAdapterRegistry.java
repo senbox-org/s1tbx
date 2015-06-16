@@ -78,7 +78,7 @@ public enum ToolAdapterRegistry {
      * @param operatorDescriptor    The descriptor of the operator to be removed
      */
     public void removeOperator(ToolAdapterOperatorDescriptor operatorDescriptor) {
-        if (!operatorDescriptor.isSystem()) {
+        //if (!operatorDescriptor.isSystem()) {
             String operatorDescriptorName = operatorDescriptor.getName();
             if (registeredAdapters.containsKey(operatorDescriptorName)) {
                 registeredAdapters.remove(operatorDescriptorName);
@@ -88,7 +88,7 @@ public enum ToolAdapterRegistry {
             if (spi != null) {
                 operatorSpiRegistry.removeOperatorSpi(spi);
             }
-        }
+        //}
     }
 
     void clear() {

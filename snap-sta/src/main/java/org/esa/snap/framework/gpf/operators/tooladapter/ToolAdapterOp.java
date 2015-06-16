@@ -34,6 +34,7 @@ import org.esa.snap.framework.gpf.descriptor.*;
 import org.esa.snap.framework.gpf.internal.OperatorContext;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.util.ProductUtils;
+import org.esa.snap.util.io.FileUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
 
 import java.io.*;
@@ -424,9 +425,7 @@ public class ToolAdapterOp extends Operator {
             try {
                 intermediateProductFiles.stream().filter(intermediateProductFile -> intermediateProductFile != null && intermediateProductFile.exists())
                                                  .filter(intermediateProductFile -> !(intermediateProductFile.canWrite() && intermediateProductFile.delete()))
-                                                 .forEach(intermediateProductFile -> {
-                                                     getLogger().warning(String.format("Temporary image %s could not be deleted", intermediateProductFile.getName()));
-                                                 });
+                                                 .forEach(intermediateProductFile -> getLogger().warning(String.format("Temporary image %s could not be deleted", intermediateProductFile.getName())));
                 if (input.isDirectory()) {
                     input = selectCandidateRasterFile(input);
                 }
@@ -518,7 +517,12 @@ public class ToolAdapterOp extends Operator {
                 }
             }
             if(!foundTemplateParam) {
-                context.put(param.getName(), param.getValue());
+                String paramName = param.getName();
+                Object paramValue = param.getValue();
+                if (ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE.equals(paramName)) {
+                    paramValue = getNextFileName((File) paramValue);
+                }
+                context.put(paramName, paramValue);
             }
         }
 
@@ -627,5 +631,18 @@ public class ToolAdapterOp extends Operator {
         if (this.progressMonitor != null) {
             this.progressMonitor.setTaskName(message);
         }
+    }
+
+    private File getNextFileName(File file) {
+        if (file != null) {
+            int counter = 1;
+            File initial = file;
+            while (file.exists()) {
+                file = new File(initial.getParent(),
+                        FileUtils.getFilenameWithoutExtension(initial) + "_" + String.valueOf(counter++) +
+                                FileUtils.getExtension(initial));
+            }
+        }
+        return file;
     }
 }

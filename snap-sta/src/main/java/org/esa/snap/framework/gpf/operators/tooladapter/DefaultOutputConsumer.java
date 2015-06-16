@@ -83,13 +83,14 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
             if (progress != null && (matcher = progress.matcher(line)).matches()) {
                 int worked = Integer.parseInt(matcher.group(1));
                 progressMonitor.worked(worked);
+                progressMonitor.setSubTaskName(line);
                 getLogger().info(line);
             } else if (error != null && (matcher = error.matcher(line)).matches()) {
                 getLogger().severe(matcher.group(1));
             } else {
                 getLogger().info(line);
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         processOutput.add(line);
     }
