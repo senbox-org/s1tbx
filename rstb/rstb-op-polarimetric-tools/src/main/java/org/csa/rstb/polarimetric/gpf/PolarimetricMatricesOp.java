@@ -193,7 +193,7 @@ public final class PolarimetricMatricesOp extends Operator {
         switch (matrix) {
             case C2:
                 if (sourceProductType != PolBandUtils.MATRIX.DUAL_HH_HV &&
-                        sourceProductType != PolBandUtils.MATRIX.DUAL_HH_VV &&
+                        sourceProductType != PolBandUtils.MATRIX.DUAL_VH_VV &&
                         sourceProductType != PolBandUtils.MATRIX.DUAL_HH_VV) {
                     throw new OperatorException("C2 cannot be generated for this product");
                 }
