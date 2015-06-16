@@ -465,7 +465,7 @@ public final class BackGeocodingOp extends Operator {
                 final int nty0 = Math.max(ty0, firstLineIdx);
                 final int ntyMax = Math.min(tyMax, lastLineIdx + 1);
                 final int nth = ntyMax - nty0;
-                System.out.println("burstIndex = " + burstIndex + ": ntx0 = " + ntx0 + ", nty0 = " + nty0 + ", ntw = " + ntw + ", nth = " + nth);
+                //System.out.println("burstIndex = " + burstIndex + ": ntx0 = " + ntx0 + ", nty0 = " + nty0 + ", ntw = " + ntw + ", nth = " + nth);
 
                 double[] extendedAmount = {0.0, 0.0, 0.0, 0.0};
                 computeExtendedAmount(ntx0, nty0, ntw, nth, extendedAmount);
@@ -857,14 +857,21 @@ public final class BackGeocodingOp extends Operator {
             double alt = 0;
             for(int yy = 0; yy < h; yy++) {
                 for (int xx = 0; xx < w; xx++) {
-                    if(maskOutAreaWithoutElevation) {
-                        alt = dem.getElevation(new GeoPos(latArray[yy][xx], lonArray[yy][xx]));
-                    }
-                    if (rgArray[yy][xx] == invalidIndex || azArray[yy][xx] == invalidIndex || (maskOutAreaWithoutElevation && alt == demNoDataValue)) {
+                    if (rgArray[yy][xx] == invalidIndex || azArray[yy][xx] == invalidIndex) {
                         slavePixelPos[yy][xx] = null;
                     } else {
-                        slavePixelPos[yy][xx] = new PixelPos(rgArray[yy][xx], azArray[yy][xx]);
-                        allElementsAreNull = false;
+                        if (maskOutAreaWithoutElevation) {
+                            alt = dem.getElevation(new GeoPos(latArray[yy][xx], lonArray[yy][xx]));
+                            if (alt != demNoDataValue) {
+                                slavePixelPos[yy][xx] = new PixelPos(rgArray[yy][xx], azArray[yy][xx]);
+                                allElementsAreNull = false;
+                            } else {
+                                slavePixelPos[yy][xx] = null;
+                            }
+                        } else {
+                            slavePixelPos[yy][xx] = new PixelPos(rgArray[yy][xx], azArray[yy][xx]);
+                            allElementsAreNull = false;
+                        }
                     }
                 }
             }
