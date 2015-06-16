@@ -103,6 +103,16 @@
                 <attr name="helpId" stringvalue="importTerraSarXProduct"/>
                 <attr name="ShortDescription" stringvalue="Open TanDEM-X data product."/>
             </file>
+
+            <file name="org-esa-s1tbx-dataio-importRATProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="RAT"/>
+                <attr name="formatName" stringvalue="RAT"/>
+                <attr name="useAllFileFilter" boolvalue="false"/>
+                <attr name="helpId" stringvalue="importRATProduct"/>
+                <attr name="ShortDescription" stringvalue="Open TAXI RAT product."/>
+            </file>
         </folder>
     </folder>
 
@@ -149,6 +159,12 @@
                     <file name="org-esa-s1tbx-dataio-importTanDEMXProduct.shadow">
                         <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-dataio-importTanDEMXProduct.instance"/>
                         <attr name="position" intvalue="1100"/>
+                    </file>
+                </folder>
+                <folder name="Generic Formats">
+                    <file name="org-esa-s1tbx-dataio-importRATProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-dataio-importRATProduct.instance"/>
+                        <attr name="position" intvalue="1000"/>
                     </file>
                 </folder>
             </folder>
