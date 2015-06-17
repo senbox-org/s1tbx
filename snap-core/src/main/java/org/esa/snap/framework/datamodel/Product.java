@@ -282,7 +282,7 @@ public class Product extends ProductNode {
         addProductNodeListener(new ProductNodeListenerAdapter() {
             @Override
             public void nodeAdded(ProductNodeEvent event) {
-                if(event.getSourceNode() instanceof RasterDataNode) {
+                if (event.getSourceNode() instanceof RasterDataNode) {
                     maybeInvalidateSceneRasterGeometry((RasterDataNode) event.getSourceNode());
                 }
                 if (event.getGroup() == vectorDataGroup) {
@@ -628,9 +628,9 @@ public class Product extends ProductNode {
      * allow the garbage collector to perform a vanilla job.
      * <p>This method should be called only if it is for sure that this object instance will never be used again. The
      * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-     *
+     * <p>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
-     *
+     * <p>
      * <p>This implementation also calls the <code>closeIO</code> in order to release all open I/O resources.
      */
     @Override
@@ -1016,7 +1016,7 @@ public class Product extends ProductNode {
         Assert.notNull(band, "band");
         Assert.argument(!containsRasterDataNode(band.getName()),
                         "The Product '" + getName() + "' already contains " +
-                        "a band with the name '" + band.getName() + "'.");
+                                "a band with the name '" + band.getName() + "'.");
         bandGroup.add(band);
 //        maybeInvalidateSceneRasterGeometry(band);
     }
@@ -2078,7 +2078,7 @@ public class Product extends ProductNode {
      * <p>A flag name contains the dataset (a band of this product) and the actual flag name as defined in the
      * flag-coding associated with the dataset. The general format for the flag name strings returned is therefore
      * <code>"<i>dataset</i>.<i>flag_name</i>"</code>.
-     *
+     * <p>
      * <p>The method is used to find out which flags a product has in order to use them in bit-mask expressions.
      *
      * @return the array of all flag names. If this product does not support flags, an empty array is returned, but
@@ -2178,9 +2178,23 @@ public class Product extends ProductNode {
      * @since BEAM 4.10
      */
     public Mask addMask(String maskName, String expression, String description, Color color, double transparency) {
-        final Mask mask = Mask.BandMathsType.create(maskName, description,
-                                                    getSceneRasterWidth(), getSceneRasterHeight(),
-                                                    expression, color, transparency);
+        RasterDataNode[] refRasters = new RasterDataNode[0];
+        try {
+            refRasters = BandArithmetic.getRefRasters(expression, this);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Mask mask;
+        if (refRasters.length == 0) {
+            mask = Mask.BandMathsType.create(maskName, description,
+                                             getSceneRasterWidth(), getSceneRasterHeight(),
+                                             expression, color, transparency);
+        } else {
+            final RasterDataNode refRaster = refRasters[0];
+            mask = Mask.BandMathsType.create(maskName, description, refRaster.getSceneRasterWidth(),
+                                             refRaster.getSceneRasterHeight(), expression, color, transparency);
+            mask.setGeoCoding(refRaster.getGeoCoding());
+        }
         addMask(mask);
         return mask;
     }
@@ -2650,13 +2664,12 @@ public class Product extends ProductNode {
      * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
      * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
      * elements.
-     *
+     * <p>
      * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
      * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
-     *
+     * <p>
      * <p> The {@link #parseExpression(String)} method can be used to create a bit-mask
      * term from a textual bit-mask expression.
-     *
      *
      * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
      * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
@@ -2698,10 +2711,10 @@ public class Product extends ProductNode {
      * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
      * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
      * elements.
-     *
+     * <p>
      * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
      * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
-     *
+     * <p>
      * <p> The {@link #parseExpression(String)} method can be used to create a bit-mask
      * term from a textual bit-mask expression.
      *
