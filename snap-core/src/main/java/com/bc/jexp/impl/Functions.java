@@ -9,6 +9,7 @@ import org.apache.commons.math3.util.FastMath;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Common function definitions.
@@ -268,6 +269,51 @@ public class Functions {
         public double evalD(final EvalEnv env, final Term[] args) {
             final double m2 = ExtMath.mean2(env, args);
             return Math.sqrt(ExtMath.mean4(env, args) - (m2 * m2)) / m2;
+        }
+    };
+
+    private static final Random RANDOM = new Random();
+
+    public static final Function RANDOM_UNIFORM = new AbstractFunction.D("random_uniform", 0) {
+        @Override
+        public double evalD(EvalEnv env, Term[] args) throws EvalException {
+            return RANDOM.nextDouble();
+        }
+    };
+    public static final Function RANDOM_GAUSSIAN = new AbstractFunction.D("random_gaussian", 0) {
+        @Override
+        public double evalD(EvalEnv env, Term[] args) throws EvalException {
+            return RANDOM.nextGaussian();
+        }
+    };
+    public static final Function SINH = new AbstractFunction.D("sinh", 1) {
+        @Override
+        public double evalD(EvalEnv env, Term[] args) throws EvalException {
+            return Math.sinh(args[0].evalD(env));
+        }
+    };
+    public static final Function COSH = new AbstractFunction.D("cosh", 1) {
+        @Override
+        public double evalD(EvalEnv env, Term[] args) throws EvalException {
+            return Math.cosh(args[0].evalD(env));
+        }
+    };
+    public static final Function TANH = new AbstractFunction.D("tanh", 1) {
+        @Override
+        public double evalD(EvalEnv env, Term[] args) throws EvalException {
+            return Math.tanh(args[0].evalD(env));
+        }
+    };
+    public static final Function SECH = new AbstractFunction.D("sech", 1) {
+        @Override
+        public double evalD(EvalEnv env, Term[] args) throws EvalException {
+            return ExtMath.sech(args[0].evalD(env));
+        }
+    };
+    public static final Function COSECH = new AbstractFunction.D("cosech", 1) {
+        @Override
+        public double evalD(EvalEnv env, Term[] args) throws EvalException {
+            return ExtMath.cosech(args[0].evalD(env));
         }
     };
 

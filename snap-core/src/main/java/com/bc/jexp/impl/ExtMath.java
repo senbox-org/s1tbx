@@ -170,4 +170,12 @@ public class ExtMath {
         }
         return sum/(double)n;
     }
+
+    public static double sech(final double x) {
+        return 2.0 / (Math.exp(x) + Math.exp(-x));
+    }
+
+    public static double cosech(final double x) {
+        return 2.0 / (Math.exp(x) - Math.exp(-x));
+    }
 }

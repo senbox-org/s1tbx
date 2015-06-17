@@ -17,8 +17,6 @@ package org.esa.snap.framework.dataop.barithm;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.EvalEnv;
-import com.bc.jexp.EvalException;
 import com.bc.jexp.Function;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.ParseException;
@@ -26,19 +24,14 @@ import com.bc.jexp.Parser;
 import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
-import com.bc.jexp.impl.AbstractSymbol;
 import com.bc.jexp.impl.DefaultNamespace;
 import com.bc.jexp.impl.NamespaceImpl;
 import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.Tokenizer;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.Mask;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.RasterDataNode;
 import org.esa.snap.framework.datamodel.Scaling;
-import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.util.Guardian;
 import org.esa.snap.util.StringUtils;
@@ -54,47 +47,13 @@ import java.util.Set;
  */
 public class BandArithmetic {
 
-    public static final String PIXEL_X_NAME = "X";
-    public static final String PIXEL_Y_NAME = "Y";
-
-    static final Symbol PIXEL_X_SYMBOL = new AbstractSymbol.D(PIXEL_X_NAME) {
-        @Override
-        public double evalD(EvalEnv env) throws EvalException {
-            return ((RasterDataEvalEnv) env).getPixelX() + 0.5;
-        }
-    };
-
-    static final Symbol PIXEL_Y_SYMBOL = new AbstractSymbol.D(PIXEL_Y_NAME) {
-        @Override
-        public double evalD(EvalEnv env) throws EvalException {
-            return ((RasterDataEvalEnv) env).getPixelY() + 0.5;
-        }
-    };
-
     private static final WritableNamespace DEFAULT_NAMESPACE = new DefaultNamespace();
-
-    private static final List<NamespaceExtender> _namespaceExtenderList = new ArrayList<>();
-
-    static {
-        MoreFuncs.registerExtraFunctions();
-        MoreFuncs.registerExtraSymbols();
-    }
 
     private BandArithmetic() {
     }
 
-    public static void addNamespaceExtender(NamespaceExtender ne) {
-        if (ne != null && !_namespaceExtenderList.contains(ne)) {
-            _namespaceExtenderList.add(ne);
-        }
-    }
-
-    public static void removeNamespaceExtender(NamespaceExtender ne) {
-        _namespaceExtenderList.remove(ne);
-    }
-
     /**
-     * Registers a new symbol
+     * Registers a new global symbol.
      *
      * @param s the symbol
      */
@@ -103,7 +62,7 @@ public class BandArithmetic {
     }
 
     /**
-     * De-registers an existing symbol
+     * De-registers an existing global symbol.
      *
      * @param s the symbol
      */
@@ -112,7 +71,7 @@ public class BandArithmetic {
     }
 
     /**
-     * Registers a new function
+     * Registers a new global function.
      *
      * @param f the function
      */
@@ -121,7 +80,7 @@ public class BandArithmetic {
     }
 
     /**
-     * De-registers an existing function
+     * De-registers an existing global function.
      *
      * @param f the function
      */
@@ -160,12 +119,7 @@ public class BandArithmetic {
     public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex) {
         return createDefaultNamespace(products,
                                       defaultProductIndex,
-                                      new ProductPrefixProvider() {
-                                          @Override
-                                          public String getPrefix(Product product) {
-                                              return getProductNodeNamePrefix(product);
-                                          }
-                                      });
+                                      BandArithmetic::getProductNodeNamePrefix);
     }
 
     /**
@@ -180,30 +134,30 @@ public class BandArithmetic {
      * @return a default namespace, never <code>null</code>
      */
     public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex,
-                                                           ProductPrefixProvider prefixProvider) {
+                                                           ProductNamespacePrefixProvider prefixProvider) {
         Guardian.assertNotNullOrEmpty("products", products);
         Guardian.assertWithinRange("defaultProductIndex", defaultProductIndex, 0, products.length);
 
         WritableNamespace namespace = new NamespaceImpl(DEFAULT_NAMESPACE);
+        ProductNamespaceExtenderImpl namespaceExtender = new ProductNamespaceExtenderImpl();
 
         // Register symbols for default product without name prefix
-        registerProductSymbols(namespace, products[defaultProductIndex], "");
+        namespaceExtender.extendNamespace(products[defaultProductIndex], "", namespace);
 
-        // Register symbols for multiple products using a name prefix
+        // If the namespace comprises multple products...
         if (products.length > 1) {
+            // ... register symbols using a name prefix
             for (Product product : products) {
-                registerProductSymbols(namespace, product, prefixProvider.getPrefix(product));
+                namespaceExtender.extendNamespace(product, prefixProvider.getPrefix(product), namespace);
             }
         }
-
-        namespace.registerSymbol(PIXEL_X_SYMBOL);
-        namespace.registerSymbol(PIXEL_Y_SYMBOL);
 
         return namespace;
     }
 
     /**
-     * @deprecated Since BEAM 4.10. Use {@link VirtualBand} or {@link org.esa.snap.jai.VirtualBandOpImage}.
+     * Old API. Try using {@link VirtualBand} or {@link org.esa.snap.jai.VirtualBandOpImage} instead
+     * which usually provides better performance.
      */
     @Deprecated
     public static int computeBand(final String expression,
@@ -234,9 +188,9 @@ public class BandArithmetic {
     }
 
     /**
-     * @deprecated Since BEAM 4.10. Use {@link VirtualBand} or {@link org.esa.snap.jai.VirtualBandOpImage}.
+     * Old API. Try using {@link VirtualBand} or {@link org.esa.snap.jai.VirtualBandOpImage} instead
+     * which usually provides better performance.
      */
-    @Deprecated
     public static int computeBand(final Term term,
                                   final Term validMaskTerm,
                                   final boolean checkInvalids,
@@ -259,23 +213,20 @@ public class BandArithmetic {
                                                                term, validMaskTerm
                                                        } : new Term[]{term},
                                                        pm);
-        loop.forEachPixel(new RasterDataLoop.Body() {
-            @Override
-            public void eval(RasterDataEvalEnv env, int pixelIndex) {
-                double pixelValue = term.evalD(env);
-                if (performInvalidCheck) {
-                    if ((validMaskTerm != null && validMaskTerm.evalD(env) == 0.0) || isInvalidValue(pixelValue)) {
-                        numInvalidPixels[0]++;
-                        if (noDataValueUsed) {
-                            pixelValue = noDataValue;
-                        }
+        loop.forEachPixel((env, pixelIndex) -> {
+            double pixelValue = term.evalD(env);
+            if (performInvalidCheck) {
+                if ((validMaskTerm != null && validMaskTerm.evalD(env) == 0.0) || isInvalidValue(pixelValue)) {
+                    numInvalidPixels[0]++;
+                    if (noDataValueUsed) {
+                        pixelValue = noDataValue;
                     }
                 }
-                if (scaling != null) {
-                    targetRasterData.setElemDoubleAt(pixelIndex, scaling.scaleInverse(pixelValue));
-                } else {
-                    targetRasterData.setElemDoubleAt(pixelIndex, pixelValue);
-                }
+            }
+            if (scaling != null) {
+                targetRasterData.setElemDoubleAt(pixelIndex, scaling.scaleInverse(pixelValue));
+            } else {
+                targetRasterData.setElemDoubleAt(pixelIndex, pixelValue);
             }
         }, "Performing band math...");
         return numInvalidPixels[0];
@@ -387,10 +338,11 @@ public class BandArithmetic {
         return getRefRasters(expression, products, 0);
     }
 
-    public static RasterDataNode[] getRefRasters(String expression, Product[] products,
-                                                 int defaultProductNamePrefix) throws ParseException {
+    public static RasterDataNode[] getRefRasters(String expression,
+                                                 Product[] products,
+                                                 int defaultProductIndex) throws ParseException {
         RasterDataSymbol[] symbols = getRefRasterDataSymbols(
-                new Term[]{parseExpression(expression, products, defaultProductNamePrefix)});
+                new Term[]{parseExpression(expression, products, defaultProductIndex)});
         RasterDataNode[] rasters = new RasterDataNode[symbols.length];
         for (int i = 0; i < symbols.length; i++) {
             rasters[i] = symbols[i].getRaster();
@@ -436,7 +388,7 @@ public class BandArithmetic {
      * @param terms the term array to be analysed
      * @return the array of raster data symbols, never <code>null</code> but may be empty
      */
-    public static RasterDataSymbol[] getRefRasterDataSymbols(Term[] terms) {
+    public static RasterDataSymbol[] getRefRasterDataSymbols(Term... terms) {
         List<RasterDataSymbol> list = new ArrayList<>();
         Set<RasterDataSymbol> set = new HashSet<>();
         for (final Term term : terms) {
@@ -473,82 +425,6 @@ public class BandArithmetic {
         return "$" + product.getRefNo() + '.';
     }
 
-    private static void registerProductSymbols(WritableNamespace namespace,
-                                               Product product,
-                                               String namePrefix) {
-        registerTiePointGridSymbols(namespace, product, namePrefix);
-        registerBandSymbols(namespace, product, namePrefix);
-        registerMaskSymbols(namespace, product, namePrefix);
-        registerSingleFlagSymbols(namespace, product, namePrefix);
-        informNamespaceExtenders(namespace, product, namePrefix);
-    }
-
-    private static void registerTiePointGridSymbols(WritableNamespace namespace,
-                                                    Product product,
-                                                    String namePrefix) {
-        for (int i = 0; i < product.getNumTiePointGrids(); i++) {
-            final TiePointGrid grid = product.getTiePointGridAt(i);
-            final String symbolName = namePrefix + grid.getName();
-            namespace.registerSymbol(new RasterDataSymbol(symbolName, grid, RasterDataSymbol.GEOPHYSICAL));
-        }
-    }
-
-    private static void registerBandSymbols(WritableNamespace namespace,
-                                            Product product,
-                                            String namePrefix) {
-        for (int i = 0; i < product.getNumBands(); i++) {
-            final Band band = product.getBandAt(i);
-            final String symbolName = namePrefix + band.getName();
-            namespace.registerSymbol(new RasterDataSymbol(symbolName, band, RasterDataSymbol.GEOPHYSICAL));
-            namespace.registerSymbol(new RasterDataSymbol(symbolName + ".raw", band, RasterDataSymbol.RAW));
-        }
-    }
-
-    private static void registerMaskSymbols(WritableNamespace namespace,
-                                            Product product,
-                                            String namePrefix) {
-        for (int i = 0; i < product.getMaskGroup().getNodeCount(); i++) {
-            final Mask mask = product.getMaskGroup().get(i);
-            final String symbolName = namePrefix + mask.getName();
-            namespace.registerSymbol(new RasterDataSymbol(symbolName, mask));
-        }
-    }
-
-    private static void registerSingleFlagSymbols(WritableNamespace namespace,
-                                                  Product product,
-                                                  String namePrefix) {
-        for (int i = 0; i < product.getNumBands(); i++) {
-            final Band band = product.getBandAt(i);
-            if (band.getFlagCoding() != null) {
-                for (int j = 0; j < band.getFlagCoding().getNumAttributes(); j++) {
-                    final MetadataAttribute attribute = band.getFlagCoding().getAttributeAt(j);
-                    final ProductData flagData = attribute.getData();
-                    final int flagMask;
-                    final int flagValue;
-                    if (flagData.getNumElems() == 2) {
-                        flagMask = flagData.getElemIntAt(0);
-                        flagValue = flagData.getElemIntAt(1);
-                    }  else {
-                        flagMask =
-                        flagValue = flagData.getElemInt();
-                    }
-                    final String symbolName = namePrefix + band.getName() + "." + attribute.getName();
-                    final Symbol symbol = new SingleFlagSymbol(symbolName, band, flagMask, flagValue);
-                    namespace.registerSymbol(symbol);
-                }
-            }
-        }
-    }
-
-    private static void informNamespaceExtenders(WritableNamespace namespace,
-                                                 Product product,
-                                                 String namePrefix) {
-        for (Object a_namespaceExtenderList : _namespaceExtenderList) {
-            NamespaceExtender namespaceExtender = (NamespaceExtender) a_namespaceExtenderList;
-            namespaceExtender.extendNamespace(namespace, product, namePrefix);
-        }
-    }
-
     private static void collectRefRasterDataSymbols(Term term, List<RasterDataSymbol> list, Set<RasterDataSymbol> set) {
         if (term == null) {
             return;
@@ -574,15 +450,4 @@ public class BandArithmetic {
         return Double.isNaN(pixelValue) || Double.isInfinite(pixelValue);
     }
 
-    public static interface NamespaceExtender {
-
-        void extendNamespace(WritableNamespace namespace,
-                             Product product,
-                             String namePrefix);
-    }
-
-    public static interface ProductPrefixProvider {
-
-        String getPrefix(Product product);
-    }
 }
