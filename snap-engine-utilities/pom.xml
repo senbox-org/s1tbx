@@ -81,7 +81,11 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <publicPackages>
-                        <publicPackage>org.esa.snap.*</publicPackage>
+                        <publicPackage>org.esa.snap.datamodel.*</publicPackage>
+                        <publicPackage>org.esa.snap.db.*</publicPackage>
+                        <publicPackage>org.esa.snap.eo.*</publicPackage>
+                        <publicPackage>org.esa.snap.gpf.*</publicPackage>
+                        <publicPackage>org.esa.snap.util.*</publicPackage>
                         <publicPackage>org.apache.commons.io.*</publicPackage>
                     </publicPackages>
                 </configuration>
