@@ -21,7 +21,7 @@ import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.Tile;
-import org.esa.s1tbx.dataio.PolBandUtils;
+import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.gpf.TileIndex;
 

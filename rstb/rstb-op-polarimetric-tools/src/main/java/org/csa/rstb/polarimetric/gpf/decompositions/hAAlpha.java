@@ -17,7 +17,7 @@ package org.csa.rstb.polarimetric.gpf.decompositions;
 
 import org.apache.commons.math3.util.FastMath;
 import org.csa.rstb.polarimetric.gpf.PolOpUtils;
-import org.esa.s1tbx.dataio.PolBandUtils;
+import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.framework.datamodel.Band;

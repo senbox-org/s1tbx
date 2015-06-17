@@ -16,11 +16,11 @@
 package org.esa.s1tbx.sar.gpf.orbits;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.dataio.orbits.DelftOrbitFile;
-import org.esa.s1tbx.dataio.orbits.DorisOrbitFile;
-import org.esa.s1tbx.dataio.orbits.OrbitFile;
-import org.esa.s1tbx.dataio.orbits.PrareOrbitFile;
-import org.esa.s1tbx.dataio.orbits.SentinelPODOrbitFile;
+import org.esa.s1tbx.io.orbits.DelftOrbitFile;
+import org.esa.s1tbx.io.orbits.DorisOrbitFile;
+import org.esa.s1tbx.io.orbits.OrbitFile;
+import org.esa.s1tbx.io.orbits.PrareOrbitFile;
+import org.esa.s1tbx.io.orbits.SentinelPODOrbitFile;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.OrbitStateVector;
 import org.esa.snap.datamodel.Orbits;

@@ -1,7 +1,7 @@
 package org.jlinda.nest.dataio;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.s1tbx.dataio.FileImageOutputStreamExtImpl;
+import org.esa.s1tbx.io.FileImageOutputStreamExtImpl;
 import org.esa.snap.dataio.dimap.DimapProductConstants;
 import org.esa.snap.dataio.dimap.DimapProductReader;
 import org.esa.snap.dataio.dimap.EnviHeader;

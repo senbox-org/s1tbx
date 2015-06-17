@@ -16,7 +16,7 @@
 package org.csa.rstb.polarimetric.gpf;
 
 import Jama.Matrix;
-import org.esa.s1tbx.dataio.PolBandUtils;
+import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.gpf.OperatorException;
