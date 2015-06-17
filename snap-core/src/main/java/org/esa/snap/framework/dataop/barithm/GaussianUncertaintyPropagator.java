@@ -44,8 +44,7 @@ public class GaussianUncertaintyPropagator implements UncertaintyPropagator {
                 Term partialDerivative = new TermDerivator(symbol).derivative(term);
                 Symbol uncertaintySymbol = namespace.resolveSymbol(uncertaintyRaster.getName());
                 Term sqrTerm = new Term.Call(Functions.SQR,
-                                             new Term.Mul(Term.TYPE_D,
-                                                          partialDerivative,
+                                             new Term.Mul(partialDerivative,
                                                           new Term.Ref(uncertaintySymbol)));
                 terms.add(sqrTerm);
             } else if (varianceRaster != null) {
