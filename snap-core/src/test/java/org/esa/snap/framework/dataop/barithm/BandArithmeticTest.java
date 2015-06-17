@@ -21,11 +21,10 @@ import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.SymbolFactory;
 import org.esa.snap.framework.datamodel.*;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.hamcrest.Matcher;
+
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.internal.matchers.VarargCapturingMatcher;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
@@ -101,35 +100,12 @@ public class BandArithmeticTest {
     public void testCreateDefaultNamespaceWithOneProduct() {
         Namespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{product1}, 0);
 
-        assertSame(namespace.resolveSymbol("X"), BandArithmetic.PIXEL_X_SYMBOL);
-        assertSame(namespace.resolveSymbol("Y"), BandArithmetic.PIXEL_Y_SYMBOL);
-        assertThat(namespace.resolveSymbol("LAT"), instanceOf(MoreFuncs.PixelLatSymbol.class));
-        assertThat(namespace.resolveSymbol("LON"), instanceOf(MoreFuncs.PixelLonSymbol.class));
-        assertThat(namespace.resolveSymbol("TIME"), instanceOf(MoreFuncs.PixelTimeSymbol.class));
-        assertThat(namespace.resolveSymbol("MJD"), instanceOf(MoreFuncs.PixelTimeSymbol.class)); // compatibility
-        assertThat(namespace.resolveSymbol("b1"), instanceOf(RasterDataSymbol.class));
-        assertThat(namespace.resolveSymbol("b1.solar_flux"), instanceOf(SymbolFactory.ConstantD.class));
-        assertThat(namespace.resolveSymbol("b1.spectral_wavelength"), instanceOf(SymbolFactory.ConstantD.class));
-        assertThat(namespace.resolveSymbol("b1.spectral_band_index"), instanceOf(SymbolFactory.ConstantI.class));
-        assertThat(namespace.resolveSymbol("b2"), instanceOf(RasterDataSymbol.class));
-        assertThat(namespace.resolveSymbol("b2.solar_flux"), instanceOf(SymbolFactory.ConstantD.class));
-        assertThat(namespace.resolveSymbol("b2.spectral_wavelength"), instanceOf(SymbolFactory.ConstantD.class));
-        assertThat(namespace.resolveSymbol("b2.spectral_band_index"), instanceOf(SymbolFactory.ConstantI.class));
-        assertNull(namespace.resolveSymbol("b3"));
-
-        assertNull(namespace.resolveSymbol("$1.b1"));
-    }
-
-    @Test
-    public void testCreateDefaultNamespaceWithMultipleProducts() {
-        Namespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{product1, product2}, 0);
-
-        assertSame(namespace.resolveSymbol("X"), BandArithmetic.PIXEL_X_SYMBOL);
-        assertSame(namespace.resolveSymbol("Y"), BandArithmetic.PIXEL_Y_SYMBOL);
-        assertThat(namespace.resolveSymbol("LAT"), instanceOf(MoreFuncs.PixelLatSymbol.class));
-        assertThat(namespace.resolveSymbol("LON"), instanceOf(MoreFuncs.PixelLonSymbol.class));
-        assertThat(namespace.resolveSymbol("TIME"), instanceOf(MoreFuncs.PixelTimeSymbol.class));
-        assertThat(namespace.resolveSymbol("MJD"), instanceOf(MoreFuncs.PixelTimeSymbol.class)); // compatibility
+        assertThat(namespace.resolveSymbol("X"), instanceOf(ProductNamespaceExtenderImpl.PixelXSymbol.class));
+        assertThat(namespace.resolveSymbol("Y"), instanceOf(ProductNamespaceExtenderImpl.PixelYSymbol.class));
+        assertThat(namespace.resolveSymbol("LAT"), instanceOf(ProductNamespaceExtenderImpl.PixelLatSymbol.class));
+        assertThat(namespace.resolveSymbol("LON"), instanceOf(ProductNamespaceExtenderImpl.PixelLonSymbol.class));
+        assertThat(namespace.resolveSymbol("TIME"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class));
+        assertThat(namespace.resolveSymbol("MJD"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class)); // compatibility
         assertThat(namespace.resolveSymbol("b1"), instanceOf(RasterDataSymbol.class));
         assertThat(namespace.resolveSymbol("b1.solar_flux"), instanceOf(SymbolFactory.ConstantD.class));
         assertThat(namespace.resolveSymbol("b1.spectral_wavelength"), instanceOf(SymbolFactory.ConstantD.class));
@@ -141,11 +117,36 @@ public class BandArithmeticTest {
         assertNull(namespace.resolveSymbol("b3"));
 
         assertNull(namespace.resolveSymbol("$1.X"));
-        assertNull(namespace.resolveSymbol("$1.Y"));
-        assertThat(namespace.resolveSymbol("$1.LAT"), instanceOf(MoreFuncs.PixelLatSymbol.class));
-        assertThat(namespace.resolveSymbol("$1.LON"), instanceOf(MoreFuncs.PixelLonSymbol.class));
-        assertThat(namespace.resolveSymbol("$1.TIME"), instanceOf(MoreFuncs.PixelTimeSymbol.class));
-        assertThat(namespace.resolveSymbol("$1.MJD"), instanceOf(MoreFuncs.PixelTimeSymbol.class)); // compatibility
+        assertNull(namespace.resolveSymbol("$1.b1"));
+        assertNull(namespace.resolveSymbol("$1.b2"));
+    }
+
+    @Test
+    public void testCreateDefaultNamespaceWithMultipleProducts() {
+        Namespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{product1, product2}, 0);
+
+        assertThat(namespace.resolveSymbol("X"), instanceOf(ProductNamespaceExtenderImpl.PixelXSymbol.class));
+        assertThat(namespace.resolveSymbol("Y"), instanceOf(ProductNamespaceExtenderImpl.PixelYSymbol.class));
+        assertThat(namespace.resolveSymbol("LAT"), instanceOf(ProductNamespaceExtenderImpl.PixelLatSymbol.class));
+        assertThat(namespace.resolveSymbol("LON"), instanceOf(ProductNamespaceExtenderImpl.PixelLonSymbol.class));
+        assertThat(namespace.resolveSymbol("TIME"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class));
+        assertThat(namespace.resolveSymbol("MJD"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class)); // compatibility
+        assertThat(namespace.resolveSymbol("b1"), instanceOf(RasterDataSymbol.class));
+        assertThat(namespace.resolveSymbol("b1.solar_flux"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("b1.spectral_wavelength"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("b1.spectral_band_index"), instanceOf(SymbolFactory.ConstantI.class));
+        assertThat(namespace.resolveSymbol("b2"), instanceOf(RasterDataSymbol.class));
+        assertThat(namespace.resolveSymbol("b2.solar_flux"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("b2.spectral_wavelength"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("b2.spectral_band_index"), instanceOf(SymbolFactory.ConstantI.class));
+        assertNull(namespace.resolveSymbol("b3"));
+
+        assertThat(namespace.resolveSymbol("$1.X"), instanceOf(ProductNamespaceExtenderImpl.PixelXSymbol.class));
+        assertThat(namespace.resolveSymbol("$1.Y"), instanceOf(ProductNamespaceExtenderImpl.PixelYSymbol.class));
+        assertThat(namespace.resolveSymbol("$1.LAT"), instanceOf(ProductNamespaceExtenderImpl.PixelLatSymbol.class));
+        assertThat(namespace.resolveSymbol("$1.LON"), instanceOf(ProductNamespaceExtenderImpl.PixelLonSymbol.class));
+        assertThat(namespace.resolveSymbol("$1.TIME"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class));
+        assertThat(namespace.resolveSymbol("$1.MJD"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class)); // compatibility
         assertThat(namespace.resolveSymbol("$1.b1"), instanceOf(RasterDataSymbol.class));
         assertThat(namespace.resolveSymbol("$1.b1.solar_flux"), instanceOf(SymbolFactory.ConstantD.class));
         assertThat(namespace.resolveSymbol("$1.b1.spectral_wavelength"), instanceOf(SymbolFactory.ConstantD.class));
@@ -156,12 +157,12 @@ public class BandArithmeticTest {
         assertThat(namespace.resolveSymbol("$1.b2.spectral_band_index"), instanceOf(SymbolFactory.ConstantI.class));
         assertNull(namespace.resolveSymbol("$1.b3"));
 
-        assertNull(namespace.resolveSymbol("$2.X"));
-        assertNull(namespace.resolveSymbol("$2.Y"));
-        assertNull(namespace.resolveSymbol("$2.LAT"));
-        assertNull(namespace.resolveSymbol("$2.LON"));
-        assertThat(namespace.resolveSymbol("$2.TIME"), instanceOf(MoreFuncs.PixelTimeSymbol.class));
-        assertThat(namespace.resolveSymbol("$2.MJD"), instanceOf(MoreFuncs.PixelTimeSymbol.class)); // compatibility
+        assertThat(namespace.resolveSymbol("$2.X"), instanceOf(ProductNamespaceExtenderImpl.PixelXSymbol.class));
+        assertThat(namespace.resolveSymbol("$2.Y"), instanceOf(ProductNamespaceExtenderImpl.PixelYSymbol.class));
+        assertThat(namespace.resolveSymbol("$2.LAT"), instanceOf(ProductNamespaceExtenderImpl.PixelLatSymbol.class));
+        assertThat(namespace.resolveSymbol("$2.LON"), instanceOf(ProductNamespaceExtenderImpl.PixelLonSymbol.class));
+        assertThat(namespace.resolveSymbol("$2.TIME"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class));
+        assertThat(namespace.resolveSymbol("$2.MJD"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class)); // compatibility
         assertThat(namespace.resolveSymbol("$2.b1"), instanceOf(RasterDataSymbol.class));
         assertThat(namespace.resolveSymbol("$2.b1.solar_flux"), instanceOf(SymbolFactory.ConstantD.class));
         assertThat(namespace.resolveSymbol("$2.b1.spectral_wavelength"), instanceOf(SymbolFactory.ConstantD.class));
