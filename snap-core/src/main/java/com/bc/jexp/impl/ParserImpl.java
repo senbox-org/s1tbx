@@ -137,7 +137,7 @@ public final class ParserImpl implements Parser {
         tokenizer = new Tokenizer(code);
         Term term = parseImpl();
         final RasterDataSymbol[] rasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-        if (rasterDataSymbols.length >  1) {
+        if (rasterDataSymbols.length > 1) {
             for (int i = 1; i < rasterDataSymbols.length; i++) {
                 //todo check scenerastertransform rather than width and height
                 int referenceWidth = rasterDataSymbols[0].getRaster().getRasterWidth();
@@ -145,7 +145,7 @@ public final class ParserImpl implements Parser {
                 if (referenceWidth != rasterDataSymbols[i].getRaster().getRasterWidth() ||
                         referenceHeight != rasterDataSymbols[i].getRaster().getRasterHeight()) {
                     throw new ParseException("Raster '" + rasterDataSymbols[0].getName() + "' and raster '" +
-                             rasterDataSymbols[i].getName() + "' are incompatible"
+                                                     rasterDataSymbols[i].getName() + "' are incompatible"
                     );
                 }
             }
@@ -278,7 +278,7 @@ public final class ParserImpl implements Parser {
             tokenizer.next();
             if (isSpecial("||") || isKeyword("or")) {
                 Term t2 = parseLogicalAnd(true);
-                if ((t1.isB() && t2.isB()) || !isTypeChecking()) {
+                if ((isB(t1, t2)) || !isTypeChecking()) {
                     t1 = new Term.OrB(t1, t2);
                 } else {
                     reportTypeErrorB2("'||' or 'or'");
@@ -305,7 +305,7 @@ public final class ParserImpl implements Parser {
             tokenizer.next();
             if (isSpecial("&&") || isKeyword("and")) {
                 Term t2 = parseComparison(true);
-                if ((t1.isB() && t2.isB()) || !isTypeChecking()) {
+                if ((isB(t1, t2)) || !isTypeChecking()) {
                     t1 = new Term.AndB(t1, t2);
                 } else {
                     reportTypeErrorB2("'&&' or 'and'");
@@ -337,9 +337,9 @@ public final class ParserImpl implements Parser {
             int tt = tokenizer.next();
             if (tt == '<') {
                 Term t2 = parseBitwiseOr(true);
-                if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
+                if (isD(t1, t2)) {
                     t1 = new Term.LtD(t1, t2);
-                } else if (t1.isI() && t2.isI()) {
+                } else if (isI(t1, t2)) {
                     t1 = new Term.LtI(t1, t2);
                 } else if (!isTypeChecking()) {
                     t1 = new Term.LtD(t1, t2);
@@ -348,9 +348,9 @@ public final class ParserImpl implements Parser {
                 }
             } else if (tt == '>') {
                 Term t2 = parseBitwiseOr(true);
-                if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
+                if (isD(t1, t2)) {
                     t1 = new Term.GtD(t1, t2);
-                } else if (t1.isI() && t2.isI()) {
+                } else if (isI(t1, t2)) {
                     t1 = new Term.GtI(t1, t2);
                 } else if (!isTypeChecking()) {
                     t1 = new Term.GtD(t1, t2);
@@ -359,9 +359,9 @@ public final class ParserImpl implements Parser {
                 }
             } else if (isSpecial("==")) {
                 Term t2 = parseBitwiseOr(true);
-                if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
+                if (isD(t1, t2)) {
                     t1 = new Term.EqD(t1, t2);
-                } else if (t1.isB() && t2.isB()) {
+                } else if (isB(t1, t2)) {
                     t1 = new Term.EqB(t1, t2);
                 } else if ((t1.isI() || t1.isB()) && (t2.isI() || t2.isB())) {
                     t1 = new Term.EqI(t1, t2);
@@ -372,9 +372,9 @@ public final class ParserImpl implements Parser {
                 }
             } else if (isSpecial("!=")) {
                 Term t2 = parseBitwiseOr(true);
-                if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
+                if (isD(t1, t2)) {
                     t1 = new Term.NEqD(t1, t2);
-                } else if (t1.isB() && t2.isB()) {
+                } else if (isB(t1, t2)) {
                     t1 = new Term.NEqB(t1, t2);
                 } else if ((t1.isI() || t1.isB()) && (t2.isI() || t2.isB())) {
                     t1 = new Term.NEqI(t1, t2);
@@ -385,9 +385,9 @@ public final class ParserImpl implements Parser {
                 }
             } else if (isSpecial("<=")) {
                 Term t2 = parseBitwiseOr(true);
-                if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
+                if (isD(t1, t2)) {
                     t1 = new Term.LeD(t1, t2);
-                } else if (t1.isI() && t2.isI()) {
+                } else if (isI(t1, t2)) {
                     t1 = new Term.LeI(t1, t2);
                 } else if (!isTypeChecking()) {
                     t1 = new Term.LeD(t1, t2);
@@ -396,9 +396,9 @@ public final class ParserImpl implements Parser {
                 }
             } else if (isSpecial(">=")) {
                 Term t2 = parseBitwiseOr(true);
-                if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
+                if (isD(t1, t2)) {
                     t1 = new Term.GeD(t1, t2);
-                } else if (t1.isI() && t2.isI()) {
+                } else if (isI(t1, t2)) {
                     t1 = new Term.GeI(t1, t2);
                 } else if (!isTypeChecking()) {
                     t1 = new Term.GeD(t1, t2);
@@ -426,7 +426,7 @@ public final class ParserImpl implements Parser {
             int tt = tokenizer.next();
             if (tt == '|') {
                 Term t2 = parseBitwiseXOr(true);
-                if ((t1.isI() && t2.isI()) || !isTypeChecking()) {
+                if ((isI(t1, t2)) || !isTypeChecking()) {
                     t1 = new Term.OrI(t1, t2);
                 } else {
                     reportTypeErrorI2("'|'");
@@ -452,7 +452,7 @@ public final class ParserImpl implements Parser {
             int tt = tokenizer.next();
             if (tt == '^') {
                 Term t2 = parseBitwiseAnd(true);
-                if ((t1.isI() && t2.isI()) || !isTypeChecking()) {
+                if ((isI(t1, t2)) || !isTypeChecking()) {
                     t1 = new Term.XOrI(t1, t2);
                 } else {
                     reportTypeErrorI2("'^'");
@@ -479,7 +479,7 @@ public final class ParserImpl implements Parser {
             int tt = tokenizer.next();
             if (tt == '&') {
                 Term t2 = parseAdd(true);
-                if ((t1.isI() && t2.isI()) || !isTypeChecking()) {
+                if ((isI(t1, t2)) || !isTypeChecking()) {
                     t1 = new Term.AndI(t1, t2);
                 } else {
                     reportTypeErrorI2("'&'");
@@ -505,23 +505,23 @@ public final class ParserImpl implements Parser {
             int tt = tokenizer.next();
             if (tt == '+') {
                 Term t2 = parseMul(true);
-                if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
+                if (isD(t1, t2)) {
                     t1 = new Term.Add(Term.TYPE_D, t1, t2);
-                } else if (t1.isI() && t2.isI()) {
+                } else if (isI(t1, t2)) {
                     t1 = new Term.Add(Term.TYPE_I, t1, t2);
                 } else if (!isTypeChecking()) {
-                    t1 = new Term.Add(t1.isD() || t2.isD() ? Term.TYPE_D : Term.TYPE_I, t1, t2);
+                    t1 = new Term.Add(t1, t2);
                 } else {
                     reportTypeErrorN2("'+'");
                 }
             } else if (tt == '-') {
                 Term t2 = parseMul(true);
-                if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
+                if (isD(t1, t2)) {
                     t1 = new Term.Sub(Term.TYPE_D, t1, t2);
-                } else if (t1.isI() && t2.isI()) {
+                } else if (isI(t1, t2)) {
                     t1 = new Term.Sub(Term.TYPE_I, t1, t2);
                 } else if (!isTypeChecking()) {
-                    t1 = new Term.Sub(t1.isD() || t2.isD() ? Term.TYPE_D : Term.TYPE_I, t1, t2);
+                    t1 = new Term.Sub(t1, t2);
                 } else {
                     reportTypeErrorN2("'-'");
                 }
@@ -548,34 +548,34 @@ public final class ParserImpl implements Parser {
             int tt = tokenizer.next();
             if (tt == '*') {
                 Term t2 = parseUnary(true);
-                if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
+                if (isD(t1, t2)) {
                     t1 = new Term.Mul(Term.TYPE_D, t1, t2);
-                } else if (t1.isI() && t2.isI()) {
+                } else if (isI(t1, t2)) {
                     t1 = new Term.Mul(Term.TYPE_I, t1, t2);
                 } else if (!isTypeChecking()) {
-                    t1 = new Term.Mul(t1.isD() || t2.isD() ? Term.TYPE_D : Term.TYPE_I, t1, t2);
+                    t1 = new Term.Mul(t1, t2);
                 } else {
                     reportTypeErrorN2("'*'");
                 }
             } else if (tt == '/') {
                 Term t2 = parseUnary(true);
-                if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
+                if (isD(t1, t2)) {
                     t1 = new Term.Div(Term.TYPE_D, t1, t2);
-                } else if (t1.isI() && t2.isI()) {
+                } else if (isI(t1, t2)) {
                     t1 = new Term.Div(Term.TYPE_I, t1, t2);
                 } else if (!isTypeChecking()) {
-                    t1 = new Term.Div(t1.isD() || t2.isD() ? Term.TYPE_D : Term.TYPE_I, t1, t2);
+                    t1 = new Term.Div(t1, t2);
                 } else {
                     reportTypeErrorN2("'/'");
                 }
             } else if (tt == '%') {
                 Term t2 = parseUnary(true);
-                if (t1.isD() && t2.isN() || t1.isN() && t2.isD()) {
+                if (isD(t1, t2)) {
                     t1 = new Term.Mod(Term.TYPE_D, t1, t2);
-                } else if (t1.isI() && t2.isI()) {
+                } else if (isI(t1, t2)) {
                     t1 = new Term.Mod(Term.TYPE_I, t1, t2);
                 } else if (!isTypeChecking()) {
-                    t1 = new Term.Mod(t1.isD() || t2.isD() ? Term.TYPE_D : Term.TYPE_I, t1, t2);
+                    t1 = new Term.Mod(t1, t2);
                 } else {
                     reportTypeErrorN2("'%'");
                 }
@@ -586,7 +586,6 @@ public final class ParserImpl implements Parser {
         }
         return t1;
     }
-
 
     /**
      * Parses an unary expression <i>'+' x</i>, <i>'-' x</i>, <i>'!' x</i>, <i>'~' x</i>.
@@ -618,7 +617,7 @@ public final class ParserImpl implements Parser {
             } else if (t2.isD()) {
                 t1 = new Term.Neg(Term.TYPE_D, t2);
             } else if (!isTypeChecking()) {
-                t1 = new Term.Neg(Term.TYPE_I, t2);
+                t1 = new Term.Neg(t2);
             } else {
                 reportTypeErrorN1("'-'");
             }
@@ -1031,6 +1030,17 @@ public final class ParserImpl implements Parser {
         return false;
     }
 
+    private static boolean isB(Term t1, Term t2) {
+        return t1.isB() && t2.isB();
+    }
+
+    private static boolean isI(Term t1, Term t2) {
+        return t1.isI() && t2.isI();
+    }
+
+    private static boolean isD(Term t1, Term t2) {
+        return t1.isD() && t2.isN() || t1.isN() && t2.isD();
+    }
 
     /**
      * Throws a <code>ParseException</code> with the given message
@@ -1093,11 +1103,11 @@ public final class ParserImpl implements Parser {
     }
 
     private Term createConditionTerm(Term t1, Term t2, Term t3) throws ParseException {
-        if (t2.isB() && t3.isB()) {
+        if (isB(t2, t3)) {
             return new Term.Cond(Term.TYPE_B, t1, t2, t3);
-        } else if ((t2.isD() && t3.isN() || t2.isN() && t3.isD())) {
+        } else if ((isD(t2, t3))) {
             return new Term.Cond(Term.TYPE_D, t1, t2, t3);
-        } else if ((t2.isI() && t3.isI())) {
+        } else if ((isI(t2, t3))) {
             return new Term.Cond(Term.TYPE_I, t1, t2, t3);
         } else if (!isTypeChecking()) {
             return new Term.Cond(Term.TYPE_D, t1, t2, t3);

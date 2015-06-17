@@ -180,32 +180,32 @@ public class GaussianUncertaintyPropagator implements UncertaintyPropagator {
 
         @Override
         public Term visit(Term.Neg term) {
-            return new Term.Neg(term.getRetType(), optimize(term.getArg()));
+            return new Term.Neg(optimize(term.getArg()));
         }
 
         @Override
         public Term visit(Term.Add term) {
-            return new Term.Add(term.getRetType(), optimize(term.getArg(0)), optimize(term.getArg(1)));
+            return new Term.Add(optimize(term.getArg(0)), optimize(term.getArg(1)));
         }
 
         @Override
         public Term visit(Term.Sub term) {
-            return new Term.Sub(term.getRetType(), optimize(term.getArg(0)), optimize(term.getArg(1)));
+            return new Term.Sub(optimize(term.getArg(0)), optimize(term.getArg(1)));
         }
 
         @Override
         public Term visit(Term.Mul term) {
-            return new Term.Mul(term.getRetType(), optimize(term.getArg(0)), optimize(term.getArg(1)));
+            return new Term.Mul(optimize(term.getArg(0)), optimize(term.getArg(1)));
         }
 
         @Override
         public Term visit(Term.Div term) {
-            return new Term.Div(term.getRetType(), optimize(term.getArg(0)), optimize(term.getArg(1)));
+            return new Term.Div(optimize(term.getArg(0)), optimize(term.getArg(1)));
         }
 
         @Override
         public Term visit(Term.Mod term) {
-            return new Term.Mod(term.getRetType(), optimize(term.getArg(0)), optimize(term.getArg(1)));
+            return new Term.Mod(optimize(term.getArg(0)), optimize(term.getArg(1)));
         }
 
         @Override

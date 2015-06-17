@@ -289,6 +289,14 @@ public abstract class Term {
 
     public abstract int pre();
 
+    private static int numType(Term t) {
+        return t.isD() ? TYPE_D : TYPE_I;
+    }
+
+    private static int numType(Term t1, Term t2) {
+        return t1.isD() || t2.isD() ? TYPE_D : TYPE_I;
+    }
+
     /////////////////////////////////////////////////////////////////////////
 
     /**
@@ -1358,6 +1366,10 @@ public abstract class Term {
      */
     public static final class Neg extends UnaryN {
 
+        public Neg(final Term arg) {
+            this(numType(arg), arg);
+        }
+
         public Neg(final int type, final Term arg) {
             super("Neg", type, arg);
         }
@@ -1389,6 +1401,10 @@ public abstract class Term {
      * </blockquote>
      */
     public static final class Add extends BinaryN {
+
+        public Add(final Term arg1, final Term arg2) {
+            this(numType(arg1, arg2), arg1, arg2);
+        }
 
         public Add(final int type, final Term arg1, final Term arg2) {
             super("Add", type, arg1, arg2);
@@ -1425,6 +1441,10 @@ public abstract class Term {
      */
     public static final class Sub extends BinaryN {
 
+        public Sub(final Term arg1, final Term arg2) {
+            this(numType(arg1, arg2), arg1, arg2);
+        }
+
         public Sub(final int type, final Term arg1, final Term arg2) {
             super("Sub", type, arg1, arg2);
         }
@@ -1459,6 +1479,10 @@ public abstract class Term {
      * </blockquote>
      */
     public static final class Mul extends BinaryN {
+
+        public Mul(final Term arg1, final Term arg2) {
+            this(numType(arg1, arg2), arg1, arg2);
+        }
 
         public Mul(final int type, final Term arg1, final Term arg2) {
             super("Mul", type, arg1, arg2);
@@ -1495,6 +1519,10 @@ public abstract class Term {
      */
     public static final class Div extends BinaryN {
 
+        public Div(final Term arg1, final Term arg2) {
+            this(numType(arg1, arg2), arg1, arg2);
+        }
+
         public Div(final int type, final Term arg1, final Term arg2) {
             super("Div", type, arg1, arg2);
         }
@@ -1529,6 +1557,10 @@ public abstract class Term {
      * </blockquote>
      */
     public static final class Mod extends BinaryN {
+
+        public Mod(final Term arg1, final Term arg2) {
+            this(numType(arg1, arg2), arg1, arg2);
+        }
 
         public Mod(final int type, final Term arg1, final Term arg2) {
             super("Mod", type, arg1, arg2);
