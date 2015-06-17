@@ -12,7 +12,7 @@ public class s1tbxSARProcessingModule {
 
         @Override
         public void run() {
-            S1TBXSetup.installGraphs(this.getClass());
+            S1TBXSetup.installGraphs(this.getClass(), "org/esa/s1tbx/graphs/");
         }
     }
 }

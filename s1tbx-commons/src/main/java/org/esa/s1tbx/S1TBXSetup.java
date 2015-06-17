@@ -36,9 +36,9 @@ public class S1TBXSetup {
         return SystemUtils.getApplicationDataDir().toPath().resolve("graphs");
     }
 
-    public static void installGraphs(final Class callingClass) {
+    public static void installGraphs(final Class callingClass, final String path) {
         final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(callingClass);
-        final Path srcGraphPath = moduleBasePath.resolve("org/esa/s1tbx/graphs/");
+        final Path srcGraphPath = moduleBasePath.resolve(path);
         final Path dstGraphPath = getGraphsDir();
         //final ResourceInstaller resourceInstaller = new ResourceInstaller(moduleBasePath, "org/esa/s1tbx/graphs/",
         //                                                                  dstGraphPath);
