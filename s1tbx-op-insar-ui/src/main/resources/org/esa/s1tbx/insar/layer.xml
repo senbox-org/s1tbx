@@ -78,6 +78,17 @@
                 <attr name="icon" stringvalue="csaIcon"/>
                 <attr name="helpId" stringvalue="DEMGenerationOp"/>
             </file>
+            <file name="org-esa-s1tbx-insar-gpf-PhaseToDisplacement-Action.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.OperatorAction.create"/>
+                <attr name="displayName" stringvalue="Phase to Displacement"/>
+                <attr name="operatorName" stringvalue="PhaseToDisplacement"/>
+                <attr name="dialogTitle" stringvalue="Phase to Displacement"/>
+                <attr name="ShortDescription" stringvalue="Phase to Displacement"/>
+                <attr name="targetProductNameSuffix" stringvalue="_dsp"/>
+                <attr name="icon" stringvalue="csaIcon"/>
+                <attr name="helpId" stringvalue="PhaseToDisplacementOp"/>
+            </file>
         </folder>
     </folder>
 
@@ -121,6 +132,10 @@
                     <file name="org-esa-s1tbx-insar-gpf-DEMGenerationOp-Action.shadow">
                         <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-DEMGenerationOp-Action.instance"/>
                         <attr name="position" intvalue="300"/>
+                    </file>
+                    <file name="org-esa-s1tbx-insar-gpf-PhaseToDisplacement-Action.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-insar-gpf-PhaseToDisplacement-Action.instance"/>
+                        <attr name="position" intvalue="700"/>
                     </file>
                 </folder>
                 <folder name="Filtering">

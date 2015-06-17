@@ -160,6 +160,10 @@
                     <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-TOPSARMergeOp-Action.instance"/>
                     <attr name="position" intvalue="500"/>
                 </file>
+                <file name="org-esa-s1tbx-gpf-ComputeDerampDemodPhaseOp-Action.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Operators/org-esa-s1tbx-gpf-ComputeDerampDemodPhaseOp-Action.instance"/>
+                    <attr name="position" intvalue="600"/>
+                </file>
             </folder>
 
         </folder>

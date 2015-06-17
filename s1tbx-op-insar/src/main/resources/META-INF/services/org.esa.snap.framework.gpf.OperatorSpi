@@ -9,3 +9,4 @@ org.esa.s1tbx.insar.gpf.StackSplitWriter$Spi
 org.esa.s1tbx.insar.gpf.CreateCoherenceImageOp$Spi
 org.esa.s1tbx.insar.gpf.CreateInterferogramOp$Spi
 org.esa.s1tbx.insar.gpf.PCAOp$Spi
+org.esa.s1tbx.insar.gpf.PhaseToDisplacementOp$Spi
