@@ -16,6 +16,8 @@
 package org.esa.s1tbx.insar.gpf.ui;
 
 import org.esa.snap.dem.dataio.DEMFactory;
+import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
 import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
@@ -101,8 +103,10 @@ public class DEMGenerationOpUI extends BaseOperatorUI {
         OperatorUIUtils.initParamList(bandList, getBandNames());
 
         final String demNameParam = (String) paramMap.get("demName");
-        if (demNameParam != null)
-            demName.setSelectedItem(DEMFactory.appendAutoDEM(demNameParam));
+        if (demNameParam != null) {
+            ElevationModelDescriptor descriptor = ElevationModelRegistry.getInstance().getDescriptor(demNameParam);
+            demName.setSelectedItem(DEMFactory.getDEMDisplayName(descriptor));
+        }
         demResamplingMethod.setSelectedItem(paramMap.get("demResamplingMethod"));
 
         final File extFile = (File) paramMap.get("externalDEMFile");

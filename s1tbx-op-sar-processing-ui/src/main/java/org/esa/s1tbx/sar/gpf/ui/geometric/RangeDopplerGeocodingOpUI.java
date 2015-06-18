@@ -23,6 +23,8 @@ import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
+import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.framework.dataop.resamp.ResamplingFactory;
 import org.esa.snap.framework.ui.AppContext;
 import org.esa.snap.graphbuilder.gpf.ui.BaseOperatorUI;
@@ -302,9 +304,10 @@ public class RangeDopplerGeocodingOpUI extends BaseOperatorUI {
         OperatorUIUtils.initParamList(bandList, getBandNames());
 
         final String demNameParam = (String) paramMap.get("demName");
-        if (demNameParam != null)
-            demName.setSelectedItem(DEMFactory.appendAutoDEM(demNameParam));
-
+        if (demNameParam != null) {
+            ElevationModelDescriptor descriptor = ElevationModelRegistry.getInstance().getDescriptor(demNameParam);
+            demName.setSelectedItem(DEMFactory.getDEMDisplayName(descriptor));
+        }
         demResamplingMethod.setSelectedItem(paramMap.get("demResamplingMethod"));
         imgResamplingMethod.setSelectedItem(paramMap.get("imgResamplingMethod"));
         incidenceAngleForGamma0.setSelectedItem(paramMap.get("incidenceAngleForGamma0"));

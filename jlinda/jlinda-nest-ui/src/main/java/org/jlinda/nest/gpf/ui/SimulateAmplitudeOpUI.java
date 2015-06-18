@@ -1,5 +1,6 @@
 package org.jlinda.nest.gpf.ui;
 
+import org.esa.snap.dem.dataio.DEMFactory;
 import org.esa.snap.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.snap.framework.dataop.dem.ElevationModelRegistry;
 import org.esa.snap.framework.ui.AppContext;
@@ -67,7 +68,7 @@ public class SimulateAmplitudeOpUI extends BaseOperatorUI {
 
         demName.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent event) {
-                final String item = ((String)demName.getSelectedItem()).replace(" (Auto Download)", "");
+                final String item = ((String)demName.getSelectedItem()).replace(DEMFactory.AUTODEM, "");
                 if(item.equals(externalDEMStr)) {
                     enableExternalDEM(true);
                 } else {
@@ -77,7 +78,7 @@ public class SimulateAmplitudeOpUI extends BaseOperatorUI {
             }
         });
         externalDEMFile.setColumns(30);
-        final String demItem = ((String)demName.getSelectedItem()).replace(" (Auto Download)", "");
+        final String demItem = ((String)demName.getSelectedItem()).replace(DEMFactory.AUTODEM, "");
         enableExternalDEM(demItem.equals(externalDEMStr));
 
         externalDEMBrowseButton.addActionListener(new ActionListener() {
