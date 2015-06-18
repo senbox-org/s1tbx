@@ -106,11 +106,6 @@ public final class ApplyOrbitFileOp extends Operator {
     private int targetTiePointGridHeight;
     private int targetTiePointGridWidth;
 
-    private double firstLineUTC;
-    private double lineTimeInterval;
-
-    private TiePointGrid slantRangeTime = null;
-    private TiePointGrid incidenceAngle = null;
     private TiePointGrid latitude = null;
     private TiePointGrid longitude = null;
 
@@ -206,8 +201,6 @@ public final class ApplyOrbitFileOp extends Operator {
 
         latitude = OperatorUtils.getLatitude(sourceProduct);
         longitude = OperatorUtils.getLongitude(sourceProduct);
-        slantRangeTime = OperatorUtils.getSlantRangeTime(sourceProduct);
-        incidenceAngle = OperatorUtils.getIncidenceAngle(sourceProduct);
 
         targetTiePointGridWidth = latitude.getRasterWidth();
         targetTiePointGridHeight = latitude.getRasterHeight();
@@ -223,9 +216,6 @@ public final class ApplyOrbitFileOp extends Operator {
 
         sourceImageWidth = sourceProduct.getSceneRasterWidth();
         sourceImageHeight = sourceProduct.getSceneRasterHeight();
-
-        firstLineUTC = absRoot.getAttributeUTC(AbstractMetadata.first_line_time).getMJD();
-        lineTimeInterval = absRoot.getAttributeDouble(AbstractMetadata.line_time_interval) / Constants.secondsInDay; // s to day
     }
 
     /**
