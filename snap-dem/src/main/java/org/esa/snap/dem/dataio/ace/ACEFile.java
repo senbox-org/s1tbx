@@ -37,14 +37,6 @@ public final class ACEFile extends ElevationFile {
         this.demModel = model;
     }
 
-    protected String getRemoteFTP() {
-        return null;
-    }
-
-    protected String getRemotePath() {
-        return null;
-    }
-
     protected ElevationTile createTile(final Product product) throws IOException {
         final ACEElevationTile tile = new ACEElevationTile(demModel, product);
         demModel.updateCache(tile);

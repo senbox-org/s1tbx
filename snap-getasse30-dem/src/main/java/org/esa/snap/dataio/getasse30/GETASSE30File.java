@@ -38,14 +38,6 @@ public final class GETASSE30File extends ElevationFile {
         this.demModel = model;
     }
 
-    protected String getRemoteFTP() {
-        return null;
-    }
-
-    protected String getRemotePath() {
-        return null;
-    }
-
     protected ElevationTile createTile(final Product product) {
         final ElevationTile tile = new BaseElevationTile(demModel, product);
         demModel.updateCache(tile);

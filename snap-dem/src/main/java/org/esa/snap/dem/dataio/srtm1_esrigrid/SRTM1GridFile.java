@@ -38,14 +38,6 @@ public final class SRTM1GridFile extends ElevationFile {
         this.demModel = model;
     }
 
-    protected String getRemoteFTP() {
-        return remoteFTP;
-    }
-
-    protected String getRemotePath() {
-        return remotePath;
-    }
-
     protected ElevationTile createTile(final Product product) throws IOException {
         final SRTM1GridElevationTile tile = new SRTM1GridElevationTile(demModel, product);
         demModel.updateCache(tile);

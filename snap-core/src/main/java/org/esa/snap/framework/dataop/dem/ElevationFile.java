@@ -142,10 +142,6 @@ public abstract class ElevationFile {
         }
     }
 
-    protected abstract String getRemoteFTP();
-
-    protected abstract String getRemotePath();
-
     protected abstract boolean getRemoteFile() throws IOException;
 
     protected boolean getRemoteHttpFile(final String baseUrl) throws IOException {
@@ -221,17 +217,17 @@ public abstract class ElevationFile {
         return outputFile;
     }
 
-    protected boolean getRemoteFTPFile() throws IOException {
+    protected boolean getRemoteFTPFile(final String remoteFTP, final String remotePath) throws IOException {
         try {
             if (ftp == null) {
-                ftp = new ftpUtils(getRemoteFTP());
-                fileSizeMap = ftpUtils.readRemoteFileList(ftp, getRemoteFTP(), getRemotePath());
+                ftp = new ftpUtils(remoteFTP);
+                fileSizeMap = ftpUtils.readRemoteFileList(ftp, remoteFTP, remotePath);
             }
 
             final String remoteFileName = localZipFile.getName();
             final Long fileSize = fileSizeMap.get(remoteFileName);
 
-            final ftpUtils.FTPError result = ftp.retrieveFile(getRemotePath() + remoteFileName, localZipFile, fileSize);
+            final ftpUtils.FTPError result = ftp.retrieveFile(remotePath + remoteFileName, localZipFile, fileSize);
             if (result == ftpUtils.FTPError.OK) {
                 return true;
             } else {
@@ -252,7 +248,7 @@ public abstract class ElevationFile {
             if (ftp == null) {
                 unrecoverableError = false;      // allow to continue
                 remoteFileExists = false;
-                throw new IOException("Failed to connect to FTP " + getRemoteFTP() +
+                throw new IOException("Failed to connect to FTP " + remoteFTP +
                         '\n' + e.getMessage());
             }
             dispose();

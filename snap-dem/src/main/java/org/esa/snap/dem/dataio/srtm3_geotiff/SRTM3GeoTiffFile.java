@@ -40,14 +40,6 @@ public final class SRTM3GeoTiffFile extends ElevationFile {
         this.demModel = model;
     }
 
-    protected String getRemoteFTP() {
-        return remoteFTP;
-    }
-
-    protected String getRemotePath() {
-        return remotePath;
-    }
-
     protected ElevationTile createTile(final Product product) throws IOException {
         final SRTM3GeoTiffElevationTile tile = new SRTM3GeoTiffElevationTile(demModel, product);
         demModel.updateCache(tile);
@@ -59,7 +51,7 @@ public final class SRTM3GeoTiffFile extends ElevationFile {
             if (remoteFTP.isEmpty() || remoteFTP.startsWith("http")) {
                 return getRemoteHttpFile(remoteHTTP);
             }
-            return getRemoteFTPFile();
+            return getRemoteFTPFile(remoteFTP, remotePath);
         } catch (Exception e) {
             return getRemoteHttpFile(remoteHTTP);
         }
