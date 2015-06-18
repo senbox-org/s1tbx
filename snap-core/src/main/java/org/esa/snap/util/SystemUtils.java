@@ -122,7 +122,7 @@ public class SystemUtils {
      * @since SNAP 2.0
      */
     public static Path getAuxDataPath() {
-        return getApplicationDataDir().toPath().resolve("auxdata");
+        return getApplicationDataDir().toPath().resolve(AUXDATA_DIR_NAME);
     }
 
     /**
