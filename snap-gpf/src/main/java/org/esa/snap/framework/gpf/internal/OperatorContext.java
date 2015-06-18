@@ -181,7 +181,7 @@ public class OperatorContext {
             } else {
                 tileCache = JAI.getDefaultInstance().getTileCache();
             }
-            SystemUtils.LOG.info(
+            SystemUtils.LOG.fine(
                     String.format("All GPF operators will share an instance of %s with a capacity of %dM",
                                   tileCache.getClass().getName(),
                                   tileCache.getMemoryCapacity() / (1024 * 1024)));
