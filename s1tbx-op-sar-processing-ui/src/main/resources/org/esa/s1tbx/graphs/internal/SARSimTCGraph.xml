@@ -13,9 +13,7 @@
       <sourceProduct refid="1-Read"/>
     </sources>
     <parameters>
-      <sourceBands>
-        <band>Amplitude</band>
-      </sourceBands>
+      <sourceBands>Amplitude</sourceBands>
       <demName>SRTM 3Sec</demName>
       <demResamplingMethod>BICUBIC_INTERPOLATION</demResamplingMethod>
       <externalDEMFile/>
