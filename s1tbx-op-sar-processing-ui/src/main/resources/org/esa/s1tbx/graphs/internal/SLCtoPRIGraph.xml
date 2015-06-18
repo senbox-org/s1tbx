@@ -13,9 +13,7 @@
       <sourceProduct refid="1-Read"/>
     </sources>
     <parameters>
-      <sourceBands>
-        <band>Intensity</band>
-      </sourceBands>
+      <sourceBands>Intensity</sourceBands>
       <externalAuxFile/>
 	  <outputImageInComplex>false</outputImageInComplex>
       <outputImageScaleInDb>false</outputImageScaleInDb>

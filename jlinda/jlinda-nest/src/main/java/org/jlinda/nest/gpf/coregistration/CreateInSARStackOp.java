@@ -66,11 +66,11 @@ public class CreateInSARStackOp extends Operator {
     @SourceProducts
     private Product[] sourceProduct;
 
-    @Parameter(description = "The list of source bands.", alias = "masterBands", itemAlias = "band",
+    @Parameter(description = "The list of source bands.", alias = "masterBands",
             rasterDataNodeType = Band.class, label="Master Band")
     private String[] masterBandNames = null;
 
-    @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
+    @Parameter(description = "The list of source bands.", alias = "sourceBands",
             rasterDataNodeType = Band.class, label="Slave Bands")
     private String[] slaveBandNames = null;
 

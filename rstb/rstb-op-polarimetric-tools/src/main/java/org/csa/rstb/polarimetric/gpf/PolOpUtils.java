@@ -19,7 +19,7 @@ import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import org.apache.commons.math3.util.FastMath;
 import org.csa.rstb.polarimetric.gpf.decompositions.hAAlpha;
-import org.esa.s1tbx.dataio.PolBandUtils;
+import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.eo.Constants;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.gpf.Tile;

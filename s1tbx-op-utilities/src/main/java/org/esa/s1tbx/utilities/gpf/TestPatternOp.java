@@ -50,7 +50,7 @@ public final class TestPatternOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
+    @Parameter(description = "The list of source bands.", alias = "sourceBands",
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 

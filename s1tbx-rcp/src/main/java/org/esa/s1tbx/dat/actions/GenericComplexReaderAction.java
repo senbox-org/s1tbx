@@ -1,6 +1,6 @@
 package org.esa.s1tbx.dat.actions;
 
-import org.esa.s1tbx.dataio.generic.GenericComplexReaderPlugIn;
+import org.esa.s1tbx.io.generic.GenericComplexReaderPlugIn;
 import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductIOPlugInManager;
 import org.esa.snap.framework.dataio.ProductReader;

@@ -21,7 +21,7 @@ import org.csa.rstb.classification.gpf.classifiers.FreemanDurdenWishart;
 import org.csa.rstb.classification.gpf.classifiers.HAlphaWishart;
 import org.csa.rstb.classification.gpf.classifiers.HAlphaWishartC2;
 import org.csa.rstb.classification.gpf.classifiers.PolClassifier;
-import org.esa.s1tbx.dataio.PolBandUtils;
+import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.IndexCoding;

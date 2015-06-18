@@ -1,0 +1,182 @@
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Readers">
+            <folder name="Ceos">
+                <file name="org-esa-s1tbx-io-ceos-importAlosPalsarProduct.instance">
+                    <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                    <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                    <attr name="displayName" stringvalue="ALOS PALSAR CEOS"/>
+                    <attr name="formatName" stringvalue="ALOS PALSAR CEOS"/>
+                    <attr name="useAllFileFilter" boolvalue="true"/>
+                    <attr name="helpId" stringvalue="importAlosPalsarProduct"/>
+                    <attr name="ShortDescription" stringvalue="Open ALOS PALSAR CEOS data product."/>
+                </file>
+                <file name="org-esa-s1tbx-io-ceos-importAlos2Product.instance">
+                    <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                    <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                    <attr name="displayName" stringvalue="ALOS 2 CEOS"/>
+                    <attr name="formatName" stringvalue="ALOS 2 CEOS"/>
+                    <attr name="useAllFileFilter" boolvalue="true"/>
+                    <attr name="helpId" stringvalue="importAlos2Product"/>
+                    <attr name="ShortDescription" stringvalue="Open ALOS 2 CEOS data product."/>
+                </file>
+                <file name="org-esa-s1tbx-io-ceos-importERSProduct.instance">
+                    <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                    <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                    <attr name="displayName" stringvalue="ERS 1/2 CEOS"/>
+                    <attr name="formatName" stringvalue="ERS CEOS"/>
+                    <attr name="useAllFileFilter" boolvalue="true"/>
+                    <attr name="helpId" stringvalue="importERSProduct"/>
+                    <attr name="ShortDescription" stringvalue="Open ERS 1/2 CEOS (VMP and PGS) data product."/>
+                </file>
+                <file name="org-esa-s1tbx-io-ceos-importJERSCEOSProduct.instance">
+                    <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                    <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                    <attr name="displayName" stringvalue="JERS CEOS"/>
+                    <attr name="formatName" stringvalue="JERS CEOS"/>
+                    <attr name="useAllFileFilter" boolvalue="true"/>
+                    <attr name="helpId" stringvalue="importJERSProduct"/>
+                    <attr name="ShortDescription" stringvalue="Open JERS CEOS data product."/>
+                </file>
+                <file name="org-esa-s1tbx-io-ceos-importRadarsatProduct.instance">
+                    <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                    <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                    <attr name="displayName" stringvalue="RADARSAT-1 CEOS"/>
+                    <attr name="formatName" stringvalue="RADARSAT-1 CEOS"/>
+                    <attr name="useAllFileFilter" boolvalue="true"/>
+                    <attr name="helpId" stringvalue="importRadarsatProduct"/>
+                    <attr name="ShortDescription" stringvalue="Open RADARSAT-1 CEOS data product."/>
+                </file>
+            </folder>
+            <file name="org-esa-s1tbx-io-importPolsarPro.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="PolSARPro"/>
+                <attr name="formatName" stringvalue="PolSARPro"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importPolsarPro"/>
+                <attr name="ShortDescription" stringvalue="Open PolsarPro data product."/>
+            </file>
+            <file name="org-esa-s1tbx-io-importCosmoSkymed.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="Cosmo-Skymed"/>
+                <attr name="formatName" stringvalue="CosmoSkymed"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importCosmoSkymed"/>
+                <attr name="ShortDescription" stringvalue="Open Cosmo-Skymed data product."/>
+            </file>
+            <file name="org-esa-s1tbx-io-importRadarsat2Product.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="RADARSAT-2"/>
+                <attr name="formatName" stringvalue="RADARSAT-2"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importRadarsat2Product"/>
+                <attr name="ShortDescription" stringvalue="Open RADARSAT-2 data product."/>
+            </file>
+            <file name="org-esa-s1tbx-io-importS1Product.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="SENTINEL-1"/>
+                <attr name="formatName" stringvalue="SENTINEL-1"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importS1Product"/>
+                <attr name="ShortDescription" stringvalue="Open SENTINEL-1 data product."/>
+            </file>
+            <file name="org-esa-s1tbx-io-importTerraSarXProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="TerraSAR-X"/>
+                <attr name="formatName" stringvalue="TerraSarX"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importTerraSarXProduct"/>
+                <attr name="ShortDescription" stringvalue="Open TerraSAR-X data product."/>
+            </file>
+            <file name="org-esa-s1tbx-io-importTanDEMXProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="TanDEM-X"/>
+                <attr name="formatName" stringvalue="TerraSarX"/>
+                <attr name="useAllFileFilter" boolvalue="true"/>
+                <attr name="helpId" stringvalue="importTerraSarXProduct"/>
+                <attr name="ShortDescription" stringvalue="Open TanDEM-X data product."/>
+            </file>
+
+            <file name="org-esa-s1tbx-io-importRATProduct.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.rcp.actions.file.ImportProductAction.create"/>
+                <attr name="displayName" stringvalue="RAT"/>
+                <attr name="formatName" stringvalue="RAT"/>
+                <attr name="useAllFileFilter" boolvalue="false"/>
+                <attr name="helpId" stringvalue="importRATProduct"/>
+                <attr name="ShortDescription" stringvalue="Open TAXI RAT product."/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="File">
+            <folder name="Import">
+                <folder name="SAR Sensors">
+                    <file name="org-esa-s1tbx-io-ceos-importAlosPalsarProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-io-ceos-importAlosPalsarProduct.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-ceos-importAlos2Product.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-io-ceos-importAlos2Product.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importCosmoSkymed.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importCosmoSkymed.instance"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-ceos-importERSProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-io-ceos-importERSProduct.instance"/>
+                        <attr name="position" intvalue="500"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-ceos-importJERSCEOSProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-io-ceos-importJERSCEOSProduct.instance"/>
+                        <attr name="position" intvalue="600"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-ceos-importRadarsatProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/Ceos/org-esa-s1tbx-io-ceos-importRadarsatProduct.instance"/>
+                        <attr name="position" intvalue="700"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importRadarsat2Product.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importRadarsat2Product.instance"/>
+                        <attr name="position" intvalue="800"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importS1Product.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importS1Product.instance"/>
+                        <attr name="position" intvalue="900"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importTerraSarXProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importTerraSarXProduct.instance"/>
+                        <attr name="position" intvalue="1000"/>
+                    </file>
+                    <file name="org-esa-s1tbx-io-importTanDEMXProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importTanDEMXProduct.instance"/>
+                        <attr name="position" intvalue="1100"/>
+                    </file>
+                </folder>
+                <folder name="Generic Formats">
+                    <file name="org-esa-s1tbx-io-importRATProduct.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Readers/org-esa-s1tbx-io-importRATProduct.instance"/>
+                        <attr name="position" intvalue="1000"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="org-esa-s1tbx-s1tbx-io-helpset.xml" url="helpset.xml">
+                <attr name="position" intvalue="4700"/>
+            </file>
+        </folder>
+    </folder>
+
+</filesystem>

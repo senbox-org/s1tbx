@@ -75,7 +75,7 @@ public class MosaicOp extends Operator {
     @TargetProduct
     private Product targetProduct = null;
 
-    @Parameter(description = "The list of source bands.", alias = "sourceBands", itemAlias = "band",
+    @Parameter(description = "The list of source bands.", alias = "sourceBands",
             label = "Source Bands")
     private String[] sourceBandNames = null;
 

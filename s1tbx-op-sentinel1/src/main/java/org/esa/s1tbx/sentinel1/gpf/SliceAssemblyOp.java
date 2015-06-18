@@ -63,7 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.esa.s1tbx.dataio.sentinel1.Sentinel1Level1Directory.*;
+import static org.esa.s1tbx.io.sentinel1.Sentinel1Level1Directory.*;
 
 /**
  * Merges Sentinel-1 slice products

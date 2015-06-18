@@ -20,7 +20,7 @@ import org.csa.rstb.polarimetric.gpf.HaAlphaDescriptor;
 import org.csa.rstb.polarimetric.gpf.PolOpUtils;
 import org.csa.rstb.classification.gpf.PolarimetricClassificationOp;
 import org.csa.rstb.polarimetric.gpf.decompositions.HAlphaC2;
-import org.esa.s1tbx.dataio.PolBandUtils;
+import org.esa.s1tbx.io.PolBandUtils;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.gpf.Tile;

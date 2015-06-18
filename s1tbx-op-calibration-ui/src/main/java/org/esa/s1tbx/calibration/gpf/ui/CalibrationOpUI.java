@@ -170,7 +170,8 @@ public class CalibrationOpUI extends BaseOperatorUI {
 
     @Override
     public void initParameters() {
-        OperatorUIUtils.initParamList(bandList, getBandNames(), (String[]) paramMap.get("sourceBands"));
+
+        OperatorUIUtils.initParamList(bandList, getBandNames(), (Object[])paramMap.get("sourceBands"));
 
         if (sourceProducts != null) {
             final MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProducts[0]);

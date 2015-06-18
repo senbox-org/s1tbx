@@ -92,11 +92,11 @@ public class DEMBasedCoregistrationOp extends Operator {
     @SourceProducts
     private Product[] sourceProduct;
 
-    @Parameter(description = "The list of master bands.", alias = "masterBands", itemAlias = "band",
+    @Parameter(description = "The list of master bands.", alias = "masterBands",
             rasterDataNodeType = Band.class, label = "Master Band")
     private String[] masterBandNames = null;
 
-    @Parameter(description = "The list of slave bands.", alias = "slaveBands", itemAlias = "band",
+    @Parameter(description = "The list of slave bands.", alias = "slaveBands",
             rasterDataNodeType = Band.class, label = "Slave Bands")
     private String[] slaveBandNames = null;
 
