@@ -210,7 +210,7 @@ public class BandArithmeticTest {
         product1.addBand(anotherBand);
         String[] incompatibleExpressions = new String[]{"b1", "b2", "anotherBand"};
 
-        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, new String[0]));
+        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1));
         assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, "b1"));
         assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, compatibleExpressions));
         assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, "anotherBand"));
