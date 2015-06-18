@@ -61,11 +61,11 @@ import java.util.Map;
  */
 public class AlosPalsarProductDirectory extends CEOSProductDirectory {
 
-    private AlosPalsarImageFile[] imageFiles = null;
-    private AlosPalsarLeaderFile leaderFile = null;
-    private AlosPalsarTrailerFile trailerFile = null;
+    protected AlosPalsarImageFile[] imageFiles = null;
+    protected AlosPalsarLeaderFile leaderFile = null;
+    protected AlosPalsarTrailerFile trailerFile = null;
 
-    private final transient Map<String, AlosPalsarImageFile> bandImageFileMap = new HashMap<>(1);
+    protected final transient Map<String, AlosPalsarImageFile> bandImageFileMap = new HashMap<>(1);
     public static final DateFormat dateFormat1 = ProductData.UTC.createDateFormat("yyyyMMddHHmmssSSS");
     public static final DateFormat dateFormat2 = ProductData.UTC.createDateFormat("yyyyMMdd HH:mm:ss");
     public static final DateFormat dateFormat3 = ProductData.UTC.createDateFormat("yyyyDDDSSSSSSSS");
@@ -114,7 +114,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         }
     }
 
-    private void updateProductType() {
+    protected void updateProductType() {
         String prodType = productType.toUpperCase();
         while (prodType.endsWith("A") || prodType.endsWith("D") || prodType.endsWith("U") || prodType.endsWith("_")) {
             prodType = prodType.substring(0, prodType.length() - 1);
@@ -129,7 +129,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
                 logicalVolumeId.contains("ALOS"));
     }
 
-    private static String getMission() {
+    protected String getMission() {
         return "ALOS";
     }
 
@@ -835,7 +835,7 @@ public class AlosPalsarProductDirectory extends CEOSProductDirectory {
         return getMission() + '-' + volumeDirectoryFile.getProductName();
     }
 
-    private String getProductDescription() {
+    protected String getProductDescription() {
         return AlosPalsarConstants.PRODUCT_DESCRIPTION_PREFIX + leaderFile.getProductLevel();
     }
 

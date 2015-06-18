@@ -22,7 +22,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
 
-class AlosPalsarTrailerFile extends AlosPalsarLeaderFile {
+public class AlosPalsarTrailerFile extends AlosPalsarLeaderFile {
 
     private final static String trailer_recordDefinitionFile = "trailer_file.xml";
     private final static Document trailerXML = BinaryDBReader.loadDefinitionFile(mission, trailer_recordDefinitionFile);

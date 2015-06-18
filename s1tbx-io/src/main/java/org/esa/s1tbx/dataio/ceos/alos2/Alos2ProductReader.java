@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -19,7 +19,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.dataio.ceos.CEOSProductDirectory;
 import org.esa.s1tbx.dataio.ceos.CEOSProductReader;
 import org.esa.s1tbx.dataio.ceos.alos.AlosPalsarImageFile;
-import org.esa.s1tbx.dataio.ceos.alos.AlosPalsarProductDirectory;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.framework.dataio.DecodeQualification;
 import org.esa.snap.framework.dataio.ProductReaderPlugIn;
@@ -46,7 +45,7 @@ public class Alos2ProductReader extends CEOSProductReader {
 
     @Override
     protected CEOSProductDirectory createProductDirectory(File inputFile) {
-        return new AlosPalsarProductDirectory(inputFile.getParentFile());
+        return new Alos2ProductDirectory(inputFile.getParentFile());
     }
 
     DecodeQualification checkProductQualification(File file) {
@@ -54,8 +53,8 @@ public class Alos2ProductReader extends CEOSProductReader {
         try {
             _dataDir = createProductDirectory(file);
 
-            final AlosPalsarProductDirectory dataDir = (AlosPalsarProductDirectory) _dataDir;
-            if (dataDir.isALOS())
+            final Alos2ProductDirectory dataDir = (Alos2ProductDirectory) _dataDir;
+            if (dataDir.isALOS2())
                 return DecodeQualification.INTENDED;
             return DecodeQualification.UNABLE;
 
@@ -73,7 +72,7 @@ public class Alos2ProductReader extends CEOSProductReader {
                                           int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
                                           ProgressMonitor pm) throws IOException {
         try {
-            final AlosPalsarProductDirectory dataDir = (AlosPalsarProductDirectory) _dataDir;
+            final Alos2ProductDirectory dataDir = (Alos2ProductDirectory) _dataDir;
             final AlosPalsarImageFile imageFile = (AlosPalsarImageFile) dataDir.getImageFile(destBand);
             if (dataDir.isSLC()) {
                 boolean oneOf2 = destBand.getUnit().equals(Unit.REAL) || !destBand.getName().startsWith("q");

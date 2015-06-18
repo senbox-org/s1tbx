@@ -28,7 +28,7 @@ import java.io.IOException;
 /**
  * This class represents a leader file of a product.
  */
-class AlosPalsarLeaderFile extends CEOSLeaderFile {
+public class AlosPalsarLeaderFile extends CEOSLeaderFile {
 
     protected final static String mission = "alos";
     private final static String leader_recordDefinitionFile = "leader_file.xml";

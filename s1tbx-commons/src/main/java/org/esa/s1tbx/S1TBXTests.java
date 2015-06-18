@@ -46,6 +46,7 @@ public class S1TBXTests {
     public final static File[] rootPathsERS = loadFilePath("test.rootPathERS");
     public final static File[] rootPathsJERS = loadFilePath("test.rootPathJERS");
     public final static File[] rootPathsALOS = loadFilePath("test.rootPathALOS");
+    public final static File[] rootPathsALOS2 = loadFilePath("test.rootPathALOS2");
     public final static File[] rootPathsCosmoSkymed = loadFilePath("test.rootPathCosmoSkymed");
 
     public static int subsetX = 0;
