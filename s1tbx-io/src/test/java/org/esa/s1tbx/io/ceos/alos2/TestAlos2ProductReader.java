@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dataio.ceos.alos2;
+package org.esa.s1tbx.io.ceos.alos2;
 
 import org.esa.s1tbx.S1TBXTests;
 import org.esa.snap.framework.dataio.ProductReader;

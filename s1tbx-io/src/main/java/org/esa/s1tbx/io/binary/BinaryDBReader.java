@@ -52,7 +52,7 @@ public final class BinaryDBReader {
     private final String recName;
     private final long startPos;
 
-    private final static boolean DEBUG_MODE = false;
+    private final static boolean DEBUG_MODE = true;
 
     public BinaryDBReader(final Document xmlDoc, final String recName, final long startPos) {
         this.xmlDoc = xmlDoc;
@@ -357,7 +357,7 @@ public final class BinaryDBReader {
 
     private static URL getResURL(final String mission, final String fileName) {
 
-        final String base = "/org/esa/s1tbx/dataio/";
+        final String base = "/org/esa/s1tbx/io/";
         final String path = base + "ceos_db" + File.separator + mission + File.separator + fileName;
         return BinaryDBReader.class.getResource(path);
     }

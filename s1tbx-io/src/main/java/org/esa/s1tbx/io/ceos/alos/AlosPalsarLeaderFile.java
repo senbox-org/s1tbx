@@ -109,9 +109,18 @@ public class AlosPalsarLeaderFile extends CEOSLeaderFile {
                 System.out.println("unable to read quality");
             }
         }
+        readFacilityRelatedRecords(reader);
+
+        reader.close();
+
+        if (getProductLevel() == AlosPalsarConstants.LEVEL1_0)
+            throw new IOException("ALOS L0 products are not supported");
+    }
+
+    protected void readFacilityRelatedRecords(final BinaryFileReader reader) {
         for (int i = 0; i < _leaderFDR.getAttributeInt("Number of facility data records"); ++i) {
             try {
-                header = new CeosRecordHeader(reader);
+                CeosRecordHeader header = new CeosRecordHeader(reader);
                 int level = getProductLevel();
                 if (level == AlosPalsarConstants.LEVEL1_0 || level == AlosPalsarConstants.LEVEL1_1) {
                     int facilityRecordNum = 17;
@@ -131,10 +140,6 @@ public class AlosPalsarLeaderFile extends CEOSLeaderFile {
                 System.out.println("Unable to read ALOS facility record: " + e.getMessage());
             }
         }
-        reader.close();
-
-        if (getProductLevel() == AlosPalsarConstants.LEVEL1_0)
-            throw new IOException("ALOS L0 products are not supported");
     }
 
     public final int getProductLevel() {

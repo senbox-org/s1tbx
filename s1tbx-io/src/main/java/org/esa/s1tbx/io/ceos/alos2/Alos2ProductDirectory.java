@@ -13,15 +13,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.s1tbx.dataio.ceos.alos2;
+package org.esa.s1tbx.io.ceos.alos2;
 
-import org.esa.s1tbx.dataio.binary.IllegalBinaryFormatException;
-import org.esa.s1tbx.dataio.ceos.CEOSImageFile;
-import org.esa.s1tbx.dataio.ceos.CeosHelper;
-import org.esa.s1tbx.dataio.ceos.alos.AlosPalsarImageFile;
-import org.esa.s1tbx.dataio.ceos.alos.AlosPalsarLeaderFile;
-import org.esa.s1tbx.dataio.ceos.alos.AlosPalsarProductDirectory;
-import org.esa.s1tbx.dataio.ceos.alos.AlosPalsarTrailerFile;
+import org.esa.s1tbx.io.binary.IllegalBinaryFormatException;
+import org.esa.s1tbx.io.ceos.CEOSImageFile;
+import org.esa.s1tbx.io.ceos.CeosHelper;
+import org.esa.s1tbx.io.ceos.alos.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +46,7 @@ public class Alos2ProductDirectory extends AlosPalsarProductDirectory {
 
         updateProductType();
 
-        leaderFile = new AlosPalsarLeaderFile(
+        leaderFile = new Alos2LeaderFile(
                 createInputStream(CeosHelper.getCEOSFile(baseDir, constants.getLeaderFilePrefix())));
         final File trlFile = CeosHelper.getCEOSFile(baseDir, constants.getTrailerFilePrefix());
         if (trlFile != null) {
@@ -74,8 +71,8 @@ public class Alos2ProductDirectory extends AlosPalsarProductDirectory {
         sceneHeight = imageFiles[0].getRasterHeight();
         assertSameWidthAndHeightForAllImages(imageFiles, sceneWidth, sceneHeight);
 
-        if (leaderFile.getProductLevel() == Alos2Constants.LEVEL1_0 ||
-                leaderFile.getProductLevel() == Alos2Constants.LEVEL1_1) {
+        if (leaderFile.getProductLevel() == AlosPalsarConstants.LEVEL1_0 ||
+                leaderFile.getProductLevel() == AlosPalsarConstants.LEVEL1_1) {
             isProductSLC = true;
         }
     }

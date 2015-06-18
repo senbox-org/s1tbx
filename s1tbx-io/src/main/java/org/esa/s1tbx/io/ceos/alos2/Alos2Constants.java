@@ -35,15 +35,6 @@ public class Alos2Constants implements CEOSConstants {
 
     final static String PRODUCT_DESCRIPTION_PREFIX = "ALOS 2 product ";
 
-    final static String SUMMARY_FILE_NAME = "summary.txt";
-    final static String WORKREPORT_FILE_NAME = "workreport";
-
-    final static int LEVEL1_0 = 0;
-    final static int LEVEL1_1 = 1;
-    final static int LEVEL1_5 = 3;
-    final static int LEVEL4_1 = 4;
-    final static int LEVEL4_2 = 5;
-
     private final static int MINIMUM_FILES = 4;    // 4 image files + leader file + volume file + trailer file
 
     public String[] getVolumeFilePrefix() {

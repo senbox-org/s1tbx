@@ -201,7 +201,8 @@ public abstract class CEOSImageFile {
 
                 pm.worked(1);
             }
-
+        } catch (Throwable e) {
+            //e.printStackTrace();
         } finally {
             pm.done();
         }

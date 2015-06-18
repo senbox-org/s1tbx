@@ -18,6 +18,7 @@ package org.esa.s1tbx.io.ceos.alos2;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.s1tbx.io.ceos.CEOSProductDirectory;
 import org.esa.s1tbx.io.ceos.CEOSProductReader;
+import org.esa.s1tbx.io.ceos.alos.AlosPalsarConstants;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarImageFile;
 import org.esa.s1tbx.io.ceos.alos.AlosPalsarProductDirectory;
 import org.esa.snap.datamodel.Unit;
@@ -78,7 +79,7 @@ public class Alos2ProductReader extends CEOSProductReader {
             if (dataDir.isSLC()) {
                 boolean oneOf2 = destBand.getUnit().equals(Unit.REAL) || !destBand.getName().startsWith("q");
 
-                if (dataDir.getProductLevel() == Alos2Constants.LEVEL1_0) {
+                if (dataDir.getProductLevel() == AlosPalsarConstants.LEVEL1_0) {
                     imageFile.readBandRasterDataSLCByte(sourceOffsetX, sourceOffsetY,
                             sourceWidth, sourceHeight,
                             sourceStepX, sourceStepY,
@@ -99,7 +100,7 @@ public class Alos2ProductReader extends CEOSProductReader {
                         destBuffer, pm);
             }
 
-        } catch (Exception e) {
+        } catch (Throwable e) {
             handleReaderException(e);
         }
     }

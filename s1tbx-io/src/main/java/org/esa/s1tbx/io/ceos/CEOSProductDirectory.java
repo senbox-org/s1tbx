@@ -86,7 +86,7 @@ public abstract class CEOSProductDirectory {
         if (productType == null || productType.equals("unknown"))
             throw new IOException("Unable to read level 0 product");
 
-        isProductSLC = productType.contains("SLC") || productType.contains("COMPLEX");
+        isProductSLC = productType.contains("SLC") || productType.contains("COMPLEX") || productType.contains("1.1");
     }
 
     private void readVolumeDiscriptor() throws IOException {
