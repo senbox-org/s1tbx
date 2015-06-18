@@ -85,6 +85,11 @@ public class AsterElevationModelDescriptor extends AbstractElevationModelDescrip
         return PIXEL_RES;
     }
 
+    @Override
+    public boolean canBeDownloaded() {
+        return false;
+    }
+
     public boolean isDemInstalled() {
         return true;
     }

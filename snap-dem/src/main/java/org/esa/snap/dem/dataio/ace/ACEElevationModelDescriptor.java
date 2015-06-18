@@ -82,6 +82,11 @@ public class ACEElevationModelDescriptor extends AbstractElevationModelDescripto
         return PIXEL_RES;
     }
 
+    @Override
+    public boolean canBeDownloaded() {
+        return true;
+    }
+
     public boolean isDemInstalled() {
         return true;
     }
