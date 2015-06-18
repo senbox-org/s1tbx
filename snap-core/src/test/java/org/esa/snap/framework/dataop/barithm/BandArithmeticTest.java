@@ -16,13 +16,17 @@
 package org.esa.snap.framework.dataop.barithm;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.*;
+import com.bc.jexp.Namespace;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.Term;
 import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.SymbolFactory;
-import org.esa.snap.framework.datamodel.*;
+import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.CrsGeoCoding;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.ProductData;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-
-import static org.hamcrest.CoreMatchers.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.referencing.FactoryException;
@@ -30,6 +34,7 @@ import org.opengis.referencing.operation.TransformException;
 
 import java.io.IOException;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 
 public class BandArithmeticTest {
@@ -196,5 +201,19 @@ public class BandArithmeticTest {
                 fail("Expected symbol {" + expectedSymbol + "} not found");
             }
         }
+    }
+
+    @Test
+    public void testAreReferencedRastersCompatible() {
+        String[] compatibleExpressions = new String[]{"b1", "b2"};
+        final Band anotherBand = new Band("anotherBand", ProductData.TYPE_UINT8, width + 1, height);
+        product1.addBand(anotherBand);
+        String[] incompatibleExpressions = new String[]{"b1", "b2", "anotherBand"};
+
+        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, new String[0]));
+        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, "b1"));
+        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, compatibleExpressions));
+        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, "anotherBand"));
+        assertEquals(false, BandArithmetic.areReferencedRastersCompatible(product1, incompatibleExpressions));
     }
 }

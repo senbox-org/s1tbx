@@ -36,6 +36,7 @@ import org.esa.snap.framework.datamodel.VirtualBand;
 import org.esa.snap.util.Guardian;
 import org.esa.snap.util.StringUtils;
 
+import java.awt.Dimension;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -423,6 +424,47 @@ public class BandArithmetic {
     public static String getProductNodeNamePrefix(Product product) {
         Guardian.assertNotNull("product", product);
         return "$" + product.getRefNo() + '.';
+    }
+
+    public static boolean areReferencedRastersCompatible(Term term) {
+        final RasterDataSymbol[] rasterDataSymbols = getRefRasterDataSymbols(term);
+        if (rasterDataSymbols.length > 1) {
+            int referenceWidth = rasterDataSymbols[0].getRaster().getRasterWidth();
+            int referenceHeight = rasterDataSymbols[0].getRaster().getRasterHeight();
+            for (int i = 1; i < rasterDataSymbols.length; i++) {
+                if (rasterDataSymbols[i].getRaster().getRasterWidth() != referenceWidth ||
+                        rasterDataSymbols[i].getRaster().getRasterHeight() != referenceHeight) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public static boolean areReferencedRastersCompatible(Product product, String... expressions) {
+        if (expressions.length == 0) {
+            return true;
+        }
+        final Product[] productAsArray = {product};
+        try {
+            Dimension compatibleSize = null;
+            for (String expression : expressions) {
+                final RasterDataNode[] refRasters = getRefRasters(expression, productAsArray, 0);
+                if (refRasters.length > 0) {
+                    if (!areReferencedRastersCompatible(parseExpression(expression, productAsArray, 0))) {
+                        return false;
+                    }
+                    if (compatibleSize == null) {
+                        compatibleSize = refRasters[0].getRasterSize();
+                    } else if (!compatibleSize.equals(refRasters[0].getRasterSize())) {
+                        return false;
+                    }
+                }
+            }
+        } catch (ParseException e) {
+            return false;
+        }
+        return true;
     }
 
     private static void collectRefRasterDataSymbols(Term term, List<RasterDataSymbol> list, Set<RasterDataSymbol> set) {

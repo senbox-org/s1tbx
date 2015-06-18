@@ -22,8 +22,6 @@ import com.bc.jexp.Parser;
 import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
 import com.bc.jexp.WritableNamespace;
-import org.esa.snap.framework.dataop.barithm.BandArithmetic;
-import org.esa.snap.framework.dataop.barithm.RasterDataSymbol;
 
 
 /**
@@ -136,20 +134,6 @@ public final class ParserImpl implements Parser {
         }
         tokenizer = new Tokenizer(code);
         Term term = parseImpl();
-        final RasterDataSymbol[] rasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-        if (rasterDataSymbols.length > 1) {
-            for (int i = 1; i < rasterDataSymbols.length; i++) {
-                //todo check scenerastertransform rather than width and height
-                int referenceWidth = rasterDataSymbols[0].getRaster().getRasterWidth();
-                int referenceHeight = rasterDataSymbols[0].getRaster().getRasterHeight();
-                if (referenceWidth != rasterDataSymbols[i].getRaster().getRasterWidth() ||
-                        referenceHeight != rasterDataSymbols[i].getRaster().getRasterHeight()) {
-                    throw new ParseException("Raster '" + rasterDataSymbols[0].getName() + "' and raster '" +
-                                                     rasterDataSymbols[i].getName() + "' are incompatible"
-                    );
-                }
-            }
-        }
         tokenizer = null;
         this.defaultNamespace = defaultNamespace;
         return term;

@@ -1629,6 +1629,10 @@ public class Product extends ProductNode {
             return false;
         }
 
+        if (!BandArithmetic.areReferencedRastersCompatible(term)) {
+            return false;
+        }
+
         final RasterDataSymbol[] termSymbols = BandArithmetic.getRefRasterDataSymbols(term);
         for (final RasterDataSymbol termSymbol : termSymbols) {
             final RasterDataNode refRaster = termSymbol.getRaster();
@@ -2180,7 +2184,9 @@ public class Product extends ProductNode {
     public Mask addMask(String maskName, String expression, String description, Color color, double transparency) {
         RasterDataNode[] refRasters = new RasterDataNode[0];
         try {
-            refRasters = BandArithmetic.getRefRasters(expression, this);
+            if (BandArithmetic.areReferencedRastersCompatible(this, expression)) {
+                refRasters = BandArithmetic.getRefRasters(expression, this);
+            }
         } catch (ParseException e) {
             e.printStackTrace();
         }
