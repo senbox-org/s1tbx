@@ -184,7 +184,7 @@ public class ACEReader extends AbstractProductReader {
     }
 
     private static File createCacheDir() throws IOException {
-        final File cacheDir = new File(SystemUtils.getApplicationDataDir(), "temp");
+        final File cacheDir = new File(SystemUtils.getDefaultCacheDir(), "temp");
         if (!cacheDir.exists() && !cacheDir.mkdir()) {
             throw new IOException("Failed to create directory '" + cacheDir + "'.");
         }
