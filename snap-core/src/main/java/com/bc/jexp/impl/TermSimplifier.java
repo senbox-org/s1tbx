@@ -150,11 +150,11 @@ public class TermSimplifier implements TermConverter {
     private Term simpPow(Term base, Term exp) {
         if (base.isConst()) {
             double nBase = base.evalD(null);
-            if (eq(nBase , 0.0)) {
+            if (eq(nBase, 0.0)) {
                 return Term.ConstD.ZERO;
-            } else if (eq(nBase , 1.0)) {
+            } else if (eq(nBase, 1.0)) {
                 return Term.ConstD.ONE;
-            } else if (eq(nBase , Math.E)) {
+            } else if (eq(nBase, Math.E)) {
                 return apply(new Term.Call(Functions.EXP, exp));
             }
         }
@@ -162,7 +162,7 @@ public class TermSimplifier implements TermConverter {
             double nExp = exp.evalD(null);
             if (eq(nExp, 0.0)) {
                 return Term.ConstD.ONE;
-            } else if (eq(nExp , 1.0)) {
+            } else if (eq(nExp, 1.0)) {
                 return base;
             } else if (eq(nExp, -1.0)) {
                 return apply(new Term.Div(Term.TYPE_D, Term.ConstD.ONE, base));
@@ -182,7 +182,7 @@ public class TermSimplifier implements TermConverter {
             }
         } else if (base instanceof Term.Neg) {
             Term.Neg negOp = (Term.Neg) base;
-            if (isEvenIntConst(exp)) {
+            if (isNoneZeroEvenInt(exp)) {
                 return simpPow(negOp.getArg(), exp);
             }
         }
@@ -191,10 +191,10 @@ public class TermSimplifier implements TermConverter {
     }
 
     private Term simplifyNestedPowButConsiderSign(Term.Call innerCall, Term base, Term exp1, Term exp2) {
-        boolean even1 = isEvenIntConst(exp1);
-        boolean even2 = isEvenIntConst(exp2);
         // Check to only simplify nested POW's if we don't have to fear a sign suppression
-        if (even1 == even2) {
+        boolean noneZeroEvenInt1 = isNoneZeroEvenInt(exp1);
+        boolean noneZeroEvenInt2 = isNoneZeroEvenInt(exp2);
+        if (!noneZeroEvenInt1 || noneZeroEvenInt2) {
             return apply(simpPow(base, new Term.Mul(Term.TYPE_D, exp1, exp2)));
         } else {
             return pow(innerCall, exp2);
@@ -214,17 +214,20 @@ public class TermSimplifier implements TermConverter {
         return new Term.Call(Functions.POW, arg1, arg2);
     }
 
-
-    private boolean isEvenIntConst(Term term) {
+    private boolean isNoneZeroEvenInt(Term term) {
         if (term.isConst()) {
-            double n = term.evalD(null);
-            if (!eq(n, 0.0) && eq(Math.floor(n), n) && eq(n % 2.0, 0.0)) {
+            double v = term.evalD(null);
+            if (!eq(v, 0.0) && isEvenInt(v)) {
                 return true;
             }
         }
         return false;
     }
 
+    private static boolean isEvenInt(double v) {
+        double f = v - 2.0 * Math.floor(v / 2.0);
+        return eq(f, 0.0);
+    }
 
     @Override
     public Term visit(Term.Cond term) {

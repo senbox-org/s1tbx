@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Norman
@@ -52,9 +53,10 @@ public class TermSimplifierTest {
         assertEquals("1.0", simplify("sqr(1)"));
         assertEquals("4.0", simplify("sqr(2)"));
         assertEquals("sqr(A)", simplify("sqr(-A)"));
-        assertEquals("sqr(sqrt(A))", simplify("sqr(sqrt(A))"));  // don't suppress sign!
-        assertEquals("sqr(pow(A,3))", simplify("sqr(pow(A,3))")); // don't suppress sign!
-        assertEquals("sqr(sqrt(A))", simplify("sqr(pow(A,0.5))")); // don't suppress sign!
+        assertEquals("pow(A,4.0)", simplify("sqr(sqr(A))"));
+        assertEquals("A", simplify("sqr(sqrt(A))"));
+        assertEquals("pow(A,6.0)", simplify("sqr(pow(A,3))"));
+        assertEquals("A", simplify("sqr(pow(A,0.5))"));
     }
 
     @Test
@@ -67,7 +69,7 @@ public class TermSimplifierTest {
         assertEquals("A", simplify("pow(E,log(A))"));
         assertEquals("pow(A,sqr(A))", simplify("pow(A,sqr(A))"));
         assertEquals("pow(sqr(A),A)", simplify("pow(sqr(A),A)")); // don't suppress sign!
-        assertEquals("sqr(sqrt(A))", simplify("pow(pow(A,0.5),2)")); // don't suppress sign!
+        assertEquals("A", simplify("pow(pow(A,0.5),2)"));
         assertEquals("sqrt(sqr(A))", simplify("pow(pow(A,2),0.5)")); // don't suppress sign!
         assertEquals("sqrt(sqr(A))", simplify("pow(sqr(A),0.5)")); // don't suppress sign!
         assertEquals("exp(Mul(3,A))", simplify("pow(exp(A),3)"));
@@ -250,6 +252,19 @@ public class TermSimplifierTest {
         assertEquals("NEqD(A,B)", simplify("A != B"));
         assertEquals("NEqD(A,1)", simplify("A != 1"));
         assertEquals("NEqD(Add(2,A),Add(1,A))", simplify("(A + 2) != (1 + A)"));
+    }
+
+    @Test
+    public void testAssumptions() throws Exception {
+        // assert that 'x % y' works for floating point
+        assertEquals(1.2, 5.2 % 2.0, 1e-10);
+        assertEquals(0.0, 4.0 % 2.0, 1e-10);
+        assertEquals(0.0, -4.0 % 2.0, 1e-10);
+
+        // assert that 'floor(x)' works as expected
+        assertEquals(-2.0, Math.floor(-1.9), 1e-10);
+        assertEquals(-2.0, Math.floor(-2.0), 1e-10);
+        assertEquals(-3.0, Math.floor(-2.1), 1e-10);
     }
 
     private ParserImpl parser;

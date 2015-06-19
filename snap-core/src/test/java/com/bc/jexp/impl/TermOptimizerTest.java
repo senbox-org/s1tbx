@@ -37,7 +37,7 @@ public class TermOptimizerTest extends TermSimplifierTest {
         assertEquals("A", simplify("pow(E,log(A))"));
         assertEquals("pow(A,sqr(A))", simplify("pow(A,sqr(A))"));
         assertEquals("pow(sqr(A),A)", simplify("pow(sqr(A),A)")); // don't suppress sign!
-        assertEquals("sqr(sqrt(A))", simplify("pow(pow(A,0.5),2)")); // don't suppress sign!
+        assertEquals("A", simplify("pow(pow(A,0.5),2)")); // don't suppress sign!
         assertEquals("abs(A)", simplify("pow(pow(A,2),0.5)")); // don't suppress sign!
         assertEquals("abs(A)", simplify("pow(sqr(A),0.5)")); // don't suppress sign!
         assertEquals("exp(Mul(3,A))", simplify("pow(exp(A),3)"));
