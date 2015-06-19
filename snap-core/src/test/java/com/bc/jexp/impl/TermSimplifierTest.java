@@ -17,6 +17,9 @@ public class TermSimplifierTest {
         assertEquals("0", simplify("0"));
         assertEquals("1", simplify("1"));
         assertEquals("10.3", simplify("10.3"));
+        assertEquals("10.3", simplify("10.3000000000000001"));
+        assertEquals("PI", simplify("" + Math.PI));
+        assertEquals("E", simplify("" + Math.E));
         assertEquals("true", simplify("true"));
         assertEquals("NaN", simplify("NaN"));
     }
@@ -30,12 +33,7 @@ public class TermSimplifierTest {
     }
 
     @Test
-    public void testCall() throws Exception {
-
-        assertEquals("0.0", simplify("sin(0)"));
-        assertEquals("sin(PI)", simplify("sin(PI)"));
-        assertEquals("sin(A)", simplify("sin(A)"));
-
+    public void testSqrt() throws Exception {
         assertEquals("0.0", simplify("sqrt(0)"));
         assertEquals("0.0", simplify("sqrt(0.0)"));
         assertEquals("sqrt(A)", simplify("sqrt(A)"));
@@ -43,10 +41,13 @@ public class TermSimplifierTest {
         assertEquals("pow(A,0.25)", simplify("sqrt(sqrt(A))"));
         assertEquals("sqrt(sqr(A))", simplify("sqrt(sqr(A))")); // don't suppress sign!
         assertEquals("sqrt(sqr(A))", simplify("sqrt(pow(A,2))")); // don't suppress sign!
-        assertEquals("sqrt(sqr(A))", simplify("sqrt(sqr(A))")); // don't suppress sign!
+        assertEquals("pow(A,0.25)", simplify("sqrt(sqrt(A))")); // don't suppress sign!
         assertEquals("sqrt(pow(A,4))", simplify("sqrt(pow(A, 4))")); // don't suppress sign!
         assertEquals("pow(A,2.5)", simplify("sqrt(pow(A, 5))"));
+    }
 
+    @Test
+    public void testSqr() throws Exception {
         assertEquals("0.0", simplify("sqr(0)"));
         assertEquals("1.0", simplify("sqr(1)"));
         assertEquals("4.0", simplify("sqr(2)"));
@@ -54,7 +55,10 @@ public class TermSimplifierTest {
         assertEquals("sqr(sqrt(A))", simplify("sqr(sqrt(A))"));  // don't suppress sign!
         assertEquals("sqr(pow(A,3))", simplify("sqr(pow(A,3))")); // don't suppress sign!
         assertEquals("sqr(sqrt(A))", simplify("sqr(pow(A,0.5))")); // don't suppress sign!
+    }
 
+    @Test
+    public void testPow() throws Exception {
         assertEquals("1.0", simplify("pow(A,0)"));
         assertEquals("A", simplify("pow(A,1)"));
         assertEquals("0.0", simplify("pow(0,A)"));
@@ -68,28 +72,57 @@ public class TermSimplifierTest {
         assertEquals("sqrt(sqr(A))", simplify("pow(sqr(A),0.5)")); // don't suppress sign!
         assertEquals("exp(Mul(3,A))", simplify("pow(exp(A),3)"));
         assertEquals("pow(A,Mul(0.5,A))", simplify("pow(sqrt(A),A)"));
+    }
 
-
-        assertEquals("3", simplify("min(3,4)"));
-        assertEquals("3.0", simplify("min(3,4.0)"));
-
-        assertEquals("4", simplify("max(3,4)"));
-        assertEquals("4.0", simplify("max(3,4.0)"));
-
-        assertEquals("5.0", simplify("abs(5.0)"));
-        assertEquals("5", simplify("abs(-5)"));
-        assertEquals("abs(A)", simplify("abs(-A)"));
-
+    @Test
+    public void testExp() throws Exception {
         assertEquals("1.0", simplify("exp(0)"));
         assertEquals("E", simplify("exp(1)"));
         assertEquals("3.2", simplify("exp(log(3.2))"));
         assertEquals("A", simplify("exp(log(A))"));
+    }
 
+    @Test
+    public void testSin() throws Exception {
+        assertEquals("0.0", simplify("sin(0)"));
+        assertEquals("1.0", simplify("sin(0.5*PI)"));
+        assertEquals("0.0", simplify("sin(PI)"));
+        assertEquals("-1.0", simplify("sin(1.5*PI)"));
+        assertEquals("0.0", simplify("sin(2*PI)"));
+        assertEquals("sin(A)", simplify("sin(A)"));
+    }
+
+    @Test
+    public void testCos() throws Exception {
+        assertEquals("1.0", simplify("cos(0)"));
+        assertEquals("0.0", simplify("cos(0.5*PI)"));
+        assertEquals("-1.0", simplify("cos(PI)"));
+        assertEquals("0.0", simplify("cos(1.5*PI)"));
+        assertEquals("1.0", simplify("cos(2.0*PI)"));
+        assertEquals("cos(A)", simplify("cos(A)"));
+    }
+
+    @Test
+    public void testLog() throws Exception {
         assertEquals("0.0", simplify("log(1)"));
         assertEquals("1.0", simplify("log(E)"));
         assertEquals("2.3", simplify("log(exp(2.3))"));
         assertEquals("A", simplify("log(exp(A))"));
+    }
 
+    @Test
+    public void testMinMax() throws Exception {
+        assertEquals("3", simplify("min(3,4)"));
+        assertEquals("3.0", simplify("min(3,4.0)"));
+        assertEquals("4", simplify("max(3,4)"));
+        assertEquals("4.0", simplify("max(3,4.0)"));
+    }
+
+    @Test
+    public void testAbs() throws Exception {
+        assertEquals("5.0", simplify("abs(5.0)"));
+        assertEquals("5", simplify("abs(-5)"));
+        assertEquals("abs(A)", simplify("abs(-A)"));
     }
 
     @Test
@@ -239,7 +272,11 @@ public class TermSimplifierTest {
         parser = new ParserImpl(namespace);
     }
 
-    private String simplify(String code) throws ParseException {
-        return new TermSimplifier().simplify(parser.parse(code)).toString();
+    protected String simplify(String code) throws ParseException {
+        return createSimplifier().apply(parser.parse(code)).toString();
+    }
+
+    protected TermSimplifier createSimplifier() {
+        return new TermSimplifier();
     }
 }
