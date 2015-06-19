@@ -48,12 +48,9 @@ public final class SRTM3GeoTiffFile extends ElevationFile {
 
     protected boolean getRemoteFile() throws IOException {
         try {
-            if (remoteFTP.isEmpty() || remoteFTP.startsWith("http")) {
-                return getRemoteHttpFile(remoteHTTP);
-            }
-            return getRemoteFTPFile(remoteFTP, remotePath);
-        } catch (Exception e) {
             return getRemoteHttpFile(remoteHTTP);
+        } catch (Exception e) {
+            return getRemoteFTPFile(remoteFTP, remotePath);
         }
     }
 }
