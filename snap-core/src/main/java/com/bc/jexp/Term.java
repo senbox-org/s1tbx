@@ -368,10 +368,6 @@ public abstract class Term {
 
         private final boolean value;
 
-        public static ConstB get(final boolean value) {
-            return value ? TRUE : FALSE;
-        }
-
         public ConstB(final boolean value) {
             this.value = value;
         }
@@ -431,7 +427,7 @@ public abstract class Term {
 
         private final int value;
 
-        public static ConstI get(int value) {
+        public static Term.ConstI lookup(int value) {
             if (value == 0) {
                 return Term.ConstI.ZERO;
             } else if (value == 1) {
@@ -439,7 +435,7 @@ public abstract class Term {
             } else if (value == 2) {
                 return Term.ConstI.TWO;
             }
-            return new Term.ConstI(value);
+            return null;
         }
 
         public ConstI(final int value) {
@@ -499,22 +495,28 @@ public abstract class Term {
         public static final ConstD ONE = new ConstD(1.0);
         public static final ConstD TWO = new ConstD(2.0);
         public static final ConstD HALF = new ConstD(0.5);
+        public static final ConstD PI = new ConstD(Math.PI);
+        public static final ConstD E = new ConstD(Math.E);
 
         private final double value;
 
-        public static ConstD get(double value) {
-            if (value == 0.0) {
-                return Term.ConstD.ZERO;
-            } else if (value == 0.5) {
-                return Term.ConstD.HALF;
-            } else if (value == 1.0) {
-                return Term.ConstD.ONE;
-            } else if (value == 2.0) {
-                return Term.ConstD.TWO;
-            } else if (Double.isNaN(value)) {
+        public static Term.ConstD lookup(double value) {
+            if (Double.isNaN(value)) {
                 return Term.ConstD.NAN;
+            } else if (eq(value, 0.0)) {
+                return Term.ConstD.ZERO;
+            } else if (eq(value, 0.5)) {
+                return Term.ConstD.HALF;
+            } else if (eq(value , 1.0)) {
+                return Term.ConstD.ONE;
+            } else if (eq(value , 2.0)) {
+                return Term.ConstD.TWO;
+            } else if (eq(value, Math.PI)) {
+                return Term.ConstD.PI;
+            } else if (eq(value, Math.E)) {
+                return Term.ConstD.E;
             }
-            return new Term.ConstD(value);
+            return null;
         }
 
         public ConstD(final double value) {
@@ -558,6 +560,13 @@ public abstract class Term {
         @Override
         public <T> T accept(TermVisitor<T> visitor) {
             return visitor.visit(this);
+        }
+
+        /**
+         * Special comparison only valid for numbers whose exponent is -1 to +1.
+         */
+        public static boolean eq(double v1, double v2) {
+            return Math.abs(v1 - v2) <= 1e-15;
         }
     }
 
