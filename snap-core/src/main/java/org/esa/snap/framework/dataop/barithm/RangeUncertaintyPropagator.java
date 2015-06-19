@@ -28,7 +28,7 @@ public class RangeUncertaintyPropagator implements UncertaintyPropagator, TermCo
     }
 
     public Term uncertainty(Term term) {
-        return simplifier.simplify(term.accept(this));
+        return simplifier.apply(term.accept(this));
     }
 
     @Override
