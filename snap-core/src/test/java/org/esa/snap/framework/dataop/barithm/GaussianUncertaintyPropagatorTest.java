@@ -75,6 +75,6 @@ public class GaussianUncertaintyPropagatorTest extends UncertaintyPropagatorTest
     }
 
     protected UncertaintyPropagator createUncertaintyPropagator() {
-        return new GaussianUncertaintyPropagator(false);
+        return new GaussianUncertaintyPropagator(1, false);
     }
 }
