@@ -668,13 +668,13 @@ public final class ParserImpl implements Parser {
         Term t1 = null;
         int tt = tokenizer.next();
         if (tt == Tokenizer.TT_DOUBLE) {
-            t1 = Term.ConstD.get(convertDoubleToken());
+            t1 = new Term.ConstD(convertDoubleToken());
         } else if (tt == Tokenizer.TT_INT) {
-            t1 = Term.ConstI.get(convertIntToken());
+            t1 = new Term.ConstI(convertIntToken());
         } else if (tt == Tokenizer.TT_HEX_INT) {
-            t1 = Term.ConstI.get(convertHexIntToken());
+            t1 = new Term.ConstI(convertHexIntToken());
         } else if (tt == Tokenizer.TT_OCT_INT) {
-            t1 = Term.ConstI.get(convertOctIntToken());
+            t1 = new Term.ConstI(convertOctIntToken());
         } else if (tt == Tokenizer.TT_STRING) {
             t1 = new Term.ConstS(convertStringToken());
         } else if (tt == Tokenizer.TT_KEYWORD) {
