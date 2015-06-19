@@ -173,10 +173,9 @@ class CommandLineTool implements GraphProcessingObserver {
             JAI.getDefaultInstance().getTileScheduler().setParallelism(tileSchedulerParallelism);
         }
         final long tileCacheSize = JAI.getDefaultInstance().getTileCache().getMemoryCapacity() / (1024L * 1024L);
-        commandLineContext.getLogger().info(MessageFormat.format("JAI tile cache size is {0} MB", tileCacheSize));
+        commandLineContext.getLogger().fine(MessageFormat.format("JAI tile cache size is {0} MB", tileCacheSize));
         final int schedulerParallelism = JAI.getDefaultInstance().getTileScheduler().getParallelism();
-        commandLineContext.getLogger().info(
-                MessageFormat.format("JAI tile scheduler parallelism is {0}", schedulerParallelism));
+        commandLineContext.getLogger().fine(MessageFormat.format("JAI tile scheduler parallelism is {0}", schedulerParallelism));
     }
 
     private void initVelocityContext() throws Exception {
