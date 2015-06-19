@@ -141,6 +141,6 @@ public class TermDerivatorTest {
     }
 
     private String derivative(String code) throws ParseException {
-        return new TermDerivator(var).derivative(parser.parse(code)).toString();
+        return new TermDerivator(var).apply(parser.parse(code)).toString();
     }
 }

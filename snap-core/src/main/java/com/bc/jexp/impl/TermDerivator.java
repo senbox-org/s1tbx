@@ -1,8 +1,18 @@
 package com.bc.jexp.impl;
 
+import com.bc.jexp.Function;
 import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
 import com.bc.jexp.TermConverter;
+
+import static com.bc.jexp.impl.TermFactory.add;
+import static com.bc.jexp.impl.TermFactory.c;
+import static com.bc.jexp.impl.TermFactory.div;
+import static com.bc.jexp.impl.TermFactory.mul;
+import static com.bc.jexp.impl.TermFactory.neg;
+import static com.bc.jexp.impl.TermFactory.sqr;
+import static com.bc.jexp.impl.TermFactory.sqrt;
+import static com.bc.jexp.impl.TermFactory.sub;
 
 /**
  * Computes the derivative of a term.
@@ -31,114 +41,117 @@ public class TermDerivator implements TermConverter {
      * @return The derivative.
      * @throws UnsupportedOperationException if the derivative could not be computed
      */
-    public Term derivative(Term term) {
+    public Term apply(Term term) {
         //return term.accept(this);
-        return simplifier.simplify(term.accept(this));
+        return simplifier.apply(term.accept(this));
     }
 
     @Override
     public Term visit(Term.ConstB term) {
-        return Term.ConstD.ZERO;
+        return c(0.0);
     }
 
     @Override
     public Term visit(Term.ConstI term) {
-        return Term.ConstD.ZERO;
+        return c(0.0);
     }
 
     @Override
     public Term visit(Term.ConstD term) {
-        return Double.isNaN(term.getValue()) ? Term.ConstD.NAN : Term.ConstD.ZERO;
+        double v = term.getValue();
+        return c(Double.isNaN(v) ? v : 0.0);
     }
 
     @Override
     public Term visit(Term.ConstS term) {
-        return Term.ConstD.ZERO;
+        return c(0.0);
     }
 
     @Override
     public Term visit(Term.Ref term) {
         if (term.getSymbol() == variable) {
-            return Term.ConstD.ONE;
+            return c(1.0);
         }
-        return Term.ConstD.ZERO;
+        return c(0.0);
     }
 
     @Override
     public Term visit(Term.Call term) {
-        if (term.getFunction() == Functions.SQR) {
-            return new Term.Mul(new Term.Mul(Term.ConstD.TWO, term.getArg()),
-                                derivative(term.getArg()));
-        } else if (term.getFunction() == Functions.SQRT) {
-            return new Term.Mul(new Term.Div(Term.ConstD.ONE,
-                                             new Term.Mul(Term.ConstD.TWO,
-                                                          new Term.Call(Functions.SQRT, term.getArg()))),
-                                derivative(term.getArg()));
-        } else if (term.getFunction() == Functions.POW) {
+        if (is(term, Functions.SQR)) {
+            return mul(mul(c(2.0), term.getArg()),
+                       apply(term.getArg()));
+        } else if (is(term, Functions.SQRT)) {
+            return mul(div(c(1.0), mul(c(2.0), sqrt(term.getArg()))),
+                       apply(term.getArg()));
+        } else if (is(term, Functions.POW)) {
             if (term.getArg(1).isConst()) {
                 double v = term.getArg(1).evalD(null);
-                return new Term.Mul(new Term.Mul(Term.ConstD.get(v),
-                                                 new Term.Call(Functions.POW,
-                                                               term.getArg(),
-                                                               Term.ConstD.get(v - 1))),
-                                    derivative(term.getArg(0)));
+                return mul(mul(c(v), TermFactory.pow(term.getArg(), c(v - 1.0))),
+                           apply(term.getArg(0)));
             }
-        } else if (term.getFunction() == Functions.EXP) {
-            return new Term.Mul(term,
-                                derivative(term.getArg()));
-        } else if (term.getFunction() == Functions.LOG) {
-            return new Term.Mul(new Term.Div(Term.ConstD.ONE, term.getArg()),
-                                derivative(term.getArg()));
-        } else if (term.getFunction() == Functions.SIN) {
-            return new Term.Mul(new Term.Call(Functions.COS, term.getArg()),
-                                derivative(term.getArg()));
-        } else if (term.getFunction() == Functions.COS) {
-            return new Term.Mul(new Term.Neg(new Term.Call(Functions.SIN, term.getArg())),
-                                derivative(term.getArg()));
-        } else if (term.getFunction() == Functions.TAN) {
-            return new Term.Mul(new Term.Div(Term.ConstD.ONE,
-                                             new Term.Call(Functions.SQR, new Term.Call(Functions.COS, term.getArg()))),
-                                derivative(term.getArg()));
+        } else if (is(term, Functions.EXP)) {
+            return mul(term,
+                       apply(term.getArg()));
+        } else if (is(term, Functions.LOG)) {
+            return mul(div(c(1.0), term.getArg()),
+                       apply(term.getArg()));
+        } else if (is(term, Functions.SIN)) {
+            return mul(TermFactory.cos(term.getArg()),
+                       apply(term.getArg()));
+        } else if (is(term, Functions.COS)) {
+            return mul(neg(TermFactory.sin(term.getArg())),
+                       apply(term.getArg()));
+        } else if (is(term, Functions.TAN)) {
+            return mul(div(c(1.0), sqr(TermFactory.cos(term.getArg()))),
+                       apply(term.getArg()));
         }
         // add other functions from Functions class here...
         return unsupported(term);
     }
 
+    private static boolean is(Term.Call term, Function f) {
+        return term.getFunction() == f;
+    }
+
     @Override
     public Term visit(Term.Cond term) {
-        return new Term.Cond(Term.TYPE_D, term.getArg(0), derivative(term.getArg(1)), derivative(term.getArg(2)));
+        return TermFactory.cond(term.getArg(0),
+                                apply(term.getArg(1)),
+                                apply(term.getArg(2)));
     }
 
     @Override
     public Term visit(Term.Neg term) {
-        return new Term.Neg(derivative(term.getArg()));
+        return neg(apply(term.getArg()));
     }
 
     @Override
     public Term visit(Term.Add term) {
-        return new Term.Add(derivative(term.getArg(0)), derivative(term.getArg(1)));
+        return add(apply(term.getArg(0)),
+                   apply(term.getArg(1)));
     }
 
     @Override
     public Term visit(Term.Sub term) {
-        return new Term.Sub(derivative(term.getArg(0)), derivative(term.getArg(1)));
+        return sub(apply(term.getArg(0)),
+                   apply(term.getArg(1)));
     }
 
     @Override
     public Term visit(Term.Mul term) {
-        Term arg1 = term.getArg(0);
-        Term arg2 = term.getArg(1);
-        return new Term.Add(new Term.Mul(arg1, derivative(arg2)),
-                            new Term.Mul(derivative(arg1), arg2));
+        Term t1 = term.getArg(0);
+        Term t2 = term.getArg(1);
+        return add(mul(t1, apply(t2)),
+                   mul(apply(t1), t2));
     }
 
     @Override
     public Term visit(Term.Div term) {
-        Term arg1 = term.getArg(0);
-        Term arg2 = term.getArg(1);
-        return new Term.Div(new Term.Sub(new Term.Mul(derivative(arg1), arg2),
-                                         new Term.Mul(arg1, derivative(arg2))),
-                            new Term.Call(Functions.SQR, arg2));
+        Term t1 = term.getArg(0);
+        Term t2 = term.getArg(1);
+        return div(sub(mul(apply(t1), t2),
+                       mul(t1, apply(t2))),
+                   sqr(t2));
     }
 
     @Override
