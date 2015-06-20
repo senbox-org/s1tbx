@@ -2,6 +2,7 @@ package org.esa.snap.framework.dataop.barithm;
 
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
+import com.bc.jexp.impl.TermDecompiler;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.junit.Before;
@@ -41,7 +42,7 @@ public abstract class UncertaintyPropagatorTest {
 
     protected String uncert(String expression) throws ParseException {
         Term term = createUncertaintyPropagator().propagateUncertainties(getProduct(), expression);
-        return term.toString();
+        return new TermDecompiler().decompile(term);
     }
 
     protected abstract UncertaintyPropagator createUncertaintyPropagator();
