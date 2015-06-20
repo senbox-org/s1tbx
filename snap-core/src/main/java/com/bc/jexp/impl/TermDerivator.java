@@ -43,7 +43,8 @@ public class TermDerivator implements TermConverter {
      */
     public Term apply(Term term) {
         //return term.accept(this);
-        return simplifier.apply(term.accept(this));
+        Term derivative = term.accept(this);
+        return simplifier.apply(derivative);
     }
 
     @Override

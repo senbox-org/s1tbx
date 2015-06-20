@@ -33,7 +33,7 @@ public class TermDerivatorTest {
         assertEquals("-1.0", derivative("-x"));
         assertEquals("1.0", derivative("--x"));
         assertEquals("-1.0", derivative("---x"));
-        assertEquals("Mul(2.0,Neg(x))", derivative("-x * x"));
+        assertEquals("Mul(-2.0,x)", derivative("-x * x"));
         assertEquals("-1.0", derivative("-(x + 1)"));
     }
 
@@ -58,7 +58,7 @@ public class TermDerivatorTest {
         assertEquals("2.0", derivative("2 * x"));
         assertEquals("A", derivative("x * A"));
         assertEquals("Mul(2.0,x)", derivative("x * x"));
-        assertEquals("Add(sqr(x),Mul(x,Mul(2.0,x)))", derivative("x * x * x")); // improve me!
+        assertEquals("Add(sqr(x),Mul(Mul(2.0,x),x))", derivative("x * x * x")); // further simplify me!
     }
 
     @Test
@@ -83,20 +83,20 @@ public class TermDerivatorTest {
 
         assertEquals("exp(x)", derivative("exp(x)"));
         assertEquals("Mul(2.0,exp(Mul(2,x)))", derivative("exp(2 * x)"));
-        assertEquals("Mul(exp(sqr(x)),Mul(2.0,x))", derivative("exp(x * x)"));
+        assertEquals("Mul(Mul(2.0,exp(sqr(x))),x)", derivative("exp(x * x)"));
         assertEquals("Mul(exp(x),exp(exp(x)))", derivative("exp(exp(x))"));
-        assertEquals("Mul(x,Div(1.0,x))", derivative("exp(log(x))")); // simplify me!
+        assertEquals("1.0", derivative("exp(log(x))"));
 
         assertEquals("Div(1.0,x)", derivative("log(x)"));
-        assertEquals("Mul(2.0,Div(1.0,Mul(2,x)))", derivative("log(2 * x)")); // simplify me! (= "Div(1.0,x)")
-        assertEquals("Mul(Div(1.0,sqr(x)),Mul(2.0,x))", derivative("log(x * x)"));  // simplify me!
-        assertEquals("Mul(Div(1.0,x),Div(1.0,log(x)))", derivative("log(log(x))")); // simplify me!
-        assertEquals("Mul(exp(x),Div(1.0,exp(x)))", derivative("log(exp(x))")); // simplify me! (= "1.0")
+        assertEquals("Div(2.0,Mul(2,x))", derivative("log(2 * x)")); // further simplify me to "Div(1.0,x)"
+        assertEquals("Div(Mul(2.0,x),sqr(x))", derivative("log(x * x)"));  // further simplify me to "Div(2.0,x)"
+        assertEquals("Div(1.0,Mul(x,log(x)))", derivative("log(log(x))"));
+        assertEquals("1.0", derivative("log(exp(x))"));
 
         assertEquals("Mul(3.0,sqr(x))", derivative("pow(x,3)"));
         assertEquals("Mul(4.0,pow(x,3.0))", derivative("pow(x,4)"));
         assertEquals("Mul(0.3,pow(x,-0.7))", derivative("pow(x,0.3)"));
-        assertEquals("Mul(cos(x),Mul(0.5,pow(sin(x),-0.5)))", derivative("pow(sin(x),0.5)"));
+        assertEquals("Mul(Mul(0.5,pow(sin(x),-0.5)),cos(x))", derivative("pow(sin(x),0.5)"));
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.bc.jexp.impl;
 import com.bc.jexp.EvalEnv;
 import com.bc.jexp.EvalException;
 import com.bc.jexp.ParseException;
+import com.bc.jexp.Term;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -160,13 +161,19 @@ public class TermSimplifierTest {
         assertEquals("Add(1,A)", simplify("1 + A"));
         assertEquals("A", simplify("0 + A"));
         assertEquals("Add(1,A)", simplify("1 + A"));
+        assertEquals("Sub(1,A)", simplify("1 + -A"));
+        assertEquals("Sub(2,B)", simplify("-B + 2"));
         assertEquals("A", simplify("A + (B * 0)"));
         assertEquals("Add(A,B)", simplify("A + (B * 1)"));
         assertEquals("Add(A,B)", simplify("(A * 1) + B"));
         assertEquals("Mul(2.0,A)", simplify("A + A"));
-        assertEquals("Mul(2.0,Add(2,A))", simplify("(A + 2) + (2 + A)"));
+        assertEquals("Add(4.0,Mul(2.0,A))", simplify("(A + 2) + (2 + A)"));
         assertEquals("Mul(2,B)", simplify("B + B"));
-        assertEquals("Mul(2,Add(2,B))", simplify("(B + 2) + (2 + B)"));
+        assertEquals("Add(4,Mul(2.0,B))", simplify("(B + 2) + (2 + B)")); // :-(
+        assertEquals("Add(Add(A,B),C)", simplify("A + B + C"));
+        assertEquals("Add(Add(A,B),C)", simplify("(A + B) + C"));
+        assertEquals("Add(Add(A,B),C)", simplify("A + (B + C)"));
+        assertEquals("Add(A,Sub(B,C))", simplify("A + (B - C)"));
     }
 
     @Test
@@ -181,6 +188,8 @@ public class TermSimplifierTest {
         assertEquals("Neg(B)", simplify("(A * 0) - B"));
         assertEquals("Sub(A,B)", simplify("(A * 1) - B"));
         assertEquals("0.0", simplify("A - A"));
+        assertEquals("Mul(2.0,A)", simplify("A - -A"));
+        assertEquals("Add(A,B)", simplify("A - -B"));
         assertEquals("0.0", simplify("(A + 2) - (2 + A)"));
         assertEquals("0", simplify("B - B"));
         assertEquals("0", simplify("(B + 2) - (2 + B)"));
@@ -192,14 +201,22 @@ public class TermSimplifierTest {
         assertEquals("2.5", simplify("5 * 0.5"));
         assertEquals("Mul(A,B)", simplify("A * B"));
         assertEquals("Mul(A,B)", simplify("B * A"));
-        assertEquals("0", simplify("A * 0"));
+        assertEquals("0.0", simplify("A * 0"));
+        assertEquals("0", simplify("B * 0"));
         assertEquals("A", simplify("A * 1"));
         assertEquals("Mul(2,A)", simplify("A * 2"));
-        assertEquals("0", simplify("0 * A"));
+        assertEquals("0.0", simplify("0 * A"));
+        assertEquals("0", simplify("0 * B"));
         assertEquals("A", simplify("1 * A"));
-        assertEquals("Mul(A,B)", simplify("A * (B + 0)"));
-        assertEquals("Mul(A,B)", simplify("(A + 0) * B"));
-        //assertEquals("pow(A, 2)", simplify("A * A"));
+        assertEquals("sqr(A)", simplify("A * A"));
+        assertEquals("Mul(A,B)", simplify("A * (B * 1)"));
+        assertEquals("Mul(A,B)", simplify("(A * 1) * B"));
+        assertEquals("Mul(A,B)", simplify("-A * -B"));
+        assertEquals("Mul(Mul(A,B),C)", simplify("A * B * C"));
+        assertEquals("Mul(Mul(A,B),C)", simplify("(A * B) * C"));
+        assertEquals("Mul(Mul(A,B),C)", simplify("A * (B * C)"));
+        assertEquals("Div(Mul(A,B),C)", simplify("A * (B / C)"));
+        assertEquals("Div(Mul(A,C),Mul(B,D))", simplify("(A / B) * (C / D)"));
     }
 
     @Test
@@ -220,6 +237,14 @@ public class TermSimplifierTest {
         assertEquals("1.0", simplify("(A + 1) / (A + 1)"));
         assertEquals("1", simplify("B / B"));
         assertEquals("1", simplify("(B + 1) / (B + 1)"));
+        assertEquals("Div(A,B)", simplify("-A / -B"));
+        assertEquals("Div(A,Mul(B,C))", simplify("A / B / C"));
+        assertEquals("Div(A,Mul(B,C))", simplify("(A / B) / C"));
+        assertEquals("Div(Mul(A,C),B)", simplify("A / (B / C)"));
+        assertEquals("Div(A,Mul(B,C))", simplify("A / (B * C)")); // ok, don't simplify
+        assertEquals("Div(Mul(A,B),C)", simplify("(A * B) / C")); // ok, don't simplify
+        assertEquals("Div(Mul(A,D),Mul(B,C))", simplify("(A / B) / (C / D)"));
+        assertEquals("Div(Mul(A,B),Mul(C,D))", simplify("(A * B) / (C * D)")); // ok, don't simplify
     }
 
     @Test
@@ -272,18 +297,10 @@ public class TermSimplifierTest {
     @Before
     public void setUp() throws Exception {
         DefaultNamespace namespace = new DefaultNamespace();
-        namespace.registerSymbol(new AbstractSymbol.D("A") {
-            @Override
-            public double evalD(EvalEnv env) throws EvalException {
-                return Math.random();
-            }
-        });
-        namespace.registerSymbol(new AbstractSymbol.I("B") {
-            @Override
-            public int evalI(EvalEnv env) throws EvalException {
-                return (int) (100 * Math.random());
-            }
-        });
+        namespace.registerSymbol(new SomeSymbol("A", Term.TYPE_D));
+        namespace.registerSymbol(new SomeSymbol("B", Term.TYPE_I));
+        namespace.registerSymbol(new SomeSymbol("C", Term.TYPE_D));
+        namespace.registerSymbol(new SomeSymbol("D", Term.TYPE_D));
         parser = new ParserImpl(namespace);
     }
 
@@ -293,5 +310,24 @@ public class TermSimplifierTest {
 
     protected TermSimplifier createSimplifier() {
         return new TermSimplifier();
+    }
+
+    private static class SomeSymbol extends AbstractSymbol.D {
+        private int type;
+
+        public SomeSymbol(String name, int type) {
+            super(name);
+            this.type = type;
+        }
+
+        @Override
+        public int getRetType() {
+            return type;
+        }
+
+        @Override
+        public double evalD(EvalEnv env) throws EvalException {
+            return Math.random();
+        }
     }
 }

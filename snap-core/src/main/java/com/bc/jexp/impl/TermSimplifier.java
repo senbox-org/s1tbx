@@ -309,12 +309,30 @@ public class TermSimplifier implements TermConverter {
     public Term visit(Term.Neg term) {
         Term c = tryEvalToConst(term);
         if (c != null) {
+            // -C1 --> C2
             return c;
         }
+
         Term arg = apply(term.getArg(0));
         if (arg instanceof Term.Neg) {
-            return ((Term.Neg) arg).getArg();
+            // --X --> X
+            Term.Neg neg = (Term.Neg) arg;
+            return neg.getArg();
         }
+        if (arg instanceof Term.Mul) {
+            // -(X * Y) --> -X * Y
+            Term arg11 = ((Term.Mul) arg).getArg(0);
+            Term arg12 = ((Term.Mul) arg).getArg(1);
+            return apply(new Term.Mul(new Term.Neg(term.getRetType(), arg11), arg12));
+        }
+        if (arg instanceof Term.Div) {
+            // -(X / Y) --> -X / Y
+            Term arg11 = ((Term.Div) arg).getArg(0);
+            Term arg12 = ((Term.Div) arg).getArg(1);
+            return apply(new Term.Div(new Term.Neg(term.getRetType(), arg11), arg12));
+        }
+
+
         return new Term.Neg(term.getRetType(), arg);
     }
 
@@ -322,53 +340,110 @@ public class TermSimplifier implements TermConverter {
     public Term visit(Term.Add term) {
         Term c = tryEvalToConst(term);
         if (c != null) {
+            // C1 + C2 --> C3
             return c;
         }
 
         Term arg1 = apply(term.getArg(0));
         Term arg2 = apply(term.getArg(1));
-        if (arg1.isConst() && arg1.evalD(null) == 0.0) {
+        if (arg1.isConst() && eq(arg1.evalD(null), 0.0)) {
+            // X + 0 --> X
             return arg2;
-        } else if (arg2.isConst() && arg2.evalD(null) == 0.0) {
+        } else if (arg2.isConst() && eq(arg2.evalD(null), 0.0)) {
+            // 0 + X --> X
             return apply(term.getArg(0));
         }
+
+        if (arg2 instanceof Term.Add) {
+            // X + (Y + Z) --> (X + Y) + Z
+            Term arg21 = ((Term.Add) arg2).getArg(0);
+            Term arg22 = ((Term.Add) arg2).getArg(1);
+            return apply(new Term.Add(term.getRetType(), new Term.Add(term.getRetType(), arg1, arg21), arg22));
+        }
+
+        if (arg1 instanceof Term.Add) {
+            Term arg11 = ((Term.Add) arg1).getArg(0);
+            Term arg12 = ((Term.Add) arg1).getArg(1);
+            if (arg11.isConst() && arg2.isConst()) {
+                // (C1 + Y) + C2 --> (C1 + C2) + Y
+                return apply(new Term.Add(term.getRetType(), new Term.Add(term.getRetType(), arg11, arg2), arg12));
+            }
+            int comp = arg11.compare(arg2);
+            if (comp == 0) {
+                // (X + Y) + X --> 2 * X + Y
+                return apply(new Term.Add(term.getRetType(), new Term.Mul(term.getRetType(), Term.ConstD.TWO, arg2), arg12));
+            }
+            comp = arg12.compare(arg2);
+            if (comp == 0) {
+                // (X + Y) + Y --> 2 * Y + X
+                return apply(new Term.Add(term.getRetType(), new Term.Mul(term.getRetType(), Term.ConstD.TWO, arg2), arg11));
+            }
+        }
+
+        if (arg1 instanceof Term.Neg) {
+            Term arg11 = ((Term.Neg) arg1).getArg();
+            // -X + Y --> Y - X
+            return apply(new Term.Sub(term.getRetType(), arg2, arg11));
+        }
+        if (arg2 instanceof Term.Neg) {
+            Term arg12 = ((Term.Neg) arg2).getArg();
+            // X + -Y --> X - Y
+            return apply(new Term.Sub(term.getRetType(), arg1, arg12));
+        }
+
         int comp = arg1.compare(arg2);
         if (comp == 0) {
+            // X + X --> 2 * X
             if (term.isI()) {
                 return apply(new Term.Mul(term.getRetType(), Term.ConstI.TWO, arg2));
             } else {
                 return apply(new Term.Mul(term.getRetType(), Term.ConstD.TWO, arg2));
             }
-        } else if (comp < 0) {
-            return new Term.Add(term.getRetType(), arg1, arg2);
-        } else {
+        } else if (comp > 0 && !(arg1 instanceof Term.Add)) {
+            // Y + X --> X + Y
             return apply(new Term.Add(term.getRetType(), arg2, arg1));
         }
+
+        // No further simplifications
+        return new Term.Add(term.getRetType(), arg1, arg2);
     }
 
     @Override
     public Term visit(Term.Sub term) {
         Term c = tryEvalToConst(term);
         if (c != null) {
+            // C1 - C2 --> C3
             return c;
         }
 
         Term arg1 = apply(term.getArg(0));
         Term arg2 = apply(term.getArg(1));
-        if (arg1.isConst() && arg1.evalD(null) == 0.0) {
+        if (arg1.isConst() && eq(arg1.evalD(null), 0.0)) {
+            // 0 - X --> -X
             return apply(new Term.Neg(arg2.getRetType(), arg2));
         }
-        if (arg2.isConst() && arg2.evalD(null) == 0.0) {
+        if (arg2.isConst() && eq(arg2.evalD(null), 0.0)) {
+            // X - 0 --> X
             return arg1;
         }
+
+        if (arg1 instanceof Term.Neg) {
+            // -X - Y --> -(X + Y)
+            Term arg11 = ((Term.Neg) arg1).getArg();
+            return apply(new Term.Neg(term.getRetType(), new Term.Add(term.getRetType(), arg11, arg2)));
+        }
+        if (arg2 instanceof Term.Neg) {
+            // X - -Y --> X + Y
+            Term arg21 = ((Term.Neg) arg2).getArg();
+            return apply(new Term.Add(term.getRetType(), arg1, arg21));
+        }
+
         int comp = arg1.compare(arg2);
         if (comp == 0) {
-            if (term.isI()) {
-                return Term.ConstI.ZERO;
-            } else {
-                return Term.ConstD.ZERO;
-            }
+            // X - X --> 0
+            return term.isI() ? Term.ConstI.ZERO : Term.ConstD.ZERO;
         }
+        // No further simplifications
         return new Term.Sub(term.getRetType(), arg1, arg2);
     }
 
@@ -376,79 +451,154 @@ public class TermSimplifier implements TermConverter {
     public Term visit(Term.Mul term) {
         Term c = tryEvalToConst(term);
         if (c != null) {
+            // C1 * C2 --> C3
             return c;
         }
 
         Term arg1 = apply(term.getArg(0));
         Term arg2 = apply(term.getArg(1));
         if (arg1.isConst()) {
-            if (arg1.isI() && arg1.evalI(null) == 0) {
-                return Term.ConstI.ZERO;
-            } else if (arg1.isD() && arg1.evalD(null) == 0.0) {
-                return Term.ConstD.ZERO;
-            } else if (arg1.evalD(null) == 1.0) {
+            double v = arg1.evalD(null);
+            if (eq(v, 0.0)) {
+                // 0 * X --> 0
+                return term.isI() ? Term.ConstI.ZERO : Term.ConstD.ZERO;
+            } else if (eq(v, 1.0)) {
+                // 1 * X --> X
                 return arg2;
-            } else if (arg1.evalD(null) == -1.0) {
+            } else if (eq(v, -1.0)) {
+                // -1 * X --> -X
                 return apply(new Term.Neg(arg2.getRetType(), arg2));
             }
         }
         if (arg2.isConst()) {
-            if (arg2.isI() && arg2.evalI(null) == 0) {
-                return Term.ConstI.ZERO;
-            } else if (arg2.isD() && arg2.evalD(null) == 0.0) {
-                return Term.ConstD.ZERO;
-            } else if (arg2.evalD(null) == 1.0) {
+            double v = arg2.evalD(null);
+            if (eq(v, 0.0)) {
+                // 0 * X --> 0
+                return term.isI() ? Term.ConstI.ZERO : Term.ConstD.ZERO;
+            } else if (eq(v, 1.0)) {
+                // 1 * X --> X
                 return arg1;
-            } else if (arg2.evalD(null) == -1.0) {
+            } else if (eq(v, -1.0)) {
+                // -1 * X --> -X
                 return apply(new Term.Neg(arg1.getRetType(), arg1));
             }
         }
+
+        if (arg1 instanceof Term.Neg && arg2 instanceof Term.Neg) {
+            // -X * -Y --> X * Y
+            Term arg11 = ((Term.Neg) arg1).getArg();
+            Term arg21 = ((Term.Neg) arg2).getArg();
+            return apply(new Term.Mul(term.getRetType(), arg11, arg21));
+        }
+
+        if (arg1 instanceof Term.Const && arg2 instanceof Term.Neg) {
+            // C * -X --> -C * X
+            Term arg21 = ((Term.Neg) arg2).getArg();
+            return apply(new Term.Mul(term.getRetType(), new Term.Neg(arg1), arg21));
+        }
+
+        if (arg2 instanceof Term.Mul) {
+            // X * (Y * Z) --> (X * Y) * Z
+            Term arg21 = ((Term.Mul) arg2).getArg(0);
+            Term arg22 = ((Term.Mul) arg2).getArg(1);
+            return apply(new Term.Mul(term.getRetType(), new Term.Mul(term.getRetType(), arg1, arg21), arg22));
+        }
+
+        if (arg2 instanceof Term.Div) {
+            // X * (Y / Z) --> (X * Y) / Z
+            Term arg21 = ((Term.Div) arg2).getArg(0);
+            Term arg22 = ((Term.Div) arg2).getArg(1);
+            return apply(new Term.Div(term.getRetType(), new Term.Mul(term.getRetType(), arg1, arg21), arg22));
+        }
+
         int comp = arg1.compare(arg2);
         if (comp == 0) {
+            // X * X = sqr(X)
             return apply(new Term.Call(Functions.SQR, arg1));
-        } else if (comp < 0) {
-            return new Term.Mul(term.getRetType(), arg1, arg2);
-        } else {
+        } else if (comp > 0 && !(arg1 instanceof Term.Mul)) {
+            // Y * X --> X * Y
             return apply(new Term.Mul(term.getRetType(), arg2, arg1));
         }
+
+        // No further simplifications
+        return new Term.Mul(term.getRetType(), arg1, arg2);
     }
 
     @Override
     public Term visit(Term.Div term) {
 
-        if (term.getArg(1).isConst() && term.getArg(1).evalD(null) == 0.0) {
+        if (term.getArg(1).isConst() && eq(term.getArg(1).evalD(null), 0.0)) {
             return Term.ConstD.NAN;
         }
 
         Term c = tryEvalToConst(term);
         if (c != null) {
+            // C1 / C2 --> C3
             return c;
         }
 
         Term arg1 = apply(term.getArg(0));
         Term arg2 = apply(term.getArg(1));
-        if (arg1.isConst() && arg1.evalD(null) == 0.0) {
+        if (arg1.isConst() && eq(arg1.evalD(null), 0.0)) {
+            // 0 / X --> 0
             return arg1.isI() ? Term.ConstI.ZERO : Term.ConstD.ZERO;
         }
-        if (arg2.isConst() && arg2.evalD(null) == 1.0) {
+        if (arg2.isConst() && eq(arg2.evalD(null), 1.0)) {
+            // X / 1 --> X
             return arg1;
         }
-        int compare = arg1.compare(arg2);
-        if (compare == 0) {
-            if (term.isI()) {
-                return Term.ConstI.ONE;
-            } else {
-                return Term.ConstD.ONE;
-            }
+
+        if (arg1 instanceof Term.Neg && arg2 instanceof Term.Neg) {
+            // -X / -Y --> X / Y
+            Term arg11 = ((Term.Neg) arg1).getArg();
+            Term arg21 = ((Term.Neg) arg2).getArg();
+            return apply(new Term.Div(term.getRetType(), arg11, arg21));
+        }
+
+        if (arg1 instanceof Term.Const && arg2 instanceof Term.Neg) {
+            // C / -X --> -C / X
+            Term arg21 = ((Term.Neg) arg2).getArg();
+            return apply(new Term.Div(term.getRetType(), new Term.Neg(arg1), arg21));
+        }
+
+        if (arg1 instanceof Term.Div) {
+            // (X / Y) / Z  --> X / (Y * Z)
+            Term arg11 = ((Term.Div) arg1).getArg(0);
+            Term arg12 = ((Term.Div) arg1).getArg(1);
+            return apply(new Term.Div(term.getRetType(), arg11, new Term.Mul(term.getRetType(), arg12, arg2)));
+        }
+
+        if (arg2 instanceof Term.Div) {
+            // X / (Y / Z)  --> X * Z / Y
+            Term arg21 = ((Term.Div) arg2).getArg(0);
+            Term arg22 = ((Term.Div) arg2).getArg(1);
+            return apply(new Term.Div(term.getRetType(), new Term.Mul(term.getRetType(), arg1, arg22), arg21));
+        }
+
+        int comp = arg1.compare(arg2);
+        if (comp == 0) {
+            // X / X --> 1
+            return term.isI() ? Term.ConstI.ONE : Term.ConstD.ONE;
         }
         return new Term.Div(term.getRetType(), arg1, arg2);
     }
 
     @Override
     public Term visit(Term.Mod term) {
+        Term c = tryEvalToConst(term);
+        if (c != null) {
+            // C1 % C2 --> C3
+            return c;
+        }
+
         Term arg1 = apply(term.getArg(0));
         Term arg2 = apply(term.getArg(1));
-        return new Term.Mod(term.getRetType(), arg1, arg2);
+        int comp = arg1.compare(arg2);
+        if (comp == 0) {
+            // X % X --> 0
+            return term.isI() ? Term.ConstI.ZERO : Term.ConstD.ZERO;
+        }
+        return new Term.Mod(arg1, arg2);
     }
 
     @Override
