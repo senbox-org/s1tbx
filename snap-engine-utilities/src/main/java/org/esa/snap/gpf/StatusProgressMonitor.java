@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,87 +15,189 @@
  */
 package org.esa.snap.gpf;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * status bar Progress monitor
  * This is used for showing progress on sub threads within an operator execution
  */
-public final class StatusProgressMonitor {
-    private final StatusPresenter statusPresenter;
-    private final float max;
-    private final String msg;
+public final class StatusProgressMonitor implements ProgressMonitor {
+
     private int lastPct = 0;
-    private boolean allowStdOut = true;
 
-    private int workInc = 0;
+    private String name;
+    private double currentWork;
+    private double totalWork;
+    private boolean cancelRequested;
+    private String text;
 
-    public StatusProgressMonitor(final float max, final String msg) {
-        this(null, max, msg);
+    public enum TYPE { DATA_TRANSFER, SUBTASK }
+    private final TYPE taskType;
+
+    public enum Notification { UPDATE, DONE }
+    private final List<Listener> listenerList = new ArrayList<>();
+
+    public StatusProgressMonitor() {
+        this(TYPE.SUBTASK);
     }
 
-    public StatusProgressMonitor(final StatusPresenter presenter, final float max, final String msg) {
-        this.statusPresenter = presenter;
-        this.max = max;
-        this.msg = msg;
+    public StatusProgressMonitor(final TYPE taskType) {
+        this.taskType = taskType;
     }
 
-    public synchronized void workedOne() {
-        ++workInc;
-        worked(workInc);
+    @Override
+    protected void finalize() throws Throwable {
+        ProgressMonitorList.instance().remove(this);
+
+        super.finalize();
     }
 
-    private boolean hasGUI() {
-        return statusPresenter != null || !ProgressMonitorList.instance().isEmpty();
+    /**
+     * Notifies that the main task is beginning.  This must only be called once
+     * on a given progress monitor instance.
+     *
+     * @param name      the name (or description) of the main task
+     * @param totalWork the total number of work units into which
+     *                  the main task is been subdivided. If the value is <code>UNKNOWN</code>
+     *                  the implementation is free to indicate progress in a way which
+     *                  doesn't require the total number of work units in advance.
+     */
+    @Override
+    public void beginTask(final String name, final int totalWork) {
+        Assert.notNull(name, "name");
+        this.name = name;
+        this.currentWork = 0.0;
+        this.totalWork = totalWork;
+        this.cancelRequested = false;
+        this.text = "";
+        ProgressMonitorList.instance().add(this);
     }
 
-    public synchronized void worked(final int i) {
-
-        if (hasGUI()) {
-            final int pct = (int) ((i / max) * 100);
-            if (pct >= lastPct + 1) {
-                setText(msg + pct + '%');
-                lastPct = pct;
-            }
-        } else if (allowStdOut) {
-            final int pct = (int) ((i / max) * 100);
-            if (pct >= lastPct + 10) {
-                if (lastPct == 0) {
-                    System.out.print(msg);
-                }
-                System.out.print(" " + pct + '%');
-                lastPct = pct;
-            }
+    /**
+     * Internal method to handle scaling correctly. This method
+     * must not be called by a client. Clients should
+     * always use the method <code>worked(int)</code>.
+     *
+     * @param work the amount of work done
+     */
+    @Override
+    public void internalWorked(double work) {
+        currentWork += work;
+        final int pct = (int) ((currentWork / totalWork) * 100);
+        if (pct >= lastPct + 1) {
+            setText(name + pct + '%');
+            lastPct = pct;
         }
     }
 
-    public void working() {
-        if (hasGUI()) {
-            setText(msg);
-        }
+    /**
+     * Returns whether cancelation of current operation has been requested.
+     * Long-running operations should poll to see if cancelation
+     * has been requested.
+     *
+     * @return <code>true</code> if cancellation has been requested,
+     *         and <code>false</code> otherwise
+     *
+     * @see #setCanceled(boolean)
+     */
+    @Override
+    public boolean isCanceled() {
+        return cancelRequested;
     }
 
+    /**
+     * Sets the cancel state to the given value.
+     *
+     * @param canceled <code>true</code> indicates that cancelation has
+     *                 been requested (but not necessarily acknowledged);
+     *                 <code>false</code> clears this flag
+     *
+     * @see #isCanceled()
+     */
+    @Override
+    public void setCanceled(boolean canceled) {
+        this.cancelRequested = canceled;
+    }
+
+    /**
+     * Sets the task name to the given value. This method is used to
+     * restore the task label after a nested operation was executed.
+     * Normally there is no need for clients to call this method.
+     *
+     * @param taskName the name (or description) of the main task
+     *
+     * @see #beginTask(String, int)
+     */
+    @Override
+    public void setTaskName(String taskName) {
+
+    }
+
+    @Override
+    public void setSubTaskName(String subTaskName) {
+
+    }
+
+    @Override
+    public void worked(int work) {
+        internalWorked(work);
+    }
+
+    /**
+     * Notifies that the work is done; that is, either the main task is completed
+     * or the user canceled it. This method may be called more than once
+     * (implementations should be prepared to handle this case).
+     */
+    @Override
     public void done() {
-        if (hasGUI()) {
-            setText(" ");
-        } else if (allowStdOut) {
-            System.out.println(" 100%");
+        setText("");
+        fireNotification(Notification.DONE);
+        ProgressMonitorList.instance().remove(this);
+    }
+
+    private void setText(final String text) {
+        this.text = text;
+        fireNotification(Notification.UPDATE);
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public TYPE getTaskType() {
+        return taskType;
+    }
+
+    public int getMax() {
+        return (int)totalWork;
+    }
+
+    public int getWorked() {
+        return (int)currentWork;
+    }
+
+    public void addListener(final Listener listener) {
+        if (!listenerList.contains(listener)) {
+            listenerList.add(listener);
         }
     }
 
-    public void setAllowStdOut(final boolean flag) {
-        allowStdOut = flag;
+    private void fireNotification(final Notification msg) {
+        for (Listener listener : listenerList) {
+            listener.notifyMsg(msg);
+        }
     }
 
-    private void setText(final String msg) {
-        if (!ProgressMonitorList.instance().isEmpty()) {
-            final ProgressMonitor[] pmList = ProgressMonitorList.instance().getList();
-            for (ProgressMonitor pm : pmList) {
-                pm.setTaskName(msg);
-            }
-        } else {
-            statusPresenter.setStatusBarMessage(msg);
-        }
+    public interface Listener {
+        void notifyMsg(final Notification msg);
     }
 
 }

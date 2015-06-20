@@ -233,19 +233,19 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
         final InputStream is = new BufferedInputStream(urlConnection.getInputStream(), contentLength);
         final OutputStream os;
         try {
-            if (!outputFile.getParentFile().exists())
+            if (!outputFile.getParentFile().exists()) {
                 outputFile.getParentFile().mkdirs();
+            }
             os = new BufferedOutputStream(new FileOutputStream(outputFile));
         } catch (IOException e) {
             is.close();
             throw e;
         }
 
-        try {
-            final StatusProgressMonitor status = new StatusProgressMonitor(contentLength,
-                    "Downloading " + localZipFile.getName() + "... ");
-            status.setAllowStdOut(false);
+        final StatusProgressMonitor pm = new StatusProgressMonitor(StatusProgressMonitor.TYPE.DATA_TRANSFER);
+        pm.beginTask("Downloading " + localZipFile.getName() + "... ", contentLength);
 
+        try {
             final int size = 32768;
             final byte[] buf = new byte[size];
             int n;
@@ -253,9 +253,8 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
             while ((n = is.read(buf, 0, size)) > -1) {
                 os.write(buf, 0, n);
                 total += n;
-                status.worked(total);
+                pm.worked(total);
             }
-            status.done();
 
             while (true) {
                 final int b = is.read();
@@ -273,6 +272,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
             } finally {
                 is.close();
             }
+            pm.done();
         }
         return outputFile;
     }

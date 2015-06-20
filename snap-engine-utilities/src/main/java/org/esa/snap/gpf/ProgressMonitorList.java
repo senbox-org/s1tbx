@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -15,8 +15,6 @@
  */
 package org.esa.snap.gpf;
 
-import com.bc.ceres.core.ProgressMonitor;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +24,10 @@ import java.util.List;
 public class ProgressMonitorList {
 
     private static ProgressMonitorList _instance = null;
-    private List<ProgressMonitor> list = new ArrayList<>(1);
+    private List<StatusProgressMonitor> list = new ArrayList<>();
+
+    public enum Notification { ADD, REMOVE }
+    private final List<Listener> listenerList = new ArrayList<>();
 
     public static ProgressMonitorList instance() {
         if (_instance == null) {
@@ -39,19 +40,39 @@ public class ProgressMonitorList {
 
     }
 
-    public void add(final ProgressMonitor pm) {
+    public void add(final StatusProgressMonitor pm) {
         list.add(pm);
+        fireNotification(Notification.ADD, pm);
     }
 
-    public void remove(final ProgressMonitor pm) {
-        list.remove(pm);
+    public void remove(final StatusProgressMonitor pm) {
+        if(list.contains(pm)) {
+            list.remove(pm);
+            fireNotification(Notification.REMOVE, pm);
+        }
     }
 
-    public ProgressMonitor[] getList() {
-        return list.toArray(new ProgressMonitor[list.size()]);
+    public StatusProgressMonitor[] getList() {
+        return list.toArray(new StatusProgressMonitor[list.size()]);
     }
 
     public boolean isEmpty() {
         return list.isEmpty();
+    }
+
+    public void addListener(final Listener listener) {
+        if (!listenerList.contains(listener)) {
+            listenerList.add(listener);
+        }
+    }
+
+    private void fireNotification(final Notification msg, final StatusProgressMonitor pm) {
+        for (Listener listener : listenerList) {
+            listener.notifyMsg(msg, pm);
+        }
+    }
+
+    public interface Listener {
+        void notifyMsg(final Notification msg, final StatusProgressMonitor pm);
     }
 }
