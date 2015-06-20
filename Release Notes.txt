@@ -1,6 +1,8 @@
-New in S1TBX 1.1.2
+New in S1TBX 2.0
 
-Fix win32 command line options
+Common SNAP platform for all toolboxes
+ALOS-2 L1.1 CEOS reading
+
 
 New in S1TBX 1.1.1
 
@@ -69,14 +71,7 @@ Polarimetric tools from the RADARSAT-2 Toolbox
 	- Supervised and Unsupervised Wishart classifiers
 Performance improvements, bug fixes and more...
 
-Known issues:
-	- zip64 files are not yet supported
-	- only abstracted metadata updated for slice assembly
 
-What will be available in version 2.0:
-	- S-1 TOPSAR interferometry
-	- S-1 Level-2 visualization
-	- Common SNAP application and installer for all toolboxes
 
 
 
