@@ -318,9 +318,8 @@ public class AzimuthShiftOp extends Operator {
         final int[] overlapSizeArray = computeBurstOverlapSize();
         final int numOverlaps = overlapSizeArray.length;
 
-        final StatusProgressMonitor status = new StatusProgressMonitor(numOverlaps,
-                "Estimating azimuth offset... ");
-        int tileCnt = 0;
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Estimating azimuth offset... ", numOverlaps);
 
         final ThreadManager threadManager = new ThreadManager();
         try {
@@ -370,7 +369,7 @@ public class AzimuthShiftOp extends Operator {
                 };
                 threadManager.add(worker);
 
-                status.worked(tileCnt++);
+                status.worked(1);
             }
 
             // todo The following simple average should be replaced by weighted average using coherence as weight

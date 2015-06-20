@@ -244,9 +244,8 @@ public final class ForestAreaClassificationOp extends Operator {
 
         setInitialClusterBoundaries(clusterList);
 
-        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length,
-                "Creating Initial Clusters... ");
-        int tileCnt = 0;
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Creating Initial Clusters... ", tileRectangles.length);
 
         final int numSrcBands = srcBandNames.length;
 
@@ -312,7 +311,7 @@ public final class ForestAreaClassificationOp extends Operator {
                 };
                 threadManager.add(worker);
 
-                status.worked(tileCnt++);
+                status.worked(1);
             }
             threadManager.finish();
 
@@ -377,9 +376,8 @@ public final class ForestAreaClassificationOp extends Operator {
     private void computeClusterCovarianceMatrices(final java.util.List<ClusterInfo> clusterList,
                                                   final Rectangle[] tileRectangles) {
 
-        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length,
-                "Computing Cluster Covariance Matrices... ");
-        int tileCnt = 0;
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Computing Cluster Covariance Matrices... ", tileRectangles.length);
 
         final int numSrcBands = srcBandNames.length;
 
@@ -440,7 +438,7 @@ public final class ForestAreaClassificationOp extends Operator {
                 };
                 threadManager.add(worker);
 
-                status.worked(tileCnt++);
+                status.worked(1);
             }
             threadManager.finish();
 
@@ -471,9 +469,8 @@ public final class ForestAreaClassificationOp extends Operator {
     private void computeFinalClusterCenters(final java.util.List<ClusterInfo> clusterList,
                                             final Rectangle[] tileRectangles) {
 
-        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length * maxIterations,
-                "Computing Final Cluster Centres... ");
-        int tileCnt = 0;
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Computing Final Cluster Centres... ", tileRectangles.length * maxIterations);
 
         final int numSrcBands = srcBandNames.length;
         final int[] clusterCounter = new int[numClasses];
@@ -540,7 +537,7 @@ public final class ForestAreaClassificationOp extends Operator {
                     };
                     threadManager.add(worker);
 
-                    status.worked(tileCnt++);
+                    status.worked(1);
                 }
                 threadManager.finish();
 

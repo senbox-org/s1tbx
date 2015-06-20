@@ -92,14 +92,12 @@ public class DecompositionBase {
         final double[][] Cr = new double[3][3];
         final double[][] Ci = new double[3][3];
 
-        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length,
-                "Computing min max span... ");
-        status.setAllowStdOut(false);
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Computing min max span... ", tileRectangles.length);
 
         try {
             final ThreadManager threadManager = new ThreadManager();
 
-            int tileCnt = 0;
             for (final Rectangle rectangle : tileRectangles) {
 
                 final Thread worker = new Thread() {
@@ -157,7 +155,7 @@ public class DecompositionBase {
 
                 threadManager.add(worker);
 
-                status.worked(tileCnt++);
+                status.worked(1);
             }
 
             threadManager.finish();

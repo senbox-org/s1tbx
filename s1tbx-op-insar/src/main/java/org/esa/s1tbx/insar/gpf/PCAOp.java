@@ -376,9 +376,8 @@ public class PCAOp extends Operator {
     }
 
     private void processStatistics(final Rectangle[] tileRectangles) {
-        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length,
-                "Computing Statistics... ");
-        int tileCnt = 0;
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Computing Statistics... ", tileRectangles.length);
 
         final ThreadManager threadManager = new ThreadManager();
 
@@ -418,7 +417,7 @@ public class PCAOp extends Operator {
                 };
                 threadManager.add(worker);
 
-                status.worked(tileCnt++);
+                status.worked(1);
             }
             threadManager.finish();
 
@@ -432,9 +431,8 @@ public class PCAOp extends Operator {
     }
 
     private void processMin(final Rectangle[] tileRectangles) {
-        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length,
-                "Computing Min... ");
-        int tileCnt = 0;
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Computing Min... ", tileRectangles.length);
 
         final ThreadManager threadManager = new ThreadManager();
 
@@ -474,7 +472,7 @@ public class PCAOp extends Operator {
                 };
                 threadManager.add(worker);
 
-                status.worked(tileCnt++);
+                status.worked(1);
             }
 
             threadManager.finish();

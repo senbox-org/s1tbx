@@ -519,8 +519,8 @@ public class GCPSelectionOp extends Operator {
             //timeMonitor.start();
 
             final int numberOfMasterGCPs = masterGcpGroup.getNodeCount();
-            final StatusProgressMonitor status = new StatusProgressMonitor(numberOfMasterGCPs,
-                    "Cross Correlating " + bandCountStr + ' ' + slaveBand.getName() + "... ");
+            final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+            status.beginTask("Cross Correlating " + bandCountStr + ' ' + slaveBand.getName() + "... ", numberOfMasterGCPs);
 
             for (int i = 0; i < numberOfMasterGCPs; ++i) {
                 checkForCancellation();
@@ -577,7 +577,7 @@ public class GCPSelectionOp extends Operator {
 
                     threadManager.add(worker);
                 }
-                status.worked(i);
+                status.worked(1);
             }
 
             threadManager.finish();
@@ -630,8 +630,8 @@ public class GCPSelectionOp extends Operator {
                 }
             }
 
-            final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length, "Computing offset... ");
-            int tileCnt = 0;
+            final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+            status.beginTask("Computing offset... ", tileRectangles.length);
 
             final ThreadManager threadManager = new ThreadManager();
             try {
@@ -683,12 +683,11 @@ public class GCPSelectionOp extends Operator {
                                 }
                             }
 
-                            status.workedOne();
+                            status.worked(1);
                         }
                     };
                     threadManager.add(worker);
 
-                    // status.worked(tileCnt++);
                 }
                 threadManager.finish();
 

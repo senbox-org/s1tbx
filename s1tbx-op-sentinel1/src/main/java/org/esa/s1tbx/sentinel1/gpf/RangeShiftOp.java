@@ -290,9 +290,8 @@ public class RangeShiftOp extends Operator {
         final List<Double> azOffsetArray = new ArrayList<>(numBursts);
         final List<Double> rgOffsetArray = new ArrayList<>(numBursts);
 
-        final StatusProgressMonitor status = new StatusProgressMonitor(numBursts,
-                "Estimating azimuth and range offsets... ");
-        int tileCnt = 0;
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Estimating azimuth and range offsets... ", numBursts);
 
         final ThreadManager threadManager = new ThreadManager();
         try {
@@ -322,7 +321,7 @@ public class RangeShiftOp extends Operator {
                 };
                 threadManager.add(worker);
 
-                status.worked(tileCnt++);
+                status.worked(1);
             }
             status.done();
             threadManager.finish();

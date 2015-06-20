@@ -233,9 +233,8 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
         // fdd[][] is used in recording the dominant power of the Freeman-Durden decomposition result for each
         // pixel.
 
-        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length,
-                "Creating Initial Clusters... ");
-        int tileCnt = 0;
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Creating Initial Clusters... ", tileRectangles.length);
 
         final int[] counter = new int[4]; // number of pixels in each of the 4 categories: vol, dbl, suf, mix
 
@@ -313,7 +312,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                 };
                 threadManager.add(worker);
 
-                status.worked(tileCnt++);
+                status.worked(1);
             }
             threadManager.finish();
 
@@ -380,9 +379,9 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                                    final Rectangle[] tileRectangles,
                                    final PolarimetricClassificationOp op) {
 
-        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length,
-                "Computing Initial Cluster Centres... ");
-        int tileCnt = 0;
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Computing Initial Cluster Centres... ", tileRectangles.length);
+
         final ThreadManager threadManager = new ThreadManager();
 
         final double[][][] pvSumRe = new double[numInitialClusters][3][3];
@@ -454,7 +453,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                 };
                 threadManager.add(worker);
 
-                status.worked(tileCnt++);
+                status.worked(1);
             }
             threadManager.finish();
 
@@ -762,9 +761,8 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
 
         boolean endIteration = false;
 
-        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length * maxIterations,
-                "Computing Final Cluster Centres... ");
-        int tileCnt = 0;
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Computing Final Cluster Centres... ", tileRectangles.length * maxIterations);
 
         final int pvNumClusters = pvCenterList.size();
         final int pdNumClusters = pdCenterList.size();
@@ -881,7 +879,7 @@ public class FreemanDurdenWishart extends PolClassifierBase implements PolClassi
                     };
                     threadManager.add(worker);
 
-                    status.worked(tileCnt++);
+                    status.worked(1);
                 }
                 threadManager.finish();
 

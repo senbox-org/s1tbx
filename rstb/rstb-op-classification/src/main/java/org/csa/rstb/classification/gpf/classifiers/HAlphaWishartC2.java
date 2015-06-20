@@ -199,9 +199,8 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
                                               final Rectangle[] tileRectangles,
                                               final PolarimetricClassificationOp op) {
 
-        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length,
-                "Computing Initial Cluster Centres... ");
-        int tileCnt = 0;
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Computing Initial Cluster Centres... ", tileRectangles.length);
 
         final double[][][] sumRe = new double[9][2][2];
         final double[][][] sumIm = new double[9][2][2];
@@ -263,7 +262,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
                 };
                 threadManager.add(worker);
 
-                status.worked(tileCnt++);
+                status.worked(1);
             }
 
             threadManager.finish();
@@ -309,9 +308,8 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
         boolean endIteration = false;
         final double noDataValue = srcBandList.srcBands[0].getNoDataValue();
 
-        final StatusProgressMonitor status = new StatusProgressMonitor(tileRectangles.length * maxIterations,
-                "Computing Final Cluster Centres... ");
-        int tileCnt = 0;
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Computing Final Cluster Centres... ", tileRectangles.length * maxIterations);
 
         final ThreadManager threadManager = new ThreadManager();
 
@@ -371,7 +369,7 @@ public class HAlphaWishartC2 extends PolClassifierBase implements PolClassifier 
                     };
                     threadManager.add(worker);
 
-                    status.worked(tileCnt++);
+                    status.worked(1);
                 }
 
                 double diff = 0.0;

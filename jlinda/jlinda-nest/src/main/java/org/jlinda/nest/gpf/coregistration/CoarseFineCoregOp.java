@@ -474,8 +474,8 @@ public class CoarseFineCoregOp extends Operator {
             final ThreadManager threadManager = new ThreadManager();
 
             final int numberOfMasterGCPs = masterGcpGroup.getNodeCount();
-            final StatusProgressMonitor status = new StatusProgressMonitor(numberOfMasterGCPs,
-                    "Cross Correlating " + bandCountStr + ' ' + slaveBand1.getName() + "... ");
+            final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+            status.beginTask("Cross Correlating " + bandCountStr + ' ' + slaveBand1.getName() + "... ", numberOfMasterGCPs);
 
             for (int i = 0; i < numberOfMasterGCPs; ++i) {
 
@@ -529,7 +529,7 @@ public class CoarseFineCoregOp extends Operator {
 
                     threadManager.add(worker);
                 }
-                status.worked(i);
+                status.worked(1);
             }
 
             threadManager.finish();

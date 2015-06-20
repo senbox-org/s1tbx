@@ -385,9 +385,8 @@ public class DEMBasedCoregistrationOp extends Operator {
         final Band masterBand = getAmplitudeOrIntensityBand(masterProduct);
         final Band slaveBand = getAmplitudeOrIntensityBand(slaveProduct);
 
-        final StatusProgressMonitor status = new StatusProgressMonitor(numRandomTiles,
-                "Estimating bias in azimuth and range shifts... ");
-        int tileCnt = 0;
+        final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
+        status.beginTask("Estimating bias in azimuth and range shifts... ", numRandomTiles);
 
         final ThreadManager threadManager = new ThreadManager();
         try {
@@ -438,7 +437,7 @@ public class DEMBasedCoregistrationOp extends Operator {
                 };
                 threadManager.add(worker);
 
-                status.worked(tileCnt++);
+                status.worked(1);
             }
 
             double sumAzBias = 0.0;
