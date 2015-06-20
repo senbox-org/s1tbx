@@ -63,7 +63,7 @@ public class GaussianUncertaintyPropagator implements UncertaintyPropagator {
                 Term partialDerivative = derivative(term, symbol);
                 Term contrib = mul(partialDerivative, uncertainty);
                 double f = 1.0;
-                for (int order = 2; order < maxOrder; order++) {
+                for (int order = 2; order <= maxOrder; order++) {
                     f *= order;
                     partialDerivative = derivative(partialDerivative, symbol);
                     contrib = add(contrib, mul(div(c(1.0), c(f)), mul(partialDerivative, pow(uncertainty, c(order)))));
