@@ -61,22 +61,27 @@ public class BandArithmeticPerformanceTest extends TestCase {
 
         final RasterDataEvalEnv evalEnv = new RasterDataEvalEnv(0, 0, 1, 1);
 
-        long t1 = System.currentTimeMillis();
+        long t1 = System.nanoTime();
         int ignored = 0;
         for (int i = 0; i < MAX_NUM_TEST_LOOPS____; i++) {
             ignored += i;
         }
-        long t2 = System.currentTimeMillis();
+        long t2 = System.nanoTime();
         for (int i = 0; i < MAX_NUM_TEST_LOOPS____; i++) {
             term.evalI(evalEnv);
         }
-        long t3 = System.currentTimeMillis();
+        long t3 = System.nanoTime();
         long dt = (t3 - t2) - (t2 - t1);
-        long numOps = Math.round(MAX_NUM_TEST_LOOPS____ * (1000.0 / dt));
+        if (dt <= 0) {
+            // this weird condition may be caused by JVM delays e.g. GC or JIT, so try again
+            testThatPerformanceIsSufficient();
+        } else {
+            long numOps = Math.round(MAX_NUM_TEST_LOOPS____ * (1.0E9 / dt));
 
-        System.out.println("BandArithmeticPerformanceTest: #ops/s = " + numOps + " (ignore this: " + ignored + ")");
-        assertTrue(String.format("Low evaluation performance detected (%d ops/s for term \"%s\"): Term implementation change?", numOps, code),
-                   numOps > MIN_NUM_OPS_PER_SECOND);
+            System.out.println("BandArithmeticPerformanceTest: #ops/s = " + numOps + " (ignore this: " + ignored + ")");
+            assertTrue(String.format("Low evaluation performance detected (%d ops/s for term \"%s\"): Term implementation change?", numOps, code),
+                       numOps > MIN_NUM_OPS_PER_SECOND);
+        }
     }
 
 }
