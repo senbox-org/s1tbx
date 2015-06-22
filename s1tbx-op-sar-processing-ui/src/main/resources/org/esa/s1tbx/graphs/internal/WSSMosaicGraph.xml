@@ -72,9 +72,15 @@
         <band>Intensity_SS1</band>
       </sourceBands>
       <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
       <outputImageScaleInDb>false</outputImageScaleInDb>
       <createGammaBand>false</createGammaBand>
       <createBetaBand>false</createBetaBand>
+      <selectedPolarisations/>
+      <outputSigmaBand>false</outputSigmaBand>
+      <outputGammaBand>false</outputGammaBand>
+      <outputBetaBand>false</outputBetaBand>
+      <outputDNBand>false</outputDNBand>
     </parameters>
   </node>
   <node id="7-Calibration">
@@ -87,9 +93,15 @@
         <band>Intensity_SS2</band>
       </sourceBands>
       <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
       <outputImageScaleInDb>false</outputImageScaleInDb>
       <createGammaBand>false</createGammaBand>
       <createBetaBand>false</createBetaBand>
+      <selectedPolarisations/>
+      <outputSigmaBand>false</outputSigmaBand>
+      <outputGammaBand>false</outputGammaBand>
+      <outputBetaBand>false</outputBetaBand>
+      <outputDNBand>false</outputDNBand>
     </parameters>
   </node>
   <node id="8-Calibration">
@@ -102,9 +114,15 @@
         <band>Intensity_SS3</band>
       </sourceBands>
       <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
       <outputImageScaleInDb>false</outputImageScaleInDb>
       <createGammaBand>false</createGammaBand>
       <createBetaBand>false</createBetaBand>
+      <selectedPolarisations/>
+      <outputSigmaBand>false</outputSigmaBand>
+      <outputGammaBand>false</outputGammaBand>
+      <outputBetaBand>false</outputBetaBand>
+      <outputDNBand>false</outputDNBand>
     </parameters>
   </node>
   <node id="9-Calibration">
@@ -117,9 +135,15 @@
         <band>Intensity_SS4</band>
       </sourceBands>
       <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
       <outputImageScaleInDb>false</outputImageScaleInDb>
       <createGammaBand>false</createGammaBand>
       <createBetaBand>false</createBetaBand>
+      <selectedPolarisations/>
+      <outputSigmaBand>false</outputSigmaBand>
+      <outputGammaBand>false</outputGammaBand>
+      <outputBetaBand>false</outputBetaBand>
+      <outputDNBand>false</outputDNBand>
     </parameters>
   </node>
   <node id="10-Calibration">
@@ -132,9 +156,15 @@
         <band>Intensity_SS5</band>
       </sourceBands>
       <externalAuxFile/>
+      <outputImageInComplex>false</outputImageInComplex>
       <outputImageScaleInDb>false</outputImageScaleInDb>
       <createGammaBand>false</createGammaBand>
       <createBetaBand>false</createBetaBand>
+      <selectedPolarisations/>
+      <outputSigmaBand>false</outputSigmaBand>
+      <outputGammaBand>false</outputGammaBand>
+      <outputBetaBand>false</outputBetaBand>
+      <outputDNBand>false</outputDNBand>
     </parameters>
   </node>
   <node id="11-Multilook">
@@ -146,7 +176,8 @@
       <sourceBands/>
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
-      <note>Currently, detection for complex data is performed without any resampling</note>
+      <outputIntensity>true</outputIntensity>
+      <grSquarePixel>true</grSquarePixel>
     </parameters>
   </node>
   <node id="12-Multilook">
@@ -158,7 +189,8 @@
       <sourceBands/>
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
-      <note>Currently, detection for complex data is performed without any resampling</note>
+      <outputIntensity>true</outputIntensity>
+      <grSquarePixel>true</grSquarePixel>
     </parameters>
   </node>
   <node id="13-Multilook">
@@ -170,7 +202,8 @@
       <sourceBands/>
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
-      <note>Currently, detection for complex data is performed without any resampling</note>
+      <outputIntensity>true</outputIntensity>
+      <grSquarePixel>true</grSquarePixel>
     </parameters>
   </node>
   <node id="14-Multilook">
@@ -182,7 +215,8 @@
       <sourceBands/>
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
-      <note>Currently, detection for complex data is performed without any resampling</note>
+      <outputIntensity>true</outputIntensity>
+      <grSquarePixel>true</grSquarePixel>
     </parameters>
   </node>
   <node id="15-Multilook">
@@ -194,7 +228,8 @@
       <sourceBands/>
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
-      <note>Currently, detection for complex data is performed without any resampling</note>
+      <outputIntensity>true</outputIntensity>
+      <grSquarePixel>true</grSquarePixel>
     </parameters>
   </node>
   <node id="16-Mosaic">
