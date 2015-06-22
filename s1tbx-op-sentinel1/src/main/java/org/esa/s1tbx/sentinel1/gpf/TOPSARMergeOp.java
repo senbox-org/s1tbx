@@ -491,6 +491,20 @@ public final class TOPSARMergeOp extends Operator {
         absTgt.removeAttribute(absTgt.getAttribute("slrTimeToLastValidPixel"));
         absTgt.removeAttribute(absTgt.getAttribute("firstValidLineTime"));
         absTgt.removeAttribute(absTgt.getAttribute("lastValidLineTime"));
+
+        absTgt.removeElement(absTgt.getElement("BurstBoundary"));
+        final MetadataElement burstBoundaryTgt = new MetadataElement("BurstBoundary");
+        for (int p = 0; p < numOfSubSwath; p++) {
+            MetadataElement absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct[p]);
+            final MetadataElement burstBoundarySrc = absRoot.getElement("BurstBoundary");
+            if (burstBoundarySrc != null) {
+                final MetadataElement element = burstBoundarySrc.getElementAt(0);
+                if (element != null) {
+                    burstBoundaryTgt.addElement(element.createDeepClone());
+                }
+            }
+        }
+        absTgt.addElement(burstBoundaryTgt);
     }
 
     private void updateOriginalMetadata() {
