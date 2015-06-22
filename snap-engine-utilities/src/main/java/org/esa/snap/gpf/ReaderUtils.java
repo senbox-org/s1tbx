@@ -55,7 +55,11 @@ public final class ReaderUtils {
     }
 
     private static String createName(String origName, String newPrefix) {
-        return origName.replace(origName.substring(0, origName.indexOf("_")), newPrefix);
+        int sepPos = origName.indexOf("_");
+        if(sepPos < 0) {
+            sepPos = origName.length();
+        }
+        return origName.replace(origName.substring(0, sepPos), newPrefix);
     }
 
     public static void createVirtualIntensityBand(final Product product, final Band bandI, final Band bandQ, final String countStr) {
