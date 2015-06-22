@@ -75,16 +75,12 @@ public final class DEMGenerationOp extends Operator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
-    @Parameter(valueSet = {"ACE", "GETASSE30", "SRTM 3Sec", "ASTER 1sec GDEM"},
-            description = "The digital elevation model.",
+    @Parameter(description = "The digital elevation model.",
             defaultValue = "SRTM 3Sec",
             label = "Digital Elevation Model")
     private String demName = "SRTM 3Sec";
 
-    @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
-            ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
-            ResamplingFactory.CUBIC_CONVOLUTION_NAME},
-            defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
+    @Parameter(defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
             label = "DEM Resampling Method")
     private String demResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
 

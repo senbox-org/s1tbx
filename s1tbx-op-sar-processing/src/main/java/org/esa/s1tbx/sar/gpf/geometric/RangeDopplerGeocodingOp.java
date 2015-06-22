@@ -114,7 +114,7 @@ public class RangeDopplerGeocodingOp extends Operator {
     private
     String[] sourceBandNames = null;
 
-    @Parameter(valueSet = {"ACE", "GETASSE30", "SRTM 3Sec", "ASTER 1sec GDEM"}, description = "The digital elevation model.",
+    @Parameter(description = "The digital elevation model.",
             defaultValue = "SRTM 3Sec", label = "Digital Elevation Model")
     private String demName = "SRTM 3Sec";
 
@@ -124,14 +124,10 @@ public class RangeDopplerGeocodingOp extends Operator {
     @Parameter(label = "DEM No Data Value", defaultValue = "0")
     private double externalDEMNoDataValue = 0;
 
-    @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
-            ResamplingFactory.BILINEAR_INTERPOLATION_NAME, ResamplingFactory.CUBIC_CONVOLUTION_NAME},
-            defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label = "DEM Resampling Method")
+    @Parameter(defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label = "DEM Resampling Method")
     private String demResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
 
-    @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
-            ResamplingFactory.BILINEAR_INTERPOLATION_NAME, ResamplingFactory.CUBIC_CONVOLUTION_NAME},
-            defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label = "Image Resampling Method")
+    @Parameter(defaultValue = ResamplingFactory.BILINEAR_INTERPOLATION_NAME, label = "Image Resampling Method")
     private String imgResamplingMethod = ResamplingFactory.BILINEAR_INTERPOLATION_NAME;
 
     @Parameter(description = "The pixel spacing in meters", defaultValue = "0", label = "Pixel Spacing (m)")

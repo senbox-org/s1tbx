@@ -68,8 +68,7 @@ public final class SimulateAmplitudeOp extends Operator {
             label = "Orbit Interpolation Degree")
     private int orbitDegree = 3;
 
-    @Parameter(valueSet = {"ACE", "GETASSE30", "SRTM 3Sec", "ASTER 1sec GDEM"},
-            description = "The digital elevation model.",
+    @Parameter(description = "The digital elevation model.",
             defaultValue = "SRTM 3Sec",
             label = "Digital Elevation Model")
     private String demName = "SRTM 3Sec";

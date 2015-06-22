@@ -103,17 +103,11 @@ public class DEMBasedCoregistrationOp extends Operator {
     @TargetProduct(description = "The target product which will use the master's grid.")
     private Product targetProduct = null;
 
-    @Parameter(valueSet = {"ACE", "GETASSE30", "SRTM 3Sec", "ASTER 1sec GDEM"},
-            description = "The digital elevation model.",
+    @Parameter(description = "The digital elevation model.",
             defaultValue = "SRTM 3Sec", label = "Digital Elevation Model")
     private String demName = "SRTM 3Sec";
 
-    @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
-            ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
-            ResamplingFactory.CUBIC_CONVOLUTION_NAME,
-            ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
-            ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME},
-            defaultValue = ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
+    @Parameter(defaultValue = ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
             label = "DEM Resampling Method")
     private String demResamplingMethod = ResamplingFactory.BICUBIC_INTERPOLATION_NAME;
 

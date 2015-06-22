@@ -86,17 +86,11 @@ public final class BackGeocodingOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(valueSet = {"ACE", "GETASSE30", "SRTM 3Sec", "ASTER 1sec GDEM"},
-            description = "The digital elevation model.",
+    @Parameter(description = "The digital elevation model.",
             defaultValue = "SRTM 3Sec", label = "Digital Elevation Model")
     private String demName = "SRTM 3Sec";
 
-    @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME,
-            ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
-            ResamplingFactory.CUBIC_CONVOLUTION_NAME,
-            ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
-            ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME},
-            defaultValue = ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
+    @Parameter(defaultValue = ResamplingFactory.BICUBIC_INTERPOLATION_NAME,
             label = "DEM Resampling Method")
     private String demResamplingMethod = ResamplingFactory.BICUBIC_INTERPOLATION_NAME;
 
@@ -106,10 +100,7 @@ public final class BackGeocodingOp extends Operator {
     @Parameter(label = "DEM No Data Value", defaultValue = "0")
     private double externalDEMNoDataValue = 0;
 
-    @Parameter(valueSet = {ResamplingFactory.BILINEAR_INTERPOLATION_NAME,
-            ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
-            ResamplingFactory.BISINC_21_POINT_INTERPOLATION_NAME},
-            defaultValue = ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
+    @Parameter(defaultValue = ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME,
             description = "The method to be used when resampling the slave grid onto the master grid.",
             label = "Resampling Type")
     private String resamplingType = ResamplingFactory.BISINC_5_POINT_INTERPOLATION_NAME;
