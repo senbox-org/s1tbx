@@ -20,14 +20,7 @@ import org.esa.s1tbx.insar.gpf.Sentinel1Utils;
 import org.esa.snap.datamodel.AbstractMetadata;
 import org.esa.snap.datamodel.Unit;
 import org.esa.snap.eo.Constants;
-import org.esa.snap.framework.datamodel.Band;
-import org.esa.snap.framework.datamodel.MetadataAttribute;
-import org.esa.snap.framework.datamodel.MetadataElement;
-import org.esa.snap.framework.datamodel.Product;
-import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.TiePointGeoCoding;
-import org.esa.snap.framework.datamodel.TiePointGrid;
-import org.esa.snap.framework.datamodel.VirtualBand;
+import org.esa.snap.framework.datamodel.*;
 import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
@@ -45,6 +38,8 @@ import org.esa.snap.util.Maths;
 import org.esa.snap.util.ProductUtils;
 
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -84,6 +79,8 @@ public final class TOPSARDeburstOp extends Operator {
 
     private Sentinel1Utils su = null;
     private Sentinel1Utils.SubSwathInfo[] subSwath = null;
+
+    private static int numOfBoundaryPoints = 6;
 
     /**
      * Default constructor. The graph processing framework
@@ -430,6 +427,8 @@ public final class TOPSARDeburstOp extends Operator {
         AbstractMetadata.setAttribute(absTgt, AbstractMetadata.slant_range_to_first_pixel,
                 targetSlantRangeTimeToFirstPixel * Constants.lightSpeed);
 
+        addBurstBoundary(absTgt);
+
         for(MetadataElement elem : absTgt.getElements()) {
             if(elem.getName().startsWith(AbstractMetadata.BAND_PREFIX)) {
                 absTgt.removeElement(elem);
@@ -450,6 +449,115 @@ public final class TOPSARDeburstOp extends Operator {
             absTgt.addAttribute(new MetadataAttribute("lastValidLineTime", ProductData.TYPE_FLOAT64));
             absTgt.setAttributeDouble("lastValidLineTime", subSwath[0].lastValidLineTime);
         }
+    }
+
+    private void addBurstBoundary(final MetadataElement absTgt) {
+
+        final List<String> swathList = new ArrayList<>(5);
+        for(MetadataElement elem : absTgt.getElements()) {
+            if(elem.getName().startsWith(AbstractMetadata.BAND_PREFIX)) {
+                final String swath = elem.getAttributeString("swath");
+                if (swath != null && !swathList.contains(swath)) {
+                    swathList.add(swath);
+                }
+            }
+        }
+
+        double firstLineTime = 0.0, lastLineTime = 0.0, firstPixelTime = 0.0, lastPixelTime = 0.0;
+        final MetadataElement burstBoundary = new MetadataElement("BurstBoundary");
+        for (int i = 0; i < swathList.size(); i++) {
+            final String subSwathName = swathList.get(i);
+            final MetadataElement swathElem = new MetadataElement(subSwathName);
+            swathElem.addAttribute(new MetadataAttribute("count", ProductData.TYPE_INT16));
+            swathElem.setAttributeInt("count", subSwath[i].numOfBursts);
+            final GeoCoding bandGeoCoding = getBandGeoCoding(subSwathName);
+
+            for (int b = 0; b < subSwath[i].numOfBursts; b++) {
+                final MetadataElement burstElem = new MetadataElement("Burst"+b);
+                final MetadataElement firstLineElem = new MetadataElement("FirstLineBoundaryPoints");
+                final MetadataElement lastLineElem = new MetadataElement("LastLineBoundaryPoints");
+
+                if (b == 0) {
+                    firstLineTime = subSwath[i].burstFirstLineTime[b];
+                } else {
+                    firstLineTime = (subSwath[i].burstLastLineTime[b-1] + subSwath[i].burstFirstLineTime[b]) / 2.0;
+                }
+
+                if (b == subSwath[i].numOfBursts - 1) {
+                    lastLineTime = subSwath[i].burstLastLineTime[b];
+                } else {
+                    lastLineTime = (subSwath[i].burstLastLineTime[b] + subSwath[i].burstFirstLineTime[b+1]) / 2.0;
+                }
+
+                if (i == 0) {
+                    firstPixelTime = subSwath[i].slrTimeToFirstValidPixel;
+                } else {
+                    firstPixelTime = (subSwath[i-1].slrTimeToLastValidPixel + subSwath[i].slrTimeToFirstValidPixel) / 2.0;
+                }
+
+                if (i == swathList.size() - 1) {
+                    lastPixelTime = subSwath[i].slrTimeToLastValidPixel;
+                } else {
+                    lastPixelTime = (subSwath[i].slrTimeToLastValidPixel + subSwath[i+1].slrTimeToFirstValidPixel) / 2.0;
+                }
+
+                final double deltaTime = (lastPixelTime - firstPixelTime) / (numOfBoundaryPoints - 1);
+
+                for (int p = 0; p < numOfBoundaryPoints; p++) {
+
+                    final double slrtToPoint = firstPixelTime + p*deltaTime;
+
+                    final MetadataElement firstLinePointElem =
+                            createPointElement(i, b, firstLineTime, slrtToPoint, bandGeoCoding);
+
+                    firstLineElem.addElement(firstLinePointElem);
+
+                    final MetadataElement lastLinePointElem =
+                            createPointElement(i, b, lastLineTime, slrtToPoint, bandGeoCoding);
+
+                    lastLineElem.addElement(lastLinePointElem);
+                }
+                burstElem.addElement(firstLineElem);
+                burstElem.addElement(lastLineElem);
+                swathElem.addElement(burstElem);
+            }
+            burstBoundary.addElement(swathElem);
+        }
+        absTgt.addElement(burstBoundary);
+    }
+
+    private GeoCoding getBandGeoCoding(final String subSwathName) {
+
+        final Band[] bands = sourceProduct.getBands();
+        for (Band band:bands) {
+            if (band.getName().contains(subSwathName)) {
+                return band.getGeoCoding();
+            }
+        }
+        return null;
+    }
+
+    private MetadataElement createPointElement(
+            final int s, final int b, final double lineTime, final double pixelTime, final GeoCoding bandGeoCoding) {
+
+        final MetadataElement pointElem = new MetadataElement("BoundaryPoint");
+
+
+        final double y = b*subSwath[s].linesPerBurst +
+                (lineTime - subSwath[s].burstFirstLineTime[b]) / subSwath[s].azimuthTimeInterval;
+
+        final double x = (pixelTime - subSwath[s].slrTimeToFirstPixel) / targetDeltaSlantRangeTime;
+
+        GeoPos geoPos = new GeoPos();
+        bandGeoCoding.getGeoPos(new PixelPos(x, y), geoPos);
+
+        pointElem.addAttribute(new MetadataAttribute("lat", ProductData.TYPE_FLOAT32));
+        pointElem.setAttributeDouble("lat", geoPos.lat);
+
+        pointElem.addAttribute(new MetadataAttribute("lon", ProductData.TYPE_FLOAT32));
+        pointElem.setAttributeDouble("lon", geoPos.lon);
+
+        return pointElem;
     }
 
     private void updateOriginalMetadata() {
