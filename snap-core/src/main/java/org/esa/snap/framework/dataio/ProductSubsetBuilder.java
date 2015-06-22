@@ -20,9 +20,12 @@ import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.FlagCoding;
 import org.esa.snap.framework.datamodel.GeoCoding;
+import org.esa.snap.framework.datamodel.GeoPos;
 import org.esa.snap.framework.datamodel.ImageInfo;
 import org.esa.snap.framework.datamodel.IndexCoding;
+import org.esa.snap.framework.datamodel.MetadataAttribute;
 import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.framework.datamodel.PixelPos;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.datamodel.RasterDataNode;
@@ -34,8 +37,7 @@ import org.esa.snap.util.Debug;
 import org.esa.snap.util.ProductUtils;
 
 import javax.media.jai.Histogram;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.IOException;
 import java.util.Map;
 
@@ -66,6 +68,144 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         return productSubsetBuilder.readProductNodes(sourceProduct, subsetDef, name, desc);
     }
 
+    private static void updateMetadata(
+            final Product sourceProduct, final Product targetProduct, ProductSubsetDef subsetDef) throws IOException {
+
+        try {
+            final MetadataElement root = targetProduct.getMetadataRoot();
+            if(root == null)
+                return;
+
+            final MetadataElement absRoot = root.getElement("Abstracted_Metadata");
+            if(absRoot == null)
+                return;
+
+            boolean nearRangeOnLeft = isNearRangeOnLeft(targetProduct);
+
+            final MetadataAttribute firstLineTime = absRoot.getAttribute("first_line_time");
+            if(firstLineTime != null) {
+                final ProductData.UTC startTime = targetProduct.getStartTime();
+                if(startTime != null)
+                    firstLineTime.getData().setElems(startTime.getArray());
+            }
+            final MetadataAttribute lastLineTime = absRoot.getAttribute("last_line_time");
+            if(lastLineTime != null) {
+                final ProductData.UTC endTime = targetProduct.getEndTime();
+                if(endTime != null)
+                    lastLineTime.getData().setElems(endTime.getArray());
+            }
+            final MetadataAttribute totalSize = absRoot.getAttribute("total_size");
+            if(totalSize != null)
+                totalSize.getData().setElemUInt(targetProduct.getRawStorageSize());
+
+            if (nearRangeOnLeft) {
+                setLatLongMetadata(targetProduct, absRoot, "first_near_lat", "first_near_long", 0.5f, 0.5f);
+                setLatLongMetadata(targetProduct, absRoot, "first_far_lat", "first_far_long",
+                        targetProduct.getSceneRasterWidth() - 1 + 0.5f, 0.5f);
+
+                setLatLongMetadata(targetProduct, absRoot, "last_near_lat", "last_near_long",
+                        0.5f, targetProduct.getSceneRasterHeight() - 1 + 0.5f);
+                setLatLongMetadata(targetProduct, absRoot, "last_far_lat", "last_far_long",
+                        targetProduct.getSceneRasterWidth() - 1 + 0.5f, targetProduct.getSceneRasterHeight() - 1 + 0.5f);
+            } else {
+                setLatLongMetadata(targetProduct, absRoot, "first_near_lat", "first_near_long",
+                        targetProduct.getSceneRasterWidth() - 1 + 0.5f, 0.5f);
+                setLatLongMetadata(targetProduct, absRoot, "first_far_lat", "first_far_long", 0.5f, 0.5f);
+
+                setLatLongMetadata(targetProduct, absRoot, "last_near_lat", "last_near_long",
+                        targetProduct.getSceneRasterWidth() - 1 + 0.5f, targetProduct.getSceneRasterHeight() - 1 + 0.5f);
+                setLatLongMetadata(targetProduct, absRoot, "last_far_lat", "last_far_long",
+                        0.5f, targetProduct.getSceneRasterHeight() - 1 + 0.5f);
+            }
+
+            final MetadataAttribute height = absRoot.getAttribute("num_output_lines");
+            if(height != null)
+                height.getData().setElemUInt(targetProduct.getSceneRasterHeight());
+
+            final MetadataAttribute width = absRoot.getAttribute("num_samples_per_line");
+            if(width != null)
+                width.getData().setElemUInt(targetProduct.getSceneRasterWidth());
+
+            final MetadataAttribute offsetX = absRoot.getAttribute("subset_offset_x");
+            if(offsetX != null && subsetDef.getRegion() != null)
+                offsetX.getData().setElemUInt(subsetDef.getRegion().x);
+
+            final MetadataAttribute offsetY = absRoot.getAttribute("subset_offset_y");
+            if(offsetY != null && subsetDef.getRegion() != null)
+                offsetY.getData().setElemUInt(subsetDef.getRegion().y);
+
+            final MetadataAttribute slantRange = absRoot.getAttribute("slant_range_to_first_pixel");
+            if(slantRange != null) {
+                final TiePointGrid srTPG = targetProduct.getTiePointGrid("slant_range_time");
+                if(srTPG != null) {
+                    final double slantRangeTime;
+                    if (nearRangeOnLeft) {
+                        slantRangeTime = srTPG.getPixelDouble(0,0) / 1000000000.0; // ns to s
+                    } else {
+                        slantRangeTime = srTPG.getPixelDouble(targetProduct.getSceneRasterWidth()-1,0) / 1000000000.0; // ns to s
+                    }
+                    final double halfLightSpeed = 299792458.0 / 2.0;
+                    final double slantRangeDist = slantRangeTime * halfLightSpeed;
+                    slantRange.getData().setElemDouble(slantRangeDist);
+                }
+            }
+
+            setSubsetSRGRCoefficients(sourceProduct, targetProduct, subsetDef, absRoot, nearRangeOnLeft);
+        } catch(Exception e) {
+            throw new IOException(e);
+        }
+    }
+
+    private static boolean isNearRangeOnLeft(final Product product) {
+        final TiePointGrid incidenceAngle = product.getTiePointGrid("incident_angle");
+        if(incidenceAngle != null) {
+            final double incidenceAngleToFirstPixel = incidenceAngle.getPixelDouble(0, 0);
+            final double incidenceAngleToLastPixel = incidenceAngle.getPixelDouble(product.getSceneRasterWidth()-1, 0);
+            return (incidenceAngleToFirstPixel < incidenceAngleToLastPixel);
+        } else {
+            return true;
+        }
+    }
+
+    private static void setSubsetSRGRCoefficients(
+            final Product sourceProduct, final Product targetProduct, final ProductSubsetDef subsetDef,
+            final MetadataElement absRoot, final boolean nearRangeOnLeft) {
+
+        final MetadataElement SRGRCoefficientsElem = absRoot.getElement("SRGR_Coefficients");
+        if(SRGRCoefficientsElem != null) {
+            final double rangeSpacing = absRoot.getAttributeDouble("RANGE_SPACING", 0);
+            final double colIndex = subsetDef.getRegion() == null ? 0 : subsetDef.getRegion().getX();
+
+            for(MetadataElement srgrList : SRGRCoefficientsElem.getElements()) {
+                final double grO = srgrList.getAttributeDouble("ground_range_origin", 0);
+                double ground_range_origin_subset;
+                if (nearRangeOnLeft) {
+                    ground_range_origin_subset = grO + colIndex*rangeSpacing;
+                } else {
+                    final double colIndexFromRight = sourceProduct.getSceneRasterWidth() - colIndex -
+                                                     targetProduct.getSceneRasterWidth();
+                    ground_range_origin_subset = grO + colIndexFromRight*rangeSpacing;
+                }
+                srgrList.setAttributeDouble("ground_range_origin", ground_range_origin_subset);
+            }
+        }
+    }
+
+    private static void setLatLongMetadata(final Product product, final MetadataElement absRoot,
+                                           final String tagLat, final String tagLon, final float x, final float y) {
+        final PixelPos pixelPos = new PixelPos(x, y);
+        final GeoPos geoPos = new GeoPos();
+        if(product.getGeoCoding() == null) return;
+        product.getGeoCoding().getGeoPos(pixelPos, geoPos);
+
+        final MetadataAttribute lat = absRoot.getAttribute(tagLat);
+        if(lat != null)
+            lat.getData().setElemDouble(geoPos.getLat());
+        final MetadataAttribute lon = absRoot.getAttribute(tagLon);
+        if(lon != null)
+            lon.getData().setElemDouble(geoPos.getLon());
+    }
+
     /**
      * Reads a data product and returns a in-memory representation of it. This method was called by
      * <code>readProductNodes(input, subsetInfo)</code> of the abstract superclass.
@@ -88,7 +228,10 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             sceneRasterWidth = s.width;
             sceneRasterHeight = s.height;
         }
-        return createProduct();
+        final Product targetProduct = createProduct();
+        updateMetadata(sourceProduct, targetProduct, getSubsetDef());
+
+        return targetProduct;
     }
 
     /**
@@ -324,7 +467,9 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         addTiePointGridsToProduct(product);
         addBandsToProduct(product);
         ProductUtils.copyMasks(sourceProduct, product);
+        addFlagCodingsToProduct(product);
         addGeoCodingToProduct(product);
+        addIndexCodingsToProduct(product);
         ProductUtils.copyVectorData(sourceProduct, product);
         ProductUtils.copyOverlayMasks(sourceProduct, product);
         ProductUtils.copyPreferredTileSize(sourceProduct, product);
