@@ -176,8 +176,8 @@
       <sourceBands/>
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
-      <outputIntensity>true<outputIntensity/>
-      <grSquarePixel>true<grSquarePixel/>
+      <outputIntensity>true</outputIntensity>
+      <grSquarePixel>true</grSquarePixel>
     </parameters>
   </node>
   <node id="12-Multilook">
@@ -189,8 +189,8 @@
       <sourceBands/>
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
-      <outputIntensity>true<outputIntensity/>
-      <grSquarePixel>true<grSquarePixel/>
+      <outputIntensity>true</outputIntensity>
+      <grSquarePixel>true</grSquarePixel>
     </parameters>
   </node>
   <node id="13-Multilook">
@@ -202,8 +202,8 @@
       <sourceBands/>
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
-      <outputIntensity>true<outputIntensity/>
-      <grSquarePixel>true<grSquarePixel/>
+      <outputIntensity>true</outputIntensity>
+      <grSquarePixel>true</grSquarePixel>
     </parameters>
   </node>
   <node id="14-Multilook">
@@ -215,8 +215,8 @@
       <sourceBands/>
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
-      <outputIntensity>true<outputIntensity/>
-      <grSquarePixel>true<grSquarePixel/>
+      <outputIntensity>true</outputIntensity>
+      <grSquarePixel>true</grSquarePixel>
     </parameters>
   </node>
   <node id="15-Multilook">
@@ -228,8 +228,8 @@
       <sourceBands/>
       <nRgLooks>2</nRgLooks>
       <nAzLooks>1</nAzLooks>
-      <outputIntensity>true<outputIntensity/>
-      <grSquarePixel>true<grSquarePixel/>
+      <outputIntensity>true</outputIntensity>
+      <grSquarePixel>true</grSquarePixel>
     </parameters>
   </node>
   <node id="16-Mosaic">
