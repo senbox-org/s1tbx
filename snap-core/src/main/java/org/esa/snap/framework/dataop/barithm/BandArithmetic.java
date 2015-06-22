@@ -426,6 +426,11 @@ public class BandArithmetic {
         return "$" + product.getRefNo() + '.';
     }
 
+    /**
+     * Determines whether all rasters which are referenced in a term are compatible.
+     * @param term The term in question
+     * @return true if the rasters are compatible
+     */
     public static boolean areReferencedRastersCompatible(Term term) {
         final RasterDataSymbol[] rasterDataSymbols = getRefRasterDataSymbols(term);
         if (rasterDataSymbols.length > 1) {
@@ -441,6 +446,12 @@ public class BandArithmetic {
         return true;
     }
 
+    /**
+     * Determines whether all rasters which are referenced in a set of expressions are compatible.
+     * @param product The product to which the expressions refer
+     * @param expressions the expressions in question
+     * @return true if all referenced rasters are compatible
+     */
     public static boolean areReferencedRastersCompatible(Product product, String... expressions) {
         if (expressions.length == 0) {
             return true;
