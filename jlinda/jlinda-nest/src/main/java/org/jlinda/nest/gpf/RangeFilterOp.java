@@ -308,6 +308,16 @@ public class RangeFilterOp extends Operator {
         if(isCoregStack != 1) {
             throw new OperatorException("Input should be a coregistered SLC stack");
         }
+
+        boolean mstSlvBandsFound = false;
+        for (Band band : sourceProduct.getBands()) {
+            if(band.getName().toLowerCase().contains("mst") || band.getName().toLowerCase().contains("slv")) {
+                mstSlvBandsFound = true;
+            }
+        }
+        if(!mstSlvBandsFound) {
+            throw new OperatorException("Range spectral filtering should be applied before other insar processing");
+        }
     }
 
     /**
