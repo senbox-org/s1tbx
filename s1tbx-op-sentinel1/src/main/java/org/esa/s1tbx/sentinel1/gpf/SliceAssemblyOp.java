@@ -53,6 +53,7 @@ import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.ProductUtils;
+import org.esa.snap.util.SystemUtils;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -273,8 +274,8 @@ public final class SliceAssemblyOp extends Operator {
             //System.out.println("Check slant range time for " + e.getName() + " " + sss + " = " + slantRangeTime);
             for (int i = 1; i < sliceProducts.length; i++) {
                 double srt = getSlantRangeTime(sliceProducts[i], swathID);
-                if (Math.abs(slantRangeTime - srt) > 1e-12) {
-                     throw new OperatorException("Slant range time don't agree: " + i + " " + swathID);
+                if (Math.abs(slantRangeTime - srt) > 1e-8) {
+                     SystemUtils.LOG.warning("Slant range time don't agree: " + i + " " + swathID);
                 }
             }
         }
