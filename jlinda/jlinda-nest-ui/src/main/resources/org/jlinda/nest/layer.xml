@@ -205,7 +205,7 @@
         </file>
         <file name="org.jlinda.nest.gpf.ui.ResampleOpUI">
             <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.ResampleOpUI"/>
-            <attr name="operatorName" stringvalue="Resample2"/>
+            <attr name="operatorName" stringvalue="Resample"/>
         </file>
         <file name="org.jlinda.nest.gpf.ui.CrossResamplingOpUI">
             <attr name="operatorUIClass" stringvalue="org.jlinda.nest.gpf.ui.CrossResamplingOpUI"/>
