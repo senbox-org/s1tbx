@@ -43,7 +43,7 @@ public final class ACEFile extends ElevationFile {
         return tile;
     }
 
-    protected boolean getRemoteFile() throws IOException {
+    protected Boolean getRemoteFile() throws IOException {
         return getRemoteHttpFile(remoteHTTP);
     }
 }

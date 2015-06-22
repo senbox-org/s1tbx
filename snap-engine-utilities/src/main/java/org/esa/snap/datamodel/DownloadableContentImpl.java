@@ -15,7 +15,7 @@
  */
 package org.esa.snap.datamodel;
 
-import org.esa.snap.gpf.StatusProgressMonitor;
+import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.util.DefaultPropertyMap;
 import org.esa.snap.util.PropertyMap;
 import org.esa.snap.util.ResourceUtils;

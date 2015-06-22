@@ -37,7 +37,7 @@ public final class AsterFile extends ElevationFile {
         this.demModel = model;
     }
 
-    protected boolean getRemoteFile() throws IOException {
+    protected Boolean getRemoteFile() throws IOException {
         remoteFileExists = false;
         return false;
     }

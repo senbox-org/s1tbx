@@ -46,7 +46,7 @@ public final class SRTM3GeoTiffFile extends ElevationFile {
         return tile;
     }
 
-    protected boolean getRemoteFile() throws IOException {
+    protected Boolean getRemoteFile() throws IOException {
         try {
             return getRemoteHttpFile(remoteHTTP);
         } catch (Exception e) {

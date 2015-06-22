@@ -44,7 +44,7 @@ public final class ACE2_5MinFile extends ElevationFile {
         return tile;
     }
 
-    protected boolean getRemoteFile() throws IOException {
+    protected Boolean getRemoteFile() throws IOException {
         return getRemoteHttpFile(remoteHTTP);
     }
 }

@@ -17,6 +17,7 @@ package org.esa.snap.framework.dataop.dem;
 
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.framework.dataop.downloadable.ftpUtils;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
@@ -32,6 +33,8 @@ import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -100,7 +103,7 @@ public abstract class ElevationFile {
             if (localFileExists) {
                 getLocalFile();
             } else if (remoteFileExists) {
-                if (getRemoteFile()) {
+                if (downloadRemoteFile()) {
                     getLocalFile();
                 }
             }
@@ -142,9 +145,23 @@ public abstract class ElevationFile {
         }
     }
 
-    protected abstract boolean getRemoteFile() throws IOException;
+    private Boolean downloadRemoteFile() {
+        final AtomicReference<Boolean> returnValue = new AtomicReference<>();
+        Runnable operation = () -> {
+            try {
+                returnValue.set(getRemoteFile());
+            } catch (IOException e) {
+                SystemUtils.LOG.log(Level.SEVERE, "Failed to download remote file.", e);
+            }
+        };
+        operation.run();
 
-    protected boolean getRemoteHttpFile(final String baseUrl) throws IOException {
+        return returnValue.get();
+    }
+
+    protected abstract Boolean getRemoteFile() throws IOException;
+
+    protected Boolean getRemoteHttpFile(final String baseUrl) throws IOException {
         final String remotePath = baseUrl + localZipFile.getName();
         SystemUtils.LOG.info("http retrieving " + remotePath);
         try {
@@ -182,9 +199,8 @@ public abstract class ElevationFile {
         }
 
         try {
-            //final StatusProgressMonitor status = new StatusProgressMonitor(contentLength,
-            //        "Downloading " + localZipFile.getName() + "... ");
-            //status.setAllowStdOut(false);
+            final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.DATA_TRANSFER);
+            status.beginTask("Downloading " + localZipFile.getName() + "... ", contentLength);
 
             final int size = 32768;
             final byte[] buf = new byte[size];
@@ -192,10 +208,10 @@ public abstract class ElevationFile {
             int total = 0;
             while ((n = is.read(buf, 0, size)) > -1) {
                 os.write(buf, 0, n);
-                total += n;
-                //status.worked(total);
+                total =+ n;
+                status.worked(total);
             }
-            //status.done();
+            status.done();
 
             while (true) {
                 final int b = is.read();
@@ -217,7 +233,7 @@ public abstract class ElevationFile {
         return outputFile;
     }
 
-    protected boolean getRemoteFTPFile(final String remoteFTP, final String remotePath) throws IOException {
+    protected Boolean getRemoteFTPFile(final String remoteFTP, final String remotePath) throws IOException {
         try {
             if (ftp == null) {
                 ftp = new ftpUtils(remoteFTP);

@@ -44,7 +44,7 @@ public final class SRTM1GridFile extends ElevationFile {
         return tile;
     }
 
-    protected boolean getRemoteFile() throws IOException {
+    protected Boolean getRemoteFile() throws IOException {
         return false;
     }
 }

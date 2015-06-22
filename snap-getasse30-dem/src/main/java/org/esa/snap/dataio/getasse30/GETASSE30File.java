@@ -44,7 +44,7 @@ public final class GETASSE30File extends ElevationFile {
         return tile;
     }
 
-    protected boolean getRemoteFile() throws IOException {
+    protected Boolean getRemoteFile() throws IOException {
         return getRemoteHttpFile(remoteHTTP);
     }
 }
