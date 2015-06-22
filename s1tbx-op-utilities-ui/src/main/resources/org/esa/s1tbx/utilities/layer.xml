@@ -63,10 +63,6 @@
     </folder>
 
     <folder name="OperatorUIs">
-        <file name="org.esa.s1tbx.utilities.gpf.ui.BandMathsOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.utilities.gpf.ui.BandMathsOpUI"/>
-            <attr name="operatorName" stringvalue="BandMaths"/>
-        </file>
         <file name="org.esa.s1tbx.utilities.gpf.ui.BandSelectOpUI">
             <attr name="operatorUIClass" stringvalue="org.esa.s1tbx.utilities.gpf.ui.BandSelectOpUI"/>
             <attr name="operatorName" stringvalue="BandSelect"/>
