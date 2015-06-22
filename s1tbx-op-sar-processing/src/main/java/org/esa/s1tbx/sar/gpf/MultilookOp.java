@@ -89,9 +89,6 @@ public final class MultilookOp extends Operator {
     @Parameter(description = "Use ground square pixel", defaultValue = "true", label = "GR Square Pixel")
     private Boolean grSquarePixel = true;
 
-    @Parameter(defaultValue = "Currently, detection for complex data is performed without any resampling", label = "Note")
-    String note;
-
     private MetadataElement absRoot = null;
 
     private double azimuthLooks; // original azimuth_looks from metadata
