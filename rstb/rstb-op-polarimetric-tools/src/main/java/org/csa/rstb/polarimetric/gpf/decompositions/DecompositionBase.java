@@ -22,7 +22,7 @@ import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.gpf.StatusProgressMonitor;
+import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.gpf.ThreadManager;
 
 import java.awt.Dimension;
