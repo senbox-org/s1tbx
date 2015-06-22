@@ -48,7 +48,7 @@ import org.esa.snap.framework.gpf.annotations.SourceProduct;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.StackUtils;
-import org.esa.snap.gpf.StatusProgressMonitor;
+import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.gpf.ThreadManager;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.MemUtils;

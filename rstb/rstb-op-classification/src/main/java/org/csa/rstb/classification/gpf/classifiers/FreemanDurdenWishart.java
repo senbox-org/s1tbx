@@ -24,7 +24,7 @@ import org.esa.snap.framework.datamodel.IndexCoding;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.gpf.Tile;
 import org.esa.snap.gpf.OperatorUtils;
-import org.esa.snap.gpf.StatusProgressMonitor;
+import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.gpf.ThreadManager;
 import org.esa.snap.gpf.TileIndex;
 
