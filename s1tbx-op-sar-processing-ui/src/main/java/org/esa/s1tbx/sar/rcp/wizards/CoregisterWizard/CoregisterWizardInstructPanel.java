@@ -34,7 +34,7 @@ public class CoregisterWizardInstructPanel extends AbstractInstructPanel {
         imgPosX = 100;
         imgPosY = 240;
         try {
-            image = ImageIO.read(ResourceUtils.getResourceAsStream("org/esa/s1tbx/coreg.png", CoregisterWizardInstructPanel.class));
+            image = ImageIO.read(ResourceUtils.getResourceAsStream("org/esa/s1tbx/sar/images/coreg.png", CoregisterWizardInstructPanel.class));
         } catch (IOException e) {
             image = null;
         }
