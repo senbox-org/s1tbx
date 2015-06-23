@@ -220,6 +220,15 @@ public class BandMathsOp extends Operator {
                description = "List of variables which can be used within the expressions.")
     private Variable[] variables;
 
+    @Parameter
+    private String bandName;
+    @Parameter
+    private String bandUnit;
+    @Parameter
+    private Double bandNodataValue;
+    @Parameter
+    private String bandExpression = null;
+
     private Map<Band, BandDescriptor> descriptorMap;
 
     public BandMathsOp() {
@@ -244,31 +253,49 @@ public class BandMathsOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         if (targetBandDescriptors == null || targetBandDescriptors.length == 0) {
-            throw new OperatorException("No target bands specified.");
-        }
-
-        if (sourceProducts == null || sourceProducts.length == 0) {
-            throw new OperatorException("No source products given.");
+        //    throw new OperatorException("No target bands specified.");
+            if(bandExpression != null) {
+                targetBandDescriptors = new BandMathsOp.BandDescriptor[1];
+                final BandMathsOp.BandDescriptor bandDesc = new BandMathsOp.BandDescriptor();
+                bandDesc.name = bandName;
+                bandDesc.unit = bandUnit;
+                bandDesc.noDataValue = bandNodataValue;
+                bandDesc.type =  ProductData.TYPESTRING_FLOAT32;
+                bandDesc.expression = bandExpression;
+                targetBandDescriptors[0] = bandDesc;
+            }
         }
         int width = sourceProducts[0].getSceneRasterWidth();
         int height = sourceProducts[0].getSceneRasterHeight();
+        int cnt = 1;
         for (Product product : sourceProducts) {
             if (product.getSceneRasterWidth() != width ||
                 product.getSceneRasterHeight() != height) {
                 throw new OperatorException("Products must have the same raster dimension.");
             }
+            int refNo = product.getRefNo();
+            if(refNo == 0) {
+                product.setRefNo(cnt++);
+            }
         }
         targetProduct = new Product(sourceProducts[0].getName() + "BandMath", "BandMath", width, height);
 
-        descriptorMap = new HashMap<Band, BandDescriptor>(targetBandDescriptors.length);
-        Namespace namespace = createNamespace();
-        Parser verificationParser = new ParserImpl(namespace, true);
-        for (BandDescriptor bandDescriptor : targetBandDescriptors) {
-            createBand(bandDescriptor, verificationParser);
+        if (targetBandDescriptors != null && targetBandDescriptors.length > 0) {
+            descriptorMap = new HashMap<Band, BandDescriptor>(targetBandDescriptors.length);
+            Namespace namespace = createNamespace();
+            Parser verificationParser = new ParserImpl(namespace, true);
+            for (BandDescriptor bandDescriptor : targetBandDescriptors) {
+                createBand(bandDescriptor, verificationParser);
+            }
         }
 
         ProductUtils.copyMetadata(sourceProducts[0], targetProduct);
+        ProductUtils.copyTiePointGrids(sourceProducts[0], targetProduct);
+        ProductUtils.copyFlagCodings(sourceProducts[0], targetProduct);
         ProductUtils.copyGeoCoding(sourceProducts[0], targetProduct);
+        ProductUtils.copyMasks(sourceProducts[0], targetProduct);
+        ProductUtils.copyVectorData(sourceProducts[0], targetProduct);
+        ProductUtils.copyIndexCodings(sourceProducts[0], targetProduct);
         for (Product sourceProduct : sourceProducts) {
             if (sourceProduct.getStartTime() != null && sourceProduct.getEndTime() != null) {
                 targetProduct.setStartTime(sourceProduct.getStartTime());
@@ -276,6 +303,7 @@ public class BandMathsOp extends Operator {
                 break;
             }
         }
+        targetProduct.setDescription(sourceProducts[0].getDescription());
     }
 
     @Override
