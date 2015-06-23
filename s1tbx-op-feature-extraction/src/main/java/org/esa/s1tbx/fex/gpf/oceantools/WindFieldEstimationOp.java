@@ -35,6 +35,7 @@ import org.esa.snap.framework.gpf.annotations.OperatorMetadata;
 import org.esa.snap.framework.gpf.annotations.Parameter;
 import org.esa.snap.framework.gpf.annotations.SourceProduct;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
+import org.esa.snap.gpf.InputProductValidator;
 import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.ResourceUtils;
@@ -119,6 +120,9 @@ public class WindFieldEstimationOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         try {
+            final InputProductValidator validator = new InputProductValidator(sourceProduct);
+            validator.checkIfCalibrated(true);
+            validator.checkIfTOPSARBurstProduct(false);
 
             absRoot = AbstractMetadata.getAbstractedMetadata(sourceProduct);
 
