@@ -212,14 +212,10 @@ public class InputProductValidator {
         }
     }
 
-    public void checkIfCalibrated() throws OperatorException {
-        if (OperatorUtils.isCalibrated(product)) {
+    public void checkIfCalibrated(final boolean shouldBe) throws OperatorException {
+        if (!shouldBe && OperatorUtils.isCalibrated(product)) {
             throw new OperatorException("Source product has already been calibrated");
-        }
-    }
-
-    public void checkIfNotCalibrated() throws OperatorException {
-        if (!OperatorUtils.isCalibrated(product)) {
+        } else if (shouldBe && !OperatorUtils.isCalibrated(product)) {
             throw new OperatorException("Source product should be calibrated");
         }
     }
