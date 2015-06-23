@@ -265,10 +265,6 @@ public class BandMathsOp extends Operator {
                 targetBandDescriptors[0] = bandDesc;
             }
         }
-
-        if (sourceProducts == null || sourceProducts.length == 0) {
-            throw new OperatorException("No source products given.");
-        }
         int width = sourceProducts[0].getSceneRasterWidth();
         int height = sourceProducts[0].getSceneRasterHeight();
         int cnt = 1;
