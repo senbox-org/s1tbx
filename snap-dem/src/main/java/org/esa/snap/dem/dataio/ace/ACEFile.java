@@ -19,6 +19,7 @@ import org.esa.snap.framework.dataop.dem.ElevationFile;
 import org.esa.snap.framework.dataop.dem.ElevationTile;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.util.Settings;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +31,8 @@ public final class ACEFile extends ElevationFile {
 
     private final ACEElevationModel demModel;
 
-    private static final String remoteHTTP = "http://nest.s3.amazonaws.com/data/ACE30/";
+    private static final String remoteHTTP = Settings.instance().get("DEM.aceDEM_HTTP",
+                                                                     "http://nest.s3.amazonaws.com/data/ACE30/");
 
     public ACEFile(final ACEElevationModel model, final File localFile, final ProductReader reader) {
         super(localFile, reader);

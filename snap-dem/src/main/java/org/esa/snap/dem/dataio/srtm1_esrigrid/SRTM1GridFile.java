@@ -30,9 +30,6 @@ public final class SRTM1GridFile extends ElevationFile {
 
     private final SRTM1GridElevationModel demModel;
 
-    private static final String remoteFTP = "";
-    private static final String remotePath = "";
-
     public SRTM1GridFile(SRTM1GridElevationModel model, File localFile, ProductReader reader) {
         super(localFile, reader);
         this.demModel = model;
