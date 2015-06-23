@@ -187,7 +187,7 @@ public class ToolAdapterOp extends Operator {
                 descriptor = ((ToolAdapterOperatorDescriptor) accessibleContext.getOperatorSpi().getOperatorDescriptor());
             }
             if (this.progressMonitor != null) {
-                this.progressMonitor.beginTask("Starting " + this.descriptor.getName(), 100);
+                this.progressMonitor.beginTask("Executing " + this.descriptor.getName(), 100);
             }
             validateDescriptor();
             if (this.consumer == null) {
