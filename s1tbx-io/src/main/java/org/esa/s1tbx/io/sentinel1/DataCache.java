@@ -16,8 +16,8 @@ public class DataCache {
     private final LoadingCache<DataKey, Data> cache;
 
     public DataCache() {
-        cache = CacheBuilder.newBuilder().maximumSize(3000).initialCapacity(1000)
-        .expireAfterAccess(5, TimeUnit.MINUTES)
+        cache = CacheBuilder.newBuilder().maximumSize(1000).initialCapacity(1000)
+        .expireAfterAccess(1, TimeUnit.MINUTES)
                 //.recordStats()
                 .build(new CacheLoader<DataKey, Data>() {
                            @Override
