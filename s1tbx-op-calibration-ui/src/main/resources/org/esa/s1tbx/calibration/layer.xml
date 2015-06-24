@@ -11,6 +11,7 @@
                 <attr name="dialogTitle" stringvalue="Calibration"/>
                 <attr name="targetProductNameSuffix" stringvalue="_Cal"/>
                 <attr name="ShortDescription" stringvalue="Apply radiometric calibration"/>
+                <attr name="helpId" stringvalue="CalibrationOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-calibration-gpf-RemoveAntennaPatternOp-Action.instance">
@@ -21,6 +22,7 @@
                 <attr name="dialogTitle" stringvalue="Remove Antenna Pattern"/>
                 <attr name="targetProductNameSuffix" stringvalue="_-AntPat"/>
                 <attr name="ShortDescription" stringvalue="Remove the Antenna Pattern for ASAR and ERS products"/>
+                <attr name="helpId" stringvalue="RemoveAntennaPatternOp"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-calibration-gpf-Sentinel1RemoveThermalNoiseOp-Action.instance">
@@ -31,6 +33,7 @@
                 <attr name="dialogTitle" stringvalue="S-1 Thermal Noise Removal"/>
                 <attr name="targetProductNameSuffix" stringvalue="_Noise-Cor"/>
                 <attr name="ShortDescription" stringvalue="Apply radiometric calibration"/>
+                <attr name="helpId" stringvalue="ThermalNoiseRemoval"/>
                 <attr name="icon" stringvalue="esaIcon"/>
             </file>
             <file name="org-esa-s1tbx-calibration-gpf-importXCAProduct-Action.instance">
