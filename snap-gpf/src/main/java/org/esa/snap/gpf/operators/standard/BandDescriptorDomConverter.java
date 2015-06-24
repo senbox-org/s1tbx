@@ -14,13 +14,6 @@ import java.util.List;
  */
 public class BandDescriptorDomConverter implements DomConverter {
 
-    private static final String EXCEPTION_FORMAT_PATTERN = "Invalid BandDescriptor '%s' should be in form of "+"" +
-            "<targetBand>" +
-            "  <name>string</name>" +
-            "  <type>string</type>" +
-            "  <expression>string</expression>" +
-            "</targetBand>";
-
     public Class<?> getValueType() {
         return BandMathsOp.BandDescriptor[].class;
     }
