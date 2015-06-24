@@ -33,6 +33,7 @@ import org.esa.snap.framework.datamodel.TiePointGeoCoding;
 import org.esa.snap.framework.datamodel.TiePointGrid;
 import org.esa.snap.framework.dataop.maptransf.Datum;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.awt.Color;
@@ -141,6 +142,7 @@ public class ProductSubsetBuilderTest {
         assertTrue(subset.getIndexCodingGroup().contains(INDEX_CODING_NAME));
     }
 
+    @Ignore("if the index coded band is removed the corresponding SampleCoding should be removed too")
     @Test
     public void testSampleCodingRemovedInSubset() throws IOException {
         final ProductSubsetDef subsetDef = new ProductSubsetDef();
