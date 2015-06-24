@@ -469,7 +469,10 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         ProductUtils.copyMasks(sourceProduct, product);
         addFlagCodingsToProduct(product);
         addGeoCodingToProduct(product);
-        addIndexCodingsToProduct(product);
+
+        // only copy index codings associated with accepted nodes
+        copyAcceptedIndexCodings(product);
+
         ProductUtils.copyVectorData(sourceProduct, product);
         ProductUtils.copyOverlayMasks(sourceProduct, product);
         ProductUtils.copyPreferredTileSize(sourceProduct, product);
@@ -689,6 +692,20 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
 
         if (!getSourceProduct().transferGeoCodingTo(product, getSubsetDef())) {
             Debug.trace("GeoCoding could not be transferred.");
+        }
+    }
+
+    private void copyAcceptedIndexCodings(final Product product) {
+
+        for(Band srcBand : product.getBands()) {
+            if(srcBand.isIndexBand() && isNodeAccepted(srcBand.getName())) {
+
+                IndexCoding sourceIndexCoding = srcBand.getIndexCoding();
+                IndexCoding destIndexCoding = new IndexCoding(sourceIndexCoding.getName());
+                destIndexCoding.setDescription(sourceIndexCoding.getDescription());
+                cloneIndexes(sourceIndexCoding, destIndexCoding);
+                product.getIndexCodingGroup().add(destIndexCoding);
+            }
         }
     }
 }

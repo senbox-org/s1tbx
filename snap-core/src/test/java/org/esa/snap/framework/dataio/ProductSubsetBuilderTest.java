@@ -141,8 +141,7 @@ public class ProductSubsetBuilderTest {
         assertFalse(subset.getBandGroup().contains(COLORED_BAND_NAME));
         assertTrue(subset.getIndexCodingGroup().contains(INDEX_CODING_NAME));
     }
-
-    @Ignore("if the index coded band is removed the corresponding SampleCoding should be removed too")
+    
     @Test
     public void testSampleCodingRemovedInSubset() throws IOException {
         final ProductSubsetDef subsetDef = new ProductSubsetDef();
