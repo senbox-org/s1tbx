@@ -42,7 +42,7 @@ import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.StringUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -213,21 +213,13 @@ public class BandMathsOp extends Operator {
     @SourceProducts(description = "Any number of source products.")
     private Product[] sourceProducts;
 
-    @Parameter(alias = "targetBands", itemAlias = "targetBand",
+    @Parameter(alias = "targetBands", //itemAlias = "targetBand",
+               converter = BandDescriptorConverter.class,
                description = "List of descriptors defining the target bands.")
     private BandDescriptor[] targetBandDescriptors;
     @Parameter(alias = "variables", itemAlias = "variable",
                description = "List of variables which can be used within the expressions.")
     private Variable[] variables;
-
-    @Parameter
-    private String bandName;
-    @Parameter
-    private String bandUnit;
-    @Parameter
-    private Double bandNodataValue;
-    @Parameter
-    private String bandExpression = null;
 
     private Map<Band, BandDescriptor> descriptorMap;
 
@@ -253,17 +245,7 @@ public class BandMathsOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         if (targetBandDescriptors == null || targetBandDescriptors.length == 0) {
-        //    throw new OperatorException("No target bands specified.");
-            if(bandExpression != null) {
-                targetBandDescriptors = new BandMathsOp.BandDescriptor[1];
-                final BandMathsOp.BandDescriptor bandDesc = new BandMathsOp.BandDescriptor();
-                bandDesc.name = bandName;
-                bandDesc.unit = bandUnit;
-                bandDesc.noDataValue = bandNodataValue;
-                bandDesc.type =  ProductData.TYPESTRING_FLOAT32;
-                bandDesc.expression = bandExpression;
-                targetBandDescriptors[0] = bandDesc;
-            }
+            throw new OperatorException("No target bands specified.");
         }
         int width = sourceProducts[0].getSceneRasterWidth();
         int height = sourceProducts[0].getSceneRasterHeight();
