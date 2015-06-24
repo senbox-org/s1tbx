@@ -23,11 +23,6 @@
                         <tocitem text="Cosmo-Skymed" target="ImportCosmoSkymed"/>
                         <tocitem text="PolsarPro" target="ImportPolsarPro"/>
                     </tocitem>
-                    <tocitem text="DEMs">
-                        <tocitem text="GTOPO30 Tile" target="importGTOPO30"/>
-                        <tocitem text="ACE DEM Tile" target="importACE"/>
-                        <tocitem text="SRTM DEM Tile" target="importSRTM"/>
-                    </tocitem>
                     <tocitem text="Generic Formats">
                         <tocitem text="Generic Binary" target="importGenericBinary"/>
                         <tocitem text="Complex Generic Binary" target="importComplexGenericBinary"/>

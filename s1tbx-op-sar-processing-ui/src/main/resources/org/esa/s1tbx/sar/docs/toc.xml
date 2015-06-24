@@ -38,6 +38,7 @@
                 <tocitem text="WSS Mosaic" target="WSSMosaic"/>
             </tocitem>
             <tocitem text="Multilook" target="MultilookOp"/>
+            <tocitem text="Complex to Detected GR" target="SLCtoPRI"/>
         </tocitem>
 
 </toc>

@@ -5,61 +5,8 @@
 
 <map version="2.0">
 
-    <mapID target="Definitions" url="general/Definitions.html"/>
     <mapID target="AbstractedMetadata" url="general/AbstractedMetadata.html"/>
 
-    <mapID target="visat" url="visat/dat.html"/>
-    <mapID target="dat" url="visat/dat.html"/>
-
-    <!-- Tool Views -->
-    <mapID target="ToolWindows" url="visat/ToolWindows.html"/>
-    <mapID target="projectView" url="visat/ProjectView.html"/>
-    <mapID target="productBrowser" url="visat/ProductBrowser.html"/>
-    <mapID target="pixelInfoView" url="visat/ProductBrowser.html#pixelView"/>
-    <mapID target="imageView" url="visat/ProductSceneView.html"/>
-    <mapID target="showNavigationWnd" url="visat/NavigationWindow.html"/>
-    <mapID target="showColorManipulationWnd" url="visat/ColorManipulationWindow.html"/>
-    <mapID target="showLayerManagerWnd" url="visat/LayerManagerWindow.html"/>
-    <mapID target="showWorldMapWnd" url="visat/WorldMap.html"/>
-    <mapID target="WorldWind" url="visat/WorldWind.html"/>
-    <mapID target="productLibrary" url="visat/ProductLibrary.html"/>
-    <mapID target="preferences" url="visat/PreferencesDialog.html"/>
-    <mapID target="settings" url="visat/SettingsDialog.html"/>
     <mapID target="polarView" url="visat/PolarView.html"/>
-
-    <!-- Analysis Tools -->
-    <mapID target="geometryManagement" url="visat/GeometryManagement.html"/>
-    <mapID target="MaskROIManagement" url="visat/MaskROIManagement.html"/>
-    <mapID target="showGcpManagerWnd" url="visat/GcpManagement.html"/>
-    <mapID target="showPinManagerWnd" url="visat/PinManagement.html"/>
-    <mapID target="noDataOverlay" url="visat/NoDataOverlay.html"/>
-    <mapID target="noDataValue" url="visat/NoDataValue.html"/>
-    <mapID target="informationDialog" url="visat/InformationDialog.html"/>
-    <mapID target="geoCodingInfoDialog" url="visat/GeoCodingInfo.html"/>
-    <mapID target="statisticsDialog" url="visat/StatisticsDialog.html"/>
-    <mapID target="histogramDialog" url="visat/HistogramDialog.html"/>
-    <mapID target="scatterplotDialog" url="visat/ScatterplotDialog.html"/>
-    <mapID target="profilePlotDialog" url="visat/ProfilePlotDialog.html"/>
-    <mapID target="coordinateListDialog" url="visat/CoordinateListDialog.html"/>
-    <mapID target="computeMaskArea" url="visat/ComputeMaskArea.html"/>
-    <mapID target="showBitmaskOverlayWnd" url="visat/BitmaskOverlayWindow.html"/>
-    <mapID target="propertyEditor" url="visat/PropertyEditor.html"/>
-
-    <!-- Product Generation Tools -->
-    <mapID target="subsetDialog" url="visat/ProductSubsetDialog.html"/>
-    <mapID target="createFilteredBand" url="visat/CreateFilteredBand.html"/>
-    <mapID target="bitmaskEditor" url="visat/BitmaskEditor.html"/>
-    <mapID target="expressionEditor" url="visat/ExpressionEditor.html"/>
-    <mapID target="rgbImageProfile" url="visat/RGBImageProfile.html"/>
-    <mapID target="bandArithmetic" url="visat/BandArithmetics.html"/>
-    <mapID target="reprojectionAction" url="visat/Reprojection.html"/>
-    <mapID target="projectionDialog" url="visat/MapProjection.html"/>
-    <mapID target="resamplingMethods" url="general/ResamplingMethods.html"/>
-    <mapID target="demGETASSE30" url="visat/GETASSE30ElevationModel.html"/>
-    <mapID target="createElevationBand" url="visat/CreateElevationBand.html"/>
-    <mapID target="dataFlip" url="visat/DataFlip.html"/>
-    <mapID target="flipDialog" url="visat/DataFlip.html"/>
-    <mapID target="pixelGeoCodingSetup" url="visat/PixelGeoCoding.html"/>
-    <mapID target="SLCtoPRI" url="visat/SLCtoPRI.html"/>
 
 </map>

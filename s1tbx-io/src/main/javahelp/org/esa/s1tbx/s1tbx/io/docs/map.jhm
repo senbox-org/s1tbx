@@ -17,11 +17,7 @@
     <mapID target="ImportTerraSarX" url="readers/ImportTerraSarX.html"/>
     <mapID target="ImportCosmoSkymed" url="readers/ImportCosmoSkymed.html"/>
     <mapID target="ImportPolsarPro" url="readers/ImportPolsarPro.html"/>
-    <!-- DEMs -->
-    <mapID target="importGETASSE30" url="visat/GETASSE30ElevationModel.html"/>
-    <mapID target="importGTOPO30" url="readers/ImportGTOPO30.html"/>
-    <mapID target="importACE" url="readers/ImportACE.html"/>
-    <mapID target="importSRTM" url="readers/ImportSRTM.html"/>
+
     <!-- Common File Formats -->
     <mapID target="importGenericBinary" url="readers/ImportGenericBinary.html"/>
     <mapID target="importComplexGenericBinary" url="readers/ImportComplexGenericBinary.html"/>

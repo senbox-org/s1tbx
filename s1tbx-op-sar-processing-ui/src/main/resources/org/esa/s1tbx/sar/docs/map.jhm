@@ -25,4 +25,6 @@
     <mapID target="MultiTemporalSpeckleFilterOp" url="operators/MultiTemporalSpeckleFilterOp.html"/>
     <mapID target="WSSDeburstOp" url="operators/WSSDeburstOp.html"/>
     <mapID target="WSSMosaic" url="operators/WSSMosaicOp.html"/>
+    <mapID target="SLCtoPRI" url="operators/SLCtoPRI.html"/>
+
 </map>

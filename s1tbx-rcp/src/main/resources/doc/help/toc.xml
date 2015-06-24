@@ -8,63 +8,11 @@
 <toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
 
     <tocitem text="General">
-        <tocitem text="Definitions" target="Definitions"/>
         <tocitem text="Abstracted Metadata" target="AbstractedMetadata"/>
     </tocitem>
 
     <tocitem text="Sentinel Toolbox Application">
-        <tocitem text="Display and Analysis Tool" target="dat"/>
 
-        <tocitem text="Tool Views">
-            <tocitem text="Tool Windows" target="ToolWindows"/>
-            <tocitem text="Project View" target="projectView"/>
-            <tocitem text="Product View" target="productBrowser"/>
-            <tocitem text="Pixel Info View" target="pixelInfoView"/>
-            <tocitem text="Image View" target="imageView"/>
-            <tocitem text="Navigation Window" target="showNavigationWnd"/>
-            <tocitem text="Colour Manipulation" target="showColorManipulationWnd"/>
-            <tocitem text="Layer Manager" target="showLayerManagerWnd"/>
-            <tocitem text="World Map" target="showWorldMapWnd"/>
-            <tocitem text="WorldWind View" target="WorldWind"/>
-            <tocitem text="Product Library" target="productLibrary"/>
-            <tocitem text="Preferences Dialog" target="preferences"/>
-            <tocitem text="Settings Dialog" target="settings"/>
-            <tocitem text="Wave Mode Polar View" target="polarView"/>
-        </tocitem>
-
-        <tocitem text="Analysis Tools">
-            <tocitem text="Geometry Management" target="geometryManagement"/>
-            <tocitem text="Mask and ROI Management" target="MaskROIManagement"/>
-            <tocitem text="Product GCP Manager" target="showGcpManagerWnd"/>
-            <tocitem text="Product Pin Manager" target="showPinManagerWnd"/>
-            <tocitem text="Product/Band Information" target="informationDialog"/>
-            <tocitem text="Product/Band Geo-Coding Information" target="geoCodingInfoDialog"/>
-            <tocitem text="Band Statistics" target="statisticsDialog"/>
-            <tocitem text="Band Histogram" target="histogramDialog"/>
-            <tocitem text="Band Scatter Plot" target="scatterplotDialog"/>
-            <tocitem text="Band Transect Profile Plot" target="profilePlotDialog"/>
-            <tocitem text="Band Transect Co-ordinate List" target="coordinateListDialog"/>
-            <tocitem text="Compute Mask Area" target="computeMaskArea"/>
-            <tocitem text="RGB-Image Profile" target="rgbImageProfile"/>
-            <tocitem text="No Data Overlay" target="noDataOverlay"/>
-            <tocitem text="Bitmask Overlay" target="showBitmaskOverlayWnd"/>
-            <tocitem text="Bitmask Editor" target="bitmaskEditor"/>
-        </tocitem>
-
-        <tocitem text="Product Generation Tools">
-            <tocitem text="Product Subset Dialog" target="subsetDialog"/>
-            <tocitem text="Band Arithmetic" target="bandArithmetic"/>
-            <tocitem text="Arithmetic Expression Editor" target="expressionEditor"/>
-            <tocitem text="Reprojection" target="mapProjection">
-                <tocitem text="Reprojection Dialog" target="reprojectionAction"/>
-                <tocitem text="Resampling Methods" target="resamplingMethods"/>
-            </tocitem>
-            <tocitem text="Data Flip" target="dataFlip"/>
-            <tocitem text="Attach Pixel-based Geo-Coding" target="pixelGeoCodingSetup"/>
-            <tocitem text="Create Elevation Band" target="createElevationBand"/>
-            <tocitem text="Create Filtered Band" target="createFilteredBand"/>
-            <tocitem text="Complex to Detected Ground Range" target="SLCtoPRI"/>
-        </tocitem>
 
     </tocitem>
 
