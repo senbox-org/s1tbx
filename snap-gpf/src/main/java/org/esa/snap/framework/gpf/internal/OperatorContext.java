@@ -80,17 +80,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TimeZone;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.logging.Logger;
@@ -1016,15 +1007,22 @@ public class OperatorContext {
     }
 
     private Product[] getUnnamedProducts() {
-        final Map<String, Product> map = new HashMap<>(sourceProductMap);
+        final List<Product> srcProductList = new ArrayList<>(sourceProductList.size());
+        srcProductList.addAll(sourceProductList);
+
         final Field[] sourceProductFields = getAnnotatedSourceProductFields(operator);
         for (Field sourceProductField : sourceProductFields) {
+            Product product = sourceProductMap.get(sourceProductField.getName());
+            if(product != null) {
+                srcProductList.remove(product);
+            }
             final SourceProduct annotation = sourceProductField.getAnnotation(SourceProduct.class);
-            map.remove(sourceProductField.getName());
-            map.remove(annotation.alias());
+            product = sourceProductMap.get(annotation.alias());
+            if(product != null) {
+                srcProductList.remove(product);
+            }
         }
-        Set<Product> productSet = new HashSet<>(map.values());
-        return productSet.toArray(new Product[productSet.size()]);
+        return srcProductList.toArray(new Product[srcProductList.size()]);
     }
 
     private static Field[] getAnnotatedSourceProductFields(Operator operator1) {
