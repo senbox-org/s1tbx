@@ -213,8 +213,8 @@ public class BandMathsOp extends Operator {
     @SourceProducts(description = "Any number of source products.")
     private Product[] sourceProducts;
 
-    @Parameter(alias = "targetBands", //itemAlias = "targetBand",
-               converter = BandDescriptorConverter.class,
+    @Parameter(alias = "targetBands", itemAlias = "targetBand",
+               domConverter = BandDescriptorDomConverter.class,
                description = "List of descriptors defining the target bands.")
     private BandDescriptor[] targetBandDescriptors;
     @Parameter(alias = "variables", itemAlias = "variable",
@@ -247,6 +247,10 @@ public class BandMathsOp extends Operator {
         if (targetBandDescriptors == null || targetBandDescriptors.length == 0) {
             throw new OperatorException("No target bands specified.");
         }
+
+        if (sourceProducts == null || sourceProducts.length == 0) {
+            throw new OperatorException("No source products given.");
+        }
         int width = sourceProducts[0].getSceneRasterWidth();
         int height = sourceProducts[0].getSceneRasterHeight();
         int cnt = 1;
@@ -262,13 +266,11 @@ public class BandMathsOp extends Operator {
         }
         targetProduct = new Product(sourceProducts[0].getName() + "BandMath", "BandMath", width, height);
 
-        if (targetBandDescriptors != null && targetBandDescriptors.length > 0) {
-            descriptorMap = new HashMap<Band, BandDescriptor>(targetBandDescriptors.length);
-            Namespace namespace = createNamespace();
-            Parser verificationParser = new ParserImpl(namespace, true);
-            for (BandDescriptor bandDescriptor : targetBandDescriptors) {
-                createBand(bandDescriptor, verificationParser);
-            }
+        descriptorMap = new HashMap<>(targetBandDescriptors.length);
+        Namespace namespace = createNamespace();
+        Parser verificationParser = new ParserImpl(namespace, true);
+        for (BandDescriptor bandDescriptor : targetBandDescriptors) {
+            createBand(bandDescriptor, verificationParser);
         }
 
         ProductUtils.copyMetadata(sourceProducts[0], targetProduct);
@@ -278,6 +280,7 @@ public class BandMathsOp extends Operator {
         ProductUtils.copyMasks(sourceProducts[0], targetProduct);
         ProductUtils.copyVectorData(sourceProducts[0], targetProduct);
         ProductUtils.copyIndexCodings(sourceProducts[0], targetProduct);
+        targetProduct.setDescription(sourceProducts[0].getDescription());
         for (Product sourceProduct : sourceProducts) {
             if (sourceProduct.getStartTime() != null && sourceProduct.getEndTime() != null) {
                 targetProduct.setStartTime(sourceProduct.getStartTime());
@@ -285,7 +288,6 @@ public class BandMathsOp extends Operator {
                 break;
             }
         }
-        targetProduct.setDescription(sourceProducts[0].getDescription());
     }
 
     @Override
