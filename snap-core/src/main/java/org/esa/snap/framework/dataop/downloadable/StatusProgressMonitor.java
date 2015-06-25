@@ -180,8 +180,8 @@ public final class StatusProgressMonitor implements ProgressMonitor {
         return (int)totalWork;
     }
 
-    public int getWorked() {
-        return (int)currentWork;
+    public int getPercentComplete() {
+        return lastPct;
     }
 
     public void addListener(final Listener listener) {
