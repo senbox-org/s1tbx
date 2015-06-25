@@ -128,6 +128,7 @@ public class OperatorContext {
     private PropertySet parameterSet;
     private boolean initialising;
     private boolean requiresAllBands;
+    private boolean executed;
 
     public OperatorContext(Operator operator) {
         if (operator == null) {
@@ -508,6 +509,7 @@ public class OperatorContext {
      */
     public void updateOperator() throws OperatorException {
         targetProduct = null;
+        executed = false;
         initializeOperator();
     }
 
@@ -776,6 +778,7 @@ public class OperatorContext {
                         targetImageMap.put(targetBand, new OperatorImage(targetBand, this) {
                             @Override
                             protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
+                                executeOperator(ProgressMonitor.NULL);
                                 Band targetBand = getTargetBand();
                                 tile.setRect(targetBand.getGeophysicalImage().getData(destRect));
                                 TileImpl targetTile = new TileImpl(targetBand, tile, destRect, false);
@@ -1255,6 +1258,13 @@ public class OperatorContext {
 
     public void setRequiresAllBands(boolean requiresAllBands) {
         this.requiresAllBands = requiresAllBands;
+    }
+
+    public void executeOperator(ProgressMonitor pm) {
+        if (!executed) {
+            getOperator().doExecute(ProgressMonitor.NULL);
+            executed = true;
+        }
     }
 
     private static final class SuspendableStopWatch {
