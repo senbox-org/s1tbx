@@ -22,8 +22,13 @@ import org.esa.snap.GlobalTestTools;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
 
 public class FileUtilsTest extends TestCase {
 
@@ -175,7 +180,7 @@ public class FileUtilsTest extends TestCase {
             assertTrue(!secondFile.exists());
             assertTrue(!thirdFile.exists());
             assertTrue(!writeProtectedFile.exists());
-        }  else {
+        } else {
             System.err.println("Error in FileUtilsTest: FileUtils.deleteTree() failed to delete dir " + treeRoot);
         }
     }
@@ -229,7 +234,7 @@ public class FileUtilsTest extends TestCase {
     }
 
     public void testThatGetUrlAsFileIsTheInverseOfGetFileAsUrl() throws MalformedURLException,
-            URISyntaxException {
+                                                                        URISyntaxException {
         final File file1 = new File("/dummy/hugo/daten").getAbsoluteFile();
         final File file2 = FileUtils.getUrlAsFile(FileUtils.getFileAsUrl(file1));
         assertEquals(file1, file2);
@@ -259,6 +264,21 @@ public class FileUtilsTest extends TestCase {
                      FileUtils.getDisplayText(file, 20));
         assertEquals("alpha/bravo/charly/delta/echo/foxtrott/golf/hotel/india".replace('/', sep),
                      FileUtils.getDisplayText(file, 80));
+    }
+
+    public void testRelativizeOfPaths() throws URISyntaxException, IOException {
+        Path folder = Paths.get(getClass().getResource("/resource-testdata/auxdata").toURI());
+        Path file = Paths.get(getClass().getResource("/resource-testdata/auxdata/file-1.txt").toURI());
+        Path relFile = folder.relativize(file);
+        assertEquals("file-1.txt", relFile.toString());
+
+        final URI jarURI = FileUtils.ensureJarURI(getClass().getResource("/resource-testdata.jar").toURI());
+        FileSystems.newFileSystem(jarURI, Collections.emptyMap());
+        Path folder2 = Paths.get(jarURI).resolve("auxdata");
+        Path file2 = Paths.get(jarURI).resolve("auxdata").resolve("file-1.txt");
+        Path relFile2 = folder2.relativize(file2);
+        assertEquals("file-1.txt", relFile2.toString());
+
     }
 }
 
