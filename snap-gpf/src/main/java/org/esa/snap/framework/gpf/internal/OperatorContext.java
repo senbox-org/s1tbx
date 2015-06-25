@@ -1260,7 +1260,7 @@ public class OperatorContext {
         this.requiresAllBands = requiresAllBands;
     }
 
-    public void executeOperator(ProgressMonitor pm) {
+    public synchronized void executeOperator(ProgressMonitor pm) {
         if (!executed) {
             getOperator().doExecute(ProgressMonitor.NULL);
             executed = true;
