@@ -128,7 +128,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
     private File getDestFolder(final int year) {
         final File orbitFileFolder;
-        if(orbitType.endsWith(RESTITUTED)) {
+        if(orbitType.startsWith(RESTITUTED)) {
             orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1RESOrbitPath")+File.separator+year);
         } else {
             orbitFileFolder = new File(Settings.instance().get("OrbitFiles.sentinel1POEOrbitPath")+File.separator+year);
@@ -178,7 +178,7 @@ public class SentinelPODOrbitFile extends BaseOrbitFile implements OrbitFile {
 
         final File localFolder;
         final URL remotePath;
-        if(orbitType.endsWith(RESTITUTED)) {
+        if(orbitType.startsWith(RESTITUTED)) {
             localFolder = new File(Settings.instance().get("OrbitFiles.sentinel1RESOrbitPath"), String.valueOf(year));
             remotePath = new URL(Settings.instance().getPath("OrbitFiles.sentinel1RESOrbit_remotePath"));
         } else {
