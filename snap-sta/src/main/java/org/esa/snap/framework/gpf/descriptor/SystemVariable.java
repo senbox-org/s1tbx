@@ -15,6 +15,8 @@
  */
 package org.esa.snap.framework.gpf.descriptor;
 
+import org.esa.snap.framework.gpf.operators.tooladapter.ToolAdapterIO;
+
 /**
  * This class encapsulates an environment (or system) variable
  * that can be passed to a tool adapter operator.
@@ -82,7 +84,9 @@ public class SystemVariable {
     protected String resolve() {
         String existingValue = System.getenv(this.key);
         if (existingValue == null || existingValue.isEmpty()) {
-            existingValue = value;
+            existingValue = ToolAdapterIO.getVariableValue(this.key, this.value);
+        } else {
+            ToolAdapterIO.saveVariable(this.key, existingValue);
         }
         return existingValue;
     }

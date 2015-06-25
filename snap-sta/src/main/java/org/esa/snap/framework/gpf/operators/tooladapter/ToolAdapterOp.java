@@ -345,7 +345,12 @@ public class ToolAdapterOp extends Operator {
             pb.redirectErrorStream(true);
             //set the working directory
             pb.directory(descriptor.getExpandedLocation(descriptor.getWorkingDir()));
-            pb.environment().putAll(descriptor.getVariables().stream().collect(Collectors.toMap(SystemVariable::getKey, SystemVariable::getValue)));
+            pb.environment().putAll(descriptor.getVariables()
+                                                .stream()
+                                                .collect(Collectors.toMap(
+                                                        SystemVariable::getKey,
+                                                        SystemVariable::getValue))
+            );
             //start the process
             process = pb.start();
             //get the process output
