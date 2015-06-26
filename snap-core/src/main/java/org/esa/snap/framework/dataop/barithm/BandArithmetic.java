@@ -104,7 +104,11 @@ public class BandArithmetic {
         Assert.notNull(expression, null);
         final Namespace namespace = createDefaultNamespace(products, defaultProductIndex);
         final Parser parser = new ParserImpl(namespace, false);
-        return parser.parse(expression);
+        final Term term = parser.parse(expression);
+        if (!areReferencedRastersCompatible(term)) {
+            throw new ParseException("Referenced rasters are incompatible");
+        }
+        return term;
     }
 
     /**
