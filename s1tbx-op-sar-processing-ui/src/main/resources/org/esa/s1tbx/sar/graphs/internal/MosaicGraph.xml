@@ -22,7 +22,7 @@
 	  <pixelSize>0</pixelSize>
       <sceneWidth>0</sceneWidth>
       <sceneHeight>0</sceneHeight>
-	  <feather>5</feather>
+	  <feather>0</feather>
 	  <maxIterations>5000</maxIterations>
 	  <convergenceThreshold>1e-4</convergenceThreshold>
     </parameters>
