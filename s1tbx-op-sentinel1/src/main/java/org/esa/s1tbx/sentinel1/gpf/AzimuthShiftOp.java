@@ -36,6 +36,7 @@ import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.gpf.ThreadManager;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.ProductUtils;
+import org.esa.snap.util.SystemUtils;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -323,7 +324,8 @@ public class AzimuthShiftOp extends Operator {
 
         final ThreadManager threadManager = new ThreadManager();
         try {
-            List<Double> azOffsetArray = new ArrayList<>(numOverlaps);
+            final List<Double> azOffsetArray = new ArrayList<>(numOverlaps);
+            final List<Integer> y0Array = new ArrayList<>(numOverlaps);
 
             for (int i = 0; i < numOverlaps; i++) {
                 checkForCancellation();
@@ -361,6 +363,7 @@ public class AzimuthShiftOp extends Operator {
 
                             synchronized(azOffsetArray) {
                                 azOffsetArray.add(azOffset);
+                                y0Array.add(y0);
                             }
                         } catch (Throwable e) {
                             OperatorUtils.catchOperatorException("estimateOffset", e);
@@ -374,10 +377,17 @@ public class AzimuthShiftOp extends Operator {
 
             // todo The following simple average should be replaced by weighted average using coherence as weight
             double sumAzOffset = 0.0;
-            for (Double anAzOffset : azOffsetArray) {
+            for (int i = 0; i < azOffsetArray.size(); i++) {
+                final double anAzOffset = azOffsetArray.get(i);
                 sumAzOffset += anAzOffset;
+                final int overlapAreaIndex = getOverlapAreaIndex(y0Array.get(i), numOverlaps);
+                if (overlapAreaIndex != -1) {
+                    SystemUtils.LOG.info(
+                            "AzimuthShiftOp: overlap area = " + overlapAreaIndex + ", azimuth offset = " + anAzOffset);
+                }
             }
             azOffset = sumAzOffset / numOverlaps;
+            SystemUtils.LOG.info("AzimuthShiftOp: whole image azimuth offset = " + azOffset);
 
             status.done();
             threadManager.finish();
@@ -387,6 +397,16 @@ public class AzimuthShiftOp extends Operator {
         }
 
         isOffsetAvailable = true;
+    }
+
+    private int getOverlapAreaIndex(final int y0, final int numOverlaps) {
+
+        for (int i = 0; i < numOverlaps; i++) {
+            if (y0 == subSwath[subSwathIndex - 1].linesPerBurst * (i + 1)) {
+                return i + 1;
+            }
+        }
+        return -1;
     }
 
     /**
