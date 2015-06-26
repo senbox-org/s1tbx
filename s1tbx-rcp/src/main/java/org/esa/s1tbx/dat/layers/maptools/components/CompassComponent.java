@@ -34,7 +34,7 @@ import java.awt.image.BufferedImage;
  */
 public class CompassComponent implements MapToolsComponent {
 
-    private static final ImageIcon roseIcon = IconUtils.LoadIcon("org/esa/s1tbx/icons/compass_rose.png");
+    private static final ImageIcon roseIcon = IconUtils.LoadIcon("org/esa/s1tbx/dat/icons/compass_rose.png");
     private final BufferedImage image;
     private final PixelPos tail, head;
     private final PixelPos point1;
