@@ -15,9 +15,6 @@
  */
 package org.esa.snap.cluster;
 
-import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.Validator;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.snap.framework.datamodel.Band;
@@ -38,7 +35,6 @@ import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.StringUtils;
-import org.esa.snap.util.converters.GeneralExpressionConverter;
 import org.esa.snap.util.math.MathUtils;
 
 import java.awt.Color;
@@ -52,14 +48,14 @@ import java.awt.Rectangle;
  * @since BEAM 5
  */
 @OperatorMetadata(alias = "PCA",
-                  category = "Image Analysis",
-                  version = "1.0",
-                  authors = "Norman Fomferra",
-                  copyright = "(c) 2013 by Brockmann Consult",
-                  description = "Performs a Principal Component Analysis.")
+        category = "Image Analysis",
+        version = "1.0",
+        authors = "Norman Fomferra",
+        copyright = "(c) 2013 by Brockmann Consult",
+        description = "Performs a Principal Component Analysis.")
 public class PrincipalComponentAnalysisOp extends Operator {
 
-    @SourceProduct(alias = "source", label = "Source product", description="The source product.")
+    @SourceProduct(alias = "source", label = "Source product", description = "The source product.")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
@@ -77,16 +73,8 @@ public class PrincipalComponentAnalysisOp extends Operator {
     @Parameter(label = "ROI mask name",
                description = "The name of the ROI mask that should be used.",
                defaultValue = "",
-               rasterDataNodeType = Mask.class/*,
-               validator = RoiMaskNameValidator.class*/)
+               rasterDataNodeType = Mask.class)
     private String roiMaskName;
-
-    @Parameter(label = "ROI mask expression",
-               description = "The expression of the ROI mask that should be used. If not given, a mask given by 'roiMaskName' must already exist.",
-               defaultValue = "",
-               validator = RoiMaskExprValidator.class,
-               converter = GeneralExpressionConverter.class)
-    private String roiMaskExpr;
 
     @Parameter(label = "Remove non-ROI pixels",
                description = "Removes all non-ROI pixels in the target product.",
@@ -149,40 +137,45 @@ public class PrincipalComponentAnalysisOp extends Operator {
             errorBand.setValidPixelExpression("flags.PCA_ROI_PIXEL");
         }
 
-        if (StringUtils.isNullOrEmpty(roiMaskName)) {
-            roiMaskName = "pca_roi_pixel";
+        if (!StringUtils.isNullOrEmpty(roiMaskName)
+                && sourceProduct.getMaskGroup().get(roiMaskName) == null) {
+            throw new OperatorException("Missing required mask '" + roiMaskName + "' in source product.");
         }
 
-        if (StringUtils.isNotNullAndNotEmpty(roiMaskExpr)) {
-            sourceProduct.addMask(roiMaskName, roiMaskExpr, "PCA ROI mask", Color.RED, 0.5);
-        }
-
-        if (sourceProduct.getMaskGroup().get(roiMaskName) == null) {
-            throw new OperatorException("Missing mask '" + roiMaskName + "' in source product.");
-        }
-
-        // note - in BEAM 5, we shall have a progress monitor here!!! (NF)
-        initPca(ProgressMonitor.NULL);
-
-        targetProduct.getMetadataRoot().addElement(createPcaMetadata());
+        roi = new Roi(sourceProduct, sourceBands, roiMaskName);
 
         setTargetProduct(targetProduct);
     }
 
-    private MetadataElement createPcaMetadata() {
-        final MetadataElement meanVector = new MetadataElement("MEAN_VECTOR");
-        final double[] meanVector1 = pca.getMeanVector();
-        for (int i = 0; i < componentCount; i++) {
-            meanVector.addAttribute(new MetadataAttribute(sourceBands[i].getName(), ProductData.createInstance(new double[]{meanVector1[i]}), true));
+    @Override
+    public void doExecute(ProgressMonitor pm) {
+        initPca(pm);
+
+        MetadataElement pcaMetadata = createPcaMetadata();
+        MetadataElement metadataRoot = targetProduct.getMetadataRoot();
+        MetadataElement element = metadataRoot.getElement(pcaMetadata.getName());
+        if (element != null) {
+            int elementIndex = metadataRoot.getElementIndex(element);
+            metadataRoot.addElementAt(metadataRoot, elementIndex);
+        } else {
+            metadataRoot.addElement(pcaMetadata);
         }
-        final MetadataElement basisVectors = new MetadataElement("BASIS_VECTORS");
+    }
+
+    private MetadataElement createPcaMetadata() {
+        final MetadataElement meanVectorElement = new MetadataElement("MEAN_VECTOR");
+        final double[] meanVector = pca.getMeanVector();
+        for (int i = 0; i < componentCount; i++) {
+            meanVectorElement.addAttribute(new MetadataAttribute(sourceBands[i].getName(), ProductData.createInstance(new double[]{meanVector[i]}), true));
+        }
+        final MetadataElement basisVectorsElement = new MetadataElement("BASIS_VECTORS");
         for (int i = 0; i < componentCount; i++) {
             final double[] basisVector = pca.getBasisVector(i);
-            basisVectors.addAttribute(new MetadataAttribute("component_" + (i + 1), ProductData.createInstance(basisVector), true));
+            basisVectorsElement.addAttribute(new MetadataAttribute("component_" + (i + 1), ProductData.createInstance(basisVector), true));
         }
         MetadataElement pcaAnalysisMD = new MetadataElement("PCA_RESULT");
-        pcaAnalysisMD.addElement(meanVector);
-        pcaAnalysisMD.addElement(basisVectors);
+        pcaAnalysisMD.addElement(meanVectorElement);
+        pcaAnalysisMD.addElement(basisVectorsElement);
         return pcaAnalysisMD;
     }
 
@@ -264,17 +257,6 @@ public class PrincipalComponentAnalysisOp extends Operator {
         Rectangle[] tileRectangles = getAllTileRectangles();
         pm.beginTask("Extracting data points...", tileRectangles.length * 2);
         try {
-            Mask roiMask = null;
-            if (StringUtils.isNotNullAndNotEmpty(roiMaskName)) {
-                roiMask = sourceProduct.getMaskGroup().get(roiMaskName);
-            }  else if (StringUtils.isNotNullAndNotEmpty(roiMaskExpr)) {
-                roiMask = Mask.BandMathsType.create("_pca_roi_expr", "", targetProduct.getSceneRasterWidth(), targetProduct.getSceneRasterHeight(),
-                                                                    roiMaskExpr, Color.RED, 0.5);
-                // todo roiMask.
-            }
-
-            roi = new Roi(sourceProduct, sourceBands, roiMaskName);
-
             final int pointSize = sourceBands.length;
             final double[] point = new double[pointSize];
             double[] pointData = new double[10000 * pointSize];
@@ -349,32 +331,6 @@ public class PrincipalComponentAnalysisOp extends Operator {
 
         public Spi() {
             super(PrincipalComponentAnalysisOp.class);
-        }
-    }
-
-    public static class RoiMaskNameValidator implements Validator {
-        @Override
-        public void validateValue(Property roiMaskExprProp, Object value) throws ValidationException {
-            if (value != null) {
-                validateRoiMaskExpr(roiMaskExprProp);
-            }
-        }
-    }
-
-    public static class RoiMaskExprValidator implements Validator {
-        @Override
-        public void validateValue(Property roiMaskExprProp, Object value) throws ValidationException {
-            if (value != null && !value.toString().trim().isEmpty()) {
-                validateRoiMaskExpr(roiMaskExprProp);
-            }
-        }
-    }
-
-    private static void validateRoiMaskExpr(Property roiMaskExprProp) throws ValidationException {
-        final Property roiMaskNameProp = roiMaskExprProp.getContainer().getProperty("roiMaskName");
-        if (roiMaskNameProp != null && !roiMaskNameProp.getValueAsText().equals("")) {
-            throw new ValidationException("You cannot specify a ROI-mask expression,\nbecause a ROI-mask is given by its name.\n" +
-                                                  "Deselect the mask name, if you want to provide your own mask expression.");
         }
     }
 
