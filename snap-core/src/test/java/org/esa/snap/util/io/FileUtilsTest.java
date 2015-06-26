@@ -291,7 +291,7 @@ public class FileUtilsTest {
         FileSystems.newFileSystem(jarURI, Collections.emptyMap());
         Path folder2 = Paths.get(jarURI).resolve("auxdata");
         Path folder2WithSlash = Paths.get(jarURI).resolve("auxdata/");
-        // the trailing slash makes a difference when used in path with a jar file.
+        // the trailing slash makes a difference when used in path within a jar file.
         assertFalse(Files.isSameFile(folder2, folder2WithSlash));
         Path file2 = Paths.get(jarURI).resolve("auxdata").resolve("file-1.txt");
         assertEquals("file-1.txt", folder2.relativize(file2).toString());
