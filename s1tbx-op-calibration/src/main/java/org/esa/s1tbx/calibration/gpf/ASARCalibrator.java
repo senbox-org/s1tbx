@@ -453,7 +453,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
             final Date endDate = sourceProduct.getEndTime().getAsDate();
 
             final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
-            final Path xcaFileDir = moduleBasePath.resolve("org/esa/s1tbx/auxdata/envisat");
+            final Path xcaFileDir = moduleBasePath.resolve("org/esa/s1tbx/auxdata/envisat/");
 
             newXCAFileName = findXCAFile(xcaFileDir.toFile(), startDate, endDate);
             newXCAFilePath = xcaFileDir.toString() + File.separator + newXCAFileName;
