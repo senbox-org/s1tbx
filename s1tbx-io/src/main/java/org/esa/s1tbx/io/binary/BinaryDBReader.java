@@ -52,7 +52,7 @@ public final class BinaryDBReader {
     private final String recName;
     private final long startPos;
 
-    private final static boolean DEBUG_MODE = true;
+    private final static boolean DEBUG_MODE = false;
 
     public BinaryDBReader(final Document xmlDoc, final String recName, final long startPos) {
         this.xmlDoc = xmlDoc;
