@@ -99,7 +99,7 @@ public class MosaicOp extends Operator {
     private int sceneWidth = 0;
     @Parameter(defaultValue = "0", description = "Target height", label = "Scene Height (pixels)")
     private int sceneHeight = 0;
-    @Parameter(defaultValue = "20", description = "Feather amount around source image", label = "Feature (pixels)")
+    @Parameter(defaultValue = "0", description = "Feather amount around source image", label = "Feature (pixels)")
     private int feather = 0;
     @Parameter(defaultValue = "5000", description = "Maximum number of iterations", label = "Maximum Iterations")
     private int maxIterations = 5000;
