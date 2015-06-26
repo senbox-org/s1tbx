@@ -1,0 +1,35 @@
+
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Operators">
+
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="SAR Processing">
+
+        </folder>
+    </folder>
+
+    <folder name="LayerSources">
+        <file name="maptools-layer">
+            <attr name="displayName" stringvalue="Mapping Tools"/>
+            <attr name="description" stringvalue="Shows cartographic overlays"/>
+            <attr name="layerSourceClass" stringvalue="org.esa.s1tbx.dat.layers.maptools.MapToolsLayerSource"/>
+        </file>
+        <file name="topsBurstLayer">
+            <attr name="displayName" stringvalue="TOPS Burst Boundaries"/>
+            <attr name="description" stringvalue="Shows TOPSAR burst and subswath boundaries"/>
+            <attr name="layerSourceClass" stringvalue="org.esa.s1tbx.dat.layers.topsbursts.TOPSBurstLayerSource"/>
+        </file>
+    </folder>
+    <folder name="LayerEditors">
+        <file name="maptools-layer">
+            <attr name="layerClass" stringvalue="org.esa.s1tbx.dat.layers.maptools.MapToolsLayer"/>
+            <attr name="editorFactoryClass" stringvalue="org.esa.s1tbx.dat.layers.maptools.MapToolsLayerEditor"/>
+        </file>
+    </folder>
+
+</filesystem>
