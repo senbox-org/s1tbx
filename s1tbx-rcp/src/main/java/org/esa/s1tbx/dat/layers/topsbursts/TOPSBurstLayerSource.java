@@ -57,6 +57,7 @@ public class TOPSBurstLayerSource implements LayerSource {
     }
 
     public boolean performFinish(LayerSourcePageContext pageContext) {
+        createLayer(pageContext);
         return true;
     }
 

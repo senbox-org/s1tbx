@@ -37,8 +37,8 @@ import java.util.List;
  */
 public class LookDirectionComponent implements MapToolsComponent {
     private boolean valid = true;
-    private final List<Point> tails = new ArrayList<Point>();
-    private final List<Point> heads = new ArrayList<Point>();
+    private final List<Point> tails = new ArrayList<>();
+    private final List<Point> heads = new ArrayList<>();
     private final static BasicStroke thickStroke = new BasicStroke(4);
     private final static BasicStroke thinStroke = new BasicStroke(2);
 
@@ -115,7 +115,5 @@ public class LookDirectionComponent implements MapToolsComponent {
                     (int) tails.get(i).getX(), (int) tails.get(i).getY(),
                     (int) heads.get(i).getX(), (int) heads.get(i).getY());
         }
-
-
     }
 }
