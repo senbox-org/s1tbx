@@ -156,12 +156,14 @@ public class BaseCalibrator {
             targetBandNameToSourceBandName.put(srcBandINames[0], srcBandINames);
             final Band targetBandI = targetProduct.addBand(srcBandINames[0], ProductData.TYPE_FLOAT32);
             targetBandI.setUnit(unit);
+            targetBandI.setNoDataValueUsed(true);
 
             final Band srcBandQ = sourceBands[i + 1];
             final String[] srcBandQNames = {srcBandQ.getName()};
             targetBandNameToSourceBandName.put(srcBandQNames[0], srcBandQNames);
             final Band targetBandQ = targetProduct.addBand(srcBandQNames[0], ProductData.TYPE_FLOAT32);
             targetBandQ.setUnit(nextUnit);
+            targetBandQ.setNoDataValueUsed(true);
 
             final String suffix = "_" + OperatorUtils.getSuffixFromBandName(srcBandI.getName());
             ReaderUtils.createVirtualIntensityBand(targetProduct, targetBandI, targetBandQ, suffix);
@@ -239,6 +241,7 @@ public class BaseCalibrator {
                     targetUnit = Unit.INTENSITY_DB;
                 }
                 targetBand.setUnit(targetUnit);
+                targetBand.setNoDataValueUsed(true);
                 targetProduct.addBand(targetBand);
             }
         }

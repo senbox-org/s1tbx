@@ -309,9 +309,11 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      *
      * @return The complete path to the XCA file.
      */
-    private String getOldXCAFile() {
+    private Path getOldXCAFilePath() {
         oldXCAFileName = absRoot.getAttributeString(AbstractMetadata.external_calibration_file);
-        return Settings.instance().get("AuxData.envisatAuxDataPath") + File.separator + oldXCAFileName;
+
+        final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
+        return moduleBasePath.resolve("org/esa/s1tbx/auxdata/envisat/"+oldXCAFileName);
     }
 
     /**
@@ -319,7 +321,8 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
      */
     private void getOldAntennaPattern() {
 
-        final String xcaFilePath = Settings.instance().get("AuxData.envisatAuxDataPath") + File.separator + oldXCAFileName;
+        final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(this.getClass());
+        final String xcaFilePath = moduleBasePath.resolve("org/esa/s1tbx/auxdata/envisat/"+oldXCAFileName).toString();
 
         if (wideSwathProductFlag) {
 
@@ -388,7 +391,7 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
         String oldXCAFilePath = null;
         if (retroCalibrationFlag) {
-            oldXCAFilePath = getOldXCAFile();
+            oldXCAFilePath = getOldXCAFilePath().toString();
             if (!isFileExisting(oldXCAFilePath)) {
                 if (mustPerformRetroCalibration) {
                     throw new OperatorException("Cannot find XCA file: " + oldXCAFilePath);
@@ -1304,21 +1307,6 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
 
         return FastMath.acos((slantRange * slantRange + satelliteHeight * satelliteHeight -
                 sceneToEarthCentre * sceneToEarthCentre) / (2 * slantRange * satelliteHeight)) * Constants.RTOD;
-    }
-
-    /**
-     * Set the XCA file name.
-     * This function is used by unit test only.
-     *
-     * @param xcaFileName The XCA file name.
-     */
-    public void setExternalAntennaPatternFile(String xcaFileName) {
-
-        String path = Settings.instance().get("AuxData.envisatAuxDataPath") + File.separator + xcaFileName;
-        externalAuxFile = new File(path);
-        if (!externalAuxFile.exists()) {
-            throw new OperatorException("External antenna pattern file for unit test does not exist");
-        }
     }
 
     //==================================== pixel calibration used by RD ======================================
