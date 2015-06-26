@@ -34,6 +34,8 @@ import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -214,7 +216,17 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
         final String remotePath = remoteURL.toString() + localZipFile.getName();
         SystemUtils.LOG.info("http retrieving " + remotePath);
 
-        return downloadFile(new URL(remotePath), localZipFile);
+        final AtomicReference<File> returnValue = new AtomicReference<>();
+        Runnable operation = () -> {
+            try {
+                returnValue.set(downloadFile(new URL(remotePath), localZipFile));
+            } catch (IOException e) {
+                SystemUtils.LOG.log(Level.SEVERE, "Failed to download remote file.", e);
+            }
+        };
+        operation.run();
+
+        return returnValue.get();
     }
 
     /**
@@ -249,11 +261,9 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
             final int size = 32768;
             final byte[] buf = new byte[size];
             int n;
-            int total = 0;
             while ((n = is.read(buf, 0, size)) > -1) {
                 os.write(buf, 0, n);
-                total += n;
-                pm.worked(total);
+                pm.worked(n);
             }
 
             while (true) {

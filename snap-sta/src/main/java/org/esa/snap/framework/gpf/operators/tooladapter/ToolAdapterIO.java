@@ -30,10 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
@@ -48,29 +45,61 @@ import java.util.prefs.Preferences;
  */
 public class ToolAdapterIO {
 
-    private static final String[] USER_SUBFOLDERS = { "extensions", "adapters" };
-    private static Logger logger = Logger.getLogger(ToolAdapterIO.class.getName());
+    private static final String[] userSubfolders;
+    private static final Logger logger;
+    private static final Map<String, String> shellExtensions;
+    private static final String osFamily;
+
+    static {
+        logger = Logger.getLogger(ToolAdapterIO.class.getName());
+        userSubfolders = new String[] { "adapters" };
+        shellExtensions = new HashMap<>();
+        shellExtensions.put("win", ".bat");
+        shellExtensions.put("linux", ".sh");
+        shellExtensions.put("macosx", ".sh");
+        shellExtensions.put("unsupported", "");
+        String sysName = System.getProperty("os.name").toLowerCase();
+        if (sysName.contains("windows")) {
+            osFamily = "win";
+        } else if (sysName.contains("linux")) {
+            osFamily = "linux";
+        } else if (sysName.contains("mac")) {
+            osFamily = "macosx";
+        } else {
+            osFamily = "unsupported";
+        }
+    }
 
     public static void setAdaptersPath(Path path) {
-        Path storagePath = Config.instance().storagePath();
-        File file = storagePath.toFile();
-        if (!file.exists()) {
-            try {
-                if (!(file.getParentFile().mkdirs() && file.createNewFile())) {
-                    logger.warning("Cannot create module preferences");
-                }
-            } catch (IOException e) {
-                logger.severe("Error while creating module preferences: " + e.getMessage());
-            }
-        }
-        Config instance = Config.instance().load();
-        Preferences preferences = instance.preferences();
+        Preferences preferences = getPreferences();
         preferences.put(ToolAdapterConstants.USER_MODULE_PATH, path.toFile().getAbsolutePath());
         try {
             preferences.sync();
         } catch (BackingStoreException e) {
             logger.severe("Cannot set adapters path in preferences: " + e.getMessage());
         }
+    }
+
+    public static void saveVariable(String name, String value) {
+        Preferences preferences = getPreferences();
+        if (preferences.get(name, null) == null) {
+            preferences.put(name, value);
+            try {
+                preferences.sync();
+            } catch (BackingStoreException e) {
+                logger.severe(String.format("Cannot set %s value in preferences: %s", name, e.getMessage()));
+            }
+        }
+    }
+
+    public static String getVariableValue(String name, String defaultValue) {
+        Preferences preferences = getPreferences();
+        String retVal = preferences.get(name, null);
+        if (retVal == null && defaultValue != null) {
+            saveVariable(name, defaultValue);
+            retVal = defaultValue;
+        }
+        return retVal;
     }
 
     /**
@@ -226,7 +255,7 @@ public class ToolAdapterIO {
         File userModulePath;
         if (userPath == null) {
             userModulePath = new File(Config.instance().userDir().toFile(), SystemUtils.getApplicationContextId());
-            for (String subFolder : USER_SUBFOLDERS) {
+            for (String subFolder : userSubfolders) {
                 userModulePath = new File(userModulePath, subFolder);
             }
         } else {
@@ -251,6 +280,59 @@ public class ToolAdapterIO {
             writer.flush();
             writer.close();
         }
+    }
+
+    /**
+     * Unregisters an adapter operator and, optionally, removes its folder from file system.
+     *
+     * @param operator              The operator descriptor to be unregistered
+     * @param removeOperatorFolder  If <code>true</code>, deletes the operator folder.
+     */
+    public static void removeOperator(ToolAdapterOperatorDescriptor operator, boolean removeOperatorFolder) {
+        ToolAdapterRegistry.INSTANCE.removeOperator(operator);
+        if (removeOperatorFolder) {
+            File rootFolder = getUserAdapterPath();
+            File moduleFolder = new File(rootFolder, operator.getAlias());
+            if (moduleFolder.exists()) {
+                if (!FileUtils.deleteTree(moduleFolder)) {
+                    logger.warning(String.format("Folder %s cannot be deleted", moduleFolder.getAbsolutePath()));
+                }
+            }
+        }
+    }
+
+    /**
+     * In case of files that were selected via File Chooser Dialog, makes sure that a
+     * copy of the file is placed in the adapter folder. If the file is already in the adapter folder,
+     * nothing happens.
+     *
+     * @param file          The file to (potentially) copy.
+     * @param adaptorAlias  The adapter alias, which is also the folder name.
+     * @return              The file local to the adapter folder.
+     */
+    public static File ensureLocalCopy(File file, String adaptorAlias) {
+        File newFile = null;
+        File path = new File(getUserAdapterPath(), adaptorAlias);
+        if (!file.isAbsolute()) {
+            newFile = new File(path, file.getName());
+        } else if (file.exists() && !file.getAbsolutePath().startsWith(path.getAbsolutePath())) {
+            try {
+                newFile = Files.copy(Paths.get(file.getAbsolutePath()), Paths.get(path.getAbsolutePath(), file.getName()), StandardCopyOption.REPLACE_EXISTING).toFile();
+            } catch (IOException e) {
+                logger.warning(e.getMessage());
+            }
+        } else {
+            newFile = file;
+        }
+        return newFile;
+    }
+
+    /**
+     * Returns the OS-dependend shell script extension.
+     * @return  For Windows: .bat, for Linux and MacOSX: .sh, for other OS: empty string
+     */
+    public static String getShellExtension() {
+        return shellExtensions.get(osFamily);
     }
 
     private static List<File> scanForAdapters(File path) throws IOException {
@@ -324,33 +406,19 @@ public class ToolAdapterIO {
         }
     }
 
-    public static void removeOperator(ToolAdapterOperatorDescriptor operator, boolean removeOperatorFolder) {
-        ToolAdapterRegistry.INSTANCE.removeOperator(operator);
-        if (removeOperatorFolder) {
-            File rootFolder = getUserAdapterPath();
-            File moduleFolder = new File(rootFolder, operator.getAlias());
-            if (moduleFolder.exists()) {
-                if (!FileUtils.deleteTree(moduleFolder)) {
-                    logger.warning(String.format("Folder %s cannot be deleted", moduleFolder.getAbsolutePath()));
-                }
-            }
-        }
-    }
-
-    public static File ensureLocalCopy(File file, String adaptorAlias) {
-        File newFile = null;
-        File path = new File(getUserAdapterPath(), adaptorAlias);
-        if (!file.isAbsolute()) {
-            newFile = new File(path, file.getName());
-        } else if (file.exists() && !file.getAbsolutePath().startsWith(path.getAbsolutePath())) {
+    private static Preferences getPreferences() {
+        Path storagePath = Config.instance().storagePath();
+        File file = storagePath.toFile();
+        if (!file.exists()) {
             try {
-                newFile = Files.copy(Paths.get(file.getAbsolutePath()), Paths.get(path.getAbsolutePath(), file.getName()), StandardCopyOption.REPLACE_EXISTING).toFile();
+                if (!(file.getParentFile().mkdirs() && file.createNewFile())) {
+                    logger.warning("Cannot create module preferences");
+                }
             } catch (IOException e) {
-                logger.warning(e.getMessage());
+                logger.severe("Error while creating module preferences: " + e.getMessage());
             }
-        } else {
-            newFile = file;
         }
-        return newFile;
+        Config instance = Config.instance().load();
+        return instance.preferences();
     }
 }

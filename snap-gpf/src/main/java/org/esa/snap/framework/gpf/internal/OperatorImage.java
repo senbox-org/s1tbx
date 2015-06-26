@@ -61,6 +61,9 @@ public class OperatorImage extends SourcelessOpImage {
 
     @Override
     protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
+
+        operatorContext.executeOperator(ProgressMonitor.NULL);
+
         long startNanos = System.nanoTime();
 
         Tile targetTile;

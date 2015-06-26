@@ -20,6 +20,7 @@ import com.thoughtworks.xstream.io.StreamException;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.operators.tooladapter.ToolAdapterConstants;
+import org.esa.snap.framework.gpf.operators.tooladapter.ToolAdapterIO;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
 
@@ -386,12 +387,14 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         String expandedValue = null;
         if (location != null) {
             expandedValue = location.getPath();
+            expandedValue = expandedValue.replace(ToolAdapterConstants.SHELL_EXT, ToolAdapterIO.getShellExtension());
             String varKey = null, varVal = null;
             if (expandedValue.contains("$")) {
                 expandedValue = expandedValue.substring(expandedValue.indexOf("$"));
                 for (SystemVariable variable : variables) {
-                    if (expandedValue.contains(variable.getKey())) {
-                        varKey = "$" + variable.getKey();
+                    String key = variable.getKey();
+                    if (expandedValue.contains(key)) {
+                        varKey = "$" + key;
                         varVal = variable.getValue();
                         break;
                     }
@@ -399,8 +402,9 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
             } else if (expandedValue.contains("%")) {
                 expandedValue = expandedValue.substring(expandedValue.indexOf("%"));
                 for (SystemVariable variable : variables) {
-                    if (expandedValue.contains(variable.getKey())) {
-                        varKey = "%" + variable.getKey() + "%";
+                    String key = variable.getKey();
+                    if (expandedValue.contains(key)) {
+                        varKey = "%" + key + "%";
                         varVal = variable.getValue();
                         break;
                     }

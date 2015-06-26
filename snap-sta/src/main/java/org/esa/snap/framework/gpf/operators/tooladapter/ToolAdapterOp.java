@@ -187,7 +187,7 @@ public class ToolAdapterOp extends Operator {
                 descriptor = ((ToolAdapterOperatorDescriptor) accessibleContext.getOperatorSpi().getOperatorDescriptor());
             }
             if (this.progressMonitor != null) {
-                this.progressMonitor.beginTask("Starting " + this.descriptor.getName(), 100);
+                this.progressMonitor.beginTask("Executing " + this.descriptor.getName(), 100);
             }
             validateDescriptor();
             if (this.consumer == null) {
@@ -345,7 +345,12 @@ public class ToolAdapterOp extends Operator {
             pb.redirectErrorStream(true);
             //set the working directory
             pb.directory(descriptor.getExpandedLocation(descriptor.getWorkingDir()));
-            pb.environment().putAll(descriptor.getVariables().stream().collect(Collectors.toMap(SystemVariable::getKey, SystemVariable::getValue)));
+            pb.environment().putAll(descriptor.getVariables()
+                                                .stream()
+                                                .collect(Collectors.toMap(
+                                                        SystemVariable::getKey,
+                                                        SystemVariable::getValue))
+            );
             //start the process
             process = pb.start();
             //get the process output

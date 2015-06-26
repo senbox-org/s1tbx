@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by Array Systems Computing Inc. http://www.array.ca
+ * Copyright (C) 2015 by Array Systems Computing Inc. http://www.array.ca
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -13,12 +13,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see http://www.gnu.org/licenses/
  */
-package org.esa.snap.dem.dataio.srtm1_esrigrid;
+package org.esa.snap.dem.dataio.srtm1_hgt;
 
-import org.esa.snap.framework.dataop.dem.ElevationFile;
-import org.esa.snap.framework.dataop.dem.ElevationTile;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.dataop.dem.ElevationFile;
+import org.esa.snap.framework.dataop.dem.ElevationTile;
+import org.esa.snap.util.Settings;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,22 +27,25 @@ import java.io.IOException;
 /**
  * Holds information about a dem file.
  */
-public final class SRTM1GridFile extends ElevationFile {
+public final class SRTM1HgtFile extends ElevationFile {
 
-    private final SRTM1GridElevationModel demModel;
+    private final SRTM1HgtElevationModel demModel;
 
-    public SRTM1GridFile(SRTM1GridElevationModel model, File localFile, ProductReader reader) {
+    private static final String remoteHTTP = Settings.instance().get("DEM.srtm1HgtDEM_HTTP",
+                                                                     "http://sentinel1.s3.amazonaws.com/data/DEM/SRTMGL1/");
+
+    public SRTM1HgtFile(final SRTM1HgtElevationModel model, final File localFile, final ProductReader reader) {
         super(localFile, reader);
         this.demModel = model;
     }
 
     protected ElevationTile createTile(final Product product) throws IOException {
-        final SRTM1GridElevationTile tile = new SRTM1GridElevationTile(demModel, product);
+        final SRTM1HgtElevationTile tile = new SRTM1HgtElevationTile(demModel, product);
         demModel.updateCache(tile);
         return tile;
     }
 
     protected Boolean getRemoteFile() throws IOException {
-        return false;
+        return getRemoteHttpFile(remoteHTTP);
     }
 }

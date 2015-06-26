@@ -48,6 +48,10 @@ public final class Settings {
         return auxdataPreferences.get(key, "");
     }
 
+    public String get(final String key, final String deafault) {
+        return auxdataPreferences.get(key, deafault);
+    }
+
     public static String getPath(final String tag) {
         String path = instance().get(tag);
         path = path.replace("\\", "/");

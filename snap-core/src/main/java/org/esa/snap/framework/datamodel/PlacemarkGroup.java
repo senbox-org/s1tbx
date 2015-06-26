@@ -70,8 +70,9 @@ public class PlacemarkGroup extends ProductNodeGroup<Placemark> {
 
     @Override
     public synchronized void dispose() {
-        if (getProduct() != null) {
-            getProduct().removeProductNodeListener(listener);
+        Product product = getProduct();
+        if (product != null) {
+            product.removeProductNodeListener(listener);
         }
         placemarkMap.clear();
         super.dispose();

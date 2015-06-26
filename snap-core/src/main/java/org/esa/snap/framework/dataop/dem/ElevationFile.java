@@ -33,8 +33,6 @@ import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -103,7 +101,7 @@ public abstract class ElevationFile {
             if (localFileExists) {
                 getLocalFile();
             } else if (remoteFileExists) {
-                if (downloadRemoteFile()) {
+                if (getRemoteFile()) {
                     getLocalFile();
                 }
             }
@@ -143,20 +141,6 @@ public abstract class ElevationFile {
         if (product != null) {
             tile = createTile(product);
         }
-    }
-
-    private Boolean downloadRemoteFile() {
-        final AtomicReference<Boolean> returnValue = new AtomicReference<>();
-        Runnable operation = () -> {
-            try {
-                returnValue.set(getRemoteFile());
-            } catch (IOException e) {
-                SystemUtils.LOG.log(Level.SEVERE, "Failed to download remote file.", e);
-            }
-        };
-        operation.run();
-
-        return returnValue.get();
     }
 
     protected abstract Boolean getRemoteFile() throws IOException;
@@ -205,11 +189,9 @@ public abstract class ElevationFile {
             final int size = 32768;
             final byte[] buf = new byte[size];
             int n;
-            int total = 0;
             while ((n = is.read(buf, 0, size)) > -1) {
                 os.write(buf, 0, n);
-                total =+ n;
-                status.worked(total);
+                status.worked(n);
             }
             status.done();
 

@@ -242,11 +242,6 @@ public class WriteOp extends Operator {
         }
         productWriter.setIncrementalMode(incremental);
         targetProduct.setProductWriter(productWriter);
-        try {
-            productWriter.writeProductNodes(targetProduct, file);
-        } catch (IOException e) {
-            throw new OperatorException("Not able to write product file: '" + file.getAbsolutePath() + "'", e);
-        }
 
         final Band[] bands = targetProduct.getBands();
         writableBands = new ArrayList<>(bands.length);
@@ -262,6 +257,15 @@ public class WriteOp extends Operator {
         tileCountX = MathUtils.ceilInt(targetProduct.getSceneRasterWidth() / (double) tileSize.width);
         tileCountY = MathUtils.ceilInt(targetProduct.getSceneRasterHeight() / (double) tileSize.height);
         tilesWritten = new boolean[writableBands.size()][tileCountY][tileCountX];
+    }
+
+    @Override
+    public void doExecute(ProgressMonitor pm) {
+        try {
+            productWriter.writeProductNodes(targetProduct, file);
+        } catch (IOException e) {
+            throw new OperatorException("Not able to write product file: '" + file.getAbsolutePath() + "'", e);
+        }
     }
 
     @Override
