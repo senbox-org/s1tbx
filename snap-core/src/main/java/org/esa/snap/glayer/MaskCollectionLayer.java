@@ -59,7 +59,7 @@ public class MaskCollectionLayer extends CollectionLayer {
     @Override
     public void disposeLayer() {
         if (raster != null) {
-            getProduct().removeProductNodeListener(maskPNL);
+            raster.getProduct().removeProductNodeListener(maskPNL);
             raster = null;
         }
     }

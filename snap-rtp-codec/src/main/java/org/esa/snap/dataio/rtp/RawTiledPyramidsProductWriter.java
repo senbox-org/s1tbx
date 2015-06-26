@@ -205,8 +205,9 @@ public class RawTiledPyramidsProductWriter extends AbstractProductWriter {
             writtenBands.clear();
             writtenBands = null;
         }
-        if (getSourceProduct() != null) {
-            getSourceProduct().removeProductNodeListener(productNodeHandler);
+        Product product = getSourceProduct();
+        if (product != null) {
+            product.removeProductNodeListener(productNodeHandler);
         }
     }
 
