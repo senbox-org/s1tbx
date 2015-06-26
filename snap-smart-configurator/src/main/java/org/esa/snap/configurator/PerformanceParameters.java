@@ -247,9 +247,9 @@ public class PerformanceParameters {
         actualParameters.setVMParameters(vmParameters);
         actualParameters.setUserDir(configuration.userDir());
 
-        actualParameters.setNbThreads(preferences.getInt("PROPERTY_JAI_PARALLELISM", 1));
-        actualParameters.setDefaultTileSize(preferences.getInt("PROPERTY_DEFAULT_TILE_SIZE", 1));
-        actualParameters.setCacheSize(preferences.getInt("PROPERTY_JAI_CACHE_SIZE", 1));
+        actualParameters.setNbThreads(preferences.getInt(PROPERTY_JAI_PARALLELISM, 1));
+        actualParameters.setDefaultTileSize(preferences.getInt(PROPERTY_DEFAULT_TILE_SIZE, 1));
+        actualParameters.setCacheSize(preferences.getInt(PROPERTY_JAI_CACHE_SIZE, 1));
 
         /* not implemented in this version.
         actualParameters.setReaderTileWidth(preferences.getInt("snap.dataio.reader.tileWidth", 1));
@@ -304,9 +304,9 @@ public class PerformanceParameters {
         preferences.put(EngineConfig.PROPERTY_USER_DIR, userDirString);
 
 
-        preferences.putInt("PROPERTY_JAI_PARALLELISM", confToSave.getNbThreads());
-        preferences.putInt("PROPERTY_DEFAULT_TILE_SIZE", confToSave.getDefaultTileSize());
-        preferences.putInt("PROPERTY_JAI_CACHE_SIZE", confToSave.getCacheSize());
+        preferences.putInt(PROPERTY_JAI_PARALLELISM, confToSave.getNbThreads());
+        preferences.putInt(PROPERTY_DEFAULT_TILE_SIZE, confToSave.getDefaultTileSize());
+        preferences.putInt(PROPERTY_JAI_CACHE_SIZE, confToSave.getCacheSize());
 
 /* not implemented in this version.
         preferences.putInt("snap.dataio.reader.tileWidth", confToSave.getReaderTileWidth());
