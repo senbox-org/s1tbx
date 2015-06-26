@@ -42,7 +42,7 @@ import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.esa.snap.util.ProductUtils;
 import org.esa.snap.util.StringUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -214,6 +214,7 @@ public class BandMathsOp extends Operator {
     private Product[] sourceProducts;
 
     @Parameter(alias = "targetBands", itemAlias = "targetBand",
+               domConverter = BandDescriptorDomConverter.class,
                description = "List of descriptors defining the target bands.")
     private BandDescriptor[] targetBandDescriptors;
     @Parameter(alias = "variables", itemAlias = "variable",
@@ -252,15 +253,20 @@ public class BandMathsOp extends Operator {
         }
         int width = sourceProducts[0].getSceneRasterWidth();
         int height = sourceProducts[0].getSceneRasterHeight();
+        int cnt = 1;
         for (Product product : sourceProducts) {
             if (product.getSceneRasterWidth() != width ||
                 product.getSceneRasterHeight() != height) {
                 throw new OperatorException("Products must have the same raster dimension.");
             }
+            int refNo = product.getRefNo();
+            if(refNo == 0) {
+                product.setRefNo(cnt++);
+            }
         }
         targetProduct = new Product(sourceProducts[0].getName() + "BandMath", "BandMath", width, height);
 
-        descriptorMap = new HashMap<Band, BandDescriptor>(targetBandDescriptors.length);
+        descriptorMap = new HashMap<>(targetBandDescriptors.length);
         Namespace namespace = createNamespace();
         Parser verificationParser = new ParserImpl(namespace, true);
         for (BandDescriptor bandDescriptor : targetBandDescriptors) {
@@ -268,7 +274,13 @@ public class BandMathsOp extends Operator {
         }
 
         ProductUtils.copyMetadata(sourceProducts[0], targetProduct);
+        ProductUtils.copyTiePointGrids(sourceProducts[0], targetProduct);
+        ProductUtils.copyFlagCodings(sourceProducts[0], targetProduct);
         ProductUtils.copyGeoCoding(sourceProducts[0], targetProduct);
+        ProductUtils.copyMasks(sourceProducts[0], targetProduct);
+        ProductUtils.copyVectorData(sourceProducts[0], targetProduct);
+        ProductUtils.copyIndexCodings(sourceProducts[0], targetProduct);
+        targetProduct.setDescription(sourceProducts[0].getDescription());
         for (Product sourceProduct : sourceProducts) {
             if (sourceProduct.getStartTime() != null && sourceProduct.getEndTime() != null) {
                 targetProduct.setStartTime(sourceProduct.getStartTime());
