@@ -179,9 +179,8 @@ public class GETASSE30Reader extends AbstractProductReader {
     }
 
     private static File createCacheDir() throws IOException {
-        // todo - this is not acceptable - beam-home might have no write access for current user
-        final File cacheDir = new File(SystemUtils.getApplicationHomeDir(), "temp");
-        if (!cacheDir.exists() && !cacheDir.mkdir()) {
+        final File cacheDir = new File(SystemUtils.getDefaultCacheDir(), "temp");
+        if (!cacheDir.exists() && !cacheDir.mkdirs()) {
             throw new IOException("Failed to create directory '" + cacheDir + "'.");
         }
         return cacheDir;

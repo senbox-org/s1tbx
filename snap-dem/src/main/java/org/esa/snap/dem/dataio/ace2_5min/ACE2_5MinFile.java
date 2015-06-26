@@ -20,6 +20,7 @@ import org.esa.snap.framework.dataop.dem.ElevationFile;
 import org.esa.snap.framework.dataop.dem.ElevationTile;
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.util.Settings;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,19 +32,12 @@ public final class ACE2_5MinFile extends ElevationFile {
 
     private final ACE2_5MinElevationModel demModel;
 
-    private static final String remoteHTTP = "http://nest.s3.amazonaws.com/data/ACE2/5M/";
+    private static final String remoteHTTP = Settings.instance().get("DEM.ace2_5MinDEM_HTTP",
+                                                                     "http://nest.s3.amazonaws.com/data/ACE2/5M/");
 
     public ACE2_5MinFile(final ACE2_5MinElevationModel model, final File localFile, final ProductReader reader) {
         super(localFile, reader);
         this.demModel = model;
-    }
-
-    protected String getRemoteFTP() {
-        return null;
-    }
-
-    protected String getRemotePath() {
-        return null;
     }
 
     protected ElevationTile createTile(final Product product) {
@@ -52,7 +46,7 @@ public final class ACE2_5MinFile extends ElevationFile {
         return tile;
     }
 
-    protected boolean getRemoteFile() throws IOException {
+    protected Boolean getRemoteFile() throws IOException {
         return getRemoteHttpFile(remoteHTTP);
     }
 }

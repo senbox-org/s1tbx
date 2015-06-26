@@ -1759,7 +1759,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     private static ImageInfo loadColorPalette(final Histogram histogram, final String paletteFileName) throws IOException {
-        final Path filePath = SystemUtils.getApplicationDataDir().toPath().resolve("snap-rcp/auxdata/color_palettes").resolve(paletteFileName);
+        final Path filePath = SystemUtils.getAuxDataPath().resolve("color_palettes").resolve(paletteFileName);
         final ColorPaletteDef colorPaletteDef = ColorPaletteDef.loadColorPaletteDef(filePath.toFile());
         final ImageInfo info = new ImageInfo(colorPaletteDef);
         final Range autoStretchRange = histogram.findRangeFor95Percent();

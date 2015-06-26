@@ -22,26 +22,21 @@ import org.esa.snap.framework.gpf.descriptor.ToolAdapterOperatorDescriptor;
 import org.esa.snap.runtime.Config;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
-import org.openide.modules.Places;
-import org.openide.util.NbPreferences;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-
-import static org.esa.snap.utils.ModulePackager.unpackAdapterJar;
 
 /**
  * Utility class for performing various operations needed by ToolAdapterOp.
@@ -50,11 +45,62 @@ import static org.esa.snap.utils.ModulePackager.unpackAdapterJar;
  */
 public class ToolAdapterIO {
 
-    private static final String[] SYS_SUBFOLDERS = { "modules", "extensions", "adapters" };
-    private static final String[] USER_SUBFOLDERS = { "extensions", "adapters" };
-    private static File systemModulePath;
-    private static File userModulePath;
-    private static Logger logger = Logger.getLogger(ToolAdapterIO.class.getName());
+    private static final String[] userSubfolders;
+    private static final Logger logger;
+    private static final Map<String, String> shellExtensions;
+    private static final String osFamily;
+
+    static {
+        logger = Logger.getLogger(ToolAdapterIO.class.getName());
+        userSubfolders = new String[] { "adapters" };
+        shellExtensions = new HashMap<>();
+        shellExtensions.put("win", ".bat");
+        shellExtensions.put("linux", ".sh");
+        shellExtensions.put("macosx", ".sh");
+        shellExtensions.put("unsupported", "");
+        String sysName = System.getProperty("os.name").toLowerCase();
+        if (sysName.contains("windows")) {
+            osFamily = "win";
+        } else if (sysName.contains("linux")) {
+            osFamily = "linux";
+        } else if (sysName.contains("mac")) {
+            osFamily = "macosx";
+        } else {
+            osFamily = "unsupported";
+        }
+    }
+
+    public static void setAdaptersPath(Path path) {
+        Preferences preferences = getPreferences();
+        preferences.put(ToolAdapterConstants.USER_MODULE_PATH, path.toFile().getAbsolutePath());
+        try {
+            preferences.sync();
+        } catch (BackingStoreException e) {
+            logger.severe("Cannot set adapters path in preferences: " + e.getMessage());
+        }
+    }
+
+    public static void saveVariable(String name, String value) {
+        Preferences preferences = getPreferences();
+        if (preferences.get(name, null) == null) {
+            preferences.put(name, value);
+            try {
+                preferences.sync();
+            } catch (BackingStoreException e) {
+                logger.severe(String.format("Cannot set %s value in preferences: %s", name, e.getMessage()));
+            }
+        }
+    }
+
+    public static String getVariableValue(String name, String defaultValue) {
+        Preferences preferences = getPreferences();
+        String retVal = preferences.get(name, null);
+        if (retVal == null && defaultValue != null) {
+            saveVariable(name, defaultValue);
+            retVal = defaultValue;
+        }
+        return retVal;
+    }
 
     /**
      * Scans for adapter folders in the system and user paths and registers all
@@ -113,7 +159,7 @@ public class ToolAdapterIO {
      * @throws IOException
      */
     public static String readOperatorTemplate(String adapterName) throws IOException, OperatorException {
-        File file = getTemplateFile(adapterName, true);
+        File file = getTemplateFile(adapterName);
         byte[] encoded = Files.readAllBytes(Paths.get(file.getAbsolutePath()));
         return new String(encoded, Charset.defaultCharset());
     }
@@ -126,7 +172,7 @@ public class ToolAdapterIO {
      * @throws IOException
      */
     public static void writeOperatorTemplate(String adapterName, String content) throws IOException {
-        File file = getTemplateFile(adapterName, false);
+        File file = getTemplateFile(adapterName);
         saveFileContent(file, content);
     }
 
@@ -180,9 +226,6 @@ public class ToolAdapterIO {
      */
     public static void registerAdapter(File adapterFolder) throws OperatorException {
         ToolAdapterOpSpi operatorSpi = ToolAdapterIO.createOperatorSpi(adapterFolder);
-        if (adapterFolder.getAbsolutePath().startsWith(systemModulePath.getAbsolutePath())) {
-            ((ToolAdapterOperatorDescriptor) operatorSpi.getOperatorDescriptor()).setSystem(true);
-        }
         ToolAdapterRegistry.INSTANCE.registerOperator(operatorSpi);
     }
 
@@ -195,9 +238,6 @@ public class ToolAdapterIO {
     public static List<File> scanForAdapters() throws IOException {
         logger.log(Level.INFO, "Loading external tools...");
         List<File> modules = new ArrayList<>();
-        File systemModulesPath = getSystemAdapterPath();
-        logger.info("Scanning for external tools adapters: " + systemModulesPath.getAbsolutePath());
-        modules.addAll(scanForAdapters(systemModulesPath));
         File userModulesPath = getUserAdapterPath();
         logger.info("Scanning for external tools adapters: " + userModulesPath.getAbsolutePath());
         modules.addAll(scanForAdapters(userModulesPath));
@@ -206,28 +246,24 @@ public class ToolAdapterIO {
 
     /**
      * Returns the location of the user-defined adapters.
-     * An user-defined adapter is either a system tool adapter that was modified by the user
-     * or a new tool adapter defined by the user.
      * Also, in this location packed jar adapters may be found.
      *
      * @return  The location of user-defined modules.
      */
     public static File getUserAdapterPath() {
-        //if (userModulePath == null) {
-            String userPath = null;
-            Preferences preferences = NbPreferences.forModule(ToolAdapterIO.class);
-            if ((userPath = preferences.get("user.module.path", null)) == null) {
-                userModulePath = new File(Places.getUserDirectory(), SystemUtils.getApplicationContextId());
-                for (String subFolder : USER_SUBFOLDERS) {
-                    userModulePath = new File(userModulePath, subFolder);
-                }
-            } else {
-                userModulePath = new File(userPath);
+        String userPath = Config.instance().load().preferences().get(ToolAdapterConstants.USER_MODULE_PATH, null);
+        File userModulePath;
+        if (userPath == null) {
+            userModulePath = new File(Config.instance().userDir().toFile(), SystemUtils.getApplicationContextId());
+            for (String subFolder : userSubfolders) {
+                userModulePath = new File(userModulePath, subFolder);
             }
-            if (!userModulePath.exists() && !userModulePath.mkdirs()) {
-                logger.severe("Cannot create user folder for external tool adapter extensions");
-            }
-        //}
+        } else {
+            userModulePath = new File(userPath);
+        }
+        if (!userModulePath.exists() && !userModulePath.mkdirs()) {
+            logger.severe("Cannot create user folder for external tool adapter extensions");
+        }
         return userModulePath;
     }
 
@@ -247,34 +283,56 @@ public class ToolAdapterIO {
     }
 
     /**
-     * Returns the location where the system adapter modules should be looked for.
-     * A system adapter module is a module that is included in the distribution bundle.
+     * Unregisters an adapter operator and, optionally, removes its folder from file system.
      *
-     * @return  The system modules location
+     * @param operator              The operator descriptor to be unregistered
+     * @param removeOperatorFolder  If <code>true</code>, deletes the operator folder.
      */
-    public static File getSystemAdapterPath() {
-        if (systemModulePath == null) {
-            // Uncommented by Norman 28.05.2015, please review!
-            /*
-            String applicationHomePropertyName = SystemUtils.getApplicationHomePropertyName();
-            if (applicationHomePropertyName == null) {
-                applicationHomePropertyName = "user.dir";
-            }
-            String homeFolder = System.getProperty(applicationHomePropertyName);
-            if (homeFolder == null) {
-                homeFolder = System.getProperty("user.dir");
-            }
-            systemModulePath = new File(homeFolder);
-            */
-            systemModulePath = Config.instance().userDir().toFile();
-            for (String subFolder : SYS_SUBFOLDERS) {
-                systemModulePath = new File(systemModulePath, subFolder);
-            }
-            if (!systemModulePath.exists() && !systemModulePath.mkdirs()) {
-                logger.severe("Cannot create system folder for external tool adapter extensions");
+    public static void removeOperator(ToolAdapterOperatorDescriptor operator, boolean removeOperatorFolder) {
+        ToolAdapterRegistry.INSTANCE.removeOperator(operator);
+        if (removeOperatorFolder) {
+            File rootFolder = getUserAdapterPath();
+            File moduleFolder = new File(rootFolder, operator.getAlias());
+            if (moduleFolder.exists()) {
+                if (!FileUtils.deleteTree(moduleFolder)) {
+                    logger.warning(String.format("Folder %s cannot be deleted", moduleFolder.getAbsolutePath()));
+                }
             }
         }
-        return systemModulePath;
+    }
+
+    /**
+     * In case of files that were selected via File Chooser Dialog, makes sure that a
+     * copy of the file is placed in the adapter folder. If the file is already in the adapter folder,
+     * nothing happens.
+     *
+     * @param file          The file to (potentially) copy.
+     * @param adaptorAlias  The adapter alias, which is also the folder name.
+     * @return              The file local to the adapter folder.
+     */
+    public static File ensureLocalCopy(File file, String adaptorAlias) {
+        File newFile = null;
+        File path = new File(getUserAdapterPath(), adaptorAlias);
+        if (!file.isAbsolute()) {
+            newFile = new File(path, file.getName());
+        } else if (file.exists() && !file.getAbsolutePath().startsWith(path.getAbsolutePath())) {
+            try {
+                newFile = Files.copy(Paths.get(file.getAbsolutePath()), Paths.get(path.getAbsolutePath(), file.getName()), StandardCopyOption.REPLACE_EXISTING).toFile();
+            } catch (IOException e) {
+                logger.warning(e.getMessage());
+            }
+        } else {
+            newFile = file;
+        }
+        return newFile;
+    }
+
+    /**
+     * Returns the OS-dependend shell script extension.
+     * @return  For Windows: .bat, for Linux and MacOSX: .sh, for other OS: empty string
+     */
+    public static String getShellExtension() {
+        return shellExtensions.get(osFamily);
     }
 
     private static List<File> scanForAdapters(File path) throws IOException {
@@ -300,7 +358,7 @@ public class ToolAdapterIO {
         return modules;
     }
 
-    private static File getTemplateFile(String adapterName, boolean forReading) throws IOException, OperatorException {
+    private static File getTemplateFile(String adapterName) throws IOException, OperatorException {
         OperatorSpi spi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(adapterName);
         if (spi == null) {
             throw new OperatorException("Cannot find the operator SPI");
@@ -310,48 +368,57 @@ public class ToolAdapterIO {
             throw new OperatorException("Cannot read the operator template file");
         }
         String templateFile = operatorDescriptor.getTemplateFileLocation();
-        File template = new File(forReading ? getSystemAdapterPath() : getUserAdapterPath(), spi.getOperatorAlias() + File.separator + templateFile);
-        if (!template.exists()) {
-            template = new File(getUserAdapterPath(), spi.getOperatorAlias() + File.separator + templateFile);
-        }
-        return template;
+        return new File(getUserAdapterPath(), spi.getOperatorAlias() + File.separator + templateFile);
     }
 
-    public static void removeOperator(ToolAdapterOperatorDescriptor operator, boolean removeOperatorFolder) {
-        if (!operator.isSystem()) {
-            ToolAdapterRegistry.INSTANCE.removeOperator(operator);
-            if (removeOperatorFolder) {
-                File rootFolder = getUserAdapterPath();
-                File moduleFolder = new File(rootFolder, operator.getAlias());
-                if (moduleFolder.exists()) {
-                    if (!FileUtils.deleteTree(moduleFolder)) {
-                        logger.warning(String.format("Folder %s cannot be deleted", moduleFolder.getAbsolutePath()));
-                    }
+    private static void unpackAdapterJar(File jarFile, File unpackFolder) throws IOException {
+        JarFile jar = new JarFile(jarFile);
+        Enumeration enumEntries = jar.entries();
+        if (unpackFolder == null) {
+            unpackFolder = new File(getUserAdapterPath(), jarFile.getName().replace(".jar", ""));
+        }
+        if (!unpackFolder.exists())
+            if (!unpackFolder.mkdir()) {
+                logger.warning(String.format("Cannot create folder %s", unpackFolder.getAbsolutePath()));
+            }
+        while (enumEntries.hasMoreElements()) {
+            JarEntry file = (JarEntry) enumEntries.nextElement();
+            File f = new File(unpackFolder, file.getName());
+            if (file.isDirectory()) {
+                if (!f.mkdir()) {
+                    logger.warning(String.format("Cannot create folder %s", f.getAbsolutePath()));
+                }
+                continue;
+            } else {
+                if (!f.getParentFile().mkdirs()) {
+                    logger.warning(String.format("Cannot create folder %s", f.getParentFile().getAbsolutePath()));
                 }
             }
-        }
-    }
-
-    public static File ensureLocalCopy(File file, String adaptorAlias) {
-        File newFile = null;
-        File path = new File(getUserAdapterPath(), adaptorAlias);
-        if (!file.isAbsolute()) {
-            newFile = new File(path, file.getName());
-        } else if (file.exists() && !file.getAbsolutePath().startsWith(path.getAbsolutePath())) {
-            try {
-                newFile = Files.copy(Paths.get(file.getAbsolutePath()), Paths.get(path.getAbsolutePath(), file.getName()), StandardCopyOption.REPLACE_EXISTING).toFile();
-            } catch (IOException e) {
-                logger.warning(e.getMessage());
+            try (InputStream is = jar.getInputStream(file)) {
+                try (FileOutputStream fos = new FileOutputStream(f)) {
+                    while (is.available() > 0) {
+                        fos.write(is.read());
+                    }
+                    fos.close();
+                }
+                is.close();
             }
-        } else {
-            newFile = file;
         }
-        return newFile;
     }
 
-    public static File prettifyTemplateParameterPath(File templateFile, String adaptorAlias) {
-        File pathToRemove = new File(getUserAdapterPath(), adaptorAlias);
-        return new File(templateFile.getAbsolutePath().replace(pathToRemove.getAbsolutePath() + File.separator, ""),
-                        templateFile.getName());
+    private static Preferences getPreferences() {
+        Path storagePath = Config.instance().storagePath();
+        File file = storagePath.toFile();
+        if (!file.exists()) {
+            try {
+                if (!(file.getParentFile().mkdirs() && file.createNewFile())) {
+                    logger.warning("Cannot create module preferences");
+                }
+            } catch (IOException e) {
+                logger.severe("Error while creating module preferences: " + e.getMessage());
+            }
+        }
+        Config instance = Config.instance().load();
+        return instance.preferences();
     }
 }

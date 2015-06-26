@@ -93,6 +93,11 @@ public class GETASSE30ElevationModelDescriptor extends AbstractElevationModelDes
     }
 
     @Override
+    public boolean canBeDownloaded() {
+        return true;
+    }
+
+    @Override
     public boolean isDemInstalled() {
         return true;
     }

@@ -126,12 +126,41 @@ public abstract class Operator {
 
     /**
      * Updates this operator forcing it to recreate the target product.
-     * <i>Warning: Experimental API added by nf (25.02.2010)</i>
-     *
-     * @since BEAM 4.8
      */
-    public void update() {
+    public final void update() {
         context.updateOperator();
+    }
+
+    /**
+     * Executes the operator.
+     * <p/>
+     * Call this method to execute an operator that doesn't compute raster data tiles on its own.
+     *
+     * @param pm A progress monitor to be notified for long-running tasks.
+     */
+    public final void execute(ProgressMonitor pm) {
+        getTargetProduct();
+        context.executeOperator(pm);
+    }
+
+    /**
+     * Executes the operator.
+     * <p>
+     * For operators that compute raster data tiles, the method is usually a no-op. Other operators might perform their
+     * main work in this method, e.g. perform some image analysis such as extracting statistics and other features from
+     * data products.
+     * <p>
+     * Don't call this method directly. The framework may call this method
+     * <ol>
+     *     <li>once before the very first tile is computed, or</li>
+     *     <li>as a result of a call to {@link #execute(ProgressMonitor)}.</li>
+     * </ol>
+     * <p>
+     * The default implementation does nothing.
+     *
+     * @param pm A progress monitor to be notified for long-running tasks.
+     */
+    public void doExecute(ProgressMonitor pm) {
     }
 
     // todo - remove ProgressMonitor parameter, it has never been used and wastes processing time (nf - 17.12.2010)

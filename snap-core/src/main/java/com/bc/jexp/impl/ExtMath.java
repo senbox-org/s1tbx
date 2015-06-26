@@ -15,6 +15,10 @@
  */
 package com.bc.jexp.impl;
 
+import com.bc.jexp.EvalEnv;
+import com.bc.jexp.Term;
+import org.apache.commons.math3.util.FastMath;
+
 /**
  * An extension the the {@link java.lang.Math class}.
  */
@@ -137,5 +141,41 @@ public class ExtMath {
             return Double.NaN;
         }
         return a == 0.0 ? 0.0 : (a < 0.0 ? -1.0 : 1.0);
+    }
+
+    public static double mean(final EvalEnv env, final Term[] args) {
+        double sum = 0.0;
+        final int n = args.length;
+        for (Term arg : args) {
+            sum += arg.evalD(env);
+        }
+        return sum/(double)n;
+    }
+
+    public static double mean2(final EvalEnv env, final Term[] args) {
+        double sqrSum = 0.0;
+        final int n = args.length;
+        for (Term arg : args) {
+            double v = arg.evalD(env);
+            sqrSum += v * v;
+        }
+        return sqrSum/(double)n;
+    }
+
+    public static double mean4(final EvalEnv env, final Term[] args) {
+        double sum = 0.0;
+        final int n = args.length;
+        for (Term arg : args) {
+            sum += FastMath.pow(arg.evalD(env), 4);
+        }
+        return sum/(double)n;
+    }
+
+    public static double sech(final double x) {
+        return 2.0 / (Math.exp(x) + Math.exp(-x));
+    }
+
+    public static double cosech(final double x) {
+        return 2.0 / (Math.exp(x) - Math.exp(-x));
     }
 }

@@ -30,20 +30,9 @@ public final class SRTM1GridFile extends ElevationFile {
 
     private final SRTM1GridElevationModel demModel;
 
-    private static final String remoteFTP = "";
-    private static final String remotePath = "";
-
     public SRTM1GridFile(SRTM1GridElevationModel model, File localFile, ProductReader reader) {
         super(localFile, reader);
         this.demModel = model;
-    }
-
-    protected String getRemoteFTP() {
-        return remoteFTP;
-    }
-
-    protected String getRemotePath() {
-        return remotePath;
     }
 
     protected ElevationTile createTile(final Product product) throws IOException {
@@ -52,7 +41,7 @@ public final class SRTM1GridFile extends ElevationFile {
         return tile;
     }
 
-    protected boolean getRemoteFile() throws IOException {
+    protected Boolean getRemoteFile() throws IOException {
         return false;
     }
 }

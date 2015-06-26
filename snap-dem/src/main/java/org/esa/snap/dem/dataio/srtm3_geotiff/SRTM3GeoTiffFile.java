@@ -31,21 +31,14 @@ public final class SRTM3GeoTiffFile extends ElevationFile {
 
     private final SRTM3GeoTiffElevationModel demModel;
 
-    private static final String remoteFTP = Settings.instance().get("DEM.srtm3GeoTiffDEM_FTP");
+    private static final String remoteFTP = Settings.instance().get("DEM.srtm3GeoTiffDEM_FTP", "xftp.jrc.it");
     private static final String remotePath = Settings.getPath("DEM.srtm3GeoTiffDEM_remotePath");
-    private static final String remoteHTTP = Settings.instance().get("DEM.srtm3GeoTiffDEM_HTTP");
+    private static final String remoteHTTP = Settings.instance().get("DEM.srtm3GeoTiffDEM_HTTP",
+                                                                     "http://droppr.org/srtm/v4.1/6_5x5_TIFs/");
 
     public SRTM3GeoTiffFile(final SRTM3GeoTiffElevationModel model, final File localFile, final ProductReader reader) {
         super(localFile, reader);
         this.demModel = model;
-    }
-
-    protected String getRemoteFTP() {
-        return remoteFTP;
-    }
-
-    protected String getRemotePath() {
-        return remotePath;
     }
 
     protected ElevationTile createTile(final Product product) throws IOException {
@@ -54,14 +47,11 @@ public final class SRTM3GeoTiffFile extends ElevationFile {
         return tile;
     }
 
-    protected boolean getRemoteFile() throws IOException {
+    protected Boolean getRemoteFile() throws IOException {
         try {
-            if (remoteFTP.isEmpty() || remoteFTP.startsWith("http")) {
-                return getRemoteHttpFile(remoteHTTP);
-            }
-            return getRemoteFTPFile();
-        } catch (Exception e) {
             return getRemoteHttpFile(remoteHTTP);
+        } catch (Exception e) {
+            return getRemoteFTPFile(remoteFTP, remotePath);
         }
     }
 }

@@ -15,7 +15,7 @@
  */
 package org.esa.snap.datamodel;
 
-import org.esa.snap.gpf.StatusProgressMonitor;
+import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.util.DefaultPropertyMap;
 import org.esa.snap.util.PropertyMap;
 import org.esa.snap.util.ResourceUtils;
@@ -34,6 +34,8 @@ import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -121,7 +123,12 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
     private boolean checkForNewRemoteHttpFile(final URL remoteURL, final File localZipFile) throws IOException {
 
         final File remoteVersionFile = new File(localZipFile.getParent(), "remote_"+versionFileName);
-        downloadFile(new URL(remoteURL.toString() + remoteVersionFile.getName()), remoteVersionFile);
+        try {
+            downloadFile(new URL(remoteURL.toString() + remoteVersionFile.getName()), remoteVersionFile);
+        } catch (Exception e) {
+            // remote version file not found
+            // continue
+        }
 
         boolean newVersion = true;
         if(remoteVersionFile.exists()) {
@@ -142,8 +149,8 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
                     newVersion = false;
                 }
             }
+            remoteVersionFile.delete();
         }
-        remoteVersionFile.delete();
 
         return newVersion;
     }
@@ -209,7 +216,17 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
         final String remotePath = remoteURL.toString() + localZipFile.getName();
         SystemUtils.LOG.info("http retrieving " + remotePath);
 
-        return downloadFile(new URL(remotePath), localZipFile);
+        final AtomicReference<File> returnValue = new AtomicReference<>();
+        Runnable operation = () -> {
+            try {
+                returnValue.set(downloadFile(new URL(remotePath), localZipFile));
+            } catch (IOException e) {
+                SystemUtils.LOG.log(Level.SEVERE, "Failed to download remote file.", e);
+            }
+        };
+        operation.run();
+
+        return returnValue.get();
     }
 
     /**
@@ -228,29 +245,26 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
         final InputStream is = new BufferedInputStream(urlConnection.getInputStream(), contentLength);
         final OutputStream os;
         try {
-            if (!outputFile.getParentFile().exists())
+            if (!outputFile.getParentFile().exists()) {
                 outputFile.getParentFile().mkdirs();
+            }
             os = new BufferedOutputStream(new FileOutputStream(outputFile));
         } catch (IOException e) {
             is.close();
             throw e;
         }
 
-        try {
-            final StatusProgressMonitor status = new StatusProgressMonitor(contentLength,
-                    "Downloading " + localZipFile.getName() + "... ");
-            status.setAllowStdOut(false);
+        final StatusProgressMonitor pm = new StatusProgressMonitor(StatusProgressMonitor.TYPE.DATA_TRANSFER);
+        pm.beginTask("Downloading " + localZipFile.getName() + "... ", contentLength);
 
+        try {
             final int size = 32768;
             final byte[] buf = new byte[size];
             int n;
-            int total = 0;
             while ((n = is.read(buf, 0, size)) > -1) {
                 os.write(buf, 0, n);
-                total += n;
-                status.worked(total);
+                pm.worked(n);
             }
-            status.done();
 
             while (true) {
                 final int b = is.read();
@@ -268,6 +282,7 @@ public abstract class DownloadableContentImpl implements DownloadableContent {
             } finally {
                 is.close();
             }
+            pm.done();
         }
         return outputFile;
     }

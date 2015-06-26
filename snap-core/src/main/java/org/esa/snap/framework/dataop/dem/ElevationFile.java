@@ -17,6 +17,7 @@ package org.esa.snap.framework.dataop.dem;
 
 import org.esa.snap.framework.dataio.ProductReader;
 import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.framework.dataop.downloadable.ftpUtils;
 import org.esa.snap.util.SystemUtils;
 import org.esa.snap.util.io.FileUtils;
@@ -142,13 +143,9 @@ public abstract class ElevationFile {
         }
     }
 
-    protected abstract String getRemoteFTP();
+    protected abstract Boolean getRemoteFile() throws IOException;
 
-    protected abstract String getRemotePath();
-
-    protected abstract boolean getRemoteFile() throws IOException;
-
-    protected boolean getRemoteHttpFile(final String baseUrl) throws IOException {
+    protected Boolean getRemoteHttpFile(final String baseUrl) throws IOException {
         final String remotePath = baseUrl + localZipFile.getName();
         SystemUtils.LOG.info("http retrieving " + remotePath);
         try {
@@ -186,20 +183,17 @@ public abstract class ElevationFile {
         }
 
         try {
-            //final StatusProgressMonitor status = new StatusProgressMonitor(contentLength,
-            //        "Downloading " + localZipFile.getName() + "... ");
-            //status.setAllowStdOut(false);
+            final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.DATA_TRANSFER);
+            status.beginTask("Downloading " + localZipFile.getName() + "... ", contentLength);
 
             final int size = 32768;
             final byte[] buf = new byte[size];
             int n;
-            int total = 0;
             while ((n = is.read(buf, 0, size)) > -1) {
                 os.write(buf, 0, n);
-                total += n;
-                //status.worked(total);
+                status.worked(n);
             }
-            //status.done();
+            status.done();
 
             while (true) {
                 final int b = is.read();
@@ -221,17 +215,17 @@ public abstract class ElevationFile {
         return outputFile;
     }
 
-    protected boolean getRemoteFTPFile() throws IOException {
+    protected Boolean getRemoteFTPFile(final String remoteFTP, final String remotePath) throws IOException {
         try {
             if (ftp == null) {
-                ftp = new ftpUtils(getRemoteFTP());
-                fileSizeMap = ftpUtils.readRemoteFileList(ftp, getRemoteFTP(), getRemotePath());
+                ftp = new ftpUtils(remoteFTP);
+                fileSizeMap = ftpUtils.readRemoteFileList(ftp, remoteFTP, remotePath);
             }
 
             final String remoteFileName = localZipFile.getName();
             final Long fileSize = fileSizeMap.get(remoteFileName);
 
-            final ftpUtils.FTPError result = ftp.retrieveFile(getRemotePath() + remoteFileName, localZipFile, fileSize);
+            final ftpUtils.FTPError result = ftp.retrieveFile(remotePath + remoteFileName, localZipFile, fileSize);
             if (result == ftpUtils.FTPError.OK) {
                 return true;
             } else {
@@ -252,7 +246,7 @@ public abstract class ElevationFile {
             if (ftp == null) {
                 unrecoverableError = false;      // allow to continue
                 remoteFileExists = false;
-                throw new IOException("Failed to connect to FTP " + getRemoteFTP() +
+                throw new IOException("Failed to connect to FTP " + remoteFTP +
                         '\n' + e.getMessage());
             }
             dispose();

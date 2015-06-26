@@ -22,9 +22,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertEquals;
 
 /**
  * Settings Tester.
@@ -35,9 +34,9 @@ public class TestSettings {
 
     @Before
     public void SetUp() throws IOException {
-        Path propFile = Paths.get("etc/snap.auxdata.properties");
+        Path propFile = SystemUtils.getApplicationHomeDir().toPath().resolve("snap-engine").resolve("etc/snap.auxdata.properties");
         if(!Files.exists(propFile)) {
-            propFile = Paths.get("../etc/snap.auxdata.properties");
+            propFile = SystemUtils.getApplicationHomeDir().toPath().resolve("../etc/snap.auxdata.properties");
         }
         if(!propFile.toFile().exists()) {
             throw new IOException("Unable to locate snap.auxdata.properties");
@@ -57,16 +56,14 @@ public class TestSettings {
     @Test
     public void testGet() {
         String value1 = Settings.instance().get("DEM.srtm3GeoTiffDEM_FTP");
-        assertEquals(value1, "xftp.jrc.it");
+        assertEquals("xftp.jrc.it", value1);
     }
 
     @Test
     public void testGetAuxDataPath() {
 
-
         String value2 = Settings.instance().get("AuxDataPath");
-        final Path auxDataPath = SystemUtils.getApplicationDataDir().toPath().resolve("snap-core").resolve("auxdata");
-        assertEquals(value2, auxDataPath.toString());
+        assertEquals(value2, SystemUtils.getAuxDataPath().toString());
     }
 
     @Test

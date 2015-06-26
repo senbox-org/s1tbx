@@ -49,6 +49,11 @@ public abstract class AbstractSymbol implements Symbol {
         return retType;
     }
 
+    @Override
+    public boolean isConst() {
+        return false;
+    }
+
     public abstract static class B extends AbstractSymbol {
 
         protected B(final String name) {

@@ -82,6 +82,11 @@ public class SRTM3GeoTiffElevationModelDescriptor extends AbstractElevationModel
         return PIXEL_RES;
     }
 
+    @Override
+    public boolean canBeDownloaded() {
+        return true;
+    }
+
     public boolean isDemInstalled() {
         return true;
     }

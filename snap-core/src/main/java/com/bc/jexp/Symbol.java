@@ -73,4 +73,9 @@ public interface Symbol {
      * @throws EvalException if the evaluation fails
      */
     String evalS(EvalEnv env) throws EvalException;
+
+    /**
+     * @return {@code true}, if this symbol has a constant value with respect to any {@link EvalEnv}, even {@code null}.
+     */
+    boolean isConst();
 }

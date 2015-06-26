@@ -30,6 +30,9 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
@@ -49,8 +52,6 @@ public class SystemUtils {
 
     public static final String SNAP_PARALLELISM_PROPERTY_NAME = getApplicationContextId() + ".parallelism";
 
-    private static final String LAX_INSTALL_DIR_PROPERTY_NAME = "lax.root.install.dir";
-
     /**
      * The SNAP system logger. Default name is "org.esa.snap" which may be overridden by system property "snap.logger.name".
      */
@@ -61,20 +62,12 @@ public class SystemUtils {
     private static final char _URL_DIR_SEPARATOR_CHAR = '/';
 
     /**
-     * Name of BEAM's extensions directory.
-     */
-    public static final String EXTENSION_DIR_NAME = "extensions";
-
-    /**
      * Name of BEAM's auxdata directory.
      */
     public static final String AUXDATA_DIR_NAME = "auxdata";
     public static final String CACHE_DIR_NAME = "cache";
-    private static final String _H5_CLASS_NAME = "ncsa.hdf.hdf5lib.H5";
-    private static final String _H4_CLASS_NAME = "ncsa.hdf.hdflib.HDFLibrary";
 
     private static final String EPSG_DATABASE_DIR_NAME = "epsg-database";
-    private static final String JAI_REGISTRY_PATH = "/META-INF/javax.media.jai.registryFile.jai";
 
     /**
      * Gets the current user's name, or the string <code>"unknown"</code> if the the user's name cannot be determined.
@@ -100,6 +93,7 @@ public class SystemUtils {
      * "http://sentinel.esa.int".
      *
      * @return the application homepage url
+     *
      * @since BEAM 4.10
      */
     public static String getApplicationHomepageUrl() {
@@ -110,6 +104,7 @@ public class SystemUtils {
      * Gets the current user's application data directory.
      *
      * @return the current user's application data directory
+     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir() {
@@ -117,10 +112,22 @@ public class SystemUtils {
     }
 
     /**
+     * Gets the auxdata directory which stores dems, orbits, rgb profiles, etc.
+     *
+     * @return the auxiliary data directory
+     *
+     * @since SNAP 2.0
+     */
+    public static Path getAuxDataPath() {
+        return getApplicationDataDir().toPath().resolve(AUXDATA_DIR_NAME);
+    }
+
+    /**
      * Optionally creates and returns the current user's application data directory.
      *
      * @param force if true, the directory will be created if it didn't exist before
      * @return the current user's application data directory
+     *
      * @since BEAM 4.2
      */
     public static File getApplicationDataDir(boolean force) {
@@ -137,6 +144,7 @@ public class SystemUtils {
      * the string "snap" is used.
      *
      * @return The application context ID.
+     *
      * @since BEAM 4.10
      */
     public static String getApplicationContextId() {
@@ -150,6 +158,7 @@ public class SystemUtils {
      * the string "SNAP" is used.
      *
      * @return The application name.
+     *
      * @see #getApplicationContextId()
      * @since BEAM 4.10
      */
@@ -208,6 +217,7 @@ public class SystemUtils {
      *
      * @param aClass The class.
      * @return the file name of the given class
+     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String getClassFileName(final Class aClass) {
@@ -238,12 +248,13 @@ public class SystemUtils {
      *
      * @param urlPath an URL path or any other string containing the forward slash '/' as directory separator.
      * @return a path string with all occurrences of '/'
+     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String convertToLocalPath(String urlPath) {
         Guardian.assertNotNull("urlPath", urlPath);
         if (File.separatorChar != _URL_DIR_SEPARATOR_CHAR
-                && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
+            && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
             return urlPath.replace(_URL_DIR_SEPARATOR_CHAR,
                                    File.separatorChar);
         }
@@ -329,7 +340,7 @@ public class SystemUtils {
         final String currentLafName = UIManager.getLookAndFeel().getClass().getName();
 
         return System.getProperty(macOsSpecificPropertyKey) != null
-                && systemLafName.equals(currentLafName);
+               && systemLafName.equals(currentLafName);
     }
 
     /**
@@ -369,45 +380,6 @@ public class SystemUtils {
         }
     }
 
-    /**
-     * @deprecated since BEAM 4.10 only used by {@code org.esa.snap.dataio.modis.ModisProductReaderPlugIn} - moved there as private method
-     */
-    @Deprecated
-    public static Class<?> loadHdf4Lib(Class<?> callerClass) {
-        return loadClassWithNativeDependencies(callerClass,
-                                               _H4_CLASS_NAME,
-                                               "{0}: HDF-4 library not available: {1}: {2}");
-    }
-
-    /**
-     * @deprecated since BEAM 4.10 only used by {@code org.esa.snap.dataio.hdf5.HDF5ProductWriterPlugin} - moved there as private method
-     */
-    @Deprecated
-    public static Class<?> loadHdf5Lib(Class<?> callerClass) {
-        return loadClassWithNativeDependencies(callerClass,
-                                               _H5_CLASS_NAME,
-                                               "{0}: HDF-5 library not available: {1}: {2}");
-    }
-
-    @Deprecated
-    private static Class<?> loadClassWithNativeDependencies(Class<?> callerClass, String className,
-                                                            String warningPattern) {
-        ClassLoader classLoader = callerClass.getClassLoader();
-
-        String classResourceName = "/" + className.replace('.', '/') + ".class";
-        SystemUtils.class.getResource(classResourceName);
-        if (callerClass.getResource(classResourceName) != null) {
-            try {
-                return Class.forName(className, true, classLoader);
-            } catch (Throwable error) {
-                LOG.warning(
-                        MessageFormat.format(warningPattern, callerClass, error.getClass(), error.getMessage()));
-                return null;
-            }
-        } else {
-            return null;
-        }
-    }
 
     /**
      * Initialize third party libraries of BEAM.
@@ -434,30 +406,34 @@ public class SystemUtils {
         // Suppress ugly (and harmless) JAI error messages saying that a JAI is going to continue in pure Java mode.
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");  // disable native libraries for JAI
 
-        try {
+        final PrintStream originalErrStream = System.err;
+        try (PrintStream nullErrStream = new PrintStream(new NullOutputStream())) {
+            // suppress messages printed to the error stream during operator registration
+            System.setErr(nullErrStream);
             JAI.getDefaultInstance().getOperationRegistry().registerServices(cl);
         } catch (Throwable t) {
-            LOG.log(Level.SEVERE, "Failed to register additional JAI operators: " + t.getMessage());
+            LOG.fine("Failed to register additional JAI operators: " + t.getMessage());
+        } finally {
+            System.setErr(originalErrStream);
         }
-
         int parallelism = Config.instance().preferences().getInt(SNAP_PARALLELISM_PROPERTY_NAME,
                                                                  Runtime.getRuntime().availableProcessors());
         JAI.getDefaultInstance().getTileScheduler().setParallelism(parallelism);
-        LOG.info(MessageFormat.format("JAI tile scheduler parallelism set to {0}", parallelism));
+        LOG.fine(MessageFormat.format("JAI tile scheduler parallelism set to {0}", parallelism));
 
         JAI.enableDefaultTileCache();
         Long size = Config.instance().preferences().getLong("snap.jai.tileCacheSize", 1024L * 1024L * 1024L) * 1024L * 1024L;
         JAI.getDefaultInstance().getTileCache().setMemoryCapacity(size);
 
         final long tileCacheSize = JAI.getDefaultInstance().getTileCache().getMemoryCapacity() / (1024L * 1024L);
-        LOG.info(MessageFormat.format("JAI tile cache size is {0} MiB", tileCacheSize));
+        LOG.fine(MessageFormat.format("JAI tile cache size is {0} MiB", tileCacheSize));
 
         final int tileSize = Config.instance().preferences().getInt("snap.jai.defaultTileSize", 512);
         JAI.setDefaultTileSize(new Dimension(tileSize, tileSize));
-        LOG.info(MessageFormat.format("JAI default tile size is {0} pixels", tileSize));
+        LOG.fine(MessageFormat.format("JAI default tile size is {0} pixels", tileSize));
 
         JAI.getDefaultInstance().setRenderingHint(JAI.KEY_CACHED_TILE_RECYCLING_ENABLED, Boolean.TRUE);
-        LOG.info("JAI tile recycling enabled");
+        LOG.fine("JAI tile recycling enabled");
     }
 
     public static String getApplicationRemoteVersionUrl() {
@@ -492,7 +468,7 @@ public class SystemUtils {
 
         // Returns image
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,
-                IOException {
+                                                                IOException {
             if (!DataFlavor.imageFlavor.equals(flavor)) {
                 throw new UnsupportedFlavorException(flavor);
             }
@@ -500,4 +476,11 @@ public class SystemUtils {
         }
     }
 
+    private static class NullOutputStream extends OutputStream {
+
+        @Override
+        public void write(int b) throws IOException {
+
+        }
+    }
 }

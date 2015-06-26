@@ -90,4 +90,10 @@ public interface Function {
      * @throws EvalException if the evaluation fails
      */
     double evalD(EvalEnv env, Term[] args) throws EvalException;
+
+    /**
+     * @return {@code true}, if this symbol has a constant value with respect to the given arguments and
+     * to any {@link EvalEnv}, including {@code null}.
+     */
+    boolean isConst(Term[] args);
 }

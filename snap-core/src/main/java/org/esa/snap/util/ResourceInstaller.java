@@ -83,19 +83,19 @@ public class ResourceInstaller {
         synchronized (ResourceInstaller.class) {
             pm.beginTask("Copying resources...", resources.size());
             try {
-                    for (Path resource : resources) {
-                        Path relFilePath = sourceBasePath.relativize(resource);
-                        String relPathString = relFilePath.toString();
-                        Path targetFile = targetDirPath.resolve(relPathString);
-                        if (!Files.exists(targetFile) && !Files.isDirectory(resource)) {
-                            Path parentPath = targetFile.getParent();
-                            if (parentPath == null) {
-                                throw new IOException("Could not retrieve the parent directory of '" + targetFile.toString() + "'.");
-                            }
-                            Files.createDirectories(parentPath);
-                            Files.copy(resource, targetFile, REPLACE_EXISTING, COPY_ATTRIBUTES);
+                for (Path resource : resources) {
+                    Path relFilePath = sourceBasePath.relativize(resource);
+                    String relPathString = relFilePath.toString();
+                    Path targetFile = targetDirPath.resolve(relPathString);
+                    if (!Files.exists(targetFile) && !Files.isDirectory(resource)) {
+                        Path parentPath = targetFile.getParent();
+                        if (parentPath == null) {
+                            throw new IOException("Could not retrieve the parent directory of '" + targetFile.toString() + "'.");
                         }
-                        pm.worked(1);
+                        Files.createDirectories(parentPath);
+                        Files.copy(resource, targetFile, REPLACE_EXISTING, COPY_ATTRIBUTES);
+                    }
+                    pm.worked(1);
                 }
             } finally {
                 pm.done();

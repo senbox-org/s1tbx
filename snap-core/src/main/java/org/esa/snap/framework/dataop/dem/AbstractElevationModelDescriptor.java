@@ -49,8 +49,7 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
     private File demInstallDir;
 
     protected AbstractElevationModelDescriptor() {
-        demPropertiesDir = new File(SystemUtils.getApplicationDataDir(),
-                                    "snap-core/auxdata/dem" + File.separator + getName());
+        demPropertiesDir = new File(SystemUtils.getAuxDataPath().resolve("dem").toFile(), getName());
         if (!demPropertiesDir.exists()) {
             demPropertiesDir.mkdirs();
         }

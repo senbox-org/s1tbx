@@ -19,123 +19,169 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
-import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
 import com.bc.jexp.impl.ParserImpl;
-import junit.framework.TestCase;
+import com.bc.jexp.impl.SymbolFactory;
 import org.esa.snap.framework.datamodel.Band;
+import org.esa.snap.framework.datamodel.CrsGeoCoding;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
-import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.junit.Before;
+import org.junit.Test;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 
 import java.io.IOException;
 
-public class BandArithmeticTest extends TestCase {
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.*;
 
-    private Band _targetBand;
-    private Product _product1;
-    private Product _product2;
-    private int _width = 4;
-    private int _height = 3;
+public class BandArithmeticTest {
 
-    @Override
-    protected void setUp() throws Exception {
-        _targetBand = new Band("b1n", ProductData.TYPE_UINT16, _width, _height);
-        _product1 = new Product("p1", "t", _width, _height);
-        final Band band1 = _product1.addBand("b1", ProductData.TYPE_FLOAT32);
-        final Band band1_3 = _product1.addBand("band1#3", ProductData.TYPE_FLOAT32);
-        _product1.setRefNo(1);
-        _product2 = new Product("p2", "t", _width, _height);
-        _product2.addBand("b1", ProductData.TYPE_FLOAT32);
-        _product2.setRefNo(2);
+    private Band targetBand;
+    private Product product1;
+    private Product product2;
+    private int width = 4;
+    private int height = 3;
+
+    @Before
+    public void setUp() throws FactoryException, TransformException {
+        targetBand = new Band("b1n", ProductData.TYPE_UINT16, width, height);
+        product1 = new Product("p1", "t", width, height);
+        product1.setGeoCoding(new CrsGeoCoding(DefaultGeographicCRS.WGS84, width, height, 0, 10, 0.1, 0.1));
+        product1.addBand("b1", ProductData.TYPE_FLOAT32);
+        product1.addBand("b2", ProductData.TYPE_UINT8);
+        product1.setRefNo(1);
+        product2 = new Product("p2", "t", width, height);
+        product2.setGeoCoding(null);
+        product2.addBand("b1", ProductData.TYPE_FLOAT32);
+        product2.setRefNo(2);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-    }
-
+    @Test
     public void testComputeBandWithScaling() throws IOException,
-                                                    ParseException {
-        _targetBand.setScalingFactor(0.05);
-        _targetBand.setScalingOffset(-7);
-        _product1.getBand("b1").setDataElems(new float[]{
+            ParseException {
+        targetBand.setScalingFactor(0.05);
+        targetBand.setScalingOffset(-7);
+        product1.getBand("b1").setDataElems(new float[]{
                 2, 3, 4, 5,
                 6, 7, 8, 9,
                 10, 11, 12, 13
         });
-        _product1.setModified(false);
-        _targetBand.computeBand("b1", null, new Product[]{_product1}, 0, false, false, 0, ProgressMonitor.NULL);
-        for (int y = 0; y < _height; y++) {
-            for (int x = 0; x < _width; x++) {
-                final float expected = 2 + y * _width + x;
+        product1.setModified(false);
+        targetBand.computeBand("b1", null, new Product[]{product1}, 0, false, false, 0, ProgressMonitor.NULL);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                final float expected = 2 + y * width + x;
                 assertEquals("at index(x,y) = " + x + "," + y,
                              expected,
-                             _targetBand.getPixelFloat(x, y), 1e-5);
+                             targetBand.getPixelFloat(x, y), 1e-5);
             }
         }
     }
 
+    @Test
     public void testComputeBandWithUshort() throws IOException,
-                                                   ParseException {
-        _product1.getBand("b1").setDataElems(new float[]{
+            ParseException {
+        product1.getBand("b1").setDataElems(new float[]{
                 2.1f, 3.2f, 4.3f, 5.4f,
                 6.3f, 6.69f, 8.32f, 8.8f,
                 10.2f, 11.1f, 11.9f, 13.3f
         });
-        _product1.setModified(false);
-        _targetBand.computeBand("b1", null, new Product[]{_product1}, 0, false, false, 0, ProgressMonitor.NULL);
-        for (int y = 0; y < _height; y++) {
-            for (int x = 0; x < _width; x++) {
-                final float expected = 2 + y * _width + x;
+        product1.setModified(false);
+        targetBand.computeBand("b1", null, new Product[]{product1}, 0, false, false, 0, ProgressMonitor.NULL);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                final float expected = 2 + y * width + x;
                 assertEquals("at index(x,y) = " + x + "," + y,
                              expected,
-                             _targetBand.getPixelFloat(x, y), 1e-5);
+                             targetBand.getPixelFloat(x, y), 1e-5);
             }
         }
     }
 
+    @Test
     public void testCreateDefaultNamespaceWithOneProduct() {
-        final Namespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{_product1}, 0);
+        Namespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{product1}, 0);
 
-        final Symbol symbol = namespace.resolveSymbol("b1");
-        assertNotNull(symbol);
-        assertEquals("b1", symbol.getName());
+        assertThat(namespace.resolveSymbol("X"), instanceOf(ProductNamespaceExtenderImpl.PixelXSymbol.class));
+        assertThat(namespace.resolveSymbol("Y"), instanceOf(ProductNamespaceExtenderImpl.PixelYSymbol.class));
+        assertThat(namespace.resolveSymbol("LAT"), instanceOf(ProductNamespaceExtenderImpl.PixelLatSymbol.class));
+        assertThat(namespace.resolveSymbol("LON"), instanceOf(ProductNamespaceExtenderImpl.PixelLonSymbol.class));
+        assertThat(namespace.resolveSymbol("TIME"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class));
+        assertThat(namespace.resolveSymbol("MJD"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class)); // compatibility
+        assertThat(namespace.resolveSymbol("b1"), instanceOf(RasterDataSymbol.class));
+        assertThat(namespace.resolveSymbol("b1.solar_flux"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("b1.spectral_wavelength"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("b1.spectral_band_index"), instanceOf(SymbolFactory.ConstantI.class));
+        assertThat(namespace.resolveSymbol("b2"), instanceOf(RasterDataSymbol.class));
+        assertThat(namespace.resolveSymbol("b2.solar_flux"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("b2.spectral_wavelength"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("b2.spectral_band_index"), instanceOf(SymbolFactory.ConstantI.class));
+        assertNull(namespace.resolveSymbol("b3"));
 
+        assertNull(namespace.resolveSymbol("$1.X"));
         assertNull(namespace.resolveSymbol("$1.b1"));
-
-        assertNull(namespace.resolveSymbol("fails"));
+        assertNull(namespace.resolveSymbol("$1.b2"));
     }
 
+    @Test
     public void testCreateDefaultNamespaceWithMultipleProducts() {
-        final Namespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{_product1, _product2}, 0);
+        Namespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{product1, product2}, 0);
 
-        final Symbol symbolP1 = namespace.resolveSymbol("$1.b1");
-        assertNotNull(symbolP1);
-        assertTrue(symbolP1 instanceof RasterDataSymbol);
-        assertEquals("$1.b1", symbolP1.getName());
+        assertThat(namespace.resolveSymbol("X"), instanceOf(ProductNamespaceExtenderImpl.PixelXSymbol.class));
+        assertThat(namespace.resolveSymbol("Y"), instanceOf(ProductNamespaceExtenderImpl.PixelYSymbol.class));
+        assertThat(namespace.resolveSymbol("LAT"), instanceOf(ProductNamespaceExtenderImpl.PixelLatSymbol.class));
+        assertThat(namespace.resolveSymbol("LON"), instanceOf(ProductNamespaceExtenderImpl.PixelLonSymbol.class));
+        assertThat(namespace.resolveSymbol("TIME"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class));
+        assertThat(namespace.resolveSymbol("MJD"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class)); // compatibility
+        assertThat(namespace.resolveSymbol("b1"), instanceOf(RasterDataSymbol.class));
+        assertThat(namespace.resolveSymbol("b1.solar_flux"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("b1.spectral_wavelength"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("b1.spectral_band_index"), instanceOf(SymbolFactory.ConstantI.class));
+        assertThat(namespace.resolveSymbol("b2"), instanceOf(RasterDataSymbol.class));
+        assertThat(namespace.resolveSymbol("b2.solar_flux"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("b2.spectral_wavelength"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("b2.spectral_band_index"), instanceOf(SymbolFactory.ConstantI.class));
+        assertNull(namespace.resolveSymbol("b3"));
 
-        final Symbol symbolWithoutPrefix = namespace.resolveSymbol("b1");
-        assertNotNull(symbolWithoutPrefix);
-        assertTrue(symbolP1 instanceof RasterDataSymbol);
-        assertEquals("b1", symbolWithoutPrefix.getName());
+        assertThat(namespace.resolveSymbol("$1.X"), instanceOf(ProductNamespaceExtenderImpl.PixelXSymbol.class));
+        assertThat(namespace.resolveSymbol("$1.Y"), instanceOf(ProductNamespaceExtenderImpl.PixelYSymbol.class));
+        assertThat(namespace.resolveSymbol("$1.LAT"), instanceOf(ProductNamespaceExtenderImpl.PixelLatSymbol.class));
+        assertThat(namespace.resolveSymbol("$1.LON"), instanceOf(ProductNamespaceExtenderImpl.PixelLonSymbol.class));
+        assertThat(namespace.resolveSymbol("$1.TIME"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class));
+        assertThat(namespace.resolveSymbol("$1.MJD"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class)); // compatibility
+        assertThat(namespace.resolveSymbol("$1.b1"), instanceOf(RasterDataSymbol.class));
+        assertThat(namespace.resolveSymbol("$1.b1.solar_flux"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("$1.b1.spectral_wavelength"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("$1.b1.spectral_band_index"), instanceOf(SymbolFactory.ConstantI.class));
+        assertThat(namespace.resolveSymbol("$1.b2"), instanceOf(RasterDataSymbol.class));
+        assertThat(namespace.resolveSymbol("$1.b2.solar_flux"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("$1.b2.spectral_wavelength"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("$1.b2.spectral_band_index"), instanceOf(SymbolFactory.ConstantI.class));
+        assertNull(namespace.resolveSymbol("$1.b3"));
 
-        final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(new RasterDataSymbol[]{
-                (RasterDataSymbol) symbolWithoutPrefix,
-                (RasterDataSymbol) symbolP1
-        });
-        assertEquals(1, refRasters.length);
-
-        final Symbol symbolP2 = namespace.resolveSymbol("$2.b1");
-        assertNotNull(symbolP2);
-        assertEquals("$2.b1", symbolP2.getName());
-
-
-        final Symbol symbolNotFound = namespace.resolveSymbol("fails");
-        assertNull(symbolNotFound);
+        assertThat(namespace.resolveSymbol("$2.X"), instanceOf(ProductNamespaceExtenderImpl.PixelXSymbol.class));
+        assertThat(namespace.resolveSymbol("$2.Y"), instanceOf(ProductNamespaceExtenderImpl.PixelYSymbol.class));
+        assertThat(namespace.resolveSymbol("$2.LAT"), instanceOf(ProductNamespaceExtenderImpl.PixelLatSymbol.class));
+        assertThat(namespace.resolveSymbol("$2.LON"), instanceOf(ProductNamespaceExtenderImpl.PixelLonSymbol.class));
+        assertThat(namespace.resolveSymbol("$2.TIME"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class));
+        assertThat(namespace.resolveSymbol("$2.MJD"), instanceOf(ProductNamespaceExtenderImpl.PixelTimeSymbol.class)); // compatibility
+        assertThat(namespace.resolveSymbol("$2.b1"), instanceOf(RasterDataSymbol.class));
+        assertThat(namespace.resolveSymbol("$2.b1.solar_flux"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("$2.b1.spectral_wavelength"), instanceOf(SymbolFactory.ConstantD.class));
+        assertThat(namespace.resolveSymbol("$2.b1.spectral_band_index"), instanceOf(SymbolFactory.ConstantI.class));
+        assertNull(namespace.resolveSymbol("$2.b2"));
+        assertNull(namespace.resolveSymbol("$2.b2.solar_flux"));
+        assertNull(namespace.resolveSymbol("$2.b2.spectral_wavelength"));
+        assertNull(namespace.resolveSymbol("$2.b2.spectral_band_index"));
+        assertNull(namespace.resolveSymbol("$2.b3"));
     }
 
+    @Test
     public void testGetRefRasterDataSymbols() throws ParseException {
-        final Product[] products = new Product[]{_product1, _product2};
+        final Product[] products = new Product[]{product1, product2};
         final Parser parser = new ParserImpl(BandArithmetic.createDefaultNamespace(products, 0), false);
         String[] expectedSymbols = new String[]{"b1", "$2.b1"};
         final Term term = parser.parse("b1 + $2.b1");
@@ -143,11 +189,9 @@ public class BandArithmeticTest extends TestCase {
         final RasterDataSymbol[] rasterSymbols = BandArithmetic.getRefRasterDataSymbols(term);
 
         assertEquals(2, rasterSymbols.length);
-        for (int i = 0; i < expectedSymbols.length; i++) {
-            String expectedSymbol = expectedSymbols[i];
+        for (String expectedSymbol : expectedSymbols) {
             boolean found = false;
-            for (int j = 0; j < rasterSymbols.length; j++) {
-                RasterDataSymbol rasterSymbol = rasterSymbols[j];
+            for (RasterDataSymbol rasterSymbol : rasterSymbols) {
                 if (expectedSymbol.equals(rasterSymbol.getName())) {
                     found = true;
                     break;
@@ -157,5 +201,19 @@ public class BandArithmeticTest extends TestCase {
                 fail("Expected symbol {" + expectedSymbol + "} not found");
             }
         }
+    }
+
+    @Test
+    public void testAreReferencedRastersCompatible() {
+        String[] compatibleExpressions = new String[]{"b1", "b2"};
+        final Band anotherBand = new Band("anotherBand", ProductData.TYPE_UINT8, width + 1, height);
+        product1.addBand(anotherBand);
+        String[] incompatibleExpressions = new String[]{"b1", "b2", "anotherBand"};
+
+        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1));
+        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, "b1"));
+        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, compatibleExpressions));
+        assertEquals(true, BandArithmetic.areReferencedRastersCompatible(product1, "anotherBand"));
+        assertEquals(false, BandArithmetic.areReferencedRastersCompatible(product1, incompatibleExpressions));
     }
 }

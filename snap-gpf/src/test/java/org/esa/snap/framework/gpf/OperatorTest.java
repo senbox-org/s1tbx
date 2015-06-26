@@ -23,7 +23,9 @@ import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.gpf.annotations.TargetProduct;
 import org.junit.Test;
 
+import java.awt.Rectangle;
 import java.io.IOException;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -31,19 +33,54 @@ import static org.junit.Assert.*;
 public class OperatorTest {
 
     @Test
-    public void testBasicOperatorStates() throws OperatorException, IOException {
-        final FooOp op = new FooOp();
+    public void testBasicOperatorStatesWithExecute() throws OperatorException, IOException {
+        FooExecOp op = new FooExecOp();
         assertNotNull(op.getSpi());
         assertFalse(op.initializeCalled);
-        assertFalse(op.computeTileCalled);
-        final Product product = op.getTargetProduct();
+        assertFalse(op.runCalled);
+        op.execute(ProgressMonitor.NULL);
+        assertTrue(op.initializeCalled);
+        assertTrue(op.runCalled);
+        Product product = op.getTargetProduct();
         assertNotNull(product);
-        assertFalse("products created by operators cannot be modified", product.isModified());
-        assertTrue("op.initialize not called", op.initializeCalled);
-        assertFalse("op.computeTileCalled called", op.computeTileCalled);
+    }
+
+    @Test
+    public void testBasicOperatorStatesWithTile() throws OperatorException, IOException {
+        FooTileOp op = new FooTileOp();
+        assertNotNull(op.getSpi());
+        assertFalse(op.initializeCalled);
+        assertFalse(op.runCalled);
+        assertFalse(op.computeTileCalled);
+        Product product = op.getTargetProduct();
+        assertTrue(op.initializeCalled);
+        assertFalse(op.runCalled);
+        assertFalse(op.computeTileCalled);
+        assertNotNull(product);
+        assertFalse(product.isModified());
         product.getBand("bar").readRasterDataFully(ProgressMonitor.NULL);
         assertTrue(op.initializeCalled);
+        assertTrue(op.runCalled);
         assertTrue(op.computeTileCalled);
+    }
+
+    @Test
+    public void testBasicOperatorStatesWithTileStack() throws OperatorException, IOException {
+        FooTileStackOp op = new FooTileStackOp();
+        assertNotNull(op.getSpi());
+        assertFalse(op.initializeCalled);
+        assertFalse(op.runCalled);
+        assertFalse(op.computeTileStackCalled);
+        Product product = op.getTargetProduct();
+        assertTrue(op.initializeCalled);
+        assertFalse(op.runCalled);
+        assertFalse(op.computeTileStackCalled);
+        assertNotNull(product);
+        assertFalse(product.isModified());
+        product.getBand("bar").readRasterDataFully(ProgressMonitor.NULL);
+        assertTrue(op.initializeCalled);
+        assertTrue(op.runCalled);
+        assertTrue(op.computeTileStackCalled);
     }
 
     @Test
@@ -141,9 +178,30 @@ public class OperatorTest {
         return product;
     }
 
-    private static class FooOp extends Operator {
+    private static class FooExecOp extends Operator {
 
         private boolean initializeCalled;
+        private boolean runCalled;
+        @TargetProduct
+        private Product targetProduct;
+
+        @Override
+        public void initialize() throws OperatorException {
+            initializeCalled = true;
+            targetProduct = createFooProduct();
+            targetProduct.addBand("foo", ProductData.TYPE_INT8); // will set the "modified" flag
+        }
+
+        @Override
+        public void doExecute(ProgressMonitor pm) {
+            runCalled = true;
+        }
+    }
+
+    private static class FooTileOp extends Operator {
+
+        private boolean initializeCalled;
+        private boolean runCalled;
         private boolean computeTileCalled;
         @TargetProduct
         private Product targetProduct;
@@ -156,8 +214,40 @@ public class OperatorTest {
         }
 
         @Override
+        public void doExecute(ProgressMonitor pm) {
+            runCalled = true;
+        }
+
+        @Override
         public void computeTile(Band band, Tile tile, ProgressMonitor pm) throws OperatorException {
             computeTileCalled = true;
+        }
+    }
+
+    private static class FooTileStackOp extends Operator {
+
+        private boolean initializeCalled;
+        private boolean runCalled;
+        private boolean computeTileStackCalled;
+        @TargetProduct
+        private Product targetProduct;
+
+        @Override
+        public void initialize() throws OperatorException {
+            initializeCalled = true;
+            targetProduct = createFooProduct();
+            targetProduct.addBand("foo", ProductData.TYPE_INT8); // will set the "modified" flag
+        }
+
+        @Override
+        public void doExecute(ProgressMonitor pm) {
+            runCalled = true;
+        }
+
+
+        @Override
+        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+            computeTileStackCalled = true;
         }
     }
 }

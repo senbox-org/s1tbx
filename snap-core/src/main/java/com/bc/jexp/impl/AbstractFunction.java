@@ -66,6 +66,16 @@ public abstract class AbstractFunction implements Function {
         return argTypes != null ? argTypes[argIndex] : retType;
     }
 
+    @Override
+    public boolean isConst(Term[] args) {
+        for (Term arg : args) {
+            if (!arg.isConst()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static abstract class B extends AbstractFunction {
 
         public B(final String name, final int numArgs) {

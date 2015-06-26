@@ -117,6 +117,13 @@ public interface ElevationModelDescriptor {
     ElevationModel createDem(Resampling resampling);
 
     /**
+     * Returns true if the DEM can be automatically downloaded
+     *
+     * @return true if auto download
+     */
+    boolean canBeDownloaded();
+
+    /**
      * Returns the directory (if any) where the DEM files shall be located.
      *
      * @return the DEM file directory

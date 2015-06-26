@@ -82,6 +82,11 @@ public class SRTM1GridElevationModelDescriptor extends AbstractElevationModelDes
         return PIXEL_RES;
     }
 
+    @Override
+    public boolean canBeDownloaded() {
+        return false;
+    }
+
     public boolean isDemInstalled() {
         return true;
     }

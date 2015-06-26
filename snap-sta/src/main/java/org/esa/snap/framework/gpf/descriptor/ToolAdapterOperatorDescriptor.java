@@ -20,6 +20,7 @@ import com.thoughtworks.xstream.io.StreamException;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.operators.tooladapter.ToolAdapterConstants;
+import org.esa.snap.framework.gpf.operators.tooladapter.ToolAdapterIO;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
 
@@ -298,18 +299,8 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
      */
     public void setMenuLocation(String value) { menuLocation = value; }
     /**
-     * Setter for the isSystem field
-     */
-    public void setSystem(boolean value) {
-        isSystem = value;
-    }
-    /**
-     * Getter for the isSystem field
-     */
-    public boolean isSystem() { return isSystem; }
-    /**
      * Getter for the source of the descriptor.
-     * The source can be either "package" or "user".
+     * The source can be either "package" (coming from a nbm package) or "user" (user-defined).
      */
     public String getSource() { return source != null ? source : SOURCE_USER; }
     /**
@@ -321,6 +312,8 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
             source = SOURCE_USER;
         }
     }
+
+    public boolean isFromPackage() { return SOURCE_PACKAGE.equals(getSource()); }
 
     @Override
     public Class<? extends Operator> getOperatorClass() {
@@ -394,12 +387,14 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         String expandedValue = null;
         if (location != null) {
             expandedValue = location.getPath();
+            expandedValue = expandedValue.replace(ToolAdapterConstants.SHELL_EXT, ToolAdapterIO.getShellExtension());
             String varKey = null, varVal = null;
             if (expandedValue.contains("$")) {
                 expandedValue = expandedValue.substring(expandedValue.indexOf("$"));
                 for (SystemVariable variable : variables) {
-                    if (expandedValue.contains(variable.getKey())) {
-                        varKey = "$" + variable.getKey();
+                    String key = variable.getKey();
+                    if (expandedValue.contains(key)) {
+                        varKey = "$" + key;
                         varVal = variable.getValue();
                         break;
                     }
@@ -407,8 +402,9 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
             } else if (expandedValue.contains("%")) {
                 expandedValue = expandedValue.substring(expandedValue.indexOf("%"));
                 for (SystemVariable variable : variables) {
-                    if (expandedValue.contains(variable.getKey())) {
-                        varKey = "%" + variable.getKey() + "%";
+                    String key = variable.getKey();
+                    if (expandedValue.contains(key)) {
+                        varKey = "%" + key + "%";
                         varVal = variable.getValue();
                         break;
                     }

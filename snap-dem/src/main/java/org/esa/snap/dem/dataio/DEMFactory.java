@@ -34,7 +34,7 @@ import java.util.Arrays;
  */
 public class DEMFactory {
 
-    private static final String AUTODEM = " (Auto Download)";
+    public static final String AUTODEM = " (Auto Download)";
     static final String DELAUNAY_INTERPOLATION = "DELAUNAY_INTERPOLATION";
 
     private static final ElevationModelDescriptor[] descriptors = ElevationModelRegistry.getInstance().getAllDescriptors();
@@ -43,7 +43,7 @@ public class DEMFactory {
 
     static {
         for (int i = 0; i < descriptors.length; i++) {
-            demNameList[i] = DEMFactory.appendAutoDEM(descriptors[i].getName());
+            demNameList[i] = DEMFactory.getDEMDisplayName(descriptors[i]);
         }
 
         int i = 0;
@@ -127,11 +127,10 @@ public class DEMFactory {
         }
     }
 
-    public static String appendAutoDEM(String demName) {
-        if (demName.equals("GETASSE30") || demName.equals("SRTM 3Sec") || demName.equals("ACE2_5Min")
-                || demName.equals("ACE30"))
-            demName += AUTODEM;
-        return demName;
+    public static String getDEMDisplayName(ElevationModelDescriptor descriptor) {
+        if (descriptor.canBeDownloaded())
+            return descriptor.getName() + AUTODEM;
+        return descriptor.getName();
     }
 
     /**

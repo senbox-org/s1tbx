@@ -62,7 +62,7 @@ public class PropertyContainer implements PropertySet {
      */
     public static PropertyContainer createObjectBacked(Object object) {
         return createObjectBacked(object,
-                                  new DefaultPropertyDescriptorFactory());
+                new DefaultPropertyDescriptorFactory());
     }
 
     /**
@@ -76,9 +76,9 @@ public class PropertyContainer implements PropertySet {
     public static PropertyContainer createObjectBacked(Object object,
                                                        PropertyDescriptorFactory descriptorFactory) {
         return createForFields(object.getClass(),
-                               descriptorFactory,
-                               new ObjectBackedPropertyAccessorFactory(object),
-                               false);
+                descriptorFactory,
+                new ObjectBackedPropertyAccessorFactory(object),
+                false);
     }
 
     public static PropertyContainer createObjectBacked(Object object, PropertySetDescriptor propertySetDescriptor) {
@@ -144,8 +144,8 @@ public class PropertyContainer implements PropertySet {
      */
     public static PropertyContainer createMapBacked(Map<String, Object> map, Class<?> templateType) {
         return createMapBacked(map,
-                               templateType,
-                               new DefaultPropertyDescriptorFactory());
+                templateType,
+                new DefaultPropertyDescriptorFactory());
     }
 
     /**
@@ -160,8 +160,8 @@ public class PropertyContainer implements PropertySet {
     public static PropertyContainer createMapBacked(Map<String, Object> map, Class<?> templateType,
                                                     PropertyDescriptorFactory descriptorFactory) {
         return createForFields(templateType,
-                               descriptorFactory,
-                               new MapBackedPropertyAccessorFactory(map), false);
+                descriptorFactory,
+                new MapBackedPropertyAccessorFactory(map), false);
     }
 
     /**
@@ -173,7 +173,7 @@ public class PropertyContainer implements PropertySet {
      */
     public static PropertyContainer createValueBacked(Class<?> templateType) {
         return createValueBacked(templateType,
-                                 new DefaultPropertyDescriptorFactory());
+                new DefaultPropertyDescriptorFactory());
     }
 
     /**
@@ -187,9 +187,9 @@ public class PropertyContainer implements PropertySet {
     public static PropertyContainer createValueBacked(Class<?> templateType,
                                                       PropertyDescriptorFactory descriptorFactory) {
         return createForFields(templateType,
-                               descriptorFactory,
-                               new ValueBackedPropertyAccessorFactory(),
-                               true);
+                descriptorFactory,
+                new ValueBackedPropertyAccessorFactory(),
+                true);
     }
 
     /**
@@ -221,8 +221,8 @@ public class PropertyContainer implements PropertySet {
             public boolean accept(Field field) {
                 int modifiers = field.getModifiers();
                 return !(Modifier.isFinal(modifiers)
-                         || Modifier.isTransient(modifiers)
-                         || Modifier.isStatic(modifiers));
+                        || Modifier.isTransient(modifiers)
+                        || Modifier.isStatic(modifiers));
             }
         });
     }
@@ -264,7 +264,7 @@ public class PropertyContainer implements PropertySet {
 
     @Override
     public void removeProperty(Property property) {
-        if (propertyMap.remove(property.getName()) != null) {
+        if (property != null && property.getName() != null && propertyMap.remove(property.getName()) != null) {
             final String alias = property.getDescriptor().getAlias();
             if (alias != null && !alias.isEmpty()) {
                 propertyMap.remove(alias);

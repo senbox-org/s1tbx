@@ -38,7 +38,7 @@ public final class SymbolFactory {
      * @return a symbol representing the constant, never <code>null</code>
      */
     public static Symbol createConstant(final String name, final boolean value) {
-        return new VariableB(name, value);
+        return new ConstantB(name, value);
     }
 
     /**
@@ -48,7 +48,7 @@ public final class SymbolFactory {
      * @return a symbol representing the constant, never <code>null</code>
      */
     public static Symbol createConstant(final String name, final int value) {
-        return new VariableI(name, value);
+        return new ConstantI(name, value);
     }
 
     /**
@@ -58,7 +58,7 @@ public final class SymbolFactory {
      * @return a symbol representing the constant, never <code>null</code>
      */
     public static Symbol createConstant(final String name, final double value) {
-        return new VariableD(name, value);
+        return new ConstantD(name, value);
     }
 
     /**
@@ -91,6 +91,79 @@ public final class SymbolFactory {
         return new VariableD(name, value);
     }
 
+    public static final class ConstantB extends AbstractSymbol.B {
+
+        private boolean value;
+
+        public ConstantB(final String name, final boolean value) {
+            super(name);
+            this.value = value;
+        }
+
+        public boolean evalB(final EvalEnv env) {
+            return value;
+        }
+
+        @Override
+        public boolean isConst() {
+            return true;
+        }
+    }
+
+    public static final class ConstantI extends AbstractSymbol.I {
+
+        private int value;
+
+        public ConstantI(String name, int value) {
+            super(name);
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
+
+        public int evalI(final EvalEnv env) {
+            return value;
+        }
+
+        @Override
+        public boolean isConst() {
+            return true;
+        }
+    }
+
+    public static class ConstantD extends AbstractSymbol.D {
+
+        private double value;
+
+        public ConstantD(String name, double value) {
+            super(name);
+            this.value = value;
+        }
+
+        public double getValue() {
+            return value;
+        }
+
+        public void setValue(double value) {
+            this.value = value;
+        }
+
+        public double evalD(final EvalEnv env) {
+            return value;
+        }
+
+        @Override
+        public boolean isConst() {
+            return true;
+        }
+    }
+
     public static final class VariableB extends AbstractSymbol.B implements Variable {
 
         private boolean value;
@@ -114,6 +187,11 @@ public final class SymbolFactory {
 
         public void assignD(final EvalEnv env, final double v) {
             value = Term.toB(v);
+        }
+
+        @Override
+        public boolean isConst() {
+            return false;
         }
     }
 
@@ -183,6 +261,11 @@ public final class SymbolFactory {
         public void assignD(final EvalEnv env, final double v) {
             value = Term.toI(v);
         }
+
+        @Override
+        public boolean isConst() {
+            return false;
+        }
     }
 
     public static class VariableD extends AbstractSymbol.D implements Variable {
@@ -250,6 +333,11 @@ public final class SymbolFactory {
 
         public void assignD(final EvalEnv env, final double v) {
             value = v;
+        }
+
+        @Override
+        public boolean isConst() {
+            return false;
         }
     }
 

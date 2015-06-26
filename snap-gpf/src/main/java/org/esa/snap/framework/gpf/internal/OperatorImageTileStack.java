@@ -91,9 +91,10 @@ public class OperatorImageTileStack extends OperatorImage {
     @Override
     protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
 
-        long startNanos = System.nanoTime();
-
         final OperatorContext operatorContext = getOperatorContext();
+        operatorContext.executeOperator(ProgressMonitor.NULL);
+
+        long startNanos = System.nanoTime();
 
         Band[] targetBands = operatorContext.getTargetProduct().getBands();
         Map<Band, Tile> targetTiles = new HashMap<Band, Tile>(targetBands.length * 2);

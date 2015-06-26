@@ -18,37 +18,51 @@ package org.esa.snap.framework.gpf.operators.tooladapter;
 import java.io.File;
 
 /**
+ * Holder interface for tool adapter constants.
+ *
  * @author Lucian Barbulescu.
  */
 public interface ToolAdapterConstants {
 
-    public static final String OPERATOR_NAMESPACE = "org.esa.snap.framework.gpf.operators.tooladapter.";
-    public static String DESCRIPTOR_FILE = "META-INF" + File.separator + "descriptor.xml";
-    public static String SPI_FILE = "META-INF" + File.separator + "services" + File.separator + "org.esa.snap.framework.gpf.OperatorSpi";
-    public static String SPI_FILE_CONTENT = OPERATOR_NAMESPACE + ".ToolAdapterOpSpi";
-    /**
-     * The root folder for the tool adapter descriptors.
-     */
-    public static final String FAILSAFE_MODULE_FOLDER = "META-INF" + File.separator + "services" + File.separator + "tools" + File.separator;
-
+    String OPERATOR_NAMESPACE = "org.esa.snap.framework.gpf.operators.tooladapter.";
+    String DESCRIPTOR_FILE = "META-INF" + File.separator + "descriptor.xml";
     /**
      * The id of the tool's source product.
      */
-    public static final String TOOL_SOURCE_PRODUCT_ID = "sourceProduct";
-    public static final String TOOL_TARGET_PRODUCT_ID = "targetProduct";
-    public static final String TOOL_SOURCE_PRODUCT_FILE = "sourceProductFile";
-    public static final String TOOL_TARGET_PRODUCT_FILE = "targetProductFile";
+    String TOOL_SOURCE_PRODUCT_ID = "sourceProduct";
+    String TOOL_TARGET_PRODUCT_ID = "targetProduct";
+    String TOOL_SOURCE_PRODUCT_FILE = "sourceProductFile";
+    String TOOL_TARGET_PRODUCT_FILE = "targetProductFile";
     /**
      * The id of the tool's target file as it is used in the descriptor.
      */
-    public static final String OPERATOR_GENERATED_NAME_SEPARATOR = "_";
-    public static final String OPERATOR_TEMP_FILES_SEPARATOR = "_";
-    public static final String TOOL_VELO_TEMPLATE_SUFIX = "-template.vm";
+    String OPERATOR_GENERATED_NAME_SEPARATOR = "_";
+    String OPERATOR_TEMP_FILES_SEPARATOR = "_";
+    String TOOL_VELO_TEMPLATE_SUFIX = "-template.vm";
 
-    public static final String TEMPLATE_PARAM_MASK = "TemplateParamater";
-    public static final String TEMPLATE_BEFORE_MASK = "TemplateBeforeExecution";
-    public static final String TEMPLATE_AFTER_MASK = "TemplateAfterExecution";
-    public static final String REGULAR_PARAM_MASK = "RegularParameter";
+    String TEMPLATE_PARAM_MASK = "TemplateParamater";
+    String TEMPLATE_BEFORE_MASK = "TemplateBeforeExecution";
+    String TEMPLATE_AFTER_MASK = "TemplateAfterExecution";
+    String REGULAR_PARAM_MASK = "RegularParameter";
 
-    public static final String DEFAULT_PARAM_NAME = "DefaultParameter";
+    String DEFAULT_PARAM_NAME = "DefaultParameter";
+    String MAIN_TOOL_FILE_LOCATION = "mainToolFileLocation";
+    String WORKING_DIR = "workingDir";
+    String PROGRESS_PATTERN = "progressPattern";
+    String ERROR_PATTERN = "errorPattern";
+    String MENU_LOCATION = "menuLocation";
+    String DESCRIPTION = "description";
+    String AUTHORS = "authors";
+    String COPYRIGHT = "copyright";
+    String VERSION = "version";
+    String LABEL = "label";
+    String NAME = "name";
+    String ALIAS = "alias";
+    String NOT_NULL = "NotNull";
+    String NOT_EMPTY = "NotEmpty";
+    String PROCESSING_WRITER = "processingWriter";
+    String PREPROCESSOR_EXTERNAL_TOOL = "preprocessorExternalTool";
+    String USER_MODULE_PATH = "user.module.path";
+
+    String SHELL_EXT = "$SHELL_EXT";
 }

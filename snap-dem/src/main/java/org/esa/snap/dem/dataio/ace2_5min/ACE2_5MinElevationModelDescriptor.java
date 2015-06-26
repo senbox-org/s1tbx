@@ -90,6 +90,11 @@ public class ACE2_5MinElevationModelDescriptor extends AbstractElevationModelDes
         return PIXEL_RES;
     }
 
+    @Override
+    public boolean canBeDownloaded() {
+        return true;
+    }
+
     public boolean isDemInstalled() {
         return true;
     }

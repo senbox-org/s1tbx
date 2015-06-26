@@ -34,8 +34,8 @@ import org.esa.snap.framework.gpf.descriptor.*;
 import org.esa.snap.framework.gpf.internal.OperatorContext;
 import org.esa.snap.jai.ImageManager;
 import org.esa.snap.util.ProductUtils;
+import org.esa.snap.util.io.FileUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
-import org.netbeans.api.progress.ProgressHandle;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -134,7 +134,7 @@ public class ToolAdapterOp extends Operator {
         }
     }
 
-    public void setProgressMonitor(ProgressHandle monitor) { this.progressMonitor = new ProgressWrapper(monitor); }
+    public void setProgressMonitor(ProgressMonitor monitor) { this.progressMonitor = monitor; }
 
     /**
      * Command to isStopped the tool.
@@ -187,7 +187,7 @@ public class ToolAdapterOp extends Operator {
                 descriptor = ((ToolAdapterOperatorDescriptor) accessibleContext.getOperatorSpi().getOperatorDescriptor());
             }
             if (this.progressMonitor != null) {
-                this.progressMonitor.beginTask("Starting " + this.descriptor.getName(), 100);
+                this.progressMonitor.beginTask("Executing " + this.descriptor.getName(), 100);
             }
             validateDescriptor();
             if (this.consumer == null) {
@@ -213,6 +213,10 @@ public class ToolAdapterOp extends Operator {
                 }
             }
         }
+    }
+
+    public List<String> getExecutionOutput() {
+        return this.consumer.getProcessOutput();
     }
 
     /**
@@ -341,7 +345,12 @@ public class ToolAdapterOp extends Operator {
             pb.redirectErrorStream(true);
             //set the working directory
             pb.directory(descriptor.getExpandedLocation(descriptor.getWorkingDir()));
-            pb.environment().putAll(descriptor.getVariables().stream().collect(Collectors.toMap(SystemVariable::getKey, SystemVariable::getValue)));
+            pb.environment().putAll(descriptor.getVariables()
+                                                .stream()
+                                                .collect(Collectors.toMap(
+                                                        SystemVariable::getKey,
+                                                        SystemVariable::getValue))
+            );
             //start the process
             process = pb.start();
             //get the process output
@@ -421,9 +430,7 @@ public class ToolAdapterOp extends Operator {
             try {
                 intermediateProductFiles.stream().filter(intermediateProductFile -> intermediateProductFile != null && intermediateProductFile.exists())
                                                  .filter(intermediateProductFile -> !(intermediateProductFile.canWrite() && intermediateProductFile.delete()))
-                                                 .forEach(intermediateProductFile -> {
-                                                     getLogger().warning(String.format("Temporary image %s could not be deleted", intermediateProductFile.getName()));
-                                                 });
+                                                 .forEach(intermediateProductFile -> getLogger().warning(String.format("Temporary image %s could not be deleted", intermediateProductFile.getName())));
                 if (input.isDirectory()) {
                     input = selectCandidateRasterFile(input);
                 }
@@ -515,7 +522,12 @@ public class ToolAdapterOp extends Operator {
                 }
             }
             if(!foundTemplateParam) {
-                context.put(param.getName(), param.getValue());
+                String paramName = param.getName();
+                Object paramValue = param.getValue();
+                if (ToolAdapterConstants.TOOL_TARGET_PRODUCT_FILE.equals(paramName)) {
+                    paramValue = getNextFileName((File) paramValue);
+                }
+                context.put(paramName, paramValue);
             }
         }
 
@@ -626,53 +638,16 @@ public class ToolAdapterOp extends Operator {
         }
     }
 
-    class ProgressWrapper implements ProgressMonitor {
-
-        private ProgressHandle progressHandle;
-
-        ProgressWrapper(ProgressHandle handle) {
-            this.progressHandle = handle;
+    private File getNextFileName(File file) {
+        if (file != null) {
+            int counter = 1;
+            File initial = file;
+            while (file.exists()) {
+                file = new File(initial.getParent(),
+                        FileUtils.getFilenameWithoutExtension(initial) + "_" + String.valueOf(counter++) +
+                                FileUtils.getExtension(initial));
+            }
         }
-
-        @Override
-        public void beginTask(String taskName, int totalWork) {
-            this.progressHandle.setDisplayName(taskName);
-            this.progressHandle.start(totalWork, -1);
-        }
-
-        @Override
-        public void done() {
-            this.progressHandle.finish();
-        }
-
-        @Override
-        public void internalWorked(double work) {
-            this.progressHandle.progress((int)work);
-        }
-
-        @Override
-        public boolean isCanceled() {
-            return false;
-        }
-
-        @Override
-        public void setCanceled(boolean canceled) {
-            this.progressHandle.suspend("Cancelled");
-        }
-
-        @Override
-        public void setTaskName(String taskName) {
-            this.progressHandle.progress(taskName);
-        }
-
-        @Override
-        public void setSubTaskName(String subTaskName) {
-            this.progressHandle.progress(subTaskName);
-        }
-
-        @Override
-        public void worked(int work) {
-            internalWorked(work);
-        }
+        return file;
     }
 }

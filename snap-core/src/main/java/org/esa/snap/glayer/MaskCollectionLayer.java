@@ -59,7 +59,7 @@ public class MaskCollectionLayer extends CollectionLayer {
     @Override
     public void disposeLayer() {
         if (raster != null) {
-            getProduct().removeProductNodeListener(maskPNL);
+            raster.getProduct().removeProductNodeListener(maskPNL);
             raster = null;
         }
     }
@@ -101,14 +101,17 @@ public class MaskCollectionLayer extends CollectionLayer {
             Mask[] availableMasks = getProduct().getMaskGroup().toArray(new Mask[0]);
             HashSet<Layer> unusedLayers = new HashSet<>(maskLayers);
             for (Mask availableMask : availableMasks) {
-                Layer layer = currentLayers.get(availableMask);
-                if (layer != null) {
-                    unusedLayers.remove(layer);
-                } else {
-                    layer = createLayer(availableMask);
-                    getChildren().add(layer);
+                //todo add all mask layers as soon as the masks have been scaled to fit the raster
+                if (raster.getRasterSize().equals(availableMask.getRasterSize())) {
+                    Layer layer = currentLayers.get(availableMask);
+                    if (layer != null) {
+                        unusedLayers.remove(layer);
+                    } else {
+                        layer = createLayer(availableMask);
+                        getChildren().add(layer);
+                    }
+                    layer.setVisible(raster.getOverlayMaskGroup().contains(availableMask));
                 }
-                layer.setVisible(raster.getOverlayMaskGroup().contains(availableMask));
             }
 
             // Remove unused layers

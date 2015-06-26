@@ -28,7 +28,7 @@ import org.esa.snap.framework.datamodel.Band;
 import org.esa.snap.framework.datamodel.Product;
 import org.esa.snap.framework.datamodel.ProductData;
 import org.esa.snap.framework.dataop.barithm.BandArithmetic;
-import org.esa.snap.framework.dataop.barithm.BandArithmetic.ProductPrefixProvider;
+import org.esa.snap.framework.dataop.barithm.ProductNamespacePrefixProvider;
 import org.esa.snap.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.snap.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.snap.framework.gpf.Operator;
@@ -379,7 +379,7 @@ public class BandMathsOp extends Operator {
 
     private Namespace createNamespace() {
         WritableNamespace namespace = BandArithmetic.createDefaultNamespace(sourceProducts, 0,
-                                                                            new SourceProductPrefixProvider());
+                                                                            new SourceProductNamespacePrefixProvider());
         if (variables != null) {
             for (Variable variable : variables) {
                 if (ProductData.isFloatingPointType(ProductData.getType(variable.type))) {
@@ -434,7 +434,7 @@ public class BandMathsOp extends Operator {
         }
     }
 
-    private class SourceProductPrefixProvider implements ProductPrefixProvider {
+    private class SourceProductNamespacePrefixProvider implements ProductNamespacePrefixProvider {
 
         @Override
         public String getPrefix(Product product) {
