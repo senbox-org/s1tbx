@@ -470,7 +470,6 @@ public final class TOPSARDeburstOp extends Operator {
             final MetadataElement swathElem = new MetadataElement(subSwathName);
             swathElem.addAttribute(new MetadataAttribute("count", ProductData.TYPE_INT16));
             swathElem.setAttributeInt("count", subSwath[i].numOfBursts);
-            final GeoCoding bandGeoCoding = getBandGeoCoding(subSwathName);
 
             for (int b = 0; b < subSwath[i].numOfBursts; b++) {
                 final MetadataElement burstElem = new MetadataElement("Burst"+b);
@@ -507,13 +506,11 @@ public final class TOPSARDeburstOp extends Operator {
 
                     final double slrtToPoint = firstPixelTime + p*deltaTime;
 
-                    final MetadataElement firstLinePointElem =
-                            createPointElement(i, b, firstLineTime, slrtToPoint, bandGeoCoding);
+                    final MetadataElement firstLinePointElem = createPointElement(firstLineTime, slrtToPoint);
 
                     firstLineElem.addElement(firstLinePointElem);
 
-                    final MetadataElement lastLinePointElem =
-                            createPointElement(i, b, lastLineTime, slrtToPoint, bandGeoCoding);
+                    final MetadataElement lastLinePointElem = createPointElement(lastLineTime, slrtToPoint);
 
                     lastLineElem.addElement(lastLinePointElem);
                 }
@@ -526,36 +523,18 @@ public final class TOPSARDeburstOp extends Operator {
         absTgt.addElement(burstBoundary);
     }
 
-    private GeoCoding getBandGeoCoding(final String subSwathName) {
-
-        final Band[] bands = sourceProduct.getBands();
-        for (Band band:bands) {
-            if (band.getName().contains(subSwathName)) {
-                return band.getGeoCoding();
-            }
-        }
-        return null;
-    }
-
-    private MetadataElement createPointElement(
-            final int s, final int b, final double lineTime, final double pixelTime, final GeoCoding bandGeoCoding) {
+    private MetadataElement createPointElement(final double lineTime, final double pixelTime) {
 
         final MetadataElement pointElem = new MetadataElement("BoundaryPoint");
 
-
-        final double y = b*subSwath[s].linesPerBurst +
-                (lineTime - subSwath[s].burstFirstLineTime[b]) / subSwath[s].azimuthTimeInterval;
-
-        final double x = (pixelTime - subSwath[s].slrTimeToFirstPixel) / targetDeltaSlantRangeTime;
-
-        GeoPos geoPos = new GeoPos();
-        bandGeoCoding.getGeoPos(new PixelPos(x, y), geoPos);
+        final double lat = su.getLatitude(lineTime, pixelTime);
+        final double lon = su.getLongitude(lineTime, pixelTime);
 
         pointElem.addAttribute(new MetadataAttribute("lat", ProductData.TYPE_FLOAT32));
-        pointElem.setAttributeDouble("lat", geoPos.lat);
+        pointElem.setAttributeDouble("lat", lat);
 
         pointElem.addAttribute(new MetadataAttribute("lon", ProductData.TYPE_FLOAT32));
-        pointElem.setAttributeDouble("lon", geoPos.lon);
+        pointElem.setAttributeDouble("lon", lon);
 
         return pointElem;
     }
