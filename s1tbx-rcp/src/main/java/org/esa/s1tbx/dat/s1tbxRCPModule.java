@@ -13,7 +13,7 @@ public class s1tbxRCPModule {
 
         @Override
         public void run() {
-            S1TBXSetup.installColorPalettes(this.getClass());
+            S1TBXSetup.installColorPalettes(this.getClass(), "org/esa/s1tbx/dat/auxdata/color_palettes/");
         }
     }
 }

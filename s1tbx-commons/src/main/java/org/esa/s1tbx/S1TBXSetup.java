@@ -15,10 +15,10 @@ import java.nio.file.Path;
  */
 public class S1TBXSetup {
 
-    public static void installColorPalettes(final Class callingClass) {
+    public static void installColorPalettes(final Class callingClass, final String path) {
         final Path moduleBasePath = ResourceInstaller.findModuleCodeBasePath(callingClass);
         final Path auxdataDir = getColorPalettesDir();
-        Path sourcePath = moduleBasePath.resolve("org/esa/s1tbx/auxdata/color_palettes/");
+        Path sourcePath = moduleBasePath.resolve(path);
         final ResourceInstaller resourceInstaller = new ResourceInstaller(sourcePath, auxdataDir);
 
         try {
