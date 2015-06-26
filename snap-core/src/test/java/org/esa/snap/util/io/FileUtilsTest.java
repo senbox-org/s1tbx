@@ -15,9 +15,9 @@
  */
 package org.esa.snap.util.io;
 
-import junit.framework.TestCase;
 import org.esa.snap.GlobalTestConfig;
 import org.esa.snap.GlobalTestTools;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,16 +26,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 
-public class FileUtilsTest extends TestCase {
+import static org.junit.Assert.*;
 
-    public FileUtilsTest(String name) {
-        super(name);
-    }
+public class FileUtilsTest {
 
+    @Test
     public void testGetExtension() {
         assertEquals(null, FileUtils.getExtension(new File("testfile")));
         assertEquals(".", FileUtils.getExtension(new File("testfile.")));
@@ -46,6 +46,7 @@ public class FileUtilsTest extends TestCase {
         assertEquals(".ext", FileUtils.getExtension(new File("directory:testfile.ext")));
     }
 
+    @Test
     public void testGetExtensionDotPos() {
         assertEquals(-1, FileUtils.getExtensionDotPos("testfile"));
         assertEquals(-1, FileUtils.getExtensionDotPos(".testfile"));
@@ -66,6 +67,7 @@ public class FileUtilsTest extends TestCase {
         assertEquals(-1, FileUtils.getExtensionDotPos("direc.ext:.testfile"));
     }
 
+    @Test
     public void testEnsureExtension_FileParameter() {
         File dirFile = new File("dir.with.dots");
 
@@ -80,6 +82,7 @@ public class FileUtilsTest extends TestCase {
         assertEquals(GlobalTestTools.createPlatformIndependentFilePath("dir.with.dots/file.kdt"), current.toString());
     }
 
+    @Test
     public void testEnsureExtension_StringParameter() {
         assertEquals(GlobalTestTools.createPlatformIndependentFilePath("dir.with.dots/file.smc.kdt"),
                      FileUtils.ensureExtension(
@@ -92,6 +95,7 @@ public class FileUtilsTest extends TestCase {
                                                ".kdt"));
     }
 
+    @Test
     public void testChangeExtension_FileParameter() {
         File dirFile = new File("dir.with.dots");
         File fileWithExtension = new File(dirFile, "file.smc");
@@ -108,6 +112,7 @@ public class FileUtilsTest extends TestCase {
         assertEquals(GlobalTestTools.createPlatformIndependentFilePath("dir.with.dots/file.kdt"), current.toString());
     }
 
+    @Test
     public void testChangeExtension_StringParameter() {
         assertEquals("dir.with.dots/file.kdt", FileUtils.exchangeExtension("dir.with.dots/file.smc", ".kdt"));
         assertEquals("dir.with.dots/file.kdt", FileUtils.exchangeExtension("dir.with.dots/file.", ".kdt"));
@@ -116,6 +121,7 @@ public class FileUtilsTest extends TestCase {
         assertEquals("dir.with.dots/fileo", FileUtils.exchangeExtension("dir.with.dots/file.txt", "o"));
     }
 
+    @Test
     public void testExtractFileName() {
         String path1 = "home" + File.separator + "tom" + File.separator + "tesfile1.dim";
         String path2 = "C:" + File.separator + "Data" + File.separator + "TestFiles" + File.separator + "tesfile2.dim";
@@ -136,6 +142,7 @@ public class FileUtilsTest extends TestCase {
         assertEquals(expected3, FileUtils.getFileNameFromPath(path3));
     }
 
+    @Test
     public void testDeleteFileTree() {
         File treeRoot = GlobalTestConfig.getBeamTestDataOutputDirectory();
         File firstDir = new File(treeRoot, "firstDir");
@@ -185,6 +192,7 @@ public class FileUtilsTest extends TestCase {
         }
     }
 
+    @Test
     public void testDeleteFileTreeExceptions() {
         try {
             FileUtils.deleteTree(null);
@@ -193,6 +201,7 @@ public class FileUtilsTest extends TestCase {
         }
     }
 
+    @Test
     public void testDeleteFileTree_DeleteEmptyDirectories() {
         File treeRoot = GlobalTestConfig.getBeamTestDataOutputDirectory();
         treeRoot.mkdirs();
@@ -211,6 +220,7 @@ public class FileUtilsTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetFileAsURL() throws MalformedURLException {
         final File file = new File("/dummy/hugo/daten").getAbsoluteFile();
 
@@ -220,6 +230,7 @@ public class FileUtilsTest extends TestCase {
         assertEquals(file.toURI().toURL(), fileURL);
     }
 
+    @Test
     public void testGetFileAsURLWithIllegalChars() throws MalformedURLException, URISyntaxException {
         final File file = new File("/dummy/hu\tgo/daten").getAbsoluteFile();
 
@@ -233,6 +244,7 @@ public class FileUtilsTest extends TestCase {
         assertEquals(file, new File(fileURL.toURI()));
     }
 
+    @Test
     public void testThatGetUrlAsFileIsTheInverseOfGetFileAsUrl() throws MalformedURLException,
                                                                         URISyntaxException {
         final File file1 = new File("/dummy/hugo/daten").getAbsoluteFile();
@@ -240,6 +252,7 @@ public class FileUtilsTest extends TestCase {
         assertEquals(file1, file2);
     }
 
+    @Test
     public void testGetDisplayText() {
         try {
             FileUtils.getDisplayText(null, 50);
@@ -266,18 +279,23 @@ public class FileUtilsTest extends TestCase {
                      FileUtils.getDisplayText(file, 80));
     }
 
+    @Test
     public void testRelativizeOfPaths() throws URISyntaxException, IOException {
         Path folder = Paths.get(getClass().getResource("/resource-testdata/auxdata").toURI());
+        Path folderWithSlash = Paths.get(getClass().getResource("/resource-testdata/auxdata/").toURI());
         Path file = Paths.get(getClass().getResource("/resource-testdata/auxdata/file-1.txt").toURI());
-        Path relFile = folder.relativize(file);
-        assertEquals("file-1.txt", relFile.toString());
+        assertEquals("file-1.txt", folder.relativize(file).toString());
+        assertEquals("file-1.txt", folderWithSlash.relativize(file).toString());
 
         final URI jarURI = FileUtils.ensureJarURI(getClass().getResource("/resource-testdata.jar").toURI());
         FileSystems.newFileSystem(jarURI, Collections.emptyMap());
         Path folder2 = Paths.get(jarURI).resolve("auxdata");
+        Path folder2WithSlash = Paths.get(jarURI).resolve("auxdata/");
+        // the trailing slash makes a difference when used in path with a jar file.
+        assertFalse(Files.isSameFile(folder2, folder2WithSlash));
         Path file2 = Paths.get(jarURI).resolve("auxdata").resolve("file-1.txt");
-        Path relFile2 = folder2.relativize(file2);
-        assertEquals("file-1.txt", relFile2.toString());
+        assertEquals("file-1.txt", folder2.relativize(file2).toString());
+        assertEquals("../auxdata/file-1.txt", folder2WithSlash.relativize(file2).toString());
 
     }
 }
