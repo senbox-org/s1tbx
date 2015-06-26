@@ -39,6 +39,7 @@ import org.esa.snap.gpf.ReaderUtils;
 import org.esa.snap.framework.dataop.downloadable.StatusProgressMonitor;
 import org.esa.snap.gpf.ThreadManager;
 import org.esa.snap.util.ProductUtils;
+import org.esa.snap.util.SystemUtils;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -67,7 +68,8 @@ public class RangeShiftOp extends Operator {
     @TargetProduct(description = "The target product which will use the master's grid.")
     private Product targetProduct = null;
 
-    @Parameter(valueSet = {"512", "1024", "2048"}, defaultValue = "512", label = "Registration Window Size")
+    @Parameter(valueSet = {"32", "64", "128","256", "512", "1024", "2048"}, defaultValue = "512",
+            label = "Registration Window Size")
     private String registrationWindowSize = "512";
 
     @Parameter(valueSet = {"2", "4", "8", "16"}, defaultValue = "4", label = "Interpolation Factor")
@@ -289,6 +291,7 @@ public class RangeShiftOp extends Operator {
         final int numBursts = rectangleArray.length;
         final List<Double> azOffsetArray = new ArrayList<>(numBursts);
         final List<Double> rgOffsetArray = new ArrayList<>(numBursts);
+        final List<Integer> y0Array = new ArrayList<>(numBursts);
 
         final StatusProgressMonitor status = new StatusProgressMonitor(StatusProgressMonitor.TYPE.SUBTASK);
         status.beginTask("Estimating azimuth and range offsets... ", numBursts);
@@ -313,6 +316,7 @@ public class RangeShiftOp extends Operator {
                             synchronized(azOffsetArray) {
                                 azOffsetArray.add(offset[0]);
                                 rgOffsetArray.add(offset[1]);
+                                y0Array.add(rectangle.y);
                             }
                         } catch (Throwable e) {
                             OperatorUtils.catchOperatorException("estimateOffset", e);
@@ -336,6 +340,12 @@ public class RangeShiftOp extends Operator {
         for (int i = 0; i < azOffsetArray.size(); i++) {
             final double azShift = azOffsetArray.get(i);
             final double rgShift = rgOffsetArray.get(i);
+            final int b = getBurstIndex(y0Array.get(i), rectangleArray);
+            if (b != -1) {
+                SystemUtils.LOG.info("RangeShiftOp: burst = " + b + ", azimuth offset = " + azShift);
+                SystemUtils.LOG.info("RangeShiftOp: burst = " + b + ", range offset = " + rgShift);
+            }
+
             if (azShift == noDataValue || rgShift == noDataValue) {
                 continue;
             }
@@ -352,6 +362,18 @@ public class RangeShiftOp extends Operator {
         }
 
         isOffsetAvailable = true;
+        SystemUtils.LOG.info("RangeShiftOp: whole image azimuth offset = " + azOffset);
+        SystemUtils.LOG.info("RangeShiftOp: whole image range offset = " + rgOffset);
+    }
+
+    private int getBurstIndex(final int y0, final Rectangle[] rectangleArray) {
+
+        for (int i = 0; i < rectangleArray.length; i++) {
+            if (y0 == rectangleArray[i].y) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
