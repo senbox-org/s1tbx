@@ -280,7 +280,7 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void testRelativizeOfPaths() throws URISyntaxException, IOException {
+    public void testResolvingDirectories() throws URISyntaxException, IOException {
         Path folder = Paths.get(getClass().getResource("/resource-testdata/auxdata").toURI());
         Path folderWithSlash = Paths.get(getClass().getResource("/resource-testdata/auxdata/").toURI());
         Path file = Paths.get(getClass().getResource("/resource-testdata/auxdata/file-1.txt").toURI());
