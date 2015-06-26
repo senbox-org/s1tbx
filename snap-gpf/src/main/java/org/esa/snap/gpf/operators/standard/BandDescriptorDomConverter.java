@@ -4,14 +4,10 @@ import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.bc.ceres.binding.dom.DomElement;
-import com.bc.ceres.binding.dom.XppDomElement;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by luis on 24/06/2015.
- */
 public class BandDescriptorDomConverter implements DomConverter {
 
     public Class<?> getValueType() {
@@ -110,72 +106,58 @@ public class BandDescriptorDomConverter implements DomConverter {
     public void convertValueToDom(Object value, DomElement parentElement) throws ConversionException {
         final BandMathsOp.BandDescriptor[] bandDescriptors = (BandMathsOp.BandDescriptor[])value;
 
-        DomElement targetBands = parentElement;
-
         for(BandMathsOp.BandDescriptor bandDescriptor : bandDescriptors) {
-            DomElement targetBand = new XppDomElement("targetBand");
-            targetBands.addChild(targetBand);
+            DomElement targetBand = parentElement.createChild("targetBand");
 
-            DomElement name = new XppDomElement("name");
+            final DomElement name = targetBand.createChild("name");
             name.setValue(bandDescriptor.name);
-            targetBand.addChild(name);
 
-            DomElement type = new XppDomElement("type");
+
+            DomElement type = targetBand.createChild("type");
             type.setValue(bandDescriptor.type);
-            targetBand.addChild(type);
 
-            DomElement expression = new XppDomElement("expression");
+            DomElement expression = targetBand.createChild("expression");
             expression.setValue(bandDescriptor.expression);
-            targetBand.addChild(expression);
 
-            DomElement description = new XppDomElement("description");
+            DomElement description = targetBand.createChild("description");
             description.setValue(bandDescriptor.description);
-            targetBand.addChild(description);
 
-            DomElement unit = new XppDomElement("unit");
+            DomElement unit = targetBand.createChild("unit");
             unit.setValue(bandDescriptor.unit);
-            targetBand.addChild(unit);
 
             if(bandDescriptor.validExpression != null) {
-                DomElement validExpression = new XppDomElement("validExpression");
+                DomElement validExpression = targetBand.createChild("validExpression");
                 validExpression.setValue(bandDescriptor.validExpression);
-                targetBand.addChild(validExpression);
             }
 
             if(bandDescriptor.noDataValue != null) {
-                DomElement noDataValue = new XppDomElement("noDataValue");
+                DomElement noDataValue = targetBand.createChild("noDataValue");
                 noDataValue.setValue(String.valueOf(bandDescriptor.noDataValue));
-                targetBand.addChild(noDataValue);
             }
 
             if(bandDescriptor.spectralBandIndex != null) {
-                DomElement spectralBandIndex = new XppDomElement("spectralBandIndex");
+                DomElement spectralBandIndex = targetBand.createChild("spectralBandIndex");
                 spectralBandIndex.setValue(String.valueOf(bandDescriptor.spectralBandIndex));
-                targetBand.addChild(spectralBandIndex);
             }
 
             if(bandDescriptor.spectralWavelength != null) {
-                DomElement spectralWavelength = new XppDomElement("spectralWavelength");
+                DomElement spectralWavelength = targetBand.createChild("spectralWavelength");
                 spectralWavelength.setValue(String.valueOf(bandDescriptor.spectralWavelength));
-                targetBand.addChild(spectralWavelength);
             }
 
             if(bandDescriptor.spectralBandwidth != null) {
-                DomElement spectralBandwidth = new XppDomElement("spectralBandwidth");
+                DomElement spectralBandwidth = targetBand.createChild("spectralBandwidth");
                 spectralBandwidth.setValue(String.valueOf(bandDescriptor.spectralBandwidth));
-                targetBand.addChild(spectralBandwidth);
             }
 
             if(bandDescriptor.scalingOffset != null) {
-                DomElement scalingOffset = new XppDomElement("scalingOffset");
+                DomElement scalingOffset = targetBand.createChild("scalingOffset");
                 scalingOffset.setValue(String.valueOf(bandDescriptor.scalingOffset));
-                targetBand.addChild(scalingOffset);
             }
 
             if(bandDescriptor.scalingFactor != null) {
-                DomElement scalingFactor = new XppDomElement("scalingFactor");
+                DomElement scalingFactor = targetBand.createChild("scalingFactor");
                 scalingFactor.setValue(String.valueOf(bandDescriptor.scalingFactor));
-                targetBand.addChild(scalingFactor);
             }
         }
     }
