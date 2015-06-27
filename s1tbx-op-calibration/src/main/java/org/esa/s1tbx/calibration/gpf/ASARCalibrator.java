@@ -38,9 +38,8 @@ import org.esa.snap.gpf.OperatorUtils;
 import org.esa.snap.gpf.TileIndex;
 import org.esa.snap.util.Maths;
 import org.esa.snap.util.ResourceInstaller;
-import org.esa.snap.util.Settings;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -350,7 +349,11 @@ public class ASARCalibrator extends BaseCalibrator implements Calibrator {
     static int getNumOfRecordsInMainProcParam(Product sourceProduct) throws OperatorException {
 
         final MetadataElement origRoot = AbstractMetadata.getOriginalProductMetadata(sourceProduct);
-        final MetadataElement dsd = origRoot.getElement("DSD").getElement("DSD.3");
+        final MetadataElement dsdElem = origRoot.getElement("DSD");
+        if (dsdElem == null) {
+            throw new OperatorException("DSD not found");
+        }
+        final MetadataElement dsd = dsdElem.getElement("DSD.3");
         if (dsd == null) {
             throw new OperatorException("DSD not found");
         }
