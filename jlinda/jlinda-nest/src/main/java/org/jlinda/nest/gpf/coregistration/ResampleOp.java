@@ -100,7 +100,7 @@ public class ResampleOp extends Operator {
     @Parameter(description = "Refine estimated offsets using a-priori DEM",
             defaultValue = "false",
             label = "Offset Refinement Based on DEM")
-    private boolean cpmDemRefinement = false;
+    private Boolean cpmDemRefinement = false;
 
     @Parameter(description = "The digital elevation model.",
             defaultValue = "SRTM 3Sec", 
@@ -110,7 +110,7 @@ public class ResampleOp extends Operator {
     @Parameter(description = "Show the Residuals file in a text viewer",
             defaultValue = "false",
             label = "Show Residuals")
-    private boolean openResidualsFile = false;
+    private Boolean openResidualsFile = false;
 
     // band fields
     private Band masterBand = null;
