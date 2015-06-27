@@ -98,7 +98,7 @@ public class ScreenPixelConverter {
         final double[] vpts = new double[2];
         i2m.transform(ipts, 0, mpts, 0, 1);
         m2v.transform(mpts, 0, vpts, 0, 1);
-        return new Point.Double(Math.max(0, vpts[0]), Math.max(0, vpts[1]));
+        return new Point.Double(vpts[0], vpts[1]);
     }
 
     public void pixelToScreen(final double[] inpts, final double[] vpts) {

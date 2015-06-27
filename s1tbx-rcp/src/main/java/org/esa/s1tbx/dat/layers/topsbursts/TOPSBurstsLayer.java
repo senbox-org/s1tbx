@@ -19,16 +19,20 @@ import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.LayerType;
 import com.bc.ceres.grender.Rendering;
-import org.esa.s1tbx.dat.graphics.GraphicShape;
+import org.esa.s1tbx.dat.graphics.GraphicText;
 import org.esa.s1tbx.dat.layers.LayerSelection;
 import org.esa.s1tbx.dat.layers.ScreenPixelConverter;
 import org.esa.snap.datamodel.AbstractMetadata;
-import org.esa.snap.framework.datamodel.*;
+import org.esa.snap.framework.datamodel.GeoCoding;
+import org.esa.snap.framework.datamodel.GeoPos;
+import org.esa.snap.framework.datamodel.MetadataElement;
+import org.esa.snap.framework.datamodel.PixelPos;
+import org.esa.snap.framework.datamodel.Product;
+import org.esa.snap.framework.datamodel.RasterDataNode;
+import org.esa.snap.util.SystemUtils;
 
 import java.awt.*;
-import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,8 +46,8 @@ public class TOPSBurstsLayer extends Layer implements LayerSelection {
 
     private final List<Swath> swathList = new ArrayList<>(5);
 
-    private final static BasicStroke thickStroke = new BasicStroke(4);
-    private final static BasicStroke thinStroke = new BasicStroke(2);
+    private final static BasicStroke thickStroke = new BasicStroke(4, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f, new float[]{5.0f}, 0.0f);
+    private final static BasicStroke thinStroke = new BasicStroke(2);//, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10.0f, new float[]{5.0f}, 0.0f);
 
     public TOPSBurstsLayer(LayerType layerType, PropertySet configuration) {
         super(layerType, configuration);
@@ -114,6 +118,9 @@ public class TOPSBurstsLayer extends Layer implements LayerSelection {
             for(Burst burst : burstList) {
                 burst.render(g, screenPixel);
             }
+            final PixelPos pos = burstList.get(0).getFirstPoint();
+            Point.Double p = screenPixel.pixelToScreen(pos.x, pos.y);
+            GraphicText.highlightText(g, Color.CYAN, name, (int)p.x +10, (int)p.y +20, Color.BLUE);
         }
     }
 
@@ -138,18 +145,30 @@ public class TOPSBurstsLayer extends Layer implements LayerSelection {
             }
 
             final GeoCoding geoCoding = product.getGeoCoding();
+            final GeoPos pos0 = geoCoding.getGeoPos(new PixelPos(0,0), null);
+            final GeoPos posH = geoCoding.getGeoPos(new PixelPos(0,product.getSceneRasterHeight()), null);
+            final double minLon = Math.min(pos0.getLon(), posH.getLon());
+
             final MetadataElement[] boundaryPoints = lineBoundaryPoints.getElements();
             for (MetadataElement boundaryPoint : boundaryPoints) {
                 double lat = boundaryPoint.getAttributeDouble("lat");
                 double lon = boundaryPoint.getAttributeDouble("lon");
 
                 PixelPos pixelPos = geoCoding.getPixelPos(new GeoPos(lat, lon), null);
-                //if(!pixelPos.isValid()) {
-                //    System.out.println("not valid "+pixelPos.toString());
-                //    pixelPos = geoCoding.getPixelPos(new GeoPos(lat, lon), null);
-               // }
+                if(!pixelPos.isValid()) {
+                    lon = Math.max(minLon, lon);
+                    pixelPos = geoCoding.getPixelPos(new GeoPos(lat, lon), null);
+                    if(!pixelPos.isValid()) {
+                        SystemUtils.LOG.severe("oops "+lat +", "+lon);
+                        pixelPos = geoCoding.getPixelPos(new GeoPos(lat, lon), null);
+                    }
+                }
                 posList.add(pixelPos);
             }
+        }
+
+        public PixelPos getFirstPoint() {
+            return firstLinePosList.get(0);
         }
 
         public void render(final Graphics2D g, final ScreenPixelConverter screenPixel) {
