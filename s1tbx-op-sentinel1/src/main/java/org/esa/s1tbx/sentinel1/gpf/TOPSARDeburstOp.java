@@ -454,6 +454,8 @@ public final class TOPSARDeburstOp extends Operator {
 
     private void addBurstBoundary(final MetadataElement absTgt) {
 
+        final GeoCoding targetGeoCoding = targetProduct.getGeoCoding();
+
         final List<String> swathList = new ArrayList<>(5);
         for(MetadataElement elem : absTgt.getElements()) {
             if(elem.getName().startsWith(AbstractMetadata.BAND_PREFIX)) {
@@ -507,11 +509,13 @@ public final class TOPSARDeburstOp extends Operator {
 
                     final double slrtToPoint = firstPixelTime + p*deltaTime;
 
-                    final MetadataElement firstLinePointElem = createPointElement(firstLineTime, slrtToPoint);
+                    final MetadataElement firstLinePointElem =
+                            createPointElement(firstLineTime, slrtToPoint, targetGeoCoding);
 
                     firstLineElem.addElement(firstLinePointElem);
 
-                    final MetadataElement lastLinePointElem = createPointElement(lastLineTime, slrtToPoint);
+                    final MetadataElement lastLinePointElem =
+                            createPointElement(lastLineTime, slrtToPoint, targetGeoCoding);
 
                     lastLineElem.addElement(lastLinePointElem);
                 }
@@ -524,18 +528,22 @@ public final class TOPSARDeburstOp extends Operator {
         absTgt.addElement(burstBoundary);
     }
 
-    private MetadataElement createPointElement(final double lineTime, final double pixelTime) {
+    private MetadataElement createPointElement(
+            final double lineTime, final double pixelTime, final GeoCoding targetGeoCoding) {
 
         final MetadataElement pointElem = new MetadataElement("BoundaryPoint");
 
-        final double lat = su.getLatitude(lineTime, pixelTime);
-        final double lon = su.getLongitude(lineTime, pixelTime);
+        final int x = (int)((pixelTime - targetSlantRangeTimeToFirstPixel) / targetDeltaSlantRangeTime);
+        final int y = (int)((lineTime - targetFirstLineTime) / targetLineTimeInterval);
+
+        GeoPos geoPos = new GeoPos();
+        targetGeoCoding.getGeoPos(new PixelPos(x, y), geoPos);
 
         pointElem.addAttribute(new MetadataAttribute("lat", ProductData.TYPE_FLOAT32));
-        pointElem.setAttributeDouble("lat", lat);
+        pointElem.setAttributeDouble("lat", geoPos.lat);
 
         pointElem.addAttribute(new MetadataAttribute("lon", ProductData.TYPE_FLOAT32));
-        pointElem.setAttributeDouble("lon", lon);
+        pointElem.setAttributeDouble("lon", geoPos.lon);
 
         return pointElem;
     }
