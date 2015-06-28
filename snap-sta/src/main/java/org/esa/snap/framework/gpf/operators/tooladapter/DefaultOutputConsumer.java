@@ -89,6 +89,7 @@ class DefaultOutputConsumer implements ProcessOutputConsumer {
                 getLogger().severe(matcher.group(1));
             } else {
                 getLogger().info(line);
+                progressMonitor.setSubTaskName(line);
             }
         } catch (Exception ignored) {
         }

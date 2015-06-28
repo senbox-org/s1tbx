@@ -16,11 +16,11 @@
 package org.esa.snap.framework.gpf.descriptor;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.io.StreamException;
 import org.esa.snap.framework.gpf.Operator;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.operators.tooladapter.ToolAdapterConstants;
-import org.esa.snap.framework.gpf.operators.tooladapter.ToolAdapterIO;
 import org.esa.snap.util.StringUtils;
 import org.esa.snap.utils.PrivilegedAccessor;
 
@@ -37,10 +37,14 @@ import java.util.stream.Collectors;
  * @author Ramona Manda
  * @author Cosmin Cara
  */
+@XStreamAlias("operator")
 public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
 
     public static final String SOURCE_PACKAGE = "package";
     public static final String SOURCE_USER = "user";
+    public static final Class[] annotatedClasses = new Class[] {
+            ToolAdapterOperatorDescriptor.class, TemplateParameterDescriptor.class,
+            SystemVariable.class, OSDependentProperty.class };
 
     private String name;
     private Class<? extends Operator> operatorClass;
@@ -62,10 +66,14 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
     private String templateFileLocation;
     private String progressPattern;
     private String errorPattern;
+    @XStreamAlias("variables")
     private List<SystemVariable> variables;
+    @XStreamAlias("parameters")
     private List<TemplateParameterDescriptor> toolParameterDescriptors = new ArrayList<>();
-    private boolean isSystem;
     private String source;
+    private boolean isSystem;
+    @XStreamAlias("osdependent")
+    private List<OSDependentProperty> osDependentProperties;
 
     private DefaultSourceProductDescriptor[] sourceProductDescriptors;
     private DefaultSourceProductsDescriptor sourceProductsDescriptor;
@@ -83,6 +91,7 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         }
         this.variables = new ArrayList<>();
         this.toolParameterDescriptors = new ArrayList<>();
+        this.osDependentProperties = new ArrayList<>();
     }
 
     public ToolAdapterOperatorDescriptor(String name, Class<? extends Operator> operatorClass) {
@@ -146,6 +155,13 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         for (int i = 0; i < obj.getTargetPropertyDescriptors().length; i++) {
             this.targetPropertyDescriptors[i] = ((DefaultTargetPropertyDescriptor) (obj.getTargetPropertyDescriptors()[i]));
         }
+
+        List<OSDependentProperty> propertyList = obj.getOsDependentProperties();
+        if (propertyList != null) {
+            this.osDependentProperties.addAll(propertyList.stream()
+                    .filter(property -> property != null)
+                    .map(OSDependentProperty::createCopy).collect(Collectors.toList()));
+        }
     }
 
     /**
@@ -163,6 +179,12 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
             this.variables.addAll(variableList.stream()
                     .filter(systemVariable -> systemVariable != null)
                     .map(SystemVariable::createCopy).collect(Collectors.toList()));
+        }
+        List<OSDependentProperty> propertyList = obj.getOsDependentProperties();
+        if (propertyList != null) {
+            this.osDependentProperties.addAll(propertyList.stream()
+                    .filter(property -> property != null)
+                    .map(OSDependentProperty::createCopy).collect(Collectors.toList()));
         }
     }
 
@@ -387,7 +409,10 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         String expandedValue = null;
         if (location != null) {
             expandedValue = location.getPath();
-            expandedValue = expandedValue.replace(ToolAdapterConstants.SHELL_EXT, ToolAdapterIO.getShellExtension());
+            String extVar = getOSDependentPropertyValue(ToolAdapterConstants.SHELL_EXT_PROP);
+            if (extVar != null) {
+                expandedValue = expandedValue.replace(ToolAdapterConstants.SHELL_EXT_VAR, extVar);
+            }
             String varKey = null, varVal = null;
             if (expandedValue.contains("$")) {
                 expandedValue = expandedValue.substring(expandedValue.indexOf("$"));
@@ -529,6 +554,26 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         this.variables.add(variable);
     }
 
+    public List<OSDependentProperty> getOsDependentProperties() {
+        if (osDependentProperties == null) {
+            osDependentProperties = new ArrayList<>();
+        }
+        return osDependentProperties;
+    }
+
+    public void addOsDependentProperty(OSDependentProperty property) {
+        this.osDependentProperties.add(property);
+    }
+
+    public String getOSDependentPropertyValue(String name) {
+        String value = null;
+        List<OSDependentProperty> properties = this.osDependentProperties.stream().filter(p -> p.getName().equals(name)).collect(Collectors.toList());
+        if (properties != null && properties.size() == 1) {
+            value = properties.get(0).getValue();
+        }
+        return value;
+    }
+
     /**
      * Creates a deep copy of this operator.
      */
@@ -612,18 +657,10 @@ public class ToolAdapterOperatorDescriptor implements OperatorDescriptor {
         return createXStream(classLoader).toXML(this);
     }
 
-
     private static XStream createXStream(ClassLoader classLoader) {
         XStream xStream = new XStream();
         xStream.setClassLoader(classLoader);
-        xStream.alias("operator", ToolAdapterOperatorDescriptor.class);
-
-        xStream.alias("parameter", TemplateParameterDescriptor.class);
-        xStream.aliasField("parameters", ToolAdapterOperatorDescriptor.class, "toolParameterDescriptors");
-
-        xStream.alias("variable", SystemVariable.class);
-        xStream.aliasField("variables", ToolAdapterOperatorDescriptor.class, "variables");
-
+        xStream.processAnnotations(annotatedClasses);
         return xStream;
     }
 

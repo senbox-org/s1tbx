@@ -23,7 +23,6 @@ import org.esa.snap.framework.gpf.descriptor.ToolAdapterOperatorDescriptor;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * Registry (map) class for mapping ToolAdapterOpSpi-s to adapter names.
@@ -67,7 +66,7 @@ public enum ToolAdapterRegistry {
         if (registeredAdapters.containsKey(operatorName)) {
             registeredAdapters.remove(operatorName);
             registeredAdapters.put(operatorName, operatorSpi);
-            Logger.getGlobal().warning(String.format("An operator with the name %s was already registered", operatorName));
+            //Logger.getGlobal().warning(String.format("An operator with the name %s was already registered", operatorName));
         }
         registeredAdapters.put(operatorName, operatorSpi);
     }

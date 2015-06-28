@@ -54,13 +54,13 @@ public class ToolAdapterIO {
         logger = Logger.getLogger(ToolAdapterIO.class.getName());
         userSubfolders = new String[] { "adapters" };
         shellExtensions = new HashMap<>();
-        shellExtensions.put("win", ".bat");
+        shellExtensions.put("windows", ".bat");
         shellExtensions.put("linux", ".sh");
         shellExtensions.put("macosx", ".sh");
         shellExtensions.put("unsupported", "");
         String sysName = System.getProperty("os.name").toLowerCase();
         if (sysName.contains("windows")) {
-            osFamily = "win";
+            osFamily = "windows";
         } else if (sysName.contains("linux")) {
             osFamily = "linux";
         } else if (sysName.contains("mac")) {
@@ -81,13 +81,15 @@ public class ToolAdapterIO {
     }
 
     public static void saveVariable(String name, String value) {
-        Preferences preferences = getPreferences();
-        if (preferences.get(name, null) == null) {
-            preferences.put(name, value);
-            try {
-                preferences.sync();
-            } catch (BackingStoreException e) {
-                logger.severe(String.format("Cannot set %s value in preferences: %s", name, e.getMessage()));
+        if (value != null && value.length() > 0) {
+            Preferences preferences = getPreferences();
+            if (preferences.get(name, null) == null) {
+                preferences.put(name, value);
+                try {
+                    preferences.sync();
+                } catch (BackingStoreException e) {
+                    logger.severe(String.format("Cannot set %s value in preferences: %s", name, e.getMessage()));
+                }
             }
         }
     }
@@ -95,7 +97,7 @@ public class ToolAdapterIO {
     public static String getVariableValue(String name, String defaultValue) {
         Preferences preferences = getPreferences();
         String retVal = preferences.get(name, null);
-        if (retVal == null && defaultValue != null) {
+        if ((retVal == null || retVal.isEmpty()) && defaultValue != null) {
             saveVariable(name, defaultValue);
             retVal = defaultValue;
         }
@@ -127,7 +129,7 @@ public class ToolAdapterIO {
                 }
             }
         }
-        return ToolAdapterRegistry.INSTANCE.getOperatorMap().values();
+        return Collections.unmodifiableCollection(ToolAdapterRegistry.INSTANCE.getOperatorMap().values());
     }
 
     /**
@@ -155,7 +157,7 @@ public class ToolAdapterIO {
      * Reads the content of the operator Velocity template
      *
      * @param adapterName      The name of the adapter
-     * @return
+     *
      * @throws IOException
      */
     public static String readOperatorTemplate(String adapterName) throws IOException, OperatorException {
@@ -334,6 +336,8 @@ public class ToolAdapterIO {
     public static String getShellExtension() {
         return shellExtensions.get(osFamily);
     }
+
+    public static String getOsFamily() { return osFamily; }
 
     private static List<File> scanForAdapters(File path) throws IOException {
         if (!path.exists() || !path.isDirectory()) {

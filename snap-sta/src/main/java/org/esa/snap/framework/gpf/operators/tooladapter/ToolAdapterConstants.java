@@ -64,5 +64,7 @@ public interface ToolAdapterConstants {
     String PREPROCESSOR_EXTERNAL_TOOL = "preprocessorExternalTool";
     String USER_MODULE_PATH = "user.module.path";
 
-    String SHELL_EXT = "$SHELL_EXT";
+    String SHELL_EXT_PROP = "SHELL_EXT";
+    String SHELL_EXT_VAR = "$" + SHELL_EXT_PROP;
+
 }

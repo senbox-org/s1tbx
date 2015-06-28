@@ -17,6 +17,7 @@ package org.esa.snap.framework.gpf.descriptor;
 
 import com.bc.ceres.core.Assert;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.io.StreamException;
 import org.esa.snap.framework.gpf.OperatorException;
 import org.esa.snap.framework.gpf.operators.tooladapter.ToolAdapterConstants;
@@ -30,7 +31,9 @@ import java.util.List;
 /**
  * @author Ramona Manda
  */
+@XStreamAlias("parameter")
 public class TemplateParameterDescriptor extends ToolParameterDescriptor {
+    @XStreamAlias("toolParameterDescriptors")
     private List<ToolParameterDescriptor> toolParameterDescriptors = new ArrayList<>();
 
     public TemplateParameterDescriptor(){
@@ -144,11 +147,10 @@ public class TemplateParameterDescriptor extends ToolParameterDescriptor {
     private static XStream createXStream(ClassLoader classLoader) {
         XStream xStream = new XStream();
         xStream.setClassLoader(classLoader);
-        xStream.alias("parameter", TemplateParameterDescriptor.class);
-
-        xStream.alias("parameter", TemplateParameterDescriptor.class);
-        xStream.aliasField("toolParameterDescriptors", TemplateParameterDescriptor.class, "toolParameterDescriptors");
-
+        xStream.processAnnotations(TemplateParameterDescriptor.class);
+        //xStream.alias("parameter", TemplateParameterDescriptor.class);
+        //xStream.alias("parameter", TemplateParameterDescriptor.class);
+        //xStream.aliasField("toolParameterDescriptors", TemplateParameterDescriptor.class, "toolParameterDescriptors");
         return xStream;
     }
 

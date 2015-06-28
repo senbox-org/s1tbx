@@ -15,6 +15,7 @@
  */
 package org.esa.snap.framework.gpf.descriptor;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 import org.esa.snap.framework.gpf.operators.tooladapter.ToolAdapterIO;
 
 /**
@@ -23,6 +24,7 @@ import org.esa.snap.framework.gpf.operators.tooladapter.ToolAdapterIO;
  *
  * @author Ramona Manda
  */
+@XStreamAlias("variable")
 public class SystemVariable {
     String key;
     String value;
